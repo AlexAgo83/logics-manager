@@ -3076,6 +3076,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/open-repo-folder",
         "/api/bootstrap-logics",
         "/api/switch-project",
+        "/api/select-project-root",
         "/api/cdx-report-request",
         "/api/cdx-mission-run",
         "/api/cdx-mission-apply-plan",
@@ -3229,6 +3230,18 @@ class LogicsViewerServer(ThreadingHTTPServer):
         self.active_project_id = project_id
         self.repo_root = target
         return self.viewer_payload()
+
+    def switch_project_root(self, project_root: Path) -> dict[str, Any]:
+        target = project_root.expanduser().resolve()
+        if not target.is_dir():
+            raise FileNotFoundError(str(target))
+        if not _looks_like_viewer_project(target):
+            raise ValueError("Selected folder does not look like a project.")
+        project_id = _viewer_project_id(target)
+        if project_id not in self.project_root_by_id:
+            self.project_roots.append(target)
+            self.project_root_by_id[project_id] = target
+        return self.switch_project(project_id)
 
 
 class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
@@ -3948,6 +3961,20 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             except FileNotFoundError as exc:
                 self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
             return
+        if parsed.path == "/api/select-project-root":
+            try:
+                selected = select_project_root_with_native_dialog(self.server.repo_root)
+                if selected is None:
+                    self._send_error_json(HTTPStatus.BAD_REQUEST, "No folder selected.")
+                    return
+                self._send_json({"ok": True, "payload": self.server.switch_project_root(selected)})
+            except RuntimeError as exc:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+            except ValueError as exc:
+                self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
+            except FileNotFoundError as exc:
+                self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
+            return
         if parsed.path == "/api/workshop-command-start":
             try:
                 length = int(self.headers.get("Content-Length", "0") or "0")
@@ -4295,6 +4322,37 @@ def create_viewer_server(
         lan_rw_mode=lan_rw_mode,
         tls_context=tls_context,
     )
+
+
+def select_project_root_with_native_dialog(initial_dir: Path) -> Path | None:
+    try:
+        import tkinter as tk
+        from tkinter import filedialog
+    except Exception as exc:  # noqa: BLE001
+        raise RuntimeError("Native folder picker is not available in this environment.") from exc
+    root = None
+    try:
+        root = tk.Tk()
+        root.withdraw()
+        try:
+            root.attributes("-topmost", True)
+        except Exception:
+            pass
+        selected = filedialog.askdirectory(
+            parent=root,
+            initialdir=str(initial_dir if initial_dir.is_dir() else Path.cwd()),
+            title="Select Logics project folder",
+            mustexist=True,
+        )
+        return Path(selected).expanduser().resolve() if selected else None
+    except Exception as exc:  # noqa: BLE001
+        raise RuntimeError("Unable to open the native folder picker.") from exc
+    finally:
+        if root is not None:
+            try:
+                root.destroy()
+            except Exception:
+                pass
 
 
 def _render_qr_lines(url: str) -> list[str]:

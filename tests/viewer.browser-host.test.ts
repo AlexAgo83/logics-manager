@@ -307,6 +307,40 @@ function createViewerDom(options: {
           })
         };
       }
+      if (url === "/api/select-project-root") {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: {
+              root: "/workspace/selected-project",
+              repoName: "selected-project",
+              repository: {
+                root: "/workspace/selected-project",
+                githubUrl: ""
+              },
+              capabilities: {
+                logics: { state: "ready", available: true, message: "Logics corpus found." },
+                workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
+                git: { state: "missing", available: false, message: "Project is not a Git repository." },
+                ci: { state: "hidden", available: false, message: "No GitHub remote detected for this project." },
+                cdx: { state: "missing", available: false, message: "CDX executable is not available." },
+                cdxRuns: { state: "missing", available: false, message: "CDX is required before assistant runs can be tracked." }
+              },
+              projects: [
+                { id: "project-logics", name: "logics-manager", root: "/workspace/logics-manager", active: false, available: true, hasLogics: true, message: "Logics corpus found." },
+                { id: "project-selected", name: "selected-project", root: "/workspace/selected-project", active: true, available: true, hasLogics: true, message: "Logics corpus found." }
+              ],
+              autoRefreshIntervalSeconds: options.autoRefreshIntervalSeconds ?? 15,
+              autoRefreshIntervalForced: Boolean(options.autoRefreshIntervalForced),
+              items: [
+                { id: "req_003_selected", title: "Selected", stage: "request", relPath: "logics/request/req_003_selected.md", references: [], usedBy: [], indicators: { Status: "Ready" }, isPromoted: false, updatedAt: "2026-06-04T10:00:00" }
+              ],
+              updateInfo: {}
+            }
+          })
+        };
+      }
       if (url === "/api/bootstrap-logics") {
         return {
           ok: true,
@@ -1621,6 +1655,30 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 docs");
   });
 
+  it("opens a folder picker from the topbar project menu", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+
+    const switcher = dom.window.document.getElementById("viewer-repo-pill") as HTMLButtonElement | null;
+    const menu = dom.window.document.getElementById("viewer-project-menu") as HTMLElement | null;
+    for (let attempt = 0; attempt < 10 && !menu?.textContent?.includes("Choose folder..."); attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+    switcher?.click();
+    expect(menu?.hidden).toBe(false);
+    expect(menu?.textContent).toContain("Choose folder...");
+
+    const picker = menu?.querySelector("[data-viewer-project-pick]") as HTMLButtonElement | null;
+    picker?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/select-project-root");
+    expect(dom.window.document.querySelector("[data-viewer-project-label]")?.textContent).toBe("selected-project");
+    expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 docs");
+  });
+
   it("closes the project menu when clicking outside it or pressing Escape", async () => {
     const { dom } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();
@@ -2033,9 +2091,12 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
     await flushViewerAsync();
 
-    const label = dom.window.document.querySelector("[data-viewer-workshop-terminal-rename]") as HTMLElement | null;
+    let label = dom.window.document.querySelector("[data-viewer-workshop-terminal-rename]") as HTMLElement | null;
     expect(label?.textContent).toBe("shell");
-    label?.dispatchEvent(new dom.window.Event("dblclick", { bubbles: true }));
+    label?.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true, detail: 1 }));
+    await flushViewerAsync();
+    label = dom.window.document.querySelector("[data-viewer-workshop-terminal-rename]") as HTMLElement | null;
+    label?.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true, detail: 2 }));
     await flushViewerAsync();
 
     const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;

@@ -5149,8 +5149,26 @@
     const sessions = cdxSessions(latestCdxStatusPayload?.status || {});
     return sessions
       .filter((session) => session && typeof session === "object" && session.enabled !== false)
-      .map((session) => String(cdxField(session, ["session_name", "name", "id", "value"], "")).trim())
+      .map((session) => {
+        const name = String(cdxField(session, ["session_name", "name", "id", "value"], "")).trim();
+        return name ? { name, label: formatCustomTerminalCdxSessionOption(session, name) } : null;
+      })
       .filter(Boolean);
+  }
+
+  function formatCustomTerminalCdxSessionOption(session, name) {
+    const parts = [name];
+    const title = String(cdxField(session, ["title", "label", "description"], "")).trim();
+    if (title && title !== name) parts.push(title);
+    const provider = String(cdxField(session, ["provider", "backend"], "")).trim();
+    const model = String(cdxField(session, ["model", "model_name", "modelName"], "")).trim();
+    const runtime = [provider, model].filter(Boolean).join("/");
+    if (runtime) parts.push(runtime);
+    const state = String(cdxField(session, ["status", "state", "auth_status", "authStatus"], "")).trim();
+    if (state) parts.push(state);
+    const remaining = cdxRemainingPct(session);
+    if (remaining !== null) parts.push(`${remaining}% left`);
+    return parts.join(" · ");
   }
 
   async function showCustomTerminalModal() {
@@ -5164,7 +5182,7 @@
       const body = modal.querySelector(".viewer-themed-modal__body");
       const select = document.createElement("select");
       select.className = "viewer-themed-modal__select";
-      select.innerHTML = `<option value="">Custom command</option>${sessions.map((name) => `<option value="${escapeHtml(name)}">CDX: ${escapeHtml(name)}</option>`).join("")}`;
+      select.innerHTML = `<option value="">Custom command</option>${sessions.map((session) => `<option value="${escapeHtml(session.name)}">${escapeHtml(session.label)}</option>`).join("")}`;
       const input = document.createElement("input");
       input.className = "viewer-themed-modal__input";
       input.type = "text";

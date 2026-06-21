@@ -2376,6 +2376,7 @@ describe("local viewer browser host", () => {
     const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
     const select = modal?.querySelector(".viewer-themed-modal__select") as HTMLSelectElement | null;
     expect(Array.from(select?.options || []).map((option) => option.value)).toContain("session-1");
+    expect(Array.from(select?.options || []).map((option) => option.textContent)).toContain("session-1 · Logics work · gpt-5-codex · active");
     select!.value = "session-1";
     select!.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
     (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();

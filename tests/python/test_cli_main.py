@@ -3024,6 +3024,76 @@ def test_main_runs_native_bootstrap_repairs_stale_instructions(
     assert "python3 -m logics_manager flow finish task" in instructions_text
 
 
+def test_main_runs_native_bootstrap_creates_local_assistant_bridge(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+
+    payload = bootstrap_payload(repo_root, check=False)
+
+    assert payload["ok"] is True
+    logics_text = (repo_root / "LOGICS.md").read_text(encoding="utf-8")
+    agents_text = (repo_root / "AGENTS.md").read_text(encoding="utf-8")
+    gitignore_text = (repo_root / ".gitignore").read_text(encoding="utf-8")
+    assert "logics-manager:managed:start" in logics_text
+    assert "Canonical generated instructions live in `logics/instructions.md`." in logics_text
+    assert "If unmanaged notes in this file conflict with this section" in logics_text
+    assert "logics-manager release status" in logics_text
+    assert "logics-manager release evidence add" in logics_text
+    assert "@LOGICS.md" in agents_text
+    assert "LOGICS.md" in gitignore_text
+    assert "AGENTS.md" in gitignore_text
+
+
+def test_main_runs_native_bootstrap_refreshes_managed_bridge_without_overwriting_local_notes(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "LOGICS.md").write_text(
+        "\n".join(
+            [
+                "# Local Notes",
+                "",
+                "Keep this repo-specific instruction.",
+                "",
+                "<!-- logics-manager:managed:start -->",
+                "old generated content",
+                "<!-- logics-manager:managed:end -->",
+                "",
+                "Local footer.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    payload = bootstrap_payload(repo_root, check=False)
+
+    assert "LOGICS.md" in payload["updated_paths"]
+    logics_text = (repo_root / "LOGICS.md").read_text(encoding="utf-8")
+    assert "Keep this repo-specific instruction." in logics_text
+    assert "Local footer." in logics_text
+    assert "old generated content" not in logics_text
+    assert "logics-manager release evidence add" in logics_text
+
+
+def test_main_runs_native_bootstrap_puts_managed_bridge_before_unmanaged_logics_notes(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    (repo_root / "LOGICS.md").write_text("# Old Instructions\n\nUse a stale command.\n", encoding="utf-8")
+
+    payload = bootstrap_payload(repo_root, check=False)
+
+    assert "LOGICS.md" in payload["updated_paths"]
+    logics_text = (repo_root / "LOGICS.md").read_text(encoding="utf-8")
+    assert logics_text.index("logics-manager:managed:start") < logics_text.index("## Unmanaged Local Notes")
+    assert "Use a stale command." in logics_text
+
+
 def test_main_runs_native_bootstrap_check_reports_stale_instructions(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

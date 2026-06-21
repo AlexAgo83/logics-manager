@@ -8,6 +8,10 @@ from .assist import _build_claude_instructions
 
 
 WORKFLOW_DIRS: tuple[str, ...] = ("request", "backlog", "tasks", "specs", "product", "architecture", "external", ".cache")
+MANAGED_LOGICS_START = "<!-- logics-manager:managed:start -->"
+MANAGED_LOGICS_END = "<!-- logics-manager:managed:end -->"
+AGENTS_LOGICS_REFERENCE = "@LOGICS.md"
+LOCAL_ASSISTANT_GITIGNORE_ENTRIES = ("AGENTS.md", "LOGICS.md")
 
 
 def _workflow_directories(repo_root: Path) -> list[Path]:
@@ -32,11 +36,64 @@ def _remove_legacy_runtime_paths(repo_root: Path, *, check: bool) -> list[str]:
     return removed_paths
 
 
+def _logics_bridge_content() -> str:
+    return "\n".join(
+        [
+            "# Logics Local Assistant Bridge",
+            "",
+            MANAGED_LOGICS_START,
+            "This local file is refreshed by `logics-manager bootstrap`.",
+            "Canonical generated instructions live in `logics/instructions.md`.",
+            "If unmanaged notes in this file conflict with this section, follow this managed section.",
+            "",
+            "For Logics workflow work in this repository:",
+            "- Read `logics/instructions.md` before editing workflow docs.",
+            "- Prefer `logics-manager status`, `health`, `audit`, and `lint` for workflow state and validation.",
+            "- Use `logics-manager sync read-doc|list-docs|search-docs|context-pack` for bounded document context.",
+            "- Use `logics-manager flow ...` for request, backlog, and task lifecycle changes.",
+            "- Use `logics-manager release status` before claiming release readiness.",
+            "- Record release proof with `logics-manager release evidence add ...`.",
+            "- Run `logics-manager bootstrap` after updating Logics Manager to refresh this bridge.",
+            MANAGED_LOGICS_END,
+            "",
+        ]
+    )
+
+
+def _managed_logics_block() -> str:
+    content = _logics_bridge_content()
+    start = content.index(MANAGED_LOGICS_START)
+    end = content.index(MANAGED_LOGICS_END) + len(MANAGED_LOGICS_END)
+    return content[start:end]
+
+
+def _merge_managed_logics_bridge(existing: str | None) -> str:
+    desired_block = _managed_logics_block()
+    if existing is None or not existing.strip():
+        return _logics_bridge_content()
+    if MANAGED_LOGICS_START in existing and MANAGED_LOGICS_END in existing:
+        start = existing.index(MANAGED_LOGICS_START)
+        end = existing.index(MANAGED_LOGICS_END) + len(MANAGED_LOGICS_END)
+        merged = existing[:start] + desired_block + existing[end:]
+    else:
+        merged = _logics_bridge_content() + "\n## Unmanaged Local Notes\n\n" + existing
+    return merged if merged.endswith("\n") else merged + "\n"
+
+
+def _ensure_line(text: str, line: str) -> str:
+    lines = text.splitlines()
+    if line in {entry.strip() for entry in lines}:
+        return text if text.endswith("\n") else text + "\n"
+    prefix = text if text.endswith("\n") or not text else text + "\n"
+    return prefix + line + "\n"
+
+
 def bootstrap_payload(repo_root: Path, *, check: bool) -> dict[str, object]:
     logics_root = repo_root / "logics"
     instructions_manifest = _build_claude_instructions(repo_root)
     directory_actions: list[dict[str, object]] = []
     created_paths: list[str] = []
+    updated_paths: list[str] = []
     removed_paths: list[str] = []
     missing_paths: list[str] = []
 
@@ -90,7 +147,59 @@ def bootstrap_payload(repo_root: Path, *, check: bool) -> dict[str, object]:
         missing_paths.append("logics/instructions.md")
         if not check:
             instructions_path.write_text(instructions_content, encoding="utf-8")
-            created_paths.append("logics/instructions.md")
+            (created_paths if instructions_missing else updated_paths).append("logics/instructions.md")
+
+    logics_bridge_path = repo_root / "LOGICS.md"
+    existing_logics_bridge: str | None = None
+    logics_bridge_missing = not logics_bridge_path.exists()
+    logics_bridge_stale = False
+    if not logics_bridge_missing:
+        try:
+            existing_logics_bridge = logics_bridge_path.read_text(encoding="utf-8")
+            logics_bridge_stale = _merge_managed_logics_bridge(existing_logics_bridge) != existing_logics_bridge
+        except Exception:
+            logics_bridge_stale = True
+    if logics_bridge_missing or logics_bridge_stale:
+        missing_paths.append("LOGICS.md")
+        if not check:
+            next_content = _merge_managed_logics_bridge(existing_logics_bridge)
+            logics_bridge_path.write_text(next_content, encoding="utf-8")
+            (created_paths if logics_bridge_missing else updated_paths).append("LOGICS.md")
+
+    agents_path = repo_root / "AGENTS.md"
+    agents_missing = not agents_path.exists()
+    agents_stale = False
+    agents_text = ""
+    if not agents_missing:
+        try:
+            agents_text = agents_path.read_text(encoding="utf-8")
+            agents_stale = _ensure_line(agents_text, AGENTS_LOGICS_REFERENCE) != agents_text
+        except Exception:
+            agents_stale = True
+    if agents_missing or agents_stale:
+        missing_paths.append("AGENTS.md")
+        if not check:
+            next_agents = _ensure_line(agents_text, AGENTS_LOGICS_REFERENCE)
+            agents_path.write_text(next_agents, encoding="utf-8")
+            (created_paths if agents_missing else updated_paths).append("AGENTS.md")
+
+    gitignore_path = repo_root / ".gitignore"
+    gitignore_missing = not gitignore_path.exists()
+    gitignore_text = ""
+    gitignore_next = ""
+    if not gitignore_missing:
+        try:
+            gitignore_text = gitignore_path.read_text(encoding="utf-8")
+        except Exception:
+            gitignore_text = ""
+    gitignore_next = gitignore_text
+    for entry in LOCAL_ASSISTANT_GITIGNORE_ENTRIES:
+        gitignore_next = _ensure_line(gitignore_next, entry)
+    if gitignore_missing or gitignore_next != gitignore_text:
+        missing_paths.append(".gitignore")
+        if not check:
+            gitignore_path.write_text(gitignore_next, encoding="utf-8")
+            (created_paths if gitignore_missing else updated_paths).append(".gitignore")
 
     ok = not missing_paths if check else True
     return {
@@ -100,6 +209,7 @@ def bootstrap_payload(repo_root: Path, *, check: bool) -> dict[str, object]:
         "ok": ok,
         "missing_paths": missing_paths,
         "created_paths": created_paths,
+        "updated_paths": updated_paths,
         "removed_paths": removed_paths,
         "directory_actions": directory_actions,
         "claude_instruction_line_count": instructions_manifest["line_count"],
@@ -125,6 +235,10 @@ def render_bootstrap(payload: dict[str, object], *, output_format: str) -> str:
         lines.append("- created:")
         for path in payload["created_paths"]:
             lines.append(f"  - {path}")
-    else:
+    if payload.get("updated_paths"):
+        lines.append("- updated:")
+        for path in payload["updated_paths"]:
+            lines.append(f"  - {path}")
+    if not payload["created_paths"] and not payload.get("updated_paths"):
         lines.append("- nothing to create")
     return "\n".join(lines)

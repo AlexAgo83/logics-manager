@@ -3040,7 +3040,12 @@ def test_main_runs_native_bootstrap_creates_local_assistant_bridge(
     assert "Canonical generated instructions live in `logics/instructions.md`." in logics_text
     assert "If unmanaged notes in this file conflict with this section" in logics_text
     assert "logics-manager release status" in logics_text
+    assert "logics-manager release plan <version>" in logics_text
     assert "logics-manager release evidence add" in logics_text
+    assert "logics-manager flow finish task <path>" in logics_text
+    assert "logics-manager sync refresh-mermaid-signatures" in logics_text
+    assert "logics-manager view" in logics_text
+    assert "repo-relative, never absolute filesystem paths" in logics_text
     assert "@LOGICS.md" in agents_text
     assert "LOGICS.md" in gitignore_text
     assert "AGENTS.md" in gitignore_text
@@ -3079,7 +3084,7 @@ def test_main_runs_native_bootstrap_refreshes_managed_bridge_without_overwriting
     assert "logics-manager release evidence add" in logics_text
 
 
-def test_main_runs_native_bootstrap_puts_managed_bridge_before_unmanaged_logics_notes(
+def test_main_runs_native_bootstrap_replaces_unmanaged_obsolete_logics_bridge(
     tmp_path: Path,
 ) -> None:
     repo_root = tmp_path / "logics-repo"
@@ -3090,8 +3095,9 @@ def test_main_runs_native_bootstrap_puts_managed_bridge_before_unmanaged_logics_
 
     assert "LOGICS.md" in payload["updated_paths"]
     logics_text = (repo_root / "LOGICS.md").read_text(encoding="utf-8")
-    assert logics_text.index("logics-manager:managed:start") < logics_text.index("## Unmanaged Local Notes")
-    assert "Use a stale command." in logics_text
+    assert "logics-manager:managed:start" in logics_text
+    assert "Use a stale command." not in logics_text
+    assert "Unmanaged Local Notes" not in logics_text
 
 
 def test_main_runs_native_bootstrap_check_reports_stale_instructions(

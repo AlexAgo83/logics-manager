@@ -6,7 +6,7 @@
 - Added an embedded project folder picker and bootstrap prompt so the viewer can recover when a selected folder cannot be opened directly.
 - Added viewer server restart controls and getting-started guidance for first-run or recovery flows.
 - Enriched viewer recent activity with timestamped Git history and commit events.
-- Added a bootstrap-managed local assistant bridge through `LOGICS.md`, `AGENTS.md`, and `.gitignore` refresh handling while preserving unmanaged local notes.
+- Added a bootstrap-managed local assistant bridge through `LOGICS.md`, `AGENTS.md`, and `.gitignore` refresh handling, with release, lifecycle, viewer, MCP, and document hygiene guidance refreshed from the CLI.
 
 ## Fixes
 

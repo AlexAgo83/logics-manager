@@ -1431,6 +1431,105 @@ def git_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
     }
 
 
+def _run_git_mutation(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
+    command = ["git", *args]
+    git_runner = runner or subprocess.run
+    return git_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=_scaled_timeout(repo_root, 30))
+
+
+def _first_git_error_line(result: subprocess.CompletedProcess[str], fallback: str) -> str:
+    return (result.stderr or result.stdout or fallback).strip().splitlines()[0]
+
+
+def git_commit_payload(
+    repo_root: Path,
+    files: list[str],
+    message: str,
+    *,
+    runner: Any | None = None,
+    which: Any | None = None,
+) -> dict[str, Any]:
+    git_which = which or shutil.which
+    if not git_which("git"):
+        return {"state": "unavailable", "message": "Git is not available on PATH."}
+    commit_message = str(message or "").strip()
+    if not commit_message:
+        return {"state": "error", "message": "Commit message is required."}
+    if len(commit_message) > 500:
+        return {"state": "error", "message": "Commit message is too long."}
+
+    normalized_files: list[str] = []
+    seen: set[str] = set()
+    for rel_path in files:
+        normalized = _normalize_git_file_path(str(rel_path or ""))
+        if not normalized:
+            return {"state": "error", "message": "Unsafe Git path."}
+        if normalized not in seen:
+            seen.add(normalized)
+            normalized_files.append(normalized)
+    if not normalized_files:
+        return {"state": "error", "message": "Select at least one file to commit."}
+    if len(normalized_files) > 200:
+        return {"state": "error", "message": "Too many files selected."}
+
+    status = git_status_payload(repo_root, runner=runner, which=which)
+    if status.get("state") != "ok":
+        return {"state": status.get("state", "error"), "message": status.get("message", "Unable to inspect Git status.")}
+
+    changed_by_path: dict[str, dict[str, Any]] = {}
+    for entries in (status.get("groups") or {}).values():
+        if not isinstance(entries, list):
+            continue
+        for entry in entries:
+            if isinstance(entry, dict):
+                path = str(entry.get("path") or "")
+                if path:
+                    changed_by_path[path] = entry
+
+    expanded_files: list[str] = []
+    expanded_seen: set[str] = set()
+    for rel_path in normalized_files:
+        entry = changed_by_path.get(rel_path)
+        if entry is None:
+            return {"state": "error", "message": f"No pending Git change found for {rel_path}."}
+        for candidate in (str(entry.get("from") or ""), rel_path):
+            normalized = _normalize_git_file_path(candidate)
+            if normalized and normalized not in expanded_seen:
+                expanded_seen.add(normalized)
+                expanded_files.append(normalized)
+
+    try:
+        add_result = _run_git_mutation(repo_root, ["add", "--", *expanded_files], runner=runner)
+    except subprocess.TimeoutExpired:
+        return {"state": "timeout", "message": "Git add timed out."}
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"state": "error", "message": f"Unable to stage selected files: {exc}"}
+    if add_result.returncode != 0:
+        return {"state": "error", "message": _first_git_error_line(add_result, "Git add failed.")}
+
+    try:
+        commit_result = _run_git_mutation(repo_root, ["commit", "-m", commit_message, "--", *expanded_files], runner=runner)
+    except subprocess.TimeoutExpired:
+        return {"state": "timeout", "message": "Git commit timed out."}
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"state": "error", "message": f"Unable to create Git commit: {exc}"}
+    if commit_result.returncode != 0:
+        return {"state": "error", "message": _first_git_error_line(commit_result, "Git commit failed.")}
+
+    try:
+        head = _run_read_only_git(repo_root, ["rev-parse", "HEAD"], runner=runner)
+    except (OSError, subprocess.SubprocessError):
+        head = subprocess.CompletedProcess(["git", "rev-parse", "HEAD"], 1, "", "")
+    commit_hash = head.stdout.strip() if head.returncode == 0 else ""
+    return {
+        "state": "ok",
+        "message": "Commit created.",
+        "hash": commit_hash,
+        "shortHash": commit_hash[:7],
+        "files": normalized_files,
+    }
+
+
 def _normalize_git_file_path(rel_path: str) -> str | None:
     normalized = unquote(rel_path).replace("\\", "/").lstrip("/")
     if not normalized or normalized.startswith("~") or normalized.startswith("/") or ".." in normalized.split("/"):
@@ -3392,6 +3491,7 @@ VIEWER_EVENT_REMOTE_POLL_SECONDS = 5.0
 VIEWER_MUTATING_ROUTES = frozenset(
     {
         "/api/edit",
+        "/api/git-commit",
         "/api/open-file",
         "/api/open-repo-folder",
         "/api/bootstrap-logics",
@@ -4295,6 +4395,25 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"ok": True, "payload": release_reset_payload(self.server.repo_root)})
             except (OSError, ValueError) as exc:
                 self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, f"Unable to reset release evidence: {exc}")
+            return
+        if parsed.path == "/api/git-commit":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+                files = body.get("files")
+                message = str(body.get("message") or "")
+                if not isinstance(files, list) or not all(isinstance(item, str) for item in files):
+                    self._send_error_json(HTTPStatus.BAD_REQUEST, "Files must be a list of paths.")
+                    return
+                payload = git_commit_payload(self.server.repo_root, files, message)
+                if payload.get("state") == "ok":
+                    self.server.invalidate_status_components({"git"})
+                    self._send_json({"ok": True, "payload": payload})
+                else:
+                    self._send_error_json(HTTPStatus.BAD_REQUEST, str(payload.get("message") or "Git commit failed."))
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
             return
         if parsed.path == "/api/switch-project":
             try:

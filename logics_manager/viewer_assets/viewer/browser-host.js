@@ -437,6 +437,7 @@
   let lastSuccessfulSyncAt = 0;
   let latestViewerStateSignature = "";
   let latestGitStatusSignature = "";
+  let latestGitStatusPayload = null;
   let latestCdxStatusSignature = "";
   let latestCdxStatusPayload = null;
   let latestCdxRunsPayload = null;
@@ -2273,6 +2274,7 @@
       const response = await fetch("/api/git-status");
       const data = await response.json();
       if (response.ok && data.ok && data.payload?.state === "ok") {
+        latestGitStatusPayload = data.payload;
         latestGitStatusSignature = gitStatusSignature(data.payload);
         syncGitCommitActivity(data.payload);
         setGitBadgeCountsFromPayload(data.payload);
@@ -2340,6 +2342,7 @@
     }
     if (isCapabilityAvailable("git")) {
       if (payload.git && payload.git.state === "ok") {
+        latestGitStatusPayload = payload.git;
         latestGitStatusSignature = gitStatusSignature(payload.git);
         syncGitCommitActivity(payload.git);
         setGitBadgeCountsFromPayload(payload.git);
@@ -2707,10 +2710,12 @@
     const isGit = titleText === "Remote" && latestCiScreenMode === "git";
     const isRelease = titleText === "Remote" && latestCiScreenMode === "release";
     const pull = document.getElementById("viewer-git-pull");
+    const commit = document.getElementById("viewer-git-commit");
     const push = document.getElementById("viewer-git-push");
     const releaseReset = document.getElementById("viewer-release-reset");
     const status = documentStatusButton();
     if (pull) pull.hidden = !isGit;
+    if (commit) commit.hidden = !isGit;
     if (push) push.hidden = !isGit;
     if (releaseReset) releaseReset.hidden = !isRelease;
     if (status instanceof HTMLButtonElement) {
@@ -8266,6 +8271,137 @@
     })}`;
   }
 
+  function gitCommitModalEntries(payload) {
+    const labels = {
+      staged: "Staged",
+      modified: "Modified",
+      deleted: "Deleted",
+      renamed: "Renamed",
+      untracked: "Untracked"
+    };
+    const entries = [];
+    const seen = new Set();
+    for (const key of ["staged", "modified", "deleted", "renamed", "untracked"]) {
+      const group = Array.isArray(payload?.groups?.[key]) ? payload.groups[key] : [];
+      for (const entry of group) {
+        const path = String(entry?.path || "").trim();
+        if (!path || seen.has(path)) continue;
+        seen.add(path);
+        entries.push({
+          path,
+          from: String(entry?.from || "").trim(),
+          group: labels[key] || key
+        });
+      }
+    }
+    return entries;
+  }
+
+  async function openGitCommitModal() {
+    let payload = latestGitStatusPayload;
+    if (!payload || payload.state !== "ok") {
+      const response = await fetch("/api/git-status");
+      const data = await response.json();
+      if (!response.ok || !data.ok || data.payload?.state !== "ok") {
+        throw new Error(data.error || data.payload?.message || "Unable to load Git changes.");
+      }
+      payload = data.payload;
+      latestGitStatusPayload = payload;
+    }
+    const entries = gitCommitModalEntries(payload);
+    if (!entries.length) {
+      await showThemedMessageModal({ title: "Commit", message: "No changed files are available to commit." });
+      return;
+    }
+
+    const modal = createThemedModal({
+      title: "Commit",
+      message: "Select files, enter a message, then create the commit.",
+      submitLabel: "Commit"
+    });
+    const body = modal.querySelector(".viewer-themed-modal__body");
+    const submit = modal.querySelector(".viewer-themed-modal__submit");
+    const error = document.createElement("div");
+    error.className = "viewer-git-commit__error";
+    error.hidden = true;
+    const files = document.createElement("div");
+    files.className = "viewer-git-commit__files";
+    for (const entry of entries) {
+      const label = document.createElement("label");
+      label.className = "viewer-git-commit__file";
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.value = entry.path;
+      checkbox.checked = true;
+      const text = document.createElement("span");
+      text.textContent = `${entry.group}: ${entry.from ? `${entry.from} -> ${entry.path}` : entry.path}`;
+      label.append(checkbox, text);
+      files.appendChild(label);
+    }
+    const message = document.createElement("textarea");
+    message.className = "viewer-themed-modal__input viewer-git-commit__message";
+    message.placeholder = "Commit message";
+    message.rows = 3;
+    body?.append(files, message, error);
+
+    const selectedFiles = () => Array.from(files.querySelectorAll("input[type='checkbox']"))
+      .filter((node) => node instanceof HTMLInputElement && node.checked)
+      .map((node) => node.value);
+    const updateSubmit = () => {
+      if (submit instanceof HTMLButtonElement) {
+        submit.disabled = !selectedFiles().length || !message.value.trim();
+      }
+    };
+    const close = () => closeThemedModal(modal);
+    const fail = (text) => {
+      error.textContent = text;
+      error.hidden = false;
+    };
+    files.addEventListener("change", updateSubmit);
+    message.addEventListener("input", updateSubmit);
+    modal.querySelector(".viewer-themed-modal__cancel")?.addEventListener("click", close);
+    modal.querySelector(".viewer-themed-modal__close")?.addEventListener("click", close);
+    modal.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") close();
+      if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+        event.preventDefault();
+        if (submit instanceof HTMLButtonElement && !submit.disabled) submit.click();
+      }
+    });
+    submit?.addEventListener("click", async () => {
+      const filesToCommit = selectedFiles();
+      const commitMessage = message.value.trim();
+      if (!filesToCommit.length || !commitMessage) {
+        updateSubmit();
+        return;
+      }
+      if (submit instanceof HTMLButtonElement) submit.disabled = true;
+      error.hidden = true;
+      try {
+        const response = await fetch("/api/git-commit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ files: filesToCommit, message: commitMessage })
+        });
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || data.payload?.message || "Git commit failed.");
+        }
+        close();
+        latestGitStatusPayload = null;
+        latestGitStatusSignature = "";
+        recordGitActivity("Commit", `Created commit ${data.payload?.shortHash || ""}`.trim());
+        await showGitStatus({ force: true });
+        setMeta(`Commit created${data.payload?.shortHash ? `: ${data.payload.shortHash}` : "."}`);
+      } catch (err) {
+        fail(err?.message || "Git commit failed.");
+        updateSubmit();
+      }
+    });
+    updateSubmit();
+    window.setTimeout(() => message.focus(), 0);
+  }
+
   function applyGitDomain(domain) {
     const selected = domain || "changes";
     const diffDomains = new Set(["changes", "staged", "worktree", "untracked"]);
@@ -8365,6 +8501,7 @@
       return;
     }
     latestGitStatusSignature = nextGitSignature;
+    latestGitStatusPayload = data.payload;
     setGitBadgeCountsFromPayload(data.payload, { updateMain: false });
     updateMainGitBadges();
     setDocument("Remote", renderGitStatus(data.payload));
@@ -9098,6 +9235,9 @@
     document.getElementById("viewer-git-pull")?.addEventListener("click", () => {
       recordGitActivity("Pull", "Git pull started in a Workshop terminal");
       spawnWorkshopTerminal({ command: ["git", "pull"], label: "git pull" });
+    });
+    document.getElementById("viewer-git-commit")?.addEventListener("click", () => {
+      openGitCommitModal().catch((error) => setMeta(error?.message || "Git commit failed."));
     });
     document.getElementById("viewer-git-push")?.addEventListener("click", () => {
       recordGitActivity("Push", "Git push started in a Workshop terminal");

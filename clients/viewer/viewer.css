@@ -2434,7 +2434,8 @@
 }
 
 .viewer-themed-modal__input,
-.viewer-themed-modal__select {
+.viewer-themed-modal__select,
+.viewer-themed-modal__body textarea {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -2447,7 +2448,8 @@
 }
 
 .viewer-themed-modal__input:focus,
-.viewer-themed-modal__select:focus {
+.viewer-themed-modal__select:focus,
+.viewer-themed-modal__body textarea:focus {
   border-color: var(--vscode-focusBorder, #0078d4);
   outline: none;
 }
@@ -3102,6 +3104,49 @@
 
 .viewer-git__section h2 {
   margin-bottom: 8px;
+}
+
+.viewer-git-commit__files {
+  display: grid;
+  gap: 6px;
+  max-height: min(42vh, 360px);
+  overflow: auto;
+  padding: 6px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--vscode-editorWidget-background, #202020) 72%, transparent);
+}
+
+.viewer-git-commit__file {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  min-width: 0;
+  padding: 6px 7px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.viewer-git-commit__file:hover {
+  background: var(--vscode-toolbar-hoverBackground, rgb(255 255 255 / 8%));
+}
+
+.viewer-git-commit__file span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.viewer-git-commit__message {
+  min-height: 82px;
+  resize: vertical;
+}
+
+.viewer-git-commit__error {
+  color: var(--vscode-errorForeground, #f85149);
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .viewer-git__workspace {

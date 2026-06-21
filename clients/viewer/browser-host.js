@@ -5102,6 +5102,7 @@
     const entry = workshopTerminalState.sessions.get(sessionId);
     if (!entry || entry.closing) return;
     const current = String(entry.label || "").trim();
+    const detectedCdxSession = cdxSessionForTerminal(entry);
     const next = await showThemedInputModal({
       title: "Rename terminal",
       message: "Edit the label shown in the terminal list.",
@@ -5126,12 +5127,76 @@
       const payload = data.payload || {};
       entry.label = String(payload.label || label);
       entry.command = Array.isArray(payload.command) ? payload.command.map(String) : entry.command;
-      entry.cdxSession = String(payload.cdxSession || entry.cdxSession || "");
+      entry.cdxSession = String(payload.cdxSession || entry.cdxSession || detectedCdxSession || "");
       renderWorkshopTerminalList();
       setMeta(`Renamed terminal to ${entry.label}.`);
     } catch (error) {
       setMeta(`Terminal rename: ${error?.message || error}`);
     }
+  }
+
+  async function loadCdxSessionsForCustomTerminal() {
+    if (!isCapabilityAvailable("cdx")) return [];
+    try {
+      const response = await fetch("/api/cdx-status", { cache: "no-store" });
+      const data = await response.json();
+      if (response.ok && data.ok) {
+        latestCdxStatusPayload = data.payload;
+      }
+    } catch {
+      // Keep any already-cached CDX status.
+    }
+    const sessions = cdxSessions(latestCdxStatusPayload?.status || {});
+    return sessions
+      .filter((session) => session && typeof session === "object" && session.enabled !== false)
+      .map((session) => String(cdxField(session, ["session_name", "name", "id", "value"], "")).trim())
+      .filter(Boolean);
+  }
+
+  async function showCustomTerminalModal() {
+    const sessions = await loadCdxSessionsForCustomTerminal();
+    return new Promise((resolve) => {
+      const modal = createThemedModal({
+        title: "Custom terminal",
+        message: "Run a command or start a terminal for an available CDX session.",
+        submitLabel: "Run command"
+      });
+      const body = modal.querySelector(".viewer-themed-modal__body");
+      const select = document.createElement("select");
+      select.className = "viewer-themed-modal__select";
+      select.innerHTML = `<option value="">Custom command</option>${sessions.map((name) => `<option value="${escapeHtml(name)}">CDX: ${escapeHtml(name)}</option>`).join("")}`;
+      const input = document.createElement("input");
+      input.className = "viewer-themed-modal__input";
+      input.type = "text";
+      input.placeholder = "node --version";
+      body?.append(select, input);
+      const done = (value) => {
+        closeThemedModal(modal);
+        resolve(value);
+      };
+      const submit = () => {
+        const sessionName = select.value.trim();
+        if (sessionName) {
+          done({ command: ["cdx", sessionName], label: `cdx ${sessionName}` });
+          return;
+        }
+        const command = input.value.trim().split(/\s+/).filter(Boolean);
+        done(command.length ? { command, label: command.slice(0, 2).join(" ").slice(0, 32) || "custom" } : null);
+      };
+      select.addEventListener("change", () => {
+        const hasSession = Boolean(select.value.trim());
+        input.disabled = hasSession;
+        input.placeholder = hasSession ? "Using selected CDX session" : "node --version";
+      });
+      modal.querySelector(".viewer-themed-modal__submit")?.addEventListener("click", submit);
+      modal.querySelector(".viewer-themed-modal__cancel")?.addEventListener("click", () => done(null));
+      modal.querySelector(".viewer-themed-modal__close")?.addEventListener("click", () => done(null));
+      modal.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") done(null);
+        if (event.key === "Enter" && !(event.target instanceof HTMLSelectElement)) submit();
+      });
+      window.setTimeout(() => input.focus(), 0);
+    });
   }
 
   function releaseWorkshopTerminalObserver(entry) {
@@ -5236,17 +5301,9 @@
   }
 
   async function spawnCustomWorkshopTerminal() {
-    const raw = await showThemedInputModal({
-      title: "Custom terminal",
-      message: "Enter the command to run in a new Workshop terminal.",
-      placeholder: "node --version",
-      submitLabel: "Run command"
-    });
-    if (!raw) return;
-    const command = String(raw).trim().split(/\s+/).filter(Boolean);
-    if (!command.length) return;
-    const label = command.slice(0, 2).join(" ").slice(0, 32) || "custom";
-    spawnWorkshopTerminal({ command, label });
+    const result = await showCustomTerminalModal();
+    if (!result || !Array.isArray(result.command) || !result.command.length) return;
+    spawnWorkshopTerminal({ command: result.command, label: result.label });
   }
 
   // Public API for CDX / handoff launchers and other callers that want to

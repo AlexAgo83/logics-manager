@@ -2345,6 +2345,105 @@ describe("local viewer browser host", () => {
     promptSpy.mockRestore();
   });
 
+  it("starts a custom Workshop terminal from an available CDX session", async () => {
+    const terminalCommands: Array<{ command: string[]; label: string }> = [];
+    const { dom } = createViewerDom({
+      terminalCommands,
+      capabilities: {
+        logics: { state: "ready", available: true, message: "Logics corpus found." },
+        workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
+        workshop: { state: "ready", available: true, message: "Workshop ready.", detail: { commandsAvailable: true, terminalsAvailable: true } },
+        git: { state: "ready", available: true, message: "Git repository detected." },
+        ci: { state: "ready", available: true, message: "GitHub Actions can be inspected." },
+        cdx: { state: "ready", available: true, message: "CDX executable detected." },
+        cdxRuns: { state: "unsupported", available: false, message: "CDX assistant run registry is not available yet." }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    dom.window.document.querySelector("[data-viewer-workshop-terminal-custom]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    const select = modal?.querySelector(".viewer-themed-modal__select") as HTMLSelectElement | null;
+    expect(Array.from(select?.options || []).map((option) => option.value)).toContain("session-1");
+    select!.value = "session-1";
+    select!.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(terminalCommands).toContainEqual({ command: ["cdx", "session-1"], label: "cdx session-1" });
+  });
+
+  it("keeps a CDX terminal usage gauge after renaming its display label", async () => {
+    const terminalCommands: Array<{ command: string[]; label: string }> = [];
+    const terminalRenames: Array<{ sessionId: string; label: string }> = [];
+    const { dom } = createViewerDom({
+      terminalCommands,
+      terminalRenames,
+      capabilities: {
+        logics: { state: "ready", available: true, message: "Logics corpus found." },
+        workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
+        workshop: { state: "ready", available: true, message: "Workshop ready.", detail: { commandsAvailable: true, terminalsAvailable: true } },
+        git: { state: "ready", available: true, message: "Git repository detected." },
+        ci: { state: "ready", available: true, message: "GitHub Actions can be inspected." },
+        cdx: { state: "ready", available: true, message: "CDX executable detected." },
+        cdxRuns: { state: "unsupported", available: false, message: "CDX assistant run registry is not available yet." }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    dom.window.document.querySelector("[data-viewer-workshop-terminal-custom]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+    let modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    const select = modal?.querySelector(".viewer-themed-modal__select") as HTMLSelectElement | null;
+    select!.value = "session-1";
+    select!.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+    expect(terminalCommands).toContainEqual({ command: ["cdx", "session-1"], label: "cdx session-1" });
+    dom.window.document.querySelector(".viewer-themed-modal")?.remove();
+
+    let row = dom.window.document.querySelector(".viewer-workshop__terminal-row:has(.viewer-workshop__usage)") as HTMLElement | null;
+    const sessionId = row?.getAttribute("data-viewer-workshop-terminal-select") || "";
+    expect(sessionId).toBeTruthy();
+    expect(row?.querySelector(".viewer-workshop__usage")).toBeTruthy();
+    const label = row?.querySelector("[data-viewer-workshop-terminal-rename]") as HTMLElement | null;
+    expect(label).toBeTruthy();
+    label?.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true, detail: 2 }));
+    await flushViewerAsync();
+    modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    expect(modal?.textContent).toContain("Rename terminal");
+    const input = modal?.querySelector(".viewer-themed-modal__input") as HTMLInputElement | null;
+    input!.value = "Build logs";
+    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(terminalRenames).toContainEqual({ sessionId, label: "Build logs" });
+    row = dom.window.document.querySelector(`[data-viewer-workshop-terminal-select="${sessionId}"]`) as HTMLElement | null;
+    expect(row?.textContent).toContain("Build logs");
+    expect(row?.querySelector(".viewer-workshop__usage")).toBeTruthy();
+  });
+
   it("renames a Workshop terminal label from a double-click modal", async () => {
     const terminalCommands: Array<{ command: string[]; label: string }> = [];
     const terminalRenames: Array<{ sessionId: string; label: string }> = [];

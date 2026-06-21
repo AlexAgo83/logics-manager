@@ -29,6 +29,8 @@ function createViewerDom(options: {
   capabilities?: Record<string, { state: string; available: boolean; message: string; detail?: Record<string, unknown> }>;
   cdxReportResponse?: { state: string; message: string; report: Record<string, unknown> };
   cdxRemoveResponse?: { ok: boolean; status?: number; body?: unknown };
+  cdxToggleGate?: Promise<void>;
+  cdxToggleResponse?: { ok: boolean; status?: number; body?: unknown };
   cdxRunsResponse?: { state: string; message: string; runs: Array<Record<string, unknown>> };
   cdxHistoryResponse?: { state: string; message: string; history: Array<Record<string, unknown>> };
   cdxResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
@@ -756,6 +758,16 @@ function createViewerDom(options: {
           ok: options.cdxRemoveResponse?.ok ?? true,
           status: options.cdxRemoveResponse?.status ?? (options.cdxRemoveResponse?.ok === false ? 500 : 200),
           json: async () => options.cdxRemoveResponse?.body ?? { ok: true, payload: { message: "Remove complete." } }
+        };
+      }
+      if (url === "/api/cdx-toggle") {
+        if (options.cdxToggleGate) {
+          await options.cdxToggleGate;
+        }
+        return {
+          ok: options.cdxToggleResponse?.ok ?? true,
+          status: options.cdxToggleResponse?.status ?? (options.cdxToggleResponse?.ok === false ? 500 : 200),
+          json: async () => options.cdxToggleResponse?.body ?? { ok: true, payload: { message: "Toggle complete." } }
         };
       }
       if (url === "/api/ci-status") {
@@ -4682,6 +4694,52 @@ describe("local viewer browser host", () => {
     const removeCall = fetchCalls.find((call) => call.url === "/api/cdx-remove");
     expect(removeCall?.options?.body).toBe(JSON.stringify({ session: "work2" }));
     expect(terminalCommands).not.toContainEqual({ command: ["cdx", "remove", "work2"], label: "cdx remove work2" });
+  });
+
+  it("updates CDX session rows optimistically while enable toggles are pending", async () => {
+    let resolveToggle: (() => void) | null = null;
+    const cdxToggleGate = new Promise<void>((resolve) => {
+      resolveToggle = resolve;
+    });
+    const payload = cdxRowsStatusPayload();
+    const { dom, fetchCalls } = createViewerDom({
+      cdxResponse: payload,
+      cdxToggleGate,
+      capabilities: {
+        logics: { state: "ready", available: true, message: "Logics corpus found." },
+        workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
+        workshop: { state: "ready", available: true, message: "Workshop ready.", detail: { commandsAvailable: true, terminalsAvailable: true } },
+        git: { state: "ready", available: true, message: "Git repository detected." },
+        ci: { state: "ready", available: true, message: "GitHub Actions can be inspected." },
+        cdx: { state: "ready", available: true, message: "CDX executable detected." },
+        cdxRuns: { state: "unsupported", available: false, message: "CDX assistant run registry is not available yet." }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    expect(dom.window.document.querySelector('[data-viewer-cdx-session="work2"][data-viewer-cdx-session-action="new"]')).toBeTruthy();
+
+    (dom.window.document.querySelector('[data-viewer-cdx-toggle="work2"]') as HTMLButtonElement | null)
+      ?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    const pendingToggle = dom.window.document.querySelector('[data-viewer-cdx-toggle="work2"]') as HTMLButtonElement | null;
+    expect(fetchCalls.find((call) => call.url === "/api/cdx-toggle")?.options?.body).toBe(JSON.stringify({ session: "work2", enable: false }));
+    expect(pendingToggle?.getAttribute("data-viewer-cdx-toggle-state")).toBe("off");
+    expect(pendingToggle?.classList.contains("is-off")).toBe(true);
+    expect(pendingToggle?.classList.contains("is-updating")).toBe(true);
+    expect(pendingToggle?.disabled).toBe(true);
+    expect(pendingToggle?.textContent).toContain("Disabled");
+    expect(dom.window.document.querySelector('[data-viewer-cdx-session="work2"][data-viewer-cdx-session-action="new"]')).toBeNull();
+
+    resolveToggle?.();
+    await flushViewerAsync();
+    await flushViewerAsync();
   });
 
   it("persists CDX status column visibility with Block and CR hidden by default", async () => {

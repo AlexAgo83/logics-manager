@@ -4091,6 +4091,10 @@
   text-decoration-thickness: 1px;
 }
 
+.viewer-cdx__status-toggle.is-updating {
+  opacity: 0.7;
+}
+
 .viewer-cdx__status-toggle:hover:not(:disabled) {
   filter: brightness(1.15);
 }

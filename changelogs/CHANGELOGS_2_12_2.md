@@ -7,6 +7,7 @@
 - Added viewer server restart controls and getting-started guidance for first-run or recovery flows.
 - Enriched viewer recent activity with timestamped Git history and commit events.
 - Added a bootstrap-managed local assistant bridge through `LOGICS.md`, `AGENTS.md`, and `.gitignore` refresh handling, with release, lifecycle, viewer, MCP, and document hygiene guidance refreshed from the CLI.
+- Kept the viewer bootstrap action available for already-bootstrapped projects so generated Logics assistant bridge files can be refreshed without showing the first-run prompt.
 
 ## Fixes
 

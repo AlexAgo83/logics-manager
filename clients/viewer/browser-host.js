@@ -398,6 +398,7 @@
   let latestCapabilities = {};
   let latestProjects = [];
   let latestCanBootstrapLogics = false;
+  let latestShouldPromptBootstrapLogics = false;
   let latestBootstrapLogicsTitle = "Bootstrap Logics in this project";
   let bootstrapPromptOpen = false;
   const promptedBootstrapRoots = new Set();
@@ -1557,8 +1558,10 @@
     try {
       const confirmed = await showThemedConfirmModal({
         title: "Bootstrap Logics",
-        message: "This project does not have a Logics workflow yet. Bootstrap it now to create the local workflow structure and enable the viewer.",
-        submitLabel: "Bootstrap",
+        message: latestShouldPromptBootstrapLogics
+          ? "This project does not have a Logics workflow yet. Bootstrap it now to create the local workflow structure and enable the viewer."
+          : "Refresh generated Logics bootstrap files for this project, including local assistant bridge files.",
+        submitLabel: latestShouldPromptBootstrapLogics ? "Bootstrap" : "Refresh",
         cancelLabel: automatic ? "Not now" : "Cancel"
       });
       if (!confirmed) {
@@ -1572,7 +1575,7 @@
   }
 
   function maybePromptBootstrapLogics() {
-    if (!latestCanBootstrapLogics || !latestRepoRoot || bootstrapPromptOpen) {
+    if (!latestCanBootstrapLogics || !latestShouldPromptBootstrapLogics || !latestRepoRoot || bootstrapPromptOpen) {
       return;
     }
     if (promptedBootstrapRoots.has(latestRepoRoot)) {
@@ -3022,6 +3025,9 @@
     updateRepositoryIdentity(payload);
     latestCapabilities = normalizeCapabilities(payload);
     latestCanBootstrapLogics = Boolean(payload?.canBootstrapLogics);
+    latestShouldPromptBootstrapLogics = typeof payload?.shouldPromptBootstrapLogics === "boolean"
+      ? payload.shouldPromptBootstrapLogics
+      : latestCapabilities.logics?.available === false;
     latestBootstrapLogicsTitle = String(payload?.bootstrapLogicsTitle || "Bootstrap Logics in this project");
     applyLanBanner(Boolean(payload?.lanMode), String(payload?.lanShareUrl || ""), Boolean(payload?.lanRwMode));
     updateCapabilityControls();
@@ -3035,7 +3041,7 @@
     scheduleNextAutoRefresh();
     updateVersionLink(payload.updateInfo);
     renderUpdateNotice(payload.updateInfo);
-    renderEnvironmentWarning(payload.environmentWarning);
+    renderEnvironmentWarning(payload.bootstrapWarning || payload.environmentWarning);
     refreshBadgeCounters();
     maybePromptBootstrapLogics();
     updateFilterSummary();

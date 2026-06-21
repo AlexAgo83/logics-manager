@@ -528,6 +528,7 @@ def viewer_data_payload(
     capabilities = viewer_project_capabilities(repo_root)
     active_root = repo_root.resolve()
     has_logics = capabilities["logics"]["available"] is True
+    bootstrap_warning = viewer_bootstrap_warning(active_root) if has_logics else None
     return {
         "root": str(active_root),
         "repoName": active_root.name,
@@ -545,13 +546,15 @@ def viewer_data_payload(
         "selectedId": selected_id,
         "changedPaths": [],
         "canResetProjectRoot": False,
-        "canBootstrapLogics": not has_logics,
-        "bootstrapLogicsTitle": "Bootstrap Logics in this project." if not has_logics else "Logics is already bootstrapped.",
+        "canBootstrapLogics": True,
+        "shouldPromptBootstrapLogics": not has_logics,
+        "bootstrapLogicsTitle": "Bootstrap Logics in this project." if not has_logics else "Refresh Logics bootstrap files.",
         "canLaunchCodex": False,
         "canLaunchClaude": False,
         "canRepairLogicsKit": False,
         "canPublishRelease": False,
         "shouldRecommendCheckEnvironment": False,
+        "bootstrapWarning": bootstrap_warning,
         "environmentWarning": viewer_environment_warning(active_root),
     }
 
@@ -999,6 +1002,33 @@ def viewer_environment_warning(repo_root: Path) -> dict[str, str] | None:
             ),
         }
     return None
+
+
+def viewer_bootstrap_warning(repo_root: Path) -> dict[str, object] | None:
+    """Surface a non-blocking warning when generated bootstrap files are stale."""
+    try:
+        payload = bootstrap_payload(repo_root, check=True)
+    except Exception:
+        return None
+    if payload.get("ok") is True:
+        return None
+    paths = [str(path) for path in payload.get("missing_paths", []) if isinstance(path, str)]
+    local_instruction_paths = {
+        "LOGICS.md",
+        "AGENTS.md",
+        ".gitignore",
+        "logics/instructions.md",
+    }
+    stale_paths = [path for path in paths if path in local_instruction_paths]
+    if not stale_paths:
+        return None
+    path_summary = ", ".join(stale_paths[:4])
+    return {
+        "severity": "warning",
+        "title": "Logics bootstrap refresh recommended",
+        "message": f"Refresh generated Logics assistant instructions with Bootstrap Logics or `logics-manager bootstrap` ({path_summary}).",
+        "paths": stale_paths,
+    }
 
 
 def _run_read_only_git(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:

@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Maintenance edit: Normalize stale workflow reference paths.
 
 # Problem
 The board chrome mixes navigation and view controls. Recent Activity is a toolbar toggle (`#activity-toggle`) rather than a first-class destination, there is no explicit "Project" (corpus board/list) entry point, and the left-hand view controls show regardless of the active screen. The main topbar slider must switch between Activity and Project; Board/List is only the selected Project display mode and must not be represented as the primary slider.
@@ -61,7 +62,7 @@ The board chrome mixes navigation and view controls. Recent Activity is a toolba
 - Urgency: Low.
 
 # Notes
-- Hybrid rationale: Derived from request `req_263_...` and kept bounded to the topbar/layout slice.
+- Hybrid rationale: Derived from request `logics/request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md` and kept bounded to the topbar/layout slice.
 - Source file: `logics/request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md`.
 - Implementation note: Activity/Project is now the main slider, Board/List remains the Project display mode, and non-corpus document surfaces hide corpus-only controls via `viewer-screen-document`.
 - Task `task_258_board_topbar_restructure_with_activity_and_project_buttons_and_a_board_list_slider` was finished via `logics-manager flow finish task` on 2026-06-20.

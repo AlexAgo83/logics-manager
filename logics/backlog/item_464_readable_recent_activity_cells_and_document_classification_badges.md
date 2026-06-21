@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Maintenance edit: Normalize stale workflow reference paths.
 
 # Problem
 The Recent Activity screen and the board cards show opaque single-letter classification pills (P, A, ...). They come from `getDocumentPrefix()` (`clients/shared-web/media/renderBoardApp.js:826`), which maps stage to a letter (R=request, I=backlog, T=task, P=product, A=architecture, S=spec) plus a zero-padded number. An operator who doesn't know the internal stage codes cannot decode them, and the activity cell as a whole (what changed, from which status to which, when) is hard to scan.
@@ -57,7 +58,7 @@ The Recent Activity screen and the board cards show opaque single-letter classif
 - Urgency: Medium.
 
 # Notes
-- Hybrid rationale: Derived from request `req_263_...` and kept bounded to the activity/badge readability slice.
+- Hybrid rationale: Derived from request `logics/request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md` and kept bounded to the activity/badge readability slice.
 - Source file: `logics/request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md`.
 - Task `task_257_readable_recent_activity_cells_and_document_classification_badges` was finished via `logics-manager flow finish task` on 2026-06-20.
 

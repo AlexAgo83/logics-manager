@@ -8,6 +8,7 @@
 > Complexity: High
 > Theme: Viewer operator workflow
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Maintenance edit: Normalize stale workflow reference paths.
 
 # Context
 - Implement the viewer workshop and explorer polish described by `req_244`.
@@ -19,8 +20,8 @@
 # Plan
 - [x] 1. Restyle the Workspace Explorer screen: icon set, breadcrumb, hover/focus/selected states, density parity with Git/CDX, empty/unavailable states.
 - [x] 2. Add the Workshop topbar entry between Explorer and Git, the two-tab Terminals/Commands layout, capability gating, and persistent active-tab preference.
-- [x] 3. Author the architecture decision for the terminal transport, PTY library, and terminal emulator/bundling. (See `adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling`.)
-- [x] 4. Add the backend PTY manager and the new transport (WebSocket preferred, SSE+POST fallback), feature-gated with a clean unavailable state. *(Carved out into `task_222` per `adr_023` phase 1 — the workshop capability advertises `detail.terminalsAvailable=false` here so the frontend renders an explicit "Terminals are not available yet" placeholder. Command-runner SSE+POST is in place under items 8-9 and exercises the same plumbing the future terminal slice will reuse.)*
+- [x] 3. Author the architecture decision for the terminal transport, PTY library, and terminal emulator/bundling. (See `logics/architecture/adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling.md`.)
+- [x] 4. Add the backend PTY manager and the new transport (WebSocket preferred, SSE+POST fallback), feature-gated with a clean unavailable state. *(Carved out into `task_222` per `logics/architecture/adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling.md` phase 1 — the workshop capability advertises `detail.terminalsAvailable=false` here so the frontend renders an explicit "Terminals are not available yet" placeholder. Command-runner SSE+POST is in place under items 8-9 and exercises the same plumbing the future terminal slice will reuse.)*
 - [x] 5. Wire the frontend terminal emulator into the Terminals sub-screen with multi-session lifecycle, ANSI/copy/paste/resize, and buffer retention across sub-tab switches. *(Carved out into `task_222`.)*
 - [x] 6. Add the CDX and handoff launchers that open a new Workshop terminal pre-running the canonical mission/handoff metadata. *(Carved out into `task_222`.)*
 - [x] 7. Add backend entry-point discovery for `package.json` `scripts` and `pyproject.toml` project/poetry scripts.
@@ -35,7 +36,7 @@
 - `item_420_add_workshop_topbar_entry_with_terminal_and_command_sub_screens`
 - `item_422_add_command_runner_driven_by_package_json_and_pyproject_entry_points`
 
-The terminal-manager backlog item was carved out into `task_222_implement_workshop_in_app_terminal_manager_and_cdx_handoff_launchers` per `adr_023` phase 1 — see that task for the active link.
+The terminal-manager backlog item was carved out into `task_222_implement_workshop_in_app_terminal_manager_and_cdx_handoff_launchers` per `logics/architecture/adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling.md` phase 1 — see that task for the active link.
 
 # Definition of Done (DoD)
 - [x] Workspace Explorer screen reaches visual parity with Git/CDX and ships the new icon set, breadcrumb, and row states.
@@ -81,11 +82,11 @@ flowchart TD
 - Linked backlog/request close verification passed.
 
 # Report
-- Delivered as commits `76db7dc`..`fd69258` plus the operator-led polish `97f478d`, `300e828`, `04fe4ef`, `ebee5da`. Plan items 1-3, 7-11 are in production; items 4-6 (PTY backend, frontend xterm.js, CDX/handoff launchers) are carved out into `task_222_implement_workshop_in_app_terminal_manager_and_cdx_handoff_launchers` per `adr_023` phase 1.
+- Delivered as commits `76db7dc`..`fd69258` plus the operator-led polish `97f478d`, `300e828`, `04fe4ef`, `ebee5da`. Plan items 1-3, 7-11 are in production; items 4-6 (PTY backend, frontend xterm.js, CDX/handoff launchers) are carved out into `task_222_implement_workshop_in_app_terminal_manager_and_cdx_handoff_launchers` per `logics/architecture/adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling.md` phase 1.
 - The workshop capability ships with `detail.terminalsAvailable=false`; the Terminals sub-screen renders a clear placeholder pointing operators at the Commands tab until `task_222` flips the capability.
 - The Commands sub-screen, the entry-point discovery, the SSE+POST runner, the run/stop lifecycle, the Explorer breadcrumb, and the Workshop pill switcher are all in production.
 - Finished on 2026-06-15.
-- Linked backlog item(s): `item_419_restyle_the_workspace_explorer_screen`, `item_420_add_workshop_topbar_entry_with_terminal_and_command_sub_screens`, `item_422_add_command_runner_driven_by_package_json_and_pyproject_entry_points`. The terminal-manager backlog (item_421) was carved out into `task_222` per `adr_023` phase 1.
+- Linked backlog item(s): `item_419_restyle_the_workspace_explorer_screen`, `item_420_add_workshop_topbar_entry_with_terminal_and_command_sub_screens`, `item_422_add_command_runner_driven_by_package_json_and_pyproject_entry_points`. The terminal-manager backlog (item_421) was carved out into `task_222` per `logics/architecture/adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling.md` phase 1.
 - Related request(s): `req_244_restyle_the_explorer_and_add_a_workshop_screen_with_terminals_and_command_runner`
 
 # AC Traceability

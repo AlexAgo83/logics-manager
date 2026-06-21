@@ -7,6 +7,7 @@
 > Complexity: High
 > Theme: Assistant orchestration
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Maintenance edit: Normalize stale workflow reference paths.
 
 # Needs
 - Logics should expose assistant run execution inside the CDX viewer surface, not as invisible background activity or a detached top-level cockpit.
@@ -87,7 +88,7 @@ flowchart TD
 - `logics_manager/viewer_assets/viewer/viewer.css`
 - `logics_manager/viewer.py`
 - `logics_manager/flow.py`
-- Paired CDX request: `req_005_add_observable_assistant_run_registry_and_structured_task_reports` in `cdx-manager`
+- Paired CDX request in `cdx-manager`: req_005_add_observable_assistant_run_registry_and_structured_task_reports
 
 # AI Context
 - Summary: Add a Runs sub-view to the existing CDX screen, switched from the CDX header next to Status, to consume CDX run status/report JSON and turn structured reports into reviewable workflow docs.

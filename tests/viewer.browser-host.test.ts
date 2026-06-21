@@ -1459,6 +1459,7 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
     const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
     expect(modal?.textContent).toContain("Restart viewer server");
+    expect(calls).not.toContain("/api/restart-viewer");
 
     (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
     await flushViewerAsync();

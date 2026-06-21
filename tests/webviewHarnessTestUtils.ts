@@ -351,6 +351,7 @@ export function pushData(
     publishReleaseTitle?: string;
     shouldRecommendCheckEnvironment?: boolean;
     changedPaths?: string[];
+    activityEvents?: Array<Record<string, unknown>>;
     activeAgent?: Record<string, unknown> | null;
     items: Array<Record<string, unknown>>;
   }

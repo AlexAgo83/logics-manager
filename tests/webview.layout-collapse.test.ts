@@ -36,6 +36,17 @@ function getCssRules(css: string, selector: string) {
   return css.match(new RegExp(`${escapedSelector}\\s*\\{[^}]+\\}`, "g")) || [];
 }
 
+function ensureActivityOpen(dom: JSDOM) {
+  const document = dom.window.document;
+  const activityPanel = document.getElementById("activity-panel");
+  if (activityPanel?.hidden) {
+    document.getElementById("activity-toggle")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+  }
+  if (activityPanel?.hidden) {
+    document.getElementById("activity-toggle")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+  }
+}
+
 function bootstrapWebview(stacked: boolean, narrow = false) {
   const html = `
     <!doctype html>
@@ -500,10 +511,7 @@ describe("webview collapsed details layout behavior", () => {
     const board = document.getElementById("board");
     const activityPanel = document.getElementById("activity-panel");
     const splitter = document.getElementById("splitter") as HTMLElement | null;
-    const activityToggle = document.getElementById("activity-toggle");
-
-    activityToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-
+    ensureActivityOpen(dom);
     expect(board?.hidden).toBe(true);
     expect(activityPanel?.hidden).toBe(false);
     expect(splitter?.getAttribute("aria-disabled")).toBe("true");
@@ -513,13 +521,9 @@ describe("webview collapsed details layout behavior", () => {
   it("collapses bottom details when activity opens in stacked layout", () => {
     const { dom } = bootstrapWebview(true);
     const document = dom.window.document;
-    const activityToggle = document.getElementById("activity-toggle");
     const details = document.getElementById("details");
     const detailsToggle = document.getElementById("details-toggle");
-
-    expect(details?.classList.contains("details--collapsed")).toBe(false);
-
-    activityToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    ensureActivityOpen(dom);
 
     expect(details?.classList.contains("details--collapsed")).toBe(true);
     expect(detailsToggle?.getAttribute("aria-expanded")).toBe("false");
@@ -530,10 +534,9 @@ describe("webview collapsed details layout behavior", () => {
     const document = dom.window.document;
     const details = document.getElementById("details") as HTMLElement | null;
     const splitter = document.getElementById("splitter") as HTMLElement | null;
-    const activityToggle = document.getElementById("activity-toggle");
 
     setBoardContentHeight(140);
-    activityToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    ensureActivityOpen(dom);
 
     expect(details?.classList.contains("details--collapsed")).toBe(true);
     expect(splitter?.getAttribute("aria-disabled")).toBe("true");

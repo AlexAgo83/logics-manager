@@ -177,7 +177,14 @@
           const button = document.createElement("button");
           button.type = "button";
           button.className = "activity-panel__entry";
+          if (entry.activityKind) {
+            button.classList.add(`activity-panel__entry--${String(entry.activityKind).replace(/[^a-z0-9_-]+/gi, "-").toLowerCase()}`);
+          }
           button.dataset.id = entry.id;
+          if (entry.selectable === false) {
+            button.disabled = true;
+            button.setAttribute("aria-disabled", "true");
+          }
 
           const stageLabel = getStageLabel(entry.stage);
           const stageTitle = stageLabel ? stageLabel.charAt(0).toUpperCase() + stageLabel.slice(1) : "Item";
@@ -193,6 +200,9 @@
           if (entry.stage) {
             marker.dataset.stage = entry.stage;
           }
+          if (entry.activityKind) {
+            marker.dataset.activityKind = entry.activityKind;
+          }
           button.appendChild(marker);
 
           const body = document.createElement("span");
@@ -206,7 +216,7 @@
           const meta = document.createElement("span");
           meta.className = "activity-panel__meta";
           // Readable cell: what changed, the stage name, then the id.
-          meta.textContent = `${entry.label || "Updated"} · ${stageTitle} · ${entry.id}`;
+          meta.textContent = entry.meta || `${entry.label || "Updated"} · ${stageTitle} · ${entry.id}`;
           body.appendChild(meta);
 
           const updated = document.createElement("span");
@@ -218,12 +228,14 @@
           body.appendChild(updated);
           button.appendChild(body);
 
-          button.addEventListener("click", () => {
-            selectItemAndRender(entry.id);
-          });
-          button.addEventListener("dblclick", () => {
-            readItemAndRender(entry.id);
-          });
+          if (entry.selectable !== false) {
+            button.addEventListener("click", () => {
+              selectItemAndRender(entry.id);
+            });
+            button.addEventListener("dblclick", () => {
+              readItemAndRender(entry.id);
+            });
+          }
 
           list.appendChild(button);
         });

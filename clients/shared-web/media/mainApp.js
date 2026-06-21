@@ -81,6 +81,7 @@
   let items = [];
   let selectedId = null;
   let changedPaths = [];
+  let activityEvents = [];
   let activeAgent = null;
   let lastInjectedContext = null;
   let hideCompleted = defaultFilterState.hideCompleted;
@@ -91,7 +92,7 @@
   let searchQuery = "";
   let groupMode = "stage";
   let sortMode = "updated-desc";
-  let activityPanelOpen = false;
+  let activityPanelOpen = true;
   let attentionOnly = false;
   let helpDismissed = false;
   let collapsedListStages = new Set();
@@ -209,7 +210,7 @@
     searchQuery = "";
     groupMode = "stage";
     sortMode = "updated-desc";
-    activityPanelOpen = false;
+    activityPanelOpen = true;
     attentionOnly = false;
     helpDismissed = false;
     collapsedListStages = new Set();
@@ -310,6 +311,7 @@
           getSelectedId: () => selectedId,
           getActiveWorkspaceRoot: () => activeWorkspaceRoot,
           getChangedPaths: () => changedPaths,
+          getActivityEvents: () => activityEvents,
           getActiveAgent: () => activeAgent,
           getLastInjectedContext: () => lastInjectedContext,
           getHideCompleted: () => hideCompleted,
@@ -406,6 +408,7 @@
     items: { get: () => items, set: (value) => { items = value; } },
     selectedId: { get: () => selectedId, set: (value) => { selectedId = value; } },
     changedPaths: { get: () => changedPaths, set: (value) => { changedPaths = value; } },
+    activityEvents: { get: () => activityEvents, set: (value) => { activityEvents = value; } },
     activeAgent: { get: () => activeAgent, set: (value) => { activeAgent = value; } },
     lastInjectedContext: { get: () => lastInjectedContext, set: (value) => { lastInjectedContext = value; } },
     hideCompleted: { get: () => hideCompleted, set: (value) => { hideCompleted = value; } },
@@ -738,9 +741,9 @@
         hostApi,
         getItems: () => items,
         getSelectedId: () => selectedId,
-        getActiveWorkspaceRoot: () => activeWorkspaceRoot,
-        getChangedPaths: () => changedPaths,
-        getActiveAgent: () => activeAgent,
+          getActiveWorkspaceRoot: () => activeWorkspaceRoot,
+          getChangedPaths: () => changedPaths,
+          getActiveAgent: () => activeAgent,
         getLastInjectedContext: () => lastInjectedContext,
         getCollapsedDetailSections: () => collapsedDetailSections,
         persistState,

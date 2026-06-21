@@ -4563,6 +4563,45 @@ describe("local viewer browser host", () => {
     expect(gitButton?.querySelector('[data-viewer-git-badges="main"]')?.textContent).toContain("3");
   });
 
+  it("adds recent Git commits to the activity panel from badge refreshes", async () => {
+    const { dom } = createViewerDom({
+      gitResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            branch: "main",
+            tracking: "origin/main",
+            ahead: 1,
+            behind: 0,
+            clean: true,
+            dirty: false,
+            latestCommit: "abc1234 Demo commit",
+            recentCommits: [{ hash: "abc1234", subject: "Demo commit", author: "Alex", date: "2026-06-09", refs: "HEAD -> main" }],
+            badgeCounts: { unpushedCommits: 1, uncommittedFiles: 0 },
+            counts: { staged: 0, modified: 0, deleted: 0, renamed: 0, untracked: 0 },
+            groups: { staged: [], modified: [], deleted: [], renamed: [], untracked: [] }
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const storedState = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.state") || "null");
+    const commitEntry = storedState?.activityHistory?.find((entry: { id?: string }) => entry.id === "git-commit-abc1234");
+    expect(commitEntry).toMatchObject({
+      type: "git-commit",
+      title: "Demo commit",
+      label: "Commit",
+      meta: "abc1234 · Alex · 2026-06-09"
+    });
+  });
+
   it("keeps Git badge counters visible while counts stay positive", async () => {
     const { dom } = createViewerDom({
       gitResponse: {
@@ -4882,7 +4921,7 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     const firstState = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.state") || "null");
     expect(firstState?.activitySnapshot?.["logics/request/req_001_demo.md"]?.status).toBe("Ready");
-    expect(firstState?.activityHistory?.[0]?.type).toBe("updated");
+    expect(firstState?.activityHistory?.some((entry: { type?: string }) => entry.type === "updated")).toBe(true);
 
     const originalFetch = dom.window.fetch;
     Object.defineProperty(dom.window, "fetch", {

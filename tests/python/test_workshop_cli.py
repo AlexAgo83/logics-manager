@@ -197,6 +197,7 @@ def test_workshop_mutating_routes_cover_terminal_endpoints() -> None:
     assert "/api/workshop-terminal-stop" in VIEWER_MUTATING_ROUTES
     assert "/api/workshop-terminal-input" in VIEWER_MUTATING_ROUTES
     assert "/api/workshop-terminal-resize" in VIEWER_MUTATING_ROUTES
+    assert "/api/workshop-terminal-rename" in VIEWER_MUTATING_ROUTES
 
 
 def test_workshop_session_runs_to_completion_and_streams_output(tmp_path: Path) -> None:

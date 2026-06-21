@@ -3085,6 +3085,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/workshop-terminal-stop",
         "/api/workshop-terminal-input",
         "/api/workshop-terminal-resize",
+        "/api/workshop-terminal-rename",
         "/api/cdx-import",
         "/api/cdx-export",
         "/api/cdx-toggle",
@@ -4015,6 +4016,24 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"ok": True})
             except (json.JSONDecodeError, ValueError):
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid resize body.")
+            return
+        if parsed.path == "/api/workshop-terminal-rename":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+                session_id = str(body.get("sessionId") or "")
+                label = str(body.get("label") or "")
+                session = self.server.workshop_terminals.get(session_id)
+                if session is None:
+                    self._send_error_json(HTTPStatus.NOT_FOUND, "Workshop terminal not found.")
+                    return
+                session.rename(label)
+                self._send_json({"ok": True, "payload": session.status_payload()})
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+            except ValueError as exc:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, str(exc))
             return
         if parsed.path == "/api/workshop-terminal-stop":
             try:

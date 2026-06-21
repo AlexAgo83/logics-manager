@@ -59,6 +59,7 @@ function createViewerDom(options: {
   releaseResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   updateStatusResponse?: { ok: boolean; status?: number; body?: unknown };
   terminalCommands?: Array<{ command: string[]; label: string }>;
+  terminalRenames?: Array<{ sessionId: string; label: string }>;
   autoRefreshIntervalSeconds?: number;
   autoRefreshIntervalForced?: boolean;
   url?: string;
@@ -450,7 +451,21 @@ function createViewerDom(options: {
           status: 200,
           json: async () => ({
             ok: true,
-            payload: { id, label: body.label || "shell", state: "running" }
+            payload: { id, label: body.label || "shell", command: Array.isArray(body.command) ? body.command : ["/bin/sh", "-i"], state: "running" }
+          })
+        };
+      }
+      if (url === "/api/workshop-terminal-rename") {
+        const body = fetchOptions?.body ? JSON.parse(String(fetchOptions.body)) : {};
+        const sessionId = String(body.sessionId || "");
+        const label = String(body.label || "");
+        options.terminalRenames?.push({ sessionId, label });
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            payload: { id: sessionId, label, command: ["/bin/sh", "-i"], state: "running" }
           })
         };
       }
@@ -1987,6 +2002,54 @@ describe("local viewer browser host", () => {
     expect(terminalCommands).toContainEqual({ command: ["node", "--version"], label: "node --version" });
     expect(promptSpy).not.toHaveBeenCalled();
     promptSpy.mockRestore();
+  });
+
+  it("renames a Workshop terminal label from a double-click modal", async () => {
+    const terminalCommands: Array<{ command: string[]; label: string }> = [];
+    const terminalRenames: Array<{ sessionId: string; label: string }> = [];
+    const { dom, calls } = createViewerDom({
+      terminalCommands,
+      terminalRenames,
+      capabilities: {
+        logics: { state: "ready", available: true, message: "Logics corpus found." },
+        workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
+        workshop: { state: "ready", available: true, message: "Workshop ready.", detail: { commandsAvailable: true, terminalsAvailable: true } },
+        git: { state: "ready", available: true, message: "Git repository detected." },
+        ci: { state: "ready", available: true, message: "GitHub Actions can be inspected." },
+        cdx: { state: "ready", available: true, message: "CDX executable detected." },
+        cdxRuns: { state: "unsupported", available: false, message: "CDX assistant run registry is not available yet." }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    dom.window.document.querySelector("[data-viewer-workshop-terminal-new]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const label = dom.window.document.querySelector("[data-viewer-workshop-terminal-rename]") as HTMLElement | null;
+    expect(label?.textContent).toBe("shell");
+    label?.dispatchEvent(new dom.window.Event("dblclick", { bubbles: true }));
+    await flushViewerAsync();
+
+    const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    expect(modal?.textContent).toContain("Rename terminal");
+    const input = modal?.querySelector(".viewer-themed-modal__input") as HTMLInputElement | null;
+    expect(input).not.toBeNull();
+    if (input) input.value = "Remote tests";
+    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(calls).toContain("/api/workshop-terminal-rename");
+    expect(terminalRenames).toContainEqual({ sessionId: "terminal-1", label: "Remote tests" });
+    expect(dom.window.document.querySelector("[data-viewer-workshop-terminal-rename]")?.textContent).toBe("Remote tests");
   });
 
   it("hides the LAN banner when lanMode is false", async () => {

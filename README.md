@@ -109,6 +109,42 @@ logics-manager lint --require-status
 logics-manager audit
 ```
 
+### Obsidian-friendly Markdown usage
+
+Logics docs are plain Markdown, so you can open either the repository root or
+the `logics/` directory as an Obsidian vault for reading, search, backlinks, and
+graph navigation. The local `.obsidian/` workspace directory is ignored by Git,
+so vault layout, plugin choices, and workspace state stay local to each user.
+
+Recommended setup:
+
+- Open the full repository when you want README, source files, and Logics docs
+  in one vault.
+- Open `logics/` when you want a focused workflow-document vault.
+- Use Obsidian for navigation, review, notes, and light Markdown edits.
+- Use `logics-manager flow ...` for lifecycle changes such as create, promote,
+  closeout, finish, and status transitions.
+
+Safe editing rules:
+
+- Do not hand-edit Logics indicators such as `Status`, `Progress`,
+  `Understanding`, `Confidence`, lineage links, Mermaid signatures, or generated
+  done/closeout evidence.
+- Keep canonical Logics references as repo-relative paths or refs. Obsidian
+  wikilinks may be added later only as supplemental navigation hints; Logics
+  Manager parsing must not require them.
+- Frontmatter, tags, or aliases are not required today. If a future
+  Obsidian-friendly mode generates them, they must be deterministic,
+  non-destructive, and validated against the canonical Logics doc type, ref,
+  status, and title.
+
+After editing workflow docs in Obsidian, validate from the repository root:
+
+```bash
+logics-manager lint --require-status
+logics-manager audit --group-by-doc
+```
+
 ## Core CLI
 
 The CLI is the stable contract for Logics. It supports:

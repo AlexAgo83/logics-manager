@@ -1177,6 +1177,7 @@ describe("local viewer browser host", () => {
     expect(css).toMatch(/\.viewer-code__line-number\s*\{[^}]*position: sticky;/s);
     expect(css).toMatch(/\.viewer-code__line\s*\{[^}]*white-space: pre;/s);
     expect(css).toMatch(/\.viewer-code__line code\s*\{[^}]*padding: 0;/s);
+    expect(css).toMatch(/\.viewer-workspace__preview \.viewer-code__scroll\s*\{[^}]*overflow: visible;/s);
     expect(css).toMatch(/@media \(max-width: 640px\)/);
   });
 
@@ -1957,6 +1958,32 @@ describe("local viewer browser host", () => {
     expect(copy?.hidden).toBe(false);
 
     expect(calls.length).toBeGreaterThan(0);
+  });
+
+  it("clears stale paired-device credentials when a new LAN URL token is opened", async () => {
+    const { dom } = createViewerDom({
+      url: "http://192.168.1.42:8765/",
+      lanMode: true,
+      lanRwMode: true,
+    });
+    dom.window.sessionStorage.setItem("logics.lan.token", "old-lan-token");
+    dom.window.localStorage.setItem("logics.lan.deviceToken", "stale-device-token");
+    dom.window.localStorage.setItem("logics.lan.deviceId", "stale-device");
+    dom.window.localStorage.setItem("logics.lan.deviceLabel", "Stale phone");
+    dom.window.history.pushState(null, "", "/?t=secret-lan-token");
+
+    loadScript(dom, "clients/viewer/browser-host.js");
+    const api = dom.window.acquireVsCodeApi();
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(dom.window.sessionStorage.getItem("logics.lan.token")).toBe("secret-lan-token");
+    expect(dom.window.localStorage.getItem("logics.lan.deviceToken")).toBeNull();
+    expect(dom.window.localStorage.getItem("logics.lan.deviceId")).toBeNull();
+    expect(dom.window.localStorage.getItem("logics.lan.deviceLabel")).toBeNull();
+    expect(dom.window.document.getElementById("viewer-lan-banner")?.hidden).toBe(false);
+    expect((dom.window.document.getElementById("viewer-lan-banner-pair") as HTMLButtonElement | null)?.hidden).toBe(false);
   });
 
   it("pairs a LAN RW device through themed modals without browser prompts", async () => {

@@ -310,6 +310,24 @@ describe("webview chrome toolbar and filter behavior", () => {
     expect(activityToggle?.getAttribute("aria-label")).toContain("Show");
   });
 
+  it("opens activity by default even when a previous session persisted Project", () => {
+    const { dom } = bootstrapWebview({
+      initialState: {
+        workspaceRoot: "/workspace/mock",
+        activityPanelOpen: false
+      }
+    });
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    expect(dom.window.document.getElementById("activity-panel")?.hidden).toBe(false);
+    expect(dom.window.document.getElementById("board")?.hidden).toBe(true);
+    expect(dom.window.document.getElementById("activity-toggle")?.getAttribute("aria-pressed")).toBe("true");
+  });
+
   it("posts assist actions in non-harness mode", () => {
     const { dom, postedMessages } = bootstrapWebview();
 

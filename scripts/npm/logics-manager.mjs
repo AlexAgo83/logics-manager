@@ -75,9 +75,6 @@ function childExitCode(code, signal) {
 }
 
 export function shouldForwardSignal(signal, platform = process.platform) {
-  if (signal === "SIGINT" && platform !== "win32") {
-    return false;
-  }
   return true;
 }
 

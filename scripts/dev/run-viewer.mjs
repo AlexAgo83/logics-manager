@@ -22,12 +22,6 @@ const child = spawn(py, ["-m", "logics_manager", "view", ...args], {
 });
 
 const forward = (signal) => {
-  if (signal === "SIGINT" && process.platform !== "win32") {
-    // Ctrl+C from an interactive terminal is already delivered to every
-    // process in the foreground process group on POSIX. Forwarding it again
-    // can interrupt the Python viewer while it is already shutting down.
-    return;
-  }
   try {
     child.kill(signal);
   } catch {

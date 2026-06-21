@@ -440,6 +440,7 @@
   let latestCdxStatusPayload = null;
   let latestCdxRunsPayload = null;
   let latestCdxHistoryPayload = null;
+  const pendingCdxSessionToggles = new Map();
   // Per-section badge counters. `missions` is a live gauge (number of mission
   // runs currently in progress) and carries no seen-tracking. `runs`/`history`
   // are deltas: `seen` is the set of identifiers the user has already looked at,
@@ -6121,17 +6122,18 @@
     const latestSessionName = latestSessionNameOverride || latestCdxSessionName(sessions);
     const cellRenderers = {
       session: (item) => {
-        const name = cdxField(item, ["session_name", "name", "id", "value"]);
+        const name = cdxSessionName(item);
         const label = `${name}${item.active ? "*" : ""}`;
         return `<td class="viewer-cdx__session-name">${renderCdxSessionActionMenu(item, name, label, latestSessionName, canLaunchTerminal)}</td>`;
       },
       provider: (item) => `<td>${escapeHtml(cdxField(item, ["provider"], "-"))}</td>`,
       status: (item) => {
-        const name = cdxField(item, ["session_name", "name", "id", "value"]);
+        const name = cdxSessionName(item);
         const isEnabled = isCdxSessionEnabled(item);
         const badge = renderCdxBadge(cdxField(item, ["status", "state"]));
         if (!name || name === "-") return `<td>${badge}</td>`;
-        return `<td><button class="viewer-cdx__status-toggle${isEnabled ? " is-on" : " is-off"}" type="button" data-viewer-cdx-toggle="${escapeHtml(name)}" data-viewer-cdx-toggle-state="${isEnabled ? "on" : "off"}" title="${isEnabled ? "Disable" : "Enable"} ${escapeHtml(name)}">${badge}</button></td>`;
+        const pending = pendingCdxSessionToggles.has(name);
+        return `<td><button class="viewer-cdx__status-toggle${isEnabled ? " is-on" : " is-off"}${pending ? " is-updating" : ""}" type="button" data-viewer-cdx-toggle="${escapeHtml(name)}" data-viewer-cdx-toggle-state="${isEnabled ? "on" : "off"}" title="${pending ? "Updating" : isEnabled ? "Disable" : "Enable"} ${escapeHtml(name)}"${pending ? " disabled" : ""}>${badge}</button></td>`;
       },
       auth: (item) => {
         const rawAuth = String(cdxField(item, ["auth_status", "authStatus"], "-"));
@@ -6659,6 +6661,51 @@
       setDocument("CDX status", renderCdxStatus(latestCdxStatusPayload));
       setupCdxImportExportHandlers();
     }
+  }
+
+  function cdxSessionName(item) {
+    return cdxField(item, ["session_name", "name", "id", "value"], "");
+  }
+
+  function updateCdxSessionEntry(item, sessionName, enable) {
+    if (!item || typeof item !== "object" || cdxSessionName(item) !== sessionName) {
+      return false;
+    }
+    item.enabled = enable;
+    item.status = enable ? "enabled" : "disabled";
+    if ("state" in item) {
+      item.state = enable ? "enabled" : "disabled";
+    }
+    if (!enable && "active" in item) {
+      item.active = false;
+    }
+    return true;
+  }
+
+  function applyOptimisticCdxSessionToggle(sessionName, enable) {
+    if (!latestCdxStatusPayload?.status || !sessionName) {
+      return () => {};
+    }
+    const previousPayload = JSON.parse(JSON.stringify(latestCdxStatusPayload));
+    const status = latestCdxStatusPayload.status;
+    let changed = false;
+    ["rows", "sessions", "activeSessions", "active_sessions"].forEach((key) => {
+      asArray(status[key]).forEach((entry) => {
+        changed = updateCdxSessionEntry(entry, sessionName, enable) || changed;
+      });
+    });
+    if (!changed) {
+      return () => {};
+    }
+    latestCdxStatusSignature = runtimeStatusSignature(latestCdxStatusPayload);
+    updateMainCdxBadge(latestCdxStatusPayload);
+    rerenderCdxStatusFromPreferences();
+    return () => {
+      latestCdxStatusPayload = previousPayload;
+      latestCdxStatusSignature = runtimeStatusSignature(previousPayload);
+      updateMainCdxBadge(previousPayload);
+      rerenderCdxStatusFromPreferences();
+    };
   }
 
   function setupCdxImportExportHandlers() {
@@ -8689,20 +8736,24 @@
         const currentState = cdxToggleTarget.getAttribute("data-viewer-cdx-toggle-state") || "on";
         const enable = currentState === "off";
         if (!sessionName) return;
-        cdxToggleTarget.disabled = true;
+        pendingCdxSessionToggles.set(sessionName, enable);
+        const rollbackCdxToggle = applyOptimisticCdxSessionToggle(sessionName, enable);
         fetch("/api/cdx-toggle", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ session: sessionName, enable }),
-        }).then((r) => r.json()).then((data) => {
-          if (data.ok) {
-            cdxToggleTarget.setAttribute("data-viewer-cdx-toggle-state", enable ? "on" : "off");
-            cdxToggleTarget.classList.toggle("is-on", enable);
-            cdxToggleTarget.classList.toggle("is-off", !enable);
-            cdxToggleTarget.title = `${enable ? "Disable" : "Enable"} ${sessionName}`;
-            showCdxStatus({ silent: true, force: true }).catch(() => {});
+        }).then((r) => r.json().then((data) => ({ ok: r.ok, data }))).then(({ ok, data }) => {
+          if (!ok || !data.ok) {
+            throw new Error(data.error || "Toggle failed.");
           }
-        }).catch(() => {}).finally(() => { cdxToggleTarget.disabled = false; });
+          return showCdxStatus({ silent: true, force: true }).catch(() => {});
+        }).catch((error) => {
+          rollbackCdxToggle();
+          setMeta(`CDX toggle: ${error?.message || error}`);
+        }).finally(() => {
+          pendingCdxSessionToggles.delete(sessionName);
+          rerenderCdxStatusFromPreferences();
+        });
         return;
       }
       if (ciModeTarget instanceof HTMLElement) {

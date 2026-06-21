@@ -2452,6 +2452,47 @@ def test_viewer_main_stops_cleanly_on_keyboard_interrupt(
     assert fake_server.closed is True
 
 
+def test_viewer_main_execs_after_restart_request(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    class FakeViewerServer:
+        server_address = ("127.0.0.1", 8765)
+        tls_enabled = False
+        url_scheme = "http"
+        lan_token = ""
+        lan_rw_mode = False
+        restart_requested = True
+
+        def __init__(self) -> None:
+            self.closed = False
+
+        def serve_forever(self) -> None:
+            return
+
+        def server_close(self) -> None:
+            self.closed = True
+
+    fake_server = FakeViewerServer()
+    exec_calls: list[tuple[str, list[str]]] = []
+
+    def fake_execv(executable: str, command: list[str]) -> None:
+        exec_calls.append((executable, command))
+        raise RuntimeError("execv called")
+
+    monkeypatch.setattr(viewer_module, "find_repo_root", lambda _cwd: tmp_path)
+    monkeypatch.setattr(viewer_module, "create_viewer_server", lambda _repo_root, host, port, **_kwargs: fake_server)
+    monkeypatch.setattr(viewer_module.os, "execv", fake_execv)
+
+    with pytest.raises(RuntimeError, match="execv called"):
+        viewer_module.main(["--host", "127.0.0.1", "--port", "8765"])
+
+    capsys.readouterr()
+    assert fake_server.closed is True
+    assert exec_calls == [(sys.executable, [sys.executable, *sys.argv])]
+
+
 def test_viewer_serves_mermaid_vendor_asset(tmp_path: Path) -> None:
     (tmp_path / "logics").mkdir()
     server = create_viewer_server_or_skip(tmp_path)

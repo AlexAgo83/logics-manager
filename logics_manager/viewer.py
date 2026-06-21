@@ -3296,13 +3296,10 @@ class LogicsViewerServer(ThreadingHTTPServer):
         if self.restart_requested:
             return
         self.restart_requested = True
-        command = [sys.executable, *sys.argv]
 
         def restart() -> None:
             time.sleep(0.2)
             self.shutdown()
-            time.sleep(0.2)
-            os.execv(command[0], command)
 
         threading.Thread(target=restart, daemon=True).start()
 
@@ -4779,4 +4776,7 @@ def main(argv: list[str]) -> int:
         return 0
     finally:
         server.server_close()
+    if server.restart_requested:
+        command = [sys.executable, *sys.argv]
+        os.execv(command[0], command)
     return 0

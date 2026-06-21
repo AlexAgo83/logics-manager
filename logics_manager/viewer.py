@@ -510,6 +510,10 @@ def collect_viewer_items(repo_root: Path) -> list[dict[str, Any]]:
             if not any(existing["relPath"] == usage["relPath"] for existing in usages):
                 usages.append(usage)
         item["usedBy"] = sorted(usages, key=lambda usage: (STAGE_ORDER.get(usage["stage"], 99), usage["id"]))
+        if str(item["stage"]) == "request" and any(usage["stage"] in {"backlog", "task"} for usage in usages):
+            item["isPromoted"] = True
+        if str(item["stage"]) == "backlog" and any(usage["stage"] == "task" for usage in usages):
+            item["isPromoted"] = True
 
     items.sort(key=lambda item: (STAGE_ORDER.get(str(item["stage"]), 99), str(item["id"])))
     for item in items:

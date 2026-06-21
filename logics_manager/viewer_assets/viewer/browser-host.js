@@ -3682,7 +3682,7 @@
     docs.forEach((item) => {
       relationshipCounts[item.stage] = (relationshipCounts[item.stage] || 0) + (item.references || []).length + (item.usedBy || []).length;
       (item.references || []).forEach((ref) => {
-        if (ref.path && !itemPaths.has(ref.path)) {
+        if (ref.path && isSafeLogicsDocPath(ref.path) && !itemPaths.has(ref.path)) {
           brokenRefs.push(`${item.id} -> ${ref.path}`);
         }
       });
@@ -3943,9 +3943,24 @@
   function collectHealthFindings(lintData, auditData) {
     const findings = [];
     const append = (source, payload) => {
-      ["issues", "warnings", "findings", "strict"].forEach((key) => {
-        const entries = Array.isArray(payload?.[key]) ? payload[key] : [];
-        entries.forEach((entry) => findings.push({ source, ...entry }));
+      const canonicalEntries = Array.isArray(payload?.findings)
+        ? payload.findings
+        : [
+            ...(Array.isArray(payload?.issues) ? payload.issues : []),
+            ...(Array.isArray(payload?.warnings) ? payload.warnings : [])
+          ];
+      const seen = new Set();
+      canonicalEntries.forEach((entry) => {
+        const key = `${entry?.path || ""}\n${entry?.code || ""}\n${entry?.message || ""}`;
+        seen.add(key);
+        findings.push({ source, ...entry });
+      });
+      const strictEntries = Array.isArray(payload?.strict) ? payload.strict : [];
+      strictEntries.forEach((entry) => {
+        const key = `${entry?.path || ""}\n${entry?.code || ""}\n${entry?.message || ""}`;
+        if (!seen.has(key)) {
+          findings.push({ source, ...entry });
+        }
       });
     };
     append("lint", lintData.payload || {});

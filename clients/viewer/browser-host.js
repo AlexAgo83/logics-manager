@@ -1331,15 +1331,26 @@
   async function pickViewerProjectRoot() {
     setProjectMenuOpen(false);
     setMeta("Opening project folder picker...");
-    const response = await fetch("/api/select-project-root", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: "{}"
-    });
-    const data = await response.json();
-    if (!response.ok || !data.ok) {
-      throw new Error(data.error || "Unable to select project folder.");
+    let response;
+    let data = {};
+    try {
+      response = await fetch("/api/select-project-root", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{}"
+      });
+      data = await response.json();
+    } catch (error) {
+      return openProjectPickerModal(error?.message || "Native folder picker is unavailable.");
     }
+    if (!response.ok || !data.ok) {
+      await openProjectPickerModal(String(data.error || "Native folder picker is unavailable."));
+      return;
+    }
+    applySelectedProjectPayload(data.payload, `Switched to ${data.payload?.repoName || "selected project"}.`);
+  }
+
+  function applySelectedProjectPayload(payload, message) {
     latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
     latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
     updateMainGitBadges();
@@ -1349,8 +1360,98 @@
     if (panel) {
       panel.hidden = true;
     }
-    postToApp(data.payload, { force: true });
-    setMeta(`Switched to ${data.payload?.repoName || "selected project"}.`);
+    postToApp(payload, { force: true });
+    setMeta(message);
+  }
+
+  async function fetchProjectPickerTree(path = "") {
+    const response = await fetch(`/api/project-picker-tree?path=${encodeURIComponent(path)}`);
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to browse folders.");
+    }
+    return data.payload || {};
+  }
+
+  function renderProjectPickerModalBody(body, payload) {
+    if (!(body instanceof HTMLElement)) return;
+    const entries = Array.isArray(payload.entries) ? payload.entries : [];
+    const path = String(payload.path || "");
+    const rows = entries.map((entry) => `
+      <button class="viewer-project-picker__row" type="button" data-viewer-project-picker-open="${escapeHtml(entry.path || "")}">
+        <span>${escapeHtml(entry.name || entry.path || "folder")}</span>
+        <em>${entry.hasLogics ? "Logics" : "folder"}</em>
+      </button>
+    `).join("");
+    body.innerHTML = `
+      <div class="viewer-project-picker">
+        <div class="viewer-project-picker__meta">
+          <strong>${escapeHtml(payload.selectedPath || payload.root || "/")}</strong>
+          <span>${path ? "Browse a child folder or select this folder." : "Browse from the local project area."}</span>
+        </div>
+        <div class="viewer-project-picker__actions">
+          <button class="btn" type="button" data-viewer-project-picker-open="${escapeHtml(payload.parentPath || "")}"${path ? "" : " disabled"}>Parent</button>
+          <button class="btn primary" type="button" data-viewer-project-picker-select="${escapeHtml(path)}">Select this folder</button>
+        </div>
+        <div class="viewer-project-picker__list">${rows || '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span>No child folders.</span></div>'}</div>
+      </div>
+    `;
+  }
+
+  async function openProjectPickerModal(reason = "") {
+    const modal = createThemedModal({
+      title: "Choose project folder",
+      message: reason ? `${reason} Use the fallback folder browser below.` : "Use the fallback folder browser below.",
+      submitLabel: "Close",
+      cancelLabel: "Cancel"
+    });
+    const body = modal.querySelector(".viewer-themed-modal__body");
+    const submit = modal.querySelector(".viewer-themed-modal__submit");
+    if (submit instanceof HTMLButtonElement) submit.textContent = "Close";
+    let currentPath = "";
+    const load = async (path = "") => {
+      currentPath = path;
+      if (body instanceof HTMLElement) {
+        body.innerHTML = '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span>Loading folders...</span></div>';
+      }
+      renderProjectPickerModalBody(body, await fetchProjectPickerTree(path));
+    };
+    const close = () => closeThemedModal(modal);
+    modal.querySelector(".viewer-themed-modal__submit")?.addEventListener("click", close);
+    modal.querySelector(".viewer-themed-modal__cancel")?.addEventListener("click", close);
+    modal.querySelector(".viewer-themed-modal__close")?.addEventListener("click", close);
+    modal.addEventListener("click", async (event) => {
+      const openTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-picker-open]") : null;
+      const selectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-picker-select]") : null;
+      if (openTarget instanceof HTMLElement && !openTarget.hasAttribute("disabled")) {
+        event.preventDefault();
+        await load(openTarget.getAttribute("data-viewer-project-picker-open") || "");
+        return;
+      }
+      if (selectTarget instanceof HTMLElement) {
+        event.preventDefault();
+        const selectedPath = selectTarget.getAttribute("data-viewer-project-picker-select") || currentPath;
+        const response = await fetch("/api/select-project-root-path", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ path: selectedPath })
+        });
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+          await showThemedMessageModal({ title: "Folder refused", message: String(data.error || response.status) });
+          return;
+        }
+        closeThemedModal(modal);
+        applySelectedProjectPayload(data.payload, `Switched to ${data.payload?.repoName || "selected project"}.`);
+      }
+    });
+    try {
+      await load("");
+    } catch (error) {
+      if (body instanceof HTMLElement) {
+        body.innerHTML = `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--unavailable"><span>${escapeHtml(error?.message || "Unable to browse folders.")}</span></div>`;
+      }
+    }
   }
 
   async function bootstrapLogicsProject() {

@@ -394,6 +394,7 @@ def test_viewer_mutating_routes_registry_covers_every_state_changing_post() -> N
         "/api/bootstrap-logics",
         "/api/switch-project",
         "/api/select-project-root",
+        "/api/select-project-root-path",
         "/api/cdx-report-request",
         "/api/cdx-mission-run",
         "/api/cdx-mission-apply-plan",

@@ -110,7 +110,22 @@ describe("logics-manager npm wrapper", () => {
     ]);
   });
 
-  it("forwards SIGINT to the spawned python command", async () => {
+  it("does not double-forward SIGINT on POSIX terminals", async () => {
+    const child = new EventEmitter() as EventEmitter & { kill: ReturnType<typeof vi.fn> };
+    child.kill = vi.fn(() => true);
+    const spawnVersion = vi.fn(() => ({ status: 0, stdout: "Python 3.11.0\n", stderr: "" }));
+    const spawnCommand = vi.fn(() => child);
+
+    const running = runLogicsManager(["view", "--port", "0"], "linux", spawnVersion as never, spawnCommand as never);
+    process.emit("SIGINT");
+    queueMicrotask(() => child.emit("close", null, "SIGINT"));
+    const exitCode = await running;
+
+    expect(child.kill).not.toHaveBeenCalled();
+    expect(exitCode).toBe(130);
+  });
+
+  it("forwards SIGINT to the spawned python command on Windows", async () => {
     const child = new EventEmitter() as EventEmitter & { kill: ReturnType<typeof vi.fn> };
     child.kill = vi.fn((signal: string) => {
       queueMicrotask(() => child.emit("close", null, signal));
@@ -119,7 +134,7 @@ describe("logics-manager npm wrapper", () => {
     const spawnVersion = vi.fn(() => ({ status: 0, stdout: "Python 3.11.0\n", stderr: "" }));
     const spawnCommand = vi.fn(() => child);
 
-    const running = runLogicsManager(["view", "--port", "0"], "linux", spawnVersion as never, spawnCommand as never);
+    const running = runLogicsManager(["view", "--port", "0"], "win32", spawnVersion as never, spawnCommand as never);
     process.emit("SIGINT");
     const exitCode = await running;
 

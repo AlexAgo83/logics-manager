@@ -74,7 +74,14 @@ function childExitCode(code, signal) {
   return 1;
 }
 
-export function runChildProcess(command, args, spawnCommand = spawn) {
+export function shouldForwardSignal(signal, platform = process.platform) {
+  if (signal === "SIGINT" && platform !== "win32") {
+    return false;
+  }
+  return true;
+}
+
+export function runChildProcess(command, args, spawnCommand = spawn, platform = process.platform) {
   return new Promise((resolve) => {
     let settled = false;
     const child = spawnCommand(command, args, { stdio: "inherit" });
@@ -86,6 +93,9 @@ export function runChildProcess(command, args, spawnCommand = spawn) {
       resolve(code);
     };
     const forward = (signal) => {
+      if (!shouldForwardSignal(signal, platform)) {
+        return;
+      }
       try {
         child.kill(signal);
       } catch {
@@ -116,7 +126,7 @@ export async function runLogicsManager(argv = process.argv.slice(2), platform = 
       continue;
     }
 
-    const status = await runChildProcess(launcher.command, [...launcher.argsPrefix, scriptPath, ...argv], spawnCommand);
+    const status = await runChildProcess(launcher.command, [...launcher.argsPrefix, scriptPath, ...argv], spawnCommand, platform);
     if (status === null) {
       continue;
     }

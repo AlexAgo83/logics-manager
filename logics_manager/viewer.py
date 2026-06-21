@@ -5021,13 +5021,20 @@ def main(argv: list[str]) -> int:
     if args.open and not args.no_open:
         webbrowser.open(url)
 
+    interrupted = False
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        return 0
+        interrupted = True
     finally:
-        server.server_close()
-    if server.restart_requested:
+        try:
+            server.server_close()
+        except KeyboardInterrupt:
+            interrupted = True
+    if getattr(server, "restart_requested", False):
         command = [sys.executable, *sys.argv]
         os.execv(command[0], command)
+    if interrupted:
+        return 0
+    return 0
     return 0

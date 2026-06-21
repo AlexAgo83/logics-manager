@@ -1742,7 +1742,7 @@
       }
       setMeta("Repository folder opened.");
     } catch (error) {
-      setMeta(error instanceof Error ? error.message : "Unable to open repository folder.");
+      await openProjectPickerModal(error instanceof Error ? error.message : "Unable to open repository folder.");
     }
   }
 

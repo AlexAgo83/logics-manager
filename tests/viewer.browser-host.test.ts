@@ -54,6 +54,7 @@ function createViewerDom(options: {
   initialUrlToken?: string;
   pairStartResponse?: { ok: boolean; status?: number; body?: unknown };
   pairCompleteResponse?: { ok: boolean; status?: number; body?: unknown };
+  openRepoFolderResponse?: { ok: boolean; status?: number; body?: unknown };
   selectProjectRootResponse?: { ok: boolean; status?: number; body?: unknown };
   refreshGate?: Promise<void>;
   refreshResponse?: { ok: boolean; status?: number; body?: unknown };
@@ -562,6 +563,13 @@ function createViewerDom(options: {
         };
       }
       if (url === "/api/open-repo-folder") {
+        if (options.openRepoFolderResponse) {
+          return {
+            ok: options.openRepoFolderResponse.ok,
+            status: options.openRepoFolderResponse.status ?? (options.openRepoFolderResponse.ok ? 200 : 500),
+            json: async () => options.openRepoFolderResponse?.body || {}
+          };
+        }
         return {
           ok: true,
           status: 200,
@@ -2770,6 +2778,27 @@ describe("local viewer browser host", () => {
 
     expect(calls).toContain("/api/open-repo-folder");
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Repository folder opened.");
+  });
+
+  it("falls back to the embedded folder picker when opening the local folder is unavailable", async () => {
+    const { dom, calls } = createViewerDom({
+      openRepoFolderResponse: { ok: false, status: 403, body: { ok: false, error: "Local folder cannot be opened from this client." } }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const folder = dom.window.document.getElementById("viewer-repo-folder") as HTMLButtonElement | null;
+    folder?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(calls).toContain("/api/open-repo-folder");
+    expect(calls.some((call) => call.startsWith("/api/project-picker-tree"))).toBe(true);
+    const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    expect(modal?.textContent).toContain("Choose project folder");
+    expect(modal?.textContent).toContain("Local folder cannot be opened from this client.");
   });
 
   it("hides the GitHub shortcut when the repository has no GitHub remote", async () => {

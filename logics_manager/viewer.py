@@ -3159,6 +3159,12 @@ class LogicsViewerServer(ThreadingHTTPServer):
         self.project_root_by_id = {_viewer_project_id(root): root.resolve() for root in self.project_roots}
         self.active_project_id = _viewer_project_id(self.launch_repo_root)
         self.repo_root = self.launch_repo_root
+        self.project_picker_base_root = Path.home().resolve()
+        try:
+            self.project_picker_initial_path = self.launch_repo_root.parent.relative_to(self.project_picker_base_root).as_posix()
+        except ValueError:
+            self.project_picker_base_root = self.launch_repo_root.parent
+            self.project_picker_initial_path = ""
         self.auto_refresh_interval_seconds = auto_refresh_interval_seconds
         self.auto_refresh_interval_forced = auto_refresh_interval_forced
         self.lan_mode = bool(lan_mode)
@@ -3280,8 +3286,6 @@ class LogicsViewerServer(ThreadingHTTPServer):
         target = project_root.expanduser().resolve()
         if not target.is_dir():
             raise FileNotFoundError(str(target))
-        if not _looks_like_viewer_project(target):
-            raise ValueError("Selected folder does not look like a project.")
         project_id = _viewer_project_id(target)
         if project_id not in self.project_root_by_id:
             self.project_roots.append(target)
@@ -3904,9 +3908,10 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
             return
         if route == "/api/project-picker-tree":
-            rel_path = parse_qs(parsed.query).get("path", [""])[0]
+            params = parse_qs(parsed.query, keep_blank_values=True)
+            rel_path = params.get("path", [self.server.project_picker_initial_path])[0]
             try:
-                self._send_json({"ok": True, "payload": project_picker_tree_payload(self.server.launch_repo_root.parent, rel_path)})
+                self._send_json({"ok": True, "payload": project_picker_tree_payload(self.server.project_picker_base_root, rel_path)})
             except ValueError as exc:
                 self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
             return
@@ -4048,7 +4053,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 body = json.loads(raw_body or "{}")
                 rel_path = str(body.get("path") or "")
                 normalized = _normalize_workspace_path(rel_path)
-                base = self.server.launch_repo_root.parent.resolve()
+                base = self.server.project_picker_base_root.resolve()
                 selected = (base / normalized).resolve()
                 try:
                     selected.relative_to(base)

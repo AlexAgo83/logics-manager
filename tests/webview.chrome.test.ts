@@ -237,7 +237,7 @@ describe("webview chrome toolbar and filter behavior", () => {
     expect(helpBannerCopy?.textContent).toContain("No Logics items");
   });
 
-  it("shows help banner with selection guidance when items exist but none selected", () => {
+  it("hides help banner when items exist but none selected", () => {
     const { dom } = bootstrapWebview();
 
     pushData(dom, {
@@ -245,8 +245,10 @@ describe("webview chrome toolbar and filter behavior", () => {
       items: [baseItem]
     });
 
+    const helpBanner = dom.window.document.getElementById("help-banner");
     const helpBannerCopy = dom.window.document.getElementById("help-banner-copy");
-    expect(helpBannerCopy?.textContent).toContain("Select a card");
+    expect(helpBanner?.hidden).toBe(true);
+    expect(helpBannerCopy?.textContent).toBe("");
   });
 
   it("hides help banner once an item is selected", () => {

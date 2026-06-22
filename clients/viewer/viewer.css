@@ -414,6 +414,11 @@
 .viewer-screen-activity #filter-toggle,
 .viewer-screen-activity #attention-toggle,
 .viewer-screen-activity .toolbar__mode-button,
+.viewer-screen-project #activity-clear {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .viewer-screen-document #filter-toggle,
 .viewer-screen-document #attention-toggle,
 .viewer-screen-document .toolbar__mode-button,
@@ -422,10 +427,6 @@
 .viewer-screen-document #activity-clear,
 .viewer-screen-document #filter-panel,
 .viewer-screen-activity #filter-panel {
-  display: none;
-}
-
-.viewer-screen-project #activity-clear {
   display: none;
 }
 

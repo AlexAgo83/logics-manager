@@ -1413,6 +1413,15 @@
     button.setAttribute("aria-expanded", nextOpen ? "true" : "false");
   }
 
+  function returnToProjectSurface() {
+    const activityToggle = document.getElementById("activity-toggle");
+    if (activityPanelIsOpen() && activityToggle instanceof HTMLElement) {
+      activityToggle.click();
+    }
+    document.body?.classList.remove("viewer-screen-activity");
+    document.body?.classList.add("viewer-screen-project");
+  }
+
   async function switchViewerProject(projectId) {
     if (!projectId) {
       return;
@@ -1423,6 +1432,7 @@
       return;
     }
     setProjectMenuOpen(false);
+    returnToProjectSurface();
     setMeta(`Switching to ${target.name || "project"}...`);
     const response = await fetch("/api/switch-project", {
       method: "POST",
@@ -1449,6 +1459,7 @@
 
   async function pickViewerProjectRoot() {
     setProjectMenuOpen(false);
+    returnToProjectSurface();
     setMeta("Opening project folder picker...");
     let response;
     let data = {};
@@ -1470,6 +1481,7 @@
   }
 
   function applySelectedProjectPayload(payload, message) {
+    returnToProjectSurface();
     latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
     latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
     latestReleaseRunsStatus = { visible: false, badgeState: "unknown", message: "" };

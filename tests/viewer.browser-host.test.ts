@@ -124,6 +124,7 @@ function createViewerDom(options: {
     <button id="viewer-restart-server" type="button">Restart server</button>
     <a id="viewer-version-link" href="https://github.com/AlexAgo83/logics-manager">v0.0.0</a>
     <button id="activity-clear" type="button">Clear activity</button>
+    <button id="activity-toggle" type="button" aria-pressed="false">Activity</button>
     <div class="viewer-refresh-menu">
       <button id="viewer-refresh-menu-button" type="button" aria-expanded="false" aria-controls="viewer-refresh-menu">Refresh</button>
       <div id="viewer-refresh-menu" hidden>
@@ -189,6 +190,7 @@ function createViewerDom(options: {
       <div id="viewer-document-title"></div>
       <div id="viewer-document-content"></div>
     </section>
+    <aside id="activity-panel" hidden></aside>
   </body></html>`;
   const dom = new JSDOM(html, { runScripts: "outside-only", url: options.url || "http://127.0.0.1:8765/" });
   Object.defineProperty(dom.window.document, "hidden", { configurable: true, value: Boolean(options.hidden) });
@@ -1399,7 +1401,7 @@ describe("local viewer browser host", () => {
   it("styles the view slider and the mobile search/slider reflow", () => {
     const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
     expect(css).toMatch(/\.toolbar__view-slider\[data-current-mode="project"\]::after/);
-    expect(css).toMatch(/\.viewer-screen-activity #filter-toggle/);
+    expect(css).toMatch(/\.viewer-screen-activity #filter-toggle,\s*\.viewer-screen-activity #attention-toggle,\s*\.viewer-screen-activity \.toolbar__mode-button,\s*\.viewer-screen-project #activity-clear\s*\{[^}]*visibility: hidden;[^}]*pointer-events: none;/s);
     expect(css).toMatch(/\.viewer-screen-document #filter-toggle/);
     expect(css).not.toMatch(/\.viewer-code__gutter/);
     expect(css).not.toMatch(/\.viewer-code__body/);
@@ -1926,6 +1928,9 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-ci")?.hidden).toBe(true);
     expect((dom.window.document.getElementById("viewer-cdx") as HTMLButtonElement | null)?.disabled).toBe(true);
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 docs");
+    expect(dom.window.document.getElementById("activity-panel")?.hidden).toBe(true);
+    expect(dom.window.document.body.classList.contains("viewer-screen-project")).toBe(true);
+    expect(dom.window.document.body.classList.contains("viewer-screen-activity")).toBe(false);
   });
 
   it("opens a folder picker from the topbar project menu", async () => {

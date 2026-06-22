@@ -5252,7 +5252,7 @@
           if (entry.resizeRaf) cancelAnimationFrame(entry.resizeRaf);
           entry.resizeRaf = requestAnimationFrame(() => {
             entry.resizeRaf = 0;
-            syncWorkshopTerminalSize(entry);
+            syncWorkshopTerminalSize(entry, { useHysteresis: true });
           });
         });
         observer.observe(host);
@@ -5311,7 +5311,7 @@
 
   // Fit the emulator to its host and push the resulting dimensions to the PTY
   // (TIOCSWINSZ) so the backend's terminal width matches what is rendered.
-  function syncWorkshopTerminalSize(entry) {
+  function syncWorkshopTerminalSize(entry, { useHysteresis = false } = {}) {
     if (!entry || !entry.terminal || !entry.fitAddon) return;
     try {
       entry.fitAddon.fit();
@@ -5326,9 +5326,14 @@
       const rows = Math.max(dim.rows, WORKSHOP_TERMINAL_MIN_ROWS);
       const cols = Math.max(dim.cols, WORKSHOP_TERMINAL_MIN_COLS);
       // Hold the previous size until the drift crosses the step thresholds, so
-      // a faux mouvement (one-cell wobble) does not redraw the whole terminal.
+      // a faux mouvement (one-cell wobble while dragging) does not redraw the
+      // whole terminal. Only the noisy ResizeObserver path opts into this;
+      // corrective syncs (mount, font load, becoming visible) must always apply
+      // their exact size, otherwise the grid stays stuck at a stale width until
+      // a manual Ctrl+L forces a repaint.
       if (
-        typeof entry.lastSyncedCols === "number"
+        useHysteresis
+        && typeof entry.lastSyncedCols === "number"
         && typeof entry.lastSyncedRows === "number"
         && Math.abs(cols - entry.lastSyncedCols) < WORKSHOP_TERMINAL_RESIZE_COL_STEP
         && Math.abs(rows - entry.lastSyncedRows) < WORKSHOP_TERMINAL_RESIZE_ROW_STEP
@@ -5538,7 +5543,11 @@
         }
         entry.fitAddon.fit();
         const dim = entry.fitAddon.proposeDimensions();
-        if (dim) resizeWorkshopTerminal(entry.id, dim.rows, dim.cols);
+        if (dim) {
+          entry.lastSyncedCols = Math.max(dim.cols, WORKSHOP_TERMINAL_MIN_COLS);
+          entry.lastSyncedRows = Math.max(dim.rows, WORKSHOP_TERMINAL_MIN_ROWS);
+          resizeWorkshopTerminal(entry.id, dim.rows, dim.cols);
+        }
       } catch { /* noop */ }
     }
   }

@@ -446,6 +446,8 @@ def test_create_request_from_viewer_draft_writes_request_doc(tmp_path: Path) -> 
     assert "- Add a New Request action to the standalone viewer toolbar." in text
     assert "- Keep search available in Activity mode." in text
     assert "- Place the button before filters." in text
+    assert "- This request was created directly by the user from the viewer." in text
+    assert "translate it to English" in text
 
 
 def test_viewer_post_routes_are_classified_for_lan_gating() -> None:

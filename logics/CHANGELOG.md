@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.12.3 - 2026-06-22
+
+- Added guided New Request capture for title, need, and context in the shared webview flow.
+- Added a standalone viewer `+New` action that creates draft requests and keeps search available in Activity mode.
+- Marked viewer-created requests as user-authored and invited assistants to reformat, translate to English, and clarify without changing intent.
+- Improved custom terminal behavior with preserved sessions, drag-and-drop ordering, compact badges, Ctrl-C forwarding, and loading states.
+- Added Obsidian-friendly navigation documentation and normalized stale Logics reference paths.
+- Reduced corpus-insight false positives and removed legacy per-column add buttons from the board.
+
 ## v2.11.6 - 2026-06-20
 
 - Hardened release contract validation with fresher source-gate evidence checks and stricter release metadata handling.

@@ -5316,9 +5316,19 @@
     try {
       entry.fitAddon.fit();
       const dim = entry.fitAddon.proposeDimensions();
-      if (dim && dim.rows > 0 && dim.cols > 0) {
-        resizeWorkshopTerminal(entry.id, dim.rows, dim.cols);
+      if (!dim || !(dim.rows > 0) || !(dim.cols > 0)) return;
+      // xterm and the PTY MUST agree on size. resizeWorkshopTerminal() clamps
+      // the value sent to the PTY up to a minimum (80x24), but fit() may have
+      // sized xterm below that floor. If we only clamp the PTY side, the app
+      // wraps/redraws against a grid the renderer does not have, producing
+      // ghosting and text written over the same line. Force xterm onto the same
+      // clamped grid so term.cols/rows always equal the PTY's.
+      const rows = Math.max(dim.rows, WORKSHOP_TERMINAL_MIN_ROWS);
+      const cols = Math.max(dim.cols, WORKSHOP_TERMINAL_MIN_COLS);
+      if (entry.terminal.cols !== cols || entry.terminal.rows !== rows) {
+        try { entry.terminal.resize(cols, rows); } catch { /* noop */ }
       }
+      resizeWorkshopTerminal(entry.id, rows, cols);
     } catch { /* noop */ }
   }
 

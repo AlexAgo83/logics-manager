@@ -5169,6 +5169,7 @@ def render_start_status(
     lan_url: str | None = None,
     qr_lines: list[str] | None = None,
     tls_enabled: bool = False,
+    version: str | None = None,
 ) -> str:
     if lan_rw_mode:
         mode_label = "LAN read/write (token + paired device required)"
@@ -5177,8 +5178,9 @@ def render_start_status(
     else:
         mode_label = "read-only"
     transport_label = "HTTPS (self-signed)" if tls_enabled else "HTTP"
+    header = "Logics viewer running:" if not version else f"Logics viewer running (v{version}):"
     lines = [
-        "Logics viewer running:",
+        header,
         f"Local: {url}",
         "",
         f"Repo: {repo_root.name}",
@@ -5246,7 +5248,35 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--read", action="store_true", help="Open the focused item in the read preview. Requires --focus.")
     parser.add_argument("--open", action="store_true", help="Open the viewer in the default browser.")
     parser.add_argument("--no-open", action="store_true", help="Do not open the browser. This is the default.")
+    parser.add_argument(
+        "-y",
+        "--yes",
+        action="store_true",
+        help="Skip the confirmation prompt when launching in a location without a Logics corpus.",
+    )
     return parser
+
+
+def _confirm_launch_without_corpus(repo_root: Path, *, assume_yes: bool) -> bool:
+    """Confirm before launching the viewer where no `logics/` corpus exists.
+
+    Guards against launching in the wrong directory. When the prompt cannot be
+    answered interactively (no TTY, e.g. spawned by a wrapper), the launch
+    proceeds in bootstrap onboarding mode — preserving the prior behavior.
+    """
+    message = (
+        f"No Logics corpus ('logics/' directory) found at {repo_root}.\n"
+        "The viewer will start in bootstrap onboarding mode for this location."
+    )
+    print(message)
+    if assume_yes or not sys.stdin.isatty():
+        return True
+    try:
+        answer = input("Start the viewer here anyway? [y/N] ").strip().lower()
+    except (EOFError, KeyboardInterrupt):
+        print()
+        return False
+    return answer in {"y", "yes"}
 
 
 def _resolve_viewer_root(start: Path) -> Path:
@@ -5278,6 +5308,10 @@ def _resolve_viewer_root(start: Path) -> Path:
 def main(argv: list[str]) -> int:
     args = build_parser().parse_args(argv)
     repo_root = _resolve_viewer_root(Path.cwd())
+    if not (repo_root / "logics").is_dir():
+        if not _confirm_launch_without_corpus(repo_root, assume_yes=args.yes):
+            print("Aborted.")
+            return 0
     refresh_interval_forced = args.refresh_interval is not None
     refresh_interval = args.refresh_interval if args.refresh_interval is not None else 15
     if refresh_interval <= 0:
@@ -5346,6 +5380,7 @@ def main(argv: list[str]) -> int:
             lan_url=lan_share_url or None,
             qr_lines=qr_lines or None,
             tls_enabled=server.tls_enabled,
+            version=_current_version(),
         ),
         flush=True,
     )

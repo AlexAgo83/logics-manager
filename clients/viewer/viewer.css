@@ -868,6 +868,7 @@
 .viewer-document__actions {
   display: flex;
   align-items: center;
+  align-self: center;
   gap: 6px;
 }
 
@@ -910,7 +911,7 @@
 .viewer-document__nav {
   grid-column: 2;
   grid-row: 1;
-  align-self: start;
+  align-self: center;
   display: flex;
   justify-content: flex-end;
   min-width: 0;
@@ -927,6 +928,13 @@
   max-width: 100%;
   flex-wrap: wrap;
   justify-content: flex-end;
+  padding: 0;
+}
+
+.viewer-document__nav .viewer-cdx__mode {
+  min-height: 24px;
+  padding: 4px 10px;
+  line-height: 1.2;
 }
 
 .viewer-document__eyebrow {

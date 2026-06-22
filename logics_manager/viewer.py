@@ -5553,10 +5553,35 @@ def main(argv: list[str]) -> int:
     # turns SIGTERM into a graceful shutdown (closing workshop terminals)
     # instead of an abrupt kill. shutdown() must run off the serve_forever
     # thread, so dispatch it to a short-lived thread.
+    #
+    # Belt-and-suspenders: a long-lived SSE handler thread (an open browser on
+    # /api/events) or a wedged child can keep the graceful path from completing.
+    # After requesting shutdown we arm a watchdog that force-exits the process
+    # if the clean path has not returned within a short grace window, so Ctrl+C
+    # is guaranteed to kill the server. A second signal exits immediately.
     import signal as _signal
 
+    _SHUTDOWN_GRACE_SECONDS = 3.0
+    _shutdown_state: dict[str, Any] = {"requested": False}
+
+    def _exit_code_for_signal(signum: int) -> int:
+        return 143 if signum == _signal.SIGTERM else 130
+
+    def _force_exit_after_grace(signum: int) -> None:
+        time.sleep(_SHUTDOWN_GRACE_SECONDS)
+        # Reaching here means the clean path is still stuck: the process would
+        # already be gone otherwise. Force the exit so Ctrl+C never hangs.
+        os._exit(_exit_code_for_signal(signum))
+
     def _request_shutdown(_signum: int, _frame: Any) -> None:
+        if _shutdown_state["requested"]:
+            # Impatient second Ctrl+C: don't wait for the grace window.
+            os._exit(_exit_code_for_signal(_signum))
+        _shutdown_state["requested"] = True
         threading.Thread(target=server.shutdown, daemon=True).start()
+        threading.Thread(
+            target=_force_exit_after_grace, args=(_signum,), daemon=True
+        ).start()
 
     for _sig in (_signal.SIGINT, _signal.SIGTERM):
         try:

@@ -264,7 +264,7 @@
 
     function getHelpBannerMessage() {
       if (getItems().length === 0) {
-        return "No Logics items are loaded yet. Use Tools > New Request or Bootstrap Logics to seed the workspace.";
+        return "No Logics items are loaded yet. Use New Request or Bootstrap Logics to seed the workspace.";
       }
       if (!getSelectedId()) {
         return "Select a card for details. Use Search to find items faster, Attention to triage, and List mode when the board gets crowded.";

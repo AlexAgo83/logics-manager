@@ -334,8 +334,20 @@ export function renderMarkdownToHtml(markdown: string): string {
   return html.join("\n");
 }
 
-export function buildGuidedRequestPrompt(basePrompt: string): string {
+type GuidedRequestDraft = {
+  title?: string;
+  intent?: string;
+  context?: string;
+};
+
+function formatGuidedDraftList(value: string | undefined, fallback: string): string {
+  const trimmed = (value || "").trim();
+  return `- ${trimmed || fallback}`;
+}
+
+export function buildGuidedRequestPrompt(basePrompt: string, draft?: GuidedRequestDraft): string {
   const trimmedBase = basePrompt.trim();
+  const title = (draft?.title || "").trim();
   const sections = [
     "Use the canonical `logics-manager` workflow surface for this repository.",
     "Prefer `python3 -m logics_manager flow ...` commands when you reference request/backlog/task operations.",
@@ -346,11 +358,14 @@ export function buildGuidedRequestPrompt(basePrompt: string): string {
     "Use the standard Logics request structure with clear Needs, Context, a Mermaid diagram, Acceptance criteria, Scope, and Dependencies/risks.",
     "Ask concise clarification questions first if critical information is missing before drafting the request.",
     "",
+    title ? "Working title:" : "",
+    title,
+    title ? "" : "",
     "My need:",
-    "- Describe the need here",
+    formatGuidedDraftList(draft?.intent, "Describe the need here"),
     "",
     "Constraints / context:",
-    "- Add context here",
+    formatGuidedDraftList(draft?.context, "Add context here"),
     "",
     "Expected outcome:",
     "- Produce a request-ready draft I can turn into a Logics document"

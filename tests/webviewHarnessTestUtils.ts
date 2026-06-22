@@ -257,7 +257,13 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
         }
         return Promise.resolve(true);
       },
-      prompt: ({ defaultValue }: { defaultValue?: string }) => Promise.resolve(defaultValue || "")
+      prompt: ({ defaultValue }: { defaultValue?: string }) => Promise.resolve(defaultValue || ""),
+      requestDraft: () =>
+        Promise.resolve({
+          title: "Harness request",
+          intent: "Harness need",
+          context: "Harness context"
+        })
     },
     configurable: true
   });

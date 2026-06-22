@@ -11,6 +11,23 @@ describe("logicsViewMessages", () => {
     });
     expect(
       parseLogicsWebviewMessage({
+        type: "new-request-guided",
+        draft: {
+          title: "Improve corpus",
+          intent: "Make request creation assisted",
+          context: "The column plus buttons are not useful"
+        }
+      })
+    ).toEqual({
+      type: "new-request-guided",
+      draft: {
+        title: "Improve corpus",
+        intent: "Make request creation assisted",
+        context: "The column plus buttons are not useful"
+      }
+    });
+    expect(
+      parseLogicsWebviewMessage({
         type: "inject-prompt",
         prompt: "Use the Logics runtime.",
         options: {

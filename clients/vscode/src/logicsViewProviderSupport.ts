@@ -922,9 +922,12 @@ export async function reviewDocConsistencyFromCommand(this: LogicsViewProviderSu
 export async function createRequest(this: LogicsViewProviderSupportHost): Promise<void> {
     await this.documentController.createRequest();
   }
-export async function startGuidedRequestFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
-    await this.documentController.startGuidedRequestFromTools();
-  }
+export async function startGuidedRequestFromTools(
+  this: LogicsViewProviderSupportHost,
+  draft?: import("./logicsViewMessages").GuidedRequestDraft
+): Promise<void> {
+    await this.documentController.startGuidedRequestFromTools(draft);
+}
 export async function launchCodexFromTools(this: LogicsViewProviderSupportHost): Promise<void> {
     const root = await this.getActionRoot();
     if (!root) {

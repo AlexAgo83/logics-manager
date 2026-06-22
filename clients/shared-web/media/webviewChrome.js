@@ -173,7 +173,19 @@
         empty.textContent = "No recent activity is available yet.";
         list.appendChild(empty);
       } else {
+        let currentGroupLabel = "";
         visibleEntries.forEach((entry) => {
+          const groupLabel =
+            toolsPanelLayout && typeof toolsPanelLayout.formatActivityTimeBucket === "function"
+              ? toolsPanelLayout.formatActivityTimeBucket(entry.updatedAt)
+              : "Unknown";
+          if (groupLabel !== currentGroupLabel) {
+            currentGroupLabel = groupLabel;
+            const groupHeader = document.createElement("div");
+            groupHeader.className = "activity-panel__group-label";
+            groupHeader.textContent = groupLabel;
+            list.appendChild(groupHeader);
+          }
           const button = document.createElement("button");
           button.type = "button";
           button.className = "activity-panel__entry";
@@ -219,13 +231,6 @@
           meta.textContent = entry.meta || `${entry.label || "Updated"} · ${stageTitle} · ${entry.id}`;
           body.appendChild(meta);
 
-          const updated = document.createElement("span");
-          updated.className = "activity-panel__updated";
-          updated.textContent =
-            toolsPanelLayout && typeof toolsPanelLayout.formatActivityUpdated === "function"
-              ? toolsPanelLayout.formatActivityUpdated(entry.updatedAt)
-              : "Updated: Unknown";
-          body.appendChild(updated);
           button.appendChild(body);
 
           if (entry.selectable !== false) {

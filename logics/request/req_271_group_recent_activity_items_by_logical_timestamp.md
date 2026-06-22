@@ -1,8 +1,8 @@
 ## req_271_group_recent_activity_items_by_logical_timestamp - Group Recent Activity items by logical timestamp
-> Status: Draft
+> Status: Done
 > From version: 2.12.7
-> Understanding: 50%
-> Confidence: 50%
+> Understanding: 90
+> Confidence: 85
 > Complexity: Medium
 > Theme: Viewer request
 
@@ -32,6 +32,12 @@ the visual layout should stay compact and readable in the current dark theme
 # Acceptance Criteria
 - AC1: The request has been reviewed and clarified enough to triage.
 - AC2: Follow-up backlog items preserve the need and relevant context.
+
+# Definition of Ready (DoR)
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Backlog
 - `item_480_group_recent_activity_items_by_logical_timestamp`

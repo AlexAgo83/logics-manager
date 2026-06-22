@@ -1,10 +1,10 @@
 ## item_480_group_recent_activity_items_by_logical_timestamp - Group Recent Activity items by logical timestamp
 > From version: 2.12.7
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -37,8 +37,8 @@ Update the Recent Activity view so activity cells are grouped by logical timesta
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_271_group_recent_activity_items_by_logical_timestamp.md`
-- Primary task(s): (none yet)
+- Request: `req_271_group_recent_activity_items_by_logical_timestamp`
+- Primary task(s): `task_268_group_recent_activity_items_by_logical_timestamp`
 
 # AI Context
 - Summary: Group Recent Activity items by logical timestamp
@@ -54,6 +54,7 @@ Update the Recent Activity view so activity cells are grouped by logical timesta
 - Hybrid rationale: Derived from request `req_271_group_recent_activity_items_by_logical_timestamp` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_271_group_recent_activity_items_by_logical_timestamp.md`.
 - Generated locally by logics-manager.
+- Task `task_268_group_recent_activity_items_by_logical_timestamp` was finished via `logics-manager flow finish task` on 2026-06-22.
 
 # Tasks
 - `task_268_group_recent_activity_items_by_logical_timestamp`

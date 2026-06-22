@@ -85,6 +85,14 @@
       if (!Number.isFinite(timestamp)) {
         return "Updated: Unknown";
       }
+      return `Updated: ${formatActivityTimeBucket(updatedAt)}`;
+    }
+
+    function formatActivityTimeBucket(updatedAt) {
+      const timestamp = Date.parse(updatedAt || "");
+      if (!Number.isFinite(timestamp)) {
+        return "Unknown";
+      }
       const date = new Date(timestamp);
       const deltaMinutes = Math.max(0, Math.round((Date.now() - timestamp) / 60000));
       if (deltaMinutes < 24 * 60) {
@@ -98,9 +106,9 @@
           hour: "2-digit",
           minute: "2-digit"
         }).format(date);
-        return `Updated: ${relativeLabel} • ${preciseTime}`;
+        return `${relativeLabel} • ${preciseTime}`;
       }
-      return `Updated: ${date.toLocaleDateString("en-CA")}`;
+      return date.toLocaleDateString("en-CA");
     }
 
     function getRecommendedToolActions() {
@@ -163,6 +171,7 @@
     }
 
     return {
+      formatActivityTimeBucket,
       formatActivityUpdated,
       getActiveToolsView,
       renderToolsPanelStructure,

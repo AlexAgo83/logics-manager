@@ -851,6 +851,12 @@
   .viewer-document__content {
     padding: 6px;
   }
+
+  .viewer-document__nav,
+  .viewer-document__nav .viewer-cdx__modes,
+  .viewer-document__nav .viewer-workshop__tabs {
+    justify-content: flex-start;
+  }
 }
 
 .viewer-document__actions {
@@ -886,13 +892,33 @@
 }
 
 .viewer-document__header {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 8px 12px;
   padding: 12px 14px;
   border-bottom: 1px solid var(--vscode-panel-border, #333333);
   background: var(--vscode-sideBar-background, #252526);
+}
+
+.viewer-document__nav {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.viewer-document__nav[hidden],
+.viewer-document__nav:empty {
+  display: none !important;
+}
+
+.viewer-document__nav .viewer-cdx__modes,
+.viewer-document__nav .viewer-workshop__tabs {
+  margin: 0;
+  max-width: 100%;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .viewer-document__eyebrow {

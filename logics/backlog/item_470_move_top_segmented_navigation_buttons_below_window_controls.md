@@ -1,10 +1,10 @@
 ## item_470_move_top_segmented_navigation_buttons_below_window_controls - Move top segmented navigation buttons below window controls
 > From version: 2.12.3
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 88%
 > Confidence: 82%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer navigation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -50,7 +50,7 @@ Keep the app chrome clearer and more consistent by grouping these navigation con
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_266_move_top_segmented_navigation_buttons_below_window_controls.md`
+- Request: `req_266_move_top_segmented_navigation_buttons_below_window_controls`
 - Primary task(s): `task_263_move_top_segmented_navigation_buttons_below_window_controls`
 
 # AI Context
@@ -67,6 +67,7 @@ Keep the app chrome clearer and more consistent by grouping these navigation con
 - Hybrid rationale: Derived from request `req_266_move_top_segmented_navigation_buttons_below_window_controls` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_266_move_top_segmented_navigation_buttons_below_window_controls.md`.
 - Generated locally by logics-manager.
+- Task `task_263_move_top_segmented_navigation_buttons_below_window_controls` was finished via `logics-manager flow finish task` on 2026-06-22.
 
 # Tasks
 - `task_263_move_top_segmented_navigation_buttons_below_window_controls`

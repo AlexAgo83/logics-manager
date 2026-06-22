@@ -1,7 +1,7 @@
 ## req_273_replace_exec_compile_part_glue_with_importable_modules - Replace exec(compile) part-glue with importable modules
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 92%
 > Confidence: 86%
 > Complexity: Medium

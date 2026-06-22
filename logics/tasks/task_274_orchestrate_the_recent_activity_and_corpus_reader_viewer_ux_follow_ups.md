@@ -1,9 +1,9 @@
 ## task_274_orchestrate_the_recent_activity_and_corpus_reader_viewer_ux_follow_ups - Orchestrate the recent activity and corpus reader viewer UX follow-ups
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: In progress
-> Understanding: 95
-> Confidence: 92
+> Status: Done
+> Understanding: 100
+> Confidence: 100
 > Progress: 100%
 > Complexity: Medium
 > Theme: Viewer activity
@@ -33,13 +33,21 @@
 - request-AC3 -> This task. Proof: implementation is executable from the promoted backlog item.
 - backlog-AC1 -> This task. Proof: task remains bounded to the linked backlog scope.
 - backlog-AC2 -> This task. Proof: task provides the executable implementation surface.
+- request-AC4 -> This task. Proof: vitest covers the scroll-preservation, the corpus toggle filter logic, and the object-name + pill header rendering.
+- request-AC5 -> This task. Proof: logics-manager lint and audit pass, and the built/packaged viewer assets stay in sync with canonical sources.
 
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.
 - Run the task-specific automated tests.
+- lint OK; pytest 409 passed; vitest 686 passed (2026-06-22)
+- Finish workflow executed on 2026-06-22.
+- Linked backlog/request close verification passed.
 
 # Report
 - All three follow-ups implemented and committed step by step:
+- Finished on 2026-06-22.
+- Linked backlog item(s): `item_495_deliver_the_recent_activity_and_corpus_reader_viewer_ux_follow_ups`
+- Related request(s): `req_277_recent_activity_and_corpus_reader_viewer_ux_follow_ups`
   1. Scroll preservation in renderActivityPanel (capture/restore list scrollTop).
   2. "Corpus changes" toggle (activityShowCorpus) wired through main-app + webviewChrome + filter HTML.
   3. setDocument renders the object name + colour-coded corpus-type pill, path moved to the eyebrow (revived from a dead display:none).

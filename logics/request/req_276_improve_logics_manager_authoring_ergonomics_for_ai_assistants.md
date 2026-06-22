@@ -1,7 +1,7 @@
 ## req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants - Improve logics-manager authoring ergonomics for AI assistants
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

@@ -1,7 +1,7 @@
 ## req_275_add_a_git_ci_event_filter_to_the_recent_activity_view - Add a git/CI event filter to the Recent activity view
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

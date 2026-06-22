@@ -1,7 +1,7 @@
 ## req_274_surface_ci_events_in_the_recent_activity_feed - Surface CI events in the Recent activity feed
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

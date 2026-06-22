@@ -1,10 +1,10 @@
 ## item_482_reunite_numbered_part_python_modules_into_importable_code - Reunite numbered-part Python modules into importable code
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 100
+> Progress: 100%
 > Complexity: Medium
 > Theme: Python decomposition
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -31,6 +31,11 @@
 - request-AC2 -> This backlog slice. Proof: AC2: logics_manager.mcp/.sync/.audit/.release/.assist_support resolve unchanged.
 - request-AC3 -> This backlog slice. Proof: AC3: The _01.._04 fragments are removed; their pytest suites pass unchanged.
 - request-AC6 -> This backlog slice. Proof: AC3: The _01.._04 fragments are removed; their pytest suites pass unchanged.
+- request-AC4 -> This backlog slice. Proof: Tracebacks raised from these modules reference the real source file and line, verified by a test.
+- request-AC5 -> This backlog slice. Proof: scripts/check-source-line-budget.mjs is retuned (raised limit or per-package allowance) so importable decomposition no longer requires text-glue, and CI still fails on genuine new monoliths.
+- request-AC7 -> This backlog slice. Proof: The full pytest and vitest suites pass unchanged with no behavior regressions.
+- request-AC8 -> This backlog slice. Proof: logics-manager lint and audit pass on the resulting workflow corpus and code.
+- request-AC9 -> This backlog slice. Proof: The frontend mirror of the part-glue (browser-host, render-board-app, main-app) is replaced by real ES modules imported directly by index.js; the regex string-manifests and readFileSync(...).join("") concatenation are removed, modules split by responsibility, and bundled artifacts stay byte-stable.
 
 # Decision framing
 - Product framing: Not needed
@@ -54,3 +59,7 @@
 
 # Notes
 - Done: mcp/sync/audit/release/assist_support merged from _01.._0N parts into single importable modules; *_parts dirs removed; exec loaders gone. 395 pytest pass.
+- Task `task_270_orchestrate_the_exec_part_glue_remediation` was finished via `logics-manager flow finish task` on 2026-06-22.
+
+# Tasks
+- `task_270_orchestrate_the_exec_part_glue_remediation`

@@ -1,14 +1,21 @@
 ## prod_026_importable_module_remediation - Importable module remediation
 > Date: 2026-06-22
-> Status: Proposed
+> Status: Settled
 > Related request: `req_273_replace_exec_compile_part_glue_with_importable_modules`
-> Related backlog: `item_482_reunite_numbered_part_python_modules_into_importable_code`, `item_483_convert_viewer_and_flow_part_glue_into_real_packages`, `item_484_retune_the_source_line_budget_guardrail`
+> Related backlog: `item_482_reunite_numbered_part_python_modules_into_importable_code`
 > Related task: `task_270_orchestrate_the_exec_part_glue_remediation`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
 # Overview
 Replace the runtime exec(compile) part-glue across seven modules with ordinary Python imports, restoring tooling support without changing behavior.
+
+```mermaid
+flowchart LR
+    Glue[exec compile part-glue] --> Modules[Importable modules + thin facades]
+    Modules --> Tooling[IDE, linters, type tooling work]
+    Modules --> Stable[Bundles byte-stable, behavior unchanged]
+```
 
 # Goals
 - Restore tracebacks, IDE navigation, type-checking, and static analysis on the largest Python modules.
@@ -33,5 +40,5 @@ Replace the runtime exec(compile) part-glue across seven modules with ordinary P
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_273_replace_exec_compile_part_glue_with_importable_modules`
+- Product back-reference: `item_482_reunite_numbered_part_python_modules_into_importable_code`
 - Task back-reference: `task_270_orchestrate_the_exec_part_glue_remediation`

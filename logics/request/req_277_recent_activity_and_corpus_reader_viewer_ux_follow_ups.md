@@ -1,7 +1,7 @@
 ## req_277_recent_activity_and_corpus_reader_viewer_ux_follow_ups - Recent activity and corpus reader viewer UX follow-ups
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

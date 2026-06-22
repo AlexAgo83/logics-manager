@@ -1,7 +1,7 @@
 ## req_270_modularize_oversized_source_files_across_the_codebase - Modularize oversized source files across the codebase
 > From version: 2.12.7
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High

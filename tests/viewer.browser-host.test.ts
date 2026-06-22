@@ -5161,8 +5161,8 @@ describe("local viewer browser host", () => {
     expect(headers).toContain("PERM.");
     expect(headers).not.toContain("BLOCK");
     expect(headers).not.toContain("CR");
-    const permissionButtons = Array.from(dom.window.document.querySelectorAll("[data-viewer-cdx-permission]")).map((node) => node.textContent?.trim());
-    expect(permissionButtons).toEqual(["-", "review"]);
+    const permissionLabels = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__permission-label")).map((node) => node.textContent?.trim());
+    expect(permissionLabels).toEqual(["-", "review"]);
     expect(text).not.toContain("9.68");
     expect(text).toMatch(/in \d+[dhm]/);
     expect(text).toMatch(/\d+m ago/);
@@ -5390,7 +5390,7 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
   });
 
-  it("edits CDX session permission values from the status table", async () => {
+  it("edits CDX session permission values from the session config modal", async () => {
     const payload = cdxRowsStatusPayload();
     const { dom, fetchCalls } = createViewerDom({ cdxResponse: payload });
     const api = dom.window.acquireVsCodeApi();
@@ -5400,22 +5400,28 @@ describe("local viewer browser host", () => {
     dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
 
-    const permissionButton = dom.window.document.querySelector('[data-viewer-cdx-permission="work2"]') as HTMLButtonElement | null;
-    expect(permissionButton?.textContent).toBe("review");
-    permissionButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    const permissionLabel = dom.window.document.querySelector('[data-viewer-cdx-session="work2"] .viewer-cdx__permission-label')
+      ?? dom.window.document.querySelectorAll(".viewer-cdx__permission-label")[1];
+    expect(permissionLabel?.textContent?.trim()).toBe("review");
+
+    (dom.window.document.querySelector('[data-viewer-cdx-session="work2"][data-viewer-cdx-session-action="config"]') as HTMLElement | null)
+      ?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
 
     const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
-    expect(modal?.textContent).toContain("Choose permission for work2.");
-    const select = modal?.querySelector(".viewer-themed-modal__select") as HTMLSelectElement | null;
+    expect(modal?.textContent).toContain("CDX session: work2");
+    const select = modal?.querySelector('[data-viewer-cdx-session-config-input="permission"]') as HTMLSelectElement | null;
     expect(Array.from(select?.options || []).map((option) => option.value)).toEqual(["review", "default", "auto", "full"]);
+    expect(select?.value).toBe("review");
     if (select) select.value = "full";
-    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+    (modal?.querySelector("[data-viewer-cdx-session-config-submit]") as HTMLButtonElement | null)?.click();
     await flushViewerAsync();
     await flushViewerAsync();
 
     expect(fetchCalls.find((call) => call.url === "/api/cdx-permission")?.options?.body).toBe(JSON.stringify({ session: "work2", permission: "full" }));
-    expect((dom.window.document.querySelector('[data-viewer-cdx-permission="work2"]') as HTMLButtonElement | null)?.textContent).toBe("full");
+    const updatedLabel = dom.window.document.querySelector('[data-viewer-cdx-session="work2"] .viewer-cdx__permission-label')
+      ?? dom.window.document.querySelectorAll(".viewer-cdx__permission-label")[1];
+    expect(updatedLabel?.textContent?.trim()).toBe("full");
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("CDX status refreshed.");
   });
 

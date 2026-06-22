@@ -330,6 +330,9 @@
 | [req_264_support_obsidian_friendly_logics_navigation](request/req_264_support_obsidian_friendly_logics_navigation.md) | Support Obsidian-friendly Logics navigation | Done |  | request/req_264_support_obsidian_friendly_logics_navigation.md |
 | [req_265_add_an_opt_in_obsidian_projection_mode_for_logics_docs](request/req_265_add_an_opt_in_obsidian_projection_mode_for_logics_docs.md) | Out of scope | Done |  | request/req_265_add_an_opt_in_obsidian_projection_mode_for_logics_docs.md |
 | [req_266_move_top_segmented_navigation_buttons_below_window_controls](request/req_266_move_top_segmented_navigation_buttons_below_window_controls.md) | Out of scope | Done |  | request/req_266_move_top_segmented_navigation_buttons_below_window_controls.md |
+| [req_267_add_favorite_projects_in_the_project_selector](request/req_267_add_favorite_projects_in_the_project_selector.md) | Add favorite projects in the project selector | Done |  | request/req_267_add_favorite_projects_in_the_project_selector.md |
+| [req_268_add_editable_permission_column_to_the_status_table](request/req_268_add_editable_permission_column_to_the_status_table.md) | Add editable Permission column to the status table | Done |  | request/req_268_add_editable_permission_column_to_the_status_table.md |
+| [req_269_add_session_config_action_before_remove](request/req_269_add_session_config_action_before_remove.md) | Add session Config action before Remove | Done |  | request/req_269_add_session_config_action_before_remove.md |
 
 ## Backlog
 
@@ -805,6 +808,9 @@
 | [item_468_support_obsidian_friendly_logics_navigation](backlog/item_468_support_obsidian_friendly_logics_navigation.md) | Support Obsidian-friendly Logics navigation | Done | 100% | backlog/item_468_support_obsidian_friendly_logics_navigation.md |
 | [item_469_add_an_opt_in_obsidian_projection_mode_for_logics_docs](backlog/item_469_add_an_opt_in_obsidian_projection_mode_for_logics_docs.md) | Add an opt-in Obsidian projection mode for Logics docs | Done | 100% | backlog/item_469_add_an_opt_in_obsidian_projection_mode_for_logics_docs.md |
 | [item_470_move_top_segmented_navigation_buttons_below_window_controls](backlog/item_470_move_top_segmented_navigation_buttons_below_window_controls.md) | Move top segmented navigation buttons below window controls | Done | 100% | backlog/item_470_move_top_segmented_navigation_buttons_below_window_controls.md |
+| [item_471_add_favorite_projects_in_the_project_selector](backlog/item_471_add_favorite_projects_in_the_project_selector.md) | Add favorite projects in the project selector | Done | 100% | backlog/item_471_add_favorite_projects_in_the_project_selector.md |
+| [item_472_add_session_config_action_before_remove](backlog/item_472_add_session_config_action_before_remove.md) | Add session Config action before Remove | Done | 100% | backlog/item_472_add_session_config_action_before_remove.md |
+| [item_473_add_editable_permission_column_to_the_status_table](backlog/item_473_add_editable_permission_column_to_the_status_table.md) | Add editable Permission column to the status table | Done | 100% | backlog/item_473_add_editable_permission_column_to_the_status_table.md |
 
 ## Tasks
 
@@ -1067,3 +1073,6 @@
 | [task_261_support_obsidian_friendly_logics_navigation](tasks/task_261_support_obsidian_friendly_logics_navigation.md) | Support Obsidian-friendly Logics navigation | Done | 100% | tasks/task_261_support_obsidian_friendly_logics_navigation.md |
 | [task_262_add_an_opt_in_obsidian_projection_mode_for_logics_docs](tasks/task_262_add_an_opt_in_obsidian_projection_mode_for_logics_docs.md) | Add an opt-in Obsidian projection mode for Logics docs | Done | 100% | tasks/task_262_add_an_opt_in_obsidian_projection_mode_for_logics_docs.md |
 | [task_263_move_top_segmented_navigation_buttons_below_window_controls](tasks/task_263_move_top_segmented_navigation_buttons_below_window_controls.md) | Move top segmented navigation buttons below window controls | Done | 100% | tasks/task_263_move_top_segmented_navigation_buttons_below_window_controls.md |
+| [task_264_add_favorite_projects_in_the_project_selector](tasks/task_264_add_favorite_projects_in_the_project_selector.md) | Add favorite projects in the project selector | Done | 100% | tasks/task_264_add_favorite_projects_in_the_project_selector.md |
+| [task_265_add_session_config_action_before_remove](tasks/task_265_add_session_config_action_before_remove.md) | Add session Config action before Remove | Done | 100% | tasks/task_265_add_session_config_action_before_remove.md |
+| [task_266_add_editable_permission_column_to_the_status_table](tasks/task_266_add_editable_permission_column_to_the_status_table.md) | Add editable Permission column to the status table | Done | 100% | tasks/task_266_add_editable_permission_column_to_the_status_table.md |

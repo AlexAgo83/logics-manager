@@ -22,11 +22,6 @@ const allowedOversizedFiles = new Map(
     "clients/shared-web/media/renderBoardApp.js": { maxLines: 1333, ref: "item_479" },
     "clients/viewer/src/browser-host/index.js": { maxLines: 10152, ref: "item_478" },
     "clients/vscode/src/logicsCorpusInsightsHtml.ts": { maxLines: 1114, ref: "unplanned-current" },
-    "logics_manager/assist_support.py": { maxLines: 1496, ref: "item_477" },
-    "logics_manager/audit.py": { maxLines: 1089, ref: "item_477" },
-    "logics_manager/mcp.py": { maxLines: 1601, ref: "item_477" },
-    "logics_manager/release.py": { maxLines: 1020, ref: "item_477" },
-    "logics_manager/sync.py": { maxLines: 1468, ref: "item_477" },
   })
 );
 const generatedFiles = new Set(["clients/viewer/browser-host.js"]);

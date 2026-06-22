@@ -1,10 +1,10 @@
 ## item_477_modularize_the_remaining_oversized_python_modules - Modularize the remaining oversized Python modules
 > From version: 2.12.7
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Python decomposition
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -49,3 +49,6 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Validation
+- Split mcp.py, assist_support.py, sync.py, audit.py, and release.py into short compatibility loaders plus responsibility-scoped *_parts fragments under 500 lines, preserving public imports. Validation: python3 -m pytest tests/python/test_logics_manager_mcp.py tests/python/test_sync_cli.py tests/python/test_audit_cli.py tests/python/test_release_contract_schema.py tests/python/test_assist_cli.py tests/python/test_cli_main.py -q and npm run check:line-budget pass.

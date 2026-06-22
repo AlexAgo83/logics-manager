@@ -1,0 +1,379 @@
+{
+  "budgets": {
+    "max_docs": 32,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_270_modularize_oversized_source_files_across_the_codebase item_474_establish_modularization_guardrails_and_viewer_esbuild_bundle_pipeline item_475_split_flow_py_into_a_flow_package_by_responsibility item_476_split_viewer_py_into_a_viewer_package_by_responsibility item_477_modularize_the_remaining_oversized_python_modules item_478_convert_browser_host_js_into_bundled_es_modules item_479_modularize_webview_scripts_renderboardapp_js_and_mainapp_js task_267_orchestrate_the_oversized_source_modularization_program --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_474_establish_modularization_guardrails_and_viewer_esbuild_bundle_pipeline",
+          "item_475_split_flow_py_into_a_flow_package_by_responsibility",
+          "item_476_split_viewer_py_into_a_viewer_package_by_responsibility",
+          "item_477_modularize_the_remaining_oversized_python_modules",
+          "item_478_convert_browser_host_js_into_bundled_es_modules",
+          "item_479_modularize_webview_scripts_renderboardapp_js_and_mainapp_js"
+        ],
+        "prod": [
+          "prod_025_oversized_source_modularization"
+        ],
+        "req": [
+          "req_270_modularize_oversized_source_files_across_the_codebase"
+        ],
+        "task": [
+          "task_267_orchestrate_the_oversized_source_modularization_program"
+        ]
+      },
+      "path": "logics/product/prod_025_oversized_source_modularization.md",
+      "ref": "prod_025_oversized_source_modularization",
+      "status": "Proposed",
+      "title": "Oversized source modularization"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, modularize oversized source files across the codebase, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Modularize oversized source files across the codebase",
+        "use when": "You need to implement or review the scaffolded workflow for Modularize oversized source files across the codebase."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_474_establish_modularization_guardrails_and_viewer_esbuild_bundle_pipeline",
+          "item_475_split_flow_py_into_a_flow_package_by_responsibility",
+          "item_476_split_viewer_py_into_a_viewer_package_by_responsibility",
+          "item_477_modularize_the_remaining_oversized_python_modules",
+          "item_478_convert_browser_host_js_into_bundled_es_modules",
+          "item_479_modularize_webview_scripts_renderboardapp_js_and_mainapp_js"
+        ],
+        "prod": [
+          "prod_025_oversized_source_modularization"
+        ],
+        "req": [
+          "req_270_modularize_oversized_source_files_across_the_codebase"
+        ]
+      },
+      "path": "logics/request/req_270_modularize_oversized_source_files_across_the_codebase.md",
+      "ref": "req_270_modularize_oversized_source_files_across_the_codebase",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Modularize oversized source files across the codebase"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, establish modularization guardrails and viewer esbuild bundle pipeline, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Establish modularization guardrails and viewer esbuild bundle pipeline",
+        "use when": "Implementing the scaffolded slice for Establish modularization guardrails and viewer esbuild bundle pipeline."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_474_establish_modularization_guardrails_and_viewer_esbuild_bundle_pipeline"
+        ],
+        "prod": [
+          "prod_025_oversized_source_modularization"
+        ],
+        "req": [
+          "req_270_modularize_oversized_source_files_across_the_codebase"
+        ],
+        "task": [
+          "task_267_orchestrate_the_oversized_source_modularization_program"
+        ]
+      },
+      "path": "logics/backlog/item_474_establish_modularization_guardrails_and_viewer_esbuild_bundle_pipeline.md",
+      "ref": "item_474_establish_modularization_guardrails_and_viewer_esbuild_bundle_pipeline",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Establish modularization guardrails and viewer esbuild bundle pipeline"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, split flow.py into a flow package by responsibility, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Split flow.py into a flow package by responsibility",
+        "use when": "Implementing the scaffolded slice for Split flow.py into a flow package by responsibility."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_475_split_flow_py_into_a_flow_package_by_responsibility"
+        ],
+        "prod": [
+          "prod_025_oversized_source_modularization"
+        ],
+        "req": [
+          "req_270_modularize_oversized_source_files_across_the_codebase"
+        ],
+        "task": [
+          "task_267_orchestrate_the_oversized_source_modularization_program"
+        ]
+      },
+      "path": "logics/backlog/item_475_split_flow_py_into_a_flow_package_by_responsibility.md",
+      "ref": "item_475_split_flow_py_into_a_flow_package_by_responsibility",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Split flow.py into a flow package by responsibility"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, split viewer.py into a viewer package by responsibility, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Split viewer.py into a viewer package by responsibility",
+        "use when": "Implementing the scaffolded slice for Split viewer.py into a viewer package by responsibility."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_476_split_viewer_py_into_a_viewer_package_by_responsibility"
+        ],
+        "prod": [
+          "prod_025_oversized_source_modularization"
+        ],
+        "req": [
+          "req_270_modularize_oversized_source_files_across_the_codebase"
+        ],
+        "task": [
+          "task_267_orchestrate_the_oversized_source_modularization_program"
+        ]
+      },
+      "path": "logics/backlog/item_476_split_viewer_py_into_a_viewer_package_by_responsibility.md",
+      "ref": "item_476_split_viewer_py_into_a_viewer_package_by_responsibility",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Split viewer.py into a viewer package by responsibility"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate the oversized-source modularization program",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_474_establish_modularization_guardrails_and_viewer_esbuild_bundle_pipeline",
+          "item_475_split_flow_py_into_a_flow_package_by_responsibility",
+          "item_476_split_viewer_py_into_a_viewer_package_by_responsibility",
+          "item_477_modularize_the_remaining_oversized_python_modules",
+          "item_478_convert_browser_host_js_into_bundled_es_modules",
+          "item_479_modularize_webview_scripts_renderboardapp_js_and_mainapp_js"
+        ],
+        "prod": [
+          "prod_025_oversized_source_modularization"
+        ],
+        "req": [
+          "req_270_modularize_oversized_source_files_across_the_codebase"
+        ],
+        "task": [
+          "task_267_orchestrate_the_oversized_source_modularization_program"
+        ]
+      },
+      "path": "logics/tasks/task_267_orchestrate_the_oversized_source_modularization_program.md",
+      "ref": "task_267_orchestrate_the_oversized_source_modularization_program",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrate the oversized-source modularization program"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, modularize the remaining oversized python modules, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Modularize the remaining oversized Python modules",
+        "use when": "Implementing the scaffolded slice for Modularize the remaining oversized Python modules."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_477_modularize_the_remaining_oversized_python_modules"
+        ],
+        "prod": [
+          "prod_025_oversized_source_modularization"
+        ],
+        "req": [
+          "req_270_modularize_oversized_source_files_across_the_codebase"
+        ],
+        "task": [
+          "task_267_orchestrate_the_oversized_source_modularization_program"
+        ]
+      },
+      "path": "logics/backlog/item_477_modularize_the_remaining_oversized_python_modules.md",
+      "ref": "item_477_modularize_the_remaining_oversized_python_modules",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Modularize the remaining oversized Python modules"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, convert browser-host.js into bundled es modules, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Convert browser-host.js into bundled ES modules",
+        "use when": "Implementing the scaffolded slice for Convert browser-host.js into bundled ES modules."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_478_convert_browser_host_js_into_bundled_es_modules"
+        ],
+        "prod": [
+          "prod_025_oversized_source_modularization"
+        ],
+        "req": [
+          "req_270_modularize_oversized_source_files_across_the_codebase"
+        ],
+        "task": [
+          "task_267_orchestrate_the_oversized_source_modularization_program"
+        ]
+      },
+      "path": "logics/backlog/item_478_convert_browser_host_js_into_bundled_es_modules.md",
+      "ref": "item_478_convert_browser_host_js_into_bundled_es_modules",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Convert browser-host.js into bundled ES modules"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, modularize webview scripts renderboardapp.js and mainapp.js, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Modularize webview scripts renderBoardApp.js and mainApp.js",
+        "use when": "Implementing the scaffolded slice for Modularize webview scripts renderBoardApp.js and mainApp.js."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_479_modularize_webview_scripts_renderboardapp_js_and_mainapp_js"
+        ],
+        "prod": [
+          "prod_025_oversized_source_modularization"
+        ],
+        "req": [
+          "req_270_modularize_oversized_source_files_across_the_codebase"
+        ],
+        "task": [
+          "task_267_orchestrate_the_oversized_source_modularization_program"
+        ]
+      },
+      "path": "logics/backlog/item_479_modularize_webview_scripts_renderboardapp_js_and_mainapp_js.md",
+      "ref": "item_479_modularize_webview_scripts_renderboardapp_js_and_mainapp_js",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Modularize webview scripts renderBoardApp.js and mainApp.js"
+    }
+  ],
+  "estimates": {
+    "char_count": 9159,
+    "companion_doc_count": 1,
+    "doc_count": 8
+  },
+  "generated_at": "2026-06-22T14:27:02Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_270_modularize_oversized_source_files_across_the_codebase",
+      "item_474_establish_modularization_guardrails_and_viewer_esbuild_bundle_pipeline",
+      "item_475_split_flow_py_into_a_flow_package_by_responsibility",
+      "item_476_split_viewer_py_into_a_viewer_package_by_responsibility",
+      "item_477_modularize_the_remaining_oversized_python_modules",
+      "item_478_convert_browser_host_js_into_bundled_es_modules",
+      "item_479_modularize_webview_scripts_renderboardapp_js_and_mainapp_js",
+      "task_267_orchestrate_the_oversized_source_modularization_program"
+    ],
+    "validation_summary_count": 1
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_270_modularize_oversized_source_files_across_the_codebase,item_474_establish_modularization_guardrails_and_viewer_esbuild_bundle_pipeline,item_475_split_flow_py_into_a_flow_package_by_responsibility,item_476_split_viewer_py_into_a_viewer_package_by_responsibility,item_477_modularize_the_remaining_oversized_python_modules,item_478_convert_browser_host_js_into_bundled_es_modules,item_479_modularize_webview_scripts_renderboardapp_js_and_mainapp_js,task_267_orchestrate_the_oversized_source_modularization_program",
+  "refs": [
+    "req_270_modularize_oversized_source_files_across_the_codebase",
+    "item_474_establish_modularization_guardrails_and_viewer_esbuild_bundle_pipeline",
+    "item_475_split_flow_py_into_a_flow_package_by_responsibility",
+    "item_476_split_viewer_py_into_a_viewer_package_by_responsibility",
+    "item_477_modularize_the_remaining_oversized_python_modules",
+    "item_478_convert_browser_host_js_into_bundled_es_modules",
+    "item_479_modularize_webview_scripts_renderboardapp_js_and_mainapp_js",
+    "task_267_orchestrate_the_oversized_source_modularization_program"
+  ],
+  "release": {
+    "blocking_reasons": [],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "Release evidence is complete.",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "ready",
+    "target_version": "2.12.7"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_267_orchestrate_the_oversized_source_modularization_program.md",
+      "ref": "task_267_orchestrate_the_oversized_source_modularization_program"
+    }
+  ]
+}

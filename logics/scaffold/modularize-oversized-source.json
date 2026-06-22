@@ -1,0 +1,213 @@
+{
+  "title": "Modularize oversized source files across the codebase",
+  "references": [
+    "`clients/viewer/browser-host.js` (10152 lines, IIFE, 439 functions)",
+    "`logics_manager/viewer.py` (5800 lines)",
+    "`logics_manager/flow.py` (4165 lines)",
+    "`logics_manager/mcp.py` (1601 lines)",
+    "`logics_manager/assist_support.py` (1496 lines)",
+    "`logics_manager/sync.py` (1468 lines)",
+    "`clients/shared-web/media/renderBoardApp.js` (1333 lines)",
+    "`logics_manager/audit.py` (1089 lines)",
+    "`logics_manager/release.py` (1020 lines)",
+    "`clients/shared-web/media/mainApp.js` (1005 lines)",
+    "`scripts/dev/sync-viewer-assets.mjs` (asset sync pipeline)",
+    "`package.json` (esbuild ^0.28.1, vitest, typescript already present)"
+  ],
+  "request": {
+    "complexity": "High",
+    "theme": "Codebase maintainability",
+    "needs": [
+      "Every real source file currently over 1000 lines is decomposed into cohesive, single-responsibility modules without changing runtime behavior.",
+      "Maintainers can locate and edit a concern in a small focused file instead of scrolling a multi-thousand-line monolith.",
+      "The decomposition reuses tooling already in the repo (Python packages, esbuild, vitest) rather than introducing a new framework or runtime dependency."
+    ],
+    "context": [
+      "Audit of source line counts (excluding generated dist/build/out and vendored/minified assets) identified ten files over 1000 lines.",
+      "`clients/viewer/browser-host.js` is the source; `logics_manager/viewer_assets/viewer/browser-host.js` is a SHA-verified copy produced by scripts/dev/sync-viewer-assets.mjs, so it is a build artifact, not a second source to refactor.",
+      "browser-host.js is a single IIFE with 439 functions and zero import/export statements, so it needs an ES-module + esbuild bundle step rather than a plain file split.",
+      "viewer.py and flow.py are already composed of small cohesive functions grouped by theme (git ops, doc parsing, payload builders, help text, closeout repairs), so they split cleanly into packages with a thin re-export facade.",
+      "esbuild, typescript, and vitest are already devDependencies; no new framework is needed.",
+      "Existing suites (tests/python/*, tests/viewer.browser-host.test.ts, tests/webview.*.test.ts) provide a behavior safety net for every slice."
+    ],
+    "acceptance_criteria": [
+      "AC1: Each real source file previously over 1000 lines is split so that resulting modules target under 500 lines each (up to ~800 only where cohesion clearly justifies it).",
+      "AC2: Public import paths and CLI behavior are preserved via thin re-export facades; the full pytest and vitest suites pass unchanged with no behavior regressions.",
+      "AC3: The Python monoliths (flow.py, viewer.py, mcp.py, assist_support.py, sync.py, audit.py, release.py) become packages organized by responsibility.",
+      "AC4: clients/viewer/browser-host.js is rewritten as ES modules bundled by the existing esbuild toolchain, and sync-viewer-assets.mjs still emits the shipped viewer_assets artifact.",
+      "AC5: The webview scripts renderBoardApp.js and mainApp.js are modularized and bundled with no behavior change.",
+      "AC6: No new framework or runtime dependency is introduced; only existing tooling (Python packages, esbuild, vitest) is used.",
+      "AC7: A guardrail (lint check or test) fails when a new source file exceeds the agreed line budget, preventing regressions.",
+      "AC8: logics-manager lint and audit pass on the resulting workflow corpus and code."
+    ]
+  },
+  "product": {
+    "title": "Oversized source modularization",
+    "overview": "A behavior-preserving decomposition of every >1000-line source file into cohesive modules, using only tooling already present in the repository.",
+    "goals": [
+      "Reduce per-file cognitive load and merge-conflict surface across the largest source files.",
+      "Establish a repeatable pattern: Python monoliths become packages with re-export facades; large browser scripts become esbuild-bundled ES modules.",
+      "Add a lightweight guardrail so file size does not silently regress after this effort."
+    ],
+    "non_goals": [
+      "Changing runtime behavior, public APIs, or user-facing features.",
+      "Introducing a frontend framework (Preact/Lit/etc.) or any new runtime dependency.",
+      "Refactoring vendored or generated artifacts (mermaid.min.js, dist/, build/, out/)."
+    ]
+  },
+  "backlog_items": [
+    {
+      "title": "Establish modularization guardrails and viewer esbuild bundle pipeline",
+      "complexity": "Medium",
+      "theme": "Build tooling",
+      "request_acs": ["AC6", "AC7"],
+      "problem": [
+        "There is no enabling pipeline to bundle viewer ES modules and no guardrail preventing files from growing back past the line budget."
+      ],
+      "scope_in": [
+        "Add an esbuild bundle step (reusing the existing esbuild dependency) that compiles clients/viewer/src/*.js into the single browser-host.js artifact",
+        "Wire the bundle step ahead of scripts/dev/sync-viewer-assets.mjs so the shipped artifact stays byte-stable in CI",
+        "Add a line-budget guardrail (lint rule or vitest/pytest check) that flags new source files over the agreed threshold"
+      ],
+      "scope_out": [
+        "The actual decomposition of any monolith (handled by sibling slices)",
+        "Adopting any framework or new runtime dependency"
+      ],
+      "acceptance_criteria": [
+        "AC1: An esbuild-based bundle command exists and produces browser-host.js from a src/ entrypoint.",
+        "AC2: A documented line-budget guardrail fails CI when a source file exceeds the threshold.",
+        "AC3: sync-viewer-assets.mjs --check still passes after bundling."
+      ]
+    },
+    {
+      "title": "Split flow.py into a flow package by responsibility",
+      "complexity": "Medium",
+      "theme": "Python decomposition",
+      "request_acs": ["AC1", "AC2", "AC3"],
+      "problem": [
+        "logics_manager/flow.py is 4165 lines mixing help text, listing, doc building, closeout repairs, and CLI wiring."
+      ],
+      "scope_in": [
+        "Extract all _build_*_help functions into flow/help.py as the lowest-risk first move (~530 lines)",
+        "Split listing, PlannedDoc/native-doc builders, closeout/repair, and argparse wiring into flow/ submodules",
+        "Keep logics_manager/flow.py (or flow/__init__.py) as a thin facade re-exporting the existing public API"
+      ],
+      "scope_out": [
+        "Changing CLI flags, command names, or output formats",
+        "Other Python modules"
+      ],
+      "acceptance_criteria": [
+        "AC1: flow becomes a package whose modules each target under 500 lines.",
+        "AC2: Public imports of logics_manager.flow continue to resolve unchanged.",
+        "AC3: tests/python/test_cli_main.py and flow-related tests pass unchanged."
+      ]
+    },
+    {
+      "title": "Split viewer.py into a viewer package by responsibility",
+      "complexity": "High",
+      "theme": "Python decomposition",
+      "request_acs": ["AC1", "AC2", "AC3"],
+      "problem": [
+        "logics_manager/viewer.py is 5800 lines covering doc parsing, item/payload assembly, project discovery, file opening, git operations, and remote-provider URL parsing."
+      ],
+      "scope_in": [
+        "Split into viewer/ submodules: docs, items, projects, files, git, providers",
+        "Keep a thin viewer facade re-exporting the public payload functions used by callers",
+        "Preserve all payload shapes byte-for-byte"
+      ],
+      "scope_out": [
+        "Changing viewer payload schemas or viewer CLI behavior",
+        "browser-host.js and webview assets"
+      ],
+      "acceptance_criteria": [
+        "AC1: viewer becomes a package whose modules each target under 500 lines (git submodule up to ~700 if cohesion requires).",
+        "AC2: tests/python/test_viewer_cli.py passes unchanged.",
+        "AC3: Public imports of logics_manager.viewer continue to resolve unchanged."
+      ]
+    },
+    {
+      "title": "Modularize the remaining oversized Python modules",
+      "complexity": "Medium",
+      "theme": "Python decomposition",
+      "request_acs": ["AC1", "AC2", "AC3"],
+      "problem": [
+        "mcp.py (1601), assist_support.py (1496), sync.py (1468), audit.py (1089), and release.py (1020) each exceed the budget."
+      ],
+      "scope_in": [
+        "Decompose each module into cohesive submodules or a package with a re-export facade",
+        "Target under 500 lines per resulting module"
+      ],
+      "scope_out": [
+        "flow.py and viewer.py (handled by sibling slices)",
+        "Behavior or public API changes"
+      ],
+      "acceptance_criteria": [
+        "AC1: Each listed module is split so resulting files target under 500 lines.",
+        "AC2: Public imports for each module continue to resolve unchanged.",
+        "AC3: The relevant pytest suites pass unchanged."
+      ]
+    },
+    {
+      "title": "Convert browser-host.js into bundled ES modules",
+      "complexity": "High",
+      "theme": "Frontend decomposition",
+      "request_acs": ["AC1", "AC2", "AC4"],
+      "problem": [
+        "clients/viewer/browser-host.js is a single 10152-line IIFE with 439 functions and no module boundaries."
+      ],
+      "scope_in": [
+        "Carve the IIFE into ES modules under clients/viewer/src/ (auth/lan, modals, preferences/state, fetch, columns, rendering, etc.)",
+        "Bundle to the existing browser-host.js artifact via the esbuild pipeline from the guardrails slice",
+        "Keep sync-viewer-assets.mjs emitting an identical shipped artifact"
+      ],
+      "scope_out": [
+        "Changing viewer runtime behavior or HTML/CSS contracts",
+        "Introducing a frontend framework"
+      ],
+      "acceptance_criteria": [
+        "AC1: Source ES modules each target under 500 lines.",
+        "AC2: tests/viewer.browser-host.test.ts passes against the bundled output.",
+        "AC4: The bundled browser-host.js is byte-stable and sync-viewer-assets.mjs --check passes."
+      ]
+    },
+    {
+      "title": "Modularize webview scripts renderBoardApp.js and mainApp.js",
+      "complexity": "Medium",
+      "theme": "Frontend decomposition",
+      "request_acs": ["AC1", "AC2", "AC5"],
+      "problem": [
+        "renderBoardApp.js (1333) and mainApp.js (1005) under clients/shared-web/media exceed the budget and are duplicated into viewer_assets via the sync pipeline."
+      ],
+      "scope_in": [
+        "Split each webview script into ES modules and bundle them with esbuild",
+        "Keep the shared-web -> viewer_assets sync producing identical artifacts"
+      ],
+      "scope_out": [
+        "browser-host.js (handled by a sibling slice)",
+        "Behavior or rendered-output changes"
+      ],
+      "acceptance_criteria": [
+        "AC1: Resulting webview source modules each target under 500 lines.",
+        "AC2: tests/webview.board-renderer.test.ts and related webview tests pass unchanged.",
+        "AC5: Bundled webview artifacts remain byte-stable through the sync pipeline."
+      ]
+    }
+  ],
+  "orchestration_task": {
+    "title": "Orchestrate the oversized-source modularization program",
+    "plan": [
+      "Land the guardrails and viewer esbuild bundle pipeline first so later slices have an enabling build step and a regression budget.",
+      "Decompose flow.py, starting with the zero-risk help.py extraction, then the remaining flow submodules.",
+      "Decompose viewer.py into its package, preserving payload shapes.",
+      "Modularize the remaining Python modules (mcp, assist_support, sync, audit, release).",
+      "Convert browser-host.js into bundled ES modules and verify byte-stable artifacts.",
+      "Modularize the webview scripts (renderBoardApp, mainApp) and verify the sync pipeline.",
+      "Run lint, audit, pytest, and vitest after each slice and keep all linked docs in sync."
+    ]
+  },
+  "context_pack": {
+    "out": "logics/context-packs/modularize-oversized-source.json",
+    "mode": "summary-only",
+    "profile": "normal"
+  }
+}

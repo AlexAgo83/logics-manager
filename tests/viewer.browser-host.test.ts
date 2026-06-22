@@ -5493,6 +5493,57 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("anthropic");
   });
 
+  it("does not reopen a closed CDX status screen on a background cdx change event", async () => {
+    const { dom } = createViewerDom();
+    const sources: Array<{
+      url: string;
+      listeners: Map<string, Array<(event: MessageEvent) => void>>;
+      emit: (name: string, payload: unknown) => void;
+    }> = [];
+    class FakeEventSource {
+      url: string;
+      onerror: ((event: Event) => void) | null = null;
+      listeners = new Map<string, Array<(event: MessageEvent) => void>>();
+      constructor(url: string) {
+        this.url = url;
+        sources.push(this);
+      }
+      addEventListener(name: string, handler: (event: MessageEvent) => void) {
+        const list = this.listeners.get(name) || [];
+        list.push(handler);
+        this.listeners.set(name, list);
+      }
+      emit(name: string, payload: unknown) {
+        const event = new dom.window.MessageEvent(name, { data: JSON.stringify(payload) });
+        for (const handler of this.listeners.get(name) || []) handler(event);
+      }
+      close() {}
+    }
+    (dom.window as unknown as { EventSource: typeof EventSource }).EventSource = FakeEventSource as unknown as typeof EventSource;
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    expect(dom.window.document.getElementById("viewer-document")?.hidden).toBe(false);
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX status");
+
+    dom.window.document.getElementById("viewer-document-close")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    expect(dom.window.document.getElementById("viewer-document")?.hidden).toBe(true);
+
+    // The closed panel keeps its "CDX status" title text; a background cdx event
+    // must not reopen it.
+    sources[0]?.emit("changed", { components: ["cdx"] });
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(dom.window.document.getElementById("viewer-document")?.hidden).toBe(true);
+  });
+
   it("shows Git badge counters on initial viewer load", async () => {
     const { dom, calls } = createViewerDom({
       gitResponse: {

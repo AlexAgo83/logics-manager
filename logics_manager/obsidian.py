@@ -20,7 +20,7 @@ DOC_TYPES = {
     "architecture": ("logics/architecture", "adr"),
     "spec": ("logics/specs", "spec"),
 }
-INDICATORS = ("Status", "Understanding", "Confidence", "Progress", "Theme")
+INDICATORS = ("Status", "Owner", "Understanding", "Confidence", "Progress", "Theme")
 
 
 @dataclass(frozen=True)
@@ -137,7 +137,7 @@ def _frontmatter_for(doc: ProjectionDoc) -> dict[str, Any]:
         "aliases": [doc.title] if doc.title else [],
         "tags": sorted(set(tags)),
     }
-    for key in ("Understanding", "Confidence", "Progress", "Theme"):
+    for key in ("Owner", "Understanding", "Confidence", "Progress", "Theme"):
         value = doc.indicators.get(key)
         if value:
             payload[key.lower()] = value
@@ -150,6 +150,7 @@ def _render_frontmatter(payload: dict[str, Any]) -> str:
         "type",
         "ref",
         "status",
+        "owner",
         "understanding",
         "confidence",
         "progress",

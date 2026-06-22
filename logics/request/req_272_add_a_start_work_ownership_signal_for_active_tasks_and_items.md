@@ -1,7 +1,7 @@
 ## req_272_add_a_start_work_ownership_signal_for_active_tasks_and_items - Add a start-work / ownership signal for active tasks and items
 > From version: 2.12.7
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

@@ -73,6 +73,7 @@ class FlowListEntry:
     ref: str
     title: str
     status: str | None
+    owner: str | None
     progress: str | None
 
 
@@ -81,11 +82,15 @@ def _parse_flow_doc(path: Path, kind: str) -> FlowListEntry:
     ref = path.stem
     title = _extract_doc_title(path)
     status: str | None = None
+    owner: str | None = None
     progress: str | None = None
 
     for line in lines:
         if line.startswith("> Status:"):
             status = line.split(":", 1)[1].strip()
+            continue
+        if line.startswith("> Owner:"):
+            owner = line.split(":", 1)[1].strip()
             continue
         if line.startswith("> Progress:"):
             progress = line.split(":", 1)[1].strip()
@@ -96,6 +101,7 @@ def _parse_flow_doc(path: Path, kind: str) -> FlowListEntry:
         ref=ref,
         title=title,
         status=status,
+        owner=owner,
         progress=progress,
     )
 
@@ -123,11 +129,13 @@ def _render_flow_list_section(title: str, entries: list[FlowListEntry], out_dir:
         lines.append("")
         return "\n".join(lines)
 
-    lines.extend(["| Doc | Title | Status | Progress | Path |", "|---|---|---|---|---|"])
+    lines.extend(["| Doc | Title | Status | Owner | Progress | Path |", "|---|---|---|---|---|---|"])
     for entry in entries:
         rel = entry.path.relative_to(out_dir).as_posix()
         doc_link = f"[{entry.ref}]({rel})"
-        lines.append(f"| {doc_link} | {entry.title} | {entry.status or ''} | {entry.progress or ''} | {rel} |")
+        lines.append(
+            f"| {doc_link} | {entry.title} | {entry.status or ''} | {entry.owner or ''} | {entry.progress or ''} | {rel} |"
+        )
     lines.append("")
     return "\n".join(lines)
 
@@ -150,6 +158,7 @@ def flow_list_payload(repo_root: Path, *, kind: str = "all") -> dict[str, object
                 "ref": entry.ref,
                 "title": entry.title,
                 "status": entry.status,
+                "owner": entry.owner,
                 "progress": entry.progress,
                 "path": entry.path.relative_to(repo_root).as_posix(),
             }
@@ -170,6 +179,7 @@ def render_flow_list(repo_root: Path, *, kind: str = "all", output_format: str =
             ref=str(item["ref"]),
             title=str(item["title"]),
             status=item["status"],
+            owner=item["owner"],
             progress=item["progress"],
         )
         for item in payload["entries"]

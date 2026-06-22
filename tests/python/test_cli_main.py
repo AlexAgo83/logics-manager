@@ -456,6 +456,116 @@ def test_status_payload_reports_remaining_work(tmp_path: Path) -> None:
     assert "Groom 1 draft request(s)." in payload["next_actions"]
 
 
+def test_flow_start_marks_doc_in_progress_with_env_owner(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    task_path = repo_root / "logics" / "tasks" / "task_001_demo.md"
+    _write_minimal_workflow_doc(task_path, title="Demo task", kind="task", status="Ready", links=[])
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setenv("LOGICS_AGENT", "codex")
+
+    exit_code = main(["flow", "start", "task_001_demo", "--format", "json"])
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    text = task_path.read_text(encoding="utf-8")
+    assert exit_code == 0
+    assert payload["previous_status"] == "Ready"
+    assert payload["status"] == "In progress"
+    assert payload["owner"] == "codex"
+    assert payload["warnings"] == []
+    assert "> Status: In progress" in text
+    assert "> Owner: codex" in text
+
+
+def test_flow_start_warns_without_owner_and_overrides_existing_owner(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    task_path = repo_root / "logics" / "tasks" / "task_001_demo.md"
+    _write_minimal_workflow_doc(task_path, title="Demo task", kind="task", status="Ready", links=[])
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.delenv("LOGICS_AGENT", raising=False)
+
+    exit_code = main(["flow", "start", "task_001_demo"])
+    first_output = capsys.readouterr().out
+
+    assert exit_code == 0
+    assert "Warning: No owner provided" in first_output
+    assert "> Status: In progress" in task_path.read_text(encoding="utf-8")
+    assert "> Owner:" not in task_path.read_text(encoding="utf-8")
+
+    main(["flow", "start", "task_001_demo", "--owner", "codex"])
+    capsys.readouterr()
+    exit_code = main(["flow", "start", "task_001_demo", "--owner", "reviewer", "--format", "json"])
+
+    payload = json.loads(capsys.readouterr().out)
+    text = task_path.read_text(encoding="utf-8")
+    assert exit_code == 0
+    assert "already owner=codex" in payload["warnings"][0]
+    assert payload["previous_owner"] == "codex"
+    assert payload["owner"] == "reviewer"
+    assert "> Owner: reviewer" in text
+
+
+def test_owner_surfaces_in_status_flow_list_index_and_obsidian(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    (repo_root / "logics.yaml").write_text("version: 1\nobsidian:\n  enabled: true\n", encoding="utf-8")
+    task_path = repo_root / "logics" / "tasks" / "task_001_demo.md"
+    _write_minimal_workflow_doc(task_path, title="Demo task", kind="task", status="In progress", links=[])
+    task_path.write_text(
+        task_path.read_text(encoding="utf-8").replace(
+            "> Status: In progress\n",
+            "> Status: In progress\n> Owner: codex\n",
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    status = status_payload(repo_root)
+    assert status["active_tasks"][0]["owner"] == "codex"
+
+    exit_code = main(["flow", "list", "--format", "json"])
+    flow_list = json.loads(capsys.readouterr().out)
+    assert exit_code == 0
+    assert flow_list["entries"][0]["owner"] == "codex"
+
+    index_payload(repo_root, out="logics/INDEX.md")
+    index_text = (repo_root / "logics" / "INDEX.md").read_text(encoding="utf-8")
+    assert "| Doc | Title | Status | Owner | Progress | Path |" in index_text
+    assert "| [task_001_demo]" in index_text
+    assert " | In progress | codex | " in index_text
+
+    sync_payload = obsidian_payload(repo_root, action="sync")
+    projected = task_path.read_text(encoding="utf-8")
+    assert sync_payload["ok"] is True
+    assert 'owner: "codex"' in projected
+
+
+def test_lint_accepts_owner_indicator(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    task_path = repo_root / "logics" / "tasks" / "task_001_demo.md"
+    _write_minimal_lint_doc(task_path, title="Demo task", status="In progress", include_progress=True)
+    task_path.write_text(task_path.read_text(encoding="utf-8") + "> Owner: codex\n", encoding="utf-8")
+
+    payload = lint_payload(repo_root, require_status=True)
+
+    assert payload["ok"] is True
+
+
 def test_main_runs_status_json(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -3079,6 +3189,7 @@ def test_main_runs_native_bootstrap_repairs_stale_instructions(
     assert payload["claude_instruction_line_count"] > 0
     instructions_text = (repo_root / "logics" / "instructions.md").read_text(encoding="utf-8")
     assert "# Codex Context" in instructions_text
+    assert "python3 -m logics_manager flow start" in instructions_text
     assert "python3 -m logics_manager flow finish task" in instructions_text
 
 
@@ -3100,6 +3211,7 @@ def test_main_runs_native_bootstrap_creates_local_assistant_bridge(
     assert "logics-manager release status" in logics_text
     assert "logics-manager release plan <version>" in logics_text
     assert "logics-manager release evidence add" in logics_text
+    assert "logics-manager flow start <ref>" in logics_text
     assert "logics-manager flow finish task <path>" in logics_text
     assert "logics-manager sync refresh-mermaid-signatures" in logics_text
     assert "logics-manager view" in logics_text

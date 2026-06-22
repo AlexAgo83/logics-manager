@@ -13,6 +13,7 @@ _CHUNKS = (
     "_parser_and_commands.py",
     "_repair_commands.py",
     "_closeout_commands.py",
+    "_start.py",
     "_scaffold.py",
     "_promote_split.py",
     "_finish.py",

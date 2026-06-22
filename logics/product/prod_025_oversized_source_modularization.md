@@ -1,6 +1,6 @@
 ## prod_025_oversized_source_modularization - Oversized source modularization
 > Date: 2026-06-22
-> Status: Proposed
+> Status: Settled
 > Related request: `req_270_modularize_oversized_source_files_across_the_codebase`
 > Related backlog: `item_474_establish_modularization_guardrails_and_viewer_esbuild_bundle_pipeline`
 > Related task: `task_267_orchestrate_the_oversized_source_modularization_program`
@@ -9,6 +9,20 @@
 
 # Overview
 A behavior-preserving decomposition of every >1000-line source file into cohesive modules, using only tooling already present in the repository.
+
+```mermaid
+%% logics-kind: product
+%% logics-signature: product|oversized-source|modularization
+flowchart TD
+    Corpus[Oversized corpus] --> Guardrails[Line budget guardrails]
+    Guardrails --> Python[Python facade packages]
+    Guardrails --> Browser[Browser host fragments]
+    Guardrails --> Media[Webview media fragments]
+    Python --> Validation[Validation suite]
+    Browser --> Validation
+    Media --> Validation
+    Validation --> Closed[Closed modularization program]
+```
 
 # Goals
 - Reduce per-file cognitive load and merge-conflict surface across the largest source files.

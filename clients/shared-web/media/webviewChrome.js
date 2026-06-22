@@ -144,6 +144,58 @@
       viewModeToggleButton.removeAttribute("aria-hidden");
     }
 
+    function buildActivityFilter(showGit, showCi) {
+      const wrap = document.createElement("div");
+      wrap.className = "activity-panel__filter-wrap";
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "toolbar__filter activity-panel__filter";
+      button.id = "activity-filter-toggle";
+      const hasNonDefault = !showGit || !showCi;
+      button.classList.toggle("toolbar__filter--active", hasNonDefault);
+      button.setAttribute("aria-expanded", "false");
+      button.setAttribute("aria-haspopup", "true");
+      button.setAttribute("aria-label", "Filter activity events");
+      button.title = "Filter activity events";
+      button.textContent = "Filter";
+
+      const popover = document.createElement("div");
+      popover.className = "activity-panel__filter-menu";
+      popover.hidden = true;
+      popover.setAttribute("role", "group");
+      popover.setAttribute("aria-label", "Activity event filters");
+      popover.appendChild(buildActivityFilterOption("Git events", showGit, (checked) => {
+        if (typeof options.setActivityShowGit === "function") options.setActivityShowGit(checked);
+        renderActivityPanel();
+      }));
+      popover.appendChild(buildActivityFilterOption("CI events", showCi, (checked) => {
+        if (typeof options.setActivityShowCi === "function") options.setActivityShowCi(checked);
+        renderActivityPanel();
+      }));
+
+      button.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const open = popover.hidden;
+        popover.hidden = !open;
+        button.setAttribute("aria-expanded", String(open));
+      });
+      wrap.appendChild(button);
+      wrap.appendChild(popover);
+      return wrap;
+    }
+
+    function buildActivityFilterOption(label, checked, onChange) {
+      const optionLabel = document.createElement("label");
+      optionLabel.className = "activity-panel__filter-option";
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.checked = checked !== false;
+      input.addEventListener("change", () => onChange(input.checked));
+      optionLabel.appendChild(input);
+      optionLabel.appendChild(document.createTextNode(label));
+      return optionLabel;
+    }
+
     function renderActivityPanel() {
       if (!activityPanel) {
         return;
@@ -155,13 +207,24 @@
         return;
       }
 
-      const entries = getActivityEntries();
+      const showGit = typeof options.getActivityShowGit === "function" ? options.getActivityShowGit() !== false : true;
+      const showCi = typeof options.getActivityShowCi === "function" ? options.getActivityShowCi() !== false : true;
+      // req_275: the git/ci toggles govern only event entries; document activity is always shown.
+      const entries = getActivityEntries().filter((entry) => {
+        if (entry.activityKind === "git") return showGit;
+        if (entry.activityKind === "ci") return showCi;
+        return true;
+      });
       const visibleEntries = entries.slice(0, visibleActivityLimit);
       activityPanel.innerHTML = "";
 
       const header = document.createElement("div");
       header.className = "activity-panel__header";
-      header.textContent = "Recent activity";
+      const headerTitle = document.createElement("span");
+      headerTitle.className = "activity-panel__title";
+      headerTitle.textContent = "Recent activity";
+      header.appendChild(headerTitle);
+      header.appendChild(buildActivityFilter(showGit, showCi));
       activityPanel.appendChild(header);
 
       const list = document.createElement("div");

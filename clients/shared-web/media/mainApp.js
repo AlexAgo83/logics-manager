@@ -93,6 +93,8 @@
   let groupMode = "stage";
   let sortMode = "updated-desc";
   let activityPanelOpen = true;
+  let activityShowGit = true;
+  let activityShowCi = true;
   let attentionOnly = false;
   let helpDismissed = false;
   let collapsedListStages = new Set();
@@ -188,6 +190,8 @@
       sortMode,
       secondaryToolbarOpen,
       activityPanelOpen,
+      activityShowGit,
+      activityShowCi,
       attentionOnly,
       helpDismissed,
       collapsedListStages: Array.from(collapsedListStages),
@@ -211,6 +215,8 @@
     groupMode = "stage";
     sortMode = "updated-desc";
     activityPanelOpen = true;
+    activityShowGit = true;
+    activityShowCi = true;
     attentionOnly = false;
     helpDismissed = false;
     collapsedListStages = new Set();
@@ -420,6 +426,8 @@
     groupMode: { get: () => groupMode, set: (value) => { groupMode = value; } },
     sortMode: { get: () => sortMode, set: (value) => { sortMode = value; } },
     activityPanelOpen: { get: () => activityPanelOpen, set: (value) => { activityPanelOpen = value; } },
+    activityShowGit: { get: () => activityShowGit, set: (value) => { activityShowGit = value === undefined ? true : Boolean(value); } },
+    activityShowCi: { get: () => activityShowCi, set: (value) => { activityShowCi = value === undefined ? true : Boolean(value); } },
     attentionOnly: { get: () => attentionOnly, set: (value) => { attentionOnly = value; } },
     helpDismissed: { get: () => helpDismissed, set: (value) => { helpDismissed = value; } },
     collapsedListStages: { get: () => collapsedListStages, set: (value) => { collapsedListStages = value; } },
@@ -488,6 +496,10 @@
           getActivityEntries,
           getAttentionOnly: () => attentionOnly,
           getActivityPanelOpen: () => activityPanelOpen,
+          getActivityShowGit: () => activityShowGit,
+          getActivityShowCi: () => activityShowCi,
+          setActivityShowGit: (value) => { activityShowGit = value === undefined ? true : Boolean(value); persistState(); },
+          setActivityShowCi: (value) => { activityShowCi = value === undefined ? true : Boolean(value); persistState(); },
           getCanBootstrapLogics: () => canBootstrapLogics,
           getBootstrapLogicsTitle: () => bootstrapLogicsTitle,
           getCanResetProjectRoot: () => canResetProjectRoot,

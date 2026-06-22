@@ -2505,6 +2505,14 @@
   }
 
   function activeDocumentTitle() {
+    // A closed document panel keeps its last title text, so callers that drive
+    // SSE-triggered re-renders must treat a hidden panel as "no active document"
+    // — otherwise a background "cdx" change event would reopen a panel the user
+    // just closed.
+    const panel = documentPanel();
+    if (!panel || panel.hidden) {
+      return "";
+    }
     return documentTitle()?.textContent || "";
   }
 

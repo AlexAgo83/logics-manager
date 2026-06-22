@@ -446,6 +446,48 @@
   padding: 0 12px;
 }
 
+/* req_275: the activity event filter sits in the toolbar next to +New / the project
+   view filter, and is shown only while the recent activity view is active. */
+.toolbar__activity-filter {
+  position: relative;
+  display: none;
+}
+
+body.viewer-screen-activity .toolbar__activity-filter {
+  display: inline-flex;
+}
+
+.toolbar__activity-filter-menu {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 4px);
+  z-index: 30;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  background: var(--vscode-editorWidget-background, #252526);
+  border: 1px solid var(--vscode-editorWidget-border, #454545);
+  border-radius: 4px;
+}
+
+.toolbar__activity-filter-menu[hidden] {
+  display: none;
+}
+
+.toolbar__activity-filter-menu:not([hidden]) {
+  display: flex;
+}
+
+.toolbar__activity-filter-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--vscode-foreground, #ccc);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
 .activity-panel__list {
   display: flex;
   flex-direction: column;

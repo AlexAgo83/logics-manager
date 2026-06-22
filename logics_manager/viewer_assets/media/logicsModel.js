@@ -567,7 +567,7 @@
 
   function isCompleteStatus(item) {
     const status = String(item && item.indicators && item.indicators.Status ? item.indicators.Status : "").trim().toLowerCase();
-    return status === "done" || status === "archived" || status === "obsolete" || status === "superseded" || status === "settled";
+    return status === "done" || status === "archived" || status === "obsolete" || status === "superseded";
   }
 
   function isWeaklyLinked(item, currentItem) {

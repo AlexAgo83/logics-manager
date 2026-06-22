@@ -48,6 +48,7 @@ Windows notes:
 - Strict Logics governance audit: `npm run audit:logics:strict`
 - Source line budget guardrail: `npm run check:line-budget`
 - Local viewer browser-host bundle check: `npm run check:viewer-host`
+- Shared web media bundle check: `npm run check:webview-media`
 - Local viewer packaged asset sync check: `npm run check:viewer-assets`
 - README metadata drift check: `npm run docs:check`
 - Local browser viewer smoke: `logics-manager view --port 0 --open`
@@ -68,6 +69,11 @@ Windows notes:
 `npm run check:line-budget` fails when a real source file in `logics_manager`, `clients`, or `scripts` exceeds 1000 lines unless the file is explicitly allowlisted in `scripts/check-source-line-budget.mjs`. The allowlist is temporary project debt for the oversized-source modularization program. When a slice splits a listed file into smaller modules, remove that file from the allowlist in the same commit so CI prevents it from growing back.
 
 The standalone local viewer host is built with esbuild from `clients/viewer/src/browser-host/index.js`. Run `npm run bundle:viewer-host` after editing the source entrypoint, then `npm run check:viewer-host` to verify that `clients/viewer/browser-host.js` is byte-stable and `npm run check:viewer-assets` to verify the Python package asset copy is synced.
+
+The VS Code and local-viewer shared webview scripts `mainApp.js` and
+`renderBoardApp.js` are generated from fragments in `clients/shared-web/src/`.
+Run `npm run bundle:webview-media` after editing those fragments, then
+`npm run check:webview-media` before committing.
 
 `npm run audit:ci` enforces the repository audit policy locally. It runs `npm audit --json` against the configured npm registry, blocks new actionable vulnerabilities, and only allows the explicitly documented temporary exceptions tracked in the backlog. If the registry is unreachable, the command fails as `registry unavailable` rather than reporting a clean advisory state. `npm run package:ci` is local-only package validation and does not require registry access after dependencies are installed.
 

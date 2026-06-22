@@ -18,12 +18,14 @@ const excludedSegments = new Set([
 
 const allowedOversizedFiles = new Map(
   Object.entries({
-    "clients/shared-web/media/mainApp.js": { maxLines: 1008, ref: "item_479" },
-    "clients/shared-web/media/renderBoardApp.js": { maxLines: 1333, ref: "item_479" },
     "clients/vscode/src/logicsCorpusInsightsHtml.ts": { maxLines: 1114, ref: "unplanned-current" },
   })
 );
-const generatedFiles = new Set(["clients/viewer/browser-host.js"]);
+const generatedFiles = new Set([
+  "clients/shared-web/media/mainApp.js",
+  "clients/shared-web/media/renderBoardApp.js",
+  "clients/viewer/browser-host.js"
+]);
 
 const violations = [];
 

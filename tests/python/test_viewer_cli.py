@@ -3179,3 +3179,42 @@ def test_resolve_viewer_root_falls_back_when_no_logics_corpus(tmp_path: Path, mo
         lambda *a, **k: (_ for _ in ()).throw(OSError("no git")),
     )
     assert viewer_module._resolve_viewer_root(bare) == bare.resolve()
+
+
+def test_demo_corpus_covers_board_states(tmp_path):
+    """The dev demo corpus exercises every stage, progress band, and attention signal."""
+    root = viewer_module.ensure_demo_corpus(tmp_path)
+    items = collect_viewer_items(root)
+    by_stage = {item["stage"] for item in items}
+    assert by_stage == {"request", "backlog", "task", "product", "architecture", "spec"}
+
+    def status_of(doc_id):
+        return next(i for i in items if i["id"] == doc_id)["indicators"].get("Status")
+
+    def progress_of(doc_id):
+        return next(i for i in items if i["id"] == doc_id)["indicators"].get("Progress")
+
+    # Progress bands: zero (blue), active (teal), done (green).
+    assert progress_of("item_demo_ready") == "0"
+    assert progress_of("item_demo_auth_login") == "60"
+    assert progress_of("task_demo_export") == "100"
+
+    # Attention signals are reachable from the fixture data.
+    assert status_of("req_demo_blocked").lower() == "blocked"
+    # progress 100 while not done -> workflow-inconsistent
+    mismatch = next(i for i in items if i["id"] == "req_demo_mismatch")
+    assert mismatch["indicators"]["Progress"] == "100"
+    assert "done" not in mismatch["indicators"]["Status"].lower()
+    # orphaned supporting doc has no usedBy links
+    orphan = next(i for i in items if i["id"] == "prod_demo_orphan")
+    assert orphan["usedBy"] == []
+
+    # Promotion chain: the active request has linked delivery children.
+    promoted = next(i for i in items if i["id"] == "req_demo_auth_login")
+    assert promoted["isPromoted"] is True
+    assert promoted["usedBy"]
+
+
+def test_demo_corpus_disabled_outside_dev_checkout(monkeypatch):
+    monkeypatch.setattr(viewer_module, "_is_dev_checkout", lambda: False)
+    assert viewer_module.ensure_demo_corpus_if_dev() is None

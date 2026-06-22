@@ -144,6 +144,83 @@
       viewModeToggleButton.removeAttribute("aria-hidden");
     }
 
+    const activityFilterToggle = document.getElementById("activity-filter-toggle");
+    const activityFilterMenu = document.getElementById("activity-filter-menu");
+    const activityFilterCorpus = document.getElementById("activity-filter-corpus");
+    const activityFilterGit = document.getElementById("activity-filter-git");
+    const activityFilterCi = document.getElementById("activity-filter-ci");
+
+    function getActivityShowCorpus() {
+      return typeof options.getActivityShowCorpus === "function" ? options.getActivityShowCorpus() !== false : true;
+    }
+
+    function getActivityShowGit() {
+      return typeof options.getActivityShowGit === "function" ? options.getActivityShowGit() !== false : true;
+    }
+
+    function getActivityShowCi() {
+      return typeof options.getActivityShowCi === "function" ? options.getActivityShowCi() !== false : true;
+    }
+
+    function setActivityFilterMenuOpen(open) {
+      if (!activityFilterMenu || !activityFilterToggle) {
+        return;
+      }
+      activityFilterMenu.hidden = !open;
+      activityFilterToggle.setAttribute("aria-expanded", String(open));
+    }
+
+    function updateActivityFilterToggle() {
+      if (!activityFilterToggle) {
+        return;
+      }
+      const showCorpus = getActivityShowCorpus();
+      const showGit = getActivityShowGit();
+      const showCi = getActivityShowCi();
+      if (activityFilterCorpus) activityFilterCorpus.checked = showCorpus;
+      if (activityFilterGit) activityFilterGit.checked = showGit;
+      if (activityFilterCi) activityFilterCi.checked = showCi;
+      activityFilterToggle.classList.toggle("toolbar__filter--active", !showCorpus || !showGit || !showCi);
+    }
+
+    if (activityFilterToggle) {
+      activityFilterToggle.addEventListener("click", (event) => {
+        event.stopPropagation();
+        setActivityFilterMenuOpen(activityFilterMenu ? activityFilterMenu.hidden : false);
+      });
+      if (activityFilterCorpus) {
+        activityFilterCorpus.addEventListener("change", () => {
+          if (typeof options.setActivityShowCorpus === "function") options.setActivityShowCorpus(activityFilterCorpus.checked);
+          updateActivityFilterToggle();
+          renderActivityPanel();
+        });
+      }
+      if (activityFilterGit) {
+        activityFilterGit.addEventListener("change", () => {
+          if (typeof options.setActivityShowGit === "function") options.setActivityShowGit(activityFilterGit.checked);
+          updateActivityFilterToggle();
+          renderActivityPanel();
+        });
+      }
+      if (activityFilterCi) {
+        activityFilterCi.addEventListener("change", () => {
+          if (typeof options.setActivityShowCi === "function") options.setActivityShowCi(activityFilterCi.checked);
+          updateActivityFilterToggle();
+          renderActivityPanel();
+        });
+      }
+      document.addEventListener("click", (event) => {
+        if (!activityFilterMenu || activityFilterMenu.hidden) {
+          return;
+        }
+        const target = event.target;
+        if (activityFilterMenu.contains(target) || activityFilterToggle.contains(target)) {
+          return;
+        }
+        setActivityFilterMenuOpen(false);
+      });
+    }
+
     function renderActivityPanel() {
       if (!activityPanel) {
         return;
@@ -155,8 +232,23 @@
         return;
       }
 
-      const entries = getActivityEntries();
+      const showCorpus = getActivityShowCorpus();
+      const showGit = getActivityShowGit();
+      const showCi = getActivityShowCi();
+      // req_275: each toggle governs one activity kind. git/ci gate their event
+      // entries; the corpus toggle gates document changes (every other kind), so
+      // the operator can show everything or hide a whole class at will.
+      const entries = getActivityEntries().filter((entry) => {
+        if (entry.activityKind === "git") return showGit;
+        if (entry.activityKind === "ci") return showCi;
+        return showCorpus;
+      });
       const visibleEntries = entries.slice(0, visibleActivityLimit);
+      // Preserve the feed scroll position across re-renders (auto-refresh, filter
+      // toggles, "show next"): the list is rebuilt from scratch each time, which
+      // would otherwise snap the user back to the top mid-read.
+      const previousList = activityPanel.querySelector(".activity-panel__list");
+      const previousScrollTop = previousList ? previousList.scrollTop : 0;
       activityPanel.innerHTML = "";
 
       const header = document.createElement("div");
@@ -258,6 +350,10 @@
       }
 
       activityPanel.appendChild(list);
+      if (previousScrollTop > 0) {
+        // Clamp happens automatically: assigning beyond scrollHeight settles at max.
+        list.scrollTop = previousScrollTop;
+      }
     }
 
     function renderHelpBanner() {
@@ -411,6 +507,7 @@
         );
         activityToggle.title = activityOpen ? "Hide recent activity" : "Show recent activity";
       }
+      updateActivityFilterToggle();
     }
 
     function setToolsPanelOpen(viewName, isOpen) {

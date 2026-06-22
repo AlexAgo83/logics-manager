@@ -15,15 +15,12 @@
     "required": true,
     "version_heading_required": true,
     "paths": [
-      { "path": "changelogs/CHANGELOGS_{version_underscore}.md", "format": "markdown", "required": true },
-      { "path": "logics/CHANGELOG.md", "format": "markdown", "required": false }
+      { "path": "changelogs/CHANGELOGS_{version_underscore}.md", "format": "markdown", "required": true }
     ]
   },
   "release_notes": {
     "required": false,
-    "paths": [
-      { "path": "logics/RELEASE_NOTES.md", "format": "markdown", "required": false }
-    ]
+    "paths": []
   },
   "operator_intents": [
     {

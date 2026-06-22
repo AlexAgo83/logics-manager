@@ -1,9 +1,9 @@
 ## item_495_deliver_the_recent_activity_and_corpus_reader_viewer_ux_follow_ups - Deliver the recent activity and corpus reader viewer UX follow-ups
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: In progress
-> Understanding: 95
-> Confidence: 92
+> Status: Done
+> Understanding: 100
+> Confidence: 100
 > Progress: 100%
 > Complexity: Medium
 > Theme: Viewer activity
@@ -55,3 +55,7 @@
 
 # Notes
 - Generated locally by logics-manager.
+- Task `task_274_orchestrate_the_recent_activity_and_corpus_reader_viewer_ux_follow_ups` was finished via `logics-manager flow finish task` on 2026-06-22.
+
+# Tasks
+- `task_274_orchestrate_the_recent_activity_and_corpus_reader_viewer_ux_follow_ups`

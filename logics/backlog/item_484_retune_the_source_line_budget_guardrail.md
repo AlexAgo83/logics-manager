@@ -1,10 +1,10 @@
 ## item_484_retune_the_source_line_budget_guardrail - Retune the source line-budget guardrail
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 100
+> Progress: 100%
 > Complexity: Low
 > Theme: Build tooling
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -31,6 +31,8 @@
 - request-AC5 -> This backlog slice. Proof: AC2: A test asserts tracebacks from the remediated modules reference real source files.
 - request-AC7 -> This backlog slice. Proof: AC3: logics-manager lint and audit pass on the resulting corpus and code.
 - request-AC8 -> This backlog slice. Proof: AC3: logics-manager lint and audit pass on the resulting corpus and code.
+- request-AC6 -> This backlog slice. Proof: No new runtime dependency is introduced; only the standard library and existing tooling are used.
+- request-AC9 -> This backlog slice. Proof: The frontend mirror of the part-glue (browser-host, render-board-app, main-app) is replaced by real ES modules imported directly by index.js; the regex string-manifests and readFileSync(...).join("") concatenation are removed, modules split by responsibility, and bundled artifacts stay byte-stable.
 
 # Decision framing
 - Product framing: Not needed
@@ -54,3 +56,7 @@
 
 # Notes
 - Done: per-file allowances (ref req_273) added to check-source-line-budget.mjs, default 1000 kept; tests/python/test_deglued_modules_importable.py asserts source is recoverable and no exec(compile) remains.
+- Task `task_270_orchestrate_the_exec_part_glue_remediation` was finished via `logics-manager flow finish task` on 2026-06-22.
+
+# Tasks
+- `task_270_orchestrate_the_exec_part_glue_remediation`

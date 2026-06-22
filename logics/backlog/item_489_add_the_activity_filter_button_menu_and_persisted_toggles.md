@@ -1,10 +1,10 @@
 ## item_489_add_the_activity_filter_button_menu_and_persisted_toggles - Add the activity filter button, menu, and persisted toggles
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 100
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer activity
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -32,6 +32,8 @@
 - request-AC4 -> This backlog slice. Proof: AC3: A vitest check covers the filter logic, the active-indicator, and the persistence round-trip.
 - request-AC5 -> This backlog slice. Proof: AC3: A vitest check covers the filter logic, the active-indicator, and the persistence round-trip.
 - request-AC7 -> This backlog slice. Proof: AC3: A vitest check covers the filter logic, the active-indicator, and the persistence round-trip.
+- request-AC6 -> This backlog slice. Proof: When git or CI events are absent (e.g. no commits, or req_274 not yet merged), the feed and button render gracefully with the empty category and no errors.
+- request-AC8 -> This backlog slice. Proof: logics-manager lint and audit pass on the resulting workflow corpus and code.
 
 # Decision framing
 - Product framing: Not needed
@@ -55,3 +57,7 @@
 
 # Notes
 - Done (browser viewer surface): activity filter button + popover (Git events/CI events, default on) placed in clients/viewer/index.html toolbar next to +New, shown only in activity view (body.viewer-screen-activity). Menu hidden by default (CSS [hidden] fix). Wired in shared webviewChrome.js (toolbar button, not panel header); activityShowGit/activityShowCi persisted; filter governs only git/ci event entries. Note: the recent-activity render stack is shared by the browser viewer AND the VS Code webview; the button HTML currently lives in the browser viewer (what the operator uses). 682 vitest.
+- Task `task_272_orchestrate_the_recent_activity_event_filter` was finished via `logics-manager flow finish task` on 2026-06-22.
+
+# Tasks
+- `task_272_orchestrate_the_recent_activity_event_filter`

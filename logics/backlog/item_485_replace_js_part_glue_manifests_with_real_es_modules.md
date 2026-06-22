@@ -1,10 +1,10 @@
 ## item_485_replace_js_part_glue_manifests_with_real_es_modules - Replace JS part-glue manifests with real ES modules
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 100
+> Progress: 100%
 > Complexity: Medium
 > Theme: Frontend decomposition
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -31,6 +31,9 @@
 - request-AC9 -> This backlog slice. Proof: AC1: The numbered _NN.js fragments and the regex string-manifests are removed; index.js imports real ES modules that esbuild resolves directly.
 - request-AC7 -> This backlog slice. Proof: AC3: The bundled browser-host.js and webview artifacts stay byte-stable and sync-viewer-assets.mjs --check passes.
 - request-AC8 -> This backlog slice. Proof: AC2: Resulting frontend source modules are split by responsibility (not by a fixed line count) and none cut through a function.
+- request-AC4 -> This backlog slice. Proof: Tracebacks raised from these modules reference the real source file and line, verified by a test.
+- request-AC5 -> This backlog slice. Proof: scripts/check-source-line-budget.mjs is retuned (raised limit or per-package allowance) so importable decomposition no longer requires text-glue, and CI still fails on genuine new monoliths.
+- request-AC6 -> This backlog slice. Proof: No new runtime dependency is introduced; only the standard library and existing tooling are used.
 
 # Decision framing
 - Product framing: Not needed
@@ -54,3 +57,7 @@
 
 # Notes
 - Done: browser-host/_01.._23, render-board-app/_01.._03, main-app/_01.._03 concatenated into each index.js; parts/ removed. browser-host built directly by esbuild (banner stripped in normalizeBundle); webview-media reads index.js directly. Regex manifests + readFileSync.join removed. Bundles byte-identical; 681 vitest pass.
+- Task `task_270_orchestrate_the_exec_part_glue_remediation` was finished via `logics-manager flow finish task` on 2026-06-22.
+
+# Tasks
+- `task_270_orchestrate_the_exec_part_glue_remediation`

@@ -1,14 +1,23 @@
 ## prod_029_assistant_authoring_ergonomics - Assistant authoring ergonomics
 > Date: 2026-06-22
-> Status: Proposed
+> Status: Settled
 > Related request: `req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants`
-> Related backlog: `item_490_expose_scaffold_request_chain_and_deliver_as_mcp_tools`, `item_491_make_the_scaffold_input_schema_discoverable_and_validated`, `item_492_name_remedy_commands_in_blocking_lint_validate_messages`, `item_493_classify_closeout_deferred_proofs_as_a_distinct_severity`, `item_494_add_inline_validation_to_flow_scaffold`
+> Related backlog: `item_490_expose_scaffold_request_chain_and_deliver_as_mcp_tools`
 > Related task: `task_273_orchestrate_the_assistant_authoring_ergonomics_improvements`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
 # Overview
 Close the gaps that make one-pass logics authoring hard for AI assistants: expose scaffolding over MCP, make the input schema discoverable and validated, and make validation output self-explanatory.
+
+```mermaid
+flowchart LR
+    Assistant[AI assistant] --> MCP[scaffold_request_chain over MCP]
+    Assistant --> Schema[Discoverable, validated input schema]
+    MCP --> Output[One-pass request chain]
+    Schema --> Output
+    Output --> Validate[Self-explanatory validation + remedy commands]
+```
 
 # Goals
 - Give every client (MCP, CLI, any repo) the same one-pass authoring path, not just shell users of this repo.
@@ -33,5 +42,5 @@ Close the gaps that make one-pass logics authoring hard for AI assistants: expos
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants`
+- Product back-reference: `item_490_expose_scaffold_request_chain_and_deliver_as_mcp_tools`
 - Task back-reference: `task_273_orchestrate_the_assistant_authoring_ergonomics_improvements`

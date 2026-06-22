@@ -1,14 +1,21 @@
 ## prod_027_ci_events_in_recent_activity - CI events in Recent activity
 > Date: 2026-06-22
-> Status: Proposed
+> Status: Settled
 > Related request: `req_274_surface_ci_events_in_the_recent_activity_feed`
-> Related backlog: `item_486_expose_recent_ci_runs_from_ci_status_payload`, `item_487_merge_ci_runs_into_the_recent_activity_feed`
+> Related backlog: `item_486_expose_recent_ci_runs_from_ci_status_payload`
 > Related task: `task_271_orchestrate_ci_events_in_recent_activity`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
 # Overview
 Fold recent CI runs into the existing Recent activity feed by reusing the runs ci_status_payload already fetches and the feed's heterogeneous-entry rendering.
+
+```mermaid
+flowchart LR
+    CI[ci_status_payload recentRuns] --> Map[Map to activityKind:'ci' events]
+    Map --> Feed[Recent activity feed]
+    Feed --> Outcome[Pipeline visibility, no new fetch]
+```
 
 # Goals
 - Give users pipeline visibility inside the activity feed without a separate panel or fetch.
@@ -32,5 +39,5 @@ Fold recent CI runs into the existing Recent activity feed by reusing the runs c
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_274_surface_ci_events_in_the_recent_activity_feed`
+- Product back-reference: `item_486_expose_recent_ci_runs_from_ci_status_payload`
 - Task back-reference: `task_271_orchestrate_ci_events_in_recent_activity`

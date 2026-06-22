@@ -1,10 +1,10 @@
 ## item_490_expose_scaffold_request_chain_and_deliver_as_mcp_tools - Expose scaffold_request_chain and deliver as MCP tools
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 100
+> Progress: 100%
 > Complexity: Medium
 > Theme: MCP surface
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -30,6 +30,10 @@
 - request-AC1 -> This backlog slice. Proof: AC1: An MCP call scaffolds the full chain identically to the CLI.
 - request-AC7 -> This backlog slice. Proof: AC2: The tool input schema matches the CLI JSON and is covered by a test.
 - request-AC8 -> This backlog slice. Proof: AC3: deliver is likewise exposed.
+- request-AC4 -> This backlog slice. Proof: Blocking lint/validate messages that have a deterministic remedy name the remedy command (e.g. sync update-indicators) in their text.
+- request-AC5 -> This backlog slice. Proof: Closeout-deferred proofs are reported under a distinct severity (e.g. deferred/info) separate from actionable fixable findings, so a fresh scaffold validates clean; --fixable no longer lists them.
+- request-AC6 -> This backlog slice. Proof: flow scaffold request-chain --validate runs validation inline and prints a ready-to-dev summary, reusing the existing validate path.
+- request-AC9 -> This backlog slice. Proof: logics-manager lint and audit pass on the resulting workflow corpus and code.
 
 # Decision framing
 - Product framing: Not needed
@@ -53,3 +57,7 @@
 
 # Notes
 - Done: scaffold_request_chain MCP tool added (writes input to a temp file, runs the CLI path, cleans up). Tests in test_logics_manager_mcp.py. Follow-up: expose `deliver` likewise.
+- Task `task_273_orchestrate_the_assistant_authoring_ergonomics_improvements` was finished via `logics-manager flow finish task` on 2026-06-22.
+
+# Tasks
+- `task_273_orchestrate_the_assistant_authoring_ergonomics_improvements`

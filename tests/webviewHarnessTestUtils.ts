@@ -30,6 +30,7 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
             <div class="toolbar__activity-filter" id="activity-filter">
               <button id="activity-filter-toggle" class="toolbar__filter" aria-expanded="false" aria-controls="activity-filter-menu"></button>
               <div class="toolbar__activity-filter-menu" id="activity-filter-menu" role="group" hidden>
+                <label class="toolbar__activity-filter-option"><input type="checkbox" id="activity-filter-corpus" checked /> Corpus changes</label>
                 <label class="toolbar__activity-filter-option"><input type="checkbox" id="activity-filter-git" checked /> Git events</label>
                 <label class="toolbar__activity-filter-option"><input type="checkbox" id="activity-filter-ci" checked /> CI events</label>
               </div>

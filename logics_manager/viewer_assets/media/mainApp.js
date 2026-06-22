@@ -93,6 +93,7 @@
   let groupMode = "stage";
   let sortMode = "updated-desc";
   let activityPanelOpen = true;
+  let activityShowCorpus = true;
   let activityShowGit = true;
   let activityShowCi = true;
   let attentionOnly = false;
@@ -190,6 +191,7 @@
       sortMode,
       secondaryToolbarOpen,
       activityPanelOpen,
+      activityShowCorpus,
       activityShowGit,
       activityShowCi,
       attentionOnly,
@@ -215,6 +217,7 @@
     groupMode = "stage";
     sortMode = "updated-desc";
     activityPanelOpen = true;
+    activityShowCorpus = true;
     activityShowGit = true;
     activityShowCi = true;
     attentionOnly = false;
@@ -426,6 +429,7 @@
     groupMode: { get: () => groupMode, set: (value) => { groupMode = value; } },
     sortMode: { get: () => sortMode, set: (value) => { sortMode = value; } },
     activityPanelOpen: { get: () => activityPanelOpen, set: (value) => { activityPanelOpen = value; } },
+    activityShowCorpus: { get: () => activityShowCorpus, set: (value) => { activityShowCorpus = value === undefined ? true : Boolean(value); } },
     activityShowGit: { get: () => activityShowGit, set: (value) => { activityShowGit = value === undefined ? true : Boolean(value); } },
     activityShowCi: { get: () => activityShowCi, set: (value) => { activityShowCi = value === undefined ? true : Boolean(value); } },
     attentionOnly: { get: () => attentionOnly, set: (value) => { attentionOnly = value; } },
@@ -496,8 +500,10 @@
           getActivityEntries,
           getAttentionOnly: () => attentionOnly,
           getActivityPanelOpen: () => activityPanelOpen,
+          getActivityShowCorpus: () => activityShowCorpus,
           getActivityShowGit: () => activityShowGit,
           getActivityShowCi: () => activityShowCi,
+          setActivityShowCorpus: (value) => { activityShowCorpus = value === undefined ? true : Boolean(value); persistState(); },
           setActivityShowGit: (value) => { activityShowGit = value === undefined ? true : Boolean(value); persistState(); },
           setActivityShowCi: (value) => { activityShowCi = value === undefined ? true : Boolean(value); persistState(); },
           getCanBootstrapLogics: () => canBootstrapLogics,

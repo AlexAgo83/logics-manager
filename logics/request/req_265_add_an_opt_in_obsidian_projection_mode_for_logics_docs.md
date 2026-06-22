@@ -1,9 +1,9 @@
 ## req_265_add_an_opt_in_obsidian_projection_mode_for_logics_docs - Add an opt-in Obsidian projection mode for Logics docs
-> From version: 2.12.3
+> From version: 2.12.4
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 92%
-> Confidence: 88%
+> Status: Ready
+> Understanding: 93%
+> Confidence: 89%
 > Complexity: Medium
 > Theme: Operator workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -79,5 +79,4 @@
 - Depends on: completed `req_264` guidance and `.obsidian/` ignore.
 
 # Backlog
-- none
 - `item_469_add_an_opt_in_obsidian_projection_mode_for_logics_docs`

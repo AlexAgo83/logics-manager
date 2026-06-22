@@ -1578,9 +1578,34 @@
 
 .viewer-workspace__preview-header span,
 .viewer-workspace__preview-header em,
+.viewer-workspace__preview-notice,
 .viewer-workspace__empty {
   color: var(--vscode-descriptionForeground, #aaaaaa);
   font-size: 12px;
+}
+
+.viewer-workspace__preview-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-self: start;
+  width: fit-content;
+  max-width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 4px;
+  background: var(--vscode-editorWidget-background, #202020);
+}
+
+.viewer-workspace__preview-notice--warn {
+  border-color: var(--vscode-editorWarning-foreground, #cca700);
+  color: var(--vscode-editorWarning-foreground, #cca700);
+}
+
+.viewer-workspace__preview-notice--unavailable {
+  border-color: var(--vscode-editorError-foreground, #f48771);
+  color: var(--vscode-editorError-foreground, #f48771);
 }
 
 .viewer-workspace__code {
@@ -1638,7 +1663,8 @@
 }
 
 .viewer-workspace__preview .viewer-code__scroll {
-  overflow: visible;
+  overflow-x: auto;
+  overflow-y: visible;
 }
 
 .viewer-code__rows {

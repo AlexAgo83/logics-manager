@@ -876,7 +876,10 @@ function createViewerDom(options: {
               branch: "main",
               headSha: "abc123",
               run: { id: 1, workflowName: "CI", status: "completed", conclusion: "success", badgeState: "passing", branch: "main", headSha: "abc123", matchSource: "head" },
-              jobs: []
+              jobs: [],
+              recentRuns: [
+                { id: 1, workflowName: "CI", badgeState: "passing", updatedAt: "2024-06-01T00:05:00.000Z", url: "https://example/run/1", headSha: "abc123", title: "CI passing" }
+              ]
             }
           })
         };
@@ -5790,6 +5793,34 @@ describe("local viewer browser host", () => {
       label: "Commit",
       meta: "abc1234 · Alex · 2026-06-09"
     });
+  });
+
+  it("adds CI runs to the activity feed dispatch from the ci-status payload", async () => {
+    const { dom } = createViewerDom();
+    const dataPayloads: Array<{ activityEvents?: Array<{ kind?: string; title?: string }> }> = [];
+    dom.window.addEventListener("message", (event: MessageEvent) => {
+      if (event?.data?.type === "data" && event.data.payload) {
+        dataPayloads.push(event.data.payload);
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    // Open the activity view; the toggle handler re-dispatches the feed, which now
+    // includes the CI runs fetched into latestCiStatus during the initial load.
+    dom.window.document.getElementById("activity-panel")?.removeAttribute("hidden");
+    dom.window.document.getElementById("activity-toggle")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const ciEvent = dataPayloads
+      .flatMap((payload) => payload.activityEvents || [])
+      .find((event) => event.kind === "ci");
+    expect(ciEvent).toBeTruthy();
+    expect(ciEvent?.title).toContain("CI");
   });
 
   it("keeps Git badge counters visible while counts stay positive", async () => {

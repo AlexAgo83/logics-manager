@@ -971,16 +971,44 @@
         updatedAt: entry.updatedAt || entry.at || ""
       }));
     }
+    function ciActivityEvents(ciStatus = latestCiStatus) {
+      const runs = ciStatus && Array.isArray(ciStatus.recentRuns) ? ciStatus.recentRuns : [];
+      return runs.filter((run) => run && typeof run === "object").map((run, index) => {
+        const workflow = String(run.workflowName || "CI");
+        const state = String(run.badgeState || "unknown");
+        return {
+          id: String(run.id ? `ci-${run.id}` : `ci-run-${index}`),
+          kind: "ci",
+          category: "ci",
+          stage: "ci",
+          marker: "C",
+          action: "CI run",
+          title: `${workflow} \u2014 ${state}`,
+          label: state,
+          meta: String(run.title || `${workflow} ${state}`),
+          at: run.updatedAt || "",
+          updatedAt: run.updatedAt || ""
+        };
+      });
+    }
     function dispatchViewerActivityUpdate() {
       const storedState = readStoredState();
       const payload = {
         root: latestRepoRoot,
         items: latestItems,
         selectedId: storedState?.selectedId || "",
-        activityEvents: activityEventsFromStoredState(storedState, latestRepoRoot)
+        activityEvents: [
+          ...activityEventsFromStoredState(storedState, latestRepoRoot),
+          ...ciActivityEvents()
+        ]
       };
       window.dispatchEvent(new MessageEvent("message", { data: { type: "data", payload } }));
       applyLocalViewerChrome();
+    }
+    function refreshActivityFeedForCi() {
+      if (activityPanelIsOpen()) {
+        dispatchViewerActivityUpdate();
+      }
     }
     function activityPanelIsOpen() {
       const panel = document.getElementById("activity-panel");
@@ -1949,6 +1977,7 @@
         if (response.ok && data.ok) {
           latestCiStatusSignature = runtimeStatusSignature(data.payload);
           updateMainCiBadge(data.payload);
+          refreshActivityFeedForCi();
         }
       } catch {
         updateMainCiBadge({ visible: false, badgeState: "unknown", message: "CI status unavailable." });
@@ -2259,6 +2288,7 @@
         if (payload.ci) {
           latestCiStatusSignature = runtimeStatusSignature(payload.ci);
           updateMainCiBadge(payload.ci);
+          refreshActivityFeedForCi();
         }
         if (payload.releaseRuns) {
           latestReleaseRunsStatusSignature = runtimeStatusSignature(payload.releaseRuns);
@@ -8021,6 +8051,7 @@ ${line}` : line;
       }
       latestCiStatusSignature = nextCiSignature;
       updateMainCiBadge(data.payload);
+      refreshActivityFeedForCi();
       setDocument("Remote", renderCiStatus(data.payload));
       setMeta(options.silent ? "CI status refreshed." : "CI status loaded.");
     }

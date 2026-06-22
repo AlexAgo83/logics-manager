@@ -19,6 +19,16 @@ const excludedSegments = new Set([
 const allowedOversizedFiles = new Map(
   Object.entries({
     "clients/vscode/src/logicsCorpusInsightsHtml.ts": { maxLines: 1114, ref: "unplanned-current" },
+    // req_273: de-glued importable modules. A single large importable module beats the
+    // exec(compile(concat parts)) text-glue these replaced (real tracebacks, IDE, type-check).
+    // The default 1000 budget still catches genuinely new monoliths.
+    "logics_manager/mcp.py": { maxLines: 1700, ref: "req_273" },
+    "logics_manager/sync.py": { maxLines: 1600, ref: "req_273" },
+    "logics_manager/audit.py": { maxLines: 1200, ref: "req_273" },
+    "logics_manager/release.py": { maxLines: 1200, ref: "req_273" },
+    "logics_manager/assist_support.py": { maxLines: 1600, ref: "req_273" },
+    "logics_manager/viewer.py": { maxLines: 5900, ref: "req_273" },
+    "logics_manager/flow/__init__.py": { maxLines: 4400, ref: "req_273" },
   })
 );
 const generatedFiles = new Set([

@@ -493,6 +493,8 @@
   let focusApplied = false;
   let latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
   let latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
+  let latestReleaseRunsStatus = { visible: false, badgeState: "unknown", message: "" };
+  let latestReleaseRunsStatusSignature = "";
   let latestUpdateInfo = {};
   let latestCdxMissionState = {
     missionId: "full-audit",
@@ -1433,8 +1435,10 @@
     }
     latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
     latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
+    latestReleaseRunsStatus = { visible: false, badgeState: "unknown", message: "" };
     updateMainGitBadges();
     updateMainCiBadge(latestCiStatus);
+    updateMainReleaseBadge(latestReleaseRunsStatus);
     updateMainCdxBadge(null);
     const panel = documentPanel();
     if (panel) {
@@ -1468,8 +1472,10 @@
   function applySelectedProjectPayload(payload, message) {
     latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
     latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
+    latestReleaseRunsStatus = { visible: false, badgeState: "unknown", message: "" };
     updateMainGitBadges();
     updateMainCiBadge(latestCiStatus);
+    updateMainReleaseBadge(latestReleaseRunsStatus);
     updateMainCdxBadge(null);
     const panel = documentPanel();
     if (panel) {
@@ -2073,6 +2079,58 @@
     }
   }
 
+  function renderReleaseRunsButtonBadge(payload) {
+    const state = payload?.badgeState || payload?.state || "unknown";
+    const tone = ciBadgeTone(state);
+    const stateLabel = ciBadgeLabel(state);
+    // Prefer the release version (tag) as the badge label; fall back to the
+    // state label when no version is available (e.g. no runs yet).
+    const version = String(payload?.version || payload?.run?.version || "").trim();
+    const label = version || stateLabel;
+    const title = payload?.message || (version ? `Release ${version} (${stateLabel})` : `Release ${stateLabel}`);
+    return `<span class="viewer-ci-badge viewer-ci-badge--${escapeHtml(tone)}" data-viewer-release-badge title="${escapeHtml(title)}">${escapeHtml(label)}</span>`;
+  }
+
+  function updateMainReleaseBadge(payload = latestReleaseRunsStatus) {
+    latestReleaseRunsStatus = payload && typeof payload === "object" ? payload : { visible: false, badgeState: "unknown", message: "" };
+    const button = ciButton();
+    if (!(button instanceof HTMLElement)) {
+      return;
+    }
+    // Manage only the release status badge here; the shared "Remote" button
+    // visibility is owned by updateCapabilityControls. Order on the button is
+    // git counters -> CI badge -> release badge.
+    button.querySelector("[data-viewer-release-badge]")?.remove();
+    clearNavMenuBadges(["remote:release"]);
+    if (!latestReleaseRunsStatus.visible) {
+      return;
+    }
+    const badge = renderReleaseRunsButtonBadge(latestReleaseRunsStatus);
+    button.insertAdjacentHTML("beforeend", badge);
+    setNavMenuBadges("remote:release", badge);
+  }
+
+  async function refreshReleaseBadgeCounters() {
+    if (!isCapabilityAvailable("ci")) {
+      updateMainReleaseBadge({ visible: false, badgeState: "unknown", message: capabilityMessage("ci", "Release runs are not available for this project.") });
+      return;
+    }
+    try {
+      const response = await fetch("/api/release-runs");
+      if (response.status === 404) {
+        updateMainReleaseBadge({ visible: false, badgeState: "unknown", message: "Release runs endpoint unavailable." });
+        return;
+      }
+      const data = await response.json();
+      if (response.ok && data.ok) {
+        latestReleaseRunsStatusSignature = runtimeStatusSignature(data.payload);
+        updateMainReleaseBadge(data.payload);
+      }
+    } catch {
+      updateMainReleaseBadge({ visible: false, badgeState: "unknown", message: "Release runs unavailable." });
+    }
+  }
+
   function activeCdxAssistantCountFromPayload(payload) {
     if (!payload || payload.state !== "ok") {
       return 0;
@@ -2370,6 +2428,7 @@
       const response = await fetch("/api/status");
       if (response.status === 404) {
         refreshCiBadgeCounters();
+        refreshReleaseBadgeCounters();
         refreshCdxBadgeCounters();
         refreshGitBadgeCounters();
         return;
@@ -2387,8 +2446,13 @@
         latestCiStatusSignature = runtimeStatusSignature(payload.ci);
         updateMainCiBadge(payload.ci);
       }
+      if (payload.releaseRuns) {
+        latestReleaseRunsStatusSignature = runtimeStatusSignature(payload.releaseRuns);
+        updateMainReleaseBadge(payload.releaseRuns);
+      }
     } else {
       updateMainCiBadge({ visible: false, badgeState: "unknown", message: capabilityMessage("ci", "CI is not available for this project.") });
+      updateMainReleaseBadge({ visible: false, badgeState: "unknown", message: capabilityMessage("ci", "Release runs are not available for this project.") });
     }
     if (isCapabilityAvailable("cdx")) {
       if (payload.cdx) {
@@ -2445,8 +2509,12 @@
       await showGitStatus({ silent: true, preserve: true });
       return;
     }
-    if (changed.has("ci") && activeDocumentTitle() === "CI runs") {
+    if (changed.has("ci") && activeDocumentTitle() === "Remote" && latestCiScreenMode === "runs") {
       await showCiStatus({ silent: true });
+      return;
+    }
+    if (changed.has("releaseRuns") && activeDocumentTitle() === "Remote" && latestCiScreenMode === "release") {
+      await showReleaseStatus({ silent: true });
       return;
     }
     if (changed.has("cdx")) {
@@ -8147,7 +8215,54 @@
     `;
   }
 
-  function renderReleaseStatus(payload) {
+  function renderReleaseRunSection(runsPayload) {
+    if (!runsPayload || !runsPayload.visible) {
+      const message = runsPayload?.message || "Release workflow runs are not available for this repository.";
+      return `
+        <section class="viewer-ci__section">
+          <div class="viewer-ci__heading"><h2>Latest release run</h2></div>
+          <ul class="viewer-ci__list"><li class="viewer-ci__empty">${escapeHtml(message)}</li></ul>
+        </section>
+      `;
+    }
+    const run = runsPayload.run && typeof runsPayload.run === "object" ? runsPayload.run : null;
+    const jobs = Array.isArray(runsPayload.jobs) ? runsPayload.jobs : [];
+    const state = runsPayload.badgeState || run?.badgeState || runsPayload.state || "unknown";
+    const runUrl = run?.htmlUrl ? `<a class="viewer-ci__link" href="${escapeHtml(run.htmlUrl)}" target="_blank" rel="noreferrer">Open in GitHub</a>` : "";
+    const runRows = run ? [
+      ["Workflow", run.workflowName || run.name || "Release"],
+      ["Status", `${run.status || "unknown"}${run.conclusion ? ` / ${run.conclusion}` : ""}`],
+      ["Tag / ref", run.branch || "Unknown"],
+      ["Event", run.event || "Unknown"],
+      ["Commit", run.commitMessage || "Unknown"],
+      ["Started", formatCiDate(run.runStartedAt || run.createdAt) || "Unknown"],
+      ["Updated", formatCiDate(run.updatedAt) || "Unknown"],
+    ].map(([label, value]) => `
+      <li class="viewer-ci__row"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></li>
+    `).join("") : `<li class="viewer-ci__empty">${escapeHtml(runsPayload.message || "No release workflow run found.")}</li>`;
+    const jobRows = jobs.length ? jobs.map((job) => {
+      const jobState = ciBadgeTone(job.conclusion || job.status);
+      const content = `
+        <span>${escapeHtml(job.name || "Job")}</span>
+        <strong>${escapeHtml([job.status, job.conclusion].filter(Boolean).join(" / ") || "unknown")}</strong>
+      `;
+      return `<li class="viewer-ci__job viewer-ci__job--${escapeHtml(jobState)}">${job.htmlUrl ? `<a href="${escapeHtml(job.htmlUrl)}" target="_blank" rel="noreferrer">${content}</a>` : content}</li>`;
+    }).join("") : `<li class="viewer-ci__empty">No job details reported.</li>`;
+    const activeNote = Number(runsPayload.activeCount) > 0 ? `<span>${escapeHtml(String(runsPayload.activeCount))} active</span>` : "";
+    return `
+      <section class="viewer-ci__section">
+        <div class="viewer-ci__heading"><h2>Latest release run</h2>${renderCiBadge(state)}</div>
+        <ul class="viewer-ci__list">${runRows}</ul>
+        ${runUrl}
+      </section>
+      <section class="viewer-ci__section">
+        <div class="viewer-ci__heading"><h2>Release jobs</h2>${activeNote || `<span>${escapeHtml(String(jobs.length))} reported</span>`}</div>
+        <ul class="viewer-ci__jobs">${jobRows}</ul>
+      </section>
+    `;
+  }
+
+  function renderReleaseStatus(payload, runsPayload) {
     const state = payload?.state || "not_configured";
     const gates = Array.isArray(payload?.gates) ? payload.gates : [];
     const blockedGate = gates.find((gate) => gate && gate.required !== false && gate.blocking_reason);
@@ -8173,6 +8288,7 @@
               <li class="viewer-ci__row"><span>Next action</span><strong>${escapeHtml(payload?.next_action || "Inspect release workflow state.")}</strong></li>
             </ul>
           </section>
+          ${renderReleaseRunSection(runsPayload)}
           <section class="viewer-ci__section">
             <div class="viewer-ci__heading"><h2>Gates</h2><span>${escapeHtml(String(gates.length))} configured</span></div>
             <div class="viewer-release__gates">${gateRows}</div>
@@ -8190,12 +8306,24 @@
     const view = options.view || beginView({ silent: Boolean(options.silent) });
     let response;
     let data = {};
+    let runsData = {};
     try {
-      response = await fetch("/api/release-status", { signal: view.signal });
+      const [statusResponse, runsResponse] = await Promise.all([
+        fetch("/api/release-status", { signal: view.signal }),
+        fetch("/api/release-runs", { signal: view.signal }).catch(() => null),
+      ]);
+      response = statusResponse;
       try {
         data = await response.json();
       } catch {
         data = {};
+      }
+      if (runsResponse && runsResponse.ok) {
+        try {
+          runsData = await runsResponse.json();
+        } catch {
+          runsData = {};
+        }
       }
     } catch (error) {
       if (isAbortError(error)) {
@@ -8209,7 +8337,12 @@
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to load release workflow state.");
     }
-    setDocument("Remote", renderReleaseStatus(data.payload));
+    const runsPayload = runsData && runsData.ok ? runsData.payload : null;
+    if (runsPayload) {
+      latestReleaseRunsStatusSignature = runtimeStatusSignature(runsPayload);
+      updateMainReleaseBadge(runsPayload);
+    }
+    setDocument("Remote", renderReleaseStatus(data.payload, runsPayload));
     const state = data.payload?.state || "unknown";
     const button = ciButton();
     if (button instanceof HTMLElement) {

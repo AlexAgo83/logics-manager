@@ -329,6 +329,7 @@
 | [req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge](request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md) | Viewer UX batch: real-time sync, unified file preview, board/activity restructure, CDX gauge | Done |  | request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md |
 | [req_264_support_obsidian_friendly_logics_navigation](request/req_264_support_obsidian_friendly_logics_navigation.md) | Support Obsidian-friendly Logics navigation | Done |  | request/req_264_support_obsidian_friendly_logics_navigation.md |
 | [req_265_add_an_opt_in_obsidian_projection_mode_for_logics_docs](request/req_265_add_an_opt_in_obsidian_projection_mode_for_logics_docs.md) | Out of scope | Draft |  | request/req_265_add_an_opt_in_obsidian_projection_mode_for_logics_docs.md |
+| [req_266_move_top_segmented_navigation_buttons_below_window_controls](request/req_266_move_top_segmented_navigation_buttons_below_window_controls.md) | Move top segmented navigation buttons below window controls | Draft |  | request/req_266_move_top_segmented_navigation_buttons_below_window_controls.md |
 
 ## Backlog
 

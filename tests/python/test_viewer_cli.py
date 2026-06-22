@@ -2209,7 +2209,7 @@ def test_viewer_status_endpoint_caches_and_revalidates_with_etag(
 def test_viewer_consolidated_status_endpoint_combines_and_shares_components(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    calls: dict[str, int] = {"git": 0, "ci": 0, "cdx": 0, "cdxRuns": 0}
+    calls: dict[str, int] = {"git": 0, "ci": 0, "releaseRuns": 0, "cdx": 0, "cdxRuns": 0}
 
     def make(name: str, value: dict[str, object]):
         def producer(repo_root: Path) -> dict[str, object]:
@@ -2219,6 +2219,7 @@ def test_viewer_consolidated_status_endpoint_combines_and_shares_components(
 
     monkeypatch.setattr(viewer_module, "git_status_payload", make("git", {"state": "ok"}))
     monkeypatch.setattr(viewer_module, "ci_status_payload", make("ci", {"visible": True}))
+    monkeypatch.setattr(viewer_module, "release_runs_payload", make("releaseRuns", {"visible": True}))
     monkeypatch.setattr(viewer_module, "cdx_status_payload", make("cdx", {"state": "ok"}))
     monkeypatch.setattr(viewer_module, "cdx_runs_payload", make("cdxRuns", {"runs": []}))
     server = create_viewer_server_or_skip(tmp_path)
@@ -2230,7 +2231,7 @@ def test_viewer_consolidated_status_endpoint_combines_and_shares_components(
         response = conn.getresponse()
         payload = json.loads(response.read().decode("utf-8"))["payload"]
         assert response.status == 200
-        assert set(payload) == {"git", "ci", "cdx", "cdxRuns"}
+        assert set(payload) == {"git", "ci", "releaseRuns", "cdx", "cdxRuns"}
         assert payload["git"]["state"] == "ok"
 
         # An individual endpoint hit within the TTL reuses the shared component
@@ -2596,6 +2597,180 @@ def test_viewer_release_status_endpoint_returns_payload(monkeypatch: pytest.Monk
         assert payload["ok"] is True
         assert payload["payload"]["state"] == "not_configured"
         assert payload["payload"]["next_action"] == str(tmp_path)
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
+def test_viewer_release_runs_payload_hides_without_release_workflow(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "ci.yml").write_text("name: CI\n", encoding="utf-8")
+
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:] == ["remote", "-v"]:
+            return subprocess.CompletedProcess(args, 0, "origin\tgit@github.com:Example/repo.git (fetch)\n", "")
+        raise AssertionError(args)
+
+    payload = viewer_module.release_runs_payload(
+        tmp_path,
+        git_runner=runner,
+        which=lambda name: "/usr/bin/git" if name == "git" else None,
+    )
+
+    assert payload["state"] == "hidden"
+    assert payload["visible"] is False
+    assert payload["message"] == "No release workflow detected."
+
+
+def test_viewer_release_runs_payload_reports_unavailable_without_gh(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "release.yml").write_text("name: Release\n", encoding="utf-8")
+
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:] == ["remote", "-v"]:
+            return subprocess.CompletedProcess(args, 0, "origin\tgit@github.com:Example/repo.git (fetch)\n", "")
+        raise AssertionError(args)
+
+    payload = viewer_module.release_runs_payload(
+        tmp_path,
+        git_runner=runner,
+        which=lambda name: "/usr/bin/git" if name == "git" else None,
+    )
+
+    assert payload["state"] == "unavailable"
+    assert payload["visible"] is True
+    assert payload["badgeState"] == "unavailable"
+    assert payload["repositoryUrl"] == "https://github.com/Example/repo"
+
+
+def test_viewer_release_runs_payload_reads_release_workflow(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "release.yml").write_text("name: Release\n", encoding="utf-8")
+    gh_calls: list[list[str]] = []
+
+    def git_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:] == ["remote", "-v"]:
+            return subprocess.CompletedProcess(args, 0, "origin\tgit@github.com:Example/repo.git (fetch)\n", "")
+        raise AssertionError(args)
+
+    def gh_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        gh_calls.append(args)
+        if args[:2] == ["gh", "api"] and args[2] == "repos/Example/repo/actions/workflows/release.yml/runs?per_page=10":
+            return subprocess.CompletedProcess(
+                args,
+                0,
+                json.dumps(
+                    {
+                        "workflow_runs": [
+                            {
+                                "id": 99,
+                                "name": "Release",
+                                "status": "completed",
+                                "conclusion": "success",
+                                "head_branch": "v2.12.3",
+                                "head_sha": "def456",
+                                "event": "push",
+                                "html_url": "https://github.com/Example/repo/actions/runs/99",
+                                "created_at": "2026-06-22T00:30:00Z",
+                                "updated_at": "2026-06-22T00:37:00Z",
+                                "run_started_at": "2026-06-22T00:30:10Z",
+                                "head_commit": {"message": "Prepare release 2.12.3", "author": {"name": "Alex"}},
+                            }
+                        ]
+                    }
+                ),
+                "",
+            )
+        if args[:2] == ["gh", "api"] and args[2] == "repos/Example/repo/actions/runs/99/jobs?per_page=100":
+            return subprocess.CompletedProcess(
+                args,
+                0,
+                json.dumps({"jobs": [{"name": "package", "status": "completed", "conclusion": "success", "html_url": "https://github.com/Example/repo/actions/runs/99/job/1"}]}),
+                "",
+            )
+        raise AssertionError(args)
+
+    payload = viewer_module.release_runs_payload(
+        tmp_path,
+        git_runner=git_runner,
+        gh_runner=gh_runner,
+        which=lambda name: f"/usr/bin/{name}" if name in {"git", "gh"} else None,
+    )
+
+    assert payload["state"] == "ok"
+    assert payload["visible"] is True
+    assert payload["badgeState"] == "passing"
+    assert payload["version"] == "v2.12.3"
+    assert payload["activeCount"] == 0
+    assert payload["run"]["matchSource"] == "release-latest"
+    assert payload["run"]["version"] == "v2.12.3"
+    assert payload["run"]["commitMessage"] == "Prepare release 2.12.3"
+    assert payload["jobs"] == [{"name": "package", "status": "completed", "conclusion": "success", "htmlUrl": "https://github.com/Example/repo/actions/runs/99/job/1", "startedAt": "", "completedAt": ""}]
+    assert ["gh", "api", "repos/Example/repo/actions/workflows/release.yml/runs?per_page=10"] in gh_calls
+
+
+def test_viewer_release_runs_payload_prefers_active_run(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "release.yml").write_text("name: Release\n", encoding="utf-8")
+
+    def git_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[1:] == ["remote", "-v"]:
+            return subprocess.CompletedProcess(args, 0, "origin\tgit@github.com:Example/repo.git (fetch)\n", "")
+        raise AssertionError(args)
+
+    def gh_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[2].startswith("repos/Example/repo/actions/workflows/release.yml/runs"):
+            return subprocess.CompletedProcess(
+                args,
+                0,
+                json.dumps(
+                    {
+                        "workflow_runs": [
+                            {"id": 2, "name": "Release", "status": "completed", "conclusion": "success", "head_branch": "v2.12.3"},
+                            {"id": 3, "name": "Release", "status": "in_progress", "conclusion": None, "head_branch": "v2.12.4"},
+                        ]
+                    }
+                ),
+                "",
+            )
+        return subprocess.CompletedProcess(args, 0, json.dumps({"jobs": []}), "")
+
+    payload = viewer_module.release_runs_payload(
+        tmp_path,
+        git_runner=git_runner,
+        gh_runner=gh_runner,
+        which=lambda name: f"/usr/bin/{name}" if name in {"git", "gh"} else None,
+    )
+
+    assert payload["badgeState"] == "running"
+    assert payload["version"] == "v2.12.4"
+    assert payload["activeCount"] == 1
+    assert payload["run"]["matchSource"] == "release-active"
+
+
+def test_viewer_release_runs_endpoint_returns_payload(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(
+        viewer_module,
+        "release_runs_payload",
+        lambda repo_root: {"state": "ok", "visible": True, "badgeState": "passing", "version": "v9.9.9", "run": None, "jobs": [], "activeCount": 0},
+    )
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("GET", "/api/release-runs")
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+        assert response.status == 200
+        assert payload["ok"] is True
+        assert payload["payload"]["version"] == "v9.9.9"
+        assert payload["payload"]["badgeState"] == "passing"
     finally:
         server.shutdown()
         server.server_close()

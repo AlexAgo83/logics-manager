@@ -2230,6 +2230,116 @@ def ci_status_payload(
     return {"state": "hidden", "visible": False, "message": "No GitHub or GitLab remote detected.", "provider": ""}
 
 
+def _github_release_workflow_file(repo_root: Path) -> str:
+    """Return the basename of the Release GitHub Actions workflow file, if present.
+
+    The Release workflow is triggered on tag pushes, so its runs do not appear
+    on the current branch. We target the workflow file directly via the
+    ``actions/workflows/<file>/runs`` endpoint instead of filtering branch runs.
+    """
+    workflows_dir = repo_root / ".github" / "workflows"
+    if not workflows_dir.is_dir():
+        return ""
+    for name in ("release.yml", "release.yaml"):
+        if (workflows_dir / name).is_file():
+            return name
+    return ""
+
+
+def _github_release_runs_payload(repo_root: Path, github_url: str, workflow_file: str, *, gh_runner: Any | None = None) -> dict[str, Any]:
+    owner_repo = _github_owner_repo_from_web_url(github_url)
+    if not owner_repo:
+        return {"state": "hidden", "visible": False, "message": "GitHub remote could not be parsed."}
+
+    owner, repo = owner_repo
+    endpoint = f"repos/{owner}/{repo}/actions/workflows/{workflow_file}/runs?per_page=10"
+    try:
+        runs_result = _run_read_only_gh(repo_root, ["api", endpoint], runner=gh_runner)
+    except subprocess.TimeoutExpired:
+        return {"state": "timeout", "visible": True, "message": "Release workflow status timed out.", "repositoryUrl": github_url, "badgeState": "unavailable"}
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"state": "error", "visible": True, "message": f"Unable to collect release workflow status: {exc}", "repositoryUrl": github_url, "badgeState": "unavailable"}
+    if runs_result.returncode != 0:
+        message = (runs_result.stderr or runs_result.stdout or "Release workflow status failed.").strip().splitlines()[0]
+        return {"state": "unavailable", "visible": True, "message": message, "repositoryUrl": github_url, "badgeState": "unavailable"}
+
+    try:
+        parsed = json.loads(runs_result.stdout or "{}")
+    except json.JSONDecodeError:
+        return {"state": "invalid-json", "visible": True, "message": "Release workflow status returned invalid JSON.", "repositoryUrl": github_url, "badgeState": "unavailable"}
+    workflow_runs = parsed.get("workflow_runs") if isinstance(parsed, dict) else None
+    runs = [run for run in workflow_runs if isinstance(run, dict)] if isinstance(workflow_runs, list) else []
+    if not runs:
+        return {"state": "ok", "visible": True, "message": "No release workflow runs found.", "repositoryUrl": github_url, "badgeState": "unknown", "run": None, "jobs": [], "activeCount": 0}
+
+    # Runs are returned newest-first. Prefer the most recent active run for the
+    # badge so an in-progress release is surfaced even if a later-listed run is
+    # already complete; otherwise fall back to the latest run.
+    active_count = sum(1 for run in runs if _is_active_ci_status(run))
+    selected = next((run for run in runs if _is_active_ci_status(run)), runs[0])
+    match_source = "release-active" if _is_active_ci_status(selected) else "release-latest"
+    run_payload = _parse_github_actions_run(selected, match_source=match_source)
+    # Release runs are tag-triggered, so head_branch carries the release tag
+    # (e.g. "v2.12.3"). Surface it as the version for the badge label.
+    version = run_payload.get("branch") or ""
+    run_payload["version"] = version
+    jobs: list[dict[str, str]] = []
+    run_id = run_payload.get("id")
+    if run_id:
+        try:
+            jobs_result = _run_read_only_gh(repo_root, ["api", f"repos/{owner}/{repo}/actions/runs/{run_id}/jobs?per_page=100"], runner=gh_runner)
+        except (OSError, subprocess.SubprocessError, subprocess.TimeoutExpired):
+            jobs_result = None
+        if jobs_result is not None and jobs_result.returncode == 0:
+            jobs = _parse_github_actions_jobs(jobs_result.stdout)
+
+    return {
+        "state": "ok",
+        "visible": True,
+        "message": "",
+        "repositoryUrl": github_url,
+        "badgeState": run_payload["badgeState"],
+        "version": version,
+        "run": run_payload,
+        "jobs": jobs,
+        "activeCount": active_count,
+    }
+
+
+def release_runs_payload(
+    repo_root: Path,
+    *,
+    git_runner: Any | None = None,
+    gh_runner: Any | None = None,
+    which: Any | None = None,
+) -> dict[str, Any]:
+    """Status of the GitHub Actions Release workflow runs (tag-triggered).
+
+    Mirrors :func:`ci_status_payload` but targets the Release workflow file
+    directly. GitLab is not covered in this surface yet and stays hidden.
+    """
+    git_which = which or shutil.which
+    provider = repository_provider_payload(repo_root, runner=git_runner, which=git_which)
+    if provider.get("provider") != "github":
+        return {"state": "hidden", "visible": False, "message": "Release run tracking requires a GitHub remote.", "provider": provider.get("provider", "")}
+    github_url = provider.get("webUrl", "")
+    workflow_file = _github_release_workflow_file(repo_root)
+    if not workflow_file:
+        return {"state": "hidden", "visible": False, "message": "No release workflow detected.", "provider": "github", "repositoryUrl": github_url}
+    if not git_which("gh"):
+        return {
+            "state": "unavailable",
+            "visible": True,
+            "message": "GitHub CLI is not available on PATH.",
+            "provider": "github",
+            "repositoryUrl": github_url,
+            "badgeState": "unavailable",
+        }
+    payload = _github_release_runs_payload(repo_root, github_url, workflow_file, gh_runner=gh_runner)
+    payload.setdefault("provider", "github")
+    return payload
+
+
 def cdx_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
     cdx_which = which or shutil.which
     if not cdx_which("cdx"):
@@ -3660,6 +3770,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
             route_names = {
                 "git": {"git-status", "status"},
                 "ci": {"ci-status", "status"},
+                "releaseRuns": {"release-runs", "status"},
                 "cdx": {"cdx-status", "cdx-runs", "cdx-history", "status"},
                 "cdxRuns": {"cdx-runs", "status"},
                 "cdxHistory": {"cdx-history"},
@@ -3773,6 +3884,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             "git": lambda: git_status_payload(repo_root),
             "ci": lambda: ci_status_payload(repo_root),
             "release": lambda: release_status_payload(repo_root),
+            "releaseRuns": lambda: release_runs_payload(repo_root),
             "cdx": lambda: cdx_status_payload(repo_root),
             "cdxRuns": lambda: cdx_runs_payload(repo_root),
             "cdxHistory": lambda: cdx_history_payload(repo_root),
@@ -4028,6 +4140,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         }
         if include_remote:
             snapshot["ci"] = _stable_json_signature(self._status_component("ci"))
+            snapshot["releaseRuns"] = _stable_json_signature(self._status_component("releaseRuns"))
             snapshot["cdx"] = _stable_json_signature({
                 "status": self._status_component("cdx"),
                 "runs": self._status_component("cdxRuns"),
@@ -4057,7 +4170,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 if include_remote:
                     remote_due_at = now + VIEWER_EVENT_REMOTE_POLL_SECONDS
                 else:
-                    for name in ("ci", "cdx"):
+                    for name in ("ci", "releaseRuns", "cdx"):
                         if name in baseline:
                             current[name] = baseline[name]
                 changed = sorted(name for name, value in current.items() if baseline.get(name) != value)
@@ -4281,6 +4394,9 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         if route == "/api/release-status":
             self._send_status_json("release-status", lambda: self._status_component("release"))
             return
+        if route == "/api/release-runs":
+            self._send_status_json("release-runs", lambda: self._status_component("releaseRuns"))
+            return
         if route == "/api/cdx-status":
             self._send_status_json("cdx-status", lambda: self._status_component("cdx"))
             return
@@ -4296,6 +4412,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 lambda: {
                     "git": self._status_component("git"),
                     "ci": self._status_component("ci"),
+                    "releaseRuns": self._status_component("releaseRuns"),
                     "cdx": self._status_component("cdx"),
                     "cdxRuns": self._status_component("cdxRuns"),
                 },

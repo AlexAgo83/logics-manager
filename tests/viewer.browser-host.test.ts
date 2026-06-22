@@ -1550,7 +1550,8 @@ describe("local viewer browser host", () => {
     expect(modal?.textContent).toContain("Restart viewer server");
     expect(calls).not.toContain("/api/restart-viewer");
 
-    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)
+      ?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
     await flushViewerAsync();
 
@@ -5180,6 +5181,7 @@ describe("local viewer browser host", () => {
   it("opens CDX session action menus with resume and handoff choices", async () => {
     const payload = cdxRowsStatusPayload();
     const rows = payload.body.payload.status.rows;
+    rows[0].model = "gpt-5-codex";
     rows[0].resume_available = true;
     rows[0].last_launched_at = "2026-06-19T10:00:00.000Z";
     rows[1].resume_available = true;
@@ -5220,17 +5222,65 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const work2Menu = dom.window.document.querySelector('[data-viewer-cdx-session="work2"][data-viewer-cdx-session-action="resume"]') as HTMLElement | null;
+    const work2Config = dom.window.document.querySelector('[data-viewer-cdx-session="work2"][data-viewer-cdx-session-action="config"]') as HTMLElement | null;
     const corvusHandoff = dom.window.document.querySelector('[data-viewer-cdx-session="corvus"][data-viewer-cdx-session-action="handoff"]') as HTMLElement | null;
     const work2Remove = dom.window.document.querySelector('[data-viewer-cdx-session="work2"][data-viewer-cdx-session-action="remove"]') as HTMLElement | null;
+    const retiredConfig = dom.window.document.querySelector('[data-viewer-cdx-session="retired"][data-viewer-cdx-session-action="config"]') as HTMLElement | null;
     const disabledRemove = dom.window.document.querySelector('[data-viewer-cdx-session="retired"][data-viewer-cdx-session-action="remove"]') as HTMLElement | null;
+    const work2Actions = Array.from(dom.window.document.querySelectorAll('[data-viewer-cdx-session="work2"][data-viewer-cdx-session-action]')).map((node) => node.textContent);
+    const corvusActions = Array.from(dom.window.document.querySelectorAll('[data-viewer-cdx-session="corvus"][data-viewer-cdx-session-action]')).map((node) => node.textContent);
+    const retiredActions = Array.from(dom.window.document.querySelectorAll('[data-viewer-cdx-session="retired"][data-viewer-cdx-session-action]')).map((node) => node.textContent);
+    expect(work2Actions).toEqual(["New", "Resume", "Config", "Remove"]);
+    expect(corvusActions).toEqual(["New", "Resume", "Handoff (work2)", "Config", "Remove"]);
+    expect(retiredActions).toEqual(["Config", "Remove"]);
     expect(work2Menu?.textContent).toBe("Resume");
+    expect(work2Config?.textContent).toBe("Config");
+    expect(work2Config?.classList.contains("viewer-cdx__menu-action--danger")).toBe(false);
     expect(corvusHandoff?.textContent).toBe("Handoff (work2)");
     expect(work2Remove?.textContent).toBe("Remove");
     expect(work2Remove?.classList.contains("viewer-cdx__menu-action--danger")).toBe(true);
+    expect(retiredConfig?.textContent).toBe("Config");
     expect(disabledRemove?.textContent).toBe("Remove");
     expect(dom.window.document.querySelector('[data-viewer-cdx-session="retired"][data-viewer-cdx-session-action="new"]')).toBeNull();
     expect(dom.window.document.querySelector('[data-viewer-cdx-session="retired"][data-viewer-cdx-session-action="resume"]')).toBeNull();
-    const sessionMenu = work2Menu?.closest("details") as HTMLDetailsElement | null;
+    work2Config?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    expect(modal?.textContent).toContain("CDX session: work2");
+    const modelInput = modal?.querySelector('[data-viewer-cdx-session-config-input="model"]') as HTMLInputElement | null;
+    const reasoningInput = modal?.querySelector('[data-viewer-cdx-session-config-input="reasoningEffort"]') as HTMLSelectElement | null;
+    const powerInput = modal?.querySelector('[data-viewer-cdx-session-config-input="power"]') as HTMLSelectElement | null;
+    expect(modelInput?.value).toBe("gpt-5-codex");
+    if (modelInput) {
+      modelInput.value = "gpt-5.1-codex";
+      modelInput.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+    if (reasoningInput) {
+      reasoningInput.value = "xhigh";
+      reasoningInput.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+    if (powerInput) {
+      powerInput.value = "high";
+      powerInput.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("CDX config updated for work2.");
+    dom.window.document.querySelectorAll(".viewer-themed-modal").forEach((node) => node.remove());
+    expect(dom.window.document.querySelector(".viewer-themed-modal")).toBeNull();
+
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:missions"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect((dom.window.document.querySelector("select[data-viewer-cdx-session]") as HTMLSelectElement | null)?.value).toBe("work2");
+    expect((dom.window.document.querySelector('[data-viewer-cdx-input="model"]') as HTMLInputElement | null)?.value).toBe("gpt-5.1-codex");
+    expect((dom.window.document.querySelector('[data-viewer-cdx-input="reasoningEffort"]') as HTMLSelectElement | null)?.value).toBe("xhigh");
+    expect((dom.window.document.querySelector('[data-viewer-cdx-input="power"]') as HTMLSelectElement | null)?.value).toBe("high");
+
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const refreshedWork2Menu = dom.window.document.querySelector('[data-viewer-cdx-session="work2"][data-viewer-cdx-session-action="resume"]') as HTMLElement | null;
+    const sessionMenu = refreshedWork2Menu?.closest("details") as HTMLDetailsElement | null;
     if (sessionMenu) {
       sessionMenu.open = true;
     }
@@ -5242,7 +5292,7 @@ describe("local viewer browser host", () => {
     dom.window.document.getElementById("viewer-cdx")?.dispatchEvent(new dom.window.FocusEvent("focusin", { bubbles: true }));
     expect(sessionMenu?.open).toBe(false);
 
-    work2Menu?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    refreshedWork2Menu?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Workshop");

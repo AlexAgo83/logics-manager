@@ -63,6 +63,7 @@
 | [prod_025_oversized_source_modularization](product/prod_025_oversized_source_modularization.md) | Oversized source modularization | Settled |  |  | product/prod_025_oversized_source_modularization.md |
 | [prod_026_importable_module_remediation](product/prod_026_importable_module_remediation.md) | Importable module remediation | Proposed |  |  | product/prod_026_importable_module_remediation.md |
 | [prod_027_ci_events_in_recent_activity](product/prod_027_ci_events_in_recent_activity.md) | CI events in Recent activity | Proposed |  |  | product/prod_027_ci_events_in_recent_activity.md |
+| [prod_028_recent_activity_event_filter](product/prod_028_recent_activity_event_filter.md) | Recent activity event filter | Proposed |  |  | product/prod_028_recent_activity_event_filter.md |
 
 ## Requests
 
@@ -341,6 +342,7 @@
 | [req_272_add_a_start_work_ownership_signal_for_active_tasks_and_items](request/req_272_add_a_start_work_ownership_signal_for_active_tasks_and_items.md) | Add a start-work / ownership signal for active tasks and items | Done |  |  | request/req_272_add_a_start_work_ownership_signal_for_active_tasks_and_items.md |
 | [req_273_replace_exec_compile_part_glue_with_importable_modules](request/req_273_replace_exec_compile_part_glue_with_importable_modules.md) | Replace exec(compile) part-glue with importable modules | Draft |  |  | request/req_273_replace_exec_compile_part_glue_with_importable_modules.md |
 | [req_274_surface_ci_events_in_the_recent_activity_feed](request/req_274_surface_ci_events_in_the_recent_activity_feed.md) | Surface CI events in the Recent activity feed | Draft |  |  | request/req_274_surface_ci_events_in_the_recent_activity_feed.md |
+| [req_275_add_a_git_ci_event_filter_to_the_recent_activity_view](request/req_275_add_a_git_ci_event_filter_to_the_recent_activity_view.md) | Add a git/CI event filter to the Recent activity view | Draft |  |  | request/req_275_add_a_git_ci_event_filter_to_the_recent_activity_view.md |
 
 ## Backlog
 
@@ -833,6 +835,8 @@
 | [item_485_replace_js_part_glue_manifests_with_real_es_modules](backlog/item_485_replace_js_part_glue_manifests_with_real_es_modules.md) | Replace JS part-glue manifests with real ES modules | Ready |  | 0% | backlog/item_485_replace_js_part_glue_manifests_with_real_es_modules.md |
 | [item_486_expose_recent_ci_runs_from_ci_status_payload](backlog/item_486_expose_recent_ci_runs_from_ci_status_payload.md) | Expose recent CI runs from ci_status_payload | Ready |  | 0% | backlog/item_486_expose_recent_ci_runs_from_ci_status_payload.md |
 | [item_487_merge_ci_runs_into_the_recent_activity_feed](backlog/item_487_merge_ci_runs_into_the_recent_activity_feed.md) | Merge CI runs into the Recent activity feed | Ready |  | 0% | backlog/item_487_merge_ci_runs_into_the_recent_activity_feed.md |
+| [item_488_surface_recent_git_commits_as_activity_events](backlog/item_488_surface_recent_git_commits_as_activity_events.md) | Surface recent git commits as activity events | Ready |  | 0% | backlog/item_488_surface_recent_git_commits_as_activity_events.md |
+| [item_489_add_the_activity_filter_button_menu_and_persisted_toggles](backlog/item_489_add_the_activity_filter_button_menu_and_persisted_toggles.md) | Add the activity filter button, menu, and persisted toggles | Ready |  | 0% | backlog/item_489_add_the_activity_filter_button_menu_and_persisted_toggles.md |
 
 ## Tasks
 
@@ -1103,3 +1107,4 @@
 | [task_269_add_a_start_work_ownership_signal_for_active_tasks_and_items](tasks/task_269_add_a_start_work_ownership_signal_for_active_tasks_and_items.md) | Add a start-work / ownership signal for active tasks and items | Done | codex | 100% | tasks/task_269_add_a_start_work_ownership_signal_for_active_tasks_and_items.md |
 | [task_270_orchestrate_the_exec_part_glue_remediation](tasks/task_270_orchestrate_the_exec_part_glue_remediation.md) | Orchestrate the exec part-glue remediation | Ready |  | 0% | tasks/task_270_orchestrate_the_exec_part_glue_remediation.md |
 | [task_271_orchestrate_ci_events_in_recent_activity](tasks/task_271_orchestrate_ci_events_in_recent_activity.md) | Orchestrate CI events in Recent activity | Ready |  | 0% | tasks/task_271_orchestrate_ci_events_in_recent_activity.md |
+| [task_272_orchestrate_the_recent_activity_event_filter](tasks/task_272_orchestrate_the_recent_activity_event_filter.md) | Orchestrate the Recent activity event filter | Ready |  | 0% | tasks/task_272_orchestrate_the_recent_activity_event_filter.md |

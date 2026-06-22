@@ -1,0 +1,118 @@
+{
+  "title": "Add a git/CI event filter to the Recent activity view",
+  "references": [
+    "`clients/vscode/src/logicsWebviewHtml.ts` (toolbar__filter button design to reuse, activity panel markup)",
+    "`clients/shared-web/media/webviewChrome.js` (filterToggle/filterPanel behavior, activity panel rendering)",
+    "`clients/shared-web/media/webviewSelectors.js` (getActivityEntries: documentEntries + eventEntries by activityKind)",
+    "`clients/shared-web/src/main-app/parts/_01.js` (persisted webview state: activityPanelOpen, persistenceFactory)",
+    "`logics_manager/viewer_parts/_git_status.py` (recentCommits already parsed and in the git payload)",
+    "`req_274_surface_ci_events_in_the_recent_activity_feed` (delivers the CI events this filter toggles)"
+  ],
+  "request": {
+    "complexity": "Medium",
+    "theme": "Viewer activity",
+    "needs": [
+      "The Recent activity view has a filter button, reusing the project view's filter button design, that opens a compact menu to toggle Git events and CI events independently, both enabled by default.",
+      "Toggling a category shows or hides only the matching event entries (git commits, CI runs) in the feed; logics-doc activity entries are always shown and unaffected by the filter.",
+      "Recent git commits, already parsed in the git payload, are surfaced in the activity feed as git events so the Git toggle has data to govern.",
+      "The two toggle choices persist across reloads using the same webview state mechanism as the existing activity panel state."
+    ],
+    "context": [
+      "getActivityEntries already merges documentEntries (logics doc activity) with eventEntries built from a generic getActivityEvents() channel keyed by activityKind and rendered with per-kind CSS and time bucketing.",
+      "The client event channel (activityEvents / getActivityEvents / eventEntries) is already wired, but payload.activityEvents has no server producer yet, so git events must be mapped into it from the existing recentCommits data.",
+      "_git_status.py already parses recentCommits (capped by GIT_HISTORY_DISPLAY_LIMIT) into the git payload, so no new git fetch is needed.",
+      "CI events (activityKind:'ci') are delivered by req_274; this request depends on that for the CI toggle's data but does not reimplement it.",
+      "The project view filter button (toolbar__filter, #filter-toggle/#filter-panel) already implements open/active states, aria wiring, and a non-default 'active' indicator, all reusable for the activity filter.",
+      "Persisted webview state already carries activityPanelOpen (default true) via vscode.getState/setState and persistenceFactory, so two more booleans follow the same pattern.",
+      "Decision: the toggles govern only git and ci event entries; a compact popover (not the full secondary toolbar row) is used because there are only two toggles."
+    ],
+    "acceptance_criteria": [
+      "AC1: Recent git commits from the existing recentCommits payload appear in Recent activity as activityKind:'git' events, time-bucketed and newest first, with no new git fetch.",
+      "AC2: A filter button reusing the project view's toolbar__filter design sits in the activity panel header and opens a compact popover with two checkboxes, Git events and CI events, both checked by default.",
+      "AC3: Toggling a checkbox shows or hides only the matching git/ci event entries; logics-doc activity entries remain visible regardless of the toggles.",
+      "AC4: The two choices persist across reloads via the same webview state as activityPanelOpen, with defaults applied on first load.",
+      "AC5: The filter button shows the non-default 'active' indicator when either toggle is off, matching the project filter button behavior.",
+      "AC6: When git or CI events are absent (e.g. no commits, or req_274 not yet merged), the feed and button render gracefully with the empty category and no errors.",
+      "AC7: vitest covers the git-commit-to-event mapping, the toggle filter logic, and the persistence round-trip.",
+      "AC8: logics-manager lint and audit pass on the resulting workflow corpus and code."
+    ]
+  },
+  "product": {
+    "title": "Recent activity event filter",
+    "overview": "A filter button on the Recent activity view to toggle git and CI events, reusing the project filter button design, the existing activity event channel, and the existing persisted webview state.",
+    "goals": [
+      "Let users focus the activity feed on the event categories they care about without losing logics-doc activity.",
+      "Reuse the project filter button, the activityKind event channel, and existing persistence rather than building new UI infrastructure.",
+      "Surface already-parsed git commits in the feed so the Git toggle is meaningful."
+    ],
+    "non_goals": [
+      "A separate events panel or tab distinct from Recent activity.",
+      "Reimplementing CI events (delivered by req_274) or adding a new git fetch.",
+      "Filtering or hiding logics-doc activity entries."
+    ]
+  },
+  "backlog_items": [
+    {
+      "title": "Surface recent git commits as activity events",
+      "complexity": "Medium",
+      "theme": "Viewer activity",
+      "request_acs": ["AC1", "AC6", "AC7"],
+      "problem": [
+        "payload.activityEvents has no server producer, so the already-parsed recentCommits never reach the activity feed and the Git toggle would have nothing to govern."
+      ],
+      "scope_in": [
+        "Map the existing recentCommits (from _git_status.py) into the activity event channel as entries with kind:'git', carrying id (short hash), title (subject), updatedAt (commit date), marker, and optional commit url",
+        "Cap the count consistently with the existing GIT_HISTORY_DISPLAY_LIMIT and keep entries non-clickable where no url applies",
+        "Fall back to an empty git category when no commits or git is unavailable"
+      ],
+      "scope_out": [
+        "The filter button and persistence (sibling slice)",
+        "CI events (delivered by req_274)",
+        "Any new git fetch or parsing"
+      ],
+      "acceptance_criteria": [
+        "AC1: Git commits appear in Recent activity as activityKind:'git', newest first, time-bucketed.",
+        "AC2: No new git command is run; the mapping reuses recentCommits.",
+        "AC3: A vitest check covers the commit-to-event mapping and the empty fallback."
+      ]
+    },
+    {
+      "title": "Add the activity filter button, menu, and persisted toggles",
+      "complexity": "Medium",
+      "theme": "Viewer activity",
+      "request_acs": ["AC2", "AC3", "AC4", "AC5", "AC7"],
+      "problem": [
+        "The Recent activity view has no way to toggle event categories, and there is no persisted state for git/ci visibility."
+      ],
+      "scope_in": [
+        "Add a filter button to the activity panel header reusing the toolbar__filter design, opening a compact popover with two checkboxes (Git events, CI events), both on by default",
+        "Add activityShowGit and activityShowCi booleans (default true) to the persisted webview state alongside activityPanelOpen",
+        "Filter eventEntries in getActivityEntries by activityKind against the two flags, leaving documentEntries untouched, and show the non-default 'active' indicator when a toggle is off"
+      ],
+      "scope_out": [
+        "The git event data mapping (sibling slice)",
+        "Filtering logics-doc activity entries"
+      ],
+      "acceptance_criteria": [
+        "AC1: The filter button and popover render with the project filter design and both toggles default on.",
+        "AC2: Toggling hides/shows only git/ci entries and persists across reloads; doc activity is unaffected.",
+        "AC3: A vitest check covers the filter logic, the active-indicator, and the persistence round-trip."
+      ]
+    }
+  ],
+  "orchestration_task": {
+    "title": "Orchestrate the Recent activity event filter",
+    "plan": [
+      "Surface recent git commits as activityKind:'git' events first so the Git toggle has data.",
+      "Add the activity filter button, compact popover, and persisted activityShowGit/activityShowCi toggles reusing the project filter design.",
+      "Wire the filter into getActivityEntries so it governs only git/ci event entries, leaving doc activity visible.",
+      "Verify the empty-category and req_274-not-merged fallbacks render gracefully.",
+      "Run lint, audit, pytest, and vitest and keep all linked docs in sync before closeout."
+    ]
+  },
+  "context_pack": {
+    "out": "logics/context-packs/recent-activity-event-filter.json",
+    "mode": "summary-only",
+    "profile": "normal"
+  }
+}

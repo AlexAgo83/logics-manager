@@ -1,0 +1,302 @@
+{
+  "budgets": {
+    "max_docs": 16,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_275_add_a_git_ci_event_filter_to_the_recent_activity_view item_488_surface_recent_git_commits_as_activity_events item_489_add_the_activity_filter_button_menu_and_persisted_toggles task_272_orchestrate_the_recent_activity_event_filter --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_488_surface_recent_git_commits_as_activity_events",
+          "item_489_add_the_activity_filter_button_menu_and_persisted_toggles"
+        ],
+        "prod": [
+          "prod_028_recent_activity_event_filter"
+        ],
+        "req": [
+          "req_275_add_a_git_ci_event_filter_to_the_recent_activity_view"
+        ],
+        "task": [
+          "task_272_orchestrate_the_recent_activity_event_filter"
+        ]
+      },
+      "path": "logics/product/prod_028_recent_activity_event_filter.md",
+      "ref": "prod_028_recent_activity_event_filter",
+      "status": "Proposed",
+      "title": "Recent activity event filter"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_486_expose_recent_ci_runs_from_ci_status_payload",
+          "item_487_merge_ci_runs_into_the_recent_activity_feed"
+        ],
+        "prod": [
+          "prod_027_ci_events_in_recent_activity"
+        ],
+        "req": [
+          "req_274_surface_ci_events_in_the_recent_activity_feed"
+        ],
+        "task": [
+          "task_271_orchestrate_ci_events_in_recent_activity"
+        ]
+      },
+      "path": "logics/product/prod_027_ci_events_in_recent_activity.md",
+      "ref": "prod_027_ci_events_in_recent_activity",
+      "status": "Proposed",
+      "title": "CI events in Recent activity"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, add a git/ci event filter to the recent activity view, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Add a git/CI event filter to the Recent activity view",
+        "use when": "You need to implement or review the scaffolded workflow for Add a git/CI event filter to the Recent activity view."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_488_surface_recent_git_commits_as_activity_events",
+          "item_489_add_the_activity_filter_button_menu_and_persisted_toggles"
+        ],
+        "prod": [
+          "prod_028_recent_activity_event_filter"
+        ],
+        "req": [
+          "req_274_surface_ci_events_in_the_recent_activity_feed",
+          "req_275_add_a_git_ci_event_filter_to_the_recent_activity_view"
+        ]
+      },
+      "path": "logics/request/req_275_add_a_git_ci_event_filter_to_the_recent_activity_view.md",
+      "ref": "req_275_add_a_git_ci_event_filter_to_the_recent_activity_view",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Add a git/CI event filter to the Recent activity view"
+    },
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, surface ci events in the recent activity feed, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Surface CI events in the Recent activity feed",
+        "use when": "You need to implement or review the scaffolded workflow for Surface CI events in the Recent activity feed."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_486_expose_recent_ci_runs_from_ci_status_payload",
+          "item_487_merge_ci_runs_into_the_recent_activity_feed"
+        ],
+        "prod": [
+          "prod_027_ci_events_in_recent_activity"
+        ],
+        "req": [
+          "req_274_surface_ci_events_in_the_recent_activity_feed"
+        ]
+      },
+      "path": "logics/request/req_274_surface_ci_events_in_the_recent_activity_feed.md",
+      "ref": "req_274_surface_ci_events_in_the_recent_activity_feed",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Surface CI events in the Recent activity feed"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, surface recent git commits as activity events, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Surface recent git commits as activity events",
+        "use when": "Implementing the scaffolded slice for Surface recent git commits as activity events."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_488_surface_recent_git_commits_as_activity_events"
+        ],
+        "prod": [
+          "prod_028_recent_activity_event_filter"
+        ],
+        "req": [
+          "req_275_add_a_git_ci_event_filter_to_the_recent_activity_view"
+        ],
+        "task": [
+          "task_272_orchestrate_the_recent_activity_event_filter"
+        ]
+      },
+      "path": "logics/backlog/item_488_surface_recent_git_commits_as_activity_events.md",
+      "ref": "item_488_surface_recent_git_commits_as_activity_events",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Surface recent git commits as activity events"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add the activity filter button, menu, and persisted toggles, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add the activity filter button, menu, and persisted toggles",
+        "use when": "Implementing the scaffolded slice for Add the activity filter button, menu, and persisted toggles."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_489_add_the_activity_filter_button_menu_and_persisted_toggles"
+        ],
+        "prod": [
+          "prod_028_recent_activity_event_filter"
+        ],
+        "req": [
+          "req_275_add_a_git_ci_event_filter_to_the_recent_activity_view"
+        ],
+        "task": [
+          "task_272_orchestrate_the_recent_activity_event_filter"
+        ]
+      },
+      "path": "logics/backlog/item_489_add_the_activity_filter_button_menu_and_persisted_toggles.md",
+      "ref": "item_489_add_the_activity_filter_button_menu_and_persisted_toggles",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Add the activity filter button, menu, and persisted toggles"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate the Recent activity event filter",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_488_surface_recent_git_commits_as_activity_events",
+          "item_489_add_the_activity_filter_button_menu_and_persisted_toggles"
+        ],
+        "prod": [
+          "prod_028_recent_activity_event_filter"
+        ],
+        "req": [
+          "req_275_add_a_git_ci_event_filter_to_the_recent_activity_view"
+        ],
+        "task": [
+          "task_272_orchestrate_the_recent_activity_event_filter"
+        ]
+      },
+      "path": "logics/tasks/task_272_orchestrate_the_recent_activity_event_filter.md",
+      "ref": "task_272_orchestrate_the_recent_activity_event_filter",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrate the Recent activity event filter"
+    }
+  ],
+  "estimates": {
+    "char_count": 5740,
+    "companion_doc_count": 2,
+    "doc_count": 5
+  },
+  "generated_at": "2026-06-22T17:20:55Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_275_add_a_git_ci_event_filter_to_the_recent_activity_view",
+      "item_488_surface_recent_git_commits_as_activity_events",
+      "item_489_add_the_activity_filter_button_menu_and_persisted_toggles",
+      "task_272_orchestrate_the_recent_activity_event_filter"
+    ],
+    "validation_summary_count": 1
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_275_add_a_git_ci_event_filter_to_the_recent_activity_view,item_488_surface_recent_git_commits_as_activity_events,item_489_add_the_activity_filter_button_menu_and_persisted_toggles,task_272_orchestrate_the_recent_activity_event_filter",
+  "refs": [
+    "req_275_add_a_git_ci_event_filter_to_the_recent_activity_view",
+    "item_488_surface_recent_git_commits_as_activity_events",
+    "item_489_add_the_activity_filter_button_menu_and_persisted_toggles",
+    "task_272_orchestrate_the_recent_activity_event_filter"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.12.8"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_272_orchestrate_the_recent_activity_event_filter.md",
+      "ref": "task_272_orchestrate_the_recent_activity_event_filter"
+    }
+  ]
+}

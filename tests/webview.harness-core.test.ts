@@ -834,6 +834,41 @@ describe("webview harness core behaviors", () => {
     expect(entry?.querySelector(".activity-panel__marker")?.getAttribute("data-activity-kind")).toBe("git");
   });
 
+  it("filters git and ci events via the toolbar activity filter, leaving doc activity", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem],
+      activityEvents: [
+        { id: "git-1", kind: "git", stage: "git", marker: "G", title: "Git commit", label: "Commit", updatedAt: "2024-06-01T00:00:00.000Z" },
+        { id: "ci-1", kind: "ci", stage: "ci", marker: "C", title: "CI run", label: "CI", updatedAt: "2024-06-01T00:01:00.000Z" }
+      ]
+    });
+    const document = dom.window.document;
+    const kinds = () =>
+      Array.from(document.querySelectorAll(".activity-panel__marker")).map((m) => m.getAttribute("data-activity-kind"));
+    expect(kinds()).toContain("git");
+    expect(kinds()).toContain("ci");
+
+    // The filter button is in the toolbar; its menu is hidden until the button is clicked.
+    const filterButton = document.getElementById("activity-filter-toggle") as HTMLButtonElement | null;
+    const filterMenu = document.getElementById("activity-filter-menu") as HTMLElement | null;
+    expect(filterButton).toBeTruthy();
+    expect(filterMenu?.hidden).toBe(true);
+    filterButton!.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true }));
+    expect(filterMenu?.hidden).toBe(false);
+
+    // Uncheck "CI events": ci entries disappear, git + doc activity stay.
+    const ciCheckbox = document.getElementById("activity-filter-ci") as HTMLInputElement | null;
+    expect(ciCheckbox).toBeTruthy();
+    ciCheckbox!.checked = false;
+    ciCheckbox!.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+
+    expect(kinds()).toContain("git");
+    expect(kinds()).not.toContain("ci");
+    expect(filterButton?.classList.contains("toolbar__filter--active")).toBe(true);
+  });
+
   it("shows more precise Updated values for recently changed cards", () => {
     const recentItem = {
       ...baseItem,

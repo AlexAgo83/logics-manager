@@ -144,6 +144,69 @@
       viewModeToggleButton.removeAttribute("aria-hidden");
     }
 
+    const activityFilterToggle = document.getElementById("activity-filter-toggle");
+    const activityFilterMenu = document.getElementById("activity-filter-menu");
+    const activityFilterGit = document.getElementById("activity-filter-git");
+    const activityFilterCi = document.getElementById("activity-filter-ci");
+
+    function getActivityShowGit() {
+      return typeof options.getActivityShowGit === "function" ? options.getActivityShowGit() !== false : true;
+    }
+
+    function getActivityShowCi() {
+      return typeof options.getActivityShowCi === "function" ? options.getActivityShowCi() !== false : true;
+    }
+
+    function setActivityFilterMenuOpen(open) {
+      if (!activityFilterMenu || !activityFilterToggle) {
+        return;
+      }
+      activityFilterMenu.hidden = !open;
+      activityFilterToggle.setAttribute("aria-expanded", String(open));
+    }
+
+    function updateActivityFilterToggle() {
+      if (!activityFilterToggle) {
+        return;
+      }
+      const showGit = getActivityShowGit();
+      const showCi = getActivityShowCi();
+      if (activityFilterGit) activityFilterGit.checked = showGit;
+      if (activityFilterCi) activityFilterCi.checked = showCi;
+      activityFilterToggle.classList.toggle("toolbar__filter--active", !showGit || !showCi);
+    }
+
+    if (activityFilterToggle) {
+      activityFilterToggle.addEventListener("click", (event) => {
+        event.stopPropagation();
+        setActivityFilterMenuOpen(activityFilterMenu ? activityFilterMenu.hidden : false);
+      });
+      if (activityFilterGit) {
+        activityFilterGit.addEventListener("change", () => {
+          if (typeof options.setActivityShowGit === "function") options.setActivityShowGit(activityFilterGit.checked);
+          updateActivityFilterToggle();
+          renderActivityPanel();
+        });
+      }
+      if (activityFilterCi) {
+        activityFilterCi.addEventListener("change", () => {
+          if (typeof options.setActivityShowCi === "function") options.setActivityShowCi(activityFilterCi.checked);
+          updateActivityFilterToggle();
+          renderActivityPanel();
+        });
+      }
+      document.addEventListener("click", (event) => {
+        if (!activityFilterMenu || activityFilterMenu.hidden) {
+          return;
+        }
+        const target = event.target;
+        if (activityFilterMenu.contains(target) || activityFilterToggle.contains(target)) {
+          return;
+        }
+        setActivityFilterMenuOpen(false);
+      });
+    }
+
     function renderActivityPanel() {
       if (!activityPanel) {
         return;
@@ -155,7 +218,14 @@
         return;
       }
 
-      const entries = getActivityEntries();
+      const showGit = getActivityShowGit();
+      const showCi = getActivityShowCi();
+      // req_275: the git/ci toggles govern only event entries; document activity is always shown.
+      const entries = getActivityEntries().filter((entry) => {
+        if (entry.activityKind === "git") return showGit;
+        if (entry.activityKind === "ci") return showCi;
+        return true;
+      });
       const visibleEntries = entries.slice(0, visibleActivityLimit);
       activityPanel.innerHTML = "";
 
@@ -411,6 +481,7 @@
         );
         activityToggle.title = activityOpen ? "Hide recent activity" : "Show recent activity";
       }
+      updateActivityFilterToggle();
     }
 
     function setToolsPanelOpen(viewName, isOpen) {

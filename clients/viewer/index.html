@@ -113,6 +113,17 @@
     <div class="toolbar__row toolbar__row--primary">
       <div class="toolbar__filters">
         <button class="btn toolbar__new-request" data-action="new-request" type="button" title="Create a new request document">+New</button>
+        <div class="toolbar__activity-filter" id="activity-filter">
+          <button class="toolbar__filter" id="activity-filter-toggle" aria-label="Filter activity events" aria-haspopup="true" aria-expanded="false" aria-controls="activity-filter-menu" title="Filter activity events">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M4 6h16l-6 7v5l-4 2v-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+            </svg>
+          </button>
+          <div class="toolbar__activity-filter-menu" id="activity-filter-menu" role="group" aria-label="Activity event filters" hidden>
+            <label class="toolbar__activity-filter-option"><input type="checkbox" id="activity-filter-git" checked /> Git events</label>
+            <label class="toolbar__activity-filter-option"><input type="checkbox" id="activity-filter-ci" checked /> CI events</label>
+          </div>
+        </div>
         <button class="toolbar__filter" id="filter-toggle" aria-label="Show view controls" aria-expanded="false" aria-controls="filter-panel" title="Show view controls">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M4 6h16l-6 7v5l-4 2v-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />

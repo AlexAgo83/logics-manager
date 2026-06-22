@@ -3095,6 +3095,14 @@
   background: color-mix(in srgb, var(--vscode-errorForeground, #f48771) 18%, transparent);
 }
 
+.viewer-cdx__menu-action--config {
+  color: var(--vscode-charts-yellow, #d9a425);
+}
+
+.viewer-cdx__menu-action--config:hover {
+  background: color-mix(in srgb, var(--vscode-charts-yellow, #d9a425) 18%, transparent);
+}
+
 .viewer-cdx__table-wrap {
   min-width: 0;
   overflow-x: auto;

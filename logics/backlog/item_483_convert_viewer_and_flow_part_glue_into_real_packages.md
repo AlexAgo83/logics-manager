@@ -1,10 +1,10 @@
 ## item_483_convert_viewer_and_flow_part_glue_into_real_packages - Convert viewer and flow part-glue into real packages
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100
 > Complexity: Medium
 > Theme: Python decomposition
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -50,3 +50,6 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Notes
+- Done: viewer.py and flow/__init__.py re-formed as single importable modules (ponytail: simplest allowed path over a package split); exec loaders gone; duplicate __future__ imports collapsed. 395 pytest pass.

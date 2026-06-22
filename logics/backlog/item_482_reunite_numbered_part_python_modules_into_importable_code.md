@@ -1,10 +1,10 @@
 ## item_482_reunite_numbered_part_python_modules_into_importable_code - Reunite numbered-part Python modules into importable code
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100
 > Complexity: Medium
 > Theme: Python decomposition
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -51,3 +51,6 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Notes
+- Done: mcp/sync/audit/release/assist_support merged from _01.._0N parts into single importable modules; *_parts dirs removed; exec loaders gone. 395 pytest pass.

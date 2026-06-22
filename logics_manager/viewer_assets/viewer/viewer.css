@@ -852,9 +852,15 @@
     padding: 6px;
   }
 
+  .viewer-document__header {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
   .viewer-document__nav,
   .viewer-document__nav .viewer-cdx__modes,
   .viewer-document__nav .viewer-workshop__tabs {
+    grid-column: 1 / -1;
+    grid-row: auto;
     justify-content: flex-start;
   }
 }
@@ -893,7 +899,7 @@
 
 .viewer-document__header {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, auto) auto;
   align-items: flex-start;
   gap: 8px 12px;
   padding: 12px 14px;
@@ -902,7 +908,9 @@
 }
 
 .viewer-document__nav {
-  grid-column: 1 / -1;
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
   display: flex;
   justify-content: flex-end;
   min-width: 0;

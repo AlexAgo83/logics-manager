@@ -1,0 +1,253 @@
+{
+  "budgets": {
+    "max_docs": 16,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_274_surface_ci_events_in_the_recent_activity_feed item_486_expose_recent_ci_runs_from_ci_status_payload item_487_merge_ci_runs_into_the_recent_activity_feed task_271_orchestrate_ci_events_in_recent_activity --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_486_expose_recent_ci_runs_from_ci_status_payload",
+          "item_487_merge_ci_runs_into_the_recent_activity_feed"
+        ],
+        "prod": [
+          "prod_027_ci_events_in_recent_activity"
+        ],
+        "req": [
+          "req_274_surface_ci_events_in_the_recent_activity_feed"
+        ],
+        "task": [
+          "task_271_orchestrate_ci_events_in_recent_activity"
+        ]
+      },
+      "path": "logics/product/prod_027_ci_events_in_recent_activity.md",
+      "ref": "prod_027_ci_events_in_recent_activity",
+      "status": "Proposed",
+      "title": "CI events in Recent activity"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, surface ci events in the recent activity feed, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Surface CI events in the Recent activity feed",
+        "use when": "You need to implement or review the scaffolded workflow for Surface CI events in the Recent activity feed."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_486_expose_recent_ci_runs_from_ci_status_payload",
+          "item_487_merge_ci_runs_into_the_recent_activity_feed"
+        ],
+        "prod": [
+          "prod_027_ci_events_in_recent_activity"
+        ],
+        "req": [
+          "req_274_surface_ci_events_in_the_recent_activity_feed"
+        ]
+      },
+      "path": "logics/request/req_274_surface_ci_events_in_the_recent_activity_feed.md",
+      "ref": "req_274_surface_ci_events_in_the_recent_activity_feed",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Surface CI events in the Recent activity feed"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, expose recent ci runs from ci_status_payload, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Expose recent CI runs from ci_status_payload",
+        "use when": "Implementing the scaffolded slice for Expose recent CI runs from ci_status_payload."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_486_expose_recent_ci_runs_from_ci_status_payload"
+        ],
+        "prod": [
+          "prod_027_ci_events_in_recent_activity"
+        ],
+        "req": [
+          "req_274_surface_ci_events_in_the_recent_activity_feed"
+        ],
+        "task": [
+          "task_271_orchestrate_ci_events_in_recent_activity"
+        ]
+      },
+      "path": "logics/backlog/item_486_expose_recent_ci_runs_from_ci_status_payload.md",
+      "ref": "item_486_expose_recent_ci_runs_from_ci_status_payload",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Expose recent CI runs from ci_status_payload"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, merge ci runs into the recent activity feed, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Merge CI runs into the Recent activity feed",
+        "use when": "Implementing the scaffolded slice for Merge CI runs into the Recent activity feed."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_487_merge_ci_runs_into_the_recent_activity_feed"
+        ],
+        "prod": [
+          "prod_027_ci_events_in_recent_activity"
+        ],
+        "req": [
+          "req_274_surface_ci_events_in_the_recent_activity_feed"
+        ],
+        "task": [
+          "task_271_orchestrate_ci_events_in_recent_activity"
+        ]
+      },
+      "path": "logics/backlog/item_487_merge_ci_runs_into_the_recent_activity_feed.md",
+      "ref": "item_487_merge_ci_runs_into_the_recent_activity_feed",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Merge CI runs into the Recent activity feed"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate CI events in Recent activity",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_486_expose_recent_ci_runs_from_ci_status_payload",
+          "item_487_merge_ci_runs_into_the_recent_activity_feed"
+        ],
+        "prod": [
+          "prod_027_ci_events_in_recent_activity"
+        ],
+        "req": [
+          "req_274_surface_ci_events_in_the_recent_activity_feed"
+        ],
+        "task": [
+          "task_271_orchestrate_ci_events_in_recent_activity"
+        ]
+      },
+      "path": "logics/tasks/task_271_orchestrate_ci_events_in_recent_activity.md",
+      "ref": "task_271_orchestrate_ci_events_in_recent_activity",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrate CI events in Recent activity"
+    }
+  ],
+  "estimates": {
+    "char_count": 3987,
+    "companion_doc_count": 1,
+    "doc_count": 4
+  },
+  "generated_at": "2026-06-22T17:09:35Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_274_surface_ci_events_in_the_recent_activity_feed",
+      "item_486_expose_recent_ci_runs_from_ci_status_payload",
+      "item_487_merge_ci_runs_into_the_recent_activity_feed",
+      "task_271_orchestrate_ci_events_in_recent_activity"
+    ],
+    "validation_summary_count": 1
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_274_surface_ci_events_in_the_recent_activity_feed,item_486_expose_recent_ci_runs_from_ci_status_payload,item_487_merge_ci_runs_into_the_recent_activity_feed,task_271_orchestrate_ci_events_in_recent_activity",
+  "refs": [
+    "req_274_surface_ci_events_in_the_recent_activity_feed",
+    "item_486_expose_recent_ci_runs_from_ci_status_payload",
+    "item_487_merge_ci_runs_into_the_recent_activity_feed",
+    "task_271_orchestrate_ci_events_in_recent_activity"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.12.8"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_271_orchestrate_ci_events_in_recent_activity.md",
+      "ref": "task_271_orchestrate_ci_events_in_recent_activity"
+    }
+  ]
+}

@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 50
+> Progress: 0%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -14,7 +14,7 @@
 
 # Plan
 - [ ] 1. Surface recent git commits as activityKind:'git' events first so the Git toggle has data.
-- [x] 2. Add the activity filter button, compact popover, and persisted activityShowGit/activityShowCi toggles reusing the project filter design.
+- [ ] 2. Add the activity filter button, compact popover, and persisted activityShowGit/activityShowCi toggles reusing the project filter design.
 - [ ] 3. Wire the filter into getActivityEntries so it governs only git/ci event entries, leaving doc activity visible.
 - [ ] 4. Verify the empty-category and req_274-not-merged fallbacks render gracefully.
 - [ ] 5. Run lint, audit, pytest, and vitest and keep all linked docs in sync before closeout.

@@ -455,6 +455,12 @@
   padding: 0 12px 12px;
 }
 
+.activity-panel__group-label {
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  padding: 4px 2px 0;
+}
+
 .activity-panel__entry {
   display: grid;
   grid-template-columns: 24px minmax(0, 1fr);

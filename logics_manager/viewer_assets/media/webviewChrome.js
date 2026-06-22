@@ -173,11 +173,30 @@
         empty.textContent = "No recent activity is available yet.";
         list.appendChild(empty);
       } else {
+        let currentGroupLabel = "";
         visibleEntries.forEach((entry) => {
+          const groupLabel =
+            toolsPanelLayout && typeof toolsPanelLayout.formatActivityTimeBucket === "function"
+              ? toolsPanelLayout.formatActivityTimeBucket(entry.updatedAt)
+              : "Unknown";
+          if (groupLabel !== currentGroupLabel) {
+            currentGroupLabel = groupLabel;
+            const groupHeader = document.createElement("div");
+            groupHeader.className = "activity-panel__group-label";
+            groupHeader.textContent = groupLabel;
+            list.appendChild(groupHeader);
+          }
           const button = document.createElement("button");
           button.type = "button";
           button.className = "activity-panel__entry";
+          if (entry.activityKind) {
+            button.classList.add(`activity-panel__entry--${String(entry.activityKind).replace(/[^a-z0-9_-]+/gi, "-").toLowerCase()}`);
+          }
           button.dataset.id = entry.id;
+          if (entry.selectable === false) {
+            button.disabled = true;
+            button.setAttribute("aria-disabled", "true");
+          }
 
           const stageLabel = getStageLabel(entry.stage);
           const stageTitle = stageLabel ? stageLabel.charAt(0).toUpperCase() + stageLabel.slice(1) : "Item";
@@ -193,6 +212,9 @@
           if (entry.stage) {
             marker.dataset.stage = entry.stage;
           }
+          if (entry.activityKind) {
+            marker.dataset.activityKind = entry.activityKind;
+          }
           button.appendChild(marker);
 
           const body = document.createElement("span");
@@ -206,24 +228,19 @@
           const meta = document.createElement("span");
           meta.className = "activity-panel__meta";
           // Readable cell: what changed, the stage name, then the id.
-          meta.textContent = `${entry.label || "Updated"} · ${stageTitle} · ${entry.id}`;
+          meta.textContent = entry.meta || `${entry.label || "Updated"} · ${stageTitle} · ${entry.id}`;
           body.appendChild(meta);
 
-          const updated = document.createElement("span");
-          updated.className = "activity-panel__updated";
-          updated.textContent =
-            toolsPanelLayout && typeof toolsPanelLayout.formatActivityUpdated === "function"
-              ? toolsPanelLayout.formatActivityUpdated(entry.updatedAt)
-              : "Updated: Unknown";
-          body.appendChild(updated);
           button.appendChild(body);
 
-          button.addEventListener("click", () => {
-            selectItemAndRender(entry.id);
-          });
-          button.addEventListener("dblclick", () => {
-            readItemAndRender(entry.id);
-          });
+          if (entry.selectable !== false) {
+            button.addEventListener("click", () => {
+              selectItemAndRender(entry.id);
+            });
+            button.addEventListener("dblclick", () => {
+              readItemAndRender(entry.id);
+            });
+          }
 
           list.appendChild(button);
         });
@@ -390,9 +407,9 @@
         activityToggle.setAttribute("aria-pressed", String(activityOpen));
         activityToggle.setAttribute(
           "aria-label",
-          activityOpen ? "Showing Activity. Switch to Project" : "Showing Project. Switch to Activity"
+          activityOpen ? "Hide recent activity" : "Show recent activity"
         );
-        activityToggle.title = activityOpen ? "Showing Activity. Switch to Project" : "Showing Project. Switch to Activity";
+        activityToggle.title = activityOpen ? "Hide recent activity" : "Show recent activity";
       }
     }
 

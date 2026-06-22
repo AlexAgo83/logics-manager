@@ -767,7 +767,7 @@ describe("webview harness core behaviors", () => {
     expect(activityPanel?.hidden).toBe(false);
     expect(board?.hidden).toBe(true);
     expect(entries[0]?.textContent).toContain("Recent activity");
-    expect(entries[0]?.textContent).toContain("Updated");
+    expect(entries[0]?.querySelector(".activity-panel__updated")).toBeNull();
     expect(entries[1]?.textContent).toContain("Older activity");
 
     entries[0]?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
@@ -910,24 +910,33 @@ describe("webview harness core behaviors", () => {
     expect(postedMessages.some((message) => message.type === "read" && message.id === "req_003_activity_read_target")).toBe(true);
   });
 
-  it("shows updated metadata inside activity cells", () => {
+  it("groups recent activity by logical timestamp", () => {
     const recentItem = {
       ...baseItem,
       id: "req_004_activity_updated",
       title: "Activity updated target",
       updatedAt: "2024-05-01T10:00:00.000Z"
     };
+    const sameBucketItem = {
+      ...baseItem,
+      id: "item_004_activity_updated",
+      title: "Same timestamp bucket",
+      stage: "backlog",
+      updatedAt: "2024-05-01T10:00:30.000Z"
+    };
     const { dom } = bootstrapWebview({ harness: true });
     pushData(dom, {
       root: "/workspace/mock",
-      items: [baseItem, recentItem]
+      items: [baseItem, recentItem, sameBucketItem]
     });
 
     const document = dom.window.document;
+    const groupLabels = Array.from(document.querySelectorAll(".activity-panel__group-label"));
     const entry = Array.from(document.querySelectorAll(".activity-panel__entry")).find((button) =>
       button.textContent?.includes("Activity updated target")
     );
-    expect(entry?.querySelector(".activity-panel__updated")?.textContent).toContain("Updated:");
+    expect(groupLabels.some((label) => label.textContent === "2024-05-01")).toBe(true);
+    expect(entry?.querySelector(".activity-panel__updated")).toBeNull();
   });
 
   it("degrades gracefully when an activity item has no valid updated timestamp", () => {
@@ -947,7 +956,8 @@ describe("webview harness core behaviors", () => {
     const entry = Array.from(document.querySelectorAll(".activity-panel__entry")).find((button) =>
       button.textContent?.includes("Activity unknown timestamp")
     );
-    expect(entry?.querySelector(".activity-panel__updated")?.textContent).toBe("Updated: Unknown");
+    expect(document.querySelector(".activity-panel__group-label")?.textContent).toBe("Unknown");
+    expect(entry?.querySelector(".activity-panel__updated")).toBeNull();
   });
 
   it("hides promote and add-docs badges on cards while keeping other suggested actions", () => {

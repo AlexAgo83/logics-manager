@@ -328,6 +328,7 @@
 | [req_262_guard_viewer_assets_sync_with_a_local_pre_commit_hook_and_fail_loud_ci_check](request/req_262_guard_viewer_assets_sync_with_a_local_pre_commit_hook_and_fail_loud_ci_check.md) | Guard viewer_assets sync with a local pre-commit hook and fail-loud CI check | Done |  | request/req_262_guard_viewer_assets_sync_with_a_local_pre_commit_hook_and_fail_loud_ci_check.md |
 | [req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge](request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md) | Viewer UX batch: real-time sync, unified file preview, board/activity restructure, CDX gauge | Done |  | request/req_263_viewer_ux_batch_real_time_sync_unified_file_preview_board_activity_restructure_cdx_gauge.md |
 | [req_264_support_obsidian_friendly_logics_navigation](request/req_264_support_obsidian_friendly_logics_navigation.md) | Support Obsidian-friendly Logics navigation | Done |  | request/req_264_support_obsidian_friendly_logics_navigation.md |
+| [req_265_add_an_opt_in_obsidian_projection_mode_for_logics_docs](request/req_265_add_an_opt_in_obsidian_projection_mode_for_logics_docs.md) | Out of scope | Draft |  | request/req_265_add_an_opt_in_obsidian_projection_mode_for_logics_docs.md |
 
 ## Backlog
 
@@ -801,6 +802,7 @@
 | [item_466_cdx_status_ok_column_uses_the_shared_session_usage_gauge](backlog/item_466_cdx_status_ok_column_uses_the_shared_session_usage_gauge.md) | CDX status OK column uses the shared session usage gauge | Done | 100% | backlog/item_466_cdx_status_ok_column_uses_the_shared_session_usage_gauge.md |
 | [item_467_add_an_icon_to_the_settings_button](backlog/item_467_add_an_icon_to_the_settings_button.md) | Add an icon to the Settings button | Done | 100% | backlog/item_467_add_an_icon_to_the_settings_button.md |
 | [item_468_support_obsidian_friendly_logics_navigation](backlog/item_468_support_obsidian_friendly_logics_navigation.md) | Support Obsidian-friendly Logics navigation | Done | 100% | backlog/item_468_support_obsidian_friendly_logics_navigation.md |
+| [item_469_add_an_opt_in_obsidian_projection_mode_for_logics_docs](backlog/item_469_add_an_opt_in_obsidian_projection_mode_for_logics_docs.md) | Add an opt-in Obsidian projection mode for Logics docs | Ready | 0% | backlog/item_469_add_an_opt_in_obsidian_projection_mode_for_logics_docs.md |
 
 ## Tasks
 
@@ -1061,3 +1063,4 @@
 | [task_259_cdx_status_ok_column_uses_the_shared_session_usage_gauge](tasks/task_259_cdx_status_ok_column_uses_the_shared_session_usage_gauge.md) | CDX status OK column uses the shared session usage gauge | Done | 100% | tasks/task_259_cdx_status_ok_column_uses_the_shared_session_usage_gauge.md |
 | [task_260_add_an_icon_to_the_settings_button](tasks/task_260_add_an_icon_to_the_settings_button.md) | Add an icon to the Settings button | Done | 100% | tasks/task_260_add_an_icon_to_the_settings_button.md |
 | [task_261_support_obsidian_friendly_logics_navigation](tasks/task_261_support_obsidian_friendly_logics_navigation.md) | Support Obsidian-friendly Logics navigation | Done | 100% | tasks/task_261_support_obsidian_friendly_logics_navigation.md |
+| [task_262_add_an_opt_in_obsidian_projection_mode_for_logics_docs](tasks/task_262_add_an_opt_in_obsidian_projection_mode_for_logics_docs.md) | Add an opt-in Obsidian projection mode for Logics docs | Ready | 0% | tasks/task_262_add_an_opt_in_obsidian_projection_mode_for_logics_docs.md |

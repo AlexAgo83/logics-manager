@@ -20,7 +20,6 @@ const allowedOversizedFiles = new Map(
   Object.entries({
     "clients/shared-web/media/mainApp.js": { maxLines: 1008, ref: "item_479" },
     "clients/shared-web/media/renderBoardApp.js": { maxLines: 1333, ref: "item_479" },
-    "clients/viewer/src/browser-host/index.js": { maxLines: 10152, ref: "item_478" },
     "clients/vscode/src/logicsCorpusInsightsHtml.ts": { maxLines: 1114, ref: "unplanned-current" },
   })
 );

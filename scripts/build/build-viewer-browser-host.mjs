@@ -9,10 +9,11 @@ const outfile = path.join(repoRoot, "clients", "viewer", "browser-host.js");
 const checkOnly = process.argv.includes("--check");
 
 const outputPath = checkOnly ? path.join(mkdtempSync(path.join(tmpdir(), "logics-viewer-host-")), "browser-host.js") : outfile;
+const buildEntryPoint = await resolveBuildEntryPoint();
 
 try {
   await build({
-    entryPoints: [entryPoint],
+    entryPoints: [buildEntryPoint],
     outfile: outputPath,
     bundle: true,
     format: "iife",
@@ -22,7 +23,7 @@ try {
     legalComments: "none",
     logLevel: "silent"
   });
-  stripStrictModePrefix(outputPath);
+  normalizeBundle(outputPath);
 
   if (checkOnly) {
     const expected = readFileSync(outputPath, "utf8");
@@ -39,11 +40,40 @@ try {
   if (checkOnly) {
     rmSync(path.dirname(outputPath), { recursive: true, force: true });
   }
+  if (buildEntryPoint !== entryPoint) {
+    rmSync(path.dirname(buildEntryPoint), { recursive: true, force: true });
+  }
 }
 
-function stripStrictModePrefix(filePath) {
-  const contents = readFileSync(filePath, "utf8");
-  if (contents.startsWith('"use strict";\n')) {
-    writeFileSync(filePath, contents.slice('"use strict";\n'.length));
+function resolveBuildEntryPoint() {
+  const partFiles = readPartManifest();
+  if (partFiles.length === 0) {
+    return entryPoint;
   }
+  const tempDir = mkdtempSync(path.join(tmpdir(), "logics-viewer-host-src-"));
+  const tempEntry = path.join(tempDir, "browser-host-entry.js");
+  const sourceRoot = path.dirname(entryPoint);
+  const source = partFiles
+    .map((partPath) => readFileSync(path.join(sourceRoot, partPath), "utf8"))
+    .join("");
+  writeFileSync(tempEntry, source);
+  return tempEntry;
+}
+
+function readPartManifest() {
+  const source = readFileSync(entryPoint, "utf8");
+  const match = source.match(/browserHostPartFiles\s*=\s*\[([\s\S]*?)\]/);
+  if (!match) {
+    return [];
+  }
+  return Array.from(match[1].matchAll(/"([^"]+)"/g), (partMatch) => partMatch[1]);
+}
+
+function normalizeBundle(filePath) {
+  let contents = readFileSync(filePath, "utf8");
+  if (contents.startsWith('"use strict";\n')) {
+    contents = contents.slice('"use strict";\n'.length);
+  }
+  contents = contents.replace(/^\s*\/\/ .*browser-host-entry\.js\n/m, "");
+  writeFileSync(filePath, contents);
 }

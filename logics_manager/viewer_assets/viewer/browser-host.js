@@ -1,5 +1,4 @@
 (() => {
-  // clients/viewer/src/browser-host/index.js
   (() => {
     const nativeFetch = window.fetch.bind(window);
     window.fetch = function patchedFetch(input, init) {

@@ -1,10 +1,10 @@
 ## item_478_convert_browser_host_js_into_bundled_es_modules - Convert browser-host.js into bundled ES modules
 > From version: 2.12.7
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Frontend decomposition
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -50,3 +50,6 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Validation
+- Split clients/viewer/src/browser-host/index.js into a small ES module manifest plus ordered source fragments under 500 lines; build-viewer-browser-host now assembles those fragments into a stable esbuild input before bundling. Validation: npm run bundle:viewer-host, npm run check:viewer-host, npm run sync:viewer-assets, npm run check:viewer-assets, npm test -- tests/viewer.browser-host.test.ts, and npm run check:line-budget pass.

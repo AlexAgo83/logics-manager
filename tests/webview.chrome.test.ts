@@ -355,6 +355,32 @@ describe("webview chrome toolbar and filter behavior", () => {
     expect(nextList?.scrollTop).toBe(120);
   });
 
+  it("hides corpus document entries when the corpus activity filter is unchecked", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    // The document change for baseItem is a corpus entry and shows by default.
+    const entriesBefore = dom.window.document.querySelectorAll(".activity-panel__entry");
+    expect(entriesBefore.length).toBeGreaterThan(0);
+
+    const corpusToggle = dom.window.document.getElementById("activity-filter-corpus") as HTMLInputElement | null;
+    expect(corpusToggle).toBeTruthy();
+    if (corpusToggle) {
+      corpusToggle.checked = false;
+      corpusToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    const entriesAfter = dom.window.document.querySelectorAll(".activity-panel__entry");
+    expect(entriesAfter.length).toBe(0);
+
+    const filterToggle = dom.window.document.getElementById("activity-filter-toggle");
+    expect(filterToggle?.classList.contains("toolbar__filter--active")).toBe(true);
+  });
+
   it("posts assist actions in non-harness mode", () => {
     const { dom, postedMessages } = bootstrapWebview();
 

@@ -146,8 +146,13 @@
 
     const activityFilterToggle = document.getElementById("activity-filter-toggle");
     const activityFilterMenu = document.getElementById("activity-filter-menu");
+    const activityFilterCorpus = document.getElementById("activity-filter-corpus");
     const activityFilterGit = document.getElementById("activity-filter-git");
     const activityFilterCi = document.getElementById("activity-filter-ci");
+
+    function getActivityShowCorpus() {
+      return typeof options.getActivityShowCorpus === "function" ? options.getActivityShowCorpus() !== false : true;
+    }
 
     function getActivityShowGit() {
       return typeof options.getActivityShowGit === "function" ? options.getActivityShowGit() !== false : true;
@@ -169,11 +174,13 @@
       if (!activityFilterToggle) {
         return;
       }
+      const showCorpus = getActivityShowCorpus();
       const showGit = getActivityShowGit();
       const showCi = getActivityShowCi();
+      if (activityFilterCorpus) activityFilterCorpus.checked = showCorpus;
       if (activityFilterGit) activityFilterGit.checked = showGit;
       if (activityFilterCi) activityFilterCi.checked = showCi;
-      activityFilterToggle.classList.toggle("toolbar__filter--active", !showGit || !showCi);
+      activityFilterToggle.classList.toggle("toolbar__filter--active", !showCorpus || !showGit || !showCi);
     }
 
     if (activityFilterToggle) {
@@ -181,6 +188,13 @@
         event.stopPropagation();
         setActivityFilterMenuOpen(activityFilterMenu ? activityFilterMenu.hidden : false);
       });
+      if (activityFilterCorpus) {
+        activityFilterCorpus.addEventListener("change", () => {
+          if (typeof options.setActivityShowCorpus === "function") options.setActivityShowCorpus(activityFilterCorpus.checked);
+          updateActivityFilterToggle();
+          renderActivityPanel();
+        });
+      }
       if (activityFilterGit) {
         activityFilterGit.addEventListener("change", () => {
           if (typeof options.setActivityShowGit === "function") options.setActivityShowGit(activityFilterGit.checked);
@@ -218,13 +232,16 @@
         return;
       }
 
+      const showCorpus = getActivityShowCorpus();
       const showGit = getActivityShowGit();
       const showCi = getActivityShowCi();
-      // req_275: the git/ci toggles govern only event entries; document activity is always shown.
+      // req_275: each toggle governs one activity kind. git/ci gate their event
+      // entries; the corpus toggle gates document changes (every other kind), so
+      // the operator can show everything or hide a whole class at will.
       const entries = getActivityEntries().filter((entry) => {
         if (entry.activityKind === "git") return showGit;
         if (entry.activityKind === "ci") return showCi;
-        return true;
+        return showCorpus;
       });
       const visibleEntries = entries.slice(0, visibleActivityLimit);
       // Preserve the feed scroll position across re-renders (auto-refresh, filter

@@ -79,12 +79,57 @@
   display: none !important;
 }
 
+.viewer-project-switcher__row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: stretch;
+  border-radius: 4px;
+}
+
+.viewer-project-switcher__row:hover,
+.viewer-project-switcher__row:focus-within,
+.viewer-project-switcher__row.is-active {
+  background: var(--vscode-list-hoverBackground, rgb(255 255 255 / 8%));
+}
+
+.viewer-project-switcher__favorite {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  min-height: 24px;
+  margin: 4px 0 4px 4px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  cursor: pointer;
+  opacity: 0;
+}
+
+.viewer-project-switcher__row.is-favorite .viewer-project-switcher__favorite,
+.viewer-project-switcher__row:hover .viewer-project-switcher__favorite,
+.viewer-project-switcher__row:focus-within .viewer-project-switcher__favorite {
+  opacity: 1;
+}
+
+.viewer-project-switcher__favorite[aria-pressed="true"] {
+  color: var(--vscode-charts-yellow, #cca700);
+}
+
+.viewer-project-switcher__favorite:focus-visible,
+.viewer-project-switcher__item:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder, #007fd4);
+  outline-offset: -1px;
+}
+
 .viewer-project-switcher__item {
   width: 100%;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 4px 10px;
-  padding: 7px 8px;
+  padding: 7px 8px 7px 4px;
   border: 0;
   border-radius: 4px;
   background: transparent;
@@ -95,7 +140,7 @@
 
 .viewer-project-switcher__item:hover,
 .viewer-project-switcher__item.is-active {
-  background: var(--vscode-list-hoverBackground, rgb(255 255 255 / 8%));
+  background: transparent;
 }
 
 .viewer-project-switcher__item-name,

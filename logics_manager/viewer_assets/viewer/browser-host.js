@@ -619,6 +619,28 @@
     writeViewerPreferences({ ...viewerPreferences, ...patch });
   }
 
+  function projectPreferenceId(project) {
+    return String(project?.id || project?.root || project?.name || "");
+  }
+
+  function favoriteProjectIds() {
+    const stored = Array.isArray(viewerPreferences.favoriteProjects) ? viewerPreferences.favoriteProjects : [];
+    return new Set(stored.map((value) => String(value)).filter(Boolean));
+  }
+
+  function persistFavoriteProject(projectId, favorite) {
+    if (!projectId) {
+      return;
+    }
+    const favorites = favoriteProjectIds();
+    if (favorite) {
+      favorites.add(projectId);
+    } else {
+      favorites.delete(projectId);
+    }
+    updateViewerPreferences({ favoriteProjects: Array.from(favorites).sort() });
+  }
+
   function preferredAutoRefreshIntervalSeconds() {
     const seconds = Number(viewerPreferences.autoRefreshIntervalSeconds);
     return Number.isFinite(seconds) && seconds > 0 ? normalizeAutoRefreshIntervalSeconds(seconds) : null;
@@ -1384,14 +1406,26 @@
     if (!(menu instanceof HTMLElement)) {
       return;
     }
-    const projects = latestProjects.filter((project) => project && typeof project === "object");
-    const projectRows = projects.map((project) => `
-      <button class="viewer-project-switcher__item${project.active ? " is-active" : ""}" type="button" role="menuitem" data-viewer-project-id="${escapeHtml(project.id || "")}" title="${escapeHtml(project.root || project.name || "")}">
-        <span class="viewer-project-switcher__item-name">${escapeHtml(project.name || "project")}</span>
-        <span class="viewer-project-switcher__item-state">${escapeHtml(projectStateLabel(project))}</span>
-        <span class="viewer-project-switcher__item-path">${escapeHtml(project.root || "")}</span>
-      </button>
-    `).join("");
+    const favorites = favoriteProjectIds();
+    const projects = latestProjects
+      .filter((project) => project && typeof project === "object")
+      .map((project, index) => ({ project, index, favorite: favorites.has(projectPreferenceId(project)) }))
+      .sort((left, right) => Number(right.favorite) - Number(left.favorite) || left.index - right.index);
+    const projectRows = projects.map(({ project, favorite }) => {
+      const preferenceId = projectPreferenceId(project);
+      return `
+        <div class="viewer-project-switcher__row${project.active ? " is-active" : ""}${favorite ? " is-favorite" : ""}" role="none">
+          <button class="viewer-project-switcher__favorite" type="button" aria-label="${favorite ? "Remove favorite" : "Add favorite"} ${escapeHtml(project.name || "project")}" aria-pressed="${favorite ? "true" : "false"}" data-viewer-project-favorite="${escapeHtml(preferenceId)}" title="${favorite ? "Remove favorite" : "Add favorite"}">
+            <span aria-hidden="true">${favorite ? "★" : "☆"}</span>
+          </button>
+          <button class="viewer-project-switcher__item${project.active ? " is-active" : ""}" type="button" role="menuitem" data-viewer-project-id="${escapeHtml(project.id || "")}" title="${escapeHtml(project.root || project.name || "")}">
+            <span class="viewer-project-switcher__item-name">${escapeHtml(project.name || "project")}</span>
+            <span class="viewer-project-switcher__item-state">${escapeHtml(projectStateLabel(project))}</span>
+            <span class="viewer-project-switcher__item-path">${escapeHtml(project.root || "")}</span>
+          </button>
+        </div>
+      `;
+    }).join("");
     const pickerRow = `
       <button class="viewer-project-switcher__item viewer-project-switcher__item--picker" type="button" role="menuitem" data-viewer-project-pick>
         <span class="viewer-project-switcher__item-name">Choose folder...</span>
@@ -9405,6 +9439,7 @@
       const workshopTerminalRenameTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-rename]") : null;
       const workshopCdxUsageTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-usage-refresh]") : null;
       const projectSwitcherTarget = event.target instanceof Element ? event.target.closest("#viewer-repo-pill") : null;
+      const projectFavoriteTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-favorite]") : null;
       const projectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-id]") : null;
       const projectPickTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-pick]") : null;
       const ciModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-ci-mode]") : null;
@@ -9715,6 +9750,16 @@
       if (projectSwitcherTarget instanceof HTMLElement) {
         const menu = projectMenu();
         setProjectMenuOpen(Boolean(menu?.hidden));
+        return;
+      }
+      if (projectFavoriteTarget instanceof HTMLElement) {
+        event.preventDefault();
+        event.stopPropagation();
+        const projectId = projectFavoriteTarget.getAttribute("data-viewer-project-favorite") || "";
+        const currentlyFavorite = projectFavoriteTarget.getAttribute("aria-pressed") === "true";
+        persistFavoriteProject(projectId, !currentlyFavorite);
+        renderProjectMenu();
+        setProjectMenuOpen(true);
         return;
       }
       if (projectPickTarget instanceof HTMLElement) {

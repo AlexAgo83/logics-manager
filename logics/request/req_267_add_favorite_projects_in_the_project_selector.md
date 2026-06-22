@@ -1,7 +1,7 @@
 ## req_267_add_favorite_projects_in_the_project_selector - Add favorite projects in the project selector
 > From version: 2.12.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95
 > Confidence: 90
 > Complexity: Medium

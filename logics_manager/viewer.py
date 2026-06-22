@@ -2364,7 +2364,54 @@ def cdx_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
         return {"state": "invalid-json", "message": "CDX status JSON must be an object.", "status": {}}
 
     _enrich_cdx_resume_status(repo_root, parsed, runner=runner)
+    _enrich_cdx_permissions(repo_root, parsed, runner=runner)
     return {"state": "ok", "message": "", "status": parsed}
+
+
+def _enrich_cdx_permissions(repo_root: Path, status: dict[str, Any], *, runner: Any | None = None) -> None:
+    """Attach the active launch permission to each status row.
+
+    `cdx status --json` rows do not carry the permission setting; it lives under
+    each session's launch config. Fetch all launch settings in a single
+    `cdx configs --json` call and map them onto the rows by session name so the
+    viewer permission selector reflects the active value.
+    """
+    rows = status.get("rows")
+    if not isinstance(rows, list):
+        rows = status.get("sessions")
+    if not isinstance(rows, list):
+        return
+    try:
+        result = _run_read_only_cdx(repo_root, ["configs", "--json"], runner=runner)
+    except (OSError, subprocess.SubprocessError, subprocess.TimeoutExpired):
+        return
+    if result.returncode != 0:
+        return
+    try:
+        parsed = json.loads(result.stdout or "{}")
+    except json.JSONDecodeError:
+        return
+    sessions = parsed.get("sessions") if isinstance(parsed, dict) else None
+    if not isinstance(sessions, list):
+        return
+    permission_by_name: dict[str, str] = {}
+    for entry in sessions:
+        if not isinstance(entry, dict):
+            continue
+        name = str(entry.get("name") or "").strip()
+        launch = entry.get("launch")
+        permission = str(launch.get("permission") or "").strip() if isinstance(launch, dict) else ""
+        if name and permission:
+            permission_by_name[name] = permission
+    if not permission_by_name:
+        return
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        name = str(row.get("session_name") or row.get("name") or row.get("id") or "").strip()
+        permission = permission_by_name.get(name)
+        if permission:
+            row["permission"] = permission
 
 
 def _enrich_cdx_resume_status(repo_root: Path, status: dict[str, Any], *, runner: Any | None = None) -> None:

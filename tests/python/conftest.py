@@ -84,6 +84,8 @@ def _cdx_test_status_response(args: list[str], sessions: list[dict[str, object]]
         return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": session_rows}), "")
     if len(args) == 4 and args[0:2] == ["cdx", "can-resume"] and args[3] == "--json":
         return subprocess.CompletedProcess(args, 0, json.dumps({"resumable": False}), "")
+    if args == ["cdx", "configs", "--json"]:
+        return subprocess.CompletedProcess(args, 0, json.dumps({"sessions": []}), "")
     return None
 
 

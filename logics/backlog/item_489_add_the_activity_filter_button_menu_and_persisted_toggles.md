@@ -1,10 +1,10 @@
 ## item_489_add_the_activity_filter_button_menu_and_persisted_toggles - Add the activity filter button, menu, and persisted toggles
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100
 > Complexity: Medium
 > Theme: Viewer activity
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -52,3 +52,6 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Notes
+- Done: compact filter button (reuses toolbar__filter) + popover with Git events / CI events checkboxes (default on) in the activity panel header; activityShowGit/activityShowCi persisted in the webview state alongside activityPanelOpen; getActivityEntries-level filter governs only git/ci event entries (doc activity untouched); --active indicator when a toggle is off. CSS in toolbar.css. test in webview.harness-core.test.ts. 682 vitest pass.

@@ -444,6 +444,39 @@
   letter-spacing: 0.08em;
   color: var(--vscode-descriptionForeground, #9da5b4);
   padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.activity-panel__filter-wrap {
+  position: relative;
+}
+
+.activity-panel__filter-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  background: var(--vscode-editorWidget-background, #252526);
+  border: 1px solid var(--vscode-editorWidget-border, #454545);
+  border-radius: 4px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.activity-panel__filter-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--vscode-foreground, #ccc);
+  white-space: nowrap;
+  cursor: pointer;
 }
 
 .activity-panel__list {

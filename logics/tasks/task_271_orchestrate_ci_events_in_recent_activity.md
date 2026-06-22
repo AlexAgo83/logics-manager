@@ -2,9 +2,9 @@
 > From version: 2.12.8
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 40
+> Understanding: 95%
+> Confidence: 90%
+> Progress: 90
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -14,8 +14,8 @@
 
 # Plan
 - [x] 1. Expose recentRuns from ci_status_payload first so the client has data to render.
-- [ ] 2. Merge recentRuns into getActivityEntries as activityKind:'ci' with CSS, marker, and url wiring.
-- [ ] 3. Verify the empty/unavailable CI fallback leaves the feed identical to today.
+- [x] 2. Merge recentRuns into getActivityEntries as activityKind:'ci' with CSS, marker, and url wiring.
+- [x] 3. Verify the empty/unavailable CI fallback leaves the feed identical to today.
 - [ ] 4. Run lint, audit, pytest, and vitest and keep all linked docs in sync before closeout.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.
 
@@ -39,7 +39,8 @@
 - Run scaffold command tests.
 
 # Report
-- Implementation complete.
+- Implementation complete: ci-status recentRuns surface as kind:'ci' events in the shared feed via `ciActivityEvents()`; `refreshActivityFeedForCi()` re-dispatches while the activity panel is open. Empty/unavailable CI leaves the feed unchanged (runs default to []).
+- vitest `tests/viewer.browser-host.test.ts` green (148 passing), including the new "adds CI runs to the activity feed dispatch" case, which drives the real activity-toggle open path. Lint OK; viewer-host bundle and viewer assets verified in sync.
 
 # AI Context
 - Summary: Orchestrate CI events in Recent activity

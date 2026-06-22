@@ -5325,6 +5325,18 @@
       // clamped grid so term.cols/rows always equal the PTY's.
       const rows = Math.max(dim.rows, WORKSHOP_TERMINAL_MIN_ROWS);
       const cols = Math.max(dim.cols, WORKSHOP_TERMINAL_MIN_COLS);
+      // Hold the previous size until the drift crosses the step thresholds, so
+      // a faux mouvement (one-cell wobble) does not redraw the whole terminal.
+      if (
+        typeof entry.lastSyncedCols === "number"
+        && typeof entry.lastSyncedRows === "number"
+        && Math.abs(cols - entry.lastSyncedCols) < WORKSHOP_TERMINAL_RESIZE_COL_STEP
+        && Math.abs(rows - entry.lastSyncedRows) < WORKSHOP_TERMINAL_RESIZE_ROW_STEP
+      ) {
+        return;
+      }
+      entry.lastSyncedCols = cols;
+      entry.lastSyncedRows = rows;
       if (entry.terminal.cols !== cols || entry.terminal.rows !== rows) {
         try { entry.terminal.resize(cols, rows); } catch { /* noop */ }
       }
@@ -5679,6 +5691,12 @@
 
   const WORKSHOP_TERMINAL_MIN_COLS = 80;
   const WORKSHOP_TERMINAL_MIN_ROWS = 24;
+  // Resize hysteresis: only re-fit the PTY once the proposed grid drifts far
+  // enough from the last applied size. A sub-step jitter (a one-cell wobble
+  // while dragging, a scrollbar appearing) would otherwise trigger a full
+  // SIGWINCH + redraw of the running TUI on the slightest movement.
+  const WORKSHOP_TERMINAL_RESIZE_COL_STEP = 10;
+  const WORKSHOP_TERMINAL_RESIZE_ROW_STEP = 5;
 
   function resizeWorkshopTerminal(sessionId, rows, cols) {
     if (!sessionId || rows <= 0 || cols <= 0) return;

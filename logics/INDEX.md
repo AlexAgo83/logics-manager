@@ -61,6 +61,7 @@
 | [prod_023_agent_authored_logics_workflow_scaffolding_and_validation](product/prod_023_agent_authored_logics_workflow_scaffolding_and_validation.md) | Agent-authored Logics workflow scaffolding and validation | Settled |  |  | product/prod_023_agent_authored_logics_workflow_scaffolding_and_validation.md |
 | [prod_024_project_audit_remediation_plan](product/prod_024_project_audit_remediation_plan.md) | Project audit remediation plan | Settled |  |  | product/prod_024_project_audit_remediation_plan.md |
 | [prod_025_oversized_source_modularization](product/prod_025_oversized_source_modularization.md) | Oversized source modularization | Settled |  |  | product/prod_025_oversized_source_modularization.md |
+| [prod_026_importable_module_remediation](product/prod_026_importable_module_remediation.md) | Importable module remediation | Proposed |  |  | product/prod_026_importable_module_remediation.md |
 
 ## Requests
 
@@ -337,6 +338,7 @@
 | [req_270_modularize_oversized_source_files_across_the_codebase](request/req_270_modularize_oversized_source_files_across_the_codebase.md) | Modularize oversized source files across the codebase | Done |  |  | request/req_270_modularize_oversized_source_files_across_the_codebase.md |
 | [req_271_group_recent_activity_items_by_logical_timestamp](request/req_271_group_recent_activity_items_by_logical_timestamp.md) | Group Recent Activity items by logical timestamp | Done |  |  | request/req_271_group_recent_activity_items_by_logical_timestamp.md |
 | [req_272_add_a_start_work_ownership_signal_for_active_tasks_and_items](request/req_272_add_a_start_work_ownership_signal_for_active_tasks_and_items.md) | Add a start-work / ownership signal for active tasks and items | Done |  |  | request/req_272_add_a_start_work_ownership_signal_for_active_tasks_and_items.md |
+| [req_273_replace_exec_compile_part_glue_with_importable_modules](request/req_273_replace_exec_compile_part_glue_with_importable_modules.md) | Replace exec(compile) part-glue with importable modules | Draft |  |  | request/req_273_replace_exec_compile_part_glue_with_importable_modules.md |
 
 ## Backlog
 
@@ -823,6 +825,9 @@
 | [item_479_modularize_webview_scripts_renderboardapp_js_and_mainapp_js](backlog/item_479_modularize_webview_scripts_renderboardapp_js_and_mainapp_js.md) | Modularize webview scripts renderBoardApp.js and mainApp.js | Done |  | 100 | backlog/item_479_modularize_webview_scripts_renderboardapp_js_and_mainapp_js.md |
 | [item_480_group_recent_activity_items_by_logical_timestamp](backlog/item_480_group_recent_activity_items_by_logical_timestamp.md) | Group Recent Activity items by logical timestamp | Done |  | 100% | backlog/item_480_group_recent_activity_items_by_logical_timestamp.md |
 | [item_481_add_a_start_work_ownership_signal_for_active_tasks_and_items](backlog/item_481_add_a_start_work_ownership_signal_for_active_tasks_and_items.md) | Add a start-work / ownership signal for active tasks and items | Done |  | 100% | backlog/item_481_add_a_start_work_ownership_signal_for_active_tasks_and_items.md |
+| [item_482_reunite_numbered_part_python_modules_into_importable_code](backlog/item_482_reunite_numbered_part_python_modules_into_importable_code.md) | Reunite numbered-part Python modules into importable code | Ready |  | 0% | backlog/item_482_reunite_numbered_part_python_modules_into_importable_code.md |
+| [item_483_convert_viewer_and_flow_part_glue_into_real_packages](backlog/item_483_convert_viewer_and_flow_part_glue_into_real_packages.md) | Convert viewer and flow part-glue into real packages | Ready |  | 0% | backlog/item_483_convert_viewer_and_flow_part_glue_into_real_packages.md |
+| [item_484_retune_the_source_line_budget_guardrail](backlog/item_484_retune_the_source_line_budget_guardrail.md) | Retune the source line-budget guardrail | Ready |  | 0% | backlog/item_484_retune_the_source_line_budget_guardrail.md |
 
 ## Tasks
 
@@ -1091,3 +1096,4 @@
 | [task_267_orchestrate_the_oversized_source_modularization_program](tasks/task_267_orchestrate_the_oversized_source_modularization_program.md) | Orchestrate the oversized-source modularization program | Done |  | 100% | tasks/task_267_orchestrate_the_oversized_source_modularization_program.md |
 | [task_268_group_recent_activity_items_by_logical_timestamp](tasks/task_268_group_recent_activity_items_by_logical_timestamp.md) | Group Recent Activity items by logical timestamp | Done |  | 100% | tasks/task_268_group_recent_activity_items_by_logical_timestamp.md |
 | [task_269_add_a_start_work_ownership_signal_for_active_tasks_and_items](tasks/task_269_add_a_start_work_ownership_signal_for_active_tasks_and_items.md) | Add a start-work / ownership signal for active tasks and items | Done | codex | 100% | tasks/task_269_add_a_start_work_ownership_signal_for_active_tasks_and_items.md |
+| [task_270_orchestrate_the_exec_part_glue_remediation](tasks/task_270_orchestrate_the_exec_part_glue_remediation.md) | Orchestrate the exec part-glue remediation | Ready |  | 0% | tasks/task_270_orchestrate_the_exec_part_glue_remediation.md |

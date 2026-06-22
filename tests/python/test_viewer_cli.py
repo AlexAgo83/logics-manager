@@ -35,6 +35,7 @@ from logics_manager.viewer import (
     cdx_mission_apply_plan_payload,
     cdx_mission_plan_payload,
     cdx_mission_run_payload,
+    cdx_config_payload,
     cdx_permission_payload,
     cdx_remove_payload,
     cdx_history_payload,
@@ -1314,6 +1315,30 @@ def test_viewer_cdx_permission_payload_uses_set_permission_json(tmp_path: Path) 
         "ok": False,
         "error": "Invalid permission value.",
     }
+
+
+def test_viewer_cdx_config_payload_sets_power_and_model(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+
+    def runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        assert kwargs["cwd"] == tmp_path
+        assert kwargs["timeout"] == 10
+        return subprocess.CompletedProcess(args, 0, json.dumps({"message": "Updated launch settings."}), "")
+
+    payload = cdx_config_payload(tmp_path, "work2", power="high", model="gpt-5", runner=runner, which=lambda _name: "/usr/bin/cdx")
+    assert payload == {"ok": True, "message": "Updated launch settings.", "power": "high", "model": "gpt-5"}
+    assert calls == [["cdx", "set", "work2", "--power", "high", "--model", "gpt-5", "--json"]]
+
+
+def test_viewer_cdx_config_payload_validates_and_requires_a_field(tmp_path: Path) -> None:
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        raise AssertionError(args)
+
+    which = lambda _name: "/usr/bin/cdx"
+    assert cdx_config_payload(tmp_path, "work2", power="ultra", runner=runner, which=which) == {"ok": False, "error": "Invalid power value."}
+    assert cdx_config_payload(tmp_path, "work2", model="bad model!", runner=runner, which=which) == {"ok": False, "error": "Invalid model value."}
+    assert cdx_config_payload(tmp_path, "work2", runner=runner, which=which) == {"ok": False, "error": "No settings to update."}
 
 
 def test_viewer_cdx_import_payload_can_force_overwrite(tmp_path: Path) -> None:

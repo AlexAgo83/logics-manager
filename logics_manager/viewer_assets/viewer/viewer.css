@@ -3078,6 +3078,15 @@
   cursor: pointer;
 }
 
+.viewer-cdx__menu-action.is-active {
+  font-weight: 600;
+  background: color-mix(in srgb, var(--vscode-textLink-foreground, #4ea1ff) 16%, transparent);
+}
+
+.viewer-cdx__menu-action.is-active::before {
+  content: "✓ ";
+}
+
 .viewer-cdx__menu-action--danger {
   color: var(--vscode-errorForeground, #f48771);
 }

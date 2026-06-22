@@ -1,10 +1,10 @@
 ## item_476_split_viewer_py_into_a_viewer_package_by_responsibility - Split viewer.py into a viewer package by responsibility
 > From version: 2.12.7
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Python decomposition
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -50,3 +50,6 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Validation
+- Split logics_manager/viewer.py into a short compatibility loader plus responsibility-scoped viewer_parts fragments under 500 lines, preserving public imports and the legacy viewer.py path expected by tests. Validation: python3 -m pytest tests/python/test_viewer_cli.py -q, python3 -m pytest tests/python/test_cli_main.py -q, and npm run check:line-budget pass.

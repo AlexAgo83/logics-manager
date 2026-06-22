@@ -27,7 +27,6 @@ const allowedOversizedFiles = new Map(
     "logics_manager/mcp.py": { maxLines: 1601, ref: "item_477" },
     "logics_manager/release.py": { maxLines: 1020, ref: "item_477" },
     "logics_manager/sync.py": { maxLines: 1468, ref: "item_477" },
-    "logics_manager/viewer.py": { maxLines: 5800, ref: "item_476" }
   })
 );
 const generatedFiles = new Set(["clients/viewer/browser-host.js"]);

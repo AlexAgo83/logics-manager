@@ -2246,6 +2246,8 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Workshop");
+    expect(dom.window.document.getElementById("viewer-document-nav")?.firstElementChild?.classList.contains("viewer-workshop__tabs")).toBe(true);
+    expect(dom.window.document.querySelector(".viewer-workshop")?.classList.contains("viewer-screen-tabs-external")).toBe(true);
     const terminalsTab = dom.window.document.querySelector('[data-viewer-workshop-tab="terminals"]') as HTMLElement | null;
     expect(terminalsTab?.classList.contains("is-active")).toBe(true);
 

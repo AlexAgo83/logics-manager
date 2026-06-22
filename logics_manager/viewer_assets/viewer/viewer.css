@@ -1790,6 +1790,10 @@
   min-height: 0;
 }
 
+.viewer-workshop.viewer-screen-tabs-external {
+  grid-template-rows: minmax(0, 1fr);
+}
+
 .viewer-workshop__panel {
   min-height: 0;
   border: 1px solid var(--vscode-panel-border, #333333);

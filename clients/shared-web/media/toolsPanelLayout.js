@@ -93,8 +93,12 @@
       if (!Number.isFinite(timestamp)) {
         return "Unknown";
       }
-      const date = new Date(timestamp);
-      const deltaMinutes = Math.max(0, Math.round((Date.now() - timestamp) / 60000));
+      // Bucket to the floored minute so every entry in the same minute yields an identical
+      // label. Computing the relative part from the exact timestamp made two entries seconds
+      // apart round to different "Nm ago" values and split one minute into duplicate groups.
+      const minuteTimestamp = Math.floor(timestamp / 60000) * 60000;
+      const date = new Date(minuteTimestamp);
+      const deltaMinutes = Math.max(0, Math.round((Date.now() - minuteTimestamp) / 60000));
       if (deltaMinutes < 24 * 60) {
         const relativeLabel =
           deltaMinutes < 1

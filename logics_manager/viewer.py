@@ -2364,17 +2364,17 @@ def cdx_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
         return {"state": "invalid-json", "message": "CDX status JSON must be an object.", "status": {}}
 
     _enrich_cdx_resume_status(repo_root, parsed, runner=runner)
-    _enrich_cdx_permissions(repo_root, parsed, runner=runner)
+    _enrich_cdx_launch_settings(repo_root, parsed, runner=runner)
     return {"state": "ok", "message": "", "status": parsed}
 
 
-def _enrich_cdx_permissions(repo_root: Path, status: dict[str, Any], *, runner: Any | None = None) -> None:
-    """Attach the active launch permission to each status row.
+def _enrich_cdx_launch_settings(repo_root: Path, status: dict[str, Any], *, runner: Any | None = None) -> None:
+    """Attach the active launch settings (permission/power/fast/model) to rows.
 
-    `cdx status --json` rows do not carry the permission setting; it lives under
-    each session's launch config. Fetch all launch settings in a single
-    `cdx configs --json` call and map them onto the rows by session name so the
-    viewer permission selector reflects the active value.
+    `cdx status --json` rows do not carry launch settings; they live under each
+    session's launch config. Fetch them all in a single `cdx configs --json`
+    call and map them onto the rows by session name so the viewer permission
+    selector and the session config modal reflect the active values.
     """
     rows = status.get("rows")
     if not isinstance(rows, list):
@@ -2394,24 +2394,34 @@ def _enrich_cdx_permissions(repo_root: Path, status: dict[str, Any], *, runner: 
     sessions = parsed.get("sessions") if isinstance(parsed, dict) else None
     if not isinstance(sessions, list):
         return
-    permission_by_name: dict[str, str] = {}
+    launch_by_name: dict[str, dict[str, Any]] = {}
     for entry in sessions:
         if not isinstance(entry, dict):
             continue
         name = str(entry.get("name") or "").strip()
         launch = entry.get("launch")
-        permission = str(launch.get("permission") or "").strip() if isinstance(launch, dict) else ""
-        if name and permission:
-            permission_by_name[name] = permission
-    if not permission_by_name:
+        if name and isinstance(launch, dict):
+            launch_by_name[name] = launch
+    if not launch_by_name:
         return
     for row in rows:
         if not isinstance(row, dict):
             continue
         name = str(row.get("session_name") or row.get("name") or row.get("id") or "").strip()
-        permission = permission_by_name.get(name)
+        launch = launch_by_name.get(name)
+        if not launch:
+            continue
+        permission = str(launch.get("permission") or "").strip()
         if permission:
             row["permission"] = permission
+        power = str(launch.get("power") or "").strip()
+        if power:
+            row["power"] = power
+        model = str(launch.get("model") or "").strip()
+        if model:
+            row["model"] = model
+        if "fast" in launch:
+            row["fast"] = bool(launch.get("fast"))
 
 
 def _enrich_cdx_resume_status(repo_root: Path, status: dict[str, Any], *, runner: Any | None = None) -> None:
@@ -3388,6 +3398,65 @@ def cdx_permission_payload(
         return {"ok": True, "message": result.stdout.strip() or "Permission update complete.", "permission": permission}
 
 
+def cdx_config_payload(
+    repo_root: Path,
+    session: str,
+    *,
+    power: str | None = None,
+    model: str | None = None,
+    fast: bool | None = None,
+    runner: Any | None = None,
+    which: Any | None = None,
+) -> dict[str, Any]:
+    """Persist launch settings (power/model/fast) for a session via `cdx set`."""
+    cdx_which = which or shutil.which
+    if not cdx_which("cdx"):
+        return {"ok": False, "error": "CDX executable not available."}
+    if not session:
+        return {"ok": False, "error": "Session name is required."}
+    if not re.match(r"^[A-Za-z0-9_.:-]{1,120}$", session):
+        return {"ok": False, "error": "Invalid session name."}
+    command = ["cdx", "set", session]
+    applied: dict[str, Any] = {}
+    if power is not None:
+        if power not in {"minimal", "low", "medium", "high", "xhigh"}:
+            return {"ok": False, "error": "Invalid power value."}
+        command += ["--power", power]
+        applied["power"] = power
+    if model is not None:
+        model = model.strip()
+        if model:
+            if len(model) > 200 or not re.match(r"^[A-Za-z0-9_.:\-/]+$", model):
+                return {"ok": False, "error": "Invalid model value."}
+            command += ["--model", model]
+            applied["model"] = model
+    if fast is not None:
+        command += ["--fast", "on" if fast else "off"]
+        applied["fast"] = bool(fast)
+    if not applied:
+        return {"ok": False, "error": "No settings to update."}
+    command.append("--json")
+    cdx_runner = runner or subprocess.run
+    try:
+        result = cdx_runner(
+            command,
+            cwd=repo_root,
+            text=True,
+            capture_output=True,
+            timeout=_scaled_timeout(repo_root, 10),
+        )
+    except subprocess.TimeoutExpired:
+        return {"ok": False, "error": "CDX config update timed out."}
+    if result.returncode != 0:
+        msg = (result.stderr or result.stdout or "").strip()
+        return {"ok": False, "error": msg or "CDX config update failed."}
+    try:
+        parsed = json.loads(result.stdout)
+        return {"ok": True, "message": parsed.get("message") or "Config update complete.", **applied}
+    except Exception:
+        return {"ok": True, "message": result.stdout.strip() or "Config update complete.", **applied}
+
+
 def cdx_import_payload(
     repo_root: Path,
     file_bytes: bytes,
@@ -3759,6 +3828,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/cdx-export",
         "/api/cdx-toggle",
         "/api/cdx-permission",
+        "/api/cdx-config",
         "/api/cdx-remove",
         "/api/release-reset",
         "/api/update-status",
@@ -4983,6 +5053,24 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"ok": True, "payload": result})
             else:
                 self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, result.get("error", "Permission update failed."))
+            return
+        if parsed.path == "/api/cdx-config":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+                return
+            session = str(body.get("session") or "")
+            power = str(body.get("power")) if body.get("power") is not None else None
+            model = str(body.get("model")) if body.get("model") is not None else None
+            fast = bool(body.get("fast")) if body.get("fast") is not None else None
+            result = cdx_config_payload(self.server.repo_root, session, power=power, model=model, fast=fast)
+            if result.get("ok"):
+                self._send_json({"ok": True, "payload": result})
+            else:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, result.get("error", "Config update failed."))
             return
         if parsed.path == "/api/cdx-remove":
             try:

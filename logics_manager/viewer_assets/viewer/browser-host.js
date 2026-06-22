@@ -4424,7 +4424,7 @@
           <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
           <em>${escapeHtml(`${previewPayload.size || 0} bytes`)}</em>
         </div>
-        <div class="viewer-workspace__placeholder viewer-workspace__placeholder--warn"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">!</span><span>${escapeHtml(previewPayload.message || "File too large to preview.")}</span>${forceButtonHtml}</div>
+        <div class="viewer-workspace__preview-notice viewer-workspace__preview-notice--warn"><span>${escapeHtml(previewPayload.message || "File too large to preview.")}</span>${forceButtonHtml}</div>
       `;
     }
     if (state === "image") {
@@ -4436,14 +4436,23 @@
         <img class="viewer-workspace__image" src="/api/workspace-file?path=${encodeURIComponent(path)}" alt="${escapeHtml(name)}">
       `;
     }
+    if (state === "directory") {
+      return `
+        <div class="viewer-workspace__preview-header">
+          <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path || "/")}</span></div>
+          <em>directory</em>
+        </div>
+        <div class="viewer-workspace__preview-notice">${escapeHtml(previewPayload.message || "Directory selected.")}</div>
+      `;
+    }
     const placeholderState = state === "unavailable" ? "unavailable" : "empty";
-    const placeholderIcon = placeholderState === "unavailable" ? "!" : "·";
+    const noticeClass = placeholderState === "unavailable" ? " viewer-workspace__preview-notice--unavailable" : "";
     return `
       <div class="viewer-workspace__preview-header">
         <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
         <em>${escapeHtml(state)}</em>
       </div>
-      <div class="viewer-workspace__placeholder viewer-workspace__placeholder--${placeholderState}"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">${placeholderIcon}</span><span>${escapeHtml(previewPayload.message || "No preview is available.")}</span></div>
+      <div class="viewer-workspace__preview-notice${noticeClass}">${escapeHtml(previewPayload.message || "No preview is available.")}</div>
     `;
   }
 

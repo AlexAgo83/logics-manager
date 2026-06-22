@@ -1117,6 +1117,8 @@ function createViewerDom(options: {
           ? (wantsFull
             ? { state: "ok", path: "src/big.py", name: "big.py", kind: "file", size: 999999, content: "a = 1\nb = 2\nc = 3\n", truncated: false, canForce: false, lineCount: 3 }
             : { state: "ok", path: "src/big.py", name: "big.py", kind: "file", size: 999999, content: "a = 1\nb = 2\n", truncated: true, canForce: true, lineCount: 3 })
+          : previewPath === "src/huge.py"
+          ? { state: "oversized", path: "src/huge.py", name: "huge.py", kind: "file", size: 336843, message: "File preview is limited to 30000 bytes; this file is 336843 bytes.", canForce: true }
           : previewPath === "src/binary.dat"
           ? { state: "unsupported", path: "src/binary.dat", name: "binary.dat", size: 7, message: "Binary or unsupported file content cannot be previewed." }
           : previewPath === "README.md"
@@ -1412,7 +1414,8 @@ describe("local viewer browser host", () => {
     expect(css).toMatch(/\.viewer-code__line-number\s*\{[^}]*text-align: right;/s);
     expect(css).toMatch(/\.viewer-code__line\s*\{[^}]*white-space: pre;/s);
     expect(css).toMatch(/\.viewer-code__line code\s*\{[^}]*padding: 0;/s);
-    expect(css).toMatch(/\.viewer-workspace__preview \.viewer-code__scroll\s*\{[^}]*overflow: visible;/s);
+    expect(css).toMatch(/\.viewer-workspace__preview \.viewer-code__scroll\s*\{[^}]*overflow-x: auto;/s);
+    expect(css).toMatch(/\.viewer-workspace__preview \.viewer-code__scroll\s*\{[^}]*overflow-y: visible;/s);
     expect(css).toMatch(/@media \(max-width: 640px\)/);
   });
 
@@ -2068,6 +2071,8 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("README.md");
     expect(content?.textContent).toContain("node_modules");
     expect(content?.textContent).toContain("3 item(s)");
+    expect(content?.querySelector(".viewer-workspace__preview-notice")?.textContent).toContain("3 item(s)");
+    expect(content?.querySelector(".viewer-workspace__preview-notice")?.closest(".viewer-workspace__placeholder")).toBeNull();
 
     content?.querySelector('[data-viewer-workspace-tree="src"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -2139,6 +2144,18 @@ describe("local viewer browser host", () => {
     explorer = dom.window.document.querySelector("[data-viewer-workshop-explorer]") as HTMLElement;
     expect(explorer.querySelector("[data-viewer-workspace-preview-full]")).toBeNull();
     expect(explorer.querySelector(".viewer-code__lines")?.textContent).toBe("3 lines");
+
+    const hugeTrigger = dom.window.document.createElement("button");
+    hugeTrigger.setAttribute("data-viewer-workspace-preview", "src/huge.py");
+    explorer.appendChild(hugeTrigger);
+    hugeTrigger.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    explorer = dom.window.document.querySelector("[data-viewer-workshop-explorer]") as HTMLElement;
+    const hugeNotice = explorer.querySelector(".viewer-workspace__preview-notice");
+    expect(hugeNotice?.textContent).toContain("File preview is limited to 30000 bytes; this file is 336843 bytes.");
+    expect(hugeNotice?.querySelector("[data-viewer-workspace-preview-full]")?.textContent).toContain("Load anyway");
+    expect(hugeNotice?.closest(".viewer-workspace__placeholder")).toBeNull();
   });
 
   it("renders an explorer breadcrumb that lets the operator jump to any ancestor", async () => {
@@ -2672,7 +2689,9 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Binary or unsupported file content cannot be previewed.");
+    const notice = dom.window.document.querySelector(".viewer-workspace__preview-notice");
+    expect(notice?.textContent).toContain("Binary or unsupported file content cannot be previewed.");
+    expect(notice?.closest(".viewer-workspace__placeholder")).toBeNull();
   });
 
   it("bootstraps Logics through the local viewer host action", async () => {

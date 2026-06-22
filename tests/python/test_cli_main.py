@@ -19,6 +19,7 @@ from logics_manager.config import DEFAULT_LOGICS_CONFIG, load_repo_config, rende
 from logics_manager.audit import audit_payload, render_audit
 from logics_manager.index import index_payload, render_index
 from logics_manager.lint import lint_payload, render_lint
+from logics_manager.obsidian import obsidian_payload
 from logics_manager.doctor import doctor_payload, render_doctor
 from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
@@ -203,6 +204,63 @@ def test_main_accepts_json_alias_for_native_subcommand(
     assert exit_code == 0
     assert payload["returned_count"] == 1
     assert payload["items"][0]["ref"] == "req_001_demo"
+
+
+def test_obsidian_sync_is_disabled_by_default(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    doc = repo_root / "logics" / "request" / "req_001_demo.md"
+    _write_minimal_lint_doc(doc, title="Demo request", status="Ready", include_progress=False)
+
+    payload = obsidian_payload(repo_root, action="sync")
+
+    assert payload["ok"] is True
+    assert payload["changed_count"] == 0
+    assert "obsidian.enabled is false" in payload["skipped_reason"]
+    assert not doc.read_text(encoding="utf-8").startswith("---")
+
+
+def test_obsidian_sync_check_and_clean_round_trip(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics.yaml").write_text("version: 1\nobsidian:\n  enabled: true\n", encoding="utf-8")
+    doc = repo_root / "logics" / "request" / "req_001_demo.md"
+    _write_minimal_lint_doc(doc, title="Demo request", status="Ready", include_progress=False)
+    original = doc.read_text(encoding="utf-8")
+
+    sync_payload = obsidian_payload(repo_root, action="sync")
+    projected = doc.read_text(encoding="utf-8")
+    check_payload = obsidian_payload(repo_root, action="sync", check=True)
+    clean_payload = obsidian_payload(repo_root, action="clean")
+
+    assert sync_payload["changed"] == ["logics/request/req_001_demo.md"]
+    assert projected.startswith("---\n")
+    assert 'logics_projection: "obsidian"' in projected
+    assert 'type: "request"' in projected
+    assert 'ref: "req_001_demo"' in projected
+    assert 'status: "Ready"' in projected
+    assert '  - "Demo request"' in projected
+    assert check_payload["ok"] is True
+    assert clean_payload["changed_count"] == 1
+    assert doc.read_text(encoding="utf-8") == original
+
+
+def test_obsidian_check_and_lint_detect_frontmatter_drift(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics.yaml").write_text("version: 1\nobsidian:\n  enabled: true\n", encoding="utf-8")
+    doc = repo_root / "logics" / "request" / "req_001_demo.md"
+    _write_minimal_lint_doc(doc, title="Demo request", status="Ready", include_progress=False)
+    obsidian_payload(repo_root, action="sync")
+    doc.write_text(doc.read_text(encoding="utf-8").replace('status: "Ready"', 'status: "Draft"', 1), encoding="utf-8")
+
+    check_payload = obsidian_payload(repo_root, action="sync", check=True)
+    lint = lint_payload(repo_root, require_status=True)
+
+    assert check_payload["ok"] is False
+    assert check_payload["drift_count"] == 1
+    assert lint["ok"] is False
+    assert any("Obsidian frontmatter drift" in issue["message"] for issue in lint["issues"])
 
 
 def test_update_check_compares_versions_and_uses_cache(tmp_path: Path) -> None:

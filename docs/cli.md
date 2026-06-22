@@ -55,6 +55,40 @@ the command skips Mermaid-free workflow docs. For end-of-delivery cleanup, use
 `logics-manager flow closeout <task>` with validation evidence plus `--lint
 --audit` when you want the command to run the gates before reporting.
 
+## Obsidian projection
+
+The default Logics corpus stays plain canonical Markdown. No frontmatter is
+written unless a repository explicitly opts in with `obsidian.enabled: true` in
+`logics.yaml`.
+
+When enabled, the Obsidian projection is a derived view over the canonical
+blockquote indicators:
+
+```yaml
+obsidian:
+  enabled: true
+```
+
+```bash
+logics-manager obsidian sync
+logics-manager obsidian sync --check
+logics-manager obsidian clean
+```
+
+`obsidian sync` writes deterministic YAML frontmatter above supported Logics
+docs with `type`, `ref`, `status`, `understanding`, `confidence`, optional
+`progress` / `theme`, a title alias, and tags derived from type, status, and
+theme. Re-running the command is idempotent.
+
+`obsidian sync --check` reports projection drift for CI without writing files.
+`obsidian clean` removes only the managed `logics_projection: obsidian`
+frontmatter block and restores the canonical Markdown body byte-for-byte.
+Logics Manager parsing, linting, audit, flow transitions, and index generation
+continue to treat the blockquote indicators as authoritative; frontmatter is
+never required to parse a document. The normal linter reports a blocking issue
+when committed Obsidian frontmatter drifts from canonical type/ref/status/title
+metadata.
+
 ## Local Browser Viewer
 
 Use the CLI viewer when you want to inspect the Logics corpus outside VS Code:

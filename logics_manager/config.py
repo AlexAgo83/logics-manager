@@ -22,6 +22,9 @@ DEFAULT_LOGICS_CONFIG: dict[str, Any] = {
         "enabled": True,
         "path": "logics/.cache/runtime_index.json",
     },
+    "obsidian": {
+        "enabled": False,
+    },
     "hybrid_assist": {
         "default_backend": "auto",
         "next_step_auto_backend": None,

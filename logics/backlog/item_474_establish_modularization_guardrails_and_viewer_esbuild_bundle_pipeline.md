@@ -1,10 +1,10 @@
 ## item_474_establish_modularization_guardrails_and_viewer_esbuild_bundle_pipeline - Establish modularization guardrails and viewer esbuild bundle pipeline
 > From version: 2.12.7
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Build tooling
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -49,3 +49,6 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Validation
+- Implemented the enabling viewer-host esbuild bundle pipeline and source line-budget guardrail. Validation: npm run check:line-budget, npm run check:viewer-host, npm run check:viewer-assets, npm test -- tests/viewer.browser-host.test.ts, and logics-manager lint --require-status all pass.

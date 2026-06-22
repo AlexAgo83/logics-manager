@@ -180,6 +180,37 @@
     return panel instanceof HTMLElement && !panel.hidden;
   }
 
+  function activityMinuteBucket(value) {
+    const timestamp = Date.parse(String(value || ""));
+    if (!Number.isFinite(timestamp)) {
+      return "";
+    }
+    return new Date(Math.floor(timestamp / 6e4) * 6e4).toISOString();
+  }
+
+  function activityHistoryKey(entry) {
+    if (!entry || typeof entry !== "object") {
+      return "";
+    }
+    const minute = activityMinuteBucket(entry.at || entry.updatedAt || "");
+    return [
+      entry.path || entry.id || "",
+      entry.type || "",
+      entry.status || "",
+      entry.previousStatus || "",
+      minute
+    ].map((part) => String(part || "")).join("|");
+  }
+
+  function prependUniqueActivity(history, entry) {
+    const key = activityHistoryKey(entry);
+    if (key && history.some((candidate) => activityHistoryKey(candidate) === key)) {
+      return history;
+    }
+    history.unshift(entry);
+    return history;
+  }
+
   function recordGitActivity(action, meta = "") {
     const storedState = readStoredState();
     const baseState = storedState && typeof storedState === "object" ? storedState : {};
@@ -263,7 +294,7 @@
       const previousStatus = String(previous?.status || "").trim();
       const statusChanged = Boolean(previousStatus && status && previousStatus !== status);
       if (relPath && (statusChanged || !previous)) {
-        history.unshift({ path: relPath, at: now, status, previousStatus, type: statusChanged ? "status-change" : "updated" });
+        prependUniqueActivity(history, { path: relPath, at: now, status, previousStatus, type: statusChanged ? "status-change" : "updated" });
       }
       return statusChanged ? { ...item, activityType: "status-change" } : item;
     });

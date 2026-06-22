@@ -1953,6 +1953,29 @@ def _select_github_actions_run(runs: list[dict[str, Any]], head_sha: str) -> tup
     return candidate_runs[0], "branch-latest"
 
 
+CI_RECENT_RUNS_LIMIT = 8
+
+
+def _recent_ci_runs(runs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """req_274: compact recent runs (all workflows on the current branch, newest first)
+    for the Recent activity feed, built from the runs ci_status_payload already fetched."""
+    recent: list[dict[str, Any]] = []
+    for run in runs[:CI_RECENT_RUNS_LIMIT]:
+        parsed = _parse_github_actions_run(run, match_source="recent")
+        recent.append(
+            {
+                "id": parsed.get("id"),
+                "workflowName": parsed.get("workflowName"),
+                "badgeState": parsed.get("badgeState"),
+                "updatedAt": parsed.get("updatedAt") or parsed.get("createdAt"),
+                "url": parsed.get("htmlUrl"),
+                "headSha": parsed.get("headSha"),
+                "title": parsed.get("commitMessage") or parsed.get("workflowName"),
+            }
+        )
+    return recent
+
+
 def _parse_github_actions_run(run: dict[str, Any], *, match_source: str) -> dict[str, Any]:
     status = str(run.get("status") or "")
     conclusion = str(run.get("conclusion") or "")
@@ -2083,21 +2106,21 @@ def _github_ci_status_payload(repo_root: Path, github_url: str, *, git_runner: A
     try:
         runs_result = _run_read_only_gh(repo_root, ["api", endpoint], runner=gh_runner)
     except subprocess.TimeoutExpired:
-        return {"state": "timeout", "visible": True, "message": "GitHub Actions status timed out.", "repositoryUrl": github_url, **context, "badgeState": "unavailable"}
+        return {"state": "timeout", "visible": True, "message": "GitHub Actions status timed out.", "repositoryUrl": github_url, **context, "badgeState": "unavailable", "recentRuns": []}
     except (OSError, subprocess.SubprocessError) as exc:
-        return {"state": "error", "visible": True, "message": f"Unable to collect GitHub Actions status: {exc}", "repositoryUrl": github_url, **context, "badgeState": "unavailable"}
+        return {"state": "error", "visible": True, "message": f"Unable to collect GitHub Actions status: {exc}", "repositoryUrl": github_url, **context, "badgeState": "unavailable", "recentRuns": []}
     if runs_result.returncode != 0:
         message = (runs_result.stderr or runs_result.stdout or "GitHub Actions status failed.").strip().splitlines()[0]
-        return {"state": "unavailable", "visible": True, "message": message, "repositoryUrl": github_url, **context, "badgeState": "unavailable"}
+        return {"state": "unavailable", "visible": True, "message": message, "repositoryUrl": github_url, **context, "badgeState": "unavailable", "recentRuns": []}
 
     try:
         parsed = json.loads(runs_result.stdout or "{}")
     except json.JSONDecodeError:
-        return {"state": "invalid-json", "visible": True, "message": "GitHub Actions status returned invalid JSON.", "repositoryUrl": github_url, **context, "badgeState": "unavailable"}
+        return {"state": "invalid-json", "visible": True, "message": "GitHub Actions status returned invalid JSON.", "repositoryUrl": github_url, **context, "badgeState": "unavailable", "recentRuns": []}
     workflow_runs = parsed.get("workflow_runs") if isinstance(parsed, dict) else None
     runs = [run for run in workflow_runs if isinstance(run, dict)] if isinstance(workflow_runs, list) else []
     if not runs:
-        return {"state": "ok", "visible": True, "message": "No GitHub Actions runs found for the current branch.", "repositoryUrl": github_url, **context, "badgeState": "unknown", "run": None, "jobs": []}
+        return {"state": "ok", "visible": True, "message": "No GitHub Actions runs found for the current branch.", "repositoryUrl": github_url, **context, "badgeState": "unknown", "run": None, "jobs": [], "recentRuns": []}
 
     selected, match_source = _select_github_actions_run(runs, head_sha)
     run_payload = _parse_github_actions_run(selected, match_source=match_source)
@@ -2120,6 +2143,7 @@ def _github_ci_status_payload(repo_root: Path, github_url: str, *, git_runner: A
         "badgeState": run_payload["badgeState"],
         "run": run_payload,
         "jobs": jobs,
+        "recentRuns": _recent_ci_runs(runs),
     }
 
 
@@ -2136,17 +2160,17 @@ def _gitlab_ci_status_payload(repo_root: Path, gitlab_url: str, *, git_runner: A
     try:
         pipelines_result = _run_read_only_glab(repo_root, ["api", endpoint], runner=glab_runner)
     except subprocess.TimeoutExpired:
-        return {"state": "timeout", "visible": True, "message": "GitLab CI status timed out.", "repositoryUrl": gitlab_url, "provider": "gitlab", **context, "badgeState": "unavailable"}
+        return {"state": "timeout", "visible": True, "message": "GitLab CI status timed out.", "repositoryUrl": gitlab_url, "provider": "gitlab", **context, "badgeState": "unavailable", "recentRuns": []}
     except (OSError, subprocess.SubprocessError) as exc:
-        return {"state": "error", "visible": True, "message": f"Unable to collect GitLab CI status: {exc}", "repositoryUrl": gitlab_url, "provider": "gitlab", **context, "badgeState": "unavailable"}
+        return {"state": "error", "visible": True, "message": f"Unable to collect GitLab CI status: {exc}", "repositoryUrl": gitlab_url, "provider": "gitlab", **context, "badgeState": "unavailable", "recentRuns": []}
     if pipelines_result.returncode != 0:
         message = (pipelines_result.stderr or pipelines_result.stdout or "GitLab CI status failed.").strip().splitlines()[0]
-        return {"state": "unavailable", "visible": True, "message": message, "repositoryUrl": gitlab_url, "provider": "gitlab", **context, "badgeState": "unavailable"}
+        return {"state": "unavailable", "visible": True, "message": message, "repositoryUrl": gitlab_url, "provider": "gitlab", **context, "badgeState": "unavailable", "recentRuns": []}
 
     try:
         parsed = json.loads(pipelines_result.stdout or "[]")
     except json.JSONDecodeError:
-        return {"state": "invalid-json", "visible": True, "message": "GitLab CI status returned invalid JSON.", "repositoryUrl": gitlab_url, "provider": "gitlab", **context, "badgeState": "unavailable"}
+        return {"state": "invalid-json", "visible": True, "message": "GitLab CI status returned invalid JSON.", "repositoryUrl": gitlab_url, "provider": "gitlab", **context, "badgeState": "unavailable", "recentRuns": []}
     pipelines = [pipeline for pipeline in parsed if isinstance(pipeline, dict)] if isinstance(parsed, list) else []
     if not pipelines:
         return {"state": "ok", "visible": True, "message": "No GitLab pipelines found for the current branch.", "repositoryUrl": gitlab_url, "provider": "gitlab", **context, "badgeState": "unknown", "run": None, "jobs": []}
@@ -2243,17 +2267,17 @@ def _github_release_runs_payload(repo_root: Path, github_url: str, workflow_file
     try:
         runs_result = _run_read_only_gh(repo_root, ["api", endpoint], runner=gh_runner)
     except subprocess.TimeoutExpired:
-        return {"state": "timeout", "visible": True, "message": "Release workflow status timed out.", "repositoryUrl": github_url, "badgeState": "unavailable"}
+        return {"state": "timeout", "visible": True, "message": "Release workflow status timed out.", "repositoryUrl": github_url, "badgeState": "unavailable", "recentRuns": []}
     except (OSError, subprocess.SubprocessError) as exc:
-        return {"state": "error", "visible": True, "message": f"Unable to collect release workflow status: {exc}", "repositoryUrl": github_url, "badgeState": "unavailable"}
+        return {"state": "error", "visible": True, "message": f"Unable to collect release workflow status: {exc}", "repositoryUrl": github_url, "badgeState": "unavailable", "recentRuns": []}
     if runs_result.returncode != 0:
         message = (runs_result.stderr or runs_result.stdout or "Release workflow status failed.").strip().splitlines()[0]
-        return {"state": "unavailable", "visible": True, "message": message, "repositoryUrl": github_url, "badgeState": "unavailable"}
+        return {"state": "unavailable", "visible": True, "message": message, "repositoryUrl": github_url, "badgeState": "unavailable", "recentRuns": []}
 
     try:
         parsed = json.loads(runs_result.stdout or "{}")
     except json.JSONDecodeError:
-        return {"state": "invalid-json", "visible": True, "message": "Release workflow status returned invalid JSON.", "repositoryUrl": github_url, "badgeState": "unavailable"}
+        return {"state": "invalid-json", "visible": True, "message": "Release workflow status returned invalid JSON.", "repositoryUrl": github_url, "badgeState": "unavailable", "recentRuns": []}
     workflow_runs = parsed.get("workflow_runs") if isinstance(parsed, dict) else None
     runs = [run for run in workflow_runs if isinstance(run, dict)] if isinstance(workflow_runs, list) else []
     if not runs:

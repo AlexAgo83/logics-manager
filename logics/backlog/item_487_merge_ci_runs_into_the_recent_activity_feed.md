@@ -2,7 +2,7 @@
 > From version: 2.12.8
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
+> Understanding: 88
 > Confidence: 85%
 > Progress: 0%
 > Complexity: Medium
@@ -51,3 +51,6 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Notes
+- REMAINING (client). The VS Code webview feed renders payload.activityEvents (mainCore.js:469) — no client change needed IF the server maps recentRuns into the board payload's activityEvents. The browser viewer (browser-host) fetches CI separately and needs its own wiring. Open design decision: feed CI into the synchronous board payload (simpler, reuses the channel) vs keep it async like the badge (avoids slowing the board). Decide before wiring.

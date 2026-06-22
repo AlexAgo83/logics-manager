@@ -21,6 +21,7 @@ class LogicsDoc:
     ref: str
     title: str
     status: str | None
+    owner: str | None
     progress: int | None
     content: str
 
@@ -48,6 +49,7 @@ def _parse_doc(repo_root: Path, kind: str, path: Path) -> LogicsDoc:
     content = path.read_text(encoding="utf-8")
     title = "(missing title)"
     status: str | None = None
+    owner: str | None = None
     progress: int | None = None
     for line in content.splitlines():
         if line.startswith("## "):
@@ -60,6 +62,9 @@ def _parse_doc(repo_root: Path, kind: str, path: Path) -> LogicsDoc:
         if line.startswith("> Status:"):
             status = line.split(":", 1)[1].strip()
             continue
+        if line.startswith("> Owner:"):
+            owner = line.split(":", 1)[1].strip()
+            continue
         if line.startswith("> Progress:"):
             progress = _progress_value(line.split(":", 1)[1].strip())
             continue
@@ -70,6 +75,7 @@ def _parse_doc(repo_root: Path, kind: str, path: Path) -> LogicsDoc:
         ref=path.stem,
         title=title,
         status=status,
+        owner=owner,
         progress=progress,
         content=content,
     )
@@ -100,6 +106,7 @@ def _doc_summary(doc: LogicsDoc) -> dict[str, object]:
         "title": doc.title,
         "kind": doc.kind,
         "status": doc.status,
+        "owner": doc.owner,
         "progress": doc.progress,
         "path": doc.rel_path,
     }
@@ -169,7 +176,8 @@ def render_status(repo_root: Path, *, output_format: str = "text", limit: int = 
             continue
         lines.append(f"- {label}:")
         for item in items:
-            lines.append(f"  - {item['ref']} [{item['status']}]: {item['title']}")
+            owner = f" owner={item['owner']}" if item.get("owner") else ""
+            lines.append(f"  - {item['ref']} [{item['status']}]{owner}: {item['title']}")
     return "\n".join(lines)
 
 

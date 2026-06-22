@@ -17,6 +17,7 @@ class Entry:
     doc_ref: str
     title: str
     status: str | None
+    owner: str | None
     progress: str | None
 
 
@@ -36,6 +37,7 @@ def _parse_doc(path: Path) -> Entry:
     doc_ref = path.stem
     title = ""
     status: str | None = None
+    owner: str | None = None
     progress: str | None = None
 
     for line in lines:
@@ -51,11 +53,14 @@ def _parse_doc(path: Path) -> Entry:
         if line.startswith("> Status:"):
             status = line.split(":", 1)[1].strip()
             continue
+        if line.startswith("> Owner:"):
+            owner = line.split(":", 1)[1].strip()
+            continue
         if line.startswith("> Progress:"):
             progress = line.split(":", 1)[1].strip()
     if not title:
         title = "(missing title)"
-    return Entry(path=path, doc_ref=doc_ref, title=title, status=status, progress=progress)
+    return Entry(path=path, doc_ref=doc_ref, title=title, status=status, owner=owner, progress=progress)
 
 
 def _collect_paths(repo_root: Path, rel_dir: str) -> list[Path]:
@@ -76,12 +81,14 @@ def _render_section(title: str, entries: list[Entry], show_progress: bool, out_d
         lines.append("")
         return "\n".join(lines)
 
-    lines.extend(["| Doc | Title | Status | Progress | Path |", "|---|---|---|---|---|"])
+    lines.extend(["| Doc | Title | Status | Owner | Progress | Path |", "|---|---|---|---|---|---|"])
 
     for entry in entries:
         rel = os_path.relpath(entry.path, start=out_dir).replace(os.sep, "/")
         doc_link = f"[{entry.doc_ref}]({rel})"
-        lines.append(f"| {doc_link} | {entry.title} | {entry.status or ''} | {entry.progress or ''} | {rel} |")
+        lines.append(
+            f"| {doc_link} | {entry.title} | {entry.status or ''} | {entry.owner or ''} | {entry.progress or ''} | {rel} |"
+        )
     lines.append("")
     return "\n".join(lines)
 

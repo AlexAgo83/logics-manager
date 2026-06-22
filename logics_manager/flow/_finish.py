@@ -204,6 +204,9 @@ def main(argv: list[str]) -> int:
     if argv[0] == "validate-closeout" and _help_requested(argv, 1):
         _print_help(_build_validate_closeout_help())
         return 0
+    if argv[0] == "start" and _help_requested(argv, 1):
+        _print_help(_build_start_help())
+        return 0
     if argv[0] == "repair" and _help_requested(argv, 1):
         _print_help(_build_repair_help())
         return 0
@@ -237,7 +240,7 @@ def main(argv: list[str]) -> int:
     if argv[0] == "finish" and len(argv) > 1 and argv[1] == "task" and _help_requested(argv, 2):
         _print_help(_build_finish_kind_help(argv[1]))
         return 0
-    valid_commands = {"new", "list", "show", "companion", "deliver", "scaffold", "validate", "validate-closeout", "repair", "closeout", "promote", "split", "close", "finish"}
+    valid_commands = {"new", "list", "show", "companion", "deliver", "scaffold", "validate", "validate-closeout", "start", "repair", "closeout", "promote", "split", "close", "finish"}
     if argv[0] not in valid_commands:
         hint = " Use `logics-manager flow show <ref>` to inspect a workflow doc." if argv[0] in {"read", "view", "cat"} else " Run `logics-manager flow --help` for valid commands."
         raise SystemExit(f"Unsupported flow subcommand: {argv[0]}.{hint}")

@@ -77,6 +77,13 @@ def build_parser() -> argparse.ArgumentParser:
     validate_closeout_parser.add_argument("--format", choices=("text", "json"), default="text")
     validate_closeout_parser.set_defaults(func=cmd_validate_closeout)
 
+    start_parser = sub.add_parser("start", help="Mark a workflow doc as in progress and record an owner.")
+    start_parser.add_argument("source")
+    start_parser.add_argument("--owner")
+    start_parser.add_argument("--format", choices=("text", "json"), default="text")
+    start_parser.add_argument("--dry-run", action="store_true")
+    start_parser.set_defaults(func=cmd_start)
+
     repair_parser = sub.add_parser("repair", help="Apply deterministic closeout repairs.")
     repair_sub = repair_parser.add_subparsers(dest="repair_kind", required=True)
 

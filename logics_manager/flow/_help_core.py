@@ -45,6 +45,10 @@ def _build_help() -> str:
             "    Preflight whether a task can be safely closed.",
             "    Flags: --format {text,json}",
             "",
+            "  start <ref>",
+            "    Mark a workflow doc as In progress and record an owner.",
+            "    Flags: --owner, --format {text,json}, --dry-run",
+            "",
             "  repair <gates|ac-traceability|links|mermaid>",
             "    Apply deterministic closeout repairs.",
             "    Flags: --format {text,json}, --dry-run",
@@ -269,5 +273,22 @@ def _build_validate_closeout_help() -> str:
             "",
             "Examples:",
             "  logics-manager flow validate-closeout task_164_implement_flow_deliver_from_product",
+        ]
+    )
+
+
+def _build_start_help() -> str:
+    return "\n".join(
+        [
+            "Logics Flow Start",
+            "Mark a workflow doc as In progress and record an owner.",
+            "",
+            "Usage:",
+            "  logics-manager flow start <ref-or-path> [args...]",
+            "",
+            "Flags:",
+            "  --owner <agent>",
+            "  --format {text,json}",
+            "  --dry-run",
         ]
     )

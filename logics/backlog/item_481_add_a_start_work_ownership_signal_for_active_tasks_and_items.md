@@ -1,10 +1,10 @@
 ## item_481_add_a_start_work_ownership_signal_for_active_tasks_and_items - Add a start-work / ownership signal for active tasks and items
 > From version: 2.12.7
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -46,8 +46,8 @@ Make the signal usable for coordination when multiple agents (e.g. Claude and Co
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_272_add_a_start_work_ownership_signal_for_active_tasks_and_items.md`
-- Primary task(s): (none yet)
+- Request: `req_272_add_a_start_work_ownership_signal_for_active_tasks_and_items`
+- Primary task(s): `task_269_add_a_start_work_ownership_signal_for_active_tasks_and_items`
 
 # AI Context
 - Summary: Add a start-work / ownership signal for active tasks and items
@@ -63,6 +63,7 @@ Make the signal usable for coordination when multiple agents (e.g. Claude and Co
 - Hybrid rationale: Derived from request `req_272_add_a_start_work_ownership_signal_for_active_tasks_and_items` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_272_add_a_start_work_ownership_signal_for_active_tasks_and_items.md`.
 - Generated locally by logics-manager.
+- Task `task_269_add_a_start_work_ownership_signal_for_active_tasks_and_items` was finished via `logics-manager flow finish task` on 2026-06-22.
 
 # Tasks
 - `task_269_add_a_start_work_ownership_signal_for_active_tasks_and_items`

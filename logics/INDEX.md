@@ -64,6 +64,7 @@
 | [prod_026_importable_module_remediation](product/prod_026_importable_module_remediation.md) | Importable module remediation | Proposed |  |  | product/prod_026_importable_module_remediation.md |
 | [prod_027_ci_events_in_recent_activity](product/prod_027_ci_events_in_recent_activity.md) | CI events in Recent activity | Proposed |  |  | product/prod_027_ci_events_in_recent_activity.md |
 | [prod_028_recent_activity_event_filter](product/prod_028_recent_activity_event_filter.md) | Recent activity event filter | Proposed |  |  | product/prod_028_recent_activity_event_filter.md |
+| [prod_029_assistant_authoring_ergonomics](product/prod_029_assistant_authoring_ergonomics.md) | Assistant authoring ergonomics | Proposed |  |  | product/prod_029_assistant_authoring_ergonomics.md |
 
 ## Requests
 
@@ -343,6 +344,7 @@
 | [req_273_replace_exec_compile_part_glue_with_importable_modules](request/req_273_replace_exec_compile_part_glue_with_importable_modules.md) | Replace exec(compile) part-glue with importable modules | Draft |  |  | request/req_273_replace_exec_compile_part_glue_with_importable_modules.md |
 | [req_274_surface_ci_events_in_the_recent_activity_feed](request/req_274_surface_ci_events_in_the_recent_activity_feed.md) | Surface CI events in the Recent activity feed | Draft |  |  | request/req_274_surface_ci_events_in_the_recent_activity_feed.md |
 | [req_275_add_a_git_ci_event_filter_to_the_recent_activity_view](request/req_275_add_a_git_ci_event_filter_to_the_recent_activity_view.md) | Add a git/CI event filter to the Recent activity view | Draft |  |  | request/req_275_add_a_git_ci_event_filter_to_the_recent_activity_view.md |
+| [req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants](request/req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants.md) | Improve logics-manager authoring ergonomics for AI assistants | Draft |  |  | request/req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants.md |
 
 ## Backlog
 
@@ -837,6 +839,11 @@
 | [item_487_merge_ci_runs_into_the_recent_activity_feed](backlog/item_487_merge_ci_runs_into_the_recent_activity_feed.md) | Merge CI runs into the Recent activity feed | Ready |  | 0% | backlog/item_487_merge_ci_runs_into_the_recent_activity_feed.md |
 | [item_488_surface_recent_git_commits_as_activity_events](backlog/item_488_surface_recent_git_commits_as_activity_events.md) | Surface recent git commits as activity events | Ready |  | 0% | backlog/item_488_surface_recent_git_commits_as_activity_events.md |
 | [item_489_add_the_activity_filter_button_menu_and_persisted_toggles](backlog/item_489_add_the_activity_filter_button_menu_and_persisted_toggles.md) | Add the activity filter button, menu, and persisted toggles | Ready |  | 0% | backlog/item_489_add_the_activity_filter_button_menu_and_persisted_toggles.md |
+| [item_490_expose_scaffold_request_chain_and_deliver_as_mcp_tools](backlog/item_490_expose_scaffold_request_chain_and_deliver_as_mcp_tools.md) | Expose scaffold_request_chain and deliver as MCP tools | Ready |  | 0% | backlog/item_490_expose_scaffold_request_chain_and_deliver_as_mcp_tools.md |
+| [item_491_make_the_scaffold_input_schema_discoverable_and_validated](backlog/item_491_make_the_scaffold_input_schema_discoverable_and_validated.md) | Make the scaffold input schema discoverable and validated | Ready |  | 0% | backlog/item_491_make_the_scaffold_input_schema_discoverable_and_validated.md |
+| [item_492_name_remedy_commands_in_blocking_lint_validate_messages](backlog/item_492_name_remedy_commands_in_blocking_lint_validate_messages.md) | Name remedy commands in blocking lint/validate messages | Ready |  | 0% | backlog/item_492_name_remedy_commands_in_blocking_lint_validate_messages.md |
+| [item_493_classify_closeout_deferred_proofs_as_a_distinct_severity](backlog/item_493_classify_closeout_deferred_proofs_as_a_distinct_severity.md) | Classify closeout-deferred proofs as a distinct severity | Ready |  | 0% | backlog/item_493_classify_closeout_deferred_proofs_as_a_distinct_severity.md |
+| [item_494_add_inline_validation_to_flow_scaffold](backlog/item_494_add_inline_validation_to_flow_scaffold.md) | Add inline validation to flow scaffold | Ready |  | 0% | backlog/item_494_add_inline_validation_to_flow_scaffold.md |
 
 ## Tasks
 
@@ -1108,3 +1115,4 @@
 | [task_270_orchestrate_the_exec_part_glue_remediation](tasks/task_270_orchestrate_the_exec_part_glue_remediation.md) | Orchestrate the exec part-glue remediation | Ready |  | 0% | tasks/task_270_orchestrate_the_exec_part_glue_remediation.md |
 | [task_271_orchestrate_ci_events_in_recent_activity](tasks/task_271_orchestrate_ci_events_in_recent_activity.md) | Orchestrate CI events in Recent activity | Ready |  | 0% | tasks/task_271_orchestrate_ci_events_in_recent_activity.md |
 | [task_272_orchestrate_the_recent_activity_event_filter](tasks/task_272_orchestrate_the_recent_activity_event_filter.md) | Orchestrate the Recent activity event filter | Ready |  | 0% | tasks/task_272_orchestrate_the_recent_activity_event_filter.md |
+| [task_273_orchestrate_the_assistant_authoring_ergonomics_improvements](tasks/task_273_orchestrate_the_assistant_authoring_ergonomics_improvements.md) | Orchestrate the assistant authoring ergonomics improvements | Ready |  | 0% | tasks/task_273_orchestrate_the_assistant_authoring_ergonomics_improvements.md |

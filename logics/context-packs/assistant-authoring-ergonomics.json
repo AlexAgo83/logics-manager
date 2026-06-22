@@ -1,0 +1,352 @@
+{
+  "budgets": {
+    "max_docs": 28,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants item_490_expose_scaffold_request_chain_and_deliver_as_mcp_tools item_491_make_the_scaffold_input_schema_discoverable_and_validated item_492_name_remedy_commands_in_blocking_lint_validate_messages item_493_classify_closeout_deferred_proofs_as_a_distinct_severity item_494_add_inline_validation_to_flow_scaffold task_273_orchestrate_the_assistant_authoring_ergonomics_improvements --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_490_expose_scaffold_request_chain_and_deliver_as_mcp_tools",
+          "item_491_make_the_scaffold_input_schema_discoverable_and_validated",
+          "item_492_name_remedy_commands_in_blocking_lint_validate_messages",
+          "item_493_classify_closeout_deferred_proofs_as_a_distinct_severity",
+          "item_494_add_inline_validation_to_flow_scaffold"
+        ],
+        "prod": [
+          "prod_029_assistant_authoring_ergonomics"
+        ],
+        "req": [
+          "req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants"
+        ],
+        "task": [
+          "task_273_orchestrate_the_assistant_authoring_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/product/prod_029_assistant_authoring_ergonomics.md",
+      "ref": "prod_029_assistant_authoring_ergonomics",
+      "status": "Proposed",
+      "title": "Assistant authoring ergonomics"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, improve logics-manager authoring ergonomics for ai assistants, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Improve logics-manager authoring ergonomics for AI assistants",
+        "use when": "You need to implement or review the scaffolded workflow for Improve logics-manager authoring ergonomics for AI assistants."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_490_expose_scaffold_request_chain_and_deliver_as_mcp_tools",
+          "item_491_make_the_scaffold_input_schema_discoverable_and_validated",
+          "item_492_name_remedy_commands_in_blocking_lint_validate_messages",
+          "item_493_classify_closeout_deferred_proofs_as_a_distinct_severity",
+          "item_494_add_inline_validation_to_flow_scaffold"
+        ],
+        "prod": [
+          "prod_029_assistant_authoring_ergonomics"
+        ],
+        "req": [
+          "req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants"
+        ]
+      },
+      "path": "logics/request/req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants.md",
+      "ref": "req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Improve logics-manager authoring ergonomics for AI assistants"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, expose scaffold_request_chain and deliver as mcp tools, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Expose scaffold_request_chain and deliver as MCP tools",
+        "use when": "Implementing the scaffolded slice for Expose scaffold_request_chain and deliver as MCP tools."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_490_expose_scaffold_request_chain_and_deliver_as_mcp_tools"
+        ],
+        "prod": [
+          "prod_029_assistant_authoring_ergonomics"
+        ],
+        "req": [
+          "req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants"
+        ],
+        "task": [
+          "task_273_orchestrate_the_assistant_authoring_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/backlog/item_490_expose_scaffold_request_chain_and_deliver_as_mcp_tools.md",
+      "ref": "item_490_expose_scaffold_request_chain_and_deliver_as_mcp_tools",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Expose scaffold_request_chain and deliver as MCP tools"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, make the scaffold input schema discoverable and validated, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Make the scaffold input schema discoverable and validated",
+        "use when": "Implementing the scaffolded slice for Make the scaffold input schema discoverable and validated."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_491_make_the_scaffold_input_schema_discoverable_and_validated"
+        ],
+        "prod": [
+          "prod_029_assistant_authoring_ergonomics"
+        ],
+        "req": [
+          "req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants"
+        ],
+        "task": [
+          "task_273_orchestrate_the_assistant_authoring_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/backlog/item_491_make_the_scaffold_input_schema_discoverable_and_validated.md",
+      "ref": "item_491_make_the_scaffold_input_schema_discoverable_and_validated",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Make the scaffold input schema discoverable and validated"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, name remedy commands in blocking lint/validate messages, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Name remedy commands in blocking lint/validate messages",
+        "use when": "Implementing the scaffolded slice for Name remedy commands in blocking lint/validate messages."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_492_name_remedy_commands_in_blocking_lint_validate_messages"
+        ],
+        "prod": [
+          "prod_029_assistant_authoring_ergonomics"
+        ],
+        "req": [
+          "req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants"
+        ],
+        "task": [
+          "task_273_orchestrate_the_assistant_authoring_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/backlog/item_492_name_remedy_commands_in_blocking_lint_validate_messages.md",
+      "ref": "item_492_name_remedy_commands_in_blocking_lint_validate_messages",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Name remedy commands in blocking lint/validate messages"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate the assistant authoring ergonomics improvements",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_490_expose_scaffold_request_chain_and_deliver_as_mcp_tools",
+          "item_491_make_the_scaffold_input_schema_discoverable_and_validated",
+          "item_492_name_remedy_commands_in_blocking_lint_validate_messages",
+          "item_493_classify_closeout_deferred_proofs_as_a_distinct_severity",
+          "item_494_add_inline_validation_to_flow_scaffold"
+        ],
+        "prod": [
+          "prod_029_assistant_authoring_ergonomics"
+        ],
+        "req": [
+          "req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants"
+        ],
+        "task": [
+          "task_273_orchestrate_the_assistant_authoring_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/tasks/task_273_orchestrate_the_assistant_authoring_ergonomics_improvements.md",
+      "ref": "task_273_orchestrate_the_assistant_authoring_ergonomics_improvements",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrate the assistant authoring ergonomics improvements"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, classify closeout-deferred proofs as a distinct severity, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Classify closeout-deferred proofs as a distinct severity",
+        "use when": "Implementing the scaffolded slice for Classify closeout-deferred proofs as a distinct severity."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_493_classify_closeout_deferred_proofs_as_a_distinct_severity"
+        ],
+        "prod": [
+          "prod_029_assistant_authoring_ergonomics"
+        ],
+        "req": [
+          "req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants"
+        ],
+        "task": [
+          "task_273_orchestrate_the_assistant_authoring_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/backlog/item_493_classify_closeout_deferred_proofs_as_a_distinct_severity.md",
+      "ref": "item_493_classify_closeout_deferred_proofs_as_a_distinct_severity",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Classify closeout-deferred proofs as a distinct severity"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add inline validation to flow scaffold, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add inline validation to flow scaffold",
+        "use when": "Implementing the scaffolded slice for Add inline validation to flow scaffold."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_494_add_inline_validation_to_flow_scaffold"
+        ],
+        "prod": [
+          "prod_029_assistant_authoring_ergonomics"
+        ],
+        "req": [
+          "req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants"
+        ],
+        "task": [
+          "task_273_orchestrate_the_assistant_authoring_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/backlog/item_494_add_inline_validation_to_flow_scaffold.md",
+      "ref": "item_494_add_inline_validation_to_flow_scaffold",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Add inline validation to flow scaffold"
+    }
+  ],
+  "estimates": {
+    "char_count": 7969,
+    "companion_doc_count": 1,
+    "doc_count": 7
+  },
+  "generated_at": "2026-06-22T17:30:42Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants",
+      "item_490_expose_scaffold_request_chain_and_deliver_as_mcp_tools",
+      "item_491_make_the_scaffold_input_schema_discoverable_and_validated",
+      "item_492_name_remedy_commands_in_blocking_lint_validate_messages",
+      "item_493_classify_closeout_deferred_proofs_as_a_distinct_severity",
+      "item_494_add_inline_validation_to_flow_scaffold",
+      "task_273_orchestrate_the_assistant_authoring_ergonomics_improvements"
+    ],
+    "validation_summary_count": 1
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants,item_490_expose_scaffold_request_chain_and_deliver_as_mcp_tools,item_491_make_the_scaffold_input_schema_discoverable_and_validated,item_492_name_remedy_commands_in_blocking_lint_validate_messages,item_493_classify_closeout_deferred_proofs_as_a_distinct_severity,item_494_add_inline_validation_to_flow_scaffold,task_273_orchestrate_the_assistant_authoring_ergonomics_improvements",
+  "refs": [
+    "req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants",
+    "item_490_expose_scaffold_request_chain_and_deliver_as_mcp_tools",
+    "item_491_make_the_scaffold_input_schema_discoverable_and_validated",
+    "item_492_name_remedy_commands_in_blocking_lint_validate_messages",
+    "item_493_classify_closeout_deferred_proofs_as_a_distinct_severity",
+    "item_494_add_inline_validation_to_flow_scaffold",
+    "task_273_orchestrate_the_assistant_authoring_ergonomics_improvements"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.12.8"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_273_orchestrate_the_assistant_authoring_ergonomics_improvements.md",
+      "ref": "task_273_orchestrate_the_assistant_authoring_ergonomics_improvements"
+    }
+  ]
+}

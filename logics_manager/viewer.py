@@ -3418,6 +3418,45 @@ def create_request_from_cdx_report(repo_root: Path, report_payload: dict[str, An
     return {"id": ref, "path": rel_path, "title": title}
 
 
+def create_request_from_viewer_draft(repo_root: Path, draft: dict[str, Any]) -> dict[str, Any]:
+    title = str(draft.get("title") or "").strip()
+    intent = str(draft.get("intent") or draft.get("need") or "").strip()
+    context = str(draft.get("context") or "").strip()
+    if not intent:
+        raise ValueError("Need is required.")
+    if not title:
+        title = intent.splitlines()[0].strip()[:80] or "New request"
+    ref = _next_viewer_request_ref(repo_root, title)
+    request_dir = repo_root / "logics" / "request"
+    request_dir.mkdir(parents=True, exist_ok=True)
+    rel_path = f"logics/request/{ref}.md"
+    path = repo_root / rel_path
+    context_lines = [f"- {line.strip()}" for line in context.splitlines() if line.strip()]
+    if not context_lines:
+        context_lines = ["- Add constraints, links, scope notes, or acceptance hints before triage."]
+    text = "\n".join([
+        f"## {ref} - {title}",
+        "> Status: Draft",
+        "> Understanding: 50%",
+        "> Confidence: 50%",
+        "> Complexity: Medium",
+        "> Theme: Viewer request",
+        "",
+        "# Needs",
+        f"- {intent}",
+        "",
+        "# Context",
+        *context_lines,
+        "",
+        "# Acceptance Criteria",
+        "- AC1: The request has been reviewed and clarified enough to triage.",
+        "- AC2: Follow-up backlog items preserve the need and relevant context.",
+        "",
+    ])
+    path.write_text(text, encoding="utf-8")
+    return {"id": ref, "path": rel_path, "title": title}
+
+
 def _json_bytes(payload: Any) -> bytes:
     return json.dumps(payload, indent=2, sort_keys=True).encode("utf-8")
 
@@ -3499,6 +3538,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/open-file",
         "/api/open-repo-folder",
         "/api/bootstrap-logics",
+        "/api/new-request",
         "/api/restart-viewer",
         "/api/switch-project",
         "/api/select-project-root",
@@ -4590,6 +4630,23 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 bootstrap = bootstrap_payload(self.server.repo_root, check=False)
                 self._send_json({"ok": True, "payload": self.server.viewer_payload(), "bootstrap": bootstrap})
             except SystemExit as exc:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, str(exc))
+            except OSError as exc:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+            return
+        if parsed.path == "/api/new-request":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+                if not isinstance(body, dict):
+                    raise ValueError("Request body must be a JSON object.")
+                draft = body.get("draft") if isinstance(body.get("draft"), dict) else body
+                created = create_request_from_viewer_draft(self.server.repo_root, draft)
+                self._send_json({"ok": True, "created": created, "payload": self.server.viewer_payload(selected_id=created["id"])})
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+            except ValueError as exc:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, str(exc))
             except OSError as exc:
                 self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))

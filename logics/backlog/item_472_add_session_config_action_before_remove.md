@@ -1,10 +1,10 @@
 ## item_472_add_session_config_action_before_remove - Add session Config action before Remove
 > From version: 2.12.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 85
 > Confidence: 80
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: CDX session actions
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -73,6 +73,7 @@ CDX session configuration is available in the mission configuration area, but no
 - Generated locally by logics-manager.
 - Likely implementation surface: `clients/viewer/browser-host.js` around `renderCdxSessionActionMenu`, CDX action click handling, and `renderCdxMissionConfigMenu`; `clients/viewer/viewer.css` for any Config action styling; `tests/viewer.browser-host.test.ts` around the existing session menu tests.
 - If the current configuration UI is mission-scoped, adapt it carefully so the modal state is initialized from the selected session instead of the currently selected mission form session.
+- Task `task_265_add_session_config_action_before_remove` was finished via `logics-manager flow finish task` on 2026-06-22.
 
 # Tasks
 - `task_265_add_session_config_action_before_remove`

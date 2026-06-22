@@ -1,7 +1,7 @@
 ## req_269_add_session_config_action_before_remove - Add session Config action before Remove
 > From version: 2.12.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 85
 > Confidence: 80
 > Complexity: Medium

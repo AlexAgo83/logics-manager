@@ -6555,6 +6555,7 @@
           ${enabled && canLaunchTerminal ? `<button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-cdx-session-action="new" data-viewer-cdx-session="${escapeHtml(name)}">New</button>` : ""}
           ${enabled && canLaunchTerminal && resumeAvailable ? `<button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-cdx-session-action="resume" data-viewer-cdx-session="${escapeHtml(name)}">Resume</button>` : ""}
           ${canHandoff ? `<button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-cdx-session-action="handoff" data-viewer-cdx-session="${escapeHtml(name)}" data-viewer-cdx-handoff-source="${escapeHtml(latestSessionName)}">Handoff (${escapeHtml(latestSessionName)})</button>` : ""}
+          <button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-cdx-session-action="config" data-viewer-cdx-session="${escapeHtml(name)}">Config</button>
           <button class="viewer-cdx__menu-action viewer-cdx__menu-action--danger" type="button" role="menuitem" data-viewer-cdx-session-action="remove" data-viewer-cdx-session="${escapeHtml(name)}">Remove</button>
         </div>
       </details>
@@ -6856,6 +6857,90 @@
     latestCdxMissionState.outputMode = "plan";
     latestCdxMissionState.promptOverride = "";
     setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload));
+  }
+
+  function showCdxSessionConfigModal(sessionName) {
+    const sessions = cdxSessions(latestCdxStatusPayload?.status || {});
+    const session = sessions.find((entry) => cdxSessionName(entry && typeof entry === "object" ? entry : { value: entry }) === sessionName) || {};
+    const levels = ["minimal", "low", "medium", "high", "xhigh"];
+    const model = Object.prototype.hasOwnProperty.call(latestCdxMissionState.missionInputs, "model") && latestCdxMissionState.sessionId === sessionName
+      ? latestCdxMissionState.missionInputs.model
+      : cdxField(session && typeof session === "object" ? session : {}, ["model", "model_name", "modelName"], "");
+    const reasoningEffort = latestCdxMissionState.sessionId === sessionName
+      ? (latestCdxMissionState.missionInputs.reasoningEffort || "medium")
+      : "medium";
+    const power = latestCdxMissionState.sessionId === sessionName
+      ? (latestCdxMissionState.missionInputs.power || "medium")
+      : "medium";
+    const optionRows = (selected) => levels.map((level) => `<option value="${escapeHtml(level)}"${level === selected ? " selected" : ""}>${escapeHtml(cdxLabel(level))}</option>`).join("");
+    const modal = createThemedModal({
+      title: "Session config",
+      message: `CDX session: ${sessionName}`,
+      submitLabel: "Apply"
+    });
+    modal.setAttribute("data-viewer-cdx-session-config-modal", sessionName);
+    modal.querySelector(".viewer-themed-modal__submit")?.setAttribute("data-viewer-cdx-session-config-submit", "");
+    modal.querySelector(".viewer-themed-modal__cancel")?.setAttribute("data-viewer-cdx-session-config-cancel", "");
+    modal.querySelector(".viewer-themed-modal__close")?.setAttribute("data-viewer-cdx-session-config-cancel", "");
+    const body = modal.querySelector(".viewer-themed-modal__body");
+    if (body instanceof HTMLElement) {
+      body.innerHTML = `
+        <label class="viewer-themed-modal__field">
+          <span class="viewer-themed-modal__label">Model</span>
+          <input class="viewer-themed-modal__input" data-viewer-cdx-session-config-input="model" type="text" value="${escapeHtml(model)}" placeholder="Default session model">
+        </label>
+        <label class="viewer-themed-modal__field">
+          <span class="viewer-themed-modal__label">Reasoning</span>
+          <select class="viewer-themed-modal__select" data-viewer-cdx-session-config-input="reasoningEffort">${optionRows(reasoningEffort)}</select>
+        </label>
+        <label class="viewer-themed-modal__field">
+          <span class="viewer-themed-modal__label">Power</span>
+          <select class="viewer-themed-modal__select" data-viewer-cdx-session-config-input="power">${optionRows(power)}</select>
+        </label>
+      `;
+    }
+    modal.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeThemedModal(modal);
+      if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) applyCdxSessionConfigModal(modal);
+    });
+    window.setTimeout(() => {
+      const firstInput = modal.querySelector("[data-viewer-cdx-session-config-input]");
+      if (firstInput instanceof HTMLElement) {
+        firstInput.focus();
+      }
+    }, 0);
+  }
+
+  function applyCdxSessionConfigModal(modal) {
+    if (!(modal instanceof HTMLElement)) {
+      return;
+    }
+    updateCdxSessionConfigFromModal(modal);
+    closeThemedModal(modal);
+  }
+
+  function updateCdxSessionConfigFromModal(modal) {
+    if (!(modal instanceof HTMLElement)) {
+      return;
+    }
+    const sessionName = modal.getAttribute("data-viewer-cdx-session-config-modal") || "";
+    if (!sessionName) {
+      return;
+    }
+    const valueFor = (key) => {
+      const control = modal.querySelector(`[data-viewer-cdx-session-config-input="${key}"]`);
+      return typeof control?.value === "string" ? control.value || "" : "";
+    };
+    latestCdxMissionState.sessionId = sessionName;
+    latestCdxMissionState.missionInputs.model = valueFor("model");
+    latestCdxMissionState.missionInputs.reasoningEffort = valueFor("reasoningEffort") || "medium";
+    latestCdxMissionState.missionInputs.power = valueFor("power") || "medium";
+    latestCdxMissionState.planPayload = null;
+    latestCdxMissionState.runPayload = null;
+    latestCdxMissionState.applyPayload = null;
+    latestCdxMissionState.outputMode = "plan";
+    latestCdxMissionState.promptOverride = "";
+    setMeta(`CDX config updated for ${sessionName}.`);
   }
 
   function renderCdxMissionSetup(statusPayload, planPayload, runPayload, applyPayload) {
@@ -9259,6 +9344,7 @@
     }
     document.addEventListener("change", (event) => {
       const sessionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session]") : null;
+      const cdxSessionConfigInputTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-config-input]") : null;
       const cdxInputTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-input]") : null;
       const cdxRunModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-run-mode]") : null;
       const cdxPromptTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-prompt]") : null;
@@ -9272,6 +9358,10 @@
         // Store the operator-edited prompt without resetting the plan so the
         // edit survives until the next Preview or Launch run.
         latestCdxMissionState.promptOverride = cdxPromptTarget.value || "";
+        return;
+      }
+      if (cdxSessionConfigInputTarget instanceof HTMLElement) {
+        updateCdxSessionConfigFromModal(cdxSessionConfigInputTarget.closest("[data-viewer-cdx-session-config-modal]"));
         return;
       }
       if (cdxRunModeTarget instanceof HTMLSelectElement) {
@@ -9456,6 +9546,8 @@
       const cdxMissionOutputTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mission-output]") : null;
       const cdxToggleTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-toggle]") : null;
       const cdxSessionActionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-action]") : null;
+      const cdxSessionConfigSubmitTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-config-submit]") : null;
+      const cdxSessionConfigCancelTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-config-cancel]") : null;
       const cdxLoginTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-login]") : null;
       const navTarget = event.target instanceof Element ? event.target.closest("[data-viewer-nav-target]") : null;
       const onboardingActionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-onboarding-action]") : null;
@@ -9518,6 +9610,17 @@
         });
         return;
       }
+      if (cdxSessionConfigSubmitTarget instanceof HTMLElement) {
+        event.preventDefault();
+        const modal = cdxSessionConfigSubmitTarget.closest("[data-viewer-cdx-session-config-modal]");
+        applyCdxSessionConfigModal(modal);
+        return;
+      }
+      if (cdxSessionConfigCancelTarget instanceof HTMLElement) {
+        event.preventDefault();
+        closeThemedModal(cdxSessionConfigCancelTarget.closest("[data-viewer-cdx-session-config-modal]"));
+        return;
+      }
       if (ciModeTarget instanceof HTMLElement) {
         const mode = ciModeTarget.getAttribute("data-viewer-ci-mode") || "git";
         if (mode === "release") {
@@ -9538,7 +9641,9 @@
         if (!sessionName) {
           return;
         }
-        if (action === "resume") {
+        if (action === "config") {
+          showCdxSessionConfigModal(sessionName);
+        } else if (action === "resume") {
           spawnWorkshopTerminal({ command: ["cdx", "resume", sessionName], label: `cdx resume ${sessionName}` });
         } else if (action === "handoff" && handoffSource) {
           spawnWorkshopTerminal({ command: ["cdx", "handoff", handoffSource, sessionName], label: `cdx handoff ${handoffSource} ${sessionName}` });

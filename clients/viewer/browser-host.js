@@ -3019,6 +3019,7 @@
       nav.hidden = true;
       return;
     }
+    tablist.closest(".viewer-workshop, .viewer-cdx")?.classList.add("viewer-screen-tabs-external");
     nav.appendChild(tablist);
     nav.hidden = false;
   }

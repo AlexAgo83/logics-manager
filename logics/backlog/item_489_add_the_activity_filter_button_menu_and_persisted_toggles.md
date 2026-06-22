@@ -1,10 +1,10 @@
 ## item_489_add_the_activity_filter_button_menu_and_persisted_toggles - Add the activity filter button, menu, and persisted toggles
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100
 > Complexity: Medium
 > Theme: Viewer activity
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -52,3 +52,6 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Notes
+- Done (browser viewer surface): activity filter button + popover (Git events/CI events, default on) placed in clients/viewer/index.html toolbar next to +New, shown only in activity view (body.viewer-screen-activity). Menu hidden by default (CSS [hidden] fix). Wired in shared webviewChrome.js (toolbar button, not panel header); activityShowGit/activityShowCi persisted; filter governs only git/ci event entries. Note: the recent-activity render stack is shared by the browser viewer AND the VS Code webview; the button HTML currently lives in the browser viewer (what the operator uses). 682 vitest.

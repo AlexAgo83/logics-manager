@@ -5352,6 +5352,29 @@ def main(argv: list[str]) -> int:
     if args.open and not args.no_open:
         webbrowser.open(url)
 
+    # Install explicit shutdown handlers so the server stops cleanly on
+    # SIGINT (Ctrl+C) and SIGTERM (kill). Relying solely on serve_forever()
+    # raising KeyboardInterrupt is fragile: when the process is launched in
+    # the background or via a wrapper (node/cdx launcher, nohup, &), it
+    # inherits SIGINT as SIG_IGN, so Python never installs its default
+    # handler, KeyboardInterrupt is never raised, and Ctrl+C appears to
+    # freeze. Setting the handler here overrides any inherited SIG_IGN and
+    # turns SIGTERM into a graceful shutdown (closing workshop terminals)
+    # instead of an abrupt kill. shutdown() must run off the serve_forever
+    # thread, so dispatch it to a short-lived thread.
+    import signal as _signal
+
+    def _request_shutdown(_signum: int, _frame: Any) -> None:
+        threading.Thread(target=server.shutdown, daemon=True).start()
+
+    for _sig in (_signal.SIGINT, _signal.SIGTERM):
+        try:
+            _signal.signal(_sig, _request_shutdown)
+        except (ValueError, OSError):
+            # Not in the main thread or signal unavailable on this platform;
+            # fall back to the KeyboardInterrupt path below.
+            pass
+
     interrupted = False
     try:
         server.serve_forever()

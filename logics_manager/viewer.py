@@ -619,6 +619,108 @@ def viewer_project_registry(repo_root: Path, *, project_roots: list[Path] | None
     return [viewer_project_entry(root, active_root=active) for root in roots]
 
 
+# --- Dev-only demo corpus -------------------------------------------------
+# A synthetic project the project switcher can offer in a dev checkout, so the
+# board can be inspected against every card state (stages, statuses, progress
+# fills, done-dimming, promotion, and each attention/health signal) without a
+# real corpus. Generated into a temp dir; never shipped in the pip package.
+DEMO_PROJECT_DIRNAME = "logics-manager-demo-corpus"
+DEMO_PROJECT_NAME = "✨ Demo board (all states)"
+
+
+def _is_dev_checkout() -> bool:
+    return (REPO_ROOT / "clients" / "shared-web" / "media").is_dir()
+
+
+def demo_corpus_root() -> Path:
+    import tempfile
+
+    return Path(tempfile.gettempdir()) / DEMO_PROJECT_DIRNAME
+
+
+def _demo_doc(
+    doc_id: str,
+    title: str,
+    status: str,
+    progress: int | None,
+    *,
+    backlog: list[str] | None = None,
+    references: list[str] | None = None,
+    related: list[tuple[str, str]] | None = None,
+) -> str:
+    lines = [
+        f"## {doc_id} - {title}",
+        "> From version: 0.0.0-demo",
+        f"> Status: {status}",
+    ]
+    if progress is not None:
+        lines.append(f"> Progress: {progress}")
+    lines += [
+        "> Understanding: 80",
+        "> Confidence: 75",
+        "> Complexity: Medium",
+        "> Theme: Demo",
+    ]
+    for key, ref in related or []:
+        lines.append(f"> {key}: `{ref}`")
+    lines += ["", "# Overview", f"- Demo fixture for the **{status}** state."]
+    if backlog:
+        lines += ["", "# Backlog", *[f"- `{ref}`" for ref in backlog]]
+    if references:
+        lines += ["", "# References", *[f"- `{ref}`" for ref in references]]
+    return "\n".join(lines) + "\n"
+
+
+def _demo_corpus_docs() -> list[tuple[str, str]]:
+    # Two clean chains (active + done) plus standalone cards that each trigger a
+    # distinct status / progress / attention state.
+    return [
+        # Clean active chain (teal progress fills, promoted request + usedBy).
+        ("logics/request/req_demo_auth_login.md", _demo_doc("req_demo_auth_login", "Sign-in with passkeys", "In progress", 80, backlog=["item_demo_auth_login"])),
+        ("logics/backlog/item_demo_auth_login.md", _demo_doc("item_demo_auth_login", "Passkey ceremony slice", "In progress", 60, references=["req_demo_auth_login"])),
+        ("logics/tasks/task_demo_auth_login.md", _demo_doc("task_demo_auth_login", "Wire the passkey endpoint", "In progress", 35, references=["item_demo_auth_login"])),
+        # Done chain (green + dimmed).
+        ("logics/request/req_demo_export.md", _demo_doc("req_demo_export", "CSV data export", "Done", 100, backlog=["item_demo_export"])),
+        ("logics/backlog/item_demo_export.md", _demo_doc("item_demo_export", "Export streaming writer", "Done", 100, references=["req_demo_export"])),
+        ("logics/tasks/task_demo_export.md", _demo_doc("task_demo_export", "Stream rows to the client", "Done", 100, references=["item_demo_export"])),
+        # Standalone state / attention cards.
+        ("logics/request/req_demo_draft.md", _demo_doc("req_demo_draft", "Offline mode (idea)", "Draft", 0, backlog=["item_demo_ready"])),
+        ("logics/request/req_demo_blocked.md", _demo_doc("req_demo_blocked", "Third-party SSO", "Blocked", 40, backlog=["item_demo_blocked"])),
+        ("logics/request/req_demo_mismatch.md", _demo_doc("req_demo_mismatch", "Search re-index", "In progress", 100, backlog=["item_demo_ready"])),
+        ("logics/request/req_demo_unpromoted.md", _demo_doc("req_demo_unpromoted", "Dark theme polish", "Ready", 10)),
+        ("logics/backlog/item_demo_ready.md", _demo_doc("item_demo_ready", "Ready-to-start slice", "Ready", 0, references=["req_demo_draft"])),
+        ("logics/backlog/item_demo_blocked.md", _demo_doc("item_demo_blocked", "Blocked on vendor API", "Blocked", 50, references=["req_demo_blocked"])),
+        ("logics/tasks/task_demo_ready.md", _demo_doc("task_demo_ready", "Queued implementation task", "Ready", 0)),
+        # Supporting docs: one linked (clean), one orphaned (attention).
+        ("logics/product/prod_demo_linked.md", _demo_doc("prod_demo_linked", "Auth product brief", "Settled", None, related=[("Related backlog", "item_demo_auth_login")])),
+        ("logics/product/prod_demo_orphan.md", _demo_doc("prod_demo_orphan", "Unlinked product brief", "Proposed", None)),
+        ("logics/architecture/adr_demo_linked.md", _demo_doc("adr_demo_linked", "Passkey storage decision", "Accepted", None, related=[("Related task", "task_demo_auth_login")])),
+        ("logics/specs/spec_demo_auth.md", _demo_doc("spec_demo_auth", "Passkey ceremony spec", "Validated", None, references=["req_demo_auth_login"])),
+    ]
+
+
+def ensure_demo_corpus(root: Path) -> Path:
+    """(Re)write the synthetic demo corpus under ``root`` and return it resolved."""
+    logics_dir = root / "logics"
+    if logics_dir.exists():
+        shutil.rmtree(logics_dir, ignore_errors=True)
+    for rel_path, content in _demo_corpus_docs():
+        target = root / rel_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(content, encoding="utf-8")
+    return root.resolve()
+
+
+def ensure_demo_corpus_if_dev() -> Path | None:
+    """In a dev checkout, materialize the demo corpus and return its root."""
+    if not _is_dev_checkout():
+        return None
+    try:
+        return ensure_demo_corpus(demo_corpus_root())
+    except OSError:
+        return None
+
+
 def _viewer_capability(state: str, *, available: bool, message: str, detail: dict[str, Any] | None = None) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "state": state,
@@ -3853,6 +3955,10 @@ class LogicsViewerServer(ThreadingHTTPServer):
     ):
         self.launch_repo_root = repo_root.resolve()
         self.project_roots = discover_viewer_project_roots(self.launch_repo_root)
+        # Dev-only: offer a synthetic "all states" board in the project switcher.
+        self.demo_project_root = ensure_demo_corpus_if_dev()
+        if self.demo_project_root is not None and self.demo_project_root not in self.project_roots:
+            self.project_roots.append(self.demo_project_root)
         self.project_root_by_id = {_viewer_project_id(root): root.resolve() for root in self.project_roots}
         self.active_project_id = _viewer_project_id(self.launch_repo_root)
         self.repo_root = self.launch_repo_root
@@ -3900,7 +4006,14 @@ class LogicsViewerServer(ThreadingHTTPServer):
                 super().server_close()
 
     def project_registry_payload(self) -> list[dict[str, Any]]:
-        return viewer_project_registry(self.repo_root, project_roots=self.project_roots)
+        registry = viewer_project_registry(self.repo_root, project_roots=self.project_roots)
+        if self.demo_project_root is not None:
+            demo_id = _viewer_project_id(self.demo_project_root)
+            for entry in registry:
+                if entry.get("id") == demo_id:
+                    entry["name"] = DEMO_PROJECT_NAME
+                    entry["message"] = "Synthetic dev-only corpus covering every board card state."
+        return registry
 
     def status_component(self, name: str, producer: Any) -> Any:
         """Return a status component payload, recomputing at most once per TTL.

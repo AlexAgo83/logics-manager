@@ -45,20 +45,7 @@ if (checkOnly) {
 }
 
 function buildSource(relEntry) {
-  const entry = path.join(repoRoot, relEntry);
-  const sourceRoot = path.dirname(entry);
-  return readPartManifest(entry)
-    .map((partPath) => readFileSync(path.join(sourceRoot, partPath), "utf8"))
-    .join("");
-}
-
-function readPartManifest(entry) {
-  const source = readFileSync(entry, "utf8");
-  const match = source.match(/webviewPartFiles\s*=\s*\[([\s\S]*?)\]/);
-  if (!match) {
-    throw new Error(`Missing webviewPartFiles manifest in ${path.relative(repoRoot, entry)}`);
-  }
-  return Array.from(match[1].matchAll(/"([^"]+)"/g), (partMatch) => partMatch[1]);
+  return readFileSync(path.join(repoRoot, relEntry), "utf8");
 }
 
 function hash(value) {

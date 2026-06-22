@@ -1,10 +1,10 @@
 ## item_485_replace_js_part_glue_manifests_with_real_es_modules - Replace JS part-glue manifests with real ES modules
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100
 > Complexity: Medium
 > Theme: Frontend decomposition
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -51,3 +51,6 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Notes
+- Done: browser-host/_01.._23, render-board-app/_01.._03, main-app/_01.._03 concatenated into each index.js; parts/ removed. browser-host built directly by esbuild (banner stripped in normalizeBundle); webview-media reads index.js directly. Regex manifests + readFileSync.join removed. Bundles byte-identical; 681 vitest pass.

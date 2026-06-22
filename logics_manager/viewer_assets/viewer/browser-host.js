@@ -5195,6 +5195,18 @@
       try { fitAddon.fit(); } catch { /* noop */ }
     }
     term.attachCustomKeyEventHandler((ev) => {
+      if (ev.type === "keydown" && ev.ctrlKey && !ev.metaKey && !ev.altKey && !ev.shiftKey && (ev.key === "c" || ev.key === "C")) {
+        // Ctrl+C must always interrupt the foreground process. When an app
+        // (Claude/Codex) enables the kitty keyboard protocol and exits without
+        // restoring it, xterm would otherwise emit a CSI-u sequence instead of
+        // the legacy ETX byte, so the program never receives SIGINT and Ctrl+C
+        // appears to hang. Force the classic \x03 so the PTY always raises
+        // SIGINT regardless of the terminal's current keyboard mode.
+        if (typeof ev.preventDefault === "function") ev.preventDefault();
+        if (typeof ev.stopPropagation === "function") ev.stopPropagation();
+        writeWorkshopTerminalInput(entry.id, "\x03");
+        return false;
+      }
       if (ev.type === "keydown" && ev.key === "Enter" && ev.shiftKey && !ev.ctrlKey && !ev.altKey && !ev.metaKey) {
         // Insert a newline instead of submitting. Claude and Codex enable the
         // kitty keyboard protocol and expect Shift+Enter as a CSI-u key event

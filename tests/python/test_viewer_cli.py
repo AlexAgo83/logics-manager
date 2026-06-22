@@ -2861,11 +2861,81 @@ def test_viewer_main_stops_cleanly_on_keyboard_interrupt(
 
     captured = capsys.readouterr()
     assert exit_code == 0
-    assert "Logics viewer running:" in captured.out
+    assert "Logics viewer running" in captured.out
     assert "Local: http://127.0.0.1:8765" in captured.out
     assert "focus=logics%2Frequest%2Freq_001_demo.md&read=1" in captured.out
     assert opened == ["http://127.0.0.1:8765?focus=logics%2Frequest%2Freq_001_demo.md&read=1"]
     assert fake_server.closed is True
+
+
+def test_viewer_start_status_includes_version() -> None:
+    status = viewer_module.render_start_status(
+        "http://127.0.0.1:8765", Path("/repo/demo"), version="9.9.9"
+    )
+
+    assert status.splitlines()[0] == "Logics viewer running (v9.9.9):"
+
+
+def test_viewer_main_aborts_without_corpus_when_declined(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    created: list[object] = []
+    monkeypatch.setattr(viewer_module, "find_repo_root", lambda _cwd: tmp_path)
+    monkeypatch.setattr(
+        viewer_module,
+        "create_viewer_server",
+        lambda *_a, **_k: created.append(object()),
+    )
+    monkeypatch.setattr(viewer_module.sys.stdin, "isatty", lambda: True)
+    monkeypatch.setattr("builtins.input", lambda _prompt="": "n")
+
+    exit_code = viewer_module.main(["--host", "127.0.0.1", "--port", "8765"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "No Logics corpus" in captured.out
+    assert created == []  # server never started
+
+
+def test_viewer_main_proceeds_without_corpus_when_yes_flag(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    class FakeViewerServer:
+        server_address = ("127.0.0.1", 8765)
+        tls_enabled = False
+        url_scheme = "http"
+        lan_token = ""
+        lan_rw_mode = False
+        restart_requested = False
+
+        def serve_forever(self) -> None:
+            raise KeyboardInterrupt
+
+        def server_close(self) -> None:
+            return
+
+    created: list[object] = []
+
+    def _factory(_repo_root: Path, host: str, port: int, **_kwargs: object) -> FakeViewerServer:
+        server = FakeViewerServer()
+        created.append(server)
+        return server
+
+    monkeypatch.setattr(viewer_module, "find_repo_root", lambda _cwd: tmp_path)
+    monkeypatch.setattr(viewer_module, "create_viewer_server", _factory)
+    # --yes must skip the prompt even when a TTY is attached.
+    monkeypatch.setattr(viewer_module.sys.stdin, "isatty", lambda: True)
+
+    def _no_prompt(_prompt: str = "") -> str:
+        raise AssertionError("prompt should be skipped with --yes")
+
+    monkeypatch.setattr("builtins.input", _no_prompt)
+
+    assert viewer_module.main(["--host", "127.0.0.1", "--port", "8765", "--yes"]) == 0
+    assert len(created) == 1  # server started despite missing corpus
 
 
 def test_viewer_main_ignores_repeated_keyboard_interrupt_during_close(

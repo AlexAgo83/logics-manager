@@ -31,6 +31,7 @@ function createViewerDom(options: {
   cdxRemoveResponse?: { ok: boolean; status?: number; body?: unknown };
   cdxToggleGate?: Promise<void>;
   cdxToggleResponse?: { ok: boolean; status?: number; body?: unknown };
+  cdxImportBodies?: Array<Record<string, unknown>>;
   cdxRunsResponse?: { state: string; message: string; runs: Array<Record<string, unknown>> };
   cdxHistoryResponse?: { state: string; message: string; history: Array<Record<string, unknown>> };
   cdxResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
@@ -813,6 +814,14 @@ function createViewerDom(options: {
           ok: options.cdxRemoveResponse?.ok ?? true,
           status: options.cdxRemoveResponse?.status ?? (options.cdxRemoveResponse?.ok === false ? 500 : 200),
           json: async () => options.cdxRemoveResponse?.body ?? { ok: true, payload: { message: "Remove complete." } }
+        };
+      }
+      if (url === "/api/cdx-import") {
+        options.cdxImportBodies?.push(JSON.parse(String(fetchOptions?.body || "{}")));
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ ok: true, payload: { message: "Import complete." } })
         };
       }
       if (url === "/api/cdx-toggle") {
@@ -5353,6 +5362,87 @@ describe("local viewer browser host", () => {
     expect(JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "null")?.cdxStatusProviders).toMatchObject({
       mode: "all",
       selected: []
+    });
+  });
+
+  it("keeps CDX status menus open while changing filter and config options", async () => {
+    const { dom } = createViewerDom({ cdxResponse: cdxRowsStatusPayload() });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    const provider = dom.window.document.querySelector('[data-viewer-cdx-provider="claude"]') as HTMLInputElement | null;
+    const providerMenu = provider?.closest(".viewer-cdx__menu") as HTMLDetailsElement | null;
+    expect(providerMenu).toBeTruthy();
+    providerMenu!.open = true;
+    provider!.checked = false;
+    provider?.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    await flushViewerAsync();
+
+    const restoredProviderMenu = dom.window.document
+      .querySelector('.viewer-cdx__menu-panel[aria-label="CDX provider filter"]')
+      ?.closest(".viewer-cdx__menu") as HTMLDetailsElement | null;
+    expect(restoredProviderMenu?.open).toBe(true);
+
+    const blockColumn = dom.window.document.querySelector('[data-viewer-cdx-column="block"]') as HTMLInputElement | null;
+    const columnMenu = blockColumn?.closest(".viewer-cdx__menu") as HTMLDetailsElement | null;
+    expect(columnMenu).toBeTruthy();
+    columnMenu!.open = true;
+    blockColumn!.checked = true;
+    blockColumn?.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    await flushViewerAsync();
+
+    const restoredColumnMenu = dom.window.document
+      .querySelector('.viewer-cdx__menu-panel[aria-label="CDX status columns"]')
+      ?.closest(".viewer-cdx__menu") as HTMLDetailsElement | null;
+    expect(restoredColumnMenu?.open).toBe(true);
+  });
+
+  it("sends force overwrite when importing CDX accounts with Force enabled", async () => {
+    const { dom, fetchCalls } = createViewerDom({ cdxResponse: cdxRowsStatusPayload() });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    class MockFileReader {
+      result = "";
+      onload: null | (() => void) = null;
+      onerror: null | (() => void) = null;
+      readAsDataURL() {
+        this.result = "data:application/octet-stream;base64,Y2R4";
+        this.onload?.();
+      }
+    }
+    (dom.window as unknown as { FileReader: typeof MockFileReader }).FileReader = MockFileReader;
+
+    const fileInput = dom.window.document.getElementById("viewer-cdx-import-file") as HTMLInputElement | null;
+    Object.defineProperty(fileInput, "files", {
+      configurable: true,
+      value: [{ name: "accounts.cdx" }]
+    });
+    const force = dom.window.document.getElementById("viewer-cdx-import-force") as HTMLInputElement | null;
+    const merge = dom.window.document.getElementById("viewer-cdx-import-merge") as HTMLInputElement | null;
+    const importButton = dom.window.document.getElementById("viewer-cdx-import-btn") as HTMLButtonElement | null;
+
+    expect(force).toBeTruthy();
+    force!.checked = true;
+    expect(merge?.checked).toBe(true);
+    importButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const importCall = fetchCalls.find((call) => call.url === "/api/cdx-import");
+    expect(importCall).toBeTruthy();
+    expect(JSON.parse(String(importCall?.options?.body || "{}"))).toMatchObject({
+      fileBase64: "Y2R4",
+      merge: true,
+      force: true
     });
   });
 

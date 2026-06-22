@@ -24,7 +24,6 @@ const allowedOversizedFiles = new Map(
     "clients/vscode/src/logicsCorpusInsightsHtml.ts": { maxLines: 1114, ref: "unplanned-current" },
     "logics_manager/assist_support.py": { maxLines: 1496, ref: "item_477" },
     "logics_manager/audit.py": { maxLines: 1089, ref: "item_477" },
-    "logics_manager/flow.py": { maxLines: 4165, ref: "item_475" },
     "logics_manager/mcp.py": { maxLines: 1601, ref: "item_477" },
     "logics_manager/release.py": { maxLines: 1020, ref: "item_477" },
     "logics_manager/sync.py": { maxLines: 1468, ref: "item_477" },

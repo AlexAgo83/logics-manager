@@ -227,6 +227,11 @@
         return true;
       });
       const visibleEntries = entries.slice(0, visibleActivityLimit);
+      // Preserve the feed scroll position across re-renders (auto-refresh, filter
+      // toggles, "show next"): the list is rebuilt from scratch each time, which
+      // would otherwise snap the user back to the top mid-read.
+      const previousList = activityPanel.querySelector(".activity-panel__list");
+      const previousScrollTop = previousList ? previousList.scrollTop : 0;
       activityPanel.innerHTML = "";
 
       const header = document.createElement("div");
@@ -328,6 +333,10 @@
       }
 
       activityPanel.appendChild(list);
+      if (previousScrollTop > 0) {
+        // Clamp happens automatically: assigning beyond scrollHeight settles at max.
+        list.scrollTop = previousScrollTop;
+      }
     }
 
     function renderHelpBanner() {

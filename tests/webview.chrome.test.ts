@@ -330,6 +330,31 @@ describe("webview chrome toolbar and filter behavior", () => {
     expect(dom.window.document.getElementById("activity-toggle")?.getAttribute("aria-pressed")).toBe("true");
   });
 
+  it("preserves the activity feed scroll position across re-renders", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const list = dom.window.document.querySelector(".activity-panel__list") as HTMLElement | null;
+    expect(list).toBeTruthy();
+    if (list) {
+      list.scrollTop = 120;
+    }
+
+    // An auto-refresh re-pushes the same payload; the feed must not snap to the top.
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const nextList = dom.window.document.querySelector(".activity-panel__list") as HTMLElement | null;
+    expect(nextList).toBeTruthy();
+    expect(nextList?.scrollTop).toBe(120);
+  });
+
   it("posts assist actions in non-harness mode", () => {
     const { dom, postedMessages } = bootstrapWebview();
 

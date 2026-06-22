@@ -60,6 +60,7 @@
 | [prod_022_cdx_status_cockpit_for_the_local_viewer](product/prod_022_cdx_status_cockpit_for_the_local_viewer.md) | CDX status cockpit for the local viewer | Settled |  | product/prod_022_cdx_status_cockpit_for_the_local_viewer.md |
 | [prod_023_agent_authored_logics_workflow_scaffolding_and_validation](product/prod_023_agent_authored_logics_workflow_scaffolding_and_validation.md) | Agent-authored Logics workflow scaffolding and validation | Settled |  | product/prod_023_agent_authored_logics_workflow_scaffolding_and_validation.md |
 | [prod_024_project_audit_remediation_plan](product/prod_024_project_audit_remediation_plan.md) | Project audit remediation plan | Settled |  | product/prod_024_project_audit_remediation_plan.md |
+| [prod_025_oversized_source_modularization](product/prod_025_oversized_source_modularization.md) | Oversized source modularization | Proposed |  | product/prod_025_oversized_source_modularization.md |
 
 ## Requests
 
@@ -333,6 +334,7 @@
 | [req_267_add_favorite_projects_in_the_project_selector](request/req_267_add_favorite_projects_in_the_project_selector.md) | Add favorite projects in the project selector | Done |  | request/req_267_add_favorite_projects_in_the_project_selector.md |
 | [req_268_add_editable_permission_column_to_the_status_table](request/req_268_add_editable_permission_column_to_the_status_table.md) | Add editable Permission column to the status table | Done |  | request/req_268_add_editable_permission_column_to_the_status_table.md |
 | [req_269_add_session_config_action_before_remove](request/req_269_add_session_config_action_before_remove.md) | Add session Config action before Remove | Done |  | request/req_269_add_session_config_action_before_remove.md |
+| [req_270_modularize_oversized_source_files_across_the_codebase](request/req_270_modularize_oversized_source_files_across_the_codebase.md) | Modularize oversized source files across the codebase | Draft |  | request/req_270_modularize_oversized_source_files_across_the_codebase.md |
 
 ## Backlog
 
@@ -811,6 +813,12 @@
 | [item_471_add_favorite_projects_in_the_project_selector](backlog/item_471_add_favorite_projects_in_the_project_selector.md) | Add favorite projects in the project selector | Done | 100% | backlog/item_471_add_favorite_projects_in_the_project_selector.md |
 | [item_472_add_session_config_action_before_remove](backlog/item_472_add_session_config_action_before_remove.md) | Add session Config action before Remove | Done | 100% | backlog/item_472_add_session_config_action_before_remove.md |
 | [item_473_add_editable_permission_column_to_the_status_table](backlog/item_473_add_editable_permission_column_to_the_status_table.md) | Add editable Permission column to the status table | Done | 100% | backlog/item_473_add_editable_permission_column_to_the_status_table.md |
+| [item_474_establish_modularization_guardrails_and_viewer_esbuild_bundle_pipeline](backlog/item_474_establish_modularization_guardrails_and_viewer_esbuild_bundle_pipeline.md) | Establish modularization guardrails and viewer esbuild bundle pipeline | Ready | 0% | backlog/item_474_establish_modularization_guardrails_and_viewer_esbuild_bundle_pipeline.md |
+| [item_475_split_flow_py_into_a_flow_package_by_responsibility](backlog/item_475_split_flow_py_into_a_flow_package_by_responsibility.md) | Split flow.py into a flow package by responsibility | Ready | 0% | backlog/item_475_split_flow_py_into_a_flow_package_by_responsibility.md |
+| [item_476_split_viewer_py_into_a_viewer_package_by_responsibility](backlog/item_476_split_viewer_py_into_a_viewer_package_by_responsibility.md) | Split viewer.py into a viewer package by responsibility | Ready | 0% | backlog/item_476_split_viewer_py_into_a_viewer_package_by_responsibility.md |
+| [item_477_modularize_the_remaining_oversized_python_modules](backlog/item_477_modularize_the_remaining_oversized_python_modules.md) | Modularize the remaining oversized Python modules | Ready | 0% | backlog/item_477_modularize_the_remaining_oversized_python_modules.md |
+| [item_478_convert_browser_host_js_into_bundled_es_modules](backlog/item_478_convert_browser_host_js_into_bundled_es_modules.md) | Convert browser-host.js into bundled ES modules | Ready | 0% | backlog/item_478_convert_browser_host_js_into_bundled_es_modules.md |
+| [item_479_modularize_webview_scripts_renderboardapp_js_and_mainapp_js](backlog/item_479_modularize_webview_scripts_renderboardapp_js_and_mainapp_js.md) | Modularize webview scripts renderBoardApp.js and mainApp.js | Ready | 0% | backlog/item_479_modularize_webview_scripts_renderboardapp_js_and_mainapp_js.md |
 
 ## Tasks
 
@@ -1076,3 +1084,4 @@
 | [task_264_add_favorite_projects_in_the_project_selector](tasks/task_264_add_favorite_projects_in_the_project_selector.md) | Add favorite projects in the project selector | Done | 100% | tasks/task_264_add_favorite_projects_in_the_project_selector.md |
 | [task_265_add_session_config_action_before_remove](tasks/task_265_add_session_config_action_before_remove.md) | Add session Config action before Remove | Done | 100% | tasks/task_265_add_session_config_action_before_remove.md |
 | [task_266_add_editable_permission_column_to_the_status_table](tasks/task_266_add_editable_permission_column_to_the_status_table.md) | Add editable Permission column to the status table | Done | 100% | tasks/task_266_add_editable_permission_column_to_the_status_table.md |
+| [task_267_orchestrate_the_oversized_source_modularization_program](tasks/task_267_orchestrate_the_oversized_source_modularization_program.md) | Orchestrate the oversized-source modularization program | Ready | 0% | tasks/task_267_orchestrate_the_oversized_source_modularization_program.md |

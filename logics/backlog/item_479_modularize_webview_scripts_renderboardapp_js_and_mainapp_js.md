@@ -1,0 +1,51 @@
+## item_479_modularize_webview_scripts_renderboardapp_js_and_mainapp_js - Modularize webview scripts renderBoardApp.js and mainApp.js
+> From version: 2.12.7
+> Schema version: 1.0
+> Status: Ready
+> Understanding: 90%
+> Confidence: 85%
+> Progress: 0%
+> Complexity: Medium
+> Theme: Frontend decomposition
+> Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+
+# Problem
+- renderBoardApp.js (1333) and mainApp.js (1005) under clients/shared-web/media exceed the budget and are duplicated into viewer_assets via the sync pipeline.
+
+# Scope
+- In:
+  - Split each webview script into ES modules and bundle them with esbuild
+  - Keep the shared-web -> viewer_assets sync producing identical artifacts
+- Out:
+  - browser-host.js (handled by a sibling slice)
+  - Behavior or rendered-output changes
+
+# Acceptance criteria
+- AC1: Resulting webview source modules each target under 500 lines.
+- AC2: tests/webview.board-renderer.test.ts and related webview tests pass unchanged.
+- AC5: Bundled webview artifacts remain byte-stable through the sync pipeline.
+
+# AC Traceability
+- request-AC1 -> This backlog slice. Proof: AC1: Resulting webview source modules each target under 500 lines.
+- request-AC2 -> This backlog slice. Proof: AC2: tests/webview.board-renderer.test.ts and related webview tests pass unchanged.
+- request-AC5 -> This backlog slice. Proof: AC5: Bundled webview artifacts remain byte-stable through the sync pipeline.
+
+# Decision framing
+- Product framing: Not needed
+- Architecture framing: Not needed
+
+# Links
+- Product brief(s): `prod_025_oversized_source_modularization`
+- Architecture decision(s): (none yet)
+- Request: `req_270_modularize_oversized_source_files_across_the_codebase`
+- Primary task(s): `task_267_orchestrate_the_oversized_source_modularization_program`
+
+# AI Context
+- Summary: Modularize webview scripts renderBoardApp.js and mainApp.js
+- Keywords: scaffolded-backlog, modularize webview scripts renderboardapp.js and mainapp.js, implementation-ready
+- Use when: Implementing the scaffolded slice for Modularize webview scripts renderBoardApp.js and mainApp.js.
+- Skip when: The change belongs to another backlog slice.
+
+# Priority
+- Impact: High
+- Urgency: Medium

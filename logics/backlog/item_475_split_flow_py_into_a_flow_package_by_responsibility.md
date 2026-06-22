@@ -1,0 +1,52 @@
+## item_475_split_flow_py_into_a_flow_package_by_responsibility - Split flow.py into a flow package by responsibility
+> From version: 2.12.7
+> Schema version: 1.0
+> Status: Ready
+> Understanding: 90%
+> Confidence: 85%
+> Progress: 0%
+> Complexity: Medium
+> Theme: Python decomposition
+> Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+
+# Problem
+- logics_manager/flow.py is 4165 lines mixing help text, listing, doc building, closeout repairs, and CLI wiring.
+
+# Scope
+- In:
+  - Extract all _build_*_help functions into flow/help.py as the lowest-risk first move (~530 lines)
+  - Split listing, PlannedDoc/native-doc builders, closeout/repair, and argparse wiring into flow/ submodules
+  - Keep logics_manager/flow.py (or flow/__init__.py) as a thin facade re-exporting the existing public API
+- Out:
+  - Changing CLI flags, command names, or output formats
+  - Other Python modules
+
+# Acceptance criteria
+- AC1: flow becomes a package whose modules each target under 500 lines.
+- AC2: Public imports of logics_manager.flow continue to resolve unchanged.
+- AC3: tests/python/test_cli_main.py and flow-related tests pass unchanged.
+
+# AC Traceability
+- request-AC1 -> This backlog slice. Proof: AC1: flow becomes a package whose modules each target under 500 lines.
+- request-AC2 -> This backlog slice. Proof: AC2: Public imports of logics_manager.flow continue to resolve unchanged.
+- request-AC3 -> This backlog slice. Proof: AC3: tests/python/test_cli_main.py and flow-related tests pass unchanged.
+
+# Decision framing
+- Product framing: Not needed
+- Architecture framing: Not needed
+
+# Links
+- Product brief(s): `prod_025_oversized_source_modularization`
+- Architecture decision(s): (none yet)
+- Request: `req_270_modularize_oversized_source_files_across_the_codebase`
+- Primary task(s): `task_267_orchestrate_the_oversized_source_modularization_program`
+
+# AI Context
+- Summary: Split flow.py into a flow package by responsibility
+- Keywords: scaffolded-backlog, split flow.py into a flow package by responsibility, implementation-ready
+- Use when: Implementing the scaffolded slice for Split flow.py into a flow package by responsibility.
+- Skip when: The change belongs to another backlog slice.
+
+# Priority
+- Impact: High
+- Urgency: Medium

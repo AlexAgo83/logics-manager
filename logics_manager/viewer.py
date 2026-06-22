@@ -5155,6 +5155,136 @@ def _build_tls_context(cert_path: Path, key_path: Path) -> ssl.SSLContext:
     return context
 
 
+_ANSI = {
+    "reset": "\033[0m",
+    "bold": "\033[1m",
+    "dim": "\033[2m",
+    "cyan": "\033[36m",
+    "green": "\033[32m",
+    "yellow": "\033[33m",
+    "red": "\033[31m",
+}
+
+
+def _supports_banner_style() -> bool:
+    """True when the start banner should be rendered with box + ANSI color.
+
+    Styling is reserved for interactive terminals so piped/redirected output
+    (logs, CI, `| cat`) stays plain, greppable, and copy-paste friendly.
+    Honors the NO_COLOR convention and TERM=dumb.
+    """
+    if os.environ.get("NO_COLOR") is not None:
+        return False
+    if os.environ.get("TERM") == "dumb":
+        return False
+    try:
+        return bool(sys.stdout.isatty())
+    except (ValueError, AttributeError):
+        return False
+
+
+def _display_width(text: str) -> int:
+    """Visible column width of text, accounting for wide/combining glyphs."""
+    import unicodedata
+
+    width = 0
+    for ch in text:
+        if unicodedata.combining(ch):
+            continue
+        width += 2 if unicodedata.east_asian_width(ch) in ("W", "F") else 1
+    return width
+
+
+def _render_styled_start_status(
+    url: str,
+    repo_root: Path,
+    *,
+    mode_label: str,
+    transport_label: str,
+    bind_host: str,
+    auto_refresh_interval_seconds: int,
+    network_url: str | None,
+    focus: str | None,
+    version: str | None,
+    lan_mode: bool,
+    lan_rw_mode: bool,
+    lan_token: str | None,
+    lan_url: str | None,
+    qr_lines: list[str] | None,
+) -> str:
+    a = _ANSI
+
+    def paint(text: str, *codes: str) -> str:
+        return "".join(a[c] for c in codes) + text + a["reset"]
+
+    # Each row is (plain_text, colored_text); width is measured on the plain
+    # text so ANSI escapes never disturb box alignment.
+    rows: list[tuple[str, str]] = []
+    arrow = "➜"
+    rows.append((f"{arrow}  {url}", f"{paint(arrow, 'green', 'bold')}  {paint(url, 'cyan', 'bold')}"))
+    rows.append(("", ""))
+
+    def field(label: str, value: str, *value_codes: str) -> None:
+        plain = f"{label:<10}{value}"
+        colored = paint(f"{label:<10}", "dim") + (paint(value, *value_codes) if value_codes else value)
+        rows.append((plain, colored))
+
+    field("Repo", repo_root.name, "bold")
+    field("Mode", mode_label)
+    field("Transport", transport_label)
+    field("Bind", bind_host)
+    if network_url:
+        field("Network", network_url, "cyan")
+    field("Refresh", f"⟳ {auto_refresh_interval_seconds}s")
+    if focus:
+        field("Focus", focus, "yellow")
+
+    content_w = max(_display_width(plain) for plain, _ in rows)
+
+    title = "Logics viewer"
+    version_text = f"v{version}" if version else ""
+    # Top border: ╭─ <title> <dashes> <version> ─╮  (─╮ / ─ tail = 3 cols).
+    # Left run "╭─ <title> " = 3 + width(title) + 1; tail with version =
+    # 1(space) + width(version) + 3("  ─╮" -> " ─╮"=3). Reserve >=1 dash.
+    left_run = 3 + _display_width(title) + 1
+    tail_run = (1 + _display_width(version_text) + 3) if version_text else 3
+    box_width = max(content_w + 7, left_run + 1 + tail_run)
+    content_w = box_width - 7
+
+    dashes = box_width - left_run - tail_run
+    border = lambda s: paint(s, "dim")  # noqa: E731
+    if version_text:
+        top = (
+            border("╭─ ") + paint(title, "green", "bold") + " "
+            + border("─" * dashes) + " " + paint(version_text, "dim") + border(" ─╮")
+        )
+    else:
+        top = border("╭─ ") + paint(title, "green", "bold") + " " + border("─" * dashes) + border(" ─╮")
+    bottom = border("╰" + "─" * (box_width - 2) + "╯")
+
+    out: list[str] = [top, border("│") + " " * (box_width - 2) + border("│")]
+    for plain, colored in rows:
+        pad = content_w - _display_width(plain)
+        out.append(border("│") + "   " + colored + " " * pad + "  " + border("│"))
+    out.append(border("│") + " " * (box_width - 2) + border("│"))
+    out.append(bottom)
+
+    if lan_mode:
+        out.append("")
+        if lan_rw_mode:
+            out.append(paint("LAN read/write active", "yellow", "bold") + paint(" — token + PIN-paired device required to mutate state.", "yellow"))
+        else:
+            out.append(paint("LAN read-only active", "yellow", "bold") + paint(" — mutating endpoints refused; non-loopback clients need the token.", "yellow"))
+        if lan_url:
+            out.append(paint("Share URL  ", "dim") + paint(lan_url, "cyan"))
+        if lan_token:
+            out.append(paint("Token      ", "dim") + lan_token)
+        if qr_lines:
+            out.append("")
+            out.extend(qr_lines)
+    return "\n".join(out)
+
+
 def render_start_status(
     url: str,
     repo_root: Path,
@@ -5170,6 +5300,7 @@ def render_start_status(
     qr_lines: list[str] | None = None,
     tls_enabled: bool = False,
     version: str | None = None,
+    styled: bool | None = None,
 ) -> str:
     if lan_rw_mode:
         mode_label = "LAN read/write (token + paired device required)"
@@ -5178,6 +5309,27 @@ def render_start_status(
     else:
         mode_label = "read-only"
     transport_label = "HTTPS (self-signed)" if tls_enabled else "HTTP"
+
+    if styled is None:
+        styled = _supports_banner_style()
+    if styled:
+        return _render_styled_start_status(
+            url,
+            repo_root,
+            mode_label=mode_label,
+            transport_label=transport_label,
+            bind_host=bind_host,
+            auto_refresh_interval_seconds=auto_refresh_interval_seconds,
+            network_url=network_url,
+            focus=focus,
+            version=version,
+            lan_mode=lan_mode,
+            lan_rw_mode=lan_rw_mode,
+            lan_token=lan_token,
+            lan_url=lan_url,
+            qr_lines=qr_lines,
+        )
+
     header = "Logics viewer running:" if not version else f"Logics viewer running (v{version}):"
     lines = [
         header,

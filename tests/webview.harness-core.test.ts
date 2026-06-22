@@ -869,6 +869,25 @@ describe("webview harness core behaviors", () => {
     expect(filterButton?.classList.contains("toolbar__filter--active")).toBe(true);
   });
 
+  it("groups same-minute activity entries under a single time bucket", () => {
+    // Two recent entries in the same wall-clock minute, 40s apart. Before the fix the
+    // relative label rounded differently per entry and split the minute into two groups.
+    const base = Math.floor(Date.now() / 60000) * 60000 - 3 * 60000;
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem],
+      activityEvents: [
+        { id: "g1", kind: "git", stage: "git", marker: "G", title: "Commit A", label: "Commit", updatedAt: new Date(base + 10000).toISOString() },
+        { id: "g2", kind: "git", stage: "git", marker: "G", title: "Commit B", label: "Commit", updatedAt: new Date(base + 50000).toISOString() }
+      ]
+    });
+    const labels = Array.from(dom.window.document.querySelectorAll(".activity-panel__group-label")).map((el) => el.textContent);
+    const sameMinuteLabels = labels.filter((label) => label && label.includes("•"));
+    expect(new Set(sameMinuteLabels).size).toBe(sameMinuteLabels.length);
+    expect(sameMinuteLabels.length).toBe(1);
+  });
+
   it("shows more precise Updated values for recently changed cards", () => {
     const recentItem = {
       ...baseItem,

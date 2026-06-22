@@ -1,10 +1,10 @@
 ## item_487_merge_ci_runs_into_the_recent_activity_feed - Merge CI runs into the Recent activity feed
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 92
-> Confidence: 88
-> Progress: 0%
+> Status: In progress
+> Understanding: 95
+> Confidence: 92
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer frontend
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -55,3 +55,4 @@
 # Notes
 - DECISION (operator-approved): reserve CI-events-in-activity to the BROWSER VIEWER, not the VS Code extension, to avoid re-implementing the fetch/payload wiring in TS and a blocking gh call in the board refresh. The viewer already fetches /api/ci-status (async, for the badge) into latestCiStatus, which now carries recentRuns (item_486). Plan: map latestCiStatus.recentRuns -> activityEvents kind:'ci' in dispatchViewerActivityUpdate (browser-host). Shared rendering + the git/ci filter already handle kind:'ci'.
 - REMAINING (client). The VS Code webview feed renders payload.activityEvents (mainCore.js:469) — no client change needed IF the server maps recentRuns into the board payload's activityEvents. The browser viewer (browser-host) fetches CI separately and needs its own wiring. Open design decision: feed CI into the synchronous board payload (simpler, reuses the channel) vs keep it async like the badge (avoids slowing the board). Decide before wiring.
+- DONE (browser viewer). Resolved the open decision by keeping CI async like the badge: `ciActivityEvents(latestCiStatus)` maps recentRuns -> kind:'ci' events, spread into `dispatchViewerActivityUpdate()` alongside git events. `refreshActivityFeedForCi()` re-dispatches while the panel is open (called from the badge-counter refreshers). Empty/unavailable CI -> runs default to [] so the feed is byte-for-byte unchanged (AC2). vitest covers the dispatch path via the activity-toggle open flow (AC3). Note: CI events ride `dispatchViewerActivityUpdate` (toggle-open / CI poll), not the signature-gated postToApp board dispatch, because they live in in-memory latestCiStatus rather than stored state.

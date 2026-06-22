@@ -1,0 +1,109 @@
+{
+  "title": "Surface CI events in the Recent activity feed",
+  "references": [
+    "`logics_manager/viewer_parts/_ci.py` (ci_status_payload already fetches the full runs list, keeps only one for the badge)",
+    "`logics_manager/viewer_parts/_request_handler_1.py` (board `ci` endpoint)",
+    "`clients/shared-web/media/webviewChrome.js` (Recent activity panel rendering, heterogeneous activityKind entries)",
+    "`clients/shared-web/src/main-app/parts/_01.js`, `_02.js` (getActivityEntries source)"
+  ],
+  "request": {
+    "complexity": "Medium",
+    "theme": "Viewer activity",
+    "needs": [
+      "The Recent activity feed lists recent CI runs alongside workflow-doc activity, sorted into the same time buckets, so a user sees pipeline results without opening the CI badge.",
+      "CI events shown are the recent runs of all GitHub Actions / GitLab workflows on the current branch, each with its pass/fail/running state and a link to the run.",
+      "The feature reuses the runs already fetched by ci_status_payload and the existing activity-feed rendering, adding no new network call, panel, or dependency."
+    ],
+    "context": [
+      "ci_status_payload in _ci.py already fetches the full runs list for the current branch but discards everything except the single run selected for the badge.",
+      "The board already serves a `ci` endpoint via _request_handler_1.py, so the client already has a path to CI data.",
+      "The Recent activity panel in webviewChrome.js renders heterogeneous entries keyed by activityKind, with per-kind CSS classes, time bucketing (formatActivityTimeBucket), and a selectable:false flag for non-clickable rows — it does not assume entries are workflow docs.",
+      "Scope is all workflows on the current branch (CI, release, others), matching the branch-scoped runs list already in memory, not a single named workflow.",
+      "The CI fetch is already timeout-gated and error-handled in _ci.py, so no new trust boundary or failure mode is introduced."
+    ],
+    "acceptance_criteria": [
+      "AC1: ci_status_payload returns a bounded recentRuns array (all workflows on the current branch, newest first, capped) built from the runs it already fetches, with no extra network call.",
+      "AC2: Each recentRuns entry carries id, badgeState, updatedAt, run url, and headSha; no new runtime dependency is added.",
+      "AC3: getActivityEntries merges recentRuns into the activity entries as activityKind:'ci', mapped to the existing {id, updatedAt, marker, activityKind, selectable} shape so time bucketing and grouping work unchanged.",
+      "AC4: CI activity rows are visually distinguishable (per-kind CSS class and marker) and open the run url; rows are non-clickable where no url exists.",
+      "AC5: When CI is unavailable, errored, or returns no runs, the activity feed renders exactly as today with no CI rows and no error noise.",
+      "AC6: The full pytest and vitest suites pass, with a check covering recentRuns assembly and the CI-entry mapping.",
+      "AC7: logics-manager lint and audit pass on the resulting workflow corpus and code."
+    ]
+  },
+  "product": {
+    "title": "CI events in Recent activity",
+    "overview": "Fold recent CI runs into the existing Recent activity feed by reusing the runs ci_status_payload already fetches and the feed's heterogeneous-entry rendering.",
+    "goals": [
+      "Give users pipeline visibility inside the activity feed without a separate panel or fetch.",
+      "Reuse existing CI fetching and activity rendering rather than adding new infrastructure."
+    ],
+    "non_goals": [
+      "A dedicated CI events panel or tab separate from Recent activity.",
+      "Polling, websockets, or any new live-update mechanism.",
+      "Adding a new CI provider or runtime dependency."
+    ]
+  },
+  "backlog_items": [
+    {
+      "title": "Expose recent CI runs from ci_status_payload",
+      "complexity": "Low",
+      "theme": "Viewer backend",
+      "request_acs": ["AC1", "AC2", "AC5"],
+      "problem": [
+        "ci_status_payload fetches the full branch runs list but returns only the single badge run, so the client cannot show CI history."
+      ],
+      "scope_in": [
+        "Add a recentRuns array to the ci payload built from the runs already fetched (all workflows, current branch, newest first, capped to a small N)",
+        "Each entry exposes id, badgeState (reusing _ci_badge_state / _gitlab_ci_badge_state), updatedAt, run url, headSha",
+        "Preserve the unavailable/timeout/error/no-runs payloads so they carry an empty recentRuns"
+      ],
+      "scope_out": [
+        "Any client rendering (sibling slice)",
+        "New network calls or providers"
+      ],
+      "acceptance_criteria": [
+        "AC1: ci_status_payload returns recentRuns for both GitHub and GitLab paths with no extra fetch.",
+        "AC2: Error/timeout/unavailable/no-runs payloads include an empty recentRuns and render as today.",
+        "AC3: A pytest check covers recentRuns assembly and ordering."
+      ]
+    },
+    {
+      "title": "Merge CI runs into the Recent activity feed",
+      "complexity": "Medium",
+      "theme": "Viewer frontend",
+      "request_acs": ["AC3", "AC4", "AC5", "AC6"],
+      "problem": [
+        "getActivityEntries builds the feed only from workflow docs, so CI runs never appear even though the panel already renders heterogeneous activityKind entries."
+      ],
+      "scope_in": [
+        "Map ci payload recentRuns into activity entries with activityKind:'ci', reusing the {id, updatedAt, marker, activityKind, selectable} shape",
+        "Add the per-kind CSS class and marker for CI rows and wire the run url on click",
+        "Fall back to the current feed exactly when recentRuns is empty or CI is unavailable"
+      ],
+      "scope_out": [
+        "Changing the activity panel layout, bucketing, or doc-entry behavior",
+        "The server payload shape (sibling slice)"
+      ],
+      "acceptance_criteria": [
+        "AC1: CI runs appear in Recent activity, time-bucketed alongside doc entries, newest first.",
+        "AC2: CI rows are visually distinct and open the run url; empty/unavailable CI leaves the feed unchanged.",
+        "AC3: A vitest check covers the CI-entry mapping and the empty-CI fallback."
+      ]
+    }
+  ],
+  "orchestration_task": {
+    "title": "Orchestrate CI events in Recent activity",
+    "plan": [
+      "Expose recentRuns from ci_status_payload first so the client has data to render.",
+      "Merge recentRuns into getActivityEntries as activityKind:'ci' with CSS, marker, and url wiring.",
+      "Verify the empty/unavailable CI fallback leaves the feed identical to today.",
+      "Run lint, audit, pytest, and vitest and keep all linked docs in sync before closeout."
+    ]
+  },
+  "context_pack": {
+    "out": "logics/context-packs/ci-events-in-recent-activity.json",
+    "mode": "summary-only",
+    "profile": "normal"
+  }
+}

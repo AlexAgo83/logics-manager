@@ -62,6 +62,7 @@
 | [prod_024_project_audit_remediation_plan](product/prod_024_project_audit_remediation_plan.md) | Project audit remediation plan | Settled |  |  | product/prod_024_project_audit_remediation_plan.md |
 | [prod_025_oversized_source_modularization](product/prod_025_oversized_source_modularization.md) | Oversized source modularization | Settled |  |  | product/prod_025_oversized_source_modularization.md |
 | [prod_026_importable_module_remediation](product/prod_026_importable_module_remediation.md) | Importable module remediation | Proposed |  |  | product/prod_026_importable_module_remediation.md |
+| [prod_027_ci_events_in_recent_activity](product/prod_027_ci_events_in_recent_activity.md) | CI events in Recent activity | Proposed |  |  | product/prod_027_ci_events_in_recent_activity.md |
 
 ## Requests
 
@@ -339,6 +340,7 @@
 | [req_271_group_recent_activity_items_by_logical_timestamp](request/req_271_group_recent_activity_items_by_logical_timestamp.md) | Group Recent Activity items by logical timestamp | Done |  |  | request/req_271_group_recent_activity_items_by_logical_timestamp.md |
 | [req_272_add_a_start_work_ownership_signal_for_active_tasks_and_items](request/req_272_add_a_start_work_ownership_signal_for_active_tasks_and_items.md) | Add a start-work / ownership signal for active tasks and items | Done |  |  | request/req_272_add_a_start_work_ownership_signal_for_active_tasks_and_items.md |
 | [req_273_replace_exec_compile_part_glue_with_importable_modules](request/req_273_replace_exec_compile_part_glue_with_importable_modules.md) | Replace exec(compile) part-glue with importable modules | Draft |  |  | request/req_273_replace_exec_compile_part_glue_with_importable_modules.md |
+| [req_274_surface_ci_events_in_the_recent_activity_feed](request/req_274_surface_ci_events_in_the_recent_activity_feed.md) | Surface CI events in the Recent activity feed | Draft |  |  | request/req_274_surface_ci_events_in_the_recent_activity_feed.md |
 
 ## Backlog
 
@@ -829,6 +831,8 @@
 | [item_483_convert_viewer_and_flow_part_glue_into_real_packages](backlog/item_483_convert_viewer_and_flow_part_glue_into_real_packages.md) | Convert viewer and flow part-glue into real packages | Ready |  | 0% | backlog/item_483_convert_viewer_and_flow_part_glue_into_real_packages.md |
 | [item_484_retune_the_source_line_budget_guardrail](backlog/item_484_retune_the_source_line_budget_guardrail.md) | Retune the source line-budget guardrail | Ready |  | 0% | backlog/item_484_retune_the_source_line_budget_guardrail.md |
 | [item_485_replace_js_part_glue_manifests_with_real_es_modules](backlog/item_485_replace_js_part_glue_manifests_with_real_es_modules.md) | Replace JS part-glue manifests with real ES modules | Ready |  | 0% | backlog/item_485_replace_js_part_glue_manifests_with_real_es_modules.md |
+| [item_486_expose_recent_ci_runs_from_ci_status_payload](backlog/item_486_expose_recent_ci_runs_from_ci_status_payload.md) | Expose recent CI runs from ci_status_payload | Ready |  | 0% | backlog/item_486_expose_recent_ci_runs_from_ci_status_payload.md |
+| [item_487_merge_ci_runs_into_the_recent_activity_feed](backlog/item_487_merge_ci_runs_into_the_recent_activity_feed.md) | Merge CI runs into the Recent activity feed | Ready |  | 0% | backlog/item_487_merge_ci_runs_into_the_recent_activity_feed.md |
 
 ## Tasks
 
@@ -1098,3 +1102,4 @@
 | [task_268_group_recent_activity_items_by_logical_timestamp](tasks/task_268_group_recent_activity_items_by_logical_timestamp.md) | Group Recent Activity items by logical timestamp | Done |  | 100% | tasks/task_268_group_recent_activity_items_by_logical_timestamp.md |
 | [task_269_add_a_start_work_ownership_signal_for_active_tasks_and_items](tasks/task_269_add_a_start_work_ownership_signal_for_active_tasks_and_items.md) | Add a start-work / ownership signal for active tasks and items | Done | codex | 100% | tasks/task_269_add_a_start_work_ownership_signal_for_active_tasks_and_items.md |
 | [task_270_orchestrate_the_exec_part_glue_remediation](tasks/task_270_orchestrate_the_exec_part_glue_remediation.md) | Orchestrate the exec part-glue remediation | Ready |  | 0% | tasks/task_270_orchestrate_the_exec_part_glue_remediation.md |
+| [task_271_orchestrate_ci_events_in_recent_activity](tasks/task_271_orchestrate_ci_events_in_recent_activity.md) | Orchestrate CI events in Recent activity | Ready |  | 0% | tasks/task_271_orchestrate_ci_events_in_recent_activity.md |

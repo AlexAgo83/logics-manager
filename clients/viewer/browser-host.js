@@ -3008,6 +3008,21 @@
     document.body?.classList.toggle("viewer-screen-document", Boolean(open));
   }
 
+  function updateDocumentHeaderNav(content) {
+    const nav = document.getElementById("viewer-document-nav");
+    if (!(nav instanceof HTMLElement)) {
+      return;
+    }
+    nav.replaceChildren();
+    const tablist = content?.querySelector(".viewer-workshop__tabs, .viewer-cdx__modes");
+    if (!(tablist instanceof HTMLElement)) {
+      nav.hidden = true;
+      return;
+    }
+    nav.appendChild(tablist);
+    nav.hidden = false;
+  }
+
   function setDocument(titleText, html, options = {}) {
     invalidatePendingViews();
     cdxCloseTarget = null;
@@ -3037,6 +3052,7 @@
     updateScreenActions(titleText);
     if (content) {
       content.innerHTML = html || "";
+      updateDocumentHeaderNav(content);
     }
     if (panel) {
       panel.hidden = false;

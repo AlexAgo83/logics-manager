@@ -1,7 +1,7 @@
 ## req_266_move_top_segmented_navigation_buttons_below_window_controls - Move top segmented navigation buttons below window controls
 > From version: 2.12.3
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 88%
 > Confidence: 82%
 > Complexity: Medium

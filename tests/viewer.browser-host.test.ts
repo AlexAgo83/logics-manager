@@ -188,6 +188,7 @@ function createViewerDom(options: {
     <button data-viewer-action="edit-document" type="button" disabled>Edit document</button>
     <section id="viewer-document" hidden>
       <div id="viewer-document-title"></div>
+      <div id="viewer-document-nav" hidden></div>
       <div id="viewer-document-content"></div>
     </section>
     <aside id="activity-panel" hidden></aside>
@@ -1474,6 +1475,15 @@ describe("local viewer browser host", () => {
 
     expect(labels).toEqual(["Workshop", "Remote", "CDX", "Settings"]);
     expect(dom.window.document.getElementById("viewer-getting-started")?.textContent).toContain("Getting Started");
+  });
+
+  it("keeps topbar menus intact and reserves document header navigation for screen segments", () => {
+    const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
+    const dom = new JSDOM(html);
+
+    expect(dom.window.document.querySelector('[data-viewer-nav="cdx"] .viewer-nav-menu__panel [data-viewer-nav-target="cdx:status"]')).not.toBeNull();
+    expect(dom.window.document.querySelector('[data-viewer-nav="workshop"] .viewer-nav-menu__panel [data-viewer-nav-target="workshop:terminals"]')).not.toBeNull();
+    expect(dom.window.document.querySelector(".viewer-document__header #viewer-document-nav")).not.toBeNull();
   });
 
   it("keeps the Workshop commands panel scrollable inside the document viewport", () => {
@@ -3606,9 +3616,10 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
 
     const content = dom.window.document.getElementById("viewer-document-content");
+    const documentNav = dom.window.document.getElementById("viewer-document-nav");
     expect(calls).toContain("/api/release-status");
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Remote");
-    expect(content?.querySelector('[data-viewer-ci-mode="release"]')?.classList.contains("is-active")).toBe(true);
+    expect(documentNav?.querySelector('[data-viewer-ci-mode="release"]')?.classList.contains("is-active")).toBe(true);
     expect(content?.textContent).toContain("blocked");
     expect(content?.textContent).toContain("1.2.3");
     expect(content?.textContent).toContain("local_validation");
@@ -3950,7 +3961,7 @@ describe("local viewer browser host", () => {
     expect(cwd?.checked).toBe(false);
     expect(kind?.checked).toBe(false);
     expect(cwd?.closest(".viewer-cdx__section")).toBeNull();
-    expect(cwd?.closest(".viewer-cdx")?.firstElementChild?.classList.contains("viewer-cdx__modes")).toBe(true);
+    expect(dom.window.document.getElementById("viewer-document-nav")?.firstElementChild?.classList.contains("viewer-cdx__modes")).toBe(true);
     cwd!.checked = true;
     cwd?.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
 

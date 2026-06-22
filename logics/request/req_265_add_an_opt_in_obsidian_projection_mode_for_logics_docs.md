@@ -38,7 +38,7 @@
 
 # Acceptance criteria
 - AC1: With the mode disabled (default), no command adds frontmatter and the corpus is unchanged; operators who never enable the mode see no new constraints.
-- AC2: Activation is explicit via `logics.yaml` config and/or an explicit `logics-manager obsidian sync` invocation, and the activation path is documented.
+- AC2: The mode is activated by `obsidian.enabled` in versioned `logics.yaml` (default off); `logics-manager obsidian sync`/`clean` are the explicit actions that apply or remove the projection, and the activation path is documented.
 - AC3: `logics-manager obsidian sync` writes deterministic, idempotent frontmatter (type, ref, status, understanding, confidence, theme), an `aliases` entry for the human title, and `tags` derived from type/status/theme; re-running produces no diff.
 - AC4: Frontmatter is a non-destructive projection: it is additive above canonical content and never replaces canonical refs, lifecycle indicators, lineage links, Mermaid signatures, or repo-relative paths.
 - AC5: `logics-manager obsidian clean` removes the projection and restores canonical content byte-for-byte (verified by round-trip).
@@ -75,7 +75,7 @@
 # Risks and dependencies
 - Risk: frontmatter committed to the repo could drift from canonical indicators — mitigated by the lint guard and `sync --check`.
 - Risk: parser changes could regress non-Obsidian repos — mitigated by keeping blockquote indicators authoritative and frontmatter strictly optional.
-- Decision to confirm in backlog: whether activation state lives in versioned `logics.yaml` (shared, frontmatter likely committed) or stays local/on-demand (frontmatter not committed).
+- Decision (settled): activation state lives in versioned `logics.yaml` (`obsidian.enabled`), so the mode is shared across the team and the generated frontmatter is committed alongside canonical content. The lint guard and `sync --check` keep committed frontmatter from drifting.
 - Depends on: completed `req_264` guidance and `.obsidian/` ignore.
 
 # Backlog

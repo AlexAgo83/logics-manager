@@ -814,3 +814,41 @@ def test_mcp_http_transport_accepts_bearer_token(tmp_path: Path) -> None:
 
     assert response.status == 200
     assert payload["result"]["tools"][0]["name"] == "create_request"
+
+
+def test_mcp_scaffold_request_chain(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    result = call_tool(
+        "scaffold_request_chain",
+        {
+            "input": {
+                "title": "Author a chain over MCP",
+                "request": {
+                    "complexity": "Medium",
+                    "theme": "Operator workflow",
+                    "needs": ["Author a full chain in one MCP call."],
+                    "context": ["Verifies the scaffold tool reuses the CLI path."],
+                    "acceptance_criteria": ["AC1: The chain is created."],
+                },
+                "backlog_items": [
+                    {"title": "First slice", "request_acs": ["AC1"], "acceptance_criteria": ["AC1: slice done."]}
+                ],
+                "orchestration_task": {"title": "Orchestrate the chain", "plan": ["Do the slice."]},
+            }
+        },
+        repo_root=repo_root,
+    )
+    assert result["ok"] is True
+    assert result["request_ref"].startswith("req_")
+    assert result["task_ref"].startswith("task_")
+    assert len(result["backlog_refs"]) == 1
+    assert (repo_root / f"logics/request/{result['request_ref']}.md").exists()
+    assert (repo_root / f"logics/tasks/{result['task_ref']}.md").exists()
+    # the temp input file is cleaned up
+    assert not list((repo_root / "logics" / "scaffold").glob(".mcp-scaffold-*.json"))
+
+
+def test_mcp_scaffold_request_chain_requires_input_object(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    with pytest.raises(McpToolError):
+        call_tool("scaffold_request_chain", {"input": "not-an-object"}, repo_root=repo_root)

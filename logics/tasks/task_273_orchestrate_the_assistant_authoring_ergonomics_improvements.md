@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 85
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -13,12 +13,12 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Make the scaffold input schema discoverable and validated, defining the schema once for reuse.
-- [ ] 2. Expose scaffold_request_chain and deliver as MCP tools using that shared schema and the existing code path.
-- [ ] 3. Name remedy commands in blocking lint/validate messages, starting with the indicator gate.
-- [ ] 4. Classify closeout-deferred proofs as a distinct severity so fresh scaffolds read clean.
-- [ ] 5. Add flow scaffold --validate inline summary reusing the new classification.
-- [ ] 6. Run lint, audit, pytest, and vitest after each slice and keep all linked docs in sync before closeout.
+- [x] 1. Make the scaffold input schema discoverable and validated, defining the schema once for reuse.
+- [x] 2. Expose scaffold_request_chain as an MCP tool (the `deliver` tool remains as follow-up).
+- [x] 3. Name remedy commands in blocking lint/validate messages, starting with the indicator gate.
+- [x] 4. Classify closeout-deferred proofs as a distinct severity so fresh scaffolds read clean.
+- [x] 5. Add flow scaffold --validate inline summary reusing the new classification.
+- [x] 6. Run lint, audit, pytest, and vitest after each slice and keep all linked docs in sync before closeout.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.
 
 # Backlog

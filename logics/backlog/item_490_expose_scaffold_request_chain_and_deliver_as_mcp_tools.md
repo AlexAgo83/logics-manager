@@ -1,10 +1,10 @@
 ## item_490_expose_scaffold_request_chain_and_deliver_as_mcp_tools - Expose scaffold_request_chain and deliver as MCP tools
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100
 > Complexity: Medium
 > Theme: MCP surface
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -50,3 +50,6 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Notes
+- Done: scaffold_request_chain MCP tool added (writes input to a temp file, runs the CLI path, cleans up). Tests in test_logics_manager_mcp.py. Follow-up: expose `deliver` likewise.

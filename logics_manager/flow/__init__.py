@@ -2351,9 +2351,17 @@ def build_parser() -> argparse.ArgumentParser:
 
     scaffold_parser = sub.add_parser("scaffold", help="Create development-ready workflow corpora from structured input.")
     scaffold_sub = scaffold_parser.add_subparsers(dest="scaffold_kind", required=True)
-    request_chain = scaffold_sub.add_parser("request-chain", help="Create a request/product/backlog/task chain from JSON input.")
-    request_chain.add_argument("--input", required=True, help="Repo-relative or absolute JSON input file.")
+    request_chain = scaffold_sub.add_parser(
+        "request-chain",
+        help="Create a request/product/backlog/task chain from JSON input.",
+        description=SCAFFOLD_REQUEST_CHAIN_SCHEMA_HELP,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    request_chain.add_argument("--input", help="Repo-relative or absolute JSON input file.")
     request_chain.add_argument("--context-pack", help="Optional repo-relative JSON context-pack output path.")
+    request_chain.add_argument("--print-schema", action="store_true", help="Print the input JSON schema and exit.")
+    request_chain.add_argument("--example", action="store_true", help="Print a minimal input JSON skeleton and exit.")
+    request_chain.add_argument("--validate", action="store_true", help="Validate the new request inline and print a ready-to-dev summary.")
     request_chain.add_argument("--format", choices=("text", "json"), default="text")
     request_chain.add_argument("--dry-run", action="store_true")
     request_chain.set_defaults(func=cmd_scaffold_request_chain)
@@ -2816,14 +2824,20 @@ def _validate_finding(source: str, finding: dict[str, object], *, explain: bool)
     severity = str(finding.get("severity") or "info")
     repair_kind = _validate_repair_kind(finding)
     fixable = repair_kind in {"mermaid", "links", "gates", "ac-traceability"}
+    # req_276: closeout-deferred traceability proofs cannot exist before the work is done,
+    # so they are informational ("deferred"), not actionable fixable findings. A freshly
+    # scaffolded request then validates clean instead of looking like it has fixable problems.
+    deferred = repair_kind == "ac-traceability" and "deferred" in str(finding.get("message") or "")
+    if deferred:
+        fixable = False
     unsafe_reason = None
-    if repair_kind == "ac-traceability":
+    if repair_kind == "ac-traceability" and not deferred:
         unsafe_reason = "requires explicit proof to avoid inventing implementation evidence"
     payload: dict[str, object] = {
         "source": source,
         "path": str(finding.get("path") or ""),
         "severity": severity,
-        "category": "blocking" if severity == "blocking" else severity if severity in {"warning", "strict"} else "informational",
+        "category": "deferred" if deferred else "blocking" if severity == "blocking" else severity if severity in {"warning", "strict"} else "informational",
         "message": str(finding.get("message") or ""),
         "fixable": fixable,
         "unsafe": bool(unsafe_reason),
@@ -2905,6 +2919,7 @@ def flow_validate_payload(
 
     blocking_count = len([finding for finding in findings if finding.get("category") == "blocking"])
     warning_count = len([finding for finding in findings if finding.get("category") == "warning"])
+    deferred_count = len([finding for finding in findings if finding.get("category") == "deferred"])
     next_actions = ["Apply safe fixes or inspect blocking findings."] if blocking_count or refused else ["Validation findings are clear for selected refs."]
     if len([finding for finding in findings if finding.get("fixable") and not finding.get("unsafe")]):
         next_actions.append("Run with `--apply-fixes` to apply deterministic safe repairs.")
@@ -2918,6 +2933,7 @@ def flow_validate_payload(
         "finding_count": len(findings),
         "blocking_count": blocking_count,
         "warning_count": warning_count,
+        "deferred_count": deferred_count,
         "fixable_count": len([finding for finding in findings if finding.get("fixable")]),
         "unsafe_count": len([finding for finding in findings if finding.get("unsafe")]) + len(refused),
         "findings": findings,
@@ -3582,14 +3598,82 @@ def _build_split_orchestration_task_doc(repo_root: Path, ref: str, title: str, r
     ).rstrip() + "\n"
 
 
-def scaffold_request_chain_payload(repo_root: Path, input_path: Path, *, context_pack_out: str | None, dry_run: bool) -> dict[str, object]:
-    input_payload = _read_json_object(input_path, label="request-chain input")
+SCAFFOLD_REQUEST_CHAIN_SCHEMA_HELP = """Create a request/product/backlog/task chain from one JSON input file.
+
+Input JSON shape (--example prints a ready-to-edit skeleton):
+  title                 str   (required)
+  references            [str]
+  request               { complexity, theme, needs[], context[], acceptance_criteria[] }
+  product               { title, overview, goals[], non_goals[] }
+  backlog_items         [ { title (required), complexity, theme, request_acs[],
+                            problem[], scope_in[], scope_out[], acceptance_criteria[] } ]  (required, non-empty)
+  orchestration_task    { title, plan[] }
+  context_pack          { out, mode, profile }"""
+
+
+def _scaffold_request_chain_example() -> dict[str, object]:
+    return {
+        "title": "<request title>",
+        "references": ["<file or context reference>"],
+        "request": {
+            "complexity": "Medium",
+            "theme": "<theme>",
+            "needs": ["<user need>"],
+            "context": ["<relevant context>"],
+            "acceptance_criteria": ["AC1: <testable criterion>"],
+        },
+        "product": {"title": "<brief title>", "overview": "<one-line overview>", "goals": ["<goal>"], "non_goals": ["<non-goal>"]},
+        "backlog_items": [
+            {
+                "title": "<slice title>",
+                "complexity": "Medium",
+                "theme": "<theme>",
+                "request_acs": ["AC1"],
+                "problem": ["<problem>"],
+                "scope_in": ["<in scope>"],
+                "scope_out": ["<out of scope>"],
+                "acceptance_criteria": ["AC1: <slice criterion>"],
+            }
+        ],
+        "orchestration_task": {"title": "Orchestrate <title>", "plan": ["<step>"]},
+        "context_pack": {"out": "logics/context-packs/<slug>.json", "mode": "summary-only", "profile": "normal"},
+    }
+
+
+def _validate_scaffold_input(payload: dict[str, object]) -> None:
+    """Raise a precise SystemExit naming the offending key/type, before any doc is written."""
+    if not isinstance(payload.get("title"), str) or not str(payload.get("title")).strip():
+        raise SystemExit("request-chain input: `title` must be a non-empty string.")
+    raw_items = payload.get("backlog_items")
+    if not isinstance(raw_items, list) or not raw_items:
+        raise SystemExit("request-chain input: `backlog_items` must be a non-empty array.")
+    for idx, item in enumerate(raw_items, start=1):
+        if not isinstance(item, dict):
+            raise SystemExit(f"request-chain input: `backlog_items[{idx}]` must be an object.")
+        if not isinstance(item.get("title"), str) or not str(item.get("title")).strip():
+            raise SystemExit(f"request-chain input: `backlog_items[{idx}].title` must be a non-empty string.")
+    for key in ("request", "product", "orchestration_task", "context_pack"):
+        if key in payload and not isinstance(payload[key], dict):
+            raise SystemExit(f"request-chain input: `{key}` must be an object when present.")
+    if "references" in payload and not isinstance(payload["references"], list):
+        raise SystemExit("request-chain input: `references` must be an array when present.")
+
+
+def scaffold_request_chain_payload(
+    repo_root: Path,
+    input_path: Path | None = None,
+    *,
+    input_payload: dict[str, object] | None = None,
+    context_pack_out: str | None,
+    dry_run: bool,
+) -> dict[str, object]:
+    if input_payload is None:
+        if input_path is None:
+            raise SystemExit("request-chain input: provide an input file or payload.")
+        input_payload = _read_json_object(input_path, label="request-chain input")
+    _validate_scaffold_input(input_payload)
     title = _string_value(input_payload, "title")
-    if not title:
-        raise SystemExit("request-chain input requires `title`.")
     raw_items = input_payload.get("backlog_items")
-    if not isinstance(raw_items, list) or not raw_items or any(not isinstance(item, dict) for item in raw_items):
-        raise SystemExit("request-chain input requires non-empty `backlog_items` array of objects.")
     items = [item for item in raw_items if isinstance(item, dict)]
     product_payload = input_payload.get("product") if isinstance(input_payload.get("product"), dict) else {}
     task_payload = input_payload.get("orchestration_task") if isinstance(input_payload.get("orchestration_task"), dict) else {}
@@ -3657,7 +3741,13 @@ def scaffold_request_chain_payload(repo_root: Path, input_path: Path, *, context
     return {
         "command": "scaffold",
         "kind": "request-chain",
-        "input": input_path.relative_to(repo_root).as_posix() if input_path.is_relative_to(repo_root) else input_path.as_posix(),
+        "input": (
+            None
+            if input_path is None
+            else input_path.relative_to(repo_root).as_posix()
+            if input_path.is_relative_to(repo_root)
+            else input_path.as_posix()
+        ),
         "request_ref": request_ref,
         "product_ref": product_ref,
         "backlog_refs": item_refs,
@@ -3683,10 +3773,35 @@ def scaffold_request_chain_payload(repo_root: Path, input_path: Path, *, context
 
 
 def cmd_scaffold_request_chain(args: argparse.Namespace) -> dict[str, object]:
+    if getattr(args, "print_schema", False) or getattr(args, "example", False):
+        payload = _scaffold_request_chain_example() if getattr(args, "example", False) else {"schema": SCAFFOLD_REQUEST_CHAIN_SCHEMA_HELP}
+        if args.format == "json":
+            print_payload(payload, args.format)
+        elif getattr(args, "example", False):
+            print(json.dumps(payload, indent=2))
+        else:
+            print(SCAFFOLD_REQUEST_CHAIN_SCHEMA_HELP)
+        return payload
+    if not args.input:
+        raise SystemExit("scaffold request-chain requires --input (or use --print-schema / --example).")
     repo_root = _find_repo_root(Path.cwd())
     input_candidate = Path(args.input)
     input_path = input_candidate if input_candidate.is_absolute() else repo_root / input_candidate
     payload = scaffold_request_chain_payload(repo_root, input_path, context_pack_out=args.context_pack, dry_run=args.dry_run)
+    if getattr(args, "validate", False) and not args.dry_run:
+        refs = [payload["request_ref"], *payload["backlog_refs"], payload["task_ref"]]
+        validation = flow_validate_payload(
+            repo_root,
+            refs,
+            fixable_only=False,
+            explain=False,
+            apply_fixes=False,
+            dry_run=False,
+            proof=None,
+            proof_source=None,
+        )
+        payload["validation"] = validation
+        payload["ready_to_dev"] = validation.get("blocking_count", 0) == 0
     if args.format == "json":
         print_payload(payload, args.format)
     else:
@@ -3695,6 +3810,8 @@ def cmd_scaffold_request_chain(args: argparse.Namespace) -> dict[str, object]:
         for rel_path in payload["changed_files"]:
             print(f"- {rel_path}")
         print(f"Next action: {payload['next_action']}")
+        if "ready_to_dev" in payload:
+            print(f"Inline validation: {'ready-to-dev (no blocking findings)' if payload['ready_to_dev'] else 'blocking findings present'}")
     return payload
 
 def cmd_promote_request_to_backlog(args: argparse.Namespace) -> dict[str, object]:

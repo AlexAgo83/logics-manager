@@ -3308,6 +3308,7 @@ def cdx_import_payload(
     file_bytes: bytes,
     passphrase: str,
     merge: bool = True,
+    force: bool = False,
     *,
     runner: Any | None = None,
     which: Any | None = None,
@@ -3322,6 +3323,8 @@ def cdx_import_payload(
         args = ["import", str(import_path), "--json"]
         if merge:
             args.append("--merge")
+        if force:
+            args.append("--force")
         env = {**os.environ}
         if passphrase:
             env["CDX_IMPORT_PASS"] = passphrase
@@ -4830,6 +4833,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             file_b64 = str(body.get("fileBase64") or "")
             passphrase = str(body.get("passphrase") or "")
             merge = bool(body.get("merge", True))
+            force = bool(body.get("force", False))
             if not file_b64:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "fileBase64 is required.")
                 return
@@ -4839,7 +4843,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             except Exception:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid base64 in fileBase64.")
                 return
-            result = cdx_import_payload(self.server.repo_root, file_bytes, passphrase, merge)
+            result = cdx_import_payload(self.server.repo_root, file_bytes, passphrase, merge, force)
             if result.get("ok"):
                 self._send_json({"ok": True, "payload": result})
             else:

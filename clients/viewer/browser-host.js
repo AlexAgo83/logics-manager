@@ -6304,6 +6304,10 @@
               <input type="checkbox" id="viewer-cdx-import-merge" checked>
               <span>Merge (keep existing accounts)</span>
             </label>
+            <label class="viewer-cdx__menu-check">
+              <input type="checkbox" id="viewer-cdx-import-force">
+              <span>Force overwrite when needed</span>
+            </label>
             <button class="viewer-cdx__menu-action viewer-cdx__menu-action--primary" type="button" id="viewer-cdx-import-btn">Import</button>
             <div class="viewer-cdx__form-status" id="viewer-cdx-import-status" hidden></div>
           </div>
@@ -6522,6 +6526,38 @@
       }
       menu.removeAttribute("open");
     });
+  }
+
+  function cdxMenuKey(menu) {
+    if (!(menu instanceof HTMLElement)) {
+      return "";
+    }
+    if (menu.id) {
+      return `id:${menu.id}`;
+    }
+    const summaryLabel = menu.querySelector("summary")?.getAttribute("aria-label")
+      || menu.querySelector("summary")?.getAttribute("title")
+      || "";
+    const panelLabel = menu.querySelector(".viewer-cdx__menu-panel, .viewer-workshop__command-run-menu-panel")?.getAttribute("aria-label") || "";
+    const label = panelLabel || summaryLabel;
+    return label ? `label:${label}` : "";
+  }
+
+  function activeCdxInteractionMenu() {
+    return document.querySelector(".viewer-cdx__menu[open], .viewer-workshop__command-run-menu[open]");
+  }
+
+  function preserveActiveCdxMenu(render) {
+    const key = cdxMenuKey(activeCdxInteractionMenu());
+    render();
+    if (!key) {
+      return;
+    }
+    const nextMenu = Array.from(document.querySelectorAll(".viewer-cdx__menu, .viewer-workshop__command-run-menu"))
+      .find((menu) => cdxMenuKey(menu) === key);
+    if (nextMenu instanceof HTMLElement) {
+      nextMenu.setAttribute("open", "");
+    }
   }
 
   function renderCdxSessionTable(sessions, emptyText, latestSessionNameOverride = "") {
@@ -7070,8 +7106,10 @@
 
   function rerenderCdxStatusFromPreferences() {
     if (isCdxStatusOpen() && latestCdxStatusPayload) {
-      setDocument("CDX status", renderCdxStatus(latestCdxStatusPayload));
-      setupCdxImportExportHandlers();
+      preserveActiveCdxMenu(() => {
+        setDocument("CDX status", renderCdxStatus(latestCdxStatusPayload));
+        setupCdxImportExportHandlers();
+      });
     }
   }
 
@@ -7127,6 +7165,7 @@
         const fileInput = document.getElementById("viewer-cdx-import-file");
         const passInput = document.getElementById("viewer-cdx-import-pass");
         const mergeCheck = document.getElementById("viewer-cdx-import-merge");
+        const forceCheck = document.getElementById("viewer-cdx-import-force");
         const statusEl = document.getElementById("viewer-cdx-import-status");
         const file = fileInput?.files?.[0];
         if (!file) { showCdxFormStatus(statusEl, "error", "Please select a file."); return; }
@@ -7137,7 +7176,12 @@
           const response = await fetch("/api/cdx-import", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ fileBase64, passphrase: passInput?.value || "", merge: mergeCheck?.checked ?? true }),
+            body: JSON.stringify({
+              fileBase64,
+              passphrase: passInput?.value || "",
+              merge: mergeCheck?.checked ?? true,
+              force: forceCheck?.checked ?? false
+            }),
           });
           const data = await response.json();
           if (data.ok) {
@@ -7707,6 +7751,9 @@
     latestCdxStatusPayload = data.payload;
     recordCdxUnreadSnapshot("missions", data.payload, { markSeen: isCdxMissionsOpen() });
     updateMainCdxBadge(data.payload);
+    if (options.silent && activeCdxInteractionMenu()) {
+      return;
+    }
     setDocument("CDX status", renderCdxStatus(data.payload));
     setupCdxImportExportHandlers();
     setMeta(options.silent ? "CDX status refreshed." : "CDX status loaded.");
@@ -7999,6 +8046,10 @@
     }
     latestCdxRunsPayload = data.payload;
     const wasOpen = isCdxRunsOpen();
+    if (options.silent && activeCdxInteractionMenu()) {
+      recordCdxUnreadSnapshot("runs", data.payload, { markSeen: wasOpen });
+      return;
+    }
     setDocument("CDX reports", renderCdxRuns(data.payload));
     if (options.silent && !wasOpen) {
       recordCdxUnreadSnapshot("runs", data.payload);
@@ -8043,6 +8094,10 @@
     }
     latestCdxHistoryPayload = data.payload;
     const wasOpen = isCdxHistoryOpen();
+    if (options.silent && activeCdxInteractionMenu()) {
+      recordCdxUnreadSnapshot("history", data.payload, { markSeen: wasOpen });
+      return;
+    }
     setDocument("CDX history", renderCdxHistory(data.payload));
     if (options.silent && !wasOpen) {
       recordCdxUnreadSnapshot("history", data.payload);
@@ -9209,7 +9264,7 @@
       }
       if (cdxRunColumnTarget instanceof HTMLInputElement) {
         persistCdxRunColumnVisibility(cdxRunColumnTarget.getAttribute("data-viewer-cdx-run-column") || "", cdxRunColumnTarget.checked);
-        setDocument("CDX reports", renderCdxRuns(latestCdxRunsPayload || { state: "ok", message: "", runs: [] }));
+        preserveActiveCdxMenu(() => setDocument("CDX reports", renderCdxRuns(latestCdxRunsPayload || { state: "ok", message: "", runs: [] })));
       }
       if (cdxRunSessionTarget instanceof HTMLInputElement) {
         const session = cdxRunSessionTarget.getAttribute("data-viewer-cdx-run-session") || "";
@@ -9221,11 +9276,11 @@
           selected.delete(session);
         }
         persistCdxRunSessionFilter({ mode: "subset", selected: Array.from(selected) });
-        setDocument("CDX reports", renderCdxRuns(latestCdxRunsPayload || { state: "ok", message: "", runs: [] }));
+        preserveActiveCdxMenu(() => setDocument("CDX reports", renderCdxRuns(latestCdxRunsPayload || { state: "ok", message: "", runs: [] })));
       }
       if (cdxHistoryColumnTarget instanceof HTMLInputElement) {
         persistCdxHistoryColumnVisibility(cdxHistoryColumnTarget.getAttribute("data-viewer-cdx-history-column") || "", cdxHistoryColumnTarget.checked);
-        setDocument("CDX history", renderCdxHistory(latestCdxHistoryPayload || { state: "ok", message: "", history: [] }));
+        preserveActiveCdxMenu(() => setDocument("CDX history", renderCdxHistory(latestCdxHistoryPayload || { state: "ok", message: "", history: [] })));
       }
       if (cdxHistorySessionTarget instanceof HTMLInputElement) {
         const session = cdxHistorySessionTarget.getAttribute("data-viewer-cdx-history-session") || "";
@@ -9237,7 +9292,7 @@
           selected.delete(session);
         }
         persistCdxHistorySessionFilter({ mode: "subset", selected: Array.from(selected) });
-        setDocument("CDX history", renderCdxHistory(latestCdxHistoryPayload || { state: "ok", message: "", history: [] }));
+        preserveActiveCdxMenu(() => setDocument("CDX history", renderCdxHistory(latestCdxHistoryPayload || { state: "ok", message: "", history: [] })));
       }
       if (cdxProviderTarget instanceof HTMLInputElement) {
         const provider = cdxProviderTarget.getAttribute("data-viewer-cdx-provider") || "";
@@ -9511,13 +9566,13 @@
       const cdxRunSessionAllTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-run-session-all]") : null;
       if (cdxRunSessionAllTarget instanceof HTMLElement) {
         persistCdxRunSessionFilter({ mode: "all", selected: [] });
-        setDocument("CDX reports", renderCdxRuns(latestCdxRunsPayload || { state: "ok", message: "", runs: [] }));
+        preserveActiveCdxMenu(() => setDocument("CDX reports", renderCdxRuns(latestCdxRunsPayload || { state: "ok", message: "", runs: [] })));
         return;
       }
       const cdxHistorySessionAllTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-history-session-all]") : null;
       if (cdxHistorySessionAllTarget instanceof HTMLElement) {
         persistCdxHistorySessionFilter({ mode: "all", selected: [] });
-        setDocument("CDX history", renderCdxHistory(latestCdxHistoryPayload || { state: "ok", message: "", history: [] }));
+        preserveActiveCdxMenu(() => setDocument("CDX history", renderCdxHistory(latestCdxHistoryPayload || { state: "ok", message: "", history: [] })));
         return;
       }
       if (cdxBackRunsTarget instanceof HTMLElement) {

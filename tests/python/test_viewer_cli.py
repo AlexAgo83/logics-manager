@@ -31,6 +31,7 @@ from logics_manager import viewer as viewer_module
 from logics_manager.viewer import (
     build_viewer_url,
     cdx_artifact_preview_payload,
+    cdx_import_payload,
     cdx_mission_apply_plan_payload,
     cdx_mission_plan_payload,
     cdx_mission_run_payload,
@@ -1290,6 +1291,31 @@ def test_viewer_cdx_remove_payload_uses_rmv_force_json(tmp_path: Path) -> None:
         "ok": False,
         "error": "Invalid session name.",
     }
+
+
+def test_viewer_cdx_import_payload_can_force_overwrite(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+
+    def runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        assert kwargs["cwd"] == tmp_path
+        assert kwargs["timeout"] == 30
+        return subprocess.CompletedProcess(args, 0, json.dumps({"message": "Import complete."}), "")
+
+    payload = cdx_import_payload(
+        tmp_path,
+        b"cdx archive",
+        "",
+        merge=True,
+        force=True,
+        runner=runner,
+        which=lambda _name: "/usr/bin/cdx",
+    )
+
+    assert payload == {"ok": True, "message": "Import complete."}
+    assert calls
+    assert calls[0][0:2] == ["cdx", "import"]
+    assert calls[0][-3:] == ["--json", "--merge", "--force"]
 
 
 def test_viewer_cdx_runs_payload_reads_observable_runs(tmp_path: Path) -> None:

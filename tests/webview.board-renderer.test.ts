@@ -69,7 +69,7 @@ describe("webview board renderer behavior", () => {
     expect(board?.querySelector(".list-view__wrapper")).toBeFalsy();
   });
 
-  it("shows add button only on primary flow stage columns", () => {
+  it("hides column add buttons across corpus columns", () => {
     const { dom } = bootstrapWebview();
 
     pushData(dom, {
@@ -88,15 +88,7 @@ describe("webview board renderer behavior", () => {
     });
 
     const board = dom.window.document.getElementById("board");
-    const requestColumn = Array.from(board?.querySelectorAll(".column") || []).find(
-      (c) => (c as HTMLElement).dataset.stage === "request"
-    );
-    const productColumn = Array.from(board?.querySelectorAll(".column") || []).find(
-      (c) => (c as HTMLElement).dataset.stage === "product"
-    );
-
-    expect(requestColumn?.querySelector(".column__add")).toBeTruthy();
-    expect(productColumn?.querySelector(".column__add")).toBeFalsy();
+    expect(board?.querySelector(".column__add")).toBeFalsy();
   });
 
   it("shows per-column totals in the board column header", () => {
@@ -177,7 +169,7 @@ describe("webview board renderer behavior", () => {
     expect(updatedColumn?.querySelector(".group-show-more")?.textContent).toBe("Show 1 more");
   });
 
-  it("opens and closes the column add menu on toggle", () => {
+  it("does not expose the legacy column add menu", () => {
     const { dom } = bootstrapWebview();
 
     pushData(dom, {
@@ -188,20 +180,8 @@ describe("webview board renderer behavior", () => {
     const board = dom.window.document.getElementById("board");
     const addButton = board?.querySelector(".column__add") as HTMLButtonElement | null;
 
-    addButton?.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true }));
-
-    const menu = board?.querySelector(".column__menu");
-    expect(menu).toBeTruthy();
-    expect(addButton?.getAttribute("aria-expanded")).toBe("true");
-
-    const menuItems = menu?.querySelectorAll(".column__menu-item") || [];
-    expect(menuItems.length).toBe(3); // Request, Backlog, Task
-
-    // Toggle again to close
-    addButton?.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true }));
-
-    const menuAfter = board?.querySelector(".column__menu");
-    expect(menuAfter).toBeFalsy();
+    expect(addButton).toBeNull();
+    expect(board?.querySelector(".column__menu")).toBeNull();
   });
 
   it("selects a card on click and deselects previous", () => {

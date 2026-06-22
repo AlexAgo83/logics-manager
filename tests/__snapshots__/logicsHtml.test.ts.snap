@@ -1083,6 +1083,7 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/harnessApi.js"></script>
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/layoutController.js"></script>
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/hostApiContract.js"></script>
+  <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/webviewModals.js"></script>
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/hostApi.js"></script>
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/toolsPanelLayout.js"></script>
   <script nonce="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" src="webview:/extension/clients/shared-web/media/webviewSelectors.js"></script>

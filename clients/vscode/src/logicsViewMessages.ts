@@ -22,12 +22,18 @@ type PromptMessage = {
   };
 };
 
+export type GuidedRequestDraft = {
+  title?: string;
+  intent?: string;
+  context?: string;
+};
+
 export type LogicsWebviewMessage =
   | { type: "ready" }
   | { type: "refresh" }
   | { type: "create-item"; kind: "request" | "backlog" | "task" }
   | { type: "new-request" }
-  | { type: "new-request-guided" }
+  | { type: "new-request-guided"; draft?: GuidedRequestDraft }
   | { type: "launch-codex-overlay" }
   | { type: "launch-claude" }
   | { type: "fix-docs" }
@@ -79,7 +85,6 @@ export function parseLogicsWebviewMessage(value: unknown): LogicsWebviewMessage 
     case "ready":
     case "refresh":
     case "new-request":
-    case "new-request-guided":
     case "launch-codex-overlay":
     case "launch-claude":
     case "fix-docs":
@@ -106,6 +111,16 @@ export function parseLogicsWebviewMessage(value: unknown): LogicsWebviewMessage 
     case "change-project-root":
     case "reset-project-root":
       return { type } as LogicsWebviewMessage;
+    case "new-request-guided": {
+      const draft = isRecord(value.draft)
+        ? {
+            title: readString(value.draft.title),
+            intent: readString(value.draft.intent),
+            context: readString(value.draft.context)
+          }
+        : undefined;
+      return { type, draft };
+    }
     case "assist-triage":
       return {
         type,

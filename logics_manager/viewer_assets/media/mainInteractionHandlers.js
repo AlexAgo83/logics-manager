@@ -65,7 +65,7 @@
 
     return {
       onNewRequest() {
-        hostApi.newRequest();
+        hostApi.newGuidedRequest();
         setToolsPanelOpen(false);
       },
       onAbout() {

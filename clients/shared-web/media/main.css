@@ -2,6 +2,7 @@
 @import url("./css/toolbar.css");
 @import url("./css/board.css");
 @import url("./css/details.css");
+@import url("./css/modals.css");
 
 :root {
   color-scheme: light dark;

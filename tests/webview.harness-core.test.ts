@@ -224,13 +224,20 @@ describe("webview harness core behaviors", () => {
     expect(openedUrls.length).toBe(0);
   });
 
-  it("posts new-request action in non-harness mode", () => {
+  it("posts guided new-request action with prefilled draft in non-harness mode", async () => {
     const { dom, postedMessages } = bootstrapWebview({ harness: false });
 
     const guidedButton = dom.window.document.querySelector('[data-action="new-request"]');
     guidedButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => dom.window.setTimeout(resolve, 0));
 
-    expect(postedMessages.some((message) => message.type === "new-request")).toBe(true);
+    expect(
+      postedMessages.some(
+        (message) =>
+          message.type === "new-request-guided" &&
+          (message.draft as Record<string, unknown> | undefined)?.intent === "Harness need"
+      )
+    ).toBe(true);
   });
 
   it("posts check-environment action in non-harness mode", () => {
@@ -284,7 +291,7 @@ describe("webview harness core behaviors", () => {
     expect(postedMessages.some((message) => message.type === "open-logics-insights")).toBe(true);
   });
 
-  it("routes trigger-tool-action messages through the existing tool buttons", () => {
+  it("routes trigger-tool-action messages through the existing tool buttons", async () => {
     const { dom, postedMessages } = bootstrapWebview({ harness: false });
 
     dom.window.dispatchEvent(
@@ -295,8 +302,9 @@ describe("webview harness core behaviors", () => {
         }
       })
     );
+    await new Promise((resolve) => dom.window.setTimeout(resolve, 0));
 
-    expect(postedMessages.some((message) => message.type === "new-request")).toBe(true);
+    expect(postedMessages.some((message) => message.type === "new-request-guided")).toBe(true);
   });
 
   it("posts repair actions in non-harness mode", () => {

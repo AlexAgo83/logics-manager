@@ -80,8 +80,16 @@
       fixDocs() {
         invokeHostOnly("fix-docs", {}, "Fix Logics");
       },
-      newGuidedRequest() {
-        invokeHostOnly("new-request-guided", {}, "New Request");
+      async newGuidedRequest() {
+        const modals = window.logicsViewerModals;
+        const draft =
+          modals && typeof modals.requestDraft === "function"
+            ? await modals.requestDraft()
+            : {};
+        if (!draft) {
+          return;
+        }
+        invokeHostOnly("new-request-guided", { draft }, "New Request");
       },
       launchCodexOverlay() {
         invokeHostOnly("launch-codex-overlay", {}, "Launch Codex");

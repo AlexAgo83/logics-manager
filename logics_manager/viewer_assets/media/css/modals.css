@@ -1,0 +1,102 @@
+.logics-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.42);
+}
+
+.logics-modal__dialog {
+  width: min(520px, 100%);
+  max-height: min(720px, calc(100vh - 32px));
+  overflow: auto;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 8px;
+  background: var(--vscode-editorWidget-background, #202020);
+  color: var(--vscode-foreground, #d4d4d4);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
+}
+
+.logics-modal__title {
+  padding: 14px 16px 4px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.logics-modal__message {
+  padding: 0 16px 8px;
+  color: var(--vscode-descriptionForeground, #a0a0a0);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.logics-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 16px 16px;
+}
+
+.logics-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.logics-modal__label {
+  color: var(--vscode-descriptionForeground, #a0a0a0);
+  font-size: 12px;
+}
+
+.logics-modal__input,
+.logics-modal__textarea {
+  width: 100%;
+  border: 1px solid var(--vscode-input-border, var(--vscode-panel-border, #333333));
+  border-radius: 4px;
+  background: var(--vscode-input-background, #1e1e1e);
+  color: var(--vscode-input-foreground, var(--vscode-foreground, #d4d4d4));
+  font: inherit;
+  font-size: 13px;
+  padding: 7px 8px;
+}
+
+.logics-modal__textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.logics-modal__input:focus,
+.logics-modal__textarea:focus {
+  border-color: var(--vscode-focusBorder, #007acc);
+  outline: none;
+}
+
+.logics-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.logics-modal__button {
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 10px;
+}
+
+.logics-modal__button--primary {
+  background: var(--vscode-button-background, #0e639c);
+  color: var(--vscode-button-foreground, #ffffff);
+}
+
+.logics-modal__button--secondary {
+  border-color: var(--vscode-button-secondaryBorder, var(--vscode-panel-border, #333333));
+  background: var(--vscode-button-secondaryBackground, transparent);
+  color: var(--vscode-button-secondaryForeground, var(--vscode-foreground, #d4d4d4));
+}

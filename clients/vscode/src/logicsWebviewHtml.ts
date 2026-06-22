@@ -106,6 +106,7 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
   const harnessApiScriptUri = mediaUri("harnessApi.js");
   const layoutControllerScriptUri = mediaUri("layoutController.js");
   const hostApiContractScriptUri = mediaUri("hostApiContract.js");
+  const webviewModalsScriptUri = mediaUri("webviewModals.js");
   const hostApiScriptUri = mediaUri("hostApi.js");
   const toolsPanelLayoutScriptUri = mediaUri("toolsPanelLayout.js");
   const webviewSelectorsScriptUri = mediaUri("webviewSelectors.js");
@@ -378,6 +379,7 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
   <script nonce="${nonce}" src="${harnessApiScriptUri}"></script>
   <script nonce="${nonce}" src="${layoutControllerScriptUri}"></script>
   <script nonce="${nonce}" src="${hostApiContractScriptUri}"></script>
+  <script nonce="${nonce}" src="${webviewModalsScriptUri}"></script>
   <script nonce="${nonce}" src="${hostApiScriptUri}"></script>
   <script nonce="${nonce}" src="${toolsPanelLayoutScriptUri}"></script>
   <script nonce="${nonce}" src="${webviewSelectorsScriptUri}"></script>

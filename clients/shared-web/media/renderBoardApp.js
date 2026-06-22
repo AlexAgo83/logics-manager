@@ -13,14 +13,6 @@
   const REQUEST_COLORS = ["#f97316", "#f59e0b", "#f43f5e", "#fb7185", "#ef4444", "#d97706", "#ec4899", "#be123c", "#fca5a5", "#fdba74"];
   const CLOSED_TASK_STATUSES = new Set(["done", "archived", "obsolete"]);
 
-  function plusIcon() {
-    return `
-      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-    `;
-  }
-
   function chevronIcon(isCollapsed) {
     return isCollapsed ? "▸" : "▾";
   }
@@ -134,7 +126,6 @@
       render,
       openSelectedItem,
       closeColumnMenu,
-      toggleColumnMenu,
       persistState,
       getCollapsedListStages,
       getHideCompleted,
@@ -604,7 +595,7 @@
 
     function getEmptyBoardMessage() {
       if (typeof getTotalItemCount === "function" && getTotalItemCount() === 0) {
-        return "No Logics items found. Use Tools > New Request or Bootstrap Logics to populate the board.";
+        return "No Logics items found. Use New Request or Bootstrap Logics to populate the board.";
       }
       if (typeof getAttentionOnly === "function" && getAttentionOnly()) {
         return "No items currently match the attention view. This view only shows blocked, orphaned, unprocessed, or inconsistent items.";
@@ -632,7 +623,7 @@
         }
         return `No items match the current filters. Adjust ${filters.join(" and ")} to change the view.`;
       }
-      return "No Logics items found. Use Tools > New Request or Bootstrap Logics to populate the board.";
+      return "No Logics items found. Use New Request or Bootstrap Logics to populate the board.";
     }
 
     function createCompanionBadges(item) {
@@ -1172,7 +1163,6 @@
         const totalCount = Math.max(0, stageItems.length || 0);
         const visibleSlice = visibleSliceForGroup(stage, stageItems);
         const column = document.createElement("div");
-        const canCreateFromColumn = isPrimaryFlowStage(stage);
         column.className = "column";
         column.dataset.stage = stage;
 
@@ -1195,22 +1185,6 @@
         const actions = document.createElement("div");
         actions.className = "column__actions";
 
-        if (canCreateFromColumn) {
-          const addButton = document.createElement("button");
-          addButton.type = "button";
-          addButton.className = "column__add";
-          addButton.innerHTML = plusIcon();
-          addButton.setAttribute("aria-label", "Add Logics item");
-          addButton.title = "Add Logics item";
-          addButton.setAttribute("aria-haspopup", "menu");
-          addButton.setAttribute("aria-expanded", "false");
-          addButton.addEventListener("click", (event) => {
-            event.stopPropagation();
-            toggleColumnMenu(addButton);
-          });
-          actions.appendChild(addButton);
-        }
-
         header.appendChild(actions);
         column.appendChild(header);
 
@@ -1219,7 +1193,7 @@
         if (!stageItems.length) {
           const empty = document.createElement("div");
           empty.className = "column__empty";
-          empty.textContent = canCreateFromColumn ? "No items" : "No linked docs";
+          empty.textContent = isPrimaryFlowStage(stage) ? "No items" : "No linked docs";
           body.appendChild(empty);
         } else {
           visibleSlice.items.forEach((item) => body.appendChild(createItemCard(item)));

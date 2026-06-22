@@ -18,6 +18,7 @@ import {
   updateMainHeadingId,
   updateManagedReferencesForRename
 } from "./logicsProviderUtils";
+import type { GuidedRequestDraft } from "./logicsViewMessages";
 import { buildGuidedRequestPrompt } from "./workflowSupport";
 
 type CompanionKind = "product" | "architecture";
@@ -76,7 +77,7 @@ export class LogicsViewDocumentController {
     await this.options.refresh();
   }
 
-  async startGuidedRequestFromTools(): Promise<void> {
+  async startGuidedRequestFromTools(draft?: GuidedRequestDraft): Promise<void> {
     const root = await this.options.getActionRoot();
     if (!root) {
       return;
@@ -100,7 +101,7 @@ export class LogicsViewDocumentController {
     }
 
     await this.options.setActiveAgent(agent.id);
-    const prompt = buildGuidedRequestPrompt(agent.defaultPrompt);
+    const prompt = buildGuidedRequestPrompt(agent.defaultPrompt, draft);
     await this.options.injectPromptIntoCodexChat(prompt, {
       codexCopiedMessage: "New-request prompt copied to clipboard for your assistant. Paste it into your assistant session.",
       fallbackCopiedMessage: "Could not copy the new-request prompt to the clipboard."

@@ -187,7 +187,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
           await this.createRequest();
           return;
         case "new-request-guided":
-          await this.startGuidedRequestFromTools();
+          await this.startGuidedRequestFromTools(message.draft);
           return;
         case "launch-codex-overlay":
           await this.launchCodexFromTools();
@@ -547,8 +547,8 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     await this.documentController.createRequest();
   }
 
-  async startGuidedRequestFromTools(): Promise<void> {
-    await this.documentController.startGuidedRequestFromTools();
+  async startGuidedRequestFromTools(draft?: import("./logicsViewMessages").GuidedRequestDraft): Promise<void> {
+    await this.documentController.startGuidedRequestFromTools(draft);
   }
 
   private async launchCodexFromTools(): Promise<void> {

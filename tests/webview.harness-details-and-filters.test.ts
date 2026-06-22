@@ -868,7 +868,7 @@ describe("webview harness filters, details, and docs", () => {
       ])
     );
     expect(document.querySelector("#tools-panel [data-action]")?.getAttribute("data-action")).toBe("new-request");
-    expect(addButton?.getAttribute("title")).toBe("Add Logics item");
+    expect(addButton).toBeNull();
     expect(card?.getAttribute("role")).toBe("button");
     expect(card?.tabIndex).toBe(0);
     expect(card?.getAttribute("aria-label")).toContain("request item");
@@ -934,6 +934,6 @@ describe("webview harness filters, details, and docs", () => {
     });
 
     expect(dom.window.document.querySelector(".column__toggle")).toBeNull();
-    expect(dom.window.document.querySelectorAll(".column__add").length).toBe(1);
+    expect(dom.window.document.querySelectorAll(".column__add").length).toBe(0);
   });
 });

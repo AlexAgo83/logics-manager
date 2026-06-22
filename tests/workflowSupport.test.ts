@@ -90,6 +90,18 @@ describe("workflowSupport", () => {
     expect(prompt.includes("My need:")).toBe(true);
   });
 
+  it("includes prefilled request draft details in the guided request prompt", () => {
+    const prompt = buildGuidedRequestPrompt("Write concise requests", {
+      title: "Hide corpus column add buttons",
+      intent: "Generate requests through an assisted modal",
+      context: "The plus buttons in board columns are unused"
+    });
+    expect(prompt).toContain("Working title:");
+    expect(prompt).toContain("Hide corpus column add buttons");
+    expect(prompt).toContain("- Generate requests through an assisted modal");
+    expect(prompt).toContain("- The plus buttons in board columns are unused");
+  });
+
   it("parses git porcelain output and recognizes bootstrap-scoped paths", () => {
     const entries = parseGitStatusEntries([" M README.md", "?? .gitmodules", "?? logics/request/req_001_demo.md"].join("\n"));
     expect(entries.map((entry) => entry.path)).toEqual(["README.md", ".gitmodules", "logics/request/req_001_demo.md"]);

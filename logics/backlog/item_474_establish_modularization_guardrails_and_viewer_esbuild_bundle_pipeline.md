@@ -2,9 +2,9 @@
 > From version: 2.12.7
 > Schema version: 1.0
 > Status: Done
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 100%
+> Understanding: 90
+> Confidence: 85
+> Progress: 100
 > Complexity: Medium
 > Theme: Build tooling
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -29,6 +29,14 @@
 # AC Traceability
 - request-AC6 -> This backlog slice. Proof: AC1: An esbuild-based bundle command exists and produces browser-host.js from a src/ entrypoint.
 - request-AC7 -> This backlog slice. Proof: AC2: A documented line-budget guardrail fails CI when a source file exceeds the threshold.
+- request-AC3 -> This backlog slice. Evidence needed: The Python monoliths (flow.py, viewer.py, mcp.py, assist_support.py, sync.py, audit.py, release.py) become packages organized by responsibility.
+- request-AC4 -> This backlog slice. Evidence needed: clients/viewer/browser-host.js is rewritten as ES modules bundled by the existing esbuild toolchain, and sync-viewer-assets.mjs still emits the shipped viewer_assets artifact.
+- request-AC5 -> This backlog slice. Evidence needed: The webview scripts renderBoardApp.js and mainApp.js are modularized and bundled with no behavior change.
+- request-AC8 -> This backlog slice. Evidence needed: logics-manager lint and audit pass on the resulting workflow corpus and code.
+- request-AC3 -> This backlog slice. Proof: Validation passed: python3 -m pytest tests/python/ -q (391 passed), npm test (680 passed), npm run lint:ts, npm run check:line-budget, npm run check:viewer-host, npm run check:webview-media, and npm run check:viewer-assets. Source: `task_267_orchestrate_the_oversized_source_modularization_program`
+- request-AC4 -> This backlog slice. Proof: Validation passed: python3 -m pytest tests/python/ -q (391 passed), npm test (680 passed), npm run lint:ts, npm run check:line-budget, npm run check:viewer-host, npm run check:webview-media, and npm run check:viewer-assets. Source: `task_267_orchestrate_the_oversized_source_modularization_program`
+- request-AC5 -> This backlog slice. Proof: Validation passed: python3 -m pytest tests/python/ -q (391 passed), npm test (680 passed), npm run lint:ts, npm run check:line-budget, npm run check:viewer-host, npm run check:webview-media, and npm run check:viewer-assets. Source: `task_267_orchestrate_the_oversized_source_modularization_program`
+- request-AC8 -> This backlog slice. Proof: Validation passed: python3 -m pytest tests/python/ -q (391 passed), npm test (680 passed), npm run lint:ts, npm run check:line-budget, npm run check:viewer-host, npm run check:webview-media, and npm run check:viewer-assets. Source: `task_267_orchestrate_the_oversized_source_modularization_program`
 
 # Decision framing
 - Product framing: Not needed
@@ -52,3 +60,9 @@
 
 # Validation
 - Implemented the enabling viewer-host esbuild bundle pipeline and source line-budget guardrail. Validation: npm run check:line-budget, npm run check:viewer-host, npm run check:viewer-assets, npm test -- tests/viewer.browser-host.test.ts, and logics-manager lint --require-status all pass.
+
+# Tasks
+- `task_267_orchestrate_the_oversized_source_modularization_program`
+
+# Notes
+- Task `task_267_orchestrate_the_oversized_source_modularization_program` was finished via `logics-manager flow finish task` on 2026-06-22.

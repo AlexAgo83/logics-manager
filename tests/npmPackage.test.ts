@@ -37,14 +37,16 @@ describe("npm package surface", () => {
     try {
       const filePaths = packed.files.map((entry) => entry.path);
 
-      // Bundled vendor assets (xterm, highlight.js) are included on purpose; the
-      // ceiling guards against accidentally shipping the whole repo.
-      expect(packed.entryCount).toBeLessThan(80);
+      // Runtime fragments are included on purpose for the modular Python
+      // facades; the ceiling still guards against shipping the whole repo.
+      expect(packed.entryCount).toBeLessThan(160);
       expect(filePaths).toContain("VERSION");
       expect(filePaths).toContain("scripts/npm/logics-manager.mjs");
       expect(filePaths).toContain("scripts/logics-manager.py");
       expect(filePaths).toContain("logics_manager/cli.py");
       expect(filePaths).toContain("logics_manager/viewer.py");
+      expect(filePaths).toContain("logics_manager/flow/_listing.py");
+      expect(filePaths).toContain("logics_manager/viewer_parts/_model_and_parse.py");
       expect(filePaths).toContain("clients/viewer/index.html");
       expect(filePaths).toContain("clients/viewer/browser-host.js");
       expect(filePaths).toContain("clients/viewer/viewer.css");

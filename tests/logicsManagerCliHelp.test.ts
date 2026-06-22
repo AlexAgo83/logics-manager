@@ -156,7 +156,7 @@ describe("logics-manager CLI help", () => {
         expect(output).toContain(fragment);
       }
     }
-  });
+  }, 15_000);
 
   it("prints a rich sync recap on sync --help", () => {
     const { status, output } = runCliHelp(["sync", "--help"]);

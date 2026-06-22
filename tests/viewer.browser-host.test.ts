@@ -188,6 +188,8 @@ function createViewerDom(options: {
     <button data-action="change-status" type="button">Status</button>
     <button data-viewer-action="edit-document" type="button" disabled>Edit document</button>
     <section id="viewer-document" hidden>
+      <div id="viewer-document-eyebrow" hidden></div>
+      <span id="viewer-document-badge" hidden></span>
       <div id="viewer-document-title"></div>
       <div id="viewer-document-nav" hidden></div>
       <div id="viewer-document-content"></div>
@@ -1829,7 +1831,14 @@ describe("local viewer browser host", () => {
 
     expect(calls).toContain("/api/doc?path=logics%2Frequest%2Freq_001_demo.md");
     expect(dom.window.document.getElementById("viewer-document")?.hidden).toBe(false);
-    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("logics/request/req_001_demo.md");
+    // The header shows the object name with a corpus-type pill; the file path
+    // moves to the eyebrow subtitle.
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Demo");
+    const badge = dom.window.document.getElementById("viewer-document-badge");
+    expect(badge?.hidden).toBe(false);
+    expect(badge?.textContent).toBe("Request");
+    expect(badge?.getAttribute("data-stage")).toBe("request");
+    expect(dom.window.document.getElementById("viewer-document-eyebrow")?.textContent).toBe("logics/request/req_001_demo.md");
   });
 
   it("reports invalid or missing viewer focus targets without blocking corpus load", async () => {
@@ -3034,13 +3043,13 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
     await flushViewerAsync();
 
-    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("logics/request/req_001_demo.md");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Demo");
 
     releaseCdxStatus();
     await flushViewerAsync();
     await flushViewerAsync();
 
-    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("logics/request/req_001_demo.md");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Demo");
   });
 
   it("lets users disable automatic refresh without disabling manual refresh", async () => {

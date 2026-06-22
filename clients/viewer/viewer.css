@@ -991,12 +991,23 @@
 }
 
 .viewer-document__eyebrow {
-  display: none;
+  display: block;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.viewer-document__eyebrow[hidden] {
+  display: none;
+}
+
+.viewer-document__title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 .viewer-document__title {
@@ -1005,6 +1016,33 @@
   font-weight: 700;
   overflow-wrap: anywhere;
 }
+
+/* Corpus-type pill in front of the object name. Colours mirror the Recent
+   activity stage markers so a type reads the same everywhere. */
+.viewer-document__badge {
+  flex: 0 0 auto;
+  margin-top: 3px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  background: #52525b;
+  white-space: nowrap;
+}
+
+.viewer-document__badge[hidden] {
+  display: none;
+}
+
+.viewer-document__badge[data-stage="request"] { background: #d97706; }
+.viewer-document__badge[data-stage="backlog"] { background: #2563eb; }
+.viewer-document__badge[data-stage="task"] { background: #0f766e; }
+.viewer-document__badge[data-stage="product"] { background: #7c3aed; }
+.viewer-document__badge[data-stage="architecture"] { background: #be123c; }
+.viewer-document__badge[data-stage="spec"] { background: #15803d; }
 
 @media (max-width: 900px) {
   .viewer-document__header {

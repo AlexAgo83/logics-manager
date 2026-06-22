@@ -2802,6 +2802,32 @@
       nav.appendChild(tablist);
       nav.hidden = false;
     }
+    const stageBadgeLabels = {
+      request: "Request",
+      backlog: "Backlog",
+      task: "Task",
+      product: "Product",
+      architecture: "Architecture",
+      spec: "Spec"
+    };
+    function updateDocumentBadge(stage) {
+      const badge = document.getElementById("viewer-document-badge");
+      if (!(badge instanceof HTMLElement)) {
+        return;
+      }
+      const normalized = String(stage || "").trim().toLowerCase();
+      const label = stageBadgeLabels[normalized];
+      if (!label) {
+        badge.hidden = true;
+        badge.textContent = "";
+        badge.removeAttribute("data-stage");
+        return;
+      }
+      badge.textContent = label;
+      badge.dataset.stage = normalized;
+      badge.title = `${label} document`;
+      badge.hidden = false;
+    }
     function setDocument(titleText, html, options = {}) {
       invalidatePendingViews();
       cdxCloseTarget = null;
@@ -2817,10 +2843,11 @@
         title.textContent = titleText || "Document";
       }
       if (eyebrow instanceof HTMLElement) {
-        const description = describeDocumentScreen(titleText);
+        const description = options.eyebrow !== void 0 ? String(options.eyebrow || "") : describeDocumentScreen(titleText);
         eyebrow.textContent = description;
         eyebrow.hidden = !description;
       }
+      updateDocumentBadge(options.badgeStage);
       updateScreenActions(titleText);
       if (content) {
         content.innerHTML = html || "";
@@ -3718,7 +3745,13 @@
           markdown = api.stripLeadingDocumentFrontMatter(markdown, item);
         }
         const html = api && typeof api.renderMarkdownToHtml === "function" ? api.renderMarkdownToHtml(markdown) : `<pre>${escapeHtml(markdown)}</pre>`;
-        setDocument(data.document.path, html, { item: { ...item, relPath: data.document.path || item.relPath } });
+        const docPath = data.document.path || item.relPath;
+        const objectName = String(item.title || "").trim() || docPath;
+        setDocument(objectName, html, {
+          item: { ...item, relPath: docPath },
+          badgeStage: item.stage,
+          eyebrow: docPath
+        });
       } catch (error) {
         if (isAbortError(error)) {
           return;

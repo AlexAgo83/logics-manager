@@ -6152,6 +6152,49 @@ describe("local viewer browser host", () => {
     expect(cleared?.viewerFilterState).toBeDefined();
   });
 
+  it("deduplicates local recent activity entries within the same minute", async () => {
+    const { dom } = createViewerDom({
+      initialState: {
+        activityByRoot: {
+          "/workspace/logics-manager": {
+            activitySnapshot: {},
+            activityHistory: [
+              {
+                path: "logics/request/req_001_demo.md",
+                at: "2026-06-22T10:15:05.000Z",
+                status: "Ready",
+                previousStatus: "",
+                type: "updated"
+              }
+            ]
+          }
+        }
+      }
+    });
+    const realDate = dom.window.Date;
+    const fixedNow = realDate.parse("2026-06-22T10:15:42.000Z");
+    function FixedDate(this: Date, ...args: ConstructorParameters<DateConstructor>) {
+      return args.length ? new realDate(...args) : new realDate(fixedNow);
+    }
+    FixedDate.now = () => fixedNow;
+    FixedDate.parse = realDate.parse;
+    FixedDate.UTC = realDate.UTC;
+    FixedDate.prototype = realDate.prototype;
+    Object.defineProperty(dom.window, "Date", { configurable: true, value: FixedDate });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const state = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.state") || "null");
+    const history = state?.activityByRoot?.["/workspace/logics-manager"]?.activityHistory || [];
+    const matchingEntries = history.filter((entry: { path?: string; type?: string }) =>
+      entry.path === "logics/request/req_001_demo.md" && entry.type === "updated"
+    );
+    expect(matchingEntries).toHaveLength(1);
+    expect(matchingEntries[0]?.at).toBe("2026-06-22T10:15:05.000Z");
+  });
+
   it("scopes recent activity to the active project when switching projects", async () => {
     const { dom } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();

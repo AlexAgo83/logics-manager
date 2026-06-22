@@ -1,10 +1,10 @@
 ## item_473_add_editable_permission_column_to_the_status_table - Add editable Permission column to the status table
 > From version: 2.12.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 85
 > Confidence: 80
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: CDX status table
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -75,6 +75,7 @@ The CDX status table shows session/provider operational state, but permission st
 - Generated locally by logics-manager.
 - Likely implementation surface: `clients/viewer/browser-host.js` around `cdxStatusColumns`, status table rendering, column preference handling, and CDX API calls; `clients/viewer/viewer.css` for editor styling; `tests/viewer.browser-host.test.ts` around status table and column visibility tests.
 - Supported values should come from the same runtime contract used for CDX mission permission selection when possible.
+- Task `task_266_add_editable_permission_column_to_the_status_table` was finished via `logics-manager flow finish task` on 2026-06-22.
 
 # Tasks
 - `task_266_add_editable_permission_column_to_the_status_table`

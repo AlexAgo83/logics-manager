@@ -3303,6 +3303,44 @@ def cdx_remove_payload(
         return {"ok": True, "message": result.stdout.strip() or "Remove complete."}
 
 
+def cdx_permission_payload(
+    repo_root: Path,
+    session: str,
+    permission: str,
+    *,
+    runner: Any | None = None,
+    which: Any | None = None,
+) -> dict[str, Any]:
+    cdx_which = which or shutil.which
+    if not cdx_which("cdx"):
+        return {"ok": False, "error": "CDX executable not available."}
+    if not session:
+        return {"ok": False, "error": "Session name is required."}
+    if not re.match(r"^[A-Za-z0-9_.:-]{1,120}$", session):
+        return {"ok": False, "error": "Invalid session name."}
+    if permission not in {"review", "default", "auto", "full"}:
+        return {"ok": False, "error": "Invalid permission value."}
+    cdx_runner = runner or subprocess.run
+    try:
+        result = cdx_runner(
+            ["cdx", "set", session, "--permission", permission, "--json"],
+            cwd=repo_root,
+            text=True,
+            capture_output=True,
+            timeout=_scaled_timeout(repo_root, 10),
+        )
+    except subprocess.TimeoutExpired:
+        return {"ok": False, "error": "CDX permission update timed out."}
+    if result.returncode != 0:
+        msg = (result.stderr or result.stdout or "").strip()
+        return {"ok": False, "error": msg or "CDX permission update failed."}
+    try:
+        parsed = json.loads(result.stdout)
+        return {"ok": True, "message": parsed.get("message") or "Permission update complete.", "permission": permission}
+    except Exception:
+        return {"ok": True, "message": result.stdout.strip() or "Permission update complete.", "permission": permission}
+
+
 def cdx_import_payload(
     repo_root: Path,
     file_bytes: bytes,
@@ -3673,6 +3711,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/cdx-import",
         "/api/cdx-export",
         "/api/cdx-toggle",
+        "/api/cdx-permission",
         "/api/cdx-remove",
         "/api/release-reset",
         "/api/update-status",
@@ -4881,6 +4920,22 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"ok": True, "payload": result})
             else:
                 self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, result.get("error", "Toggle failed."))
+            return
+        if parsed.path == "/api/cdx-permission":
+            try:
+                length = int(self.headers.get("Content-Length", "0") or "0")
+                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                body = json.loads(raw_body or "{}")
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+                return
+            session = str(body.get("session") or "")
+            permission = str(body.get("permission") or "")
+            result = cdx_permission_payload(self.server.repo_root, session, permission)
+            if result.get("ok"):
+                self._send_json({"ok": True, "payload": result})
+            else:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, result.get("error", "Permission update failed."))
             return
         if parsed.path == "/api/cdx-remove":
             try:

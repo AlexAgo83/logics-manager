@@ -28,6 +28,7 @@ const steps = [
     command: pythonInvocation.command,
     args: [...pythonInvocation.argsPrefix, "-m", "pytest", "tests/python/", "-q"]
   },
+  { label: "Viewer browser-host bundle freshness", command: npmCommand(), args: ["run", "check:viewer-host"] },
   { label: "Viewer assets sync check", command: npmCommand(), args: ["run", "check:viewer-assets"] },
   { label: "Compile", command: npmCommand(), args: ["run", "compile"] },
   { label: "Lint", command: npmCommand(), args: ["run", "lint"] },

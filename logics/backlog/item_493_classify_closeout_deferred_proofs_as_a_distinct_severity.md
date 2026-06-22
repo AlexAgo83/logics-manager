@@ -1,10 +1,10 @@
 ## item_493_classify_closeout_deferred_proofs_as_a_distinct_severity - Classify closeout-deferred proofs as a distinct severity
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100
 > Complexity: Medium
 > Theme: Diagnostics
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -49,3 +49,6 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Notes
+- Done: deferred AC-traceability proofs reclassified to category 'deferred' (fixable=False) in _validate_finding; added deferred_count. Fresh scaffolds validate clean.

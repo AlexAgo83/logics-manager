@@ -580,7 +580,11 @@ def lint_payload(repo_root: Path, *, require_status: bool = False) -> dict[str, 
                     and not _diff_is_status_only_normalization(repo_root, rel_path)
                     and not _has_non_semantic_edit_marker(_read_lines(path))
                 ):
-                    issues.append("modified without updating indicators: " + ", ".join(sorted(required)))
+                    issues.append(
+                        "modified without updating indicators: "
+                        + ", ".join(sorted(required))
+                        + f" (fix: logics-manager sync update-indicators {path.stem})"
+                    )
             if issues:
                 all_issues.append((rel_path, issues))
             if warnings:

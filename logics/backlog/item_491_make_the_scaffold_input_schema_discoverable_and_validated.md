@@ -1,10 +1,10 @@
 ## item_491_make_the_scaffold_input_schema_discoverable_and_validated - Make the scaffold input schema discoverable and validated
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100
 > Complexity: Medium
 > Theme: CLI ergonomics
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -50,3 +50,6 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Notes
+- Done: --print-schema and --example on flow scaffold request-chain; SCAFFOLD_REQUEST_CHAIN_SCHEMA_HELP in --help; _validate_scaffold_input raises precise key/type errors before writing.

@@ -1,10 +1,10 @@
 ## item_492_name_remedy_commands_in_blocking_lint_validate_messages - Name remedy commands in blocking lint/validate messages
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100
 > Complexity: Low
 > Theme: Diagnostics
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -47,3 +47,6 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Notes
+- Done: the indicator-gate lint message now appends 'fix: logics-manager sync update-indicators <ref>'.

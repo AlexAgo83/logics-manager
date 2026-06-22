@@ -356,6 +356,19 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
         ),
         "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
+    {
+        "name": "scaffold_request_chain",
+        "description": "Author a full Logics request chain (request + product brief + backlog slices + orchestration task + optional context pack) in one call. `input` is the request-chain JSON; run the CLI with --print-schema/--example for its shape.",
+        "inputSchema": _tool_schema(
+            {
+                "input": {"type": "object", "description": "request-chain JSON: title, request, product, backlog_items[], orchestration_task, context_pack."},
+                "context_pack_out": {"type": "string"},
+                "dry_run": {"type": "boolean"},
+            },
+            ["input"],
+        ),
+        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
+    },
 ]
 TOOLS_BY_NAME = {str(tool["name"]): tool for tool in TOOL_DEFINITIONS}
 
@@ -1082,6 +1095,35 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
             },
             paths=[source_rel.as_posix(), destination_rel.as_posix()],
         )
+
+    if name == "scaffold_request_chain":
+        scaffold_input = args.get("input")
+        if not isinstance(scaffold_input, dict):
+            raise McpToolError("missing_required_argument", "input (request-chain JSON object) is required.", details={"argument": "input"})
+        scaffold_dir = root / "logics" / "scaffold"
+        scaffold_dir.mkdir(parents=True, exist_ok=True)
+        temp_input = scaffold_dir / f".mcp-scaffold-{secrets.token_hex(6)}.json"
+        temp_input.write_text(json.dumps(scaffold_input, indent=2) + "\n", encoding="utf-8")
+        try:
+            command = ["flow", "scaffold", "request-chain", "--input", temp_input.relative_to(root).as_posix(), "--format", "json"]
+            if args.get("context_pack_out"):
+                command.extend(["--context-pack", str(args["context_pack_out"])])
+            if args.get("dry_run"):
+                command.append("--dry-run")
+            payload = _json_from_stdout(_run_command(root, command).stdout)
+        finally:
+            temp_input.unlink(missing_ok=True)
+        return {
+            "ok": True,
+            "request_ref": payload["request_ref"],
+            "product_ref": payload["product_ref"],
+            "backlog_refs": payload["backlog_refs"],
+            "task_ref": payload["task_ref"],
+            "created_paths": payload["created_paths"],
+            "summary": f"Scaffolded request chain {payload['request_ref']}",
+            "next_suggested_tool": "run_logics_audit",
+            **(_validation_result(root) if not args.get("dry_run") else {}),
+        }
 
     if name == "create_request":
         title = str(args.get("title") or "").strip()

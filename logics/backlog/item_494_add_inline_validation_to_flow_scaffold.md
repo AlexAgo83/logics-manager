@@ -1,10 +1,10 @@
 ## item_494_add_inline_validation_to_flow_scaffold - Add inline validation to flow scaffold
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100
 > Complexity: Low
 > Theme: CLI ergonomics
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -47,3 +47,6 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Notes
+- Done: flow scaffold request-chain --validate runs flow_validate_payload inline and prints a ready-to-dev summary (blocking_count==0).

@@ -414,11 +414,11 @@
 .viewer-screen-activity #filter-toggle,
 .viewer-screen-activity #attention-toggle,
 .viewer-screen-activity .toolbar__mode-button,
-.viewer-screen-activity .toolbar__search,
 .viewer-screen-document #filter-toggle,
 .viewer-screen-document #attention-toggle,
 .viewer-screen-document .toolbar__mode-button,
 .viewer-screen-document .toolbar__search,
+.viewer-screen-document .toolbar__new-request,
 .viewer-screen-document #activity-clear,
 .viewer-screen-document #filter-panel,
 .viewer-screen-activity #filter-panel {
@@ -2486,6 +2486,16 @@
 .viewer-themed-modal__body > * {
   min-width: 0;
   max-width: 100%;
+}
+
+.viewer-themed-modal__field {
+  display: grid;
+  gap: 6px;
+}
+
+.viewer-themed-modal__label {
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font-size: 12px;
 }
 
 .viewer-themed-modal__input,

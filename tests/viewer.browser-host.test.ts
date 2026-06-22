@@ -1342,17 +1342,23 @@ describe("local viewer browser host", () => {
   it("places the Activity/Project slider to the right of the search docs bar", () => {
     const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
     const dom = new JSDOM(html);
+    const newRequest = dom.window.document.querySelector('.toolbar__filters .toolbar__new-request[data-action="new-request"]');
+    const filters = dom.window.document.querySelector(".toolbar__filters");
     const search = dom.window.document.querySelector(".toolbar__search");
     const view = dom.window.document.querySelector(".toolbar__view");
     const slider = dom.window.document.querySelector(".toolbar__view-slider#activity-toggle");
     const projectMode = dom.window.document.querySelector('.toolbar__filters [data-action="toggle-view-mode"]');
+    expect(newRequest).toBeTruthy();
+    expect(filters).toBeTruthy();
     expect(search).toBeTruthy();
     expect(view).toBeTruthy();
     expect(slider).toBeTruthy();
+    expect(newRequest?.textContent).toBe("+New");
     expect(view?.textContent).toContain("Activity");
     expect(view?.textContent).toContain("Project");
     expect(projectMode).toBeTruthy();
-    // The slider container comes after the search bar in document order.
+    expect(filters?.firstElementChild).toBe(newRequest);
+    expect(filters?.compareDocumentPosition(search as Node) & dom.window.Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(search?.compareDocumentPosition(view as Node) & dom.window.Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(projectMode?.classList.contains("toolbar__view-slider")).toBe(false);
   });

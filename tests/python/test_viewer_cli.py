@@ -42,6 +42,7 @@ from logics_manager.viewer import (
     ci_status_payload,
     collect_viewer_items,
     create_request_from_cdx_report,
+    create_request_from_viewer_draft,
     create_viewer_server,
     edit_doc_payload,
     file_preview_payload,
@@ -411,6 +412,7 @@ def test_viewer_mutating_routes_registry_covers_every_state_changing_post() -> N
         "/api/open-file",
         "/api/open-repo-folder",
         "/api/bootstrap-logics",
+        "/api/new-request",
         "/api/restart-viewer",
         "/api/switch-project",
         "/api/select-project-root",
@@ -424,6 +426,26 @@ def test_viewer_mutating_routes_registry_covers_every_state_changing_post() -> N
         "/api/lan/devices/revoke",
     }
     assert must_be_gated.issubset(VIEWER_MUTATING_ROUTES)
+
+
+def test_create_request_from_viewer_draft_writes_request_doc(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    created = create_request_from_viewer_draft(
+        repo_root,
+        {
+            "title": "Capture toolbar request",
+            "intent": "Add a New Request action to the standalone viewer toolbar.",
+            "context": "Keep search available in Activity mode.\nPlace the button before filters.",
+        },
+    )
+
+    assert created["id"].startswith("req_000_capture_toolbar_request")
+    path = repo_root / created["path"]
+    text = path.read_text(encoding="utf-8")
+    assert "> Status: Draft" in text
+    assert "- Add a New Request action to the standalone viewer toolbar." in text
+    assert "- Keep search available in Activity mode." in text
+    assert "- Place the button before filters." in text
 
 
 def test_viewer_post_routes_are_classified_for_lan_gating() -> None:

@@ -177,6 +177,80 @@
     });
   }
 
+  function showRequestDraftModal() {
+    return new Promise((resolve) => {
+      const modal = createThemedModal({
+        title: "New request",
+        message: "",
+        submitLabel: "Create request"
+      });
+      const body = modal.querySelector(".viewer-themed-modal__body");
+      const fields = [
+        { id: "title", label: "Title", placeholder: "Short request title", type: "input", required: false },
+        { id: "intent", label: "Need", placeholder: "What should change, and why?", type: "textarea", required: true },
+        { id: "context", label: "Context", placeholder: "Constraints, links, scope notes, or acceptance hints", type: "textarea", required: false }
+      ];
+      const controls = new Map();
+      fields.forEach((field) => {
+        const wrapper = document.createElement("label");
+        wrapper.className = "viewer-themed-modal__field";
+        const label = document.createElement("span");
+        label.className = "viewer-themed-modal__label";
+        label.textContent = field.label;
+        const control = field.type === "textarea" ? document.createElement("textarea") : document.createElement("input");
+        control.className = "viewer-themed-modal__input";
+        control.placeholder = field.placeholder;
+        if (field.type === "textarea") {
+          control.rows = field.id === "intent" ? 5 : 4;
+        } else {
+          control.type = "text";
+        }
+        if (field.required) {
+          control.required = true;
+        }
+        wrapper.append(label, control);
+        body?.appendChild(wrapper);
+        controls.set(field.id, control);
+      });
+      const done = (value) => {
+        closeThemedModal(modal);
+        resolve(value);
+      };
+      const submit = () => {
+        const draft = {
+          title: String(controls.get("title")?.value || "").trim(),
+          intent: String(controls.get("intent")?.value || "").trim(),
+          context: String(controls.get("context")?.value || "").trim()
+        };
+        if (!draft.intent) {
+          const need = controls.get("intent");
+          if (need instanceof HTMLElement) {
+            need.focus();
+          }
+          return;
+        }
+        done(draft);
+      };
+      modal.querySelector(".viewer-themed-modal__submit")?.addEventListener("click", submit);
+      modal.querySelector(".viewer-themed-modal__cancel")?.addEventListener("click", () => done(null));
+      modal.querySelector(".viewer-themed-modal__close")?.addEventListener("click", () => done(null));
+      modal.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          done(null);
+        }
+        if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+          submit();
+        }
+      });
+      window.setTimeout(() => {
+        const titleInput = controls.get("title");
+        if (titleInput instanceof HTMLElement) {
+          titleInput.focus();
+        }
+      }, 0);
+    });
+  }
+
   function showThemedChoiceModal({ title, message, options, value, submitLabel = "Apply" }) {
     return new Promise((resolve) => {
       const modal = createThemedModal({ title, message, submitLabel });
@@ -254,7 +328,8 @@
     prompt: showThemedInputModal,
     choice: showThemedChoiceModal,
     message: showThemedMessageModal,
-    confirm: showThemedConfirmModal
+    confirm: showThemedConfirmModal,
+    requestDraft: showRequestDraftModal
   };
 
   async function startDevicePairing() {
@@ -2677,6 +2752,32 @@
     setMeta("Getting Started opened.");
   }
 
+  async function createNewRequest(draft) {
+    const response = await fetch("/api/new-request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ draft: draft || {} })
+    });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to create request.");
+    }
+    postToApp(data.payload, { force: true });
+    if (data.created?.id) {
+      selectItem(data.created.id);
+    }
+    setMeta(`Created ${data.created?.path || "request"}.`);
+  }
+
+  async function startNewRequest() {
+    const modals = window.logicsViewerModals;
+    const draft = modals && typeof modals.requestDraft === "function" ? await modals.requestDraft() : null;
+    if (!draft) {
+      return;
+    }
+    await createNewRequest(draft);
+  }
+
   function runOnboardingAction(action) {
     const key = String(action || "");
     if (key === "open-logics-insights") {
@@ -2696,7 +2797,7 @@
       return;
     }
     if (key === "new-request") {
-      setMeta("Create requests with `logics-manager flow new request --title ...`.");
+      startNewRequest().catch((error) => setMeta(error.message));
       return;
     }
     if (key === "assist-triage") {
@@ -8718,6 +8819,12 @@
         }
         if (message.type === "bootstrap-logics") {
           bootstrapLogicsProject().catch((error) => setMeta(error.message));
+          return;
+        }
+        if (message.type === "new-request" || message.type === "new-request-guided") {
+          const draft = message.draft || {};
+          const action = message.type === "new-request-guided" && draft ? createNewRequest(draft) : startNewRequest();
+          action.catch((error) => setMeta(error.message));
           return;
         }
         if (message.type === "open" || message.type === "read") {

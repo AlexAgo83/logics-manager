@@ -191,10 +191,12 @@
   content: "";
   position: absolute;
   inset: 0;
+  /* "In progress" fill: a calm teal "active" wash, not an orange flood that
+     reads as a warning. Orange/red stay reserved for health alerts. */
   background: linear-gradient(
     90deg,
-    rgba(249, 115, 22, 0.38) 0%,
-    rgba(249, 115, 22, 0.38) var(--progress, 0%),
+    rgba(20, 184, 166, 0.26) 0%,
+    rgba(20, 184, 166, 0.26) var(--progress, 0%),
     rgba(0, 0, 0, 0) var(--progress, 0%)
   );
   pointer-events: none;
@@ -524,7 +526,7 @@
 }
 
 .card--progress-active {
-  background: rgba(249, 115, 22, 0.16);
+  background: rgba(20, 184, 166, 0.12);
 }
 
 .card--progress-done {

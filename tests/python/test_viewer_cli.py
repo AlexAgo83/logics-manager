@@ -2876,6 +2876,41 @@ def test_viewer_start_status_includes_version() -> None:
     assert status.splitlines()[0] == "Logics viewer running (v9.9.9):"
 
 
+def test_viewer_styled_banner_is_a_boxed_aligned_panel() -> None:
+    import re
+
+    banner = viewer_module.render_start_status(
+        "http://127.0.0.1:8765",
+        Path("/x/logics-manager"),
+        version="2.12.3",
+        network_url="http://192.168.1.20:8765",
+        focus="req_001_demo",
+        styled=True,
+    )
+    ansi = re.compile(r"\x1b\[[0-9;]*m")
+    box_lines = [
+        ansi.sub("", line)
+        for line in banner.splitlines()
+        if ansi.sub("", line)[:1] in {"╭", "│", "╰"}
+    ]
+    # Every box line renders to the same display width (no misalignment).
+    assert len({viewer_module._display_width(line) for line in box_lines}) == 1
+    assert box_lines[0].startswith("╭─ Logics viewer")
+    assert "v2.12.3" in box_lines[0]
+    assert any("http://127.0.0.1:8765" in line for line in box_lines)
+    assert any("http://192.168.1.20:8765" in line for line in box_lines)
+
+
+def test_viewer_banner_style_gating_honors_no_color(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(viewer_module.sys.stdout, "isatty", lambda: True)
+    monkeypatch.delenv("NO_COLOR", raising=False)
+    monkeypatch.setenv("TERM", "xterm-256color")
+    assert viewer_module._supports_banner_style() is True
+
+    monkeypatch.setenv("NO_COLOR", "1")
+    assert viewer_module._supports_banner_style() is False
+
+
 def test_viewer_main_aborts_without_corpus_when_declined(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,

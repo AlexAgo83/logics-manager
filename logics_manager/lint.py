@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from .config import find_repo_root
+from .obsidian import validate_frontmatter_file
 
 
 @dataclass(frozen=True)
@@ -544,6 +545,9 @@ def _lint_file(path: Path, kind_name: str, kind: Kind, require_status: bool, che
         elif placeholder_hits:
             warnings.append("contains template placeholder content: " + ", ".join(sorted(set(placeholder_hits))))
         warnings.extend(_mermaid_warnings(kind_name, lines))
+
+    for warning in validate_frontmatter_file(path, kind_name):
+        issues.append(warning)
 
     return issues, warnings
 

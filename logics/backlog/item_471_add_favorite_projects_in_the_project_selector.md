@@ -1,10 +1,10 @@
 ## item_471_add_favorite_projects_in_the_project_selector - Add favorite projects in the project selector
 > From version: 2.12.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95
 > Confidence: 90
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer project switching
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -74,6 +74,7 @@ The viewer project selector lists known Logics projects in a flat order. Operato
 - Generated locally by logics-manager.
 - Likely implementation surface: `clients/viewer/browser-host.js` around `renderProjectMenu`, `switchViewerProject`, and viewer preference helpers; `clients/viewer/viewer.css` for row/star visibility; `tests/viewer.browser-host.test.ts` for DOM behavior.
 - Persistence should prefer an existing viewer preference path if one already covers local UI state.
+- Task `task_264_add_favorite_projects_in_the_project_selector` was finished via `logics-manager flow finish task` on 2026-06-22.
 
 # Tasks
 - `task_264_add_favorite_projects_in_the_project_selector`

@@ -1955,6 +1955,52 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.body.classList.contains("viewer-screen-activity")).toBe(false);
   });
 
+  it("orders favorite projects first and persists project menu star toggles without switching", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const switcher = dom.window.document.getElementById("viewer-repo-pill") as HTMLButtonElement | null;
+    const menu = dom.window.document.getElementById("viewer-project-menu") as HTMLElement | null;
+    for (let attempt = 0; attempt < 10 && !menu?.textContent?.includes("cdx-manager"); attempt += 1) {
+      await flushViewerAsync();
+    }
+
+    switcher?.click();
+    const favorite = menu?.querySelector('[data-viewer-project-favorite="project-cdx"]') as HTMLButtonElement | null;
+    favorite?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    expect(calls.filter((call) => call === "/api/switch-project")).toHaveLength(0);
+    const stored = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "{}");
+    expect(stored.favoriteProjects).toEqual(["project-cdx"]);
+    const rows = Array.from(menu?.querySelectorAll(".viewer-project-switcher__item-name") || []).map((node) => node.textContent);
+    expect(rows.slice(0, 2)).toEqual(["cdx-manager", "logics-manager"]);
+    expect(menu?.hidden).toBe(false);
+    expect(menu?.querySelector('[data-viewer-project-favorite="project-cdx"]')?.getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("restores favorite projects from viewer preferences", async () => {
+    const { dom } = createViewerDom({
+      initialPreferences: { version: 1, favoriteProjects: ["project-cdx"] }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const menu = dom.window.document.getElementById("viewer-project-menu") as HTMLElement | null;
+    for (let attempt = 0; attempt < 10 && !menu?.textContent?.includes("cdx-manager"); attempt += 1) {
+      await flushViewerAsync();
+    }
+
+    const rows = Array.from(menu?.querySelectorAll(".viewer-project-switcher__item-name") || []).map((node) => node.textContent);
+    expect(rows.slice(0, 2)).toEqual(["cdx-manager", "logics-manager"]);
+    expect(menu?.querySelector('[data-viewer-project-favorite="project-cdx"]')?.getAttribute("aria-pressed")).toBe("true");
+  });
+
   it("opens a folder picker from the topbar project menu", async () => {
     const { dom, calls } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();

@@ -834,6 +834,22 @@ function createViewerDom(options: {
           json: async () => options.cdxToggleResponse?.body ?? { ok: true, payload: { message: "Toggle complete." } }
         };
       }
+      if (url === "/api/cdx-permission") {
+        const body = JSON.parse(String(fetchOptions?.body || "{}"));
+        const rows = options.cdxResponse?.body?.payload?.status?.rows;
+        if (Array.isArray(rows)) {
+          rows.forEach((row: Record<string, unknown>) => {
+            if (row.session_name === body.session || row.name === body.session || row.id === body.session) {
+              row.permission = body.permission;
+            }
+          });
+        }
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ ok: true, payload: { message: "Permission update complete." } })
+        };
+      }
       if (url === "/api/ci-status") {
         const ciResponse = options.ciResponse;
         if (ciResponse) {
@@ -1346,6 +1362,7 @@ describe("local viewer browser host", () => {
                 active: true,
                 status: "enabled",
                 auth_status: "authenticated",
+                permission: "review",
                 available_pct: 7,
                 remaining_5h_pct: 0,
                 remaining_week_pct: 3,
@@ -5128,8 +5145,10 @@ describe("local viewer browser host", () => {
     expect(text).toContain("Sessions");
     expect(text).toContain("SESSION");
     expect(text).toContain("PROV.");
+    expect(text).toContain("PERM.");
     expect(text).toContain("RESET WEEK");
     expect(text).toContain("work2");
+    expect(text).toContain("review");
     expect(text).toContain("corvus");
     expect(text).toContain("Lowest Remaining");
     expect(text).toContain("Remaining");
@@ -5139,8 +5158,11 @@ describe("local viewer browser host", () => {
     expect(text).toContain("100%");
     expect(text).toContain("5H");
     const headers = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__table th")).map((node) => node.textContent?.trim());
+    expect(headers).toContain("PERM.");
     expect(headers).not.toContain("BLOCK");
     expect(headers).not.toContain("CR");
+    const permissionButtons = Array.from(dom.window.document.querySelectorAll("[data-viewer-cdx-permission]")).map((node) => node.textContent?.trim());
+    expect(permissionButtons).toEqual(["-", "review"]);
     expect(text).not.toContain("9.68");
     expect(text).toMatch(/in \d+[dhm]/);
     expect(text).toMatch(/\d+m ago/);
@@ -5368,6 +5390,35 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
   });
 
+  it("edits CDX session permission values from the status table", async () => {
+    const payload = cdxRowsStatusPayload();
+    const { dom, fetchCalls } = createViewerDom({ cdxResponse: payload });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    const permissionButton = dom.window.document.querySelector('[data-viewer-cdx-permission="work2"]') as HTMLButtonElement | null;
+    expect(permissionButton?.textContent).toBe("review");
+    permissionButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    expect(modal?.textContent).toContain("Choose permission for work2.");
+    const select = modal?.querySelector(".viewer-themed-modal__select") as HTMLSelectElement | null;
+    expect(Array.from(select?.options || []).map((option) => option.value)).toEqual(["review", "default", "auto", "full"]);
+    if (select) select.value = "full";
+    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(fetchCalls.find((call) => call.url === "/api/cdx-permission")?.options?.body).toBe(JSON.stringify({ session: "work2", permission: "full" }));
+    expect((dom.window.document.querySelector('[data-viewer-cdx-permission="work2"]') as HTMLButtonElement | null)?.textContent).toBe("full");
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("CDX status refreshed.");
+  });
+
   it("persists CDX status column visibility with Block and CR hidden by default", async () => {
     const { dom } = createViewerDom({ cdxResponse: cdxRowsStatusPayload() });
     const api = dom.window.acquireVsCodeApi();
@@ -5379,9 +5430,20 @@ describe("local viewer browser host", () => {
 
     let text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
     let headers = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__table th")).map((node) => node.textContent?.trim());
+    expect(headers).toContain("PERM.");
     expect(headers).not.toContain("BLOCK");
     expect(headers).not.toContain("CR");
+    expect(text).toContain("review");
     expect(text).not.toContain("9.68");
+
+    const permission = dom.window.document.querySelector('[data-viewer-cdx-column="permission"]') as HTMLInputElement | null;
+    expect(permission?.checked).toBe(true);
+    permission!.checked = false;
+    permission?.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    headers = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__table th")).map((node) => node.textContent?.trim());
+    expect(headers).not.toContain("PERM.");
+    expect(text).not.toContain("review");
 
     const block = dom.window.document.querySelector('[data-viewer-cdx-column="block"]') as HTMLInputElement | null;
     expect(block?.checked).toBe(false);
@@ -5398,6 +5460,7 @@ describe("local viewer browser host", () => {
     expect(headers).toContain("CR");
     expect(text).toContain("9.68");
     expect(JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "null")?.cdxStatusColumns?.visibility).toMatchObject({
+      permission: false,
       block: true,
       credits: true
     });
@@ -5408,7 +5471,7 @@ describe("local viewer browser host", () => {
       cdxResponse: cdxRowsStatusPayload(),
       initialPreferences: {
         version: 1,
-        cdxStatusColumns: { visibility: { block: true, credits: true } }
+        cdxStatusColumns: { visibility: { permission: false, block: true, credits: true } }
       }
     });
     const api = dom.window.acquireVsCodeApi();
@@ -5419,8 +5482,11 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
-    expect(text).toContain("BLOCK");
-    expect(text).toContain("CR");
+    const headers = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__table th")).map((node) => node.textContent?.trim());
+    expect(headers).not.toContain("PERM.");
+    expect(headers).toContain("BLOCK");
+    expect(headers).toContain("CR");
+    expect(text).not.toContain("review");
     expect(text).toContain("9.68");
   });
 

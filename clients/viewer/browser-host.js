@@ -520,6 +520,7 @@
   let latestCdxRunsPayload = null;
   let latestCdxHistoryPayload = null;
   const pendingCdxSessionToggles = new Map();
+  const pendingCdxSessionPermissions = new Map();
   // Per-section badge counters. `missions` is a live gauge (number of mission
   // runs currently in progress) and carries no seen-tracking. `runs`/`history`
   // are deltas: `seen` is the set of identifiers the user has already looked at,
@@ -550,6 +551,7 @@
     { id: "provider", label: "PROV." },
     { id: "status", label: "STATUS" },
     { id: "auth", label: "AUTH" },
+    { id: "permission", label: "PERM." },
     { id: "ok", label: "OK" },
     { id: "remaining5h", label: "5H" },
     { id: "remainingWeek", label: "WEEK" },
@@ -6541,6 +6543,14 @@
     return state !== "disabled";
   }
 
+  function cdxPermissionValues() {
+    return ["review", "default", "auto", "full"];
+  }
+
+  function cdxSessionPermission(item) {
+    return String(cdxField(item, ["permission", "permission_mode", "permissionMode"], "-") || "-");
+  }
+
   function renderCdxSessionActionMenu(item, name, label, latestSessionName, canLaunchTerminal) {
     if (!name || name === "-") {
       return escapeHtml(label);
@@ -6635,6 +6645,13 @@
           return `<td><button class="viewer-cdx__auth-login" type="button" data-viewer-cdx-login="${escapeHtml(name)}" title="Open Workshop terminal: cdx login ${escapeHtml(name)}">${escapeHtml(displayAuth)}</button></td>`;
         }
         return `<td>${escapeHtml(displayAuth)}</td>`;
+      },
+      permission: (item) => {
+        const name = cdxSessionName(item);
+        const pending = name && pendingCdxSessionPermissions.has(name) ? pendingCdxSessionPermissions.get(name) : "";
+        const permission = pending || cdxSessionPermission(item);
+        if (!name || name === "-") return `<td>${escapeHtml(permission || "-")}</td>`;
+        return `<td><button class="viewer-cdx__permission-cell${pending ? " is-updating" : ""}" type="button" data-viewer-cdx-permission="${escapeHtml(name)}" data-viewer-cdx-permission-current="${escapeHtml(permission || "-")}" title="Edit permission for ${escapeHtml(name)}"${pending ? " disabled" : ""}>${escapeHtml(permission || "-")}</button></td>`;
       },
       ok: (item) => {
         // Reuse the shared session usage gauge (same component as the terminal
@@ -7283,6 +7300,77 @@
       updateMainCdxBadge(previousPayload);
       rerenderCdxStatusFromPreferences();
     };
+  }
+
+  function updateCdxSessionPermissionEntry(item, sessionName, permission) {
+    if (!item || typeof item !== "object" || cdxSessionName(item) !== sessionName) {
+      return false;
+    }
+    item.permission = permission;
+    item.permission_mode = permission;
+    item.permissionMode = permission;
+    return true;
+  }
+
+  function applyOptimisticCdxSessionPermission(sessionName, permission) {
+    if (!latestCdxStatusPayload?.status || !sessionName) {
+      return () => {};
+    }
+    const previousPayload = JSON.parse(JSON.stringify(latestCdxStatusPayload));
+    const status = latestCdxStatusPayload.status;
+    let changed = false;
+    ["rows", "sessions", "activeSessions", "active_sessions"].forEach((key) => {
+      asArray(status[key]).forEach((entry) => {
+        changed = updateCdxSessionPermissionEntry(entry, sessionName, permission) || changed;
+      });
+    });
+    if (!changed) {
+      return () => {};
+    }
+    latestCdxStatusSignature = runtimeStatusSignature(latestCdxStatusPayload);
+    updateMainCdxBadge(latestCdxStatusPayload);
+    rerenderCdxStatusFromPreferences();
+    return () => {
+      latestCdxStatusPayload = previousPayload;
+      latestCdxStatusSignature = runtimeStatusSignature(previousPayload);
+      updateMainCdxBadge(previousPayload);
+      rerenderCdxStatusFromPreferences();
+    };
+  }
+
+  async function chooseCdxSessionPermission(sessionName, currentPermission) {
+    const options = cdxPermissionValues();
+    const selected = await showThemedChoiceModal({
+      title: "Session permission",
+      message: `Choose permission for ${sessionName}.`,
+      options,
+      value: options.includes(currentPermission) ? currentPermission : "default",
+      submitLabel: "Apply"
+    });
+    if (!selected || !options.includes(selected) || selected === currentPermission) {
+      return;
+    }
+    pendingCdxSessionPermissions.set(sessionName, selected);
+    const rollbackCdxPermission = applyOptimisticCdxSessionPermission(sessionName, selected);
+    try {
+      const response = await fetch("/api/cdx-permission", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session: sessionName, permission: selected }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || "Permission update failed.");
+      }
+      setMeta(data.payload?.message || `Permission updated for ${sessionName}.`);
+      await showCdxStatus({ silent: true, force: true }).catch(() => {});
+    } catch (error) {
+      rollbackCdxPermission();
+      setMeta(`CDX permission: ${error?.message || error}`);
+    } finally {
+      pendingCdxSessionPermissions.delete(sessionName);
+      rerenderCdxStatusFromPreferences();
+    }
   }
 
   function setupCdxImportExportHandlers() {
@@ -9545,6 +9633,7 @@
       const cdxApplyPlanTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-apply-plan]") : null;
       const cdxMissionOutputTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mission-output]") : null;
       const cdxToggleTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-toggle]") : null;
+      const cdxPermissionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-permission]") : null;
       const cdxSessionActionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-action]") : null;
       const cdxSessionConfigSubmitTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-config-submit]") : null;
       const cdxSessionConfigCancelTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-config-cancel]") : null;
@@ -9608,6 +9697,15 @@
           pendingCdxSessionToggles.delete(sessionName);
           rerenderCdxStatusFromPreferences();
         });
+        return;
+      }
+      if (cdxPermissionTarget instanceof HTMLElement) {
+        event.preventDefault();
+        const sessionName = cdxPermissionTarget.getAttribute("data-viewer-cdx-permission") || "";
+        const currentPermission = cdxPermissionTarget.getAttribute("data-viewer-cdx-permission-current") || "-";
+        if (sessionName) {
+          chooseCdxSessionPermission(sessionName, currentPermission).catch((error) => setMeta(`CDX permission: ${error?.message || error}`));
+        }
         return;
       }
       if (cdxSessionConfigSubmitTarget instanceof HTMLElement) {

@@ -1,7 +1,7 @@
 ## req_268_add_editable_permission_column_to_the_status_table - Add editable Permission column to the status table
 > From version: 2.12.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 85
 > Confidence: 80
 > Complexity: Medium

@@ -999,8 +999,10 @@ describe("webview harness core behaviors", () => {
     const helpBannerDismiss = document.getElementById("help-banner-dismiss");
     const detailsBody = document.getElementById("details-body");
 
-    expect(helpBanner?.textContent).toContain("Use Search");
-    expect(detailsBody?.textContent).toContain("Use Search or Attention");
+    expect(helpBanner?.hidden).toBe(true);
+    expect(helpBanner?.textContent || "").not.toContain("Use Search");
+    expect(detailsBody?.textContent).toContain("Select a card to inspect indicators");
+    expect(detailsBody?.textContent || "").not.toContain("Use Search or Attention");
 
     helpBannerDismiss?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 

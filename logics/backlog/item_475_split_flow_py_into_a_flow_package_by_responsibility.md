@@ -1,10 +1,10 @@
 ## item_475_split_flow_py_into_a_flow_package_by_responsibility - Split flow.py into a flow package by responsibility
 > From version: 2.12.7
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Python decomposition
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -50,3 +50,6 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Validation
+- Split logics_manager/flow.py into the logics_manager.flow package with responsibility-scoped chunks under 500 lines while preserving public imports and monkeypatchable globals. Validation: python3 -m pytest tests/python/test_flow_cli.py tests/python/test_cli_main.py -q and npm run check:line-budget pass.

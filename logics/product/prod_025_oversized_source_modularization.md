@@ -2,7 +2,7 @@
 > Date: 2026-06-22
 > Status: Proposed
 > Related request: `req_270_modularize_oversized_source_files_across_the_codebase`
-> Related backlog: `item_474_establish_modularization_guardrails_and_viewer_esbuild_bundle_pipeline`, `item_475_split_flow_py_into_a_flow_package_by_responsibility`, `item_476_split_viewer_py_into_a_viewer_package_by_responsibility`, `item_477_modularize_the_remaining_oversized_python_modules`, `item_478_convert_browser_host_js_into_bundled_es_modules`, `item_479_modularize_webview_scripts_renderboardapp_js_and_mainapp_js`
+> Related backlog: `item_474_establish_modularization_guardrails_and_viewer_esbuild_bundle_pipeline`
 > Related task: `task_267_orchestrate_the_oversized_source_modularization_program`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -33,5 +33,5 @@ A behavior-preserving decomposition of every >1000-line source file into cohesiv
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_270_modularize_oversized_source_files_across_the_codebase`
+- Product back-reference: `item_474_establish_modularization_guardrails_and_viewer_esbuild_bundle_pipeline`
 - Task back-reference: `task_267_orchestrate_the_oversized_source_modularization_program`

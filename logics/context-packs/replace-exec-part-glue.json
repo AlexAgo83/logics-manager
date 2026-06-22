@@ -1,0 +1,280 @@
+{
+  "budgets": {
+    "max_docs": 20,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_273_replace_exec_compile_part_glue_with_importable_modules item_482_reunite_numbered_part_python_modules_into_importable_code item_483_convert_viewer_and_flow_part_glue_into_real_packages item_484_retune_the_source_line_budget_guardrail task_270_orchestrate_the_exec_part_glue_remediation --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_482_reunite_numbered_part_python_modules_into_importable_code",
+          "item_483_convert_viewer_and_flow_part_glue_into_real_packages",
+          "item_484_retune_the_source_line_budget_guardrail"
+        ],
+        "prod": [
+          "prod_026_importable_module_remediation"
+        ],
+        "req": [
+          "req_273_replace_exec_compile_part_glue_with_importable_modules"
+        ],
+        "task": [
+          "task_270_orchestrate_the_exec_part_glue_remediation"
+        ]
+      },
+      "path": "logics/product/prod_026_importable_module_remediation.md",
+      "ref": "prod_026_importable_module_remediation",
+      "status": "Proposed",
+      "title": "Importable module remediation"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, replace exec(compile) part-glue with importable modules, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Replace exec(compile) part-glue with importable modules",
+        "use when": "You need to implement or review the scaffolded workflow for Replace exec(compile) part-glue with importable modules."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_482_reunite_numbered_part_python_modules_into_importable_code",
+          "item_483_convert_viewer_and_flow_part_glue_into_real_packages",
+          "item_484_retune_the_source_line_budget_guardrail"
+        ],
+        "prod": [
+          "prod_026_importable_module_remediation"
+        ],
+        "req": [
+          "req_273_replace_exec_compile_part_glue_with_importable_modules"
+        ]
+      },
+      "path": "logics/request/req_273_replace_exec_compile_part_glue_with_importable_modules.md",
+      "ref": "req_273_replace_exec_compile_part_glue_with_importable_modules",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Replace exec(compile) part-glue with importable modules"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, reunite numbered-part python modules into importable code, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Reunite numbered-part Python modules into importable code",
+        "use when": "Implementing the scaffolded slice for Reunite numbered-part Python modules into importable code."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_482_reunite_numbered_part_python_modules_into_importable_code"
+        ],
+        "prod": [
+          "prod_026_importable_module_remediation"
+        ],
+        "req": [
+          "req_273_replace_exec_compile_part_glue_with_importable_modules"
+        ],
+        "task": [
+          "task_270_orchestrate_the_exec_part_glue_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_482_reunite_numbered_part_python_modules_into_importable_code.md",
+      "ref": "item_482_reunite_numbered_part_python_modules_into_importable_code",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Reunite numbered-part Python modules into importable code"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, convert viewer and flow part-glue into real packages, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Convert viewer and flow part-glue into real packages",
+        "use when": "Implementing the scaffolded slice for Convert viewer and flow part-glue into real packages."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_483_convert_viewer_and_flow_part_glue_into_real_packages"
+        ],
+        "prod": [
+          "prod_026_importable_module_remediation"
+        ],
+        "req": [
+          "req_273_replace_exec_compile_part_glue_with_importable_modules"
+        ],
+        "task": [
+          "task_270_orchestrate_the_exec_part_glue_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_483_convert_viewer_and_flow_part_glue_into_real_packages.md",
+      "ref": "item_483_convert_viewer_and_flow_part_glue_into_real_packages",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Convert viewer and flow part-glue into real packages"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, retune the source line-budget guardrail, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Retune the source line-budget guardrail",
+        "use when": "Implementing the scaffolded slice for Retune the source line-budget guardrail."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_484_retune_the_source_line_budget_guardrail"
+        ],
+        "prod": [
+          "prod_026_importable_module_remediation"
+        ],
+        "req": [
+          "req_273_replace_exec_compile_part_glue_with_importable_modules"
+        ],
+        "task": [
+          "task_270_orchestrate_the_exec_part_glue_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_484_retune_the_source_line_budget_guardrail.md",
+      "ref": "item_484_retune_the_source_line_budget_guardrail",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Retune the source line-budget guardrail"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate the exec part-glue remediation",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_482_reunite_numbered_part_python_modules_into_importable_code",
+          "item_483_convert_viewer_and_flow_part_glue_into_real_packages",
+          "item_484_retune_the_source_line_budget_guardrail"
+        ],
+        "prod": [
+          "prod_026_importable_module_remediation"
+        ],
+        "req": [
+          "req_273_replace_exec_compile_part_glue_with_importable_modules"
+        ],
+        "task": [
+          "task_270_orchestrate_the_exec_part_glue_remediation"
+        ]
+      },
+      "path": "logics/tasks/task_270_orchestrate_the_exec_part_glue_remediation.md",
+      "ref": "task_270_orchestrate_the_exec_part_glue_remediation",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrate the exec part-glue remediation"
+    }
+  ],
+  "estimates": {
+    "char_count": 5335,
+    "companion_doc_count": 1,
+    "doc_count": 5
+  },
+  "generated_at": "2026-06-22T17:00:07Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_273_replace_exec_compile_part_glue_with_importable_modules",
+      "item_482_reunite_numbered_part_python_modules_into_importable_code",
+      "item_483_convert_viewer_and_flow_part_glue_into_real_packages",
+      "item_484_retune_the_source_line_budget_guardrail",
+      "task_270_orchestrate_the_exec_part_glue_remediation"
+    ],
+    "validation_summary_count": 1
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_273_replace_exec_compile_part_glue_with_importable_modules,item_482_reunite_numbered_part_python_modules_into_importable_code,item_483_convert_viewer_and_flow_part_glue_into_real_packages,item_484_retune_the_source_line_budget_guardrail,task_270_orchestrate_the_exec_part_glue_remediation",
+  "refs": [
+    "req_273_replace_exec_compile_part_glue_with_importable_modules",
+    "item_482_reunite_numbered_part_python_modules_into_importable_code",
+    "item_483_convert_viewer_and_flow_part_glue_into_real_packages",
+    "item_484_retune_the_source_line_budget_guardrail",
+    "task_270_orchestrate_the_exec_part_glue_remediation"
+  ],
+  "release": {
+    "blocking_reasons": [],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "Release evidence is complete.",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "ready",
+    "target_version": "2.12.8"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_270_orchestrate_the_exec_part_glue_remediation.md",
+      "ref": "task_270_orchestrate_the_exec_part_glue_remediation"
+    }
+  ]
+}

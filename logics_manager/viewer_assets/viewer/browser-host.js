@@ -6672,18 +6672,9 @@
         const name = cdxSessionName(item);
         const pending = name && pendingCdxSessionPermissions.has(name) ? pendingCdxSessionPermissions.get(name) : "";
         const permission = pending || cdxSessionPermission(item);
-        if (!name || name === "-") return `<td>${escapeHtml(permission || "-")}</td>`;
-        if (pending) {
-          return `<td><span class="viewer-cdx__permission-cell is-updating" title="Updating ${escapeHtml(name)}">${escapeHtml(permission || "-")}</span></td>`;
-        }
-        const items = cdxPermissionValues().map((opt) => {
-          const active = opt === permission;
-          return `<button class="viewer-cdx__menu-action${active ? " is-active" : ""}" type="button" role="menuitemradio" aria-checked="${active ? "true" : "false"}" data-viewer-cdx-permission-set="${escapeHtml(name)}" data-viewer-cdx-permission-value="${escapeHtml(opt)}">${escapeHtml(opt)}</button>`;
-        }).join("");
-        return `<td><details class="viewer-cdx__menu viewer-cdx__permission-menu">
-          <summary class="viewer-cdx__permission-cell viewer-cdx__path-link" title="Set permission for ${escapeHtml(name)}">${escapeHtml(permission || "-")}</summary>
-          <div class="viewer-cdx__menu-panel viewer-cdx__permission-menu-panel" role="menu" aria-label="Permission for ${escapeHtml(name)}">${items}</div>
-        </details></td>`;
+        const updating = pending ? " is-updating" : "";
+        const title = pending ? ` title="Updating ${escapeHtml(name)}"` : "";
+        return `<td><span class="viewer-cdx__permission-label${updating}"${title}>${escapeHtml(permission || "-")}</span></td>`;
       },
       ok: (item) => {
         // Reuse the shared session usage gauge (same component as the terminal
@@ -6921,7 +6912,11 @@
     const power = latestCdxMissionState.sessionId === sessionName
       ? (latestCdxMissionState.missionInputs.power || "medium")
       : cdxField(session && typeof session === "object" ? session : {}, ["power", "power_level", "powerLevel"], "medium");
+    const permission = pendingCdxSessionPermissions.has(sessionName)
+      ? pendingCdxSessionPermissions.get(sessionName)
+      : cdxSessionPermission(session && typeof session === "object" ? session : {});
     const optionRows = (selected) => levels.map((level) => `<option value="${escapeHtml(level)}"${level === selected ? " selected" : ""}>${escapeHtml(cdxLabel(level))}</option>`).join("");
+    const permissionRows = (selected) => cdxPermissionValues().map((opt) => `<option value="${escapeHtml(opt)}"${opt === selected ? " selected" : ""}>${escapeHtml(cdxLabel(opt))}</option>`).join("");
     const modal = createThemedModal({
       title: "Session config",
       message: `CDX session: ${sessionName}`,
@@ -6945,6 +6940,10 @@
         <label class="viewer-themed-modal__field">
           <span class="viewer-themed-modal__label">Power</span>
           <select class="viewer-themed-modal__select" data-viewer-cdx-session-config-input="power">${optionRows(power)}</select>
+        </label>
+        <label class="viewer-themed-modal__field">
+          <span class="viewer-themed-modal__label">Permission</span>
+          <select class="viewer-themed-modal__select" data-viewer-cdx-session-config-input="permission">${permissionRows(permission)}</select>
         </label>
       `;
     }
@@ -6971,10 +6970,19 @@
     };
     const model = valueFor("model").trim();
     const power = valueFor("power") || "medium";
+    const permission = valueFor("permission");
     updateCdxSessionConfigFromModal(modal);
     closeThemedModal(modal);
     if (sessionName) {
       persistCdxSessionConfig(sessionName, { power, model }).catch((error) => setMeta(`CDX config: ${error?.message || error}`));
+      if (permission && cdxPermissionValues().includes(permission)) {
+        const current = pendingCdxSessionPermissions.has(sessionName)
+          ? pendingCdxSessionPermissions.get(sessionName)
+          : cdxSessionPermission(cdxSessions(latestCdxStatusPayload?.status || {}).find((entry) => cdxSessionName(entry && typeof entry === "object" ? entry : { value: entry }) === sessionName) || {});
+        if (permission !== current) {
+          applyCdxSessionPermission(sessionName, permission).catch((error) => setMeta(`CDX permission: ${error?.message || error}`));
+        }
+      }
     }
   }
 
@@ -9686,7 +9694,6 @@
       const cdxApplyPlanTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-apply-plan]") : null;
       const cdxMissionOutputTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mission-output]") : null;
       const cdxToggleTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-toggle]") : null;
-      const cdxPermissionSetTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-permission-set]") : null;
       const cdxSessionActionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-action]") : null;
       const cdxSessionConfigSubmitTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-config-submit]") : null;
       const cdxSessionConfigCancelTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-config-cancel]") : null;
@@ -9750,16 +9757,6 @@
           pendingCdxSessionToggles.delete(sessionName);
           rerenderCdxStatusFromPreferences();
         });
-        return;
-      }
-      if (cdxPermissionSetTarget instanceof HTMLElement) {
-        event.preventDefault();
-        const sessionName = cdxPermissionSetTarget.getAttribute("data-viewer-cdx-permission-set") || "";
-        const selected = cdxPermissionSetTarget.getAttribute("data-viewer-cdx-permission-value") || "";
-        cdxPermissionSetTarget.closest("details")?.removeAttribute("open");
-        if (sessionName && selected && cdxPermissionSetTarget.getAttribute("aria-checked") !== "true") {
-          applyCdxSessionPermission(sessionName, selected).catch((error) => setMeta(`CDX permission: ${error?.message || error}`));
-        }
         return;
       }
       if (cdxSessionConfigSubmitTarget instanceof HTMLElement) {

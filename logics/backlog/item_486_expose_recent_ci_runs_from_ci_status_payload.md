@@ -1,10 +1,10 @@
 ## item_486_expose_recent_ci_runs_from_ci_status_payload - Expose recent CI runs from ci_status_payload
 > From version: 2.12.8
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100
 > Complexity: Low
 > Theme: Viewer backend
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -50,3 +50,6 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Notes
+- Done: ci_status_payload returns recentRuns (all workflows, current branch, newest first, capped at CI_RECENT_RUNS_LIMIT=8) via _recent_ci_runs, built from the runs already fetched; error/timeout/unavailable/no-runs payloads carry an empty recentRuns. tests/python/test_ci_recent_runs.py covers mapping, cap, empty, failure state.

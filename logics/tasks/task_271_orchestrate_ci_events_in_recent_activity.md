@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 40
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -13,7 +13,7 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Expose recentRuns from ci_status_payload first so the client has data to render.
+- [x] 1. Expose recentRuns from ci_status_payload first so the client has data to render.
 - [ ] 2. Merge recentRuns into getActivityEntries as activityKind:'ci' with CSS, marker, and url wiring.
 - [ ] 3. Verify the empty/unavailable CI fallback leaves the feed identical to today.
 - [ ] 4. Run lint, audit, pytest, and vitest and keep all linked docs in sync before closeout.

@@ -152,6 +152,7 @@
     "audit:ci": "node scripts/check-npm-audit.mjs",
     "docs:check": "node scripts/check-readme-badges.mjs",
     "logics:finish:task": "node scripts/run-python.mjs -m logics_manager flow finish task",
+    "logics:scaffold": "node scripts/logics-scaffold.mjs",
     "ci:fast": "npm run compile && npm run lint && npm run test:coverage && npm run test:smoke && npm run lint:logics && npm run package:ci",
     "ci:check": "node scripts/ci-check.mjs",
     "dev": "npm run compile && code --extensionDevelopmentPath=.",

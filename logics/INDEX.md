@@ -828,6 +828,7 @@
 | [item_482_reunite_numbered_part_python_modules_into_importable_code](backlog/item_482_reunite_numbered_part_python_modules_into_importable_code.md) | Reunite numbered-part Python modules into importable code | Ready |  | 0% | backlog/item_482_reunite_numbered_part_python_modules_into_importable_code.md |
 | [item_483_convert_viewer_and_flow_part_glue_into_real_packages](backlog/item_483_convert_viewer_and_flow_part_glue_into_real_packages.md) | Convert viewer and flow part-glue into real packages | Ready |  | 0% | backlog/item_483_convert_viewer_and_flow_part_glue_into_real_packages.md |
 | [item_484_retune_the_source_line_budget_guardrail](backlog/item_484_retune_the_source_line_budget_guardrail.md) | Retune the source line-budget guardrail | Ready |  | 0% | backlog/item_484_retune_the_source_line_budget_guardrail.md |
+| [item_485_replace_js_part_glue_manifests_with_real_es_modules](backlog/item_485_replace_js_part_glue_manifests_with_real_es_modules.md) | Replace JS part-glue manifests with real ES modules | Ready |  | 0% | backlog/item_485_replace_js_part_glue_manifests_with_real_es_modules.md |
 
 ## Tasks
 

@@ -2,8 +2,8 @@
 > From version: 2.12.8
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92%
+> Confidence: 86%
 > Complexity: Medium
 > Theme: Codebase maintainability
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -12,6 +12,7 @@
 - Every module currently assembled at runtime by exec(compile(concatenated parts)) is replaced by ordinary importable Python so that tracebacks, IDE navigation, type-checking, and static analysis work again.
 - The numbered _01.._04 part fragments, which were split purely to satisfy the line budget rather than by cohesion, are reunited into importable modules or a real package with a thin re-export facade.
 - The source-line budget guardrail is re-tuned so it no longer pushes contributors toward non-importable text-glue, while still preventing genuine monoliths from regressing.
+- The same text-glue pattern on the frontend (browser-host, render-board-app, main-app) is replaced by real ES modules so esbuild bundles from genuine module boundaries instead of a concatenated blob.
 
 # Context
 - An over-engineering audit found seven modules (mcp, sync, audit, release, assist_support, viewer, flow) whose public surface is built by exec(compile(''.join(part.read_text() ...))) instead of imports.
@@ -19,6 +20,7 @@
 - Because content is exec'd into the parent module's globals with the parent's __file__, tracebacks point at the wrong file, mypy/IDE cannot follow the symbols, and static analysers see empty modules.
 - The split was driven by scripts/check-source-line-budget.mjs (defaultLimit 1000), a self-imposed rule, not an external tool constraint.
 - viewer_parts is split by theme (cohesive) while mcp/sync/audit/release/assist_support parts are split by line count (_01.._04), so the two groups need different fixes: viewer becomes a package with imports, the numbered ones are merged or repackaged.
+- The audit's round-2 sweep found the same anti-pattern on the frontend: browser-host/parts/_01.._23.js (and render-board-app/main-app parts) are 450-line fragments cut mid-function, glued by a regex string-manifest in index.js plus readFileSync(...).join("") in the build before esbuild — so esbuild sees one blob with no module boundaries.
 - Existing pytest and vitest suites cover the public behavior of every affected module and act as the regression safety net.
 
 # Acceptance criteria
@@ -30,6 +32,7 @@
 - AC6: No new runtime dependency is introduced; only the standard library and existing tooling are used.
 - AC7: The full pytest and vitest suites pass unchanged with no behavior regressions.
 - AC8: logics-manager lint and audit pass on the resulting workflow corpus and code.
+- AC9: The frontend mirror of the part-glue (browser-host, render-board-app, main-app) is replaced by real ES modules imported directly by index.js; the regex string-manifests and readFileSync(...).join("") concatenation are removed, modules split by responsibility, and bundled artifacts stay byte-stable.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.
@@ -50,6 +53,9 @@
 - `logics_manager/viewer.py` (exec loader over 16 viewer_parts/*.py)
 - `logics_manager/flow/__init__.py` (exec loader over flow parts)
 - `scripts/check-source-line-budget.mjs` (self-imposed 1000-line/file budget that forced the splits)
+- `clients/viewer/src/browser-host/` (index.js regex manifest + parts/_01.._23.js 450-line fragments)
+- `clients/shared-web/src/render-board-app/`, `clients/shared-web/src/main-app/` (same manifest + parts pattern)
+- `scripts/build/build-viewer-browser-host.mjs`, `scripts/build/build-webview-media.mjs` (readFileSync(...).join("") concatenation before esbuild)
 
 # AI Context
 - Summary: Replace exec(compile) part-glue with importable modules
@@ -61,3 +67,4 @@
 - `item_482_reunite_numbered_part_python_modules_into_importable_code`
 - `item_483_convert_viewer_and_flow_part_glue_into_real_packages`
 - `item_484_retune_the_source_line_budget_guardrail`
+- `item_485_replace_js_part_glue_manifests_with_real_es_modules`

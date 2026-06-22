@@ -16,14 +16,16 @@
 - [ ] 1. Retune the line-budget guardrail first so the decomposition slices have a sane regression budget and a traceback test to land against.
 - [ ] 2. Reunite the numbered-part modules (mcp, sync, audit, release, assist_support) into importable code with thin facades.
 - [ ] 3. Convert viewer and flow part-glue into real packages with explicit imports.
-- [ ] 4. After each slice, run lint, audit, pytest, and vitest and keep all linked docs in sync.
-- [ ] 5. Confirm no exec(compile) loaders remain and import paths are unchanged before closeout.
+- [ ] 4. Replace the frontend part-glue manifests (browser-host, render-board-app, main-app) with real ES modules esbuild resolves directly, keeping bundled artifacts byte-stable.
+- [ ] 5. After each slice, run lint, audit, pytest, and vitest and keep all linked docs in sync.
+- [ ] 6. Confirm no exec(compile) loaders or regex part-manifests remain and import paths/bundles are unchanged before closeout.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.
 
 # Backlog
 - `item_482_reunite_numbered_part_python_modules_into_importable_code`
 - `item_483_convert_viewer_and_flow_part_glue_into_real_packages`
 - `item_484_retune_the_source_line_budget_guardrail`
+- `item_485_replace_js_part_glue_manifests_with_real_es_modules`
 
 # Definition of Done (DoD)
 - [ ] Generated request, product, backlog, and task docs are present.

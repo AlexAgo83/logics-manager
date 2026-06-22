@@ -2,8 +2,8 @@
 > From version: 2.12.8
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 88
-> Confidence: 85%
+> Understanding: 92
+> Confidence: 88
 > Progress: 0%
 > Complexity: Medium
 > Theme: Viewer frontend
@@ -53,4 +53,5 @@
 - Urgency: Medium
 
 # Notes
+- DECISION (operator-approved): reserve CI-events-in-activity to the BROWSER VIEWER, not the VS Code extension, to avoid re-implementing the fetch/payload wiring in TS and a blocking gh call in the board refresh. The viewer already fetches /api/ci-status (async, for the badge) into latestCiStatus, which now carries recentRuns (item_486). Plan: map latestCiStatus.recentRuns -> activityEvents kind:'ci' in dispatchViewerActivityUpdate (browser-host). Shared rendering + the git/ci filter already handle kind:'ci'.
 - REMAINING (client). The VS Code webview feed renders payload.activityEvents (mainCore.js:469) — no client change needed IF the server maps recentRuns into the board payload's activityEvents. The browser viewer (browser-host) fetches CI separately and needs its own wiring. Open design decision: feed CI into the synchronous board payload (simpler, reuses the channel) vs keep it async like the badge (avoids slowing the board). Decide before wiring.

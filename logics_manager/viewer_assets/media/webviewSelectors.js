@@ -9,6 +9,7 @@
       getSelectedId,
       getActiveWorkspaceRoot,
       getChangedPaths,
+      getActivityEvents,
       getActiveAgent,
       getLastInjectedContext,
       getHideCompleted,
@@ -220,9 +221,8 @@
     }
 
     function getActivityEntries() {
-      return [...getItems()]
+      const documentEntries = [...getItems()]
         .filter((item) => !(getHideCompleted() && (isComplete(item) || isClosedWorkflowStatus(getStatusValue(item)))))
-        .sort((left, right) => (Date.parse(right.updatedAt || "") || 0) - (Date.parse(left.updatedAt || "") || 0))
         .map((item) => {
           let label = "Updated";
           let marker = String(item.stage || "?").slice(0, 1).toUpperCase() || "?";
@@ -245,6 +245,21 @@
             marker
           };
         });
+      const eventEntries = (typeof getActivityEvents === "function" ? getActivityEvents() : [])
+        .filter((event) => event && typeof event === "object")
+        .map((event, index) => ({
+          id: String(event.id || `activity-event-${index}`),
+          title: String(event.title || event.action || "Activity event"),
+          stage: String(event.stage || event.category || "activity"),
+          updatedAt: event.updatedAt || event.at || "",
+          label: String(event.label || event.action || "Activity"),
+          marker: String(event.marker || "A").slice(0, 2) || "A",
+          meta: String(event.meta || event.message || ""),
+          activityKind: String(event.kind || event.category || "activity"),
+          selectable: false
+        }));
+      return [...documentEntries, ...eventEntries]
+        .sort((left, right) => (Date.parse(right.updatedAt || "") || 0) - (Date.parse(left.updatedAt || "") || 0));
     }
 
     function getHelpBannerMessage() {

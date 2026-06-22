@@ -103,6 +103,7 @@
       searchInput,
       selectAgentButton,
       setControlDescription,
+      setToolsPanelOpen = () => undefined,
       showCompanionDocsToggle,
       sortBySelect,
       splitter,
@@ -281,7 +282,7 @@
       if (toolsPanel) {
         const toolsPanelCloseButton = toolsPanel.querySelector("[data-tools-panel-close]");
         if (toolsPanelCloseButton instanceof HTMLElement) {
-          toolsPanelCloseButton.addEventListener("click", () => setToolsPanelOpen(false));
+          toolsPanelCloseButton.addEventListener("click", () => setToolsPanelOpen(undefined, false));
         }
         Array.from(toolsPanel.querySelectorAll("[data-tools-view-switch]")).forEach((button) => {
           if (!(button instanceof HTMLElement)) {

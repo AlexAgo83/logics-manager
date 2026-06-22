@@ -67,6 +67,7 @@ function createViewerDom(options: {
   refreshResponse?: { ok: boolean; status?: number; body?: unknown };
   refreshItemUpdatedAt?: string;
   releaseResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
+  releaseRunsResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   updateStatusResponse?: { ok: boolean; status?: number; body?: unknown };
   terminalCommands?: Array<{ command: string[]; label: string }>;
   terminalRenames?: Array<{ sessionId: string; label: string }>;
@@ -230,14 +231,15 @@ function createViewerDom(options: {
           const data = await res.json();
           return data?.payload;
         };
-        const [git, ci, cdx, cdxRuns, cdxHistory] = await Promise.all([
+        const [git, ci, releaseRuns, cdx, cdxRuns, cdxHistory] = await Promise.all([
           pick("/api/git-status"),
           pick("/api/ci-status"),
+          pick("/api/release-runs"),
           pick("/api/cdx-status"),
           pick("/api/cdx-runs"),
           pick("/api/cdx-history")
         ]);
-        return { ok: true, status: 200, json: async () => ({ ok: true, payload: { git, ci, cdx, cdxRuns, cdxHistory } }) };
+        return { ok: true, status: 200, json: async () => ({ ok: true, payload: { git, ci, releaseRuns, cdx, cdxRuns, cdxHistory } }) };
       }
       if (url === "/api/items" || url === "/api/refresh") {
         if (url === "/api/refresh" && options.refreshGate) {
@@ -847,6 +849,37 @@ function createViewerDom(options: {
               headSha: "abc123",
               run: { id: 1, workflowName: "CI", status: "completed", conclusion: "success", badgeState: "passing", branch: "main", headSha: "abc123", matchSource: "head" },
               jobs: []
+            }
+          })
+        };
+      }
+      if (url === "/api/release-runs") {
+        const releaseRunsResponse = options.releaseRunsResponse;
+        if (releaseRunsResponse) {
+          return {
+            ok: releaseRunsResponse.ok,
+            status: releaseRunsResponse.status ?? (releaseRunsResponse.ok ? 200 : 500),
+            json: async () => {
+              if (releaseRunsResponse.rawBody !== undefined) {
+                throw new Error("Invalid JSON");
+              }
+              return releaseRunsResponse.body || {};
+            }
+          };
+        }
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: {
+              state: "ok",
+              visible: true,
+              message: "",
+              badgeState: "passing",
+              version: "v2.12.3",
+              run: { id: 99, workflowName: "Release", status: "completed", conclusion: "success", badgeState: "passing", branch: "v2.12.3", version: "v2.12.3", matchSource: "release-latest" },
+              jobs: [],
+              activeCount: 0
             }
           })
         };
@@ -3960,6 +3993,51 @@ describe("local viewer browser host", () => {
     const updated = dom.window.document.querySelector("[data-viewer-ci-badge]");
     expect(updated?.className).toContain("viewer-ci-badge--failing");
     expect(updated?.textContent).toBe("fail");
+  });
+
+  it("shows the release version on the badge and refreshes it on the background tick", async () => {
+    const releaseRunsResponse = {
+      ok: true,
+      body: {
+        ok: true,
+        payload: {
+          state: "ok",
+          visible: true,
+          message: "",
+          badgeState: "passing",
+          version: "v2.12.3",
+          run: { id: 99, workflowName: "Release", status: "completed", conclusion: "success", badgeState: "passing", branch: "v2.12.3", version: "v2.12.3", matchSource: "release-latest" },
+          jobs: [],
+          activeCount: 0
+        }
+      }
+    };
+    const { dom } = createViewerDom({ releaseRunsResponse });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    const badge = dom.window.document.querySelector("[data-viewer-release-badge]");
+    expect(badge?.className).toContain("viewer-ci-badge--passing");
+    // The badge shows the release version (tag), not the state label.
+    expect(badge?.textContent).toBe("v2.12.3");
+    // The Release menu item mirrors the same badge.
+    const menuBadge = dom.window.document.querySelector('[data-viewer-nav-target="remote:release"] [data-viewer-release-badge]');
+    expect(menuBadge?.textContent).toBe("v2.12.3");
+
+    // A new release starts (in_progress) server-side; a background refresh must
+    // surface the running state and the new version without opening the screen.
+    releaseRunsResponse.body.payload.badgeState = "running";
+    releaseRunsResponse.body.payload.version = "v2.12.4";
+    releaseRunsResponse.body.payload.run.badgeState = "running";
+    releaseRunsResponse.body.payload.run.status = "in_progress";
+    releaseRunsResponse.body.payload.run.conclusion = null as unknown as string;
+    releaseRunsResponse.body.payload.run.version = "v2.12.4";
+    api.postMessage({ type: "refresh" });
+    await flushViewerAsync();
+    const refreshed = dom.window.document.querySelector("[data-viewer-release-badge]");
+    expect(refreshed?.className).toContain("viewer-ci-badge--running");
+    expect(refreshed?.textContent).toBe("v2.12.4");
   });
 
   it("closes the CDX run column menu when focus or clicks move outside it", async () => {

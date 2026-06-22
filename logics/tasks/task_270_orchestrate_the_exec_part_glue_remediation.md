@@ -4,7 +4,7 @@
 > Status: Ready
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 50
+> Progress: 100
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -16,9 +16,9 @@
 - [x] 1. Retune the line-budget guardrail first so the decomposition slices have a sane regression budget and a traceback test to land against.
 - [x] 2. Reunite the numbered-part modules (mcp, sync, audit, release, assist_support) into importable code with thin facades.
 - [x] 3. Convert viewer and flow part-glue into real packages with explicit imports.
-- [ ] 4. Replace the frontend part-glue manifests (browser-host, render-board-app, main-app) with real ES modules esbuild resolves directly, keeping bundled artifacts byte-stable.
+- [x] 4. Replace the frontend part-glue manifests (browser-host, render-board-app, main-app) with real ES modules esbuild resolves directly, keeping bundled artifacts byte-stable.
 - [x] 5. After each slice, run lint, audit, pytest, and vitest and keep all linked docs in sync.
-- [ ] 6. Confirm no exec(compile) loaders or regex part-manifests remain and import paths/bundles are unchanged before closeout.
+- [x] 6. Confirm no exec(compile) loaders or regex part-manifests remain and import paths/bundles are unchanged before closeout.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.
 
 # Backlog

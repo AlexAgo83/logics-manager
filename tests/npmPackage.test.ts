@@ -45,8 +45,8 @@ describe("npm package surface", () => {
       expect(filePaths).toContain("scripts/logics-manager.py");
       expect(filePaths).toContain("logics_manager/cli.py");
       expect(filePaths).toContain("logics_manager/viewer.py");
-      expect(filePaths).toContain("logics_manager/flow/_listing.py");
-      expect(filePaths).toContain("logics_manager/viewer_parts/_model_and_parse.py");
+      expect(filePaths).toContain("logics_manager/flow/__init__.py");
+      expect(filePaths).toContain("logics_manager/mcp.py");
       expect(filePaths).toContain("clients/viewer/index.html");
       expect(filePaths).toContain("clients/viewer/browser-host.js");
       expect(filePaths).toContain("clients/viewer/viewer.css");

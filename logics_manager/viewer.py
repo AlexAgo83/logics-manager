@@ -2353,10 +2353,34 @@ def _github_release_workflow_file(repo_root: Path) -> str:
     workflows_dir = repo_root / ".github" / "workflows"
     if not workflows_dir.is_dir():
         return ""
+    # Explicit release.yml/.yaml wins for backward compatibility.
     for name in ("release.yml", "release.yaml"):
         if (workflows_dir / name).is_file():
             return name
-    return ""
+    # Otherwise detect a release-shaped workflow by its `on:` triggers, so
+    # projects whose publish/deploy workflow isn't literally named "release"
+    # still light up the badge. ponytail: regex over the text before `jobs:`,
+    # not a full YAML parse — enough to spot `tags:`/`release:` triggers;
+    # swap in PyYAML if it ever misfires.
+    candidates: list[str] = []
+    for path in sorted(workflows_dir.glob("*.y*ml")):
+        try:
+            header = path.read_text(encoding="utf-8").split("\njobs:", 1)[0]
+        except OSError:
+            continue
+        if re.search(r"^\s*(tags:|release:)", header, re.MULTILINE):
+            candidates.append(path.name)
+    if not candidates:
+        return ""
+
+    def _rank(name: str) -> tuple[int, str]:
+        low = name.lower()
+        for i, keyword in enumerate(("release", "publish", "deploy", "cd")):
+            if keyword in low:
+                return (i, name)
+        return (99, name)
+
+    return min(candidates, key=_rank)
 
 
 def _github_release_runs_payload(repo_root: Path, github_url: str, workflow_file: str, *, gh_runner: Any | None = None) -> dict[str, Any]:

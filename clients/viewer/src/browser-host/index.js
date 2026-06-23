@@ -5422,7 +5422,13 @@
   function syncWorkshopTerminalSize(entry, { useHysteresis = false } = {}) {
     if (!entry || !entry.terminal || !entry.fitAddon) return;
     try {
-      entry.fitAddon.fit();
+      // proposeDimensions() measures the host WITHOUT resizing; fit() would
+      // resize xterm immediately to the raw (possibly sub-floor) dimensions.
+      // Under hysteresis we then skip pushing that size to the PTY, so xterm
+      // sits at one width while the PTY stays at another and the app wraps
+      // against the wider grid (the overflow/ghosting bug). Decide from the
+      // measurement first, then resize xterm and the PTY together to the same
+      // clamped value so they can never diverge.
       const dim = entry.fitAddon.proposeDimensions();
       if (!dim || !(dim.rows > 0) || !(dim.cols > 0)) return;
       // xterm and the PTY MUST agree on size. resizeWorkshopTerminal() clamps
@@ -5649,12 +5655,19 @@
         if (entry.terminal.options && entry.terminal.options.fontSize !== fontSize) {
           entry.terminal.options.fontSize = fontSize;
         }
-        entry.fitAddon.fit();
+        // Same divergence trap as syncWorkshopTerminalSize: don't let fit()
+        // size xterm to the raw dims while the PTY gets the clamped floor.
+        // Resize both to the identical clamped value.
         const dim = entry.fitAddon.proposeDimensions();
-        if (dim) {
-          entry.lastSyncedCols = Math.max(dim.cols, WORKSHOP_TERMINAL_MIN_COLS);
-          entry.lastSyncedRows = Math.max(dim.rows, WORKSHOP_TERMINAL_MIN_ROWS);
-          resizeWorkshopTerminal(entry.id, dim.rows, dim.cols);
+        if (dim && dim.cols > 0 && dim.rows > 0) {
+          const cols = Math.max(dim.cols, WORKSHOP_TERMINAL_MIN_COLS);
+          const rows = Math.max(dim.rows, WORKSHOP_TERMINAL_MIN_ROWS);
+          entry.lastSyncedCols = cols;
+          entry.lastSyncedRows = rows;
+          if (entry.terminal.cols !== cols || entry.terminal.rows !== rows) {
+            try { entry.terminal.resize(cols, rows); } catch { /* noop */ }
+          }
+          resizeWorkshopTerminal(entry.id, rows, cols);
         }
       } catch { /* noop */ }
     }

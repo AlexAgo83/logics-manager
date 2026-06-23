@@ -4837,7 +4837,6 @@ ${line}` : line;
     function syncWorkshopTerminalSize(entry, { useHysteresis = false } = {}) {
       if (!entry || !entry.terminal || !entry.fitAddon) return;
       try {
-        entry.fitAddon.fit();
         const dim = entry.fitAddon.proposeDimensions();
         if (!dim || !(dim.rows > 0) || !(dim.cols > 0)) return;
         const rows = Math.max(dim.rows, WORKSHOP_TERMINAL_MIN_ROWS);
@@ -5037,12 +5036,19 @@ ${line}` : line;
           if (entry.terminal.options && entry.terminal.options.fontSize !== fontSize) {
             entry.terminal.options.fontSize = fontSize;
           }
-          entry.fitAddon.fit();
           const dim = entry.fitAddon.proposeDimensions();
-          if (dim) {
-            entry.lastSyncedCols = Math.max(dim.cols, WORKSHOP_TERMINAL_MIN_COLS);
-            entry.lastSyncedRows = Math.max(dim.rows, WORKSHOP_TERMINAL_MIN_ROWS);
-            resizeWorkshopTerminal(entry.id, dim.rows, dim.cols);
+          if (dim && dim.cols > 0 && dim.rows > 0) {
+            const cols = Math.max(dim.cols, WORKSHOP_TERMINAL_MIN_COLS);
+            const rows = Math.max(dim.rows, WORKSHOP_TERMINAL_MIN_ROWS);
+            entry.lastSyncedCols = cols;
+            entry.lastSyncedRows = rows;
+            if (entry.terminal.cols !== cols || entry.terminal.rows !== rows) {
+              try {
+                entry.terminal.resize(cols, rows);
+              } catch {
+              }
+            }
+            resizeWorkshopTerminal(entry.id, rows, cols);
           }
         } catch {
         }

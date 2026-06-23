@@ -2698,6 +2698,22 @@ def test_viewer_release_runs_payload_hides_without_release_workflow(tmp_path: Pa
     assert payload["message"] == "No release workflow detected."
 
 
+def test_github_release_workflow_file_detects_non_release_named_triggers(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    # No release.yml; publish workflows triggered on a published GitHub release.
+    (workflows / "ci.yml").write_text("name: CI\non:\n  push:\n    branches: [main]\njobs:\n  build: {}\n", encoding="utf-8")
+    (workflows / "publish-pypi.yml").write_text("name: Publish PyPI\non:\n  release:\n    types: [published]\njobs:\n  publish: {}\n", encoding="utf-8")
+    (workflows / "publish-npm.yml").write_text("name: Publish npm\non:\n  release:\n    types: [published]\njobs:\n  publish: {}\n", encoding="utf-8")
+
+    # Deterministic pick among equal-ranked "publish*" candidates.
+    assert viewer_module._github_release_workflow_file(tmp_path) == "publish-npm.yml"
+
+    # Explicit release.yml still wins when present.
+    (workflows / "release.yml").write_text("name: Release\non:\n  push:\n    tags: ['v*']\njobs:\n  release: {}\n", encoding="utf-8")
+    assert viewer_module._github_release_workflow_file(tmp_path) == "release.yml"
+
+
 def test_viewer_release_runs_payload_reports_unavailable_without_gh(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)

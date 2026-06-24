@@ -5759,6 +5759,26 @@
     }
   }
 
+  // Best-effort grid the new PTY should be born with, so a full-screen TUI's
+  // first frame matches the pane instead of the kernel's 80x24 default. Exact
+  // when a terminal is already mounted (same pane); estimated from the stage
+  // box + font metrics otherwise. The post-mount refit corrects any drift.
+  function measureWorkshopTerminalGrid() {
+    const mounted = [...workshopTerminalState.sessions.values()].find((entry) => entry.terminal && entry.terminal.cols > 0 && entry.terminal.rows > 0);
+    if (mounted) {
+      return { cols: mounted.terminal.cols, rows: mounted.terminal.rows };
+    }
+    const stage = workshopTerminalStageNode();
+    const rect = stage instanceof HTMLElement ? stage.getBoundingClientRect() : null;
+    if (!rect || rect.width < 1 || rect.height < 1) return null;
+    const fontSize = workshopTerminalPreferredFontSize();
+    const cellW = fontSize * 0.6;
+    const cellH = fontSize * 1.2;
+    const cols = Math.max(20, Math.min(400, Math.floor(rect.width / cellW)));
+    const rows = Math.max(5, Math.min(200, Math.floor(rect.height / cellH)));
+    return { cols, rows };
+  }
+
   async function spawnWorkshopTerminal(options = {}) {
     try {
       const liveCount = [...workshopTerminalState.sessions.values()].filter((entry) => entry.state === "running" || entry.state === "starting").length;
@@ -5770,6 +5790,11 @@
       const body = {};
       if (Array.isArray(options.command) && options.command.length) body.command = options.command;
       if (options.label) body.label = String(options.label);
+      const grid = measureWorkshopTerminalGrid();
+      if (grid) {
+        body.cols = grid.cols;
+        body.rows = grid.rows;
+      }
       const response = await fetch("/api/workshop-terminal-start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

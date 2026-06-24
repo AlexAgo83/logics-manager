@@ -403,13 +403,18 @@ class WorkshopTerminalSession:
     workshop_terminals_available() before instantiating.
     """
 
-    def __init__(self, session_id: str, command: list[str], cwd: Path, *, label: str = ""):
+    def __init__(self, session_id: str, command: list[str], cwd: Path, *, label: str = "", initial_cols: int = 80, initial_rows: int = 24):
         import collections
         import threading
         self.session_id = session_id
         self.command = list(command)
         self.cwd = cwd
         self.label = label or (command[0] if command else "shell")
+        # Apply the client's measured grid to the PTY *before* the app execs so a
+        # full-screen TUI draws its first frame at the right width instead of the
+        # kernel's 80x24 default (which the later refit can't un-ghost).
+        self._initial_cols = max(2, min(1000, initial_cols or 80))
+        self._initial_rows = max(1, min(1000, initial_rows or 24))
         self.cdx_session = _derive_cdx_session_name(self.command)
         self.started_at = ""
         self.finished_at = ""
@@ -485,6 +490,14 @@ class WorkshopTerminalSession:
             try:
                 os.chdir(str(self.cwd))
             except OSError:
+                pass
+            try:
+                import fcntl
+                import struct
+                import termios
+                # fd 0/1/2 are the slave PTY in the child; size it before exec.
+                fcntl.ioctl(0, termios.TIOCSWINSZ, struct.pack("HHHH", self._initial_rows, self._initial_cols, 0, 0))
+            except Exception:  # noqa: BLE001
                 pass
             env = os.environ.copy()
             env.setdefault("TERM", "xterm-256color")
@@ -612,7 +625,7 @@ class WorkshopTerminalRegistry:
         self._lock = threading.Lock()
         self._counter = 0
 
-    def create(self, command: list[str], cwd: Path, *, label: str = "") -> WorkshopTerminalSession:
+    def create(self, command: list[str], cwd: Path, *, label: str = "", initial_cols: int = 80, initial_rows: int = 24) -> WorkshopTerminalSession:
         if not workshop_terminals_available():
             raise ValueError("PTY backend is not available on this host.")
         if not command or not isinstance(command, list):
@@ -622,7 +635,7 @@ class WorkshopTerminalRegistry:
         with self._lock:
             self._counter += 1
             session_id = f"wt-{self._counter:06d}"
-        session = WorkshopTerminalSession(session_id=session_id, command=command, cwd=cwd, label=label)
+        session = WorkshopTerminalSession(session_id=session_id, command=command, cwd=cwd, label=label, initial_cols=initial_cols, initial_rows=initial_rows)
         with self._lock:
             self._prune_locked()
             self._sessions[session_id] = session

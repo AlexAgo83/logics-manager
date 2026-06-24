@@ -144,6 +144,24 @@ def test_workshop_terminal_session_runs_command_via_pty(tmp_path: Path) -> None:
 
 
 @pytest.mark.skipif(not workshop_terminals_available(), reason="stdlib pty is unavailable on this host")
+def test_workshop_terminal_session_applies_initial_winsize_before_exec(tmp_path: Path) -> None:
+    import time as _time
+
+    registry = WorkshopTerminalRegistry()
+    # stty reads the PTY winsize the app was born with; it prints "rows cols".
+    session = registry.create(["/bin/sh", "-c", "stty size"], tmp_path, initial_cols=123, initial_rows=45)
+    for _ in range(50):
+        if session.state in {"finished", "failed", "stopped"}:
+            break
+        _time.sleep(0.05)
+    _, chunks = session.tail(0)
+    output = "".join(c for _, c in chunks)
+    registry.shutdown()
+
+    assert "45 123" in output
+
+
+@pytest.mark.skipif(not workshop_terminals_available(), reason="stdlib pty is unavailable on this host")
 def test_workshop_terminal_session_stop_terminates_long_running(tmp_path: Path) -> None:
     import time as _time
 

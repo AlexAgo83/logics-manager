@@ -1256,6 +1256,32 @@ def _first_git_error_line(result: subprocess.CompletedProcess[str], fallback: st
     return (result.stderr or result.stdout or fallback).strip().splitlines()[0]
 
 
+def git_fetch_payload(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
+    git_which = which or shutil.which
+    if not git_which("git"):
+        return {"state": "unavailable", "message": "Git is not available on PATH."}
+    git_runner = runner or subprocess.run
+    # GIT_TERMINAL_PROMPT=0 keeps a missing credential from hanging the request forever;
+    # an auth-required remote fails fast instead of blocking the viewer.
+    env = {**os.environ, "GIT_TERMINAL_PROMPT": "0"}
+    try:
+        result = git_runner(
+            ["git", "fetch", "--prune"],
+            cwd=repo_root,
+            text=True,
+            capture_output=True,
+            timeout=_scaled_timeout(repo_root, 30),
+            env=env,
+        )
+    except subprocess.TimeoutExpired:
+        return {"state": "error", "message": "Git fetch timed out."}
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"state": "error", "message": f"Unable to run Git fetch: {exc}"}
+    if result.returncode != 0:
+        return {"state": "error", "message": _first_git_error_line(result, "Git fetch failed.")}
+    return {"state": "ok", "message": (result.stderr or result.stdout or "").strip()[:300]}
+
+
 def git_commit_payload(
     repo_root: Path,
     files: list[str],
@@ -3647,6 +3673,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
     {
         "/api/edit",
         "/api/git-commit",
+        "/api/git-fetch",
         "/api/open-file",
         "/api/open-repo-folder",
         "/api/bootstrap-logics",
@@ -4588,6 +4615,14 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                     self._send_error_json(HTTPStatus.BAD_REQUEST, str(payload.get("message") or "Git commit failed."))
             except json.JSONDecodeError:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+            return
+        if parsed.path == "/api/git-fetch":
+            payload = git_fetch_payload(self.server.repo_root)
+            if payload.get("state") == "ok":
+                self.server.invalidate_status_components({"git"})
+                self._send_json({"ok": True, "payload": payload})
+            else:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, str(payload.get("message") or "Git fetch failed."))
             return
         if parsed.path == "/api/switch-project":
             try:

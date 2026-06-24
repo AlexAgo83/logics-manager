@@ -6017,6 +6017,28 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("Refreshed commit");
   });
 
+  it("fetches the remote before reloading status on a manual Git-screen refresh", async () => {
+    const { dom, calls } = createViewerDom({});
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const fetchesBefore = calls.filter((call) => call === "/api/git-fetch").length;
+    expect(fetchesBefore).toBe(0); // opening the screen must not fetch
+
+    dom.window.document.getElementById("viewer-document-refresh")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/git-fetch");
+    // The fetch precedes the status reload it triggers.
+    expect(calls.lastIndexOf("/api/git-fetch")).toBeLessThan(calls.lastIndexOf("/api/git-status"));
+  });
+
   it("explains stale viewer servers that do not expose the Git status endpoint", async () => {
     const { dom } = createViewerDom({
       gitResponse: { ok: false, status: 404, body: { ok: false, error: "Not found" } }

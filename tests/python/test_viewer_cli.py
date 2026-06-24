@@ -53,6 +53,7 @@ from logics_manager.viewer import (
     github_repo_url,
     git_commit_payload,
     git_diff_payload,
+    git_fetch_payload,
     git_file_preview_payload,
     git_status_payload,
     normalize_viewer_focus_target,
@@ -969,6 +970,41 @@ def test_viewer_git_status_payload_reports_clean_and_dirty_states(tmp_path: Path
     assert ["git", "rev-list", "--count", "@{u}..HEAD"] in calls
     assert ["git", "log", "-51", "--date=iso-strict", "--pretty=format:%h%x1f%s%x1f%an%x1f%ad%x1f%D"] in calls
     assert not any("push" in call or "fetch" in call or "pull" in call for call in calls for _ in [call])
+
+
+def test_git_fetch_payload_runs_prune_fetch_without_credential_prompt(tmp_path: Path) -> None:
+    seen: dict[str, object] = {}
+
+    def runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        seen["args"] = args
+        seen["env"] = kwargs.get("env")
+        return subprocess.CompletedProcess(args, 0, "", "Fetching origin\n")
+
+    payload = git_fetch_payload(tmp_path, runner=runner, which=lambda _name: "/usr/bin/git")
+
+    assert payload["state"] == "ok"
+    assert seen["args"] == ["git", "fetch", "--prune"]
+    assert isinstance(seen["env"], dict) and seen["env"]["GIT_TERMINAL_PROMPT"] == "0"
+
+
+def test_git_fetch_payload_reports_first_error_line(tmp_path: Path) -> None:
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(args, 1, "", "fatal: could not read Username\nmore noise")
+
+    payload = git_fetch_payload(tmp_path, runner=runner, which=lambda _name: "/usr/bin/git")
+
+    assert payload["state"] == "error"
+    assert payload["message"] == "fatal: could not read Username"
+
+
+def test_git_fetch_payload_handles_timeout(tmp_path: Path) -> None:
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        raise subprocess.TimeoutExpired(cmd=args, timeout=30)
+
+    payload = git_fetch_payload(tmp_path, runner=runner, which=lambda _name: "/usr/bin/git")
+
+    assert payload["state"] == "error"
+    assert payload["message"] == "Git fetch timed out."
 
 
 def test_viewer_git_status_payload_marks_logics_doc_types(tmp_path: Path) -> None:

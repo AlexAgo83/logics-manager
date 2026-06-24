@@ -31,11 +31,11 @@ const allowedOversizedFiles = new Map(
     "logics_manager/flow/__init__.py": { maxLines: 4400, ref: "req_273" },
     // req_273: de-glued frontend sources. esbuild/concatenation now consume these directly
     // instead of a regex part-manifest + readFileSync.join, so the bundles stay byte-stable.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 7600, ref: "req_273" },
-    // De-monolith passes 1-2: pure helpers extracted out of index.js. May be
-    // split by domain (cdx/git/dom) in later passes as they grow.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 6900, ref: "req_273" },
+    // De-monolith passes 1-3: pure helpers/data extracted out of index.js. May
+    // be split by domain (cdx/git/dom) in later passes as they grow.
     "clients/viewer/src/browser-host/util.js": { maxLines: 1200, ref: "browser-host-split" },
-    "clients/viewer/src/browser-host/render.js": { maxLines: 1900, ref: "browser-host-split" },
+    "clients/viewer/src/browser-host/render.js": { maxLines: 2500, ref: "browser-host-split" },
     "clients/shared-web/src/render-board-app/index.js": { maxLines: 1500, ref: "req_273" },
     "clients/shared-web/src/main-app/index.js": { maxLines: 1200, ref: "req_273" },
   })

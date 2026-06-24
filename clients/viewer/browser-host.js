@@ -991,6 +991,185 @@ ${entry?.message || ""}`;
     return parts.join("/");
   }
 
+  // clients/viewer/src/browser-host/constants.js
+  var stateKey = "logics.localViewer.state";
+  var preferenceKey = "logics.localViewer.preferences.v1";
+  var lanTokenKey = "logics.lan.token";
+  var deviceTokenKey = "logics.lan.deviceToken";
+  var deviceIdKey = "logics.lan.deviceId";
+  var deviceLabelKey = "logics.lan.deviceLabel";
+  var preferenceVersion = 1;
+  var activityStorageLimit = 80;
+  var gitHistoryPageSize = 10;
+  var minAutoRefreshIntervalSeconds = 5;
+  var maxAutoRefreshIntervalSeconds = 60;
+  var defaultAutoRefreshIntervalMs = 15 * 1e3;
+  var defaultFilterState = {
+    focus: "active",
+    type: "all",
+    status: "any",
+    relation: "any",
+    activity: "any"
+  };
+  var cdxStatusColumns = [
+    { id: "session", label: "SESSION" },
+    { id: "provider", label: "PROV." },
+    { id: "status", label: "STATUS" },
+    { id: "auth", label: "AUTH" },
+    { id: "permission", label: "PERM." },
+    { id: "ok", label: "OK" },
+    { id: "remaining5h", label: "5H" },
+    { id: "remainingWeek", label: "WEEK" },
+    { id: "block", label: "BLOCK", defaultVisible: false },
+    { id: "credits", label: "CR", defaultVisible: false },
+    { id: "reset5h", label: "RESET 5H" },
+    { id: "resetWeek", label: "RESET WEEK" },
+    { id: "updated", label: "UPDATED" }
+  ];
+  var cdxRunColumns = [
+    { id: "run", label: "RUN" },
+    { id: "status", label: "STATUS" },
+    { id: "kind", label: "KIND", defaultVisible: false },
+    { id: "session", label: "SESSION" },
+    { id: "tokens", label: "TOKENS" },
+    { id: "cwd", label: "CWD", defaultVisible: false },
+    { id: "report", label: "REPORT" }
+  ];
+  var cdxHistoryColumns = [
+    { id: "session", label: "SESSION" },
+    { id: "status", label: "STATUS" },
+    { id: "action", label: "ACTION" },
+    { id: "started", label: "STARTED" },
+    { id: "duration", label: "DURATION" },
+    { id: "tokens", label: "TOKENS" },
+    { id: "artifacts", label: "ARTIFACTS" }
+  ];
+  var statusOptionsByStage = {
+    request: ["Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"],
+    backlog: ["Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"],
+    task: ["Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"],
+    product: ["Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
+    architecture: ["Draft", "Proposed", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
+    spec: ["Draft", "Ready", "In progress", "Done", "Validated", "Settled", "Archived"]
+  };
+  var onboardingStages = [
+    {
+      label: "Need",
+      tagline: "Capture what matters",
+      description: "Start by writing down what you need: a goal, a problem, or an idea. Logics keeps this as a request so you can refine it and track where it goes.",
+      prompts: [
+        "Draft a new request for this problem: <describe the need or pain point>.",
+        "Ask me any clarifying questions and suggest options that would make the request stronger."
+      ],
+      mapping: "Maps to a Logics request document in logics/request/.",
+      actions: [{ label: "New Request", action: "new-request" }]
+    },
+    {
+      label: "Framing",
+      tagline: "Understand before you act",
+      description: "Shape the need into something actionable. Add context, scope, and acceptance criteria so a human or assistant can pick it up without re-explaining the whole problem.",
+      prompts: [
+        "Split the new request into backlog items and separate delivery slices.",
+        "Ask me any questions that would improve confidence or understanding before finalizing the backlog."
+      ],
+      mapping: "Maps to a Logics backlog document in logics/backlog/.",
+      actions: [{ label: "Triage Item", action: "assist-triage" }]
+    },
+    {
+      label: "Orchestration Tasks",
+      tagline: "Create the task plan before execution",
+      description: "Turn backlog work into explicit tasks. Preserve dependencies and keep the delivery sequence visible so execution stays focused.",
+      prompts: [
+        "Create orchestration tasks from this backlog item and split the work into the smallest useful delivery slices.",
+        "List the tasks needed to execute this backlog item in order, with brief context for each one."
+      ],
+      mapping: "Maps to orchestration task planning in logics/tasks/.",
+      actions: []
+    },
+    {
+      label: "Execution",
+      tagline: "Deliver with context",
+      description: "Use the task document to carry the full history of decisions while work is delivered, validated, and closed out.",
+      prompts: [
+        "Execute task <task id or title>. Commit after each wave and keep going until the work is done.",
+        "If needed, make brief assumptions and keep moving."
+      ],
+      mapping: "Maps to a Logics task document in logics/tasks/.",
+      actions: [{ label: "CDX Missions", action: "cdx-missions" }]
+    }
+  ];
+  var onboardingDocGuide = [
+    ['If you think "here is the problem and context..."', "-> request"],
+    ['If you think "this needs a scoped delivery slice..."', "-> item"],
+    ['If you think "we want..."', "-> product brief"],
+    ['If you think "we decided..."', "-> ADR"],
+    ['If you think "the system should..."', "-> spec"],
+    [`If you think "let's do..."`, "-> task"]
+  ];
+  var stageBadgeLabels = {
+    request: "Request",
+    backlog: "Backlog",
+    task: "Task",
+    product: "Product",
+    architecture: "Architecture",
+    spec: "Spec"
+  };
+  var HLJS_EXT_LANGUAGE = {
+    js: "javascript",
+    jsx: "javascript",
+    mjs: "javascript",
+    cjs: "javascript",
+    ts: "typescript",
+    tsx: "typescript",
+    py: "python",
+    rb: "ruby",
+    go: "go",
+    rs: "rust",
+    java: "java",
+    c: "c",
+    h: "c",
+    cpp: "cpp",
+    cc: "cpp",
+    hpp: "cpp",
+    cs: "csharp",
+    php: "php",
+    swift: "swift",
+    kt: "kotlin",
+    scala: "scala",
+    sh: "bash",
+    bash: "bash",
+    zsh: "bash",
+    fish: "bash",
+    json: "json",
+    yml: "yaml",
+    yaml: "yaml",
+    toml: "ini",
+    ini: "ini",
+    xml: "xml",
+    html: "xml",
+    htm: "xml",
+    svg: "xml",
+    css: "css",
+    scss: "scss",
+    less: "less",
+    md: "markdown",
+    markdown: "markdown",
+    sql: "sql",
+    dockerfile: "dockerfile",
+    makefile: "makefile",
+    diff: "diff",
+    patch: "diff"
+  };
+  var workshopTabs = [
+    { id: "terminals", label: "Terminals", title: "In-app PTY terminals" },
+    { id: "commands", label: "Commands", title: "Discovered package and project scripts" },
+    { id: "explorer", label: "Explorer", title: "Browse repository files" }
+  ];
+  var WORKSHOP_TERMINAL_MIN_COLS = 80;
+  var WORKSHOP_TERMINAL_MIN_ROWS = 24;
+  var WORKSHOP_TERMINAL_RESIZE_COL_STEP = 10;
+  var WORKSHOP_TERMINAL_RESIZE_ROW_STEP = 5;
+
   // clients/viewer/src/browser-host/render.js
   function activeCdxAssistantCountFromPayload(payload) {
     if (!payload || payload.state !== "ok") {
@@ -2638,6 +2817,546 @@ ${entry?.message || ""}`;
       }))
     });
   }
+  function captureLanTokenFromUrl() {
+    try {
+      const url = new URL(window.location.href);
+      const queryToken = url.searchParams.get("t");
+      if (queryToken) {
+        const previousToken = window.sessionStorage.getItem(lanTokenKey) || "";
+        if (previousToken !== queryToken) {
+          clearDeviceCredentials();
+        }
+        window.sessionStorage.setItem(lanTokenKey, queryToken);
+        url.searchParams.delete("t");
+        const cleaned = `${url.pathname}${url.search}${url.hash}`;
+        window.history.replaceState(null, "", cleaned || "/");
+      }
+    } catch {
+    }
+  }
+  function clearDeviceCredentials() {
+    try {
+      window.localStorage.removeItem(deviceTokenKey);
+      window.localStorage.removeItem(deviceIdKey);
+      window.localStorage.removeItem(deviceLabelKey);
+    } catch {
+    }
+  }
+  function detectHljsLanguage(path) {
+    const file = String(path || "").split(/[\\/]/).pop() || "";
+    const lower = file.toLowerCase();
+    if (lower === "dockerfile") return "dockerfile";
+    if (lower === "makefile") return "makefile";
+    const ext = lower.includes(".") ? lower.split(".").pop() : "";
+    return HLJS_EXT_LANGUAGE[ext] || "";
+  }
+  function getActiveToken() {
+    return getDeviceToken() || getLanToken();
+  }
+  function getDeviceToken() {
+    try {
+      return window.localStorage.getItem(deviceTokenKey) || "";
+    } catch {
+      return "";
+    }
+  }
+  function getLanToken() {
+    try {
+      return window.sessionStorage.getItem(lanTokenKey) || "";
+    } catch {
+      return "";
+    }
+  }
+  function normalizeAutoRefreshIntervalSeconds(value) {
+    const seconds = Math.round(Number(value));
+    if (!Number.isFinite(seconds) || seconds <= 0) {
+      return defaultAutoRefreshIntervalMs / 1e3;
+    }
+    return Math.min(maxAutoRefreshIntervalSeconds, Math.max(minAutoRefreshIntervalSeconds, seconds));
+  }
+  function nudgeWorkshopTerminalRedraw(entry) {
+    if (!entry || !entry.terminal || !entry.fitAddon) return;
+    let dim;
+    try {
+      entry.fitAddon.fit();
+      dim = entry.fitAddon.proposeDimensions();
+    } catch {
+      return;
+    }
+    if (!dim || dim.rows <= 0 || dim.cols <= 0) return;
+    const rows = Math.max(dim.rows, WORKSHOP_TERMINAL_MIN_ROWS);
+    const cols = Math.max(dim.cols, WORKSHOP_TERMINAL_MIN_COLS);
+    const nudgeRows = rows > WORKSHOP_TERMINAL_MIN_ROWS ? rows - 1 : rows + 1;
+    resizeWorkshopTerminal(entry.id, nudgeRows, cols);
+    setTimeout(() => resizeWorkshopTerminal(entry.id, rows, cols), 60);
+  }
+  function readStoredState() {
+    try {
+      return JSON.parse(window.localStorage.getItem(stateKey) || "null");
+    } catch {
+      return null;
+    }
+  }
+  function readViewerPreferences() {
+    try {
+      const value = JSON.parse(window.localStorage.getItem(preferenceKey) || "null");
+      if (!value || typeof value !== "object" || value.version !== preferenceVersion) {
+        return { version: preferenceVersion };
+      }
+      return { ...value, version: preferenceVersion };
+    } catch {
+      return { version: preferenceVersion };
+    }
+  }
+  function refreshLanBannerPairingState() {
+    const banner = document.getElementById("viewer-lan-banner");
+    const pairButton = document.getElementById("viewer-lan-banner-pair");
+    const pairedLabel = document.getElementById("viewer-lan-banner-paired");
+    const deviceLabel = (() => {
+      try {
+        return window.localStorage.getItem(deviceLabelKey) || "";
+      } catch {
+        return "";
+      }
+    })();
+    const hasDeviceToken = Boolean(getDeviceToken());
+    if (banner instanceof HTMLElement && hasDeviceToken) {
+      banner.hidden = true;
+    }
+    if (pairButton instanceof HTMLButtonElement) {
+      pairButton.hidden = !window.__logicsLanRwEnabled || hasDeviceToken;
+    }
+    if (pairedLabel instanceof HTMLElement) {
+      if (hasDeviceToken && deviceLabel) {
+        pairedLabel.hidden = false;
+        pairedLabel.textContent = `Paired as ${deviceLabel}`;
+      } else {
+        pairedLabel.hidden = true;
+        pairedLabel.textContent = "";
+      }
+    }
+  }
+  function renderCdxHistoryControls(visibleColumns, knownSessions, sessionFilter) {
+    const columnRows = cdxHistoryColumns.map((column) => `
+      <label class="viewer-cdx__menu-check">
+        <input type="checkbox" data-viewer-cdx-history-column="${escapeHtml(column.id)}"${visibleColumns[column.id] ? " checked" : ""}>
+        <span>${escapeHtml(column.label)}</span>
+      </label>
+    `).join("");
+    const selected = new Set(sessionFilter.mode === "subset" ? sessionFilter.selected : knownSessions);
+    const sessionRows = knownSessions.map((session) => `
+      <label class="viewer-cdx__menu-check">
+        <input type="checkbox" data-viewer-cdx-history-session="${escapeHtml(session)}"${selected.has(session) ? " checked" : ""}>
+        <span>${escapeHtml(session)}</span>
+      </label>
+    `).join("");
+    const sessionSummary = sessionFilter.mode === "subset" && sessionFilter.selected.length ? `${sessionFilter.selected.length}/${knownSessions.length || sessionFilter.selected.length}` : "All";
+    return `
+      <div class="viewer-cdx__controls" aria-label="CDX history table controls">
+        <details class="viewer-cdx__menu">
+          <summary class="viewer-cdx__icon-button" title="Configure history columns" aria-label="Configure history columns">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 3.4-.2-.1a1.7 1.7 0 0 0-2 .1 1.7 1.7 0 0 0-.8 1.7v.2H9.2v-.2a1.7 1.7 0 0 0-.8-1.7 1.7 1.7 0 0 0-2-.1l-.2.1-2-3.4.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1.1H3v-3.8h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.9l-.1-.1 2-3.4.2.1a1.7 1.7 0 0 0 2-.1 1.7 1.7 0 0 0 .8-1.7v-.2h5.6v.2a1.7 1.7 0 0 0 .8 1.7 1.7 1.7 0 0 0 2 .1l.2-.1 2 3.4-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1.1h.1v3.8h-.1a1.7 1.7 0 0 0-1.5 1.1Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+          </summary>
+          <div class="viewer-cdx__menu-panel" role="menu" aria-label="CDX history columns">${columnRows}</div>
+        </details>
+        <details class="viewer-cdx__menu">
+          <summary class="viewer-cdx__icon-button" title="Filter history sessions" aria-label="Filter history sessions">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16l-6.5 7.2V19l-3 1.5v-7.3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
+            <span class="viewer-cdx__icon-count">${escapeHtml(sessionSummary)}</span>
+          </summary>
+          <div class="viewer-cdx__menu-panel" role="menu" aria-label="CDX history session filter">
+            <button class="viewer-cdx__menu-action" type="button" data-viewer-cdx-history-session-all>All sessions</button>
+            ${sessionRows || '<div class="viewer-cdx__empty">No sessions reported.</div>'}
+          </div>
+        </details>
+      </div>
+    `;
+  }
+  function renderCdxLogPreview(payload) {
+    const path = payload?.path || "";
+    const content = payload?.content || "";
+    const truncated = Boolean(payload?.truncated);
+    const parsed = parseCdxLogJson(content);
+    return `
+      <div class="viewer-cdx">
+        <section class="viewer-cdx__section">
+          <div class="viewer-ci__heading"><h2>Log preview</h2><span>${truncated ? "latest output" : "complete file"}</span></div>
+          <div class="viewer-cdx__log-preview">
+            <div class="viewer-cdx__meta">${escapeHtml(path)}</div>
+            ${truncated ? '<div class="viewer-cdx__state viewer-cdx__state--warn">Preview truncated to the end of the file. Open the file externally for the full log.</div>' : ""}
+            ${renderCdxStructuredLog(parsed)}
+            <details class="viewer-cdx__log-raw"${parsed ? "" : " open"}>
+              <summary>Raw log</summary>
+              ${content ? renderCodeViewer(content, { language: detectHljsLanguage(path), truncated }) : '<pre class="viewer-cdx__log-content">Log is empty.</pre>'}
+            </details>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+  function renderCdxRunControls(visibleColumns, knownSessions, sessionFilter) {
+    const columnRows = cdxRunColumns.map((column) => `
+      <label class="viewer-cdx__menu-check">
+        <input type="checkbox" data-viewer-cdx-run-column="${escapeHtml(column.id)}"${visibleColumns[column.id] ? " checked" : ""}>
+        <span>${escapeHtml(column.label)}</span>
+      </label>
+    `).join("");
+    const selected = new Set(sessionFilter.mode === "subset" ? sessionFilter.selected : knownSessions);
+    const sessionRows = knownSessions.map((session) => `
+      <label class="viewer-cdx__menu-check">
+        <input type="checkbox" data-viewer-cdx-run-session="${escapeHtml(session)}"${selected.has(session) ? " checked" : ""}>
+        <span>${escapeHtml(session)}</span>
+      </label>
+    `).join("");
+    const sessionSummary = sessionFilter.mode === "subset" && sessionFilter.selected.length ? `${sessionFilter.selected.length}/${knownSessions.length || sessionFilter.selected.length}` : "All";
+    return `
+      <div class="viewer-cdx__controls" aria-label="CDX reports table controls">
+        <details class="viewer-cdx__menu">
+          <summary class="viewer-cdx__icon-button" title="Configure run columns" aria-label="Configure run columns">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 3.4-.2-.1a1.7 1.7 0 0 0-2 .1 1.7 1.7 0 0 0-.8 1.7v.2H9.2v-.2a1.7 1.7 0 0 0-.8-1.7 1.7 1.7 0 0 0-2-.1l-.2.1-2-3.4.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1.1H3v-3.8h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.9l-.1-.1 2-3.4.2.1a1.7 1.7 0 0 0 2-.1 1.7 1.7 0 0 0 .8-1.7v-.2h5.6v.2a1.7 1.7 0 0 0 .8 1.7 1.7 1.7 0 0 0 2 .1l.2-.1 2 3.4-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1.1h.1v3.8h-.1a1.7 1.7 0 0 0-1.5 1.1Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+          </summary>
+          <div class="viewer-cdx__menu-panel" role="menu" aria-label="CDX run columns">${columnRows}</div>
+        </details>
+        <details class="viewer-cdx__menu">
+          <summary class="viewer-cdx__icon-button" title="Filter report sessions" aria-label="Filter report sessions">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16l-6.5 7.2V19l-3 1.5v-7.3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
+            <span class="viewer-cdx__icon-count">${escapeHtml(sessionSummary)}</span>
+          </summary>
+          <div class="viewer-cdx__menu-panel" role="menu" aria-label="CDX report session filter">
+            <button class="viewer-cdx__menu-action" type="button" data-viewer-cdx-run-session-all>All sessions</button>
+            ${sessionRows || '<div class="viewer-cdx__empty">No sessions reported.</div>'}
+          </div>
+        </details>
+      </div>
+    `;
+  }
+  function renderCdxStatusControls(knownProviders, knownSessions, visibleColumns, providerFilter) {
+    const columnRows = cdxStatusColumns.map((column) => `
+      <label class="viewer-cdx__menu-check">
+        <input type="checkbox" data-viewer-cdx-column="${escapeHtml(column.id)}"${visibleColumns[column.id] ? " checked" : ""}>
+        <span>${escapeHtml(column.label)}</span>
+      </label>
+    `).join("");
+    const selected = new Set(providerFilter.mode === "subset" ? providerFilter.selected : knownProviders);
+    const providerRows = knownProviders.map((provider) => `
+      <label class="viewer-cdx__menu-check">
+        <input type="checkbox" data-viewer-cdx-provider="${escapeHtml(provider)}"${selected.has(provider) ? " checked" : ""}>
+        <span>${escapeHtml(provider)}</span>
+      </label>
+    `).join("");
+    const providerSummary = providerFilter.mode === "subset" && providerFilter.selected.length ? `${providerFilter.selected.length}/${knownProviders.length || providerFilter.selected.length}` : "All";
+    return `
+      <div class="viewer-cdx__controls" aria-label="CDX status table controls">
+        <details class="viewer-cdx__menu">
+          <summary class="viewer-cdx__icon-button" title="Configure status columns" aria-label="Configure status columns">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 3.4-.2-.1a1.7 1.7 0 0 0-2 .1 1.7 1.7 0 0 0-.8 1.7v.2H9.2v-.2a1.7 1.7 0 0 0-.8-1.7 1.7 1.7 0 0 0-2-.1l-.2.1-2-3.4.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1.1H3v-3.8h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.9l-.1-.1 2-3.4.2.1a1.7 1.7 0 0 0 2-.1 1.7 1.7 0 0 0 .8-1.7v-.2h5.6v.2a1.7 1.7 0 0 0 .8 1.7 1.7 1.7 0 0 0 2 .1l.2-.1 2 3.4-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1.1h.1v3.8h-.1a1.7 1.7 0 0 0-1.5 1.1Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+          </summary>
+          <div class="viewer-cdx__menu-panel" role="menu" aria-label="CDX status columns">${columnRows}</div>
+        </details>
+        <details class="viewer-cdx__menu">
+          <summary class="viewer-cdx__icon-button" title="Filter status providers" aria-label="Filter status providers">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16l-6.5 7.2V19l-3 1.5v-7.3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
+            <span class="viewer-cdx__icon-count">${escapeHtml(providerSummary)}</span>
+          </summary>
+          <div class="viewer-cdx__menu-panel" role="menu" aria-label="CDX provider filter">
+            <button class="viewer-cdx__menu-action" type="button" data-viewer-cdx-provider-all>All providers</button>
+            ${providerRows || '<div class="viewer-cdx__empty">No providers reported.</div>'}
+          </div>
+        </details>
+        ${renderCdxImportExportControls(knownSessions)}
+      </div>
+    `;
+  }
+  function renderViewerOnboarding() {
+    const stages = onboardingStages.map((stage, index) => {
+      const prompts = stage.prompts.map((prompt) => `
+        <div class="viewer-onboarding__prompt">
+          <div class="viewer-onboarding__prompt-label">Example prompt</div>
+          <div class="viewer-onboarding__prompt-text">${escapeHtml(prompt)}</div>
+        </div>
+      `).join("");
+      const actions = stage.actions.map((action) => `
+        <button class="btn viewer-onboarding__action" type="button" data-viewer-onboarding-action="${escapeHtml(action.action)}">${escapeHtml(action.label)}</button>
+      `).join("");
+      return `
+        <section class="viewer-onboarding__stage">
+          <div class="viewer-onboarding__stage-number" aria-hidden="true">${index + 1}</div>
+          <div class="viewer-onboarding__stage-body">
+            <h2>${escapeHtml(stage.label)}</h2>
+            <p class="viewer-onboarding__tagline">${escapeHtml(stage.tagline)}</p>
+            <p>${escapeHtml(stage.description)}</p>
+            <div class="viewer-onboarding__prompts">${prompts}</div>
+            <p class="viewer-onboarding__mapping">${escapeHtml(stage.mapping)}</p>
+            ${actions ? `<div class="viewer-onboarding__actions">${actions}</div>` : ""}
+          </div>
+        </section>
+      `;
+    }).join("");
+    const docs = onboardingDocGuide.map(([cue, destination]) => `
+      <div class="viewer-onboarding__doc-card">
+        <div>${escapeHtml(cue)}</div>
+        <strong>${escapeHtml(destination)}</strong>
+      </div>
+    `).join("");
+    return `
+      <div class="viewer-onboarding">
+        <header class="viewer-onboarding__header">
+          <h1>Logics in four steps</h1>
+          <p>Logics is a lightweight delivery workflow that keeps project context in plain Markdown: readable by humans, diffable in git, and usable by AI assistants without re-explaining history every time.</p>
+        </header>
+        <div class="viewer-onboarding__stages">${stages}</div>
+        <section class="viewer-onboarding__doc-guide">
+          <h2>What each document is for</h2>
+          <p>A quick rule of thumb for choosing the right artifact before writing.</p>
+          <div class="viewer-onboarding__doc-grid">${docs}</div>
+        </section>
+        <footer class="viewer-onboarding__footer">
+          <button class="btn primary" type="button" data-viewer-onboarding-action="open-logics-insights">Open Insights</button>
+          <button class="btn" type="button" data-viewer-onboarding-action="health">Open Health</button>
+          <button class="btn" type="button" data-viewer-onboarding-action="workshop-explorer">Open Explorer</button>
+        </footer>
+      </div>
+    `;
+  }
+  function renderWorkshopTabs(activeTab) {
+    const buttons = workshopTabs.map((tab) => {
+      const isActive = tab.id === activeTab;
+      return `<button class="viewer-cdx__mode${isActive ? " is-active" : ""}" type="button" role="tab" aria-selected="${isActive ? "true" : "false"}" data-viewer-workshop-tab="${escapeHtml(tab.id)}" title="${escapeHtml(tab.title)}">${escapeHtml(tab.label)}</button>`;
+    }).join("");
+    return `<div class="viewer-cdx__modes" role="tablist" aria-label="Workshop sub-screens">${buttons}</div>`;
+  }
+  function renderWorkspace(treePayload, previewPayload) {
+    const selectedPath = previewPayload?.path || "";
+    return `
+      <div class="viewer-workspace">
+        <aside class="viewer-workspace__tree" aria-label="Workspace files">
+          ${renderWorkspaceTree(treePayload, selectedPath)}
+        </aside>
+        <section class="viewer-workspace__preview" aria-label="Workspace preview">
+          ${renderWorkspacePreview(previewPayload)}
+        </section>
+      </div>
+    `;
+  }
+  function renderWorkspacePreview(previewPayload) {
+    if (!previewPayload) {
+      return '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">\xB7</span><span>Select a file or directory.</span></div>';
+    }
+    const path = previewPayload.path || "/";
+    const name = previewPayload.name || path || "/";
+    const state = previewPayload.state || "unknown";
+    if (state === "ok") {
+      const forceButtonHtml = previewPayload.canForce ? `<button class="btn viewer-code__force" type="button" data-viewer-workspace-preview-full="${escapeHtml(path)}">Load anyway</button>` : "";
+      return `
+        <div class="viewer-workspace__preview-header">
+          <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
+          <em>${escapeHtml(previewPayload.truncated ? "truncated" : `${previewPayload.size || 0} bytes`)}</em>
+        </div>
+        ${renderCodeViewer(previewPayload.content || "", {
+        language: detectHljsLanguage(path),
+        lineCount: previewPayload.lineCount,
+        truncated: Boolean(previewPayload.truncated),
+        hardCapHit: Boolean(previewPayload.hardCapHit),
+        forceButtonHtml
+      })}
+      `;
+    }
+    if (state === "oversized") {
+      const forceButtonHtml = previewPayload.canForce ? `<button class="btn viewer-code__force" type="button" data-viewer-workspace-preview-full="${escapeHtml(path)}">Load anyway</button>` : "";
+      return `
+        <div class="viewer-workspace__preview-header">
+          <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
+          <em>${escapeHtml(`${previewPayload.size || 0} bytes`)}</em>
+        </div>
+        <div class="viewer-workspace__preview-notice viewer-workspace__preview-notice--warn"><span>${escapeHtml(previewPayload.message || "File too large to preview.")}</span>${forceButtonHtml}</div>
+      `;
+    }
+    if (state === "image") {
+      return `
+        <div class="viewer-workspace__preview-header">
+          <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
+          <em>${escapeHtml(previewPayload.contentType || "image")}</em>
+        </div>
+        <img class="viewer-workspace__image" src="/api/workspace-file?path=${encodeURIComponent(path)}" alt="${escapeHtml(name)}">
+      `;
+    }
+    if (state === "directory") {
+      return `
+        <div class="viewer-workspace__preview-header">
+          <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path || "/")}</span></div>
+          <em>directory</em>
+        </div>
+        <div class="viewer-workspace__preview-notice">${escapeHtml(previewPayload.message || "Directory selected.")}</div>
+      `;
+    }
+    const placeholderState = state === "unavailable" ? "unavailable" : "empty";
+    const noticeClass = placeholderState === "unavailable" ? " viewer-workspace__preview-notice--unavailable" : "";
+    return `
+      <div class="viewer-workspace__preview-header">
+        <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
+        <em>${escapeHtml(state)}</em>
+      </div>
+      <div class="viewer-workspace__preview-notice${noticeClass}">${escapeHtml(previewPayload.message || "No preview is available.")}</div>
+    `;
+  }
+  function resizeWorkshopTerminal(sessionId, rows, cols) {
+    if (!sessionId || rows <= 0 || cols <= 0) return;
+    const safeRows = Math.max(rows, WORKSHOP_TERMINAL_MIN_ROWS);
+    const safeCols = Math.max(cols, WORKSHOP_TERMINAL_MIN_COLS);
+    fetch("/api/workshop-terminal-resize", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId, rows: safeRows, cols: safeCols })
+    }).catch(() => {
+    });
+  }
+  function sanitizeViewerFilterState(value) {
+    const nextState = { ...defaultFilterState };
+    if (!value || typeof value !== "object") {
+      return nextState;
+    }
+    Object.keys(defaultFilterState).forEach((key) => {
+      if (typeof value[key] === "string" && value[key]) {
+        nextState[key] = value[key];
+      }
+    });
+    return nextState;
+  }
+  function setDeviceCredentials({ token, deviceId, label }) {
+    try {
+      window.localStorage.setItem(deviceTokenKey, token || "");
+      window.localStorage.setItem(deviceIdKey, deviceId || "");
+      window.localStorage.setItem(deviceLabelKey, label || "");
+    } catch {
+    }
+  }
+  async function startDevicePairing() {
+    const defaultLabel = String(window.navigator?.platform || "").trim() || "LAN device";
+    const label = String(await showThemedInputModal({
+      title: "Pair device",
+      message: "Name this browser so the host can identify it before granting write access.",
+      defaultValue: defaultLabel,
+      placeholder: "Windows test",
+      submitLabel: "Request PIN"
+    }) || "").trim();
+    if (!label) return;
+    let pairingId = "";
+    try {
+      const startResponse = await fetch("/api/lan/pair/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ label })
+      });
+      const startData = await startResponse.json();
+      if (!startResponse.ok || !startData.ok) {
+        await showThemedMessageModal({ title: "Pairing refused", message: String(startData.error || startResponse.status) });
+        return;
+      }
+      pairingId = String(startData.payload?.pairingId || "");
+    } catch (err) {
+      await showThemedMessageModal({ title: "Pairing failed", message: String(err?.message || err) });
+      return;
+    }
+    const pin = String(await showThemedInputModal({
+      title: "Enter pairing PIN",
+      message: "Enter the 6-digit PIN displayed on the host terminal.",
+      placeholder: "000000",
+      submitLabel: "Pair device",
+      inputMode: "numeric",
+      maxLength: 6
+    }) || "").trim();
+    if (!pin) return;
+    try {
+      const completeResponse = await fetch("/api/lan/pair/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pairingId, pin, label })
+      });
+      const completeData = await completeResponse.json();
+      if (!completeResponse.ok || !completeData.ok) {
+        await showThemedMessageModal({ title: "Pairing failed", message: String(completeData.error || completeResponse.status) });
+        return;
+      }
+      setDeviceCredentials({
+        token: String(completeData.payload?.deviceToken || ""),
+        deviceId: String(completeData.payload?.deviceId || ""),
+        label: String(completeData.payload?.label || label)
+      });
+      refreshLanBannerPairingState();
+      await showThemedMessageModal({
+        title: "Device paired",
+        message: `Paired as ${completeData.payload?.label || label}. Write access is enabled on this device.`
+      });
+    } catch (err) {
+      await showThemedMessageModal({ title: "Pairing failed", message: String(err?.message || err) });
+    }
+  }
+  function syncWorkshopTerminalSize(entry, { useHysteresis = false } = {}) {
+    if (!entry || !entry.terminal || !entry.fitAddon) return;
+    try {
+      const dim = entry.fitAddon.proposeDimensions();
+      if (!dim || !(dim.rows > 0) || !(dim.cols > 0)) return;
+      const rows = Math.max(dim.rows, WORKSHOP_TERMINAL_MIN_ROWS);
+      const cols = Math.max(dim.cols, WORKSHOP_TERMINAL_MIN_COLS);
+      if (useHysteresis && typeof entry.lastSyncedCols === "number" && typeof entry.lastSyncedRows === "number" && Math.abs(cols - entry.lastSyncedCols) < WORKSHOP_TERMINAL_RESIZE_COL_STEP && Math.abs(rows - entry.lastSyncedRows) < WORKSHOP_TERMINAL_RESIZE_ROW_STEP) {
+        return;
+      }
+      entry.lastSyncedCols = cols;
+      entry.lastSyncedRows = rows;
+      if (entry.terminal.cols !== cols || entry.terminal.rows !== rows) {
+        try {
+          entry.terminal.resize(cols, rows);
+        } catch {
+        }
+      }
+      resizeWorkshopTerminal(entry.id, rows, cols);
+    } catch {
+    }
+  }
+  function updateDocumentBadge(stage) {
+    const badge = document.getElementById("viewer-document-badge");
+    if (!(badge instanceof HTMLElement)) {
+      return;
+    }
+    const normalized = String(stage || "").trim().toLowerCase();
+    const label = stageBadgeLabels[normalized];
+    if (!label) {
+      badge.hidden = true;
+      badge.textContent = "";
+      badge.removeAttribute("data-stage");
+      return;
+    }
+    badge.textContent = label;
+    badge.dataset.stage = normalized;
+    badge.title = `${label} document`;
+    badge.hidden = false;
+  }
+  function withLanAuthorization(input, init) {
+    const token = getActiveToken();
+    if (!token) return init;
+    const next = init ? { ...init } : {};
+    const headers = new Headers(next.headers || (input instanceof Request ? input.headers : void 0));
+    if (!headers.has("Authorization")) headers.set("Authorization", `Bearer ${token}`);
+    next.headers = headers;
+    return next;
+  }
+  function writeActivityStateForRoot(baseState, root, activityState) {
+    const key = activityRootKey(root);
+    const previousByRoot = baseState.activityByRoot && typeof baseState.activityByRoot === "object" ? baseState.activityByRoot : {};
+    return {
+      ...baseState,
+      activityByRoot: {
+        ...previousByRoot,
+        [key]: {
+          activitySnapshot: activityState.activitySnapshot && typeof activityState.activitySnapshot === "object" ? activityState.activitySnapshot : {},
+          activityHistory: Array.isArray(activityState.activityHistory) ? activityState.activityHistory.slice(0, activityStorageLimit) : []
+        }
+      }
+    };
+  }
+  function writeStoredState(value) {
+    window.localStorage.setItem(stateKey, JSON.stringify(value || null));
+  }
 
   // clients/viewer/src/browser-host/index.js
   (() => {
@@ -2649,73 +3368,8 @@ ${entry?.message || ""}`;
       }
       return nativeFetch(input, opts);
     };
-    const stateKey = "logics.localViewer.state";
-    const preferenceKey = "logics.localViewer.preferences.v1";
-    const lanTokenKey = "logics.lan.token";
-    const deviceTokenKey = "logics.lan.deviceToken";
-    const deviceIdKey = "logics.lan.deviceId";
-    const deviceLabelKey = "logics.lan.deviceLabel";
-    function captureLanTokenFromUrl() {
-      try {
-        const url = new URL(window.location.href);
-        const queryToken = url.searchParams.get("t");
-        if (queryToken) {
-          const previousToken = window.sessionStorage.getItem(lanTokenKey) || "";
-          if (previousToken !== queryToken) {
-            clearDeviceCredentials();
-          }
-          window.sessionStorage.setItem(lanTokenKey, queryToken);
-          url.searchParams.delete("t");
-          const cleaned = `${url.pathname}${url.search}${url.hash}`;
-          window.history.replaceState(null, "", cleaned || "/");
-        }
-      } catch {
-      }
-    }
-    function getLanToken() {
-      try {
-        return window.sessionStorage.getItem(lanTokenKey) || "";
-      } catch {
-        return "";
-      }
-    }
-    function getDeviceToken() {
-      try {
-        return window.localStorage.getItem(deviceTokenKey) || "";
-      } catch {
-        return "";
-      }
-    }
-    function setDeviceCredentials({ token, deviceId, label }) {
-      try {
-        window.localStorage.setItem(deviceTokenKey, token || "");
-        window.localStorage.setItem(deviceIdKey, deviceId || "");
-        window.localStorage.setItem(deviceLabelKey, label || "");
-      } catch {
-      }
-    }
-    function clearDeviceCredentials() {
-      try {
-        window.localStorage.removeItem(deviceTokenKey);
-        window.localStorage.removeItem(deviceIdKey);
-        window.localStorage.removeItem(deviceLabelKey);
-      } catch {
-      }
-    }
-    function getActiveToken() {
-      return getDeviceToken() || getLanToken();
-    }
     captureLanTokenFromUrl();
     const originalFetch = window.fetch.bind(window);
-    function withLanAuthorization(input, init) {
-      const token = getActiveToken();
-      if (!token) return init;
-      const next = init ? { ...init } : {};
-      const headers = new Headers(next.headers || (input instanceof Request ? input.headers : void 0));
-      if (!headers.has("Authorization")) headers.set("Authorization", `Bearer ${token}`);
-      next.headers = headers;
-      return next;
-    }
     function viewerFetch(input, init) {
       return originalFetch(input, withLanAuthorization(input, init));
     }
@@ -2742,95 +3396,6 @@ ${entry?.message || ""}`;
       confirm: showThemedConfirmModal,
       requestDraft: showRequestDraftModal
     };
-    async function startDevicePairing() {
-      const defaultLabel = String(window.navigator?.platform || "").trim() || "LAN device";
-      const label = String(await showThemedInputModal({
-        title: "Pair device",
-        message: "Name this browser so the host can identify it before granting write access.",
-        defaultValue: defaultLabel,
-        placeholder: "Windows test",
-        submitLabel: "Request PIN"
-      }) || "").trim();
-      if (!label) return;
-      let pairingId = "";
-      try {
-        const startResponse = await fetch("/api/lan/pair/start", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ label })
-        });
-        const startData = await startResponse.json();
-        if (!startResponse.ok || !startData.ok) {
-          await showThemedMessageModal({ title: "Pairing refused", message: String(startData.error || startResponse.status) });
-          return;
-        }
-        pairingId = String(startData.payload?.pairingId || "");
-      } catch (err) {
-        await showThemedMessageModal({ title: "Pairing failed", message: String(err?.message || err) });
-        return;
-      }
-      const pin = String(await showThemedInputModal({
-        title: "Enter pairing PIN",
-        message: "Enter the 6-digit PIN displayed on the host terminal.",
-        placeholder: "000000",
-        submitLabel: "Pair device",
-        inputMode: "numeric",
-        maxLength: 6
-      }) || "").trim();
-      if (!pin) return;
-      try {
-        const completeResponse = await fetch("/api/lan/pair/complete", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pairingId, pin, label })
-        });
-        const completeData = await completeResponse.json();
-        if (!completeResponse.ok || !completeData.ok) {
-          await showThemedMessageModal({ title: "Pairing failed", message: String(completeData.error || completeResponse.status) });
-          return;
-        }
-        setDeviceCredentials({
-          token: String(completeData.payload?.deviceToken || ""),
-          deviceId: String(completeData.payload?.deviceId || ""),
-          label: String(completeData.payload?.label || label)
-        });
-        refreshLanBannerPairingState();
-        await showThemedMessageModal({
-          title: "Device paired",
-          message: `Paired as ${completeData.payload?.label || label}. Write access is enabled on this device.`
-        });
-      } catch (err) {
-        await showThemedMessageModal({ title: "Pairing failed", message: String(err?.message || err) });
-      }
-    }
-    function refreshLanBannerPairingState() {
-      const banner = document.getElementById("viewer-lan-banner");
-      const pairButton = document.getElementById("viewer-lan-banner-pair");
-      const pairedLabel = document.getElementById("viewer-lan-banner-paired");
-      const deviceLabel = (() => {
-        try {
-          return window.localStorage.getItem(deviceLabelKey) || "";
-        } catch {
-          return "";
-        }
-      })();
-      const hasDeviceToken = Boolean(getDeviceToken());
-      if (banner instanceof HTMLElement && hasDeviceToken) {
-        banner.hidden = true;
-      }
-      if (pairButton instanceof HTMLButtonElement) {
-        pairButton.hidden = !window.__logicsLanRwEnabled || hasDeviceToken;
-      }
-      if (pairedLabel instanceof HTMLElement) {
-        if (hasDeviceToken && deviceLabel) {
-          pairedLabel.hidden = false;
-          pairedLabel.textContent = `Paired as ${deviceLabel}`;
-        } else {
-          pairedLabel.hidden = true;
-          pairedLabel.textContent = "";
-        }
-      }
-    }
     window.addEventListener("DOMContentLoaded", () => {
       const pairButton = document.getElementById("viewer-lan-banner-pair");
       if (pairButton instanceof HTMLButtonElement) {
@@ -2840,7 +3405,6 @@ ${entry?.message || ""}`;
       }
       refreshLanBannerPairingState();
     });
-    const preferenceVersion = 1;
     const meta = () => document.getElementById("viewer-meta");
     const documentPanel = () => document.getElementById("viewer-document");
     const documentTitle = () => document.getElementById("viewer-document-title");
@@ -2867,18 +3431,6 @@ ${entry?.message || ""}`;
     const versionLink = () => document.getElementById("viewer-version-link");
     const bootstrapLogicsButton = () => document.getElementById("viewer-bootstrap-logics");
     const activityClearControl = () => document.getElementById("activity-clear");
-    const activityStorageLimit = 80;
-    const gitHistoryPageSize = 10;
-    const minAutoRefreshIntervalSeconds = 5;
-    const maxAutoRefreshIntervalSeconds = 60;
-    const defaultAutoRefreshIntervalMs = 15 * 1e3;
-    const defaultFilterState = {
-      focus: "active",
-      type: "all",
-      status: "any",
-      relation: "any",
-      activity: "any"
-    };
     let viewerFilterState = { ...defaultFilterState };
     let latestItems = [];
     let latestRepoRoot2 = "";
@@ -2951,65 +3503,6 @@ ${entry?.message || ""}`;
     let viewSeq = 0;
     let userViewSeq = 0;
     let activeUserViewController = null;
-    const cdxStatusColumns = [
-      { id: "session", label: "SESSION" },
-      { id: "provider", label: "PROV." },
-      { id: "status", label: "STATUS" },
-      { id: "auth", label: "AUTH" },
-      { id: "permission", label: "PERM." },
-      { id: "ok", label: "OK" },
-      { id: "remaining5h", label: "5H" },
-      { id: "remainingWeek", label: "WEEK" },
-      { id: "block", label: "BLOCK", defaultVisible: false },
-      { id: "credits", label: "CR", defaultVisible: false },
-      { id: "reset5h", label: "RESET 5H" },
-      { id: "resetWeek", label: "RESET WEEK" },
-      { id: "updated", label: "UPDATED" }
-    ];
-    const cdxRunColumns = [
-      { id: "run", label: "RUN" },
-      { id: "status", label: "STATUS" },
-      { id: "kind", label: "KIND", defaultVisible: false },
-      { id: "session", label: "SESSION" },
-      { id: "tokens", label: "TOKENS" },
-      { id: "cwd", label: "CWD", defaultVisible: false },
-      { id: "report", label: "REPORT" }
-    ];
-    const cdxHistoryColumns = [
-      { id: "session", label: "SESSION" },
-      { id: "status", label: "STATUS" },
-      { id: "action", label: "ACTION" },
-      { id: "started", label: "STARTED" },
-      { id: "duration", label: "DURATION" },
-      { id: "tokens", label: "TOKENS" },
-      { id: "artifacts", label: "ARTIFACTS" }
-    ];
-    const statusOptionsByStage = {
-      request: ["Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"],
-      backlog: ["Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"],
-      task: ["Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"],
-      product: ["Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
-      architecture: ["Draft", "Proposed", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
-      spec: ["Draft", "Ready", "In progress", "Done", "Validated", "Settled", "Archived"]
-    };
-    function readStoredState2() {
-      try {
-        return JSON.parse(window.localStorage.getItem(stateKey) || "null");
-      } catch {
-        return null;
-      }
-    }
-    function readViewerPreferences() {
-      try {
-        const value = JSON.parse(window.localStorage.getItem(preferenceKey) || "null");
-        if (!value || typeof value !== "object" || value.version !== preferenceVersion) {
-          return { version: preferenceVersion };
-        }
-        return { ...value, version: preferenceVersion };
-      } catch {
-        return { version: preferenceVersion };
-      }
-    }
     function writeViewerPreferences(nextPreferences) {
       viewerPreferences = { ...nextPreferences, version: preferenceVersion };
       try {
@@ -3151,18 +3644,6 @@ ${entry?.message || ""}`;
         cdxStatusProviders: selected.length ? { mode: "subset", selected: Array.from(new Set(selected)).sort() } : { mode: "all", selected: [] }
       });
     }
-    function sanitizeViewerFilterState(value) {
-      const nextState = { ...defaultFilterState };
-      if (!value || typeof value !== "object") {
-        return nextState;
-      }
-      Object.keys(defaultFilterState).forEach((key) => {
-        if (typeof value[key] === "string" && value[key]) {
-          nextState[key] = value[key];
-        }
-      });
-      return nextState;
-    }
     function setPrimaryActionBusy(actionKey, label = "") {
       primaryActionBusyKey = actionKey || "";
       document.body?.classList.toggle("viewer-is-busy", Boolean(primaryActionBusyKey));
@@ -3260,32 +3741,15 @@ ${entry?.message || ""}`;
       });
     }
     function hydrateViewerFilterState() {
-      const storedState = readStoredState2();
+      const storedState = readStoredState();
       viewerFilterState = sanitizeViewerFilterState(storedState?.viewerFilterState);
     }
-    function writeStoredState(value) {
-      window.localStorage.setItem(stateKey, JSON.stringify(value || null));
-    }
     function persistViewerFilterState() {
-      const storedState = readStoredState2();
+      const storedState = readStoredState();
       const nextState = storedState && typeof storedState === "object" ? storedState : {};
       writeStoredState({ ...nextState, viewerFilterState: { ...viewerFilterState } });
     }
-    function writeActivityStateForRoot(baseState, root, activityState) {
-      const key = activityRootKey(root);
-      const previousByRoot = baseState.activityByRoot && typeof baseState.activityByRoot === "object" ? baseState.activityByRoot : {};
-      return {
-        ...baseState,
-        activityByRoot: {
-          ...previousByRoot,
-          [key]: {
-            activitySnapshot: activityState.activitySnapshot && typeof activityState.activitySnapshot === "object" ? activityState.activitySnapshot : {},
-            activityHistory: Array.isArray(activityState.activityHistory) ? activityState.activityHistory.slice(0, activityStorageLimit) : []
-          }
-        }
-      };
-    }
-    function activityEventsFromStoredState(state = readStoredState2(), root = latestRepoRoot2) {
+    function activityEventsFromStoredState(state = readStoredState(), root = latestRepoRoot2) {
       const scopedState = activityStateForRoot(state, root);
       return (Array.isArray(scopedState.activityHistory) ? scopedState.activityHistory : []).filter((entry) => entry && typeof entry === "object" && ["git-action", "git-commit"].includes(entry.type)).map((entry, index) => ({
         id: String(entry.id || `git-action-${index}`),
@@ -3322,7 +3786,7 @@ ${entry?.message || ""}`;
       });
     }
     function dispatchViewerActivityUpdate() {
-      const storedState = readStoredState2();
+      const storedState = readStoredState();
       const payload = {
         root: latestRepoRoot2,
         items: latestItems,
@@ -3341,7 +3805,7 @@ ${entry?.message || ""}`;
       }
     }
     function recordGitActivity(action, meta2 = "") {
-      const storedState = readStoredState2();
+      const storedState = readStoredState();
       const baseState = storedState && typeof storedState === "object" ? storedState : {};
       const scopedState = activityStateForRoot(baseState, latestRepoRoot2);
       const history = Array.isArray(scopedState.activityHistory) ? [...scopedState.activityHistory] : [];
@@ -3368,7 +3832,7 @@ ${entry?.message || ""}`;
       if (!commits.length) {
         return;
       }
-      const storedState = readStoredState2();
+      const storedState = readStoredState();
       const baseState = storedState && typeof storedState === "object" ? storedState : {};
       const scopedState = activityStateForRoot(baseState, latestRepoRoot2);
       const history = Array.isArray(scopedState.activityHistory) ? [...scopedState.activityHistory] : [];
@@ -3401,7 +3865,7 @@ ${entry?.message || ""}`;
       }
     }
     function updateStoredActivity(nextItems, root = latestRepoRoot2) {
-      const storedState = readStoredState2();
+      const storedState = readStoredState();
       const baseState = storedState && typeof storedState === "object" ? storedState : {};
       const scopedState = activityStateForRoot(baseState, root);
       const previousSnapshot = scopedState.activitySnapshot && typeof scopedState.activitySnapshot === "object" ? scopedState.activitySnapshot : {};
@@ -3429,7 +3893,7 @@ ${entry?.message || ""}`;
       return decorated;
     }
     function clearActivityHistory() {
-      const storedState = readStoredState2();
+      const storedState = readStoredState();
       const nextState = storedState && typeof storedState === "object" ? { ...storedState } : {};
       const byRoot = nextState.activityByRoot && typeof nextState.activityByRoot === "object" ? { ...nextState.activityByRoot } : {};
       delete byRoot[activityRootKey(latestRepoRoot2)];
@@ -3491,13 +3955,6 @@ ${entry?.message || ""}`;
         }
         node.textContent = parts.join(" \xB7 ");
       }
-    }
-    function normalizeAutoRefreshIntervalSeconds(value) {
-      const seconds = Math.round(Number(value));
-      if (!Number.isFinite(seconds) || seconds <= 0) {
-        return defaultAutoRefreshIntervalMs / 1e3;
-      }
-      return Math.min(maxAutoRefreshIntervalSeconds, Math.max(minAutoRefreshIntervalSeconds, seconds));
     }
     function updateRefreshIntervalControl() {
       const control = refreshIntervalControl();
@@ -4397,7 +4854,7 @@ ${entry?.message || ""}`;
       }) || null;
     }
     function persistSelectedItem(id) {
-      const storedState = readStoredState2();
+      const storedState = readStoredState();
       const nextState = storedState && typeof storedState === "object" ? { ...storedState } : {};
       writeStoredState({ ...nextState, selectedId: id, viewerFilterState: { ...viewerFilterState } });
     }
@@ -4455,117 +4912,12 @@ ${entry?.message || ""}`;
         return latestItems.find((entry) => entry.id === selectedCardId) || null;
       }
       try {
-        const state = readStoredState2();
+        const state = readStoredState();
         const selectedId = typeof state?.selectedId === "string" ? state.selectedId : "";
         return latestItems.find((entry) => entry.id === selectedId) || null;
       } catch {
         return null;
       }
-    }
-    const onboardingStages = [
-      {
-        label: "Need",
-        tagline: "Capture what matters",
-        description: "Start by writing down what you need: a goal, a problem, or an idea. Logics keeps this as a request so you can refine it and track where it goes.",
-        prompts: [
-          "Draft a new request for this problem: <describe the need or pain point>.",
-          "Ask me any clarifying questions and suggest options that would make the request stronger."
-        ],
-        mapping: "Maps to a Logics request document in logics/request/.",
-        actions: [{ label: "New Request", action: "new-request" }]
-      },
-      {
-        label: "Framing",
-        tagline: "Understand before you act",
-        description: "Shape the need into something actionable. Add context, scope, and acceptance criteria so a human or assistant can pick it up without re-explaining the whole problem.",
-        prompts: [
-          "Split the new request into backlog items and separate delivery slices.",
-          "Ask me any questions that would improve confidence or understanding before finalizing the backlog."
-        ],
-        mapping: "Maps to a Logics backlog document in logics/backlog/.",
-        actions: [{ label: "Triage Item", action: "assist-triage" }]
-      },
-      {
-        label: "Orchestration Tasks",
-        tagline: "Create the task plan before execution",
-        description: "Turn backlog work into explicit tasks. Preserve dependencies and keep the delivery sequence visible so execution stays focused.",
-        prompts: [
-          "Create orchestration tasks from this backlog item and split the work into the smallest useful delivery slices.",
-          "List the tasks needed to execute this backlog item in order, with brief context for each one."
-        ],
-        mapping: "Maps to orchestration task planning in logics/tasks/.",
-        actions: []
-      },
-      {
-        label: "Execution",
-        tagline: "Deliver with context",
-        description: "Use the task document to carry the full history of decisions while work is delivered, validated, and closed out.",
-        prompts: [
-          "Execute task <task id or title>. Commit after each wave and keep going until the work is done.",
-          "If needed, make brief assumptions and keep moving."
-        ],
-        mapping: "Maps to a Logics task document in logics/tasks/.",
-        actions: [{ label: "CDX Missions", action: "cdx-missions" }]
-      }
-    ];
-    const onboardingDocGuide = [
-      ['If you think "here is the problem and context..."', "-> request"],
-      ['If you think "this needs a scoped delivery slice..."', "-> item"],
-      ['If you think "we want..."', "-> product brief"],
-      ['If you think "we decided..."', "-> ADR"],
-      ['If you think "the system should..."', "-> spec"],
-      [`If you think "let's do..."`, "-> task"]
-    ];
-    function renderViewerOnboarding() {
-      const stages = onboardingStages.map((stage, index) => {
-        const prompts = stage.prompts.map((prompt) => `
-        <div class="viewer-onboarding__prompt">
-          <div class="viewer-onboarding__prompt-label">Example prompt</div>
-          <div class="viewer-onboarding__prompt-text">${escapeHtml(prompt)}</div>
-        </div>
-      `).join("");
-        const actions = stage.actions.map((action) => `
-        <button class="btn viewer-onboarding__action" type="button" data-viewer-onboarding-action="${escapeHtml(action.action)}">${escapeHtml(action.label)}</button>
-      `).join("");
-        return `
-        <section class="viewer-onboarding__stage">
-          <div class="viewer-onboarding__stage-number" aria-hidden="true">${index + 1}</div>
-          <div class="viewer-onboarding__stage-body">
-            <h2>${escapeHtml(stage.label)}</h2>
-            <p class="viewer-onboarding__tagline">${escapeHtml(stage.tagline)}</p>
-            <p>${escapeHtml(stage.description)}</p>
-            <div class="viewer-onboarding__prompts">${prompts}</div>
-            <p class="viewer-onboarding__mapping">${escapeHtml(stage.mapping)}</p>
-            ${actions ? `<div class="viewer-onboarding__actions">${actions}</div>` : ""}
-          </div>
-        </section>
-      `;
-      }).join("");
-      const docs = onboardingDocGuide.map(([cue, destination]) => `
-      <div class="viewer-onboarding__doc-card">
-        <div>${escapeHtml(cue)}</div>
-        <strong>${escapeHtml(destination)}</strong>
-      </div>
-    `).join("");
-      return `
-      <div class="viewer-onboarding">
-        <header class="viewer-onboarding__header">
-          <h1>Logics in four steps</h1>
-          <p>Logics is a lightweight delivery workflow that keeps project context in plain Markdown: readable by humans, diffable in git, and usable by AI assistants without re-explaining history every time.</p>
-        </header>
-        <div class="viewer-onboarding__stages">${stages}</div>
-        <section class="viewer-onboarding__doc-guide">
-          <h2>What each document is for</h2>
-          <p>A quick rule of thumb for choosing the right artifact before writing.</p>
-          <div class="viewer-onboarding__doc-grid">${docs}</div>
-        </section>
-        <footer class="viewer-onboarding__footer">
-          <button class="btn primary" type="button" data-viewer-onboarding-action="open-logics-insights">Open Insights</button>
-          <button class="btn" type="button" data-viewer-onboarding-action="health">Open Health</button>
-          <button class="btn" type="button" data-viewer-onboarding-action="workshop-explorer">Open Explorer</button>
-        </footer>
-      </div>
-    `;
     }
     function showGettingStarted() {
       setDocument("Getting Started", renderViewerOnboarding());
@@ -4670,32 +5022,6 @@ ${entry?.message || ""}`;
         return view.userSeq !== userViewSeq || view.seq !== viewSeq;
       }
       return view.userSeq !== userViewSeq;
-    }
-    const stageBadgeLabels = {
-      request: "Request",
-      backlog: "Backlog",
-      task: "Task",
-      product: "Product",
-      architecture: "Architecture",
-      spec: "Spec"
-    };
-    function updateDocumentBadge(stage) {
-      const badge = document.getElementById("viewer-document-badge");
-      if (!(badge instanceof HTMLElement)) {
-        return;
-      }
-      const normalized = String(stage || "").trim().toLowerCase();
-      const label = stageBadgeLabels[normalized];
-      if (!label) {
-        badge.hidden = true;
-        badge.textContent = "";
-        badge.removeAttribute("data-stage");
-        return;
-      }
-      badge.textContent = label;
-      badge.dataset.stage = normalized;
-      badge.title = `${label} document`;
-      badge.hidden = false;
     }
     function setDocument(titleText, html, options = {}) {
       invalidatePendingViews();
@@ -4876,7 +5202,7 @@ ${entry?.message || ""}`;
       latestBootstrapLogicsTitle = String(payload?.bootstrapLogicsTitle || "Bootstrap Logics in this project");
       applyLanBanner(Boolean(payload?.lanMode), String(payload?.lanShareUrl || ""), Boolean(payload?.lanRwMode));
       updateCapabilityControls();
-      const payloadWithActivity = { ...payload, items: latestItems, activityEvents: activityEventsFromStoredState(readStoredState2(), payloadRoot) };
+      const payloadWithActivity = { ...payload, items: latestItems, activityEvents: activityEventsFromStoredState(readStoredState(), payloadRoot) };
       const nextPayload = applyFocusRequest(payloadWithActivity, { silent: Boolean(options.silent) });
       window.dispatchEvent(new MessageEvent("message", { data: { type: "data", payload: nextPayload } }));
       const rootName = payload.root ? payload.root.split(/[\\/]/).filter(Boolean).pop() : "repository";
@@ -5495,134 +5821,6 @@ ${entry?.message || ""}`;
         throw error;
       }
     }
-    const HLJS_EXT_LANGUAGE = {
-      js: "javascript",
-      jsx: "javascript",
-      mjs: "javascript",
-      cjs: "javascript",
-      ts: "typescript",
-      tsx: "typescript",
-      py: "python",
-      rb: "ruby",
-      go: "go",
-      rs: "rust",
-      java: "java",
-      c: "c",
-      h: "c",
-      cpp: "cpp",
-      cc: "cpp",
-      hpp: "cpp",
-      cs: "csharp",
-      php: "php",
-      swift: "swift",
-      kt: "kotlin",
-      scala: "scala",
-      sh: "bash",
-      bash: "bash",
-      zsh: "bash",
-      fish: "bash",
-      json: "json",
-      yml: "yaml",
-      yaml: "yaml",
-      toml: "ini",
-      ini: "ini",
-      xml: "xml",
-      html: "xml",
-      htm: "xml",
-      svg: "xml",
-      css: "css",
-      scss: "scss",
-      less: "less",
-      md: "markdown",
-      markdown: "markdown",
-      sql: "sql",
-      dockerfile: "dockerfile",
-      makefile: "makefile",
-      diff: "diff",
-      patch: "diff"
-    };
-    function detectHljsLanguage(path) {
-      const file = String(path || "").split(/[\\/]/).pop() || "";
-      const lower = file.toLowerCase();
-      if (lower === "dockerfile") return "dockerfile";
-      if (lower === "makefile") return "makefile";
-      const ext = lower.includes(".") ? lower.split(".").pop() : "";
-      return HLJS_EXT_LANGUAGE[ext] || "";
-    }
-    function renderWorkspacePreview(previewPayload) {
-      if (!previewPayload) {
-        return '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">\xB7</span><span>Select a file or directory.</span></div>';
-      }
-      const path = previewPayload.path || "/";
-      const name = previewPayload.name || path || "/";
-      const state = previewPayload.state || "unknown";
-      if (state === "ok") {
-        const forceButtonHtml = previewPayload.canForce ? `<button class="btn viewer-code__force" type="button" data-viewer-workspace-preview-full="${escapeHtml(path)}">Load anyway</button>` : "";
-        return `
-        <div class="viewer-workspace__preview-header">
-          <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
-          <em>${escapeHtml(previewPayload.truncated ? "truncated" : `${previewPayload.size || 0} bytes`)}</em>
-        </div>
-        ${renderCodeViewer(previewPayload.content || "", {
-          language: detectHljsLanguage(path),
-          lineCount: previewPayload.lineCount,
-          truncated: Boolean(previewPayload.truncated),
-          hardCapHit: Boolean(previewPayload.hardCapHit),
-          forceButtonHtml
-        })}
-      `;
-      }
-      if (state === "oversized") {
-        const forceButtonHtml = previewPayload.canForce ? `<button class="btn viewer-code__force" type="button" data-viewer-workspace-preview-full="${escapeHtml(path)}">Load anyway</button>` : "";
-        return `
-        <div class="viewer-workspace__preview-header">
-          <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
-          <em>${escapeHtml(`${previewPayload.size || 0} bytes`)}</em>
-        </div>
-        <div class="viewer-workspace__preview-notice viewer-workspace__preview-notice--warn"><span>${escapeHtml(previewPayload.message || "File too large to preview.")}</span>${forceButtonHtml}</div>
-      `;
-      }
-      if (state === "image") {
-        return `
-        <div class="viewer-workspace__preview-header">
-          <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
-          <em>${escapeHtml(previewPayload.contentType || "image")}</em>
-        </div>
-        <img class="viewer-workspace__image" src="/api/workspace-file?path=${encodeURIComponent(path)}" alt="${escapeHtml(name)}">
-      `;
-      }
-      if (state === "directory") {
-        return `
-        <div class="viewer-workspace__preview-header">
-          <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path || "/")}</span></div>
-          <em>directory</em>
-        </div>
-        <div class="viewer-workspace__preview-notice">${escapeHtml(previewPayload.message || "Directory selected.")}</div>
-      `;
-      }
-      const placeholderState = state === "unavailable" ? "unavailable" : "empty";
-      const noticeClass = placeholderState === "unavailable" ? " viewer-workspace__preview-notice--unavailable" : "";
-      return `
-      <div class="viewer-workspace__preview-header">
-        <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
-        <em>${escapeHtml(state)}</em>
-      </div>
-      <div class="viewer-workspace__preview-notice${noticeClass}">${escapeHtml(previewPayload.message || "No preview is available.")}</div>
-    `;
-    }
-    function renderWorkspace(treePayload, previewPayload) {
-      const selectedPath = previewPayload?.path || "";
-      return `
-      <div class="viewer-workspace">
-        <aside class="viewer-workspace__tree" aria-label="Workspace files">
-          ${renderWorkspaceTree(treePayload, selectedPath)}
-        </aside>
-        <section class="viewer-workspace__preview" aria-label="Workspace preview">
-          ${renderWorkspacePreview(previewPayload)}
-        </section>
-      </div>
-    `;
-    }
     async function showWorkspace(options = {}) {
       if (!document.querySelector("[data-viewer-workshop-explorer]")) {
         return showWorkshop({ tab: "explorer", silent: Boolean(options.silent) });
@@ -5652,11 +5850,6 @@ ${entry?.message || ""}`;
       }
       setMeta(options.silent ? "Explorer refreshed." : "Explorer loaded.");
     }
-    const workshopTabs = [
-      { id: "terminals", label: "Terminals", title: "In-app PTY terminals" },
-      { id: "commands", label: "Commands", title: "Discovered package and project scripts" },
-      { id: "explorer", label: "Explorer", title: "Browse repository files" }
-    ];
     function preferredWorkshopTab() {
       const stored = String(viewerPreferences.workshopActiveTab || "");
       return workshopTabs.some((tab) => tab.id === stored) ? stored : "terminals";
@@ -5665,13 +5858,6 @@ ${entry?.message || ""}`;
       const next = workshopTabs.some((tab) => tab.id === tabId) ? tabId : "terminals";
       if (next === viewerPreferences.workshopActiveTab) return;
       updateViewerPreferences({ workshopActiveTab: next });
-    }
-    function renderWorkshopTabs(activeTab) {
-      const buttons = workshopTabs.map((tab) => {
-        const isActive = tab.id === activeTab;
-        return `<button class="viewer-cdx__mode${isActive ? " is-active" : ""}" type="button" role="tab" aria-selected="${isActive ? "true" : "false"}" data-viewer-workshop-tab="${escapeHtml(tab.id)}" title="${escapeHtml(tab.title)}">${escapeHtml(tab.label)}</button>`;
-      }).join("");
-      return `<div class="viewer-cdx__modes" role="tablist" aria-label="Workshop sub-screens">${buttons}</div>`;
     }
     function renderWorkshopPanel(tabId) {
       if (tabId === "explorer") {
@@ -6246,49 +6432,11 @@ ${line}` : line;
         });
       }
     }
-    function syncWorkshopTerminalSize(entry, { useHysteresis = false } = {}) {
-      if (!entry || !entry.terminal || !entry.fitAddon) return;
-      try {
-        const dim = entry.fitAddon.proposeDimensions();
-        if (!dim || !(dim.rows > 0) || !(dim.cols > 0)) return;
-        const rows = Math.max(dim.rows, WORKSHOP_TERMINAL_MIN_ROWS);
-        const cols = Math.max(dim.cols, WORKSHOP_TERMINAL_MIN_COLS);
-        if (useHysteresis && typeof entry.lastSyncedCols === "number" && typeof entry.lastSyncedRows === "number" && Math.abs(cols - entry.lastSyncedCols) < WORKSHOP_TERMINAL_RESIZE_COL_STEP && Math.abs(rows - entry.lastSyncedRows) < WORKSHOP_TERMINAL_RESIZE_ROW_STEP) {
-          return;
-        }
-        entry.lastSyncedCols = cols;
-        entry.lastSyncedRows = rows;
-        if (entry.terminal.cols !== cols || entry.terminal.rows !== rows) {
-          try {
-            entry.terminal.resize(cols, rows);
-          } catch {
-          }
-        }
-        resizeWorkshopTerminal(entry.id, rows, cols);
-      } catch {
-      }
-    }
     function hasMountedWorkshopTerminals() {
       for (const entry of workshopTerminalState.sessions.values()) {
         if (entry.terminal) return true;
       }
       return false;
-    }
-    function nudgeWorkshopTerminalRedraw(entry) {
-      if (!entry || !entry.terminal || !entry.fitAddon) return;
-      let dim;
-      try {
-        entry.fitAddon.fit();
-        dim = entry.fitAddon.proposeDimensions();
-      } catch {
-        return;
-      }
-      if (!dim || dim.rows <= 0 || dim.cols <= 0) return;
-      const rows = Math.max(dim.rows, WORKSHOP_TERMINAL_MIN_ROWS);
-      const cols = Math.max(dim.cols, WORKSHOP_TERMINAL_MIN_COLS);
-      const nudgeRows = rows > WORKSHOP_TERMINAL_MIN_ROWS ? rows - 1 : rows + 1;
-      resizeWorkshopTerminal(entry.id, nudgeRows, cols);
-      setTimeout(() => resizeWorkshopTerminal(entry.id, rows, cols), 60);
     }
     function redrawWorkshopTerminals() {
       let count = 0;
@@ -6586,21 +6734,6 @@ ${line}` : line;
         }
       });
     }
-    const WORKSHOP_TERMINAL_MIN_COLS = 80;
-    const WORKSHOP_TERMINAL_MIN_ROWS = 24;
-    const WORKSHOP_TERMINAL_RESIZE_COL_STEP = 10;
-    const WORKSHOP_TERMINAL_RESIZE_ROW_STEP = 5;
-    function resizeWorkshopTerminal(sessionId, rows, cols) {
-      if (!sessionId || rows <= 0 || cols <= 0) return;
-      const safeRows = Math.max(rows, WORKSHOP_TERMINAL_MIN_ROWS);
-      const safeCols = Math.max(cols, WORKSHOP_TERMINAL_MIN_COLS);
-      fetch("/api/workshop-terminal-resize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId, rows: safeRows, cols: safeCols })
-      }).catch(() => {
-      });
-    }
     async function stopWorkshopTerminal(sessionId) {
       if (!sessionId) return;
       const pending = workshopTerminalState.sessions.get(sessionId);
@@ -6772,115 +6905,6 @@ ${line}` : line;
         container.innerHTML = renderWorkspace(tree, preview);
       }
       setMeta(full ? `Loaded full preview of ${path}.` : `Previewing ${path || "workspace root"}.`);
-    }
-    function renderCdxStatusControls(knownProviders, knownSessions, visibleColumns, providerFilter) {
-      const columnRows = cdxStatusColumns.map((column) => `
-      <label class="viewer-cdx__menu-check">
-        <input type="checkbox" data-viewer-cdx-column="${escapeHtml(column.id)}"${visibleColumns[column.id] ? " checked" : ""}>
-        <span>${escapeHtml(column.label)}</span>
-      </label>
-    `).join("");
-      const selected = new Set(providerFilter.mode === "subset" ? providerFilter.selected : knownProviders);
-      const providerRows = knownProviders.map((provider) => `
-      <label class="viewer-cdx__menu-check">
-        <input type="checkbox" data-viewer-cdx-provider="${escapeHtml(provider)}"${selected.has(provider) ? " checked" : ""}>
-        <span>${escapeHtml(provider)}</span>
-      </label>
-    `).join("");
-      const providerSummary = providerFilter.mode === "subset" && providerFilter.selected.length ? `${providerFilter.selected.length}/${knownProviders.length || providerFilter.selected.length}` : "All";
-      return `
-      <div class="viewer-cdx__controls" aria-label="CDX status table controls">
-        <details class="viewer-cdx__menu">
-          <summary class="viewer-cdx__icon-button" title="Configure status columns" aria-label="Configure status columns">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 3.4-.2-.1a1.7 1.7 0 0 0-2 .1 1.7 1.7 0 0 0-.8 1.7v.2H9.2v-.2a1.7 1.7 0 0 0-.8-1.7 1.7 1.7 0 0 0-2-.1l-.2.1-2-3.4.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1.1H3v-3.8h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.9l-.1-.1 2-3.4.2.1a1.7 1.7 0 0 0 2-.1 1.7 1.7 0 0 0 .8-1.7v-.2h5.6v.2a1.7 1.7 0 0 0 .8 1.7 1.7 1.7 0 0 0 2 .1l.2-.1 2 3.4-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1.1h.1v3.8h-.1a1.7 1.7 0 0 0-1.5 1.1Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
-          </summary>
-          <div class="viewer-cdx__menu-panel" role="menu" aria-label="CDX status columns">${columnRows}</div>
-        </details>
-        <details class="viewer-cdx__menu">
-          <summary class="viewer-cdx__icon-button" title="Filter status providers" aria-label="Filter status providers">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16l-6.5 7.2V19l-3 1.5v-7.3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
-            <span class="viewer-cdx__icon-count">${escapeHtml(providerSummary)}</span>
-          </summary>
-          <div class="viewer-cdx__menu-panel" role="menu" aria-label="CDX provider filter">
-            <button class="viewer-cdx__menu-action" type="button" data-viewer-cdx-provider-all>All providers</button>
-            ${providerRows || '<div class="viewer-cdx__empty">No providers reported.</div>'}
-          </div>
-        </details>
-        ${renderCdxImportExportControls(knownSessions)}
-      </div>
-    `;
-    }
-    function renderCdxRunControls(visibleColumns, knownSessions, sessionFilter) {
-      const columnRows = cdxRunColumns.map((column) => `
-      <label class="viewer-cdx__menu-check">
-        <input type="checkbox" data-viewer-cdx-run-column="${escapeHtml(column.id)}"${visibleColumns[column.id] ? " checked" : ""}>
-        <span>${escapeHtml(column.label)}</span>
-      </label>
-    `).join("");
-      const selected = new Set(sessionFilter.mode === "subset" ? sessionFilter.selected : knownSessions);
-      const sessionRows = knownSessions.map((session) => `
-      <label class="viewer-cdx__menu-check">
-        <input type="checkbox" data-viewer-cdx-run-session="${escapeHtml(session)}"${selected.has(session) ? " checked" : ""}>
-        <span>${escapeHtml(session)}</span>
-      </label>
-    `).join("");
-      const sessionSummary = sessionFilter.mode === "subset" && sessionFilter.selected.length ? `${sessionFilter.selected.length}/${knownSessions.length || sessionFilter.selected.length}` : "All";
-      return `
-      <div class="viewer-cdx__controls" aria-label="CDX reports table controls">
-        <details class="viewer-cdx__menu">
-          <summary class="viewer-cdx__icon-button" title="Configure run columns" aria-label="Configure run columns">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 3.4-.2-.1a1.7 1.7 0 0 0-2 .1 1.7 1.7 0 0 0-.8 1.7v.2H9.2v-.2a1.7 1.7 0 0 0-.8-1.7 1.7 1.7 0 0 0-2-.1l-.2.1-2-3.4.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1.1H3v-3.8h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.9l-.1-.1 2-3.4.2.1a1.7 1.7 0 0 0 2-.1 1.7 1.7 0 0 0 .8-1.7v-.2h5.6v.2a1.7 1.7 0 0 0 .8 1.7 1.7 1.7 0 0 0 2 .1l.2-.1 2 3.4-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1.1h.1v3.8h-.1a1.7 1.7 0 0 0-1.5 1.1Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
-          </summary>
-          <div class="viewer-cdx__menu-panel" role="menu" aria-label="CDX run columns">${columnRows}</div>
-        </details>
-        <details class="viewer-cdx__menu">
-          <summary class="viewer-cdx__icon-button" title="Filter report sessions" aria-label="Filter report sessions">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16l-6.5 7.2V19l-3 1.5v-7.3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
-            <span class="viewer-cdx__icon-count">${escapeHtml(sessionSummary)}</span>
-          </summary>
-          <div class="viewer-cdx__menu-panel" role="menu" aria-label="CDX report session filter">
-            <button class="viewer-cdx__menu-action" type="button" data-viewer-cdx-run-session-all>All sessions</button>
-            ${sessionRows || '<div class="viewer-cdx__empty">No sessions reported.</div>'}
-          </div>
-        </details>
-      </div>
-    `;
-    }
-    function renderCdxHistoryControls(visibleColumns, knownSessions, sessionFilter) {
-      const columnRows = cdxHistoryColumns.map((column) => `
-      <label class="viewer-cdx__menu-check">
-        <input type="checkbox" data-viewer-cdx-history-column="${escapeHtml(column.id)}"${visibleColumns[column.id] ? " checked" : ""}>
-        <span>${escapeHtml(column.label)}</span>
-      </label>
-    `).join("");
-      const selected = new Set(sessionFilter.mode === "subset" ? sessionFilter.selected : knownSessions);
-      const sessionRows = knownSessions.map((session) => `
-      <label class="viewer-cdx__menu-check">
-        <input type="checkbox" data-viewer-cdx-history-session="${escapeHtml(session)}"${selected.has(session) ? " checked" : ""}>
-        <span>${escapeHtml(session)}</span>
-      </label>
-    `).join("");
-      const sessionSummary = sessionFilter.mode === "subset" && sessionFilter.selected.length ? `${sessionFilter.selected.length}/${knownSessions.length || sessionFilter.selected.length}` : "All";
-      return `
-      <div class="viewer-cdx__controls" aria-label="CDX history table controls">
-        <details class="viewer-cdx__menu">
-          <summary class="viewer-cdx__icon-button" title="Configure history columns" aria-label="Configure history columns">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 3.4-.2-.1a1.7 1.7 0 0 0-2 .1 1.7 1.7 0 0 0-.8 1.7v.2H9.2v-.2a1.7 1.7 0 0 0-.8-1.7 1.7 1.7 0 0 0-2-.1l-.2.1-2-3.4.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1.1H3v-3.8h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.9l-.1-.1 2-3.4.2.1a1.7 1.7 0 0 0 2-.1 1.7 1.7 0 0 0 .8-1.7v-.2h5.6v.2a1.7 1.7 0 0 0 .8 1.7 1.7 1.7 0 0 0 2 .1l.2-.1 2 3.4-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1.1h.1v3.8h-.1a1.7 1.7 0 0 0-1.5 1.1Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
-          </summary>
-          <div class="viewer-cdx__menu-panel" role="menu" aria-label="CDX history columns">${columnRows}</div>
-        </details>
-        <details class="viewer-cdx__menu">
-          <summary class="viewer-cdx__icon-button" title="Filter history sessions" aria-label="Filter history sessions">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16l-6.5 7.2V19l-3 1.5v-7.3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
-            <span class="viewer-cdx__icon-count">${escapeHtml(sessionSummary)}</span>
-          </summary>
-          <div class="viewer-cdx__menu-panel" role="menu" aria-label="CDX history session filter">
-            <button class="viewer-cdx__menu-action" type="button" data-viewer-cdx-history-session-all>All sessions</button>
-            ${sessionRows || '<div class="viewer-cdx__empty">No sessions reported.</div>'}
-          </div>
-        </details>
-      </div>
-    `;
     }
     function renderCdxSessionTable(sessions, emptyText, latestSessionNameOverride = "") {
       if (!sessions.length) {
@@ -7689,28 +7713,6 @@ ${line}` : line;
               <thead><tr>${activeColumns.map((column) => `<th>${escapeHtml(column.label)}</th>`).join("")}</tr></thead>
               <tbody>${rows || `<tr><td colspan="${Math.max(activeColumns.length, 1)}" class="viewer-cdx__empty">No CDX history entries reported.</td></tr>`}</tbody>
             </table>
-          </div>
-        </section>
-      </div>
-    `;
-    }
-    function renderCdxLogPreview(payload) {
-      const path = payload?.path || "";
-      const content = payload?.content || "";
-      const truncated = Boolean(payload?.truncated);
-      const parsed = parseCdxLogJson(content);
-      return `
-      <div class="viewer-cdx">
-        <section class="viewer-cdx__section">
-          <div class="viewer-ci__heading"><h2>Log preview</h2><span>${truncated ? "latest output" : "complete file"}</span></div>
-          <div class="viewer-cdx__log-preview">
-            <div class="viewer-cdx__meta">${escapeHtml(path)}</div>
-            ${truncated ? '<div class="viewer-cdx__state viewer-cdx__state--warn">Preview truncated to the end of the file. Open the file externally for the full log.</div>' : ""}
-            ${renderCdxStructuredLog(parsed)}
-            <details class="viewer-cdx__log-raw"${parsed ? "" : " open"}>
-              <summary>Raw log</summary>
-              ${content ? renderCodeViewer(content, { language: detectHljsLanguage(path), truncated }) : '<pre class="viewer-cdx__log-content">Log is empty.</pre>'}
-            </details>
           </div>
         </section>
       </div>
@@ -8656,7 +8658,7 @@ ${line}` : line;
           setMeta("This action is read-only in the local viewer. Use the CLI for workflow changes.");
         },
         getState() {
-          return readStoredState2();
+          return readStoredState();
         },
         setState(value) {
           const nextState = value && typeof value === "object" ? { ...value } : null;

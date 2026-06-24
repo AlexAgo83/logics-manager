@@ -4702,7 +4702,18 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 command_override = body.get("command")
                 label = str(body.get("label") or "")
                 command = command_override if isinstance(command_override, list) and all(isinstance(p, str) for p in command_override) and command_override else workshop_terminal_default_command()
-                session = self.server.workshop_terminals.create(command, self.server.repo_root, label=label)
+                try:
+                    initial_cols = int(body.get("cols") or 0)
+                    initial_rows = int(body.get("rows") or 0)
+                except (TypeError, ValueError):
+                    initial_cols = initial_rows = 0
+                session = self.server.workshop_terminals.create(
+                    command,
+                    self.server.repo_root,
+                    label=label,
+                    initial_cols=initial_cols or 80,
+                    initial_rows=initial_rows or 24,
+                )
                 self._send_json({"ok": True, "payload": session.status_payload()})
             except json.JSONDecodeError:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")

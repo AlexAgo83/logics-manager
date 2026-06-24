@@ -3543,6 +3543,28 @@
     }
   }
 
+  // Manual GIT-screen refresh only: pull remote-tracking refs up to date so the
+  // ahead/behind badges reflect the real remote. Best-effort — a failed fetch
+  // (offline, auth-required remote) still falls through to a status refresh.
+  async function fetchGitRemote() {
+    try {
+      const response = await fetch("/api/git-fetch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) {
+        setMeta(data.error || "Git fetch failed.");
+        return false;
+      }
+      recordGitActivity("Fetch", "Fetched remote-tracking refs");
+      return true;
+    } catch {
+      setMeta("Git fetch failed.");
+      return false;
+    }
+  }
+
   async function refreshCurrentScreen() {
     const panel = documentPanel();
     const title = documentTitle();
@@ -3556,6 +3578,8 @@
     if (screen === "Remote") {
       if (latestCiScreenMode === "release") return showReleaseStatus(opts);
       if (latestCiScreenMode === "runs") return showCiStatus(opts);
+      setMeta("Fetching from remote...");
+      await fetchGitRemote();
       return showGitStatus({ preserve: true, ...opts });
     }
     if (screen === "Workshop") {

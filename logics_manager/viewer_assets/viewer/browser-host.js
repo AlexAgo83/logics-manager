@@ -1,4 +1,997 @@
 (() => {
+  function activeCdxInteractionMenu() {
+    return document.querySelector(".viewer-cdx__menu[open], .viewer-workshop__command-run-menu[open]");
+  }
+  function activityMinuteBucket(value) {
+    const timestamp = Date.parse(String(value || ""));
+    if (!Number.isFinite(timestamp)) {
+      return "";
+    }
+    return new Date(Math.floor(timestamp / 6e4) * 6e4).toISOString();
+  }
+  function activityPanelIsOpen() {
+    const panel = document.getElementById("activity-panel");
+    return panel instanceof HTMLElement && !panel.hidden;
+  }
+  function activityRootKey(root = latestRepoRoot) {
+    return String(root || "default").trim() || "default";
+  }
+  function applyCdxBadge(host, selector, desiredLabel, makeHtml) {
+    if (!(host instanceof HTMLElement)) return;
+    const existing = host.querySelector(selector);
+    const currentLabel = existing ? (existing.textContent || "").trim() : null;
+    if (desiredLabel === null) {
+      existing?.remove();
+      return;
+    }
+    if (currentLabel === desiredLabel) return;
+    existing?.remove();
+    host.insertAdjacentHTML("beforeend", makeHtml(desiredLabel));
+  }
+  function applyGitDomain(domain) {
+    const selected = domain || "changes";
+    const diffDomains = /* @__PURE__ */ new Set(["changes", "staged", "worktree", "untracked"]);
+    const showDiffDetail = diffDomains.has(selected);
+    document.querySelectorAll(".viewer-git__domain[data-viewer-git-domain]").forEach((node) => {
+      if (node instanceof HTMLElement) {
+        const active = node.getAttribute("data-viewer-git-domain") === selected;
+        node.classList.toggle("is-active", active);
+        node.setAttribute("aria-pressed", active ? "true" : "false");
+      }
+    });
+    document.querySelectorAll("[data-viewer-git-panel]").forEach((node) => {
+      if (node instanceof HTMLElement) {
+        node.hidden = node.getAttribute("data-viewer-git-panel") !== selected;
+      }
+    });
+    document.querySelectorAll(".viewer-git__workspace").forEach((node) => {
+      if (node instanceof HTMLElement) {
+        node.classList.toggle("has-diff-detail", showDiffDetail);
+      }
+    });
+    document.querySelectorAll("[data-viewer-git-detail]").forEach((node) => {
+      if (node instanceof HTMLElement) {
+        node.hidden = !showDiffDetail;
+      }
+    });
+  }
+  function asArray(value) {
+    if (Array.isArray(value)) {
+      return value;
+    }
+    if (value && typeof value === "object") {
+      return Object.entries(value).map(([key, entry]) => ({ name: key, ...entry && typeof entry === "object" ? entry : { value: entry } }));
+    }
+    return [];
+  }
+  function cdxBadgeLabel(count) {
+    if (!Number.isFinite(count) || count <= 0) return null;
+    return count === 1 ? "!" : String(count);
+  }
+  function cdxField(item, keys, fallback = "-") {
+    for (const key of keys) {
+      const value = item?.[key];
+      if (value !== void 0 && value !== null && value !== "") {
+        return value;
+      }
+    }
+    return fallback;
+  }
+  function cdxHistoryList(payload) {
+    return payload && payload.state === "ok" && Array.isArray(payload.history) ? payload.history : [];
+  }
+  function cdxLabel(value) {
+    return String(value || "").replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/[_-]+/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+  function cdxMenuKey(menu) {
+    if (!(menu instanceof HTMLElement)) {
+      return "";
+    }
+    if (menu.id) {
+      return `id:${menu.id}`;
+    }
+    const summaryLabel = menu.querySelector("summary")?.getAttribute("aria-label") || menu.querySelector("summary")?.getAttribute("title") || "";
+    const panelLabel = menu.querySelector(".viewer-cdx__menu-panel, .viewer-workshop__command-run-menu-panel")?.getAttribute("aria-label") || "";
+    const label = panelLabel || summaryLabel;
+    return label ? `label:${label}` : "";
+  }
+  function cdxMissionActionControls() {
+    return Array.from(document.querySelectorAll([
+      "[data-viewer-cdx-plan]",
+      "[data-viewer-cdx-run]",
+      "[data-viewer-cdx-apply-plan]",
+      "[data-viewer-cdx-mission-select]"
+    ].join(","))).filter((node) => node instanceof HTMLElement);
+  }
+  function cdxMissionCatalog(payload = {}) {
+    return payload.catalog || {
+      missions: [
+        { id: "full-audit", title: "Full audit", description: "Audit the repository, always draft a Logics request, and optionally apply fixes with a full request\u2192item\u2192task chain.", scope: "repository", requiresPlanConfirmation: false, supportsFileWrites: true, requiresFileWrites: true, inputFields: [{ id: "directFixes", label: "Fix directly", type: "checkbox" }] },
+        { id: "release-review", title: "Review since latest release", description: "Review changes since the latest release, always draft a Logics request, and optionally apply fixes with a full request\u2192item\u2192task chain.", scope: "latest-release", requiresPlanConfirmation: false, supportsFileWrites: true, requiresFileWrites: true, inputFields: [{ id: "directFixes", label: "Fix directly", type: "checkbox" }] },
+        { id: "corpus-ready", title: "Prepare dev-ready corpus", description: "Produce a corpus plan for explicit deterministic application.", scope: "open-logics-workflow", requiresPlanConfirmation: true, supportsFileWrites: false },
+        { id: "wish-to-request", title: "Wish to request", description: "Create or draft a structured Logics request from a free-form wish.", scope: "request-draft", requiresPlanConfirmation: false, supportsFileWrites: true, inputFields: [{ id: "wishText", label: "Wish or intent", type: "textarea", required: true }] },
+        { id: "pre-release", title: "Guarded pre-release", description: "Prepare release metadata, changelog, validation, and fixes without tagging or publishing.", scope: "pre-release-report", requiresPlanConfirmation: false, supportsFileWrites: true, inputFields: [{ id: "releaseVersion", label: "Version", type: "text", placeholder: "vX.X.X", required: true }, { id: "runFullValidation", label: "Run full validation and report fixes before pre-release", type: "checkbox" }] }
+      ],
+      strengths: [
+        { id: "standard", label: "Standard" },
+        { id: "deep", label: "Deep" },
+        { id: "max", label: "Max" }
+      ],
+      defaultMissionId: "full-audit",
+      defaultStrengthId: "standard"
+    };
+  }
+  function cdxMissionTerminalProgressScript() {
+    return [
+      'mission_id="$1"',
+      'session_id="$2"',
+      'report_hint="$3"',
+      "shift 3",
+      'mode="${CDX_MISSION_PROGRESS_MODE:-compact}"',
+      'start_ts="$(date +%s)"',
+      'last_activity="$start_ts"',
+      "last_total=0",
+      'stdout_file="${TMPDIR:-/tmp}/cdx-mission-stdout-$$.log"',
+      'stderr_file="${TMPDIR:-/tmp}/cdx-mission-stderr-$$.log"',
+      'command_label="$1"',
+      'if [ $# -ge 2 ]; then command_label="$1 $2"; fi',
+      'printf "%s\\n" "[cdx mission] start mission=${mission_id:-unknown} session=${session_id:-unknown}"',
+      'printf "%s\\n" "[cdx mission] report/transcript: ${report_hint:-Reports tab after completion}"',
+      'printf "%s\\n" "[cdx mission] command: ${command_label:-cdx run}"',
+      'printf "%s\\n" "[cdx mission] progress mode: $mode (set CDX_MISSION_PROGRESS_MODE=verbose or watch for more detail)"',
+      'printf "\\n"',
+      '"$@" >"$stdout_file" 2>"$stderr_file" &',
+      'pid="$!"',
+      'printf "%s\\n" "[cdx mission] event: process-started pid=$pid"',
+      'while kill -0 "$pid" 2>/dev/null; do',
+      "  sleep 5",
+      '  now="$(date +%s)"',
+      "  elapsed=$((now - start_ts))",
+      '  stdout_bytes="$(wc -c < "$stdout_file" | tr -d " ")"',
+      '  stderr_bytes="$(wc -c < "$stderr_file" | tr -d " ")"',
+      "  total_bytes=$((stdout_bytes + stderr_bytes))",
+      '  if [ "$total_bytes" -gt "$last_total" ]; then',
+      '    last_activity="$now"',
+      '    last_total="$total_bytes"',
+      '    activity="output activity"',
+      "  elif [ $((now - last_activity)) -ge 60 ]; then",
+      '    activity="no recent activity"',
+      "  else",
+      '    activity="waiting on command output"',
+      "  fi",
+      "  idle=$((now - last_activity))",
+      '  if [ "$mode" = "watch" ]; then printf "\\033[H\\033[2J"; fi',
+      '  printf "%s\\n" "[cdx mission] heartbeat elapsed=${elapsed}s idle=${idle}s phase=running command=${command_label:-cdx run} active=${elapsed}s state=$activity"',
+      '  if [ "$mode" = "verbose" ]; then',
+      '    if [ "$stdout_bytes" -gt 0 ]; then printf "%s\\n" "[cdx mission] stdout tail:"; tail -n 5 "$stdout_file"; fi',
+      '    if [ "$stderr_bytes" -gt 0 ]; then printf "%s\\n" "[cdx mission] stderr tail:"; tail -n 5 "$stderr_file"; fi',
+      "  fi",
+      "done",
+      'wait "$pid"',
+      'rc="$?"',
+      'end_ts="$(date +%s)"',
+      "elapsed=$((end_ts - start_ts))",
+      'stdout_bytes="$(wc -c < "$stdout_file" | tr -d " ")"',
+      'stderr_bytes="$(wc -c < "$stderr_file" | tr -d " ")"',
+      'if [ "$rc" -eq 0 ]; then status="success"; else status="failure"; fi',
+      'printf "\\n%s\\n" "[cdx mission] final status=$status exit=$rc elapsed=${elapsed}s stdout_bytes=$stdout_bytes stderr_bytes=$stderr_bytes report/transcript=${report_hint:-Reports tab after completion}"',
+      'if [ "$stdout_bytes" -gt 0 ]; then',
+      '  printf "%s\\n" "[cdx mission] stdout:"',
+      '  cat "$stdout_file"',
+      "fi",
+      'if [ "$stderr_bytes" -gt 0 ]; then',
+      '  printf "%s\\n" "[cdx mission] stderr tail:"',
+      '  tail -n 40 "$stderr_file"',
+      "fi",
+      'if [ "$rc" -ne 0 ]; then printf "%s\\n" "[cdx mission] next action: inspect the terminal output and the Reports tab for the failed run."; fi',
+      'rm -f "$stdout_file" "$stderr_file"',
+      'exit "$rc"'
+    ].join("\n");
+  }
+  function cdxPct(value) {
+    const percent = Number(value);
+    return Number.isFinite(percent) ? `${Math.max(0, Math.min(100, Math.round(percent)))}%` : "-";
+  }
+  function cdxPermissionValues() {
+    return ["review", "default", "auto", "full"];
+  }
+  function cdxRemainingClass(percent) {
+    if (percent === null) {
+      return "neutral";
+    }
+    if (percent <= 10) {
+      return "bad";
+    }
+    if (percent <= 30) {
+      return "warn";
+    }
+    return "ok";
+  }
+  function cdxRemainingPct(item) {
+    const value = item?.remaining_pct ?? item?.remainingPct ?? item?.available_pct ?? item?.availablePct ?? item?.lowest_available_pct ?? item?.lowestAvailablePct;
+    const percent = Number(value);
+    return Number.isFinite(percent) ? Math.max(0, Math.min(100, Math.round(percent))) : null;
+  }
+  function cdxReportMissionOutput(report, run, taskReport) {
+    const parsed = report?.parsed && typeof report.parsed === "object" ? report.parsed : {};
+    const candidates = [
+      report?.missionOutput,
+      report?.mission_output,
+      parsed.missionOutput,
+      parsed.mission_output,
+      run?.missionOutput,
+      run?.mission_output,
+      taskReport?.missionOutput,
+      taskReport?.mission_output
+    ];
+    return candidates.find((candidate) => candidate && typeof candidate === "object" && !Array.isArray(candidate)) || null;
+  }
+  function cdxReportSummary(report, taskReport, missionOutput, runError, permissionDenials) {
+    const direct = taskReport?.summary || missionOutput?.summary || report?.summary || "";
+    if (direct) {
+      return String(direct);
+    }
+    if (permissionDenials.length) {
+      return "Run stopped on permission checks.";
+    }
+    if (runError?.message) {
+      return String(runError.message);
+    }
+    return "No summary was reported for this run.";
+  }
+  function cdxRunStatusDetail(run) {
+    return "";
+  }
+  function cdxRunsList(payload) {
+    return payload && payload.state === "ok" && Array.isArray(payload.runs) ? payload.runs : [];
+  }
+  function cdxSectionBadgeTitle(section, count) {
+    if (section === "missions") {
+      return count === 1 ? "1 mission run in progress" : `${count} mission runs in progress`;
+    }
+    if (section === "runs") {
+      return count === 1 ? "1 new report" : `${count} new reports`;
+    }
+    return count === 1 ? "1 new history entry" : `${count} new history entries`;
+  }
+  function cdxStateClass(value) {
+    const state = String(value || "").toLowerCase();
+    if (["ready", "ok", "active", "enabled", "authenticated"].some((entry) => state.includes(entry))) {
+      return "ok";
+    }
+    if (["starting", "pending", "running", "warning", "low", "limited", "stale"].some((entry) => state.includes(entry))) {
+      return "warn";
+    }
+    if (["error", "failed", "disabled", "unavailable", "unauthenticated"].some((entry) => state.includes(entry))) {
+      return "bad";
+    }
+    return "neutral";
+  }
+  function cdxUsageNumber(value) {
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value;
+    }
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  function ciBadgeTone(value) {
+    const state = String(value || "").toLowerCase();
+    if (state === "passing") {
+      return "passing";
+    }
+    if (state === "failing") {
+      return "failing";
+    }
+    if (state === "running" || state === "queued") {
+      return "running";
+    }
+    if (state === "cancelled") {
+      return "cancelled";
+    }
+    if (state === "unavailable") {
+      return "unavailable";
+    }
+    return "unknown";
+  }
+  function closeCdxMenus(exceptMenu = null) {
+    document.querySelectorAll(".viewer-cdx__menu[open], .viewer-workshop__command-run-menu[open]").forEach((menu) => {
+      if (exceptMenu && menu === exceptMenu) {
+        return;
+      }
+      menu.removeAttribute("open");
+    });
+  }
+  function closeThemedModal(modal) {
+    if (modal instanceof HTMLElement) {
+      modal.remove();
+    }
+  }
+  function collectHealthFindings(lintData, auditData) {
+    const findings = [];
+    const append = (source, payload) => {
+      const canonicalEntries = Array.isArray(payload?.findings) ? payload.findings : [
+        ...Array.isArray(payload?.issues) ? payload.issues : [],
+        ...Array.isArray(payload?.warnings) ? payload.warnings : []
+      ];
+      const seen = /* @__PURE__ */ new Set();
+      canonicalEntries.forEach((entry) => {
+        const key = `${entry?.path || ""}
+${entry?.code || ""}
+${entry?.message || ""}`;
+        seen.add(key);
+        findings.push({ source, ...entry });
+      });
+      const strictEntries = Array.isArray(payload?.strict) ? payload.strict : [];
+      strictEntries.forEach((entry) => {
+        const key = `${entry?.path || ""}
+${entry?.code || ""}
+${entry?.message || ""}`;
+        if (!seen.has(key)) {
+          findings.push({ source, ...entry });
+        }
+      });
+    };
+    append("lint", lintData.payload || {});
+    append("audit", auditData.payload || {});
+    return findings;
+  }
+  async function copyTextToClipboard(text) {
+    if (!text) return false;
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch {
+    }
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.top = "0";
+      textarea.style.left = "0";
+      textarea.style.opacity = "0";
+      textarea.style.pointerEvents = "none";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      textarea.setSelectionRange(0, text.length);
+      const ok = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+  function countBy(items, selector) {
+    return items.reduce((acc, item) => {
+      const key = selector(item) || "unknown";
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+  }
+  function countPayloadEntries(payload, keys) {
+    for (const key of keys) {
+      if (Array.isArray(payload?.[key])) {
+        return payload[key].length;
+      }
+      if (typeof payload?.[key] === "number") {
+        return payload[key];
+      }
+    }
+    return 0;
+  }
+  function createThemedModal({ title, message, submitLabel = "OK", cancelLabel = "Cancel" }) {
+    const modal = document.createElement("div");
+    modal.className = "viewer-themed-modal";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.innerHTML = `
+      <div class="viewer-themed-modal__panel">
+        <div class="viewer-themed-modal__header">
+          <div>
+            <h2 class="viewer-themed-modal__title"></h2>
+            <p class="viewer-themed-modal__copy"></p>
+          </div>
+          <button class="viewer-themed-modal__close" type="button" aria-label="Close" title="Close">x</button>
+        </div>
+        <div class="viewer-themed-modal__body"></div>
+        <div class="viewer-themed-modal__actions">
+          <button class="btn viewer-themed-modal__cancel" type="button"></button>
+          <button class="btn primary viewer-themed-modal__submit" type="button"></button>
+        </div>
+      </div>
+    `;
+    const titleTarget = modal.querySelector(".viewer-themed-modal__title");
+    const copyTarget = modal.querySelector(".viewer-themed-modal__copy");
+    const submit = modal.querySelector(".viewer-themed-modal__submit");
+    const cancel = modal.querySelector(".viewer-themed-modal__cancel");
+    if (titleTarget instanceof HTMLElement) titleTarget.textContent = title;
+    if (copyTarget instanceof HTMLElement) copyTarget.textContent = message || "";
+    if (submit instanceof HTMLButtonElement) submit.textContent = submitLabel;
+    if (cancel instanceof HTMLButtonElement) cancel.textContent = cancelLabel;
+    document.body.appendChild(modal);
+    return modal;
+  }
+  function cssEscape(value) {
+    if (window.CSS && typeof window.CSS.escape === "function") {
+      return window.CSS.escape(value);
+    }
+    return String(value ?? "").replace(/["\\]/g, "\\$&");
+  }
+  function currentGitViewState() {
+    const activeDomain = document.querySelector(".viewer-git__domain.is-active[data-viewer-git-domain]");
+    const activeFile = document.querySelector(".viewer-git__file.is-active[data-viewer-git-file]");
+    return {
+      domain: activeDomain instanceof HTMLElement ? activeDomain.getAttribute("data-viewer-git-domain") || "changes" : "changes",
+      path: activeFile instanceof HTMLElement ? activeFile.getAttribute("data-viewer-git-file") || "" : "",
+      cached: activeFile instanceof HTMLElement && activeFile.getAttribute("data-viewer-git-cached") === "1"
+    };
+  }
+  function describeDocumentScreen(titleText) {
+    const title = String(titleText || "").trim();
+    if (!title) return "";
+    const exact = {
+      "Getting Started": "Logics workflow guide",
+      "Remote": "Git status, CI runs, and release gates",
+      "Workshop": "Terminals, commands, and file explorer",
+      "Validation health": "Lint and audit summary",
+      "Corpus insights": "Workflow corpus dashboard",
+      "CDX status": "Configured agents and runtime checks",
+      "CDX missions": "Guided missions and plans",
+      "CDX reports": "Recent CDX session reports",
+      "CDX run report": "Run summary and logs",
+      "CDX log": "Streaming log output"
+    };
+    if (exact[title]) return exact[title];
+    if (title.startsWith("CDX log")) return "Streaming log output";
+    if (title.startsWith("logics/request/")) return "Logics request";
+    if (title.startsWith("logics/task/")) return "Logics task";
+    if (title.startsWith("logics/backlog")) return "Logics backlog";
+    if (title.endsWith(".md")) return "Logics document";
+    return "";
+  }
+  function downloadBase64File(base64, filename) {
+    const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+    const blob = new Blob([bytes], { type: "application/octet-stream" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+  }
+  async function fetchProjectPickerTree(path = "") {
+    const response = await fetch(`/api/project-picker-tree?path=${encodeURIComponent(path)}`);
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to browse folders.");
+    }
+    return data.payload || {};
+  }
+  async function fetchWorkspacePreview(path = "", { full = false } = {}) {
+    const query = `path=${encodeURIComponent(path)}${full ? "&full=1" : ""}`;
+    const response = await fetch(`/api/workspace-preview?${query}`);
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to load workspace preview.");
+    }
+    return data.payload;
+  }
+  async function fetchWorkspaceTree(path = "") {
+    const response = await fetch(`/api/workspace-tree?path=${encodeURIComponent(path)}`);
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to load workspace tree.");
+    }
+    return data.payload;
+  }
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        const base64 = typeof result === "string" ? result.split(",")[1] || "" : "";
+        resolve(base64);
+      };
+      reader.onerror = () => reject(new Error("Failed to read file."));
+      reader.readAsDataURL(file);
+    });
+  }
+  function findGitFileButton(path, cached) {
+    return Array.from(document.querySelectorAll("[data-viewer-git-file]")).find((node) => node instanceof HTMLElement && node.getAttribute("data-viewer-git-file") === path && node.getAttribute("data-viewer-git-cached") === "1" === Boolean(cached)) || null;
+  }
+  function formatCdxCredits(value) {
+    const text = String(value ?? "").trim();
+    if (!text || text === "-") {
+      return "-";
+    }
+    const number = Number(text);
+    return Number.isFinite(number) ? number.toFixed(2) : text;
+  }
+  function formatCdxDuration(ms) {
+    const value = Number(ms);
+    if (!Number.isFinite(value) || value < 0) {
+      return "-";
+    }
+    const totalSeconds = Math.round(value / 1e3);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    if (minutes >= 60) {
+      const hours = Math.floor(minutes / 60);
+      const remainingMinutes = minutes % 60;
+      return `${hours}h ${remainingMinutes}m`;
+    }
+    if (minutes > 0) {
+      return `${minutes}m ${seconds}s`;
+    }
+    return `${seconds}s`;
+  }
+  function formatCdxTokenUsage(usage) {
+    if (!usage) {
+      return "";
+    }
+    const total = usage.totalTokens ?? "-";
+    const input = usage.inputTokens ?? "-";
+    const output = usage.outputTokens ?? "-";
+    return `${total} total \xB7 ${input} in \xB7 ${output} out`;
+  }
+  function formatCiDate(value) {
+    const timestamp = Date.parse(String(value || ""));
+    if (!Number.isFinite(timestamp)) {
+      return "";
+    }
+    return new Date(timestamp).toLocaleString();
+  }
+  function formatConnectionTime(timestamp) {
+    if (!timestamp) {
+      return "No successful sync yet";
+    }
+    return `Last successful sync ${new Date(timestamp).toLocaleTimeString()}`;
+  }
+  function formatGitHistoryCount(payload) {
+    const count = Array.isArray(payload?.recentCommits) ? payload.recentCommits.length : payload?.latestCommit ? 1 : 0;
+    return `${count}${payload?.recentCommitsHasMore ? "+" : ""}`;
+  }
+  function formatRelativeTime(timestamp) {
+    const diffMs = timestamp - Date.now();
+    const absMs = Math.abs(diffMs);
+    const minutes = Math.round(absMs / 6e4);
+    if (minutes < 1) {
+      return diffMs >= 0 ? "now" : "just now";
+    }
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const remainingHours = hours % 24;
+    const remainingMinutes = minutes % 60;
+    let body = "";
+    if (days > 0) {
+      body = `${days}d${remainingHours > 0 ? ` ${remainingHours}h` : ""}`;
+    } else if (hours > 0) {
+      body = `${hours}h${remainingMinutes > 0 ? ` ${remainingMinutes}m` : ""}`;
+    } else {
+      body = `${minutes}m`;
+    }
+    return diffMs >= 0 ? `in ${body}` : `${body} ago`;
+  }
+  function gitCommitModalEntries(payload) {
+    const labels = {
+      staged: "Staged",
+      modified: "Modified",
+      deleted: "Deleted",
+      renamed: "Renamed",
+      untracked: "Untracked"
+    };
+    const entries = [];
+    const seen = /* @__PURE__ */ new Set();
+    for (const key of ["staged", "modified", "deleted", "renamed", "untracked"]) {
+      const group = Array.isArray(payload?.groups?.[key]) ? payload.groups[key] : [];
+      for (const entry of group) {
+        const path = String(entry?.path || "").trim();
+        if (!path || seen.has(path)) continue;
+        seen.add(path);
+        entries.push({
+          path,
+          from: String(entry?.from || "").trim(),
+          group: labels[key] || key
+        });
+      }
+    }
+    return entries;
+  }
+  function hasLinks(item) {
+    return (item.references || []).length > 0 || (item.usedBy || []).length > 0;
+  }
+  function hasMissingOrAmbiguousStatus(item) {
+    const rawStatus = String(item?.indicators?.Status || "").trim();
+    if (!rawStatus) {
+      return true;
+    }
+    const normalized = rawStatus.toLowerCase();
+    return ![
+      "draft",
+      "ready",
+      "in progress",
+      "blocked",
+      "done",
+      "active",
+      "proposed",
+      "accepted",
+      "validated",
+      "rejected",
+      "superseded",
+      "settled",
+      "archived",
+      "obsolete"
+    ].includes(normalized);
+  }
+  function isAbortError(error) {
+    return Boolean(error) && (error.name === "AbortError" || error.code === 20);
+  }
+  function isSafeLogicsDocPath(value) {
+    const path = String(value || "").replace(/\\/g, "/").replace(/^\.?\//, "").trim();
+    if (!path || path.startsWith("/") || path.startsWith("~") || /^[A-Za-z]:/.test(path)) {
+      return false;
+    }
+    if (path.split("/").includes("..") || !path.endsWith(".md")) {
+      return false;
+    }
+    return [
+      "logics/request/",
+      "logics/backlog/",
+      "logics/tasks/",
+      "logics/product/",
+      "logics/architecture/",
+      "logics/specs/"
+    ].some((prefix) => path.startsWith(prefix));
+  }
+  function markdownApi() {
+    if (typeof window.createCdxLogicsMarkdownApi === "function") {
+      return window.createCdxLogicsMarkdownApi();
+    }
+    return null;
+  }
+  function navMenuItem(target) {
+    return Array.from(document.querySelectorAll("[data-viewer-nav-target]")).find((item) => item.getAttribute("data-viewer-nav-target") === target) || null;
+  }
+  function normalizeCapabilities(payload) {
+    const capabilities = payload?.capabilities && typeof payload.capabilities === "object" ? payload.capabilities : {};
+    return {
+      logics: capabilities.logics || { state: "ready", available: true, message: "" },
+      workspace: capabilities.workspace || { state: "ready", available: true, message: "" },
+      workshop: capabilities.workshop || { state: "missing", available: false, message: "" },
+      git: capabilities.git || { state: "ready", available: true, message: "" },
+      ci: capabilities.ci || { state: "ready", available: true, message: "" },
+      cdx: capabilities.cdx || { state: "ready", available: true, message: "" },
+      cdxRuns: capabilities.cdxRuns || { state: "unsupported", available: false, message: "" }
+    };
+  }
+  function normalizeFocusTarget(value) {
+    const normalized = String(value || "").replace(/\\/g, "/").replace(/^\.?\//, "").replace(/^\//, "").trim();
+    if (!normalized || normalized.startsWith("~") || /^[A-Za-z]:/.test(normalized)) {
+      return "";
+    }
+    if (normalized.split("/").includes("..")) {
+      return "";
+    }
+    return normalized;
+  }
+  function normalizeGitBadgeCounts(payload) {
+    const counts = payload && typeof payload === "object" ? payload.badgeCounts || {} : {};
+    return {
+      unpushedCommits: Math.max(0, Number(counts.unpushedCommits || payload?.ahead || 0)),
+      unpulledCommits: Math.max(0, Number(counts.unpulledCommits || payload?.behind || 0)),
+      uncommittedFiles: Math.max(0, Number(counts.uncommittedFiles || 0))
+    };
+  }
+  function numericValues(values) {
+    return values.map((value) => Number(value)).filter((value) => Number.isFinite(value));
+  }
+  function objectEntries(value) {
+    return value && typeof value === "object" && !Array.isArray(value) ? Object.entries(value) : [];
+  }
+  function parseCdxDate(value) {
+    const raw = String(value || "").trim();
+    if (!raw) {
+      return null;
+    }
+    const shortDate = raw.match(/^([A-Za-z]{3,})\s+(\d{1,2})\s+(\d{1,2}:\d{2})$/);
+    if (shortDate) {
+      const year = (/* @__PURE__ */ new Date()).getFullYear();
+      const timestamp2 = Date.parse(`${shortDate[1]} ${shortDate[2]} ${year} ${shortDate[3]}`);
+      return Number.isFinite(timestamp2) ? timestamp2 : null;
+    }
+    const timestamp = Date.parse(raw);
+    if (Number.isFinite(timestamp)) {
+      return timestamp;
+    }
+    return null;
+  }
+  function parseCdxLogJson(content) {
+    const raw = String(content || "").trim();
+    if (!raw) {
+      return null;
+    }
+    try {
+      return { kind: "json", value: JSON.parse(raw) };
+    } catch {
+    }
+    const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    if (lines.length < 2) {
+      return null;
+    }
+    const values = [];
+    for (const line of lines) {
+      try {
+        values.push(JSON.parse(line));
+      } catch {
+        return null;
+      }
+    }
+    return { kind: "jsonl", value: values };
+  }
+  function pickFirstObject(status, keys) {
+    for (const key of keys) {
+      if (status?.[key] && typeof status[key] === "object" && !Array.isArray(status[key])) {
+        return status[key];
+      }
+    }
+    return {};
+  }
+  function primaryActionControls() {
+    return Array.from(document.querySelectorAll([
+      "#viewer-insights",
+      "#viewer-health",
+      "#viewer-getting-started",
+      "#viewer-bootstrap-logics",
+      "#viewer-restart-server",
+      "#viewer-workshop",
+      "#viewer-ci",
+      "#viewer-cdx",
+      "#viewer-repo-folder",
+      "#viewer-document-status",
+      "#viewer-release-reset",
+      '[data-action="refresh"]',
+      '[data-viewer-action="edit-document"]',
+      "[data-viewer-project-id]",
+      "[data-viewer-nav-target]",
+      "[data-viewer-ci-mode]",
+      "[data-viewer-cdx-mode]",
+      "[data-viewer-cdx-session-action]",
+      "[data-viewer-cdx-report]",
+      "[data-viewer-cdx-artifact-path]"
+    ].join(","))).filter((node) => node instanceof HTMLElement);
+  }
+  function projectPreferenceId(project) {
+    return String(project?.id || project?.root || project?.name || "");
+  }
+  function projectStateLabel(project) {
+    if (project?.active) {
+      return "current";
+    }
+    if (project?.available === false) {
+      return "missing";
+    }
+    if (project?.hasLogics === false) {
+      return "no Logics";
+    }
+    return "available";
+  }
+  function releaseBadgeTone(value) {
+    const state = String(value || "").toLowerCase();
+    if (["ready", "passed"].includes(state)) {
+      return "passing";
+    }
+    if (["blocked", "failed", "stale"].includes(state)) {
+      return "failing";
+    }
+    if (["pending", "planning", "preparing", "local_validation", "commit_ready", "pushed", "ci_verification", "github_release", "external_publication"].includes(state)) {
+      return "running";
+    }
+    return "unknown";
+  }
+  function releaseWorkshopTerminalObserver(entry) {
+    if (entry?.resizeObserver) {
+      try {
+        entry.resizeObserver.disconnect();
+      } catch {
+      }
+      entry.resizeObserver = null;
+    }
+    if (entry?.resizeRaf) {
+      cancelAnimationFrame(entry.resizeRaf);
+      entry.resizeRaf = 0;
+    }
+  }
+  function renderCdxModeSwitcher(active) {
+    return `
+      <div class="viewer-cdx__modes" role="tablist" aria-label="CDX views">
+        <button class="viewer-cdx__mode${active === "status" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="status" aria-selected="${active === "status" ? "true" : "false"}">Sessions</button>
+        <button class="viewer-cdx__mode${active === "missions" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="missions" aria-selected="${active === "missions" ? "true" : "false"}">Missions</button>
+        <button class="viewer-cdx__mode${active === "runs" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="runs" aria-selected="${active === "runs" ? "true" : "false"}">Reports</button>
+        <button class="viewer-cdx__mode${active === "history" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="history" aria-selected="${active === "history" ? "true" : "false"}">History</button>
+      </div>
+    `;
+  }
+  function renderCiModeSwitcher(active) {
+    return `
+      <div class="viewer-cdx__modes viewer-ci__modes" role="tablist" aria-label="Git and CI views">
+        <button class="viewer-cdx__mode${active === "git" ? " is-active" : ""}" type="button" data-viewer-ci-mode="git" aria-selected="${active === "git" ? "true" : "false"}">Git</button>
+        <button class="viewer-cdx__mode${active === "runs" ? " is-active" : ""}" type="button" data-viewer-ci-mode="runs" aria-selected="${active === "runs" ? "true" : "false"}">CI</button>
+        <button class="viewer-cdx__mode${active === "release" ? " is-active" : ""}" type="button" data-viewer-ci-mode="release" aria-selected="${active === "release" ? "true" : "false"}">Release</button>
+      </div>
+    `;
+  }
+  function renderEnvironmentWarning(warning) {
+    const banner = document.getElementById("viewer-environment-warning");
+    if (!(banner instanceof HTMLElement)) return;
+    if (!warning || typeof warning !== "object" || !warning.message) {
+      banner.hidden = true;
+      return;
+    }
+    const titleEl = document.getElementById("viewer-environment-warning-title");
+    const copyEl = document.getElementById("viewer-environment-warning-copy");
+    if (titleEl) titleEl.textContent = warning.title || "Environment warning";
+    if (copyEl) copyEl.textContent = warning.message;
+    banner.hidden = false;
+  }
+  function restoreDocumentViewState(content, state) {
+    if (!state) return;
+    if (state.openDetails.length) {
+      const wanted = new Set(state.openDetails);
+      content.querySelectorAll("details").forEach((node) => {
+        const summary = (node.querySelector("summary")?.textContent || "").trim();
+        if (summary && wanted.has(summary)) node.open = true;
+      });
+    }
+    if (state.focusKey) {
+      const target = content.querySelector(state.focusKey);
+      if (target && typeof target.focus === "function") target.focus({ preventScroll: true });
+    }
+    if (state.scroller) state.scroller.scrollTop = state.scrollTop;
+  }
+  function scrollableAncestor(el) {
+    let node = el;
+    while (node && node !== document.body && node.parentElement) {
+      const overflowY = window.getComputedStyle(node).overflowY || "";
+      if (/(auto|scroll|overlay)/.test(overflowY) && node.scrollHeight > node.clientHeight) {
+        return node;
+      }
+      node = node.parentElement;
+    }
+    return document.scrollingElement || document.documentElement || el;
+  }
+  function setActiveGitFile(button) {
+    document.querySelectorAll("[data-viewer-git-file]").forEach((node) => {
+      if (node instanceof HTMLElement) {
+        node.classList.toggle("is-active", node === button);
+      }
+    });
+  }
+  function setButtonAvailable(button, title) {
+    if (!(button instanceof HTMLElement) || !("disabled" in button)) {
+      return;
+    }
+    button.disabled = false;
+    button.removeAttribute("aria-disabled");
+    button.title = title;
+  }
+  function setButtonUnavailable(button, message) {
+    if (!(button instanceof HTMLElement) || !("disabled" in button)) {
+      return;
+    }
+    button.disabled = true;
+    button.setAttribute("aria-disabled", "true");
+    button.title = message;
+  }
+  function setControlValue(id, value, eventName) {
+    const element = document.getElementById(id);
+    if (!element) {
+      return;
+    }
+    if (element instanceof HTMLInputElement && element.type === "checkbox") {
+      element.checked = Boolean(value);
+    } else if (element instanceof HTMLInputElement || element instanceof HTMLSelectElement) {
+      element.value = String(value ?? "");
+    }
+    element.dispatchEvent(new Event(eventName, { bubbles: true }));
+  }
+  function setDocumentChromeOpen(open) {
+    document.body?.classList.toggle("viewer-screen-document", Boolean(open));
+  }
+  function setNavMenuOpen(wrapper, open) {
+    document.querySelectorAll(".viewer-nav-menu.is-open").forEach((el) => {
+      if (el === wrapper && open) return;
+      el.classList.remove("is-open");
+      el.querySelector(".btn")?.setAttribute("aria-expanded", "false");
+    });
+    if (!(wrapper instanceof HTMLElement) || !open) {
+      return;
+    }
+    wrapper.classList.add("is-open");
+    wrapper.querySelector(".btn")?.setAttribute("aria-expanded", "true");
+  }
+  function showCdxFormStatus(el, type, message) {
+    if (!el) return;
+    el.hidden = false;
+    el.className = `viewer-cdx__form-status viewer-cdx__form-status--${type}`;
+    el.textContent = message;
+  }
+  function showMermaidFallback(message) {
+    document.querySelectorAll(".markdown-preview__mermaid-fallback").forEach((node) => {
+      if (!(node instanceof HTMLElement)) {
+        return;
+      }
+      node.hidden = false;
+      if (message) {
+        node.textContent = message;
+      }
+    });
+  }
+  function stableStringify(value) {
+    if (Array.isArray(value)) {
+      return `[${value.map((entry) => stableStringify(entry)).join(",")}]`;
+    }
+    if (value && typeof value === "object") {
+      return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`).join(",")}}`;
+    }
+    return JSON.stringify(value);
+  }
+  function statusValue(item) {
+    return String(item?.indicators?.Status || "").toLowerCase();
+  }
+  function updateDocumentHeaderNav(content) {
+    const nav = document.getElementById("viewer-document-nav");
+    if (!(nav instanceof HTMLElement)) {
+      return;
+    }
+    nav.replaceChildren();
+    const tablist = content?.querySelector(".viewer-workshop__tabs, .viewer-cdx__modes");
+    if (!(tablist instanceof HTMLElement)) {
+      nav.hidden = true;
+      return;
+    }
+    tablist.closest(".viewer-workshop, .viewer-cdx")?.classList.add("viewer-screen-tabs-external");
+    nav.appendChild(tablist);
+    nav.hidden = false;
+  }
+  function updatedWithin(item, days) {
+    const timestamp = Date.parse(item.updatedAt || "") || 0;
+    return timestamp > 0 && timestamp >= Date.now() - days * 24 * 60 * 60 * 1e3;
+  }
+  function workshopTerminalListNode() {
+    return document.querySelector("[data-viewer-workshop-terminal-list]");
+  }
+  function workshopTerminalPreferredFontSize() {
+    const width = window.innerWidth || document.documentElement?.clientWidth || 0;
+    if (width <= 360) return 6;
+    if (width <= 420) return 7;
+    if (width <= 560) return 8;
+    if (width <= 700) return 9;
+    if (width <= 900) return 10;
+    return 12;
+  }
+  function workshopTerminalStageNode() {
+    return document.querySelector("[data-viewer-workshop-terminal-stage]");
+  }
+  function workspaceEntryIcon(kind, ignored) {
+    if (kind === "directory") {
+      return ignored ? '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M2 4h4l1 1h7v8H2V4Zm9.5 3.2L9.7 9l1.8 1.8-.7.7L9 9.7l-1.8 1.8-.7-.7L8.3 9 6.5 7.2l.7-.7L9 8.3l1.8-1.8.7.7Z"/></svg>' : '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M2 4h4l1 1h7v8H2V4Z"/></svg>';
+    }
+    return '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M4 2h6l3 3v9H4V2Zm6 0v3h3"/></svg>';
+  }
+  function workspaceParentPath(path) {
+    const parts = String(path || "").split("/").filter(Boolean);
+    parts.pop();
+    return parts.join("/");
+  }
+
+  // clients/viewer/src/browser-host/index.js
   (() => {
     const nativeFetch = window.fetch.bind(window);
     window.fetch = function patchedFetch(input, init) {
@@ -93,43 +1086,6 @@
         return new NativeEventSource(tokenized, init);
       };
       window.EventSource.prototype = NativeEventSource.prototype;
-    }
-    function closeThemedModal(modal) {
-      if (modal instanceof HTMLElement) {
-        modal.remove();
-      }
-    }
-    function createThemedModal({ title, message, submitLabel = "OK", cancelLabel = "Cancel" }) {
-      const modal = document.createElement("div");
-      modal.className = "viewer-themed-modal";
-      modal.setAttribute("role", "dialog");
-      modal.setAttribute("aria-modal", "true");
-      modal.innerHTML = `
-      <div class="viewer-themed-modal__panel">
-        <div class="viewer-themed-modal__header">
-          <div>
-            <h2 class="viewer-themed-modal__title"></h2>
-            <p class="viewer-themed-modal__copy"></p>
-          </div>
-          <button class="viewer-themed-modal__close" type="button" aria-label="Close" title="Close">x</button>
-        </div>
-        <div class="viewer-themed-modal__body"></div>
-        <div class="viewer-themed-modal__actions">
-          <button class="btn viewer-themed-modal__cancel" type="button"></button>
-          <button class="btn primary viewer-themed-modal__submit" type="button"></button>
-        </div>
-      </div>
-    `;
-      const titleTarget = modal.querySelector(".viewer-themed-modal__title");
-      const copyTarget = modal.querySelector(".viewer-themed-modal__copy");
-      const submit = modal.querySelector(".viewer-themed-modal__submit");
-      const cancel = modal.querySelector(".viewer-themed-modal__cancel");
-      if (titleTarget instanceof HTMLElement) titleTarget.textContent = title;
-      if (copyTarget instanceof HTMLElement) copyTarget.textContent = message || "";
-      if (submit instanceof HTMLButtonElement) submit.textContent = submitLabel;
-      if (cancel instanceof HTMLButtonElement) cancel.textContent = cancelLabel;
-      document.body.appendChild(modal);
-      return modal;
     }
     function showThemedInputModal({ title, message, defaultValue = "", placeholder = "", submitLabel = "OK", inputMode = "text", maxLength = 0 }) {
       return new Promise((resolve) => {
@@ -449,7 +1405,7 @@
     };
     let viewerFilterState = { ...defaultFilterState };
     let latestItems = [];
-    let latestRepoRoot = "";
+    let latestRepoRoot2 = "";
     let latestRepository = { root: "", githubUrl: "" };
     let latestCapabilities = {};
     let latestProjects = [];
@@ -587,9 +1543,6 @@
     }
     function updateViewerPreferences(patch) {
       writeViewerPreferences({ ...viewerPreferences, ...patch });
-    }
-    function projectPreferenceId(project) {
-      return String(project?.id || project?.root || project?.name || "");
     }
     function favoriteProjectIds() {
       const stored = Array.isArray(viewerPreferences.favoriteProjects) ? viewerPreferences.favoriteProjects : [];
@@ -734,15 +1687,6 @@
       });
       return nextState;
     }
-    function stableStringify(value) {
-      if (Array.isArray(value)) {
-        return `[${value.map((entry) => stableStringify(entry)).join(",")}]`;
-      }
-      if (value && typeof value === "object") {
-        return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`).join(",")}}`;
-      }
-      return JSON.stringify(value);
-    }
     function viewerStateSignature(payload) {
       const items = Array.isArray(payload?.items) ? payload.items : [];
       const projects = Array.isArray(payload?.projects) ? payload.projects : [];
@@ -782,30 +1726,6 @@
     }
     function runtimeStatusSignature(payload) {
       return stableStringify(payload || {});
-    }
-    function primaryActionControls() {
-      return Array.from(document.querySelectorAll([
-        "#viewer-insights",
-        "#viewer-health",
-        "#viewer-getting-started",
-        "#viewer-bootstrap-logics",
-        "#viewer-restart-server",
-        "#viewer-workshop",
-        "#viewer-ci",
-        "#viewer-cdx",
-        "#viewer-repo-folder",
-        "#viewer-document-status",
-        "#viewer-release-reset",
-        '[data-action="refresh"]',
-        '[data-viewer-action="edit-document"]',
-        "[data-viewer-project-id]",
-        "[data-viewer-nav-target]",
-        "[data-viewer-ci-mode]",
-        "[data-viewer-cdx-mode]",
-        "[data-viewer-cdx-session-action]",
-        "[data-viewer-cdx-report]",
-        "[data-viewer-cdx-artifact-path]"
-      ].join(","))).filter((node) => node instanceof HTMLElement);
     }
     function setPrimaryActionBusy(actionKey, label = "") {
       primaryActionBusyKey = actionKey || "";
@@ -862,14 +1782,6 @@
         }
       });
     }
-    function cdxMissionActionControls() {
-      return Array.from(document.querySelectorAll([
-        "[data-viewer-cdx-plan]",
-        "[data-viewer-cdx-run]",
-        "[data-viewer-cdx-apply-plan]",
-        "[data-viewer-cdx-mission-select]"
-      ].join(","))).filter((node) => node instanceof HTMLElement);
-    }
     function setCdxMissionBusy(actionKey, label = "") {
       cdxMissionBusyKey = actionKey || "";
       document.body?.toggleAttribute("data-viewer-cdx-mission-busy", Boolean(cdxMissionBusyKey));
@@ -923,10 +1835,7 @@
       const nextState = storedState && typeof storedState === "object" ? storedState : {};
       writeStoredState({ ...nextState, viewerFilterState: { ...viewerFilterState } });
     }
-    function activityRootKey(root = latestRepoRoot) {
-      return String(root || "default").trim() || "default";
-    }
-    function activityStateForRoot(state = readStoredState(), root = latestRepoRoot) {
+    function activityStateForRoot(state = readStoredState(), root = latestRepoRoot2) {
       const baseState = state && typeof state === "object" ? state : {};
       const byRoot = baseState.activityByRoot && typeof baseState.activityByRoot === "object" ? baseState.activityByRoot : {};
       const scoped = byRoot[activityRootKey(root)];
@@ -955,7 +1864,7 @@
         }
       };
     }
-    function activityEventsFromStoredState(state = readStoredState(), root = latestRepoRoot) {
+    function activityEventsFromStoredState(state = readStoredState(), root = latestRepoRoot2) {
       const scopedState = activityStateForRoot(state, root);
       return (Array.isArray(scopedState.activityHistory) ? scopedState.activityHistory : []).filter((entry) => entry && typeof entry === "object" && ["git-action", "git-commit"].includes(entry.type)).map((entry, index) => ({
         id: String(entry.id || `git-action-${index}`),
@@ -994,11 +1903,11 @@
     function dispatchViewerActivityUpdate() {
       const storedState = readStoredState();
       const payload = {
-        root: latestRepoRoot,
+        root: latestRepoRoot2,
         items: latestItems,
         selectedId: storedState?.selectedId || "",
         activityEvents: [
-          ...activityEventsFromStoredState(storedState, latestRepoRoot),
+          ...activityEventsFromStoredState(storedState, latestRepoRoot2),
           ...ciActivityEvents()
         ]
       };
@@ -1009,17 +1918,6 @@
       if (activityPanelIsOpen()) {
         dispatchViewerActivityUpdate();
       }
-    }
-    function activityPanelIsOpen() {
-      const panel = document.getElementById("activity-panel");
-      return panel instanceof HTMLElement && !panel.hidden;
-    }
-    function activityMinuteBucket(value) {
-      const timestamp = Date.parse(String(value || ""));
-      if (!Number.isFinite(timestamp)) {
-        return "";
-      }
-      return new Date(Math.floor(timestamp / 6e4) * 6e4).toISOString();
     }
     function activityHistoryKey(entry) {
       if (!entry || typeof entry !== "object") {
@@ -1045,7 +1943,7 @@
     function recordGitActivity(action, meta2 = "") {
       const storedState = readStoredState();
       const baseState = storedState && typeof storedState === "object" ? storedState : {};
-      const scopedState = activityStateForRoot(baseState, latestRepoRoot);
+      const scopedState = activityStateForRoot(baseState, latestRepoRoot2);
       const history = Array.isArray(scopedState.activityHistory) ? [...scopedState.activityHistory] : [];
       const now = (/* @__PURE__ */ new Date()).toISOString();
       const safeAction = String(action || "Git").trim() || "Git";
@@ -1062,7 +1960,7 @@
       writeStoredState(writeActivityStateForRoot({
         ...baseState,
         viewerFilterState: { ...viewerFilterState }
-      }, latestRepoRoot, { activitySnapshot: scopedState.activitySnapshot || {}, activityHistory: history }));
+      }, latestRepoRoot2, { activitySnapshot: scopedState.activitySnapshot || {}, activityHistory: history }));
       dispatchViewerActivityUpdate();
     }
     function syncGitCommitActivity(payload) {
@@ -1072,7 +1970,7 @@
       }
       const storedState = readStoredState();
       const baseState = storedState && typeof storedState === "object" ? storedState : {};
-      const scopedState = activityStateForRoot(baseState, latestRepoRoot);
+      const scopedState = activityStateForRoot(baseState, latestRepoRoot2);
       const history = Array.isArray(scopedState.activityHistory) ? [...scopedState.activityHistory] : [];
       const knownIds = new Set(history.map((entry) => String(entry?.id || "")));
       const newEntries = commits.filter((commit) => commit && typeof commit === "object" && commit.hash).map((commit) => {
@@ -1097,12 +1995,12 @@
       writeStoredState(writeActivityStateForRoot({
         ...baseState,
         viewerFilterState: { ...viewerFilterState }
-      }, latestRepoRoot, { activitySnapshot: scopedState.activitySnapshot || {}, activityHistory: [...newEntries, ...history] }));
+      }, latestRepoRoot2, { activitySnapshot: scopedState.activitySnapshot || {}, activityHistory: [...newEntries, ...history] }));
       if (activityPanelIsOpen()) {
         dispatchViewerActivityUpdate();
       }
     }
-    function updateStoredActivity(nextItems, root = latestRepoRoot) {
+    function updateStoredActivity(nextItems, root = latestRepoRoot2) {
       const storedState = readStoredState();
       const baseState = storedState && typeof storedState === "object" ? storedState : {};
       const scopedState = activityStateForRoot(baseState, root);
@@ -1134,7 +2032,7 @@
       const storedState = readStoredState();
       const nextState = storedState && typeof storedState === "object" ? { ...storedState } : {};
       const byRoot = nextState.activityByRoot && typeof nextState.activityByRoot === "object" ? { ...nextState.activityByRoot } : {};
-      delete byRoot[activityRootKey(latestRepoRoot)];
+      delete byRoot[activityRootKey(latestRepoRoot2)];
       nextState.activityByRoot = byRoot;
       writeStoredState(nextState);
       latestItems = latestItems.map((item) => {
@@ -1144,12 +2042,6 @@
       });
       setMeta("Local activity history cleared.");
     }
-    function markdownApi() {
-      if (typeof window.createCdxLogicsMarkdownApi === "function") {
-        return window.createCdxLogicsMarkdownApi();
-      }
-      return null;
-    }
     function escapeHtml(value) {
       const api = markdownApi();
       if (api && typeof api.escapeHtml === "function") {
@@ -1157,53 +2049,9 @@
       }
       return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     }
-    function cssEscape(value) {
-      if (window.CSS && typeof window.CSS.escape === "function") {
-        return window.CSS.escape(value);
-      }
-      return String(value ?? "").replace(/["\\]/g, "\\$&");
-    }
-    function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const result = reader.result;
-          const base64 = typeof result === "string" ? result.split(",")[1] || "" : "";
-          resolve(base64);
-        };
-        reader.onerror = () => reject(new Error("Failed to read file."));
-        reader.readAsDataURL(file);
-      });
-    }
-    function downloadBase64File(base64, filename) {
-      const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
-      const blob = new Blob([bytes], { type: "application/octet-stream" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }, 100);
-    }
-    function showCdxFormStatus(el, type, message) {
-      if (!el) return;
-      el.hidden = false;
-      el.className = `viewer-cdx__form-status viewer-cdx__form-status--${type}`;
-      el.textContent = message;
-    }
     function setMeta(text) {
       latestMetaText = text;
       renderMeta();
-    }
-    function formatConnectionTime(timestamp) {
-      if (!timestamp) {
-        return "No successful sync yet";
-      }
-      return `Last successful sync ${new Date(timestamp).toLocaleTimeString()}`;
     }
     function renderConnectionNotice() {
       const banner = connectionBanner();
@@ -1293,11 +2141,11 @@
       renderMeta();
     }
     function updateRepositoryIdentity(payload) {
-      latestRepoRoot = String(payload.root || latestRepoRoot || "");
+      latestRepoRoot2 = String(payload.root || latestRepoRoot2 || "");
       latestProjects = Array.isArray(payload.projects) ? payload.projects : latestProjects;
       const repository = payload.repository && typeof payload.repository === "object" ? payload.repository : {};
       latestRepository = {
-        root: String(repository.root || latestRepoRoot || ""),
+        root: String(repository.root || latestRepoRoot2 || ""),
         provider: String(repository.provider || ""),
         webUrl: String(repository.webUrl || repository.githubUrl || repository.gitlabUrl || ""),
         githubUrl: String(repository.githubUrl || ""),
@@ -1305,14 +2153,14 @@
       };
       const pill = repoPill();
       if (pill) {
-        const repoName = String(payload.repoName || latestRepoRoot.split(/[\\/]/).filter(Boolean).pop() || "repository");
+        const repoName = String(payload.repoName || latestRepoRoot2.split(/[\\/]/).filter(Boolean).pop() || "repository");
         const label = pill.querySelector("[data-viewer-project-label]");
         if (label) {
           label.textContent = repoName;
         } else {
           pill.textContent = repoName;
         }
-        pill.title = latestRepoRoot || repoName;
+        pill.title = latestRepoRoot2 || repoName;
         if ("disabled" in pill) {
           pill.disabled = false;
         }
@@ -1323,18 +2171,6 @@
       }
       updateRepositoryShortcuts();
       renderProjectMenu();
-    }
-    function projectStateLabel(project) {
-      if (project?.active) {
-        return "current";
-      }
-      if (project?.available === false) {
-        return "missing";
-      }
-      if (project?.hasLogics === false) {
-        return "no Logics";
-      }
-      return "available";
     }
     function renderProjectMenu() {
       const menu = projectMenu();
@@ -1456,14 +2292,6 @@
       }
       postToApp(payload, { force: true });
       setMeta(message);
-    }
-    async function fetchProjectPickerTree(path = "") {
-      const response = await fetch(`/api/project-picker-tree?path=${encodeURIComponent(path)}`);
-      const data = await response.json();
-      if (!response.ok || !data.ok) {
-        throw new Error(data.error || "Unable to browse folders.");
-      }
-      return data.payload || {};
     }
     function renderProjectPickerModalBody(body, payload) {
       if (!(body instanceof HTMLElement)) return;
@@ -1619,47 +2447,18 @@
       }
     }
     function maybePromptBootstrapLogics() {
-      if (!latestCanBootstrapLogics || !latestShouldPromptBootstrapLogics || !latestRepoRoot || bootstrapPromptOpen) {
+      if (!latestCanBootstrapLogics || !latestShouldPromptBootstrapLogics || !latestRepoRoot2 || bootstrapPromptOpen) {
         return;
       }
-      if (promptedBootstrapRoots.has(latestRepoRoot)) {
+      if (promptedBootstrapRoots.has(latestRepoRoot2)) {
         return;
       }
-      promptedBootstrapRoots.add(latestRepoRoot);
+      promptedBootstrapRoots.add(latestRepoRoot2);
       window.setTimeout(() => {
         confirmBootstrapLogics({ automatic: true }).catch((error) => setMeta(error?.message || "Unable to bootstrap Logics."));
       }, 0);
     }
     let latestLanShareUrl = "";
-    async function copyTextToClipboard(text) {
-      if (!text) return false;
-      try {
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(text);
-          return true;
-        }
-      } catch {
-      }
-      try {
-        const textarea = document.createElement("textarea");
-        textarea.value = text;
-        textarea.setAttribute("readonly", "");
-        textarea.style.position = "fixed";
-        textarea.style.top = "0";
-        textarea.style.left = "0";
-        textarea.style.opacity = "0";
-        textarea.style.pointerEvents = "none";
-        document.body.appendChild(textarea);
-        textarea.focus();
-        textarea.select();
-        textarea.setSelectionRange(0, text.length);
-        const ok = document.execCommand("copy");
-        document.body.removeChild(textarea);
-        return ok;
-      } catch {
-        return false;
-      }
-    }
     function applyLanBanner(active, shareUrl, rwMode = false) {
       const banner = document.getElementById("viewer-lan-banner");
       if (!(banner instanceof HTMLElement)) return;
@@ -1683,18 +2482,6 @@
       }
       refreshLanBannerPairingState();
     }
-    function normalizeCapabilities(payload) {
-      const capabilities = payload?.capabilities && typeof payload.capabilities === "object" ? payload.capabilities : {};
-      return {
-        logics: capabilities.logics || { state: "ready", available: true, message: "" },
-        workspace: capabilities.workspace || { state: "ready", available: true, message: "" },
-        workshop: capabilities.workshop || { state: "missing", available: false, message: "" },
-        git: capabilities.git || { state: "ready", available: true, message: "" },
-        ci: capabilities.ci || { state: "ready", available: true, message: "" },
-        cdx: capabilities.cdx || { state: "ready", available: true, message: "" },
-        cdxRuns: capabilities.cdxRuns || { state: "unsupported", available: false, message: "" }
-      };
-    }
     function capability(name) {
       return latestCapabilities?.[name] || { state: "unknown", available: false, message: "" };
     }
@@ -1703,22 +2490,6 @@
     }
     function capabilityMessage(name, fallback) {
       return String(capability(name).message || fallback || "");
-    }
-    function setButtonUnavailable(button, message) {
-      if (!(button instanceof HTMLElement) || !("disabled" in button)) {
-        return;
-      }
-      button.disabled = true;
-      button.setAttribute("aria-disabled", "true");
-      button.title = message;
-    }
-    function setButtonAvailable(button, title) {
-      if (!(button instanceof HTMLElement) || !("disabled" in button)) {
-        return;
-      }
-      button.disabled = false;
-      button.removeAttribute("aria-disabled");
-      button.title = title;
     }
     function updateCapabilityControls() {
       const bootstrapButton = bootstrapLogicsButton();
@@ -1807,14 +2578,6 @@
         await openProjectPickerModal(error instanceof Error ? error.message : "Unable to open repository folder.");
       }
     }
-    function normalizeGitBadgeCounts(payload) {
-      const counts = payload && typeof payload === "object" ? payload.badgeCounts || {} : {};
-      return {
-        unpushedCommits: Math.max(0, Number(counts.unpushedCommits || payload?.ahead || 0)),
-        unpulledCommits: Math.max(0, Number(counts.unpulledCommits || payload?.behind || 0)),
-        uncommittedFiles: Math.max(0, Number(counts.uncommittedFiles || 0))
-      };
-    }
     function renderGitBadge(kind, count) {
       const value = Number(count || 0);
       if (value <= 0) {
@@ -1838,9 +2601,6 @@
         filesVisible ? renderGitBadge("files", latestGitBadgeCounts.uncommittedFiles) : ""
       ].filter(Boolean).join("");
       return html ? `<span class="viewer-git-badges" data-viewer-git-badges="${escapeHtml(scope)}">${html}</span>` : "";
-    }
-    function navMenuItem(target) {
-      return Array.from(document.querySelectorAll("[data-viewer-nav-target]")).find((item) => item.getAttribute("data-viewer-nav-target") === target) || null;
     }
     function clearNavMenuBadges(targets) {
       targets.forEach((target) => {
@@ -1909,25 +2669,6 @@
         }
       }
       setNavMenuBadges("remote:git", gitBadgeHtml("main"));
-    }
-    function ciBadgeTone(value) {
-      const state = String(value || "").toLowerCase();
-      if (state === "passing") {
-        return "passing";
-      }
-      if (state === "failing") {
-        return "failing";
-      }
-      if (state === "running" || state === "queued") {
-        return "running";
-      }
-      if (state === "cancelled") {
-        return "cancelled";
-      }
-      if (state === "unavailable") {
-        return "unavailable";
-      }
-      return "unknown";
     }
     function ciBadgeLabel(value) {
       const state = ciBadgeTone(value);
@@ -2060,22 +2801,9 @@
       }
       return payload.runs.filter((run) => ["running", "starting", "pending"].includes(String(cdxField(run, ["status", "state"], "")).toLowerCase())).length;
     }
-    function cdxSectionBadgeTitle(section, count) {
-      if (section === "missions") {
-        return count === 1 ? "1 mission run in progress" : `${count} mission runs in progress`;
-      }
-      if (section === "runs") {
-        return count === 1 ? "1 new report" : `${count} new reports`;
-      }
-      return count === 1 ? "1 new history entry" : `${count} new history entries`;
-    }
     function renderCdxUnreadBadge(section, label, count) {
       const title = cdxSectionBadgeTitle(section, count);
       return `<span class="viewer-cdx-button-badge viewer-cdx-button-badge--unread" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">${escapeHtml(label)}</span>`;
-    }
-    function cdxBadgeLabel(count) {
-      if (!Number.isFinite(count) || count <= 0) return null;
-      return count === 1 ? "!" : String(count);
     }
     function cdxRunIdentity(run) {
       return String(cdxField(run, ["run_id", "runId", "id"], "")).trim();
@@ -2088,24 +2816,6 @@
         cdxField(entry, ["provider"], ""),
         cdxField(entry, ["label"], "")
       ].map((part) => String(part || "")).join("|");
-    }
-    function cdxRunsList(payload) {
-      return payload && payload.state === "ok" && Array.isArray(payload.runs) ? payload.runs : [];
-    }
-    function cdxHistoryList(payload) {
-      return payload && payload.state === "ok" && Array.isArray(payload.history) ? payload.history : [];
-    }
-    function applyCdxBadge(host, selector, desiredLabel, makeHtml) {
-      if (!(host instanceof HTMLElement)) return;
-      const existing = host.querySelector(selector);
-      const currentLabel = existing ? (existing.textContent || "").trim() : null;
-      if (desiredLabel === null) {
-        existing?.remove();
-        return;
-      }
-      if (currentLabel === desiredLabel) return;
-      existing?.remove();
-      host.insertAdjacentHTML("beforeend", makeHtml(desiredLabel));
     }
     function updateCdxUnreadBadges() {
       const counts = {
@@ -2416,16 +3126,6 @@
       const normalized = String(relPath || "").replace(/\\/g, "/").replace(/^\//, "");
       return latestItems.find((entry) => entry.relPath === normalized || entry.path === normalized) || null;
     }
-    function normalizeFocusTarget(value) {
-      const normalized = String(value || "").replace(/\\/g, "/").replace(/^\.?\//, "").replace(/^\//, "").trim();
-      if (!normalized || normalized.startsWith("~") || /^[A-Za-z]:/.test(normalized)) {
-        return "";
-      }
-      if (normalized.split("/").includes("..")) {
-        return "";
-      }
-      return normalized;
-    }
     function focusRequest() {
       try {
         const params = new URLSearchParams(window.location.search || "");
@@ -2515,29 +3215,6 @@
       } catch {
         return null;
       }
-    }
-    function describeDocumentScreen(titleText) {
-      const title = String(titleText || "").trim();
-      if (!title) return "";
-      const exact = {
-        "Getting Started": "Logics workflow guide",
-        "Remote": "Git status, CI runs, and release gates",
-        "Workshop": "Terminals, commands, and file explorer",
-        "Validation health": "Lint and audit summary",
-        "Corpus insights": "Workflow corpus dashboard",
-        "CDX status": "Configured agents and runtime checks",
-        "CDX missions": "Guided missions and plans",
-        "CDX reports": "Recent CDX session reports",
-        "CDX run report": "Run summary and logs",
-        "CDX log": "Streaming log output"
-      };
-      if (exact[title]) return exact[title];
-      if (title.startsWith("CDX log")) return "Streaming log output";
-      if (title.startsWith("logics/request/")) return "Logics request";
-      if (title.startsWith("logics/task/")) return "Logics task";
-      if (title.startsWith("logics/backlog")) return "Logics backlog";
-      if (title.endsWith(".md")) return "Logics document";
-      return "";
     }
     const onboardingStages = [
       {
@@ -2748,20 +3425,6 @@
       }
       return view.userSeq !== userViewSeq;
     }
-    function isAbortError(error) {
-      return Boolean(error) && (error.name === "AbortError" || error.code === 20);
-    }
-    function scrollableAncestor(el) {
-      let node = el;
-      while (node && node !== document.body && node.parentElement) {
-        const overflowY = window.getComputedStyle(node).overflowY || "";
-        if (/(auto|scroll|overlay)/.test(overflowY) && node.scrollHeight > node.clientHeight) {
-          return node;
-        }
-        node = node.parentElement;
-      }
-      return document.scrollingElement || document.documentElement || el;
-    }
     function captureDocumentViewState(content) {
       const scroller = scrollableAncestor(content);
       const openDetails = Array.from(content.querySelectorAll("details[open]")).map((node) => (node.querySelector("summary")?.textContent || "").trim()).filter(Boolean);
@@ -2776,39 +3439,6 @@
         }
       }
       return { scroller, scrollTop: scroller ? scroller.scrollTop : 0, openDetails, focusKey };
-    }
-    function restoreDocumentViewState(content, state) {
-      if (!state) return;
-      if (state.openDetails.length) {
-        const wanted = new Set(state.openDetails);
-        content.querySelectorAll("details").forEach((node) => {
-          const summary = (node.querySelector("summary")?.textContent || "").trim();
-          if (summary && wanted.has(summary)) node.open = true;
-        });
-      }
-      if (state.focusKey) {
-        const target = content.querySelector(state.focusKey);
-        if (target && typeof target.focus === "function") target.focus({ preventScroll: true });
-      }
-      if (state.scroller) state.scroller.scrollTop = state.scrollTop;
-    }
-    function setDocumentChromeOpen(open) {
-      document.body?.classList.toggle("viewer-screen-document", Boolean(open));
-    }
-    function updateDocumentHeaderNav(content) {
-      const nav = document.getElementById("viewer-document-nav");
-      if (!(nav instanceof HTMLElement)) {
-        return;
-      }
-      nav.replaceChildren();
-      const tablist = content?.querySelector(".viewer-workshop__tabs, .viewer-cdx__modes");
-      if (!(tablist instanceof HTMLElement)) {
-        nav.hidden = true;
-        return;
-      }
-      tablist.closest(".viewer-workshop, .viewer-cdx")?.classList.add("viewer-screen-tabs-external");
-      nav.appendChild(tablist);
-      nav.hidden = false;
     }
     const stageBadgeLabels = {
       request: "Request",
@@ -2900,17 +3530,6 @@
         setDocumentChromeOpen(false);
       }
       updateScreenActions("");
-    }
-    function showMermaidFallback(message) {
-      document.querySelectorAll(".markdown-preview__mermaid-fallback").forEach((node) => {
-        if (!(node instanceof HTMLElement)) {
-          return;
-        }
-        node.hidden = false;
-        if (message) {
-          node.textContent = message;
-        }
-      });
     }
     function renderMermaidDiagrams() {
       const nodes = Array.from(document.querySelectorAll(".mermaid"));
@@ -3009,7 +3628,7 @@
         return false;
       }
       latestViewerStateSignature = nextSignature;
-      const payloadRoot = String(payload?.root || latestRepoRoot || "");
+      const payloadRoot = String(payload?.root || latestRepoRoot2 || "");
       latestItems = updateStoredActivity(Array.isArray(payload.items) ? payload.items : [], payloadRoot);
       if (!autoRefreshIntervalTouched) {
         const launchSeconds = Number(payload.autoRefreshIntervalSeconds);
@@ -3046,19 +3665,6 @@
         dispatchViewerActivityUpdate();
       }
       return true;
-    }
-    function renderEnvironmentWarning(warning) {
-      const banner = document.getElementById("viewer-environment-warning");
-      if (!(banner instanceof HTMLElement)) return;
-      if (!warning || typeof warning !== "object" || !warning.message) {
-        banner.hidden = true;
-        return;
-      }
-      const titleEl = document.getElementById("viewer-environment-warning-title");
-      const copyEl = document.getElementById("viewer-environment-warning-copy");
-      if (titleEl) titleEl.textContent = warning.title || "Environment warning";
-      if (copyEl) copyEl.textContent = warning.message;
-      banner.hidden = false;
     }
     function renderUpdateNotice(updateInfo) {
       const banner = updateBanner();
@@ -3256,18 +3862,6 @@
         button.setAttribute("aria-expanded", open ? "true" : "false");
       }
     }
-    function setNavMenuOpen(wrapper, open) {
-      document.querySelectorAll(".viewer-nav-menu.is-open").forEach((el) => {
-        if (el === wrapper && open) return;
-        el.classList.remove("is-open");
-        el.querySelector(".btn")?.setAttribute("aria-expanded", "false");
-      });
-      if (!(wrapper instanceof HTMLElement) || !open) {
-        return;
-      }
-      wrapper.classList.add("is-open");
-      wrapper.querySelector(".btn")?.setAttribute("aria-expanded", "true");
-    }
     function closeNavMenus() {
       setNavMenuOpen(null, false);
     }
@@ -3287,22 +3881,12 @@
         };
       }
     }
-    function statusValue(item) {
-      return String(item?.indicators?.Status || "").toLowerCase();
-    }
     function isClosed(item) {
       const status = statusValue(item);
       return status.includes("done") || status.includes("archived") || status.includes("obsolete") || status.includes("superseded") || status.includes("settled");
     }
-    function hasLinks(item) {
-      return (item.references || []).length > 0 || (item.usedBy || []).length > 0;
-    }
     function needsPromotion(item) {
       return ["request", "backlog"].includes(item.stage) && !item.isPromoted && !isClosed(item);
-    }
-    function updatedWithin(item, days) {
-      const timestamp = Date.parse(item.updatedAt || "") || 0;
-      return timestamp > 0 && timestamp >= Date.now() - days * 24 * 60 * 60 * 1e3;
     }
     function isStale(item) {
       const timestamp = Date.parse(item.updatedAt || "") || 0;
@@ -3310,46 +3894,6 @@
     }
     function isRecent(item, days = 7) {
       return updatedWithin(item, days);
-    }
-    function hasMissingOrAmbiguousStatus(item) {
-      const rawStatus = String(item?.indicators?.Status || "").trim();
-      if (!rawStatus) {
-        return true;
-      }
-      const normalized = rawStatus.toLowerCase();
-      return ![
-        "draft",
-        "ready",
-        "in progress",
-        "blocked",
-        "done",
-        "active",
-        "proposed",
-        "accepted",
-        "validated",
-        "rejected",
-        "superseded",
-        "settled",
-        "archived",
-        "obsolete"
-      ].includes(normalized);
-    }
-    function isSafeLogicsDocPath(value) {
-      const path = String(value || "").replace(/\\/g, "/").replace(/^\.?\//, "").trim();
-      if (!path || path.startsWith("/") || path.startsWith("~") || /^[A-Za-z]:/.test(path)) {
-        return false;
-      }
-      if (path.split("/").includes("..") || !path.endsWith(".md")) {
-        return false;
-      }
-      return [
-        "logics/request/",
-        "logics/backlog/",
-        "logics/tasks/",
-        "logics/product/",
-        "logics/architecture/",
-        "logics/specs/"
-      ].some((prefix) => path.startsWith(prefix));
     }
     function matchesViewerFilter(item) {
       if (!item) {
@@ -3406,18 +3950,6 @@
       }
       return true;
     }
-    function setControlValue(id, value, eventName) {
-      const element = document.getElementById(id);
-      if (!element) {
-        return;
-      }
-      if (element instanceof HTMLInputElement && element.type === "checkbox") {
-        element.checked = Boolean(value);
-      } else if (element instanceof HTMLInputElement || element instanceof HTMLSelectElement) {
-        element.value = String(value ?? "");
-      }
-      element.dispatchEvent(new Event(eventName, { bubbles: true }));
-    }
     function applyViewerFilter(group, value) {
       if (!Object.prototype.hasOwnProperty.call(defaultFilterState, group)) {
         return;
@@ -3465,13 +3997,6 @@
       const activeLabels = Object.entries(viewerFilterState).filter(([key, value]) => value !== defaultFilterState[key]).map(([key, value]) => `${key}: ${String(value).replace("-", " ")}`);
       const suffix = activeLabels.length > 0 ? ` \xB7 ${activeLabels.join(" \xB7 ")}` : " \xB7 Active work";
       count.textContent = `${visibleCount} of ${latestItems.length} docs shown${suffix}`;
-    }
-    function countBy(items, selector) {
-      return items.reduce((acc, item) => {
-        const key = selector(item) || "unknown";
-        acc[key] = (acc[key] || 0) + 1;
-        return acc;
-      }, {});
     }
     function renderMetricCards(entries) {
       return entries.map(([label, value, tone]) => `
@@ -3601,9 +4126,6 @@
         }
         return `<li class="viewer-insights__row"><span>${escapeHtml(action.label)}</span><strong>${escapeHtml(action.value)}</strong></li>`;
       }).join("");
-    }
-    function itemLabel(item) {
-      return `${item.id || item.relPath || "doc"} - ${item.indicators?.Status || "No status"}`;
     }
     function buildCorpusInsights(lintData = null, auditData = null) {
       const docs = latestItems;
@@ -3851,46 +4373,6 @@
       await showDocumentByPath(data.payload?.path || item.relPath);
       setMeta(data.payload?.changed === false ? `${item.id || item.relPath} was already ${normalized}.` : `Updated ${item.id || item.relPath} to ${normalized}.`);
     }
-    function countPayloadEntries(payload, keys) {
-      for (const key of keys) {
-        if (Array.isArray(payload?.[key])) {
-          return payload[key].length;
-        }
-        if (typeof payload?.[key] === "number") {
-          return payload[key];
-        }
-      }
-      return 0;
-    }
-    function collectHealthFindings(lintData, auditData) {
-      const findings = [];
-      const append = (source, payload) => {
-        const canonicalEntries = Array.isArray(payload?.findings) ? payload.findings : [
-          ...Array.isArray(payload?.issues) ? payload.issues : [],
-          ...Array.isArray(payload?.warnings) ? payload.warnings : []
-        ];
-        const seen = /* @__PURE__ */ new Set();
-        canonicalEntries.forEach((entry) => {
-          const key = `${entry?.path || ""}
-${entry?.code || ""}
-${entry?.message || ""}`;
-          seen.add(key);
-          findings.push({ source, ...entry });
-        });
-        const strictEntries = Array.isArray(payload?.strict) ? payload.strict : [];
-        strictEntries.forEach((entry) => {
-          const key = `${entry?.path || ""}
-${entry?.code || ""}
-${entry?.message || ""}`;
-          if (!seen.has(key)) {
-            findings.push({ source, ...entry });
-          }
-        });
-      };
-      append("lint", lintData.payload || {});
-      append("audit", auditData.payload || {});
-      return findings;
-    }
     function renderHealthSummary(lintData, auditData) {
       const lintPayload = lintData.payload || {};
       const auditPayload = auditData.payload || {};
@@ -3951,11 +4433,6 @@ ${entry?.message || ""}`;
         throw error;
       }
     }
-    function workspaceParentPath(path) {
-      const parts = String(path || "").split("/").filter(Boolean);
-      parts.pop();
-      return parts.join("/");
-    }
     function renderWorkspaceBreadcrumb(currentPath) {
       const segments = String(currentPath || "").split("/").filter(Boolean);
       const crumbs = [
@@ -3971,12 +4448,6 @@ ${entry?.message || ""}`;
         );
       });
       return `<nav class="viewer-workspace__breadcrumb" aria-label="Workspace breadcrumb">${crumbs.join("")}</nav>`;
-    }
-    function workspaceEntryIcon(kind, ignored) {
-      if (kind === "directory") {
-        return ignored ? '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M2 4h4l1 1h7v8H2V4Zm9.5 3.2L9.7 9l1.8 1.8-.7.7L9 9.7l-1.8 1.8-.7-.7L8.3 9 6.5 7.2l.7-.7L9 8.3l1.8-1.8.7.7Z"/></svg>' : '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M2 4h4l1 1h7v8H2V4Z"/></svg>';
-      }
-      return '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M4 2h6l3 3v9H4V2Zm6 0v3h3"/></svg>';
     }
     function renderWorkspaceTree(treePayload, selectedPath = "") {
       if (!treePayload || treePayload.state !== "ok") {
@@ -4181,23 +4652,6 @@ ${entry?.message || ""}`;
         </section>
       </div>
     `;
-    }
-    async function fetchWorkspaceTree(path = "") {
-      const response = await fetch(`/api/workspace-tree?path=${encodeURIComponent(path)}`);
-      const data = await response.json();
-      if (!response.ok || !data.ok) {
-        throw new Error(data.error || "Unable to load workspace tree.");
-      }
-      return data.payload;
-    }
-    async function fetchWorkspacePreview(path = "", { full = false } = {}) {
-      const query = `path=${encodeURIComponent(path)}${full ? "&full=1" : ""}`;
-      const response = await fetch(`/api/workspace-preview?${query}`);
-      const data = await response.json();
-      if (!response.ok || !data.ok) {
-        throw new Error(data.error || "Unable to load workspace preview.");
-      }
-      return data.payload;
     }
     async function showWorkspace(options = {}) {
       if (!document.querySelector("[data-viewer-workshop-explorer]")) {
@@ -4481,7 +4935,7 @@ ${line}` : line;
       hydrated: false
     };
     function workshopTerminalOrderRootKey() {
-      return latestRepoRoot || latestRepository?.root || "default";
+      return latestRepoRoot2 || latestRepository?.root || "default";
     }
     function storedWorkshopTerminalOrder() {
       const byRoot = viewerPreferences.workshopTerminalOrderByRoot;
@@ -4567,12 +5021,6 @@ ${line}` : line;
       } catch {
         workshopTerminalState.hydrated = false;
       }
-    }
-    function workshopTerminalListNode() {
-      return document.querySelector("[data-viewer-workshop-terminal-list]");
-    }
-    function workshopTerminalStageNode() {
-      return document.querySelector("[data-viewer-workshop-terminal-stage]");
     }
     function cdxSessionForTerminal(entry) {
       const serverSession = String(entry?.cdxSession || "").trim();
@@ -4853,15 +5301,6 @@ ${line}` : line;
         });
       }
     }
-    function workshopTerminalPreferredFontSize() {
-      const width = window.innerWidth || document.documentElement?.clientWidth || 0;
-      if (width <= 360) return 6;
-      if (width <= 420) return 7;
-      if (width <= 560) return 8;
-      if (width <= 700) return 9;
-      if (width <= 900) return 10;
-      return 12;
-    }
     function syncWorkshopTerminalSize(entry, { useHysteresis = false } = {}) {
       if (!entry || !entry.terminal || !entry.fitAddon) return;
       try {
@@ -5042,19 +5481,6 @@ ${line}` : line;
         });
         window.setTimeout(() => input.focus(), 0);
       });
-    }
-    function releaseWorkshopTerminalObserver(entry) {
-      if (entry?.resizeObserver) {
-        try {
-          entry.resizeObserver.disconnect();
-        } catch {
-        }
-        entry.resizeObserver = null;
-      }
-      if (entry?.resizeRaf) {
-        cancelAnimationFrame(entry.resizeRaf);
-        entry.resizeRaf = 0;
-      }
     }
     function refitAllWorkshopTerminals() {
       const fontSize = workshopTerminalPreferredFontSize();
@@ -5416,26 +5842,6 @@ ${line}` : line;
       }
       setMeta(full ? `Loaded full preview of ${path}.` : `Previewing ${path || "workspace root"}.`);
     }
-    function objectEntries(value) {
-      return value && typeof value === "object" && !Array.isArray(value) ? Object.entries(value) : [];
-    }
-    function asArray(value) {
-      if (Array.isArray(value)) {
-        return value;
-      }
-      if (value && typeof value === "object") {
-        return Object.entries(value).map(([key, entry]) => ({ name: key, ...entry && typeof entry === "object" ? entry : { value: entry } }));
-      }
-      return [];
-    }
-    function pickFirstObject(status, keys) {
-      for (const key of keys) {
-        if (status?.[key] && typeof status[key] === "object" && !Array.isArray(status[key])) {
-          return status[key];
-        }
-      }
-      return {};
-    }
     function pickFirstArray(status, keys) {
       for (const key of keys) {
         const entries = asArray(status?.[key]);
@@ -5447,9 +5853,6 @@ ${line}` : line;
     }
     function cdxRows(status) {
       return asArray(status?.rows);
-    }
-    function numericValues(values) {
-      return values.map((value) => Number(value)).filter((value) => Number.isFinite(value));
     }
     function formatPercentRange(values) {
       const numbers = numericValues(values).map((value) => Math.max(0, Math.min(100, Math.round(value))));
@@ -5582,52 +5985,6 @@ ${line}` : line;
       }).join("");
       return rows || `<li class="viewer-cdx__empty">${escapeHtml(emptyText)}</li>`;
     }
-    function cdxLabel(value) {
-      return String(value || "").replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/[_-]+/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
-    }
-    function cdxStateClass(value) {
-      const state = String(value || "").toLowerCase();
-      if (["ready", "ok", "active", "enabled", "authenticated"].some((entry) => state.includes(entry))) {
-        return "ok";
-      }
-      if (["starting", "pending", "running", "warning", "low", "limited", "stale"].some((entry) => state.includes(entry))) {
-        return "warn";
-      }
-      if (["error", "failed", "disabled", "unavailable", "unauthenticated"].some((entry) => state.includes(entry))) {
-        return "bad";
-      }
-      return "neutral";
-    }
-    function cdxRemainingPct(item) {
-      const value = item?.remaining_pct ?? item?.remainingPct ?? item?.available_pct ?? item?.availablePct ?? item?.lowest_available_pct ?? item?.lowestAvailablePct;
-      const percent = Number(value);
-      return Number.isFinite(percent) ? Math.max(0, Math.min(100, Math.round(percent))) : null;
-    }
-    function cdxPct(value) {
-      const percent = Number(value);
-      return Number.isFinite(percent) ? `${Math.max(0, Math.min(100, Math.round(percent)))}%` : "-";
-    }
-    function cdxField(item, keys, fallback = "-") {
-      for (const key of keys) {
-        const value = item?.[key];
-        if (value !== void 0 && value !== null && value !== "") {
-          return value;
-        }
-      }
-      return fallback;
-    }
-    function cdxRemainingClass(percent) {
-      if (percent === null) {
-        return "neutral";
-      }
-      if (percent <= 10) {
-        return "bad";
-      }
-      if (percent <= 30) {
-        return "warn";
-      }
-      return "ok";
-    }
     function sortCdxSessionsByRemaining(entries) {
       return [...entries].sort((left, right) => {
         const leftRemaining = cdxRemainingPct(left);
@@ -5653,13 +6010,6 @@ ${line}` : line;
       }
       return value;
     }
-    function cdxUsageNumber(value) {
-      if (typeof value === "number" && Number.isFinite(value)) {
-        return value;
-      }
-      const parsed = Number(value);
-      return Number.isFinite(parsed) ? parsed : null;
-    }
     function cdxTokenUsage(item) {
       if (!item || typeof item !== "object") {
         return null;
@@ -5684,15 +6034,6 @@ ${line}` : line;
       }
       return { inputTokens, outputTokens, totalTokens };
     }
-    function formatCdxTokenUsage(usage) {
-      if (!usage) {
-        return "";
-      }
-      const total = usage.totalTokens ?? "-";
-      const input = usage.inputTokens ?? "-";
-      const output = usage.outputTokens ?? "-";
-      return `${total} total \xB7 ${input} in \xB7 ${output} out`;
-    }
     function renderCdxTokenUsage(usage) {
       if (!usage) {
         return '<span class="viewer-cdx__token-empty">-</span>';
@@ -5710,44 +6051,6 @@ ${line}` : line;
     function renderCdxActionButton(label, attrs, title = "") {
       return `<button class="viewer-cdx__action-button" type="button"${title ? ` title="${escapeHtml(title)}"` : ""} ${attrs}>${escapeHtml(label)}</button>`;
     }
-    function parseCdxDate(value) {
-      const raw = String(value || "").trim();
-      if (!raw) {
-        return null;
-      }
-      const shortDate = raw.match(/^([A-Za-z]{3,})\s+(\d{1,2})\s+(\d{1,2}:\d{2})$/);
-      if (shortDate) {
-        const year = (/* @__PURE__ */ new Date()).getFullYear();
-        const timestamp2 = Date.parse(`${shortDate[1]} ${shortDate[2]} ${year} ${shortDate[3]}`);
-        return Number.isFinite(timestamp2) ? timestamp2 : null;
-      }
-      const timestamp = Date.parse(raw);
-      if (Number.isFinite(timestamp)) {
-        return timestamp;
-      }
-      return null;
-    }
-    function formatRelativeTime(timestamp) {
-      const diffMs = timestamp - Date.now();
-      const absMs = Math.abs(diffMs);
-      const minutes = Math.round(absMs / 6e4);
-      if (minutes < 1) {
-        return diffMs >= 0 ? "now" : "just now";
-      }
-      const hours = Math.floor(minutes / 60);
-      const days = Math.floor(hours / 24);
-      const remainingHours = hours % 24;
-      const remainingMinutes = minutes % 60;
-      let body = "";
-      if (days > 0) {
-        body = `${days}d${remainingHours > 0 ? ` ${remainingHours}h` : ""}`;
-      } else if (hours > 0) {
-        body = `${hours}h${remainingMinutes > 0 ? ` ${remainingMinutes}m` : ""}`;
-      } else {
-        body = `${minutes}m`;
-      }
-      return diffMs >= 0 ? `in ${body}` : `${body} ago`;
-    }
     function formatCdxResetAt(value) {
       const raw = String(value || "").trim();
       if (!raw) {
@@ -5756,20 +6059,9 @@ ${line}` : line;
       const timestamp = parseCdxDate(raw);
       return timestamp === null ? raw : formatRelativeTime(timestamp);
     }
-    function formatCdxCredits(value) {
-      const text = String(value ?? "").trim();
-      if (!text || text === "-") {
-        return "-";
-      }
-      const number = Number(text);
-      return Number.isFinite(number) ? number.toFixed(2) : text;
-    }
     function renderCdxBadge(value, fallback = "reported") {
       const label = String(value || fallback || "reported");
       return `<span class="viewer-cdx__badge viewer-cdx__badge--${cdxStateClass(label)}">${escapeHtml(cdxLabel(label))}</span>`;
-    }
-    function cdxRunStatusDetail(run) {
-      return "";
     }
     function cdxDetailEntries(item, excludedKeys) {
       return objectEntries(item).filter(([key, value]) => !excludedKeys.includes(key) && value !== void 0 && value !== null && value !== "").slice(0, 6);
@@ -6043,9 +6335,6 @@ ${line}` : line;
       const state = String(cdxField(item, ["status", "state"], "")).toLowerCase();
       return state !== "disabled";
     }
-    function cdxPermissionValues() {
-      return ["review", "default", "auto", "full"];
-    }
     function cdxSessionPermission(item) {
       return String(cdxField(item, ["permission", "permission_mode", "permissionMode"], "-") || "-");
     }
@@ -6068,29 +6357,6 @@ ${line}` : line;
         </div>
       </details>
     `;
-    }
-    function closeCdxMenus(exceptMenu = null) {
-      document.querySelectorAll(".viewer-cdx__menu[open], .viewer-workshop__command-run-menu[open]").forEach((menu) => {
-        if (exceptMenu && menu === exceptMenu) {
-          return;
-        }
-        menu.removeAttribute("open");
-      });
-    }
-    function cdxMenuKey(menu) {
-      if (!(menu instanceof HTMLElement)) {
-        return "";
-      }
-      if (menu.id) {
-        return `id:${menu.id}`;
-      }
-      const summaryLabel = menu.querySelector("summary")?.getAttribute("aria-label") || menu.querySelector("summary")?.getAttribute("title") || "";
-      const panelLabel = menu.querySelector(".viewer-cdx__menu-panel, .viewer-workshop__command-run-menu-panel")?.getAttribute("aria-label") || "";
-      const label = panelLabel || summaryLabel;
-      return label ? `label:${label}` : "";
-    }
-    function activeCdxInteractionMenu() {
-      return document.querySelector(".viewer-cdx__menu[open], .viewer-workshop__command-run-menu[open]");
     }
     function preserveActiveCdxMenu(render) {
       const key = cdxMenuKey(activeCdxInteractionMenu());
@@ -6213,24 +6479,6 @@ ${line}` : line;
       `;
       }).join("");
       return rows || `<li class="viewer-cdx__empty">${escapeHtml(emptyText)}</li>`;
-    }
-    function cdxMissionCatalog(payload = {}) {
-      return payload.catalog || {
-        missions: [
-          { id: "full-audit", title: "Full audit", description: "Audit the repository, always draft a Logics request, and optionally apply fixes with a full request\u2192item\u2192task chain.", scope: "repository", requiresPlanConfirmation: false, supportsFileWrites: true, requiresFileWrites: true, inputFields: [{ id: "directFixes", label: "Fix directly", type: "checkbox" }] },
-          { id: "release-review", title: "Review since latest release", description: "Review changes since the latest release, always draft a Logics request, and optionally apply fixes with a full request\u2192item\u2192task chain.", scope: "latest-release", requiresPlanConfirmation: false, supportsFileWrites: true, requiresFileWrites: true, inputFields: [{ id: "directFixes", label: "Fix directly", type: "checkbox" }] },
-          { id: "corpus-ready", title: "Prepare dev-ready corpus", description: "Produce a corpus plan for explicit deterministic application.", scope: "open-logics-workflow", requiresPlanConfirmation: true, supportsFileWrites: false },
-          { id: "wish-to-request", title: "Wish to request", description: "Create or draft a structured Logics request from a free-form wish.", scope: "request-draft", requiresPlanConfirmation: false, supportsFileWrites: true, inputFields: [{ id: "wishText", label: "Wish or intent", type: "textarea", required: true }] },
-          { id: "pre-release", title: "Guarded pre-release", description: "Prepare release metadata, changelog, validation, and fixes without tagging or publishing.", scope: "pre-release-report", requiresPlanConfirmation: false, supportsFileWrites: true, inputFields: [{ id: "releaseVersion", label: "Version", type: "text", placeholder: "vX.X.X", required: true }, { id: "runFullValidation", label: "Run full validation and report fixes before pre-release", type: "checkbox" }] }
-        ],
-        strengths: [
-          { id: "standard", label: "Standard" },
-          { id: "deep", label: "Deep" },
-          { id: "max", label: "Max" }
-        ],
-        defaultMissionId: "full-audit",
-        defaultStrengthId: "standard"
-      };
     }
     function selectedCdxMissionRequest() {
       const catalog = latestCdxMissionState.catalog || cdxMissionCatalog();
@@ -6658,16 +6906,6 @@ ${line}` : line;
       </div>
     `;
     }
-    function renderCdxModeSwitcher(active) {
-      return `
-      <div class="viewer-cdx__modes" role="tablist" aria-label="CDX views">
-        <button class="viewer-cdx__mode${active === "status" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="status" aria-selected="${active === "status" ? "true" : "false"}">Sessions</button>
-        <button class="viewer-cdx__mode${active === "missions" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="missions" aria-selected="${active === "missions" ? "true" : "false"}">Missions</button>
-        <button class="viewer-cdx__mode${active === "runs" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="runs" aria-selected="${active === "runs" ? "true" : "false"}">Reports</button>
-        <button class="viewer-cdx__mode${active === "history" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="history" aria-selected="${active === "history" ? "true" : "false"}">History</button>
-      </div>
-    `;
-    }
     function renderCdxStatus(payload) {
       if (!payload || payload.state !== "ok") {
         return `
@@ -7009,24 +7247,6 @@ ${line}` : line;
       </div>
     `;
     }
-    function formatCdxDuration(ms) {
-      const value = Number(ms);
-      if (!Number.isFinite(value) || value < 0) {
-        return "-";
-      }
-      const totalSeconds = Math.round(value / 1e3);
-      const minutes = Math.floor(totalSeconds / 60);
-      const seconds = totalSeconds % 60;
-      if (minutes >= 60) {
-        const hours = Math.floor(minutes / 60);
-        const remainingMinutes = minutes % 60;
-        return `${hours}h ${remainingMinutes}m`;
-      }
-      if (minutes > 0) {
-        return `${minutes}m ${seconds}s`;
-      }
-      return `${seconds}s`;
-    }
     function renderCdxHistory(payload) {
       if (!payload || payload.state !== "ok") {
         return `
@@ -7102,20 +7322,6 @@ ${line}` : line;
       </div>
     `;
     }
-    function cdxReportMissionOutput(report, run, taskReport) {
-      const parsed = report?.parsed && typeof report.parsed === "object" ? report.parsed : {};
-      const candidates = [
-        report?.missionOutput,
-        report?.mission_output,
-        parsed.missionOutput,
-        parsed.mission_output,
-        run?.missionOutput,
-        run?.mission_output,
-        taskReport?.missionOutput,
-        taskReport?.mission_output
-      ];
-      return candidates.find((candidate) => candidate && typeof candidate === "object" && !Array.isArray(candidate)) || null;
-    }
     function cdxCount(value) {
       if (Array.isArray(value)) {
         return value.length;
@@ -7149,19 +7355,6 @@ ${line}` : line;
       </li>
     `;
     }
-    function cdxReportSummary(report, taskReport, missionOutput, runError, permissionDenials) {
-      const direct = taskReport?.summary || missionOutput?.summary || report?.summary || "";
-      if (direct) {
-        return String(direct);
-      }
-      if (permissionDenials.length) {
-        return "Run stopped on permission checks.";
-      }
-      if (runError?.message) {
-        return String(runError.message);
-      }
-      return "No summary was reported for this run.";
-    }
     function cdxReportNextAction(taskReport, missionOutput, runError, permissionDenials, findings) {
       if (permissionDenials.length) {
         return "Review denied operations before rerunning or applying work.";
@@ -7188,29 +7381,6 @@ ${line}` : line;
         </li>
       `).join("");
       return content || `<li class="viewer-cdx__empty">${escapeHtml(emptyText)}</li>`;
-    }
-    function parseCdxLogJson(content) {
-      const raw = String(content || "").trim();
-      if (!raw) {
-        return null;
-      }
-      try {
-        return { kind: "json", value: JSON.parse(raw) };
-      } catch {
-      }
-      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-      if (lines.length < 2) {
-        return null;
-      }
-      const values = [];
-      for (const line of lines) {
-        try {
-          values.push(JSON.parse(line));
-        } catch {
-          return null;
-        }
-      }
-      return { kind: "jsonl", value: values };
     }
     function renderCdxStructuredLog(parsed) {
       if (!parsed) {
@@ -7484,73 +7654,6 @@ ${line}` : line;
       setDocument("CDX missions", renderCdxMissions(latestCdxMissionState.statusPayload || data.payload?.status, data.payload, null, null));
       setMeta(data.payload?.state === "ok" ? "CDX mission preview ready." : data.payload?.message || "CDX mission preview failed.");
     }
-    function cdxMissionTerminalProgressScript() {
-      return [
-        'mission_id="$1"',
-        'session_id="$2"',
-        'report_hint="$3"',
-        "shift 3",
-        'mode="${CDX_MISSION_PROGRESS_MODE:-compact}"',
-        'start_ts="$(date +%s)"',
-        'last_activity="$start_ts"',
-        "last_total=0",
-        'stdout_file="${TMPDIR:-/tmp}/cdx-mission-stdout-$$.log"',
-        'stderr_file="${TMPDIR:-/tmp}/cdx-mission-stderr-$$.log"',
-        'command_label="$1"',
-        'if [ $# -ge 2 ]; then command_label="$1 $2"; fi',
-        'printf "%s\\n" "[cdx mission] start mission=${mission_id:-unknown} session=${session_id:-unknown}"',
-        'printf "%s\\n" "[cdx mission] report/transcript: ${report_hint:-Reports tab after completion}"',
-        'printf "%s\\n" "[cdx mission] command: ${command_label:-cdx run}"',
-        'printf "%s\\n" "[cdx mission] progress mode: $mode (set CDX_MISSION_PROGRESS_MODE=verbose or watch for more detail)"',
-        'printf "\\n"',
-        '"$@" >"$stdout_file" 2>"$stderr_file" &',
-        'pid="$!"',
-        'printf "%s\\n" "[cdx mission] event: process-started pid=$pid"',
-        'while kill -0 "$pid" 2>/dev/null; do',
-        "  sleep 5",
-        '  now="$(date +%s)"',
-        "  elapsed=$((now - start_ts))",
-        '  stdout_bytes="$(wc -c < "$stdout_file" | tr -d " ")"',
-        '  stderr_bytes="$(wc -c < "$stderr_file" | tr -d " ")"',
-        "  total_bytes=$((stdout_bytes + stderr_bytes))",
-        '  if [ "$total_bytes" -gt "$last_total" ]; then',
-        '    last_activity="$now"',
-        '    last_total="$total_bytes"',
-        '    activity="output activity"',
-        "  elif [ $((now - last_activity)) -ge 60 ]; then",
-        '    activity="no recent activity"',
-        "  else",
-        '    activity="waiting on command output"',
-        "  fi",
-        "  idle=$((now - last_activity))",
-        '  if [ "$mode" = "watch" ]; then printf "\\033[H\\033[2J"; fi',
-        '  printf "%s\\n" "[cdx mission] heartbeat elapsed=${elapsed}s idle=${idle}s phase=running command=${command_label:-cdx run} active=${elapsed}s state=$activity"',
-        '  if [ "$mode" = "verbose" ]; then',
-        '    if [ "$stdout_bytes" -gt 0 ]; then printf "%s\\n" "[cdx mission] stdout tail:"; tail -n 5 "$stdout_file"; fi',
-        '    if [ "$stderr_bytes" -gt 0 ]; then printf "%s\\n" "[cdx mission] stderr tail:"; tail -n 5 "$stderr_file"; fi',
-        "  fi",
-        "done",
-        'wait "$pid"',
-        'rc="$?"',
-        'end_ts="$(date +%s)"',
-        "elapsed=$((end_ts - start_ts))",
-        'stdout_bytes="$(wc -c < "$stdout_file" | tr -d " ")"',
-        'stderr_bytes="$(wc -c < "$stderr_file" | tr -d " ")"',
-        'if [ "$rc" -eq 0 ]; then status="success"; else status="failure"; fi',
-        'printf "\\n%s\\n" "[cdx mission] final status=$status exit=$rc elapsed=${elapsed}s stdout_bytes=$stdout_bytes stderr_bytes=$stderr_bytes report/transcript=${report_hint:-Reports tab after completion}"',
-        'if [ "$stdout_bytes" -gt 0 ]; then',
-        '  printf "%s\\n" "[cdx mission] stdout:"',
-        '  cat "$stdout_file"',
-        "fi",
-        'if [ "$stderr_bytes" -gt 0 ]; then',
-        '  printf "%s\\n" "[cdx mission] stderr tail:"',
-        '  tail -n 40 "$stderr_file"',
-        "fi",
-        'if [ "$rc" -ne 0 ]; then printf "%s\\n" "[cdx mission] next action: inspect the terminal output and the Reports tab for the failed run."; fi',
-        'rm -f "$stdout_file" "$stderr_file"',
-        'exit "$rc"'
-      ].join("\n");
-    }
     async function launchCdxMissionInTerminal() {
       setMeta("Preparing CDX mission for a new terminal...");
       const response = await fetch("/api/cdx-mission-plan", {
@@ -7809,22 +7912,6 @@ ${line}` : line;
       const tone = ciBadgeTone(value);
       return `<span class="viewer-ci__badge viewer-ci__badge--${escapeHtml(tone)}">${escapeHtml(ciBadgeLabel(value))}</span>`;
     }
-    function formatCiDate(value) {
-      const timestamp = Date.parse(String(value || ""));
-      if (!Number.isFinite(timestamp)) {
-        return "";
-      }
-      return new Date(timestamp).toLocaleString();
-    }
-    function renderCiModeSwitcher(active) {
-      return `
-      <div class="viewer-cdx__modes viewer-ci__modes" role="tablist" aria-label="Git and CI views">
-        <button class="viewer-cdx__mode${active === "git" ? " is-active" : ""}" type="button" data-viewer-ci-mode="git" aria-selected="${active === "git" ? "true" : "false"}">Git</button>
-        <button class="viewer-cdx__mode${active === "runs" ? " is-active" : ""}" type="button" data-viewer-ci-mode="runs" aria-selected="${active === "runs" ? "true" : "false"}">CI</button>
-        <button class="viewer-cdx__mode${active === "release" ? " is-active" : ""}" type="button" data-viewer-ci-mode="release" aria-selected="${active === "release" ? "true" : "false"}">Release</button>
-      </div>
-    `;
-    }
     function renderCiStatus(payload) {
       const providerLabel = payload?.provider === "gitlab" ? "GitLab CI" : "GitHub Actions";
       if (!payload || !payload.visible) {
@@ -7882,19 +7969,6 @@ ${line}` : line;
         </div>
       </div>
     `;
-    }
-    function releaseBadgeTone(value) {
-      const state = String(value || "").toLowerCase();
-      if (["ready", "passed"].includes(state)) {
-        return "passing";
-      }
-      if (["blocked", "failed", "stale"].includes(state)) {
-        return "failing";
-      }
-      if (["pending", "planning", "preparing", "local_validation", "commit_ready", "pushed", "ci_verification", "github_release", "external_publication"].includes(state)) {
-        return "running";
-      }
-      return "unknown";
     }
     function releaseEvidenceRows(evidence) {
       if (!evidence || typeof evidence !== "object") {
@@ -8299,17 +8373,6 @@ ${line}` : line;
       </div>
     `;
     }
-    function formatGitHistoryCount(payload) {
-      const count = Array.isArray(payload?.recentCommits) ? payload.recentCommits.length : payload?.latestCommit ? 1 : 0;
-      return `${count}${payload?.recentCommitsHasMore ? "+" : ""}`;
-    }
-    function setActiveGitFile(button) {
-      document.querySelectorAll("[data-viewer-git-file]").forEach((node) => {
-        if (node instanceof HTMLElement) {
-          node.classList.toggle("is-active", node === button);
-        }
-      });
-    }
     function gitDiffLineKind(line) {
       if (line.startsWith("+") && !line.startsWith("+++")) {
         return "add";
@@ -8393,31 +8456,6 @@ ${line}` : line;
         hardCapHit: Boolean(payload.hardCapHit),
         forceButtonHtml
       })}`;
-    }
-    function gitCommitModalEntries(payload) {
-      const labels = {
-        staged: "Staged",
-        modified: "Modified",
-        deleted: "Deleted",
-        renamed: "Renamed",
-        untracked: "Untracked"
-      };
-      const entries = [];
-      const seen = /* @__PURE__ */ new Set();
-      for (const key of ["staged", "modified", "deleted", "renamed", "untracked"]) {
-        const group = Array.isArray(payload?.groups?.[key]) ? payload.groups[key] : [];
-        for (const entry of group) {
-          const path = String(entry?.path || "").trim();
-          if (!path || seen.has(path)) continue;
-          seen.add(path);
-          entries.push({
-            path,
-            from: String(entry?.from || "").trim(),
-            group: labels[key] || key
-          });
-        }
-      }
-      return entries;
     }
     async function openGitCommitModal() {
       let payload = latestGitStatusPayload;
@@ -8518,45 +8556,6 @@ ${line}` : line;
       });
       updateSubmit();
       window.setTimeout(() => message.focus(), 0);
-    }
-    function applyGitDomain(domain) {
-      const selected = domain || "changes";
-      const diffDomains = /* @__PURE__ */ new Set(["changes", "staged", "worktree", "untracked"]);
-      const showDiffDetail = diffDomains.has(selected);
-      document.querySelectorAll(".viewer-git__domain[data-viewer-git-domain]").forEach((node) => {
-        if (node instanceof HTMLElement) {
-          const active = node.getAttribute("data-viewer-git-domain") === selected;
-          node.classList.toggle("is-active", active);
-          node.setAttribute("aria-pressed", active ? "true" : "false");
-        }
-      });
-      document.querySelectorAll("[data-viewer-git-panel]").forEach((node) => {
-        if (node instanceof HTMLElement) {
-          node.hidden = node.getAttribute("data-viewer-git-panel") !== selected;
-        }
-      });
-      document.querySelectorAll(".viewer-git__workspace").forEach((node) => {
-        if (node instanceof HTMLElement) {
-          node.classList.toggle("has-diff-detail", showDiffDetail);
-        }
-      });
-      document.querySelectorAll("[data-viewer-git-detail]").forEach((node) => {
-        if (node instanceof HTMLElement) {
-          node.hidden = !showDiffDetail;
-        }
-      });
-    }
-    function currentGitViewState() {
-      const activeDomain = document.querySelector(".viewer-git__domain.is-active[data-viewer-git-domain]");
-      const activeFile = document.querySelector(".viewer-git__file.is-active[data-viewer-git-file]");
-      return {
-        domain: activeDomain instanceof HTMLElement ? activeDomain.getAttribute("data-viewer-git-domain") || "changes" : "changes",
-        path: activeFile instanceof HTMLElement ? activeFile.getAttribute("data-viewer-git-file") || "" : "",
-        cached: activeFile instanceof HTMLElement && activeFile.getAttribute("data-viewer-git-cached") === "1"
-      };
-    }
-    function findGitFileButton(path, cached) {
-      return Array.from(document.querySelectorAll("[data-viewer-git-file]")).find((node) => node instanceof HTMLElement && node.getAttribute("data-viewer-git-file") === path && node.getAttribute("data-viewer-git-cached") === "1" === Boolean(cached)) || null;
     }
     async function showGitStatus(options = {}) {
       latestCiScreenMode = "git";

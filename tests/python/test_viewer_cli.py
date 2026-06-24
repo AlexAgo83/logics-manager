@@ -3206,7 +3206,9 @@ def test_viewer_serves_packaged_static_assets_when_source_clients_are_absent(
             conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
             conn.request("GET", route)
             response = conn.getresponse()
-            body = response.read(4096)
+            # Read the whole body: bundle ordering (esbuild) can push a sentinel
+            # past any fixed prefix window, so a bounded read would flake.
+            body = response.read()
             assert response.status == 200, route
             assert expected in body, route
     finally:

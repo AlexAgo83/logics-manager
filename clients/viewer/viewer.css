@@ -312,6 +312,11 @@
   color: var(--vscode-textLink-foreground, #4ea1ff);
 }
 
+.viewer-git-badge--commits-behind {
+  background: rgba(234, 179, 8, 0.2);
+  color: #eab308;
+}
+
 .viewer-git-badge--files {
   background: rgba(245, 158, 11, 0.18);
   color: #f59e0b;

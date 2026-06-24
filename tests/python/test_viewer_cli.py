@@ -950,9 +950,9 @@ def test_viewer_git_status_payload_reports_clean_and_dirty_states(tmp_path: Path
     assert payload["behind"] == 1
     assert payload["clean"] is False
     assert payload["counts"] == {"staged": 1, "modified": 1, "deleted": 1, "renamed": 1, "untracked": 1}
-    assert payload["badgeCounts"] == {"unpushedCommits": 2, "uncommittedFiles": 5}
-    assert payload["badgeAvailability"] == {"unpushedCommits": True, "uncommittedFiles": True}
-    assert payload["badgeMessages"] == {"unpushedCommits": "", "uncommittedFiles": ""}
+    assert payload["badgeCounts"] == {"unpushedCommits": 2, "unpulledCommits": 1, "uncommittedFiles": 5}
+    assert payload["badgeAvailability"] == {"unpushedCommits": True, "unpulledCommits": True, "uncommittedFiles": True}
+    assert payload["badgeMessages"] == {"unpushedCommits": "", "unpulledCommits": "", "uncommittedFiles": ""}
     assert payload["groups"]["renamed"][0] == {"path": "renamed.md", "from": "old.md", "logicsType": "", "additions": 0, "deletions": 2}
     assert payload["groups"]["modified"][0]["logicsType"] == ""
     assert payload["groups"]["modified"][0]["additions"] == 5

@@ -491,7 +491,7 @@
   let refreshAfterVisible = false;
   let mermaidInitialized = false;
   let focusApplied = false;
-  let latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
+  let latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
   let latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
   let latestReleaseRunsStatus = { visible: false, badgeState: "unknown", message: "" };
   let latestReleaseRunsStatusSignature = "";
@@ -1545,7 +1545,7 @@
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to switch project.");
     }
-    latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
+    latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
     latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
     latestReleaseRunsStatus = { visible: false, badgeState: "unknown", message: "" };
     updateMainGitBadges();
@@ -1584,7 +1584,7 @@
 
   function applySelectedProjectPayload(payload, message) {
     returnToProjectSurface();
-    latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
+    latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
     latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
     latestReleaseRunsStatus = { visible: false, badgeState: "unknown", message: "" };
     updateMainGitBadges();
@@ -1989,6 +1989,7 @@
     const counts = payload && typeof payload === "object" ? payload.badgeCounts || {} : {};
     return {
       unpushedCommits: Math.max(0, Number(counts.unpushedCommits || payload?.ahead || 0)),
+      unpulledCommits: Math.max(0, Number(counts.unpulledCommits || payload?.behind || 0)),
       uncommittedFiles: Math.max(0, Number(counts.uncommittedFiles || 0))
     };
   }
@@ -1998,13 +1999,19 @@
     if (value <= 0) {
       return "";
     }
-    const label = kind === "commits"
-      ? `${value} commits locaux non pushés`
-      : `${value} fichiers modifiés non commités`;
+    const labels = {
+      commits: `${value} commits locaux non pushés`,
+      "commits-behind": `${value} commits distants non récupérés`,
+      files: `${value} fichiers modifiés non commités`
+    };
+    const label = labels[kind] || "";
     return `<span class="viewer-git-badge viewer-git-badge--${kind}" title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}">${escapeHtml(value)}</span>`;
   }
 
   function gitBadgeHtml(scope) {
+    const behindVisible = latestGitBadgeCounts.unpulledCommits > 0 && (
+      scope === "main" || scope === "history"
+    );
     const commitsVisible = latestGitBadgeCounts.unpushedCommits > 0 && (
       scope === "main" || scope === "history"
     );
@@ -2012,6 +2019,7 @@
       scope === "main" || scope === "changes"
     );
     const html = [
+      behindVisible ? renderGitBadge("commits-behind", latestGitBadgeCounts.unpulledCommits) : "",
       commitsVisible ? renderGitBadge("commits", latestGitBadgeCounts.unpushedCommits) : "",
       filesVisible ? renderGitBadge("files", latestGitBadgeCounts.uncommittedFiles) : ""
     ].filter(Boolean).join("");
@@ -2514,7 +2522,7 @@
 
   async function refreshGitBadgeCounters() {
     if (!isCapabilityAvailable("git")) {
-      latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
+      latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
       updateMainGitBadges();
       return;
     }
@@ -2528,7 +2536,7 @@
         setGitBadgeCountsFromPayload(data.payload);
       }
     } catch {
-      latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
+      latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
       updateMainGitBadges();
     }
   }
@@ -2603,7 +2611,7 @@
         setGitBadgeCountsFromPayload(payload.git);
       }
     } else {
-      latestGitBadgeCounts = { unpushedCommits: 0, uncommittedFiles: 0 };
+      latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
       updateMainGitBadges();
     }
   }

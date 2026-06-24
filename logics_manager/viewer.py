@@ -1225,14 +1225,18 @@ def git_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
         "counts": counts,
         "badgeCounts": {
             "unpushedCommits": int(unpushed.get("count", 0)),
+            "unpulledCommits": max(0, int(branch_info.get("behind", 0) or 0)),
             "uncommittedFiles": uncommitted_files,
         },
         "badgeAvailability": {
             "unpushedCommits": bool(unpushed.get("available")),
+            # Behind shares the same upstream detection as ahead (porcelain branch line).
+            "unpulledCommits": bool(unpushed.get("available")),
             "uncommittedFiles": True,
         },
         "badgeMessages": {
             "unpushedCommits": str(unpushed.get("message", "")),
+            "unpulledCommits": str(unpushed.get("message", "")),
             "uncommittedFiles": "",
         },
         "groups": groups,

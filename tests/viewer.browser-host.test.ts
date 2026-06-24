@@ -5765,6 +5765,46 @@ describe("local viewer browser host", () => {
     expect(gitButton?.querySelector('[data-viewer-git-badges="main"]')?.textContent).toContain("3");
   });
 
+  it("shows the behind-commits badge left of the ahead badge", async () => {
+    const { dom } = createViewerDom({
+      gitResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            branch: "main",
+            tracking: "origin/main",
+            ahead: 2,
+            behind: 5,
+            clean: true,
+            dirty: false,
+            latestCommit: "abc1234 Demo commit",
+            recentCommits: [],
+            badgeCounts: { unpushedCommits: 2, unpulledCommits: 5, uncommittedFiles: 0 },
+            counts: { staged: 0, modified: 0, deleted: 0, renamed: 0, untracked: 0 },
+            groups: { staged: [], modified: [], deleted: [], renamed: [], untracked: [] }
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const badges = dom.window.document
+      .querySelector('#viewer-ci [data-viewer-git-badges="main"]')
+      ?.querySelectorAll(".viewer-git-badge");
+    expect(badges?.length).toBe(2);
+    // Behind badge renders first (leftmost) and uses its own yellow variant.
+    expect(badges?.[0]?.className).toContain("viewer-git-badge--commits-behind");
+    expect(badges?.[0]?.textContent).toBe("5");
+    expect(badges?.[1]?.className).toContain("viewer-git-badge--commits");
+    expect(badges?.[1]?.textContent).toBe("2");
+  });
+
   it("adds recent Git commits to the activity panel from badge refreshes", async () => {
     const { dom } = createViewerDom({
       gitResponse: {

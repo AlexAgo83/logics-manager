@@ -127,6 +127,9 @@
   }
 
   function collectCompanionDocs(item, allItems) {
+    if (!item) {
+      return [];
+    }
     const companions = new Map();
 
     const registerCompanion = (candidate) => {
@@ -163,6 +166,9 @@
   }
 
   function collectSpecs(item, allItems) {
+    if (!item) {
+      return [];
+    }
     const specs = new Map();
 
     const registerSpec = (candidate) => {
@@ -191,6 +197,9 @@
   }
 
   function collectPrimaryFlowItems(item, allItems) {
+    if (!item) {
+      return [];
+    }
     const linkedItems = new Map();
 
     const registerItem = (candidate) => {
@@ -718,6 +727,9 @@
   }
 
   function buildContextPack(item, allItems, options) {
+    if (!item) {
+      item = {};
+    }
     const safeOptions = options || {};
     const activeAgent = safeOptions.activeAgent || null;
     const mode = normalizeContextMode(safeOptions.mode);
@@ -864,6 +876,9 @@
   }
 
   function buildDependencyMap(item, allItems) {
+    if (!item) {
+      return { groups: [], nodes: [], edges: [] };
+    }
     const insights = getRelationshipInsights(item, allItems);
     const groups =
       getWorkflowStageRank(item.stage) >= 0

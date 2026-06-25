@@ -1,7 +1,7 @@
 ## req_278_act_on_the_multi_agent_audit_hardening_and_cleanup - Act on the multi-agent audit: hardening and cleanup
 > From version: 2.12.12
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High

@@ -480,6 +480,26 @@ def test_viewer_lan_auth_helpers_accept_token_and_loopback() -> None:
     assert handler._client_is_loopback() is True
 
 
+def test_viewer_read_json_body_handles_malformed_content_length() -> None:
+    import io
+
+    handler = viewer_module.LogicsViewerRequestHandler.__new__(viewer_module.LogicsViewerRequestHandler)
+    handler.rfile = io.BytesIO(b'{"a": 1}')  # type: ignore[attr-defined]
+    handler.headers = {"Content-Length": "not-a-number"}  # type: ignore[attr-defined]
+
+    # Strict variant raises a catchable JSONDecodeError (callers turn it into 400).
+    with pytest.raises(json.JSONDecodeError):
+        handler._read_json_body_strict()
+
+    # Tolerant variant swallows it and returns an empty dict.
+    assert handler._read_json_body() == {}
+
+    # Well-formed input still parses.
+    handler.rfile = io.BytesIO(b'{"a": 1}')  # type: ignore[attr-defined]
+    handler.headers = {"Content-Length": "8"}  # type: ignore[attr-defined]
+    assert handler._read_json_body_strict() == {"a": 1}
+
+
 def test_viewer_lan_device_revoke_requires_own_pairing(tmp_path: Path) -> None:
     registry = viewer_module.LanDeviceRegistry(tmp_path / "devices.json")
     own = registry.register("own", "own-token")

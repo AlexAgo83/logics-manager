@@ -2694,6 +2694,66 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.querySelector("[data-viewer-workshop-terminal-rename]")?.textContent).toBe("Remote tests");
   });
 
+  it("hides running terminal status while keeping ended status badges", async () => {
+    const sources: Array<{
+      url: string;
+      listeners: Map<string, Array<(event: MessageEvent) => void>>;
+      emit: (name: string, payload: unknown) => void;
+      close: () => void;
+    }> = [];
+    class FakeEventSource {
+      url: string;
+      listeners = new Map<string, Array<(event: MessageEvent) => void>>();
+      constructor(url: string) {
+        this.url = url;
+        sources.push(this);
+      }
+      addEventListener(name: string, handler: (event: MessageEvent) => void) {
+        const list = this.listeners.get(name) || [];
+        list.push(handler);
+        this.listeners.set(name, list);
+      }
+      emit(name: string, payload: unknown) {
+        const event = new dom.window.MessageEvent(name, { data: JSON.stringify(payload) });
+        for (const handler of this.listeners.get(name) || []) handler(event);
+      }
+      close() {}
+    }
+    const { dom } = createViewerDom({
+      terminalCommands: [],
+      capabilities: {
+        logics: { state: "ready", available: true, message: "Logics corpus found." },
+        workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
+        workshop: { state: "ready", available: true, message: "Workshop ready.", detail: { commandsAvailable: true, terminalsAvailable: true } },
+        git: { state: "ready", available: true, message: "Git repository detected." },
+        ci: { state: "ready", available: true, message: "GitHub Actions can be inspected." },
+        cdx: { state: "ready", available: true, message: "CDX executable detected." },
+        cdxRuns: { state: "unsupported", available: false, message: "CDX assistant run registry is not available yet." }
+      }
+    });
+    (dom.window as unknown as { EventSource: typeof EventSource }).EventSource = FakeEventSource as unknown as typeof EventSource;
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    dom.window.document.querySelector("[data-viewer-workshop-terminal-new]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const row = dom.window.document.querySelector("[data-viewer-workshop-terminal-select]") as HTMLElement | null;
+    expect(row?.querySelector(".viewer-workshop__state--running")).toBeNull();
+
+    sources.find((source) => source.url.includes("/api/workshop-terminal/"))?.emit("end", { state: "failed" });
+    await flushViewerAsync();
+
+    const endedRow = dom.window.document.querySelector("[data-viewer-workshop-terminal-select]") as HTMLElement | null;
+    expect(endedRow?.querySelector(".viewer-workshop__state--failed")?.textContent).toBe("failed");
+  });
+
   it("reorders Workshop terminals with drag and drop", async () => {
     const terminalCommands: Array<{ command: string[]; label: string }> = [];
     const { dom } = createViewerDom({

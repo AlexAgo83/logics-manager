@@ -294,9 +294,17 @@
         </div>
       </div>
       <div class="viewer-document__actions">
-        <button class="btn viewer-document__screen-action" id="viewer-git-pull" type="button" title="Git pull" aria-label="Git pull" hidden><span class="viewer-document__icon">⬇</span><span class="viewer-document__btn-text">Pull</span></button>
-        <button class="btn viewer-document__screen-action" id="viewer-git-commit" type="button" title="Git commit" aria-label="Git commit" hidden><span class="viewer-document__icon">✓</span><span class="viewer-document__btn-text">Commit</span></button>
-        <button class="btn viewer-document__screen-action" id="viewer-git-push" type="button" title="Git push" aria-label="Git push" hidden><span class="viewer-document__icon">⬆</span><span class="viewer-document__btn-text">Push</span></button>
+        <div class="viewer-refresh-menu viewer-document__screen-action" id="viewer-git-actions" hidden>
+          <button class="btn viewer-document__btn" id="viewer-git-actions-button" type="button" title="Git actions" aria-label="Git actions" aria-haspopup="menu" aria-expanded="false" aria-controls="viewer-git-actions-menu"><span class="viewer-document__icon">⌥</span><span class="viewer-document__btn-text">Actions</span></button>
+          <div class="viewer-refresh-menu__panel" id="viewer-git-actions-menu" role="menu" aria-label="Git actions" hidden>
+            <section class="viewer-settings-menu__section" aria-label="Git">
+              <button class="btn" id="viewer-git-commit" type="button" title="Git commit">Commit</button>
+              <button class="btn" id="viewer-git-pull" type="button" title="Git pull">Pull</button>
+              <button class="btn" id="viewer-git-push" type="button" title="Git push">Push</button>
+              <button class="btn" id="viewer-git-fetch" type="button" title="Git fetch remote-tracking refs">Fetch</button>
+            </section>
+          </div>
+        </div>
         <button class="btn viewer-document__screen-action" id="viewer-release-reset" type="button" title="Reset release evidence (clears recorded gate evidence)" aria-label="Reset release evidence" hidden><span class="viewer-document__icon">⟲</span><span class="viewer-document__btn-text">Reset</span></button>
         <button class="btn viewer-document__btn" id="viewer-document-refresh" type="button" title="Refresh" aria-label="Refresh"><span class="viewer-document__icon">↻</span><span class="viewer-document__btn-text">Refresh</span></button>
         <button class="btn viewer-document__btn" id="viewer-document-status" type="button" title="Change status" aria-label="Change status" hidden><span class="viewer-document__icon">✓</span><span class="viewer-document__btn-text">Status</span></button>

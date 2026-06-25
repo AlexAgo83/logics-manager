@@ -174,9 +174,15 @@ function createViewerDom(options: {
     <select id="group-by"><option value="stage">Stage</option><option value="status">Status</option></select>
     <select id="sort-by"><option value="updated-desc">Updated</option></select>
     <button id="viewer-document-close" type="button">Close</button>
-    <button id="viewer-git-pull" type="button" hidden>Pull</button>
-    <button id="viewer-git-commit" type="button" hidden>Commit</button>
-    <button id="viewer-git-push" type="button" hidden>Push</button>
+    <div id="viewer-git-actions" hidden>
+      <button id="viewer-git-actions-button" type="button" aria-expanded="false">Actions</button>
+      <div id="viewer-git-actions-menu" hidden>
+        <button id="viewer-git-commit" type="button">Commit</button>
+        <button id="viewer-git-pull" type="button">Pull</button>
+        <button id="viewer-git-push" type="button">Push</button>
+        <button id="viewer-git-fetch" type="button">Fetch</button>
+      </div>
+    </div>
     <button id="viewer-release-reset" type="button" hidden>Reset</button>
     <button id="viewer-document-refresh" type="button">Refresh</button>
     <button id="viewer-document-status" type="button" hidden>Status</button>
@@ -3408,8 +3414,10 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
     await flushViewerAsync();
 
+    const actionsWrapper = dom.window.document.getElementById("viewer-git-actions") as HTMLElement | null;
+    expect(actionsWrapper?.hidden).toBe(false);
+    dom.window.document.getElementById("viewer-git-actions-button")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     const commitButton = dom.window.document.getElementById("viewer-git-commit") as HTMLButtonElement | null;
-    expect(commitButton?.hidden).toBe(false);
     commitButton?.click();
     await flushViewerAsync();
 

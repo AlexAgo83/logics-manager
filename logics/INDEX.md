@@ -347,7 +347,7 @@
 | [req_275_add_a_git_ci_event_filter_to_the_recent_activity_view](request/req_275_add_a_git_ci_event_filter_to_the_recent_activity_view.md) | Add a git/CI event filter to the Recent activity view | Done |  |  | request/req_275_add_a_git_ci_event_filter_to_the_recent_activity_view.md |
 | [req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants](request/req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants.md) | Improve logics-manager authoring ergonomics for AI assistants | Done |  |  | request/req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants.md |
 | [req_277_recent_activity_and_corpus_reader_viewer_ux_follow_ups](request/req_277_recent_activity_and_corpus_reader_viewer_ux_follow_ups.md) | Recent activity and corpus reader viewer UX follow-ups | Done |  |  | request/req_277_recent_activity_and_corpus_reader_viewer_ux_follow_ups.md |
-| [req_278_act_on_the_multi_agent_audit_hardening_and_cleanup](request/req_278_act_on_the_multi_agent_audit_hardening_and_cleanup.md) | Act on the multi-agent audit: hardening and cleanup | Draft |  |  | request/req_278_act_on_the_multi_agent_audit_hardening_and_cleanup.md |
+| [req_278_act_on_the_multi_agent_audit_hardening_and_cleanup](request/req_278_act_on_the_multi_agent_audit_hardening_and_cleanup.md) | Act on the multi-agent audit: hardening and cleanup | Done |  |  | request/req_278_act_on_the_multi_agent_audit_hardening_and_cleanup.md |
 
 ## Backlog
 
@@ -857,7 +857,7 @@
 | [item_502_consolidate_duplicated_python_parsing_helpers](backlog/item_502_consolidate_duplicated_python_parsing_helpers.md) | Consolidate duplicated Python parsing helpers | Done |  | 100% | backlog/item_502_consolidate_duplicated_python_parsing_helpers.md |
 | [item_503_address_local_only_security_findings_as_defense_in_depth](backlog/item_503_address_local_only_security_findings_as_defense_in_depth.md) | Address local-only security findings as defense-in-depth | Done |  | 100% | backlog/item_503_address_local_only_security_findings_as_defense_in_depth.md |
 | [item_504_consolidate_duplicated_viewer_boilerplate](backlog/item_504_consolidate_duplicated_viewer_boilerplate.md) | Consolidate duplicated viewer boilerplate | Done |  | 100% | backlog/item_504_consolidate_duplicated_viewer_boilerplate.md |
-| [item_505_clean_up_duplicated_and_dead_client_js_ts_code](backlog/item_505_clean_up_duplicated_and_dead_client_js_ts_code.md) | Clean up duplicated and dead client JS/TS code | Ready |  | 0% | backlog/item_505_clean_up_duplicated_and_dead_client_js_ts_code.md |
+| [item_505_clean_up_duplicated_and_dead_client_js_ts_code](backlog/item_505_clean_up_duplicated_and_dead_client_js_ts_code.md) | Clean up duplicated and dead client JS/TS code | Done |  | 100% | backlog/item_505_clean_up_duplicated_and_dead_client_js_ts_code.md |
 
 ## Tasks
 
@@ -1131,4 +1131,4 @@
 | [task_272_orchestrate_the_recent_activity_event_filter](tasks/task_272_orchestrate_the_recent_activity_event_filter.md) | Orchestrate the Recent activity event filter | Done |  | 100% | tasks/task_272_orchestrate_the_recent_activity_event_filter.md |
 | [task_273_orchestrate_the_assistant_authoring_ergonomics_improvements](tasks/task_273_orchestrate_the_assistant_authoring_ergonomics_improvements.md) | Orchestrate the assistant authoring ergonomics improvements | Done |  | 100% | tasks/task_273_orchestrate_the_assistant_authoring_ergonomics_improvements.md |
 | [task_274_orchestrate_the_recent_activity_and_corpus_reader_viewer_ux_follow_ups](tasks/task_274_orchestrate_the_recent_activity_and_corpus_reader_viewer_ux_follow_ups.md) | Orchestrate the recent activity and corpus reader viewer UX follow-ups | Done |  | 100% | tasks/task_274_orchestrate_the_recent_activity_and_corpus_reader_viewer_ux_follow_ups.md |
-| [task_275_orchestrate_the_audit_remediation](tasks/task_275_orchestrate_the_audit_remediation.md) | Orchestrate the audit remediation | Ready |  | 0% | tasks/task_275_orchestrate_the_audit_remediation.md |
+| [task_275_orchestrate_the_audit_remediation](tasks/task_275_orchestrate_the_audit_remediation.md) | Orchestrate the audit remediation | Done |  | 100% | tasks/task_275_orchestrate_the_audit_remediation.md |

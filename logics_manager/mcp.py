@@ -79,19 +79,16 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
             },
             ["title", "needs", "context", "acceptance_criteria"],
         ),
-        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
     {
         "name": "promote_request_to_backlog",
         "description": "Promote an existing Logics request to a backlog item.",
         "inputSchema": _tool_schema({"request_path": {"type": "string"}}, ["request_path"]),
-        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
     {
         "name": "promote_backlog_to_task",
         "description": "Promote an existing Logics backlog item to an executable task.",
         "inputSchema": _tool_schema({"backlog_path": {"type": "string"}}, ["backlog_path"]),
-        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
     {
         "name": "create_product_brief",
@@ -105,7 +102,6 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
             },
             ["title"],
         ),
-        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
     {
         "name": "create_architecture_decision",
@@ -119,7 +115,6 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
             },
             ["title"],
         ),
-        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
     {
         "name": "list_companion_docs",
@@ -130,13 +125,11 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
                 "limit": {"type": "integer"},
             }
         ),
-        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
     },
     {
         "name": "list_active_work",
         "description": "List active Logics request, backlog, and task documents.",
         "inputSchema": _tool_schema({"kind": {"type": "string", "enum": ["all", "request", "backlog", "task"]}}),
-        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
     },
     {
         "name": "read_logics_doc",
@@ -149,7 +142,6 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
             },
             ["source"],
         ),
-        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
     },
     {
         "name": "build_context_pack",
@@ -162,19 +154,16 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
             },
             ["ref"],
         ),
-        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
     },
     {
         "name": "get_release_status",
         "description": "Read project-owned release workflow status without publishing or mutating files.",
         "inputSchema": _tool_schema({}),
-        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
     },
     {
         "name": "get_release_plan",
         "description": "Build a non-mutating release plan for a target version; publication steps are explicitly marked.",
         "inputSchema": _tool_schema({"version": {"type": "string"}}, ["version"]),
-        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
     },
     {
         "name": "list_logics_docs",
@@ -187,7 +176,6 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
                 "limit": {"type": "integer"},
             }
         ),
-        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
     },
     {
         "name": "search_logics_docs",
@@ -202,19 +190,16 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
             },
             ["query"],
         ),
-        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
     },
     {
         "name": "get_logics_status",
         "description": "Summarize open Logics workflow docs and next actions.",
         "inputSchema": _tool_schema({"limit": {"type": "integer"}}),
-        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
     },
     {
         "name": "get_logics_health",
         "description": "Show Logics workflow health counts and issue signals.",
         "inputSchema": _tool_schema({"limit": {"type": "integer"}}),
-        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
     },
     {
         "name": "list_logics_followups",
@@ -227,37 +212,31 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
                 "limit": {"type": "integer"},
             }
         ),
-        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
     },
     {
         "name": "check_product_consistency",
         "description": "Check product brief lineage links for active and validated product docs.",
         "inputSchema": _tool_schema({"limit": {"type": "integer"}}),
-        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
     },
     {
         "name": "finish_task",
         "description": "Finish a Logics task through the canonical flow finish task command.",
         "inputSchema": _tool_schema({"task_path": {"type": "string"}, "dry_run": {"type": "boolean"}}, ["task_path"]),
-        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
     {
         "name": "close_workflow_doc",
         "description": "Close a Logics request, backlog item, or task through the canonical flow close command.",
         "inputSchema": _tool_schema({"kind": {"type": "string", "enum": ["request", "backlog", "task"]}, "source_path": {"type": "string"}, "dry_run": {"type": "boolean"}}, ["kind", "source_path"]),
-        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
     {
         "name": "close_eligible_requests",
         "description": "Close requests whose linked backlog items are already done.",
         "inputSchema": _tool_schema({"dry_run": {"type": "boolean"}}),
-        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
     {
         "name": "refresh_mermaid_signatures",
         "description": "Refresh deterministic signatures for legacy workflow Mermaid blocks when present.",
         "inputSchema": _tool_schema({"dry_run": {"type": "boolean"}}),
-        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
     {
         "name": "update_workflow_indicators",
@@ -275,73 +254,61 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
             },
             ["source"],
         ),
-        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
     {
         "name": "append_report_entry",
         "description": "Append bounded content to a task Report section.",
         "inputSchema": _tool_schema({"source": {"type": "string"}, "text": {"type": "string"}, "dry_run": {"type": "boolean"}}, ["source", "text"]),
-        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
     {
         "name": "append_validation_note",
         "description": "Append bounded content to a workflow Validation section.",
         "inputSchema": _tool_schema({"source": {"type": "string"}, "text": {"type": "string"}, "dry_run": {"type": "boolean"}}, ["source", "text"]),
-        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
     {
         "name": "append_decision_note",
         "description": "Append bounded rationale to an approved workflow decision or notes section.",
         "inputSchema": _tool_schema({"source": {"type": "string"}, "text": {"type": "string"}, "dry_run": {"type": "boolean"}}, ["source", "text"]),
-        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
     {
         "name": "split_request",
         "description": "Split one Logics request into multiple backlog items through the canonical flow split command.",
         "inputSchema": _tool_schema({"request_path": {"type": "string"}, "titles": {"type": "array", "items": {"type": "string"}}, "dry_run": {"type": "boolean"}}, ["request_path", "titles"]),
-        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
     {
         "name": "split_backlog",
         "description": "Split one Logics backlog item into multiple tasks through the canonical flow split command.",
         "inputSchema": _tool_schema({"backlog_path": {"type": "string"}, "titles": {"type": "array", "items": {"type": "string"}}, "dry_run": {"type": "boolean"}}, ["backlog_path", "titles"]),
-        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
     {
         "name": "autofix_ac_traceability",
         "description": "Run deterministic audit autofix for missing AC traceability skeleton entries.",
         "inputSchema": _tool_schema({"paths": {"type": "array", "items": {"type": "string"}}, "refs": {"type": "array", "items": {"type": "string"}}}),
-        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
     {
         "name": "autofix_structure",
         "description": "Run deterministic audit autofix for supported workflow document structure repairs.",
         "inputSchema": _tool_schema({"paths": {"type": "array", "items": {"type": "string"}}, "refs": {"type": "array", "items": {"type": "string"}}}),
-        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
     {
         "name": "run_logics_lint",
         "description": "Run Logics lint with required status indicators.",
         "inputSchema": _tool_schema({}),
-        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
     },
     {
         "name": "run_logics_audit",
         "description": "Run the standard Logics workflow audit.",
         "inputSchema": _tool_schema({}),
-        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
     },
     {
         "name": "show_git_diff",
         "description": "Show a size-limited Git diff summary for Logics paths.",
         "inputSchema": _tool_schema({"paths": {"type": "array", "items": {"type": "string"}}}),
-        "annotations": {"readOnlyHint": True, "idempotentHint": True, "destructiveHint": False},
     },
     {
         "name": "delete_logics_file",
         "description": "Delete one bounded Logics Markdown file from an approved Logics directory.",
         "inputSchema": _tool_schema({"path": {"type": "string"}, "dry_run": {"type": "boolean"}}, ["path"]),
-        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": True},
     },
     {
         "name": "rename_logics_file",
@@ -354,7 +321,6 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
             },
             ["source_path", "destination_path"],
         ),
-        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
     {
         "name": "scaffold_request_chain",
@@ -367,7 +333,6 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
             },
             ["input"],
         ),
-        "annotations": {"readOnlyHint": False, "idempotentHint": False, "destructiveHint": False},
     },
 ]
 TOOLS_BY_NAME = {str(tool["name"]): tool for tool in TOOL_DEFINITIONS}
@@ -846,369 +811,466 @@ def _workflow_write_result(repo_root: Path, payload: dict[str, Any], *, paths: l
     }
 
 
+def _tool_run_logics_lint(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    status = _lint_status(root)
+    return {"ok": bool(status["ok"]), "status": status}
+
+
+def _tool_run_logics_audit(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    status = _audit_status(root)
+    return {"ok": bool(status["ok"]), "status": status}
+
+
+def _tool_list_active_work(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    kind = str(args.get("kind") or "all")
+    if kind not in {"all", "request", "backlog", "task"}:
+        raise McpToolError("invalid_argument_value", "Unsupported list kind.", details={"kind": kind, "allowed": ["all", "request", "backlog", "task"]})
+    return {"ok": True, "items": flow_list_payload(root, kind=kind)["entries"]}
+
+
+def _tool_list_companion_docs(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    payload = _list_companion_docs(root, kind=str(args.get("kind") or "all"), limit=_bounded_int(args.get("limit"), default=50, maximum=200))
+    return {"ok": True, **payload}
+
+
+def _tool_read_logics_doc(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    try:
+        payload = read_logics_doc_payload(root, str(args.get("source") or ""), max_chars=_bounded_int(args.get("max_chars"), default=4000, maximum=12000), sections=args.get("sections") if isinstance(args.get("sections"), list) else None)
+    except SystemExit as exc:
+        raise _mcp_read_error(exc) from exc
+    return {"ok": True, **payload}
+
+
+def _tool_build_context_pack(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    try:
+        payload = build_context_pack_payload(root, str(args.get("ref") or ""), mode=str(args.get("mode") or "summary-only"), profile=str(args.get("profile") or "normal"), config=None)
+    except SystemExit as exc:
+        raise _mcp_read_error(exc) from exc
+    return {"ok": True, **payload}
+
+
+def _tool_get_release_status(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    return release_status_payload(root)
+
+
+def _tool_get_release_plan(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    version = str(args.get("version") or "").strip()
+    if not version:
+        raise McpToolError("missing_required_argument", "version is required.", details={"argument": "version"})
+    return release_plan_payload(root, version)
+
+
+def _tool_list_logics_docs(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    payload = list_logics_docs_payload(
+        root,
+        kind=str(args.get("kind") or "all"),
+        status=str(args["status"]) if args.get("status") else None,
+        ref_prefix=str(args["ref_prefix"]) if args.get("ref_prefix") else None,
+        limit=_bounded_int(args.get("limit"), default=50, maximum=200),
+    )
+    return {"ok": True, **payload}
+
+
+def _tool_search_logics_docs(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    try:
+        payload = search_logics_docs_payload(
+            root,
+            str(args.get("query") or ""),
+            kind=str(args.get("kind") or "all"),
+            status=str(args["status"]) if args.get("status") else None,
+            limit=_bounded_int(args.get("limit"), default=20, maximum=100),
+            max_snippet_chars=_bounded_int(args.get("max_snippet_chars"), default=240, maximum=1000),
+        )
+    except SystemExit as exc:
+        raise _mcp_read_error(exc) from exc
+    return {"ok": True, **payload}
+
+
+def _tool_get_logics_status(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    return status_payload(root, limit=_bounded_int(args.get("limit"), default=10, maximum=100))
+
+
+def _tool_get_logics_health(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    return health_payload(root, limit=_bounded_int(args.get("limit"), default=10, maximum=100))
+
+
+def _tool_list_logics_followups(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    include_closed = bool(args.get("include_closed", False))
+    closed_only = bool(args.get("closed_only", False))
+    if include_closed and closed_only:
+        raise McpToolError("invalid_argument_value", "include_closed and closed_only are mutually exclusive.", details={"arguments": ["include_closed", "closed_only"]})
+    return followups_payload(
+        root,
+        limit=_bounded_int(args.get("limit"), default=50, maximum=200),
+        source_kind=str(args.get("source_kind") or "all"),
+        include_closed=include_closed,
+        closed_only=closed_only,
+    )
+
+
+def _tool_check_product_consistency(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    return product_consistency_payload(root, limit=_bounded_int(args.get("limit"), default=50, maximum=200))
+
+
+def _tool_finish_task(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    rel_path = _relative_path(root, str(args.get("task_path") or ""), ("logics/tasks",))
+    dry_run = bool(args.get("dry_run", False))
+    if not dry_run:
+        _ensure_no_dirty_conflict(root, ["logics"])
+    command = ["flow", "finish", "task", rel_path.as_posix(), "--format", "json"]
+    if dry_run:
+        command.append("--dry-run")
+    payload = _json_from_stdout(_run_command(root, command).stdout)
+    return _workflow_write_result(root, {"source_path": payload["source"], "dry_run": payload["dry_run"], "summary": f"Finished task {Path(payload['source']).stem}"}, paths=[rel_path.as_posix()])
+
+
+def _tool_close_workflow_doc(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    kind = str(args.get("kind") or "")
+    allowed_dir = {"request": "logics/request", "backlog": "logics/backlog", "task": "logics/tasks"}[kind]
+    rel_path = _relative_path(root, str(args.get("source_path") or ""), (allowed_dir,))
+    dry_run = bool(args.get("dry_run", False))
+    if not dry_run:
+        _ensure_no_dirty_conflict(root, ["logics"])
+    command = ["flow", "close", kind, rel_path.as_posix(), "--format", "json"]
+    if dry_run:
+        command.append("--dry-run")
+    payload = _json_from_stdout(_run_command(root, command).stdout)
+    return _workflow_write_result(root, {"kind": payload["kind"], "source_path": payload["source"], "dry_run": payload["dry_run"], "summary": f"Closed {kind} {Path(payload['source']).stem}"}, paths=[rel_path.as_posix()])
+
+
+def _tool_close_eligible_requests(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    dry_run = bool(args.get("dry_run", False))
+    if not dry_run:
+        _ensure_no_dirty_conflict(root, ["logics"])
+    command = ["sync", "close-eligible-requests", "--format", "json"]
+    if dry_run:
+        command.append("--dry-run")
+    payload = _json_from_stdout(_run_command(root, command).stdout)
+    return _workflow_write_result(root, payload)
+
+
+def _tool_refresh_mermaid_signatures(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    dry_run = bool(args.get("dry_run", False))
+    if not dry_run:
+        _ensure_no_dirty_conflict(root, ["logics"])
+    command = ["sync", "refresh-mermaid-signatures", "--format", "json"]
+    if dry_run:
+        command.append("--dry-run")
+    payload = _json_from_stdout(_run_command(root, command).stdout)
+    paths = [str(path) for path in payload.get("modified_files", [])] or None
+    return _workflow_write_result(root, payload, paths=paths)
+
+
+def _tool_update_workflow_indicators(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    source = str(args.get("source") or "")
+    dry_run = bool(args.get("dry_run", False))
+    rel_path = _workflow_doc_path_for_source(root, source)
+    if not dry_run:
+        _ensure_no_dirty_conflict(root, [rel_path])
+    indicators = {
+        "Status": args.get("status"),
+        "Progress": args.get("progress"),
+        "Understanding": args.get("understanding"),
+        "Confidence": args.get("confidence"),
+        "Theme": args.get("theme"),
+        "Complexity": args.get("complexity"),
+    }
+    try:
+        payload = update_workflow_indicators_payload(root, source, {key: str(value) for key, value in indicators.items() if value is not None}, dry_run=dry_run)
+    except SystemExit as exc:
+        raise _mcp_mutation_error(exc) from exc
+    return _workflow_write_result(root, payload, paths=[rel_path])
+
+
+def _tool_append_report_entry(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    source = str(args.get("source") or "")
+    dry_run = bool(args.get("dry_run", False))
+    rel_path = _workflow_doc_path_for_source(root, source)
+    if not dry_run:
+        _ensure_no_dirty_conflict(root, [rel_path])
+    note_kind = {"append_report_entry": "report", "append_validation_note": "validation", "append_decision_note": "decision"}[name]
+    try:
+        payload = append_workflow_note_payload(root, source, note_kind=note_kind, text=str(args.get("text") or ""), dry_run=dry_run)
+    except SystemExit as exc:
+        raise _mcp_mutation_error(exc) from exc
+    return _workflow_write_result(root, payload, paths=[rel_path])
+
+
+def _tool_split_request(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    rel_path = _relative_path(root, str(args.get("request_path") or ""), ("logics/request",))
+    titles = _nonempty_titles(args.get("titles"))
+    dry_run = bool(args.get("dry_run", False))
+    if not dry_run:
+        _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
+    command = ["flow", "split", "request", rel_path.as_posix(), "--format", "json"]
+    for title in titles:
+        command.extend(["--title", title])
+    if dry_run:
+        command.append("--dry-run")
+    payload = _json_from_stdout(_run_command(root, command).stdout)
+    created_paths = [f"logics/backlog/{ref}.md" for ref in payload.get("created_refs", [])]
+    return _workflow_write_result(root, {"created_paths": created_paths, **payload}, paths=[rel_path.as_posix(), *created_paths])
+
+
+def _tool_split_backlog(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    rel_path = _relative_path(root, str(args.get("backlog_path") or ""), ("logics/backlog",))
+    titles = _nonempty_titles(args.get("titles"))
+    dry_run = bool(args.get("dry_run", False))
+    if not dry_run:
+        _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
+    command = ["flow", "split", "backlog", rel_path.as_posix(), "--format", "json"]
+    for title in titles:
+        command.extend(["--title", title])
+    if dry_run:
+        command.append("--dry-run")
+    payload = _json_from_stdout(_run_command(root, command).stdout)
+    created_paths = [f"logics/tasks/{ref}.md" for ref in payload.get("created_refs", [])]
+    return _workflow_write_result(root, {"created_paths": created_paths, **payload}, paths=[rel_path.as_posix(), *created_paths])
+
+
+def _tool_autofix_ac_traceability(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    raw_paths = args.get("paths") if isinstance(args.get("paths"), list) else []
+    paths = [_relative_path(root, str(path), ("logics",)).as_posix() for path in raw_paths]
+    refs = [str(ref).strip() for ref in args.get("refs", []) if str(ref).strip()] if isinstance(args.get("refs"), list) else []
+    _ensure_no_dirty_conflict(root, paths or ["logics"])
+    flag = "--autofix-ac-traceability" if name == "autofix_ac_traceability" else "--autofix-structure"
+    command = ["audit", flag, "--format", "json"]
+    if paths:
+        command.append("--paths")
+        command.extend(paths)
+    if refs:
+        command.append("--refs")
+        command.extend(refs)
+    payload = _run_json_command(root, command)
+    modified = [str(path) for path in payload.get("autofix", {}).get("modified_files", [])]
+    return _workflow_write_result(root, {"audit_payload": payload, "modified_paths": modified}, paths=modified or paths or None)
+
+
+def _tool_show_git_diff(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    raw_paths = args.get("paths")
+    paths = [str(path) for path in raw_paths] if isinstance(raw_paths, list) else None
+    return _show_git_diff(root, paths)
+
+
+def _tool_delete_logics_file(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    rel_path, target = _resolved_markdown_file_path(root, str(args.get("path") or ""))
+    dry_run = bool(args.get("dry_run", False))
+    if not target.exists():
+        raise McpToolError("not_found", "Logics file not found.", details={"path": rel_path.as_posix()})
+    if not target.is_file() or target.is_symlink():
+        raise McpToolError("invalid_path", "Only regular Markdown files can be deleted.", details={"path": rel_path.as_posix()})
+    if not dry_run:
+        _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
+        target.unlink()
+    return _workflow_write_result(
+        root,
+        {
+            "path": rel_path.as_posix(),
+            "dry_run": dry_run,
+            "deleted": not dry_run,
+            "would_delete": dry_run,
+            "summary": f"{'Would delete' if dry_run else 'Deleted'} {rel_path.as_posix()}",
+        },
+        paths=[rel_path.as_posix()],
+    )
+
+
+def _tool_rename_logics_file(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    source_rel, source = _resolved_markdown_file_path(root, str(args.get("source_path") or ""))
+    destination_rel, destination = _resolved_markdown_file_path(root, str(args.get("destination_path") or ""))
+    dry_run = bool(args.get("dry_run", False))
+    if source_rel == destination_rel:
+        raise McpToolError("invalid_path", "Source and destination paths must differ.", details={"source_path": source_rel.as_posix(), "destination_path": destination_rel.as_posix()})
+    if not source.exists():
+        raise McpToolError("not_found", "Source Logics file not found.", details={"source_path": source_rel.as_posix()})
+    if not source.is_file() or source.is_symlink():
+        raise McpToolError("invalid_path", "Only regular Markdown files can be renamed.", details={"source_path": source_rel.as_posix()})
+    if destination.exists():
+        raise McpToolError("already_exists", "Destination already exists.", details={"destination_path": destination_rel.as_posix()})
+    if not dry_run:
+        _ensure_no_dirty_conflict(root, [source_rel.as_posix(), destination_rel.as_posix()])
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        source.rename(destination)
+    return _workflow_write_result(
+        root,
+        {
+            "source_path": source_rel.as_posix(),
+            "destination_path": destination_rel.as_posix(),
+            "dry_run": dry_run,
+            "renamed": not dry_run,
+            "would_rename": dry_run,
+            "summary": f"{'Would rename' if dry_run else 'Renamed'} {source_rel.as_posix()} to {destination_rel.as_posix()}",
+        },
+        paths=[source_rel.as_posix(), destination_rel.as_posix()],
+    )
+
+
+def _tool_scaffold_request_chain(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    scaffold_input = args.get("input")
+    if not isinstance(scaffold_input, dict):
+        raise McpToolError("missing_required_argument", "input (request-chain JSON object) is required.", details={"argument": "input"})
+    scaffold_dir = root / "logics" / "scaffold"
+    scaffold_dir.mkdir(parents=True, exist_ok=True)
+    temp_input = scaffold_dir / f".mcp-scaffold-{secrets.token_hex(6)}.json"
+    temp_input.write_text(json.dumps(scaffold_input, indent=2) + "\n", encoding="utf-8")
+    try:
+        command = ["flow", "scaffold", "request-chain", "--input", temp_input.relative_to(root).as_posix(), "--format", "json"]
+        if args.get("context_pack_out"):
+            command.extend(["--context-pack", str(args["context_pack_out"])])
+        if args.get("dry_run"):
+            command.append("--dry-run")
+        payload = _json_from_stdout(_run_command(root, command).stdout)
+    finally:
+        temp_input.unlink(missing_ok=True)
+    return {
+        "ok": True,
+        "request_ref": payload["request_ref"],
+        "product_ref": payload["product_ref"],
+        "backlog_refs": payload["backlog_refs"],
+        "task_ref": payload["task_ref"],
+        "created_paths": payload["created_paths"],
+        "summary": f"Scaffolded request chain {payload['request_ref']}",
+        "next_suggested_tool": "run_logics_audit",
+        **(_validation_result(root) if not args.get("dry_run") else {}),
+    }
+
+
+def _tool_create_request(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    title = str(args.get("title") or "").strip()
+    if not title:
+        raise McpToolError("missing_required_argument", "title is required.", details={"argument": "title"})
+    command = ["flow", "new", "request", "--title", title, "--format", "json"]
+    if args.get("theme"):
+        command.extend(["--theme", str(args["theme"])])
+    if args.get("complexity"):
+        command.extend(["--complexity", str(args["complexity"])])
+    payload = _created_doc_from_stdout(_run_command(root, command).stdout, command="new", kind="request")
+    _update_created_request(root, str(payload["path"]), args)
+    return {
+        "ok": True,
+        "path": payload["path"],
+        "ref": payload["ref"],
+        "summary": f"Created request {payload['ref']}",
+        "document_preview": _document_preview(root, str(payload["path"])),
+        "next_suggested_tool": "promote_request_to_backlog",
+        **_validation_result(root),
+        **_show_git_diff(root, [str(payload["path"])]),
+    }
+
+
+def _tool_promote_request_to_backlog(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    rel_path = _relative_path(root, str(args.get("request_path") or ""), ("logics/request",))
+    _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
+    payload = _json_from_stdout(_run_command(root, ["flow", "promote", "request-to-backlog", rel_path.as_posix(), "--format", "json"]).stdout)
+    return {
+        "ok": True,
+        "source_path": payload["source"],
+        "created_path": payload["created_path"],
+        "created_ref": payload["created_ref"],
+        "document_preview": _document_preview(root, str(payload["created_path"])),
+        "next_suggested_tool": "promote_backlog_to_task",
+        **_validation_result(root),
+        **_show_git_diff(root, [str(payload["source"]), str(payload["created_path"])]),
+    }
+
+
+def _tool_promote_backlog_to_task(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    rel_path = _relative_path(root, str(args.get("backlog_path") or ""), ("logics/backlog",))
+    _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
+    payload = _json_from_stdout(_run_command(root, ["flow", "promote", "backlog-to-task", rel_path.as_posix(), "--format", "json"]).stdout)
+    return {
+        "ok": True,
+        "source_path": payload["source"],
+        "created_path": payload["created_path"],
+        "created_ref": payload["created_ref"],
+        "document_preview": _document_preview(root, str(payload["created_path"])),
+        "next_suggested_tool": "run_logics_lint",
+        **_validation_result(root),
+        **_show_git_diff(root, [str(payload["source"]), str(payload["created_path"])]),
+    }
+
+
+def _tool_create_product_brief(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    title = str(args.get("title") or "").strip()
+    if not title:
+        raise McpToolError("missing_required_argument", "title is required.", details={"argument": "title"})
+    companion_kind = "product" if name == "create_product_brief" else "architecture"
+    command = ["flow", "companion", companion_kind, "--title", title, "--format", "json"]
+    ref_args = (
+        ("request_path", "--request-ref", "logics/request"),
+        ("backlog_path", "--backlog-ref", "logics/backlog"),
+        ("task_path", "--task-ref", "logics/tasks"),
+    )
+    linked_refs: dict[str, str] = {}
+    for key, flag, directory in ref_args:
+        if args.get(key):
+            rel_path = _relative_path(root, str(args[key]), (directory,))
+            ref = _flow_path_ref(rel_path.as_posix())
+            if ref:
+                command.extend([flag, ref])
+                linked_refs[key] = rel_path.as_posix()
+    payload = _json_from_stdout(_run_command(root, command).stdout)
+    return {
+        "ok": True,
+        "path": payload["path"],
+        "ref": payload["ref"],
+        "linked_refs": linked_refs,
+        "document_preview": _document_preview(root, str(payload["path"])),
+        "next_suggested_tool": "run_logics_lint",
+        **_validation_result(root, include_audit=True),
+        **_show_git_diff(root, [str(payload["path"])]),
+    }
+
+
+_TOOL_HANDLERS: dict[str, Any] = {
+    "run_logics_lint": _tool_run_logics_lint,
+    "run_logics_audit": _tool_run_logics_audit,
+    "list_active_work": _tool_list_active_work,
+    "list_companion_docs": _tool_list_companion_docs,
+    "read_logics_doc": _tool_read_logics_doc,
+    "build_context_pack": _tool_build_context_pack,
+    "get_release_status": _tool_get_release_status,
+    "get_release_plan": _tool_get_release_plan,
+    "list_logics_docs": _tool_list_logics_docs,
+    "search_logics_docs": _tool_search_logics_docs,
+    "get_logics_status": _tool_get_logics_status,
+    "get_logics_health": _tool_get_logics_health,
+    "list_logics_followups": _tool_list_logics_followups,
+    "check_product_consistency": _tool_check_product_consistency,
+    "finish_task": _tool_finish_task,
+    "close_workflow_doc": _tool_close_workflow_doc,
+    "close_eligible_requests": _tool_close_eligible_requests,
+    "refresh_mermaid_signatures": _tool_refresh_mermaid_signatures,
+    "update_workflow_indicators": _tool_update_workflow_indicators,
+    "append_report_entry": _tool_append_report_entry,
+    "append_validation_note": _tool_append_report_entry,
+    "append_decision_note": _tool_append_report_entry,
+    "split_request": _tool_split_request,
+    "split_backlog": _tool_split_backlog,
+    "autofix_ac_traceability": _tool_autofix_ac_traceability,
+    "autofix_structure": _tool_autofix_ac_traceability,
+    "show_git_diff": _tool_show_git_diff,
+    "delete_logics_file": _tool_delete_logics_file,
+    "rename_logics_file": _tool_rename_logics_file,
+    "scaffold_request_chain": _tool_scaffold_request_chain,
+    "create_request": _tool_create_request,
+    "promote_request_to_backlog": _tool_promote_request_to_backlog,
+    "promote_backlog_to_task": _tool_promote_backlog_to_task,
+    "create_product_brief": _tool_create_product_brief,
+    "create_architecture_decision": _tool_create_product_brief,
+}
+
+
 def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: Path | None = None) -> dict[str, Any]:
     root = _repo_root(repo_root)
     args = arguments or {}
     if name not in TOOLS_BY_NAME:
         raise McpToolError("unsupported_action", f"Unsupported MCP tool: {name}")
     _validate_arguments(name, args)
-
-    if name == "run_logics_lint":
-        status = _lint_status(root)
-        return {"ok": bool(status["ok"]), "status": status}
-    if name == "run_logics_audit":
-        status = _audit_status(root)
-        return {"ok": bool(status["ok"]), "status": status}
-    if name == "list_active_work":
-        kind = str(args.get("kind") or "all")
-        if kind not in {"all", "request", "backlog", "task"}:
-            raise McpToolError("invalid_argument_value", "Unsupported list kind.", details={"kind": kind, "allowed": ["all", "request", "backlog", "task"]})
-        return {"ok": True, "items": flow_list_payload(root, kind=kind)["entries"]}
-    if name == "list_companion_docs":
-        payload = _list_companion_docs(root, kind=str(args.get("kind") or "all"), limit=_bounded_int(args.get("limit"), default=50, maximum=200))
-        return {"ok": True, **payload}
-    if name == "read_logics_doc":
-        try:
-            payload = read_logics_doc_payload(root, str(args.get("source") or ""), max_chars=_bounded_int(args.get("max_chars"), default=4000, maximum=12000), sections=args.get("sections") if isinstance(args.get("sections"), list) else None)
-        except SystemExit as exc:
-            raise _mcp_read_error(exc) from exc
-        return {"ok": True, **payload}
-    if name == "build_context_pack":
-        try:
-            payload = build_context_pack_payload(root, str(args.get("ref") or ""), mode=str(args.get("mode") or "summary-only"), profile=str(args.get("profile") or "normal"), config=None)
-        except SystemExit as exc:
-            raise _mcp_read_error(exc) from exc
-        return {"ok": True, **payload}
-    if name == "get_release_status":
-        return release_status_payload(root)
-    if name == "get_release_plan":
-        version = str(args.get("version") or "").strip()
-        if not version:
-            raise McpToolError("missing_required_argument", "version is required.", details={"argument": "version"})
-        return release_plan_payload(root, version)
-    if name == "list_logics_docs":
-        payload = list_logics_docs_payload(
-            root,
-            kind=str(args.get("kind") or "all"),
-            status=str(args["status"]) if args.get("status") else None,
-            ref_prefix=str(args["ref_prefix"]) if args.get("ref_prefix") else None,
-            limit=_bounded_int(args.get("limit"), default=50, maximum=200),
-        )
-        return {"ok": True, **payload}
-    if name == "search_logics_docs":
-        try:
-            payload = search_logics_docs_payload(
-                root,
-                str(args.get("query") or ""),
-                kind=str(args.get("kind") or "all"),
-                status=str(args["status"]) if args.get("status") else None,
-                limit=_bounded_int(args.get("limit"), default=20, maximum=100),
-                max_snippet_chars=_bounded_int(args.get("max_snippet_chars"), default=240, maximum=1000),
-            )
-        except SystemExit as exc:
-            raise _mcp_read_error(exc) from exc
-        return {"ok": True, **payload}
-    if name == "get_logics_status":
-        return status_payload(root, limit=_bounded_int(args.get("limit"), default=10, maximum=100))
-    if name == "get_logics_health":
-        return health_payload(root, limit=_bounded_int(args.get("limit"), default=10, maximum=100))
-    if name == "list_logics_followups":
-        include_closed = bool(args.get("include_closed", False))
-        closed_only = bool(args.get("closed_only", False))
-        if include_closed and closed_only:
-            raise McpToolError("invalid_argument_value", "include_closed and closed_only are mutually exclusive.", details={"arguments": ["include_closed", "closed_only"]})
-        return followups_payload(
-            root,
-            limit=_bounded_int(args.get("limit"), default=50, maximum=200),
-            source_kind=str(args.get("source_kind") or "all"),
-            include_closed=include_closed,
-            closed_only=closed_only,
-        )
-    if name == "check_product_consistency":
-        return product_consistency_payload(root, limit=_bounded_int(args.get("limit"), default=50, maximum=200))
-    if name == "finish_task":
-        rel_path = _relative_path(root, str(args.get("task_path") or ""), ("logics/tasks",))
-        dry_run = bool(args.get("dry_run", False))
-        if not dry_run:
-            _ensure_no_dirty_conflict(root, ["logics"])
-        command = ["flow", "finish", "task", rel_path.as_posix(), "--format", "json"]
-        if dry_run:
-            command.append("--dry-run")
-        payload = _json_from_stdout(_run_command(root, command).stdout)
-        return _workflow_write_result(root, {"source_path": payload["source"], "dry_run": payload["dry_run"], "summary": f"Finished task {Path(payload['source']).stem}"}, paths=[rel_path.as_posix()])
-    if name == "close_workflow_doc":
-        kind = str(args.get("kind") or "")
-        allowed_dir = {"request": "logics/request", "backlog": "logics/backlog", "task": "logics/tasks"}[kind]
-        rel_path = _relative_path(root, str(args.get("source_path") or ""), (allowed_dir,))
-        dry_run = bool(args.get("dry_run", False))
-        if not dry_run:
-            _ensure_no_dirty_conflict(root, ["logics"])
-        command = ["flow", "close", kind, rel_path.as_posix(), "--format", "json"]
-        if dry_run:
-            command.append("--dry-run")
-        payload = _json_from_stdout(_run_command(root, command).stdout)
-        return _workflow_write_result(root, {"kind": payload["kind"], "source_path": payload["source"], "dry_run": payload["dry_run"], "summary": f"Closed {kind} {Path(payload['source']).stem}"}, paths=[rel_path.as_posix()])
-    if name == "close_eligible_requests":
-        dry_run = bool(args.get("dry_run", False))
-        if not dry_run:
-            _ensure_no_dirty_conflict(root, ["logics"])
-        command = ["sync", "close-eligible-requests", "--format", "json"]
-        if dry_run:
-            command.append("--dry-run")
-        payload = _json_from_stdout(_run_command(root, command).stdout)
-        return _workflow_write_result(root, payload)
-    if name == "refresh_mermaid_signatures":
-        dry_run = bool(args.get("dry_run", False))
-        if not dry_run:
-            _ensure_no_dirty_conflict(root, ["logics"])
-        command = ["sync", "refresh-mermaid-signatures", "--format", "json"]
-        if dry_run:
-            command.append("--dry-run")
-        payload = _json_from_stdout(_run_command(root, command).stdout)
-        paths = [str(path) for path in payload.get("modified_files", [])] or None
-        return _workflow_write_result(root, payload, paths=paths)
-    if name == "update_workflow_indicators":
-        source = str(args.get("source") or "")
-        dry_run = bool(args.get("dry_run", False))
-        rel_path = _workflow_doc_path_for_source(root, source)
-        if not dry_run:
-            _ensure_no_dirty_conflict(root, [rel_path])
-        indicators = {
-            "Status": args.get("status"),
-            "Progress": args.get("progress"),
-            "Understanding": args.get("understanding"),
-            "Confidence": args.get("confidence"),
-            "Theme": args.get("theme"),
-            "Complexity": args.get("complexity"),
-        }
-        try:
-            payload = update_workflow_indicators_payload(root, source, {key: str(value) for key, value in indicators.items() if value is not None}, dry_run=dry_run)
-        except SystemExit as exc:
-            raise _mcp_mutation_error(exc) from exc
-        return _workflow_write_result(root, payload, paths=[rel_path])
-    if name in {"append_report_entry", "append_validation_note", "append_decision_note"}:
-        source = str(args.get("source") or "")
-        dry_run = bool(args.get("dry_run", False))
-        rel_path = _workflow_doc_path_for_source(root, source)
-        if not dry_run:
-            _ensure_no_dirty_conflict(root, [rel_path])
-        note_kind = {"append_report_entry": "report", "append_validation_note": "validation", "append_decision_note": "decision"}[name]
-        try:
-            payload = append_workflow_note_payload(root, source, note_kind=note_kind, text=str(args.get("text") or ""), dry_run=dry_run)
-        except SystemExit as exc:
-            raise _mcp_mutation_error(exc) from exc
-        return _workflow_write_result(root, payload, paths=[rel_path])
-    if name == "split_request":
-        rel_path = _relative_path(root, str(args.get("request_path") or ""), ("logics/request",))
-        titles = _nonempty_titles(args.get("titles"))
-        dry_run = bool(args.get("dry_run", False))
-        if not dry_run:
-            _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
-        command = ["flow", "split", "request", rel_path.as_posix(), "--format", "json"]
-        for title in titles:
-            command.extend(["--title", title])
-        if dry_run:
-            command.append("--dry-run")
-        payload = _json_from_stdout(_run_command(root, command).stdout)
-        created_paths = [f"logics/backlog/{ref}.md" for ref in payload.get("created_refs", [])]
-        return _workflow_write_result(root, {"created_paths": created_paths, **payload}, paths=[rel_path.as_posix(), *created_paths])
-    if name == "split_backlog":
-        rel_path = _relative_path(root, str(args.get("backlog_path") or ""), ("logics/backlog",))
-        titles = _nonempty_titles(args.get("titles"))
-        dry_run = bool(args.get("dry_run", False))
-        if not dry_run:
-            _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
-        command = ["flow", "split", "backlog", rel_path.as_posix(), "--format", "json"]
-        for title in titles:
-            command.extend(["--title", title])
-        if dry_run:
-            command.append("--dry-run")
-        payload = _json_from_stdout(_run_command(root, command).stdout)
-        created_paths = [f"logics/tasks/{ref}.md" for ref in payload.get("created_refs", [])]
-        return _workflow_write_result(root, {"created_paths": created_paths, **payload}, paths=[rel_path.as_posix(), *created_paths])
-    if name in {"autofix_ac_traceability", "autofix_structure"}:
-        raw_paths = args.get("paths") if isinstance(args.get("paths"), list) else []
-        paths = [_relative_path(root, str(path), ("logics",)).as_posix() for path in raw_paths]
-        refs = [str(ref).strip() for ref in args.get("refs", []) if str(ref).strip()] if isinstance(args.get("refs"), list) else []
-        _ensure_no_dirty_conflict(root, paths or ["logics"])
-        flag = "--autofix-ac-traceability" if name == "autofix_ac_traceability" else "--autofix-structure"
-        command = ["audit", flag, "--format", "json"]
-        if paths:
-            command.append("--paths")
-            command.extend(paths)
-        if refs:
-            command.append("--refs")
-            command.extend(refs)
-        payload = _run_json_command(root, command)
-        modified = [str(path) for path in payload.get("autofix", {}).get("modified_files", [])]
-        return _workflow_write_result(root, {"audit_payload": payload, "modified_paths": modified}, paths=modified or paths or None)
-    if name == "show_git_diff":
-        raw_paths = args.get("paths")
-        paths = [str(path) for path in raw_paths] if isinstance(raw_paths, list) else None
-        return _show_git_diff(root, paths)
-    if name == "delete_logics_file":
-        rel_path, target = _resolved_markdown_file_path(root, str(args.get("path") or ""))
-        dry_run = bool(args.get("dry_run", False))
-        if not target.exists():
-            raise McpToolError("not_found", "Logics file not found.", details={"path": rel_path.as_posix()})
-        if not target.is_file() or target.is_symlink():
-            raise McpToolError("invalid_path", "Only regular Markdown files can be deleted.", details={"path": rel_path.as_posix()})
-        if not dry_run:
-            _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
-            target.unlink()
-        return _workflow_write_result(
-            root,
-            {
-                "path": rel_path.as_posix(),
-                "dry_run": dry_run,
-                "deleted": not dry_run,
-                "would_delete": dry_run,
-                "summary": f"{'Would delete' if dry_run else 'Deleted'} {rel_path.as_posix()}",
-            },
-            paths=[rel_path.as_posix()],
-        )
-    if name == "rename_logics_file":
-        source_rel, source = _resolved_markdown_file_path(root, str(args.get("source_path") or ""))
-        destination_rel, destination = _resolved_markdown_file_path(root, str(args.get("destination_path") or ""))
-        dry_run = bool(args.get("dry_run", False))
-        if source_rel == destination_rel:
-            raise McpToolError("invalid_path", "Source and destination paths must differ.", details={"source_path": source_rel.as_posix(), "destination_path": destination_rel.as_posix()})
-        if not source.exists():
-            raise McpToolError("not_found", "Source Logics file not found.", details={"source_path": source_rel.as_posix()})
-        if not source.is_file() or source.is_symlink():
-            raise McpToolError("invalid_path", "Only regular Markdown files can be renamed.", details={"source_path": source_rel.as_posix()})
-        if destination.exists():
-            raise McpToolError("already_exists", "Destination already exists.", details={"destination_path": destination_rel.as_posix()})
-        if not dry_run:
-            _ensure_no_dirty_conflict(root, [source_rel.as_posix(), destination_rel.as_posix()])
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            source.rename(destination)
-        return _workflow_write_result(
-            root,
-            {
-                "source_path": source_rel.as_posix(),
-                "destination_path": destination_rel.as_posix(),
-                "dry_run": dry_run,
-                "renamed": not dry_run,
-                "would_rename": dry_run,
-                "summary": f"{'Would rename' if dry_run else 'Renamed'} {source_rel.as_posix()} to {destination_rel.as_posix()}",
-            },
-            paths=[source_rel.as_posix(), destination_rel.as_posix()],
-        )
-
-    if name == "scaffold_request_chain":
-        scaffold_input = args.get("input")
-        if not isinstance(scaffold_input, dict):
-            raise McpToolError("missing_required_argument", "input (request-chain JSON object) is required.", details={"argument": "input"})
-        scaffold_dir = root / "logics" / "scaffold"
-        scaffold_dir.mkdir(parents=True, exist_ok=True)
-        temp_input = scaffold_dir / f".mcp-scaffold-{secrets.token_hex(6)}.json"
-        temp_input.write_text(json.dumps(scaffold_input, indent=2) + "\n", encoding="utf-8")
-        try:
-            command = ["flow", "scaffold", "request-chain", "--input", temp_input.relative_to(root).as_posix(), "--format", "json"]
-            if args.get("context_pack_out"):
-                command.extend(["--context-pack", str(args["context_pack_out"])])
-            if args.get("dry_run"):
-                command.append("--dry-run")
-            payload = _json_from_stdout(_run_command(root, command).stdout)
-        finally:
-            temp_input.unlink(missing_ok=True)
-        return {
-            "ok": True,
-            "request_ref": payload["request_ref"],
-            "product_ref": payload["product_ref"],
-            "backlog_refs": payload["backlog_refs"],
-            "task_ref": payload["task_ref"],
-            "created_paths": payload["created_paths"],
-            "summary": f"Scaffolded request chain {payload['request_ref']}",
-            "next_suggested_tool": "run_logics_audit",
-            **(_validation_result(root) if not args.get("dry_run") else {}),
-        }
-
-    if name == "create_request":
-        title = str(args.get("title") or "").strip()
-        if not title:
-            raise McpToolError("missing_required_argument", "title is required.", details={"argument": "title"})
-        command = ["flow", "new", "request", "--title", title, "--format", "json"]
-        if args.get("theme"):
-            command.extend(["--theme", str(args["theme"])])
-        if args.get("complexity"):
-            command.extend(["--complexity", str(args["complexity"])])
-        payload = _created_doc_from_stdout(_run_command(root, command).stdout, command="new", kind="request")
-        _update_created_request(root, str(payload["path"]), args)
-        return {
-            "ok": True,
-            "path": payload["path"],
-            "ref": payload["ref"],
-            "summary": f"Created request {payload['ref']}",
-            "document_preview": _document_preview(root, str(payload["path"])),
-            "next_suggested_tool": "promote_request_to_backlog",
-            **_validation_result(root),
-            **_show_git_diff(root, [str(payload["path"])]),
-        }
-
-    if name == "promote_request_to_backlog":
-        rel_path = _relative_path(root, str(args.get("request_path") or ""), ("logics/request",))
-        _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
-        payload = _json_from_stdout(_run_command(root, ["flow", "promote", "request-to-backlog", rel_path.as_posix(), "--format", "json"]).stdout)
-        return {
-            "ok": True,
-            "source_path": payload["source"],
-            "created_path": payload["created_path"],
-            "created_ref": payload["created_ref"],
-            "document_preview": _document_preview(root, str(payload["created_path"])),
-            "next_suggested_tool": "promote_backlog_to_task",
-            **_validation_result(root),
-            **_show_git_diff(root, [str(payload["source"]), str(payload["created_path"])]),
-        }
-
-    if name == "promote_backlog_to_task":
-        rel_path = _relative_path(root, str(args.get("backlog_path") or ""), ("logics/backlog",))
-        _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
-        payload = _json_from_stdout(_run_command(root, ["flow", "promote", "backlog-to-task", rel_path.as_posix(), "--format", "json"]).stdout)
-        return {
-            "ok": True,
-            "source_path": payload["source"],
-            "created_path": payload["created_path"],
-            "created_ref": payload["created_ref"],
-            "document_preview": _document_preview(root, str(payload["created_path"])),
-            "next_suggested_tool": "run_logics_lint",
-            **_validation_result(root),
-            **_show_git_diff(root, [str(payload["source"]), str(payload["created_path"])]),
-        }
-
-    if name in {"create_product_brief", "create_architecture_decision"}:
-        title = str(args.get("title") or "").strip()
-        if not title:
-            raise McpToolError("missing_required_argument", "title is required.", details={"argument": "title"})
-        companion_kind = "product" if name == "create_product_brief" else "architecture"
-        command = ["flow", "companion", companion_kind, "--title", title, "--format", "json"]
-        ref_args = (
-            ("request_path", "--request-ref", "logics/request"),
-            ("backlog_path", "--backlog-ref", "logics/backlog"),
-            ("task_path", "--task-ref", "logics/tasks"),
-        )
-        linked_refs: dict[str, str] = {}
-        for key, flag, directory in ref_args:
-            if args.get(key):
-                rel_path = _relative_path(root, str(args[key]), (directory,))
-                ref = _flow_path_ref(rel_path.as_posix())
-                if ref:
-                    command.extend([flag, ref])
-                    linked_refs[key] = rel_path.as_posix()
-        payload = _json_from_stdout(_run_command(root, command).stdout)
-        return {
-            "ok": True,
-            "path": payload["path"],
-            "ref": payload["ref"],
-            "linked_refs": linked_refs,
-            "document_preview": _document_preview(root, str(payload["path"])),
-            "next_suggested_tool": "run_logics_lint",
-            **_validation_result(root, include_audit=True),
-            **_show_git_diff(root, [str(payload["path"])]),
-        }
-
-    raise McpToolError("unsupported_action", f"Unsupported MCP tool: {name}")
+    handler = _TOOL_HANDLERS.get(name)
+    if handler is None:
+        raise McpToolError("unsupported_action", f"Unsupported MCP tool: {name}")
+    return handler(root, args, name)
 
 
 def mcp_result(payload: dict[str, Any]) -> dict[str, Any]:

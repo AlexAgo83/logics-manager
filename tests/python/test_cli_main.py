@@ -90,6 +90,16 @@ def test_main_prints_help_and_fails_without_command(capsys: pytest.CaptureFixtur
     assert "Common workflows:" in captured.out
 
 
+def test_cli_rejects_invalid_subcommand_via_argparse() -> None:
+    # The hardcoded slice validators are gone; argparse rejects unknown subcommands.
+    with pytest.raises(SystemExit) as excinfo:
+        main(["sync", "definitely-not-a-subcommand"])
+    assert excinfo.value.code == 2
+    with pytest.raises(SystemExit) as excinfo:
+        main(["assist", "definitely-not-a-subcommand"])
+    assert excinfo.value.code == 2
+
+
 def test_main_prints_version_and_exits(capsys: pytest.CaptureFixture[str]) -> None:
     exit_code = main(["--version"])
 

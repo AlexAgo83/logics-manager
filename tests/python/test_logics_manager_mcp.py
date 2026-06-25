@@ -35,6 +35,19 @@ def test_mcp_lists_tools() -> None:
     ]
 
 
+def test_mcp_dispatches_via_handler_table_and_drops_dead_annotations() -> None:
+    from logics_manager import mcp as mcp_module
+
+    # call_tool routes every published tool through the dispatch table.
+    handler_names = set(mcp_module._TOOL_HANDLERS)
+    tool_names = {str(tool["name"]) for tool in mcp_module.TOOL_DEFINITIONS}
+    assert tool_names <= handler_names
+
+    # The dead readOnly/idempotent/destructive hint annotations are gone.
+    for tool in mcp_module.TOOL_DEFINITIONS:
+        assert "annotations" not in tool
+
+
 def test_mcp_notification_on_tool_error_returns_no_body() -> None:
     # A JSON-RPC notification (no id) that triggers a tool error must produce no
     # response body, per the JSON-RPC spec.

@@ -4996,14 +4996,11 @@ ${entry?.message || ""}`;
     function updateScreenActions(titleText) {
       const isGit = titleText === "Remote" && latestCiScreenMode === "git";
       const isRelease = titleText === "Remote" && latestCiScreenMode === "release";
-      const pull = document.getElementById("viewer-git-pull");
-      const commit = document.getElementById("viewer-git-commit");
-      const push = document.getElementById("viewer-git-push");
+      const gitActions = document.getElementById("viewer-git-actions");
       const releaseReset = document.getElementById("viewer-release-reset");
       const status = documentStatusButton();
-      if (pull) pull.hidden = !isGit;
-      if (commit) commit.hidden = !isGit;
-      if (push) push.hidden = !isGit;
+      if (gitActions) gitActions.hidden = !isGit;
+      if (!isGit) setGitActionsMenuOpen(false);
       if (releaseReset) releaseReset.hidden = !isRelease;
       if (status instanceof HTMLButtonElement) {
         const options = statusOptionsByStage[currentDocumentItem?.stage] || [];
@@ -5426,16 +5423,20 @@ ${entry?.message || ""}`;
       }
       scheduleNextAutoRefresh();
     }
-    function setRefreshMenuOpen(open) {
-      const panel = refreshMenuPanel();
-      const button = refreshMenuButton();
-      if (!panel) {
-        return;
-      }
+    function setDropdownOpen(panel, button, open) {
+      if (!panel) return;
       panel.hidden = !open;
-      if (button instanceof HTMLElement) {
-        button.setAttribute("aria-expanded", open ? "true" : "false");
-      }
+      if (button instanceof HTMLElement) button.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    function setRefreshMenuOpen(open) {
+      setDropdownOpen(refreshMenuPanel(), refreshMenuButton(), open);
+    }
+    function setGitActionsMenuOpen(open) {
+      setDropdownOpen(
+        document.getElementById("viewer-git-actions-menu"),
+        document.getElementById("viewer-git-actions-button"),
+        open
+      );
     }
     function bindRefreshMenuControls() {
       const button = refreshMenuButton();
@@ -8754,9 +8755,13 @@ ${line}` : line;
         const target = event.target;
         const button = refreshMenuButton();
         const panel = refreshMenuPanel();
+        const gitActions = document.getElementById("viewer-git-actions");
         try {
           if (target && (button?.contains(target) || panel?.contains(target))) {
             return;
+          }
+          if (!(target && gitActions?.contains(target))) {
+            setGitActionsMenuOpen(false);
           }
         } catch {
         }
@@ -8765,6 +8770,7 @@ ${line}` : line;
       document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") {
           setRefreshMenuOpen(false);
+          setGitActionsMenuOpen(false);
           closeNavMenus();
           setProjectMenuOpen(false);
         }
@@ -9454,16 +9460,30 @@ ${line}` : line;
       documentStatusButton()?.addEventListener("click", () => {
         withPrimaryAction("change-document-status", "Updating status", changeCurrentDocumentStatus);
       });
+      document.getElementById("viewer-git-actions-button")?.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const panel = document.getElementById("viewer-git-actions-menu");
+        setGitActionsMenuOpen(Boolean(panel?.hidden));
+      });
       document.getElementById("viewer-git-pull")?.addEventListener("click", () => {
+        setGitActionsMenuOpen(false);
         recordGitActivity("Pull", "Git pull started in a Workshop terminal");
         spawnWorkshopTerminal({ command: ["git", "pull"], label: "git pull" });
       });
       document.getElementById("viewer-git-commit")?.addEventListener("click", () => {
+        setGitActionsMenuOpen(false);
         openGitCommitModal().catch((error) => setMeta(error?.message || "Git commit failed."));
       });
       document.getElementById("viewer-git-push")?.addEventListener("click", () => {
+        setGitActionsMenuOpen(false);
         recordGitActivity("Push", "Git push started in a Workshop terminal");
         spawnWorkshopTerminal({ command: ["git", "push"], label: "git push" });
+      });
+      document.getElementById("viewer-git-fetch")?.addEventListener("click", () => {
+        setGitActionsMenuOpen(false);
+        withPrimaryAction("git-fetch", "Fetching", async () => {
+          if (await fetchGitRemote()) await refreshCurrentScreen();
+        });
       });
       startAutoRefresh();
     });

@@ -15,8 +15,8 @@ import { LogicsCodexWorkflowOperations as LogicsCodexWorkflowController } from "
 import { buildOnboardingHtml } from "./logicsOnboardingHtml";
 import { inspectGitHubReleaseCapability } from "./releasePublishSupport";
 import { inspectReleaseBranchFastForwardConsent } from "./releaseBranchConsent";
-import { RuntimeLaunchersSnapshot } from "./runtimeLaunchers";
-import { ReleasePublishCapability } from "./releasePublishSupport";
+import { RuntimeLaunchersSnapshot, UNAVAILABLE_LAUNCHER_STATE } from "./runtimeLaunchers";
+import { ReleasePublishCapability, UNAVAILABLE_RELEASE_CAPABILITY } from "./releasePublishSupport";
 import { LogicsEnvironmentSnapshot } from "./logicsEnvironment";
 import {
   ACTIVE_AGENT_STATE_KEY,
@@ -38,25 +38,6 @@ type LogicsViewProviderSupportHost = {
   [key: string]: any;
 };
 const STATUS_OPTIONS_BY_STAGE = STATUS_STAGES as Record<LogicsStage, readonly string[]>;
-const UNAVAILABLE_LAUNCHER_STATE: RuntimeLaunchersSnapshot = {
-  codex: {
-    available: false,
-    title: "Unavailable",
-    command: "codex"
-  },
-  claude: {
-    available: false,
-    title: "Unavailable",
-    command: "claude"
-  },
-  hasCodex: false,
-  hasClaude: false
-};
-const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
-  available: false,
-  title: "Unavailable",
-  reason: "Unavailable"
-};
   // environment helpers moved to src/logicsViewProviderEnvironment.ts
   export function buildMissingEnvLocalQuickPickItem(this: LogicsViewProviderSupportHost,
     root: string

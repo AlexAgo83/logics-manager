@@ -15,8 +15,20 @@ export function parseTimestamp(value: unknown): number | null {
   if (typeof value !== "string" || !value.trim()) {
     return null;
   }
-  const timestamp = Date.parse(value);
-  return Number.isFinite(timestamp) ? timestamp : null;
+  const raw = value.trim();
+  const candidates = [
+    raw,
+    raw.replace(" ", "T"),
+    raw.replace(/(\.\d{3})\d+([zZ]|[+-]\d{2}:\d{2})$/, "$1$2"),
+    raw.replace(" ", "T").replace(/(\.\d{3})\d+([zZ]|[+-]\d{2}:\d{2})$/, "$1$2")
+  ];
+  for (const candidate of candidates) {
+    const timestamp = Date.parse(candidate);
+    if (Number.isFinite(timestamp)) {
+      return timestamp;
+    }
+  }
+  return null;
 }
 
 export function formatRelativeDate(value: unknown, fallback = "unknown"): string {

@@ -362,7 +362,6 @@ export function buildLogicsCorpusInsightsHtml(params: {
   items: LogicsItem[];
 }): string {
   const { webview, root, items } = params;
-  void webview;
   const nonce = getNonce();
   const stageCounts = countBy(items, (item) => item.stage);
   const workflowItems = items.filter((item) => ["request", "backlog", "task"].includes(item.stage));

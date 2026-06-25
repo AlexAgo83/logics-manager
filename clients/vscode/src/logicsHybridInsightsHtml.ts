@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { getNonce } from "./logicsReadPreviewHtml";
+import { asString, escapeHtml, parseTimestamp } from "./insightsFormat";
 import {
   buildCacheRecommendation,
   buildPreclassificationRecommendation,
@@ -11,15 +12,6 @@ import {
 } from "./logicsHybridInsightsSections";
 
 type CountMap = Record<string, number>;
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
@@ -40,32 +32,8 @@ function asArray<T = unknown>(value: unknown): T[] {
   return Array.isArray(value) ? (value as T[]) : [];
 }
 
-function asString(value: unknown, fallback = "n/a"): string {
-  return typeof value === "string" && value.trim() ? value.trim() : fallback;
-}
-
 function asNumber(value: unknown, fallback = 0): number {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
-}
-
-function parseTimestamp(value: unknown): number | null {
-  if (typeof value !== "string" || !value.trim()) {
-    return null;
-  }
-  const raw = value.trim();
-  const candidates = [
-    raw,
-    raw.replace(" ", "T"),
-    raw.replace(/(\.\d{3})\d+([zZ]|[+-]\d{2}:\d{2})$/, "$1$2"),
-    raw.replace(" ", "T").replace(/(\.\d{3})\d+([zZ]|[+-]\d{2}:\d{2})$/, "$1$2")
-  ];
-  for (const candidate of candidates) {
-    const timestamp = Date.parse(candidate);
-    if (Number.isFinite(timestamp)) {
-      return timestamp;
-    }
-  }
-  return null;
 }
 
 function formatAbsoluteDateTime(value: unknown, fallback = "unknown"): string {
@@ -108,6 +76,10 @@ function formatReadableDateTime(value: unknown, fallback = "unknown"): string {
 function compareTimestampsDesc(left: unknown, right: unknown): number {
   const leftTime = parseTimestamp(left) ?? Number.NEGATIVE_INFINITY;
   const rightTime = parseTimestamp(right) ?? Number.NEGATIVE_INFINITY;
+  // Both-missing maps both to -Infinity, and -Inf - -Inf is NaN; treat equal as 0.
+  if (leftTime === rightTime) {
+    return 0;
+  }
   return rightTime - leftTime;
 }
 
@@ -235,8 +207,7 @@ export function buildHybridInsightsHtml(params: {
   report: Record<string, unknown>;
   rootLabel: string;
 }): string {
-  const { webview, report, rootLabel } = params;
-  void webview;
+  const { report, rootLabel } = params;
   const nonce = getNonce();
   const measured = asRecord(report.measured);
   const derived = asRecord(report.derived);

@@ -2527,13 +2527,13 @@ ${entry?.message || ""}`;
               force: forceCheck?.checked ?? false
             })
           });
-          const data = await response.json();
-          if (data.ok) {
+          const data = await response.json().catch(() => ({}));
+          if (response.ok && data.ok) {
             showCdxFormStatus(statusEl, "ok", data.payload?.message || "Import complete.");
             if (fileInput) fileInput.value = "";
             if (passInput) passInput.value = "";
           } else {
-            showCdxFormStatus(statusEl, "error", data.error || "Import failed.");
+            showCdxFormStatus(statusEl, "error", data.error || `Import failed (HTTP ${response.status}).`);
           }
         } catch (err) {
           showCdxFormStatus(statusEl, "error", err?.message || "Import failed.");
@@ -2558,13 +2558,13 @@ ${entry?.message || ""}`;
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ sessions, passphrase: passInput?.value || "", includeAuth: authCheck?.checked ?? true })
           });
-          const data = await response.json();
-          if (data.ok) {
+          const data = await response.json().catch(() => ({}));
+          if (response.ok && data.ok) {
             downloadBase64File(data.payload?.fileBase64 || "", data.payload?.filename || "cdx-accounts.cdx");
             showCdxFormStatus(statusEl, "ok", "Export ready \u2014 file downloaded.");
             if (passInput) passInput.value = "";
           } else {
-            showCdxFormStatus(statusEl, "error", data.error || "Export failed.");
+            showCdxFormStatus(statusEl, "error", data.error || `Export failed (HTTP ${response.status}).`);
           }
         } catch (err) {
           showCdxFormStatus(statusEl, "error", err?.message || "Export failed.");

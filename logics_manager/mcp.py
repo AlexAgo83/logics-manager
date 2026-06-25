@@ -54,7 +54,6 @@ class McpToolError(Exception):
             payload["details"] = self.details
         return payload
 
-
 def _tool_schema(properties: dict[str, Any], required: list[str] | None = None) -> dict[str, Any]:
     return {
         "type": "object",
@@ -810,16 +809,13 @@ def _workflow_write_result(repo_root: Path, payload: dict[str, Any], *, paths: l
         **_show_git_diff(repo_root, paths),
     }
 
-
 def _tool_run_logics_lint(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     status = _lint_status(root)
     return {"ok": bool(status["ok"]), "status": status}
 
-
 def _tool_run_logics_audit(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     status = _audit_status(root)
     return {"ok": bool(status["ok"]), "status": status}
-
 
 def _tool_list_active_work(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     kind = str(args.get("kind") or "all")
@@ -827,11 +823,9 @@ def _tool_list_active_work(root: Path, args: dict[str, Any], name: str) -> dict[
         raise McpToolError("invalid_argument_value", "Unsupported list kind.", details={"kind": kind, "allowed": ["all", "request", "backlog", "task"]})
     return {"ok": True, "items": flow_list_payload(root, kind=kind)["entries"]}
 
-
 def _tool_list_companion_docs(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     payload = _list_companion_docs(root, kind=str(args.get("kind") or "all"), limit=_bounded_int(args.get("limit"), default=50, maximum=200))
     return {"ok": True, **payload}
-
 
 def _tool_read_logics_doc(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     try:
@@ -840,7 +834,6 @@ def _tool_read_logics_doc(root: Path, args: dict[str, Any], name: str) -> dict[s
         raise _mcp_read_error(exc) from exc
     return {"ok": True, **payload}
 
-
 def _tool_build_context_pack(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     try:
         payload = build_context_pack_payload(root, str(args.get("ref") or ""), mode=str(args.get("mode") or "summary-only"), profile=str(args.get("profile") or "normal"), config=None)
@@ -848,17 +841,14 @@ def _tool_build_context_pack(root: Path, args: dict[str, Any], name: str) -> dic
         raise _mcp_read_error(exc) from exc
     return {"ok": True, **payload}
 
-
 def _tool_get_release_status(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     return release_status_payload(root)
-
 
 def _tool_get_release_plan(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     version = str(args.get("version") or "").strip()
     if not version:
         raise McpToolError("missing_required_argument", "version is required.", details={"argument": "version"})
     return release_plan_payload(root, version)
-
 
 def _tool_list_logics_docs(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     payload = list_logics_docs_payload(
@@ -869,7 +859,6 @@ def _tool_list_logics_docs(root: Path, args: dict[str, Any], name: str) -> dict[
         limit=_bounded_int(args.get("limit"), default=50, maximum=200),
     )
     return {"ok": True, **payload}
-
 
 def _tool_search_logics_docs(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     try:
@@ -885,14 +874,11 @@ def _tool_search_logics_docs(root: Path, args: dict[str, Any], name: str) -> dic
         raise _mcp_read_error(exc) from exc
     return {"ok": True, **payload}
 
-
 def _tool_get_logics_status(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     return status_payload(root, limit=_bounded_int(args.get("limit"), default=10, maximum=100))
 
-
 def _tool_get_logics_health(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     return health_payload(root, limit=_bounded_int(args.get("limit"), default=10, maximum=100))
-
 
 def _tool_list_logics_followups(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     include_closed = bool(args.get("include_closed", False))
@@ -907,10 +893,8 @@ def _tool_list_logics_followups(root: Path, args: dict[str, Any], name: str) -> 
         closed_only=closed_only,
     )
 
-
 def _tool_check_product_consistency(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     return product_consistency_payload(root, limit=_bounded_int(args.get("limit"), default=50, maximum=200))
-
 
 def _tool_finish_task(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     rel_path = _relative_path(root, str(args.get("task_path") or ""), ("logics/tasks",))
@@ -922,7 +906,6 @@ def _tool_finish_task(root: Path, args: dict[str, Any], name: str) -> dict[str, 
         command.append("--dry-run")
     payload = _json_from_stdout(_run_command(root, command).stdout)
     return _workflow_write_result(root, {"source_path": payload["source"], "dry_run": payload["dry_run"], "summary": f"Finished task {Path(payload['source']).stem}"}, paths=[rel_path.as_posix()])
-
 
 def _tool_close_workflow_doc(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     kind = str(args.get("kind") or "")
@@ -937,7 +920,6 @@ def _tool_close_workflow_doc(root: Path, args: dict[str, Any], name: str) -> dic
     payload = _json_from_stdout(_run_command(root, command).stdout)
     return _workflow_write_result(root, {"kind": payload["kind"], "source_path": payload["source"], "dry_run": payload["dry_run"], "summary": f"Closed {kind} {Path(payload['source']).stem}"}, paths=[rel_path.as_posix()])
 
-
 def _tool_close_eligible_requests(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     dry_run = bool(args.get("dry_run", False))
     if not dry_run:
@@ -947,7 +929,6 @@ def _tool_close_eligible_requests(root: Path, args: dict[str, Any], name: str) -
         command.append("--dry-run")
     payload = _json_from_stdout(_run_command(root, command).stdout)
     return _workflow_write_result(root, payload)
-
 
 def _tool_refresh_mermaid_signatures(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     dry_run = bool(args.get("dry_run", False))
@@ -959,7 +940,6 @@ def _tool_refresh_mermaid_signatures(root: Path, args: dict[str, Any], name: str
     payload = _json_from_stdout(_run_command(root, command).stdout)
     paths = [str(path) for path in payload.get("modified_files", [])] or None
     return _workflow_write_result(root, payload, paths=paths)
-
 
 def _tool_update_workflow_indicators(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     source = str(args.get("source") or "")
@@ -981,7 +961,6 @@ def _tool_update_workflow_indicators(root: Path, args: dict[str, Any], name: str
         raise _mcp_mutation_error(exc) from exc
     return _workflow_write_result(root, payload, paths=[rel_path])
 
-
 def _tool_append_report_entry(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     source = str(args.get("source") or "")
     dry_run = bool(args.get("dry_run", False))
@@ -994,7 +973,6 @@ def _tool_append_report_entry(root: Path, args: dict[str, Any], name: str) -> di
     except SystemExit as exc:
         raise _mcp_mutation_error(exc) from exc
     return _workflow_write_result(root, payload, paths=[rel_path])
-
 
 def _tool_split_request(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     rel_path = _relative_path(root, str(args.get("request_path") or ""), ("logics/request",))
@@ -1011,7 +989,6 @@ def _tool_split_request(root: Path, args: dict[str, Any], name: str) -> dict[str
     created_paths = [f"logics/backlog/{ref}.md" for ref in payload.get("created_refs", [])]
     return _workflow_write_result(root, {"created_paths": created_paths, **payload}, paths=[rel_path.as_posix(), *created_paths])
 
-
 def _tool_split_backlog(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     rel_path = _relative_path(root, str(args.get("backlog_path") or ""), ("logics/backlog",))
     titles = _nonempty_titles(args.get("titles"))
@@ -1026,7 +1003,6 @@ def _tool_split_backlog(root: Path, args: dict[str, Any], name: str) -> dict[str
     payload = _json_from_stdout(_run_command(root, command).stdout)
     created_paths = [f"logics/tasks/{ref}.md" for ref in payload.get("created_refs", [])]
     return _workflow_write_result(root, {"created_paths": created_paths, **payload}, paths=[rel_path.as_posix(), *created_paths])
-
 
 def _tool_autofix_ac_traceability(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     raw_paths = args.get("paths") if isinstance(args.get("paths"), list) else []
@@ -1045,12 +1021,10 @@ def _tool_autofix_ac_traceability(root: Path, args: dict[str, Any], name: str) -
     modified = [str(path) for path in payload.get("autofix", {}).get("modified_files", [])]
     return _workflow_write_result(root, {"audit_payload": payload, "modified_paths": modified}, paths=modified or paths or None)
 
-
 def _tool_show_git_diff(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     raw_paths = args.get("paths")
     paths = [str(path) for path in raw_paths] if isinstance(raw_paths, list) else None
     return _show_git_diff(root, paths)
-
 
 def _tool_delete_logics_file(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     rel_path, target = _resolved_markdown_file_path(root, str(args.get("path") or ""))
@@ -1073,7 +1047,6 @@ def _tool_delete_logics_file(root: Path, args: dict[str, Any], name: str) -> dic
         },
         paths=[rel_path.as_posix()],
     )
-
 
 def _tool_rename_logics_file(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     source_rel, source = _resolved_markdown_file_path(root, str(args.get("source_path") or ""))
@@ -1104,7 +1077,6 @@ def _tool_rename_logics_file(root: Path, args: dict[str, Any], name: str) -> dic
         paths=[source_rel.as_posix(), destination_rel.as_posix()],
     )
 
-
 def _tool_scaffold_request_chain(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     scaffold_input = args.get("input")
     if not isinstance(scaffold_input, dict):
@@ -1134,7 +1106,6 @@ def _tool_scaffold_request_chain(root: Path, args: dict[str, Any], name: str) ->
         **(_validation_result(root) if not args.get("dry_run") else {}),
     }
 
-
 def _tool_create_request(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     title = str(args.get("title") or "").strip()
     if not title:
@@ -1157,7 +1128,6 @@ def _tool_create_request(root: Path, args: dict[str, Any], name: str) -> dict[st
         **_show_git_diff(root, [str(payload["path"])]),
     }
 
-
 def _tool_promote_request_to_backlog(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     rel_path = _relative_path(root, str(args.get("request_path") or ""), ("logics/request",))
     _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
@@ -1173,7 +1143,6 @@ def _tool_promote_request_to_backlog(root: Path, args: dict[str, Any], name: str
         **_show_git_diff(root, [str(payload["source"]), str(payload["created_path"])]),
     }
 
-
 def _tool_promote_backlog_to_task(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     rel_path = _relative_path(root, str(args.get("backlog_path") or ""), ("logics/backlog",))
     _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
@@ -1188,7 +1157,6 @@ def _tool_promote_backlog_to_task(root: Path, args: dict[str, Any], name: str) -
         **_validation_result(root),
         **_show_git_diff(root, [str(payload["source"]), str(payload["created_path"])]),
     }
-
 
 def _tool_create_product_brief(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     title = str(args.get("title") or "").strip()

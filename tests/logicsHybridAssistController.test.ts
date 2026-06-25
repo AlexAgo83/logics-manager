@@ -33,6 +33,7 @@ vi.mock("../clients/vscode/src/logicsProviderUtils", () => ({
 }));
 
 vi.mock("../clients/vscode/src/releasePublishSupport", () => ({
+  UNAVAILABLE_RELEASE_CAPABILITY: { available: false, title: "Unavailable", reason: "Unavailable" },
   inspectGitHubReleaseCapability: mocks.inspectGitHubReleaseCapability
 }));
 

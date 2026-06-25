@@ -15,6 +15,21 @@ export type RuntimeLaunchersSnapshot = {
   hasClaude: boolean;
 };
 
+export const UNAVAILABLE_LAUNCHER_STATE: RuntimeLaunchersSnapshot = {
+  codex: {
+    available: false,
+    title: "Unavailable",
+    command: "codex"
+  },
+  claude: {
+    available: false,
+    title: "Unavailable",
+    command: "claude"
+  },
+  hasCodex: false,
+  hasClaude: false
+};
+
 type DetectorOptions = {
   detectCommand?: (command: string) => Promise<boolean>;
 };

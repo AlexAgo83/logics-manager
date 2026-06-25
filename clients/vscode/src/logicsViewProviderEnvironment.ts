@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 import { inspectLogicsBootstrapState } from "./logicsProviderUtils";
-import { RuntimeLaunchersSnapshot } from "./runtimeLaunchers";
+import { RuntimeLaunchersSnapshot, UNAVAILABLE_LAUNCHER_STATE } from "./runtimeLaunchers";
 import { LogicsEnvironmentSnapshot } from "./logicsEnvironment";
 
 type LogicsViewProviderEnvironmentHost = {
@@ -16,21 +16,6 @@ type LogicsViewProviderEnvironmentHost = {
     appendLine(value: string): void;
     show(preserveFocus?: boolean): void;
   };
-};
-
-const UNAVAILABLE_LAUNCHER_STATE: RuntimeLaunchersSnapshot = {
-  codex: {
-    available: false,
-    title: "Unavailable",
-    command: "codex"
-  },
-  claude: {
-    available: false,
-    title: "Unavailable",
-    command: "claude"
-  },
-  hasCodex: false,
-  hasClaude: false
 };
 
 export async function shouldRecommendCheckEnvironment(

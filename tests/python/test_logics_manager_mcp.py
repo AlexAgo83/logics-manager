@@ -68,6 +68,24 @@ def test_mcp_append_report_duplicate_check_is_section_scoped(tmp_path: Path) -> 
     assert task_path.read_text(encoding="utf-8").count("- shared bullet line") == 2
 
 
+def test_mcp_update_indicators_rejects_illegal_status_transition(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    created = call_tool(
+        "create_request",
+        {"title": "Transition guard", "needs": ["n"], "context": ["c"], "acceptance_criteria": ["a"]},
+        repo_root=repo_root,
+    )
+    backlog = call_tool("promote_request_to_backlog", {"request_path": created["path"]}, repo_root=repo_root)
+    task = call_tool("promote_backlog_to_task", {"backlog_path": backlog["created_path"]}, repo_root=repo_root)
+    source = task["created_path"]
+
+    # Ready -> Archived is allowed.
+    call_tool("update_workflow_indicators", {"source": source, "status": "Archived"}, repo_root=repo_root)
+    # Archived is terminal: Archived -> Ready must be rejected by the state machine.
+    with pytest.raises(McpToolError):
+        call_tool("update_workflow_indicators", {"source": source, "status": "Ready"}, repo_root=repo_root)
+
+
 def test_mcp_rejects_absolute_paths(tmp_path: Path) -> None:
     repo_root = _repo(tmp_path)
 

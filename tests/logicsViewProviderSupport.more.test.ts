@@ -246,7 +246,7 @@ describe("logicsViewProviderSupport more coverage", () => {
 
     expect(
       getValidStatusesForItem.call({}, { stage: "request" } as never)
-    ).toEqual(["Draft", "Ready", "Done", "Archived"]);
+    ).toEqual(["Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"]);
     expect(
       getValidStatusesForItem.call({}, { stage: "architecture" } as never)
     ).toEqual(["Draft", "Proposed", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"]);

@@ -1,0 +1,14 @@
+{
+  "_comment": "Single source of truth for workflow/companion statuses, shared by Python and TypeScript. TS consumes the generated module clients/vscode/src/workflowStatuses.generated.ts; regenerate with `npm run generate:status-constants` (checked by `npm run check:status-constants`).",
+  "stages": {
+    "request": ["Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"],
+    "backlog": ["Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"],
+    "task": ["Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"],
+    "product": ["Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
+    "architecture": ["Draft", "Proposed", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
+    "spec": ["Draft", "Ready", "In progress", "Done", "Validated", "Settled", "Archived"]
+  },
+  "open": ["Draft", "Ready", "In progress", "Blocked"],
+  "closed": ["Done", "Obsolete", "Archived", "Settled"],
+  "terminal": ["Archived"]
+}

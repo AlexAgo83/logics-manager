@@ -1,10 +1,10 @@
 ## item_498_unify_and_guard_workflow_statuses_across_python_and_typescript - Unify and guard workflow statuses across Python and TypeScript
 > From version: 2.12.12
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Single source of truth
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

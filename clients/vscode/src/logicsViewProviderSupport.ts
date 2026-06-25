@@ -25,6 +25,7 @@ import {
   STARTUP_KIT_UPDATE_PROMPT_STATE_PREFIX
 } from "./logicsViewProviderConstants";
 import { inspectKitUpdateNeed } from "./logicsKitVersionSupport";
+import { STATUS_STAGES, statusTransitionError } from "./workflowStatuses.generated";
 export {
   ensureLogicsCacheDir,
   getEnvironmentOverallState,
@@ -36,14 +37,7 @@ const PROJECT_GITHUB_URL = "https://github.com/AlexAgo83/logics-manager";
 type LogicsViewProviderSupportHost = {
   [key: string]: any;
 };
-const STATUS_OPTIONS_BY_STAGE: Record<LogicsStage, readonly string[]> = {
-  request: ["Draft", "Ready", "Done", "Archived"],
-  backlog: ["Draft", "Ready", "In progress", "Blocked", "Done", "Archived"],
-  task: ["Draft", "Ready", "In progress", "Blocked", "Done", "Archived"],
-  product: ["Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
-  architecture: ["Draft", "Proposed", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
-  spec: ["Draft", "Ready", "In progress", "Done", "Validated", "Settled", "Archived"]
-};
+const STATUS_OPTIONS_BY_STAGE = STATUS_STAGES as Record<LogicsStage, readonly string[]>;
 const UNAVAILABLE_LAUNCHER_STATE: RuntimeLaunchersSnapshot = {
   codex: {
     available: false,
@@ -428,6 +422,11 @@ const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
   export async function updateItemLifecycle(this: LogicsViewProviderSupportHost, id: string, status: string, progress: string): Promise<void> {
     const item = this.items.find((entry: LogicsItem) => entry.id === id);
     if (!item) {
+      return;
+    }
+    const transitionError = statusTransitionError(item.stage, String(item.indicators?.Status || ""), status);
+    if (transitionError) {
+      void vscode.window.showErrorMessage(`Cannot mark ${item.id} as ${status}: ${transitionError}`);
       return;
     }
     const updated = updateIndicatorsOnDisk(item.path, {

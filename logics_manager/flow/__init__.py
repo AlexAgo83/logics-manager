@@ -9,6 +9,7 @@ from pathlib import Path
 
 from ..audit import audit_payload
 from ..cli_output import print_payload
+from ..doc_parsing import extract_refs, section_lines
 from ..flow_evidence import has_ac_proof as _has_ac_proof
 from ..flow_evidence import has_validation_evidence as _has_validation_evidence
 from ..flow_evidence import structured_validation_line as _structured_validation_line
@@ -894,9 +895,7 @@ def _parse_request_slice(raw: str, known_acs: dict[str, str]) -> dict[str, objec
     return {"title": title, "ac_ids": ac_ids}
 
 
-def _extract_refs(text: str, prefix: str) -> list[str]:
-    pattern = re.compile(rf"\b{re.escape(prefix)}_\d+_[a-z0-9_]+\b")
-    return sorted({match.group(0) for match in pattern.finditer(text)})
+_extract_refs = extract_refs
 
 
 def _strip_mermaid_blocks(text: str) -> str:
@@ -1751,22 +1750,7 @@ def _extract_doc_title(path: Path) -> str:
     return path.stem
 
 
-def _section_lines(lines: list[str], heading: str) -> list[str]:
-    target = heading.strip().lower()
-    start_idx = None
-    for idx, line in enumerate(lines):
-        if line.startswith("# ") and line[2:].strip().lower() == target:
-            start_idx = idx + 1
-            break
-    if start_idx is None:
-        return []
-    out: list[str] = []
-    for idx in range(start_idx, len(lines)):
-        line = lines[idx]
-        if line.startswith("# "):
-            break
-        out.append(line)
-    return out
+_section_lines = section_lines
 
 
 def _bullet_values(lines: list[str]) -> list[str]:

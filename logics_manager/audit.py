@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Iterable
 
 from .config import find_repo_root
+from .doc_parsing import extract_refs, indicator_value, progress_value
 from .flow_evidence import has_ac_proof as _has_ac_with_proof
 from .statuses import workflow_statuses
 
@@ -114,13 +115,7 @@ class AuditIssue:
     repair_command: str | None = None
 
 
-def _indicator_value(lines: list[str], key: str) -> str | None:
-    pattern = re.compile(rf"^\s*>\s*{re.escape(key)}\s*:\s*(.+)\s*$")
-    for line in lines:
-        match = pattern.match(line)
-        if match:
-            return match.group(1).strip()
-    return None
+_indicator_value = indicator_value
 
 
 def _status_normalized(value: str | None) -> str | None:
@@ -140,17 +135,7 @@ def _canonical_status(value: str | None) -> str | None:
     return value
 
 
-def _progress_value(value: str | None) -> int | None:
-    if value is None:
-        return None
-    match = re.search(r"(\d{1,3})", value)
-    if match is None:
-        return None
-    try:
-        parsed = int(match.group(1))
-    except ValueError:
-        return None
-    return max(0, min(100, parsed))
+_progress_value = progress_value
 
 
 def _parse_semver(value: str | None) -> tuple[int, int, int] | None:
@@ -163,9 +148,8 @@ def _parse_semver(value: str | None) -> tuple[int, int, int] | None:
 
 
 def _extract_refs(text: str, prefix: str) -> set[str]:
-    text = re.sub(r"```mermaid\s*\n.*?\n```", "", text, flags=re.DOTALL)
-    pattern = re.compile(rf"\b{re.escape(prefix)}_\d+_[a-z0-9_]+\b")
-    return {match.group(0) for match in pattern.finditer(text)}
+    # audit historically returns a set and strips mermaid blocks first.
+    return set(extract_refs(text, prefix, strip_mermaid=True))
 
 
 def _has_mermaid_block(text: str) -> bool:

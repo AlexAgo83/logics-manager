@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from .config import ConfigError, find_repo_root, load_repo_config
+from .doc_parsing import indicator_value
 
 
 MANAGED_MARKER_KEY = "logics_projection"
@@ -34,13 +35,7 @@ class ProjectionDoc:
     content: str
 
 
-def _indicator_value(lines: list[str], key: str) -> str | None:
-    pattern = re.compile(rf"^\s*>\s*{re.escape(key)}\s*:\s*(.+)\s*$")
-    for line in lines:
-        match = pattern.match(line)
-        if match:
-            return match.group(1).strip()
-    return None
+_indicator_value = indicator_value
 
 
 def _title_from_lines(lines: list[str]) -> str:

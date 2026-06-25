@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
+from logics_manager.doc_parsing import progress_value
 from logics_manager.statuses import closed_statuses, open_statuses
 
 WORKFLOW_KINDS = ("request", "backlog", "task")
@@ -38,13 +39,7 @@ def _doc_dirs(repo_root: Path) -> dict[str, Path]:
     }
 
 
-def _progress_value(raw: str | None) -> int | None:
-    if raw is None:
-        return None
-    match = re.search(r"(\d+)", raw)
-    if not match:
-        return None
-    return max(0, min(100, int(match.group(1))))
+_progress_value = progress_value
 
 
 def _parse_doc(repo_root: Path, kind: str, path: Path) -> LogicsDoc:

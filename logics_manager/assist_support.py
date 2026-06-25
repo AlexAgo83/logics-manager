@@ -15,11 +15,11 @@ from collections import Counter
 from datetime import datetime, timedelta, timezone
 import re
 from pathlib import Path
-import subprocess
 from typing import Any
 
 from . import assist as _assist
 from .assist_surface import build_changed_surface_summary as _build_changed_surface_summary
+from .doc_parsing import git_changed_paths, section_lines
 from .path_utils import resolve_repo_config_path
 
 
@@ -204,22 +204,7 @@ def _build_request_draft(repo_root: Path, *, intent: str) -> dict[str, object]:
     }
 
 
-def _section_lines(lines: list[str], heading: str) -> list[str]:
-    start_idx = None
-    target = heading.strip().lower()
-    for idx, line in enumerate(lines):
-        if line.startswith("# ") and line[2:].strip().lower() == target:
-            start_idx = idx + 1
-            break
-    if start_idx is None:
-        return []
-    out: list[str] = []
-    for idx in range(start_idx, len(lines)):
-        line = lines[idx]
-        if line.startswith("# "):
-            break
-        out.append(line)
-    return out
+_section_lines = section_lines
 
 
 def _bullet_values(lines: list[str]) -> list[str]:
@@ -633,21 +618,7 @@ def _execution_path_label(requested_backend: str, used_backend: str) -> str:
 
 
 def _git_changed_paths(repo_root: Path) -> list[str]:
-    try:
-        completed = subprocess.run(
-            ["git", "diff", "--name-only", "--relative=."],
-            cwd=repo_root,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            check=False,
-            timeout=15,
-        )
-    except (OSError, subprocess.TimeoutExpired):
-        return []
-    if completed.returncode != 0:
-        return []
-    return [line.strip() for line in completed.stdout.splitlines() if line.strip()]
+    return git_changed_paths(repo_root, timeout=15)
 
 
 def _is_low_risk_generated_path(path: str) -> bool:

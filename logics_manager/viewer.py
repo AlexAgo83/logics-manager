@@ -3975,13 +3975,21 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
     def _send_error_json(self, status: HTTPStatus, message: str) -> None:
         self._send_json({"ok": False, "error": message}, status=status.value)
 
-    def _read_json_body(self) -> dict[str, Any]:
-        length = int(self.headers.get("Content-Length", "0") or "0")
-        if length <= 0:
-            return {}
-        raw = self.rfile.read(length).decode("utf-8")
+    def _read_json_body_strict(self) -> Any:
+        """Parse Content-Length and the JSON body, raising JSONDecodeError on
+        malformed input (bad header or bad JSON) so callers' existing
+        ``except json.JSONDecodeError`` turns it into a clean 400."""
+        raw_length = self.headers.get("Content-Length", "0") or "0"
         try:
-            payload = json.loads(raw or "{}")
+            length = int(raw_length)
+        except ValueError as exc:
+            raise json.JSONDecodeError("Invalid Content-Length", raw_length, 0) from exc
+        raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+        return json.loads(raw_body or "{}")
+
+    def _read_json_body(self) -> dict[str, Any]:
+        try:
+            payload = self._read_json_body_strict()
         except json.JSONDecodeError:
             return {}
         return payload if isinstance(payload, dict) else {}
@@ -4614,9 +4622,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/git-commit":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
                 files = body.get("files")
                 message = str(body.get("message") or "")
                 if not isinstance(files, list) or not all(isinstance(item, str) for item in files):
@@ -4641,9 +4647,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/switch-project":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
                 project_id = str(body.get("projectId") or "")
                 self._send_json({"ok": True, "payload": self.server.switch_project(project_id)})
             except json.JSONDecodeError:
@@ -4669,9 +4673,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/select-project-root-path":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
                 rel_path = str(body.get("path") or "")
                 normalized = _normalize_workspace_path(rel_path)
                 base = self.server.project_picker_base_root.resolve()
@@ -4690,9 +4692,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/workshop-command-start":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
                 command_id = str(body.get("commandId") or "")
                 if not command_id:
                     self._send_error_json(HTTPStatus.BAD_REQUEST, "Missing commandId.")
@@ -4711,9 +4711,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/workshop-terminal-start":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
                 command_override = body.get("command")
                 label = str(body.get("label") or "")
                 command = command_override if isinstance(command_override, list) and all(isinstance(p, str) for p in command_override) and command_override else workshop_terminal_default_command()
@@ -4737,9 +4735,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/workshop-terminal-input":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
                 session_id = str(body.get("sessionId") or "")
                 data = str(body.get("data") or "")
                 session = self.server.workshop_terminals.get(session_id)
@@ -4753,9 +4749,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/workshop-terminal-resize":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
                 session_id = str(body.get("sessionId") or "")
                 rows = int(body.get("rows") or 0)
                 cols = int(body.get("cols") or 0)
@@ -4770,9 +4764,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/workshop-terminal-rename":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
                 session_id = str(body.get("sessionId") or "")
                 label = str(body.get("label") or "")
                 session = self.server.workshop_terminals.get(session_id)
@@ -4788,9 +4780,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/workshop-terminal-stop":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
                 session_id = str(body.get("sessionId") or "")
                 session = self.server.workshop_terminals.get(session_id)
                 if session is None:
@@ -4803,9 +4793,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/workshop-command-stop":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
                 session_id = str(body.get("sessionId") or "")
                 session = self.server.workshop_sessions.get(session_id)
                 if session is None:
@@ -4827,9 +4815,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/new-request":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
                 if not isinstance(body, dict):
                     raise ValueError("Request body must be a JSON object.")
                 draft = body.get("draft") if isinstance(body.get("draft"), dict) else body
@@ -4852,9 +4838,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/cdx-report-request":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
                 report_payload = cdx_run_report_payload(self.server.repo_root, str(body.get("runId") or ""))
                 if report_payload.get("state") != "ok":
                     self._send_error_json(HTTPStatus.BAD_GATEWAY, str(report_payload.get("message") or "Unable to load CDX report."))
@@ -4868,36 +4852,28 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/cdx-mission-plan":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
                 self._send_json({"ok": True, "payload": cdx_mission_plan_payload(self.server.repo_root, body)})
             except json.JSONDecodeError:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
             return
         if parsed.path == "/api/cdx-mission-run":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
                 self._send_json({"ok": True, "payload": cdx_mission_run_payload(self.server.repo_root, body)})
             except json.JSONDecodeError:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
             return
         if parsed.path == "/api/cdx-mission-apply-plan":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
                 self._send_json({"ok": True, "payload": cdx_mission_apply_plan_payload(self.server.repo_root, body)})
             except json.JSONDecodeError:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
             return
         if parsed.path == "/api/cdx-import":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
             except json.JSONDecodeError:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
                 return
@@ -4922,9 +4898,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/cdx-export":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
             except json.JSONDecodeError:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
                 return
@@ -4939,9 +4913,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/cdx-toggle":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
             except json.JSONDecodeError:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
                 return
@@ -4955,9 +4927,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/cdx-permission":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
             except json.JSONDecodeError:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
                 return
@@ -4971,9 +4941,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/cdx-config":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
             except json.JSONDecodeError:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
                 return
@@ -4989,9 +4957,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/cdx-remove":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
             except json.JSONDecodeError:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
                 return
@@ -5004,9 +4970,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/update-status":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
                 rel_path = normalize_viewer_focus_target(self.server.repo_root, str(body.get("path") or body.get("ref") or ""))
                 status = " ".join(str(body.get("status") or "").split())
                 stage = _infer_stage(rel_path, Path(rel_path).stem)
@@ -5040,9 +5004,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/open-file":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
                 self._send_json({"ok": True, "payload": open_file_payload(self.server.repo_root, str(body.get("path", "")))})
             except json.JSONDecodeError:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
@@ -5053,9 +5015,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/file-preview":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
                 self._send_json({"ok": True, "payload": file_preview_payload(self.server.repo_root, str(body.get("path", "")))})
             except json.JSONDecodeError:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
@@ -5066,9 +5026,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/cdx-artifact-preview":
             try:
-                length = int(self.headers.get("Content-Length", "0") or "0")
-                raw_body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
-                body = json.loads(raw_body or "{}")
+                body = self._read_json_body_strict()
                 self._send_json({"ok": True, "payload": cdx_artifact_preview_payload(self.server.repo_root, str(body.get("path", "")))})
             except json.JSONDecodeError:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")

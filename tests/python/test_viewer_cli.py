@@ -2355,6 +2355,29 @@ def test_viewer_consolidated_status_endpoint_combines_and_shares_components(
         thread.join(timeout=5)
 
 
+def test_viewer_remote_status_components_use_longer_ttl(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    calls = {"ci": 0}
+    now = {"value": 1000.0}
+
+    def fake_ci_status_payload(repo_root: Path) -> dict[str, object]:
+        calls["ci"] += 1
+        return {"visible": True, "count": calls["ci"]}
+
+    monkeypatch.setattr(viewer_module.time, "monotonic", lambda: now["value"])
+    monkeypatch.setattr(viewer_module, "ci_status_payload", fake_ci_status_payload)
+    server = create_viewer_server_or_skip(tmp_path)
+    try:
+        assert server.status_component("ci", lambda: viewer_module.ci_status_payload(tmp_path))["count"] == 1
+        now["value"] += viewer_module.STATUS_CACHE_TTL_SECONDS + 1
+        assert server.status_component("ci", lambda: viewer_module.ci_status_payload(tmp_path))["count"] == 1
+        now["value"] += viewer_module.REMOTE_STATUS_CACHE_TTL_SECONDS
+        assert server.status_component("ci", lambda: viewer_module.ci_status_payload(tmp_path))["count"] == 2
+    finally:
+        server.server_close()
+
+
 def test_viewer_events_stream_reports_corpus_changes(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:

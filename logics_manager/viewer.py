@@ -3665,8 +3665,15 @@ def _git_event_signature(repo_root: Path) -> dict[str, Any]:
 def _stable_json_signature(value: Any) -> str:
     return hashlib.sha1(json.dumps(value, sort_keys=True, default=str).encode("utf-8")).hexdigest()
 STATUS_CACHE_TTL_SECONDS = 2.0
+REMOTE_STATUS_CACHE_TTL_SECONDS = 60.0
 VIEWER_EVENT_POLL_SECONDS = 1.0
 VIEWER_EVENT_REMOTE_POLL_SECONDS = 5.0
+
+
+def _status_cache_ttl_seconds(name: str) -> float:
+    if name in {"ci", "ci-status", "releaseRuns", "release-runs"}:
+        return REMOTE_STATUS_CACHE_TTL_SECONDS
+    return STATUS_CACHE_TTL_SECONDS
 
 
 VIEWER_MUTATING_ROUTES = frozenset(
@@ -3793,7 +3800,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
         now = time.monotonic()
         with self.status_cache_lock:
             entry = self.status_components.get(key)
-            if entry is not None and (now - entry[0]) < STATUS_CACHE_TTL_SECONDS:
+            if entry is not None and (now - entry[0]) < _status_cache_ttl_seconds(name):
                 return entry[1]
         value = producer()
         with self.status_cache_lock:
@@ -3948,7 +3955,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         cached: tuple[float, str, bytes] | None = None
         with server.status_cache_lock:
             entry = server.status_cache.get(full_key)
-            if entry is not None and (now - entry[0]) < STATUS_CACHE_TTL_SECONDS:
+            if entry is not None and (now - entry[0]) < _status_cache_ttl_seconds(cache_key):
                 cached = entry
         if cached is None:
             body = _json_bytes({"ok": True, "payload": producer()})

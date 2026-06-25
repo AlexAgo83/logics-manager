@@ -1,10 +1,10 @@
 ## item_500_delete_dead_and_over_engineered_mcp_and_cli_code - Delete dead and over-engineered MCP and CLI code
 > From version: 2.12.12
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Over-engineering cleanup
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

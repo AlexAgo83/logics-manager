@@ -28,7 +28,6 @@ from .update_check import get_update_notice
 
 DEFAULT_SELF_UPDATE_PY_PACKAGE = "logics-manager"
 DEFAULT_SELF_UPDATE_PACKAGE = "@grifhinz/logics-manager"
-HELP_ARGV = (["-h"], ["--help"])
 ROOT_COMMANDS = (
     "bootstrap",
     "flow",
@@ -387,14 +386,10 @@ def main(argv: list[str] | None = None) -> int:
 
         return flow_main(rest)
     if command == "sync":
-        if rest[:1] not in (["close-eligible-requests"], ["refresh-mermaid-signatures"], ["schema-status"], ["read-doc"], ["list-docs"], ["search-docs"], ["update-indicators"], ["append-note"], ["context-pack"], ["export-graph"]) and rest[:1] not in HELP_ARGV:
-            raise SystemExit("Unsupported sync subcommand for the native CLI slice.")
         from .sync import main as sync_main
 
         return sync_main(rest)
     if command == "assist":
-        if rest[:1] not in (["runtime-status"], ["diff-risk"], ["commit-plan"], ["changed-surface-summary"], ["doc-consistency"], ["review-checklist"], ["validation-checklist"], ["validation-summary"], ["test-impact-summary"], ["roi-report"], ["next-step"], ["claude-bridges"], ["claude-instructions"], ["request-draft"], ["spec-first-pass"], ["backlog-groom"], ["closure-summary"], ["handoff"], ["context"]) and rest[:1] not in HELP_ARGV:
-            raise SystemExit("Unsupported assist subcommand for the native CLI slice.")
         return assist_main(rest)
     if command == "mcp":
         from .mcp import main as mcp_main

@@ -1067,7 +1067,7 @@ def _close_doc(path: Path, kind: DocKind, dry_run: bool) -> None:
     if not saw_status:
         updated.insert(1, "> Status: Done")
     if kind.include_progress and not saw_progress:
-        insert_at = 2 if saw_status else 3
+        insert_at = next((idx + 1 for idx in range(len(updated) - 1, -1, -1) if updated[idx].startswith("> ")), 1)
         updated.insert(insert_at, "> Progress: 100%")
     path.write_text("\n".join(updated).rstrip() + "\n", encoding="utf-8")
 

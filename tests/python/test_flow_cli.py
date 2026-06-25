@@ -760,3 +760,32 @@ def test_flow_close_accepts_task_ref_and_emits_clean_json(
         "source": "logics/tasks/task_001_demo.md",
     }
     assert "> Status: Ready" in task_path.read_text(encoding="utf-8")
+
+
+def test_close_doc_inserts_progress_after_metadata(tmp_path: Path) -> None:
+    from logics_manager.flow import _close_doc, DOC_KINDS
+
+    doc = tmp_path / "task_x.md"
+    doc.write_text(
+        "## task_x - Title\n"
+        "> From version: 1.0\n"
+        "> Schema version: 1.0\n"
+        "> Status: Ready\n"
+        "> Understanding: 90%\n"
+        "\n# Context\n- x\n",
+        encoding="utf-8",
+    )
+    _close_doc(doc, DOC_KINDS["task"], dry_run=False)
+    lines = doc.read_text(encoding="utf-8").splitlines()
+    progress_idx = next(i for i, l in enumerate(lines) if l.startswith("> Progress:"))
+    schema_idx = next(i for i, l in enumerate(lines) if l.startswith("> Schema version:"))
+    # Progress must land after the other metadata, not be jammed in before it.
+    assert progress_idx > schema_idx
+    assert lines[progress_idx] == "> Progress: 100%"
+
+
+def test_related_ref_strips_captured_ref() -> None:
+    from logics_manager.insights import _related_ref
+
+    assert _related_ref("> Related request: `req_1 `\n", "request") == "req_1"
+    assert _related_ref("> Related task:  task_9  \n", "task") == "task_9"

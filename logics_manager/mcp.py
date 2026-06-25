@@ -935,7 +935,7 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
         if dry_run:
             command.append("--dry-run")
         payload = _json_from_stdout(_run_command(root, command).stdout)
-        return _workflow_write_result(root, {"source_path": payload["source"], "dry_run": payload["dry_run"], "summary": f"Finished task {Path(payload['source']).stem}"}, paths=None if not dry_run else [rel_path.as_posix()])
+        return _workflow_write_result(root, {"source_path": payload["source"], "dry_run": payload["dry_run"], "summary": f"Finished task {Path(payload['source']).stem}"}, paths=[rel_path.as_posix()])
     if name == "close_workflow_doc":
         kind = str(args.get("kind") or "")
         allowed_dir = {"request": "logics/request", "backlog": "logics/backlog", "task": "logics/tasks"}[kind]
@@ -947,7 +947,7 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
         if dry_run:
             command.append("--dry-run")
         payload = _json_from_stdout(_run_command(root, command).stdout)
-        return _workflow_write_result(root, {"kind": payload["kind"], "source_path": payload["source"], "dry_run": payload["dry_run"], "summary": f"Closed {kind} {Path(payload['source']).stem}"}, paths=None if not dry_run else [rel_path.as_posix()])
+        return _workflow_write_result(root, {"kind": payload["kind"], "source_path": payload["source"], "dry_run": payload["dry_run"], "summary": f"Closed {kind} {Path(payload['source']).stem}"}, paths=[rel_path.as_posix()])
     if name == "close_eligible_requests":
         dry_run = bool(args.get("dry_run", False))
         if not dry_run:
@@ -1244,6 +1244,8 @@ def handle_jsonrpc(message: dict[str, Any], *, repo_root: Path | None = None) ->
             return None
         return {"jsonrpc": JSONRPC_VERSION, "id": request_id, "result": result}
     except McpToolError as exc:
+        if request_id is None:
+            return None
         error_payload = exc.to_payload()
         if method == "tools/call" and request_id is not None:
             return {"jsonrpc": JSONRPC_VERSION, "id": request_id, "result": mcp_result(error_payload)}

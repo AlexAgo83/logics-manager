@@ -355,7 +355,7 @@ def _related_ref(content: str, label: str) -> str | None:
         if not normalized or normalized.startswith("(none"):
             return None
         match = re.search(r"`([^`]+)`", value)
-        return match.group(1) if match else value
+        return (match.group(1) if match else value).strip()
     return None
 
 

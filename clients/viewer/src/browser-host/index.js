@@ -3514,7 +3514,8 @@ import {
     }
     const rows = entries.map((entry) => {
       const isActive = entry.id === workshopTerminalState.activeId;
-      const stateBadge = entry.state ? `<span class="viewer-workshop__state viewer-workshop__state--${escapeHtml(entry.state)}">${escapeHtml(entry.state)}</span>` : "";
+      const state = String(entry.state || "");
+      const stateBadge = state && state !== "running" ? `<span class="viewer-workshop__state viewer-workshop__state--${escapeHtml(state)}">${escapeHtml(state)}</span>` : "";
       const closing = Boolean(entry.closing);
       const closeAttrs = closing
         ? `aria-busy="true" aria-label="Closing session"`

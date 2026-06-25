@@ -480,6 +480,22 @@ def test_viewer_lan_auth_helpers_accept_token_and_loopback() -> None:
     assert handler._client_is_loopback() is True
 
 
+def test_viewer_status_route_table_covers_all_status_endpoints() -> None:
+    table = viewer_module._STATUS_ROUTE_TABLE
+    assert set(table) == {
+        "/api/git-status",
+        "/api/ci-status",
+        "/api/release-status",
+        "/api/release-runs",
+        "/api/cdx-status",
+        "/api/cdx-runs",
+        "/api/cdx-history",
+    }
+    # Each route maps to a (label, component) the status producer understands.
+    assert table["/api/git-status"] == ("git-status", "git")
+    assert table["/api/cdx-history"] == ("cdx-history", "cdxHistory")
+
+
 def test_viewer_read_json_body_handles_malformed_content_length() -> None:
     import io
 

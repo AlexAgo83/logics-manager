@@ -3898,6 +3898,20 @@ class LogicsViewerServer(ThreadingHTTPServer):
         # Same path as restart but without arming restart_requested, so
         # serve_forever returns and main exits instead of re-exec'ing.
         self._shutdown_soon()
+
+
+# Status GET routes: path -> (response label, status component name).
+_STATUS_ROUTE_TABLE: dict[str, tuple[str, str]] = {
+    "/api/git-status": ("git-status", "git"),
+    "/api/ci-status": ("ci-status", "ci"),
+    "/api/release-status": ("release-status", "release"),
+    "/api/release-runs": ("release-runs", "releaseRuns"),
+    "/api/cdx-status": ("cdx-status", "cdx"),
+    "/api/cdx-runs": ("cdx-runs", "cdxRuns"),
+    "/api/cdx-history": ("cdx-history", "cdxHistory"),
+}
+
+
 class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
     server: LogicsViewerServer
 
@@ -4093,57 +4107,13 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         content_type = STATIC_CONTENT_TYPES.get(absolute.suffix.lower(), "application/octet-stream")
         self._send_bytes(absolute.read_bytes(), content_type=content_type)  # lgtm [py/path-injection]
 
-    def _stream_workshop_terminal(self, session: "WorkshopTerminalSession", parsed: Any) -> None:
-        import time as _time
-        try:
-            since = int(parse_qs(parsed.query).get("since", ["0"])[0])
-        except (TypeError, ValueError):
-            since = 0
-        try:
-            self.send_response(200)
-            self.send_header("Content-Type", "text/event-stream; charset=utf-8")
-            self.send_header("Cache-Control", "no-store")
-            self.send_header("X-Accel-Buffering", "no")
-            self.end_headers()
-        except (BrokenPipeError, ConnectionResetError):
-            return
-        try:
-            last_seq = since
-            idle_ticks = 0
-            while True:
-                latest_seq, snapshot = session.tail(last_seq)
-                if snapshot:
-                    idle_ticks = 0
-                    for seq, chunk in snapshot:
-                        last_seq = seq
-                        try:
-                            payload = json.dumps({"seq": seq, "data": chunk})
-                            self.wfile.write(f"event: data\ndata: {payload}\n\n".encode("utf-8"))
-                            self.wfile.flush()
-                        except (BrokenPipeError, ConnectionResetError):
-                            return
-                state = session.state
-                if state in {"finished", "failed", "stopped", "error"} and last_seq >= latest_seq:
-                    try:
-                        payload = json.dumps(session.status_payload())
-                        self.wfile.write(f"event: end\ndata: {payload}\n\n".encode("utf-8"))
-                        self.wfile.flush()
-                    except (BrokenPipeError, ConnectionResetError):
-                        return
-                    return
-                idle_ticks += 1
-                if idle_ticks >= 30:
-                    try:
-                        self.wfile.write(b": keep-alive\n\n")
-                        self.wfile.flush()
-                    except (BrokenPipeError, ConnectionResetError):
-                        return
-                    idle_ticks = 0
-                _time.sleep(0.1)
-        except (BrokenPipeError, ConnectionResetError):
-            return
+    def _stream_sse_events(self, session: Any, parsed: Any, *, render_item: Any, event_name: str, sleep_delay: float) -> None:
+        """Shared SSE loop for the workshop terminal and command streamers.
 
-    def _stream_workshop_session(self, session: "WorkshopCommandSession", parsed: Any) -> None:
+        ``render_item(seq, item)`` produces the per-item ``event: <event_name>``
+        block; everything else (since parsing, headers, end event, keep-alives)
+        is identical across both callers.
+        """
         import time as _time
         try:
             since = int(parse_qs(parsed.query).get("since", ["0"])[0])
@@ -4164,12 +4134,11 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 latest_seq, snapshot = session.tail(last_seq)
                 if snapshot:
                     idle_ticks = 0
-                    for seq, line in snapshot:
+                    for seq, item in snapshot:
                         last_seq = seq
                         try:
-                            channel, _, text = line.partition("\t")
-                            payload = json.dumps({"seq": seq, "channel": channel, "line": text})
-                            self.wfile.write(f"event: line\ndata: {payload}\n\n".encode("utf-8"))
+                            payload = json.dumps(render_item(seq, item))
+                            self.wfile.write(f"event: {event_name}\ndata: {payload}\n\n".encode("utf-8"))
                             self.wfile.flush()
                         except (BrokenPipeError, ConnectionResetError):
                             return
@@ -4190,9 +4159,25 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                     except (BrokenPipeError, ConnectionResetError):
                         return
                     idle_ticks = 0
-                _time.sleep(0.2)
+                _time.sleep(sleep_delay)
         except (BrokenPipeError, ConnectionResetError):
             return
+
+    def _stream_workshop_terminal(self, session: "WorkshopTerminalSession", parsed: Any) -> None:
+        self._stream_sse_events(
+            session,
+            parsed,
+            render_item=lambda seq, chunk: {"seq": seq, "data": chunk},
+            event_name="data",
+            sleep_delay=0.1,
+        )
+
+    def _stream_workshop_session(self, session: "WorkshopCommandSession", parsed: Any) -> None:
+        def render_item(seq: int, line: str) -> dict[str, Any]:
+            channel, _, text = line.partition("\t")
+            return {"seq": seq, "channel": channel, "line": text}
+
+        self._stream_sse_events(session, parsed, render_item=render_item, event_name="line", sleep_delay=0.2)
 
     def _viewer_event_snapshot(self, *, include_remote: bool = False) -> dict[str, Any]:
         repo_root = self.server.repo_root
@@ -4448,26 +4433,10 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         if route == "/api/events":
             self._stream_viewer_events()
             return
-        if route == "/api/git-status":
-            self._send_status_json("git-status", lambda: self._status_component("git"))
-            return
-        if route == "/api/ci-status":
-            self._send_status_json("ci-status", lambda: self._status_component("ci"))
-            return
-        if route == "/api/release-status":
-            self._send_status_json("release-status", lambda: self._status_component("release"))
-            return
-        if route == "/api/release-runs":
-            self._send_status_json("release-runs", lambda: self._status_component("releaseRuns"))
-            return
-        if route == "/api/cdx-status":
-            self._send_status_json("cdx-status", lambda: self._status_component("cdx"))
-            return
-        if route == "/api/cdx-runs":
-            self._send_status_json("cdx-runs", lambda: self._status_component("cdxRuns"))
-            return
-        if route == "/api/cdx-history":
-            self._send_status_json("cdx-history", lambda: self._status_component("cdxHistory"))
+        status_route = _STATUS_ROUTE_TABLE.get(route)
+        if status_route is not None:
+            label, component = status_route
+            self._send_status_json(label, lambda: self._status_component(component))
             return
         if route == "/api/status":
             self._send_status_json(

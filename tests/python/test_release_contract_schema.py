@@ -510,3 +510,15 @@ def test_release_cli_evidence_add_returns_stable_json(
     assert payload["recorded"] is True
     assert payload["entry"]["gate_id"] == "github_release"
     assert payload["entry"]["tag"] == "v1.2.3"
+
+
+def test_bounded_repo_path_rejects_escapes(tmp_path: Path) -> None:
+    from logics_manager.release import _bounded_repo_path
+
+    (tmp_path / "logics" / "release").mkdir(parents=True)
+    inside = tmp_path / "logics" / "release" / "evidence.jsonl"
+    inside.write_text("{}\n", encoding="utf-8")
+
+    assert _bounded_repo_path(tmp_path, "logics/release/evidence.jsonl") == inside.resolve()
+    assert _bounded_repo_path(tmp_path, "../../etc/passwd") is None
+    assert _bounded_repo_path(tmp_path, "/etc/passwd") is None

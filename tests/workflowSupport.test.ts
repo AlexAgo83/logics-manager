@@ -117,4 +117,18 @@ describe("workflowSupport", () => {
     );
     expect(buildBootstrapCommitMessage(["logics/request/req_001_demo.md"])).toBe("Initialize Logics workflow docs");
   });
+
+  it("renders safe link protocols as anchors and unsafe ones as spans", () => {
+    const safe = renderMarkdownToHtml("[ok](https://example.com)");
+    expect(safe).toContain('<a href="https://example.com">ok</a>');
+
+    const relative = renderMarkdownToHtml("[doc](./other.md)");
+    expect(relative).toContain('<a href="./other.md">doc</a>');
+
+    for (const evil of ["[x](javascript:alert(1))", "[x](data:text/html,bad)", "[x](vscode:foo)"]) {
+      const html = renderMarkdownToHtml(evil);
+      expect(html).not.toContain("<a ");
+      expect(html).toContain("<span>x</span>");
+    }
+  });
 });

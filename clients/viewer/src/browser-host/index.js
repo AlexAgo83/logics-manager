@@ -3890,13 +3890,25 @@ import {
     }
   }
 
+  function resumeActiveWorkshopTerminalStream() {
+    // After sleep/wake the EventSource error may not have fired yet; if the
+    // active terminal has no live stream, reopen it (resumes from lastSeq).
+    const activeId = workshopTerminalState.activeId;
+    if (!activeId) return;
+    if (workshopTerminalState.streams.has(activeId)) return;
+    if (!workshopTerminalState.sessions.has(activeId)) return;
+    openWorkshopTerminalStream(activeId);
+  }
+
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
       requestAnimationFrame(repaintAllWorkshopTerminals);
+      resumeActiveWorkshopTerminalStream();
     }
   });
   window.addEventListener("focus", () => {
     requestAnimationFrame(repaintAllWorkshopTerminals);
+    resumeActiveWorkshopTerminalStream();
   });
 
   let workshopTerminalResizeTimer = null;
@@ -4131,7 +4143,28 @@ import {
     });
     source.addEventListener("error", () => {
       closeWorkshopTerminalStream(sessionId);
+      // A transient drop (laptop sleep/wake, Wi-Fi blip) also lands here, not
+      // just a real end — the graceful close path is the "end" event above. If
+      // the session is still live, reconnect (resuming from lastSeq via
+      // ?since=) so the terminal comes back after sleep instead of freezing
+      // until a manual remount. ponytail: 1s retry loop, stops on terminal
+      // state or when the session/active tab goes away.
+      reopenWorkshopTerminalStreamSoon(sessionId);
     });
+  }
+
+  function reopenWorkshopTerminalStreamSoon(sessionId, delay = 1000) {
+    const target = workshopTerminalState.sessions.get(sessionId);
+    if (!target) return;
+    if (["finished", "failed", "stopped", "error"].includes(target.state)) return;
+    setTimeout(() => {
+      // Only the active terminal keeps a live stream; inactive ones replay
+      // their buffer on activation, so don't resurrect them here.
+      if (workshopTerminalState.activeId !== sessionId) return;
+      if (!workshopTerminalState.sessions.has(sessionId)) return;
+      if (workshopTerminalState.streams.has(sessionId)) return;
+      openWorkshopTerminalStream(sessionId);
+    }, delay);
   }
 
   function renderWorkshop(activeTab, options = {}) {

@@ -6597,13 +6597,22 @@ ${line}` : line;
         }
       }
     }
+    function resumeActiveWorkshopTerminalStream() {
+      const activeId = workshopTerminalState.activeId;
+      if (!activeId) return;
+      if (workshopTerminalState.streams.has(activeId)) return;
+      if (!workshopTerminalState.sessions.has(activeId)) return;
+      openWorkshopTerminalStream(activeId);
+    }
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible") {
         requestAnimationFrame(repaintAllWorkshopTerminals);
+        resumeActiveWorkshopTerminalStream();
       }
     });
     window.addEventListener("focus", () => {
       requestAnimationFrame(repaintAllWorkshopTerminals);
+      resumeActiveWorkshopTerminalStream();
     });
     let workshopTerminalResizeTimer = null;
     let customTerminalBusy = false;
@@ -6820,7 +6829,19 @@ ${line}` : line;
       });
       source.addEventListener("error", () => {
         closeWorkshopTerminalStream(sessionId);
+        reopenWorkshopTerminalStreamSoon(sessionId);
       });
+    }
+    function reopenWorkshopTerminalStreamSoon(sessionId, delay = 1e3) {
+      const target = workshopTerminalState.sessions.get(sessionId);
+      if (!target) return;
+      if (["finished", "failed", "stopped", "error"].includes(target.state)) return;
+      setTimeout(() => {
+        if (workshopTerminalState.activeId !== sessionId) return;
+        if (!workshopTerminalState.sessions.has(sessionId)) return;
+        if (workshopTerminalState.streams.has(sessionId)) return;
+        openWorkshopTerminalStream(sessionId);
+      }, delay);
     }
     function renderWorkshop(activeTab, options = {}) {
       if (options.unavailable) {

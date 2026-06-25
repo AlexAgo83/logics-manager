@@ -764,17 +764,19 @@ def append_workflow_note_payload(repo_root: Path, source: str, *, note_kind: str
     bullet = f"- {cleaned}"
     lines = _read_lines(repo_root, path)
     insert_at = None
+    section_start = None
     for idx, line in enumerate(lines):
         if line.startswith("# ") and line[2:].strip().lower() == section.lower():
-            insert_at = idx + 1
+            section_start = idx + 1
+            insert_at = section_start
             while insert_at < len(lines) and lines[insert_at].strip().startswith("- "):
                 insert_at += 1
             break
     changed = True
-    if insert_at is None:
+    if insert_at is None or section_start is None:
         lines.extend(["", f"# {section}", bullet])
     else:
-        existing = {line.strip() for line in lines if line.strip().startswith("- ")}
+        existing = {line.strip() for line in lines[section_start:insert_at] if line.strip().startswith("- ")}
         if bullet in existing:
             changed = False
         else:

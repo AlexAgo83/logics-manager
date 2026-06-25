@@ -35,6 +35,39 @@ def test_mcp_lists_tools() -> None:
     ]
 
 
+def test_mcp_notification_on_tool_error_returns_no_body() -> None:
+    # A JSON-RPC notification (no id) that triggers a tool error must produce no
+    # response body, per the JSON-RPC spec.
+    response = handle_jsonrpc({"jsonrpc": "2.0", "method": "tools/call", "params": {"name": "does_not_exist"}})
+    assert response is None
+
+
+def test_mcp_append_report_duplicate_check_is_section_scoped(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    created = call_tool(
+        "create_request",
+        {"title": "Section scope", "needs": ["n"], "context": ["c"], "acceptance_criteria": ["a"]},
+        repo_root=repo_root,
+    )
+    backlog = call_tool("promote_request_to_backlog", {"request_path": created["path"]}, repo_root=repo_root)
+    task = call_tool("promote_backlog_to_task", {"backlog_path": backlog["created_path"]}, repo_root=repo_root)
+    task_path = repo_root / task["created_path"]
+
+    # Inject the identical bullet text into a non-Report section.
+    lines = task_path.read_text(encoding="utf-8").splitlines()
+    for idx, line in enumerate(lines):
+        if line.startswith("# "):
+            lines.insert(idx + 1, "- shared bullet line")
+            break
+    task_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    # Appending the same text to the Report section must still add it.
+    res = call_tool("append_report_entry", {"source": task["created_path"], "text": "shared bullet line"}, repo_root=repo_root)
+    assert res["ok"] is True
+    assert res["changed"] is True
+    assert task_path.read_text(encoding="utf-8").count("- shared bullet line") == 2
+
+
 def test_mcp_rejects_absolute_paths(tmp_path: Path) -> None:
     repo_root = _repo(tmp_path)
 

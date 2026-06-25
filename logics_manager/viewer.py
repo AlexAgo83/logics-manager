@@ -3679,6 +3679,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/bootstrap-logics",
         "/api/new-request",
         "/api/restart-viewer",
+        "/api/stop-viewer",
         "/api/switch-project",
         "/api/select-project-root",
         "/api/select-project-root-path",
@@ -3870,16 +3871,23 @@ class LogicsViewerServer(ThreadingHTTPServer):
             self.project_root_by_id[project_id] = target
         return self.switch_project(project_id)
 
+    def _shutdown_soon(self) -> None:
+        def run() -> None:
+            time.sleep(0.2)
+            self.shutdown()
+
+        threading.Thread(target=run, daemon=True).start()
+
     def request_restart(self) -> None:
         if self.restart_requested:
             return
         self.restart_requested = True
+        self._shutdown_soon()
 
-        def restart() -> None:
-            time.sleep(0.2)
-            self.shutdown()
-
-        threading.Thread(target=restart, daemon=True).start()
+    def request_stop(self) -> None:
+        # Same path as restart but without arming restart_requested, so
+        # serve_forever returns and main exits instead of re-exec'ing.
+        self._shutdown_soon()
 class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
     server: LogicsViewerServer
 
@@ -4831,6 +4839,10 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self.server.request_restart()
             self._send_json({"ok": True, "message": "Viewer server restarting."})
             return
+        if parsed.path == "/api/stop-viewer":
+            self.server.request_stop()
+            self._send_json({"ok": True, "message": "Viewer server stopping."})
+            return
         if parsed.path == "/api/cdx-report-request":
             try:
                 length = int(self.headers.get("Content-Length", "0") or "0")
@@ -5673,20 +5685,16 @@ def main(argv: list[str]) -> int:
             # fall back to the KeyboardInterrupt path below.
             pass
 
-    interrupted = False
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        interrupted = True
+        pass
     finally:
         try:
             server.server_close()
         except KeyboardInterrupt:
-            interrupted = True
+            pass
     if getattr(server, "restart_requested", False):
         command = [sys.executable, *sys.argv]
         os.execv(command[0], command)
-    if interrupted:
-        return 0
-    return 0
     return 0

@@ -4222,15 +4222,11 @@ ${entry?.message || ""}`;
       };
       window.setTimeout(probe, 1200);
     }
-    async function restartViewerServer() {
-      const confirmed = await showThemedConfirmModal({
-        title: "Restart viewer server",
-        message: "The local viewer server will restart with the same command. This page will reconnect automatically when it is back.",
-        submitLabel: "Restart server"
-      });
+    async function controlViewerServer({ endpoint, title, message, submitLabel, pending, done }) {
+      const confirmed = await showThemedConfirmModal({ title, message, submitLabel });
       if (!confirmed) return;
-      setMeta("Restarting viewer server...");
-      const response = await fetch("/api/restart-viewer", { method: "POST" });
+      setMeta(pending);
+      const response = await fetch(endpoint, { method: "POST" });
       let data = {};
       try {
         data = await response.json();
@@ -4238,10 +4234,32 @@ ${entry?.message || ""}`;
         data = {};
       }
       if (!response.ok || !data.ok) {
-        throw new Error(data.error || "Unable to restart the viewer server.");
+        throw new Error(data.error || `${submitLabel} failed.`);
       }
-      setMeta("Viewer server restarting...");
-      scheduleReloadAfterServerRestart();
+      done();
+    }
+    function restartViewerServer() {
+      return controlViewerServer({
+        endpoint: "/api/restart-viewer",
+        title: "Restart viewer server",
+        message: "The local viewer server will restart with the same command. This page will reconnect automatically when it is back.",
+        submitLabel: "Restart server",
+        pending: "Restarting viewer server...",
+        done: () => {
+          setMeta("Viewer server restarting...");
+          scheduleReloadAfterServerRestart();
+        }
+      });
+    }
+    function stopViewerServer() {
+      return controlViewerServer({
+        endpoint: "/api/stop-viewer",
+        title: "Stop viewer server",
+        message: "The local viewer server will shut down. This page will stop working until you start it again from the terminal.",
+        submitLabel: "Stop server",
+        pending: "Stopping viewer server...",
+        done: () => setMeta("Viewer server stopped. Restart it from the terminal to reconnect.")
+      });
     }
     async function confirmBootstrapLogics({ automatic = false } = {}) {
       if (!latestCanBootstrapLogics || bootstrapPromptOpen) {
@@ -6599,10 +6617,7 @@ ${line}` : line;
     }
     function resumeActiveWorkshopTerminalStream() {
       const activeId = workshopTerminalState.activeId;
-      if (!activeId) return;
-      if (workshopTerminalState.streams.has(activeId)) return;
-      if (!workshopTerminalState.sessions.has(activeId)) return;
-      openWorkshopTerminalStream(activeId);
+      if (activeId && workshopTerminalStreamWanted(activeId)) openWorkshopTerminalStream(activeId);
     }
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible") {
@@ -6832,16 +6847,15 @@ ${line}` : line;
         reopenWorkshopTerminalStreamSoon(sessionId);
       });
     }
-    function reopenWorkshopTerminalStreamSoon(sessionId, delay = 1e3) {
+    function workshopTerminalStreamWanted(sessionId) {
+      return workshopTerminalState.activeId === sessionId && workshopTerminalState.sessions.has(sessionId) && !workshopTerminalState.streams.has(sessionId);
+    }
+    function reopenWorkshopTerminalStreamSoon(sessionId) {
       const target = workshopTerminalState.sessions.get(sessionId);
-      if (!target) return;
-      if (["finished", "failed", "stopped", "error"].includes(target.state)) return;
+      if (!target || ["finished", "failed", "stopped", "error"].includes(target.state)) return;
       setTimeout(() => {
-        if (workshopTerminalState.activeId !== sessionId) return;
-        if (!workshopTerminalState.sessions.has(sessionId)) return;
-        if (workshopTerminalState.streams.has(sessionId)) return;
-        openWorkshopTerminalStream(sessionId);
-      }, delay);
+        if (workshopTerminalStreamWanted(sessionId)) openWorkshopTerminalStream(sessionId);
+      }, 1e3);
     }
     function renderWorkshop(activeTab, options = {}) {
       if (options.unavailable) {
@@ -8712,6 +8726,10 @@ ${line}` : line;
       document.getElementById("viewer-restart-server")?.addEventListener("click", () => {
         setRefreshMenuOpen(false);
         withPrimaryAction("restart-viewer", "Restarting server", restartViewerServer);
+      });
+      document.getElementById("viewer-stop-server")?.addEventListener("click", () => {
+        setRefreshMenuOpen(false);
+        withPrimaryAction("stop-viewer", "Stopping server", stopViewerServer);
       });
       bootstrapLogicsButton()?.addEventListener("click", () => {
         setRefreshMenuOpen(false);

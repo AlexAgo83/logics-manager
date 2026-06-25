@@ -1155,15 +1155,11 @@ import {
     window.setTimeout(probe, 1200);
   }
 
-  async function restartViewerServer() {
-    const confirmed = await showThemedConfirmModal({
-      title: "Restart viewer server",
-      message: "The local viewer server will restart with the same command. This page will reconnect automatically when it is back.",
-      submitLabel: "Restart server"
-    });
+  async function controlViewerServer({ endpoint, title, message, submitLabel, pending, done }) {
+    const confirmed = await showThemedConfirmModal({ title, message, submitLabel });
     if (!confirmed) return;
-    setMeta("Restarting viewer server...");
-    const response = await fetch("/api/restart-viewer", { method: "POST" });
+    setMeta(pending);
+    const response = await fetch(endpoint, { method: "POST" });
     let data = {};
     try {
       data = await response.json();
@@ -1171,10 +1167,31 @@ import {
       data = {};
     }
     if (!response.ok || !data.ok) {
-      throw new Error(data.error || "Unable to restart the viewer server.");
+      throw new Error(data.error || `${submitLabel} failed.`);
     }
-    setMeta("Viewer server restarting...");
-    scheduleReloadAfterServerRestart();
+    done();
+  }
+
+  function restartViewerServer() {
+    return controlViewerServer({
+      endpoint: "/api/restart-viewer",
+      title: "Restart viewer server",
+      message: "The local viewer server will restart with the same command. This page will reconnect automatically when it is back.",
+      submitLabel: "Restart server",
+      pending: "Restarting viewer server...",
+      done: () => { setMeta("Viewer server restarting..."); scheduleReloadAfterServerRestart(); },
+    });
+  }
+
+  function stopViewerServer() {
+    return controlViewerServer({
+      endpoint: "/api/stop-viewer",
+      title: "Stop viewer server",
+      message: "The local viewer server will shut down. This page will stop working until you start it again from the terminal.",
+      submitLabel: "Stop server",
+      pending: "Stopping viewer server...",
+      done: () => setMeta("Viewer server stopped. Restart it from the terminal to reconnect."),
+    });
   }
 
   async function confirmBootstrapLogics({ automatic = false } = {}) {
@@ -3891,13 +3908,10 @@ import {
   }
 
   function resumeActiveWorkshopTerminalStream() {
-    // After sleep/wake the EventSource error may not have fired yet; if the
-    // active terminal has no live stream, reopen it (resumes from lastSeq).
+    // After sleep/wake the EventSource error may not have fired yet; reopen the
+    // active terminal stream if it dropped (resumes from lastSeq).
     const activeId = workshopTerminalState.activeId;
-    if (!activeId) return;
-    if (workshopTerminalState.streams.has(activeId)) return;
-    if (!workshopTerminalState.sessions.has(activeId)) return;
-    openWorkshopTerminalStream(activeId);
+    if (activeId && workshopTerminalStreamWanted(activeId)) openWorkshopTerminalStream(activeId);
   }
 
   document.addEventListener("visibilitychange", () => {
@@ -4142,29 +4156,24 @@ import {
       closeWorkshopTerminalStream(sessionId);
     });
     source.addEventListener("error", () => {
+      // A transient drop (sleep/wake, Wi-Fi blip) lands here too (clean end is
+      // the "end" event), so reconnect a live session instead of freezing.
       closeWorkshopTerminalStream(sessionId);
-      // A transient drop (laptop sleep/wake, Wi-Fi blip) also lands here, not
-      // just a real end — the graceful close path is the "end" event above. If
-      // the session is still live, reconnect (resuming from lastSeq via
-      // ?since=) so the terminal comes back after sleep instead of freezing
-      // until a manual remount. ponytail: 1s retry loop, stops on terminal
-      // state or when the session/active tab goes away.
       reopenWorkshopTerminalStreamSoon(sessionId);
     });
   }
 
-  function reopenWorkshopTerminalStreamSoon(sessionId, delay = 1000) {
+  // Only the active terminal keeps a live stream (inactive ones replay on activation).
+  function workshopTerminalStreamWanted(sessionId) {
+    return workshopTerminalState.activeId === sessionId
+      && workshopTerminalState.sessions.has(sessionId)
+      && !workshopTerminalState.streams.has(sessionId);
+  }
+
+  function reopenWorkshopTerminalStreamSoon(sessionId) {
     const target = workshopTerminalState.sessions.get(sessionId);
-    if (!target) return;
-    if (["finished", "failed", "stopped", "error"].includes(target.state)) return;
-    setTimeout(() => {
-      // Only the active terminal keeps a live stream; inactive ones replay
-      // their buffer on activation, so don't resurrect them here.
-      if (workshopTerminalState.activeId !== sessionId) return;
-      if (!workshopTerminalState.sessions.has(sessionId)) return;
-      if (workshopTerminalState.streams.has(sessionId)) return;
-      openWorkshopTerminalStream(sessionId);
-    }, delay);
+    if (!target || ["finished", "failed", "stopped", "error"].includes(target.state)) return;
+    setTimeout(() => { if (workshopTerminalStreamWanted(sessionId)) openWorkshopTerminalStream(sessionId); }, 1000);
   }
 
   function renderWorkshop(activeTab, options = {}) {
@@ -6132,6 +6141,10 @@ import {
     document.getElementById("viewer-restart-server")?.addEventListener("click", () => {
       setRefreshMenuOpen(false);
       withPrimaryAction("restart-viewer", "Restarting server", restartViewerServer);
+    });
+    document.getElementById("viewer-stop-server")?.addEventListener("click", () => {
+      setRefreshMenuOpen(false);
+      withPrimaryAction("stop-viewer", "Stopping server", stopViewerServer);
     });
     bootstrapLogicsButton()?.addEventListener("click", () => {
       setRefreshMenuOpen(false);

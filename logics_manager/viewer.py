@@ -3354,10 +3354,12 @@ def cdx_import_payload(
             args.append("--merge")
         if force:
             args.append("--force")
-        env = {**os.environ}
+        # Defense-in-depth: hand the secret to the child on stdin, never via its
+        # environment (env tables are readable by other same-user processes).
+        stdin_input = None
         if passphrase:
-            env["CDX_IMPORT_PASS"] = passphrase
-            args += ["--passphrase-env", "CDX_IMPORT_PASS"]
+            args += ["--passphrase-stdin"]
+            stdin_input = passphrase
         cdx_runner = runner or subprocess.run
         try:
             result = cdx_runner(
@@ -3366,7 +3368,7 @@ def cdx_import_payload(
                 text=True,
                 capture_output=True,
                 timeout=_scaled_timeout(repo_root, 30),
-                env=env,
+                input=stdin_input,
             )
         except subprocess.TimeoutExpired:
             return {"ok": False, "error": "CDX import timed out."}
@@ -3398,10 +3400,11 @@ def cdx_export_payload(
             args.append("--include-auth")
         if sessions:
             args += ["--sessions", ",".join(sessions)]
-        env = {**os.environ}
+        # Defense-in-depth: pass the secret on stdin, not via the child environment.
+        stdin_input = None
         if passphrase:
-            env["CDX_EXPORT_PASS"] = passphrase
-            args += ["--passphrase-env", "CDX_EXPORT_PASS"]
+            args += ["--passphrase-stdin"]
+            stdin_input = passphrase
         cdx_runner = runner or subprocess.run
         try:
             result = cdx_runner(
@@ -3410,7 +3413,7 @@ def cdx_export_payload(
                 text=True,
                 capture_output=True,
                 timeout=_scaled_timeout(repo_root, 30),
-                env=env,
+                input=stdin_input,
             )
         except subprocess.TimeoutExpired:
             return {"ok": False, "error": "CDX export timed out."}
@@ -4408,7 +4411,8 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self._serve_file(vendor_path, root=vendor_root)
             return
         if route.startswith("/media/"):
-            media_path = (SHARED_MEDIA_ROOT / route.removeprefix("/media/")).resolve()
+            rel_media = unquote(route.removeprefix("/media/")).replace("\\", "/").lstrip("/")
+            media_path = (SHARED_MEDIA_ROOT / rel_media).resolve()
             if SHARED_MEDIA_ROOT.resolve() != media_path and SHARED_MEDIA_ROOT.resolve() not in media_path.parents:
                 self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
                 return

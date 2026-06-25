@@ -138,8 +138,8 @@ def _read_version_source(repo_root: Path, source: dict[str, Any]) -> dict[str, A
     required = bool(source.get("required", True))
     if not isinstance(rel_path, str) or not rel_path:
         return {"ok": False, "path": rel_path, "version": None, "required": required, "reason": "version source path is missing"}
-    path = repo_root / rel_path
-    if not path.is_file():
+    path = _bounded_repo_path(repo_root, rel_path)
+    if path is None or not path.is_file():
         return {"ok": False, "path": rel_path, "version": None, "required": required, "reason": "file is missing"}
     fmt = source.get("format")
     selector = source.get("selector")
@@ -227,11 +227,30 @@ def _render_path_template(path: str, version: str) -> str:
     return path.replace("{version}", version).replace("{version_underscore}", version.replace(".", "_").replace("-", "_"))
 
 
+def _bounded_repo_path(repo_root: Path, rel_path: str) -> Path | None:
+    """Resolve rel_path under repo_root; return None if it escapes the repo.
+
+    Defense-in-depth: contract/changelog path templates are committed and trusted,
+    but the rendered {version} segment is caller-supplied, so bound the result.
+    """
+    try:
+        resolved = (repo_root / rel_path).resolve()
+        root = repo_root.resolve()
+    except (OSError, ValueError):
+        return None
+    if resolved != root and root not in resolved.parents:
+        return None
+    return resolved
+
+
 def _evidence_store_path(repo_root: Path, contract: dict[str, Any]) -> Path:
     evidence = contract.get("evidence") if isinstance(contract.get("evidence"), dict) else {}
     store = evidence.get("store") if isinstance(evidence.get("store"), dict) else {}
     raw = store.get("path") if isinstance(store, dict) else None
-    return repo_root / (raw if isinstance(raw, str) and raw else "logics/release/evidence.jsonl")
+    rel = raw if isinstance(raw, str) and raw else "logics/release/evidence.jsonl"
+    bounded = _bounded_repo_path(repo_root, rel)
+    # Fall back to the default in-repo store if a contract path escapes the repo.
+    return bounded if bounded is not None else (repo_root / "logics/release/evidence.jsonl").resolve()
 
 
 def _load_evidence(repo_root: Path, contract: dict[str, Any]) -> list[dict[str, Any]]:
@@ -835,7 +854,8 @@ def release_validate_payload(repo_root: Path, version: str) -> dict[str, Any]:
     for path_rule in changelog.get("paths", []) if isinstance(changelog.get("paths"), list) else []:
         if isinstance(path_rule, dict) and isinstance(path_rule.get("path"), str) and path_rule.get("required", changelog.get("required", True)):
             rel_path = _render_path_template(path_rule["path"], version)
-            exists = (repo_root / rel_path).is_file()
+            bounded = _bounded_repo_path(repo_root, rel_path)
+            exists = bounded is not None and bounded.is_file()
             checks.append({"id": f"changelog:{rel_path}", "status": "passed" if exists else "failed", "message": "file exists" if exists else "required changelog is missing"})
     clean = _worktree_clean(repo_root)
     git = contract.get("git") if isinstance(contract.get("git"), dict) else {}

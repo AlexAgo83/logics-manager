@@ -4,6 +4,12 @@ import * as path from "node:path";
 import { JSDOM } from "jsdom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+// Pin the CSP nonce (now CSPRNG-based) so the HTML snapshots stay deterministic.
+vi.mock("crypto", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("crypto")>();
+  return { ...actual, default: actual, randomBytes: () => Buffer.alloc(48, 0x61) };
+});
+
 function toPosixPath(value: string): string {
   return value.replace(/\\/g, "/");
 }

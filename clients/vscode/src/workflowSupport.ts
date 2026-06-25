@@ -32,6 +32,15 @@ function normalizeGitPath(value: string): string {
   return renameTarget.replace(/\\/g, "/");
 }
 
+function isSafeLinkHref(href: string): boolean {
+  // Relative links, fragments, and root-relative paths have no scheme and are safe.
+  if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(href)) {
+    return true;
+  }
+  const scheme = href.slice(0, href.indexOf(":")).toLowerCase();
+  return ["http", "https", "mailto"].includes(scheme);
+}
+
 function renderInlineMarkdown(value: string): string {
   const codeSpans: string[] = [];
   const withPlaceholders = value.replace(/`([^`]+)`/g, (_match, code: string) => {
@@ -42,7 +51,14 @@ function renderInlineMarkdown(value: string): string {
 
   let rendered = escapeHtml(withPlaceholders);
   rendered = rendered.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, label: string, href: string) => {
-    return `<a href="${escapeHtml(href.trim())}">${escapeHtml(label.trim())}</a>`;
+    const safeLabel = escapeHtml(label.trim());
+    const target = href.trim();
+    // Only render a clickable anchor for safe protocols; otherwise drop to a
+    // span so javascript:/data: and other unsafe schemes cannot execute.
+    if (!isSafeLinkHref(target)) {
+      return `<span>${safeLabel}</span>`;
+    }
+    return `<a href="${escapeHtml(target)}">${safeLabel}</a>`;
   });
   rendered = rendered.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
   rendered = rendered.replace(/(^|[^*])\*([^*]+)\*/g, "$1<em>$2</em>");

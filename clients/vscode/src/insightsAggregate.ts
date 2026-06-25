@@ -1,5 +1,6 @@
 import { LogicsItem } from "./logicsIndexer";
 import { asString, getUtcIsoWeekStart, getUtcMonthStart, parseProgress, parseTimestamp, formatTimelineLabel } from "./insightsFormat";
+import { CLOSED_STATUSES } from "./workflowStatuses.generated";
 
 export type CountMap = Record<string, number>;
 
@@ -10,7 +11,7 @@ export type TimelinePoint = {
 
 export type TimelinePeriod = "day" | "week";
 
-export const CLOSED_STATUSES = new Set(["Done", "Archived", "Obsolete"]);
+export { CLOSED_STATUSES };
 export const WORKFLOW_STAGES = new Set<LogicsItem["stage"]>(["request", "backlog", "task"]);
 
 export function countBy(items: LogicsItem[], selector: (item: LogicsItem) => string): CountMap {

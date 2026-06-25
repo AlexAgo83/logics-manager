@@ -11,6 +11,7 @@ from pathlib import Path
 
 from .config import find_repo_root
 from .lint import expected_workflow_mermaid_signature
+from .statuses import transition_error
 from .path_utils import resolve_repo_output_path
 from .release import release_context_pack_payload
 from .termstyle import colorize_help
@@ -720,6 +721,11 @@ def update_workflow_indicators_payload(repo_root: Path, source: str, indicators:
         raise SystemExit(f"Expected one workflow doc target for `{source}`.")
     kind, path = targets[0]
     lines = _read_lines(repo_root, path)
+    if "Status" in cleaned:
+        previous_status = _indicator_value(lines, "Status")
+        error = transition_error(kind, previous_status, cleaned["Status"])
+        if error:
+            raise SystemExit(error)
     changed = False
     for key in APPROVED_WORKFLOW_INDICATORS:
         if key not in cleaned:

@@ -7,10 +7,12 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
+from logics_manager.statuses import closed_statuses, open_statuses
+
 WORKFLOW_KINDS = ("request", "backlog", "task")
 COMPANION_KINDS = ("product", "architecture")
-OPEN_STATUSES = {"Draft", "Ready", "In progress", "Blocked"}
-CLOSED_STATUSES = {"Done", "Settled", "Archived"}
+OPEN_STATUSES = set(open_statuses())
+CLOSED_STATUSES = set(closed_statuses())
 
 
 @dataclass(frozen=True)

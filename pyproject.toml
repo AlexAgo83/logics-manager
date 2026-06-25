@@ -26,6 +26,7 @@ packages = [
 
 [tool.setuptools.package-data]
 logics_manager = [
+  "statuses.json",
   "viewer_assets/media/*",
   "viewer_assets/media/css/*",
   "viewer_assets/media/vendor/xterm/*",

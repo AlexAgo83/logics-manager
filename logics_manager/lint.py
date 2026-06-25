@@ -11,6 +11,7 @@ from typing import Any, Iterable
 
 from .config import find_repo_root
 from .obsidian import validate_frontmatter_file
+from .statuses import stage_statuses
 
 
 @dataclass(frozen=True)
@@ -23,12 +24,12 @@ class Kind:
 
 
 KINDS = {
-    "request": Kind("logics/request", ("req",), False, ("From version", "Understanding", "Confidence"), ("Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived")),
-    "backlog": Kind("logics/backlog", ("item",), True, ("From version", "Understanding", "Confidence", "Progress"), ("Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived")),
-    "task": Kind("logics/tasks", ("task",), True, ("From version", "Understanding", "Confidence", "Progress"), ("Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived")),
-    "product": Kind("logics/product", ("prod",), False, ("Date", "Status", "Related request", "Related backlog", "Related task", "Related architecture", "Reminder"), ("Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived")),
-    "architecture": Kind("logics/architecture", ("adr",), False, ("Date", "Status", "Drivers", "Related request", "Related backlog", "Related task", "Reminder"), ("Draft", "Proposed", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived")),
-    "spec": Kind("logics/specs", ("spec", "req"), False, ("From version", "Status", "Understanding", "Confidence"), ("Draft", "Ready", "In progress", "Done", "Validated", "Settled", "Archived")),
+    "request": Kind("logics/request", ("req",), False, ("From version", "Understanding", "Confidence"), stage_statuses("request")),
+    "backlog": Kind("logics/backlog", ("item",), True, ("From version", "Understanding", "Confidence", "Progress"), stage_statuses("backlog")),
+    "task": Kind("logics/tasks", ("task",), True, ("From version", "Understanding", "Confidence", "Progress"), stage_statuses("task")),
+    "product": Kind("logics/product", ("prod",), False, ("Date", "Status", "Related request", "Related backlog", "Related task", "Related architecture", "Reminder"), stage_statuses("product")),
+    "architecture": Kind("logics/architecture", ("adr",), False, ("Date", "Status", "Drivers", "Related request", "Related backlog", "Related task", "Reminder"), stage_statuses("architecture")),
+    "spec": Kind("logics/specs", ("spec", "req"), False, ("From version", "Status", "Understanding", "Confidence"), stage_statuses("spec")),
 }
 
 WORKFLOW_KINDS = {"request", "backlog", "task"}

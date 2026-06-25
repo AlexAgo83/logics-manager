@@ -512,6 +512,7 @@ describe("LogicsViewProvider", () => {
         { label: "In progress", description: undefined, picked: false },
         { label: "Blocked", description: undefined, picked: false },
         { label: "Done", description: undefined, picked: false },
+        { label: "Obsolete", description: undefined, picked: false },
         { label: "Archived", description: undefined, picked: false }
       ],
       expect.objectContaining({

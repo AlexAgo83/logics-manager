@@ -10,6 +10,7 @@ from typing import Iterable
 
 from .config import find_repo_root
 from .flow_evidence import has_ac_proof as _has_ac_with_proof
+from .statuses import workflow_statuses
 
 
 CURRENT_WORKFLOW_SCHEMA_VERSION = "1.0"
@@ -132,7 +133,7 @@ def _canonical_status(value: str | None) -> str | None:
     if value is None:
         return None
     normalized = _status_normalized(value)
-    allowed = ("Draft", "Ready", "In progress", "Blocked", "Done", "Archived")
+    allowed = workflow_statuses()
     for candidate in allowed:
         if normalized == candidate.lower():
             return candidate

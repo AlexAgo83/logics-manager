@@ -1,10 +1,10 @@
 ## item_501_remove_workshop_terminal_race_conditions - Remove workshop terminal race conditions
 > From version: 2.12.12
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Concurrency correctness
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

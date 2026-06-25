@@ -1,0 +1,327 @@
+{
+  "title": "Act on the multi-agent audit: hardening and cleanup",
+  "references": [
+    "`logics_manager/viewer.py` (~12 do_POST endpoints parse Content-Length without catching ValueError; duplicated SSE and status-route boilerplate)",
+    "`clients/shared-web/media/logicsModel.js` (public CdxLogicsModel functions dereference item without null guard)",
+    "`logics_manager/flow/__init__.py`, `logics_manager/lint.py`, `logics_manager/audit.py`, `logics_manager/insights.py` vs `clients/vscode/src/insightsAggregate.ts`, `clients/vscode/src/logicsViewProviderSupport.ts` (status sets duplicated and divergent across Python and TypeScript; no status-transition validation)",
+    "`logics_manager/sync.py`, `logics_manager/assist_support.py`, `logics_manager/audit.py`, `logics_manager/insights.py` (duplicated _extract_refs, _indicator_value, _section_lines, _git_changed_paths, _progress_value helpers)",
+    "`logics_manager/mcp.py` (dead tool annotations + 363-line call_tool god function), `logics_manager/cli.py` (hardcoded subcommand validators)",
+    "`logics_manager/viewer_workshop.py` (master fd and error field accessed without lock; duplicated session classes)",
+    "`clients/vscode/src/workflowSupport.ts`, `logicsReadPreviewHtml.ts`, `logics_manager/release.py`, `logics_manager/viewer.py` (local-only security defense-in-depth: XSS protocol, path traversal, weak nonce, secret env, missing URL-decode)"
+  ],
+  "request": {
+    "complexity": "High",
+    "theme": "Codebase hardening",
+    "needs": [
+      "The local viewer server no longer raises an unhandled exception when a request arrives with a malformed Content-Length header on any JSON endpoint.",
+      "The public CdxLogicsModel JavaScript API tolerates null or undefined items at its boundary instead of throwing a TypeError.",
+      "Workflow status values have a single source of truth shared by Python and TypeScript, the Obsolete status is selectable, and invalid status transitions are rejected by the state machine.",
+      "A batch of confirmed one-line correctness defects across sync, insights, and the MCP surface are fixed at their root.",
+      "Dead and over-engineered code in the MCP and CLI surfaces is removed so the modules are smaller and easier to navigate.",
+      "The workshop terminal accesses its master file descriptor and error field under a lock so concurrent write, resize, and read-loop close cannot race.",
+      "Duplicated Python parsing helpers are consolidated into one shared module so behavior cannot drift between callers.",
+      "Local-only security findings are addressed as defense-in-depth without changing user-facing behavior.",
+      "Duplicated viewer boilerplate (SSE streaming, status routes, json.dumps) is consolidated.",
+      "Dead and duplicated client JS/TS code is removed and fragile fetch and sort paths are made safe."
+    ],
+    "context": [
+      "A multi-agent audit (bugs, security, architecture) produced 96 raw findings; 82 were confirmed after adversarial verification (3 critical, 16 high, 29 medium, 34 low). This request acts on the confirmed set, grouped into coherent slices.",
+      "The Content-Length defect is systemic: ~12 endpoints copy the same parse pattern and only catch JSONDecodeError, while switch-project and workshop-terminal-resize already show the correct except; the lazy fix is one shared helper.",
+      "The status divergence is both debt and a real user bug: markItemObsolete writes Obsolete but the TypeScript dropdown does not list it, CLOSED_STATUSES differs, and there is no validation that a status transition is legal.",
+      "The workshop terminal races are real but currently medium impact because OSError is already caught downstream; the fix is to take the existing lock around master-fd and error-field access.",
+      "Security findings were all downgraded to low real impact: vectors are local-only/dev, operate on trusted committed files, or sit inside the webview sandbox; they are bundled as a single defense-in-depth slice, not treated as urgent.",
+      "Helper duplication spans audit/lint/sync/assist_support/insights with subtly inconsistent return types and behavior, which is itself a latent bug source.",
+      "Existing pytest and vitest suites cover the public behavior of the affected modules and act as the regression safety net."
+    ],
+    "acceptance_criteria": [
+      "AC1: A shared helper parses Content-Length and the JSON body once and is used by every JSON do_POST endpoint in viewer.py; a malformed Content-Length yields a clean 400, not an unhandled exception, verified by a test.",
+      "AC2: Every public CdxLogicsModel function guards against null/undefined item at its entry and returns a safe default instead of throwing, verified by a test.",
+      "AC3: Workflow statuses are defined once and consumed by both Python and TypeScript; the Obsolete status is selectable, CLOSED_STATUSES is identical on both sides, and invalid status transitions are rejected, with a CI guard against divergence.",
+      "AC4: The confirmed correctness one-liners are fixed at root: sync.py section-note scoping, insights.py ref strip, mcp.py JSON-RPC notification returns no error body, mcp.py dry_run diff paths, flow Progress insertion index.",
+      "AC5: The dead MCP tool annotations are removed, call_tool dispatches via a handler table, and the hardcoded CLI subcommand validators are dropped in favor of argparse's own validation.",
+      "AC6: The workshop terminal master file descriptor and error field are only read and mutated under the session lock, verified by a test exercising concurrent write/resize/close.",
+      "AC7: Duplicated Python helpers (_extract_refs, _indicator_value, _section_lines, _git_changed_paths, _progress_value, document collection) live in one shared module with a single signature each; the dead sync.py _section_lines is removed.",
+      "AC8: The local-only security findings are addressed: link href protocol is validated, contract and changelog paths are bounded to the repo root, the CSP nonce uses a CSPRNG, the import secret is not exposed via the child environment, and /media/ paths are URL-decoded before resolution.",
+      "AC9: Duplicated viewer boilerplate is consolidated: one SSE streaming helper, one status-route mechanism, and a shared json.dumps render path.",
+      "AC10: Dead and duplicated client JS/TS code is removed (cdxRunStatusDetail, redefined escapeHtml/asString/parseTimestamp, duplicate constants, unused void/declare statements) and fragile paths are fixed (fetch checks response.ok before .json(); the insights sort comparator no longer returns NaN).",
+      "AC11: No new runtime dependency is introduced; only the standard library and existing tooling are used.",
+      "AC12: The full pytest and vitest suites pass with no behavior regressions, and logics-manager lint and audit pass on the resulting corpus and code."
+    ]
+  },
+  "product": {
+    "title": "Audit remediation: hardening and cleanup",
+    "overview": "Act on the 82 confirmed findings of a multi-agent audit, grouped into eleven coherent slices: harden the viewer server and the public JS API, unify and guard workflow statuses, fix confirmed correctness defects, remove the workshop terminal races, consolidate duplicated Python helpers and viewer boilerplate, clean up the MCP/CLI/client surfaces, and address local-only security findings as defense-in-depth, all without behavior changes.",
+    "goals": [
+      "Make the local viewer server robust to malformed request headers.",
+      "Make the public CdxLogicsModel API null-safe at its boundary.",
+      "Give workflow statuses a single source of truth, fix the Obsolete dropdown bug, and reject invalid transitions.",
+      "Fix the confirmed high/medium correctness defects at their root, including the workshop terminal races.",
+      "Shrink and de-duplicate the MCP, CLI, viewer, Python-helper, and client surfaces.",
+      "Address local-only security findings as defense-in-depth."
+    ],
+    "non_goals": [
+      "Changing public APIs, payload schemas, or CLI output.",
+      "Introducing any new runtime dependency or framework.",
+      "Reworking the media-mirror duplication into a build pipeline (tracked separately).",
+      "Adding the spec kind to audit or other low-value schema reconciliation beyond what these slices require."
+    ]
+  },
+  "backlog_items": [
+    {
+      "title": "Harden viewer server against malformed Content-Length",
+      "complexity": "Low",
+      "theme": "Server robustness",
+      "request_acs": ["AC1", "AC12"],
+      "problem": [
+        "~12 do_POST endpoints in viewer.py parse int(Content-Length) and only catch JSONDecodeError, so a malformed header raises an unhandled ValueError and crashes the request."
+      ],
+      "scope_in": [
+        "Add a shared _read_json_body(self) helper that parses Content-Length and the JSON body and raises a clean, catchable error",
+        "Replace the duplicated parse pattern at the ~12 affected endpoints with the helper",
+        "Return a 400 on malformed input instead of letting the exception escape"
+      ],
+      "scope_out": [
+        "Endpoints that already use the correct except (switch-project, workshop-terminal-resize)",
+        "Any change to endpoint behavior on well-formed input"
+      ],
+      "acceptance_criteria": [
+        "AC1: A single helper parses Content-Length and the body and is used by every JSON do_POST endpoint.",
+        "AC2: A malformed Content-Length returns a clean 400, verified by a test.",
+        "AC3: The viewer pytest suite passes unchanged."
+      ]
+    },
+    {
+      "title": "Make the public CdxLogicsModel API null-safe",
+      "complexity": "Low",
+      "theme": "Client robustness",
+      "request_acs": ["AC2", "AC12"],
+      "problem": [
+        "Four exported functions in clients/shared-web/media/logicsModel.js (around lines 143/150, 179/186, 207/214 and collectPrimaryFlowItems) read item.references without guarding item, throwing a TypeError at the window.CdxLogicsModel boundary."
+      ],
+      "scope_in": [
+        "Add an entry guard (if (!item) return safe-default) to each affected exported function",
+        "Mirror the fix into the synced media source per the webview media mirror process",
+        "Add a test exercising the public functions with null/undefined input"
+      ],
+      "scope_out": [
+        "Refactoring the model beyond the null guards",
+        "Changing return shapes for valid input"
+      ],
+      "acceptance_criteria": [
+        "AC1: Each public CdxLogicsModel function returns a safe default for null/undefined item instead of throwing.",
+        "AC2: A vitest test covers the null/undefined boundary.",
+        "AC3: The media mirror stays in sync and the lint guard passes."
+      ]
+    },
+    {
+      "title": "Unify and guard workflow statuses across Python and TypeScript",
+      "complexity": "Medium",
+      "theme": "Single source of truth",
+      "request_acs": ["AC3", "AC12"],
+      "problem": [
+        "Status sets are hardcoded separately in flow/__init__.py, lint.py, audit.py, insights.py and in insightsAggregate.ts and logicsViewProviderSupport.ts; markItemObsolete writes Obsolete but the TS dropdown omits it, CLOSED_STATUSES diverges, and no validation rejects an illegal status transition."
+      ],
+      "scope_in": [
+        "Define statuses once (e.g. logics/config/statuses.json) and load them from both Python and TypeScript",
+        "Add Obsolete to the dropdown and align CLOSED_STATUSES on both sides",
+        "Validate status transitions against the state machine instead of allowing any status at any time",
+        "Add a CI guard that fails when the Python and TS status views diverge"
+      ],
+      "scope_out": [
+        "Adding new statuses beyond reconciling the existing divergence",
+        "Reworking unrelated lint/audit kind schemas"
+      ],
+      "acceptance_criteria": [
+        "AC1: Statuses are defined once and consumed by both Python and TypeScript.",
+        "AC2: Obsolete is selectable and CLOSED_STATUSES is identical on both sides.",
+        "AC3: Illegal status transitions are rejected and a CI guard fails on future divergence."
+      ]
+    },
+    {
+      "title": "Fix confirmed correctness one-liners",
+      "complexity": "Low",
+      "theme": "Correctness",
+      "request_acs": ["AC4", "AC12"],
+      "problem": [
+        "Several confirmed high/medium defects are each a one-line fix: sync.py section-note scope, insights.py un-stripped ref, mcp.py JSON-RPC notification error body, mcp.py inverted dry_run diff paths, and flow Progress insertion index."
+      ],
+      "scope_in": [
+        "Scope the sync.py duplicate-bullet check to the target section instead of the whole document",
+        "Strip the captured ref in insights.py so the docs_by_ref lookup succeeds",
+        "Return no response body for a JSON-RPC notification (request_id is None) on tool error in mcp.py",
+        "Correct the mcp.py dry_run diff paths so real mutations diff the targeted path and dry-run diffs nothing unexpected",
+        "Fix the flow Progress insertion index so Progress lands after the other metadata"
+      ],
+      "scope_out": [
+        "The workshop terminal races (handled by a sibling slice)",
+        "The lower-severity items left for later (_state_from_gates ordering)",
+        "Any larger refactor of these modules"
+      ],
+      "acceptance_criteria": [
+        "AC1: Each listed defect is fixed at its root with a regression test where behavior is observable.",
+        "AC2: The JSON-RPC notification path returns no error body for request_id None.",
+        "AC3: pytest passes with no regressions."
+      ]
+    },
+    {
+      "title": "Delete dead and over-engineered MCP and CLI code",
+      "complexity": "Low",
+      "theme": "Over-engineering cleanup",
+      "request_acs": ["AC5", "AC11", "AC12"],
+      "problem": [
+        "The MCP readOnlyHint/idempotentHint/destructiveHint annotations on ~35 tools are never read, call_tool is a 363-line chain of 30+ if branches, and cli.py hardcodes subcommand validators that argparse already enforces."
+      ],
+      "scope_in": [
+        "Remove the unused MCP tool annotations",
+        "Replace the call_tool if-chain with a name-to-handler dispatch table",
+        "Drop the hardcoded subcommand validators in cli.py and rely on argparse"
+      ],
+      "scope_out": [
+        "Behavior or public-surface changes to MCP tools or CLI commands",
+        "The broader Python helper-deduplication effort (handled by a sibling slice)"
+      ],
+      "acceptance_criteria": [
+        "AC1: The dead MCP annotations are removed and call_tool dispatches via a handler table.",
+        "AC2: The hardcoded CLI validators are gone and argparse still rejects invalid subcommands.",
+        "AC3: MCP and CLI behavior is unchanged and the suites pass."
+      ]
+    },
+    {
+      "title": "Remove workshop terminal race conditions",
+      "complexity": "Medium",
+      "theme": "Concurrency correctness",
+      "request_acs": ["AC6", "AC12"],
+      "problem": [
+        "In viewer_workshop.py, write() and resize() use _master_fd without holding the lock while _read_loop() can close it, and write() assigns self.error without the lock while status_payload() reads it under the lock."
+      ],
+      "scope_in": [
+        "Take the existing session lock around the check-and-use of _master_fd in write() and resize()",
+        "Set _master_fd to None under the lock when _read_loop() closes it",
+        "Read and write self.error only under the lock",
+        "Add a test exercising concurrent write/resize while the read loop closes the fd",
+        "Hoist the duplicated inline imports to module level while here"
+      ],
+      "scope_out": [
+        "Merging the two duplicated session classes (separate low-priority cleanup)",
+        "Changing the terminal protocol or payload shapes"
+      ],
+      "acceptance_criteria": [
+        "AC1: _master_fd and self.error are only accessed under the session lock.",
+        "AC2: A test demonstrates no race between write/resize and read-loop close.",
+        "AC3: The workshop pytest suite passes unchanged."
+      ]
+    },
+    {
+      "title": "Consolidate duplicated Python parsing helpers",
+      "complexity": "Medium",
+      "theme": "Python deduplication",
+      "request_acs": ["AC7", "AC11", "AC12"],
+      "problem": [
+        "_extract_refs, _indicator_value, _progress_value, _section_lines, _git_changed_paths and document-collection logic are copied across audit.py, lint.py, sync.py, assist_support.py and insights.py with subtly inconsistent return types and behavior; sync.py _section_lines is dead."
+      ],
+      "scope_in": [
+        "Create a shared module (e.g. logics_manager/doc_parsing.py) with one definition each, parameterized where callers legitimately differ (e.g. strip_mermaid, timeout)",
+        "Repoint all callers at the shared definitions",
+        "Delete the dead sync.py _section_lines and the redundant copies"
+      ],
+      "scope_out": [
+        "Changing the observable behavior of any caller",
+        "Reconciling the DOC_KINDS/lint.KINDS schema or the spec kind (out of scope)"
+      ],
+      "acceptance_criteria": [
+        "AC1: Each duplicated helper has a single shared definition consumed by all callers.",
+        "AC2: The dead sync.py _section_lines is removed.",
+        "AC3: lint, audit, and the pytest suite pass unchanged."
+      ]
+    },
+    {
+      "title": "Address local-only security findings as defense-in-depth",
+      "complexity": "Medium",
+      "theme": "Security defense-in-depth",
+      "request_acs": ["AC8", "AC12"],
+      "problem": [
+        "Seven low/medium local-only findings: javascript: links rendered in markdown (workflowSupport.ts), path traversal via contract and changelog path templates (release.py), a Math.random CSP nonce (logicsReadPreviewHtml.ts), the import secret passed through the child environment (viewer.py), and /media/ paths resolved without URL-decoding (viewer.py)."
+      ],
+      "scope_in": [
+        "Validate the link href protocol before rendering an anchor; otherwise render a span",
+        "Resolve contract and changelog template paths and assert they stay within repo_root",
+        "Generate the CSP nonce with a CSPRNG",
+        "Pass the import secret via stdin instead of the child process environment",
+        "URL-decode /media/ paths before resolution, consistent with other resolvers"
+      ],
+      "scope_out": [
+        "Adding authentication to the local server or other architectural security changes",
+        "Any new dependency"
+      ],
+      "acceptance_criteria": [
+        "AC1: javascript: and other unsafe link protocols are not rendered as clickable anchors.",
+        "AC2: Contract and changelog paths cannot escape repo_root and the CSP nonce uses a CSPRNG.",
+        "AC3: The import secret is not exposed via the child environment and /media/ paths are URL-decoded."
+      ]
+    },
+    {
+      "title": "Consolidate duplicated viewer boilerplate",
+      "complexity": "Low",
+      "theme": "Viewer deduplication",
+      "request_acs": ["AC9", "AC12"],
+      "problem": [
+        "_stream_workshop_terminal and _stream_workshop_session in viewer.py share ~42 near-identical lines, seven status endpoints repeat the same route boilerplate, and the render functions each repeat json.dumps boilerplate."
+      ],
+      "scope_in": [
+        "Extract a shared _stream_sse_events(session, parse_item_fn, event_name, sleep_delay) helper",
+        "Drive the seven status endpoints from a single route table or helper",
+        "Route the render functions through the existing shared render payload helper"
+      ],
+      "scope_out": [
+        "Changing SSE event shapes, status payloads, or render output",
+        "Restructuring unrelated viewer routes"
+      ],
+      "acceptance_criteria": [
+        "AC1: The two SSE streamers share one helper and the status endpoints share one mechanism.",
+        "AC2: SSE, status, and render output are byte-for-byte unchanged.",
+        "AC3: The viewer pytest suite passes unchanged."
+      ]
+    },
+    {
+      "title": "Clean up duplicated and dead client JS/TS code",
+      "complexity": "Low",
+      "theme": "Client cleanup",
+      "request_acs": ["AC10", "AC12"],
+      "problem": [
+        "cdxRunStatusDetail is dead, escapeHtml/asString/parseTimestamp are redefined in logicsHybridInsightsHtml, UNAVAILABLE_* constants are duplicated, unused void/declare statements linger, several fetches call .json() without checking response.ok, and the insights sort comparator can return NaN."
+      ],
+      "scope_in": [
+        "Remove the dead cdxRunStatusDetail export and unused void/declare statements",
+        "Deduplicate escapeHtml/asString/parseTimestamp and the UNAVAILABLE_* constants into a shared location",
+        "Check response.ok before calling .json() in the affected fetches",
+        "Make the insights sort comparator return 0 for equal timestamps instead of NaN"
+      ],
+      "scope_out": [
+        "The media-mirror duplication (tracked separately as a build-pipeline concern)",
+        "Refactoring the state-wrapper getters and factory closures"
+      ],
+      "acceptance_criteria": [
+        "AC1: Dead code and duplicated helpers/constants are removed or shared.",
+        "AC2: The affected fetches check response.ok and the sort comparator never returns NaN.",
+        "AC3: The vitest suite and TypeScript build pass unchanged."
+      ]
+    }
+  ],
+  "orchestration_task": {
+    "title": "Orchestrate the audit remediation",
+    "plan": [
+      "Land the low-risk, high-value correctness work first: the viewer Content-Length helper, the correctness one-liners, and the workshop terminal lock fixes; all are well covered by tests.",
+      "Add the null guards to the public CdxLogicsModel API and re-sync the webview media mirror.",
+      "Unify workflow statuses behind a single source of truth, add Obsolete, validate transitions, and wire the CI divergence guard.",
+      "Address the local-only security findings as one defense-in-depth pass.",
+      "Consolidate the duplicated Python helpers into a shared module, then the viewer SSE/status/render boilerplate.",
+      "Delete the dead MCP annotations, convert call_tool to a dispatch table, drop the CLI validators, and clean up the dead/duplicated client JS/TS code.",
+      "After each slice run lint, audit, pytest, and vitest, and keep all linked docs in sync before closeout."
+    ]
+  },
+  "context_pack": {
+    "out": "logics/context-packs/audit-driven-hardening.json",
+    "mode": "summary-only",
+    "profile": "normal"
+  }
+}

@@ -1,0 +1,517 @@
+{
+  "budgets": {
+    "max_docs": 48,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_278_act_on_the_multi_agent_audit_hardening_and_cleanup item_496_harden_viewer_server_against_malformed_content_length item_497_make_the_public_cdxlogicsmodel_api_null_safe item_498_unify_and_guard_workflow_statuses_across_python_and_typescript item_499_fix_confirmed_correctness_one_liners item_500_delete_dead_and_over_engineered_mcp_and_cli_code item_501_remove_workshop_terminal_race_conditions item_502_consolidate_duplicated_python_parsing_helpers item_503_address_local_only_security_findings_as_defense_in_depth item_504_consolidate_duplicated_viewer_boilerplate item_505_clean_up_duplicated_and_dead_client_js_ts_code task_275_orchestrate_the_audit_remediation --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_496_harden_viewer_server_against_malformed_content_length",
+          "item_497_make_the_public_cdxlogicsmodel_api_null_safe",
+          "item_498_unify_and_guard_workflow_statuses_across_python_and_typescript",
+          "item_499_fix_confirmed_correctness_one_liners",
+          "item_500_delete_dead_and_over_engineered_mcp_and_cli_code",
+          "item_501_remove_workshop_terminal_race_conditions",
+          "item_502_consolidate_duplicated_python_parsing_helpers",
+          "item_503_address_local_only_security_findings_as_defense_in_depth",
+          "item_504_consolidate_duplicated_viewer_boilerplate",
+          "item_505_clean_up_duplicated_and_dead_client_js_ts_code"
+        ],
+        "prod": [
+          "prod_030_audit_remediation_hardening_and_cleanup"
+        ],
+        "req": [
+          "req_278_act_on_the_multi_agent_audit_hardening_and_cleanup"
+        ],
+        "task": [
+          "task_275_orchestrate_the_audit_remediation"
+        ]
+      },
+      "path": "logics/product/prod_030_audit_remediation_hardening_and_cleanup.md",
+      "ref": "prod_030_audit_remediation_hardening_and_cleanup",
+      "status": "Proposed",
+      "title": "Audit remediation: hardening and cleanup"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, act on the multi-agent audit: hardening and cleanup, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Act on the multi-agent audit: hardening and cleanup",
+        "use when": "You need to implement or review the scaffolded workflow for Act on the multi-agent audit: hardening and cleanup."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_496_harden_viewer_server_against_malformed_content_length",
+          "item_497_make_the_public_cdxlogicsmodel_api_null_safe",
+          "item_498_unify_and_guard_workflow_statuses_across_python_and_typescript",
+          "item_499_fix_confirmed_correctness_one_liners",
+          "item_500_delete_dead_and_over_engineered_mcp_and_cli_code",
+          "item_501_remove_workshop_terminal_race_conditions",
+          "item_502_consolidate_duplicated_python_parsing_helpers",
+          "item_503_address_local_only_security_findings_as_defense_in_depth",
+          "item_504_consolidate_duplicated_viewer_boilerplate",
+          "item_505_clean_up_duplicated_and_dead_client_js_ts_code"
+        ],
+        "prod": [
+          "prod_030_audit_remediation_hardening_and_cleanup"
+        ],
+        "req": [
+          "req_278_act_on_the_multi_agent_audit_hardening_and_cleanup"
+        ]
+      },
+      "path": "logics/request/req_278_act_on_the_multi_agent_audit_hardening_and_cleanup.md",
+      "ref": "req_278_act_on_the_multi_agent_audit_hardening_and_cleanup",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Act on the multi-agent audit: hardening and cleanup"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, harden viewer server against malformed content-length, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Harden viewer server against malformed Content-Length",
+        "use when": "Implementing the scaffolded slice for Harden viewer server against malformed Content-Length."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_496_harden_viewer_server_against_malformed_content_length"
+        ],
+        "prod": [
+          "prod_030_audit_remediation_hardening_and_cleanup"
+        ],
+        "req": [
+          "req_278_act_on_the_multi_agent_audit_hardening_and_cleanup"
+        ],
+        "task": [
+          "task_275_orchestrate_the_audit_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_496_harden_viewer_server_against_malformed_content_length.md",
+      "ref": "item_496_harden_viewer_server_against_malformed_content_length",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Harden viewer server against malformed Content-Length"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, make the public cdxlogicsmodel api null-safe, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Make the public CdxLogicsModel API null-safe",
+        "use when": "Implementing the scaffolded slice for Make the public CdxLogicsModel API null-safe."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_497_make_the_public_cdxlogicsmodel_api_null_safe"
+        ],
+        "prod": [
+          "prod_030_audit_remediation_hardening_and_cleanup"
+        ],
+        "req": [
+          "req_278_act_on_the_multi_agent_audit_hardening_and_cleanup"
+        ],
+        "task": [
+          "task_275_orchestrate_the_audit_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_497_make_the_public_cdxlogicsmodel_api_null_safe.md",
+      "ref": "item_497_make_the_public_cdxlogicsmodel_api_null_safe",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Make the public CdxLogicsModel API null-safe"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, unify and guard workflow statuses across python and typescript, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Unify and guard workflow statuses across Python and TypeScript",
+        "use when": "Implementing the scaffolded slice for Unify and guard workflow statuses across Python and TypeScript."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_498_unify_and_guard_workflow_statuses_across_python_and_typescript"
+        ],
+        "prod": [
+          "prod_030_audit_remediation_hardening_and_cleanup"
+        ],
+        "req": [
+          "req_278_act_on_the_multi_agent_audit_hardening_and_cleanup"
+        ],
+        "task": [
+          "task_275_orchestrate_the_audit_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_498_unify_and_guard_workflow_statuses_across_python_and_typescript.md",
+      "ref": "item_498_unify_and_guard_workflow_statuses_across_python_and_typescript",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Unify and guard workflow statuses across Python and TypeScript"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate the audit remediation",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_496_harden_viewer_server_against_malformed_content_length",
+          "item_497_make_the_public_cdxlogicsmodel_api_null_safe",
+          "item_498_unify_and_guard_workflow_statuses_across_python_and_typescript",
+          "item_499_fix_confirmed_correctness_one_liners",
+          "item_500_delete_dead_and_over_engineered_mcp_and_cli_code",
+          "item_501_remove_workshop_terminal_race_conditions",
+          "item_502_consolidate_duplicated_python_parsing_helpers",
+          "item_503_address_local_only_security_findings_as_defense_in_depth",
+          "item_504_consolidate_duplicated_viewer_boilerplate",
+          "item_505_clean_up_duplicated_and_dead_client_js_ts_code"
+        ],
+        "prod": [
+          "prod_030_audit_remediation_hardening_and_cleanup"
+        ],
+        "req": [
+          "req_278_act_on_the_multi_agent_audit_hardening_and_cleanup"
+        ],
+        "task": [
+          "task_275_orchestrate_the_audit_remediation"
+        ]
+      },
+      "path": "logics/tasks/task_275_orchestrate_the_audit_remediation.md",
+      "ref": "task_275_orchestrate_the_audit_remediation",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrate the audit remediation"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, fix confirmed correctness one-liners, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Fix confirmed correctness one-liners",
+        "use when": "Implementing the scaffolded slice for Fix confirmed correctness one-liners."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_499_fix_confirmed_correctness_one_liners"
+        ],
+        "prod": [
+          "prod_030_audit_remediation_hardening_and_cleanup"
+        ],
+        "req": [
+          "req_278_act_on_the_multi_agent_audit_hardening_and_cleanup"
+        ],
+        "task": [
+          "task_275_orchestrate_the_audit_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_499_fix_confirmed_correctness_one_liners.md",
+      "ref": "item_499_fix_confirmed_correctness_one_liners",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Fix confirmed correctness one-liners"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, delete dead and over-engineered mcp and cli code, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Delete dead and over-engineered MCP and CLI code",
+        "use when": "Implementing the scaffolded slice for Delete dead and over-engineered MCP and CLI code."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_500_delete_dead_and_over_engineered_mcp_and_cli_code"
+        ],
+        "prod": [
+          "prod_030_audit_remediation_hardening_and_cleanup"
+        ],
+        "req": [
+          "req_278_act_on_the_multi_agent_audit_hardening_and_cleanup"
+        ],
+        "task": [
+          "task_275_orchestrate_the_audit_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_500_delete_dead_and_over_engineered_mcp_and_cli_code.md",
+      "ref": "item_500_delete_dead_and_over_engineered_mcp_and_cli_code",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Delete dead and over-engineered MCP and CLI code"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, remove workshop terminal race conditions, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Remove workshop terminal race conditions",
+        "use when": "Implementing the scaffolded slice for Remove workshop terminal race conditions."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_501_remove_workshop_terminal_race_conditions"
+        ],
+        "prod": [
+          "prod_030_audit_remediation_hardening_and_cleanup"
+        ],
+        "req": [
+          "req_278_act_on_the_multi_agent_audit_hardening_and_cleanup"
+        ],
+        "task": [
+          "task_275_orchestrate_the_audit_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_501_remove_workshop_terminal_race_conditions.md",
+      "ref": "item_501_remove_workshop_terminal_race_conditions",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Remove workshop terminal race conditions"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, consolidate duplicated python parsing helpers, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Consolidate duplicated Python parsing helpers",
+        "use when": "Implementing the scaffolded slice for Consolidate duplicated Python parsing helpers."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_502_consolidate_duplicated_python_parsing_helpers"
+        ],
+        "prod": [
+          "prod_030_audit_remediation_hardening_and_cleanup"
+        ],
+        "req": [
+          "req_278_act_on_the_multi_agent_audit_hardening_and_cleanup"
+        ],
+        "task": [
+          "task_275_orchestrate_the_audit_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_502_consolidate_duplicated_python_parsing_helpers.md",
+      "ref": "item_502_consolidate_duplicated_python_parsing_helpers",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Consolidate duplicated Python parsing helpers"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, address local-only security findings as defense-in-depth, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Address local-only security findings as defense-in-depth",
+        "use when": "Implementing the scaffolded slice for Address local-only security findings as defense-in-depth."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_503_address_local_only_security_findings_as_defense_in_depth"
+        ],
+        "prod": [
+          "prod_030_audit_remediation_hardening_and_cleanup"
+        ],
+        "req": [
+          "req_278_act_on_the_multi_agent_audit_hardening_and_cleanup"
+        ],
+        "task": [
+          "task_275_orchestrate_the_audit_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_503_address_local_only_security_findings_as_defense_in_depth.md",
+      "ref": "item_503_address_local_only_security_findings_as_defense_in_depth",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Address local-only security findings as defense-in-depth"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, consolidate duplicated viewer boilerplate, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Consolidate duplicated viewer boilerplate",
+        "use when": "Implementing the scaffolded slice for Consolidate duplicated viewer boilerplate."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_504_consolidate_duplicated_viewer_boilerplate"
+        ],
+        "prod": [
+          "prod_030_audit_remediation_hardening_and_cleanup"
+        ],
+        "req": [
+          "req_278_act_on_the_multi_agent_audit_hardening_and_cleanup"
+        ],
+        "task": [
+          "task_275_orchestrate_the_audit_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_504_consolidate_duplicated_viewer_boilerplate.md",
+      "ref": "item_504_consolidate_duplicated_viewer_boilerplate",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Consolidate duplicated viewer boilerplate"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, clean up duplicated and dead client js/ts code, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Clean up duplicated and dead client JS/TS code",
+        "use when": "Implementing the scaffolded slice for Clean up duplicated and dead client JS/TS code."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_505_clean_up_duplicated_and_dead_client_js_ts_code"
+        ],
+        "prod": [
+          "prod_030_audit_remediation_hardening_and_cleanup"
+        ],
+        "req": [
+          "req_278_act_on_the_multi_agent_audit_hardening_and_cleanup"
+        ],
+        "task": [
+          "task_275_orchestrate_the_audit_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_505_clean_up_duplicated_and_dead_client_js_ts_code.md",
+      "ref": "item_505_clean_up_duplicated_and_dead_client_js_ts_code",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Clean up duplicated and dead client JS/TS code"
+    }
+  ],
+  "estimates": {
+    "char_count": 12783,
+    "companion_doc_count": 1,
+    "doc_count": 12
+  },
+  "generated_at": "2026-06-25T22:26:47Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_278_act_on_the_multi_agent_audit_hardening_and_cleanup",
+      "item_496_harden_viewer_server_against_malformed_content_length",
+      "item_497_make_the_public_cdxlogicsmodel_api_null_safe",
+      "item_498_unify_and_guard_workflow_statuses_across_python_and_typescript",
+      "item_499_fix_confirmed_correctness_one_liners",
+      "item_500_delete_dead_and_over_engineered_mcp_and_cli_code",
+      "item_501_remove_workshop_terminal_race_conditions",
+      "item_502_consolidate_duplicated_python_parsing_helpers",
+      "item_503_address_local_only_security_findings_as_defense_in_depth",
+      "item_504_consolidate_duplicated_viewer_boilerplate",
+      "item_505_clean_up_duplicated_and_dead_client_js_ts_code",
+      "task_275_orchestrate_the_audit_remediation"
+    ],
+    "validation_summary_count": 1
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_278_act_on_the_multi_agent_audit_hardening_and_cleanup,item_496_harden_viewer_server_against_malformed_content_length,item_497_make_the_public_cdxlogicsmodel_api_null_safe,item_498_unify_and_guard_workflow_statuses_across_python_and_typescript,item_499_fix_confirmed_correctness_one_liners,item_500_delete_dead_and_over_engineered_mcp_and_cli_code,item_501_remove_workshop_terminal_race_conditions,item_502_consolidate_duplicated_python_parsing_helpers,item_503_address_local_only_security_findings_as_defense_in_depth,item_504_consolidate_duplicated_viewer_boilerplate,item_505_clean_up_duplicated_and_dead_client_js_ts_code,task_275_orchestrate_the_audit_remediation",
+  "refs": [
+    "req_278_act_on_the_multi_agent_audit_hardening_and_cleanup",
+    "item_496_harden_viewer_server_against_malformed_content_length",
+    "item_497_make_the_public_cdxlogicsmodel_api_null_safe",
+    "item_498_unify_and_guard_workflow_statuses_across_python_and_typescript",
+    "item_499_fix_confirmed_correctness_one_liners",
+    "item_500_delete_dead_and_over_engineered_mcp_and_cli_code",
+    "item_501_remove_workshop_terminal_race_conditions",
+    "item_502_consolidate_duplicated_python_parsing_helpers",
+    "item_503_address_local_only_security_findings_as_defense_in_depth",
+    "item_504_consolidate_duplicated_viewer_boilerplate",
+    "item_505_clean_up_duplicated_and_dead_client_js_ts_code",
+    "task_275_orchestrate_the_audit_remediation"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.12.12"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_275_orchestrate_the_audit_remediation.md",
+      "ref": "task_275_orchestrate_the_audit_remediation"
+    }
+  ]
+}

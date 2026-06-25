@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 
 from .assist_surface import build_changed_surface_summary
+from .doc_parsing import section_lines
 
 
 def _git_lines(repo_root: Path, args: list[str]) -> list[str]:
@@ -35,22 +36,7 @@ def _git_range_commits(repo_root: Path, since: str) -> list[dict[str, str]]:
     return commits
 
 
-def _section_lines(lines: list[str], heading: str) -> list[str]:
-    start_idx = None
-    target = heading.strip().lower()
-    for idx, line in enumerate(lines):
-        if line.startswith("# ") and line[2:].strip().lower() == target:
-            start_idx = idx + 1
-            break
-    if start_idx is None:
-        return []
-    out: list[str] = []
-    for idx in range(start_idx, len(lines)):
-        line = lines[idx]
-        if line.startswith("# "):
-            break
-        out.append(line)
-    return out
+_section_lines = section_lines
 
 
 def _doc_status(path: Path) -> str:

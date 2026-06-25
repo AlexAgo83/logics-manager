@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .config import find_repo_root
+from .doc_parsing import extract_refs, git_changed_paths, indicator_value
 from .lint import expected_workflow_mermaid_signature
 from .statuses import transition_error
 from .path_utils import resolve_repo_output_path
@@ -96,36 +97,8 @@ def _is_relative_path(path: Path) -> bool:
     return not path.is_absolute() and ".." not in path.parts
 
 
-def _indicator_value(lines: list[str], key: str) -> str | None:
-    pattern = re.compile(rf"^\s*>\s*{re.escape(key)}\s*:\s*(.+?)\s*$")
-    for line in lines:
-        match = pattern.match(line)
-        if match:
-            return match.group(1).strip()
-    return None
-
-
-def _section_lines(lines: list[str], heading: str) -> list[str]:
-    target = heading.strip().lower()
-    start_idx = None
-    for idx, line in enumerate(lines):
-        if line.startswith("# ") and line[2:].strip().lower() == target:
-            start_idx = idx + 1
-            break
-    if start_idx is None:
-        return []
-    out: list[str] = []
-    for idx in range(start_idx, len(lines)):
-        line = lines[idx]
-        if line.startswith("# "):
-            break
-        out.append(line)
-    return out
-
-
-def _extract_refs(text: str, prefix: str) -> list[str]:
-    pattern = re.compile(rf"\b{re.escape(prefix)}_\d+_[a-z0-9_]+\b")
-    return sorted({match.group(0) for match in pattern.finditer(text)})
+_indicator_value = indicator_value
+_extract_refs = extract_refs
 
 
 def _strip_mermaid_blocks(text: str) -> str:
@@ -228,41 +201,7 @@ def _context_profile_limit(profile: str) -> int:
 
 
 def _git_changed_paths(repo_root: Path) -> list[str]:
-    try:
-        diff_result = __import__("subprocess").run(
-            ["git", "diff", "--name-only", "--relative=."],
-            cwd=repo_root,
-            stdout=__import__("subprocess").PIPE,
-            stderr=__import__("subprocess").PIPE,
-            text=True,
-            check=False,
-        )
-        staged_result = __import__("subprocess").run(
-            ["git", "diff", "--cached", "--name-only", "--relative=."],
-            cwd=repo_root,
-            stdout=__import__("subprocess").PIPE,
-            stderr=__import__("subprocess").PIPE,
-            text=True,
-            check=False,
-        )
-        untracked_result = __import__("subprocess").run(
-            ["git", "ls-files", "--others", "--exclude-standard"],
-            cwd=repo_root,
-            stdout=__import__("subprocess").PIPE,
-            stderr=__import__("subprocess").PIPE,
-            text=True,
-            check=False,
-        )
-    except OSError:
-        return []
-    if diff_result.returncode != 0:
-        return []
-    changed = [line.strip() for line in diff_result.stdout.splitlines() if line.strip()]
-    if staged_result.returncode == 0:
-        changed.extend(line.strip() for line in staged_result.stdout.splitlines() if line.strip())
-    if untracked_result.returncode == 0:
-        changed.extend(line.strip() for line in untracked_result.stdout.splitlines() if line.strip())
-    return sorted(dict.fromkeys(changed))
+    return git_changed_paths(repo_root, include_staged=True, include_untracked=True, dedupe=True)
 
 
 def _context_pack_doc_entry(doc: WorkflowDocModel, mode: str) -> dict[str, object]:

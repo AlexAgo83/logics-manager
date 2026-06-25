@@ -65,6 +65,7 @@
 | [prod_027_ci_events_in_recent_activity](product/prod_027_ci_events_in_recent_activity.md) | CI events in Recent activity | Settled |  |  | product/prod_027_ci_events_in_recent_activity.md |
 | [prod_028_recent_activity_event_filter](product/prod_028_recent_activity_event_filter.md) | Recent activity event filter | Settled |  |  | product/prod_028_recent_activity_event_filter.md |
 | [prod_029_assistant_authoring_ergonomics](product/prod_029_assistant_authoring_ergonomics.md) | Assistant authoring ergonomics | Settled |  |  | product/prod_029_assistant_authoring_ergonomics.md |
+| [prod_030_audit_remediation_hardening_and_cleanup](product/prod_030_audit_remediation_hardening_and_cleanup.md) | Audit remediation: hardening and cleanup | Proposed |  |  | product/prod_030_audit_remediation_hardening_and_cleanup.md |
 
 ## Requests
 
@@ -346,6 +347,7 @@
 | [req_275_add_a_git_ci_event_filter_to_the_recent_activity_view](request/req_275_add_a_git_ci_event_filter_to_the_recent_activity_view.md) | Add a git/CI event filter to the Recent activity view | Done |  |  | request/req_275_add_a_git_ci_event_filter_to_the_recent_activity_view.md |
 | [req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants](request/req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants.md) | Improve logics-manager authoring ergonomics for AI assistants | Done |  |  | request/req_276_improve_logics_manager_authoring_ergonomics_for_ai_assistants.md |
 | [req_277_recent_activity_and_corpus_reader_viewer_ux_follow_ups](request/req_277_recent_activity_and_corpus_reader_viewer_ux_follow_ups.md) | Recent activity and corpus reader viewer UX follow-ups | Done |  |  | request/req_277_recent_activity_and_corpus_reader_viewer_ux_follow_ups.md |
+| [req_278_act_on_the_multi_agent_audit_hardening_and_cleanup](request/req_278_act_on_the_multi_agent_audit_hardening_and_cleanup.md) | Act on the multi-agent audit: hardening and cleanup | Draft |  |  | request/req_278_act_on_the_multi_agent_audit_hardening_and_cleanup.md |
 
 ## Backlog
 
@@ -846,6 +848,16 @@
 | [item_493_classify_closeout_deferred_proofs_as_a_distinct_severity](backlog/item_493_classify_closeout_deferred_proofs_as_a_distinct_severity.md) | Classify closeout-deferred proofs as a distinct severity | Done |  | 100% | backlog/item_493_classify_closeout_deferred_proofs_as_a_distinct_severity.md |
 | [item_494_add_inline_validation_to_flow_scaffold](backlog/item_494_add_inline_validation_to_flow_scaffold.md) | Add inline validation to flow scaffold | Done |  | 100% | backlog/item_494_add_inline_validation_to_flow_scaffold.md |
 | [item_495_deliver_the_recent_activity_and_corpus_reader_viewer_ux_follow_ups](backlog/item_495_deliver_the_recent_activity_and_corpus_reader_viewer_ux_follow_ups.md) | Deliver the recent activity and corpus reader viewer UX follow-ups | Done |  | 100% | backlog/item_495_deliver_the_recent_activity_and_corpus_reader_viewer_ux_follow_ups.md |
+| [item_496_harden_viewer_server_against_malformed_content_length](backlog/item_496_harden_viewer_server_against_malformed_content_length.md) | Harden viewer server against malformed Content-Length | Ready |  | 0% | backlog/item_496_harden_viewer_server_against_malformed_content_length.md |
+| [item_497_make_the_public_cdxlogicsmodel_api_null_safe](backlog/item_497_make_the_public_cdxlogicsmodel_api_null_safe.md) | Make the public CdxLogicsModel API null-safe | Ready |  | 0% | backlog/item_497_make_the_public_cdxlogicsmodel_api_null_safe.md |
+| [item_498_unify_and_guard_workflow_statuses_across_python_and_typescript](backlog/item_498_unify_and_guard_workflow_statuses_across_python_and_typescript.md) | Unify and guard workflow statuses across Python and TypeScript | Ready |  | 0% | backlog/item_498_unify_and_guard_workflow_statuses_across_python_and_typescript.md |
+| [item_499_fix_confirmed_correctness_one_liners](backlog/item_499_fix_confirmed_correctness_one_liners.md) | Fix confirmed correctness one-liners | Ready |  | 0% | backlog/item_499_fix_confirmed_correctness_one_liners.md |
+| [item_500_delete_dead_and_over_engineered_mcp_and_cli_code](backlog/item_500_delete_dead_and_over_engineered_mcp_and_cli_code.md) | Delete dead and over-engineered MCP and CLI code | Ready |  | 0% | backlog/item_500_delete_dead_and_over_engineered_mcp_and_cli_code.md |
+| [item_501_remove_workshop_terminal_race_conditions](backlog/item_501_remove_workshop_terminal_race_conditions.md) | Remove workshop terminal race conditions | Ready |  | 0% | backlog/item_501_remove_workshop_terminal_race_conditions.md |
+| [item_502_consolidate_duplicated_python_parsing_helpers](backlog/item_502_consolidate_duplicated_python_parsing_helpers.md) | Consolidate duplicated Python parsing helpers | Ready |  | 0% | backlog/item_502_consolidate_duplicated_python_parsing_helpers.md |
+| [item_503_address_local_only_security_findings_as_defense_in_depth](backlog/item_503_address_local_only_security_findings_as_defense_in_depth.md) | Address local-only security findings as defense-in-depth | Ready |  | 0% | backlog/item_503_address_local_only_security_findings_as_defense_in_depth.md |
+| [item_504_consolidate_duplicated_viewer_boilerplate](backlog/item_504_consolidate_duplicated_viewer_boilerplate.md) | Consolidate duplicated viewer boilerplate | Ready |  | 0% | backlog/item_504_consolidate_duplicated_viewer_boilerplate.md |
+| [item_505_clean_up_duplicated_and_dead_client_js_ts_code](backlog/item_505_clean_up_duplicated_and_dead_client_js_ts_code.md) | Clean up duplicated and dead client JS/TS code | Ready |  | 0% | backlog/item_505_clean_up_duplicated_and_dead_client_js_ts_code.md |
 
 ## Tasks
 
@@ -1119,3 +1131,4 @@
 | [task_272_orchestrate_the_recent_activity_event_filter](tasks/task_272_orchestrate_the_recent_activity_event_filter.md) | Orchestrate the Recent activity event filter | Done |  | 100% | tasks/task_272_orchestrate_the_recent_activity_event_filter.md |
 | [task_273_orchestrate_the_assistant_authoring_ergonomics_improvements](tasks/task_273_orchestrate_the_assistant_authoring_ergonomics_improvements.md) | Orchestrate the assistant authoring ergonomics improvements | Done |  | 100% | tasks/task_273_orchestrate_the_assistant_authoring_ergonomics_improvements.md |
 | [task_274_orchestrate_the_recent_activity_and_corpus_reader_viewer_ux_follow_ups](tasks/task_274_orchestrate_the_recent_activity_and_corpus_reader_viewer_ux_follow_ups.md) | Orchestrate the recent activity and corpus reader viewer UX follow-ups | Done |  | 100% | tasks/task_274_orchestrate_the_recent_activity_and_corpus_reader_viewer_ux_follow_ups.md |
+| [task_275_orchestrate_the_audit_remediation](tasks/task_275_orchestrate_the_audit_remediation.md) | Orchestrate the audit remediation | Ready |  | 0% | tasks/task_275_orchestrate_the_audit_remediation.md |

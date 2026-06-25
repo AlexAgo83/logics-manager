@@ -162,6 +162,38 @@ def test_workshop_terminal_session_applies_initial_winsize_before_exec(tmp_path:
 
 
 @pytest.mark.skipif(not workshop_terminals_available(), reason="stdlib pty is unavailable on this host")
+def test_workshop_terminal_write_resize_race_with_read_loop_close(tmp_path: Path) -> None:
+    import time as _time
+
+    registry = WorkshopTerminalRegistry()
+    session = registry.create(["/bin/cat"], tmp_path, label="race")
+    errors: list[BaseException] = []
+
+    def hammer(action) -> None:
+        for _ in range(200):
+            try:
+                action()
+            except BaseException as exc:  # noqa: BLE001 - any escape is a race failure
+                errors.append(exc)
+                return
+
+    threads = [
+        threading.Thread(target=hammer, args=(lambda: session.write("x"),)),
+        threading.Thread(target=hammer, args=(lambda: session.resize(40, 100),)),
+    ]
+    for t in threads:
+        t.start()
+    _time.sleep(0.02)
+    session.stop()  # closes the fd under the read loop while writers/resizers run
+    for t in threads:
+        t.join(timeout=5)
+    registry.shutdown()
+
+    assert errors == [], f"race raised: {errors}"
+    assert session.state in {"finished", "failed", "stopped"}
+
+
+@pytest.mark.skipif(not workshop_terminals_available(), reason="stdlib pty is unavailable on this host")
 def test_workshop_terminal_session_stop_terminates_long_running(tmp_path: Path) -> None:
     import time as _time
 

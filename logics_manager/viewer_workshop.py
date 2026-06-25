@@ -12,12 +12,20 @@ from __future__ import annotations
 import json
 import os
 import re
+import struct
 import subprocess
 import sys
 import tomllib
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+
+try:  # POSIX-only; absent on non-POSIX hosts where PTY terminals are unavailable.
+    import fcntl
+    import termios
+except ImportError:  # pragma: no cover - non-POSIX hosts
+    fcntl = None  # type: ignore[assignment]
+    termios = None  # type: ignore[assignment]
 
 WORKSHOP_COMMAND_MAX = 200
 
@@ -492,9 +500,6 @@ class WorkshopTerminalSession:
             except OSError:
                 pass
             try:
-                import fcntl
-                import struct
-                import termios
                 # fd 0/1/2 are the slave PTY in the child; size it before exec.
                 fcntl.ioctl(0, termios.TIOCSWINSZ, struct.pack("HHHH", self._initial_rows, self._initial_cols, 0, 0))
             except Exception:  # noqa: BLE001
@@ -517,12 +522,17 @@ class WorkshopTerminalSession:
         self._reaper.start()
 
     def write(self, data: str) -> None:
-        if not data or self._master_fd is None:
+        if not data:
+            return
+        with self._lock:
+            fd = self._master_fd
+        if fd is None:
             return
         try:
-            os.write(self._master_fd, data.encode("utf-8"))
+            os.write(fd, data.encode("utf-8"))
         except OSError as exc:
-            self.error = f"Write failed: {exc}"
+            with self._lock:
+                self.error = f"Write failed: {exc}"
 
     def rename(self, label: str) -> None:
         next_label = str(label or "").strip()[:64]
@@ -533,18 +543,20 @@ class WorkshopTerminalSession:
             self._last_activity = self._now()
 
     def resize(self, rows: int, cols: int) -> None:
-        if self._master_fd is None or rows <= 0 or cols <= 0:
+        if rows <= 0 or cols <= 0 or fcntl is None or termios is None:
+            return
+        with self._lock:
+            fd = self._master_fd
+        if fd is None:
             return
         try:
-            import fcntl
-            import struct
-            import termios
-            fcntl.ioctl(self._master_fd, termios.TIOCSWINSZ, struct.pack("HHHH", rows, cols, 0, 0))
-        except (OSError, ImportError):
+            fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", rows, cols, 0, 0))
+        except OSError:
             return
 
     def _read_loop(self) -> None:
-        fd = self._master_fd
+        with self._lock:
+            fd = self._master_fd
         if fd is None:
             return
         try:
@@ -561,6 +573,8 @@ class WorkshopTerminalSession:
                     continue
                 self._append(text)
         finally:
+            with self._lock:
+                self._master_fd = None
             try:
                 os.close(fd)
             except OSError:
@@ -573,7 +587,8 @@ class WorkshopTerminalSession:
         try:
             _, status = os.waitpid(pid, 0)
         except OSError as exc:
-            self.error = f"waitpid failed: {exc}"
+            with self._lock:
+                self.error = f"waitpid failed: {exc}"
             status = -1
         if isinstance(status, int):
             if os.WIFEXITED(status):

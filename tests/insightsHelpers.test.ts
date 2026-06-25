@@ -70,6 +70,11 @@ describe("insightsFormat helpers", () => {
     it("returns null for an unparseable string", () => {
       expect(parseTimestamp("not-a-date")).toBeNull();
     });
+
+    it("parses space-separated and over-precise timestamps (shared robust impl)", () => {
+      expect(parseTimestamp("2026-01-01 12:00:00")).toBe(Date.parse("2026-01-01T12:00:00"));
+      expect(parseTimestamp("2026-01-01T00:00:00.123456Z")).toBe(Date.parse("2026-01-01T00:00:00.123Z"));
+    });
   });
 
   describe("formatRelativeDate", () => {

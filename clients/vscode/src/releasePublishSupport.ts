@@ -9,6 +9,12 @@ export type ReleasePublishCapability = {
   githubRemoteUrl?: string;
 };
 
+export const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
+  available: false,
+  title: "Unavailable",
+  reason: "Unavailable"
+};
+
 type CapabilityOptions = {
   runGit?: typeof runGitWithOutput;
   detectGhCli?: () => Promise<boolean>;

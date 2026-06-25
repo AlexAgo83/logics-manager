@@ -1,10 +1,10 @@
 ## item_505_clean_up_duplicated_and_dead_client_js_ts_code - Clean up duplicated and dead client JS/TS code
 > From version: 2.12.12
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Client cleanup
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

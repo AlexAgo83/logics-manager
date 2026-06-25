@@ -135,10 +135,12 @@ vi.mock("../clients/vscode/src/logicsClaudeGlobalKit", () => ({
 }));
 
 vi.mock("../clients/vscode/src/runtimeLaunchers", () => ({
+  UNAVAILABLE_LAUNCHER_STATE: { codex: { available: false, title: "Unavailable", command: "codex" }, claude: { available: false, title: "Unavailable", command: "claude" }, hasCodex: false, hasClaude: false },
   inspectRuntimeLaunchers: mocks.inspectRuntimeLaunchers
 }));
 
 vi.mock("../clients/vscode/src/releasePublishSupport", () => ({
+  UNAVAILABLE_RELEASE_CAPABILITY: { available: false, title: "Unavailable", reason: "Unavailable" },
   inspectGitHubReleaseCapability: mocks.inspectGitHubReleaseCapability
 }));
 

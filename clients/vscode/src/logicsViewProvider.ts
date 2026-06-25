@@ -31,8 +31,8 @@ import { assertNever, parseLogicsWebviewMessage } from "./logicsViewMessages";
 import { buildOnboardingHtml } from "./logicsOnboardingHtml";
 import { inspectGitHubReleaseCapability } from "./releasePublishSupport";
 import { inspectReleaseBranchFastForwardConsent } from "./releaseBranchConsent";
-import { inspectRuntimeLaunchers, RuntimeLaunchersSnapshot } from "./runtimeLaunchers";
-import { ReleasePublishCapability } from "./releasePublishSupport";
+import { inspectRuntimeLaunchers, RuntimeLaunchersSnapshot, UNAVAILABLE_LAUNCHER_STATE } from "./runtimeLaunchers";
+import { ReleasePublishCapability, UNAVAILABLE_RELEASE_CAPABILITY } from "./releasePublishSupport";
 import { LogicsEnvironmentSnapshot } from "./logicsEnvironment";
 import {
   ACTIVE_AGENT_STATE_KEY,
@@ -44,25 +44,6 @@ import { inspectKitUpdateNeed } from "./logicsKitVersionSupport";
 import { installLogicsViewProviderBindings } from "./logicsViewProviderBindings";
 import * as viewProviderSupport from "./logicsViewProviderSupport";
 const PROJECT_GITHUB_URL = "https://github.com/AlexAgo83/logics-manager";
-const UNAVAILABLE_LAUNCHER_STATE: RuntimeLaunchersSnapshot = {
-  codex: {
-    available: false,
-    title: "Unavailable",
-    command: "codex"
-  },
-  claude: {
-    available: false,
-    title: "Unavailable",
-    command: "claude"
-  },
-  hasCodex: false,
-  hasClaude: false
-};
-const UNAVAILABLE_RELEASE_CAPABILITY: ReleasePublishCapability = {
-  available: false,
-  title: "Unavailable",
-  reason: "Unavailable"
-};
 
 export class LogicsViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = "logics.orchestrator";

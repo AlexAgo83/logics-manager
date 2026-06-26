@@ -1,0 +1,319 @@
+{
+  "budgets": {
+    "max_docs": 24,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_282_let_the_assistant_prioritize_execution_order_of_backlog_items item_509_parse_item_priority_and_order_status_output_by_it item_510_populate_item_priority_on_authoring_and_scaffolding item_511_show_item_priority_as_a_viewer_card_badge item_512_teach_the_assistant_to_set_and_plan_by_priority task_279_orchestrate_assistant_driven_item_prioritization --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_509_parse_item_priority_and_order_status_output_by_it",
+          "item_510_populate_item_priority_on_authoring_and_scaffolding",
+          "item_511_show_item_priority_as_a_viewer_card_badge",
+          "item_512_teach_the_assistant_to_set_and_plan_by_priority"
+        ],
+        "prod": [
+          "prod_031_assistant_driven_work_prioritization"
+        ],
+        "req": [
+          "req_282_let_the_assistant_prioritize_execution_order_of_backlog_items"
+        ],
+        "task": [
+          "task_279_orchestrate_assistant_driven_item_prioritization"
+        ]
+      },
+      "path": "logics/product/prod_031_assistant_driven_work_prioritization.md",
+      "ref": "prod_031_assistant_driven_work_prioritization",
+      "status": "Proposed",
+      "title": "Assistant-driven work prioritization"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, let the assistant prioritize execution order of backlog items, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Let the assistant prioritize execution order of backlog items",
+        "use when": "You need to implement or review the scaffolded workflow for Let the assistant prioritize execution order of backlog items."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_509_parse_item_priority_and_order_status_output_by_it",
+          "item_510_populate_item_priority_on_authoring_and_scaffolding",
+          "item_511_show_item_priority_as_a_viewer_card_badge",
+          "item_512_teach_the_assistant_to_set_and_plan_by_priority"
+        ],
+        "prod": [
+          "prod_031_assistant_driven_work_prioritization"
+        ],
+        "req": [
+          "req_282_let_the_assistant_prioritize_execution_order_of_backlog_items"
+        ]
+      },
+      "path": "logics/request/req_282_let_the_assistant_prioritize_execution_order_of_backlog_items.md",
+      "ref": "req_282_let_the_assistant_prioritize_execution_order_of_backlog_items",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Let the assistant prioritize execution order of backlog items"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, parse item priority and order status output by it, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Parse item priority and order status output by it",
+        "use when": "Implementing the scaffolded slice for Parse item priority and order status output by it."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_509_parse_item_priority_and_order_status_output_by_it"
+        ],
+        "prod": [
+          "prod_031_assistant_driven_work_prioritization"
+        ],
+        "req": [
+          "req_282_let_the_assistant_prioritize_execution_order_of_backlog_items"
+        ],
+        "task": [
+          "task_279_orchestrate_assistant_driven_item_prioritization"
+        ]
+      },
+      "path": "logics/backlog/item_509_parse_item_priority_and_order_status_output_by_it.md",
+      "ref": "item_509_parse_item_priority_and_order_status_output_by_it",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Parse item priority and order status output by it"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, populate item priority on authoring and scaffolding, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Populate item priority on authoring and scaffolding",
+        "use when": "Implementing the scaffolded slice for Populate item priority on authoring and scaffolding."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_510_populate_item_priority_on_authoring_and_scaffolding"
+        ],
+        "prod": [
+          "prod_031_assistant_driven_work_prioritization"
+        ],
+        "req": [
+          "req_282_let_the_assistant_prioritize_execution_order_of_backlog_items"
+        ],
+        "task": [
+          "task_279_orchestrate_assistant_driven_item_prioritization"
+        ]
+      },
+      "path": "logics/backlog/item_510_populate_item_priority_on_authoring_and_scaffolding.md",
+      "ref": "item_510_populate_item_priority_on_authoring_and_scaffolding",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Populate item priority on authoring and scaffolding"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, show item priority as a viewer card badge, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Show item priority as a viewer card badge",
+        "use when": "Implementing the scaffolded slice for Show item priority as a viewer card badge."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_511_show_item_priority_as_a_viewer_card_badge"
+        ],
+        "prod": [
+          "prod_031_assistant_driven_work_prioritization"
+        ],
+        "req": [
+          "req_282_let_the_assistant_prioritize_execution_order_of_backlog_items"
+        ],
+        "task": [
+          "task_279_orchestrate_assistant_driven_item_prioritization"
+        ]
+      },
+      "path": "logics/backlog/item_511_show_item_priority_as_a_viewer_card_badge.md",
+      "ref": "item_511_show_item_priority_as_a_viewer_card_badge",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Show item priority as a viewer card badge"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate assistant-driven item prioritization",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_509_parse_item_priority_and_order_status_output_by_it",
+          "item_510_populate_item_priority_on_authoring_and_scaffolding",
+          "item_511_show_item_priority_as_a_viewer_card_badge",
+          "item_512_teach_the_assistant_to_set_and_plan_by_priority"
+        ],
+        "prod": [
+          "prod_031_assistant_driven_work_prioritization"
+        ],
+        "req": [
+          "req_282_let_the_assistant_prioritize_execution_order_of_backlog_items"
+        ],
+        "task": [
+          "task_279_orchestrate_assistant_driven_item_prioritization"
+        ]
+      },
+      "path": "logics/tasks/task_279_orchestrate_assistant_driven_item_prioritization.md",
+      "ref": "task_279_orchestrate_assistant_driven_item_prioritization",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrate assistant-driven item prioritization"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, teach the assistant to set and plan by priority, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Teach the assistant to set and plan by priority",
+        "use when": "Implementing the scaffolded slice for Teach the assistant to set and plan by priority."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_512_teach_the_assistant_to_set_and_plan_by_priority"
+        ],
+        "prod": [
+          "prod_031_assistant_driven_work_prioritization"
+        ],
+        "req": [
+          "req_282_let_the_assistant_prioritize_execution_order_of_backlog_items"
+        ],
+        "task": [
+          "task_279_orchestrate_assistant_driven_item_prioritization"
+        ]
+      },
+      "path": "logics/backlog/item_512_teach_the_assistant_to_set_and_plan_by_priority.md",
+      "ref": "item_512_teach_the_assistant_to_set_and_plan_by_priority",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Teach the assistant to set and plan by priority"
+    }
+  ],
+  "estimates": {
+    "char_count": 6563,
+    "companion_doc_count": 1,
+    "doc_count": 6
+  },
+  "generated_at": "2026-06-26T12:36:26Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_282_let_the_assistant_prioritize_execution_order_of_backlog_items",
+      "item_509_parse_item_priority_and_order_status_output_by_it",
+      "item_510_populate_item_priority_on_authoring_and_scaffolding",
+      "item_511_show_item_priority_as_a_viewer_card_badge",
+      "item_512_teach_the_assistant_to_set_and_plan_by_priority",
+      "task_279_orchestrate_assistant_driven_item_prioritization"
+    ],
+    "validation_summary_count": 1
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_282_let_the_assistant_prioritize_execution_order_of_backlog_items,item_509_parse_item_priority_and_order_status_output_by_it,item_510_populate_item_priority_on_authoring_and_scaffolding,item_511_show_item_priority_as_a_viewer_card_badge,item_512_teach_the_assistant_to_set_and_plan_by_priority,task_279_orchestrate_assistant_driven_item_prioritization",
+  "refs": [
+    "req_282_let_the_assistant_prioritize_execution_order_of_backlog_items",
+    "item_509_parse_item_priority_and_order_status_output_by_it",
+    "item_510_populate_item_priority_on_authoring_and_scaffolding",
+    "item_511_show_item_priority_as_a_viewer_card_badge",
+    "item_512_teach_the_assistant_to_set_and_plan_by_priority",
+    "task_279_orchestrate_assistant_driven_item_prioritization"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.13.0"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_279_orchestrate_assistant_driven_item_prioritization.md",
+      "ref": "task_279_orchestrate_assistant_driven_item_prioritization"
+    }
+  ]
+}

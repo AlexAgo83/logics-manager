@@ -161,6 +161,31 @@ def test_workshop_terminal_session_applies_initial_winsize_before_exec(tmp_path:
     assert "45 123" in output
 
 
+def test_workshop_command_registry_caps_session_count(tmp_path: Path) -> None:
+    import time as _time
+
+    from logics_manager import viewer_workshop
+
+    cap = viewer_workshop._WORKSHOP_SESSION_MAX
+    registry = WorkshopSessionRegistry()
+    created = []
+    for i in range(cap + 3):
+        session = registry.create({"id": f"cmd-{i}", "runner": ["/bin/echo", f"line-{i}"]}, tmp_path)
+        created.append(session)
+        for _ in range(25):
+            if session.state in {"finished", "failed", "stopped"}:
+                break
+            _time.sleep(0.02)
+
+    listed = registry.list()
+    registry.shutdown()
+
+    assert len(listed) <= cap
+    surviving_ids = {item["id"] for item in listed}
+    assert created[-1].session_id in surviving_ids
+    assert created[0].session_id not in surviving_ids
+
+
 @pytest.mark.skipif(not workshop_terminals_available(), reason="stdlib pty is unavailable on this host")
 def test_workshop_terminal_registry_caps_session_count(tmp_path: Path) -> None:
     import time as _time

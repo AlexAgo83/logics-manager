@@ -2,8 +2,8 @@
 > From version: 2.13.0
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90
-> Confidence: 78
+> Understanding: 95
+> Confidence: 86
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -17,12 +17,17 @@
 - Backend is a stdlib `pty` session (`logics_manager/viewer_workshop.py`): PTY fork, initial 80x24 (`:439-450`), resize via `TIOCSWINSZ` ioctl (`resize()` `:570-578`).
 - Frontend resize plumbing exists and is broadly correct: `FitAddon.fit()` + `proposeDimensions()`, clamps to `WORKSHOP_TERMINAL_MIN_COLS`, posts `{rows, cols}` to the backend resize endpoint (`clients/viewer/browser-host.js:2878-2888`, `:3209`, init at `:6365-6398`, ResizeObserver + rAF at `:798-808`, `:6587-6598`). So this is NOT the gross "PTY stuck at 80" bug.
 - Observed (user screenshots, 2026-06-26): narrow tables render fine; wide tables break with the right border landing inside the text; intermittent, appearing "whenever it glitched" — consistent with a reflow/width event, not a constant offset.
-- Most probable cause: xterm 5.3.0 reflow of lines containing box-drawing/wide characters, aggravated by a ±1 column width oscillation when the scrollbar appears/disappears (FitAddon recomputes cols, the PTY/TUI redraws at one width while already-printed buffer lines are re-wrapped at another). xterm 5.4/5.5 shipped reflow and wide-char fixes.
+- Most probable cause: a **character-measurement / cell-width bug in xterm 5.3.0** that misplaces columns for wide/box-drawing content, surfaced intermittently by Claude Code's wide tables. Two pieces of evidence raise this above a guess:
+  1. **xterm 5.4.0 changelog cluster, squarely in this bug family** (verified on the GitHub release): new default text-metrics measure strategy #4929 ("improves cases where characters would be cut off"), **fix spacing when measuring before the element is attached to the DOM #4973** (a measurement-timing bug), move WidthCache measurement container #4807, and DOM-renderer fixes #4762/#4815/#4837. These are exactly width/measurement defects that produce misaligned columns.
+  2. **Negative evidence from fresh captures (2026-06-26 14:03)**: plain wrapped text (no tables) renders perfectly; only wide box-drawing tables break. That points at width/measurement of specific content, not a constant wrong-font or PTY-size bug.
+- Measurement-timing angle: the terminal mounts → `fit()` → later re-fits on `document.fonts.ready` (`browser-host.js:~6400`). If the first measurement runs with the fallback font before the monospace font loads, cells are mis-sized until the re-fit, and already-printed lines stay corrupted — consistent with the intermittency.
+- Config smell: the terminal is created with `convertEol: true` (`browser-host.js:6363`), unusual for a raw PTY-backed terminal (the TUI emits its own line/cursor control); worth flipping to `false` and testing.
 
 # Decisions
 - **Primary fix: bump the vendored xterm.js 5.3.0 → latest 5.x (5.5.0)** plus matching addons, then re-test the table artifact. Cheapest, highest-probability fix; it is a vendored-file swap following the documented `PROVENANCE.md` refresh, no bundler change.
 - **Secondary: stabilize the rendered width** so the scrollbar appearing/disappearing does not oscillate the column count by ±1 (reserve a scrollbar gutter / give the terminal host a stable content width). Removes the reflow trigger even if a residual xterm reflow glitch remains.
-- **Confirm-then-stop**: if the bump alone clears the artifact in a repro (resize the pane while Claude Code prints a wide table), ship that and treat the width-stabilization as optional hardening rather than mandatory.
+- **Cheap co-fixes to test alongside the bump** (both one-liners, low risk): set `convertEol: false` for the PTY terminal, and ensure a `refresh()`/`fit()` re-measure fires after `document.fonts.ready` so the first frame is never measured with the fallback font. These address the measurement-timing cause directly even if the bump is partial.
+- **Confirm-then-stop**: if the bump (+ co-fixes) clears the artifact in a repro (resize the pane while Claude Code prints a wide table), ship that and treat the width-stabilization as optional hardening rather than mandatory.
 
 # Acceptance criteria
 - AC1: With the updated terminal, a heavy TUI (Claude Code) printing a wide box-drawing table renders with borders aligned — no `┤`/`┐` leaking into cell text — at the default pane size.
@@ -43,7 +48,7 @@
 
 # Risks / Open questions
 - Addon package rename: at xterm 5.4+ the npm packages moved to the `@xterm/*` scope (`@xterm/addon-fit`, `@xterm/addon-web-links`) and the global may change (`window.FitAddon` vs `@xterm/addon-fit`). The frontend already guards both shapes (`browser-host.js:6365` checks `window.FitAddon` and `window.FitAddon.FitAddon`) — verify the new bundle still exposes a compatible global, or adjust the loader. Pin exact versions in PROVENANCE.
-- The artifact could not be reproduced deterministically from screenshots alone; the bump is the cheapest high-probability bet but AC must be validated against a real repro, not assumed.
+- The artifact was not reproduced deterministically in this session; however the 5.4.0 measurement/metrics fix cluster (#4929/#4973/#4807) is squarely in the bug family, so the bump is a well-supported bet, not a blind one. AC must still be validated against a real repro before closing.
 - If the bump does not fully fix it, the width-stabilization (Secondary) becomes mandatory; keep both tracks scoped in the same task.
 - Vendored-file swap means no automated dependency test — manual smoke of the Workshop terminal (input, resize, web-links, a wide table) is required.
 
@@ -55,7 +60,9 @@
 - `clients/shared-web/media/vendor/xterm/PROVENANCE.md` (vendored versions + refresh command)
 - `clients/shared-web/media/vendor/xterm/xterm.js` / `xterm-addon-fit.js` / `xterm-addon-web-links.js` (files to bump)
 - `clients/viewer/browser-host.js:2878-2888`, `:3209`, `:6365-6398`, `:6587-6598`, `:798-808` (fit/resize plumbing, addon loading)
+- `clients/viewer/browser-host.js:6363` (`convertEol: true` smell), `:~6400` (`document.fonts.ready` re-fit)
 - `logics_manager/viewer_workshop.py:439-450`, `:570-578` (PTY init + TIOCSWINSZ resize)
+- xterm.js 5.4.0 release notes (#4929 text metrics, #4973 measure-before-DOM-attach, #4807 WidthCache): https://github.com/xtermjs/xterm.js/releases/tag/5.4.0
 
 # AI Context
 - Summary: Workshop in-app terminal corrupts wide box-drawing tables from heavy TUIs (Claude Code) — borders leak into text. Primary fix is bumping vendored xterm.js 5.3.0 -> 5.5.0 + addons; secondary is stabilizing rendered width against scrollbar-driven ±1 col jitter; validate with a real repro.

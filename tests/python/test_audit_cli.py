@@ -133,6 +133,25 @@ def test_render_audit_reports_stale_pending_doc(tmp_path: Path) -> None:
     assert payload["issues"][0]["code"] == "stale_pending_doc"
 
 
+def test_audit_active_view_ignores_terminal_doc_blockers(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "backlog" / "item_001_withdrawn.md",
+        title="Withdrawn",
+        kind="backlog",
+        status="Obsolete",
+        links=[],
+    )
+
+    full = audit_payload(repo_root, skip_ac_traceability=True, skip_gates=True)
+    active = audit_payload(repo_root, skip_ac_traceability=True, skip_gates=True, active=True)
+
+    assert full["issue_count"] == 1
+    assert active["issue_count"] == 0
+    assert "View: active non-terminal docs" in render_audit(repo_root, skip_ac_traceability=True, skip_gates=True, active=True)
+
+
 def test_audit_structure_autofix_preserves_unrelated_findings(tmp_path: Path) -> None:
     repo_root = tmp_path / "logics-repo"
     (repo_root / "logics" / "request").mkdir(parents=True)

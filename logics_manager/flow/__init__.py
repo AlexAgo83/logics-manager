@@ -16,6 +16,7 @@ from ..flow_evidence import structured_validation_line as _structured_validation
 from ..index import index_payload
 from ..lint import expected_workflow_mermaid_signature, lint_payload
 from ..path_utils import ensure_relative_to, resolve_repo_output_path
+from ..statuses import transition_error
 from ..sync import build_context_pack_payload, read_logics_doc_payload
 from ..termstyle import colorize_help
 
@@ -270,6 +271,10 @@ def _build_help() -> str:
             "",
             "  close <request|backlog|task> <source>",
             "    Close a doc and propagate transitions.",
+            "    Flags: --format {text,json}, --dry-run",
+            "",
+            "  withdraw <source> --superseded-by <ref>",
+            "    Mark a doc Obsolete and record its replacement.",
             "    Flags: --format {text,json}, --dry-run",
             "",
             "  finish task <source>",
@@ -1538,11 +1543,11 @@ def _build_native_request_doc(repo_root: Path, planned_ref: str, title: str, arg
             f"## {planned_ref} - {title}",
             f"> From version: {from_version}",
             "> Schema version: 1.0",
-            "> Status: Draft",
-            "> Understanding: 90%",
-            "> Confidence: 85%",
-            "> Complexity: Medium",
-            "> Theme: Operator workflow",
+            f"> Status: {getattr(args, 'status', 'Draft')}",
+            f"> Understanding: {getattr(args, 'understanding', '90%')}",
+            f"> Confidence: {getattr(args, 'confidence', '85%')}",
+            f"> Complexity: {getattr(args, 'complexity', 'Medium')}",
+            f"> Theme: {getattr(args, 'theme', 'General')}",
             "> Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.",
             "",
             "# Needs",
@@ -2458,6 +2463,13 @@ def build_parser() -> argparse.ArgumentParser:
         kind_parser.add_argument("--format", choices=("text", "json"), default="text")
         kind_parser.add_argument("--dry-run", action="store_true")
         kind_parser.set_defaults(func=cmd_close)
+
+    withdraw_parser = sub.add_parser("withdraw", help="Mark a workflow doc obsolete and record its replacement.")
+    withdraw_parser.add_argument("source")
+    withdraw_parser.add_argument("--superseded-by", required=True)
+    withdraw_parser.add_argument("--format", choices=("text", "json"), default="text")
+    withdraw_parser.add_argument("--dry-run", action="store_true")
+    withdraw_parser.set_defaults(func=cmd_withdraw)
 
     finish_parser = sub.add_parser("finish", help="Finish a task and verify the closure chain.")
     finish_sub = finish_parser.add_subparsers(dest="kind", required=True)
@@ -4134,6 +4146,33 @@ def cmd_close(args: argparse.Namespace) -> dict[str, object]:
     return payload
 
 
+def cmd_withdraw(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    source_path, kind_name = _resolve_any_workflow_source(repo_root, args.source)
+    kind = DOC_KINDS[kind_name]
+    lines = source_path.read_text(encoding="utf-8").splitlines()
+    previous_status = next((line.split(":", 1)[1].strip() for line in lines if line.startswith("> Status:")), None)
+    error = transition_error(kind.kind, previous_status, "Obsolete")
+    if error:
+        raise SystemExit(error)
+    if not args.dry_run:
+        source_path.write_text("\n".join(_replace_indicator_line(lines, "Status", "Obsolete")).rstrip() + "\n", encoding="utf-8")
+        _append_section_bullets(source_path, "Links", [f"Superseded by: `{args.superseded_by}`"], dry_run=False)
+
+    payload = {
+        "command": "withdraw",
+        "kind": kind.kind,
+        "source": source_path.relative_to(repo_root).as_posix(),
+        "superseded_by": args.superseded_by,
+        "dry_run": args.dry_run,
+    }
+    if args.format == "json":
+        print_payload(payload, args.format)
+    else:
+        print(f"Withdrew {kind.kind}: {payload['source']} (superseded by {args.superseded_by})")
+    return payload
+
+
 def _verify_finished_task_chain(repo_root: Path, task_path: Path) -> list[str]:
     issues: list[str] = []
     task_ref = task_path.stem
@@ -4354,7 +4393,7 @@ def main(argv: list[str]) -> int:
     if argv[0] == "finish" and len(argv) > 1 and argv[1] == "task" and _help_requested(argv, 2):
         _print_help(_build_finish_kind_help(argv[1]))
         return 0
-    valid_commands = {"new", "list", "show", "companion", "deliver", "scaffold", "validate", "validate-closeout", "start", "repair", "closeout", "promote", "split", "close", "finish"}
+    valid_commands = {"new", "list", "show", "companion", "deliver", "scaffold", "validate", "validate-closeout", "start", "repair", "closeout", "promote", "split", "close", "withdraw", "finish"}
     if argv[0] not in valid_commands:
         hint = " Use `logics-manager flow show <ref>` to inspect a workflow doc." if argv[0] in {"read", "view", "cat"} else " Run `logics-manager flow --help` for valid commands."
         raise SystemExit(f"Unsupported flow subcommand: {argv[0]}.{hint}")

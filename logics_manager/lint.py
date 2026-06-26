@@ -558,7 +558,7 @@ def lint_payload(repo_root: Path, *, require_status: bool = False) -> dict[str, 
                     issues.append(
                         "modified without updating indicators: "
                         + ", ".join(sorted(required))
-                        + f" (fix: logics-manager sync update-indicators {path.stem})"
+                        + f" (fix: logics-manager sync update-indicators {path.stem} --confidence <n>; or add `> Non-semantic edit:`)"
                     )
             if issues:
                 all_issues.append((rel_path, issues))

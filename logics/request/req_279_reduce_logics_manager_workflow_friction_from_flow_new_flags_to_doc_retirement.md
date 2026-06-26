@@ -1,7 +1,7 @@
 ## req_279_reduce_logics_manager_workflow_friction_from_flow_new_flags_to_doc_retirement - Reduce logics-manager workflow friction from flow-new flags to doc retirement
 > From version: 2.13.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95
 > Confidence: 89
 > Complexity: Medium

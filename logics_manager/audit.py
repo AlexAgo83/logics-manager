@@ -595,6 +595,7 @@ def audit_payload(
     token_hygiene: bool = False,
     autofix_structure: bool = False,
     governance_profile: str = "standard",
+    active: bool = False,
 ) -> dict[str, object]:
     profile = GOVERNANCE_PROFILES[governance_profile]
     if stale_days == 45:
@@ -909,6 +910,9 @@ def audit_payload(
         if issue.repair_command:
             finding["repair_command"] = issue.repair_command
         serialized_findings.append(finding)
+    if active:
+        active_paths = {_rel(repo_root, doc.path) for doc in docs.values() if not _is_done(doc)}
+        serialized_findings = [finding for finding in serialized_findings if finding["path"] == "(global)" or finding["path"] in active_paths]
 
     blocking_findings = [finding for finding in serialized_findings if finding["severity"] == "blocking"]
     warning_findings = [finding for finding in serialized_findings if finding["severity"] == "warning"]
@@ -945,6 +949,7 @@ def audit_payload(
         },
         "workflow_doc_count": sum(1 for directory in ("logics/request", "logics/backlog", "logics/tasks") for _ in (repo_root / directory).glob("*.md") if (repo_root / directory).is_dir()),
         "group_by_doc": group_by_doc,
+        "active": active,
     }
 
 
@@ -964,6 +969,7 @@ def render_audit(
     token_hygiene: bool = False,
     autofix_structure: bool = False,
     governance_profile: str = "standard",
+    active: bool = False,
 ) -> str:
     payload = audit_payload(
         repo_root,
@@ -979,6 +985,7 @@ def render_audit(
         token_hygiene=token_hygiene,
         autofix_structure=autofix_structure,
         governance_profile=governance_profile,
+        active=active,
     )
     if output_format == "json":
         return json.dumps(payload, indent=2, sort_keys=True)
@@ -992,6 +999,8 @@ def render_audit(
         f"Workflow docs inspected: {payload['workflow_doc_count']}",
         f"Blocking issues: {payload['issue_count']}; warnings: {payload['warning_count']}; strict-only findings: {payload['strict_count']}",
     ]
+    if payload.get("active"):
+        lines.insert(1, "View: active non-terminal docs")
     findings = payload["findings"]
     if not findings:
         return "\n".join(lines)
@@ -1033,6 +1042,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--token-hygiene", action="store_true", help="Enable compact AI context and verbosity checks for workflow docs.")
     parser.add_argument("--autofix-structure", action="store_true", help="Deterministically repair missing schema metadata, AI Context, and missing gate sections.")
     parser.add_argument("--governance-profile", choices=tuple(GOVERNANCE_PROFILES), default="standard", help="Apply a named governance profile; `standard` reports early companion-doc polish as warnings, `strict` promotes governance warnings to blockers.")
+    parser.add_argument("--active", action="store_true", help="Report findings only for in-scope non-terminal workflow docs.")
     return parser
 
 
@@ -1053,6 +1063,7 @@ def main(argv: list[str]) -> int:
         token_hygiene=args.token_hygiene,
         autofix_structure=args.autofix_structure,
         governance_profile=args.governance_profile,
+        active=args.active,
     )
     output = json.dumps(payload, indent=2, sort_keys=True) if args.format == "json" else render_audit(
         repo_root,
@@ -1069,6 +1080,7 @@ def main(argv: list[str]) -> int:
         token_hygiene=args.token_hygiene,
         autofix_structure=args.autofix_structure,
         governance_profile=args.governance_profile,
+        active=args.active,
     )
     print(output)
     return 0 if payload["ok"] else 1

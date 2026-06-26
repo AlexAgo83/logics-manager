@@ -1,10 +1,10 @@
 ## item_506_reduce_logics_manager_workflow_friction_from_flow_new_flags_to_doc_retirement - Reduce logics-manager workflow friction from flow-new flags to doc retirement
 > From version: 2.13.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -63,6 +63,7 @@ Goal: a `flow new` / grooming loop where flags are honored, error hints actually
 - Hybrid rationale: Derived from request `req_279_reduce_logics_manager_workflow_friction_from_flow_new_flags_to_doc_retirement` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_279_reduce_logics_manager_workflow_friction_from_flow_new_flags_to_doc_retirement.md`.
 - Generated locally by logics-manager.
+- Task `task_276_reduce_logics_manager_workflow_friction_from_flow_new_flags_to_doc_retirement` was finished via `logics-manager flow finish task` on 2026-06-26.
 
 # Tasks
 - `task_276_reduce_logics_manager_workflow_friction_from_flow_new_flags_to_doc_retirement`

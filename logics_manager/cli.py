@@ -418,6 +418,7 @@ def main(argv: list[str] | None = None) -> int:
                 token_hygiene=parsed.token_hygiene,
                 autofix_structure=parsed.autofix_structure,
                 governance_profile=parsed.governance_profile,
+                active=parsed.active,
             )
         except ConfigError as exc:
             raise SystemExit(str(exc)) from exc
@@ -436,6 +437,7 @@ def main(argv: list[str] | None = None) -> int:
             token_hygiene=parsed.token_hygiene,
             autofix_structure=parsed.autofix_structure,
             governance_profile=parsed.governance_profile,
+            active=parsed.active,
         )
         print(output)
         return 0 if payload["ok"] else 1

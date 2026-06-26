@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Draft
 > Understanding: 95
-> Confidence: 92
+> Confidence: 93
 > Complexity: Low
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -53,8 +53,8 @@
 
 # Risks / Open questions
 - Mouse-only users lose the passive hover peek — they must click (which focuses) to see the footer. This is the intended trade-off; if it proves too hidden, the documented fallback is a hover with a short open-delay (anti-flicker) kept alongside focus. (decision: focus-only first.)
-- `createItemCard()` is shared. Open question: apply focus-only everywhere it renders cards, or gate to the project view only (would need a view-mode check). Recommended: apply globally for consistency unless list/compact views must keep hover.
-- Confirm no other path force-opens the preview (e.g. a selected state that sets `card--preview-open`) that would keep it visible regardless of the trigger change.
+- DECIDED — `createItemCard()` is shared across board/list/compact: apply focus-only globally (one change site, consistent behavior). No view-mode gating; if list/compact later need hover back, that's a separate slice.
+- RESOLVED — no other path force-opens the preview: `setPreviewOpen(true)` is called only by the `mouseenter` (`:1150`) and `focus` (`:1152`) listeners, and `card--preview-open` is toggled only in `setPreviewOpen` (`:1106`). Removing the two hover listeners is sufficient; nothing else holds it open.
 
 # Companion docs
 - Product brief(s): (none yet)

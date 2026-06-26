@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Draft
 > Understanding: 95
-> Confidence: 88
+> Confidence: 89
 > Complexity: Medium
 > Theme: Operator workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -48,7 +48,7 @@ Each item below was reproduced against the current code; file:line refer to this
 
 # Risks / Open questions
 - RESOLVED — terminal status: reuse existing `Obsolete` (closed set for request/backlog/task in `statuses.json`); no new state needed. Verify the request→`Obsolete` transition is allowed in `statuses.py` transition rules and that `flow withdraw` records `> Superseded by:` link without tripping the "don't hand-edit links" rule (the verb writes it).
-- Subject 4: decide the scoping mechanism (explicit `--active`/status filter vs a separate `dev-ready` command) so it composes with existing `--group-by-doc`/`--legacy-cutoff-version` flags.
+- DECIDED — Subject 4 scoping mechanism: add an `audit --active` flag (composes with `--group-by-doc`/`--legacy-cutoff-version`) that filters findings to non-terminal, in-scope docs. Prefer a flag over a separate `dev-ready` command to reuse the existing audit pipeline. Implementer may rename the flag if a better fit exists, but the default is `--active`.
 - Subject 5: choosing to strip `%` vs keep `%` — keep `%` is the lower-churn choice since generators already emit it; verify lint/audit/sync parsers are tolerant either way before flipping.
 - Subjects 1, 2, 5 touch generation/format paths with existing golden-file tests — update fixtures in the same change.
 

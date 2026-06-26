@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Draft
 > Understanding: 95
-> Confidence: 90
+> Confidence: 91
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -52,7 +52,7 @@
 
 # Risks / Open questions
 - Addon package rename: at xterm 5.4+ the npm packages moved to the `@xterm/*` scope (`@xterm/addon-fit`, `@xterm/addon-web-links`) and the global may change (`window.FitAddon` vs `@xterm/addon-fit`). The frontend already guards both shapes (`browser-host.js:6365` checks `window.FitAddon` and `window.FitAddon.FitAddon`) — verify the new bundle still exposes a compatible global, or adjust the loader. Pin exact versions in PROVENANCE.
-- The artifact was not reproduced deterministically in this session; however the 5.4.0 measurement/metrics fix cluster (#4929/#4973/#4807) is squarely in the bug family, so the bump is a well-supported bet, not a blind one. AC must still be validated against a real repro before closing.
+- The artifact is now reproduced (captures 14:07–14:09) and its modes match the 5.4.0 measurement/metrics + reflow fix family (#4929/#4973/#4807), so the bump is a well-supported bet. The remaining unknown is whether 5.5.0 fully clears all three modes — validate the *fix* against the same repro before closing (the diagnosis itself is confirmed).
 - If the bump does not fully fix it, the width-stabilization (Secondary) becomes mandatory; keep both tracks scoped in the same task.
 - Vendored-file swap means no automated dependency test — manual smoke of the Workshop terminal (input, resize, web-links, a wide table) is required.
 - Failure mode #2 (table genuinely wider than the terminal) is partly inherent: any emulator must wrap a too-wide table. The bump should fix the *corruption* on wrap/reflow, but a table wider than the pane will still wrap — not a regression, just physics. Out of scope to reflow Claude Code's own table widths.

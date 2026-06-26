@@ -20,6 +20,9 @@ __pycache__/
 *.pyc
 *.egg-info/
 
+# Logics scaffold inputs (one-shot recipes, regenerate corpus from them locally)
+logics/scaffold/
+
 # Generated Logics runtime artifacts
 logics/.cache/
 logics/hybrid_assist_audit.jsonl

@@ -67,6 +67,7 @@
 | [prod_029_assistant_authoring_ergonomics](product/prod_029_assistant_authoring_ergonomics.md) | Assistant authoring ergonomics | Settled |  |  | product/prod_029_assistant_authoring_ergonomics.md |
 | [prod_030_audit_remediation_hardening_and_cleanup](product/prod_030_audit_remediation_hardening_and_cleanup.md) | Audit remediation: hardening and cleanup | Settled |  |  | product/prod_030_audit_remediation_hardening_and_cleanup.md |
 | [prod_031_assistant_driven_work_prioritization](product/prod_031_assistant_driven_work_prioritization.md) | Assistant-driven work prioritization | Proposed |  |  | product/prod_031_assistant_driven_work_prioritization.md |
+| [prod_032_minimizable_viewer_screens](product/prod_032_minimizable_viewer_screens.md) | Minimizable viewer screens | Proposed |  |  | product/prod_032_minimizable_viewer_screens.md |
 
 ## Requests
 
@@ -353,6 +354,7 @@
 | [req_280_reveal_card_metadata_footer_only_on_focus_not_on_hover_in_project_view](request/req_280_reveal_card_metadata_footer_only_on_focus_not_on_hover_in_project_view.md) | Reveal card metadata footer only on focus not on hover in project view | Draft |  |  | request/req_280_reveal_card_metadata_footer_only_on_focus_not_on_hover_in_project_view.md |
 | [req_281_fix_workshop_terminal_rendering_artifacts_on_heavy_tui_output](request/req_281_fix_workshop_terminal_rendering_artifacts_on_heavy_tui_output.md) | Fix Workshop terminal rendering artifacts on heavy TUI output | Draft |  |  | request/req_281_fix_workshop_terminal_rendering_artifacts_on_heavy_tui_output.md |
 | [req_282_let_the_assistant_prioritize_execution_order_of_backlog_items](request/req_282_let_the_assistant_prioritize_execution_order_of_backlog_items.md) | Let the assistant prioritize execution order of backlog items | Draft |  |  | request/req_282_let_the_assistant_prioritize_execution_order_of_backlog_items.md |
+| [req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock](request/req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock.md) | Minimize desktop viewer screens to a bottom-left dock | Draft |  |  | request/req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock.md |
 
 ## Backlog
 
@@ -870,6 +872,9 @@
 | [item_510_populate_item_priority_on_authoring_and_scaffolding](backlog/item_510_populate_item_priority_on_authoring_and_scaffolding.md) | Populate item priority on authoring and scaffolding | Ready |  | 0% | backlog/item_510_populate_item_priority_on_authoring_and_scaffolding.md |
 | [item_511_show_item_priority_as_a_viewer_card_badge](backlog/item_511_show_item_priority_as_a_viewer_card_badge.md) | Show item priority as a viewer card badge | Ready |  | 0% | backlog/item_511_show_item_priority_as_a_viewer_card_badge.md |
 | [item_512_teach_the_assistant_to_set_and_plan_by_priority](backlog/item_512_teach_the_assistant_to_set_and_plan_by_priority.md) | Teach the assistant to set and plan by priority | Ready |  | 0% | backlog/item_512_teach_the_assistant_to_set_and_plan_by_priority.md |
+| [item_513_add_minimize_restore_screen_state_and_the_header_minimize_button](backlog/item_513_add_minimize_restore_screen_state_and_the_header_minimize_button.md) | Add minimize/restore screen state and the header minimize button | Ready |  | 0% | backlog/item_513_add_minimize_restore_screen_state_and_the_header_minimize_button.md |
+| [item_514_build_the_bottom_left_minimized_dock_of_stacked_pills](backlog/item_514_build_the_bottom_left_minimized_dock_of_stacked_pills.md) | Build the bottom-left minimized dock of stacked pills | Ready |  | 0% | backlog/item_514_build_the_bottom_left_minimized_dock_of_stacked_pills.md |
+| [item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore](backlog/item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore.md) | Preserve live screen state across minimize and re-fit terminal on restore | Ready |  | 0% | backlog/item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore.md |
 
 ## Tasks
 
@@ -1148,3 +1153,4 @@
 | [task_277_reveal_card_metadata_footer_only_on_focus_not_on_hover_in_project_view](tasks/task_277_reveal_card_metadata_footer_only_on_focus_not_on_hover_in_project_view.md) | Reveal card metadata footer only on focus not on hover in project view | Ready |  | 0% | tasks/task_277_reveal_card_metadata_footer_only_on_focus_not_on_hover_in_project_view.md |
 | [task_278_fix_workshop_terminal_rendering_artifacts_on_heavy_tui_output](tasks/task_278_fix_workshop_terminal_rendering_artifacts_on_heavy_tui_output.md) | Fix Workshop terminal rendering artifacts on heavy TUI output | Ready |  | 0% | tasks/task_278_fix_workshop_terminal_rendering_artifacts_on_heavy_tui_output.md |
 | [task_279_orchestrate_assistant_driven_item_prioritization](tasks/task_279_orchestrate_assistant_driven_item_prioritization.md) | Orchestrate assistant-driven item prioritization | Ready |  | 0% | tasks/task_279_orchestrate_assistant_driven_item_prioritization.md |
+| [task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer](tasks/task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer.md) | Orchestrate minimize-screens-to-dock for the desktop viewer | Ready |  | 0% | tasks/task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer.md |

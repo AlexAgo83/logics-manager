@@ -1,0 +1,286 @@
+{
+  "budgets": {
+    "max_docs": 20,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock item_513_add_minimize_restore_screen_state_and_the_header_minimize_button item_514_build_the_bottom_left_minimized_dock_of_stacked_pills item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_513_add_minimize_restore_screen_state_and_the_header_minimize_button",
+          "item_514_build_the_bottom_left_minimized_dock_of_stacked_pills",
+          "item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore"
+        ],
+        "prod": [
+          "prod_032_minimizable_viewer_screens"
+        ],
+        "req": [
+          "req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock"
+        ],
+        "task": [
+          "task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer"
+        ]
+      },
+      "path": "logics/product/prod_032_minimizable_viewer_screens.md",
+      "ref": "prod_032_minimizable_viewer_screens",
+      "status": "Proposed",
+      "title": "Minimizable viewer screens"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, minimize desktop viewer screens to a bottom-left dock, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Minimize desktop viewer screens to a bottom-left dock",
+        "use when": "You need to implement or review the scaffolded workflow for Minimize desktop viewer screens to a bottom-left dock."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_513_add_minimize_restore_screen_state_and_the_header_minimize_button",
+          "item_514_build_the_bottom_left_minimized_dock_of_stacked_pills",
+          "item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore"
+        ],
+        "prod": [
+          "prod_032_minimizable_viewer_screens"
+        ],
+        "req": [
+          "req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock"
+        ]
+      },
+      "path": "logics/request/req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock.md",
+      "ref": "req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Minimize desktop viewer screens to a bottom-left dock"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add minimize/restore screen state and the header minimize button, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add minimize/restore screen state and the header minimize button",
+        "use when": "Implementing the scaffolded slice for Add minimize/restore screen state and the header minimize button."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_513_add_minimize_restore_screen_state_and_the_header_minimize_button"
+        ],
+        "prod": [
+          "prod_032_minimizable_viewer_screens"
+        ],
+        "req": [
+          "req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock"
+        ],
+        "task": [
+          "task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer"
+        ]
+      },
+      "path": "logics/backlog/item_513_add_minimize_restore_screen_state_and_the_header_minimize_button.md",
+      "ref": "item_513_add_minimize_restore_screen_state_and_the_header_minimize_button",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Add minimize/restore screen state and the header minimize button"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, build the bottom-left minimized dock of stacked pills, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Build the bottom-left minimized dock of stacked pills",
+        "use when": "Implementing the scaffolded slice for Build the bottom-left minimized dock of stacked pills."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_514_build_the_bottom_left_minimized_dock_of_stacked_pills"
+        ],
+        "prod": [
+          "prod_032_minimizable_viewer_screens"
+        ],
+        "req": [
+          "req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock"
+        ],
+        "task": [
+          "task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer"
+        ]
+      },
+      "path": "logics/backlog/item_514_build_the_bottom_left_minimized_dock_of_stacked_pills.md",
+      "ref": "item_514_build_the_bottom_left_minimized_dock_of_stacked_pills",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Build the bottom-left minimized dock of stacked pills"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, preserve live screen state across minimize and re-fit terminal on restore, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Preserve live screen state across minimize and re-fit terminal on restore",
+        "use when": "Implementing the scaffolded slice for Preserve live screen state across minimize and re-fit terminal on restore."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore"
+        ],
+        "prod": [
+          "prod_032_minimizable_viewer_screens"
+        ],
+        "req": [
+          "req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock"
+        ],
+        "task": [
+          "task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer"
+        ]
+      },
+      "path": "logics/backlog/item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore.md",
+      "ref": "item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Preserve live screen state across minimize and re-fit terminal on restore"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate minimize-screens-to-dock for the desktop viewer",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_513_add_minimize_restore_screen_state_and_the_header_minimize_button",
+          "item_514_build_the_bottom_left_minimized_dock_of_stacked_pills",
+          "item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore"
+        ],
+        "prod": [
+          "prod_032_minimizable_viewer_screens"
+        ],
+        "req": [
+          "req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock"
+        ],
+        "task": [
+          "task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer"
+        ]
+      },
+      "path": "logics/tasks/task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer.md",
+      "ref": "task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrate minimize-screens-to-dock for the desktop viewer"
+    }
+  ],
+  "estimates": {
+    "char_count": 5865,
+    "companion_doc_count": 1,
+    "doc_count": 5
+  },
+  "generated_at": "2026-06-26T12:47:44Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock",
+      "item_513_add_minimize_restore_screen_state_and_the_header_minimize_button",
+      "item_514_build_the_bottom_left_minimized_dock_of_stacked_pills",
+      "item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore",
+      "task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer"
+    ],
+    "validation_summary_count": 1
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock,item_513_add_minimize_restore_screen_state_and_the_header_minimize_button,item_514_build_the_bottom_left_minimized_dock_of_stacked_pills,item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore,task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer",
+  "refs": [
+    "req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock",
+    "item_513_add_minimize_restore_screen_state_and_the_header_minimize_button",
+    "item_514_build_the_bottom_left_minimized_dock_of_stacked_pills",
+    "item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore",
+    "task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.13.0"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer.md",
+      "ref": "task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer"
+    }
+  ]
+}

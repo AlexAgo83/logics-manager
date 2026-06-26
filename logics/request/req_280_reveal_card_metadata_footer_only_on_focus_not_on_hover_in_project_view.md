@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Draft
 > Understanding: 95
-> Confidence: 90
+> Confidence: 91
 > Complexity: Low
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -22,7 +22,9 @@
   card.addEventListener("focus",      () => setPreviewOpen(true));
   card.addEventListener("blur",       () => setPreviewOpen(false));
   ```
-  The hover pair is exactly what makes the footer feel "always on" while moving the mouse over the grid (the reported screenshot is a hover state).
+  Two distinct things make the footer visible without a deliberate hover:
+  1. **Focus persists on the selected card.** Selecting/clicking a card focuses it, and focus is restored across re-renders (focus-capture/restore in the render cycle), so the active card stays focused and its footer stays open continuously — this is what is seen "before any hover".
+  2. **Hover opens it on any card** the pointer passes over (the `mouseenter`/`mouseleave` pair), adding sweep noise.
 - Supporting styling already exists: `.card--preview-open` (`clients/shared-web/media/css/board.css:181-183`) and `.card:focus-visible` (`:514-518`). Escape already closes an open preview (`renderBoardApp.js:1143-1145`).
 - `createItemCard()` is shared across board/list/compact card rendering, so removing the hover trigger affects every view that uses it unless explicitly scoped — see Risks.
 

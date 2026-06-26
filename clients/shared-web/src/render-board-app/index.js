@@ -1145,6 +1145,7 @@
       }
 
       card.appendChild(preview);
+      setPreviewOpen(item.id === getSelectedId());
 
       card.addEventListener("click", () => {
         setSelectedId(item.id);
@@ -1163,8 +1164,6 @@
         }
         handleCardKeydown(event, item);
       });
-      card.addEventListener("focus", () => setPreviewOpen(true));
-      card.addEventListener("blur", () => setPreviewOpen(false));
       return card;
     }
 

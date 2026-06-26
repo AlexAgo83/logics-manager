@@ -485,7 +485,7 @@ describe("webview board renderer behavior", () => {
     expect(prefix?.getAttribute("data-stage")).toBe("request");
   });
 
-  it("shows Theme first in the card preview when available", () => {
+  it("shows theme status and updated metadata only after selecting the card", () => {
     const { dom } = bootstrapWebview();
 
     pushData(dom, {
@@ -502,10 +502,18 @@ describe("webview board renderer behavior", () => {
       ]
     });
 
-    const previewRows = Array.from(dom.window.document.querySelectorAll(".card__preview-row"));
-    expect(previewRows[0]?.textContent).toContain("Theme");
-    expect(previewRows[0]?.textContent).toContain("Navigation");
-    expect(previewRows[1]?.textContent).toContain("Status");
+    const card = dom.window.document.querySelector('[data-id="req_000_kickoff"]') as HTMLElement | null;
+    const preview = card?.querySelector(".card__preview") as HTMLElement | null;
+    expect(preview?.hidden).toBe(true);
+
+    card?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const selectedPreview = dom.window.document.querySelector('[data-id="req_000_kickoff"] .card__preview') as HTMLElement | null;
+    expect(selectedPreview?.hidden).toBe(false);
+    expect(selectedPreview?.textContent).toContain("Theme");
+    expect(selectedPreview?.textContent).toContain("Navigation");
+    expect(selectedPreview?.textContent).toContain("Status");
+    expect(selectedPreview?.textContent).toContain("Updated");
   });
 
   it("omits primary-flow text from spec cards in board and list renderings", () => {
@@ -1219,7 +1227,7 @@ describe("webview board renderer behavior", () => {
     expect(board?.querySelector('[data-id="req_b"]')?.classList.contains("card--selected")).toBe(true);
   });
 
-  it("shows preview on focus but not hover", () => {
+  it("shows preview only after selecting the card", () => {
     const { dom } = bootstrapWebview();
 
     pushData(dom, {
@@ -1238,12 +1246,14 @@ describe("webview board renderer behavior", () => {
     expect(card?.classList.contains("card--preview-open")).toBe(false);
 
     card?.dispatchEvent(new dom.window.Event("focus"));
-    expect(preview?.hidden).toBe(false);
-    expect(card?.classList.contains("card--preview-open")).toBe(true);
-
-    card?.dispatchEvent(new dom.window.Event("blur"));
     expect(preview?.hidden).toBe(true);
     expect(card?.classList.contains("card--preview-open")).toBe(false);
+
+    card?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    const selectedPreview = board?.querySelector('[data-id="req_000_kickoff"] .card__preview') as HTMLElement | null;
+    const selectedCard = board?.querySelector('[data-id="req_000_kickoff"]');
+    expect(selectedPreview?.hidden).toBe(false);
+    expect(selectedCard?.classList.contains("card--preview-open")).toBe(true);
   });
 
   it("closes preview with Escape key", () => {
@@ -1256,9 +1266,10 @@ describe("webview board renderer behavior", () => {
 
     const board = dom.window.document.getElementById("board");
     const card = board?.querySelector('[data-id="req_000_kickoff"]');
-    const preview = card?.querySelector(".card__preview") as HTMLElement | null;
 
-    card?.dispatchEvent(new dom.window.Event("focus"));
+    card?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    const selectedCard = board?.querySelector('[data-id="req_000_kickoff"]');
+    const preview = selectedCard?.querySelector(".card__preview") as HTMLElement | null;
     expect(preview?.hidden).toBe(false);
 
     const escEvent = new dom.window.KeyboardEvent("keydown", {
@@ -1266,7 +1277,7 @@ describe("webview board renderer behavior", () => {
       bubbles: true,
       cancelable: true
     });
-    card?.dispatchEvent(escEvent);
+    selectedCard?.dispatchEvent(escEvent);
 
     expect(preview?.hidden).toBe(true);
   });

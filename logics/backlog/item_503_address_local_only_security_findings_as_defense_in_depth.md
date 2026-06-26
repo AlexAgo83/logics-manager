@@ -2,8 +2,8 @@
 > From version: 2.12.12
 > Schema version: 1.0
 > Status: Done
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 100%
+> Confidence: 100%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Security defense-in-depth

@@ -139,6 +139,7 @@ def workshop_commands_payload(repo_root: Path) -> dict[str, Any]:
 
 _WORKSHOP_SESSION_BUFFER_MAX = 4000
 _WORKSHOP_SESSION_TTL_SECONDS = 600
+_WORKSHOP_SESSION_MAX = 24
 
 
 class WorkshopCommandSession:
@@ -345,7 +346,10 @@ class WorkshopSessionRegistry:
         )
         with self._lock:
             self._prune_locked()
+            evicted = _evict_to_capacity_locked(self._sessions, _WORKSHOP_SESSION_MAX)
             self._sessions[session_id] = session
+        for victim in evicted:
+            victim.stop(timeout=1.0)
         session.start()
         return session
 

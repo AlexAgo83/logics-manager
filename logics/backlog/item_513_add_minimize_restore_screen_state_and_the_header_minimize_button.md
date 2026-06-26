@@ -1,10 +1,10 @@
 ## item_513_add_minimize_restore_screen_state_and_the_header_minimize_button - Add minimize/restore screen state and the header minimize button
 > From version: 2.13.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -31,6 +31,9 @@
 - request-AC1 -> This backlog slice. Proof: AC1: A desktop-only minimize button renders in the screen header left, right after close.
 - request-AC2 -> This backlog slice. Proof: AC2: Minimizing hides the screen while keeping it mounted; restoring shows it in the same state.
 - request-AC6 -> This backlog slice. Proof: AC6: Existing screen switching/close is unchanged and viewer smoke tests pass.
+- request-AC3 -> This backlog slice. Proof: Implemented desktop minimize/restore dock in the viewer, kept Workshop terminal state hidden instead of closed for direct restores, regenerated viewer assets, and passed npm test -- --run tests/viewer.browser-host.test.ts plus asset checks.
+- request-AC4 -> This backlog slice. Proof: Implemented desktop minimize/restore dock in the viewer, kept Workshop terminal state hidden instead of closed for direct restores, regenerated viewer assets, and passed npm test -- --run tests/viewer.browser-host.test.ts plus asset checks.
+- request-AC5 -> This backlog slice. Proof: Implemented desktop minimize/restore dock in the viewer, kept Workshop terminal state hidden instead of closed for direct restores, regenerated viewer assets, and passed npm test -- --run tests/viewer.browser-host.test.ts plus asset checks.
 
 # Decision framing
 - Product framing: Not needed
@@ -51,3 +54,6 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Notes
+- Task `task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer` was finished via `logics-manager flow finish task` on 2026-06-26.

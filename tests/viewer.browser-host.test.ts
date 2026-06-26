@@ -186,6 +186,7 @@ function createViewerDom(options: {
     <button id="viewer-release-reset" type="button" hidden>Reset</button>
     <button id="viewer-document-refresh" type="button">Refresh</button>
     <button id="viewer-document-status" type="button" hidden>Status</button>
+    <button id="viewer-document-minimize" type="button">Minimize</button>
     <button data-action="open" type="button">Open</button>
     <button data-action="read" type="button">Read</button>
     <button data-action="promote" type="button">Promote</button>
@@ -200,6 +201,7 @@ function createViewerDom(options: {
       <div id="viewer-document-nav" hidden></div>
       <div id="viewer-document-content"></div>
     </section>
+    <div id="viewer-minimized-dock" hidden></div>
     <aside id="activity-panel" hidden></aside>
   </body></html>`;
   const dom = new JSDOM(html, { runScripts: "outside-only", url: options.url || "http://127.0.0.1:8765/" });
@@ -1563,6 +1565,66 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("Logics in four steps");
     expect(content?.textContent).toContain("Need");
     expect(content?.textContent).toContain("What each document is for");
+  });
+
+  it("minimizes and restores a desktop screen from the dock", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    dom.window.document.getElementById("viewer-getting-started")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    dom.window.document.getElementById("viewer-document-minimize")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    const panel = dom.window.document.getElementById("viewer-document");
+    const dock = dom.window.document.getElementById("viewer-minimized-dock");
+    expect(panel?.hidden).toBe(true);
+    expect(dock?.hidden).toBe(false);
+    expect(dock?.querySelectorAll("[data-viewer-minimized-restore]")).toHaveLength(1);
+    expect(dock?.textContent).toContain("Getting Started");
+
+    (dock?.querySelector("[data-viewer-minimized-restore]") as HTMLButtonElement | null)
+      ?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    expect(panel?.hidden).toBe(false);
+    expect(dock?.hidden).toBe(true);
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Getting Started");
+  });
+
+  it("keeps minimized screens unique and lets dock close kill the minimized screen", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    dom.window.document.getElementById("viewer-getting-started")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+    dom.window.document.getElementById("viewer-document-minimize")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+    dom.window.document.getElementById("viewer-getting-started")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+    dom.window.document.getElementById("viewer-document-minimize")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    const dock = dom.window.document.getElementById("viewer-minimized-dock");
+    expect(dock?.querySelectorAll("[data-viewer-minimized-restore]")).toHaveLength(1);
+
+    (dock?.querySelector("[data-viewer-minimized-close]") as HTMLButtonElement | null)
+      ?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    expect(dock?.hidden).toBe(true);
+    expect(dom.window.document.getElementById("viewer-document")?.hidden).toBe(true);
   });
 
   it("offers a restart server action from Settings", async () => {

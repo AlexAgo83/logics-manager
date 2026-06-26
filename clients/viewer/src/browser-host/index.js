@@ -3748,7 +3748,8 @@ import {
     if (!host) return;
     const term = new window.Terminal({
       fontSize: workshopTerminalPreferredFontSize(),
-      fontFamily: 'var(--vscode-editor-font-family, "Menlo", "Consolas", monospace)',
+      fontFamily: '"Menlo", "Consolas", monospace',
+      letterSpacing: 0,
       theme: { background: "#0a0a0a", foreground: "#d4d4d4" },
       cursorBlink: true,
       scrollback: 5000,

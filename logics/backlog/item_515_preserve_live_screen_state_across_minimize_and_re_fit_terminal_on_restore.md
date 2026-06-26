@@ -1,10 +1,10 @@
 ## item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore - Preserve live screen state across minimize and re-fit terminal on restore
 > From version: 2.13.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -26,6 +26,11 @@
 
 # AC Traceability
 - request-AC5 -> This backlog slice. Proof: AC5: Minimizing the Workshop keeps the PTY alive; restoring re-fits the terminal and renders cleanly with no artifacts.
+- request-AC1 -> This backlog slice. Proof: Implemented desktop minimize/restore dock in the viewer, kept Workshop terminal state hidden instead of closed for direct restores, regenerated viewer assets, and passed npm test -- --run tests/viewer.browser-host.test.ts plus asset checks.
+- request-AC2 -> This backlog slice. Proof: Implemented desktop minimize/restore dock in the viewer, kept Workshop terminal state hidden instead of closed for direct restores, regenerated viewer assets, and passed npm test -- --run tests/viewer.browser-host.test.ts plus asset checks.
+- request-AC3 -> This backlog slice. Proof: Implemented desktop minimize/restore dock in the viewer, kept Workshop terminal state hidden instead of closed for direct restores, regenerated viewer assets, and passed npm test -- --run tests/viewer.browser-host.test.ts plus asset checks.
+- request-AC4 -> This backlog slice. Proof: Implemented desktop minimize/restore dock in the viewer, kept Workshop terminal state hidden instead of closed for direct restores, regenerated viewer assets, and passed npm test -- --run tests/viewer.browser-host.test.ts plus asset checks.
+- request-AC6 -> This backlog slice. Proof: Implemented desktop minimize/restore dock in the viewer, kept Workshop terminal state hidden instead of closed for direct restores, regenerated viewer assets, and passed npm test -- --run tests/viewer.browser-host.test.ts plus asset checks.
 
 # Decision framing
 - Product framing: Not needed
@@ -46,3 +51,6 @@
 # Priority
 - Impact: High
 - Urgency: Medium
+
+# Notes
+- Task `task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer` was finished via `logics-manager flow finish task` on 2026-06-26.

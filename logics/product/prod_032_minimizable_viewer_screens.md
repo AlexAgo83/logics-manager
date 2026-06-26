@@ -6,9 +6,18 @@
 > Related task: `task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Non-semantic edit: Added overview Mermaid diagram.
 
 # Overview
 A desktop-only minimize-to-dock affordance for viewer screens: hide a screen (kept mounted) behind a bottom-left pill, keep several at hand, and restore or kill them individually — reusing the existing body-class screen model instead of a window manager.
+
+```mermaid
+flowchart LR
+  Screen["Open viewer screen"] --> Minimize["Header minimize button"]
+  Minimize --> Dock["Bottom-left dock pill"]
+  Dock --> Restore["Restore same screen state"]
+  Dock --> Close["Kill minimized screen"]
+```
 
 # Goals
 - Let operators park a screen and keep working without losing its state.

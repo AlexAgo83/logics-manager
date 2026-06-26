@@ -308,12 +308,15 @@
         <button class="btn viewer-document__screen-action" id="viewer-release-reset" type="button" title="Reset release evidence (clears recorded gate evidence)" aria-label="Reset release evidence" hidden><span class="viewer-document__icon">⟲</span><span class="viewer-document__btn-text">Reset</span></button>
         <button class="btn viewer-document__btn" id="viewer-document-refresh" type="button" title="Refresh" aria-label="Refresh"><span class="viewer-document__icon">↻</span><span class="viewer-document__btn-text">Refresh</span></button>
         <button class="btn viewer-document__btn" id="viewer-document-status" type="button" title="Change status" aria-label="Change status" hidden><span class="viewer-document__icon">✓</span><span class="viewer-document__btn-text">Status</span></button>
+        <button class="btn viewer-document__btn" id="viewer-document-minimize" type="button" title="Minimize" aria-label="Minimize"><span class="viewer-document__icon">▁</span><span class="viewer-document__btn-text">Minimize</span></button>
         <button class="btn viewer-document__btn" id="viewer-document-close" type="button" title="Close" aria-label="Close"><span class="viewer-document__icon">✕</span><span class="viewer-document__btn-text">Close</span></button>
       </div>
       <div class="viewer-document__nav" id="viewer-document-nav" aria-label="Screen sections" hidden></div>
     </div>
     <div class="viewer-document__content markdown-preview" id="viewer-document-content"></div>
   </section>
+
+  <div class="viewer-minimized-dock" id="viewer-minimized-dock" role="list" aria-label="Minimized screens" hidden></div>
 
   <script src="/vendor/mermaid.min.js"></script>
   <script src="/media/vendor/highlight/highlight.min.js"></script>

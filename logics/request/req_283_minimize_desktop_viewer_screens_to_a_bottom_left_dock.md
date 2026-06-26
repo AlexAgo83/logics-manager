@@ -1,7 +1,7 @@
 ## req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock - Minimize desktop viewer screens to a bottom-left dock
 > From version: 2.13.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

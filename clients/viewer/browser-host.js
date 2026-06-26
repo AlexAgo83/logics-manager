@@ -3410,6 +3410,8 @@ ${entry?.message || ""}`;
     const documentTitle = () => document.getElementById("viewer-document-title");
     const documentContent = () => document.getElementById("viewer-document-content");
     const documentStatusButton = () => document.getElementById("viewer-document-status");
+    const documentMinimizeButton = () => document.getElementById("viewer-document-minimize");
+    const minimizedDock = () => document.getElementById("viewer-minimized-dock");
     const editDocumentButton = () => document.querySelector('[data-viewer-action="edit-document"]');
     const updateBanner = () => document.getElementById("viewer-update");
     const updateCopy = () => document.getElementById("viewer-update-copy");
@@ -3426,6 +3428,8 @@ ${entry?.message || ""}`;
     const ciButton = () => document.getElementById("viewer-ci");
     const autoRefreshControl = () => document.getElementById("viewer-auto-refresh");
     const refreshIntervalControl = () => document.getElementById("viewer-refresh-interval");
+    const minimizedScreens = /* @__PURE__ */ new Map();
+    let liveMinimizedScreenId = "";
     const refreshMenuButton = () => document.getElementById("viewer-refresh-menu-button");
     const refreshMenuPanel = () => document.getElementById("viewer-refresh-menu");
     const versionLink = () => document.getElementById("viewer-version-link");
@@ -4993,15 +4997,127 @@ ${entry?.message || ""}`;
       }
       setMeta("This onboarding action is not available in the local viewer.");
     }
+    function documentScreenId(titleText) {
+      return String(titleText || "Document").trim() || "Document";
+    }
+    function desktopScreensCanMinimize() {
+      return typeof window.matchMedia !== "function" || window.matchMedia("(min-width: 901px)").matches;
+    }
+    function refitRestoredScreen() {
+      requestAnimationFrame(() => {
+        refitAllWorkshopTerminals();
+        repaintAllWorkshopTerminals();
+        resumeActiveWorkshopTerminalStream();
+      });
+    }
+    function minimizedScreenSnapshot() {
+      const snapshot = currentDocumentSnapshot();
+      const eyebrow = document.getElementById("viewer-document-eyebrow");
+      const badge = document.getElementById("viewer-document-badge");
+      return {
+        id: documentScreenId(snapshot.title),
+        title: snapshot.title,
+        html: snapshot.html,
+        item: currentDocumentItem,
+        eyebrow: eyebrow instanceof HTMLElement && !eyebrow.hidden ? eyebrow.textContent || "" : "",
+        badgeStage: badge instanceof HTMLElement && !badge.hidden ? badge.dataset.stage || "" : ""
+      };
+    }
+    function renderMinimizedDock() {
+      const dock = minimizedDock();
+      if (!dock) return;
+      dock.innerHTML = "";
+      dock.hidden = minimizedScreens.size === 0;
+      for (const entry of minimizedScreens.values()) {
+        const pill = document.createElement("div");
+        pill.className = "viewer-minimized-dock__pill";
+        pill.setAttribute("role", "listitem");
+        const restore = document.createElement("button");
+        restore.className = "viewer-minimized-dock__restore";
+        restore.type = "button";
+        restore.textContent = entry.title || "Document";
+        restore.title = `Restore ${entry.title || "Document"}`;
+        restore.setAttribute("data-viewer-minimized-restore", entry.id);
+        const close = document.createElement("button");
+        close.className = "viewer-minimized-dock__close";
+        close.type = "button";
+        close.textContent = "\xD7";
+        close.title = `Close ${entry.title || "Document"}`;
+        close.setAttribute("aria-label", `Close ${entry.title || "Document"}`);
+        close.setAttribute("data-viewer-minimized-close", entry.id);
+        pill.append(restore, close);
+        dock.appendChild(pill);
+      }
+    }
+    function minimizeDocumentPanel() {
+      if (!desktopScreensCanMinimize()) return;
+      const panel = documentPanel();
+      const title = documentTitle();
+      const content = documentContent();
+      if (!panel || panel.hidden || !title || !content) return;
+      const entry = minimizedScreenSnapshot();
+      minimizedScreens.set(entry.id, entry);
+      liveMinimizedScreenId = entry.id;
+      invalidatePendingViews();
+      panel.hidden = true;
+      setDocumentChromeOpen(false);
+      updateScreenActions("");
+      renderMinimizedDock();
+      setMeta(`${entry.title} minimized.`);
+    }
+    function restoreMinimizedScreen(id) {
+      const entry = minimizedScreens.get(id);
+      if (!entry) return;
+      const panel = documentPanel();
+      const title = documentTitle();
+      const content = documentContent();
+      const stillLive = id === liveMinimizedScreenId && panel && panel.hidden && title?.textContent === entry.title && content?.innerHTML === entry.html;
+      minimizedScreens.delete(id);
+      renderMinimizedDock();
+      if (stillLive && panel) {
+        panel.hidden = false;
+        setDocumentChromeOpen(true);
+        updateScreenActions(entry.title);
+      } else {
+        setDocument(entry.title, entry.html, {
+          item: entry.item,
+          eyebrow: entry.eyebrow,
+          badgeStage: entry.badgeStage,
+          forceReset: true
+        });
+      }
+      liveMinimizedScreenId = "";
+      refitRestoredScreen();
+      setMeta(`${entry.title} restored.`);
+    }
+    function closeMinimizedScreen(id) {
+      const entry = minimizedScreens.get(id);
+      if (!entry) return;
+      minimizedScreens.delete(id);
+      if (id === liveMinimizedScreenId) {
+        liveMinimizedScreenId = "";
+        const title = documentTitle();
+        const content = documentContent();
+        if (title) title.textContent = "";
+        if (content) content.innerHTML = "";
+      }
+      renderMinimizedDock();
+      setMeta(`${entry.title} closed.`);
+    }
     function updateScreenActions(titleText) {
       const isGit = titleText === "Remote" && latestCiScreenMode === "git";
       const isRelease = titleText === "Remote" && latestCiScreenMode === "release";
       const gitActions = document.getElementById("viewer-git-actions");
       const releaseReset = document.getElementById("viewer-release-reset");
       const status = documentStatusButton();
+      const minimize = documentMinimizeButton();
       if (gitActions) gitActions.hidden = !isGit;
       if (!isGit) setGitActionsMenuOpen(false);
       if (releaseReset) releaseReset.hidden = !isRelease;
+      if (minimize instanceof HTMLButtonElement) {
+        minimize.hidden = !titleText || !desktopScreensCanMinimize();
+        minimize.disabled = minimize.hidden;
+      }
       if (status instanceof HTMLButtonElement) {
         const options = statusOptionsByStage[currentDocumentItem?.stage] || [];
         const currentStatus = String(currentDocumentItem?.indicators?.Status || currentDocumentItem?.status || "").trim();
@@ -5041,6 +5157,11 @@ ${entry?.message || ""}`;
     function setDocument(titleText, html, options = {}) {
       invalidatePendingViews();
       cdxCloseTarget = null;
+      const screenId = documentScreenId(titleText);
+      if (minimizedScreens.delete(screenId)) {
+        if (liveMinimizedScreenId === screenId) liveMinimizedScreenId = "";
+        renderMinimizedDock();
+      }
       currentDocumentItem = options.item || null;
       const panel = documentPanel();
       const title = documentTitle();
@@ -5098,6 +5219,9 @@ ${entry?.message || ""}`;
       const panel = documentPanel();
       if (panel) {
         invalidatePendingViews();
+        const screenId = documentScreenId(documentTitle()?.textContent || "");
+        if (screenId && minimizedScreens.delete(screenId)) renderMinimizedDock();
+        if (liveMinimizedScreenId === screenId) liveMinimizedScreenId = "";
         panel.hidden = true;
         setDocumentChromeOpen(false);
       }
@@ -9451,6 +9575,21 @@ ${line}` : line;
       });
       document.getElementById("viewer-document-close")?.addEventListener("click", () => {
         withPrimaryAction("close-document", "Closing preview", closeDocumentPanel);
+      });
+      documentMinimizeButton()?.addEventListener("click", () => {
+        withPrimaryAction("minimize-document", "Minimizing screen", minimizeDocumentPanel);
+      });
+      minimizedDock()?.addEventListener("click", (event) => {
+        const target = event.target instanceof Element ? event.target : null;
+        const close = target?.closest("[data-viewer-minimized-close]");
+        if (close instanceof HTMLElement) {
+          closeMinimizedScreen(close.getAttribute("data-viewer-minimized-close") || "");
+          return;
+        }
+        const restore = target?.closest("[data-viewer-minimized-restore]");
+        if (restore instanceof HTMLElement) {
+          withPrimaryAction("restore-document", "Restoring screen", () => restoreMinimizedScreen(restore.getAttribute("data-viewer-minimized-restore") || ""));
+        }
       });
       document.getElementById("viewer-document-refresh")?.addEventListener("click", () => {
         withPrimaryAction("refresh-document", "Refreshing", refreshCurrentScreen);

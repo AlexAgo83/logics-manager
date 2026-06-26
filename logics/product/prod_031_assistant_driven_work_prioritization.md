@@ -6,9 +6,18 @@
 > Related task: `task_279_orchestrate_assistant_driven_item_prioritization`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Non-semantic edit: Added overview Mermaid diagram.
 
 # Overview
 Give the existing item `# Priority` block real meaning: parse a single priority tier per backlog item and let `logics-manager status` recommend work in priority order, with tasks inheriting their item's priority.
+
+```mermaid
+flowchart LR
+  BacklogItem["Backlog item priority"] --> Parser["Shared doc parser"]
+  Parser --> Status["Priority-ordered status"]
+  Parser --> Viewer["Viewer priority badge"]
+  Parser --> Assistant["Priority-aware planning"]
+```
 
 # Goals
 - Make the next-work signal reflect importance, not file order.

@@ -607,6 +607,33 @@ describe("webview board renderer behavior", () => {
     expect(badge?.textContent).toContain("H");
   });
 
+  it("renders backlog priority badges with a default", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        {
+          ...baseItem,
+          id: "item_001",
+          stage: "backlog",
+          indicators: {
+            Priority: "High"
+          }
+        },
+        {
+          ...baseItem,
+          id: "item_002",
+          stage: "backlog",
+          indicators: {}
+        }
+      ]
+    });
+
+    const badges = Array.from(dom.window.document.querySelectorAll(".card__badge--priority")).map((node) => node.textContent);
+    expect(badges).toEqual(["Priority High", "Priority Medium"]);
+  });
+
   it("renders progress badges for unknown stages without losing the progress metric", () => {
     const { dom } = bootstrapWebview();
     const board = dom.window.document.getElementById("board");

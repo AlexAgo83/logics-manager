@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .config import find_repo_root
-from .doc_parsing import extract_refs, git_changed_paths, indicator_value
+from .doc_parsing import extract_refs, git_changed_paths, indicator_value, priority_tier
 from .lint import expected_workflow_mermaid_signature
 from .statuses import transition_error
 from .path_utils import resolve_repo_output_path
@@ -150,6 +150,7 @@ def parse_workflow_doc(path: Path, *, repo_root: Path | None = None) -> Workflow
     lines = text.splitlines()
     sections = _extract_sections(text)
     indicators = {key: value for key in ("From version", "Schema version", "Status", "Understanding", "Confidence", "Progress", "Complexity", "Theme", "Date", "Drivers", "Related request", "Related backlog", "Related task", "Reminder") if (value := _indicator_value(lines, key)) is not None}
+    indicators["Priority"] = priority_tier(lines)
     return WorkflowDocModel(
         kind=_detect_workflow_kind(path),
         path=(path.relative_to(repo_root).as_posix() if repo_root is not None else path.as_posix()),

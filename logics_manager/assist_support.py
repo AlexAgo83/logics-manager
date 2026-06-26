@@ -453,8 +453,8 @@ def _build_backlog_groom(repo_root: Path, request_ref: str) -> dict[str, object]
             "- Skip when: Skip when the change is unrelated to this delivery slice or its linked request.",
             "",
             "# Priority",
-            "- Impact:",
-            "- Urgency:",
+            "- Priority: Medium",
+            "- Rationale: Default until groomed; choose High/Medium/Low deliberately before implementation.",
             "",
             "# Notes",
             f"- Hybrid rationale: Derived from request `{request_ref}` and kept bounded to one coherent delivery slice.",
@@ -1260,6 +1260,8 @@ def _build_claude_instructions(repo_root: Path) -> dict[str, object]:
             "Do not edit generated runtime artifacts by hand unless you are deliberately repairing a generated artifact.",
             "",
             "Do not edit indicator lines, owner assignments, or workflow links by hand.",
+            "When grooming or creating backlog items, set a deliberate `# Priority` tier (`High`, `Medium`, or `Low`) with a one-line rationale instead of leaving the default unreviewed.",
+            "Sequence delivery plans and roadmaps by status priority order before lower-priority work when dependencies allow.",
             "",
         ]
     ).rstrip() + "\n"

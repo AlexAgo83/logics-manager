@@ -1,7 +1,7 @@
 ## req_282_let_the_assistant_prioritize_execution_order_of_backlog_items - Let the assistant prioritize execution order of backlog items
 > From version: 2.13.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

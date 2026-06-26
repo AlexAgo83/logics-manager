@@ -105,7 +105,7 @@ def test_viewer_collects_items_with_relationships(tmp_path: Path) -> None:
         links=["logics/request/req_001_demo.md"],
     )
     backlog_path.write_text(
-        backlog_path.read_text(encoding="utf-8") + "\nPromoted from `logics/request/req_001_demo.md`\n",
+        backlog_path.read_text(encoding="utf-8") + "\nPromoted from `logics/request/req_001_demo.md`\n\n# Priority\n- Priority: High\n",
         encoding="utf-8",
     )
     _write_minimal_workflow_doc(
@@ -129,6 +129,7 @@ def test_viewer_collects_items_with_relationships(tmp_path: Path) -> None:
     assert request["isPromoted"] is True
     assert request["usedBy"][0]["id"] == "item_001_demo"
     assert backlog["isPromoted"] is True
+    assert backlog["indicators"]["Priority"] == "High"
     assert backlog["usedBy"][0]["id"] == "task_001_demo"
     assert backlog["references"][0]["path"] == "logics/request/req_001_demo.md"
     assert task["references"][0]["path"] == "logics/backlog/item_001_demo.md"

@@ -14,6 +14,8 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import quote, unquote, urlencode
 
+from .doc_parsing import priority_tier
+
 
 @dataclass(frozen=True)
 class ViewerDocFamily:
@@ -59,6 +61,12 @@ def _parse_indicators(lines: list[str]) -> dict[str, str]:
         key, value = trimmed.split(":", 1)
         if key.strip() and value.strip():
             indicators[key.strip()] = value.strip()
+    return indicators
+
+
+def _viewer_indicators(lines: list[str]) -> dict[str, str]:
+    indicators = _parse_indicators(lines)
+    indicators["Priority"] = priority_tier(lines)
     return indicators
 
 
@@ -267,7 +275,7 @@ def collect_viewer_items(repo_root: Path) -> list[dict[str, Any]]:
                     "relPath": rel_path,
                     "filename": path.name,
                     "updatedAt": stat.st_mtime_ns,
-                    "indicators": _parse_indicators(lines),
+                    "indicators": _viewer_indicators(lines),
                     "summaryPoints": _build_summary_points(content, title),
                     "acceptanceCriteria": _summary_entries(content, "Acceptance criteria", 6),
                     "lineCount": len(lines),

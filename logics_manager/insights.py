@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-from logics_manager.doc_parsing import progress_value
+from logics_manager.doc_parsing import extract_refs, priority_rank, priority_tier, progress_value, strip_mermaid_blocks
 from logics_manager.statuses import closed_statuses, open_statuses
 
 WORKFLOW_KINDS = ("request", "backlog", "task")
@@ -26,6 +26,7 @@ class LogicsDoc:
     status: str | None
     owner: str | None
     progress: int | None
+    priority: str
     content: str
 
 
@@ -74,6 +75,7 @@ def _parse_doc(repo_root: Path, kind: str, path: Path) -> LogicsDoc:
         status=status,
         owner=owner,
         progress=progress,
+        priority=priority_tier(content.splitlines()),
         content=content,
     )
 
@@ -97,7 +99,7 @@ def _status_counts(docs: list[LogicsDoc]) -> dict[str, dict[str, int]]:
     return counts
 
 
-def _doc_summary(doc: LogicsDoc) -> dict[str, object]:
+def _doc_summary(doc: LogicsDoc, *, priority: str | None = None) -> dict[str, object]:
     return {
         "ref": doc.ref,
         "title": doc.title,
@@ -105,12 +107,31 @@ def _doc_summary(doc: LogicsDoc) -> dict[str, object]:
         "status": doc.status,
         "owner": doc.owner,
         "progress": doc.progress,
+        "priority": priority or doc.priority,
         "path": doc.rel_path,
     }
 
 
+def _effective_priority(doc: LogicsDoc, by_ref: dict[str, LogicsDoc]) -> str:
+    if doc.kind != "task":
+        return doc.priority
+    for item_ref in extract_refs(strip_mermaid_blocks(doc.content), "item"):
+        if item_ref in by_ref:
+            return by_ref[item_ref].priority
+    return doc.priority
+
+
+def _priority_sorted(docs: list[LogicsDoc], by_ref: dict[str, LogicsDoc]) -> list[LogicsDoc]:
+    return sorted(docs, key=lambda doc: (priority_rank(_effective_priority(doc, by_ref)), doc.rel_path))
+
+
+def _priority_summaries(docs: list[LogicsDoc], by_ref: dict[str, LogicsDoc], limit: int) -> list[dict[str, object]]:
+    return [_doc_summary(doc, priority=_effective_priority(doc, by_ref)) for doc in _priority_sorted(docs, by_ref)[:limit]]
+
+
 def status_payload(repo_root: Path, *, limit: int = 10) -> dict[str, object]:
     docs = collect_logics_docs(repo_root, kinds=WORKFLOW_KINDS)
+    by_ref = {doc.ref: doc for doc in docs}
     open_docs = [doc for doc in docs if doc.status not in CLOSED_STATUSES]
     active_tasks = [
         doc
@@ -143,10 +164,10 @@ def status_payload(repo_root: Path, *, limit: int = 10) -> dict[str, object]:
         "ok": True,
         "counts": _status_counts(docs),
         "open_count": len(open_docs),
-        "active_tasks": [_doc_summary(doc) for doc in active_tasks[:limit]],
-        "backlog_without_task": [_doc_summary(doc) for doc in backlog_without_task[:limit]],
-        "draft_requests": [_doc_summary(doc) for doc in draft_requests[:limit]],
-        "blocked_docs": [_doc_summary(doc) for doc in blocked_docs[:limit]],
+        "active_tasks": _priority_summaries(active_tasks, by_ref, limit),
+        "backlog_without_task": _priority_summaries(backlog_without_task, by_ref, limit),
+        "draft_requests": _priority_summaries(draft_requests, by_ref, limit),
+        "blocked_docs": _priority_summaries(blocked_docs, by_ref, limit),
         "next_actions": next_actions,
     }
 
@@ -174,7 +195,7 @@ def render_status(repo_root: Path, *, output_format: str = "text", limit: int = 
         lines.append(f"- {label}:")
         for item in items:
             owner = f" owner={item['owner']}" if item.get("owner") else ""
-            lines.append(f"  - {item['ref']} [{item['status']}]{owner}: {item['title']}")
+            lines.append(f"  - {item['ref']} [{item['status']}; {item['priority']}]{owner}: {item['title']}")
     return "\n".join(lines)
 
 

@@ -406,6 +406,8 @@ def test_flow_scaffold_request_chain_creates_docs_context_pack_and_index(
     assert "This fixture should avoid generic generated text." in request_text
     assert "- `item_001_first_scaffold_slice`" in request_text
     assert "request-AC1 -> This backlog slice" in backlog_text
+    assert "- Priority: Medium" in backlog_text
+    assert "- Impact:" not in backlog_text
     assert "```mermaid" not in request_text
 
 

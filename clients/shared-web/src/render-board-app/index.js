@@ -703,6 +703,7 @@
       badgeStrip.className = "card__badges card__badges--strip";
 
       const badgeGroups = [
+        createPriorityBadge(item),
         createProgressComplexityBadge(item),
         createCompanionBadges(item),
         createHealthBadges(item),
@@ -716,6 +717,21 @@
       });
 
       return badgeStrip.childElementCount > 0 ? badgeStrip : null;
+    }
+
+    function createPriorityBadge(item) {
+      if (String(item?.stage || "").trim() !== "backlog") {
+        return null;
+      }
+      const priority = String(item?.indicators?.Priority || "Medium").trim() || "Medium";
+      const badges = document.createElement("div");
+      badges.className = "card__badges card__badges--priority";
+      const badge = document.createElement("span");
+      badge.className = "card__badge card__badge--priority";
+      badge.textContent = `Priority ${priority}`;
+      badge.title = `Priority: ${priority}`;
+      badges.appendChild(badge);
+      return badges;
     }
 
     function createMetricSegment(prefix, value) {

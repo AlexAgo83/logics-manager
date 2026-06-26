@@ -12,6 +12,8 @@ import subprocess
 from pathlib import Path
 
 _MERMAID_BLOCK = re.compile(r"```mermaid\s*\n.*?\n```", flags=re.DOTALL)
+PRIORITY_TIERS = ("High", "Medium", "Low")
+DEFAULT_PRIORITY = "Medium"
 
 
 def strip_mermaid_blocks(text: str) -> str:
@@ -63,6 +65,29 @@ def section_lines(lines: list[str], heading: str) -> list[str]:
             break
         out.append(line)
     return out
+
+
+def priority_tier(lines: list[str]) -> str:
+    """Return High/Medium/Low from ``# Priority``; default to Medium."""
+    values: dict[str, str] = {}
+    for line in section_lines(lines, "Priority"):
+        match = re.match(r"^\s*-\s*([^:]+)\s*:\s*(.+?)\s*$", line)
+        if match:
+            values[match.group(1).strip().lower()] = match.group(2).strip().title()
+    direct = values.get("priority")
+    if direct in PRIORITY_TIERS:
+        return direct
+    impact = values.get("impact")
+    urgency = values.get("urgency")
+    if impact == "High" or urgency == "High":
+        return "High"
+    if impact == "Low" and urgency == "Low":
+        return "Low"
+    return DEFAULT_PRIORITY
+
+
+def priority_rank(value: str | None) -> int:
+    return {"High": 0, "Medium": 1, "Low": 2}.get(value or DEFAULT_PRIORITY, 1)
 
 
 def git_changed_paths(

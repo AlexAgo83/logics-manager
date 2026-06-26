@@ -1,7 +1,7 @@
 ## req_281_fix_workshop_terminal_rendering_artifacts_on_heavy_tui_output - Fix Workshop terminal rendering artifacts on heavy TUI output
 > From version: 2.13.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95
 > Confidence: 91
 > Complexity: Medium

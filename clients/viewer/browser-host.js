@@ -6360,7 +6360,7 @@ ${line}` : line;
         theme: { background: "#0a0a0a", foreground: "#d4d4d4" },
         cursorBlink: true,
         scrollback: 5e3,
-        convertEol: true
+        convertEol: false
       });
       const fitAddon = typeof window.FitAddon === "function" ? new window.FitAddon() : window.FitAddon && typeof window.FitAddon.FitAddon === "function" ? new window.FitAddon.FitAddon() : null;
       const linksAddon = window.WebLinksAddon && typeof window.WebLinksAddon.WebLinksAddon === "function" ? new window.WebLinksAddon.WebLinksAddon() : null;

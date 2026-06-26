@@ -1,10 +1,10 @@
 ## item_508_fix_workshop_terminal_rendering_artifacts_on_heavy_tui_output - Fix Workshop terminal rendering artifacts on heavy TUI output
 > From version: 2.13.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -61,6 +61,7 @@ Goal: the embedded terminal renders full-screen redrawing TUIs cleanly, the way 
 - Hybrid rationale: Derived from request `req_281_fix_workshop_terminal_rendering_artifacts_on_heavy_tui_output` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_281_fix_workshop_terminal_rendering_artifacts_on_heavy_tui_output.md`.
 - Generated locally by logics-manager.
+- Task `task_278_fix_workshop_terminal_rendering_artifacts_on_heavy_tui_output` was finished via `logics-manager flow finish task` on 2026-06-26.
 
 # Tasks
 - `task_278_fix_workshop_terminal_rendering_artifacts_on_heavy_tui_output`

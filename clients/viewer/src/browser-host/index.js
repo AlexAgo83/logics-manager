@@ -3612,7 +3612,7 @@ import {
       theme: { background: "#0a0a0a", foreground: "#d4d4d4" },
       cursorBlink: true,
       scrollback: 5000,
-      convertEol: true,
+      convertEol: false,
     });
     const fitAddon = typeof window.FitAddon === "function"
       ? new window.FitAddon()

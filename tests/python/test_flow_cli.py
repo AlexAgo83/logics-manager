@@ -95,6 +95,65 @@ def test_flow_creation_json_includes_agent_next_actions(
     assert payload["next_action"]
 
 
+def test_flow_new_request_uses_indicator_args(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(
+        [
+            "flow",
+            "new",
+            "request",
+            "--title",
+            "Indicator Args",
+            "--understanding",
+            "77%",
+            "--confidence",
+            "66%",
+            "--complexity",
+            "Low",
+            "--theme",
+            "Workflow",
+            "--format",
+            "json",
+        ]
+    )
+    payload = json.loads(capsys.readouterr().out)
+    text = (repo_root / payload["path"]).read_text(encoding="utf-8")
+
+    assert exit_code == 0
+    assert "> Understanding: 77%" in text
+    assert "> Confidence: 66%" in text
+    assert "> Complexity: Low" in text
+    assert "> Theme: Workflow" in text
+
+
+def test_flow_withdraw_marks_doc_obsolete_and_records_supersession(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    request_path = repo_root / "logics" / "request" / "req_001_old.md"
+    request_path.parent.mkdir(parents=True)
+    request_path.write_text("## req_001_old - Old\n> Status: Ready\n# Links\n- none\n", encoding="utf-8")
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["flow", "withdraw", "req_001_old", "--superseded-by", "req_002_new", "--format", "json"])
+    payload = json.loads(capsys.readouterr().out)
+    text = request_path.read_text(encoding="utf-8")
+
+    assert exit_code == 0
+    assert payload["kind"] == "request"
+    assert "> Status: Obsolete" in text
+    assert "Superseded by: `req_002_new`" in text
+
+
 def test_flow_new_does_not_overwrite_colliding_planned_ref(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

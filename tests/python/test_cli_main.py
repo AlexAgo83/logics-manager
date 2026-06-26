@@ -1619,6 +1619,24 @@ def test_lint_accepts_changed_workflow_docs_without_mermaid(tmp_path: Path, monk
     assert payload["warning_count"] == 0
 
 
+def test_lint_changed_doc_hint_is_runnable_and_mentions_non_semantic_marker(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    repo_root = tmp_path / "logics-repo"
+    request_path = repo_root / "logics" / "request" / "req_001_demo.md"
+    request_path.parent.mkdir(parents=True)
+    _write_minimal_lint_doc(request_path, title="Demo request", status="Ready", include_progress=False)
+
+    monkeypatch.setattr("logics_manager.lint._git_modified_paths", lambda _repo_root: {Path("logics/request/req_001_demo.md")})
+    monkeypatch.setattr("logics_manager.lint._git_untracked_paths", lambda _repo_root: set())
+    monkeypatch.setattr("logics_manager.lint._diff_has_indicator_changes", lambda *_args: False)
+    monkeypatch.setattr("logics_manager.lint._diff_is_status_only_normalization", lambda *_args: False)
+
+    payload = lint_payload(repo_root, require_status=True)
+    message = payload["issues"][0]["message"]
+
+    assert "logics-manager sync update-indicators req_001_demo --confidence <n>" in message
+    assert "`> Non-semantic edit:`" in message
+
+
 def test_lint_accepts_validated_and_settled_companion_statuses(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     repo_root = tmp_path / "logics-repo"
     (repo_root / "logics" / "product").mkdir(parents=True)

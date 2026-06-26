@@ -36,6 +36,9 @@
 - Product framing: Not needed
 - Architecture framing: Not needed
 
+# Notes
+- cdx import secret: the `cdx` CLI (v0.9.13) only accepts the passphrase via `--passphrase-env VAR`; it has no stdin mode. The secret therefore must reside in the child process environment. We scope it to a fresh per-call env dict (never the parent process) and never log it, but fully removing it from the child env is infeasible without an upstream cdx change. The four other findings (link protocol, repo-root path bounding, CSPRNG nonce, /media URL-decode) are addressed in full.
+
 # Links
 - Product brief(s): `prod_030_audit_remediation_hardening_and_cleanup`
 - Architecture decision(s): (none yet)

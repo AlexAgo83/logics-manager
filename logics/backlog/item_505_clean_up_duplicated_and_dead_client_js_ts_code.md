@@ -35,6 +35,9 @@
 - Product framing: Not needed
 - Architecture framing: Not needed
 
+# Notes
+- The audit flagged `cdxRunStatusDetail` as dead, but it is exported from `clients/viewer/src/browser-host/util.js` and imported/used in `index.js` (the cdx runs view). The finding was stale; the function was left in place. The actually-dead `void webview;` statements were removed instead.
+
 # Links
 - Product brief(s): `prod_030_audit_remediation_hardening_and_cleanup`
 - Architecture decision(s): (none yet)

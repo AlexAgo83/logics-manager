@@ -905,7 +905,7 @@ describe("webview harness core behaviors", () => {
     const document = dom.window.document;
     const card = document.querySelector('.card[data-id="req_004_recent_precision"]') as HTMLDivElement | null;
 
-    card?.dispatchEvent(new dom.window.MouseEvent("mouseenter", { bubbles: true }));
+    card?.dispatchEvent(new dom.window.Event("focus"));
 
     const preview = card?.querySelector(".card__preview");
     expect(preview?.textContent).toContain("Updated");

@@ -1,10 +1,10 @@
 ## item_507_reveal_card_metadata_footer_only_on_focus_not_on_hover_in_project_view - Reveal card metadata footer only on focus not on hover in project view
 > From version: 2.13.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -61,6 +61,7 @@ Goal: a calmer, less cluttered grid — the metadata reveals on intentional focu
 - Hybrid rationale: Derived from request `req_280_reveal_card_metadata_footer_only_on_focus_not_on_hover_in_project_view` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_280_reveal_card_metadata_footer_only_on_focus_not_on_hover_in_project_view.md`.
 - Generated locally by logics-manager.
+- Task `task_277_reveal_card_metadata_footer_only_on_focus_not_on_hover_in_project_view` was finished via `logics-manager flow finish task` on 2026-06-26.
 
 # Tasks
 - `task_277_reveal_card_metadata_footer_only_on_focus_not_on_hover_in_project_view`

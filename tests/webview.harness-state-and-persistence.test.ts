@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { baseItem, bootstrapWebview, productItem, pushData } from "./webviewHarnessTestUtils";
 
 describe("webview harness state, preview, and persistence behaviors", () => {
-  it("shows a compact preview on hover and dismisses it cleanly", () => {
+  it("shows a compact preview on focus and dismisses it cleanly", () => {
     const previewItem = {
       ...baseItem,
       indicators: { Status: "Draft" },
@@ -23,13 +23,16 @@ describe("webview harness state, preview, and persistence behaviors", () => {
     expect(getPreview()?.hidden).toBe(true);
 
     card?.dispatchEvent(new dom.window.MouseEvent("mouseenter", { bubbles: true }));
+    expect(getPreview()?.hidden).toBe(true);
+
+    card?.dispatchEvent(new dom.window.Event("focus"));
     expect(getPreview()?.hidden).toBe(false);
     expect(getPreview()?.textContent).toContain("Status");
     expect(getPreview()?.textContent).toContain("Draft");
     expect(getPreview()?.textContent).not.toContain("References");
     expect(getPreview()?.textContent).not.toContain("Used by");
 
-    card?.dispatchEvent(new dom.window.MouseEvent("mouseleave", { bubbles: true }));
+    card?.dispatchEvent(new dom.window.Event("blur"));
     expect(getPreview()?.hidden).toBe(true);
     expect(document.querySelector(".card--selected")?.getAttribute("data-id")).toBe("req_000_kickoff");
   });

@@ -1413,7 +1413,7 @@ def test_viewer_cdx_config_payload_validates_and_requires_a_field(tmp_path: Path
     assert cdx_config_payload(tmp_path, "work2", runner=runner, which=which) == {"ok": False, "error": "No settings to update."}
 
 
-def test_viewer_cdx_import_scopes_secret_to_a_child_env_dict(tmp_path: Path) -> None:
+def test_viewer_cdx_import_prefers_stdin_when_cdx_supports_it(tmp_path: Path) -> None:
     captured: dict[str, object] = {}
 
     def runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
@@ -1422,20 +1422,47 @@ def test_viewer_cdx_import_scopes_secret_to_a_child_env_dict(tmp_path: Path) -> 
         return subprocess.CompletedProcess(args, 0, json.dumps({"message": "ok"}), "")
 
     cdx_import_payload(
-        tmp_path,
-        b"cdx archive",
-        "super-secret",
-        runner=runner,
-        which=lambda _name: "/usr/bin/cdx",
+        tmp_path, b"cdx archive", "super-secret",
+        runner=runner, which=lambda _name: "/usr/bin/cdx", supports_stdin=True,
     )
-
     args = captured["args"]
     kwargs = captured["kwargs"]
-    # cdx only supports --passphrase-env; the secret rides a per-child env dict,
-    # never the inherited parent process environment.
+    # Newer cdx: secret goes on stdin, never the environment.
+    assert "--passphrase-stdin" in args
+    assert kwargs.get("input") == "super-secret"
+    assert "CDX_IMPORT_PASS" not in kwargs["env"]
+
+
+def test_viewer_cdx_import_falls_back_to_scoped_env_on_older_cdx(tmp_path: Path) -> None:
+    captured: dict[str, object] = {}
+
+    def runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        captured["args"] = args
+        captured["kwargs"] = kwargs
+        return subprocess.CompletedProcess(args, 0, json.dumps({"message": "ok"}), "")
+
+    cdx_import_payload(
+        tmp_path, b"cdx archive", "super-secret",
+        runner=runner, which=lambda _name: "/usr/bin/cdx", supports_stdin=False,
+    )
+    args = captured["args"]
+    kwargs = captured["kwargs"]
+    # Older cdx: secret rides a per-child env dict, never the parent process env.
     assert "--passphrase-env" in args
     assert kwargs["env"]["CDX_IMPORT_PASS"] == "super-secret"
+    assert kwargs.get("input") is None
     assert os.environ.get("CDX_IMPORT_PASS") is None
+
+
+def test_cdx_capability_probe_detects_passphrase_stdin() -> None:
+    def with_flag(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(args, 0, "cdx import <file> [--passphrase-env VAR|--passphrase-stdin]", "")
+
+    def without_flag(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(args, 0, "cdx import <file> [--passphrase-env VAR]", "")
+
+    assert viewer_module._cdx_supports_passphrase_stdin(runner=with_flag) is True
+    assert viewer_module._cdx_supports_passphrase_stdin(runner=without_flag) is False
 
 
 def test_viewer_cdx_import_payload_can_force_overwrite(tmp_path: Path) -> None:

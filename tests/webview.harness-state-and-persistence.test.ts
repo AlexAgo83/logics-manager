@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { baseItem, bootstrapWebview, productItem, pushData } from "./webviewHarnessTestUtils";
 
 describe("webview harness state, preview, and persistence behaviors", () => {
-  it("shows a compact preview on focus and dismisses it cleanly", () => {
+  it("shows a compact preview only after selection and dismisses it cleanly", () => {
     const previewItem = {
       ...baseItem,
       indicators: { Status: "Draft" },
@@ -12,27 +12,29 @@ describe("webview harness state, preview, and persistence behaviors", () => {
     const { dom } = bootstrapWebview({ harness: true });
     pushData(dom, {
       root: "/workspace/mock",
-      selectedId: "req_000_kickoff",
       items: [previewItem]
     });
 
     const document = dom.window.document;
-    const card = document.querySelector('.card[data-id="req_000_kickoff"]') as HTMLDivElement | null;
-    const getPreview = () => card?.querySelector(".card__preview") as HTMLDivElement | null;
+    const getCard = () => document.querySelector('.card[data-id="req_000_kickoff"]') as HTMLDivElement | null;
+    const getPreview = () => getCard()?.querySelector(".card__preview") as HTMLDivElement | null;
 
     expect(getPreview()?.hidden).toBe(true);
 
-    card?.dispatchEvent(new dom.window.MouseEvent("mouseenter", { bubbles: true }));
+    getCard()?.dispatchEvent(new dom.window.MouseEvent("mouseenter", { bubbles: true }));
     expect(getPreview()?.hidden).toBe(true);
 
-    card?.dispatchEvent(new dom.window.Event("focus"));
+    getCard()?.dispatchEvent(new dom.window.Event("focus"));
+    expect(getPreview()?.hidden).toBe(true);
+
+    getCard()?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     expect(getPreview()?.hidden).toBe(false);
     expect(getPreview()?.textContent).toContain("Status");
     expect(getPreview()?.textContent).toContain("Draft");
     expect(getPreview()?.textContent).not.toContain("References");
     expect(getPreview()?.textContent).not.toContain("Used by");
 
-    card?.dispatchEvent(new dom.window.Event("blur"));
+    getCard()?.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
     expect(getPreview()?.hidden).toBe(true);
     expect(document.querySelector(".card--selected")?.getAttribute("data-id")).toBe("req_000_kickoff");
   });

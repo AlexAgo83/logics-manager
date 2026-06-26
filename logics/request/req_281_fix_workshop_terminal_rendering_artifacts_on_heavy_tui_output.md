@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Draft
 > Understanding: 95
-> Confidence: 86
+> Confidence: 90
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -16,7 +16,11 @@
 - The Workshop terminal is xterm.js, vendored at `clients/shared-web/media/vendor/xterm/` — **xterm.js 5.3.0**, `xterm-addon-fit 0.8.0`, `xterm-addon-web-links 0.9.0` (`PROVENANCE.md` documents the `curl` refresh used to vendor them). Loaded via plain `<script>`/`<link>`, no bundler.
 - Backend is a stdlib `pty` session (`logics_manager/viewer_workshop.py`): PTY fork, initial 80x24 (`:439-450`), resize via `TIOCSWINSZ` ioctl (`resize()` `:570-578`).
 - Frontend resize plumbing exists and is broadly correct: `FitAddon.fit()` + `proposeDimensions()`, clamps to `WORKSHOP_TERMINAL_MIN_COLS`, posts `{rows, cols}` to the backend resize endpoint (`clients/viewer/browser-host.js:2878-2888`, `:3209`, init at `:6365-6398`, ResizeObserver + rAF at `:798-808`, `:6587-6598`). So this is NOT the gross "PTY stuck at 80" bug.
-- Observed (user screenshots, 2026-06-26): narrow tables render fine; wide tables break with the right border landing inside the text; intermittent, appearing "whenever it glitched" — consistent with a reflow/width event, not a constant offset.
+- **Reproduced (user screenshots, 2026-06-26 14:07–14:09)** by printing wide decorations into the Workshop terminal and resizing the pane. Three distinct failure modes confirmed:
+  1. **Catastrophic reflow on resize** (capture 14:08:57): resizing the pane while box-drawing tables sit in the scrollback makes xterm 5.3.0 re-wrap the whole buffer and desync every border — rows duplicate/fragment, the screen scrambles. This is the heaviest artifact and the clearest signature of the xterm reflow bug.
+  2. **Table wider than the terminal wraps badly** (capture 14:08:32): a table exceeding the column count wraps ("Colonn" + newline "e E finale très étirée") and the `│` borders no longer align on continuation lines.
+  3. **Wide-glyph width desync** (États 3/4): emoji (`⚡ 📶 ☕`) render as replacement/tofu glyphs (the terminal font has no emoji) AND their expected 2-cell width is not honored, shifting following columns.
+- Earlier captures (13:26) showed the milder right-border-into-text case; plain wrapped prose (14:03) renders clean — so the failure is specific to wide box-drawing + wide-glyph content and to resize/reflow, not a constant offset.
 - Most probable cause: a **character-measurement / cell-width bug in xterm 5.3.0** that misplaces columns for wide/box-drawing content, surfaced intermittently by Claude Code's wide tables. Two pieces of evidence raise this above a guess:
   1. **xterm 5.4.0 changelog cluster, squarely in this bug family** (verified on the GitHub release): new default text-metrics measure strategy #4929 ("improves cases where characters would be cut off"), **fix spacing when measuring before the element is attached to the DOM #4973** (a measurement-timing bug), move WidthCache measurement container #4807, and DOM-renderer fixes #4762/#4815/#4837. These are exactly width/measurement defects that produce misaligned columns.
   2. **Negative evidence from fresh captures (2026-06-26 14:03)**: plain wrapped text (no tables) renders perfectly; only wide box-drawing tables break. That points at width/measurement of specific content, not a constant wrong-font or PTY-size bug.
@@ -34,7 +38,7 @@
 - AC2: Resizing the terminal pane while such output is on screen does not corrupt already-printed tables (reflow stays consistent); a full redraw restores a clean frame.
 - AC3: The scrollbar appearing/disappearing does not change the effective column count in a way that breaks in-flight table borders (width is stable or the gutter is reserved).
 - AC4: Existing terminal behavior is unchanged for normal CLIs (no regression in input, resize, links, or PTY lifecycle); `PROVENANCE.md` is updated to the new pinned versions.
-- AC5: A documented manual repro (or lightweight check) demonstrates the artifact before and its absence after.
+- AC5: A documented manual repro demonstrates the artifact before and its absence after. The "before" baseline already exists (captures 2026-06-26 14:07–14:09: wide table + resize → reflow scramble; wide-glyph column shift); re-run the same steps after the fix.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.
@@ -51,6 +55,8 @@
 - The artifact was not reproduced deterministically in this session; however the 5.4.0 measurement/metrics fix cluster (#4929/#4973/#4807) is squarely in the bug family, so the bump is a well-supported bet, not a blind one. AC must still be validated against a real repro before closing.
 - If the bump does not fully fix it, the width-stabilization (Secondary) becomes mandatory; keep both tracks scoped in the same task.
 - Vendored-file swap means no automated dependency test — manual smoke of the Workshop terminal (input, resize, web-links, a wide table) is required.
+- Failure mode #2 (table genuinely wider than the terminal) is partly inherent: any emulator must wrap a too-wide table. The bump should fix the *corruption* on wrap/reflow, but a table wider than the pane will still wrap — not a regression, just physics. Out of scope to reflow Claude Code's own table widths.
+- Emoji rendering as tofu (mode #3) has two parts: the *width desync* (in scope — xterm metrics) and the *missing emoji glyph* (cosmetic; the terminal font has no color emoji). Adding an emoji fallback font is optional and out of scope unless trivially free.
 
 # Companion docs
 - Product brief(s): (none yet)

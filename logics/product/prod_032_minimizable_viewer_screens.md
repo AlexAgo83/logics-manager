@@ -1,6 +1,6 @@
 ## prod_032_minimizable_viewer_screens - Minimizable viewer screens
 > Date: 2026-06-26
-> Status: Proposed
+> Status: Settled
 > Related request: `req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock`
 > Related backlog: `item_513_add_minimize_restore_screen_state_and_the_header_minimize_button`, `item_514_build_the_bottom_left_minimized_dock_of_stacked_pills`, `item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore`
 > Related task: `task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer`

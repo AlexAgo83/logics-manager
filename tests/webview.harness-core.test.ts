@@ -888,7 +888,7 @@ describe("webview harness core behaviors", () => {
     expect(sameMinuteLabels.length).toBe(1);
   });
 
-  it("shows more precise Updated values for recently changed cards", () => {
+  it("shows more precise Updated values for selected recently changed cards", () => {
     const recentItem = {
       ...baseItem,
       id: "req_004_recent_precision",
@@ -905,9 +905,9 @@ describe("webview harness core behaviors", () => {
     const document = dom.window.document;
     const card = document.querySelector('.card[data-id="req_004_recent_precision"]') as HTMLDivElement | null;
 
-    card?.dispatchEvent(new dom.window.Event("focus"));
+    card?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
-    const preview = card?.querySelector(".card__preview");
+    const preview = document.querySelector('.card[data-id="req_004_recent_precision"] .card__preview');
     expect(preview?.textContent).toContain("Updated");
     expect(preview?.textContent).toContain("ago");
   });

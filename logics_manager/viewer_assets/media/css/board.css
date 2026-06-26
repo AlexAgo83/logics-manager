@@ -311,6 +311,10 @@
   gap: 4px;
 }
 
+.card__preview[hidden] {
+  display: none;
+}
+
 .card__preview-header {
   display: flex;
   flex-direction: column;

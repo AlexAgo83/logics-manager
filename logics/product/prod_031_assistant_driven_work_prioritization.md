@@ -1,6 +1,6 @@
 ## prod_031_assistant_driven_work_prioritization - Assistant-driven work prioritization
 > Date: 2026-06-26
-> Status: Proposed
+> Status: Settled
 > Related request: `req_282_let_the_assistant_prioritize_execution_order_of_backlog_items`
 > Related backlog: `item_509_parse_item_priority_and_order_status_output_by_it`, `item_510_populate_item_priority_on_authoring_and_scaffolding`, `item_511_show_item_priority_as_a_viewer_card_badge`, `item_512_teach_the_assistant_to_set_and_plan_by_priority`
 > Related task: `task_279_orchestrate_assistant_driven_item_prioritization`

@@ -301,6 +301,26 @@ class WorkshopCommandSession:
                 proc.kill()
 
 
+def _evict_to_capacity_locked(sessions: dict[str, Any], cap: int) -> list[Any]:
+    """Drop sessions until fewer than ``cap`` remain, returning live victims to stop.
+
+    Closed sessions (lowest insertion order first) are evicted before live ones;
+    only when every remaining session is still running do we evict the
+    least-recently-active one, which the caller then stops.
+    ponytail: hard memory bound on terminal/command buffers; raise cap if a real
+    workflow needs more concurrent sessions.
+    """
+    victims: list[Any] = []
+    while len(sessions) >= cap:
+        closed = [sid for sid, session in sessions.items() if session.state not in {"running", "starting"}]
+        if closed:
+            del sessions[closed[0]]
+        else:
+            oldest = min(sessions, key=lambda sid: sessions[sid]._last_activity)
+            victims.append(sessions.pop(oldest))
+    return victims
+
+
 class WorkshopSessionRegistry:
     def __init__(self) -> None:
         import threading
@@ -350,8 +370,9 @@ class WorkshopSessionRegistry:
             session.stop(timeout=1.0)
 
 
-_WORKSHOP_TERMINAL_BUFFER_MAX = 8000
+_WORKSHOP_TERMINAL_BUFFER_MAX = 2000
 _WORKSHOP_TERMINAL_TTL_SECONDS = 1800
+_WORKSHOP_TERMINAL_SESSION_MAX = 12
 
 
 def workshop_terminals_available() -> bool:
@@ -653,7 +674,10 @@ class WorkshopTerminalRegistry:
         session = WorkshopTerminalSession(session_id=session_id, command=command, cwd=cwd, label=label, initial_cols=initial_cols, initial_rows=initial_rows)
         with self._lock:
             self._prune_locked()
+            evicted = _evict_to_capacity_locked(self._sessions, _WORKSHOP_TERMINAL_SESSION_MAX)
             self._sessions[session_id] = session
+        for victim in evicted:
+            victim.stop(timeout=1.0)
         session.start()
         return session
 

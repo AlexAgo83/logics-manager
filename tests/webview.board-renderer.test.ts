@@ -485,7 +485,7 @@ describe("webview board renderer behavior", () => {
     expect(prefix?.getAttribute("data-stage")).toBe("request");
   });
 
-  it("shows Theme first in the hover preview when available", () => {
+  it("shows Theme first in the card preview when available", () => {
     const { dom } = bootstrapWebview();
 
     pushData(dom, {
@@ -1192,7 +1192,7 @@ describe("webview board renderer behavior", () => {
     expect(board?.querySelector('[data-id="req_b"]')?.classList.contains("card--selected")).toBe(true);
   });
 
-  it("shows preview on hover and hides on leave", () => {
+  it("shows preview on focus but not hover", () => {
     const { dom } = bootstrapWebview();
 
     pushData(dom, {
@@ -1207,10 +1207,14 @@ describe("webview board renderer behavior", () => {
     expect(preview?.hidden).toBe(true);
 
     card?.dispatchEvent(new dom.window.Event("mouseenter"));
+    expect(preview?.hidden).toBe(true);
+    expect(card?.classList.contains("card--preview-open")).toBe(false);
+
+    card?.dispatchEvent(new dom.window.Event("focus"));
     expect(preview?.hidden).toBe(false);
     expect(card?.classList.contains("card--preview-open")).toBe(true);
 
-    card?.dispatchEvent(new dom.window.Event("mouseleave"));
+    card?.dispatchEvent(new dom.window.Event("blur"));
     expect(preview?.hidden).toBe(true);
     expect(card?.classList.contains("card--preview-open")).toBe(false);
   });
@@ -1227,11 +1231,9 @@ describe("webview board renderer behavior", () => {
     const card = board?.querySelector('[data-id="req_000_kickoff"]');
     const preview = card?.querySelector(".card__preview") as HTMLElement | null;
 
-    // Open preview via hover
-    card?.dispatchEvent(new dom.window.Event("mouseenter"));
+    card?.dispatchEvent(new dom.window.Event("focus"));
     expect(preview?.hidden).toBe(false);
 
-    // Close via Escape
     const escEvent = new dom.window.KeyboardEvent("keydown", {
       key: "Escape",
       bubbles: true,

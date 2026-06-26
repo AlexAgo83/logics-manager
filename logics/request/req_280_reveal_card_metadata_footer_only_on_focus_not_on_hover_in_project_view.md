@@ -1,7 +1,7 @@
 ## req_280_reveal_card_metadata_footer_only_on_focus_not_on_hover_in_project_view - Reveal card metadata footer only on focus not on hover in project view
 > From version: 2.13.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95
 > Confidence: 93
 > Complexity: Low

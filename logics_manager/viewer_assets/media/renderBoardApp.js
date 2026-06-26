@@ -1147,8 +1147,6 @@
         }
         handleCardKeydown(event, item);
       });
-      card.addEventListener("mouseenter", () => setPreviewOpen(true));
-      card.addEventListener("mouseleave", () => setPreviewOpen(false));
       card.addEventListener("focus", () => setPreviewOpen(true));
       card.addEventListener("blur", () => setPreviewOpen(false));
       return card;

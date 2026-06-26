@@ -56,6 +56,7 @@ def _logics_bridge_content() -> str:
             "- Use `logics-manager status` for the next work signal.",
             "- Use `logics-manager health` for corpus-level anomalies.",
             "- Run `logics-manager lint --require-status` and `logics-manager audit --group-by-doc` after workflow edits.",
+            "- Treat `# Priority` as an execution signal: choose High/Medium/Low deliberately with a short rationale, then plan higher-priority work first when dependencies allow.",
             "",
             "Bounded context:",
             "- Use `logics-manager sync read-doc <ref> --max-chars <n>` before opening large docs directly.",

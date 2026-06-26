@@ -1655,8 +1655,8 @@ def _build_native_backlog_doc(
             "- Skip when: The change should go straight to implementation detail.",
             "",
             "# Priority",
-            "- Impact:",
-            "- Urgency:",
+            "- Priority: Medium",
+            "- Rationale: Default until groomed.",
             "",
             "# Notes",
             "- Generated locally by logics-manager.",
@@ -2201,8 +2201,8 @@ def _build_native_backlog_from_request(
             "- Skip when: Skip when the change is unrelated to this delivery slice or its linked request.",
             "",
             "# Priority",
-            "- Impact:",
-            "- Urgency:",
+            "- Priority: Medium",
+            "- Rationale: Default until groomed.",
             "",
             "# Notes",
             f"- Hybrid rationale: Derived from request `{request_path.stem}` and kept bounded to one coherent delivery slice.",
@@ -3471,8 +3471,8 @@ def _build_scaffold_backlog_doc(repo_root: Path, ref: str, request_ref: str, pro
             "- Skip when: The change belongs to another backlog slice.",
             "",
             "# Priority",
-            "- Impact: High",
-            "- Urgency: Medium",
+            f"- Priority: {_string_value(item, 'priority', default='Medium')}",
+            "- Rationale: Set by scaffold input or defaulted for grooming.",
             "",
         ]
     ).rstrip() + "\n"
@@ -3601,7 +3601,7 @@ Input JSON shape (--example prints a ready-to-edit skeleton):
   references            [str]
   request               { complexity, theme, needs[], context[], acceptance_criteria[] }
   product               { title, overview, goals[], non_goals[] }
-  backlog_items         [ { title (required), complexity, theme, request_acs[],
+  backlog_items         [ { title (required), priority, complexity, theme, request_acs[],
                             problem[], scope_in[], scope_out[], acceptance_criteria[] } ]  (required, non-empty)
   orchestration_task    { title, plan[] }
   context_pack          { out, mode, profile }"""
@@ -3622,6 +3622,7 @@ def _scaffold_request_chain_example() -> dict[str, object]:
         "backlog_items": [
             {
                 "title": "<slice title>",
+                "priority": "Medium",
                 "complexity": "Medium",
                 "theme": "<theme>",
                 "request_acs": ["AC1"],

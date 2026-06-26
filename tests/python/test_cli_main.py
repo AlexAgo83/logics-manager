@@ -472,6 +472,23 @@ def test_status_payload_reports_remaining_work(tmp_path: Path) -> None:
     assert "Groom 1 draft request(s)." in payload["next_actions"]
 
 
+def test_status_payload_sorts_tasks_by_linked_item_priority(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    for suffix, priority in (("low", "Low"), ("high", "High")):
+        item_path = repo_root / "logics" / "backlog" / f"item_00{1 if suffix == 'low' else 2}_{suffix}.md"
+        task_path = repo_root / "logics" / "tasks" / f"task_00{1 if suffix == 'low' else 2}_{suffix}.md"
+        _write_minimal_workflow_doc(item_path, title=suffix, kind="backlog", status="Ready", links=[])
+        item_path.write_text(item_path.read_text(encoding="utf-8") + f"\n# Priority\n- Priority: {priority}\n", encoding="utf-8")
+        _write_minimal_workflow_doc(task_path, title=suffix, kind="task", status="Ready", links=[item_path.stem])
+
+    payload = status_payload(repo_root)
+
+    assert [item["ref"] for item in payload["active_tasks"]] == ["task_002_high", "task_001_low"]
+    assert payload["active_tasks"][0]["priority"] == "High"
+
+
 def test_flow_start_marks_doc_in_progress_with_env_owner(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -3142,6 +3159,8 @@ def test_main_runs_native_assist_backlog_groom_execute(
     text = created.read_text(encoding="utf-8")
     assert "# Acceptance criteria" in text
     assert "Hybrid rationale:" in text
+    assert "- Priority: Medium" in text
+    assert "- Impact:" not in text
     request_text = request.read_text(encoding="utf-8")
     assert created.stem in request_text
 
@@ -3225,6 +3244,8 @@ def test_main_runs_native_bootstrap_repairs_stale_instructions(
     assert "# Codex Context" in instructions_text
     assert "python3 -m logics_manager flow start" in instructions_text
     assert "python3 -m logics_manager flow finish task" in instructions_text
+    assert "set a deliberate `# Priority` tier" in instructions_text
+    assert "Sequence delivery plans and roadmaps by status priority order" in instructions_text
 
 
 def test_main_runs_native_bootstrap_creates_local_assistant_bridge(

@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Draft
 > Understanding: 95
-> Confidence: 91
+> Confidence: 92
 > Complexity: Low
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -32,6 +32,7 @@
 - Reveal the `.card__preview` footer on **focus/blur only**; drop the `mouseenter`/`mouseleave` triggers (`renderBoardApp.js:1150-1151`). Keep `focus`/`blur` (`:1152-1153`) and the existing Escape-to-close.
 - No new markup, CSS, or state — the hidden-by-default + `setPreviewOpen` machinery already does the work; this is a trigger change only.
 - Clicking a card already focuses it (and selects it), so mouse users still get the footer on an intentional click — consistent with the "reveal on intent, not on sweep" goal.
+- **Intended (confirmed):** the selected/active card keeps its footer open continuously while it stays focused (focus persists across re-renders). This is the desired behavior, NOT a bug to fix — do not suppress the footer on the focused/selected card.
 
 # Acceptance criteria
 - AC1: In the project view, a card's bottom metadata block (Theme/Status/Updated) stays hidden while the pointer merely hovers the card.

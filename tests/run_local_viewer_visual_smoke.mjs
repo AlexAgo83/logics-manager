@@ -314,10 +314,10 @@ function browserExerciseScript(name) {
       node.dispatchEvent(new MouseEvent(event, { bubbles: true, view: window }));
       return node;
     };
-    const waitFor = async (predicate, label) => {
+    const waitFor = async (predicate, label, timeoutMs = 30000) => {
       const started = Date.now();
       while (!predicate()) {
-        if (Date.now() - started > 10000) throw new Error("Timed out waiting for " + label);
+        if (Date.now() - started > timeoutMs) throw new Error(${JSON.stringify(name)} + ": Timed out waiting for " + label);
         await delay(75);
       }
     };

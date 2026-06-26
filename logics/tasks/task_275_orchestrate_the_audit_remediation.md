@@ -47,7 +47,7 @@
 - request-AC5 -> This task. Proof: item_500 removed dead MCP annotations and added the call_tool dispatch table; tested in test_logics_manager_mcp.
 - request-AC6 -> This task. Proof: item_501 took the session lock around the workshop terminal fd/error; tested in test_workshop_cli.
 - request-AC7 -> This task. Proof: item_502 consolidated the parsing helpers into doc_parsing; tested in test_doc_parsing.
-- request-AC8 -> This task. Proof: item_503 addressed the local-only security findings; tested in test_viewer_cli and test_release_contract_schema.
+- request-AC8 -> This task. Proof: item_503 addressed the local-only security findings (link protocol, repo-root path bounding, CSPRNG nonce, /media URL-decode); tested in test_viewer_cli and test_release_contract_schema. The cdx import secret stays in a scoped child env because cdx only supports --passphrase-env (no stdin); see item_503 Notes.
 - request-AC9 -> This task. Proof: item_504 extracted the shared SSE streamer and status route table; viewer suite unchanged.
 - request-AC10 -> This task. Proof: item_505 deduped client helpers and fixed the NaN comparator; tested in insightsHelpers.test and cspNonce.test.
 - request-AC11 -> This task. Proof: no new runtime dependency was introduced; only stdlib and existing tooling are used.
@@ -64,7 +64,7 @@
 - item_501: workshop terminal `_master_fd`/`error` access taken under the session lock; imports hoisted.
 - item_497: public CdxLogicsModel API null-guarded; webview media mirror re-synced.
 - item_498: statuses unified behind `logics_manager/statuses.json` + generated TS module with a `check:status-constants` CI guard; Obsolete selectable; terminal-transition validation on both sides.
-- item_503: link-protocol allowlist, repo-root-bounded release paths, CSPRNG nonce, cdx secret via stdin, /media URL-decode.
+- item_503: link-protocol allowlist, repo-root-bounded release paths, CSPRNG nonce, /media URL-decode. The cdx secret stays in a scoped child env (cdx only supports --passphrase-env; stdin is not available), documented in item_503 Notes.
 - item_502: shared `doc_parsing` module replaces the duplicated parsing helpers; dead sync `_section_lines` removed.
 - item_500: dead MCP hint annotations removed, `call_tool` dispatch table, CLI argparse-only subcommand rejection.
 - item_504: shared `_stream_sse_events` helper and `_STATUS_ROUTE_TABLE`; SSE/status/render output byte-for-byte unchanged.

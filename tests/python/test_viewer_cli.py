@@ -1413,7 +1413,7 @@ def test_viewer_cdx_config_payload_validates_and_requires_a_field(tmp_path: Path
     assert cdx_config_payload(tmp_path, "work2", runner=runner, which=which) == {"ok": False, "error": "No settings to update."}
 
 
-def test_viewer_cdx_import_passes_secret_via_stdin_not_env(tmp_path: Path) -> None:
+def test_viewer_cdx_import_scopes_secret_to_a_child_env_dict(tmp_path: Path) -> None:
     captured: dict[str, object] = {}
 
     def runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
@@ -1431,10 +1431,11 @@ def test_viewer_cdx_import_passes_secret_via_stdin_not_env(tmp_path: Path) -> No
 
     args = captured["args"]
     kwargs = captured["kwargs"]
-    assert "--passphrase-stdin" in args
-    assert kwargs.get("input") == "super-secret"
-    # The secret must not leak through the child environment.
-    assert "env" not in kwargs or "super-secret" not in str(kwargs.get("env"))
+    # cdx only supports --passphrase-env; the secret rides a per-child env dict,
+    # never the inherited parent process environment.
+    assert "--passphrase-env" in args
+    assert kwargs["env"]["CDX_IMPORT_PASS"] == "super-secret"
+    assert os.environ.get("CDX_IMPORT_PASS") is None
 
 
 def test_viewer_cdx_import_payload_can_force_overwrite(tmp_path: Path) -> None:

@@ -3354,12 +3354,13 @@ def cdx_import_payload(
             args.append("--merge")
         if force:
             args.append("--force")
-        # Defense-in-depth: hand the secret to the child on stdin, never via its
-        # environment (env tables are readable by other same-user processes).
-        stdin_input = None
+        # cdx only accepts the passphrase via --passphrase-env (no stdin mode), so
+        # the secret must live in the child's environment. We scope it to a fresh
+        # env dict (not the parent process) and never log it.
+        env = {**os.environ}
         if passphrase:
-            args += ["--passphrase-stdin"]
-            stdin_input = passphrase
+            env["CDX_IMPORT_PASS"] = passphrase
+            args += ["--passphrase-env", "CDX_IMPORT_PASS"]
         cdx_runner = runner or subprocess.run
         try:
             result = cdx_runner(
@@ -3368,7 +3369,7 @@ def cdx_import_payload(
                 text=True,
                 capture_output=True,
                 timeout=_scaled_timeout(repo_root, 30),
-                input=stdin_input,
+                env=env,
             )
         except subprocess.TimeoutExpired:
             return {"ok": False, "error": "CDX import timed out."}
@@ -3400,11 +3401,13 @@ def cdx_export_payload(
             args.append("--include-auth")
         if sessions:
             args += ["--sessions", ",".join(sessions)]
-        # Defense-in-depth: pass the secret on stdin, not via the child environment.
-        stdin_input = None
+        # cdx only accepts the passphrase via --passphrase-env (no stdin mode), so
+        # the secret must live in the child's environment. Scope it to a fresh env
+        # dict (not the parent process) and never log it.
+        env = {**os.environ}
         if passphrase:
-            args += ["--passphrase-stdin"]
-            stdin_input = passphrase
+            env["CDX_EXPORT_PASS"] = passphrase
+            args += ["--passphrase-env", "CDX_EXPORT_PASS"]
         cdx_runner = runner or subprocess.run
         try:
             result = cdx_runner(
@@ -3413,7 +3416,7 @@ def cdx_export_payload(
                 text=True,
                 capture_output=True,
                 timeout=_scaled_timeout(repo_root, 30),
-                input=stdin_input,
+                env=env,
             )
         except subprocess.TimeoutExpired:
             return {"ok": False, "error": "CDX export timed out."}

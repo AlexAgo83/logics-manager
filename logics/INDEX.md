@@ -65,7 +65,7 @@
 | [prod_027_ci_events_in_recent_activity](product/prod_027_ci_events_in_recent_activity.md) | CI events in Recent activity | Settled |  |  | product/prod_027_ci_events_in_recent_activity.md |
 | [prod_028_recent_activity_event_filter](product/prod_028_recent_activity_event_filter.md) | Recent activity event filter | Settled |  |  | product/prod_028_recent_activity_event_filter.md |
 | [prod_029_assistant_authoring_ergonomics](product/prod_029_assistant_authoring_ergonomics.md) | Assistant authoring ergonomics | Settled |  |  | product/prod_029_assistant_authoring_ergonomics.md |
-| [prod_030_audit_remediation_hardening_and_cleanup](product/prod_030_audit_remediation_hardening_and_cleanup.md) | Audit remediation: hardening and cleanup | Proposed |  |  | product/prod_030_audit_remediation_hardening_and_cleanup.md |
+| [prod_030_audit_remediation_hardening_and_cleanup](product/prod_030_audit_remediation_hardening_and_cleanup.md) | Audit remediation: hardening and cleanup | Settled |  |  | product/prod_030_audit_remediation_hardening_and_cleanup.md |
 
 ## Requests
 

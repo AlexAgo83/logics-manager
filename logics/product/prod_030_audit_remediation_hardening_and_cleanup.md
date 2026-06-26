@@ -1,6 +1,6 @@
 ## prod_030_audit_remediation_hardening_and_cleanup - Audit remediation: hardening and cleanup
 > Date: 2026-06-26
-> Status: Proposed
+> Status: Settled
 > Related request: `req_278_act_on_the_multi_agent_audit_hardening_and_cleanup`
 > Related backlog: `item_496_harden_viewer_server_against_malformed_content_length`, `item_497_make_the_public_cdxlogicsmodel_api_null_safe`, `item_498_unify_and_guard_workflow_statuses_across_python_and_typescript`, `item_499_fix_confirmed_correctness_one_liners`, `item_500_delete_dead_and_over_engineered_mcp_and_cli_code`, `item_501_remove_workshop_terminal_race_conditions`, `item_502_consolidate_duplicated_python_parsing_helpers`, `item_503_address_local_only_security_findings_as_defense_in_depth`, `item_504_consolidate_duplicated_viewer_boilerplate`, `item_505_clean_up_duplicated_and_dead_client_js_ts_code`
 > Related task: `task_275_orchestrate_the_audit_remediation`

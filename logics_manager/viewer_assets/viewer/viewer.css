@@ -969,11 +969,13 @@
   min-width: 0;
   max-width: 100%;
   overflow: hidden;
-  border: 1px solid var(--vscode-panel-border, #333333);
+  border: 1px solid color-mix(in srgb, var(--vscode-foreground, #d4d4d4) 32%, var(--vscode-panel-border, #333333));
   border-radius: 8px;
   background: var(--vscode-sideBar-background, #252526);
   color: var(--vscode-foreground, #d4d4d4);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--vscode-focusBorder, #007fd4) 22%, transparent),
+    0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 .viewer-minimized-dock__restore,
@@ -997,7 +999,7 @@
   flex: 0 0 auto;
   width: 30px;
   height: 30px;
-  border-left: 1px solid var(--vscode-panel-border, #333333);
+  border-left: 1px solid color-mix(in srgb, var(--vscode-foreground, #d4d4d4) 28%, var(--vscode-panel-border, #333333));
   font-size: 16px;
   line-height: 1;
 }

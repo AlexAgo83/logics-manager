@@ -2,8 +2,8 @@
 > From version: 2.13.0
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 95
+> Confidence: 86
 > Progress: 0%
 > Complexity: Medium
 > Theme: Implementation delivery
@@ -13,6 +13,7 @@
 - [ ] **Repro first (AC5)** — capture the artifact: run Claude Code (or any wide box-drawing table) in the Workshop terminal, resize the pane, confirm the right border leaks into text. Note the pane cols.
 - [ ] **Primary — bump xterm (AC1/AC4)** — replace vendored `clients/shared-web/media/vendor/xterm/{xterm.js,xterm.css,xterm-addon-fit.js,xterm-addon-web-links.js}` with 5.5.0 + matching addons; update `PROVENANCE.md` versions and curl URLs. Verify the global still resolves (`browser-host.js:6365` guards `window.FitAddon` / `.FitAddon`); adjust the loader if the `@xterm/*` rename changed the global.
 - [ ] **Re-test (AC1/AC2)** — repeat the repro; borders aligned, resize no longer corrupts printed tables.
+- [ ] **Cheap co-fixes (test with the bump)** — set `convertEol: false` (`browser-host.js:6363`); ensure a `fit()`/`refresh()` re-measure runs after `document.fonts.ready` so the first frame isn't measured with the fallback font.
 - [ ] **Secondary if still broken (AC3)** — stabilize rendered width: reserve a scrollbar gutter / fix the terminal host content width so FitAddon does not oscillate cols by ±1.
 - [ ] **Smoke (AC4)** — input, resize, web-links, PTY lifecycle unchanged for normal CLIs.
 - [ ] Validation: `lint --require-status` green; manual Workshop terminal smoke documented.

@@ -2801,6 +2801,8 @@ ${entry?.message || ""}`;
       root: payload?.root || "",
       repository: payload?.repository || {},
       capabilities: normalizeCapabilities(payload),
+      bootstrapWarning: payload?.bootstrapWarning || null,
+      environmentWarning: payload?.environmentWarning || null,
       projects: projects.map((project) => ({
         id: project?.id || "",
         active: Boolean(project?.active),

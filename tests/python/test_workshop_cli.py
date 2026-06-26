@@ -162,6 +162,34 @@ def test_workshop_terminal_session_applies_initial_winsize_before_exec(tmp_path:
 
 
 @pytest.mark.skipif(not workshop_terminals_available(), reason="stdlib pty is unavailable on this host")
+def test_workshop_terminal_registry_caps_session_count(tmp_path: Path) -> None:
+    import time as _time
+
+    from logics_manager import viewer_workshop
+
+    cap = viewer_workshop._WORKSHOP_TERMINAL_SESSION_MAX
+    registry = WorkshopTerminalRegistry()
+    created = []
+    for i in range(cap + 3):
+        session = registry.create(["/bin/echo", f"line-{i}"], tmp_path, label=f"t{i}")
+        created.append(session)
+        for _ in range(25):  # let it finish so it is evictable as a closed session
+            if session.state in {"finished", "failed", "stopped"}:
+                break
+            _time.sleep(0.02)
+
+    listed = registry.list()
+    registry.shutdown()
+
+    # The registry never grows past the cap, and the most recent session survives.
+    assert len(listed) <= cap
+    surviving_ids = {item["id"] for item in listed}
+    assert created[-1].session_id in surviving_ids
+    # The oldest sessions were evicted.
+    assert created[0].session_id not in surviving_ids
+
+
+@pytest.mark.skipif(not workshop_terminals_available(), reason="stdlib pty is unavailable on this host")
 def test_workshop_terminal_write_resize_race_with_read_loop_close(tmp_path: Path) -> None:
     import time as _time
 

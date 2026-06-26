@@ -142,6 +142,12 @@ def test_python_viewer_assets_include_workshop_terminal_vendor_files() -> None:
     assert "/media/vendor/xterm/xterm.js" in package_index
     assert "/media/vendor/xterm/xterm-addon-fit.js" in package_index
     assert "/media/vendor/xterm/xterm-addon-web-links.js" in package_index
+    provenance = (package_asset_root / "PROVENANCE.md").read_text(encoding="utf-8")
+    assert "@xterm/xterm@5.5.0" in provenance
+    assert "@xterm/addon-fit@0.10.0" in provenance
+    assert "@xterm/addon-web-links@0.11.0" in provenance
+    package_host = (package_viewer_root / "browser-host.js").read_text(encoding="utf-8")
+    assert "convertEol: false" in package_host
 
 
 def test_main_renders_the_canonical_claude_bridge_manifest(capsys: pytest.CaptureFixture[str]) -> None:

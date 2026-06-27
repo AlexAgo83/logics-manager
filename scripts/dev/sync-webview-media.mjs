@@ -2,11 +2,11 @@
 // Mirror the canonical shared-web media tree into the packaged viewer assets.
 //
 // The pip package ships logics_manager/viewer_assets/media/* verbatim (declared
-// as package-data in pyproject.toml; no build hook regenerates it). Only
-// mainApp.js and renderBoardApp.js were kept current, by build-webview-media.
-// Every other hand-authored media file (webviewChrome.js, mainCore.js, the CSS,
-// ...) had no sync, so the packaged copies drifted behind clients/shared-web/media
-// and shipped stale to pip installs. This script keeps the whole tree in lockstep.
+// as package-data in pyproject.toml; no build hook regenerates it). Every
+// hand-authored media file (mainApp.js, renderBoardApp.js, webviewChrome.js,
+// mainCore.js, the CSS, ...) lives under clients/shared-web/media; without this
+// sync the packaged copies drift behind clients/shared-web/media and ship stale
+// to pip installs. This script keeps the whole tree in lockstep.
 //
 // Usage:
 //   node scripts/dev/sync-webview-media.mjs           # copy canonical -> packaged

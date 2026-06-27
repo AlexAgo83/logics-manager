@@ -38,13 +38,11 @@ const allowedOversizedFiles = new Map(
     // be split by domain (cdx/git/dom) in later passes as they grow.
     "clients/viewer/src/browser-host/util.js": { maxLines: 1200, ref: "browser-host-split" },
     "clients/viewer/src/browser-host/render.js": { maxLines: 2500, ref: "browser-host-split" },
-    "clients/shared-web/src/render-board-app/index.js": { maxLines: 1500, ref: "req_273" },
-    "clients/shared-web/src/main-app/index.js": { maxLines: 1200, ref: "req_273" },
+    "clients/shared-web/media/renderBoardApp.js": { maxLines: 1500, ref: "req_273" },
+    "clients/shared-web/media/mainApp.js": { maxLines: 1200, ref: "req_273" },
   })
 );
 const generatedFiles = new Set([
-  "clients/shared-web/media/mainApp.js",
-  "clients/shared-web/media/renderBoardApp.js",
   "clients/viewer/browser-host.js"
 ]);
 

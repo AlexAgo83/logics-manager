@@ -14,7 +14,7 @@ Thanks for helping improve `logics-manager`.
 - Prefer one logical change per commit or per wave.
 - Do not edit generated workflow status fields by hand unless the flow specifically requires it.
 - For Logics tasks, use `logics-manager flow ...` commands so task, backlog, and request status stay synchronized.
-- Run `npm run setup-hooks` once after cloning to enable the versioned git hooks. The `pre-commit` hook blocks commits when `clients/viewer/` and `logics_manager/viewer_assets/viewer/` drift; if it fires, run `npm run sync:viewer-assets`, re-stage, and commit again. (`npm install` also wires this via the `prepare` script.)
+- Shared web assets have a single committed home: edit the file under `clients/shared-web/media/` (or `clients/viewer/`) and commit just that one file. `logics_manager/viewer_assets/` is generated, not committed — `npm run build:assets` regenerates it from those sources, and CI/release run it before building the pip wheel. No manual mirror sync is needed during development.
 
 ## Validation
 

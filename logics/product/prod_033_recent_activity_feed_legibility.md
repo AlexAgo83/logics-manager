@@ -1,6 +1,6 @@
 ## prod_033_recent_activity_feed_legibility - Recent Activity feed legibility
 > Date: 2026-06-27
-> Status: Proposed
+> Status: Settled
 > Related request: `req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events`
 > Related backlog: `item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state`, `item_517_recompose_git_and_ci_activity_lines_into_human_summaries`
 > Related task: `task_281_orchestrate_the_recent_activity_feed_legibility_polish`
@@ -9,6 +9,17 @@
 
 # Overview
 A presentation-only polish of the viewer's Recent Activity feed so git and CI events become scannable — coloured by kind and CI outcome, glyphed, accent-striped, and summarized in human lines — using only data already on the events and tooling already in the repo.
+
+```mermaid
+%% logics-kind: product
+%% logics-signature: product|recent_activity_feed_legibility|generated
+flowchart TD
+    Events[Git / CI activity events] --> Marker[Colour + glyph by kind & CI state]
+    Events --> Summary[Recompose into human summary lines]
+    Marker --> Feed[Recent Activity feed]
+    Summary --> Feed
+    Feed --> Operator[Operator reads outcome at a glance]
+```
 
 # Goals
 - Let an operator read CI outcome and event kind from the feed at a glance, without opening entries.

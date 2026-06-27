@@ -1,14 +1,26 @@
 ## prod_034_shared_web_asset_single_sourcing - Shared web asset single-sourcing
 > Date: 2026-06-27
-> Status: Proposed
+> Status: Settled
 > Related request: `req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors`
-> Related backlog: `item_518_collapse_the_redundant_clients_shared_web_src_twins_into_media`, `item_519_add_a_dev_time_viewer_asset_fallback_in_viewer_py`, `item_520_generate_viewer_assets_at_build_time_and_untrack_the_mirror`, `item_521_retire_the_mirror_sync_check_tooling_and_update_ci_contributor_docs`
+> Related backlog: `item_518_collapse_the_redundant_clients_shared_web_src_twins_into_media`
 > Related task: `task_282_orchestrate_single_sourcing_of_shared_web_assets`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
 # Overview
 Collapse the triple-copied shared-web assets (src twin -> media bundle -> committed viewer_assets mirror) down to a single committed source, generating the pip package's viewer_assets as a build artifact instead of versioning it.
+
+```mermaid
+%% logics-kind: product
+%% logics-signature: product|shared_web_asset_single_sourcing|generated
+flowchart TD
+    Media[clients/shared-web/media] --> Build[npm run build:assets]
+    Viewer[clients/viewer] --> Build
+    Mermaid[node_modules/mermaid] --> Build
+    Build --> Assets[viewer_assets — generated, gitignored]
+    Assets --> Wheel[pip wheel payload]
+    Media -. dev fallback .-> Serve[viewer.py serves from clients/]
+```
 
 # Goals
 - One committed source of truth per asset, so every edit is a one-file diff.
@@ -33,5 +45,5 @@ Collapse the triple-copied shared-web assets (src twin -> media bundle -> commit
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors`
+- Product back-reference: `item_518_collapse_the_redundant_clients_shared_web_src_twins_into_media`
 - Task back-reference: `task_282_orchestrate_single_sourcing_of_shared_web_assets`

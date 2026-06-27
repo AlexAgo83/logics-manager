@@ -1,16 +1,13 @@
 #!/usr/bin/env node
-import { spawn, spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
-const sync = spawnSync(process.execPath, [resolve(repoRoot, "scripts/dev/sync-viewer-assets.mjs")], {
-  cwd: repoRoot,
-  stdio: "inherit",
-});
-if (sync.status !== 0) process.exit(sync.status ?? 1);
-
+// No asset sync needed: viewer.py resolves dev assets from clients/ directly
+// (repo-first fallback, req_285); the generated viewer_assets is only the
+// packaged payload. Build it explicitly with `npm run build:assets`.
 const args = process.argv.slice(2);
 if (!args.some((a) => a === "--port" || a.startsWith("--port="))) {
   args.push("--port", "2345");

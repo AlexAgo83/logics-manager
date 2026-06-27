@@ -1,6 +1,6 @@
 ## prod_035_scaffold_tooling_robustness - Scaffold tooling robustness
 > Date: 2026-06-27
-> Status: Proposed
+> Status: Settled
 > Related request: `req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting`
 > Related backlog: `item_522_pre_flight_validate_scaffold_input_and_share_the_path_with_dry_run`, `item_523_make_scaffold_apply_atomic`, `item_524_resolve_short_workflow_refs_in_validate_and_audit`, `item_525_surface_the_scaffold_input_schema_via_a_command`
 > Related task: `task_283_orchestrate_scaffold_robustness_hardening`
@@ -9,6 +9,18 @@
 
 # Overview
 Harden flow scaffold request-chain so bad input fails fast with a clear message before any write, applies atomically, resolves short refs, and exposes its input schema — driven by the concrete failure modes hit while dogfooding the scaffolder.
+
+```mermaid
+%% logics-kind: product
+%% logics-signature: product|scaffold_tooling_robustness|generated
+flowchart TD
+    Input[Scaffold input JSON] --> Preflight[Pre-flight validate]
+    Preflight -- invalid --> Fail[Fail fast, no writes]
+    Preflight -- valid --> Apply[Atomic apply]
+    Apply --> Corpus[Request-chain corpus]
+    Refs[Short workflow refs] --> Resolve[Resolve in validate / audit]
+    Input --> Schema[--print-schema / --template]
+```
 
 # Goals
 - Fail before writing, not mid-apply, on any invalid input.

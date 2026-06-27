@@ -1,22 +1,23 @@
 ## task_281_orchestrate_the_recent_activity_feed_legibility_polish - Orchestrate the Recent Activity feed legibility polish
 > From version: 2.14.1
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 25
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Owner: digital
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Land the marker colour/glyph/accent slice first: propagate badgeState, set the marker dataset and glyph in renderActivityPanel, and add the toolbar.css rules.
+- [x] 1. Land the marker colour/glyph/accent slice first: propagate badgeState, set the marker dataset and glyph in renderActivityPanel, and add the toolbar.css rules. (getActivityEntries passes badgeState through; renderActivityPanel sets a kind glyph + data-badge-state on the marker; toolbar.css tints CI markers by state and adds per-kind left accent stripes.)
 - [ ] 2. Then recompose the git/CI meta lines: expose branch/SHA on the host events and append relative time via the existing helper.
 - [ ] 3. Add activity-panel render coverage for the state-coloured marker, glyphs, and recomposed lines.
-- [ ] 4. Run scripts/dev/sync-webview-media.mjs --check, vitest, and logics-manager lint/audit; keep linked docs in sync.
+- [ ] 4. Run vitest and logics-manager lint/audit; keep linked docs in sync. (Mirror sync retired by req_285 — clients/shared-web/media is the single edited source.)
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.
 
 # Backlog

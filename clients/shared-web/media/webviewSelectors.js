@@ -256,6 +256,13 @@
           marker: String(event.marker || "A").slice(0, 2) || "A",
           meta: String(event.meta || event.message || ""),
           activityKind: String(event.kind || event.category || "activity"),
+          // req_284/item_516: CI run health for the coloured marker (green/red/amber/grey).
+          // ci events already carry the state on `label`; item_517 exposes it as
+          // `badgeState` on the host event, so prefer that and fall back to label.
+          badgeState: String(
+            event.badgeState ||
+              (String(event.kind || event.category) === "ci" ? event.label || "" : "")
+          ),
           selectable: false
         }));
       return [...documentEntries, ...eventEntries]

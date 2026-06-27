@@ -543,6 +543,21 @@ body.viewer-screen-activity .toolbar__activity-filter {
 .activity-panel__marker[data-stage="architecture"] { background: #be123c; border-color: #be123c; }
 .activity-panel__marker[data-stage="spec"] { background: #15803d; border-color: #15803d; }
 .activity-panel__marker[data-activity-kind="git"] { background: #52525b; border-color: #71717a; }
+/* req_284/item_516: CI marker base tint, then health colour by badge state. */
+.activity-panel__marker[data-activity-kind="ci"] { background: #3f3f6b; border-color: #5b5b8a; }
+.activity-panel__marker[data-badge-state="success"] { background: #16a34a; border-color: #16a34a; }
+.activity-panel__marker[data-badge-state="failure"],
+.activity-panel__marker[data-badge-state="failed"],
+.activity-panel__marker[data-badge-state="error"] { background: #dc2626; border-color: #dc2626; }
+.activity-panel__marker[data-badge-state="pending"],
+.activity-panel__marker[data-badge-state="running"],
+.activity-panel__marker[data-badge-state="queued"],
+.activity-panel__marker[data-badge-state="in_progress"] { background: #d97706; border-color: #d97706; }
+
+/* req_284/item_516: per-kind left accent stripe so operational (git/CI) events
+   are visually separated from the document flow. */
+.activity-panel__entry--git { border-left: 3px solid #71717a; }
+.activity-panel__entry--ci { border-left: 3px solid #5b5b8a; }
 
 .activity-panel__marker {
   cursor: help;

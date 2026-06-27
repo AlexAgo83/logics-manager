@@ -1,10 +1,10 @@
 ## item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state - Colour and glyph activity markers by kind and CI state
 > From version: 2.14.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer UX
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

@@ -1,0 +1,404 @@
+{
+  "budgets": {
+    "max_docs": 24,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting item_522_pre_flight_validate_scaffold_input_and_share_the_path_with_dry_run item_523_make_scaffold_apply_atomic item_524_resolve_short_workflow_refs_in_validate_and_audit item_525_surface_the_scaffold_input_schema_via_a_command task_283_orchestrate_scaffold_robustness_hardening --mode standard --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_522_pre_flight_validate_scaffold_input_and_share_the_path_with_dry_run",
+          "item_523_make_scaffold_apply_atomic",
+          "item_524_resolve_short_workflow_refs_in_validate_and_audit",
+          "item_525_surface_the_scaffold_input_schema_via_a_command"
+        ],
+        "prod": [
+          "prod_035_scaffold_tooling_robustness"
+        ],
+        "req": [
+          "req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting"
+        ],
+        "task": [
+          "task_283_orchestrate_scaffold_robustness_hardening"
+        ]
+      },
+      "path": "logics/product/prod_035_scaffold_tooling_robustness.md",
+      "ref": "prod_035_scaffold_tooling_robustness",
+      "sections": {
+        "Goals": [
+          "- Fail before writing, not mid-apply, on any invalid input.",
+          "- Guarantee all-or-nothing scaffolds so ids and INDEX never end up half-updated.",
+          "- Make the tool self-documenting and forgiving about ref shorthand."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Harden flow scaffold request-chain so bad input fails fast with a clear message before any write, applies atomically, resolves short refs, and exposes its input schema \u2014 driven by the concrete failure modes hit while dogfooding the scaffolder."
+        ],
+        "References": [
+          "- Product back-reference: `req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting`",
+          "- Task back-reference: `task_283_orchestrate_scaffold_robustness_hardening`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Scaffold tooling robustness"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, make flow scaffold request-chain fail-fast, atomic, and self-documenting, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Make flow scaffold request-chain fail-fast, atomic, and self-documenting",
+        "use when": "You need to implement or review the scaffolded workflow for Make flow scaffold request-chain fail-fast, atomic, and self-documenting."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_522_pre_flight_validate_scaffold_input_and_share_the_path_with_dry_run",
+          "item_523_make_scaffold_apply_atomic",
+          "item_524_resolve_short_workflow_refs_in_validate_and_audit",
+          "item_525_surface_the_scaffold_input_schema_via_a_command"
+        ],
+        "prod": [
+          "prod_035_scaffold_tooling_robustness"
+        ],
+        "req": [
+          "req_285_single_source_",
+          "req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting"
+        ]
+      },
+      "path": "logics/request/req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting.md",
+      "ref": "req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Invalid scaffold input (e.g. an unknown context_pack.profile) is rejected by a pre-flight validation pass before any doc is written, with a message naming the field and the allowed values.",
+          "- AC2: --dry-run runs the same input validation as apply (including the context-pack profile/mode check), so a dry-run that passes guarantees the apply will not fail on input errors.",
+          "- AC3: Apply is atomic: if any step fails, no partial docs or INDEX changes remain and no ids are consumed, so a corrected re-run reuses the same ids.",
+          "- AC4: flow validate and audit resolve a short ref (e.g. req_285) to its full slug, or fail with a 'did you mean <slug>' hint instead of a bare 'Workflow source not found'.",
+          "- AC5: The scaffold input schema is discoverable via a command (a --template or --print-schema) rather than by copying an existing JSON.",
+          "- AC6: New pytest coverage exercises invalid-profile rejection, dry-run/apply parity, atomic rollback on a forced mid-apply failure, and short-ref resolution."
+        ],
+        "Needs": [
+          "- Invalid scaffold input is rejected before any file is written, with a message that names the offending field and its allowed values.",
+          "- A partial scaffold never leaves orphaned docs or a half-updated INDEX, so a re-run reuses the same ids instead of allocating fresh ones.",
+          "- A passing --dry-run guarantees the apply will not fail on the same input, because both run the identical validation and build path.",
+          "- flow validate / audit resolve a short ref the way the rest of the CLI does, instead of only accepting the full slug.",
+          "- The scaffold input schema is discoverable from the tool itself rather than by copying an existing JSON."
+        ]
+      },
+      "status": "Draft",
+      "title": "Make flow scaffold request-chain fail-fast, atomic, and self-documenting"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, pre-flight validate scaffold input and share the path with dry-run, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Pre-flight validate scaffold input and share the path with dry-run",
+        "use when": "Implementing the scaffolded slice for Pre-flight validate scaffold input and share the path with dry-run."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_522_pre_flight_validate_scaffold_input_and_share_the_path_with_dry_run"
+        ],
+        "prod": [
+          "prod_035_scaffold_tooling_robustness"
+        ],
+        "req": [
+          "req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting"
+        ],
+        "task": [
+          "task_283_orchestrate_scaffold_robustness_hardening"
+        ]
+      },
+      "path": "logics/backlog/item_522_pre_flight_validate_scaffold_input_and_share_the_path_with_dry_run.md",
+      "ref": "item_522_pre_flight_validate_scaffold_input_and_share_the_path_with_dry_run",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: An unknown profile (or missing required key) is rejected before any doc is written, with a message naming the field and the valid values.",
+          "- AC2: --dry-run and apply run the identical input validation, so a green dry-run cannot be followed by an input-error apply failure.",
+          "- AC3: A pytest covers invalid-profile rejection and dry-run/apply parity."
+        ],
+        "Problem": [
+          "- context_pack.profile (and other enum/required fields) are only checked deep inside the context-pack build, under `if not dry_run:`, so an invalid value passes --dry-run and then throws a bare KeyError mid-apply."
+        ]
+      },
+      "status": "Ready",
+      "title": "Pre-flight validate scaffold input and share the path with dry-run"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, make scaffold apply atomic, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Make scaffold apply atomic",
+        "use when": "Implementing the scaffolded slice for Make scaffold apply atomic."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_523_make_scaffold_apply_atomic"
+        ],
+        "prod": [
+          "prod_035_scaffold_tooling_robustness"
+        ],
+        "req": [
+          "req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting"
+        ],
+        "task": [
+          "task_283_orchestrate_scaffold_robustness_hardening"
+        ]
+      },
+      "path": "logics/backlog/item_523_make_scaffold_apply_atomic.md",
+      "ref": "item_523_make_scaffold_apply_atomic",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A forced failure during scaffold leaves the repo byte-identical to before the run.",
+          "- AC2: A subsequent successful run reuses the same ids that the failed run would have allocated.",
+          "- AC3: A fault-injection pytest exercises the rollback path."
+        ],
+        "Problem": [
+          "- Docs and INDEX are written, then the context pack is built; a failure after the doc writes leaves orphaned md files and a half-updated INDEX, and a re-run reallocates ids."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make scaffold apply atomic"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, resolve short workflow refs in validate and audit, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Resolve short workflow refs in validate and audit",
+        "use when": "Implementing the scaffolded slice for Resolve short workflow refs in validate and audit."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_524_resolve_short_workflow_refs_in_validate_and_audit"
+        ],
+        "prod": [
+          "prod_035_scaffold_tooling_robustness"
+        ],
+        "req": [
+          "req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting"
+        ],
+        "task": [
+          "task_283_orchestrate_scaffold_robustness_hardening"
+        ]
+      },
+      "path": "logics/backlog/item_524_resolve_short_workflow_refs_in_validate_and_audit.md",
+      "ref": "item_524_resolve_short_workflow_refs_in_validate_and_audit",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: flow validate req_285 resolves to req_285_<full_slug>.",
+          "- AC2: An ambiguous or missing short ref prints candidate slugs instead of a bare not-found.",
+          "- AC3: A pytest covers both paths."
+        ],
+        "Problem": [
+          "- flow validate / audit raise 'Workflow source not found: req_285' for a short numeric ref; only the full slug resolves, unlike the rest of the CLI."
+        ]
+      },
+      "status": "Ready",
+      "title": "Resolve short workflow refs in validate and audit"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate scaffold robustness hardening",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_522_pre_flight_validate_scaffold_input_and_share_the_path_with_dry_run",
+          "item_523_make_scaffold_apply_atomic",
+          "item_524_resolve_short_workflow_refs_in_validate_and_audit",
+          "item_525_surface_the_scaffold_input_schema_via_a_command"
+        ],
+        "prod": [
+          "prod_035_scaffold_tooling_robustness"
+        ],
+        "req": [
+          "req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting"
+        ],
+        "task": [
+          "task_283_orchestrate_scaffold_robustness_hardening"
+        ]
+      },
+      "path": "logics/tasks/task_283_orchestrate_scaffold_robustness_hardening.md",
+      "ref": "task_283_orchestrate_scaffold_robustness_hardening",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- Run `python3 -m logics_manager lint --require-status`.",
+          "- Run scaffold command tests."
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate scaffold robustness hardening"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, surface the scaffold input schema via a command, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Surface the scaffold input schema via a command",
+        "use when": "Implementing the scaffolded slice for Surface the scaffold input schema via a command."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_525_surface_the_scaffold_input_schema_via_a_command"
+        ],
+        "prod": [
+          "prod_035_scaffold_tooling_robustness"
+        ],
+        "req": [
+          "req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting"
+        ],
+        "task": [
+          "task_283_orchestrate_scaffold_robustness_hardening"
+        ]
+      },
+      "path": "logics/backlog/item_525_surface_the_scaffold_input_schema_via_a_command.md",
+      "ref": "item_525_surface_the_scaffold_input_schema_via_a_command",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A command prints the input schema or a minimal valid template.",
+          "- AC2: The scaffold help text points to it.",
+          "- AC3: A pytest asserts the command runs and emits valid JSON."
+        ],
+        "Problem": [
+          "- The request-chain input schema is undocumented in the tool; authors copy an existing logics/scaffold/*.json to learn the keys."
+        ]
+      },
+      "status": "Ready",
+      "title": "Surface the scaffold input schema via a command"
+    }
+  ],
+  "estimates": {
+    "char_count": 11255,
+    "companion_doc_count": 1,
+    "doc_count": 6
+  },
+  "generated_at": "2026-06-27T11:40:47Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting",
+      "item_522_pre_flight_validate_scaffold_input_and_share_the_path_with_dry_run",
+      "item_523_make_scaffold_apply_atomic",
+      "item_524_resolve_short_workflow_refs_in_validate_and_audit",
+      "item_525_surface_the_scaffold_input_schema_via_a_command",
+      "task_283_orchestrate_scaffold_robustness_hardening"
+    ],
+    "validation_summary_count": 1
+  },
+  "mode": "standard",
+  "profile": "normal",
+  "ref": "req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting,item_522_pre_flight_validate_scaffold_input_and_share_the_path_with_dry_run,item_523_make_scaffold_apply_atomic,item_524_resolve_short_workflow_refs_in_validate_and_audit,item_525_surface_the_scaffold_input_schema_via_a_command,task_283_orchestrate_scaffold_robustness_hardening",
+  "refs": [
+    "req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting",
+    "item_522_pre_flight_validate_scaffold_input_and_share_the_path_with_dry_run",
+    "item_523_make_scaffold_apply_atomic",
+    "item_524_resolve_short_workflow_refs_in_validate_and_audit",
+    "item_525_surface_the_scaffold_input_schema_via_a_command",
+    "task_283_orchestrate_scaffold_robustness_hardening"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.14.1"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_283_orchestrate_scaffold_robustness_hardening.md",
+      "ref": "task_283_orchestrate_scaffold_robustness_hardening"
+    }
+  ]
+}

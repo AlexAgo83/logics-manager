@@ -1,7 +1,7 @@
 ## req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors - Single-source the shared web assets and stop committing build mirrors
 > From version: 2.14.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

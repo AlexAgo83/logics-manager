@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Done
 > Understanding: 90%
-> Confidence: 85%
+> Confidence: 85
 > Progress: 100%
 > Complexity: Medium
 > Theme: Build tooling
@@ -31,6 +31,8 @@
 - request-AC2 -> This backlog slice. Proof: AC2: python -m build produces a wheel containing complete viewer_assets/media and viewer_assets/viewer.
 - request-AC5 -> This backlog slice. Proof: AC3: A clean checkout + build:assets + build + install serves the viewer identically to today.
 - request-AC6 -> This backlog slice. Proof: AC3: A clean checkout + build:assets + build + install serves the viewer identically to today.
+- request-AC4 -> This backlog slice. Evidence needed: logics_manager runs from a fresh git clone with no Node build and still serves the viewer, via a fallback to the canonical source when packaged viewer_assets is absent.
+- request-AC7 -> This backlog slice. Evidence needed: logics-manager lint and audit pass and the full pytest and vitest suites pass with no behavior change to the viewer or webview.
 
 # Decision framing
 - Product framing: Not needed
@@ -51,3 +53,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_282_orchestrate_single_sourcing_of_shared_web_assets`
+
+# Notes
+- Task `task_282_orchestrate_single_sourcing_of_shared_web_assets` was finished via `logics-manager flow finish task` on 2026-06-27.

@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Done
 > Understanding: 90%
-> Confidence: 85%
+> Confidence: 85
 > Progress: 100%
 > Complexity: Low
 > Theme: Build tooling
@@ -29,6 +29,10 @@
 # AC Traceability
 - request-AC1 -> This backlog slice. Proof: AC1: clients/shared-web/src no longer exists; renderBoardApp.js and mainApp.js are the hand-authored files under clients/shared-web/media.
 - request-AC3 -> This backlog slice. Proof: AC2: line-budget and lint reference the media files and npm run lint passes.
+- request-AC4 -> This backlog slice. Evidence needed: logics_manager runs from a fresh git clone with no Node build and still serves the viewer, via a fallback to the canonical source when packaged viewer_assets is absent.
+- request-AC5 -> This backlog slice. Evidence needed: The pip wheel and the VS Code extension still ship complete, working assets, produced by a single build step run at package/release time.
+- request-AC6 -> This backlog slice. Evidence needed: logics_manager/viewer_assets is no longer tracked in git; a single build:assets step regenerates it deterministically and CI verifies the shipped artifact.
+- request-AC7 -> This backlog slice. Evidence needed: logics-manager lint and audit pass and the full pytest and vitest suites pass with no behavior change to the viewer or webview.
 
 # Decision framing
 - Product framing: Not needed
@@ -49,3 +53,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_282_orchestrate_single_sourcing_of_shared_web_assets`
+
+# Notes
+- Task `task_282_orchestrate_single_sourcing_of_shared_web_assets` was finished via `logics-manager flow finish task` on 2026-06-27.

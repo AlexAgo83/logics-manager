@@ -1,10 +1,10 @@
 ## item_521_retire_the_mirror_sync_check_tooling_and_update_ci_contributor_docs - Retire the mirror sync/check tooling and update CI + contributor docs
 > From version: 2.14.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Build tooling
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -28,6 +28,10 @@
 # AC Traceability
 - request-AC2 -> This backlog slice. Proof: AC1: The redundant sync/check npm scripts are removed or folded into build:assets.
 - request-AC7 -> This backlog slice. Proof: AC2: lint no longer requires committed-mirror parity.
+- request-AC3 -> This backlog slice. Evidence needed: The redundant clients/shared-web/src twins are removed and their lint / line-budget references repoint to the canonical clients/shared-web/media files.
+- request-AC4 -> This backlog slice. Evidence needed: logics_manager runs from a fresh git clone with no Node build and still serves the viewer, via a fallback to the canonical source when packaged viewer_assets is absent.
+- request-AC5 -> This backlog slice. Evidence needed: The pip wheel and the VS Code extension still ship complete, working assets, produced by a single build step run at package/release time.
+- request-AC6 -> This backlog slice. Evidence needed: logics_manager/viewer_assets is no longer tracked in git; a single build:assets step regenerates it deterministically and CI verifies the shipped artifact.
 
 # Decision framing
 - Product framing: Not needed
@@ -48,3 +52,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_282_orchestrate_single_sourcing_of_shared_web_assets`
+
+# Notes
+- Task `task_282_orchestrate_single_sourcing_of_shared_web_assets` was finished via `logics-manager flow finish task` on 2026-06-27.

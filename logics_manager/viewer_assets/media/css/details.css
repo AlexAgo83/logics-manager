@@ -13,6 +13,10 @@
   overflow: hidden;
 }
 
+.details.details--hidden {
+  display: none;
+}
+
 .details__header {
   display: flex;
   align-items: flex-start;

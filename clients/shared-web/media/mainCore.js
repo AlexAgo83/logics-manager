@@ -383,6 +383,8 @@
       }
       if (details) {
         details.classList.toggle("details--collapsed", state.uiState.detailsCollapsed);
+        details.classList.toggle("details--empty", !state.selectedId && !state.activityPanelOpen);
+        details.classList.toggle("details--hidden", state.activityPanelOpen);
       }
       if (detailsToggle) {
         detailsToggle.setAttribute("aria-expanded", String(!state.uiState.detailsCollapsed));

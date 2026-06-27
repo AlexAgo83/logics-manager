@@ -17,14 +17,6 @@
     return isCollapsed ? "▸" : "▾";
   }
 
-  function createCompanionBadge(label, count, tone) {
-    const badge = document.createElement("span");
-    badge.className = `card__badge card__badge--${tone}`;
-    badge.textContent = count > 1 ? `${label} ${count}` : label;
-    badge.title = count > 1 ? `${count} linked ${tone} companion docs` : `Linked ${tone} companion doc`;
-    return badge;
-  }
-
   function normalizeTaskStatus(value) {
     return String(value || "")
       .trim()
@@ -626,11 +618,11 @@
       return "No Logics items found. Use New Request or Bootstrap Logics to populate the board.";
     }
 
-    function createCompanionBadges(item) {
+    function createCompanionSummary(item) {
       const companionDocs = collectCompanionDocs(item);
       const specs = collectSpecs(item);
       if (!isPrimaryFlowStage(item.stage) || (companionDocs.length === 0 && specs.length === 0)) {
-        return null;
+        return "";
       }
 
       const counts = companionDocs.reduce(
@@ -642,60 +634,32 @@
         { product: 0, architecture: 0 }
       );
 
-      const badges = document.createElement("div");
-      badges.className = "card__badges";
-      if (counts.product > 0) {
-        badges.appendChild(createCompanionBadge("PROD", counts.product, "product"));
-      }
-      if (counts.architecture > 0) {
-        badges.appendChild(createCompanionBadge("ADR", counts.architecture, "architecture"));
-      }
-      if (specs.length > 0) {
-        badges.appendChild(createCompanionBadge("SPEC", specs.length, "spec"));
-      }
-      return badges.childElementCount > 0 ? badges : null;
+      const label = (text, count) => (count > 1 ? `${text} ${count}` : text);
+      const parts = [];
+      if (counts.product > 0) parts.push(label("PROD", counts.product));
+      if (counts.architecture > 0) parts.push(label("ADR", counts.architecture));
+      if (specs.length > 0) parts.push(label("SPEC", specs.length));
+      return parts.join(" • ");
     }
 
-    function createSuggestedBadges(item) {
+    function getSuggestedSummary(item) {
       if (typeof getSuggestedActions !== "function") {
-        return null;
+        return "";
       }
-      const actions = getSuggestedActions(item).filter((action) => action.key !== "promote" && action.key !== "add-docs");
-      if (!actions || actions.length === 0) {
-        return null;
-      }
-
-      const badges = document.createElement("div");
-      badges.className = "card__badges card__badges--suggested";
-      actions.forEach((action) => {
-        const badge = document.createElement("span");
-        badge.className = "card__badge card__badge--suggested";
-        badge.textContent = action.label;
-        badge.title = action.title;
-        badges.appendChild(badge);
-      });
-      return badges;
+      return getSuggestedActions(item)
+        .filter((action) => action.key !== "promote" && action.key !== "add-docs")
+        .map((action) => action.label)
+        .join(" • ");
     }
 
-    function createHealthBadges(item) {
+    function getAttentionSummary(item) {
       if (typeof getAttentionReasons !== "function") {
-        return null;
+        return "";
       }
-      const reasons = getAttentionReasons(item);
-      if (!reasons || reasons.length === 0) {
-        return null;
-      }
-
-      const badges = document.createElement("div");
-      badges.className = "card__badges card__badges--health";
-      reasons.slice(0, 2).forEach((reason) => {
-        const badge = document.createElement("span");
-        badge.className = `card__badge card__badge--health card__badge--health-${reason.key}`;
-        badge.textContent = reason.shortLabel || reason.label;
-        badge.title = reason.description || reason.label;
-        badges.appendChild(badge);
-      });
-      return badges;
+      return getAttentionReasons(item)
+        .slice(0, 2)
+        .map((reason) => reason.shortLabel || reason.label)
+        .join(" • ");
     }
 
     function createCardBadgeStrip(item, activeTasks) {
@@ -705,9 +669,6 @@
       const badgeGroups = [
         createPriorityBadge(item),
         createProgressComplexityBadge(item),
-        createCompanionBadges(item),
-        createHealthBadges(item),
-        createSuggestedBadges(item),
       ];
 
       badgeGroups.forEach((group) => {
@@ -724,13 +685,22 @@
         return null;
       }
       const priority = String(item?.indicators?.Priority || "Medium").trim() || "Medium";
+      const level = priority.toLowerCase();
+      const knownLevel = level === "low" || level === "high" ? level : "medium";
+      const filled = knownLevel === "high" ? 3 : knownLevel === "low" ? 1 : 2;
       const badges = document.createElement("div");
       badges.className = "card__badges card__badges--priority";
-      const badge = document.createElement("span");
-      badge.className = "card__badge card__badge--priority";
-      badge.textContent = `Priority ${priority}`;
-      badge.title = `Priority: ${priority}`;
-      badges.appendChild(badge);
+      const meter = document.createElement("span");
+      meter.className = `card__priority-meter card__priority-meter--${knownLevel}`;
+      meter.title = `Priority: ${priority}`;
+      meter.setAttribute("role", "img");
+      meter.setAttribute("aria-label", `Priority: ${priority}`);
+      for (let i = 1; i <= 3; i += 1) {
+        const bar = document.createElement("span");
+        bar.className = i <= filled ? "card__priority-bar card__priority-bar--on" : "card__priority-bar";
+        meter.appendChild(bar);
+      }
+      badges.appendChild(meter);
       return badges;
     }
 
@@ -761,7 +731,7 @@
       }
       const preview = linkedItems
         .slice(0, 2)
-        .map((linkedItem) => `${getStageLabel(linkedItem.stage)} • ${linkedItem.id}`)
+        .map((linkedItem) => getDocumentPrefix(linkedItem) || getStageLabel(linkedItem.stage) || linkedItem.id)
         .join(", ");
       if (linkedItems.length > 2) {
         return `For ${preview}, +${linkedItems.length - 2} more`;
@@ -983,9 +953,24 @@
       preview.appendChild(createPreviewRow("Status", item?.indicators?.Status || "No status"));
       preview.appendChild(createPreviewRow("Updated", formatPreviewDate(item.updatedAt)));
 
-      const linkage = ["spec", "product", "architecture"].includes(String(item?.stage || "").trim()) ? "" : createPrimaryFlowSummary(item);
+      const linkage = String(item?.stage || "").trim() === "spec" ? "" : createPrimaryFlowSummary(item);
       if (linkage) {
         preview.appendChild(createPreviewRow("Flow", linkage));
+      }
+
+      const companions = createCompanionSummary(item);
+      if (companions) {
+        preview.appendChild(createPreviewRow("Docs", companions));
+      }
+
+      const attention = getAttentionSummary(item);
+      if (attention) {
+        preview.appendChild(createPreviewRow("Attention", attention));
+      }
+
+      const suggested = getSuggestedSummary(item);
+      if (suggested) {
+        preview.appendChild(createPreviewRow("Suggested", suggested));
       }
       return preview;
     }
@@ -1132,16 +1117,6 @@
       const linkageBadges = createLinkageBadges(item, activeTasks);
       if (linkageBadges) {
         card.appendChild(linkageBadges);
-      }
-
-      const primaryFlowSummary = String(item?.stage || "").trim() === "spec" ? "" : createPrimaryFlowSummary(item);
-      if (primaryFlowSummary) {
-        const linkage = document.createElement("div");
-        linkage.className =
-          "card__meta card__meta--linkage" +
-          (primaryFlowSummary === "Unlinked to primary flow" ? " card__meta--orphan" : "");
-        linkage.textContent = primaryFlowSummary;
-        card.appendChild(linkage);
       }
 
       card.appendChild(preview);

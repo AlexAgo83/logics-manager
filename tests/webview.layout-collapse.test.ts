@@ -403,7 +403,7 @@ describe("webview collapsed details layout behavior", () => {
     const columnRule = css.match(/\.column\s*\{[^}]+\}/)?.[0] || "";
     const cardRule = css.match(/\.card\s*\{[^}]+\}/)?.[0] || "";
     const titleRule = css.match(/\.card__title\s*\{[^}]+\}/)?.[0] || "";
-    const metaRule = css.match(/\.card__meta\s*\{[^}]+\}/)?.[0] || "";
+    const metaRule = css.match(/\.card__preview-value\s*\{[^}]+\}/)?.[0] || "";
 
     expect(boardRule.includes("overflow-x: auto;")).toBe(true);
     expect(boardRule.includes("overflow-y: hidden;")).toBe(true);
@@ -470,7 +470,7 @@ describe("webview collapsed details layout behavior", () => {
     expect(indicatorActionsRule.includes("flex-wrap: wrap;")).toBe(true);
   });
 
-  it("keeps card badge strips on one row with horizontal overflow instead of wrapping", () => {
+  it("wraps card badge strips so indicators stay visible within the panel", () => {
     const css = readCssBundle("clients/shared-web/media/main.css");
     const badgesRule = css.match(/\.card__badges\s*\{[^}]+\}/)?.[0] || "";
     const stripRule = css.match(/\.card__badges--strip\s*\{[^}]+\}/)?.[0] || "";
@@ -478,10 +478,8 @@ describe("webview collapsed details layout behavior", () => {
     const badgeChildRule = css.match(/\.card__badges > \*\s*\{[^}]+\}/)?.[0] || "";
     const linkageRule = css.match(/\.card__linkage-indicators\s*\{[^}]+\}/)?.[0] || "";
 
-    expect(badgesRule.includes("flex-wrap: nowrap;")).toBe(true);
-    expect(badgesRule.includes("overflow-x: auto;")).toBe(true);
-    expect(badgesRule.includes("overflow-y: hidden;")).toBe(true);
-    expect(badgesRule.includes("scrollbar-width: none;")).toBe(true);
+    expect(badgesRule.includes("flex-wrap: wrap;")).toBe(true);
+    expect(badgesRule.includes("overflow: visible;")).toBe(true);
     expect(badgesRule.includes("max-width: 100%;")).toBe(true);
     expect(stripRule.includes("align-items: center;")).toBe(true);
     expect(badgeRule.includes("white-space: nowrap;")).toBe(true);

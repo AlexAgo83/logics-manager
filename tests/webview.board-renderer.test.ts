@@ -462,8 +462,9 @@ describe("webview board renderer behavior", () => {
 
     const board = dom.window.document.getElementById("board");
     const card = board?.querySelector('[data-id="prod_010_linked"]');
-    expect(card?.querySelector(".card__meta--linkage")).toBeTruthy();
-    expect(card?.querySelector(".card__meta:not(.card__meta--linkage)")).toBeFalsy();
+    const previewText = card?.querySelector(".card__preview")?.textContent || "";
+    expect(previewText).toContain("For R010");
+    expect(card?.querySelector(".card__meta")).toBeFalsy();
   });
 
   it("renders the compact document prefix before the card title", () => {
@@ -638,8 +639,10 @@ describe("webview board renderer behavior", () => {
       ]
     });
 
-    const badges = Array.from(dom.window.document.querySelectorAll(".card__badge--priority")).map((node) => node.textContent);
-    expect(badges).toEqual(["Priority High", "Priority Medium"]);
+    const meters = Array.from(dom.window.document.querySelectorAll(".card__priority-meter"));
+    expect(meters.map((node) => node.getAttribute("aria-label"))).toEqual(["Priority: High", "Priority: Medium"]);
+    expect(meters.map((node) => node.className.match(/card__priority-meter--(\w+)/)?.[1])).toEqual(["high", "medium"]);
+    expect(meters.map((node) => node.querySelectorAll(".card__priority-bar--on").length)).toEqual([3, 2]);
   });
 
   it("renders progress badges for unknown stages without losing the progress metric", () => {
@@ -931,12 +934,16 @@ describe("webview board renderer behavior", () => {
     expect(directBadgeContainers.length).toBe(1);
     expect(badgeStrip).toBeTruthy();
     expect(badgeStrip?.firstElementChild?.classList.contains("card__badges--metrics")).toBe(true);
-    expect(badgeStrip?.textContent).toContain("PROD");
-    expect(badgeStrip?.textContent).toContain("ADR");
-    expect(badgeStrip?.textContent).toContain("SPEC");
+    expect(badgeStrip?.textContent).not.toContain("PROD");
+    expect(badgeStrip?.textContent).not.toContain("ADR");
+    expect(badgeStrip?.textContent).not.toContain("SPEC");
     expect(badgeStrip?.textContent).toContain("U");
     expect(badgeStrip?.textContent).toContain("C");
     expect(badgeStrip?.textContent).toContain("H");
+    const previewText = card?.querySelector(".card__preview")?.textContent || "";
+    expect(previewText).toContain("PROD");
+    expect(previewText).toContain("ADR");
+    expect(previewText).toContain("SPEC");
     expect(card?.querySelector(".card__request-badge")).toBeTruthy();
     expect(card?.querySelector(".card__task-dot-container")).toBeTruthy();
     expect(card?.querySelector(".card__request-badge")?.closest(".card__badges--strip")).toBeFalsy();

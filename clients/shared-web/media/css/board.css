@@ -240,36 +240,13 @@
   min-width: 0;
 }
 
-.card__meta {
-  font-size: 11px;
-  color: var(--vscode-descriptionForeground, #9da5b4);
-  min-width: 0;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
-.card__meta--linkage {
-  color: var(--vscode-textLink-foreground, #4ea1ff);
-}
-
-.card__meta--linkage.card__meta--orphan {
-  font-style: italic;
-}
-
 .card__badges {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 6px;
   min-width: 0;
   max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.card__badges::-webkit-scrollbar {
-  display: none;
+  overflow: visible;
 }
 
 .card__badges > * {
@@ -290,16 +267,50 @@
   overflow: visible;
 }
 
-.card__badges--suggested {
-  margin-top: 2px;
-}
-
-.card__badges--health {
-  margin-top: 2px;
+/* Priority meter hugs the left, metrics pill hugs the right edge. */
+.card__badges--strip > .card__badges--metrics {
+  margin-left: auto;
 }
 
 .card__badges--metrics {
   margin-top: 2px;
+}
+
+.card__priority-meter {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+}
+
+.card__priority-bar {
+  width: 3px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.card__priority-bar:nth-child(1) {
+  height: 6px;
+}
+
+.card__priority-bar:nth-child(2) {
+  height: 10px;
+}
+
+.card__priority-bar:nth-child(3) {
+  height: 14px;
+}
+
+.card__priority-meter--low .card__priority-bar--on {
+  background: #4ade80;
+}
+
+.card__priority-meter--medium .card__priority-bar--on {
+  background: #fbbf24;
+}
+
+.card__priority-meter--high .card__priority-bar--on {
+  background: #f87171;
 }
 
 .card__preview {
@@ -411,55 +422,6 @@
   font-size: 9px;
   line-height: 1;
   margin: 0 2px;
-}
-
-.card__badge--product {
-  color: #fef3c7;
-  background: rgba(217, 119, 6, 0.22);
-  border-color: rgba(245, 158, 11, 0.4);
-}
-
-.card__badge--architecture {
-  color: #dbeafe;
-  background: rgba(37, 99, 235, 0.22);
-  border-color: rgba(59, 130, 246, 0.42);
-}
-
-.card__badge--spec {
-  color: #dcfce7;
-  background: rgba(22, 163, 74, 0.22);
-  border-color: rgba(34, 197, 94, 0.4);
-}
-
-.card__badge--suggested {
-  color: #d1fae5;
-  background: rgba(13, 148, 136, 0.2);
-  border-color: rgba(20, 184, 166, 0.38);
-}
-
-.card__badge--health {
-  color: #fee2e2;
-}
-
-.card__badge--health-blocked {
-  background: rgba(220, 38, 38, 0.2);
-  border-color: rgba(248, 113, 113, 0.4);
-}
-
-.card__badge--health-orphaned {
-  background: rgba(245, 158, 11, 0.2);
-  border-color: rgba(251, 191, 36, 0.4);
-}
-
-.card__badge--health-done-mismatch,
-.card__badge--health-workflow-inconsistent {
-  background: rgba(249, 115, 22, 0.2);
-  border-color: rgba(251, 146, 60, 0.42);
-}
-
-.card__badge--health-missing-supporting-doc {
-  background: rgba(14, 116, 144, 0.2);
-  border-color: rgba(34, 211, 238, 0.35);
 }
 
 .card__linkage-indicators {

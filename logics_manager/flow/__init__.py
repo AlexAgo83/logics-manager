@@ -940,9 +940,36 @@ def _with_workflow_mermaid_overview(kind: str, content: str) -> str:
     return content
 
 
+_SHORT_REF_RE = re.compile(r"^([a-z]+)_(\d+)$")
+
+
+def _short_ref_matches(repo_root: Path, kind: DocKind, ref: str) -> list[Path]:
+    """req_286/item_524: full-slug docs a short ref (e.g. req_285) could mean.
+
+    Matches by integer value so req_285 and req_5 / req_005 resolve regardless of
+    zero-padding, like the rest of the CLI."""
+    match = _SHORT_REF_RE.match(ref)
+    if not match or match.group(1) != kind.prefix:
+        return []
+    want = int(match.group(2))
+    directory = repo_root / kind.directory
+    if not directory.is_dir():
+        return []
+    out = []
+    for path in directory.glob(f"{kind.prefix}_*.md"):
+        parts = path.stem.split("_", 2)
+        if len(parts) >= 2 and parts[1].isdigit() and int(parts[1]) == want:
+            out.append(path)
+    return sorted(out)
+
+
 def _resolve_doc_path(repo_root: Path, kind: DocKind, ref: str) -> Path | None:
     path = repo_root / kind.directory / f"{ref}.md"
-    return path if path.is_file() else None
+    if path.is_file():
+        return path
+    # req_286/item_524: fall back to short-ref resolution (req_285 -> req_285_<slug>).
+    matches = _short_ref_matches(repo_root, kind, ref)
+    return matches[0] if len(matches) == 1 else None
 
 
 def _resolve_workflow_source(repo_root: Path, kind: DocKind, source: str) -> Path:
@@ -1475,13 +1502,35 @@ def repair_links_payload(repo_root: Path, source: str, *, dry_run: bool) -> dict
     }
 
 
+def _did_you_mean_hint(repo_root: Path, source: str) -> str:
+    """req_286/item_524: candidate slugs for an ambiguous or missing short ref."""
+    match = _SHORT_REF_RE.match(source)
+    if not match:
+        return ""
+    prefix = match.group(1)
+    kind = next((DOC_KINDS[k] for k in ("request", "backlog", "task") if DOC_KINDS[k].prefix == prefix), None)
+    if kind is None:
+        return ""
+    matches = _short_ref_matches(repo_root, kind, source)
+    if matches:  # ambiguous: more than one doc shares the number
+        slugs = [path.stem for path in matches]
+    else:  # missing: point at the refs that do exist for this kind
+        directory = repo_root / kind.directory
+        slugs = sorted(path.stem for path in directory.glob(f"{kind.prefix}_*.md")) if directory.is_dir() else []
+    if not slugs:
+        return ""
+    shown = slugs[:5]
+    suffix = "" if len(slugs) <= 5 else f", … (+{len(slugs) - 5} more)"
+    return f" — did you mean: {', '.join(shown)}{suffix}"
+
+
 def _resolve_any_workflow_source(repo_root: Path, source: str) -> tuple[Path, str]:
     for kind in ("request", "backlog", "task"):
         try:
             return _resolve_workflow_source(repo_root, DOC_KINDS[kind], source), kind
         except SystemExit:
             continue
-    raise SystemExit(f"Workflow source not found: {source}")
+    raise SystemExit(f"Workflow source not found: {source}{_did_you_mean_hint(repo_root, source)}")
 
 
 def repair_mermaid_payload(repo_root: Path, refs: list[str], *, dry_run: bool) -> dict[str, object]:

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from logics_manager.flow import scaffold_request_chain_payload
+from logics_manager.flow import _resolve_any_workflow_source, scaffold_request_chain_payload
 from logics_manager.sync import _context_profile_limit
 
 
@@ -90,3 +90,27 @@ def test_failed_apply_rolls_back_and_reuses_ids(tmp_path: Path, monkeypatch: pyt
     assert result["task_ref"] == "task_001_orchestrate_robustness_demo"
     assert _doc_count(repo_root) >= 4
     assert (repo_root / "logics" / "INDEX.md").is_file()
+
+
+# item_524: short workflow ref resolution in validate/audit with a did-you-mean hint.
+def test_short_ref_resolves_to_full_slug(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    doc = repo_root / "logics" / "request" / "req_285_single_source_assets.md"
+    doc.write_text("# req_285\n", encoding="utf-8")
+
+    path, kind = _resolve_any_workflow_source(repo_root, "req_285")
+    assert path == doc
+    assert kind == "request"
+
+
+def test_missing_short_ref_lists_candidates(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    (repo_root / "logics" / "request" / "req_285_single_source_assets.md").write_text("# x\n", encoding="utf-8")
+    (repo_root / "logics" / "request" / "req_284_activity_feed.md").write_text("# y\n", encoding="utf-8")
+
+    with pytest.raises(SystemExit) as excinfo:
+        _resolve_any_workflow_source(repo_root, "req_999")
+    message = str(excinfo.value)
+    assert "Workflow source not found: req_999" in message
+    assert "did you mean" in message
+    assert "req_285_single_source_assets" in message

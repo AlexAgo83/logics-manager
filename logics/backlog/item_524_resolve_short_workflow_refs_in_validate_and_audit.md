@@ -1,10 +1,10 @@
 ## item_524_resolve_short_workflow_refs_in_validate_and_audit - Resolve short workflow refs in validate and audit
 > From version: 2.14.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Developer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

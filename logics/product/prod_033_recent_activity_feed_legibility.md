@@ -2,7 +2,7 @@
 > Date: 2026-06-27
 > Status: Settled
 > Related request: `req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events`
-> Related backlog: `item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state`, `item_517_recompose_git_and_ci_activity_lines_into_human_summaries`
+> Related backlog: `item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state`
 > Related task: `task_281_orchestrate_the_recent_activity_feed_legibility_polish`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -44,5 +44,5 @@ flowchart TD
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events`
+- Product back-reference: `item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state`
 - Task back-reference: `task_281_orchestrate_the_recent_activity_feed_legibility_polish`

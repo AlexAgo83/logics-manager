@@ -1,10 +1,10 @@
 ## item_517_recompose_git_and_ci_activity_lines_into_human_summaries - Recompose git and CI activity lines into human summaries
 > From version: 2.14.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer UX
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -54,3 +54,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_281_orchestrate_the_recent_activity_feed_legibility_polish`
+
+# Notes
+- Task `task_281_orchestrate_the_recent_activity_feed_legibility_polish` was finished via `logics-manager flow finish task` on 2026-06-27.

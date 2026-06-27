@@ -3767,6 +3767,9 @@ ${entry?.message || ""}`;
         title: String(entry.title || `Git ${entry.action || "action"}`),
         label: String(entry.label || entry.action || "Git action"),
         meta: String(entry.meta || entry.message || "Git action"),
+        // req_284/item_517: branch + short SHA for the recomposed human meta line.
+        branch: String(entry.branch || ""),
+        sha: String(entry.sha || ""),
         at: entry.at || entry.updatedAt || "",
         updatedAt: entry.updatedAt || entry.at || ""
       }));
@@ -3786,6 +3789,11 @@ ${entry?.message || ""}`;
           title: `${workflow} \u2014 ${state}`,
           label: state,
           meta: String(run.title || `${workflow} ${state}`),
+          // req_284/item_516+517: discrete fields for the coloured marker and the
+          // recomposed "workflow · outcome · time" meta line.
+          workflow,
+          outcome: state,
+          badgeState: state,
           at: run.updatedAt || "",
           updatedAt: run.updatedAt || ""
         };
@@ -3838,6 +3846,7 @@ ${entry?.message || ""}`;
       if (!commits.length) {
         return;
       }
+      const branch = String(payload?.branch || "").trim();
       const storedState = readStoredState();
       const baseState = storedState && typeof storedState === "object" ? storedState : {};
       const scopedState = activityStateForRoot(baseState, latestRepoRoot2);
@@ -3855,6 +3864,8 @@ ${entry?.message || ""}`;
           title: subject,
           label: "Commit",
           meta: [hash, author, date].filter(Boolean).join(" \xB7 "),
+          sha: hash.slice(0, 7),
+          branch,
           at: date,
           updatedAt: date
         };

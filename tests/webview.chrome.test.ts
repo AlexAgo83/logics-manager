@@ -395,3 +395,42 @@ describe("webview chrome toolbar and filter behavior", () => {
     expect(postedMessages.some((m) => m.type === "assist-commit-all")).toBe(true);
   });
 });
+
+describe("recent activity feed legibility (req_284)", () => {
+  const events = [
+    { id: "ci-ok", kind: "ci", stage: "ci", marker: "C", title: "deploy.yml", label: "success", workflow: "deploy.yml", outcome: "success", badgeState: "success", updatedAt: "2024-06-01T00:02:00.000Z" },
+    { id: "ci-bad", kind: "ci", stage: "ci", marker: "C", title: "build.yml", label: "failure", workflow: "build.yml", outcome: "failure", badgeState: "failure", updatedAt: "2024-06-01T00:01:00.000Z" },
+    { id: "git-commit-abc1234", kind: "git", stage: "git", marker: "G", action: "Commit", title: "Fix the thing", branch: "main", sha: "abc1234", updatedAt: "2024-06-01T00:00:30.000Z" },
+    { id: "git-nobranch", kind: "git", stage: "git", marker: "G", action: "Commit", title: "No branch", sha: "def5678", updatedAt: "2024-06-01T00:00:00.000Z" }
+  ];
+
+  const markerOf = (dom: ReturnType<typeof bootstrapWebview>["dom"], id: string) =>
+    dom.window.document.querySelector(`.activity-panel__entry[data-id="${id}"] .activity-panel__marker`);
+  const metaOf = (dom: ReturnType<typeof bootstrapWebview>["dom"], id: string) =>
+    dom.window.document.querySelector(`.activity-panel__entry[data-id="${id}"] .activity-panel__meta`)?.textContent ?? "";
+
+  it("colours CI markers by badge state and shows per-kind glyphs (item_516)", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, { root: "/workspace/mock", items: [baseItem], activityEvents: events });
+
+    expect(markerOf(dom, "ci-ok")?.getAttribute("data-badge-state")).toBe("success");
+    expect(markerOf(dom, "ci-ok")?.textContent).toBe("✓");
+    expect(markerOf(dom, "ci-bad")?.getAttribute("data-badge-state")).toBe("failure");
+    expect(markerOf(dom, "ci-bad")?.textContent).toBe("✗");
+    expect(markerOf(dom, "git-commit-abc1234")?.textContent).toBe("⎇");
+    // kind/id stay reachable in the accessible label and tooltip.
+    expect(markerOf(dom, "ci-ok")?.getAttribute("aria-label")).toContain("ci-ok");
+    expect(markerOf(dom, "ci-ok")?.getAttribute("title")).toContain("ci-ok");
+  });
+
+  it("recomposes git and CI activity lines into human summaries (item_517)", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, { root: "/workspace/mock", items: [baseItem], activityEvents: events });
+
+    expect(metaOf(dom, "ci-ok")).toContain("deploy.yml · success");
+    expect(metaOf(dom, "git-commit-abc1234")).toContain("Commit · main @ abc1234");
+    // Degrades gracefully: no branch -> "action · sha", with no dangling " @ ".
+    expect(metaOf(dom, "git-nobranch")).toContain("Commit · def5678");
+    expect(metaOf(dom, "git-nobranch")).not.toContain(" @ ");
+  });
+});

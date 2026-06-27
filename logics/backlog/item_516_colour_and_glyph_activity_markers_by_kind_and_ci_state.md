@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Done
 > Understanding: 90%
-> Confidence: 85%
+> Confidence: 85
 > Progress: 100%
 > Complexity: Medium
 > Theme: Viewer UX
@@ -34,6 +34,8 @@
 - request-AC3 -> This backlog slice. Proof: AC3: Git and CI entries show a kind-coloured left accent stripe.
 - request-AC5 -> This backlog slice. Proof: AC4: scripts/dev/sync-webview-media.mjs --check passes after the edit.
 - request-AC6 -> This backlog slice. Proof: AC4: scripts/dev/sync-webview-media.mjs --check passes after the edit.
+- request-AC7 -> This backlog slice. Evidence needed: Activity-panel render tests cover the state-coloured CI marker, the kind glyphs, and the recomposed git/CI lines; the full vitest suite passes.
+- request-AC8 -> This backlog slice. Evidence needed: logics-manager lint and audit pass on the resulting workflow corpus.
 
 # Decision framing
 - Product framing: Not needed
@@ -54,3 +56,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_281_orchestrate_the_recent_activity_feed_legibility_polish`
+
+# Notes
+- Task `task_281_orchestrate_the_recent_activity_feed_legibility_polish` was finished via `logics-manager flow finish task` on 2026-06-27.

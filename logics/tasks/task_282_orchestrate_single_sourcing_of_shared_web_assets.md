@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 25
+> Progress: 50
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -15,7 +15,7 @@
 
 # Plan
 - [x] 1. Slice A (collapse src twins): delete clients/shared-web/src, repoint line-budget/lint to media, remove build-webview-media + its npm scripts. Validate with npm run lint and the full test suites.
-- [ ] 2. Slice B (viewer.py fallback): resolve assets from packaged viewer_assets else clients/shared-web/media + clients/viewer; add a pytest for both branches. Independent of Slice A.
+- [x] 2. Slice B (viewer.py fallback): resolve assets from packaged viewer_assets else clients/shared-web/media + clients/viewer; add a pytest for both branches. Independent of Slice A. (Repo-first fallback already existed since req_273/64cfb68; kept that order — packaged-first would regress dev — extracted _resolve_asset_root helper and added the missing both-branch pytest.)
 - [ ] 3. Slice C (generate + untrack mirror): add build:assets, git rm --cached + gitignore viewer_assets, wire build:assets into the pip build, add a CI wheel-content check. Depends on Slices A and B.
 - [ ] 4. Slice D (retire tooling + docs): fold sync scripts into build:assets, drop the mirror check gates, update CONTRIBUTING and CI. Depends on Slice C.
 - [ ] 5. Closeout proof: from a clean clone, build:assets + python -m build + install serves the viewer identically; logics-manager lint/audit and the pytest + vitest suites are green; git confirms a single committed source with no byte-identical copies.

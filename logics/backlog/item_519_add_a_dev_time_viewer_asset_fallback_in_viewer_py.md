@@ -1,10 +1,10 @@
 ## item_519_add_a_dev_time_viewer_asset_fallback_in_viewer_py - Add a dev-time viewer asset fallback in viewer.py
 > From version: 2.14.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Python runtime
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

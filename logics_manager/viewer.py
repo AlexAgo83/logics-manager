@@ -207,12 +207,24 @@ WORKSPACE_IGNORED_DIRS = {
 }
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_VIEWER_ASSETS_ROOT = Path(__file__).resolve().parent / "viewer_assets"
-VIEWER_ROOT = REPO_ROOT / "clients" / "viewer"
-if not (VIEWER_ROOT / "index.html").is_file():
-    VIEWER_ROOT = PACKAGE_VIEWER_ASSETS_ROOT / "viewer"
-SHARED_MEDIA_ROOT = REPO_ROOT / "clients" / "shared-web" / "media"
-if not SHARED_MEDIA_ROOT.is_dir():
-    SHARED_MEDIA_ROOT = PACKAGE_VIEWER_ASSETS_ROOT / "media"
+
+
+def _resolve_asset_root(repo_candidate: Path, packaged_candidate: Path, marker: str = "") -> Path:
+    """Prefer the live repo source tree; fall back to the packaged viewer_assets
+    mirror shipped in the wheel. ``marker`` is a child that must exist for the
+    repo candidate to count (empty = the directory itself). This keeps a fresh
+    clone serving from clients/ without a build, while a pip install (no repo
+    tree) serves the packaged mirror."""
+    probe = repo_candidate / marker if marker else repo_candidate
+    return repo_candidate if probe.exists() else packaged_candidate
+
+
+VIEWER_ROOT = _resolve_asset_root(
+    REPO_ROOT / "clients" / "viewer", PACKAGE_VIEWER_ASSETS_ROOT / "viewer", marker="index.html"
+)
+SHARED_MEDIA_ROOT = _resolve_asset_root(
+    REPO_ROOT / "clients" / "shared-web" / "media", PACKAGE_VIEWER_ASSETS_ROOT / "media"
+)
 DIST_VENDOR_ROOT = REPO_ROOT / "dist" / "vendor"
 PACKAGE_VENDOR_ROOT = PACKAGE_VIEWER_ASSETS_ROOT / "vendor"
 NODE_MERMAID_ROOT = REPO_ROOT / "node_modules" / "mermaid" / "dist"

@@ -61,3 +61,32 @@ def test_context_profile_limit_raises_clear_error() -> None:
         _context_profile_limit("dev")
     assert "dev" in str(excinfo.value)
     assert "tiny" in str(excinfo.value)
+
+
+# item_523: atomic apply — a mid-apply failure rolls back cleanly and a corrected
+# re-run reuses the same ids.
+def test_failed_apply_rolls_back_and_reuses_ids(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import logics_manager.flow as flow_mod
+
+    repo_root = _repo(tmp_path)
+    payload = _valid_input()  # context_pack.out is set, so the pack build is reached
+
+    def boom(*_args: object, **_kwargs: object) -> object:
+        raise RuntimeError("injected mid-apply failure")
+
+    monkeypatch.setattr(flow_mod, "build_context_pack_payload", boom)
+    with pytest.raises(RuntimeError):
+        scaffold_request_chain_payload(repo_root, input_payload=payload, context_pack_out=None, dry_run=False)
+
+    # AC1: the repo is left unchanged — no orphaned docs, no INDEX.
+    assert _doc_count(repo_root) == 0
+    assert not (repo_root / "logics" / "INDEX.md").exists()
+
+    # AC2: a corrected re-run reuses exactly the ids the failed run would have used.
+    monkeypatch.undo()
+    result = scaffold_request_chain_payload(repo_root, input_payload=payload, context_pack_out=None, dry_run=False)
+    assert result["request_ref"] == "req_000_robustness_demo"
+    assert result["backlog_refs"] == ["item_001_first_slice"]
+    assert result["task_ref"] == "task_001_orchestrate_robustness_demo"
+    assert _doc_count(repo_root) >= 4
+    assert (repo_root / "logics" / "INDEX.md").is_file()

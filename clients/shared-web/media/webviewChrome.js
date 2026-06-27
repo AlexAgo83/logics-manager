@@ -221,6 +221,18 @@
       });
     }
 
+    // req_284/item_516: distinct unicode glyph per activity kind. Git uses the
+    // branch symbol; CI uses check/cross by run health and a neutral dot for
+    // pending/unknown. Returns "" for non-git/ci kinds so the caller keeps the
+    // stage letter.
+    function activityMarkerGlyph(activityKind, badgeState) {
+      if (activityKind === "git") return "⎇";
+      if (activityKind !== "ci") return "";
+      if (badgeState === "success") return "✓";
+      if (badgeState === "failure" || badgeState === "failed" || badgeState === "error") return "✗";
+      return "•";
+    }
+
     function renderActivityPanel() {
       if (!activityPanel) {
         return;
@@ -295,7 +307,13 @@
 
           const marker = document.createElement("span");
           marker.className = "activity-panel__marker";
-          marker.textContent = entry.marker || stageTitle.slice(0, 1) || "?";
+          // req_284/item_516: git/CI markers get a distinct unicode glyph (branch
+          // for git, check/cross/dot for CI by health) instead of a bare letter;
+          // the kind/id stay in the tooltip + accessible label. Corpus entries keep
+          // their stage letter.
+          const badgeState = String(entry.badgeState || "").toLowerCase();
+          marker.textContent = activityMarkerGlyph(entry.activityKind, badgeState)
+            || entry.marker || stageTitle.slice(0, 1) || "?";
           // Make the single-letter pill self-explanatory: the stage name and id
           // are reachable via tooltip / accessible label, and a per-stage colour
           // distinguishes request/backlog/task/product/architecture/spec.
@@ -306,6 +324,9 @@
           }
           if (entry.activityKind) {
             marker.dataset.activityKind = entry.activityKind;
+          }
+          if (entry.activityKind === "ci" && badgeState) {
+            marker.dataset.badgeState = badgeState;
           }
           button.appendChild(marker);
 

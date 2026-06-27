@@ -68,6 +68,7 @@
 | [prod_030_audit_remediation_hardening_and_cleanup](product/prod_030_audit_remediation_hardening_and_cleanup.md) | Audit remediation: hardening and cleanup | Settled |  |  | product/prod_030_audit_remediation_hardening_and_cleanup.md |
 | [prod_031_assistant_driven_work_prioritization](product/prod_031_assistant_driven_work_prioritization.md) | Assistant-driven work prioritization | Settled |  |  | product/prod_031_assistant_driven_work_prioritization.md |
 | [prod_032_minimizable_viewer_screens](product/prod_032_minimizable_viewer_screens.md) | Minimizable viewer screens | Settled |  |  | product/prod_032_minimizable_viewer_screens.md |
+| [prod_033_recent_activity_feed_legibility](product/prod_033_recent_activity_feed_legibility.md) | Recent Activity feed legibility | Proposed |  |  | product/prod_033_recent_activity_feed_legibility.md |
 
 ## Requests
 
@@ -355,6 +356,7 @@
 | [req_281_fix_workshop_terminal_rendering_artifacts_on_heavy_tui_output](request/req_281_fix_workshop_terminal_rendering_artifacts_on_heavy_tui_output.md) | Fix Workshop terminal rendering artifacts on heavy TUI output | Done |  |  | request/req_281_fix_workshop_terminal_rendering_artifacts_on_heavy_tui_output.md |
 | [req_282_let_the_assistant_prioritize_execution_order_of_backlog_items](request/req_282_let_the_assistant_prioritize_execution_order_of_backlog_items.md) | Let the assistant prioritize execution order of backlog items | Done |  |  | request/req_282_let_the_assistant_prioritize_execution_order_of_backlog_items.md |
 | [req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock](request/req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock.md) | Minimize desktop viewer screens to a bottom-left dock | Done |  |  | request/req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock.md |
+| [req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events](request/req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events.md) | Make the Recent Activity feed legible for git and CI events | Draft |  |  | request/req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events.md |
 
 ## Backlog
 
@@ -875,6 +877,8 @@
 | [item_513_add_minimize_restore_screen_state_and_the_header_minimize_button](backlog/item_513_add_minimize_restore_screen_state_and_the_header_minimize_button.md) | Add minimize/restore screen state and the header minimize button | Done |  | 100% | backlog/item_513_add_minimize_restore_screen_state_and_the_header_minimize_button.md |
 | [item_514_build_the_bottom_left_minimized_dock_of_stacked_pills](backlog/item_514_build_the_bottom_left_minimized_dock_of_stacked_pills.md) | Build the bottom-left minimized dock of stacked pills | Done |  | 100% | backlog/item_514_build_the_bottom_left_minimized_dock_of_stacked_pills.md |
 | [item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore](backlog/item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore.md) | Preserve live screen state across minimize and re-fit terminal on restore | Done |  | 100% | backlog/item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore.md |
+| [item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state](backlog/item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state.md) | Colour and glyph activity markers by kind and CI state | Ready |  | 0% | backlog/item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state.md |
+| [item_517_recompose_git_and_ci_activity_lines_into_human_summaries](backlog/item_517_recompose_git_and_ci_activity_lines_into_human_summaries.md) | Recompose git and CI activity lines into human summaries | Ready |  | 0% | backlog/item_517_recompose_git_and_ci_activity_lines_into_human_summaries.md |
 
 ## Tasks
 
@@ -1154,3 +1158,4 @@
 | [task_278_fix_workshop_terminal_rendering_artifacts_on_heavy_tui_output](tasks/task_278_fix_workshop_terminal_rendering_artifacts_on_heavy_tui_output.md) | Fix Workshop terminal rendering artifacts on heavy TUI output | Done |  | 100% | tasks/task_278_fix_workshop_terminal_rendering_artifacts_on_heavy_tui_output.md |
 | [task_279_orchestrate_assistant_driven_item_prioritization](tasks/task_279_orchestrate_assistant_driven_item_prioritization.md) | Orchestrate assistant-driven item prioritization | Done |  | 100% | tasks/task_279_orchestrate_assistant_driven_item_prioritization.md |
 | [task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer](tasks/task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer.md) | Orchestrate minimize-screens-to-dock for the desktop viewer | Done | codex | 100% | tasks/task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer.md |
+| [task_281_orchestrate_the_recent_activity_feed_legibility_polish](tasks/task_281_orchestrate_the_recent_activity_feed_legibility_polish.md) | Orchestrate the Recent Activity feed legibility polish | Ready |  | 0% | tasks/task_281_orchestrate_the_recent_activity_feed_legibility_polish.md |

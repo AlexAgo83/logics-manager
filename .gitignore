@@ -3,6 +3,9 @@ out/
 dist/
 /build/
 artifacts/
+# Generated at build time from clients/shared-web/media + clients/viewer (req_285).
+# Regenerate with `npm run build:assets`.
+/logics_manager/viewer_assets/
 *.tgz
 .vscode-test/
 .obsidian/

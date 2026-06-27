@@ -127,6 +127,7 @@
     "check:viewer-assets": "node scripts/dev/sync-viewer-assets.mjs --check",
     "sync:webview-media": "node scripts/dev/sync-webview-media.mjs",
     "check:webview-media-mirror": "node scripts/dev/sync-webview-media.mjs --check",
+    "build:assets": "npm run sync:webview-media && npm run sync:viewer-assets && node scripts/build/copy-vendor-assets.mjs",
     "check:line-budget": "node scripts/check-source-line-budget.mjs",
     "generate:status-constants": "node scripts/build/generate-status-constants.mjs",
     "check:status-constants": "node scripts/build/generate-status-constants.mjs --check",

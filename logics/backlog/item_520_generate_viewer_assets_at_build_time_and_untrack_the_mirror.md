@@ -1,10 +1,10 @@
 ## item_520_generate_viewer_assets_at_build_time_and_untrack_the_mirror - Generate viewer_assets at build time and untrack the mirror
 > From version: 2.14.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Build tooling
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

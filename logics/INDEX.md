@@ -69,6 +69,7 @@
 | [prod_031_assistant_driven_work_prioritization](product/prod_031_assistant_driven_work_prioritization.md) | Assistant-driven work prioritization | Settled |  |  | product/prod_031_assistant_driven_work_prioritization.md |
 | [prod_032_minimizable_viewer_screens](product/prod_032_minimizable_viewer_screens.md) | Minimizable viewer screens | Settled |  |  | product/prod_032_minimizable_viewer_screens.md |
 | [prod_033_recent_activity_feed_legibility](product/prod_033_recent_activity_feed_legibility.md) | Recent Activity feed legibility | Proposed |  |  | product/prod_033_recent_activity_feed_legibility.md |
+| [prod_034_shared_web_asset_single_sourcing](product/prod_034_shared_web_asset_single_sourcing.md) | Shared web asset single-sourcing | Proposed |  |  | product/prod_034_shared_web_asset_single_sourcing.md |
 
 ## Requests
 
@@ -357,6 +358,7 @@
 | [req_282_let_the_assistant_prioritize_execution_order_of_backlog_items](request/req_282_let_the_assistant_prioritize_execution_order_of_backlog_items.md) | Let the assistant prioritize execution order of backlog items | Done |  |  | request/req_282_let_the_assistant_prioritize_execution_order_of_backlog_items.md |
 | [req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock](request/req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock.md) | Minimize desktop viewer screens to a bottom-left dock | Done |  |  | request/req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock.md |
 | [req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events](request/req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events.md) | Make the Recent Activity feed legible for git and CI events | Draft |  |  | request/req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events.md |
+| [req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors](request/req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors.md) | Single-source the shared web assets and stop committing build mirrors | Draft |  |  | request/req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors.md |
 
 ## Backlog
 
@@ -879,6 +881,10 @@
 | [item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore](backlog/item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore.md) | Preserve live screen state across minimize and re-fit terminal on restore | Done |  | 100% | backlog/item_515_preserve_live_screen_state_across_minimize_and_re_fit_terminal_on_restore.md |
 | [item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state](backlog/item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state.md) | Colour and glyph activity markers by kind and CI state | Ready |  | 0% | backlog/item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state.md |
 | [item_517_recompose_git_and_ci_activity_lines_into_human_summaries](backlog/item_517_recompose_git_and_ci_activity_lines_into_human_summaries.md) | Recompose git and CI activity lines into human summaries | Ready |  | 0% | backlog/item_517_recompose_git_and_ci_activity_lines_into_human_summaries.md |
+| [item_518_collapse_the_redundant_clients_shared_web_src_twins_into_media](backlog/item_518_collapse_the_redundant_clients_shared_web_src_twins_into_media.md) | Collapse the redundant clients/shared-web/src twins into media | Ready |  | 0% | backlog/item_518_collapse_the_redundant_clients_shared_web_src_twins_into_media.md |
+| [item_519_add_a_dev_time_viewer_asset_fallback_in_viewer_py](backlog/item_519_add_a_dev_time_viewer_asset_fallback_in_viewer_py.md) | Add a dev-time viewer asset fallback in viewer.py | Ready |  | 0% | backlog/item_519_add_a_dev_time_viewer_asset_fallback_in_viewer_py.md |
+| [item_520_generate_viewer_assets_at_build_time_and_untrack_the_mirror](backlog/item_520_generate_viewer_assets_at_build_time_and_untrack_the_mirror.md) | Generate viewer_assets at build time and untrack the mirror | Ready |  | 0% | backlog/item_520_generate_viewer_assets_at_build_time_and_untrack_the_mirror.md |
+| [item_521_retire_the_mirror_sync_check_tooling_and_update_ci_contributor_docs](backlog/item_521_retire_the_mirror_sync_check_tooling_and_update_ci_contributor_docs.md) | Retire the mirror sync/check tooling and update CI + contributor docs | Ready |  | 0% | backlog/item_521_retire_the_mirror_sync_check_tooling_and_update_ci_contributor_docs.md |
 
 ## Tasks
 
@@ -1159,3 +1165,4 @@
 | [task_279_orchestrate_assistant_driven_item_prioritization](tasks/task_279_orchestrate_assistant_driven_item_prioritization.md) | Orchestrate assistant-driven item prioritization | Done |  | 100% | tasks/task_279_orchestrate_assistant_driven_item_prioritization.md |
 | [task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer](tasks/task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer.md) | Orchestrate minimize-screens-to-dock for the desktop viewer | Done | codex | 100% | tasks/task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer.md |
 | [task_281_orchestrate_the_recent_activity_feed_legibility_polish](tasks/task_281_orchestrate_the_recent_activity_feed_legibility_polish.md) | Orchestrate the Recent Activity feed legibility polish | Ready |  | 0% | tasks/task_281_orchestrate_the_recent_activity_feed_legibility_polish.md |
+| [task_282_orchestrate_single_sourcing_of_shared_web_assets](tasks/task_282_orchestrate_single_sourcing_of_shared_web_assets.md) | Orchestrate single-sourcing of shared web assets | Ready |  | 0% | tasks/task_282_orchestrate_single_sourcing_of_shared_web_assets.md |

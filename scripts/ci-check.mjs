@@ -40,6 +40,10 @@ const steps = [
   { label: "VSIX package validation", command: npmCommand(), args: ["run", "package:ci"] }
 ];
 
+// viewer_assets is generated, not committed (req_285): regenerate it from the
+// canonical sources before any asset/lint gate so a fresh CI checkout has it.
+runStep("Generate viewer assets", npmCommand(), ["run", "build:assets"]);
+
 runStep("Logics docs lint (strict status)", steps[0].command, steps[0].args);
 
 const requestSnapshot = captureRequestSnapshot();

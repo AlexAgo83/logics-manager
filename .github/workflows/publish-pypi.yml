@@ -33,11 +33,33 @@ jobs:
       - name: Install build tooling
         run: python -m pip install --upgrade build
 
-      - name: Check viewer assets are in sync (clients/viewer → viewer_assets/viewer)
-        run: node scripts/dev/sync-viewer-assets.mjs --check
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate viewer assets
+        run: npm run build:assets
 
       - name: Build distributions
         run: python -m build
+
+      - name: Verify wheel ships complete viewer assets
+        run: |
+          python - <<'PY'
+          import glob, zipfile
+          wheel = sorted(glob.glob("dist/*.whl"))[-1]
+          names = zipfile.ZipFile(wheel).namelist()
+          media = [n for n in names if n.startswith("logics_manager/viewer_assets/media/")]
+          viewer = [n for n in names if n.startswith("logics_manager/viewer_assets/viewer/")]
+          assert media, f"{wheel} is missing logics_manager/viewer_assets/media"
+          assert viewer, f"{wheel} is missing logics_manager/viewer_assets/viewer"
+          print(f"{wheel}: {len(media)} media + {len(viewer)} viewer asset files")
+          PY
 
       - name: Upload distributions
         uses: actions/upload-artifact@v4

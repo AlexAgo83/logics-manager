@@ -1,0 +1,402 @@
+{
+  "budgets": {
+    "max_docs": 24,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors item_518_collapse_the_redundant_clients_shared_web_src_twins_into_media item_519_add_a_dev_time_viewer_asset_fallback_in_viewer_py item_520_generate_viewer_assets_at_build_time_and_untrack_the_mirror item_521_retire_the_mirror_sync_check_tooling_and_update_ci_contributor_docs task_282_orchestrate_single_sourcing_of_shared_web_assets --mode standard --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_518_collapse_the_redundant_clients_shared_web_src_twins_into_media",
+          "item_519_add_a_dev_time_viewer_asset_fallback_in_viewer_py",
+          "item_520_generate_viewer_assets_at_build_time_and_untrack_the_mirror",
+          "item_521_retire_the_mirror_sync_check_tooling_and_update_ci_contributor_docs"
+        ],
+        "prod": [
+          "prod_034_shared_web_asset_single_sourcing"
+        ],
+        "req": [
+          "req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors"
+        ],
+        "task": [
+          "task_282_orchestrate_single_sourcing_of_shared_web_assets"
+        ]
+      },
+      "path": "logics/product/prod_034_shared_web_asset_single_sourcing.md",
+      "ref": "prod_034_shared_web_asset_single_sourcing",
+      "sections": {
+        "Goals": [
+          "- One committed source of truth per asset, so every edit is a one-file diff.",
+          "- Generate the pip-shipped viewer_assets at build/release time rather than committing a mirror.",
+          "- Keep the Python tool runnable straight from a clone via a fallback to the canonical asset source."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Collapse the triple-copied shared-web assets (src twin -> media bundle -> committed viewer_assets mirror) down to a single committed source, generating the pip package's viewer_assets as a build artifact instead of versioning it."
+        ],
+        "References": [
+          "- Product back-reference: `req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors`",
+          "- Task back-reference: `task_282_orchestrate_single_sourcing_of_shared_web_assets`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Shared web asset single-sourcing"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, single-source the shared web assets and stop committing build mirrors, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Single-source the shared web assets and stop committing build mirrors",
+        "use when": "You need to implement or review the scaffolded workflow for Single-source the shared web assets and stop committing build mirrors."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_518_collapse_the_redundant_clients_shared_web_src_twins_into_media",
+          "item_519_add_a_dev_time_viewer_asset_fallback_in_viewer_py",
+          "item_520_generate_viewer_assets_at_build_time_and_untrack_the_mirror",
+          "item_521_retire_the_mirror_sync_check_tooling_and_update_ci_contributor_docs"
+        ],
+        "prod": [
+          "prod_034_shared_web_asset_single_sourcing"
+        ],
+        "req": [
+          "req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors"
+        ]
+      },
+      "path": "logics/request/req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors.md",
+      "ref": "req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Each shared-web asset has exactly one committed, hand-authored home; no committed file is a byte-for-byte copy of another committed file.",
+          "- AC2: Editing a shared-web asset requires changing and committing a single file, with no manual bundle/sync step during development.",
+          "- AC3: The redundant clients/shared-web/src twins are removed and their lint / line-budget references repoint to the canonical clients/shared-web/media files.",
+          "- AC4: logics_manager runs from a fresh git clone with no Node build and still serves the viewer, via a fallback to the canonical source when packaged viewer_assets is absent.",
+          "- AC5: The pip wheel and the VS Code extension still ship complete, working assets, produced by a single build step run at package/release time.",
+          "- AC6: logics_manager/viewer_assets is no longer tracked in git; a single build:assets step regenerates it deterministically and CI verifies the shipped artifact."
+        ],
+        "Needs": [
+          "- Editing a shared-web asset means changing and committing exactly one file, with no manual re-bundle or re-sync step in between.",
+          "- No committed file is a byte-for-byte copy of another committed file, so diffs stop carrying two or three identical copies of every change.",
+          "- Both delivery targets (the pip wheel and the VS Code extension) keep shipping complete, working assets, produced by a single build step at package/release time.",
+          "- The Python tool still runs from a fresh git clone with no Node build, so contributors are not blocked."
+        ]
+      },
+      "status": "Draft",
+      "title": "Single-source the shared web assets and stop committing build mirrors"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, collapse the redundant clients/shared-web/src twins into media, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Collapse the redundant clients/shared-web/src twins into media",
+        "use when": "Implementing the scaffolded slice for Collapse the redundant clients/shared-web/src twins into media."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_518_collapse_the_redundant_clients_shared_web_src_twins_into_media"
+        ],
+        "prod": [
+          "prod_034_shared_web_asset_single_sourcing"
+        ],
+        "req": [
+          "req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors"
+        ],
+        "task": [
+          "task_282_orchestrate_single_sourcing_of_shared_web_assets"
+        ]
+      },
+      "path": "logics/backlog/item_518_collapse_the_redundant_clients_shared_web_src_twins_into_media.md",
+      "ref": "item_518_collapse_the_redundant_clients_shared_web_src_twins_into_media",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: clients/shared-web/src no longer exists; renderBoardApp.js and mainApp.js are the hand-authored files under clients/shared-web/media.",
+          "- AC2: line-budget and lint reference the media files and npm run lint passes.",
+          "- AC3: build-webview-media.mjs and check:webview-media are gone and no script copies src -> media."
+        ],
+        "Problem": [
+          "- clients/shared-web/src/{main-app,render-board-app}/index.js are byte-identical copies of the media bundles, produced by a build step that only copies. The twin doubles every edit and adds a check:webview-media gate for nothing."
+        ]
+      },
+      "status": "Ready",
+      "title": "Collapse the redundant clients/shared-web/src twins into media"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add a dev-time viewer asset fallback in viewer.py, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add a dev-time viewer asset fallback in viewer.py",
+        "use when": "Implementing the scaffolded slice for Add a dev-time viewer asset fallback in viewer.py."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_519_add_a_dev_time_viewer_asset_fallback_in_viewer_py"
+        ],
+        "prod": [
+          "prod_034_shared_web_asset_single_sourcing"
+        ],
+        "req": [
+          "req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors"
+        ],
+        "task": [
+          "task_282_orchestrate_single_sourcing_of_shared_web_assets"
+        ]
+      },
+      "path": "logics/backlog/item_519_add_a_dev_time_viewer_asset_fallback_in_viewer_py.md",
+      "ref": "item_519_add_a_dev_time_viewer_asset_fallback_in_viewer_py",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: With viewer_assets absent, asset resolution falls back to clients/shared-web/media and clients/viewer.",
+          "- AC2: With viewer_assets present (packaged), it is used unchanged.",
+          "- AC3: A pytest covers both branches."
+        ],
+        "Problem": [
+          "- viewer.py resolves assets only from the package-local viewer_assets dir, so once that mirror is generated (and gitignored) a fresh clone without a build would serve nothing."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add a dev-time viewer asset fallback in viewer.py"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, generate viewer_assets at build time and untrack the mirror, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Generate viewer_assets at build time and untrack the mirror",
+        "use when": "Implementing the scaffolded slice for Generate viewer_assets at build time and untrack the mirror."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_520_generate_viewer_assets_at_build_time_and_untrack_the_mirror"
+        ],
+        "prod": [
+          "prod_034_shared_web_asset_single_sourcing"
+        ],
+        "req": [
+          "req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors"
+        ],
+        "task": [
+          "task_282_orchestrate_single_sourcing_of_shared_web_assets"
+        ]
+      },
+      "path": "logics/backlog/item_520_generate_viewer_assets_at_build_time_and_untrack_the_mirror.md",
+      "ref": "item_520_generate_viewer_assets_at_build_time_and_untrack_the_mirror",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: logics_manager/viewer_assets is gitignored and absent from git; build:assets regenerates it deterministically.",
+          "- AC2: python -m build produces a wheel containing complete viewer_assets/media and viewer_assets/viewer.",
+          "- AC3: A clean checkout + build:assets + build + install serves the viewer identically to today."
+        ],
+        "Problem": [
+          "- logics_manager/viewer_assets/** is a committed byte-copy mirror, so every shared-web edit drags 30+ identical mirror files into the diff and needs a manual sync to stay honest."
+        ]
+      },
+      "status": "Ready",
+      "title": "Generate viewer_assets at build time and untrack the mirror"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate single-sourcing of shared web assets",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_518_collapse_the_redundant_clients_shared_web_src_twins_into_media",
+          "item_519_add_a_dev_time_viewer_asset_fallback_in_viewer_py",
+          "item_520_generate_viewer_assets_at_build_time_and_untrack_the_mirror",
+          "item_521_retire_the_mirror_sync_check_tooling_and_update_ci_contributor_docs"
+        ],
+        "prod": [
+          "prod_034_shared_web_asset_single_sourcing"
+        ],
+        "req": [
+          "req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors"
+        ],
+        "task": [
+          "task_282_orchestrate_single_sourcing_of_shared_web_assets"
+        ]
+      },
+      "path": "logics/tasks/task_282_orchestrate_single_sourcing_of_shared_web_assets.md",
+      "ref": "task_282_orchestrate_single_sourcing_of_shared_web_assets",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- Run `python3 -m logics_manager lint --require-status`.",
+          "- Run scaffold command tests."
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate single-sourcing of shared web assets"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, retire the mirror sync/check tooling and update ci + contributor docs, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Retire the mirror sync/check tooling and update CI + contributor docs",
+        "use when": "Implementing the scaffolded slice for Retire the mirror sync/check tooling and update CI + contributor docs."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_521_retire_the_mirror_sync_check_tooling_and_update_ci_contributor_docs"
+        ],
+        "prod": [
+          "prod_034_shared_web_asset_single_sourcing"
+        ],
+        "req": [
+          "req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors"
+        ],
+        "task": [
+          "task_282_orchestrate_single_sourcing_of_shared_web_assets"
+        ]
+      },
+      "path": "logics/backlog/item_521_retire_the_mirror_sync_check_tooling_and_update_ci_contributor_docs.md",
+      "ref": "item_521_retire_the_mirror_sync_check_tooling_and_update_ci_contributor_docs",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The redundant sync/check npm scripts are removed or folded into build:assets.",
+          "- AC2: lint no longer requires committed-mirror parity.",
+          "- AC3: Contributor docs describe the one-source edit plus build:assets flow."
+        ],
+        "Problem": [
+          "- sync-webview-media, sync-viewer-assets, check:webview-media-mirror, and check:viewer-assets exist only to keep the committed mirror honest; once the mirror is generated they are redundant or should fold into build:assets."
+        ]
+      },
+      "status": "Ready",
+      "title": "Retire the mirror sync/check tooling and update CI + contributor docs"
+    }
+  ],
+  "estimates": {
+    "char_count": 11951,
+    "companion_doc_count": 1,
+    "doc_count": 6
+  },
+  "generated_at": "2026-06-27T11:36:17Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors",
+      "item_518_collapse_the_redundant_clients_shared_web_src_twins_into_media",
+      "item_519_add_a_dev_time_viewer_asset_fallback_in_viewer_py",
+      "item_520_generate_viewer_assets_at_build_time_and_untrack_the_mirror",
+      "item_521_retire_the_mirror_sync_check_tooling_and_update_ci_contributor_docs",
+      "task_282_orchestrate_single_sourcing_of_shared_web_assets"
+    ],
+    "validation_summary_count": 1
+  },
+  "mode": "standard",
+  "profile": "normal",
+  "ref": "req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors,item_518_collapse_the_redundant_clients_shared_web_src_twins_into_media,item_519_add_a_dev_time_viewer_asset_fallback_in_viewer_py,item_520_generate_viewer_assets_at_build_time_and_untrack_the_mirror,item_521_retire_the_mirror_sync_check_tooling_and_update_ci_contributor_docs,task_282_orchestrate_single_sourcing_of_shared_web_assets",
+  "refs": [
+    "req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors",
+    "item_518_collapse_the_redundant_clients_shared_web_src_twins_into_media",
+    "item_519_add_a_dev_time_viewer_asset_fallback_in_viewer_py",
+    "item_520_generate_viewer_assets_at_build_time_and_untrack_the_mirror",
+    "item_521_retire_the_mirror_sync_check_tooling_and_update_ci_contributor_docs",
+    "task_282_orchestrate_single_sourcing_of_shared_web_assets"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.14.1"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_282_orchestrate_single_sourcing_of_shared_web_assets.md",
+      "ref": "task_282_orchestrate_single_sourcing_of_shared_web_assets"
+    }
+  ]
+}

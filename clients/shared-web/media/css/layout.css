@@ -106,6 +106,40 @@
   min-height: 0;
 }
 
+/* Docked right + collapsed or empty: shrink to a thin strip, keep only the chevron. */
+.layout--horizontal .details.details--collapsed,
+.layout--horizontal .details.details--empty {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 0;
+  padding: 12px 8px;
+}
+
+.layout--horizontal .details.details--collapsed .details__header,
+.layout--horizontal .details.details--empty .details__header {
+  justify-content: center;
+}
+
+.layout--horizontal .details.details--collapsed .details__header > :not(.details__toggle),
+.layout--horizontal .details.details--empty .details__header > :not(.details__toggle) {
+  display: none;
+}
+
+.layout--horizontal .details.details--empty .details__body,
+.layout--horizontal .details.details--empty .details__actions {
+  display: none;
+}
+
+/* Docked right: chevron points right when open, left when reduced. */
+.layout--horizontal .details__toggle-icon {
+  transform: rotate(-90deg);
+}
+
+.layout--horizontal .details--collapsed .details__toggle-icon,
+.layout--horizontal .details--empty .details__toggle-icon {
+  transform: rotate(90deg);
+}
+
 .layout--stacked .details {
   width: 100%;
   max-width: none;

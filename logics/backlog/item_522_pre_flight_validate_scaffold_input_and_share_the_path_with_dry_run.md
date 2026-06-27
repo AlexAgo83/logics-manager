@@ -1,10 +1,10 @@
 ## item_522_pre_flight_validate_scaffold_input_and_share_the_path_with_dry_run - Pre-flight validate scaffold input and share the path with dry-run
 > From version: 2.14.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Tooling robustness
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

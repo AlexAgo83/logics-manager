@@ -360,7 +360,7 @@
 | [req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock](request/req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock.md) | Minimize desktop viewer screens to a bottom-left dock | Done |  |  | request/req_283_minimize_desktop_viewer_screens_to_a_bottom_left_dock.md |
 | [req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events](request/req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events.md) | Make the Recent Activity feed legible for git and CI events | Done |  |  | request/req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events.md |
 | [req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors](request/req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors.md) | Single-source the shared web assets and stop committing build mirrors | Done |  |  | request/req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors.md |
-| [req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting](request/req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting.md) | Make flow scaffold request-chain fail-fast, atomic, and self-documenting | Draft |  |  | request/req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting.md |
+| [req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting](request/req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting.md) | Make flow scaffold request-chain fail-fast, atomic, and self-documenting | Done |  |  | request/req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting.md |
 
 ## Backlog
 
@@ -890,7 +890,7 @@
 | [item_522_pre_flight_validate_scaffold_input_and_share_the_path_with_dry_run](backlog/item_522_pre_flight_validate_scaffold_input_and_share_the_path_with_dry_run.md) | Pre-flight validate scaffold input and share the path with dry-run | Done |  | 100% | backlog/item_522_pre_flight_validate_scaffold_input_and_share_the_path_with_dry_run.md |
 | [item_523_make_scaffold_apply_atomic](backlog/item_523_make_scaffold_apply_atomic.md) | Make scaffold apply atomic | Done |  | 100% | backlog/item_523_make_scaffold_apply_atomic.md |
 | [item_524_resolve_short_workflow_refs_in_validate_and_audit](backlog/item_524_resolve_short_workflow_refs_in_validate_and_audit.md) | Resolve short workflow refs in validate and audit | Done |  | 100% | backlog/item_524_resolve_short_workflow_refs_in_validate_and_audit.md |
-| [item_525_surface_the_scaffold_input_schema_via_a_command](backlog/item_525_surface_the_scaffold_input_schema_via_a_command.md) | Surface the scaffold input schema via a command | Ready |  | 0% | backlog/item_525_surface_the_scaffold_input_schema_via_a_command.md |
+| [item_525_surface_the_scaffold_input_schema_via_a_command](backlog/item_525_surface_the_scaffold_input_schema_via_a_command.md) | Surface the scaffold input schema via a command | Done |  | 100% | backlog/item_525_surface_the_scaffold_input_schema_via_a_command.md |
 
 ## Tasks
 
@@ -1172,4 +1172,4 @@
 | [task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer](tasks/task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer.md) | Orchestrate minimize-screens-to-dock for the desktop viewer | Done | codex | 100% | tasks/task_280_orchestrate_minimize_screens_to_dock_for_the_desktop_viewer.md |
 | [task_281_orchestrate_the_recent_activity_feed_legibility_polish](tasks/task_281_orchestrate_the_recent_activity_feed_legibility_polish.md) | Orchestrate the Recent Activity feed legibility polish | Done | digital | 100% | tasks/task_281_orchestrate_the_recent_activity_feed_legibility_polish.md |
 | [task_282_orchestrate_single_sourcing_of_shared_web_assets](tasks/task_282_orchestrate_single_sourcing_of_shared_web_assets.md) | Orchestrate single-sourcing of shared web assets | Done | digital | 100% | tasks/task_282_orchestrate_single_sourcing_of_shared_web_assets.md |
-| [task_283_orchestrate_scaffold_robustness_hardening](tasks/task_283_orchestrate_scaffold_robustness_hardening.md) | Orchestrate scaffold robustness hardening | In progress | digital | 75 | tasks/task_283_orchestrate_scaffold_robustness_hardening.md |
+| [task_283_orchestrate_scaffold_robustness_hardening](tasks/task_283_orchestrate_scaffold_robustness_hardening.md) | Orchestrate scaffold robustness hardening | Done | digital | 100% | tasks/task_283_orchestrate_scaffold_robustness_hardening.md |

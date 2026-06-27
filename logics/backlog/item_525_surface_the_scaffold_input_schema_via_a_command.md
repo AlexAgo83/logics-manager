@@ -1,10 +1,10 @@
 ## item_525_surface_the_scaffold_input_schema_via_a_command - Surface the scaffold input schema via a command
 > From version: 2.14.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Confidence: 85
+> Progress: 100%
 > Complexity: Low
 > Theme: Developer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -26,6 +26,10 @@
 
 # AC Traceability
 - request-AC5 -> This backlog slice. Proof: AC1: A command prints the input schema or a minimal valid template.
+- request-AC2 -> This backlog slice. Evidence needed: --dry-run runs the same input validation as apply (including the context-pack profile/mode check), so a dry-run that passes guarantees the apply will not fail on input errors.
+- request-AC3 -> This backlog slice. Evidence needed: Apply is atomic: if any step fails, no partial docs or INDEX changes remain and no ids are consumed, so a corrected re-run reuses the same ids.
+- request-AC4 -> This backlog slice. Evidence needed: flow validate and audit resolve a short ref (e.g. req_285) to its full slug, or fail with a 'did you mean <slug>' hint instead of a bare 'Workflow source not found'.
+- request-AC6 -> This backlog slice. Proof: test_scaffold_robustness.py test_print_schema_and_example_emit_valid_json covers the schema-discovery command.
 
 # Decision framing
 - Product framing: Not needed
@@ -46,3 +50,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_283_orchestrate_scaffold_robustness_hardening`
+
+# Notes
+- Task `task_283_orchestrate_scaffold_robustness_hardening` was finished via `logics-manager flow finish task` on 2026-06-27.

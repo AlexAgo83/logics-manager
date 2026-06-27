@@ -28,7 +28,7 @@ const allowedOversizedFiles = new Map(
     "logics_manager/release.py": { maxLines: 1200, ref: "req_273" },
     "logics_manager/assist_support.py": { maxLines: 1600, ref: "req_273" },
     "logics_manager/viewer.py": { maxLines: 5700, ref: "req_273" },
-    "logics_manager/flow/__init__.py": { maxLines: 4420, ref: "req_273" },
+    "logics_manager/flow/__init__.py": { maxLines: 4520, ref: "req_273" },
     // req_273: de-glued frontend sources. esbuild/concatenation now consume these directly
     // instead of a regex part-manifest + readFileSync.join, so the bundles stay byte-stable.
     // 7100: viewer screen minimization and workshop terminal follow-ups added here;

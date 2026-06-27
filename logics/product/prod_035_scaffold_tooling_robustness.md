@@ -2,7 +2,7 @@
 > Date: 2026-06-27
 > Status: Settled
 > Related request: `req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting`
-> Related backlog: `item_522_pre_flight_validate_scaffold_input_and_share_the_path_with_dry_run`, `item_523_make_scaffold_apply_atomic`, `item_524_resolve_short_workflow_refs_in_validate_and_audit`, `item_525_surface_the_scaffold_input_schema_via_a_command`
+> Related backlog: `item_522_pre_flight_validate_scaffold_input_and_share_the_path_with_dry_run`
 > Related task: `task_283_orchestrate_scaffold_robustness_hardening`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -45,5 +45,5 @@ flowchart TD
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting`
+- Product back-reference: `item_522_pre_flight_validate_scaffold_input_and_share_the_path_with_dry_run`
 - Task back-reference: `task_283_orchestrate_scaffold_robustness_hardening`

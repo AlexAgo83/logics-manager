@@ -114,3 +114,19 @@ def test_missing_short_ref_lists_candidates(tmp_path: Path) -> None:
     assert "Workflow source not found: req_999" in message
     assert "did you mean" in message
     assert "req_285_single_source_assets" in message
+
+
+# item_525: surface the scaffold input schema via a command.
+def test_print_schema_and_example_emit_valid_json(capsys: pytest.CaptureFixture[str]) -> None:
+    import json
+
+    from logics_manager.cli import main
+
+    assert main(["flow", "scaffold", "request-chain", "--print-schema", "--format", "json"]) == 0
+    schema = json.loads(capsys.readouterr().out)
+    assert "schema" in schema
+
+    assert main(["flow", "scaffold", "request-chain", "--example", "--format", "json"]) == 0
+    example = json.loads(capsys.readouterr().out)
+    assert example["title"]
+    assert isinstance(example["backlog_items"], list) and example["backlog_items"]

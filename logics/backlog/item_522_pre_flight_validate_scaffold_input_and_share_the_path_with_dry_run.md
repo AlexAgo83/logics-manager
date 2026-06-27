@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Done
 > Understanding: 90%
-> Confidence: 85%
+> Confidence: 85
 > Progress: 100%
 > Complexity: Medium
 > Theme: Tooling robustness
@@ -29,6 +29,10 @@
 # AC Traceability
 - request-AC1 -> This backlog slice. Proof: AC1: An unknown profile (or missing required key) is rejected before any doc is written, with a message naming the field and the valid values.
 - request-AC2 -> This backlog slice. Proof: AC2: --dry-run and apply run the identical input validation, so a green dry-run cannot be followed by an input-error apply failure.
+- request-AC3 -> This backlog slice. Evidence needed: Apply is atomic: if any step fails, no partial docs or INDEX changes remain and no ids are consumed, so a corrected re-run reuses the same ids.
+- request-AC4 -> This backlog slice. Evidence needed: flow validate and audit resolve a short ref (e.g. req_285) to its full slug, or fail with a 'did you mean <slug>' hint instead of a bare 'Workflow source not found'.
+- request-AC5 -> This backlog slice. Evidence needed: The scaffold input schema is discoverable via a command (a --template or --print-schema) rather than by copying an existing JSON.
+- request-AC6 -> This backlog slice. Proof: test_scaffold_robustness.py test_unknown_profile_rejected_before_any_write + test_dry_run_and_apply_validate_identically cover invalid-profile rejection and dry-run/apply parity.
 
 # Decision framing
 - Product framing: Not needed
@@ -49,3 +53,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_283_orchestrate_scaffold_robustness_hardening`
+
+# Notes
+- Task `task_283_orchestrate_scaffold_robustness_hardening` was finished via `logics-manager flow finish task` on 2026-06-27.

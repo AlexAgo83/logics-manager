@@ -1,7 +1,7 @@
 ## req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting - Make flow scaffold request-chain fail-fast, atomic, and self-documenting
 > From version: 2.14.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

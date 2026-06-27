@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Done
 > Understanding: 90%
-> Confidence: 85%
+> Confidence: 85
 > Progress: 100%
 > Complexity: Medium
 > Theme: Tooling robustness
@@ -27,6 +27,10 @@
 
 # AC Traceability
 - request-AC3 -> This backlog slice. Proof: AC1: A forced failure during scaffold leaves the repo byte-identical to before the run.
+- request-AC2 -> This backlog slice. Evidence needed: --dry-run runs the same input validation as apply (including the context-pack profile/mode check), so a dry-run that passes guarantees the apply will not fail on input errors.
+- request-AC4 -> This backlog slice. Evidence needed: flow validate and audit resolve a short ref (e.g. req_285) to its full slug, or fail with a 'did you mean <slug>' hint instead of a bare 'Workflow source not found'.
+- request-AC5 -> This backlog slice. Evidence needed: The scaffold input schema is discoverable via a command (a --template or --print-schema) rather than by copying an existing JSON.
+- request-AC6 -> This backlog slice. Proof: test_scaffold_robustness.py test_failed_apply_rolls_back_and_reuses_ids covers the atomic-rollback path on a forced mid-apply failure.
 
 # Decision framing
 - Product framing: Not needed
@@ -47,3 +51,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_283_orchestrate_scaffold_robustness_hardening`
+
+# Notes
+- Task `task_283_orchestrate_scaffold_robustness_hardening` was finished via `logics-manager flow finish task` on 2026-06-27.

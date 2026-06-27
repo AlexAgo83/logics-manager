@@ -1,19 +1,20 @@
 ## task_283_orchestrate_scaffold_robustness_hardening - Orchestrate scaffold robustness hardening
 > From version: 2.14.1
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 25
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Owner: digital
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Slice A (pre-flight validation): add validate_scaffold_input + a domain error in _context_profile_limit; run it for both dry-run and apply before any write. Validate with pytest for invalid-profile rejection and dry-run/apply parity.
+- [x] 1. Slice A (pre-flight validation): add validate_scaffold_input + a domain error in _context_profile_limit; run it for both dry-run and apply before any write. Validate with pytest for invalid-profile rejection and dry-run/apply parity. (_validate_scaffold_input existed since req_276 for types/required keys; added enum-domain checks for context_pack.profile/mode + request/backlog complexity, and made sync._context_profile_limit raise a clear ValueError instead of a bare KeyError. tests/python/test_scaffold_robustness.py covers rejection, dry-run/apply parity, and the limit error.)
 - [ ] 2. Slice B (atomic apply): stage all writes and commit only on full success, rolling back on failure without consuming ids; add a fault-injection pytest. Layers on Slice A (validation catches input errors first; atomicity covers the rest).
 - [ ] 3. Slice C (short-ref resolution): resolve short refs in validate/audit with a did-you-mean hint; independent of A and B.
 - [ ] 4. Slice D (schema command): add --print-schema/--template + help pointer; independent.

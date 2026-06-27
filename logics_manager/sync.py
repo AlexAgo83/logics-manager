@@ -198,7 +198,12 @@ def _workflow_neighborhood(seed: WorkflowDocModel, docs: dict[str, WorkflowDocMo
 
 
 def _context_profile_limit(profile: str) -> int:
-    return {"tiny": 2, "normal": 4, "deep": 8}[profile]
+    # req_286/item_522: a clear error instead of a bare KeyError when an unknown
+    # profile reaches here (scaffold pre-flight validation catches it first).
+    limits = {"tiny": 2, "normal": 4, "deep": 8}
+    if profile not in limits:
+        raise ValueError(f"Unknown context profile {profile!r}; expected one of {', '.join(limits)}.")
+    return limits[profile]
 
 
 def _git_changed_paths(repo_root: Path) -> list[str]:

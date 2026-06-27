@@ -3655,6 +3655,25 @@ def _validate_scaffold_input(payload: dict[str, object]) -> None:
     if "references" in payload and not isinstance(payload["references"], list):
         raise SystemExit("request-chain input: `references` must be an array when present.")
 
+    # req_286/item_522: reject out-of-domain enum values up front, before any
+    # write, so a bad context_pack.profile (the original dogfood KeyError) fails
+    # the same way under --dry-run and apply instead of throwing mid-apply.
+    def _check_enum(container: object, key: str, allowed: tuple[str, ...], field_path: str) -> None:
+        if not isinstance(container, dict) or key not in container:
+            return
+        value = container.get(key)
+        if not isinstance(value, str) or value not in allowed:
+            raise SystemExit(
+                f"request-chain input: `{field_path}` must be one of {', '.join(allowed)} (got {value!r})."
+            )
+
+    context_pack = payload.get("context_pack")
+    _check_enum(context_pack, "profile", ("tiny", "normal", "deep"), "context_pack.profile")
+    _check_enum(context_pack, "mode", ("summary-only", "diff-first", "full"), "context_pack.mode")
+    _check_enum(payload.get("request"), "complexity", ("Low", "Medium", "High"), "request.complexity")
+    for idx, item in enumerate(raw_items, start=1):
+        _check_enum(item, "complexity", ("Low", "Medium", "High"), f"backlog_items[{idx}].complexity")
+
 
 def scaffold_request_chain_payload(
     repo_root: Path,

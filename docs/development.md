@@ -48,7 +48,6 @@ Windows notes:
 - Strict Logics governance audit: `npm run audit:logics:strict`
 - Source line budget guardrail: `npm run check:line-budget`
 - Local viewer browser-host bundle check: `npm run check:viewer-host`
-- Shared web media bundle check: `npm run check:webview-media`
 - Local viewer packaged asset sync check: `npm run check:viewer-assets`
 - README metadata drift check: `npm run docs:check`
 - Local browser viewer smoke: `logics-manager view --port 0 --open`
@@ -71,9 +70,10 @@ Windows notes:
 The standalone local viewer host is built with esbuild from `clients/viewer/src/browser-host/index.js`. Run `npm run bundle:viewer-host` after editing the source entrypoint, then `npm run check:viewer-host` to verify that `clients/viewer/browser-host.js` is byte-stable and `npm run check:viewer-assets` to verify the Python package asset copy is synced.
 
 The VS Code and local-viewer shared webview scripts `mainApp.js` and
-`renderBoardApp.js` are generated from fragments in `clients/shared-web/src/`.
-Run `npm run bundle:webview-media` after editing those fragments, then
-`npm run check:webview-media` before committing.
+`renderBoardApp.js` are hand-authored directly under `clients/shared-web/media/`
+alongside the other shared media files. After editing any media file, run
+`npm run sync:webview-media` to refresh the packaged `viewer_assets` mirror, which
+`npm run check:webview-media-mirror` verifies before committing.
 
 `npm run audit:ci` enforces the repository audit policy locally. It runs `npm audit --json` against the configured npm registry, blocks new actionable vulnerabilities, and only allows the explicitly documented temporary exceptions tracked in the backlog. If the registry is unreachable, the command fails as `registry unavailable` rather than reporting a clean advisory state. `npm run package:ci` is local-only package validation and does not require registry access after dependencies are installed.
 

@@ -1,10 +1,10 @@
 ## item_518_collapse_the_redundant_clients_shared_web_src_twins_into_media - Collapse the redundant clients/shared-web/src twins into media
 > From version: 2.14.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Build tooling
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

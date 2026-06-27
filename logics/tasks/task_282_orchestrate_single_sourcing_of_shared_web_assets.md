@@ -1,19 +1,20 @@
 ## task_282_orchestrate_single_sourcing_of_shared_web_assets - Orchestrate single-sourcing of shared web assets
 > From version: 2.14.1
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 25
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Owner: digital
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Slice A (collapse src twins): delete clients/shared-web/src, repoint line-budget/lint to media, remove build-webview-media + its npm scripts. Validate with npm run lint and the full test suites.
+- [x] 1. Slice A (collapse src twins): delete clients/shared-web/src, repoint line-budget/lint to media, remove build-webview-media + its npm scripts. Validate with npm run lint and the full test suites.
 - [ ] 2. Slice B (viewer.py fallback): resolve assets from packaged viewer_assets else clients/shared-web/media + clients/viewer; add a pytest for both branches. Independent of Slice A.
 - [ ] 3. Slice C (generate + untrack mirror): add build:assets, git rm --cached + gitignore viewer_assets, wire build:assets into the pip build, add a CI wheel-content check. Depends on Slices A and B.
 - [ ] 4. Slice D (retire tooling + docs): fold sync scripts into build:assets, drop the mirror check gates, update CONTRIBUTING and CI. Depends on Slice C.

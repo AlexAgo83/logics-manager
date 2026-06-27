@@ -3739,21 +3739,41 @@ def scaffold_request_chain_payload(
         changed_files.append(context_pack_path)
 
     if not dry_run:
-        for path, content in zip(doc_paths, [request_text, product_text, task_text, *backlog_texts]):
-            _write_new_doc(path, content)
-        index_payload(repo_root)
-        if requested_out and context_pack_path is not None:
-            out_path, _rel = resolve_repo_output_path(repo_root, requested_out, label="--context-pack")
-            refs = ",".join([request_ref, *item_refs, task_ref])
-            context_pack_payload = build_context_pack_payload(
-                repo_root,
-                refs,
-                mode=_string_value(raw_context_pack, "mode", default="summary-only"),
-                profile=_string_value(raw_context_pack, "profile", default="normal"),
-                handoff=True,
-            )
-            out_path.parent.mkdir(parents=True, exist_ok=True)
-            out_path.write_text(json.dumps(context_pack_payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        # req_286/item_523: apply atomically. The context pack must read the docs
+        # from disk, so we can't stage everything in memory; instead we track what
+        # we create and, on any failure, delete the new docs/context-pack and
+        # restore INDEX.md to its prior bytes. A failed run thus leaves the repo
+        # unchanged and consumes no ids (refs are derived from on-disk files), so a
+        # corrected re-run reuses the same ids.
+        index_path = repo_root / "logics" / "INDEX.md"
+        index_before = index_path.read_text(encoding="utf-8") if index_path.is_file() else None
+        written_paths: list[Path] = []
+        try:
+            for path, content in zip(doc_paths, [request_text, product_text, task_text, *backlog_texts]):
+                _write_new_doc(path, content)
+                written_paths.append(path)
+            index_payload(repo_root)
+            if requested_out and context_pack_path is not None:
+                out_path, _rel = resolve_repo_output_path(repo_root, requested_out, label="--context-pack")
+                refs = ",".join([request_ref, *item_refs, task_ref])
+                context_pack_payload = build_context_pack_payload(
+                    repo_root,
+                    refs,
+                    mode=_string_value(raw_context_pack, "mode", default="summary-only"),
+                    profile=_string_value(raw_context_pack, "profile", default="normal"),
+                    handoff=True,
+                )
+                out_path.parent.mkdir(parents=True, exist_ok=True)
+                out_path.write_text(json.dumps(context_pack_payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+                written_paths.append(out_path)
+        except BaseException:
+            for path in written_paths:
+                path.unlink(missing_ok=True)
+            if index_before is None:
+                index_path.unlink(missing_ok=True)
+            else:
+                index_path.write_text(index_before, encoding="utf-8")
+            raise
     return {
         "command": "scaffold",
         "kind": "request-chain",

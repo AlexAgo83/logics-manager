@@ -263,6 +263,13 @@
             event.badgeState ||
               (String(event.kind || event.category) === "ci" ? event.label || "" : "")
           ),
+          // req_284/item_517: discrete fields for the recomposed human meta line
+          // ("workflow · outcome · time" for CI, "action · branch @ sha · time" for git).
+          action: String(event.action || ""),
+          branch: String(event.branch || ""),
+          sha: String(event.sha || ""),
+          workflow: String(event.workflow || ""),
+          outcome: String(event.outcome || ""),
           selectable: false
         }));
       return [...documentEntries, ...eventEntries]

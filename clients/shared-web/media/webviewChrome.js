@@ -233,6 +233,39 @@
       return "•";
     }
 
+    // req_284/item_517: relative-time part of the shared time bucket, reused so
+    // the meta line carries "Nm ago" with no new date code.
+    function activityRelativeTime(updatedAt) {
+      if (!toolsPanelLayout || typeof toolsPanelLayout.formatActivityTimeBucket !== "function") {
+        return "";
+      }
+      const bucket = toolsPanelLayout.formatActivityTimeBucket(updatedAt);
+      if (!bucket || bucket === "Unknown") return "";
+      return String(bucket).split(" • ")[0];
+    }
+
+    // req_284/item_517: human summary for git/CI activity. CI reads
+    // "workflow · outcome · Nm ago"; git reads "action · branch @ shortsha · Nm ago".
+    // Missing parts drop out. Non-git/ci entries keep the document-flow meta.
+    function recomposeActivityMeta(entry, stageTitle) {
+      const fallback = entry.meta || `${entry.label || "Updated"} · ${stageTitle} · ${entry.id}`;
+      const time = activityRelativeTime(entry.updatedAt);
+      if (entry.activityKind === "ci") {
+        // Only recompose CI runs that expose workflow/outcome; other ci events
+        // keep their host-provided message (graceful degradation).
+        if (!entry.workflow && !entry.outcome) return fallback;
+        return [entry.workflow, entry.outcome, time].filter(Boolean).join(" · ");
+      }
+      if (entry.activityKind === "git") {
+        // Recompose commit-style events (branch/sha present). git-action events
+        // (push/pull/workshop) carry their own descriptive message — keep it.
+        const ref = [entry.branch, entry.sha].filter(Boolean).join(" @ ");
+        if (!ref) return fallback;
+        return [entry.action, ref, time].filter(Boolean).join(" · ");
+      }
+      return fallback;
+    }
+
     function renderActivityPanel() {
       if (!activityPanel) {
         return;
@@ -341,7 +374,11 @@
           const meta = document.createElement("span");
           meta.className = "activity-panel__meta";
           // Readable cell: what changed, the stage name, then the id.
-          meta.textContent = entry.meta || `${entry.label || "Updated"} · ${stageTitle} · ${entry.id}`;
+          // req_284/item_517: git/CI events recompose into a human summary with a
+          // relative time. The time reuses formatActivityTimeBucket (no new date
+          // code), taking its relative part ("Nm ago"); each part degrades out
+          // gracefully when its data is absent.
+          meta.textContent = recomposeActivityMeta(entry, stageTitle);
           body.appendChild(meta);
 
           button.appendChild(body);

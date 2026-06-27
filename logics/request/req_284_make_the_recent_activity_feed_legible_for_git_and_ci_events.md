@@ -1,7 +1,7 @@
 ## req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events - Make the Recent Activity feed legible for git and CI events
 > From version: 2.14.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

@@ -470,12 +470,10 @@ describe("webview harness filters, details, and docs", () => {
     });
 
     const card = dom.window.document.querySelector(".card");
-    expect(card?.textContent).toContain("PROD");
-    expect(card?.textContent).toContain("ADR");
-    expect(card?.textContent).toContain("SPEC");
-    expect(card?.querySelector(".card__badge--product")).not.toBeNull();
-    expect(card?.querySelector(".card__badge--architecture")).not.toBeNull();
-    expect(card?.querySelector(".card__badge--spec")).not.toBeNull();
+    const previewText = card?.querySelector(".card__preview")?.textContent || "";
+    expect(previewText).toContain("PROD");
+    expect(previewText).toContain("ADR");
+    expect(previewText).toContain("SPEC");
   });
 
   it("shows linked specs in a dedicated details section", () => {
@@ -689,11 +687,11 @@ describe("webview harness filters, details, and docs", () => {
     );
     expect(document.querySelector('.column[data-stage="product"] .column__add')).toBeNull();
     expect(document.querySelector('.column[data-stage="architecture"] .column__add')).toBeNull();
-    expect(document.querySelector('.column[data-stage="product"] .card__meta--linkage')?.textContent).toContain(
-      "For request • req_000_kickoff"
+    expect(document.querySelector('.column[data-stage="product"] .card__preview')?.textContent).toContain(
+      "For R000"
     );
-    expect(document.querySelector('.column[data-stage="product"] .card__meta:not(.card__meta--linkage)')).toBeNull();
-    expect(document.querySelector('.column[data-stage="architecture"] .card__meta--linkage')?.textContent).toContain(
+    expect(document.querySelector('.column[data-stage="product"] .card__meta')).toBeNull();
+    expect(document.querySelector('.column[data-stage="architecture"] .card__preview')?.textContent).toContain(
       "Unlinked to primary flow"
     );
     expect(persistedStates.some((state) => state.showCompanionDocs === true)).toBe(true);

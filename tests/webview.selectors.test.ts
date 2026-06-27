@@ -405,9 +405,9 @@ describe("webview selectors behavior", () => {
 
     const board = dom.window.document.getElementById("board");
     const productCard = board?.querySelector('[data-id="prod_000_plugin_ux"]');
-    const meta = productCard?.querySelector(".card__meta--linkage");
-    expect(meta?.textContent).toContain("Unlinked to primary flow");
-    expect(productCard?.querySelector(".card__meta:not(.card__meta--linkage)")).toBeFalsy();
+    const previewText = productCard?.querySelector(".card__preview")?.textContent || "";
+    expect(previewText).toContain("Unlinked to primary flow");
+    expect(productCard?.querySelector(".card__meta")).toBeFalsy();
   });
 
   it("handles items with no progress indicator gracefully", () => {

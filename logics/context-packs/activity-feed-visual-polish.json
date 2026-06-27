@@ -1,0 +1,247 @@
+{
+  "budgets": {
+    "max_docs": 16,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state item_517_recompose_git_and_ci_activity_lines_into_human_summaries task_281_orchestrate_the_recent_activity_feed_legibility_polish --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state",
+          "item_517_recompose_git_and_ci_activity_lines_into_human_summaries"
+        ],
+        "prod": [
+          "prod_033_recent_activity_feed_legibility"
+        ],
+        "req": [
+          "req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events"
+        ],
+        "task": [
+          "task_281_orchestrate_the_recent_activity_feed_legibility_polish"
+        ]
+      },
+      "path": "logics/product/prod_033_recent_activity_feed_legibility.md",
+      "ref": "prod_033_recent_activity_feed_legibility",
+      "status": "Proposed",
+      "title": "Recent Activity feed legibility"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, make the recent activity feed legible for git and ci events, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Make the Recent Activity feed legible for git and CI events",
+        "use when": "You need to implement or review the scaffolded workflow for Make the Recent Activity feed legible for git and CI events."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state",
+          "item_517_recompose_git_and_ci_activity_lines_into_human_summaries"
+        ],
+        "prod": [
+          "prod_033_recent_activity_feed_legibility"
+        ],
+        "req": [
+          "req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events"
+        ]
+      },
+      "path": "logics/request/req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events.md",
+      "ref": "req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Make the Recent Activity feed legible for git and CI events"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, colour and glyph activity markers by kind and ci state, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Colour and glyph activity markers by kind and CI state",
+        "use when": "Implementing the scaffolded slice for Colour and glyph activity markers by kind and CI state."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state"
+        ],
+        "prod": [
+          "prod_033_recent_activity_feed_legibility"
+        ],
+        "req": [
+          "req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events"
+        ],
+        "task": [
+          "task_281_orchestrate_the_recent_activity_feed_legibility_polish"
+        ]
+      },
+      "path": "logics/backlog/item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state.md",
+      "ref": "item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Colour and glyph activity markers by kind and CI state"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, recompose git and ci activity lines into human summaries, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Recompose git and CI activity lines into human summaries",
+        "use when": "Implementing the scaffolded slice for Recompose git and CI activity lines into human summaries."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_517_recompose_git_and_ci_activity_lines_into_human_summaries"
+        ],
+        "prod": [
+          "prod_033_recent_activity_feed_legibility"
+        ],
+        "req": [
+          "req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events"
+        ],
+        "task": [
+          "task_281_orchestrate_the_recent_activity_feed_legibility_polish"
+        ]
+      },
+      "path": "logics/backlog/item_517_recompose_git_and_ci_activity_lines_into_human_summaries.md",
+      "ref": "item_517_recompose_git_and_ci_activity_lines_into_human_summaries",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Recompose git and CI activity lines into human summaries"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate the Recent Activity feed legibility polish",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state",
+          "item_517_recompose_git_and_ci_activity_lines_into_human_summaries"
+        ],
+        "prod": [
+          "prod_033_recent_activity_feed_legibility"
+        ],
+        "req": [
+          "req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events"
+        ],
+        "task": [
+          "task_281_orchestrate_the_recent_activity_feed_legibility_polish"
+        ]
+      },
+      "path": "logics/tasks/task_281_orchestrate_the_recent_activity_feed_legibility_polish.md",
+      "ref": "task_281_orchestrate_the_recent_activity_feed_legibility_polish",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrate the Recent Activity feed legibility polish"
+    }
+  ],
+  "estimates": {
+    "char_count": 4507,
+    "companion_doc_count": 1,
+    "doc_count": 4
+  },
+  "generated_at": "2026-06-27T10:30:50Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events",
+      "item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state",
+      "item_517_recompose_git_and_ci_activity_lines_into_human_summaries",
+      "task_281_orchestrate_the_recent_activity_feed_legibility_polish"
+    ],
+    "validation_summary_count": 1
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events,item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state,item_517_recompose_git_and_ci_activity_lines_into_human_summaries,task_281_orchestrate_the_recent_activity_feed_legibility_polish",
+  "refs": [
+    "req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events",
+    "item_516_colour_and_glyph_activity_markers_by_kind_and_ci_state",
+    "item_517_recompose_git_and_ci_activity_lines_into_human_summaries",
+    "task_281_orchestrate_the_recent_activity_feed_legibility_polish"
+  ],
+  "release": {
+    "blocking_reasons": [],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "Release evidence is complete.",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "ready",
+    "target_version": "2.14.1"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_281_orchestrate_the_recent_activity_feed_legibility_polish.md",
+      "ref": "task_281_orchestrate_the_recent_activity_feed_legibility_polish"
+    }
+  ]
+}

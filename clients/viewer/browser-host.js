@@ -836,8 +836,10 @@ ${entry?.message || ""}`;
     }
     const titleEl = document.getElementById("viewer-environment-warning-title");
     const copyEl = document.getElementById("viewer-environment-warning-copy");
+    const actionEl = document.getElementById("viewer-environment-warning-action");
     if (titleEl) titleEl.textContent = warning.title || "Environment warning";
     if (copyEl) copyEl.textContent = warning.message;
+    if (actionEl) actionEl.hidden = warning.action !== "bootstrap-logics";
     banner.hidden = false;
   }
   function restoreDocumentViewState(content, state) {
@@ -8873,6 +8875,9 @@ ${line}` : line;
       });
       bootstrapLogicsButton()?.addEventListener("click", () => {
         setRefreshMenuOpen(false);
+        confirmBootstrapLogics().catch((error) => setMeta(error?.message || "Unable to bootstrap Logics."));
+      });
+      document.getElementById("viewer-environment-warning-action")?.addEventListener("click", () => {
         confirmBootstrapLogics().catch((error) => setMeta(error?.message || "Unable to bootstrap Logics."));
       });
       const autoControl = autoRefreshControl();

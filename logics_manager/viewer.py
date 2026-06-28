@@ -854,6 +854,7 @@ def viewer_bootstrap_warning(repo_root: Path) -> dict[str, object] | None:
         "title": "Logics bootstrap refresh recommended",
         "message": f"Refresh generated Logics assistant instructions with Bootstrap Logics or `logics-manager bootstrap` ({path_summary}).",
         "paths": stale_paths,
+        "action": "bootstrap-logics",
     }
 
 

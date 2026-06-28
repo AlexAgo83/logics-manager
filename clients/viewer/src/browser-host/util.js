@@ -918,8 +918,10 @@ export function renderEnvironmentWarning(warning) {
     }
     const titleEl = document.getElementById("viewer-environment-warning-title");
     const copyEl = document.getElementById("viewer-environment-warning-copy");
+    const actionEl = document.getElementById("viewer-environment-warning-action");
     if (titleEl) titleEl.textContent = warning.title || "Environment warning";
     if (copyEl) copyEl.textContent = warning.message;
+    if (actionEl) actionEl.hidden = warning.action !== "bootstrap-logics";
     banner.hidden = false;
   }
 

@@ -6308,6 +6308,9 @@ import {
       setRefreshMenuOpen(false);
       confirmBootstrapLogics().catch((error) => setMeta(error?.message || "Unable to bootstrap Logics."));
     });
+    document.getElementById("viewer-environment-warning-action")?.addEventListener("click", () => {
+      confirmBootstrapLogics().catch((error) => setMeta(error?.message || "Unable to bootstrap Logics."));
+    });
     const autoControl = autoRefreshControl();
     if (autoControl instanceof HTMLInputElement) {
       autoControl.addEventListener("change", () => {

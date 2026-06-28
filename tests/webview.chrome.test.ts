@@ -312,7 +312,7 @@ describe("webview chrome toolbar and filter behavior", () => {
     expect(activityToggle?.getAttribute("aria-label")).toContain("Show");
   });
 
-  it("opens activity by default even when a previous session persisted Project", () => {
+  it("keeps Project open when a previous session selected it", () => {
     const { dom } = bootstrapWebview({
       initialState: {
         workspaceRoot: "/workspace/mock",
@@ -322,12 +322,13 @@ describe("webview chrome toolbar and filter behavior", () => {
 
     pushData(dom, {
       root: "/workspace/mock",
-      items: [baseItem]
+      items: [baseItem],
+      activityEvents: [{ id: "new-event", kind: "git", title: "New event" }]
     });
 
-    expect(dom.window.document.getElementById("activity-panel")?.hidden).toBe(false);
-    expect(dom.window.document.getElementById("board")?.hidden).toBe(true);
-    expect(dom.window.document.getElementById("activity-toggle")?.getAttribute("aria-pressed")).toBe("true");
+    expect(dom.window.document.getElementById("activity-panel")?.hidden).toBe(true);
+    expect(dom.window.document.getElementById("board")?.hidden).toBe(false);
+    expect(dom.window.document.getElementById("activity-toggle")?.getAttribute("aria-pressed")).toBe("false");
   });
 
   it("preserves the activity feed scroll position across re-renders", () => {

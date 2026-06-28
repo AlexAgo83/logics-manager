@@ -2004,14 +2004,14 @@ ${entry?.message || ""}`;
     }
     const enabled = isCdxSessionEnabled(item);
     const resumeAvailable = item.resume_available === true || item.resumeAvailable === true || item.resumable === true;
-    const canHandoff = Boolean(enabled && canLaunchTerminal && latestSessionName && latestSessionName !== name);
+    const canHandoff = Boolean(enabled && canLaunchTerminal);
     return `
       <details class="viewer-cdx__menu viewer-cdx__session-menu">
         <summary class="viewer-cdx__path-link viewer-cdx__session-summary" title="CDX session actions for ${escapeHtml(name)}">${escapeHtml(label)}</summary>
         <div class="viewer-cdx__menu-panel viewer-cdx__session-menu-panel" role="menu" aria-label="CDX session actions for ${escapeHtml(name)}">
           ${enabled && canLaunchTerminal ? `<button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-cdx-session-action="new" data-viewer-cdx-session="${escapeHtml(name)}">New</button>` : ""}
           ${enabled && canLaunchTerminal && resumeAvailable ? `<button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-cdx-session-action="resume" data-viewer-cdx-session="${escapeHtml(name)}">Resume</button>` : ""}
-          ${canHandoff ? `<button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-cdx-session-action="handoff" data-viewer-cdx-session="${escapeHtml(name)}" data-viewer-cdx-handoff-source="${escapeHtml(latestSessionName)}">Handoff (${escapeHtml(latestSessionName)})</button>` : ""}
+          ${canHandoff ? `<button class="viewer-cdx__menu-action" type="button" role="menuitem" data-viewer-cdx-session-action="handoff" data-viewer-cdx-session="${escapeHtml(name)}">Handoff...</button>` : ""}
           <button class="viewer-cdx__menu-action viewer-cdx__menu-action--config" type="button" role="menuitem" data-viewer-cdx-session-action="config" data-viewer-cdx-session="${escapeHtml(name)}">Config</button>
           <button class="viewer-cdx__menu-action viewer-cdx__menu-action--danger" type="button" role="menuitem" data-viewer-cdx-session-action="remove" data-viewer-cdx-session="${escapeHtml(name)}">Remove</button>
         </div>
@@ -7167,6 +7167,30 @@ ${line}` : line;
       </div>
     `;
     }
+    function cdxSessionLastUsedMs(item) {
+      return Date.parse(String(cdxField(item, [
+        "last_launched_at",
+        "lastLaunchedAt",
+        "last_used_at",
+        "lastUsedAt",
+        "updated_at",
+        "updatedAt"
+      ], ""))) || 0;
+    }
+    async function chooseCdxHandoffSource(destinationName) {
+      const options = cdxSessions(latestCdxStatusPayload?.status || {}).filter((entry) => entry && typeof entry === "object" && isCdxSessionEnabled(entry)).map((entry) => ({ name: cdxSessionName(entry), lastUsed: cdxSessionLastUsedMs(entry) })).filter((entry) => entry.name && entry.name !== "-" && entry.name !== destinationName).sort((left, right) => right.lastUsed - left.lastUsed || left.name.localeCompare(right.name)).map((entry) => entry.name);
+      if (!options.length) {
+        await showThemedMessageModal({ title: "Handoff", message: "No other enabled CDX session is available." });
+        return "";
+      }
+      return await showThemedChoiceModal({
+        title: "Handoff source",
+        message: `Choose the session to hand off into ${destinationName}.`,
+        options,
+        value: options[0],
+        submitLabel: "Handoff"
+      });
+    }
     function selectedCdxMissionRequest() {
       const catalog = latestCdxMissionState.catalog || cdxMissionCatalog();
       const missions = Array.isArray(catalog.missions) ? catalog.missions : [];
@@ -9278,7 +9302,6 @@ ${line}` : line;
           event.preventDefault();
           const action = cdxSessionActionTarget.getAttribute("data-viewer-cdx-session-action") || "new";
           const sessionName = cdxSessionActionTarget.getAttribute("data-viewer-cdx-session") || "";
-          const handoffSource = cdxSessionActionTarget.getAttribute("data-viewer-cdx-handoff-source") || "";
           cdxSessionActionTarget.closest("details")?.removeAttribute("open");
           if (!sessionName) {
             return;
@@ -9287,8 +9310,12 @@ ${line}` : line;
             showCdxSessionConfigModal(sessionName);
           } else if (action === "resume") {
             spawnWorkshopTerminal({ command: ["cdx", "resume", sessionName], label: `cdx resume ${sessionName}` });
-          } else if (action === "handoff" && handoffSource) {
-            spawnWorkshopTerminal({ command: ["cdx", "handoff", handoffSource, sessionName], label: `cdx handoff ${handoffSource} ${sessionName}` });
+          } else if (action === "handoff") {
+            chooseCdxHandoffSource(sessionName).then((handoffSource) => {
+              if (handoffSource) {
+                spawnWorkshopTerminal({ command: ["cdx", "handoff", handoffSource, sessionName], label: `cdx handoff ${handoffSource} ${sessionName}` });
+              }
+            });
           } else if (action === "remove") {
             cdxSessionActionTarget.disabled = true;
             fetch("/api/cdx-remove", {

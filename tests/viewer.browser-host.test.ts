@@ -5351,6 +5351,22 @@ describe("local viewer browser host", () => {
     rows[1].resume_available = true;
     rows[1].last_launched_at = "2026-06-19T09:00:00.000Z";
     rows.push({
+      session_name: "atlas",
+      provider: "codex",
+      enabled: true,
+      active: false,
+      status: "ready",
+      auth_status: "authenticated",
+      available_pct: 88,
+      remaining_5h_pct: 88,
+      remaining_week_pct: 88,
+      reset_5h_at: null,
+      reset_week_at: null,
+      last_launched_at: "2026-06-19T11:00:00.000Z",
+      updated_at: null,
+      resume_available: true
+    });
+    rows.push({
       session_name: "retired",
       provider: "codex",
       enabled: false,
@@ -5394,13 +5410,13 @@ describe("local viewer browser host", () => {
     const work2Actions = Array.from(dom.window.document.querySelectorAll('[data-viewer-cdx-session="work2"][data-viewer-cdx-session-action]')).map((node) => node.textContent);
     const corvusActions = Array.from(dom.window.document.querySelectorAll('[data-viewer-cdx-session="corvus"][data-viewer-cdx-session-action]')).map((node) => node.textContent);
     const retiredActions = Array.from(dom.window.document.querySelectorAll('[data-viewer-cdx-session="retired"][data-viewer-cdx-session-action]')).map((node) => node.textContent);
-    expect(work2Actions).toEqual(["New", "Resume", "Config", "Remove"]);
-    expect(corvusActions).toEqual(["New", "Resume", "Handoff (work2)", "Config", "Remove"]);
+    expect(work2Actions).toEqual(["New", "Resume", "Handoff...", "Config", "Remove"]);
+    expect(corvusActions).toEqual(["New", "Resume", "Handoff...", "Config", "Remove"]);
     expect(retiredActions).toEqual(["Config", "Remove"]);
     expect(work2Menu?.textContent).toBe("Resume");
     expect(work2Config?.textContent).toBe("Config");
     expect(work2Config?.classList.contains("viewer-cdx__menu-action--danger")).toBe(false);
-    expect(corvusHandoff?.textContent).toBe("Handoff (work2)");
+    expect(corvusHandoff?.textContent).toBe("Handoff...");
     expect(work2Remove?.textContent).toBe("Remove");
     expect(work2Remove?.classList.contains("viewer-cdx__menu-action--danger")).toBe(true);
     expect(retiredConfig?.textContent).toBe("Config");
@@ -5469,6 +5485,11 @@ describe("local viewer browser host", () => {
     (dom.window.document.querySelector('[data-viewer-cdx-session="corvus"][data-viewer-cdx-session-action="handoff"]') as HTMLElement | null)
       ?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
+    const handoffModal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    const handoffSelect = handoffModal?.querySelector(".viewer-themed-modal__select") as HTMLSelectElement | null;
+    expect(Array.from(handoffSelect?.options || []).map((option) => option.value)).toEqual(["atlas", "work2"]);
+    handoffSelect!.value = "work2";
+    (handoffModal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(dom.window.document.querySelector('[data-viewer-workshop-terminal-host="terminal-2"]')).toBeTruthy();
     expect(terminalCommands).toContainEqual({ command: ["cdx", "handoff", "work2", "corvus"], label: "cdx handoff work2 corvus" });

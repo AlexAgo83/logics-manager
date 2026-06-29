@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { build } from "esbuild";
@@ -18,16 +18,18 @@ try {
     format: "iife",
     platform: "browser",
     target: "es2020",
-    sourcemap: false,
+    sourcemap: "linked",
     legalComments: "none",
     logLevel: "silent"
   });
-  normalizeBundle(outputPath);
+  normalizeBundle(outputPath, `${outputPath}.map`);
 
   if (checkOnly) {
     const expected = readFileSync(outputPath, "utf8");
     const actual = readFileSync(outfile, "utf8");
-    if (actual !== expected) {
+    const expectedMap = readFileSync(`${outputPath}.map`, "utf8");
+    const actualMap = existsSync(`${outfile}.map`) ? readFileSync(`${outfile}.map`, "utf8") : "";
+    if (actual !== expected || actualMap !== expectedMap) {
       console.error("[build-viewer-browser-host] OUT OF DATE: run npm run bundle:viewer-host");
       process.exit(1);
     }
@@ -41,12 +43,30 @@ try {
   }
 }
 
-function normalizeBundle(filePath) {
+function normalizeBundle(filePath, mapPath) {
   let contents = readFileSync(filePath, "utf8");
+  let removedLeadingLines = 0;
   if (contents.startsWith('"use strict";\n')) {
     contents = contents.slice('"use strict";\n'.length);
+    removedLeadingLines += 1;
   }
   // Drop esbuild's leading entry-path banner so the artifact stays byte-stable.
-  contents = contents.replace(/^\s*\/\/ .*browser-host[/-].*\.js\n/m, "");
+  const withoutBanner = contents.replace(/^\s*\/\/ .*browser-host[/-].*\.js\n/, "");
+  if (withoutBanner !== contents) removedLeadingLines += 1;
+  contents = withoutBanner;
   writeFileSync(filePath, contents);
+  if (existsSync(mapPath)) {
+    const sourceMap = JSON.parse(readFileSync(mapPath, "utf8"));
+    if (removedLeadingLines > 0) {
+      sourceMap.mappings = String(sourceMap.mappings || "").split(";").slice(removedLeadingLines).join(";");
+    }
+    sourceMap.sources = (sourceMap.sources || []).map((source) => {
+      const normalized = String(source).replace(/\\/g, "/");
+      const marker = "/clients/viewer/";
+      const markerIndex = normalized.lastIndexOf(marker);
+      if (markerIndex >= 0) return normalized.slice(markerIndex + marker.length);
+      return normalized.replace(/^clients\/viewer\//, "");
+    });
+    writeFileSync(mapPath, JSON.stringify(sourceMap));
+  }
 }

@@ -5,7 +5,7 @@
 // regenerated at build/release time from the canonical sources so a shared-web
 // edit is a one-file diff. Sources:
 //   clients/shared-web/media/**            -> viewer_assets/media/**   (whole tree)
-//   clients/viewer/{index.html,browser-host.js,viewer.css}
+//   clients/viewer/{index.html,browser-host.js,browser-host.js.map,viewer.css}
 //                                          -> viewer_assets/viewer/*
 //   node_modules/mermaid/dist/mermaid.min.js -> viewer_assets/vendor/mermaid.min.js
 //
@@ -52,7 +52,7 @@ const media = copyTree(
 const viewer = copyFiles(
   resolve(repoRoot, "clients/viewer"),
   resolve(repoRoot, "logics_manager/viewer_assets/viewer"),
-  ["index.html", "browser-host.js", "viewer.css"]
+  ["index.html", "browser-host.js", "browser-host.js.map", "viewer.css"]
 );
 const vendor = copyFiles(
   resolve(repoRoot, "node_modules/mermaid/dist"),

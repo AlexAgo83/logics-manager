@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import json
+from http.client import HTTPConnection
 from pathlib import Path
+import threading
 
 from logics_manager import viewer_diagnostics
+from logics_manager.cli import main
+from logics_manager.viewer import create_viewer_server
 
 
 def test_diagnostics_are_bounded_sanitized_and_scoped_by_repo(tmp_path: Path, monkeypatch) -> None:
@@ -76,3 +80,47 @@ def test_clean_session_is_not_reported_as_interrupted(tmp_path: Path, monkeypatc
     interrupted = viewer_diagnostics.update_session(repo, {"sessionId": "next", "event": "start"}, now=100)
 
     assert interrupted == []
+
+
+def test_repeated_diagnostics_are_grouped_and_cli_can_render_them(tmp_path: Path, monkeypatch, capsys) -> None:
+    journal = tmp_path / "viewer-diagnostics.jsonl"
+    monkeypatch.setenv("LOGICS_MANAGER_VIEWER_DIAGNOSTICS", str(journal))
+    repo = tmp_path / "repo"
+    (repo / "logics").mkdir(parents=True)
+    monkeypatch.chdir(repo)
+
+    viewer_diagnostics.append_diagnostic(repo, {"kind": "render-error", "message": "same failure"}, now=100)
+    viewer_diagnostics.append_diagnostic(repo, {"kind": "render-error", "message": "same failure"}, now=120)
+
+    entries = viewer_diagnostics.diagnostics_payload(repo)["entries"]
+    assert len(entries) == 1
+    assert entries[0]["count"] == 2
+    assert entries[0]["lastAt"] != entries[0]["at"]
+    assert main(["view", "diagnostics", "--format", "json"]) == 0
+    rendered = json.loads(capsys.readouterr().out)
+    assert rendered["entries"][0]["message"] == "same failure"
+    assert rendered["entries"][0]["count"] == 2
+
+
+def test_viewer_diagnostics_http_routes_round_trip(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("LOGICS_MANAGER_VIEWER_DIAGNOSTICS", str(tmp_path / "diagnostics.jsonl"))
+    server = create_viewer_server(tmp_path, host="127.0.0.1", port=0)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        connection = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        body = json.dumps({"entry": {"kind": "blank-board", "message": "board vanished", "url": "http://127.0.0.1/?t=secret"}})
+        connection.request("POST", "/api/viewer-diagnostics", body=body, headers={"Content-Type": "application/json"})
+        posted = connection.getresponse()
+        assert posted.status == 200
+        assert json.loads(posted.read())["payload"]["url"] == "http://127.0.0.1/"
+
+        connection.request("GET", "/api/viewer-diagnostics?limit=5")
+        fetched = connection.getresponse()
+        payload = json.loads(fetched.read())["payload"]
+        assert fetched.status == 200
+        assert payload["entries"][0]["message"] == "board vanished"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)

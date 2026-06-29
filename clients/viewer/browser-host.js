@@ -1,4 +1,5 @@
 (() => {
+  // clients/viewer/src/browser-host/util.js
   function activeCdxInteractionMenu() {
     return document.querySelector(".viewer-cdx__menu[open], .viewer-workshop__command-run-menu[open]");
   }
@@ -1009,6 +1010,7 @@ ${entry?.message || ""}`;
       postDiagnostic,
       recoverApplication,
       onCircuitOpen,
+      getMetadata,
       updateDocumentHeaderNav: updateDocumentHeaderNav2,
       renderMermaidDiagrams
     } = options;
@@ -1042,12 +1044,27 @@ ${entry?.message || ""}`;
       }
     }
     function recordError(error, details = {}) {
+      const browserMemory = window.performance?.memory;
+      let metadata = {
+        browser: navigator.userAgent,
+        viewport: { width: window.innerWidth, height: window.innerHeight, devicePixelRatio: window.devicePixelRatio },
+        memory: browserMemory ? {
+          usedJSHeapSize: browserMemory.usedJSHeapSize,
+          totalJSHeapSize: browserMemory.totalJSHeapSize,
+          jsHeapSizeLimit: browserMemory.jsHeapSizeLimit
+        } : {}
+      };
+      try {
+        metadata = { ...metadata, ...getMetadata?.() || {} };
+      } catch {
+      }
       const baseEntry = {
         at: (/* @__PURE__ */ new Date()).toISOString(),
         kind: String(details.kind || "runtime-error"),
         message: errorMessage(error),
         stack: error instanceof Error && error.stack ? error.stack : "",
         ...state(),
+        ...metadata,
         ...details
       };
       const fingerprintSource = `${baseEntry.kind}
@@ -4175,6 +4192,9 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         setAutoRefreshEnabled(false);
         setMeta(`Stability guard paused auto-refresh after repeated ${entry.kind} failures. Refresh manually after reviewing diagnostics.`);
       },
+      getMetadata: () => ({
+        viewerVersion: String(latestUpdateInfo?.currentVersion || versionLink()?.textContent || "").replace(/^v/i, "")
+      }),
       updateDocumentHeaderNav,
       renderMermaidDiagrams
     });
@@ -5828,6 +5848,19 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       if (!panel) return;
       panel.hidden = !open;
       if (button instanceof HTMLElement) button.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    async function copyViewerDiagnostics() {
+      const response = await fetch("/api/viewer-diagnostics?limit=50");
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) throw new Error(data.error || "Unable to load viewer diagnostics.");
+      const exportPayload = {
+        exportedAt: (/* @__PURE__ */ new Date()).toISOString(),
+        current: window.logicsViewer?.diagnostics?.().state || {},
+        ...data.payload
+      };
+      const copied = await copyTextToClipboard(JSON.stringify(exportPayload, null, 2));
+      if (!copied) throw new Error("Clipboard access was refused.");
+      setMeta(`Copied ${data.payload?.entries?.length || 0} viewer diagnostic entries.`);
     }
     function setRefreshMenuOpen(open) {
       setDropdownOpen(refreshMenuPanel(), refreshMenuButton(), open);
@@ -9191,6 +9224,10 @@ ${line}` : line;
         setRefreshMenuOpen(false);
         withPrimaryAction("restart-viewer", "Restarting server", restartViewerServer);
       });
+      document.getElementById("viewer-copy-diagnostics")?.addEventListener("click", () => {
+        setRefreshMenuOpen(false);
+        withPrimaryAction("copy-viewer-diagnostics", "Copying diagnostics", copyViewerDiagnostics);
+      });
       document.getElementById("viewer-stop-server")?.addEventListener("click", () => {
         setRefreshMenuOpen(false);
         withPrimaryAction("stop-viewer", "Stopping server", stopViewerServer);
@@ -9973,3 +10010,4 @@ ${line}` : line;
     });
   })();
 })();
+//# sourceMappingURL=browser-host.js.map

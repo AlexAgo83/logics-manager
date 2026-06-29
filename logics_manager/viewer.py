@@ -723,19 +723,41 @@ def open_system_terminal_payload(repo_root: Path, body: dict[str, Any], *, launc
     if sys.platform != "darwin":
         raise ValueError("System terminal launch is only supported on macOS for now.")
     shell_command = f"cd {shlex.quote(str(repo_root.resolve()))} && exec {shlex.join(command)}"
-    script = (
+    iterm_script = (
         'tell application "iTerm"\n'
         "  activate\n"
         f'  create window with default profile command {json.dumps(shell_command)}\n'
         "end tell"
     )
-    launch = launcher or subprocess.Popen
-    launch(["osascript", "-e", script])
+    terminal_script = (
+        'tell application "Terminal"\n'
+        "  activate\n"
+        f'  do script {json.dumps(shell_command)}\n'
+        "end tell"
+    )
+    terminal = "iTerm"
+    try:
+        _run_osascript(iterm_script, launcher=launcher)
+    except (OSError, subprocess.SubprocessError):
+        terminal = "Terminal"
+        _run_osascript(terminal_script, launcher=launcher)
     return {
         "label": label,
         "command": command,
-        "terminal": "iTerm",
+        "terminal": terminal,
     }
+
+
+def _run_osascript(script: str, *, launcher: Any | None = None) -> None:
+    command = ["osascript", "-e", script]
+    if launcher is not None:
+        result = launcher(command)
+    else:
+        result = subprocess.run(command, capture_output=True, text=True, timeout=10, check=False)
+    returncode = getattr(result, "returncode", 0)
+    if returncode:
+        stderr = str(getattr(result, "stderr", "") or "").strip()
+        raise OSError(stderr or "osascript failed")
 
 
 def _is_wsl() -> bool:
@@ -4786,6 +4808,8 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
             except ValueError as exc:
                 self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
+            except (OSError, subprocess.SubprocessError) as exc:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, f"System terminal launch failed: {exc}")
             return
         if parsed.path == "/api/workshop-terminal-input":
             try:

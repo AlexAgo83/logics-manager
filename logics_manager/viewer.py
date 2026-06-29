@@ -9,6 +9,7 @@ import secrets
 import mimetypes
 import os
 import re
+import shlex
 import shutil
 import socket
 import ssl
@@ -708,6 +709,32 @@ def open_repo_folder_payload(repo_root: Path, *, launcher: Any | None = None) ->
     return {
         "path": str(root),
         "command": command[0],
+    }
+
+
+def open_system_terminal_payload(repo_root: Path, body: dict[str, Any], *, launcher: Any | None = None) -> dict[str, Any]:
+    command_override = body.get("command")
+    label = str(body.get("label") or "terminal")
+    command = (
+        command_override
+        if isinstance(command_override, list) and command_override and all(isinstance(p, str) and p for p in command_override)
+        else workshop_terminal_default_command()
+    )
+    if sys.platform != "darwin":
+        raise ValueError("System terminal launch is only supported on macOS for now.")
+    shell_command = f"cd {shlex.quote(str(repo_root.resolve()))} && exec {shlex.join(command)}"
+    script = (
+        'tell application "iTerm"\n'
+        "  activate\n"
+        f'  create window with default profile command {json.dumps(shell_command)}\n'
+        "end tell"
+    )
+    launch = launcher or subprocess.Popen
+    launch(["osascript", "-e", script])
+    return {
+        "label": label,
+        "command": command,
+        "terminal": "iTerm",
     }
 
 
@@ -3742,6 +3769,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/workshop-command-start",
         "/api/workshop-command-stop",
         "/api/workshop-terminal-start",
+        "/api/workshop-terminal-external-start",
         "/api/workshop-terminal-stop",
         "/api/workshop-terminal-input",
         "/api/workshop-terminal-resize",
@@ -4744,6 +4772,16 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                     initial_rows=initial_rows or 24,
                 )
                 self._send_json({"ok": True, "payload": session.status_payload()})
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+            except ValueError as exc:
+                self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
+            return
+        if parsed.path == "/api/workshop-terminal-external-start":
+            try:
+                body = self._read_json_body_strict()
+                payload = open_system_terminal_payload(self.server.repo_root, body)
+                self._send_json({"ok": True, "payload": payload})
             except json.JSONDecodeError:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
             except ValueError as exc:

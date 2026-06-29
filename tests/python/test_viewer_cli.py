@@ -59,6 +59,7 @@ from logics_manager.viewer import (
     normalize_viewer_focus_target,
     open_file_payload,
     open_repo_folder_payload,
+    open_system_terminal_payload,
     read_doc_payload,
     render_start_status,
     viewer_project_registry,
@@ -580,6 +581,22 @@ def test_viewer_repository_shortcuts_resolve_github_and_open_folder(tmp_path: Pa
     assert payload["path"] == str(tmp_path.resolve())
     assert launched
     assert launched[0][-1] == str(tmp_path.resolve())
+
+
+def test_viewer_system_terminal_payload_builds_iterm_command(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    launched: list[list[str]] = []
+    monkeypatch.setattr(viewer_module.sys, "platform", "darwin")
+
+    payload = open_system_terminal_payload(
+        tmp_path,
+        {"command": ["cdx", "resume", "work2"], "label": "cdx resume work2"},
+        launcher=launched.append,
+    )
+
+    assert payload == {"label": "cdx resume work2", "command": ["cdx", "resume", "work2"], "terminal": "iTerm"}
+    assert launched[0][:2] == ["osascript", "-e"]
+    assert "iTerm" in launched[0][2]
+    assert "cdx resume work2" in launched[0][2]
 
 
 def test_viewer_repository_shortcuts_resolve_gitlab_remotes(tmp_path: Path) -> None:

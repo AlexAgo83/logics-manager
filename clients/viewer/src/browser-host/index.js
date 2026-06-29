@@ -70,6 +70,7 @@ import {
   workshopTerminalStageNode,
   workspaceParentPath
 } from "./util.js";
+import { createViewerDiagnostics } from "./diagnostics.js";
 import {
   activeCdxAssistantCountFromPayload,
   activeCdxRunCountFromPayload,
@@ -243,7 +244,6 @@ import {
   });
 
   const meta = () => document.getElementById("viewer-meta");
-  const viewerErrorLogKey = "logics.localViewer.errors";
   const documentPanel = () => document.getElementById("viewer-document");
   const documentTitle = () => document.getElementById("viewer-document-title");
   const documentContent = () => document.getElementById("viewer-document-content");
@@ -864,41 +864,14 @@ import {
     renderMeta();
   }
 
-  function viewerErrorMessage(error) {
-    if (error instanceof Error && error.message) return error.message;
-    if (error && typeof error === "object" && "message" in error) return String(error.message || error);
-    return String(error || "Unknown viewer error");
-  }
-
-  function recordViewerError(error) {
-    const entry = {
-      at: new Date().toISOString(),
-      message: viewerErrorMessage(error),
-      stack: error instanceof Error && error.stack ? error.stack : ""
-    };
-    try {
-      const previous = JSON.parse(window.localStorage.getItem(viewerErrorLogKey) || "[]");
-      const next = (Array.isArray(previous) ? previous : []).concat(entry).slice(-20);
-      window.localStorage.setItem(viewerErrorLogKey, JSON.stringify(next));
-    } catch { /* noop */ }
-    try { console.error("[logics-viewer]", entry.message, error); } catch { /* noop */ }
-    setMeta(`Viewer error: ${entry.message}`);
-  }
-
-  window.logicsViewer = window.logicsViewer || {};
-  window.logicsViewer.lastErrors = () => {
-    try {
-      const entries = JSON.parse(window.localStorage.getItem(viewerErrorLogKey) || "[]");
-      return Array.isArray(entries) ? entries : [];
-    } catch {
-      return [];
-    }
-  };
-  window.addEventListener("error", (event) => {
-    recordViewerError(event.error || event.message);
-  });
-  window.addEventListener("unhandledrejection", (event) => {
-    recordViewerError(event.reason);
+  const viewerDiagnostics = createViewerDiagnostics({
+    getPanel: documentPanel,
+    getTitle: documentTitle,
+    getContent: documentContent,
+    getBoard: () => document.getElementById("board"),
+    setMeta,
+    updateDocumentHeaderNav,
+    renderMermaidDiagrams
   });
 
   function renderConnectionNotice() {
@@ -2346,32 +2319,45 @@ import {
       && !options.forceReset
       && previousTitle === (titleText || "Document");
     const preserved = sameScreenRepaint ? captureDocumentViewState(content) : null;
-    if (title) {
-      title.textContent = titleText || "Document";
-    }
-    if (eyebrow instanceof HTMLElement) {
-      // For corpus docs the title is the object name and the pill carries the
-      // type, so surface the file path as the subtitle instead of the derived
-      // "Logics request" label; other screens keep the derived description.
-      const description = options.eyebrow !== undefined ? String(options.eyebrow || "") : describeDocumentScreen(titleText);
-      eyebrow.textContent = description;
-      eyebrow.hidden = !description;
-    }
-    updateDocumentBadge(options.badgeStage);
-    updateScreenActions(titleText);
-    if (content) {
-      content.innerHTML = html || "";
-      updateDocumentHeaderNav(content);
-    }
-    if (panel) {
-      panel.hidden = false;
-      setDocumentChromeOpen(true);
-      if (!sameScreenRepaint && typeof panel.scrollIntoView === "function") {
-        panel.scrollIntoView({ block: "nearest" });
+    const previousDocument = content && content.childNodes.length > 0
+      ? { title: previousTitle || "Document", html: content.innerHTML }
+      : viewerDiagnostics.healthyDocument();
+    try {
+      if (title) {
+        title.textContent = titleText || "Document";
+      }
+      if (eyebrow instanceof HTMLElement) {
+        // For corpus docs the title is the object name and the pill carries the
+        // type, so surface the file path as the subtitle instead of the derived
+        // "Logics request" label; other screens keep the derived description.
+        const description = options.eyebrow !== undefined ? String(options.eyebrow || "") : describeDocumentScreen(titleText);
+        eyebrow.textContent = description;
+        eyebrow.hidden = !description;
+      }
+      updateDocumentBadge(options.badgeStage);
+      updateScreenActions(titleText);
+      if (content) {
+        content.innerHTML = html || "";
+        updateDocumentHeaderNav(content);
+      }
+      if (panel) {
+        panel.hidden = false;
+        setDocumentChromeOpen(true);
+        if (!sameScreenRepaint && typeof panel.scrollIntoView === "function") {
+          panel.scrollIntoView({ block: "nearest" });
+        }
+      }
+      renderMermaidDiagrams();
+      if (preserved) restoreDocumentViewState(content, preserved);
+      viewerDiagnostics.rememberHealthyDocument();
+      if (content && content.childNodes.length === 0) viewerDiagnostics.recoverBlankDocument();
+    } catch (error) {
+      viewerDiagnostics.recordError(error, { kind: "render-error", screen: titleText || "Document" });
+      if (previousDocument && content) {
+        viewerDiagnostics.restoreDocument(previousDocument, "render-error-recovery");
+        if (panel) panel.hidden = false;
       }
     }
-    renderMermaidDiagrams();
-    if (preserved) restoreDocumentViewState(content, preserved);
   }
 
   function currentDocumentSnapshot(fallbackTitle = "Document") {

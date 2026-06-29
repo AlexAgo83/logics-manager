@@ -196,6 +196,7 @@ function createViewerDom(options: {
     <button data-action="mark-obsolete" type="button">Obsolete</button>
     <button data-action="change-status" type="button">Status</button>
     <button data-viewer-action="edit-document" type="button" disabled>Edit document</button>
+    <main id="board"></main>
     <section id="viewer-document" hidden>
       <div id="viewer-document-eyebrow" hidden></div>
       <span id="viewer-document-badge" hidden></span>
@@ -1676,6 +1677,70 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Viewer error: render stopped");
     const errors = (dom.window as any).logicsViewer.lastErrors();
     expect(errors.at(-1)?.message).toBe("render stopped");
+  });
+
+  it("records and recovers an unexpectedly blank document screen", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.getElementById("viewer-getting-started")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    const content = dom.window.document.getElementById("viewer-document-content") as HTMLElement | null;
+    const healthyHtml = content?.innerHTML;
+    content?.replaceChildren();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(content?.innerHTML).toBe(healthyHtml);
+    const diagnostics = (dom.window as any).logicsViewer.diagnostics();
+    expect(diagnostics.errors.at(-1)).toMatchObject({
+      kind: "blank-screen",
+      message: "Viewer document became empty unexpectedly",
+      screen: "Getting Started"
+    });
+  });
+
+  it("records an unexpectedly blank project board and leaves a recovery action", async () => {
+    const { dom } = createViewerDom();
+    const board = dom.window.document.getElementById("board") as HTMLElement | null;
+    const card = dom.window.document.createElement("article");
+    card.textContent = "Active request";
+    board?.appendChild(card);
+    await flushViewerAsync();
+
+    board?.replaceChildren();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(board?.textContent).toContain("The project view became empty unexpectedly");
+    expect((dom.window as any).logicsViewer.lastErrors().at(-1)).toMatchObject({
+      kind: "blank-board",
+      message: "Viewer board became empty unexpectedly",
+      screen: "Project"
+    });
+  });
+
+  it("forwards contained board render failures to viewer diagnostics", () => {
+    const dom = new JSDOM("<!doctype html><html><body><main id=\"board\"></main></body></html>", { runScripts: "outside-only" });
+    const recordError = vi.fn();
+    (dom.window as any).logicsViewer = { recordError };
+    loadScript(dom, "clients/shared-web/media/mainCore.js");
+    const error = new Error("card renderer failed");
+    const core = (dom.window as any).createCdxLogicsMainCore({
+      state: { items: [], selectedId: null, activityPanelOpen: false, uiState: { detailsCollapsed: false } },
+      board: dom.window.document.getElementById("board"),
+      boardRenderer: { renderBoard: () => { throw error; } },
+      isListMode: () => false,
+      updateViewModeToggle: () => {}
+    });
+
+    core.render();
+
+    expect(recordError).toHaveBeenCalledWith(error, { kind: "board-render-error", screen: "Project" });
+    expect(dom.window.document.getElementById("board")?.textContent).toContain("The board could not be rendered");
   });
 
   it("lets the hidden attribute override the viewer filter grid layout", () => {

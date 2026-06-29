@@ -870,6 +870,12 @@ import {
     getContent: documentContent,
     getBoard: () => document.getElementById("board"),
     setMeta,
+    postDiagnostic: (path, payload, options = {}) => viewerFetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      keepalive: Boolean(options.keepalive)
+    }),
     updateDocumentHeaderNav,
     renderMermaidDiagrams
   });

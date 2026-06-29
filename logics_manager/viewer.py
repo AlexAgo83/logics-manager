@@ -27,6 +27,7 @@ from typing import Any
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
 from .audit import audit_payload
+from . import viewer_diagnostics
 from .bootstrap import bootstrap_payload
 from .config import ConfigError, find_repo_root
 from .lint import lint_payload
@@ -4463,6 +4464,8 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self._send_lan_unauthorized()
             return
         route = parsed.path
+        if viewer_diagnostics.handle_get(self, route):
+            return
         if route == "/api/lan/devices":
             registry = self.server.device_registry
             payload = registry.list_payload() if registry is not None else []
@@ -4650,6 +4653,8 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if not self._lan_auth_passes(parsed, method="POST"):
             self._send_lan_unauthorized()
+            return
+        if viewer_diagnostics.handle_post(self, parsed.path):
             return
         if self.server.lan_mode and parsed.path in VIEWER_MUTATING_ROUTES:
             allow = False

@@ -124,6 +124,7 @@ function createViewerDom(options: {
     <button id="viewer-getting-started" type="button">Getting Started</button>
     <button id="viewer-bootstrap-logics" type="button" hidden>Bootstrap Logics</button>
     <button id="viewer-restart-server" type="button">Restart server</button>
+    <button id="viewer-copy-diagnostics" type="button">Copy diagnostics</button>
     <a id="viewer-version-link" href="https://github.com/AlexAgo83/logics-manager">v0.0.0</a>
     <button id="activity-clear" type="button">Clear activity</button>
     <button id="activity-toggle" type="button" aria-pressed="false">Activity</button>
@@ -539,11 +540,16 @@ function createViewerDom(options: {
           json: async () => ({ ok: true, message: "Viewer server restarting." })
         };
       }
-      if (url === "/api/viewer-diagnostics" || url === "/api/viewer-diagnostics/session") {
+      if (url === "/api/viewer-diagnostics" || url === "/api/viewer-diagnostics/session" || url === "/api/viewer-diagnostics?limit=50") {
         return {
           ok: true,
           status: 200,
-          json: async () => ({ ok: true, payload: url.endsWith("/session") ? { interrupted: [] } : {} })
+          json: async () => ({
+            ok: true,
+            payload: url.endsWith("/session")
+              ? { interrupted: [] }
+              : { entries: [{ kind: "blank-screen", message: "screen disappeared" }], path: "/tmp/viewer-diagnostics.jsonl", limit: 50 }
+          })
         };
       }
       if (String(url).startsWith("/api/doc")) {
@@ -1672,6 +1678,22 @@ describe("local viewer browser host", () => {
 
     expect(calls).toContain("/api/restart-viewer");
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Viewer server restarting");
+  });
+
+  it("copies durable viewer diagnostics from Settings", async () => {
+    const { dom, calls } = createViewerDom();
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(dom.window, "isSecureContext", { configurable: true, value: true });
+    Object.defineProperty(dom.window.navigator, "clipboard", { configurable: true, value: { writeText } });
+
+    dom.window.document.getElementById("viewer-copy-diagnostics")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(calls).toContain("/api/viewer-diagnostics?limit=50");
+    expect(writeText).toHaveBeenCalledOnce();
+    expect(writeText.mock.calls[0][0]).toContain("screen disappeared");
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Copied 1 viewer diagnostic entries");
   });
 
   it("records uncaught viewer errors for crash diagnosis", async () => {

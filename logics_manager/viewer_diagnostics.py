@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import hashlib
 from http import HTTPStatus
+from importlib import metadata
 import json
 import os
 from pathlib import Path
+import subprocess
 import threading
 import time
 from typing import Any
@@ -57,6 +59,7 @@ def _sanitize_entry(repo_root: Path, entry: dict[str, Any], *, now: float) -> di
         "url": _clean_url(entry.get("url")),
         "sessionId": _bounded(entry.get("sessionId"), 100),
         "repo": {"key": _repo_key(repo_root), "name": repo_root.name[:200]},
+        "recordedAt": int(now),
     }
     for key in ("panelHidden", "contentChildren", "contentTextLength", "boardChildren"):
         value = entry.get(key)
@@ -65,7 +68,39 @@ def _sanitize_entry(repo_root: Path, entry: dict[str, Any], *, now: float) -> di
     fingerprint_source = f"{cleaned['kind']}\n{cleaned['message']}\n{cleaned['stack'].splitlines()[0] if cleaned['stack'] else ''}"
     cleaned["fingerprint"] = _bounded(entry.get("fingerprint"), 80) or hashlib.sha256(fingerprint_source.encode("utf-8")).hexdigest()[:16]
     cleaned["count"] = max(1, min(int(entry.get("count") or 1), 1_000_000))
+    cleaned["viewerVersion"] = _bounded(entry.get("viewerVersion") or _viewer_version(repo_root), 80)
+    cleaned["commit"] = _bounded(entry.get("commit") or _git_commit(repo_root), 80)
+    cleaned["browser"] = _bounded(entry.get("browser"), 500)
+    for key in ("memory", "viewport"):
+        value = entry.get(key)
+        if isinstance(value, dict):
+            cleaned[key] = {str(name)[:80]: number for name, number in value.items() if isinstance(number, (int, float, bool))}
     return cleaned
+
+
+def _viewer_version(repo_root: Path) -> str:
+    try:
+        return (repo_root / "VERSION").read_text(encoding="utf-8").strip()[:80]
+    except OSError:
+        try:
+            return metadata.version("logics-manager")[:80]
+        except metadata.PackageNotFoundError:
+            return ""
+
+
+def _git_commit(repo_root: Path) -> str:
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            timeout=1,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    return result.stdout.strip()[:80] if result.returncode == 0 else ""
 
 
 def _read_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -96,7 +131,25 @@ def append_diagnostic(repo_root: Path, entry: dict[str, Any], *, now: float | No
     cleaned = _sanitize_entry(repo_root, entry, now=timestamp)
     with _LOCK:
         entries = _read_jsonl(diagnostics_path())
-        entries.append(cleaned)
+        previous = entries[-1] if entries else None
+        same_burst = (
+            isinstance(previous, dict)
+            and previous.get("fingerprint") == cleaned["fingerprint"]
+            and isinstance(previous.get("repo"), dict)
+            and previous["repo"].get("key") == cleaned["repo"]["key"]
+            and int(cleaned["recordedAt"]) - int(previous.get("recordedAt") or 0) <= 60
+        )
+        if same_burst:
+            cleaned = {
+                **previous,
+                **cleaned,
+                "at": previous.get("at") or cleaned["at"],
+                "lastAt": cleaned["at"],
+                "count": min(int(previous.get("count") or 1) + 1, 1_000_000),
+            }
+            entries[-1] = cleaned
+        else:
+            entries.append(cleaned)
         entries = entries[-MAX_DIAGNOSTICS:]
         _atomic_write(diagnostics_path(), "".join(json.dumps(item, sort_keys=True) + "\n" for item in entries))
     return cleaned
@@ -106,8 +159,25 @@ def diagnostics_payload(repo_root: Path, *, limit: int = 50) -> dict[str, Any]:
     repo_key = _repo_key(repo_root)
     bounded_limit = max(1, min(limit, MAX_DIAGNOSTICS))
     with _LOCK:
-        entries = [entry for entry in _read_jsonl(diagnostics_path()) if entry.get("repo", {}).get("key") == repo_key]
+        entries = [
+            entry for entry in _read_jsonl(diagnostics_path())
+            if isinstance(entry.get("repo"), dict) and entry["repo"].get("key") == repo_key
+        ]
     return {"entries": entries[-bounded_limit:], "path": str(diagnostics_path()), "limit": bounded_limit}
+
+
+def render_diagnostics(repo_root: Path, *, limit: int = 20, output_format: str = "text") -> str:
+    payload = diagnostics_payload(repo_root, limit=limit)
+    if output_format == "json":
+        return json.dumps(payload, indent=2, sort_keys=True)
+    lines = [f"Viewer diagnostics: {payload['path']}"]
+    if not payload["entries"]:
+        return "\n".join(lines + ["No viewer crashes recorded for this repository."])
+    for entry in payload["entries"]:
+        count = int(entry.get("count") or 1)
+        suffix = f" x{count}" if count > 1 else ""
+        lines.append(f"- {entry.get('at', '?')} [{entry.get('kind', 'error')}] {entry.get('message', '')}{suffix}")
+    return "\n".join(lines)
 
 
 def _read_sessions() -> dict[str, dict[str, Any]]:

@@ -881,6 +881,9 @@ import {
       setAutoRefreshEnabled(false);
       setMeta(`Stability guard paused auto-refresh after repeated ${entry.kind} failures. Refresh manually after reviewing diagnostics.`);
     },
+    getMetadata: () => ({
+      viewerVersion: String(latestUpdateInfo?.currentVersion || versionLink()?.textContent || "").replace(/^v/i, "")
+    }),
     updateDocumentHeaderNav,
     renderMermaidDiagrams
   });
@@ -2768,6 +2771,20 @@ import {
     if (!panel) return;
     panel.hidden = !open;
     if (button instanceof HTMLElement) button.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+
+  async function copyViewerDiagnostics() {
+    const response = await fetch("/api/viewer-diagnostics?limit=50");
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.error || "Unable to load viewer diagnostics.");
+    const exportPayload = {
+      exportedAt: new Date().toISOString(),
+      current: window.logicsViewer?.diagnostics?.().state || {},
+      ...data.payload
+    };
+    const copied = await copyTextToClipboard(JSON.stringify(exportPayload, null, 2));
+    if (!copied) throw new Error("Clipboard access was refused.");
+    setMeta(`Copied ${data.payload?.entries?.length || 0} viewer diagnostic entries.`);
   }
 
   function setRefreshMenuOpen(open) {
@@ -6427,6 +6444,10 @@ import {
     document.getElementById("viewer-restart-server")?.addEventListener("click", () => {
       setRefreshMenuOpen(false);
       withPrimaryAction("restart-viewer", "Restarting server", restartViewerServer);
+    });
+    document.getElementById("viewer-copy-diagnostics")?.addEventListener("click", () => {
+      setRefreshMenuOpen(false);
+      withPrimaryAction("copy-viewer-diagnostics", "Copying diagnostics", copyViewerDiagnostics);
     });
     document.getElementById("viewer-stop-server")?.addEventListener("click", () => {
       setRefreshMenuOpen(false);

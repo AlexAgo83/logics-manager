@@ -14,6 +14,7 @@ export function createViewerDiagnostics(options) {
     postDiagnostic,
     recoverApplication,
     onCircuitOpen,
+    getMetadata,
     updateDocumentHeaderNav,
     renderMermaidDiagrams
   } = options;
@@ -52,12 +53,26 @@ export function createViewerDiagnostics(options) {
   }
 
   function recordError(error, details = {}) {
+    const browserMemory = window.performance?.memory;
+    let metadata = {
+      browser: navigator.userAgent,
+      viewport: { width: window.innerWidth, height: window.innerHeight, devicePixelRatio: window.devicePixelRatio },
+      memory: browserMemory ? {
+        usedJSHeapSize: browserMemory.usedJSHeapSize,
+        totalJSHeapSize: browserMemory.totalJSHeapSize,
+        jsHeapSizeLimit: browserMemory.jsHeapSizeLimit
+      } : {}
+    };
+    try {
+      metadata = { ...metadata, ...(getMetadata?.() || {}) };
+    } catch { /* noop */ }
     const baseEntry = {
       at: new Date().toISOString(),
       kind: String(details.kind || "runtime-error"),
       message: errorMessage(error),
       stack: error instanceof Error && error.stack ? error.stack : "",
       ...state(),
+      ...metadata,
       ...details
     };
     const fingerprintSource = `${baseEntry.kind}\n${baseEntry.message}\n${baseEntry.stack.split("\n", 1)[0] || ""}`;

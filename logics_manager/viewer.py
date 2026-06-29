@@ -4474,8 +4474,8 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         if route == "/":
             self._serve_file(VIEWER_ROOT / "index.html", root=VIEWER_ROOT)
             return
-        if route == "/browser-host.js":
-            self._serve_file(VIEWER_ROOT / "browser-host.js", root=VIEWER_ROOT)
+        if route in {"/browser-host.js", "/browser-host.js.map"}:
+            self._serve_file(VIEWER_ROOT / route.removeprefix("/"), root=VIEWER_ROOT)
             return
         if route == "/viewer.css":
             self._serve_file(VIEWER_ROOT / "viewer.css", root=VIEWER_ROOT)

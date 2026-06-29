@@ -98,6 +98,7 @@ def _build_root_help() -> str:
         "  status     Summarize open workflow docs and next actions.",
         "  search     Search workflow docs directly.",
         "  view       Start a local read-only browser viewer for the Logics corpus.",
+        "             Subcommand: view diagnostics [--limit N] [--format text|json].",
         "",
         "Validation:",
         "  lint       Check filenames, headings, indicators, and changed-doc hygiene.",
@@ -396,6 +397,19 @@ def main(argv: list[str] | None = None) -> int:
 
         return mcp_main(rest)
     if command == "view":
+        if rest[:1] == ["diagnostics"]:
+            from .viewer_diagnostics import render_diagnostics
+
+            parser = argparse.ArgumentParser(prog="logics-manager view diagnostics")
+            parser.add_argument("--limit", type=int, default=20)
+            parser.add_argument("--format", choices=("text", "json"), default="text")
+            parsed = parser.parse_args(rest[1:])
+            try:
+                repo_root = find_repo_root(Path.cwd())
+            except ConfigError:
+                repo_root = Path.cwd().resolve()
+            print(render_diagnostics(repo_root, limit=parsed.limit, output_format=parsed.format))
+            return 0
         from .viewer import main as viewer_main
 
         return viewer_main(rest)

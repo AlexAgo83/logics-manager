@@ -352,6 +352,9 @@
       try {
         renderInternal();
       } catch (error) {
+        if (window.logicsViewer && typeof window.logicsViewer.recordError === "function") {
+          window.logicsViewer.recordError(error, { kind: "board-render-error", screen: "Project" });
+        }
         if (typeof console !== "undefined" && console.error) {
           console.error("Viewer board render failed; showing a recoverable error state instead of blanking.", error);
         }

@@ -1649,6 +1649,18 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Viewer server restarting");
   });
 
+  it("records uncaught viewer errors for crash diagnosis", async () => {
+    const { dom } = createViewerDom();
+    const error = new dom.window.Error("render stopped");
+
+    dom.window.dispatchEvent(new dom.window.ErrorEvent("error", { error, message: error.message }));
+    await flushViewerAsync();
+
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Viewer error: render stopped");
+    const errors = (dom.window as any).logicsViewer.lastErrors();
+    expect(errors.at(-1)?.message).toBe("render stopped");
+  });
+
   it("lets the hidden attribute override the viewer filter grid layout", () => {
     const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
     const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");

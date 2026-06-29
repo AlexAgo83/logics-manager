@@ -2883,6 +2883,42 @@ describe("local viewer browser host", () => {
     expect(preferences.workshopTerminalOrderByRoot?.["/workspace/logics-manager"].slice(0, 2)).toEqual(["terminal-2", "terminal-1"]);
   });
 
+  it("only mounts the active Workshop terminal when reopening the terminal screen", async () => {
+    const { dom } = createViewerDom({
+      terminalCommands: [],
+      capabilities: {
+        logics: { state: "ready", available: true, message: "Logics corpus found." },
+        workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
+        workshop: { state: "ready", available: true, message: "Workshop ready.", detail: { commandsAvailable: true, terminalsAvailable: true } },
+        git: { state: "ready", available: true, message: "Git repository detected." },
+        ci: { state: "ready", available: true, message: "GitHub Actions can be inspected." },
+        cdx: { state: "ready", available: true, message: "CDX executable detected." },
+        cdxRuns: { state: "unsupported", available: false, message: "CDX assistant run registry is not available yet." }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    dom.window.document.querySelector("[data-viewer-workshop-terminal-new]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+    dom.window.document.querySelector("[data-viewer-workshop-terminal-new]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    dom.window.document.querySelector('[data-viewer-workshop-tab="explorer"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-workshop-tab="terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    const hosts = Array.from(dom.window.document.querySelectorAll("[data-viewer-workshop-terminal-host]"));
+    expect(hosts.map((host) => host.getAttribute("data-viewer-workshop-terminal-host"))).toEqual(["terminal-2"]);
+  });
+
   it("hides the LAN banner when lanMode is false", async () => {
     const { dom } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();

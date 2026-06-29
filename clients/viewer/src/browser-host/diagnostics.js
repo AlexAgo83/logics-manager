@@ -11,6 +11,7 @@ export function createViewerDiagnostics(options) {
     getContent,
     getBoard,
     setMeta,
+    postDiagnostic,
     updateDocumentHeaderNav,
     renderMermaidDiagrams
   } = options;
@@ -19,6 +20,10 @@ export function createViewerDiagnostics(options) {
   let documentCheckScheduled = false;
   let documentRecoveryInProgress = false;
   let boardCheckScheduled = false;
+  const sessionId = typeof window.crypto?.randomUUID === "function"
+    ? window.crypto.randomUUID()
+    : `viewer-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  let heartbeatTimer = 0;
 
   function state() {
     const panel = getPanel();
@@ -54,6 +59,7 @@ export function createViewerDiagnostics(options) {
     try {
       window.localStorage.setItem(errorLogKey, JSON.stringify(lastErrors().concat(entry).slice(-20)));
     } catch { /* noop */ }
+    Promise.resolve(postDiagnostic?.("/api/viewer-diagnostics", { entry })).catch(() => {});
     try { console.error("[logics-viewer]", entry.message, error); } catch { /* noop */ }
     setMeta(`Viewer error: ${entry.message}`);
   }
@@ -123,10 +129,38 @@ export function createViewerDiagnostics(options) {
     : null;
   boardObserver?.observe(getBoard(), { childList: true });
 
+  function sessionPayload(event) {
+    const current = state();
+    return { event, sessionId, screen: current.screen, url: current.url };
+  }
+
+  function postSession(event, keepalive = false) {
+    return Promise.resolve(postDiagnostic?.("/api/viewer-diagnostics/session", sessionPayload(event), { keepalive })).catch(() => {});
+  }
+
+  function startSessionHeartbeat() {
+    if (heartbeatTimer) return;
+    postSession("start");
+    heartbeatTimer = window.setInterval(() => postSession("heartbeat"), 10_000);
+  }
+
+  function stopSessionHeartbeat() {
+    if (heartbeatTimer) window.clearInterval(heartbeatTimer);
+    heartbeatTimer = 0;
+    postSession("end", true);
+  }
+
+  startSessionHeartbeat();
+  window.addEventListener("pagehide", stopSessionHeartbeat);
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) startSessionHeartbeat();
+  });
+
   window.logicsViewer = window.logicsViewer || {};
   window.logicsViewer.lastErrors = lastErrors;
   window.logicsViewer.diagnostics = () => ({ state: state(), errors: lastErrors() });
   window.logicsViewer.recordError = recordError;
+  window.logicsViewer.sessionId = sessionId;
   window.addEventListener("error", (event) => recordError(event.error || event.message));
   window.addEventListener("unhandledrejection", (event) => recordError(event.reason));
 

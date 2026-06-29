@@ -1006,6 +1006,7 @@ ${entry?.message || ""}`;
       getContent,
       getBoard,
       setMeta,
+      postDiagnostic,
       updateDocumentHeaderNav: updateDocumentHeaderNav2,
       renderMermaidDiagrams
     } = options;
@@ -1014,6 +1015,8 @@ ${entry?.message || ""}`;
     let documentCheckScheduled = false;
     let documentRecoveryInProgress = false;
     let boardCheckScheduled = false;
+    const sessionId = typeof window.crypto?.randomUUID === "function" ? window.crypto.randomUUID() : `viewer-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    let heartbeatTimer = 0;
     function state() {
       const panel = getPanel();
       const content = getContent();
@@ -1047,6 +1050,8 @@ ${entry?.message || ""}`;
         window.localStorage.setItem(errorLogKey, JSON.stringify(lastErrors().concat(entry).slice(-20)));
       } catch {
       }
+      Promise.resolve(postDiagnostic?.("/api/viewer-diagnostics", { entry })).catch(() => {
+      });
       try {
         console.error("[logics-viewer]", entry.message, error);
       } catch {
@@ -1109,10 +1114,34 @@ ${entry?.message || ""}`;
       });
     }) : null;
     boardObserver?.observe(getBoard(), { childList: true });
+    function sessionPayload(event) {
+      const current = state();
+      return { event, sessionId, screen: current.screen, url: current.url };
+    }
+    function postSession(event, keepalive = false) {
+      return Promise.resolve(postDiagnostic?.("/api/viewer-diagnostics/session", sessionPayload(event), { keepalive })).catch(() => {
+      });
+    }
+    function startSessionHeartbeat() {
+      if (heartbeatTimer) return;
+      postSession("start");
+      heartbeatTimer = window.setInterval(() => postSession("heartbeat"), 1e4);
+    }
+    function stopSessionHeartbeat() {
+      if (heartbeatTimer) window.clearInterval(heartbeatTimer);
+      heartbeatTimer = 0;
+      postSession("end", true);
+    }
+    startSessionHeartbeat();
+    window.addEventListener("pagehide", stopSessionHeartbeat);
+    window.addEventListener("pageshow", (event) => {
+      if (event.persisted) startSessionHeartbeat();
+    });
     window.logicsViewer = window.logicsViewer || {};
     window.logicsViewer.lastErrors = lastErrors;
     window.logicsViewer.diagnostics = () => ({ state: state(), errors: lastErrors() });
     window.logicsViewer.recordError = recordError;
+    window.logicsViewer.sessionId = sessionId;
     window.addEventListener("error", (event) => recordError(event.error || event.message));
     window.addEventListener("unhandledrejection", (event) => recordError(event.reason));
     return {
@@ -4088,6 +4117,12 @@ ${entry?.message || ""}`;
       getContent: documentContent,
       getBoard: () => document.getElementById("board"),
       setMeta,
+      postDiagnostic: (path, payload, options = {}) => viewerFetch(path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        keepalive: Boolean(options.keepalive)
+      }),
       updateDocumentHeaderNav,
       renderMermaidDiagrams
     });

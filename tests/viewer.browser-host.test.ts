@@ -539,6 +539,13 @@ function createViewerDom(options: {
           json: async () => ({ ok: true, message: "Viewer server restarting." })
         };
       }
+      if (url === "/api/viewer-diagnostics" || url === "/api/viewer-diagnostics/session") {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ ok: true, payload: url.endsWith("/session") ? { interrupted: [] } : {} })
+        };
+      }
       if (String(url).startsWith("/api/doc")) {
         return {
           ok: true,
@@ -1668,7 +1675,7 @@ describe("local viewer browser host", () => {
   });
 
   it("records uncaught viewer errors for crash diagnosis", async () => {
-    const { dom } = createViewerDom();
+    const { dom, fetchCalls } = createViewerDom();
     const error = new dom.window.Error("render stopped");
 
     dom.window.dispatchEvent(new dom.window.ErrorEvent("error", { error, message: error.message }));
@@ -1677,6 +1684,11 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Viewer error: render stopped");
     const errors = (dom.window as any).logicsViewer.lastErrors();
     expect(errors.at(-1)?.message).toBe("render stopped");
+    const persisted = fetchCalls.findLast((call) => call.url === "/api/viewer-diagnostics");
+    expect(JSON.parse(String(persisted?.options?.body))).toMatchObject({
+      entry: { kind: "runtime-error", message: "render stopped" }
+    });
+    expect(fetchCalls.some((call) => call.url === "/api/viewer-diagnostics/session")).toBe(true);
   });
 
   it("records and recovers an unexpectedly blank document screen", async () => {

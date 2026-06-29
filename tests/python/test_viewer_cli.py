@@ -599,6 +599,24 @@ def test_viewer_system_terminal_payload_builds_iterm_command(monkeypatch: pytest
     assert "cdx resume work2" in launched[0][2]
 
 
+def test_viewer_system_terminal_payload_falls_back_to_terminal_app(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    launched: list[list[str]] = []
+    monkeypatch.setattr(viewer_module.sys, "platform", "darwin")
+
+    def launcher(command: list[str]) -> subprocess.CompletedProcess[str]:
+        launched.append(command)
+        if "iTerm" in command[2]:
+            return subprocess.CompletedProcess(command, 1, "", "Application isn't running")
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    payload = open_system_terminal_payload(tmp_path, {"command": ["echo", "ok"]}, launcher=launcher)
+
+    assert payload["terminal"] == "Terminal"
+    assert len(launched) == 2
+    assert "iTerm" in launched[0][2]
+    assert "Terminal" in launched[1][2]
+
+
 def test_viewer_repository_shortcuts_resolve_gitlab_remotes(tmp_path: Path) -> None:
     def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
         if args[1:] == ["remote", "-v"]:

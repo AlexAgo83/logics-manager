@@ -3803,7 +3803,7 @@ import {
       letterSpacing: 0,
       theme: { background: "#0a0a0a", foreground: "#d4d4d4" },
       cursorBlink: true,
-      scrollback: 5000,
+      scrollback: 2000,
       convertEol: false,
     });
     const fitAddon = typeof window.FitAddon === "function"
@@ -4436,18 +4436,11 @@ import {
         entry.lastSeq = 0;
         closeWorkshopTerminalStream(entry.id);
       }
-      renderWorkshopTerminalList();
-      // Remount every session so switching between rows is instant and
-      // none of the terminals show a black/empty stage.
-      for (const entry of workshopTerminalState.sessions.values()) {
-        mountWorkshopTerminalEmulator(entry);
-        if (entry.id !== workshopTerminalState.activeId) {
-          const host = workshopTerminalStageNode()?.querySelector(`[data-viewer-workshop-terminal-host="${entry.id}"]`);
-          if (host instanceof HTMLElement) host.classList.add("viewer-workshop__terminal-host--hidden");
-        }
-      }
       if (workshopTerminalState.activeId) {
         setActiveWorkshopTerminal(workshopTerminalState.activeId);
+      } else {
+        renderWorkshopTerminalList();
+        ensureWorkshopTerminalStage();
       }
     }
   }

@@ -1569,7 +1569,7 @@ describe("local viewer browser host", () => {
   });
 
   it("shows the current Logics Manager version in Settings as a GitHub link", async () => {
-    const { dom } = createViewerDom();
+    const { dom } = createViewerDom({ githubUrl: "https://github.com/example/another-project" });
     const api = dom.window.acquireVsCodeApi();
 
     api.postMessage({ type: "ready" });

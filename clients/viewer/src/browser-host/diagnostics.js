@@ -12,6 +12,8 @@ export function createViewerDiagnostics(options) {
     getBoard,
     setMeta,
     postDiagnostic,
+    recoverApplication,
+    onCircuitOpen,
     updateDocumentHeaderNav,
     renderMermaidDiagrams
   } = options;
@@ -20,6 +22,8 @@ export function createViewerDiagnostics(options) {
   let documentCheckScheduled = false;
   let documentRecoveryInProgress = false;
   let boardCheckScheduled = false;
+  const recentFailures = new Map();
+  let openCircuitFingerprint = "";
   const sessionId = typeof window.crypto?.randomUUID === "function"
     ? window.crypto.randomUUID()
     : `viewer-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -48,7 +52,7 @@ export function createViewerDiagnostics(options) {
   }
 
   function recordError(error, details = {}) {
-    const entry = {
+    const baseEntry = {
       at: new Date().toISOString(),
       kind: String(details.kind || "runtime-error"),
       message: errorMessage(error),
@@ -56,12 +60,33 @@ export function createViewerDiagnostics(options) {
       ...state(),
       ...details
     };
+    const fingerprintSource = `${baseEntry.kind}\n${baseEntry.message}\n${baseEntry.stack.split("\n", 1)[0] || ""}`;
+    const fingerprint = details.fingerprint || Array.from(fingerprintSource).reduce(
+      (hash, char) => ((hash * 31) + char.charCodeAt(0)) >>> 0,
+      2166136261
+    ).toString(16).padStart(8, "0");
+    const previousEntries = lastErrors();
+    const previous = previousEntries.at(-1);
+    const count = previous?.fingerprint === fingerprint ? Number(previous.count || 1) + 1 : 1;
+    const entry = { ...baseEntry, fingerprint, count };
     try {
-      window.localStorage.setItem(errorLogKey, JSON.stringify(lastErrors().concat(entry).slice(-20)));
+      const next = previous?.fingerprint === fingerprint
+        ? previousEntries.slice(0, -1).concat({ ...previous, ...entry, at: previous.at, lastAt: entry.at })
+        : previousEntries.concat(entry);
+      window.localStorage.setItem(errorLogKey, JSON.stringify(next.slice(-20)));
     } catch { /* noop */ }
     Promise.resolve(postDiagnostic?.("/api/viewer-diagnostics", { entry })).catch(() => {});
     try { console.error("[logics-viewer]", entry.message, error); } catch { /* noop */ }
     setMeta(`Viewer error: ${entry.message}`);
+    const now = Date.now();
+    const failures = (recentFailures.get(fingerprint) || []).filter((timestamp) => now - timestamp <= 60_000);
+    failures.push(now);
+    recentFailures.set(fingerprint, failures);
+    if (failures.length >= 3 && openCircuitFingerprint !== fingerprint) {
+      openCircuitFingerprint = fingerprint;
+      onCircuitOpen?.(entry);
+    }
+    return entry;
   }
 
   function rememberHealthyDocument() {
@@ -91,6 +116,24 @@ export function createViewerDiagnostics(options) {
     }
   }
 
+  async function recoverDocument(snapshot, failureKind) {
+    documentRecoveryInProgress = true;
+    try {
+      if (typeof recoverApplication === "function") {
+        await recoverApplication();
+        if (getContent()?.childNodes.length > 0) {
+          rememberHealthyDocument();
+          return true;
+        }
+      }
+    } catch (error) {
+      recordError(error, { kind: failureKind, screen: snapshot?.title || getTitle()?.textContent || "Document" });
+    } finally {
+      documentRecoveryInProgress = false;
+    }
+    return restoreDocument(snapshot, `${failureKind}-fallback`);
+  }
+
   function recoverBlankDocument() {
     documentCheckScheduled = false;
     if (documentRecoveryInProgress) return;
@@ -99,7 +142,7 @@ export function createViewerDiagnostics(options) {
     if (!(panel instanceof HTMLElement) || !(content instanceof HTMLElement) || panel.hidden || content.childNodes.length > 0) return;
     const screen = lastHealthyDocument?.title || getTitle()?.textContent || "Document";
     recordError(new Error("Viewer document became empty unexpectedly"), { kind: "blank-screen", screen });
-    if (lastHealthyDocument) restoreDocument(lastHealthyDocument, "blank-screen-recovery");
+    void recoverDocument(lastHealthyDocument, "blank-screen-recovery");
   }
 
   const documentObserver = typeof MutationObserver === "function" && getContent()
@@ -168,7 +211,12 @@ export function createViewerDiagnostics(options) {
     healthyDocument: () => lastHealthyDocument,
     recordError,
     recoverBlankDocument,
+    recoverDocument,
     rememberHealthyDocument,
+    resetCircuit: () => {
+      recentFailures.clear();
+      openCircuitFingerprint = "";
+    },
     restoreDocument
   };
 }

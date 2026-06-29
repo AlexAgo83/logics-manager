@@ -876,6 +876,11 @@ import {
       body: JSON.stringify(payload),
       keepalive: Boolean(options.keepalive)
     }),
+    recoverApplication: refreshCurrentScreen,
+    onCircuitOpen: (entry) => {
+      setAutoRefreshEnabled(false);
+      setMeta(`Stability guard paused auto-refresh after repeated ${entry.kind} failures. Refresh manually after reviewing diagnostics.`);
+    },
     updateDocumentHeaderNav,
     renderMermaidDiagrams
   });
@@ -2360,7 +2365,7 @@ import {
     } catch (error) {
       viewerDiagnostics.recordError(error, { kind: "render-error", screen: titleText || "Document" });
       if (previousDocument && content) {
-        viewerDiagnostics.restoreDocument(previousDocument, "render-error-recovery");
+        void viewerDiagnostics.recoverDocument(previousDocument, "render-error-recovery");
         if (panel) panel.hidden = false;
       }
     }
@@ -2695,6 +2700,7 @@ import {
     if (!panel || panel.hidden || !title) return;
     const screen = title.textContent || "";
     const opts = { force: true };
+    if (screen === "Getting Started") return showGettingStarted();
     if (screen === "CDX status") return showCdxStatus(opts);
     if (screen === "CDX missions") return showCdxMissions(opts);
     if (screen === "CDX reports") return showCdxRuns(opts);
@@ -2750,6 +2756,7 @@ import {
 
   function setAutoRefreshEnabled(enabled) {
     autoRefreshEnabled = Boolean(enabled);
+    if (autoRefreshEnabled) viewerDiagnostics.resetCircuit();
     const control = autoRefreshControl();
     if (control instanceof HTMLInputElement) {
       control.checked = autoRefreshEnabled;

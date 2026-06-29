@@ -243,6 +243,7 @@ import {
   });
 
   const meta = () => document.getElementById("viewer-meta");
+  const viewerErrorLogKey = "logics.localViewer.errors";
   const documentPanel = () => document.getElementById("viewer-document");
   const documentTitle = () => document.getElementById("viewer-document-title");
   const documentContent = () => document.getElementById("viewer-document-content");
@@ -837,6 +838,43 @@ import {
     latestMetaText = text;
     renderMeta();
   }
+
+  function viewerErrorMessage(error) {
+    if (error instanceof Error && error.message) return error.message;
+    if (error && typeof error === "object" && "message" in error) return String(error.message || error);
+    return String(error || "Unknown viewer error");
+  }
+
+  function recordViewerError(error) {
+    const entry = {
+      at: new Date().toISOString(),
+      message: viewerErrorMessage(error),
+      stack: error instanceof Error && error.stack ? error.stack : ""
+    };
+    try {
+      const previous = JSON.parse(window.localStorage.getItem(viewerErrorLogKey) || "[]");
+      const next = (Array.isArray(previous) ? previous : []).concat(entry).slice(-20);
+      window.localStorage.setItem(viewerErrorLogKey, JSON.stringify(next));
+    } catch { /* noop */ }
+    try { console.error("[logics-viewer]", entry.message, error); } catch { /* noop */ }
+    setMeta(`Viewer error: ${entry.message}`);
+  }
+
+  window.logicsViewer = window.logicsViewer || {};
+  window.logicsViewer.lastErrors = () => {
+    try {
+      const entries = JSON.parse(window.localStorage.getItem(viewerErrorLogKey) || "[]");
+      return Array.isArray(entries) ? entries : [];
+    } catch {
+      return [];
+    }
+  };
+  window.addEventListener("error", (event) => {
+    recordViewerError(event.error || event.message);
+  });
+  window.addEventListener("unhandledrejection", (event) => {
+    recordViewerError(event.reason);
+  });
 
   function renderConnectionNotice() {
     const banner = connectionBanner();

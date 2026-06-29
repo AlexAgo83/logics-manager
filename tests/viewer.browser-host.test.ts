@@ -71,6 +71,7 @@ function createViewerDom(options: {
   releaseRunsResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   updateStatusResponse?: { ok: boolean; status?: number; body?: unknown };
   terminalCommands?: Array<{ command: string[]; label: string }>;
+  externalTerminalCommands?: Array<{ command: string[]; label: string }>;
   terminalRenames?: Array<{ sessionId: string; label: string }>;
   autoRefreshIntervalSeconds?: number;
   autoRefreshIntervalForced?: boolean;
@@ -654,6 +655,21 @@ function createViewerDom(options: {
           json: async () => ({
             ok: true,
             payload: { id, label: body.label || "shell", command: Array.isArray(body.command) ? body.command : ["/bin/sh", "-i"], state: "running" }
+          })
+        };
+      }
+      if (url === "/api/workshop-terminal-external-start") {
+        const body = fetchOptions?.body ? JSON.parse(String(fetchOptions.body)) : {};
+        options.externalTerminalCommands?.push({
+          command: Array.isArray(body.command) ? body.command : [],
+          label: String(body.label || "")
+        });
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            payload: { label: body.label || "shell", command: Array.isArray(body.command) ? body.command : ["/bin/sh", "-i"], terminal: "iTerm" }
           })
         };
       }
@@ -2608,6 +2624,43 @@ describe("local viewer browser host", () => {
     expect(terminalCommands).toContainEqual({ command: ["node", "--version"], label: "node --version" });
     expect(promptSpy).not.toHaveBeenCalled();
     promptSpy.mockRestore();
+  });
+
+  it("keeps system terminal mode off by default and routes launches there when enabled", async () => {
+    const terminalCommands: Array<{ command: string[]; label: string }> = [];
+    const externalTerminalCommands: Array<{ command: string[]; label: string }> = [];
+    const { dom } = createViewerDom({
+      terminalCommands,
+      externalTerminalCommands,
+      capabilities: {
+        logics: { state: "ready", available: true, message: "Logics corpus found." },
+        workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
+        workshop: { state: "ready", available: true, message: "Workshop ready.", detail: { commandsAvailable: true, terminalsAvailable: true } },
+        git: { state: "ready", available: true, message: "Git repository detected." },
+        ci: { state: "ready", available: true, message: "GitHub Actions can be inspected." },
+        cdx: { state: "ready", available: true, message: "CDX executable detected." },
+        cdxRuns: { state: "unsupported", available: false, message: "CDX assistant run registry is not available yet." }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    const toggle = dom.window.document.querySelector("[data-viewer-workshop-system-terminal]") as HTMLInputElement | null;
+    expect(toggle?.checked).toBe(false);
+
+    toggle!.checked = true;
+    toggle!.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    dom.window.document.querySelector("[data-viewer-workshop-terminal-new]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(terminalCommands).toEqual([]);
+    expect(externalTerminalCommands).toContainEqual({ command: [], label: "" });
+    expect(dom.window.document.querySelector("[data-viewer-workshop-external]")?.textContent).toContain("external");
   });
 
   it("starts a custom Workshop terminal from an available CDX session", async () => {

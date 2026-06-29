@@ -366,6 +366,10 @@ import {
     writeViewerPreferences({ ...viewerPreferences, ...patch });
   }
 
+  function workshopUsesSystemTerminal() {
+    return viewerPreferences.workshopUseSystemTerminal === true;
+  }
+
   function favoriteProjectIds() {
     const stored = Array.isArray(viewerPreferences.favoriteProjects) ? viewerPreferences.favoriteProjects : [];
     return new Set(stored.map((value) => String(value)).filter(Boolean));
@@ -3497,6 +3501,7 @@ import {
     suppressSelectUntil: 0,
     hydrated: false,
   };
+  const workshopExternalLaunches = [];
 
   function workshopTerminalOrderRootKey() {
     return latestRepoRoot || latestRepository?.root || "default";
@@ -3692,6 +3697,14 @@ import {
     const node = workshopTerminalListNode();
     if (!(node instanceof HTMLElement)) return;
     const entries = orderedWorkshopTerminalEntries();
+    const externalRows = workshopExternalLaunches.slice(-12).reverse().map((entry) => `
+      <div class="viewer-workshop__terminal-row" data-viewer-workshop-external="${escapeHtml(entry.id)}">
+        <span class="viewer-workshop__terminal-row-main">
+          <span class="viewer-workshop__terminal-row-label">${escapeHtml(entry.label || entry.command.join(" "))}</span>
+        </span>
+        <span class="viewer-workshop__state viewer-workshop__state--running">external</span>
+      </div>
+    `).join("");
     const header = `<div class="viewer-workshop__terminal-list-header">
       <span>Terminals</span>
       <span class="viewer-workshop__terminal-actions">
@@ -3699,7 +3712,7 @@ import {
         <button class="btn viewer-workshop__terminal-new" type="button" data-viewer-workshop-terminal-custom>+ Custom</button>
       </span>
     </div>`;
-    if (entries.length === 0) {
+    if (entries.length === 0 && !externalRows) {
       node.innerHTML = `${header}<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>No sessions yet.</span></div>`;
       return;
     }
@@ -3736,7 +3749,7 @@ import {
         </span>
       </button>`;
     }).join("");
-    node.innerHTML = `${header}<div class="viewer-workshop__terminal-rows">${rows}</div>`;
+    node.innerHTML = `${header}<div class="viewer-workshop__terminal-rows">${rows}${externalRows}</div>`;
   }
 
   function ensureWorkshopTerminalStage() {
@@ -4173,6 +4186,9 @@ import {
   }
 
   async function spawnWorkshopTerminal(options = {}) {
+    if (workshopUsesSystemTerminal()) {
+      return spawnSystemWorkshopTerminal(options);
+    }
     try {
       const liveCount = [...workshopTerminalState.sessions.values()].filter((entry) => entry.state === "running" || entry.state === "starting").length;
       const WORKSHOP_TERMINAL_SOFT_CAP = 12;
@@ -4216,6 +4232,35 @@ import {
       return session.id;
     } catch (error) {
       setMeta(`Terminal: ${error?.message || error}`);
+      return "";
+    }
+  }
+
+  async function spawnSystemWorkshopTerminal(options = {}) {
+    try {
+      const body = {};
+      if (Array.isArray(options.command) && options.command.length) body.command = options.command;
+      if (options.label) body.label = String(options.label);
+      const response = await fetch("/api/workshop-terminal-external-start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.error || "Unable to open system terminal.");
+      const payload = data.payload || {};
+      const id = `external-${Date.now()}`;
+      workshopExternalLaunches.push({
+        id,
+        label: String(payload.label || options.label || "system terminal"),
+        command: Array.isArray(payload.command) ? payload.command.map(String) : [],
+      });
+      renderWorkshopTerminalList();
+      await showWorkshop({ tab: "terminals" });
+      setMeta(`Opened ${payload.terminal || "system terminal"}: ${payload.label || options.label || "terminal"}.`);
+      return id;
+    } catch (error) {
+      setMeta(`System terminal: ${error?.message || error}`);
       return "";
     }
   }
@@ -4387,6 +4432,7 @@ import {
       <div class="viewer-workshop">
         <div class="viewer-workshop__tabs" role="tablist" aria-label="Workshop sub-screens">
           ${renderWorkshopTabs(activeTab)}
+          <label class="viewer-workshop__terminal-mode"><input type="checkbox" data-viewer-workshop-system-terminal ${workshopUsesSystemTerminal() ? "checked" : ""} /> Use system terminal</label>
         </div>
         ${renderWorkshopPanel(activeTab)}
       </div>
@@ -6676,6 +6722,7 @@ import {
       const workshopTerminalCloseTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-close]") : null;
       const workshopTerminalClearTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-clear]") : null;
       const workshopTerminalRenameTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-rename]") : null;
+      const workshopSystemTerminalToggle = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-system-terminal]") : null;
       const workshopCdxUsageTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-usage-refresh]") : null;
       const projectSwitcherTarget = event.target instanceof Element ? event.target.closest("#viewer-repo-pill") : null;
       const projectFavoriteTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-favorite]") : null;
@@ -6904,6 +6951,11 @@ import {
         event.preventDefault();
         const tab = workshopTabTarget.getAttribute("data-viewer-workshop-tab") || "terminals";
         withPrimaryAction("workshop-tab", `Switching to ${tab}`, () => showWorkshop({ tab }));
+        return;
+      }
+      if (workshopSystemTerminalToggle instanceof HTMLInputElement) {
+        updateViewerPreferences({ workshopUseSystemTerminal: workshopSystemTerminalToggle.checked });
+        setMeta(workshopSystemTerminalToggle.checked ? "Workshop will open system terminals." : "Workshop will use embedded terminals.");
         return;
       }
       if (workshopTerminalCloseTarget instanceof HTMLElement) {

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import importlib
 import inspect
+from pathlib import Path
+import tomllib
 
 import pytest
 
@@ -46,3 +48,16 @@ def test_no_exec_compile_glue_remains():
     root = Path(package_dir).parent
     offenders = [p.name for p in root.rglob("*.py") if "exec(compile(" in p.read_text(encoding="utf-8")]
     assert offenders == [], f"exec(compile) glue still present in: {offenders}"
+
+
+def test_setuptools_package_list_includes_every_python_subpackage():
+    repo_root = Path(__file__).resolve().parents[2]
+    pyproject = tomllib.loads((repo_root / "pyproject.toml").read_text(encoding="utf-8"))
+    declared = set(pyproject["tool"]["setuptools"]["packages"])
+    discovered = {
+        ".".join(path.parent.relative_to(repo_root).parts)
+        for path in (repo_root / "logics_manager").rglob("__init__.py")
+        if "viewer_assets" not in path.parts
+    }
+
+    assert discovered <= declared

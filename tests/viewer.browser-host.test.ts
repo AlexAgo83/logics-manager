@@ -131,6 +131,7 @@ function createViewerDom(options: {
       <button id="viewer-refresh-menu-button" type="button" aria-expanded="false" aria-controls="viewer-refresh-menu">Refresh</button>
       <div id="viewer-refresh-menu" hidden>
         <label><input id="viewer-auto-refresh" type="checkbox" checked />Auto</label>
+        <label><input type="checkbox" data-viewer-workshop-system-terminal />Use system terminal</label>
         <button data-action="refresh" type="button">Now</button>
         <select id="viewer-refresh-interval">
           <option value="5">5 sec</option>
@@ -2647,13 +2648,13 @@ describe("local viewer browser host", () => {
     api.postMessage({ type: "ready" });
     await flushViewerAsync();
     await flushViewerAsync();
-    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    await flushViewerAsync();
     const toggle = dom.window.document.querySelector("[data-viewer-workshop-system-terminal]") as HTMLInputElement | null;
     expect(toggle?.checked).toBe(false);
 
     toggle!.checked = true;
-    toggle!.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    toggle!.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
     dom.window.document.querySelector("[data-viewer-workshop-terminal-new]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
     await flushViewerAsync();

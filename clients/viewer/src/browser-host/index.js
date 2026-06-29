@@ -364,10 +364,31 @@ import {
 
   function updateViewerPreferences(patch) {
     writeViewerPreferences({ ...viewerPreferences, ...patch });
+    syncWorkshopSystemTerminalControls();
   }
 
   function workshopUsesSystemTerminal() {
     return viewerPreferences.workshopUseSystemTerminal === true;
+  }
+
+  function syncWorkshopSystemTerminalControls() {
+    document.querySelectorAll("[data-viewer-workshop-system-terminal]").forEach((node) => {
+      if (node instanceof HTMLInputElement) {
+        node.checked = workshopUsesSystemTerminal();
+      }
+    });
+  }
+
+  function bindWorkshopSystemTerminalControls() {
+    document.querySelectorAll("[data-viewer-workshop-system-terminal]").forEach((node) => {
+      if (!(node instanceof HTMLInputElement) || node.dataset.viewerBound === "1") return;
+      node.dataset.viewerBound = "1";
+      node.addEventListener("change", () => {
+        updateViewerPreferences({ workshopUseSystemTerminal: node.checked });
+        setMeta(node.checked ? "Workshop will open system terminals." : "Workshop will use embedded terminals.");
+      });
+    });
+    syncWorkshopSystemTerminalControls();
   }
 
   function favoriteProjectIds() {
@@ -4432,7 +4453,6 @@ import {
       <div class="viewer-workshop">
         <div class="viewer-workshop__tabs" role="tablist" aria-label="Workshop sub-screens">
           ${renderWorkshopTabs(activeTab)}
-          <label class="viewer-workshop__terminal-mode"><input type="checkbox" data-viewer-workshop-system-terminal ${workshopUsesSystemTerminal() ? "checked" : ""} /> Use system terminal</label>
         </div>
         ${renderWorkshopPanel(activeTab)}
       </div>
@@ -6387,6 +6407,7 @@ import {
   };
   window.addEventListener("load", () => {
     hydrateViewerFilterState();
+    bindWorkshopSystemTerminalControls();
     window.__CDX_LOGICS_VIEWER_FILTER__ = matchesViewerFilter;
     setControlValue("hide-complete", false, "change");
     setControlValue("hide-processed-requests", false, "change");
@@ -6722,7 +6743,6 @@ import {
       const workshopTerminalCloseTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-close]") : null;
       const workshopTerminalClearTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-clear]") : null;
       const workshopTerminalRenameTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-rename]") : null;
-      const workshopSystemTerminalToggle = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-system-terminal]") : null;
       const workshopCdxUsageTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-usage-refresh]") : null;
       const projectSwitcherTarget = event.target instanceof Element ? event.target.closest("#viewer-repo-pill") : null;
       const projectFavoriteTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-favorite]") : null;
@@ -6951,11 +6971,6 @@ import {
         event.preventDefault();
         const tab = workshopTabTarget.getAttribute("data-viewer-workshop-tab") || "terminals";
         withPrimaryAction("workshop-tab", `Switching to ${tab}`, () => showWorkshop({ tab }));
-        return;
-      }
-      if (workshopSystemTerminalToggle instanceof HTMLInputElement) {
-        updateViewerPreferences({ workshopUseSystemTerminal: workshopSystemTerminalToggle.checked });
-        setMeta(workshopSystemTerminalToggle.checked ? "Workshop will open system terminals." : "Workshop will use embedded terminals.");
         return;
       }
       if (workshopTerminalCloseTarget instanceof HTMLElement) {

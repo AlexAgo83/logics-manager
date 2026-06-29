@@ -1755,6 +1755,23 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("board")?.textContent).toContain("The board could not be rendered");
   });
 
+  it("pauses auto-refresh after three identical failures and groups them", async () => {
+    const { dom } = createViewerDom();
+    const error = new dom.window.Error("repeatable render failure");
+
+    for (let index = 0; index < 3; index += 1) {
+      dom.window.dispatchEvent(new dom.window.ErrorEvent("error", { error, message: error.message }));
+    }
+    await flushViewerAsync();
+
+    expect((dom.window.document.getElementById("viewer-auto-refresh") as HTMLInputElement | null)?.checked).toBe(false);
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Stability guard paused auto-refresh");
+    expect((dom.window as any).logicsViewer.lastErrors().at(-1)).toMatchObject({
+      message: "repeatable render failure",
+      count: 3
+    });
+  });
+
   it("lets the hidden attribute override the viewer filter grid layout", () => {
     const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
     const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");

@@ -4683,8 +4683,8 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       }
       const currentVersion = String(latestUpdateInfo.currentVersion || "").trim();
       link.textContent = currentVersion ? `v${currentVersion.replace(/^v/i, "")}` : "v0.0.0";
-      link.href = latestRepository.webUrl || "https://github.com/AlexAgo83/logics-manager";
-      link.title = latestRepository.webUrl ? "Open repository" : "Open Logics Manager on GitHub";
+      link.href = "https://github.com/AlexAgo83/logics-manager";
+      link.title = "Open Logics Manager on GitHub";
     }
     async function openRepositoryFolder() {
       if (!latestRepository.root) {

@@ -236,6 +236,7 @@ function createViewerDom(options: {
     "# Needs",
     "- AC1: Render related workflow references as compact controls.",
     "- request-AC1 -> `task_001_blocked`. Proof: Covered by focused viewer preview.",
+    "- Run `npm test`.",
     "- Related request: `req_001_demo`",
     "- Related task: [task doc](logics/tasks/task_001_blocked.md)",
     "- Render **markdown**.",
@@ -2082,6 +2083,9 @@ describe("local viewer browser host", () => {
     expect(trace?.querySelector(".markdown-preview__trace-ac")?.textContent).toBe("AC1");
     expect(trace?.querySelector(".markdown-preview__doc-ref--task")?.textContent).toBe("T001");
     expect(trace?.textContent).toContain("Covered by focused viewer preview.");
+    const validationCommand = dom.window.document.querySelector("#viewer-document-content .markdown-preview__validation-command");
+    expect(validationCommand?.querySelector(".markdown-preview__validation-label")?.textContent).toBe("Run");
+    expect(validationCommand?.querySelector("code")?.textContent).toBe("npm test");
     const metaRefs = Array.from(meta?.querySelectorAll("[data-viewer-doc-path]") || []);
     expect(metaRefs.map((node) => node.textContent)).toEqual(expect.arrayContaining(["R001", "T001"]));
     expect(metaRefs.map((node) => node.getAttribute("data-viewer-doc-path"))).toEqual(expect.arrayContaining(["req_001_demo", "task_001_blocked"]));

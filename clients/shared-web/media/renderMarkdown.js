@@ -219,6 +219,9 @@
     }
 
     function renderListItem(item) {
+      if (item.validationCommand) {
+        return `<li class="markdown-preview__validation-command"><span class="markdown-preview__validation-label">Run</span><code>${escapeHtml(item.validationCommand)}</code></li>`;
+      }
       if (item.traceAc) {
         return `<li class="markdown-preview__trace"><span class="markdown-preview__trace-ac">${escapeHtml(item.traceAc)}</span><span class="markdown-preview__trace-arrow" aria-hidden="true">-></span><span class="markdown-preview__trace-target">${renderInlineMarkdown(item.target)}</span>${item.proof ? `<span class="markdown-preview__trace-proof">${renderInlineMarkdown(item.proof)}</span>` : ""}</li>`;
       }
@@ -319,6 +322,11 @@
           flushList();
         }
         listType = "ul";
+        const validationMatch = unorderedMatch[1].match(/^Run\s+`([^`]+)`\.?$/i);
+        if (validationMatch) {
+          listItems.push({ validationCommand: validationMatch[1] });
+          continue;
+        }
         const traceMatch = unorderedMatch[1].match(/^(?:request-)?(AC\d+)\s*->\s*(.*?)(?:\.?\s+Proof:\s+(.*))?$/i);
         if (traceMatch) {
           listItems.push({ traceAc: traceMatch[1].toUpperCase(), target: traceMatch[2], proof: traceMatch[3] || "" });

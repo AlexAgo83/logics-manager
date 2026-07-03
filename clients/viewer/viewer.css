@@ -4032,11 +4032,31 @@
   display: grid;
   gap: 10px;
   margin: 16px 0;
+  padding: 10px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--vscode-editor-background, #1e1e1e) 92%, var(--vscode-textLink-foreground, #4ea1ff));
+}
+
+.viewer-document__content .markdown-preview__diagram::before {
+  content: "Mermaid";
+  width: fit-content;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--vscode-textLink-foreground, #4ea1ff) 18%, transparent);
+  color: var(--vscode-textLink-foreground, #4ea1ff);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
 }
 
 .viewer-document__content .markdown-preview__diagram svg {
   max-width: 100%;
   height: auto;
+}
+
+.viewer-document__content .markdown-preview__diagram pre {
+  margin: 0;
 }
 
 .viewer-document__content .markdown-preview__mermaid-fallback {

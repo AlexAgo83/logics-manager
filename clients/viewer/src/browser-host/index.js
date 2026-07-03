@@ -1757,7 +1757,7 @@ import {
     }
     try {
       const [statusResponse, runsResponse] = await Promise.all([
-        fetch("/api/cdx-status"),
+        fetch("/api/cdx-status", { cache: "no-store" }),
         fetch("/api/cdx-runs").catch(() => null)
       ]);
       if (statusResponse.status === 404) {
@@ -1814,7 +1814,7 @@ import {
   async function refreshBadgeCounters() {
     let payload;
     try {
-      const response = await fetch("/api/status");
+      const response = await fetch("/api/status", { cache: "no-store" });
       if (response.status === 404) {
         refreshCiBadgeCounters();
         refreshReleaseBadgeCounters();
@@ -5449,7 +5449,7 @@ import {
     let response;
     let data = {};
     try {
-      response = await fetch("/api/cdx-status", { signal: view.signal });
+      response = await fetch("/api/cdx-status", { signal: view.signal, cache: "no-store" });
       try {
         data = await response.json();
       } catch {

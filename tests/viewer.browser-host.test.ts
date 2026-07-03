@@ -679,12 +679,13 @@ function createViewerDom(options: {
           command: Array.isArray(body.command) ? body.command : [],
           label: String(body.label || "")
         });
+        const externalId = `external-backend-${options.externalTerminalCommands?.length || 1}`;
         return {
           ok: true,
           status: 200,
           json: async () => ({
             ok: true,
-            payload: { label: body.label || "shell", command: Array.isArray(body.command) ? body.command : ["/bin/sh", "-i"], terminal: "iTerm" }
+            payload: { label: body.label || "shell", command: Array.isArray(body.command) ? body.command : ["/bin/sh", "-i"], terminal: "iTerm", terminalRef: externalId, nativeRef: `iterm-native-${options.externalTerminalCommands?.length || 1}` }
           })
         };
       }
@@ -2792,6 +2793,8 @@ describe("local viewer browser host", () => {
     const cdxExternal = Array.from(dom.window.document.querySelectorAll("[data-viewer-workshop-external]"))
       .find((row) => row.textContent?.includes("session-1")) as HTMLElement | undefined;
     expect(cdxExternal?.querySelector('[data-viewer-cdx-usage-refresh="session-1"]')).toBeTruthy();
+    expect(cdxExternal?.getAttribute("data-viewer-workshop-external")).toMatch(/^external-backend-\d+$/);
+    expect(cdxExternal?.getAttribute("title")).toContain("iterm-native-");
     const externalId = cdxExternal?.getAttribute("data-viewer-workshop-external") || "";
     const close = cdxExternal?.querySelector("[data-viewer-workshop-external-close]") as HTMLElement | null;
     expect(close).toBeTruthy();

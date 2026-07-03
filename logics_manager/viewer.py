@@ -718,28 +718,29 @@ def open_system_terminal_payload(repo_root: Path, body: dict[str, Any], *, launc
     label = str(body.get("label") or "terminal")
     command = command_override if isinstance(command_override, list) and command_override and all(isinstance(p, str) and p for p in command_override) else workshop_terminal_default_command()
     root = repo_root.resolve()
+    terminal_ref = f"external-{secrets.token_hex(8)}"
     shell_command = f"cd {shlex.quote(str(root))} && exec {shlex.join(command)}"
     if os.name == "nt":
         cmd_command = command[2] if command[:2] == ["sh", "-lc"] and len(command) == 3 else subprocess.list2cmdline(command)
         launch = ["cmd.exe", "/c", "start", "", "/D", str(root), "cmd.exe", "/k", cmd_command]
         _dispatch_system_open(launch, root, launcher=launcher)
-        return {"label": label, "command": command, "terminal": "cmd.exe"}
+        return {"label": label, "command": command, "terminal": "cmd.exe", "terminalRef": terminal_ref, "nativeRef": None}
     if sys.platform != "darwin":
         linux_terminal = _linux_system_terminal_command(root, shell_command)
         if linux_terminal is None:
             raise ValueError("No supported system terminal found.")
         terminal, launch = linux_terminal
         _dispatch_system_open(launch, root, launcher=launcher)
-        return {"label": label, "command": command, "terminal": terminal}
-    iterm_script = 'tell application "iTerm"\n  activate\n' + f'  if (count of windows) = 0 then\n    set targetWindow to (create window with default profile)\n    tell current session of targetWindow to write text {json.dumps(shell_command)}\n  else\n    set targetTab to (create tab with default profile current window)\n    tell current session of targetTab to write text {json.dumps(shell_command)}\n  end if\n' + "end tell"
+        return {"label": label, "command": command, "terminal": terminal, "terminalRef": terminal_ref, "nativeRef": None}
+    iterm_script = 'tell application "iTerm"\n  activate\n' + f'  if (count of windows) = 0 then\n    set targetWindow to (create window with default profile)\n    set targetSession to current session of targetWindow\n  else\n    set targetTab to (create tab with default profile current window)\n    set targetSession to current session of targetTab\n  end if\n  tell targetSession to write text {json.dumps(shell_command)}\n  return id of targetSession\n' + "end tell"
     terminal_script = 'tell application "Terminal"\n  activate\n' + f'  do script {json.dumps(shell_command)}\n' + "end tell"
-    terminal = "iTerm"
+    terminal, native_ref = "iTerm", None
     try:
-        _run_osascript(iterm_script, launcher=launcher)
+        native_ref = _run_osascript(iterm_script, launcher=launcher) or None
     except (OSError, subprocess.SubprocessError):
         terminal = "Terminal"
         _run_osascript(terminal_script, launcher=launcher)
-    return {"label": label, "command": command, "terminal": terminal}
+    return {"label": label, "command": command, "terminal": terminal, "terminalRef": terminal_ref, "nativeRef": native_ref}
 
 
 def _linux_system_terminal_command(root: Path, shell_command: str) -> tuple[str, list[str]] | None:
@@ -747,7 +748,7 @@ def _linux_system_terminal_command(root: Path, shell_command: str) -> tuple[str,
     return next(((terminal, command) for terminal, command in candidates if shutil.which(terminal)), None)
 
 
-def _run_osascript(script: str, *, launcher: Any | None = None) -> None:
+def _run_osascript(script: str, *, launcher: Any | None = None) -> str:
     command = ["osascript", "-e", script]
     if launcher is not None:
         result = launcher(command)
@@ -757,6 +758,7 @@ def _run_osascript(script: str, *, launcher: Any | None = None) -> None:
     if returncode:
         stderr = str(getattr(result, "stderr", "") or "").strip()
         raise OSError(stderr or "osascript failed")
+    return str(getattr(result, "stdout", "") or "").strip()
 
 
 def _is_wsl() -> bool:

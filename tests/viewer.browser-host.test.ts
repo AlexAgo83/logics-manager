@@ -2735,12 +2735,12 @@ describe("local viewer browser host", () => {
     const external = modal?.querySelector("[data-viewer-custom-terminal-external]") as HTMLInputElement | null;
     expect(input).not.toBeNull();
     expect(external?.checked).toBe(false);
-    if (input) input.value = "node --version";
+    if (input) input.value = `node -e "console.log('ok ok')"`;
     (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
     await flushViewerAsync();
     await flushViewerAsync();
 
-    expect(terminalCommands).toContainEqual({ command: ["node", "--version"], label: "node --version" });
+    expect(terminalCommands).toContainEqual({ command: ["sh", "-lc", `node -e "console.log('ok ok')"`], label: `node -e "console.log('ok ok')"` });
     expect(promptSpy).not.toHaveBeenCalled();
     promptSpy.mockRestore();
   });
@@ -2811,7 +2811,7 @@ describe("local viewer browser host", () => {
     customInput!.value = "pwd";
     (customModal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
     await flushViewerAsync();
-    expect(terminalCommands).toContainEqual({ command: ["pwd"], label: "pwd" });
+    expect(terminalCommands).toContainEqual({ command: ["sh", "-lc", "pwd"], label: "pwd" });
   });
 
   it("starts a custom Workshop terminal from an available CDX session", async () => {

@@ -7040,8 +7040,8 @@ ${line}` : line;
           const sessionName = select.value.trim();
           const systemTerminal = Boolean(modal.querySelector("[data-viewer-custom-terminal-external]")?.checked);
           if (sessionName) return done({ command: ["cdx", sessionName], label: `cdx ${sessionName}`, systemTerminal });
-          const command = input.value.trim().split(/\s+/).filter(Boolean);
-          done(command.length ? { command, label: command.slice(0, 2).join(" ").slice(0, 32) || "custom", systemTerminal } : null);
+          const command = input.value.trim();
+          done(command ? { command: ["sh", "-lc", command], label: command.slice(0, 32) || "custom", systemTerminal } : null);
         };
         select.addEventListener("change", () => {
           const hasSession = Boolean(select.value.trim());

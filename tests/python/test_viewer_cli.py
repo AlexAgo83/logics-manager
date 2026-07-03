@@ -4,6 +4,7 @@ import json
 from importlib import metadata as importlib_metadata
 import os
 import re
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -596,7 +597,8 @@ def test_viewer_system_terminal_payload_builds_iterm_command(monkeypatch: pytest
     assert payload == {"label": "cdx resume work2", "command": ["cdx", "resume", "work2"], "terminal": "iTerm"}
     assert launched[0][:2] == ["osascript", "-e"]
     assert "iTerm" in launched[0][2]
-    assert "create tab with default profile command" in launched[0][2]
+    assert "create tab with default profile current window" in launched[0][2]
+    assert "write text" in launched[0][2]
     assert "cdx resume work2" in launched[0][2]
 
 
@@ -616,6 +618,29 @@ def test_viewer_system_terminal_payload_falls_back_to_terminal_app(monkeypatch: 
     assert len(launched) == 2
     assert "iTerm" in launched[0][2]
     assert "Terminal" in launched[1][2]
+
+
+def test_viewer_system_terminal_payload_launches_linux_terminal(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    launched: list[list[str]] = []
+    monkeypatch.setattr(viewer_module.sys, "platform", "linux")
+    monkeypatch.setattr(viewer_module.os, "name", "posix")
+    monkeypatch.setattr(viewer_module.shutil, "which", lambda name: f"/usr/bin/{name}" if name == "gnome-terminal" else None)
+
+    payload = open_system_terminal_payload(tmp_path, {"command": ["echo", "ok"]}, launcher=launched.append)
+
+    assert payload["terminal"] == "gnome-terminal"
+    assert launched == [["gnome-terminal", "--working-directory", str(tmp_path.resolve()), "--", "sh", "-lc", f"cd {shlex.quote(str(tmp_path.resolve()))} && exec echo ok"]]
+
+
+def test_viewer_system_terminal_payload_launches_windows_cmd(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    launched: list[list[str]] = []
+    monkeypatch.setattr(viewer_module.sys, "platform", "win32")
+    monkeypatch.setattr(viewer_module.os, "name", "nt")
+
+    payload = open_system_terminal_payload(tmp_path, {"command": ["echo", "hello world"]}, launcher=launched.append)
+
+    assert payload["terminal"] == "cmd.exe"
+    assert launched == [["cmd.exe", "/c", "start", "", "/D", str(tmp_path.resolve()), "cmd.exe", "/k", 'echo "hello world"']]
 
 
 def test_viewer_repository_shortcuts_resolve_gitlab_remotes(tmp_path: Path) -> None:

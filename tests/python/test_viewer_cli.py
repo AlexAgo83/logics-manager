@@ -2479,6 +2479,35 @@ def test_viewer_status_endpoint_caches_and_revalidates_with_etag(
         thread.join(timeout=5)
 
 
+def test_viewer_status_endpoint_no_store_bypasses_status_caches(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    calls = {"count": 0}
+
+    def fake_cdx_status_payload(repo_root: Path) -> dict[str, object]:
+        calls["count"] += 1
+        return {"state": "ok", "count": calls["count"]}
+
+    monkeypatch.setattr(viewer_module, "cdx_status_payload", fake_cdx_status_payload)
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("GET", "/api/cdx-status")
+        first = conn.getresponse()
+        assert json.loads(first.read().decode("utf-8"))["payload"]["count"] == 1
+
+        conn.request("GET", "/api/cdx-status", headers={"Cache-Control": "no-store"})
+        second = conn.getresponse()
+        assert json.loads(second.read().decode("utf-8"))["payload"]["count"] == 2
+        assert calls["count"] == 2
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
 def test_viewer_consolidated_status_endpoint_combines_and_shares_components(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:

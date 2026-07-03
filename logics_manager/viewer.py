@@ -3888,7 +3888,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
                     entry["message"] = "Synthetic dev-only corpus covering every board card state."
         return registry
 
-    def status_component(self, name: str, producer: Any) -> Any:
+    def status_component(self, name: str, producer: Any, *, force: bool = False) -> Any:
         """Return a status component payload, recomputing at most once per TTL.
 
         Shared by the individual status endpoints and the consolidated
@@ -3896,10 +3896,11 @@ class LogicsViewerServer(ThreadingHTTPServer):
         """
         key = f"{name}::{self.repo_root}"
         now = time.monotonic()
-        with self.status_cache_lock:
-            entry = self.status_components.get(key)
-            if entry is not None and (now - entry[0]) < _status_cache_ttl_seconds(name):
-                return entry[1]
+        if not force:
+            with self.status_cache_lock:
+                entry = self.status_components.get(key)
+                if entry is not None and (now - entry[0]) < _status_cache_ttl_seconds(name):
+                    return entry[1]
         value = producer()
         with self.status_cache_lock:
             self.status_components[key] = (time.monotonic(), value)
@@ -4041,7 +4042,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
     def _send_json(self, payload: Any, *, status: int = 200) -> None:
         self._send_bytes(_json_bytes(payload), status=status, content_type="application/json; charset=utf-8")
 
-    def _status_component(self, name: str) -> Any:
+    def _status_component(self, name: str, *, force: bool = False) -> Any:
         repo_root = self.server.repo_root
         producers = {
             "git": lambda: git_status_payload(repo_root),
@@ -4052,7 +4053,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             "cdxRuns": lambda: cdx_runs_payload(repo_root),
             "cdxHistory": lambda: cdx_history_payload(repo_root),
         }
-        return self.server.status_component(name, producers[name])
+        return self.server.status_component(name, producers[name], force=force)
 
     def _send_status_json(self, cache_key: str, producer: Any) -> None:
         """Serve a status payload with a short TTL cache and ETag revalidation.
@@ -4064,13 +4065,16 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         server = self.server
         full_key = f"{cache_key}::{server.repo_root}"
         now = time.monotonic()
+        request_cache_control = self.headers.get("Cache-Control", "")
+        force = "no-store" in request_cache_control or "no-cache" in request_cache_control or self.headers.get("Pragma", "") == "no-cache"
         cached: tuple[float, str, bytes] | None = None
-        with server.status_cache_lock:
-            entry = server.status_cache.get(full_key)
-            if entry is not None and (now - entry[0]) < _status_cache_ttl_seconds(cache_key):
-                cached = entry
+        if not force:
+            with server.status_cache_lock:
+                entry = server.status_cache.get(full_key)
+                if entry is not None and (now - entry[0]) < _status_cache_ttl_seconds(cache_key):
+                    cached = entry
         if cached is None:
-            body = _json_bytes({"ok": True, "payload": producer()})
+            body = _json_bytes({"ok": True, "payload": producer(force=force)})
             etag = '"%s"' % hashlib.sha1(body).hexdigest()
             with server.status_cache_lock:
                 server.status_cache[full_key] = (now, etag, body)
@@ -4533,17 +4537,17 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         status_route = _STATUS_ROUTE_TABLE.get(route)
         if status_route is not None:
             label, component = status_route
-            self._send_status_json(label, lambda: self._status_component(component))
+            self._send_status_json(label, lambda *, force=False: self._status_component(component, force=force))
             return
         if route == "/api/status":
             self._send_status_json(
                 "status",
-                lambda: {
-                    "git": self._status_component("git"),
-                    "ci": self._status_component("ci"),
-                    "releaseRuns": self._status_component("releaseRuns"),
-                    "cdx": self._status_component("cdx"),
-                    "cdxRuns": self._status_component("cdxRuns"),
+                lambda *, force=False: {
+                    "git": self._status_component("git", force=force),
+                    "ci": self._status_component("ci", force=force),
+                    "releaseRuns": self._status_component("releaseRuns", force=force),
+                    "cdx": self._status_component("cdx", force=force),
+                    "cdxRuns": self._status_component("cdxRuns", force=force),
                 },
             )
             return

@@ -117,7 +117,7 @@ def _build_root_help() -> str:
         "             Subcommands: serve, serve-http, connect, tunnel, tools, call",
         "  config     Render merged runtime config. Example: config show --format json",
         "  skills     List or install bundled agent skills (e.g. /corpus) into ~/.claude/skills.",
-        "             Subcommands: list, install [names...] [--target-dir DIR] [--force]",
+        "             Subcommands: list, install [names...] [--all-profiles] [--target-dir DIR] [--force]",
         "",
         "Maintenance:",
         "  bootstrap  Prepare or check the workflow tree and generated instructions.",

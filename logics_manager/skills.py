@@ -10,6 +10,31 @@ SKILL_ASSETS_ROOT = Path(__file__).parent / "skill_assets"
 DEFAULT_TARGET_DIR = Path.home() / ".claude" / "skills"
 
 
+def _real_home() -> Path:
+    home = Path.home()
+    parts = home.parts
+    if ".cdx" in parts:
+        # cdx profiles override HOME; walk back up to the real user home
+        return Path(*parts[: parts.index(".cdx")])
+    return home
+
+
+def discover_skill_dirs(home: Path | None = None) -> list[Path]:
+    """Find every harness skills directory on this machine (Claude Code and Codex share the skills/<name>/SKILL.md format)."""
+    home = home or _real_home()
+    targets = [home / ".claude" / "skills"]
+    if (home / ".codex").is_dir():
+        targets.append(home / ".codex" / "skills")
+    profiles = home / ".cdx" / "profiles"
+    if profiles.is_dir():
+        for profile in sorted(profiles.iterdir()):
+            if (profile / "claude-home").is_dir():
+                targets.append(profile / "claude-home" / ".claude" / "skills")
+            elif (profile / "config.toml").is_file():
+                targets.append(profile / "skills")
+    return targets
+
+
 def available_skills() -> list[dict[str, str]]:
     skills = []
     for skill_md in sorted(SKILL_ASSETS_ROOT.glob("*/SKILL.md")):
@@ -54,7 +79,7 @@ def _render_install(payload: dict[str, object]) -> str:
     for name in payload["installed"]:
         lines.append(f"Installed skill '{name}' to {payload['target_dir']}/{name}")
     for name in payload["skipped"]:
-        lines.append(f"Skipped '{name}': already installed (use --force to overwrite)")
+        lines.append(f"Skipped '{name}' in {payload['target_dir']}: already installed (use --force to overwrite)")
     return "\n".join(lines) or "Nothing to install."
 
 
@@ -67,7 +92,8 @@ def main(argv: list[str]) -> int:
 
     install = sub.add_parser("install", help="Install bundled agent skills into a harness skills directory.")
     install.add_argument("names", nargs="*", help="Skill names to install (default: all).")
-    install.add_argument("--target-dir", default=str(DEFAULT_TARGET_DIR), help="Skills directory (default: ~/.claude/skills).")
+    install.add_argument("--target-dir", default=None, help="Skills directory (default: ~/.claude/skills).")
+    install.add_argument("--all-profiles", action="store_true", help="Install into every detected harness skills directory (~/.claude, ~/.codex, cdx profiles).")
     install.add_argument("--force", action="store_true", help="Overwrite an already-installed skill.")
     install.add_argument("--format", choices=("text", "json"), default="text")
 
@@ -79,8 +105,16 @@ def main(argv: list[str]) -> int:
         print_payload(payload, parsed.format, text)
         return 0
 
-    target_dir = Path(parsed.target_dir).expanduser()
-    target_dir.mkdir(parents=True, exist_ok=True)
-    payload = install_skills(parsed.names, target_dir, force=parsed.force)
-    print_payload(payload, parsed.format, lambda: _render_install(payload))
+    if parsed.all_profiles and parsed.target_dir:
+        raise SystemExit("--all-profiles and --target-dir are mutually exclusive.")
+    if parsed.all_profiles:
+        targets = discover_skill_dirs()
+    else:
+        targets = [Path(parsed.target_dir).expanduser() if parsed.target_dir else DEFAULT_TARGET_DIR]
+    results = []
+    for target_dir in targets:
+        target_dir.mkdir(parents=True, exist_ok=True)
+        results.append(install_skills(parsed.names, target_dir, force=parsed.force))
+    payload = {"command": "skills", "kind": "install", "targets": results, "ok": True}
+    print_payload(payload, parsed.format, lambda: "\n".join(_render_install(result) for result in results))
     return 0

@@ -36,6 +36,7 @@ from logics_manager.viewer import (
     cdx_mission_apply_plan_payload,
     cdx_mission_plan_payload,
     cdx_mission_run_payload,
+    cdx_update_info_payload,
     cdx_config_payload,
     cdx_permission_payload,
     cdx_remove_payload,
@@ -1398,6 +1399,34 @@ def test_viewer_cdx_status_payload_reports_structured_status(tmp_path: Path) -> 
     assert payload["status"]["sessions"][0]["resume_reason"] == "supported"
     assert payload["status"]["sessions"][0]["permission"] == "auto"
     assert calls == [["cdx", "status", "--json"], ["cdx", "can-resume", "session-1", "--json"], ["cdx", "configs", "--json"]]
+
+
+def test_viewer_cdx_update_info_payload_reports_available_update(tmp_path: Path) -> None:
+    def runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        assert args == ["cdx", "update", "--check", "--json"]
+        assert kwargs["cwd"] == tmp_path
+        return subprocess.CompletedProcess(
+            args,
+            0,
+            json.dumps(
+                {
+                    "update_available": True,
+                    "current_version": "0.9.13",
+                    "target_version": "0.9.14",
+                }
+            ),
+            "",
+        )
+
+    payload = cdx_update_info_payload(tmp_path, runner=runner, which=lambda _name: "/usr/bin/cdx")
+
+    assert payload == {
+        "currentVersion": "0.9.13",
+        "latestVersion": "0.9.14",
+        "updateAvailable": True,
+        "updateCommand": "cdx update",
+        "source": "github",
+    }
 
 
 def test_viewer_cdx_status_payload_handles_unavailable_timeout_errors_and_invalid_json(tmp_path: Path) -> None:

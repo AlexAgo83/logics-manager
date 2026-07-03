@@ -730,8 +730,10 @@
 }
 
 .viewer-update {
-  border-bottom: 1px solid rgba(245, 158, 11, 0.4);
-  background: rgba(245, 158, 11, 0.12);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.55);
+  background: rgba(245, 158, 11, 0.18);
+  color: var(--vscode-editorWarning-foreground, #d7ba7d);
+  font-weight: 600;
 }
 
 .viewer-update--warning {

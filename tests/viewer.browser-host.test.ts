@@ -201,6 +201,7 @@ function createViewerDom(options: {
     <section id="viewer-document" hidden>
       <div id="viewer-document-eyebrow" hidden></div>
       <span id="viewer-document-badge" hidden></span>
+      <span id="viewer-document-priority" hidden></span>
       <div id="viewer-document-title"></div>
       <div id="viewer-document-nav" hidden></div>
       <div id="viewer-document-content"></div>
@@ -225,8 +226,16 @@ function createViewerDom(options: {
   const markdown = [
     "## req_001_demo - Demo",
     "> Status: Draft",
+    "> Priority: High",
+    "> Progress: 40",
+    "> Confidence: 0.8",
+    "> Related request: `req_001_demo`",
+    "> Related task: `task_001_blocked`",
+    "> Reminder: Update status/understanding/confidence when you edit this doc.",
     "",
     "# Needs",
+    "- Related request: `req_001_demo`",
+    "- Related task: [task doc](logics/tasks/task_001_blocked.md)",
     "- Render **markdown**.",
     "",
     "```mermaid",
@@ -318,7 +327,7 @@ function createViewerDom(options: {
                     { kind: "manual", label: "Reference", path: "logics/request/req_missing.md" }
                   ],
                   usedBy: [],
-                  indicators: { Status: "Ready" },
+                  indicators: { Status: "Ready", Priority: "High", Progress: "40", Confidence: "0.8" },
                   isPromoted: false,
                   updatedAt: url === "/api/refresh" && options.refreshItemUpdatedAt ? options.refreshItemUpdatedAt : "2026-06-01T10:00:00"
                 },
@@ -2052,7 +2061,31 @@ describe("local viewer browser host", () => {
     expect(badge?.hidden).toBe(false);
     expect(badge?.textContent).toBe("Request");
     expect(badge?.getAttribute("data-stage")).toBe("request");
+    const priority = dom.window.document.getElementById("viewer-document-priority");
+    expect(priority?.hidden).toBe(false);
+    expect(priority?.querySelector(".card__priority-meter--high")).toBeTruthy();
+    expect(priority?.compareDocumentPosition(dom.window.document.getElementById("viewer-document-title") as Node)).toBe(dom.window.Node.DOCUMENT_POSITION_FOLLOWING);
     expect(dom.window.document.getElementById("viewer-document-eyebrow")?.textContent).toBe("logics/request/req_001_demo.md");
+    expect(dom.window.document.getElementById("viewer-document-meta")).toBeNull();
+    const meta = dom.window.document.querySelector("#viewer-document-content .viewer-document-meta");
+    expect(meta).toBeTruthy();
+    expect(meta?.textContent).toContain("Status");
+    expect(meta?.textContent || "").toMatch(/Draft|Ready/);
+    expect(meta?.textContent).not.toContain("Priority");
+    expect(meta?.textContent).toContain("Progress");
+    expect(meta?.textContent).toContain("40");
+    expect(meta?.textContent).not.toContain("Reminder");
+    const metaRefs = Array.from(meta?.querySelectorAll("[data-viewer-doc-path]") || []);
+    expect(metaRefs.map((node) => node.textContent)).toEqual(expect.arrayContaining(["R001", "T001"]));
+    expect(metaRefs.map((node) => node.getAttribute("data-viewer-doc-path"))).toEqual(expect.arrayContaining(["req_001_demo", "task_001_blocked"]));
+    expect(meta?.querySelector(".markdown-preview__doc-ref--request")).toBeTruthy();
+    expect(meta?.querySelector(".markdown-preview__doc-ref--task")).toBeTruthy();
+    const refs = Array.from(dom.window.document.querySelectorAll("#viewer-document-content [data-viewer-doc-path]"));
+    expect(refs.map((node) => node.textContent)).toEqual(expect.arrayContaining(["R001", "T001"]));
+    expect(refs.map((node) => node.getAttribute("data-viewer-doc-path"))).toEqual(expect.arrayContaining(["req_001_demo", "logics/tasks/task_001_blocked.md"]));
+    (refs.find((node) => node.textContent === "T001") as HTMLElement | undefined)?.click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(calls).toContain("/api/doc?path=logics%2Ftasks%2Ftask_001_blocked.md");
   });
 
   it("reports invalid or missing viewer focus targets without blocking corpus load", async () => {

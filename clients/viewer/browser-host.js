@@ -5444,6 +5444,82 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         status.title = currentStatus ? `Change status from ${currentStatus}` : "Change status";
       }
     }
+    function renderDocumentMeta(item) {
+      const indicators = item?.indicators && typeof item.indicators === "object" ? item.indicators : {};
+      const ordered = ["Status", "Progress", "Understanding", "Confidence", "Complexity", "Theme", "Owner", "From version"];
+      const hidden = /* @__PURE__ */ new Set(["Priority", "Reminder"]);
+      const keys = [...ordered, ...Object.keys(indicators).filter((key) => !ordered.includes(key))].filter((key) => !hidden.has(key));
+      const chips = keys.map((key) => [key, indicators[key]]).filter(([, value]) => value !== void 0 && value !== null && String(value).trim()).map(([key, value]) => `<span class="viewer-document-meta__chip"><span>${escapeHtml(key)}</span><strong>${renderDocumentMetaValue(key, value)}</strong></span>`);
+      return chips.length ? `<section class="viewer-document-meta" aria-label="Document metadata">${chips.join("")}</section>` : "";
+    }
+    function renderDocumentMetaValue(key, value) {
+      if (/^Related /.test(String(key || ""))) {
+        const refs = String(value || "").split(",").map((part) => workflowRefInfo(part)).filter(Boolean);
+        if (refs.length) {
+          return refs.map((ref) => `<button class="markdown-preview__doc-ref markdown-preview__doc-ref--${escapeHtml(ref.kind)}" type="button" data-viewer-doc-path="${escapeHtml(ref.target)}" title="${escapeHtml(ref.target)}"><code>${escapeHtml(ref.label)}</code></button>`).join("");
+        }
+      }
+      return escapeHtml(value);
+    }
+    function workflowRefInfo(value) {
+      const raw = String(value || "").trim().replace(/^`|`$/g, "").replace(/\\/g, "/").replace(/^\.?\//, "");
+      if (!raw || raw.startsWith("/") || raw.startsWith("~") || raw.split("/").includes("..")) return null;
+      const stem = raw.replace(/\.md$/i, "").split("/").pop() || "";
+      const directory = raw.split("/").slice(-2, -1)[0] || "";
+      const match = stem.match(/^(req|item|task|prod|adr|spec)_(\d+)/i);
+      if (!match) return null;
+      const kindByPrefix = { req: "request", item: "backlog", task: "task", prod: "product", adr: "architecture", spec: "spec" };
+      const prefixByKind = { request: "R", backlog: "I", task: "T", product: "P", architecture: "A", spec: "S" };
+      const kind = directory === "specs" ? "spec" : kindByPrefix[match[1].toLowerCase()];
+      const prefix = prefixByKind[kind];
+      return prefix ? { label: `${prefix}${match[2]}`, target: raw, kind } : null;
+    }
+    function documentPriorityNode() {
+      let node = document.getElementById("viewer-document-priority");
+      if (node instanceof HTMLElement) return node;
+      const title = documentTitle();
+      if (!(title instanceof HTMLElement) || !(title.parentElement instanceof HTMLElement)) return null;
+      node = document.createElement("span");
+      node.id = "viewer-document-priority";
+      node.className = "viewer-document__priority";
+      node.hidden = true;
+      title.parentElement.insertBefore(node, title);
+      return node;
+    }
+    function updateDocumentPriority(item) {
+      const node = documentPriorityNode();
+      if (!(node instanceof HTMLElement)) return;
+      const priority = String(item?.indicators?.Priority || "").trim();
+      if (!priority) {
+        node.innerHTML = "";
+        node.hidden = true;
+        return;
+      }
+      const level = priority.toLowerCase();
+      const knownLevel = level === "low" || level === "high" ? level : "medium";
+      const filled = knownLevel === "high" ? 3 : knownLevel === "low" ? 1 : 2;
+      const bars = [1, 2, 3].map((index) => `<span class="${index <= filled ? "card__priority-bar card__priority-bar--on" : "card__priority-bar"}"></span>`).join("");
+      node.innerHTML = `<span class="card__priority-meter card__priority-meter--${knownLevel}" title="Priority: ${escapeHtml(priority)}" role="img" aria-label="Priority: ${escapeHtml(priority)}">${bars}</span>`;
+      node.hidden = false;
+    }
+    function parseDocumentIndicators(markdown) {
+      const indicators = {};
+      String(markdown || "").split(/\r?\n/).some((line) => {
+        if (!line.trim()) return false;
+        const match = line.match(/^>\s*([^:]+):\s*(.+?)\s*$/);
+        if (!match) return false;
+        indicators[match[1].trim()] = match[2].trim();
+        return false;
+      });
+      return indicators;
+    }
+    function documentItemWithIndicators(item, markdown, relPath) {
+      return {
+        ...item,
+        relPath,
+        indicators: { ...parseDocumentIndicators(markdown), ...item?.indicators || {} }
+      };
+    }
     function beginView(options = {}) {
       const silent = Boolean(options.silent);
       const seq = ++viewSeq;
@@ -5499,6 +5575,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
           eyebrow.hidden = !description;
         }
         updateDocumentBadge(options.badgeStage);
+        updateDocumentPriority(currentDocumentItem);
         updateScreenActions(titleText);
         if (content) {
           content.innerHTML = html || "";
@@ -6205,14 +6282,16 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         }
         const api = markdownApi();
         let markdown = data.document.content || "";
+        const docPath = data.document.path || item.relPath;
+        const documentItem = documentItemWithIndicators(item, markdown, docPath);
         if (api && typeof api.stripLeadingDocumentFrontMatter === "function") {
           markdown = api.stripLeadingDocumentFrontMatter(markdown, item);
         }
-        const html = api && typeof api.renderMarkdownToHtml === "function" ? api.renderMarkdownToHtml(markdown) : `<pre>${escapeHtml(markdown)}</pre>`;
-        const docPath = data.document.path || item.relPath;
+        const bodyHtml = api && typeof api.renderMarkdownToHtml === "function" ? api.renderMarkdownToHtml(markdown) : `<pre>${escapeHtml(markdown)}</pre>`;
+        const html = `${renderDocumentMeta(documentItem)}${bodyHtml}`;
         const objectName = String(item.title || "").trim() || docPath;
         setDocument(objectName, html, {
-          item: { ...item, relPath: docPath },
+          item: documentItem,
           badgeStage: item.stage,
           eyebrow: docPath
         });
@@ -6224,7 +6303,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       }
     }
     async function showDocumentByPath(relPath, view) {
-      const item = findItemByPath(relPath) || { relPath, title: relPath, id: relPath };
+      const item = findItemByPath(relPath) || findFocusItem(relPath) || { relPath, title: relPath, id: relPath };
       await showDocument(item, view);
     }
     async function editDocument(item) {

@@ -1301,6 +1301,30 @@
   outline-offset: 2px;
 }
 
+.markdown-preview__section-heading {
+  --section-heading-color: var(--vscode-textLink-foreground, #4ea1ff);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.markdown-preview__section-heading::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 5px;
+  height: 1em;
+  border-radius: 3px;
+  background: var(--section-heading-color);
+}
+
+.markdown-preview__section-heading--acceptance { --section-heading-color: var(--vscode-charts-blue, #3794ff); }
+.markdown-preview__section-heading--traceability { --section-heading-color: #0f766e; }
+.markdown-preview__section-heading--validation { --section-heading-color: var(--vscode-charts-green, #89d185); }
+.markdown-preview__section-heading--scope { --section-heading-color: #d97706; }
+.markdown-preview__section-heading--references { --section-heading-color: #7c3aed; }
+.markdown-preview__section-heading--plan { --section-heading-color: #2563eb; }
+.markdown-preview__section-heading--closeout { --section-heading-color: #be123c; }
+
 .markdown-preview__ac {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);

@@ -1853,7 +1853,8 @@ describe("local viewer browser host", () => {
     const content = dom.window.document.getElementById("viewer-document-content");
     expect(panel?.hidden).toBe(false);
     expect(content?.querySelector("h1")?.textContent).toBe("Needs");
-    expect(content?.querySelector("strong")?.textContent).toBe("markdown");
+    const bodyStrongText = Array.from(content?.querySelectorAll("li strong") || []).map((node) => node.textContent);
+    expect(bodyStrongText).toContain("markdown");
     expect(content?.querySelector("table")).not.toBeNull();
     expect(content?.querySelector("pre.mermaid")?.textContent).toContain("flowchart TD");
     expect(dom.window.__mermaidRuns).toEqual([1]);

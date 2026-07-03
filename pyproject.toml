@@ -23,6 +23,8 @@ packages = [
   "logics_manager.viewer_assets.media.vendor.highlight",
   "logics_manager.viewer_assets.vendor",
   "logics_manager.viewer_assets.viewer",
+  "logics_manager.skill_assets",
+  "logics_manager.skill_assets.corpus",
 ]
 
 [tool.setuptools.package-data]
@@ -34,4 +36,5 @@ logics_manager = [
   "viewer_assets/media/vendor/highlight/*",
   "viewer_assets/vendor/*",
   "viewer_assets/viewer/*",
+  "skill_assets/*/SKILL.md",
 ]

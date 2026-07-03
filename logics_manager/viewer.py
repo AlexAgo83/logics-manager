@@ -754,7 +754,7 @@ def _run_osascript(script: str, *, launcher: Any | None = None) -> None:
     if launcher is not None:
         result = launcher(command)
     else:
-        result = subprocess.run(command, capture_output=True, text=True, timeout=10, check=False)
+        result = subprocess.run(command, capture_output=True, text=True, stdin=subprocess.DEVNULL, timeout=10, check=False)
     returncode = getattr(result, "returncode", 0)
     if returncode:
         stderr = str(getattr(result, "stderr", "") or "").strip()
@@ -778,6 +778,7 @@ def _wsl_translate_path(path: Path) -> str | None:
         result = subprocess.run(
             ["wslpath", "-w", str(path)],
             capture_output=True,
+            stdin=subprocess.DEVNULL,
             text=True,
             timeout=5,
             check=False,
@@ -911,43 +912,43 @@ def viewer_bootstrap_warning(repo_root: Path) -> dict[str, object] | None:
 def _run_read_only_git(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["git", *args]
     git_runner = runner or subprocess.run
-    return git_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=_scaled_timeout(repo_root, 5))
+    return git_runner(command, cwd=repo_root, text=True, capture_output=True, stdin=subprocess.DEVNULL, timeout=_scaled_timeout(repo_root, 5))
 
 
 def _run_read_only_cdx(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["cdx", *args]
     cdx_runner = runner or subprocess.run
-    return cdx_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=_scaled_timeout(repo_root, 5))
+    return cdx_runner(command, cwd=repo_root, text=True, capture_output=True, stdin=subprocess.DEVNULL, timeout=_scaled_timeout(repo_root, 5))
 
 
 def _run_cdx_mission(repo_root: Path, args: list[str], *, timeout: int, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["cdx", *args]
     cdx_runner = runner or subprocess.run
-    return cdx_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=_scaled_timeout(repo_root, timeout))
+    return cdx_runner(command, cwd=repo_root, text=True, capture_output=True, stdin=subprocess.DEVNULL, timeout=_scaled_timeout(repo_root, timeout))
 
 
 def _run_logics_flow(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["logics-manager", "flow", *args]
     flow_runner = runner or subprocess.run
-    return flow_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=_scaled_timeout(repo_root, 30))
+    return flow_runner(command, cwd=repo_root, text=True, capture_output=True, stdin=subprocess.DEVNULL, timeout=_scaled_timeout(repo_root, 30))
 
 
 def _run_logics_command(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["logics-manager", *args]
     logics_runner = runner or subprocess.run
-    return logics_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=_scaled_timeout(repo_root, 30))
+    return logics_runner(command, cwd=repo_root, text=True, capture_output=True, stdin=subprocess.DEVNULL, timeout=_scaled_timeout(repo_root, 30))
 
 
 def _run_read_only_gh(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["gh", *args]
     gh_runner = runner or subprocess.run
-    return gh_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=_scaled_timeout(repo_root, 8))
+    return gh_runner(command, cwd=repo_root, text=True, capture_output=True, stdin=subprocess.DEVNULL, timeout=_scaled_timeout(repo_root, 8))
 
 
 def _run_read_only_glab(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["glab", *args]
     glab_runner = runner or subprocess.run
-    return glab_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=_scaled_timeout(repo_root, 8))
+    return glab_runner(command, cwd=repo_root, text=True, capture_output=True, stdin=subprocess.DEVNULL, timeout=_scaled_timeout(repo_root, 8))
 
 
 def _logics_doc_type(rel_path: str) -> str:
@@ -1312,7 +1313,7 @@ def git_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
 def _run_git_mutation(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["git", *args]
     git_runner = runner or subprocess.run
-    return git_runner(command, cwd=repo_root, text=True, capture_output=True, timeout=_scaled_timeout(repo_root, 30))
+    return git_runner(command, cwd=repo_root, text=True, capture_output=True, stdin=subprocess.DEVNULL, timeout=_scaled_timeout(repo_root, 30))
 
 
 def _first_git_error_line(result: subprocess.CompletedProcess[str], fallback: str) -> str:
@@ -3403,7 +3404,7 @@ def _cdx_supports_passphrase_stdin(*, runner: Any | None = None) -> bool:
     """
     cdx_runner = runner or subprocess.run
     try:
-        result = cdx_runner(["cdx", "--help"], text=True, capture_output=True, timeout=10)
+        result = cdx_runner(["cdx", "--help"], text=True, capture_output=True, stdin=subprocess.DEVNULL, timeout=10)
     except (OSError, subprocess.TimeoutExpired):
         return False
     return "--passphrase-stdin" in ((result.stdout or "") + (result.stderr or ""))
@@ -5286,7 +5287,7 @@ def _ensure_tls_material(san_ips: list[str]) -> tuple[Path, Path]:
         "-addext", f"subjectAltName={','.join(san_entries)}",
     ]
     try:
-        subprocess.run(cmd, check=True, capture_output=True, text=True)
+        subprocess.run(cmd, check=True, capture_output=True, text=True, stdin=subprocess.DEVNULL)
     except (subprocess.CalledProcessError, OSError) as exc:
         raise SystemExit(f"Failed to generate TLS material via openssl: {exc}") from exc
     try:
@@ -5593,6 +5594,7 @@ def _resolve_viewer_root(start: Path) -> Path:
                 ["git", "rev-parse", "--show-toplevel"],
                 cwd=start,
                 capture_output=True,
+                stdin=subprocess.DEVNULL,
                 text=True,
                 timeout=5,
             )

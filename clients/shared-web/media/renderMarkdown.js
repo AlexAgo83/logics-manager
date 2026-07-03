@@ -356,9 +356,9 @@
           listItems.push({ validationCommand: validationMatch[1] });
           continue;
         }
-        const traceMatch = unorderedMatch[1].match(/^(?:request-)?(AC\d+)\s*->\s*(.*?)(?:\.?\s+Proof:\s+(.*))?$/i);
+        const traceMatch = unorderedMatch[1].match(/^(?:request-)?(AC\d+[A-Z]?(?:\s*\/\s*AC?\d+[A-Z]?)*)\s*->\s*(.*?)(?:\.?\s+Proof:\s+(.*))?$/i);
         if (traceMatch) {
-          listItems.push({ traceAc: traceMatch[1].toUpperCase(), target: traceMatch[2], proof: traceMatch[3] || "" });
+          listItems.push({ traceAc: traceMatch[1].toUpperCase().replace(/\s+/g, ""), target: traceMatch[2], proof: traceMatch[3] || "" });
           continue;
         }
         const acMatch = unorderedMatch[1].match(/^(AC\d+):\s+(.*)$/i);

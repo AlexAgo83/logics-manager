@@ -727,7 +727,7 @@ def open_system_terminal_payload(repo_root: Path, body: dict[str, Any], *, launc
     iterm_script = (
         'tell application "iTerm"\n'
         "  activate\n"
-        f'  create window with default profile command {json.dumps(shell_command)}\n'
+        f'  if (count of windows) = 0 then\n    create window with default profile command {json.dumps(shell_command)}\n  else\n    tell current window to create tab with default profile command {json.dumps(shell_command)}\n  end if\n'
         "end tell"
     )
     terminal_script = (

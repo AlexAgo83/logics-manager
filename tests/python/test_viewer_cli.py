@@ -596,6 +596,7 @@ def test_viewer_system_terminal_payload_builds_iterm_command(monkeypatch: pytest
     assert payload == {"label": "cdx resume work2", "command": ["cdx", "resume", "work2"], "terminal": "iTerm"}
     assert launched[0][:2] == ["osascript", "-e"]
     assert "iTerm" in launched[0][2]
+    assert "create tab with default profile command" in launched[0][2]
     assert "cdx resume work2" in launched[0][2]
 
 

@@ -1864,6 +1864,7 @@ import {
           recordCdxUnreadSnapshot("history", historyPayload);
         }
         updateMainCdxBadge(payload.cdx, runsPayload);
+        rerenderCdxStatusFromPreferences();
         refreshWorkshopTerminalUsage();
       }
     } else {
@@ -3705,6 +3706,7 @@ import {
       latestCdxStatusPayload = data.payload;
       latestCdxStatusSignature = runtimeStatusSignature({ status: data.payload });
       renderWorkshopTerminalList();
+      rerenderCdxStatusFromPreferences();
       const usage = cdxSessionUsage(sessionName);
       if (usage && usage.percent !== null && usage.percent !== undefined) {
         const resetText = usage.reset && usage.reset !== "-" ? ` · resets ${usage.reset}` : "";
@@ -3734,14 +3736,11 @@ import {
     const node = workshopTerminalListNode();
     if (!(node instanceof HTMLElement)) return;
     const entries = orderedWorkshopTerminalEntries();
-    const externalRows = workshopExternalLaunches.slice(-12).reverse().map((entry) => `
-      <div class="viewer-workshop__terminal-row" data-viewer-workshop-external="${escapeHtml(entry.id)}">
-        <span class="viewer-workshop__terminal-row-main">
-          <span class="viewer-workshop__terminal-row-label">${escapeHtml(entry.label || entry.command.join(" "))}</span>
-        </span>
-        <span class="viewer-workshop__state viewer-workshop__state--running">external</span>
-      </div>
-    `).join("");
+    const externalRows = workshopExternalLaunches.slice(-12).reverse().map((entry) => {
+      const cdxSession = cdxSessionForTerminal(entry), raw = Array.isArray(entry.command) ? entry.command.join(" ") : "";
+      const displayLabel = cdxSession && (!entry.label || entry.label === raw || /^cdx\s+/.test(String(entry.label))) ? cdxSession : (entry.label || cdxSession || raw || "system terminal");
+      return `<div class="viewer-workshop__terminal-row" data-viewer-workshop-external="${escapeHtml(entry.id)}"><span class="viewer-workshop__terminal-row-main">${cdxSession ? renderCdxUsageGauge(cdxSessionUsage(cdxSession), cdxSession) : ""}<span class="viewer-workshop__terminal-row-label">${escapeHtml(displayLabel)}</span></span><span class="viewer-workshop__state viewer-workshop__state--running">external</span><span class="viewer-workshop__terminal-row-controls"><button class="viewer-workshop__terminal-row-close" type="button" data-viewer-workshop-external-close="${escapeHtml(entry.id)}" aria-label="Remove external terminal entry">×</button></span></div>`;
+    }).join("");
     const header = `<div class="viewer-workshop__terminal-list-header">
       <span>Terminals</span>
       <span class="viewer-workshop__terminal-actions">
@@ -4083,19 +4082,19 @@ import {
       input.className = "viewer-themed-modal__input";
       input.type = "text";
       input.placeholder = "node --version";
-      body?.append(select, input);
+      const external = document.createElement("label"); external.className = "viewer-cdx__field viewer-cdx__field--check";
+      external.innerHTML = `<input type="checkbox" data-viewer-custom-terminal-external${workshopUsesSystemTerminal() ? " checked" : ""}> Use system terminal`;
+      body?.append(select, input, external);
       const done = (value) => {
         closeThemedModal(modal);
         resolve(value);
       };
       const submit = () => {
         const sessionName = select.value.trim();
-        if (sessionName) {
-          done({ command: ["cdx", sessionName], label: `cdx ${sessionName}` });
-          return;
-        }
+        const systemTerminal = Boolean(modal.querySelector("[data-viewer-custom-terminal-external]")?.checked);
+        if (sessionName) return done({ command: ["cdx", sessionName], label: `cdx ${sessionName}`, systemTerminal });
         const command = input.value.trim().split(/\s+/).filter(Boolean);
-        done(command.length ? { command, label: command.slice(0, 2).join(" ").slice(0, 32) || "custom" } : null);
+        done(command.length ? { command, label: command.slice(0, 2).join(" ").slice(0, 32) || "custom", systemTerminal } : null);
       };
       select.addEventListener("change", () => {
         const hasSession = Boolean(select.value.trim());
@@ -4223,7 +4222,7 @@ import {
   }
 
   async function spawnWorkshopTerminal(options = {}) {
-    if (workshopUsesSystemTerminal()) {
+    if (options.systemTerminal === true || (options.systemTerminal !== false && workshopUsesSystemTerminal())) {
       return spawnSystemWorkshopTerminal(options);
     }
     try {
@@ -4286,7 +4285,7 @@ import {
       const data = await response.json();
       if (!response.ok || !data.ok) throw new Error(data.error || "Unable to open system terminal.");
       const payload = data.payload || {};
-      const id = `external-${Date.now()}`;
+      const id = `external-${Date.now()}-${workshopExternalLaunches.length + 1}`;
       workshopExternalLaunches.push({
         id,
         label: String(payload.label || options.label || "system terminal"),
@@ -4308,7 +4307,7 @@ import {
     try {
       const result = await showCustomTerminalModal();
       if (!result || !Array.isArray(result.command) || !result.command.length) return;
-      spawnWorkshopTerminal({ command: result.command, label: result.label });
+      spawnWorkshopTerminal({ command: result.command, label: result.label, systemTerminal: result.systemTerminal });
     } finally {
       setCustomTerminalBusy(trigger, false);
     }
@@ -6761,6 +6760,7 @@ import {
       const workshopTerminalCustomTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-custom]") : null;
       const workshopTerminalSelectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-select]") : null;
       const workshopTerminalCloseTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-close]") : null;
+      const workshopExternalCloseTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-external-close]") : null;
       const workshopTerminalClearTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-clear]") : null;
       const workshopTerminalRenameTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-rename]") : null;
       const workshopCdxUsageTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-usage-refresh]") : null;
@@ -6999,6 +6999,12 @@ import {
         const id = workshopTerminalCloseTarget.getAttribute("data-viewer-workshop-terminal-close") || "";
         if (id) stopWorkshopTerminal(id);
         return;
+      }
+      if (workshopExternalCloseTarget instanceof HTMLElement) {
+        event.preventDefault(); event.stopPropagation();
+        const id = workshopExternalCloseTarget.getAttribute("data-viewer-workshop-external-close") || "", index = workshopExternalLaunches.findIndex((entry) => entry.id === id);
+        if (index >= 0) workshopExternalLaunches.splice(index, 1);
+        renderWorkshopTerminalList(); return;
       }
       if (workshopTerminalClearTarget instanceof HTMLElement) {
         event.preventDefault();

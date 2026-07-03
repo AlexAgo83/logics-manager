@@ -720,7 +720,8 @@ def open_system_terminal_payload(repo_root: Path, body: dict[str, Any], *, launc
     root = repo_root.resolve()
     shell_command = f"cd {shlex.quote(str(root))} && exec {shlex.join(command)}"
     if os.name == "nt":
-        launch = ["cmd.exe", "/c", "start", "", "/D", str(root), "cmd.exe", "/k", subprocess.list2cmdline(command)]
+        cmd_command = command[2] if command[:2] == ["sh", "-lc"] and len(command) == 3 else subprocess.list2cmdline(command)
+        launch = ["cmd.exe", "/c", "start", "", "/D", str(root), "cmd.exe", "/k", cmd_command]
         _dispatch_system_open(launch, root, launcher=launcher)
         return {"label": label, "command": command, "terminal": "cmd.exe"}
     if sys.platform != "darwin":

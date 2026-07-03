@@ -638,9 +638,12 @@ def test_viewer_system_terminal_payload_launches_windows_cmd(monkeypatch: pytest
     monkeypatch.setattr(viewer_module.os, "name", "nt")
 
     payload = open_system_terminal_payload(tmp_path, {"command": ["echo", "hello world"]}, launcher=launched.append)
+    custom_payload = open_system_terminal_payload(tmp_path, {"command": ["sh", "-lc", "echo hello && npm test"]}, launcher=launched.append)
 
     assert payload["terminal"] == "cmd.exe"
-    assert launched == [["cmd.exe", "/c", "start", "", "/D", str(tmp_path.resolve()), "cmd.exe", "/k", 'echo "hello world"']]
+    assert launched[0] == ["cmd.exe", "/c", "start", "", "/D", str(tmp_path.resolve()), "cmd.exe", "/k", 'echo "hello world"']
+    assert custom_payload["terminal"] == "cmd.exe"
+    assert launched[1] == ["cmd.exe", "/c", "start", "", "/D", str(tmp_path.resolve()), "cmd.exe", "/k", "echo hello && npm test"]
 
 
 def test_viewer_repository_shortcuts_resolve_gitlab_remotes(tmp_path: Path) -> None:

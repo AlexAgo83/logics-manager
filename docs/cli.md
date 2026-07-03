@@ -55,6 +55,26 @@ the command skips Mermaid-free workflow docs. For end-of-delivery cleanup, use
 `logics-manager flow closeout <task>` with validation evidence plus `--lint
 --audit` when you want the command to run the gates before reporting.
 
+## Bundled agent skills
+
+`logics-manager` ships reusable agent skills (Claude Code and Codex share the
+`skills/<name>/SKILL.md` format). The bundled `/corpus` skill encodes the full
+scaffold flow: request → product brief → backlog → orchestration task →
+context pack, with validation and commit steps.
+
+```bash
+logics-manager skills list
+logics-manager skills install                 # into ~/.claude/skills
+logics-manager skills install --target-dir ~/.codex/skills
+logics-manager skills install --all-profiles  # every detected harness dir
+```
+
+`--all-profiles` detects `~/.claude/skills`, `~/.codex/skills`, and every cdx
+profile home (Claude Code profiles via `claude-home/`, Codex profiles via
+`config.toml`). Skills are install-once per harness home, independent of
+projects and Python environments. After updating the package, re-run with
+`--force` to refresh installed copies.
+
 ## Obsidian projection
 
 The default Logics corpus stays plain canonical Markdown. No frontmatter is

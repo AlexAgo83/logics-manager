@@ -219,6 +219,9 @@
     }
 
     function renderListItem(item) {
+      if (item.traceAc) {
+        return `<li class="markdown-preview__trace"><span class="markdown-preview__trace-ac">${escapeHtml(item.traceAc)}</span><span class="markdown-preview__trace-arrow" aria-hidden="true">-></span><span class="markdown-preview__trace-target">${renderInlineMarkdown(item.target)}</span>${item.proof ? `<span class="markdown-preview__trace-proof">${renderInlineMarkdown(item.proof)}</span>` : ""}</li>`;
+      }
       if (item.acId) {
         return `<li class="markdown-preview__ac"><span class="markdown-preview__ac-id">${escapeHtml(item.acId)}</span><span class="markdown-preview__ac-text">${renderInlineMarkdown(item.text)}</span></li>`;
       }
@@ -316,6 +319,11 @@
           flushList();
         }
         listType = "ul";
+        const traceMatch = unorderedMatch[1].match(/^(?:request-)?(AC\d+)\s*->\s*(.*?)(?:\.?\s+Proof:\s+(.*))?$/i);
+        if (traceMatch) {
+          listItems.push({ traceAc: traceMatch[1].toUpperCase(), target: traceMatch[2], proof: traceMatch[3] || "" });
+          continue;
+        }
         const acMatch = unorderedMatch[1].match(/^(AC\d+):\s+(.*)$/i);
         listItems.push(acMatch ? { acId: acMatch[1].toUpperCase(), text: acMatch[2] } : { text: unorderedMatch[1] });
         continue;

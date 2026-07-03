@@ -46,6 +46,7 @@ ROOT_COMMANDS = (
     "release",
     "obsidian",
     "mcp",
+    "skills",
     "self-update",
     "update",
     "search",
@@ -115,6 +116,8 @@ def _build_root_help() -> str:
         "  mcp        Expose bounded Logics tools for MCP clients.",
         "             Subcommands: serve, serve-http, connect, tunnel, tools, call",
         "  config     Render merged runtime config. Example: config show --format json",
+        "  skills     List or install bundled agent skills (e.g. /corpus) into ~/.claude/skills.",
+        "             Subcommands: list, install [names...] [--target-dir DIR] [--force]",
         "",
         "Maintenance:",
         "  bootstrap  Prepare or check the workflow tree and generated instructions.",
@@ -396,6 +399,10 @@ def main(argv: list[str] | None = None) -> int:
         from .mcp import main as mcp_main
 
         return mcp_main(rest)
+    if command == "skills":
+        from .skills import main as skills_main
+
+        return skills_main(rest)
     if command == "view":
         if rest[:1] == ["diagnostics"]:
             from .viewer_diagnostics import render_diagnostics

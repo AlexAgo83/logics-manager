@@ -37,7 +37,8 @@
     "dist/vendor/mermaid.min.js",
     "logics_manager/*.py",
     "logics_manager/**/*.py",
-    "logics_manager/statuses.json"
+    "logics_manager/statuses.json",
+    "logics_manager/skill_assets/"
   ],
   "contributes": {
     "viewsContainers": {

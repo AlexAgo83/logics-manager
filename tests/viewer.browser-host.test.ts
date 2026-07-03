@@ -2732,7 +2732,9 @@ describe("local viewer browser host", () => {
     const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
     expect(modal?.textContent).toContain("Custom terminal");
     const input = modal?.querySelector(".viewer-themed-modal__input") as HTMLInputElement | null;
+    const external = modal?.querySelector("[data-viewer-custom-terminal-external]") as HTMLInputElement | null;
     expect(input).not.toBeNull();
+    expect(external?.checked).toBe(false);
     if (input) input.value = "node --version";
     (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
     await flushViewerAsync();
@@ -2778,6 +2780,38 @@ describe("local viewer browser host", () => {
     expect(terminalCommands).toEqual([]);
     expect(externalTerminalCommands).toContainEqual({ command: [], label: "" });
     expect(dom.window.document.querySelector("[data-viewer-workshop-external]")?.textContent).toContain("external");
+
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    (dom.window.document.querySelector('[data-viewer-cdx-session="session-1"][data-viewer-cdx-session-action="new"]') as HTMLElement | null)
+      ?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(externalTerminalCommands).toContainEqual({ command: ["cdx", "session-1"], label: "cdx session-1" });
+    const cdxExternal = Array.from(dom.window.document.querySelectorAll("[data-viewer-workshop-external]"))
+      .find((row) => row.textContent?.includes("session-1")) as HTMLElement | undefined;
+    expect(cdxExternal?.querySelector('[data-viewer-cdx-usage-refresh="session-1"]')).toBeTruthy();
+    const externalId = cdxExternal?.getAttribute("data-viewer-workshop-external") || "";
+    const close = cdxExternal?.querySelector("[data-viewer-workshop-external-close]") as HTMLElement | null;
+    expect(close).toBeTruthy();
+    close?.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true, cancelable: true }));
+    await flushViewerAsync();
+    expect(dom.window.document.querySelector(`[data-viewer-workshop-external="${externalId}"]`)).toBeNull();
+
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    dom.window.document.querySelector("[data-viewer-workshop-terminal-custom]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    const customModal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    const customExternal = customModal?.querySelector("[data-viewer-custom-terminal-external]") as HTMLInputElement | null;
+    const customInput = customModal?.querySelector(".viewer-themed-modal__input") as HTMLInputElement | null;
+    expect(customExternal?.checked).toBe(true);
+    customExternal!.checked = false;
+    customInput!.value = "pwd";
+    (customModal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    expect(terminalCommands).toContainEqual({ command: ["pwd"], label: "pwd" });
   });
 
   it("starts a custom Workshop terminal from an available CDX session", async () => {
@@ -5560,6 +5594,36 @@ describe("local viewer browser host", () => {
     expect(targets).toContain("corvus");
   });
 
+  it("refreshes a CDX status table usage gauge after clicking it", async () => {
+    let refreshed = false;
+    const { dom } = createViewerDom({
+      cdxResponseFactory: () => {
+        const payload = cdxRowsStatusPayload();
+        payload.body.payload.status.rows[0].available_pct = refreshed ? 88 : 7;
+        return payload;
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    let gauge = dom.window.document.querySelector('.viewer-cdx__ok-cell [data-viewer-cdx-usage-refresh="work2"]') as HTMLElement | null;
+    expect(gauge?.getAttribute("title")).toContain("7%");
+
+    refreshed = true;
+    gauge?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      await flushViewerAsync();
+      gauge = dom.window.document.querySelector('.viewer-cdx__ok-cell [data-viewer-cdx-usage-refresh="work2"]') as HTMLElement | null;
+      if (gauge?.getAttribute("title")?.includes("88%")) break;
+    }
+
+    expect(gauge?.getAttribute("title")).toContain("88%");
+  });
+
   it("opens CDX session action menus with resume and handoff choices", async () => {
     const payload = cdxRowsStatusPayload();
     const rows = payload.body.payload.status.rows;
@@ -6038,6 +6102,55 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(calls.filter((call) => call === "/api/cdx-status").length).toBeGreaterThan(cdxCallsBeforeRefresh);
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX status");
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("anthropic");
+  });
+
+  it("refreshes the open CDX status screen from background status polling", async () => {
+    const starting = {
+      ok: true,
+      body: { ok: true, payload: { state: "ok", message: "", status: { availability: "starting", providers: [], sessions: [], readiness: {}, nextCommands: [] } } }
+    };
+    const ready = {
+      ok: true,
+      body: { ok: true, payload: { state: "ok", message: "", status: { availability: "ready", providers: [{ name: "anthropic", state: "ready" }], sessions: [], readiness: {}, nextCommands: ["cdx status"] } } }
+    };
+    const { dom } = createViewerDom({ cdxResponses: [starting, starting, ready] });
+    const sources: Array<{
+      listeners: Map<string, Array<(event: MessageEvent) => void>>;
+      emit: (name: string, payload: unknown) => void;
+    }> = [];
+    class FakeEventSource {
+      listeners = new Map<string, Array<(event: MessageEvent) => void>>();
+      constructor(_url: string) {
+        sources.push(this);
+      }
+      addEventListener(name: string, handler: (event: MessageEvent) => void) {
+        const list = this.listeners.get(name) || [];
+        list.push(handler);
+        this.listeners.set(name, list);
+      }
+      emit(name: string, payload: unknown) {
+        const event = new dom.window.MessageEvent(name, { data: JSON.stringify(payload) });
+        for (const handler of this.listeners.get(name) || []) handler(event);
+      }
+      close() {}
+    }
+    (dom.window as unknown as { EventSource: typeof EventSource }).EventSource = FakeEventSource as unknown as typeof EventSource;
+
+    dom.window.acquireVsCodeApi().postMessage({ type: "ready" });
+    for (let attempt = 0; attempt < 10 && !sources.length; attempt += 1) {
+      await flushViewerAsync();
+    }
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Starting");
+
+    sources[0]?.emit("changed", { components: ["workshop"] });
+    for (let attempt = 0; attempt < 10 && !dom.window.document.getElementById("viewer-document-content")?.textContent?.includes("anthropic"); attempt += 1) {
+      await flushViewerAsync();
+    }
+
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX status");
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("anthropic");
   });

@@ -1323,6 +1323,29 @@
   min-width: 0;
 }
 
+.markdown-preview__validation-command {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin: 6px 0;
+}
+
+.markdown-preview__validation-label {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--vscode-charts-green, #89d185) 18%, transparent);
+  color: var(--vscode-charts-green, #89d185);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.markdown-preview__validation-command code {
+  min-width: 0;
+  white-space: normal;
+}
+
 .markdown-preview__trace {
   display: grid;
   grid-template-columns: auto auto minmax(0, 1fr);

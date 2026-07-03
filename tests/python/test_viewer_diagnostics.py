@@ -70,6 +70,40 @@ def test_stale_unclean_session_is_reported_on_a_later_heartbeat(tmp_path: Path, 
     assert [entry["kind"] for entry in persisted] == ["unclean-session"]
 
 
+def test_unclean_session_report_carries_last_heartbeat_stats(tmp_path: Path, monkeypatch) -> None:
+    journal = tmp_path / "viewer-diagnostics.jsonl"
+    monkeypatch.setenv("LOGICS_MANAGER_VIEWER_DIAGNOSTICS", str(journal))
+    repo = tmp_path / "repo"
+    repo.mkdir()
+
+    viewer_diagnostics.update_session(repo, {
+        "sessionId": "crashed",
+        "event": "heartbeat",
+        "screen": "Workshop",
+        "stats": {
+            "panelHidden": False,
+            "contentChildren": 12,
+            "boardChildren": 0,
+            "usedJSHeapSize": 1_900_000_000,
+            "jsHeapSizeLimit": 2_000_000_000,
+            "ignored": {"nested": True},
+        },
+    }, now=100)
+    interrupted = viewer_diagnostics.update_session(repo, {
+        "sessionId": "replacement",
+        "event": "start",
+    }, now=200)
+
+    assert len(interrupted) == 1
+    entry = interrupted[0]
+    assert "last heartbeat 100s ago" in entry["message"]
+    assert entry["panelHidden"] is False
+    assert entry["contentChildren"] == 12
+    assert entry["boardChildren"] == 0
+    assert entry["memory"] == {"usedJSHeapSize": 1_900_000_000, "jsHeapSizeLimit": 2_000_000_000}
+    assert "ignored" not in entry
+
+
 def test_clean_session_is_not_reported_as_interrupted(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("LOGICS_MANAGER_VIEWER_DIAGNOSTICS", str(tmp_path / "diagnostics.jsonl"))
     repo = tmp_path / "repo"

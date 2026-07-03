@@ -1175,7 +1175,37 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     boardObserver?.observe(getBoard(), { childList: true });
     function sessionPayload(event) {
       const current = state();
-      return { event, sessionId, screen: current.screen, url: current.url };
+      const memory = window.performance?.memory;
+      return {
+        event,
+        sessionId,
+        screen: current.screen,
+        url: current.url,
+        // Vital signs persisted server-side with each heartbeat so an
+        // unclean-session report can tell an OOM-killed tab (heap climbing)
+        // from a healthy tab that simply stopped (sleep, tab discard).
+        stats: {
+          panelHidden: current.panelHidden,
+          contentChildren: current.contentChildren,
+          contentTextLength: current.contentTextLength,
+          boardChildren: current.boardChildren,
+          usedJSHeapSize: memory?.usedJSHeapSize ?? null,
+          totalJSHeapSize: memory?.totalJSHeapSize ?? null,
+          jsHeapSizeLimit: memory?.jsHeapSizeLimit ?? null
+        }
+      };
+    }
+    let blankUiTicks = 0;
+    function checkBlankUi() {
+      const current = state();
+      const main = document.getElementById("layout-main");
+      const mainText = main instanceof HTMLElement ? (main.innerText ?? main.textContent ?? "").trim() : "";
+      const documentBlank = current.panelHidden !== false || (current.contentChildren ?? 0) === 0;
+      const blank = documentBlank && mainText.length === 0;
+      blankUiTicks = blank ? blankUiTicks + 1 : 0;
+      if (blankUiTicks === 2) {
+        recordError(new Error("Viewer UI became blank: document panel not visible and main layout has no content"), { kind: "blank-ui", screen: current.screen });
+      }
     }
     function postSession(event, keepalive = false) {
       return Promise.resolve(postDiagnostic?.("/api/viewer-diagnostics/session", sessionPayload(event), { keepalive })).catch(() => {
@@ -1184,7 +1214,10 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     function startSessionHeartbeat() {
       if (heartbeatTimer) return;
       postSession("start");
-      heartbeatTimer = window.setInterval(() => postSession("heartbeat"), 1e4);
+      heartbeatTimer = window.setInterval(() => {
+        postSession("heartbeat");
+        checkBlankUi();
+      }, 1e4);
     }
     function stopSessionHeartbeat() {
       if (heartbeatTimer) window.clearInterval(heartbeatTimer);

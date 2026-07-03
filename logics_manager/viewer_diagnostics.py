@@ -180,6 +180,28 @@ def render_diagnostics(repo_root: Path, *, limit: int = 20, output_format: str =
     return "\n".join(lines)
 
 
+_SESSION_STAT_KEYS = (
+    "panelHidden",
+    "contentChildren",
+    "contentTextLength",
+    "boardChildren",
+    "usedJSHeapSize",
+    "totalJSHeapSize",
+    "jsHeapSizeLimit",
+)
+
+
+def _clean_stats(value: Any) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        return {}
+    cleaned: dict[str, Any] = {}
+    for key in _SESSION_STAT_KEYS:
+        item = value.get(key)
+        if isinstance(item, (bool, int, float)) or item is None:
+            cleaned[key] = item
+    return cleaned
+
+
 def _read_sessions() -> dict[str, dict[str, Any]]:
     try:
         value = json.loads(sessions_path().read_text(encoding="utf-8"))
@@ -203,12 +225,20 @@ def update_session(repo_root: Path, payload: dict[str, Any], *, now: float | Non
                 continue
             if timestamp - float(session.get("heartbeatAt") or 0) < SESSION_STALE_SECONDS:
                 continue
+            stats = _clean_stats(session.get("stats"))
+            memory = {key: stats[key] for key in ("usedJSHeapSize", "totalJSHeapSize", "jsHeapSizeLimit") if isinstance(stats.get(key), (int, float))}
+            stale_seconds = int(timestamp - float(session.get("heartbeatAt") or timestamp))
             entry = append_diagnostic(repo_root, {
                 "kind": "unclean-session",
-                "message": "A previous viewer session stopped without a clean shutdown.",
+                "message": f"A previous viewer session stopped without a clean shutdown (last heartbeat {stale_seconds}s ago).",
                 "screen": session.get("screen") or "",
                 "url": session.get("url") or "",
                 "sessionId": other_id,
+                "panelHidden": stats.get("panelHidden"),
+                "contentChildren": stats.get("contentChildren"),
+                "contentTextLength": stats.get("contentTextLength"),
+                "boardChildren": stats.get("boardChildren"),
+                "memory": memory,
             }, now=timestamp)
             interrupted.append(entry)
             session["reported"] = True
@@ -220,6 +250,7 @@ def update_session(repo_root: Path, payload: dict[str, Any], *, now: float | Non
             "url": _clean_url(payload.get("url")),
             "clean": event == "end",
             "reported": bool(current.get("reported")),
+            "stats": _clean_stats(payload.get("stats")),
         })
         sessions[session_id] = current
         ordered = sorted(sessions.items(), key=lambda item: float(item[1].get("heartbeatAt") or 0))[-MAX_SESSIONS:]

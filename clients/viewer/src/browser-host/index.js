@@ -2634,7 +2634,7 @@ import {
     }
     scheduleNextAutoRefresh();
     updateVersionLink(payload.updateInfo);
-    renderUpdateNotice(payload.updateInfo);
+    renderUpdateNotice(payload.updateInfo, payload.cdxUpdateInfo);
     renderEnvironmentWarning(payload.bootstrapWarning || payload.environmentWarning);
     refreshBadgeCounters();
     maybePromptBootstrapLogics();
@@ -2647,22 +2647,28 @@ import {
     return true;
   }
 
-  function renderUpdateNotice(updateInfo) {
+  function renderUpdateNotice(updateInfo, cdxUpdateInfo) {
     const banner = updateBanner();
     if (!(banner instanceof HTMLElement)) {
       return;
     }
-    if (!updateInfo || updateInfo.updateAvailable !== true || !updateInfo.latestVersion) {
+    const notices = [
+      { name: "logics-manager", fallbackCommand: "logics-manager self-update", info: updateInfo },
+      { name: "cdx", fallbackCommand: "cdx update", info: cdxUpdateInfo }
+    ].filter(({ info }) => info && info.updateAvailable === true && info.latestVersion);
+    if (notices.length === 0) {
       banner.hidden = true;
       return;
     }
     const copy = updateCopy();
     const command = updateCommand();
     if (copy) {
-      copy.textContent = `logics-manager ${updateInfo.latestVersion} is available. Current version: ${updateInfo.currentVersion || "unknown"}.`;
+      copy.textContent = notices
+        .map(({ name, info }) => `${name} ${info.latestVersion} is available. Current version: ${info.currentVersion || "unknown"}.`)
+        .join(" ");
     }
     if (command) {
-      command.textContent = updateInfo.updateCommand || "logics-manager self-update";
+      command.textContent = notices.map(({ fallbackCommand, info }) => info.updateCommand || fallbackCommand).join(" && ");
     }
     banner.hidden = false;
   }

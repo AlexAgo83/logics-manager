@@ -88,6 +88,8 @@ CDX_MISSION_STRENGTHS = {
 CDX_MISSION_LEVELS = {"minimal", "low", "medium", "high", "xhigh"}
 CDX_MISSION_PARENT_TIMEOUT_GRACE_SECONDS = 90
 CDX_WRITABLE_MISSION_MIN_TIMEOUT_SECONDS = 600
+CDX_UPDATE_CHECK_INTERVAL_SECONDS = 24 * 60 * 60
+_CDX_UPDATE_INFO_CACHE: dict[str, tuple[int, dict[str, Any]]] = {}
 CDX_MISSION_CATALOG = {
     "full-audit": {
         "id": "full-audit",
@@ -271,6 +273,7 @@ def viewer_data_payload(
         "autoRefreshIntervalForced": auto_refresh_interval_forced,
         "items": collect_viewer_items(repo_root),
         "updateInfo": get_update_info(_current_version()).to_payload(),
+        "cdxUpdateInfo": cdx_update_info_payload(repo_root),
         "selectedId": selected_id,
         "changedPaths": [],
         "canResetProjectRoot": False,
@@ -2309,6 +2312,43 @@ def cdx_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
     _enrich_cdx_resume_status(repo_root, parsed, runner=runner)
     _enrich_cdx_launch_settings(repo_root, parsed, runner=runner)
     return {"state": "ok", "message": "", "status": parsed}
+
+
+def cdx_update_info_payload(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
+    cdx_which = which or shutil.which
+    if not cdx_which("cdx"):
+        return {}
+    cache_key = str(repo_root.resolve())
+    now = int(time.time())
+    cached = _CDX_UPDATE_INFO_CACHE.get(cache_key)
+    if cached and cached[0] > now:
+        return dict(cached[1])
+    try:
+        result = _run_read_only_cdx(repo_root, ["update", "--check", "--json"], runner=runner)
+    except (OSError, subprocess.SubprocessError, subprocess.TimeoutExpired):
+        return {}
+    if result.returncode != 0:
+        return {}
+    try:
+        parsed = json.loads(result.stdout or "{}")
+    except json.JSONDecodeError:
+        return {}
+    if not isinstance(parsed, dict) or parsed.get("update_available") is not True:
+        _CDX_UPDATE_INFO_CACHE[cache_key] = (now + CDX_UPDATE_CHECK_INTERVAL_SECONDS, {})
+        return {}
+    latest = str(parsed.get("target_version") or parsed.get("latest_version") or "").strip()
+    if not latest:
+        _CDX_UPDATE_INFO_CACHE[cache_key] = (now + CDX_UPDATE_CHECK_INTERVAL_SECONDS, {})
+        return {}
+    payload = {
+        "currentVersion": str(parsed.get("current_version") or "").strip() or None,
+        "latestVersion": latest,
+        "updateAvailable": True,
+        "updateCommand": "cdx update",
+        "source": "github",
+    }
+    _CDX_UPDATE_INFO_CACHE[cache_key] = (now + CDX_UPDATE_CHECK_INTERVAL_SECONDS, payload)
+    return dict(payload)
 
 
 def _enrich_cdx_launch_settings(repo_root: Path, status: dict[str, Any], *, runner: Any | None = None) -> None:

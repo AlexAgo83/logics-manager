@@ -345,6 +345,12 @@ function createViewerDom(options: {
                 latestVersion: "2.3.0",
                 updateAvailable: true,
                 updateCommand: "logics-manager self-update"
+              },
+              cdxUpdateInfo: {
+                currentVersion: "0.9.13",
+                latestVersion: "0.9.14",
+                updateAvailable: true,
+                updateCommand: "cdx update"
               }
             }
           })
@@ -3632,7 +3638,8 @@ describe("local viewer browser host", () => {
     const banner = dom.window.document.getElementById("viewer-update");
     expect(banner?.hidden).toBe(false);
     expect(dom.window.document.getElementById("viewer-update-copy")?.textContent).toContain("2.3.0");
-    expect(dom.window.document.getElementById("viewer-update-command")?.textContent).toBe("logics-manager self-update");
+    expect(dom.window.document.getElementById("viewer-update-copy")?.textContent).toContain("0.9.14");
+    expect(dom.window.document.getElementById("viewer-update-command")?.textContent).toBe("logics-manager self-update && cdx update");
   });
 
   it("renders repository shortcuts and opens the local folder action", async () => {

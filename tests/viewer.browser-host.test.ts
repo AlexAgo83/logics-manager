@@ -132,7 +132,7 @@ function createViewerDom(options: {
       <button id="viewer-refresh-menu-button" type="button" aria-expanded="false" aria-controls="viewer-refresh-menu">Refresh</button>
       <div id="viewer-refresh-menu" hidden>
         <label><input id="viewer-auto-refresh" type="checkbox" checked />Auto</label>
-        <label><input type="checkbox" data-viewer-workshop-system-terminal />Use system terminal</label>
+        <label><input type="checkbox" data-viewer-workshop-system-terminal />System terminal</label>
         <button data-action="refresh" type="button">Now</button>
         <select id="viewer-refresh-interval">
           <option value="5">5 sec</option>

@@ -3795,7 +3795,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         node.dataset.viewerBound = "1";
         node.addEventListener("change", () => {
           updateViewerPreferences({ workshopUseSystemTerminal: node.checked });
-          setMeta(node.checked ? "Workshop will open system terminals." : "Workshop will use embedded terminals.");
+          setMeta(node.checked ? "Workshop will open system terminals." : "Workshop will use the embedded terminal (xterm.js).");
         });
       });
       syncWorkshopSystemTerminalControls();
@@ -7030,7 +7030,7 @@ ${line}` : line;
         input.placeholder = "node --version";
         const external = document.createElement("label");
         external.className = "viewer-cdx__field viewer-cdx__field--check";
-        external.innerHTML = `<input type="checkbox" data-viewer-custom-terminal-external${workshopUsesSystemTerminal() ? " checked" : ""}> Use system terminal`;
+        external.innerHTML = `<input type="checkbox" data-viewer-custom-terminal-external${workshopUsesSystemTerminal() ? " checked" : ""}> Open in system terminal`;
         body?.append(select, input, external);
         const done = (value) => {
           closeThemedModal(modal);

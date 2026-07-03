@@ -3419,3 +3419,26 @@ def test_demo_corpus_covers_board_states(tmp_path):
 def test_demo_corpus_disabled_outside_dev_checkout(monkeypatch):
     monkeypatch.setattr(viewer_module, "_is_dev_checkout", lambda: False)
     assert viewer_module.ensure_demo_corpus_if_dev() is None
+
+
+def test_subprocess_runners_never_inherit_the_terminal(tmp_path: Path) -> None:
+    """Every viewer subprocess must get stdin=DEVNULL: a child that inherits the
+    hosting terminal can flip it to raw mode (-isig) and permanently break Ctrl+C."""
+    captured: list[dict] = []
+
+    def fake_runner(command, **kwargs):
+        captured.append(kwargs)
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    viewer_module._run_read_only_git(tmp_path, ["status"], runner=fake_runner)
+    viewer_module._run_read_only_cdx(tmp_path, ["status"], runner=fake_runner)
+    viewer_module._run_cdx_mission(tmp_path, ["mission"], timeout=5, runner=fake_runner)
+    viewer_module._run_logics_flow(tmp_path, ["list"], runner=fake_runner)
+    viewer_module._run_logics_command(tmp_path, ["status"], runner=fake_runner)
+    viewer_module._run_read_only_gh(tmp_path, ["pr", "list"], runner=fake_runner)
+    viewer_module._run_read_only_glab(tmp_path, ["mr", "list"], runner=fake_runner)
+    viewer_module._run_git_mutation(tmp_path, ["add", "."], runner=fake_runner)
+
+    assert len(captured) == 8
+    for kwargs in captured:
+        assert kwargs.get("stdin") is subprocess.DEVNULL

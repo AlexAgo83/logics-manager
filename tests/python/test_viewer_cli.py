@@ -588,13 +588,17 @@ def test_viewer_system_terminal_payload_builds_iterm_command(monkeypatch: pytest
     launched: list[list[str]] = []
     monkeypatch.setattr(viewer_module.sys, "platform", "darwin")
 
-    payload = open_system_terminal_payload(
-        tmp_path,
-        {"command": ["cdx", "resume", "work2"], "label": "cdx resume work2"},
-        launcher=launched.append,
-    )
+    def launcher(command: list[str]) -> subprocess.CompletedProcess[str]:
+        launched.append(command)
+        return subprocess.CompletedProcess(command, 0, "iterm-session-guid\n", "")
 
-    assert payload == {"label": "cdx resume work2", "command": ["cdx", "resume", "work2"], "terminal": "iTerm"}
+    payload = open_system_terminal_payload(tmp_path, {"command": ["cdx", "resume", "work2"], "label": "cdx resume work2"}, launcher=launcher)
+
+    assert payload["label"] == "cdx resume work2"
+    assert payload["command"] == ["cdx", "resume", "work2"]
+    assert payload["terminal"] == "iTerm"
+    assert re.fullmatch(r"external-[0-9a-f]{16}", str(payload["terminalRef"]))
+    assert payload["nativeRef"] == "iterm-session-guid"
     assert launched[0][:2] == ["osascript", "-e"]
     assert "iTerm" in launched[0][2]
     assert "create tab with default profile current window" in launched[0][2]
@@ -615,6 +619,8 @@ def test_viewer_system_terminal_payload_falls_back_to_terminal_app(monkeypatch: 
     payload = open_system_terminal_payload(tmp_path, {"command": ["echo", "ok"]}, launcher=launcher)
 
     assert payload["terminal"] == "Terminal"
+    assert re.fullmatch(r"external-[0-9a-f]{16}", str(payload["terminalRef"]))
+    assert payload["nativeRef"] is None
     assert len(launched) == 2
     assert "iTerm" in launched[0][2]
     assert "Terminal" in launched[1][2]
@@ -629,6 +635,8 @@ def test_viewer_system_terminal_payload_launches_linux_terminal(monkeypatch: pyt
     payload = open_system_terminal_payload(tmp_path, {"command": ["echo", "ok"]}, launcher=launched.append)
 
     assert payload["terminal"] == "gnome-terminal"
+    assert re.fullmatch(r"external-[0-9a-f]{16}", str(payload["terminalRef"]))
+    assert payload["nativeRef"] is None
     assert launched == [["gnome-terminal", "--working-directory", str(tmp_path.resolve()), "--", "sh", "-lc", f"cd {shlex.quote(str(tmp_path.resolve()))} && exec echo ok"]]
 
 
@@ -641,6 +649,8 @@ def test_viewer_system_terminal_payload_launches_windows_cmd(monkeypatch: pytest
     custom_payload = open_system_terminal_payload(tmp_path, {"command": ["sh", "-lc", "echo hello && npm test"]}, launcher=launched.append)
 
     assert payload["terminal"] == "cmd.exe"
+    assert re.fullmatch(r"external-[0-9a-f]{16}", str(payload["terminalRef"]))
+    assert payload["nativeRef"] is None
     assert launched[0] == ["cmd.exe", "/c", "start", "", "/D", str(tmp_path.resolve()), "cmd.exe", "/k", 'echo "hello world"']
     assert custom_payload["terminal"] == "cmd.exe"
     assert launched[1] == ["cmd.exe", "/c", "start", "", "/D", str(tmp_path.resolve()), "cmd.exe", "/k", "echo hello && npm test"]

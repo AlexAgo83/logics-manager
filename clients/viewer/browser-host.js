@@ -6738,7 +6738,7 @@ ${line}` : line;
       const externalRows = workshopExternalLaunches.slice(-12).reverse().map((entry) => {
         const cdxSession = cdxSessionForTerminal(entry), raw = Array.isArray(entry.command) ? entry.command.join(" ") : "";
         const displayLabel = cdxSession && (!entry.label || entry.label === raw || /^cdx\s+/.test(String(entry.label))) ? cdxSession : entry.label || cdxSession || raw || "system terminal";
-        return `<div class="viewer-workshop__terminal-row" data-viewer-workshop-external="${escapeHtml(entry.id)}"><span class="viewer-workshop__terminal-row-main">${cdxSession ? renderCdxUsageGauge(cdxSessionUsage(cdxSession), cdxSession) : ""}<span class="viewer-workshop__terminal-row-label">${escapeHtml(displayLabel)}</span></span><span class="viewer-workshop__state viewer-workshop__state--running">external</span><span class="viewer-workshop__terminal-row-controls"><button class="viewer-workshop__terminal-row-close" type="button" data-viewer-workshop-external-close="${escapeHtml(entry.id)}" aria-label="Remove external terminal entry">\xD7</button></span></div>`;
+        return `<div class="viewer-workshop__terminal-row" data-viewer-workshop-external="${escapeHtml(entry.id)}" title="${escapeHtml([entry.terminal, entry.nativeRef || entry.id].filter(Boolean).join(" \xB7 "))}"><span class="viewer-workshop__terminal-row-main">${cdxSession ? renderCdxUsageGauge(cdxSessionUsage(cdxSession), cdxSession) : ""}<span class="viewer-workshop__terminal-row-label">${escapeHtml(displayLabel)}</span></span><span class="viewer-workshop__state viewer-workshop__state--running">external</span><span class="viewer-workshop__terminal-row-controls"><button class="viewer-workshop__terminal-row-close" type="button" data-viewer-workshop-external-close="${escapeHtml(entry.id)}" aria-label="Remove external terminal entry">\xD7</button></span></div>`;
       }).join("");
       const header = `<div class="viewer-workshop__terminal-list-header">
       <span>Terminals</span>
@@ -7212,11 +7212,13 @@ ${line}` : line;
         const data = await response.json();
         if (!response.ok || !data.ok) throw new Error(data.error || "Unable to open system terminal.");
         const payload = data.payload || {};
-        const id = `external-${Date.now()}-${workshopExternalLaunches.length + 1}`;
+        const id = String(payload.terminalRef || payload.id || `external-${Date.now()}-${workshopExternalLaunches.length + 1}`);
         workshopExternalLaunches.push({
           id,
           label: String(payload.label || options.label || "system terminal"),
-          command: Array.isArray(payload.command) ? payload.command.map(String) : []
+          command: Array.isArray(payload.command) ? payload.command.map(String) : [],
+          terminal: String(payload.terminal || ""),
+          nativeRef: payload.nativeRef ? String(payload.nativeRef) : ""
         });
         renderWorkshopTerminalList();
         await showWorkshop({ tab: "terminals" });

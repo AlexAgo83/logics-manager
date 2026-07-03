@@ -1301,6 +1301,28 @@
   outline-offset: 2px;
 }
 
+.markdown-preview__ac {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  margin: 6px 0;
+}
+
+.markdown-preview__ac-id {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--vscode-charts-blue, #3794ff) 18%, transparent);
+  color: var(--vscode-charts-blue, #3794ff);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.markdown-preview__ac-text {
+  min-width: 0;
+}
+
 .viewer-insights__rows,
 .viewer-git__files {
   display: grid;

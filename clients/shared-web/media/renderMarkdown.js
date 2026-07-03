@@ -219,6 +219,9 @@
     }
 
     function renderListItem(item) {
+      if (item.acId) {
+        return `<li class="markdown-preview__ac"><span class="markdown-preview__ac-id">${escapeHtml(item.acId)}</span><span class="markdown-preview__ac-text">${renderInlineMarkdown(item.text)}</span></li>`;
+      }
       if (!item.checkbox) {
         return `<li>${renderInlineMarkdown(item.text)}</li>`;
       }
@@ -313,7 +316,8 @@
           flushList();
         }
         listType = "ul";
-        listItems.push({ text: unorderedMatch[1] });
+        const acMatch = unorderedMatch[1].match(/^(AC\d+):\s+(.*)$/i);
+        listItems.push(acMatch ? { acId: acMatch[1].toUpperCase(), text: acMatch[2] } : { text: unorderedMatch[1] });
         continue;
       }
 

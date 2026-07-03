@@ -241,6 +241,9 @@ function createViewerDom(options: {
     "- Related task: [task doc](logics/tasks/task_001_blocked.md)",
     "- Render **markdown**.",
     "",
+    "# Validation",
+    "- [x] Preview renders.",
+    "",
     "```mermaid",
     "flowchart TD",
     "  A --> B",
@@ -2078,6 +2081,8 @@ describe("local viewer browser host", () => {
     expect(meta?.textContent).toContain("Progress");
     expect(meta?.textContent).toContain("40");
     expect(meta?.textContent).not.toContain("Reminder");
+    expect(dom.window.document.querySelector("#viewer-document-content .markdown-preview__section-heading--acceptance")?.textContent).toBe("Needs");
+    expect(dom.window.document.querySelector("#viewer-document-content .markdown-preview__section-heading--validation")?.textContent).toBe("Validation");
     expect(dom.window.document.querySelector("#viewer-document-content .markdown-preview__ac-id")?.textContent).toBe("AC1");
     const trace = dom.window.document.querySelector("#viewer-document-content .markdown-preview__trace");
     expect(trace?.querySelector(".markdown-preview__trace-ac")?.textContent).toBe("AC1");

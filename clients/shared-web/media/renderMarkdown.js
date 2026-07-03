@@ -59,6 +59,32 @@
     return rendered;
   }
 
+  function sectionHeadingKind(value) {
+    const key = String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    if (/^(acceptance criteria|criteria|needs)$/.test(key)) {
+      return "acceptance";
+    }
+    if (/^(traceability|traceability matrix)$/.test(key)) {
+      return "traceability";
+    }
+    if (/^(validation|verification|tests?)$/.test(key)) {
+      return "validation";
+    }
+    if (/^(scope|scope and guardrails|guardrails|non goals|out of scope)$/.test(key)) {
+      return "scope";
+    }
+    if (/^(references|related documents|related docs)$/.test(key)) {
+      return "references";
+    }
+    if (/^(implementation plan|plan|next steps)$/.test(key)) {
+      return "plan";
+    }
+    if (/^(closeout|summary|status)$/.test(key)) {
+      return "closeout";
+    }
+    return null;
+  }
+
   function splitTableCells(line) {
     const normalized = String(line || "")
       .trim()
@@ -287,7 +313,10 @@
         flushParagraph();
         flushList();
         const level = headingMatch[1].length;
-        html.push(`<h${level}>${renderInlineMarkdown(headingMatch[2].trim())}</h${level}>`);
+        const headingText = headingMatch[2].trim();
+        const headingKind = sectionHeadingKind(headingText);
+        const classAttr = headingKind ? ` class="markdown-preview__section-heading markdown-preview__section-heading--${escapeHtml(headingKind)}"` : "";
+        html.push(`<h${level}${classAttr}>${renderInlineMarkdown(headingText)}</h${level}>`);
         continue;
       }
 

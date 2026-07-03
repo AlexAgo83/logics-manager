@@ -8,6 +8,35 @@
       .replace(/'/g, "&#39;");
   }
 
+  function workflowRefInfo(value) {
+    const raw = String(value || "").trim().replace(/\\/g, "/").replace(/^\.?\//, "");
+    if (!raw || raw.startsWith("/") || raw.startsWith("~") || raw.split("/").includes("..")) {
+      return null;
+    }
+    const stem = raw.replace(/\.md$/i, "").split("/").pop() || "";
+    const directory = raw.split("/").slice(-2, -1)[0] || "";
+    const match = stem.match(/^(req|item|task|prod|adr|spec)_(\d+)/i);
+    if (!match) {
+      return null;
+    }
+    const kindByPrefix = { req: "request", item: "backlog", task: "task", prod: "product", adr: "architecture", spec: "spec" };
+    const prefixByKind = { request: "R", backlog: "I", task: "T", product: "P", architecture: "A", spec: "S" };
+    const kind = directory === "specs" ? "spec" : kindByPrefix[match[1].toLowerCase()];
+    const prefix = prefixByKind[kind];
+    if (!prefix) {
+      return null;
+    }
+    return { label: `${prefix}${match[2]}`, target: raw, kind };
+  }
+
+  function renderWorkflowRef(value) {
+    const ref = workflowRefInfo(value);
+    if (!ref) {
+      return "";
+    }
+    return `<button class="markdown-preview__doc-ref markdown-preview__doc-ref--${escapeHtml(ref.kind)}" type="button" data-viewer-doc-path="${escapeHtml(ref.target)}" title="${escapeHtml(ref.target)}"><code>${escapeHtml(ref.label)}</code></button>`;
+  }
+
   function renderInlineMarkdown(value) {
     const codeSpans = [];
     const withPlaceholders = String(value).replace(/`([^`]+)`/g, (_match, code) => {
@@ -18,14 +47,14 @@
 
     let rendered = escapeHtml(withPlaceholders);
     rendered = rendered.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, label, href) => {
-      return `<a href="${escapeHtml(String(href).trim())}">${escapeHtml(String(label).trim())}</a>`;
+      return renderWorkflowRef(href) || `<a href="${escapeHtml(String(href).trim())}">${escapeHtml(String(label).trim())}</a>`;
     });
     rendered = rendered.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
     rendered = rendered.replace(/(^|[^*])\*([^*]+)\*/g, "$1<em>$2</em>");
     rendered = rendered.replace(/~~([^~]+)~~/g, "<s>$1</s>");
 
     codeSpans.forEach((code, index) => {
-      rendered = rendered.replace(`@@CODE_SPAN_${index}@@`, `<code>${escapeHtml(String(code))}</code>`);
+      rendered = rendered.replace(`@@CODE_SPAN_${index}@@`, renderWorkflowRef(code) || `<code>${escapeHtml(String(code))}</code>`);
     });
     return rendered;
   }

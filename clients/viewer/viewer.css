@@ -1323,6 +1323,39 @@
   min-width: 0;
 }
 
+.markdown-preview__trace {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  gap: 6px;
+  align-items: center;
+  margin: 6px 0;
+}
+
+.markdown-preview__trace-ac {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--vscode-charts-blue, #3794ff) 18%, transparent);
+  color: var(--vscode-charts-blue, #3794ff);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.markdown-preview__trace-arrow {
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font-size: 11px;
+}
+
+.markdown-preview__trace-target {
+  min-width: 0;
+}
+
+.markdown-preview__trace-proof {
+  grid-column: 3;
+  min-width: 0;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font-size: 12px;
+}
+
 .viewer-insights__rows,
 .viewer-git__files {
   display: grid;

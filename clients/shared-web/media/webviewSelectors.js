@@ -277,9 +277,6 @@
     }
 
     function getHelpBannerMessage() {
-      if (getItems().length === 0) {
-        return "No Logics items are loaded yet. Use New Request or Bootstrap Logics to seed the workspace.";
-      }
       return "";
     }
 

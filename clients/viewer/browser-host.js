@@ -1015,6 +1015,7 @@ ${entry?.message || ""}`;
       renderMermaidDiagrams
     } = options;
     const errorLogKey = "logics.localViewer.errors";
+    const breadcrumbKey = "logics.localViewer.breadcrumbs";
     let lastHealthyDocument = null;
     let documentCheckScheduled = false;
     let documentRecoveryInProgress = false;
@@ -1023,6 +1024,38 @@ ${entry?.message || ""}`;
     let openCircuitFingerprint = "";
     const sessionId = typeof window.crypto?.randomUUID === "function" ? window.crypto.randomUUID() : `viewer-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     let heartbeatTimer = 0;
+    const breadcrumbs = [];
+    function breadcrumb(label) {
+      breadcrumbs.push({ t: Date.now(), label: String(label) });
+      if (breadcrumbs.length > 40) breadcrumbs.splice(0, breadcrumbs.length - 40);
+      try {
+        window.localStorage.setItem(breadcrumbKey, JSON.stringify({ sessionId, clean: false, entries: breadcrumbs }));
+      } catch {
+      }
+    }
+    function reportPriorSessionBreadcrumbs() {
+      let prior = null;
+      try {
+        prior = JSON.parse(window.localStorage.getItem(breadcrumbKey) || "null");
+      } catch {
+      }
+      if (prior && prior.sessionId && prior.clean !== true && Array.isArray(prior.entries) && prior.entries.length) {
+        const entry = {
+          at: (/* @__PURE__ */ new Date()).toISOString(),
+          kind: "prior-session-breadcrumbs",
+          message: `Previous session ${prior.sessionId} ended uncleanly; last operation: ${prior.entries.at(-1)?.label || "?"} (wasDiscarded=${document.wasDiscarded === true})`,
+          sessionId: prior.sessionId,
+          browser: navigator.userAgent,
+          // The server whitelists entry fields, so the trail rides in `stack`
+          // (accepted up to 12k chars) instead of a custom field.
+          stack: prior.entries.map((item) => `${new Date(item.t).toISOString()} ${item.label}`).join("\n"),
+          ...state()
+        };
+        Promise.resolve(postDiagnostic?.("/api/viewer-diagnostics", { entry })).catch(() => {
+        });
+      }
+      breadcrumb("session:start");
+    }
     function state() {
       const panel = getPanel();
       const content = getContent();
@@ -1223,7 +1256,12 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       if (heartbeatTimer) window.clearInterval(heartbeatTimer);
       heartbeatTimer = 0;
       postSession("end", true);
+      try {
+        window.localStorage.setItem(breadcrumbKey, JSON.stringify({ sessionId, clean: true, entries: breadcrumbs }));
+      } catch {
+      }
     }
+    reportPriorSessionBreadcrumbs();
     startSessionHeartbeat();
     window.addEventListener("pagehide", stopSessionHeartbeat);
     window.addEventListener("pageshow", (event) => {
@@ -1234,9 +1272,11 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     window.logicsViewer.diagnostics = () => ({ state: state(), errors: lastErrors() });
     window.logicsViewer.recordError = recordError;
     window.logicsViewer.sessionId = sessionId;
+    window.logicsViewer.breadcrumb = breadcrumb;
     window.addEventListener("error", (event) => recordError(event.error || event.message));
     window.addEventListener("unhandledrejection", (event) => recordError(event.reason));
     return {
+      breadcrumb,
       healthyDocument: () => lastHealthyDocument,
       recordError,
       recoverBlankDocument,
@@ -5416,6 +5456,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         liveMinimizedScreenId = "";
         const title = documentTitle();
         const content = documentContent();
+        viewerDiagnostics.breadcrumb(`closeMinimizedScreen:clear ${entry.title || id}`);
         if (title) title.textContent = "";
         if (content) content.innerHTML = "";
       }
@@ -5565,6 +5606,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       const sameScreenRepaint = Boolean(content) && content.childNodes.length > 0 && !options.forceReset && previousTitle === (titleText || "Document");
       const preserved = sameScreenRepaint ? captureDocumentViewState(content) : null;
       const previousDocument = content && content.childNodes.length > 0 ? { title: previousTitle || "Document", html: content.innerHTML } : viewerDiagnostics.healthyDocument();
+      viewerDiagnostics.breadcrumb(`setDocument:start ${titleText || "Document"}`);
       try {
         if (title) {
           title.textContent = titleText || "Document";
@@ -5592,6 +5634,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         if (preserved) restoreDocumentViewState(content, preserved);
         viewerDiagnostics.rememberHealthyDocument();
         if (content && content.childNodes.length === 0) viewerDiagnostics.recoverBlankDocument();
+        viewerDiagnostics.breadcrumb(`setDocument:end ${titleText || "Document"}`);
       } catch (error) {
         viewerDiagnostics.recordError(error, { kind: "render-error", screen: titleText || "Document" });
         if (previousDocument && content) {
@@ -5900,6 +5943,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       const title = documentTitle();
       if (!panel || panel.hidden || !title) return;
       const screen = title.textContent || "";
+      viewerDiagnostics.breadcrumb(`refreshCurrentScreen ${screen}`);
       const opts = { force: true };
       if (screen === "Getting Started") return showGettingStarted();
       if (screen === "CDX status") return showCdxStatus(opts);
@@ -6981,6 +7025,7 @@ ${line}` : line;
         openWorkshopTerminalStream(entry.id);
       }
       if (entry.bufferedOutput) {
+        viewerDiagnostics.breadcrumb(`terminal:replay ${entry.id} ${entry.bufferedOutput.length}b`);
         term.write(entry.bufferedOutput);
         entry.bufferedOutput = "";
       }

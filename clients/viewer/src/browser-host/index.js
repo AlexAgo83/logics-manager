@@ -2234,6 +2234,7 @@ import {
       liveMinimizedScreenId = "";
       const title = documentTitle();
       const content = documentContent();
+      viewerDiagnostics.breadcrumb(`closeMinimizedScreen:clear ${entry.title || id}`);
       if (title) title.textContent = "";
       if (content) content.innerHTML = "";
     }
@@ -2427,6 +2428,7 @@ import {
     const previousDocument = content && content.childNodes.length > 0
       ? { title: previousTitle || "Document", html: content.innerHTML }
       : viewerDiagnostics.healthyDocument();
+    viewerDiagnostics.breadcrumb(`setDocument:start ${titleText || "Document"}`);
     try {
       if (title) {
         title.textContent = titleText || "Document";
@@ -2457,6 +2459,7 @@ import {
       if (preserved) restoreDocumentViewState(content, preserved);
       viewerDiagnostics.rememberHealthyDocument();
       if (content && content.childNodes.length === 0) viewerDiagnostics.recoverBlankDocument();
+      viewerDiagnostics.breadcrumb(`setDocument:end ${titleText || "Document"}`);
     } catch (error) {
       viewerDiagnostics.recordError(error, { kind: "render-error", screen: titleText || "Document" });
       if (previousDocument && content) {
@@ -2800,6 +2803,7 @@ import {
     const title = documentTitle();
     if (!panel || panel.hidden || !title) return;
     const screen = title.textContent || "";
+    viewerDiagnostics.breadcrumb(`refreshCurrentScreen ${screen}`);
     const opts = { force: true };
     if (screen === "Getting Started") return showGettingStarted();
     if (screen === "CDX status") return showCdxStatus(opts);
@@ -4035,6 +4039,7 @@ import {
       openWorkshopTerminalStream(entry.id);
     }
     if (entry.bufferedOutput) {
+      viewerDiagnostics.breadcrumb(`terminal:replay ${entry.id} ${entry.bufferedOutput.length}b`);
       term.write(entry.bufferedOutput);
       entry.bufferedOutput = "";
     }

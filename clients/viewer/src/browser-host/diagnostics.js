@@ -83,7 +83,6 @@ export function createViewerDiagnostics(options) {
       }
       try { window.localStorage.removeItem(key); } catch { /* noop */ }
     }
-    breadcrumb("session:start");
   }
 
   // The leading hypothesis for the blank-screen crash is a synchronous
@@ -305,9 +304,13 @@ export function createViewerDiagnostics(options) {
     heartbeatTimer = window.setInterval(() => {
       postSession("heartbeat");
       checkBlankUi();
-      // Re-touch the breadcrumb blob so the boot sweep can tell a live
-      // sibling tab (fresh touchedAt) from a dead one (stale).
+      // Re-touch the breadcrumb blob so the sweep can tell a live sibling
+      // tab (fresh touchedAt) from a dead one (stale).
       writeBreadcrumbBlob(false);
+      // Sweep on every tick, not just at boot: a reload within 30s of a
+      // crash finds the dead tab's blob still fresh and must leave it, so
+      // without this the trail waits for the NEXT page load to surface.
+      reportStaleBreadcrumbTrails();
     }, 10_000);
   }
 
@@ -319,6 +322,7 @@ export function createViewerDiagnostics(options) {
   }
 
   reportStaleBreadcrumbTrails();
+  breadcrumb("session:start");
   startSessionHeartbeat();
   window.addEventListener("pagehide", stopSessionHeartbeat);
   window.addEventListener("pageshow", (event) => {

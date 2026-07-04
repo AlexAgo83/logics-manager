@@ -1074,7 +1074,6 @@ ${entry?.message || ""}`;
         } catch {
         }
       }
-      breadcrumb("session:start");
     }
     try {
       new PerformanceObserver((list) => {
@@ -1279,6 +1278,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         postSession("heartbeat");
         checkBlankUi();
         writeBreadcrumbBlob(false);
+        reportStaleBreadcrumbTrails();
       }, 1e4);
     }
     function stopSessionHeartbeat() {
@@ -1288,6 +1288,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       writeBreadcrumbBlob(true);
     }
     reportStaleBreadcrumbTrails();
+    breadcrumb("session:start");
     startSessionHeartbeat();
     window.addEventListener("pagehide", stopSessionHeartbeat);
     window.addEventListener("pageshow", (event) => {

@@ -19,6 +19,7 @@ export function createViewerDiagnostics(options) {
     renderMermaidDiagrams
   } = options;
   const errorLogKey = "logics.localViewer.errors";
+  const breadcrumbKey = "logics.localViewer.breadcrumbs";
   let lastHealthyDocument = null;
   let documentCheckScheduled = false;
   let documentRecoveryInProgress = false;
@@ -29,6 +30,41 @@ export function createViewerDiagnostics(options) {
     ? window.crypto.randomUUID()
     : `viewer-${Date.now()}-${Math.random().toString(16).slice(2)}`;
   let heartbeatTimer = 0;
+
+  // Synchronous breadcrumb trail persisted to localStorage so it survives a
+  // renderer death or a main-thread hang (heartbeats can't: they need the
+  // event loop). If the last entry before an unclean end is a ":start"
+  // without its ":end", the crash happened inside that operation.
+  const breadcrumbs = [];
+  function breadcrumb(label) {
+    breadcrumbs.push({ t: Date.now(), label: String(label) });
+    if (breadcrumbs.length > 40) breadcrumbs.splice(0, breadcrumbs.length - 40);
+    try {
+      window.localStorage.setItem(breadcrumbKey, JSON.stringify({ sessionId, clean: false, entries: breadcrumbs }));
+    } catch { /* noop */ }
+  }
+
+  function reportPriorSessionBreadcrumbs() {
+    let prior = null;
+    try {
+      prior = JSON.parse(window.localStorage.getItem(breadcrumbKey) || "null");
+    } catch { /* noop */ }
+    if (prior && prior.sessionId && prior.clean !== true && Array.isArray(prior.entries) && prior.entries.length) {
+      const entry = {
+        at: new Date().toISOString(),
+        kind: "prior-session-breadcrumbs",
+        message: `Previous session ${prior.sessionId} ended uncleanly; last operation: ${prior.entries.at(-1)?.label || "?"} (wasDiscarded=${document.wasDiscarded === true})`,
+        sessionId: prior.sessionId,
+        browser: navigator.userAgent,
+        // The server whitelists entry fields, so the trail rides in `stack`
+        // (accepted up to 12k chars) instead of a custom field.
+        stack: prior.entries.map((item) => `${new Date(item.t).toISOString()} ${item.label}`).join("\n"),
+        ...state()
+      };
+      Promise.resolve(postDiagnostic?.("/api/viewer-diagnostics", { entry })).catch(() => {});
+    }
+    breadcrumb("session:start");
+  }
 
   function state() {
     const panel = getPanel();
@@ -245,8 +281,12 @@ export function createViewerDiagnostics(options) {
     if (heartbeatTimer) window.clearInterval(heartbeatTimer);
     heartbeatTimer = 0;
     postSession("end", true);
+    try {
+      window.localStorage.setItem(breadcrumbKey, JSON.stringify({ sessionId, clean: true, entries: breadcrumbs }));
+    } catch { /* noop */ }
   }
 
+  reportPriorSessionBreadcrumbs();
   startSessionHeartbeat();
   window.addEventListener("pagehide", stopSessionHeartbeat);
   window.addEventListener("pageshow", (event) => {
@@ -258,10 +298,12 @@ export function createViewerDiagnostics(options) {
   window.logicsViewer.diagnostics = () => ({ state: state(), errors: lastErrors() });
   window.logicsViewer.recordError = recordError;
   window.logicsViewer.sessionId = sessionId;
+  window.logicsViewer.breadcrumb = breadcrumb;
   window.addEventListener("error", (event) => recordError(event.error || event.message));
   window.addEventListener("unhandledrejection", (event) => recordError(event.reason));
 
   return {
+    breadcrumb,
     healthyDocument: () => lastHealthyDocument,
     recordError,
     recoverBlankDocument,

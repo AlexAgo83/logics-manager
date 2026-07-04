@@ -4,6 +4,12 @@ import * as vm from "vm";
 import { JSDOM } from "jsdom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+// Browser-host JSDOMs left open keep their diagnostics heartbeat/blank-ui
+// intervals firing for the rest of the file; a console.error landing during
+// worker teardown flakes the run with "Closing rpc while onUserConsoleLog was
+// pending". Track them so afterEach can close them (which stops the timers).
+const openBrowserHostDoms: JSDOM[] = [];
+
 async function flushViewerAsync() {
   await new Promise((resolve) => setTimeout(resolve, 0));
 }
@@ -1382,12 +1388,16 @@ function createViewerDom(options: {
   `).runInContext(dom.getInternalVMContext());
   loadScript(dom, "clients/viewer/browser-host.js");
   dom.window.dispatchEvent(new dom.window.Event("load"));
+  openBrowserHostDoms.push(dom);
   return { dom, calls, fetchCalls };
 }
 
 describe("local viewer browser host", () => {
   afterEach(() => {
     vi.useRealTimers();
+    for (const dom of openBrowserHostDoms.splice(0)) {
+      dom.window.close();
+    }
   });
 
   function setDocumentHidden(dom: JSDOM, hidden: boolean) {

@@ -10,106 +10,52 @@ permissions:
   contents: write
 
 jobs:
-  validate-release-ubuntu:
+  # The tag points at a commit the CI workflow already validates on both
+  # platforms (push on main), so re-running the full suite here doubled the
+  # release wall clock for no new information. Gate on that CI run instead.
+  await-ci:
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-
-      - name: Install Python coverage tooling
-        run: python -m pip install --upgrade coverage pytest
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Supported CI validation
-        run: node scripts/ci-check.mjs
-
-      - name: Ensure tag matches package version
+      - name: Wait for CI success on this commit
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          if [ "v${PACKAGE_VERSION}" != "${GITHUB_REF_NAME}" ]; then
-            echo "Tag ${GITHUB_REF_NAME} does not match package.json version v${PACKAGE_VERSION}" >&2
-            exit 1
-          fi
-
-      - name: Compile
-        run: npm run compile
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Unit tests + coverage
-        run: npm run test:coverage
-
-      - name: Extension smoke checks
-        run: npm run test:smoke
-
-      - name: Logics docs lint
-        run: npm run lint:logics
-
-      - name: VSIX package validation
-        run: npm run package:ci
-
-  validate-release-windows:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-
-      - name: Install Python coverage tooling
-        run: python -m pip install --upgrade coverage pytest
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Supported CI validation
-        run: node scripts/ci-check.mjs
-
-      - name: Compile
-        run: npm run compile
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Unit tests + coverage
-        run: npm run test:coverage
-
-      - name: Extension smoke checks
-        run: npm run test:smoke
-
-      - name: Logics docs lint
-        run: npm run lint:logics
-
-      - name: VSIX package validation
-        run: npm run package:ci
+          echo "Waiting for CI workflow conclusion on ${GITHUB_SHA}..."
+          missing=0
+          for attempt in $(seq 1 60); do
+            state=$(gh run list --repo "${GITHUB_REPOSITORY}" --workflow CI --commit "${GITHUB_SHA}" --limit 1 \
+              --json status,conclusion \
+              --jq 'if length == 0 then "missing" elif .[0].status != "completed" then "pending" else .[0].conclusion end')
+            case "${state}" in
+              success)
+                echo "CI is green for ${GITHUB_SHA}."
+                exit 0
+                ;;
+              failure|cancelled|timed_out|startup_failure)
+                echo "CI concluded '${state}' for ${GITHUB_SHA}; fix or rerun CI, then rerun this release." >&2
+                exit 1
+                ;;
+              missing)
+                missing=$((missing + 1))
+                if [ "${missing}" -ge 9 ]; then
+                  echo "No CI run found for ${GITHUB_SHA} after ~3 minutes. Push the commit to a branch so CI runs, then rerun this release." >&2
+                  exit 1
+                fi
+                ;;
+            esac
+            echo "attempt ${attempt}: CI is ${state}"
+            sleep 20
+          done
+          echo "Timed out waiting for CI on ${GITHUB_SHA}." >&2
+          exit 1
 
   release:
     runs-on: ubuntu-latest
     needs:
-      - validate-release-ubuntu
-      - validate-release-windows
+      - await-ci
     steps:
       - name: Checkout
         uses: actions/checkout@v6

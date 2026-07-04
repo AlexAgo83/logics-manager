@@ -1,4 +1,4 @@
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
@@ -53,11 +53,28 @@ runStep(
 );
 ensureRequestsUnchanged(requestSnapshot);
 
+// The pytest suite touches nothing the node steps touch, so it runs in the
+// background while they proceed serially; its buffered output is replayed at
+// the end. It must still start here, after the sync/snapshot gate above.
+let backgroundStep = null;
 for (const step of steps.slice(1)) {
   if (step.label === "Logics docs lint (strict status)") {
     continue;
   }
+  if (step.label === "Logics manager CLI tests") {
+    console.log(`\n==> ${step.label} (running in background)`);
+    backgroundStep = startBackgroundStep(step.label, step.command, step.args);
+    continue;
+  }
   runStep(step.label, step.command, step.args);
+}
+if (backgroundStep) {
+  const result = await backgroundStep;
+  console.log(`\n==> ${result.label} (background output)`);
+  process.stdout.write(result.output);
+  if (result.code !== 0) {
+    process.exit(result.code ?? 1);
+  }
 }
 
 function npmCommand() {
@@ -100,6 +117,21 @@ function isSupportedPythonVersion(stdout, stderr) {
   const major = Number.parseInt(match[1], 10);
   const minor = Number.parseInt(match[2], 10);
   return major > 3 || (major === 3 && minor >= 10);
+}
+
+function startBackgroundStep(label, command, args) {
+  const child = spawn(command, args, {
+    cwd: repoRoot,
+    stdio: ["ignore", "pipe", "pipe"],
+    shell: process.platform === "win32" && command.startsWith("npm")
+  });
+  let output = "";
+  child.stdout.on("data", (chunk) => { output += chunk; });
+  child.stderr.on("data", (chunk) => { output += chunk; });
+  return new Promise((resolveStep) => {
+    child.on("error", (error) => resolveStep({ label, code: 1, output: `${output}\n${error}` }));
+    child.on("close", (code) => resolveStep({ label, code, output }));
+  });
 }
 
 function runStep(label, command, args) {

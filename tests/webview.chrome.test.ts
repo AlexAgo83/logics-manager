@@ -222,7 +222,7 @@ describe("webview chrome toolbar and filter behavior", () => {
     expect(viewModeToggle?.hidden).toBe(false);
   });
 
-  it("shows help banner when no items are loaded", () => {
+  it("hides help banner when no items are loaded", () => {
     const { dom } = bootstrapWebview();
 
     pushData(dom, {
@@ -233,8 +233,8 @@ describe("webview chrome toolbar and filter behavior", () => {
     const helpBanner = dom.window.document.getElementById("help-banner");
     const helpBannerCopy = dom.window.document.getElementById("help-banner-copy");
 
-    expect(helpBanner?.hidden).toBe(false);
-    expect(helpBannerCopy?.textContent).toContain("No Logics items");
+    expect(helpBanner?.hidden).toBe(true);
+    expect(helpBannerCopy?.textContent).toBe("");
   });
 
   it("hides help banner when items exist but none selected", () => {

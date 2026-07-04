@@ -1048,7 +1048,7 @@ describe("webview harness core behaviors", () => {
 
     expect(board?.textContent).toContain("New Request");
     expect(board?.textContent).toContain("Bootstrap Logics");
-    expect(helpBanner?.hidden).toBe(false);
+    expect(helpBanner?.hidden).toBe(true);
   });
 
   it("shows and dismisses contextual onboarding help without breaking the details empty state", () => {

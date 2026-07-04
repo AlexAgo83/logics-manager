@@ -1015,7 +1015,7 @@ ${entry?.message || ""}`;
       renderMermaidDiagrams
     } = options;
     const errorLogKey = "logics.localViewer.errors";
-    const breadcrumbKey = "logics.localViewer.breadcrumbs";
+    const breadcrumbKeyPrefix = "logics.localViewer.breadcrumbs";
     let lastHealthyDocument = null;
     let documentCheckScheduled = false;
     let documentRecoveryInProgress = false;
@@ -1024,37 +1024,65 @@ ${entry?.message || ""}`;
     let openCircuitFingerprint = "";
     const sessionId = typeof window.crypto?.randomUUID === "function" ? window.crypto.randomUUID() : `viewer-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     let heartbeatTimer = 0;
+    const breadcrumbKey = `${breadcrumbKeyPrefix}.${sessionId}`;
     const breadcrumbs = [];
-    function breadcrumb(label) {
-      breadcrumbs.push({ t: Date.now(), label: String(label) });
-      if (breadcrumbs.length > 40) breadcrumbs.splice(0, breadcrumbs.length - 40);
+    function writeBreadcrumbBlob(clean) {
       try {
-        window.localStorage.setItem(breadcrumbKey, JSON.stringify({ sessionId, clean: false, entries: breadcrumbs }));
+        window.localStorage.setItem(breadcrumbKey, JSON.stringify({ sessionId, clean, touchedAt: Date.now(), entries: breadcrumbs }));
       } catch {
       }
     }
-    function reportPriorSessionBreadcrumbs() {
-      let prior = null;
+    function breadcrumb(label) {
+      breadcrumbs.push({ t: Date.now(), label: String(label) });
+      if (breadcrumbs.length > 40) breadcrumbs.splice(0, breadcrumbs.length - 40);
+      writeBreadcrumbBlob(false);
+    }
+    function reportStaleBreadcrumbTrails() {
+      const foreignKeys = [];
       try {
-        prior = JSON.parse(window.localStorage.getItem(breadcrumbKey) || "null");
+        for (let index = 0; index < window.localStorage.length; index++) {
+          const key = window.localStorage.key(index);
+          if (key && key.startsWith(breadcrumbKeyPrefix) && key !== breadcrumbKey) foreignKeys.push(key);
+        }
       } catch {
       }
-      if (prior && prior.sessionId && prior.clean !== true && Array.isArray(prior.entries) && prior.entries.length) {
-        const entry = {
-          at: (/* @__PURE__ */ new Date()).toISOString(),
-          kind: "prior-session-breadcrumbs",
-          message: `Previous session ${prior.sessionId} ended uncleanly; last operation: ${prior.entries.at(-1)?.label || "?"} (wasDiscarded=${document.wasDiscarded === true})`,
-          sessionId: prior.sessionId,
-          browser: navigator.userAgent,
-          // The server whitelists entry fields, so the trail rides in `stack`
-          // (accepted up to 12k chars) instead of a custom field.
-          stack: prior.entries.map((item) => `${new Date(item.t).toISOString()} ${item.label}`).join("\n"),
-          ...state()
-        };
-        Promise.resolve(postDiagnostic?.("/api/viewer-diagnostics", { entry })).catch(() => {
-        });
+      for (const key of foreignKeys) {
+        let prior = null;
+        try {
+          prior = JSON.parse(window.localStorage.getItem(key) || "null");
+        } catch {
+        }
+        const unclean = prior?.clean !== true && Array.isArray(prior?.entries) && prior.entries.length > 0;
+        if (unclean && Date.now() - Number(prior?.touchedAt || 0) < 3e4) continue;
+        if (unclean) {
+          const entry = {
+            at: (/* @__PURE__ */ new Date()).toISOString(),
+            kind: "prior-session-breadcrumbs",
+            message: `Previous session ${prior.sessionId || key} ended uncleanly; last operation: ${prior.entries.at(-1)?.label || "?"} (wasDiscarded=${document.wasDiscarded === true})`,
+            sessionId: String(prior.sessionId || ""),
+            browser: navigator.userAgent,
+            // The server whitelists entry fields, so the trail rides in `stack`
+            // (accepted up to 12k chars) instead of a custom field.
+            stack: prior.entries.map((item) => `${new Date(item.t).toISOString()} ${item.label}`).join("\n"),
+            ...state()
+          };
+          Promise.resolve(postDiagnostic?.("/api/viewer-diagnostics", { entry })).catch(() => {
+          });
+        }
+        try {
+          window.localStorage.removeItem(key);
+        } catch {
+        }
       }
       breadcrumb("session:start");
+    }
+    try {
+      new PerformanceObserver((list) => {
+        for (const item of list.getEntries()) {
+          if (item.duration >= 200) breadcrumb(`longtask ${Math.round(item.duration)}ms`);
+        }
+      }).observe({ entryTypes: ["longtask"] });
+    } catch {
     }
     function state() {
       const panel = getPanel();
@@ -1250,18 +1278,16 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       heartbeatTimer = window.setInterval(() => {
         postSession("heartbeat");
         checkBlankUi();
+        writeBreadcrumbBlob(false);
       }, 1e4);
     }
     function stopSessionHeartbeat() {
       if (heartbeatTimer) window.clearInterval(heartbeatTimer);
       heartbeatTimer = 0;
       postSession("end", true);
-      try {
-        window.localStorage.setItem(breadcrumbKey, JSON.stringify({ sessionId, clean: true, entries: breadcrumbs }));
-      } catch {
-      }
+      writeBreadcrumbBlob(true);
     }
-    reportPriorSessionBreadcrumbs();
+    reportStaleBreadcrumbTrails();
     startSessionHeartbeat();
     window.addEventListener("pagehide", stopSessionHeartbeat);
     window.addEventListener("pageshow", (event) => {

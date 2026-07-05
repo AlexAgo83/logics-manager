@@ -1,7 +1,6 @@
 name: Publish PyPI
 
 on:
-  workflow_dispatch:
   workflow_call:
 
 permissions:
@@ -10,7 +9,7 @@ permissions:
 
 jobs:
   build:
-    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v') }}
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -70,7 +69,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     needs: build
-    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v') }}
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     environment:
       name: pypi
     steps:

@@ -88,6 +88,19 @@ describe("logicsGlobalKitLifecycle", () => {
     expect(tiers.get("throwing-skill")).toBe("core");
   });
 
+  it("uses packaged skill assets when workflow skills are absent", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-"));
+    roots.push(root);
+    const skillRoot = path.join(root, "logics_manager", "skill_assets", "corpus");
+    fs.mkdirSync(skillRoot, { recursive: true });
+    fs.writeFileSync(path.join(skillRoot, "SKILL.md"), "# corpus\n", "utf8");
+
+    const source = buildRepoKitSource(root);
+
+    expect(source.repoSkillsRoot).toBe(path.join(root, "logics_manager", "skill_assets"));
+    expect(source.repoSkillNames).toEqual(["corpus"]);
+  });
+
   it("covers publishSkill copy fallback and symlink recreation", () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-"));
     roots.push(root);

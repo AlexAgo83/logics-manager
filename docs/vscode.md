@@ -66,6 +66,16 @@ npm run dev
 
 `npm run dev` requires the `code` CLI on PATH, so the F5 path above remains the safest cross-platform dev entrypoint.
 
+On macOS, the one-command development check rebuilds the viewer assets and extension before opening a fresh Extension Development Host:
+
+```bash
+npm run test:vscode
+```
+
+### Startup notifications
+
+Automatic notifications are limited to actionable environment drift: an unsupported runtime version, missing bootstrap files, an unavailable global runtime publication source, or dangerous `.gitignore` rules. Version bounds must match the extension's tested release line, and runtime publication accepts either repository workflow skills (`logics/skills`) or Logics Manager's packaged skills (`logics_manager/skill_assets`). Other diagnostics stay in **Logics: Check Environment** instead of appearing at startup.
+
 ### Browser UI Debugging
 
 Use the real local viewer for repository data:

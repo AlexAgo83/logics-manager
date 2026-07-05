@@ -69,9 +69,17 @@ export function buildEmbeddedViewerHtml(webview: vscode.Webview, state: Embedded
   <script nonce="${nonce}">
     const vscode = acquireVsCodeApi();
     const frameOrigin = ${JSON.stringify(frameOrigin)};
+    const frame = document.getElementById("viewer-frame");
+    frame?.addEventListener("load", () => {
+      frame.contentWindow?.postMessage({ type: "viewer-project-last-used", projectLastUsedAt: vscode.getState()?.projectLastUsedAt || {} }, frameOrigin);
+    });
     window.addEventListener("message", (event) => {
-      if (!frameOrigin || event.origin !== frameOrigin || !event.data || event.data.type !== "launch-workshop-terminal") return;
-      vscode.postMessage(event.data);
+      if (!frameOrigin || event.origin !== frameOrigin || !event.data) return;
+      if (event.data.type === "viewer-project-last-used") {
+        vscode.setState({ ...(vscode.getState() || {}), projectLastUsedAt: event.data.projectLastUsedAt });
+      } else if (event.data.type === "launch-workshop-terminal") {
+        vscode.postMessage(event.data);
+      }
     });
     document.addEventListener("click", (event) => {
       const button = event.target?.closest?.("[data-action]");

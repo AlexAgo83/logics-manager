@@ -3855,6 +3855,15 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         renderProjectMenu();
       }
     });
+    window.addEventListener("message", (event) => {
+      if (event.data?.type !== "viewer-embed-host" || event.data.host !== "vscode" || window.parent === window) return;
+      const section = document.getElementById("viewer-vscode-section");
+      if (!(section instanceof HTMLElement)) return;
+      section.hidden = false;
+      document.getElementById("viewer-vscode-reload")?.addEventListener("click", () => window.location.reload());
+      document.getElementById("viewer-vscode-restart")?.addEventListener("click", () => window.parent.postMessage({ type: "restart-viewer" }, "*"));
+      document.getElementById("viewer-vscode-open-external")?.addEventListener("click", () => window.parent.postMessage({ type: "open-external-viewer" }, "*"));
+    });
     function workshopUsesSystemTerminal() {
       return viewerPreferences.workshopUseSystemTerminal === true || window.parent !== window;
     }
@@ -4345,12 +4354,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     function renderMeta() {
       const node = meta();
       if (node) {
-        const parts = [latestMetaText];
-        if (autoRefreshEnabled && nextAutoRefreshAt > 0) {
-          const seconds = Math.max(0, Math.ceil((nextAutoRefreshAt - Date.now()) / 1e3));
-          parts.push(`next auto refresh in ${seconds}s`);
-        }
-        node.textContent = parts.join(" \xB7 ");
+        node.textContent = latestMetaText;
       }
     }
     function updateRefreshIntervalControl() {
@@ -6031,9 +6035,6 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         return;
       }
       autoRefreshStarted = true;
-      window.setInterval(() => {
-        renderMeta();
-      }, 1e3);
       document.addEventListener("visibilitychange", () => {
         if (!document.hidden && refreshAfterVisible) {
           refreshAfterVisible = false;

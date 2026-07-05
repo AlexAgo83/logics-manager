@@ -73,6 +73,7 @@
 | [prod_034_shared_web_asset_single_sourcing](product/prod_034_shared_web_asset_single_sourcing.md) | Shared web asset single-sourcing | Settled |  |  | product/prod_034_shared_web_asset_single_sourcing.md |
 | [prod_035_scaffold_tooling_robustness](product/prod_035_scaffold_tooling_robustness.md) | Scaffold tooling robustness | Settled |  |  | product/prod_035_scaffold_tooling_robustness.md |
 | [prod_036_vs_code_embedded_viewer_parity](product/prod_036_vs_code_embedded_viewer_parity.md) | VS Code embedded viewer parity | Accepted |  |  | product/prod_036_vs_code_embedded_viewer_parity.md |
+| [prod_037_split_cdx_usage_gauge](product/prod_037_split_cdx_usage_gauge.md) | Split CDX usage gauge | Proposed |  |  | product/prod_037_split_cdx_usage_gauge.md |
 
 ## Requests
 
@@ -365,6 +366,7 @@
 | [req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting](request/req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting.md) | Make flow scaffold request-chain fail-fast, atomic, and self-documenting | Done |  |  | request/req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting.md |
 | [req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui](request/req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui.md) | Make the VS Code extension host the same Logics viewer UI | Done |  |  | request/req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui.md |
 | [req_288_sort_projects_by_last_used](request/req_288_sort_projects_by_last_used.md) | Sort projects by last used | Ready |  |  | request/req_288_sort_projects_by_last_used.md |
+| [req_289_split_the_cdx_usage_gauge_into_5h_and_week_columns](request/req_289_split_the_cdx_usage_gauge_into_5h_and_week_columns.md) | Split the CDX usage gauge into 5h and week columns | Draft |  |  | request/req_289_split_the_cdx_usage_gauge_into_5h_and_week_columns.md |
 
 ## Backlog
 
@@ -901,6 +903,7 @@
 | [item_529_bring_viewer_write_actions_and_focus_workflows_to_parity_in_vs_code](backlog/item_529_bring_viewer_write_actions_and_focus_workflows_to_parity_in_vs_code.md) | Bring viewer write actions and focus workflows to parity in VS Code | Done |  | 100% | backlog/item_529_bring_viewer_write_actions_and_focus_workflows_to_parity_in_vs_code.md |
 | [item_530_retire_the_historical_vs_code_cockpit_and_command_surface](backlog/item_530_retire_the_historical_vs_code_cockpit_and_command_surface.md) | Retire the historical VS Code cockpit and command surface | Done |  | 100% | backlog/item_530_retire_the_historical_vs_code_cockpit_and_command_surface.md |
 | [item_531_sort_projects_by_last_used](backlog/item_531_sort_projects_by_last_used.md) | Sort projects by last used | Ready |  | 0 | backlog/item_531_sort_projects_by_last_used.md |
+| [item_532_render_split_5h_week_cdx_usage_gauge](backlog/item_532_render_split_5h_week_cdx_usage_gauge.md) | Render split 5h/week CDX usage gauge | Ready |  | 0% | backlog/item_532_render_split_5h_week_cdx_usage_gauge.md |
 
 ## Tasks
 
@@ -1185,3 +1188,4 @@
 | [task_283_orchestrate_scaffold_robustness_hardening](tasks/task_283_orchestrate_scaffold_robustness_hardening.md) | Orchestrate scaffold robustness hardening | Done | digital | 100% | tasks/task_283_orchestrate_scaffold_robustness_hardening.md |
 | [task_284_orchestrate_vs_code_embedded_viewer_parity](tasks/task_284_orchestrate_vs_code_embedded_viewer_parity.md) | Orchestrate VS Code embedded viewer parity | Done | codex | 100% | tasks/task_284_orchestrate_vs_code_embedded_viewer_parity.md |
 | [task_285_sort_projects_by_last_used](tasks/task_285_sort_projects_by_last_used.md) | Sort projects by last used | Ready |  | 0 | tasks/task_285_sort_projects_by_last_used.md |
+| [task_286_implement_split_5h_week_cdx_usage_gauge](tasks/task_286_implement_split_5h_week_cdx_usage_gauge.md) | Implement split 5h/week CDX usage gauge | Ready |  | 0% | tasks/task_286_implement_split_5h_week_cdx_usage_gauge.md |

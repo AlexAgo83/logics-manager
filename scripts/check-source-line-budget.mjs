@@ -32,9 +32,9 @@ const allowedOversizedFiles = new Map(
     // req_273: de-glued frontend sources. esbuild/concatenation now consume these directly
     // instead of a regex part-manifest + readFileSync.join, so the bundles stay byte-stable.
     // 7250: viewer screen minimization and workshop terminal follow-ups added here;
-    // 7354: blank-crash breadcrumb instrumentation at the render hot spots;
+    // 7356: viewer settings/menu follow-up added two lines around the render hot spots;
     // reclaim via the paused state.js/git/workshop split.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 7354, ref: "req_273" },
+    "clients/viewer/src/browser-host/index.js": { maxLines: 7356, ref: "req_273" },
     // De-monolith passes 1-3: pure helpers/data extracted out of index.js. May
     // be split by domain (cdx/git/dom) in later passes as they grow.
     "clients/viewer/src/browser-host/util.js": { maxLines: 1200, ref: "browser-host-split" },

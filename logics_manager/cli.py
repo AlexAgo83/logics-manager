@@ -23,7 +23,7 @@ from .lint import lint_payload, render_lint
 from .sync import search_logics_docs_payload
 from .doctor import render_doctor
 from .termstyle import colorize_help
-from .update_check import get_update_notice
+from .update_check import current_version as package_current_version, get_update_notice
 
 
 DEFAULT_SELF_UPDATE_PY_PACKAGE = "logics-manager"
@@ -132,19 +132,7 @@ def _print_help(text: str) -> None:
 
 
 def get_cli_version() -> str:
-    version_file = Path(__file__).resolve().parents[1] / "VERSION"
-    try:
-        version = version_file.read_text(encoding="utf-8").strip()
-    except OSError:
-        version = ""
-    if version:
-        return version
-
-    try:
-        return metadata.version("logics-manager")
-    except metadata.PackageNotFoundError:
-        pass
-    return "0.0.0"
+    return package_current_version()
 
 
 def _is_running_inside_venv() -> bool:

@@ -6856,7 +6856,7 @@ ${line}` : line;
     }
     function cdxUsageFromStatus(item) {
       const fiveHourReset = formatCdxResetAt(cdxField(item, ["reset_5h_at", "reset5hAt", "reset_at", "resetAt"], ""));
-      const fiveHour = { percent: cdxRemainingPct({ available_pct: cdxField(item, ["remaining_5h_pct", "remaining5hPct", "available_pct", "availablePct"], NaN) }), reset: fiveHourReset };
+      const fiveHour = { percent: cdxRemainingPct({ available_pct: cdxField(item, ["remaining_5h_pct", "remaining5hPct"], NaN) }), reset: fiveHourReset };
       const week = { percent: cdxRemainingPct({ available_pct: cdxField(item, ["remaining_week_pct", "remainingWeekPct"], NaN) }), reset: formatCdxResetAt(cdxField(item, ["reset_week_at", "resetWeekAt", "reset_at", "resetAt"], "")) };
       return { percent: cdxRemainingPct(item), reset: fiveHourReset, fiveHour, week };
     }

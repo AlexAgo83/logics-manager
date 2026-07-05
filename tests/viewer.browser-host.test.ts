@@ -5766,6 +5766,22 @@ describe("local viewer browser host", () => {
     expect(gauge?.getAttribute("title")).toContain("week remaining: unknown");
   });
 
+  it("does not substitute general availability when the 5h gauge value is missing", async () => {
+    const payload = cdxRowsStatusPayload();
+    payload.body.payload.status.rows[0].remaining_5h_pct = null;
+    const { dom } = createViewerDom({ cdxResponse: payload });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    const gauge = dom.window.document.querySelector('.viewer-cdx__ok-cell [data-viewer-cdx-usage-refresh="work2"]') as HTMLElement | null;
+    expect(gauge?.getAttribute("title")).toContain("5h remaining: unknown");
+    expect(gauge?.getAttribute("title")).toContain("week remaining: 3%");
+  });
+
   it("refreshes a CDX status table usage gauge after clicking it", async () => {
     let refreshed = false;
     const { dom } = createViewerDom({

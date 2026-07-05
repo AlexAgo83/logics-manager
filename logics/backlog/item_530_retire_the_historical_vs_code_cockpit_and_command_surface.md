@@ -1,10 +1,10 @@
 ## item_530_retire_the_historical_vs_code_cockpit_and_command_surface - Retire the historical VS Code cockpit and command surface
 > From version: 2.15.7
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Legacy cleanup
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -34,6 +34,10 @@
 - request-AC5 -> This backlog slice. Proof: AC1: Normal VS Code use no longer exercises the historical cockpit HTML or TypeScript Logics indexing path.
 - request-AC6 -> This backlog slice. Proof: AC2: Command palette entries no longer advertise actions that are better handled inside the embedded viewer UI.
 - request-AC10 -> This backlog slice. Proof: AC3: Dead VS Code controllers and tests are removed after references are gone.
+- request-AC4 -> This backlog slice. Proof: Implemented by task_284: ADR 026, viewer server manager, embedded iframe shell, reduced VS Code command surface, docs parity matrix; validation passed with npm run lint, npm test, npm run compile, npm run test:viewer-smoke, logics-manager lint --require-status, and logics-manager audit --group-by-doc. Source: `task_284_orchestrate_vs_code_embedded_viewer_parity`
+- request-AC7 -> This backlog slice. Proof: Implemented by task_284: ADR 026, viewer server manager, embedded iframe shell, reduced VS Code command surface, docs parity matrix; validation passed with npm run lint, npm test, npm run compile, npm run test:viewer-smoke, logics-manager lint --require-status, and logics-manager audit --group-by-doc. Source: `task_284_orchestrate_vs_code_embedded_viewer_parity`
+- request-AC8 -> This backlog slice. Proof: Implemented by task_284: ADR 026, viewer server manager, embedded iframe shell, reduced VS Code command surface, docs parity matrix; validation passed with npm run lint, npm test, npm run compile, npm run test:viewer-smoke, logics-manager lint --require-status, and logics-manager audit --group-by-doc. Source: `task_284_orchestrate_vs_code_embedded_viewer_parity`
+- request-AC9 -> This backlog slice. Proof: Implemented by task_284: ADR 026, viewer server manager, embedded iframe shell, reduced VS Code command surface, docs parity matrix; validation passed with npm run lint, npm test, npm run compile, npm run test:viewer-smoke, logics-manager lint --require-status, and logics-manager audit --group-by-doc. Source: `task_284_orchestrate_vs_code_embedded_viewer_parity`
 
 # Decision framing
 - Product framing: Not needed
@@ -54,3 +58,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_284_orchestrate_vs_code_embedded_viewer_parity` was finished via `logics-manager flow finish task` on 2026-07-05.

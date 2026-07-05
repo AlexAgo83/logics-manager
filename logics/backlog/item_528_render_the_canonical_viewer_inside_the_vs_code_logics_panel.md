@@ -1,10 +1,10 @@
 ## item_528_render_the_canonical_viewer_inside_the_vs_code_logics_panel - Render the canonical viewer inside the VS Code Logics panel
 > From version: 2.15.7
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: VS Code webview
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -38,6 +38,9 @@
 - request-AC4 -> This backlog slice. Proof: AC4: Browser viewer launch remains unaffected and existing viewer tests still pass.
 - request-AC8 -> This backlog slice. Proof: AC5: A smoke test or harness check verifies that the VS Code shell loads the embedded viewer and receives `/api/items` data.
 - request-AC9 -> This backlog slice. Proof: AC5: A smoke test or harness check verifies that the VS Code shell loads the embedded viewer and receives `/api/items` data.
+- request-AC6 -> This backlog slice. Proof: Implemented by task_284: ADR 026, viewer server manager, embedded iframe shell, reduced VS Code command surface, docs parity matrix; validation passed with npm run lint, npm test, npm run compile, npm run test:viewer-smoke, logics-manager lint --require-status, and logics-manager audit --group-by-doc. Source: `task_284_orchestrate_vs_code_embedded_viewer_parity`
+- request-AC7 -> This backlog slice. Proof: Implemented by task_284: ADR 026, viewer server manager, embedded iframe shell, reduced VS Code command surface, docs parity matrix; validation passed with npm run lint, npm test, npm run compile, npm run test:viewer-smoke, logics-manager lint --require-status, and logics-manager audit --group-by-doc. Source: `task_284_orchestrate_vs_code_embedded_viewer_parity`
+- request-AC10 -> This backlog slice. Proof: Implemented by task_284: ADR 026, viewer server manager, embedded iframe shell, reduced VS Code command surface, docs parity matrix; validation passed with npm run lint, npm test, npm run compile, npm run test:viewer-smoke, logics-manager lint --require-status, and logics-manager audit --group-by-doc. Source: `task_284_orchestrate_vs_code_embedded_viewer_parity`
 
 # Decision framing
 - Product framing: Not needed
@@ -58,3 +61,6 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_284_orchestrate_vs_code_embedded_viewer_parity` was finished via `logics-manager flow finish task` on 2026-07-05.

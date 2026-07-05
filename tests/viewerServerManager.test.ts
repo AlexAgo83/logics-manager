@@ -1,4 +1,5 @@
 import { EventEmitter } from "events";
+import * as path from "path";
 import { describe, expect, it, vi } from "vitest";
 import { ChildProcess } from "child_process";
 import { parseViewerUrl, ViewerServerManager, withFocus } from "../clients/vscode/src/viewerServerManager";
@@ -46,7 +47,7 @@ describe("viewerServerManager", () => {
     await expect(manager.getOrStart("/repo")).resolves.toMatchObject({ url: "http://127.0.0.1:3456/" });
     expect(spawnProcess).toHaveBeenCalledTimes(1);
     expect(spawnProcess.mock.calls[0]?.[1]).toEqual([
-      "/extension/scripts/logics-manager.py",
+      path.join("/extension", "scripts", "logics-manager.py"),
       "view",
       "--host",
       "127.0.0.1",

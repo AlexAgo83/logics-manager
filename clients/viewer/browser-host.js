@@ -2374,14 +2374,15 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
   }
   function renderCdxUsageGauge(usage, sessionName) {
     if (!sessionName) return "";
-    const hasPct = Boolean(usage) && usage.percent !== null && usage.percent !== void 0;
-    const pct = hasPct ? Math.max(0, Math.min(100, usage.percent)) : 0;
-    const tone = hasPct ? cdxRemainingClass(usage.percent) : "neutral";
-    const resetText = usage?.reset && usage.reset !== "-" ? ` \xB7 resets ${usage.reset}` : "";
-    const title = `CDX usage remaining: ${hasPct ? `${pct}%` : "unknown"}${resetText} \xB7 click to refresh`;
-    return `<span class="viewer-workshop__usage viewer-workshop__usage--${tone}" data-viewer-cdx-usage-refresh="${escapeHtml(sessionName)}" role="button" tabindex="0" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">
-      <span class="viewer-workshop__usage-fill" style="height:${pct}%"></span>
-    </span>`;
+    const part = (label, value) => {
+      const raw = Number(value?.percent), hasPct = value?.percent !== null && value?.percent !== void 0 && Number.isFinite(raw);
+      const pct = hasPct ? Math.max(0, Math.min(100, raw)) : 0;
+      const resetText = value?.reset && value.reset !== "-" ? ` \xB7 resets ${value.reset}` : "";
+      return { pct, tone: hasPct ? cdxRemainingClass(pct) : "neutral", title: `${label} remaining: ${hasPct ? `${pct}%` : "unknown"}${resetText}` };
+    };
+    const fiveHour = part("5h", usage?.fiveHour || usage), week = part("week", usage?.week);
+    const title = `CDX usage remaining: ${fiveHour.title}; ${week.title} \xB7 click to refresh`;
+    return `<span class="viewer-workshop__usage" data-viewer-cdx-usage-refresh="${escapeHtml(sessionName)}" role="button" tabindex="0" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}"><span class="viewer-workshop__usage-segment viewer-workshop__usage--${fiveHour.tone}" title="${escapeHtml(fiveHour.title)}" aria-label="${escapeHtml(fiveHour.title)}"><span class="viewer-workshop__usage-fill" style="height:${fiveHour.pct}%"></span></span><span class="viewer-workshop__usage-segment viewer-workshop__usage-segment--week viewer-workshop__usage--${week.tone}" title="${escapeHtml(week.title)}" aria-label="${escapeHtml(week.title)}"><span class="viewer-workshop__usage-fill" style="height:${week.pct}%"></span></span></span>`;
   }
   function renderCiBadge(value) {
     const tone = ciBadgeTone(value);
@@ -6842,6 +6843,12 @@ ${line}` : line;
       const candidate = tokens.slice(2).find((token) => token && !token.startsWith("-"));
       return candidate || "";
     }
+    function cdxUsageFromStatus(item) {
+      const fiveHourReset = formatCdxResetAt(cdxField(item, ["reset_5h_at", "reset5hAt", "reset_at", "resetAt"], ""));
+      const fiveHour = { percent: cdxRemainingPct({ available_pct: cdxField(item, ["remaining_5h_pct", "remaining5hPct", "available_pct", "availablePct"], NaN) }), reset: fiveHourReset };
+      const week = { percent: cdxRemainingPct({ available_pct: cdxField(item, ["remaining_week_pct", "remainingWeekPct"], NaN) }), reset: formatCdxResetAt(cdxField(item, ["reset_week_at", "resetWeekAt", "reset_at", "resetAt"], "")) };
+      return { percent: cdxRemainingPct(item), reset: fiveHourReset, fiveHour, week };
+    }
     function cdxSessionUsage(sessionName) {
       if (!sessionName) return null;
       const sessions = cdxSessions(latestCdxStatusPayload?.status || {});
@@ -6849,10 +6856,7 @@ ${line}` : line;
         (session) => String(cdxField(session, ["session_name", "name", "id", "value"], "")).trim() === sessionName
       );
       if (!match) return null;
-      return {
-        percent: cdxRemainingPct(match),
-        reset: formatCdxResetAt(cdxField(match, ["reset_5h_at", "reset5hAt", "reset_at", "resetAt"], ""))
-      };
+      return cdxUsageFromStatus(match);
     }
     async function refreshCdxSessionUsage(sessionName) {
       try {
@@ -7649,11 +7653,7 @@ ${line}` : line;
           const pct = cdxRemainingPct(item);
           const hasUsage = pct !== null && pct !== void 0 && !Number.isNaN(Number(pct));
           if (name && name !== "-" && hasUsage) {
-            const usage = {
-              percent: pct,
-              reset: formatCdxResetAt(cdxField(item, ["reset_5h_at", "reset5hAt", "reset_at", "resetAt"], ""))
-            };
-            return `<td class="viewer-cdx__ok-cell">${renderCdxUsageGauge(usage, name)}</td>`;
+            return `<td class="viewer-cdx__ok-cell">${renderCdxUsageGauge(cdxUsageFromStatus(item), name)}</td>`;
           }
           return `<td>${renderCdxRemainingPill(item) || escapeHtml(cdxPct(cdxField(item, ["available_pct", "availablePct"], NaN)))}</td>`;
         },

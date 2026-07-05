@@ -1055,17 +1055,17 @@ export function renderCdxUnreadBadge(section, label, count) {
     const title = cdxSectionBadgeTitle(section, count);
     return `<span class="viewer-cdx-button-badge viewer-cdx-button-badge--unread" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">${escapeHtml(label)}</span>`;
   }
-
 export function renderCdxUsageGauge(usage, sessionName) {
     if (!sessionName) return "";
-    const hasPct = Boolean(usage) && usage.percent !== null && usage.percent !== undefined;
-    const pct = hasPct ? Math.max(0, Math.min(100, usage.percent)) : 0;
-    const tone = hasPct ? cdxRemainingClass(usage.percent) : "neutral";
-    const resetText = usage?.reset && usage.reset !== "-" ? ` · resets ${usage.reset}` : "";
-    const title = `CDX usage remaining: ${hasPct ? `${pct}%` : "unknown"}${resetText} · click to refresh`;
-    return `<span class="viewer-workshop__usage viewer-workshop__usage--${tone}" data-viewer-cdx-usage-refresh="${escapeHtml(sessionName)}" role="button" tabindex="0" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">
-      <span class="viewer-workshop__usage-fill" style="height:${pct}%"></span>
-    </span>`;
+    const part = (label, value) => {
+      const raw = Number(value?.percent), hasPct = value?.percent !== null && value?.percent !== undefined && Number.isFinite(raw);
+      const pct = hasPct ? Math.max(0, Math.min(100, raw)) : 0;
+      const resetText = value?.reset && value.reset !== "-" ? ` · resets ${value.reset}` : "";
+      return { pct, tone: hasPct ? cdxRemainingClass(pct) : "neutral", title: `${label} remaining: ${hasPct ? `${pct}%` : "unknown"}${resetText}` };
+    };
+    const fiveHour = part("5h", usage?.fiveHour || usage), week = part("week", usage?.week);
+    const title = `CDX usage remaining: ${fiveHour.title}; ${week.title} · click to refresh`;
+    return `<span class="viewer-workshop__usage" data-viewer-cdx-usage-refresh="${escapeHtml(sessionName)}" role="button" tabindex="0" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}"><span class="viewer-workshop__usage-segment viewer-workshop__usage--${fiveHour.tone}" title="${escapeHtml(fiveHour.title)}" aria-label="${escapeHtml(fiveHour.title)}"><span class="viewer-workshop__usage-fill" style="height:${fiveHour.pct}%"></span></span><span class="viewer-workshop__usage-segment viewer-workshop__usage-segment--week viewer-workshop__usage--${week.tone}" title="${escapeHtml(week.title)}" aria-label="${escapeHtml(week.title)}"><span class="viewer-workshop__usage-fill" style="height:${week.pct}%"></span></span></span>`;
   }
 
 export function renderCiBadge(value) {

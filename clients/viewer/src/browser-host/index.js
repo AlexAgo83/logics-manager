@@ -3782,7 +3782,14 @@ import {
     return candidate || "";
   }
 
-  // Remaining usage ({ percent, reset }) for a session name from latest status.
+  function cdxUsageFromStatus(item) {
+    const fiveHourReset = formatCdxResetAt(cdxField(item, ["reset_5h_at", "reset5hAt", "reset_at", "resetAt"], ""));
+    const fiveHour = { percent: cdxRemainingPct({ available_pct: cdxField(item, ["remaining_5h_pct", "remaining5hPct", "available_pct", "availablePct"], NaN) }), reset: fiveHourReset };
+    const week = { percent: cdxRemainingPct({ available_pct: cdxField(item, ["remaining_week_pct", "remainingWeekPct"], NaN) }), reset: formatCdxResetAt(cdxField(item, ["reset_week_at", "resetWeekAt", "reset_at", "resetAt"], "")) };
+    return { percent: cdxRemainingPct(item), reset: fiveHourReset, fiveHour, week };
+  }
+
+  // Remaining usage for a session name from latest status.
   function cdxSessionUsage(sessionName) {
     if (!sessionName) return null;
     const sessions = cdxSessions(latestCdxStatusPayload?.status || {});
@@ -3790,10 +3797,7 @@ import {
       (session) => String(cdxField(session, ["session_name", "name", "id", "value"], "")).trim() === sessionName
     );
     if (!match) return null;
-    return {
-      percent: cdxRemainingPct(match),
-      reset: formatCdxResetAt(cdxField(match, ["reset_5h_at", "reset5hAt", "reset_at", "resetAt"], ""))
-    };
+    return cdxUsageFromStatus(match);
   }
 
   // A small vertical gauge of remaining session usage, coloured by level.
@@ -4700,11 +4704,7 @@ import {
         const pct = cdxRemainingPct(item);
         const hasUsage = pct !== null && pct !== undefined && !Number.isNaN(Number(pct));
         if (name && name !== "-" && hasUsage) {
-          const usage = {
-            percent: pct,
-            reset: formatCdxResetAt(cdxField(item, ["reset_5h_at", "reset5hAt", "reset_at", "resetAt"], ""))
-          };
-          return `<td class="viewer-cdx__ok-cell">${renderCdxUsageGauge(usage, name)}</td>`;
+          return `<td class="viewer-cdx__ok-cell">${renderCdxUsageGauge(cdxUsageFromStatus(item), name)}</td>`;
         }
         return `<td>${renderCdxRemainingPill(item) || escapeHtml(cdxPct(cdxField(item, ["available_pct", "availablePct"], NaN)))}</td>`;
       },

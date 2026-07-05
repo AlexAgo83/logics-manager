@@ -2389,6 +2389,8 @@
 
 .viewer-workshop__usage {
   position: relative;
+  display: inline-grid;
+  grid-template-columns: repeat(2, 1fr);
   flex: 0 0 auto;
   width: 12px;
   height: 14px;
@@ -2406,6 +2408,19 @@
 .viewer-cdx__ok-cell .viewer-workshop__usage {
   display: inline-block;
   vertical-align: middle;
+}
+
+.viewer-workshop__usage-segment {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 50%;
+  box-sizing: border-box;
+}
+
+.viewer-workshop__usage-segment--week {
+  inset-inline-start: 50%;
+  border-left: 1px solid var(--vscode-editorWidget-background, rgb(0 0 0 / 45%));
 }
 
 .viewer-workshop__usage-fill {

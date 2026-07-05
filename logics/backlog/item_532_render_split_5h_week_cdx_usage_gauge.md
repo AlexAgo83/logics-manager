@@ -1,10 +1,10 @@
 ## item_532_render_split_5h_week_cdx_usage_gauge - Render split 5h/week CDX usage gauge
 > From version: 2.15.7
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Viewer CDX usage UI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -61,3 +61,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_286_implement_split_5h_week_cdx_usage_gauge` was finished via `logics-manager flow finish task` on 2026-07-05.

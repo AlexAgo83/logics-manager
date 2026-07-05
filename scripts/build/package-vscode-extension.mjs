@@ -7,6 +7,14 @@ const EXTENSION_NAME = "cdx-logics-vscode";
 
 export function packageVsix(outputPath) {
   const root = process.cwd();
+  execFileSync(process.execPath, [path.join(root, "scripts", "build", "build-assets.mjs")], {
+    cwd: root,
+    stdio: "inherit",
+  });
+  const viewerIndex = path.join(root, "logics_manager", "viewer_assets", "viewer", "index.html");
+  if (!fs.existsSync(viewerIndex)) {
+    throw new Error(`Missing ${viewerIndex} after build:assets — refusing to package a VSIX without the viewer UI.`);
+  }
   const packageJson = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
   const stageDir = fs.mkdtempSync(path.join(os.tmpdir(), "logics-vsce-stage-"));
 

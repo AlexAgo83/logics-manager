@@ -1,19 +1,20 @@
 ## task_284_orchestrate_vs_code_embedded_viewer_parity - Orchestrate VS Code embedded viewer parity
 > From version: 2.15.7
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Status: In progress
+> Understanding: 92
+> Confidence: 86
+> Progress: 14
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Owner: codex
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Slice A: write the embedding ADR/contract and decide the minimal host model. Do not edit runtime behavior before the CSP/API/lifecycle assumptions are explicit.
+- [x] 1. Slice A: write the embedding ADR/contract and decide the minimal host model. Do not edit runtime behavior before the CSP/API/lifecycle assumptions are explicit.
 - [ ] 2. Slice B: add the VS Code viewer server manager with mocked lifecycle tests. This can land before any visible UI replacement.
 - [ ] 3. Slice C: replace the Logics panel shell with the embedded canonical viewer in read-only mode and prove `/api/items` plus core status/read surfaces load inside VS Code.
 - [ ] 4. Slice D: audit and enable write/action parity route by route, preserving Python viewer backend ownership and documenting disabled actions.

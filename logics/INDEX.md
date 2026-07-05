@@ -30,6 +30,7 @@
 | [adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling](architecture/adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling.md) | Phase 2.1 (shipped under `task_222`, 2026-06-15) — stdlib-only PTY + SSE | Settled |  |  | architecture/adr_023_workshop_terminal_transport_pty_library_and_emulator_bundling.md |
 | [adr_024_lan_viewer_auth_model_read_only_contract_and_qr_library_choice](architecture/adr_024_lan_viewer_auth_model_read_only_contract_and_qr_library_choice.md) | LAN viewer auth model, read-only contract, and QR library choice | Settled |  |  | architecture/adr_024_lan_viewer_auth_model_read_only_contract_and_qr_library_choice.md |
 | [adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync](architecture/adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync.md) | Bound viewer CDX modularization around payload state and asset sync | Settled |  |  | architecture/adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync.md |
+| [adr_026_embed_the_canonical_local_viewer_in_the_vs_code_panel](architecture/adr_026_embed_the_canonical_local_viewer_in_the_vs_code_panel.md) | Embed the canonical local viewer in the VS Code panel | Settled |  |  | architecture/adr_026_embed_the_canonical_local_viewer_in_the_vs_code_panel.md |
 
 ## Product briefs
 
@@ -71,7 +72,7 @@
 | [prod_033_recent_activity_feed_legibility](product/prod_033_recent_activity_feed_legibility.md) | Recent Activity feed legibility | Settled |  |  | product/prod_033_recent_activity_feed_legibility.md |
 | [prod_034_shared_web_asset_single_sourcing](product/prod_034_shared_web_asset_single_sourcing.md) | Shared web asset single-sourcing | Settled |  |  | product/prod_034_shared_web_asset_single_sourcing.md |
 | [prod_035_scaffold_tooling_robustness](product/prod_035_scaffold_tooling_robustness.md) | Scaffold tooling robustness | Settled |  |  | product/prod_035_scaffold_tooling_robustness.md |
-| [prod_036_vs_code_embedded_viewer_parity](product/prod_036_vs_code_embedded_viewer_parity.md) | VS Code embedded viewer parity | Proposed |  |  | product/prod_036_vs_code_embedded_viewer_parity.md |
+| [prod_036_vs_code_embedded_viewer_parity](product/prod_036_vs_code_embedded_viewer_parity.md) | VS Code embedded viewer parity | Accepted |  |  | product/prod_036_vs_code_embedded_viewer_parity.md |
 
 ## Requests
 
@@ -1180,4 +1181,4 @@
 | [task_281_orchestrate_the_recent_activity_feed_legibility_polish](tasks/task_281_orchestrate_the_recent_activity_feed_legibility_polish.md) | Orchestrate the Recent Activity feed legibility polish | Done | digital | 100% | tasks/task_281_orchestrate_the_recent_activity_feed_legibility_polish.md |
 | [task_282_orchestrate_single_sourcing_of_shared_web_assets](tasks/task_282_orchestrate_single_sourcing_of_shared_web_assets.md) | Orchestrate single-sourcing of shared web assets | Done | digital | 100% | tasks/task_282_orchestrate_single_sourcing_of_shared_web_assets.md |
 | [task_283_orchestrate_scaffold_robustness_hardening](tasks/task_283_orchestrate_scaffold_robustness_hardening.md) | Orchestrate scaffold robustness hardening | Done | digital | 100% | tasks/task_283_orchestrate_scaffold_robustness_hardening.md |
-| [task_284_orchestrate_vs_code_embedded_viewer_parity](tasks/task_284_orchestrate_vs_code_embedded_viewer_parity.md) | Orchestrate VS Code embedded viewer parity | Ready |  | 0% | tasks/task_284_orchestrate_vs_code_embedded_viewer_parity.md |
+| [task_284_orchestrate_vs_code_embedded_viewer_parity](tasks/task_284_orchestrate_vs_code_embedded_viewer_parity.md) | Orchestrate VS Code embedded viewer parity | In progress | codex | 0% | tasks/task_284_orchestrate_vs_code_embedded_viewer_parity.md |

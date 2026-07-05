@@ -69,7 +69,7 @@ export function buildEmbeddedViewerHtml(webview: vscode.Webview, state: Embedded
   <script nonce="${nonce}">
     const vscode = acquireVsCodeApi();
     document.addEventListener("click", (event) => {
-      const button = event.target.closest("[data-action]");
+      const button = event.target?.closest?.("[data-action]");
       if (!button) return;
       const action = button.getAttribute("data-action");
       if (action === "reload") {

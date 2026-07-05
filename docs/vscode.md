@@ -15,6 +15,8 @@ The extension now owns only the VS Code-specific shell:
 - restarting the managed viewer;
 - focusing the viewer on the current Logics document.
 
+The embedded viewer header keeps reload, restart, and external-open actions as compact secondary controls so the canonical viewer remains visually primary.
+
 Install from the Marketplace:
 
 https://marketplace.visualstudio.com/items?itemName=cdx-logics.cdx-logics-vscode

@@ -120,3 +120,7 @@ UI and backend API.
 The extension intentionally does not mirror viewer `/api/*` routes in
 TypeScript. If a VS Code-only bridge becomes necessary for one action, document
 that exception before adding it.
+
+## CDX compatibility
+
+The viewer integration was verified with CDX Manager `0.9.15`. Existing JSON status, run registry, report, and mission calls benefit directly from its stricter status selection, atomic state writes, and process-group timeout cleanup. Account bundle import/export already detects and prefers `--passphrase-stdin`, with the environment-variable path retained only for older CDX versions.

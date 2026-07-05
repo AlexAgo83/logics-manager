@@ -117,6 +117,25 @@ describe("viewerServerManager", () => {
 
     await expect(manager.getOrStart("/repo")).rejects.toThrow("Python 3.10+");
   });
+
+  it("kills a viewer that misses its startup deadline", async () => {
+    vi.useFakeTimers();
+    const child = fakeChild();
+    const manager = new ViewerServerManager({
+      extensionRoot: "/extension",
+      spawnProcess: vi.fn(() => child) as never,
+      detectPython: async () => ({ command: "python3", argsPrefix: [], displayLabel: "python3" }),
+      readyTimeoutMs: 10
+    });
+
+    const ready = expect(manager.getOrStart("/repo")).rejects.toThrow("Timed out");
+    await tick();
+    await vi.advanceTimersByTimeAsync(10);
+
+    await ready;
+    expect(child.kill).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+  });
 });
 
 describe("withFocus", () => {

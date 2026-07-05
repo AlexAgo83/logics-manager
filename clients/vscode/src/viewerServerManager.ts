@@ -101,6 +101,8 @@ export class ViewerServerManager {
     let stdoutBuffer = "";
     const ready = new Promise<ViewerServer>((resolve, reject) => {
       const timer = setTimeout(() => {
+        managed.stopped = true;
+        child.kill();
         reject(new Error(`Timed out waiting for Logics viewer to start.${managed.stderr ? ` ${managed.stderr.trim()}` : ""}`));
       }, this.readyTimeoutMs);
       const finish = (server: ViewerServer) => {

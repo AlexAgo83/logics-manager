@@ -20,17 +20,6 @@ export function buildEmbeddedViewerHtml(webview: vscode.Webview, state: Embedded
   const frameSrc = frameOrigin || "'none'";
   const body = state.kind === "ready"
     ? `
-      <header class="topbar">
-        <div>
-          <strong>Logics Viewer</strong>
-          <span>${escapeHtml(state.root)}</span>
-        </div>
-        <nav>
-          <button class="toolbar-action" type="button" data-action="reload">Reload</button>
-          <button class="toolbar-action" type="button" data-action="restart-viewer">Restart</button>
-          <button class="toolbar-action" type="button" data-action="open-external-viewer">Open externally</button>
-        </nav>
-      </header>
       <iframe id="viewer-frame" src="${escapeHtml(state.url)}" title="Logics viewer"></iframe>
     `
     : `
@@ -52,14 +41,8 @@ export function buildEmbeddedViewerHtml(webview: vscode.Webview, state: Embedded
   <style>
     html, body { height: 100%; margin: 0; overflow: hidden; background: var(--vscode-editor-background, #1f1f1f); color: var(--vscode-editor-foreground, #e6e6e6); font-family: var(--vscode-font-family, system-ui, sans-serif); }
     body { display: flex; flex-direction: column; }
-    .topbar { min-height: 34px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 8px; border-bottom: 1px solid color-mix(in srgb, currentColor 16%, transparent); background: var(--vscode-sideBar-background, #181818); box-sizing: border-box; }
-    .topbar div { min-width: 0; display: flex; align-items: center; gap: 8px; }
-    .topbar span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--vscode-descriptionForeground, #aaa); font-size: 12px; }
-    nav { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
     button { border: 1px solid var(--vscode-button-border, transparent); color: var(--vscode-button-foreground, white); background: var(--vscode-button-background, #0e639c); border-radius: 3px; padding: 4px 9px; font: inherit; font-size: 12px; cursor: pointer; }
     button:hover { background: var(--vscode-button-hoverBackground, #1177bb); }
-    .toolbar-action { padding: 2px 6px; border-color: transparent; color: var(--vscode-descriptionForeground, #aaa); background: transparent; }
-    .toolbar-action:hover { color: var(--vscode-foreground, #ddd); background: var(--vscode-toolbar-hoverBackground, rgba(90, 93, 94, .31)); }
     iframe { flex: 1 1 auto; width: 100%; border: 0; background: white; }
     .state { height: 100%; display: grid; place-content: center; gap: 10px; padding: 24px; text-align: center; box-sizing: border-box; }
     .state p { max-width: 560px; margin: 0; color: var(--vscode-descriptionForeground, #aaa); }
@@ -74,12 +57,13 @@ export function buildEmbeddedViewerHtml(webview: vscode.Webview, state: Embedded
     const frame = document.getElementById("viewer-frame");
     frame?.addEventListener("load", () => {
       frame.contentWindow?.postMessage({ type: "viewer-project-last-used", projectLastUsedAt: vscode.getState()?.projectLastUsedAt || {} }, frameOrigin);
+      frame.contentWindow?.postMessage({ type: "viewer-embed-host", host: "vscode" }, frameOrigin);
     });
     window.addEventListener("message", (event) => {
       if (!frameOrigin || event.origin !== frameOrigin || !event.data) return;
       if (event.data.type === "viewer-project-last-used") {
         vscode.setState({ ...(vscode.getState() || {}), projectLastUsedAt: event.data.projectLastUsedAt });
-      } else if (event.data.type === "launch-workshop-terminal") {
+      } else if (event.data.type === "launch-workshop-terminal" || event.data.type === "restart-viewer" || event.data.type === "open-external-viewer") {
         vscode.postMessage(event.data);
       }
     });

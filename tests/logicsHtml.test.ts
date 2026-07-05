@@ -75,8 +75,9 @@ describe("logics HTML builders", () => {
 
     expect(csp).toContain("frame-src http://127.0.0.1:4321");
     expect(dom.window.document.querySelector("iframe")?.getAttribute("src")).toBe("http://127.0.0.1:4321/?focus=req_001_demo");
-    expect(dom.window.document.querySelectorAll("button.toolbar-action")).toHaveLength(3);
-    expect(html).toContain("data-action=\"restart-viewer\"");
+    expect(dom.window.document.querySelector("header")).toBeNull();
+    expect(html).toContain("viewer-embed-host");
+    expect(html).toContain("restart-viewer");
     expect(html).toContain("launch-workshop-terminal");
   });
 

@@ -38,6 +38,6 @@ This creates `logics-manager-<version>.vsix` in the repo root.
 npm run install:vsix
 ```
 
-6. Distribute the `.vsix` and use the matching release notes when publishing.
+6. Push the release commit, wait for CI to pass, then push the `v<version>` tag. The release workflow gates on green CI for the tagged commit, creates the GitHub release with the VSIX and curated changelog, and publishes to the VS Code Marketplace, npm, and PyPI automatically.
 
 If the current plugin version is already published, `logics-manager assist next-step` can now propose the next release step instead of stalling on an already-live tag.

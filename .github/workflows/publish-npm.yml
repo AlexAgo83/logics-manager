@@ -1,7 +1,6 @@
 name: Publish npm
 
 on:
-  workflow_dispatch:
   workflow_call:
 
 permissions:
@@ -10,7 +9,7 @@ permissions:
 
 jobs:
   publish:
-    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v') }}
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     runs-on: ubuntu-latest
     env:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

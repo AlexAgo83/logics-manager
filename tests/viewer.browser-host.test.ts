@@ -60,6 +60,7 @@ function createViewerDom(options: {
   hidden?: boolean;
   initialState?: unknown;
   initialPreferences?: unknown;
+  projects?: Array<Record<string, unknown>>;
   lanMode?: boolean;
   lanRwMode?: boolean;
   canBootstrapLogics?: boolean;
@@ -315,7 +316,7 @@ function createViewerDom(options: {
                 cdx: { state: "ready", available: true, message: "CDX executable detected." },
                 cdxRuns: { state: "unsupported", available: false, message: "CDX assistant run registry is not available yet." }
               },
-              projects: [
+              projects: options.projects ?? [
                 { id: "project-logics", name: "logics-manager", root: "/workspace/logics-manager", active: true, available: true, hasLogics: true, message: "Logics corpus found." },
                 { id: "project-cdx", name: "cdx-manager", root: "/workspace/cdx-manager", active: false, available: true, hasLogics: true, message: "Logics corpus found." }
               ],
@@ -2260,6 +2261,8 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(calls).toContain("/api/switch-project");
+    const stored = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "{}");
+    expect(Date.parse(stored.projectLastUsedAt["project-cdx"])).not.toBeNaN();
     expect(dom.window.document.querySelector("[data-viewer-project-label]")?.textContent).toBe("cdx-manager");
     expect(dom.window.document.getElementById("viewer-ci")?.hidden).toBe(true);
     expect((dom.window.document.getElementById("viewer-cdx") as HTMLButtonElement | null)?.disabled).toBe(true);
@@ -2269,7 +2272,7 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.body.classList.contains("viewer-screen-activity")).toBe(false);
   });
 
-  it("orders favorite projects first and persists project menu star toggles without switching", async () => {
+  it("keeps the active project first and persists project menu star toggles without switching", async () => {
     const { dom, calls } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();
 
@@ -2291,9 +2294,35 @@ describe("local viewer browser host", () => {
     const stored = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "{}");
     expect(stored.favoriteProjects).toEqual(["project-cdx"]);
     const rows = Array.from(menu?.querySelectorAll(".viewer-project-switcher__item-name") || []).map((node) => node.textContent);
-    expect(rows.slice(0, 2)).toEqual(["cdx-manager", "logics-manager"]);
+    expect(rows.slice(0, 2)).toEqual(["logics-manager", "cdx-manager"]);
     expect(menu?.hidden).toBe(false);
     expect(menu?.querySelector('[data-viewer-project-favorite="project-cdx"]')?.getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("sorts favorite projects by last-used while keeping the active project first", async () => {
+    const { dom } = createViewerDom({
+      initialPreferences: {
+        version: 1,
+        favoriteProjects: ["project-active", "project-missing", "project-new", "project-old"],
+        projectLastUsedAt: {
+          "project-new": "2026-06-04T10:00:00.000Z",
+          "project-old": "2026-06-01T10:00:00.000Z"
+        }
+      },
+      projects: [
+        { id: "project-new", name: "new-used", root: "/workspace/new-used", active: false, available: true, hasLogics: true },
+        { id: "project-missing", name: "missing-used", root: "/workspace/missing-used", active: false, available: true, hasLogics: true },
+        { id: "project-active", name: "active-project", root: "/workspace/active-project", active: true, available: true, hasLogics: true },
+        { id: "project-old", name: "old-used", root: "/workspace/old-used", active: false, available: true, hasLogics: true }
+      ]
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const rows = Array.from(dom.window.document.querySelectorAll(".viewer-project-switcher__item-name")).map((node) => node.textContent);
+    expect(rows.slice(0, 4)).toEqual(["active-project", "new-used", "old-used", "missing-used"]);
   });
 
   it("restores favorite projects from viewer preferences", async () => {
@@ -2311,7 +2340,7 @@ describe("local viewer browser host", () => {
     }
 
     const rows = Array.from(menu?.querySelectorAll(".viewer-project-switcher__item-name") || []).map((node) => node.textContent);
-    expect(rows.slice(0, 2)).toEqual(["cdx-manager", "logics-manager"]);
+    expect(rows.slice(0, 2)).toEqual(["logics-manager", "cdx-manager"]);
     expect(menu?.querySelector('[data-viewer-project-favorite="project-cdx"]')?.getAttribute("aria-pressed")).toBe("true");
   });
 
@@ -2335,6 +2364,8 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(calls).toContain("/api/select-project-root");
+    const stored = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "{}");
+    expect(Date.parse(stored.projectLastUsedAt["project-selected"])).not.toBeNaN();
     expect(dom.window.document.querySelector("[data-viewer-project-label]")?.textContent).toBe("selected-project");
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 docs");
   });

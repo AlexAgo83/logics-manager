@@ -1,6 +1,6 @@
 ## req_288_sort_projects_by_last_used - Sort projects by last used
 > From version: 2.15.7
-> Status: Ready
+> Status: Done
 > Understanding: 75
 > Confidence: 70
 > Complexity: Medium

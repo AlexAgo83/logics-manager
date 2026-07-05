@@ -4417,7 +4417,10 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         return;
       }
       const favorites = favoriteProjectIds();
-      const projects = latestProjects.filter((project) => project && typeof project === "object").map((project, index) => ({ project, index, favorite: favorites.has(projectPreferenceId(project)) })).sort((left, right) => Number(right.favorite) - Number(left.favorite) || left.index - right.index);
+      const projects = latestProjects.filter((project) => project && typeof project === "object").map((project, index) => {
+        const stored = viewerPreferences.projectLastUsedAt, value = stored && typeof stored === "object" ? stored[projectPreferenceId(project)] : "", time = Date.parse(String(value || ""));
+        return { project, index, favorite: favorites.has(projectPreferenceId(project)), lastUsed: Number.isFinite(time) ? time : 0 };
+      }).sort((left, right) => Number(right.project.active) - Number(left.project.active) || Number(right.favorite) - Number(left.favorite) || (left.favorite && right.favorite ? right.lastUsed - left.lastUsed : 0) || left.index - right.index);
       const projectRows = projects.map(({ project, favorite }) => {
         const preferenceId = projectPreferenceId(project);
         return `
@@ -4473,6 +4476,10 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       if (!response.ok || !data.ok) {
         throw new Error(data.error || "Unable to switch project.");
       }
+      {
+        const active = (Array.isArray(data.payload?.projects) ? data.payload.projects : []).find((project) => project?.active), projectId2 = projectPreferenceId(active), stored = viewerPreferences.projectLastUsedAt;
+        if (projectId2) updateViewerPreferences({ projectLastUsedAt: { ...stored && typeof stored === "object" ? stored : {}, [projectId2]: (/* @__PURE__ */ new Date()).toISOString() } });
+      }
       latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
       latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
       latestReleaseRunsStatus = { visible: false, badgeState: "unknown", message: "" };
@@ -4510,6 +4517,10 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     }
     function applySelectedProjectPayload(payload, message) {
       returnToProjectSurface();
+      {
+        const active = (Array.isArray(payload?.projects) ? payload.projects : []).find((project) => project?.active), projectId = projectPreferenceId(active), stored = viewerPreferences.projectLastUsedAt;
+        if (projectId) updateViewerPreferences({ projectLastUsedAt: { ...stored && typeof stored === "object" ? stored : {}, [projectId]: (/* @__PURE__ */ new Date()).toISOString() } });
+      }
       latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
       latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
       latestReleaseRunsStatus = { visible: false, badgeState: "unknown", message: "" };

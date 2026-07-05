@@ -98,6 +98,7 @@ export class ViewerServerManager {
 
   private track(root: string, child: ChildProcess): ManagedServer {
     let managed: ManagedServer;
+    let stdoutBuffer = "";
     const ready = new Promise<ViewerServer>((resolve, reject) => {
       const timer = setTimeout(() => {
         reject(new Error(`Timed out waiting for Logics viewer to start.${managed.stderr ? ` ${managed.stderr.trim()}` : ""}`));
@@ -107,8 +108,8 @@ export class ViewerServerManager {
         resolve(server);
       };
       child.stdout?.on("data", (chunk) => {
-        const text = stripAnsi(String(chunk));
-        const parsed = parseViewerUrl(text);
+        stdoutBuffer = `${stdoutBuffer}${String(chunk)}`.slice(-4096);
+        const parsed = parseViewerUrl(stdoutBuffer);
         if (parsed) {
           finish({ root, url: parsed.url, port: parsed.port, process: child });
         }

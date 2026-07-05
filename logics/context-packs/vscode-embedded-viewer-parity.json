@@ -1,0 +1,535 @@
+{
+  "budgets": {
+    "max_docs": 28,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui item_526_define_the_vs_code_embedded_viewer_host_contract item_527_add_a_vs_code_managed_local_viewer_server_lifecycle item_528_render_the_canonical_viewer_inside_the_vs_code_logics_panel item_529_bring_viewer_write_actions_and_focus_workflows_to_parity_in_vs_code item_530_retire_the_historical_vs_code_cockpit_and_command_surface task_284_orchestrate_vs_code_embedded_viewer_parity --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_526_define_the_vs_code_embedded_viewer_host_contract",
+          "item_527_add_a_vs_code_managed_local_viewer_server_lifecycle",
+          "item_528_render_the_canonical_viewer_inside_the_vs_code_logics_panel",
+          "item_529_bring_viewer_write_actions_and_focus_workflows_to_parity_in_vs_code",
+          "item_530_retire_the_historical_vs_code_cockpit_and_command_surface"
+        ],
+        "prod": [
+          "prod_036_vs_code_embedded_viewer_parity"
+        ],
+        "req": [
+          "req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui"
+        ],
+        "task": [
+          "task_284_orchestrate_vs_code_embedded_viewer_parity"
+        ]
+      },
+      "path": "logics/product/prod_036_vs_code_embedded_viewer_parity.md",
+      "ref": "prod_036_vs_code_embedded_viewer_parity",
+      "sections": {
+        "Goals": [
+          "- One user-facing viewer UI across browser and VS Code.",
+          "- One backend API contract for viewer data and actions.",
+          "- A smaller VS Code extension that focuses on editor integration, viewer lifecycle, and focus commands.",
+          "- A clear retirement path for historical VS Code-only workflow UI and commands."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Turn the VS Code extension's Logics panel into an embedded host for the canonical local viewer so VS Code and browser users see the same cockpit, actions, status surfaces, and visual behavior."
+        ],
+        "References": [
+          "- Product back-reference: `req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui`",
+          "- Task back-reference: `task_284_orchestrate_vs_code_embedded_viewer_parity`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "VS Code embedded viewer parity"
+    },
+    {
+      "kind": "architecture",
+      "linked_refs": {
+        "adr": [
+          "adr_012_keep_the_vs_code_plugin_as_a_thin_client_over_shared_hybrid_runtime_commands"
+        ],
+        "item": [
+          "item_156_add_plugin_tool_actions_for_high_value_hybrid_assist_flows_through_shared_runtime_commands"
+        ],
+        "req": [
+          "req_095_adapt_the_vs_code_logics_plugin_to_expose_hybrid_assist_runtime_status_actions_audit_and_cross_agent_messaging"
+        ],
+        "task": [
+          "task_100_orchestration_delivery_for_req_089_to_req_095_hybrid_assist_runtime_portfolio_governance_portability_and_plugin_exposure"
+        ]
+      },
+      "path": "logics/architecture/adr_012_keep_the_vs_code_plugin_as_a_thin_client_over_shared_hybrid_runtime_commands.md",
+      "ref": "adr_012_keep_the_vs_code_plugin_as_a_thin_client_over_shared_hybrid_runtime_commands",
+      "sections": {
+        "Overview": [
+          "Keep the VS Code plugin as a thin UX client over the shared hybrid runtime so diagnostics, actions, backend provenance, and audit visibility stay aligned with the `logics.py` source of truth.",
+          "```mermaid",
+          "flowchart LR",
+          "    Runtime[Shared hybrid runtime under logics] --> Plugin[VS Code plugin]",
+          "    Plugin --> Diagnostics[Show status and degraded state]",
+          "    Plugin --> Actions[Trigger selected hybrid commands]"
+        ],
+        "References": [
+          "- `logics/request/req_095_adapt_the_vs_code_logics_plugin_to_expose_hybrid_assist_runtime_status_actions_audit_and_cross_agent_messaging.md`",
+          "- `logics/backlog/item_156_add_plugin_tool_actions_for_high_value_hybrid_assist_flows_through_shared_runtime_commands.md`",
+          "- `logics/tasks/task_100_orchestration_delivery_for_req_089_to_req_095_hybrid_assist_runtime_portfolio_governance_portability_and_plugin_exposure.md`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Keep the VS Code plugin as a thin client over shared hybrid runtime commands"
+    },
+    {
+      "kind": "architecture",
+      "linked_refs": {
+        "adr": [
+          "adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync"
+        ],
+        "item": [
+          "item_441_plan_viewer_surface_modularization_and_asset_sync_safeguards"
+        ],
+        "req": [
+          "req_250_address_project_audit_follow_up_actions"
+        ],
+        "task": [
+          "task_233_orchestrate_project_audit_remediation"
+        ]
+      },
+      "path": "logics/architecture/adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync.md",
+      "ref": "adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync",
+      "sections": {
+        "Overview": [
+          "The local viewer CDX surface should be reduced through behavior-preserving extractions around payload collection, CDX state, and table rendering.",
+          "The previous CDX removal and stale-refresh fixes showed the highest-risk areas: browser-side session state, long asynchronous refreshes, and the duplicated packaged browser asset.",
+          "```mermaid",
+          "flowchart LR",
+          "    Python[logics_manager/viewer.py] --> Payload[viewer_cdx_payload helpers]",
+          "    Payload --> API[HTTP routes and mutating-route registry]"
+        ],
+        "References": [
+          "- `clients/viewer/browser-host.js`",
+          "- `logics_manager/viewer.py`",
+          "- `scripts/dev/sync-viewer-assets.mjs`",
+          "- `tests/viewer.browser-host.test.ts`",
+          "- `tests/python/test_logics_manager_cli.py`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Bound viewer CDX modularization around payload state and asset sync"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, make the vs code extension host the same logics viewer ui, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Make the VS Code extension host the same Logics viewer UI",
+        "use when": "You need to implement or review the scaffolded workflow for Make the VS Code extension host the same Logics viewer UI."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "adr": [
+          "adr_012_keep_the_vs_code_plugin_as_a_thin_client_over_shared_hybrid_runtime_commands",
+          "adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync"
+        ],
+        "item": [
+          "item_526_define_the_vs_code_embedded_viewer_host_contract",
+          "item_527_add_a_vs_code_managed_local_viewer_server_lifecycle",
+          "item_528_render_the_canonical_viewer_inside_the_vs_code_logics_panel",
+          "item_529_bring_viewer_write_actions_and_focus_workflows_to_parity_in_vs_code",
+          "item_530_retire_the_historical_vs_code_cockpit_and_command_surface"
+        ],
+        "prod": [
+          "prod_036_vs_code_embedded_viewer_parity"
+        ],
+        "req": [
+          "req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui"
+        ]
+      },
+      "path": "logics/request/req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui.md",
+      "ref": "req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The VS Code Logics panel renders the same primary viewer UI as `logics-manager view` using the canonical viewer frontend assets and visual styling.",
+          "- AC2: The embedded VS Code view reads data from the same local viewer `/api/*` contract as the browser viewer, with no duplicated TypeScript indexing or workflow-state derivation for the main UI.",
+          "- AC3: Core viewer screens work inside VS Code: workflow board/details, document preview, recent activity, Git/CI/release status, CDX status/missions/reports, workspace preview, and viewer diagnostics.",
+          "- AC4: Mutating viewer actions that are supported in the browser viewer either work inside VS Code through the same backend routes or are explicitly disabled with a clear reason when VS Code cannot support them.",
+          "- AC5: VS Code command palette entries are reduced to viewer lifecycle and focus affordances: open embedded viewer, focus a Logics ref, refresh/restart viewer, open external browser viewer, and optional LAN viewer launch.",
+          "- AC6: Historical VS Code-only cockpit commands and controllers are removed or marked fallback-only after parity is proven, so normal users do not operate two divergent UIs."
+        ],
+        "Needs": [
+          "- The VS Code extension's main Logics view must show the same user-facing UI as `logics-manager view`, including viewer navigation, CDX screens, workspace preview, recent activity, Git/CI/release status, and terminal/workshop surfaces where VS Code allows them.",
+          "- Viewer behavior must come from the same Python HTTP API and browser-host frontend contract used by the local browser viewer, not from a second TypeScript implementation of workflow state.",
+          "- The historical VS Code webview cockpit must be retired or reduced to a temporary fallback so users do not see divergent actions, labels, filters, or stale feature coverage.",
+          "- The VS Code container must preserve editor-native affordances that matter: workspace-root detection, command palette launch/focus commands, local process lifecycle, and explicit error recovery when the viewer server cannot start.",
+          "- Security constraints must remain explicit: the embedded VS Code view must not weaken the viewer's local-only defaults, mutating-route protections, LAN token model, or CSP boundaries."
+        ]
+      },
+      "status": "Draft",
+      "title": "Make the VS Code extension host the same Logics viewer UI"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, define the vs code embedded viewer host contract, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Define the VS Code embedded viewer host contract",
+        "use when": "Implementing the scaffolded slice for Define the VS Code embedded viewer host contract."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_526_define_the_vs_code_embedded_viewer_host_contract"
+        ],
+        "prod": [
+          "prod_036_vs_code_embedded_viewer_parity"
+        ],
+        "req": [
+          "req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui"
+        ],
+        "task": [
+          "task_284_orchestrate_vs_code_embedded_viewer_parity"
+        ]
+      },
+      "path": "logics/backlog/item_526_define_the_vs_code_embedded_viewer_host_contract.md",
+      "ref": "item_526_define_the_vs_code_embedded_viewer_host_contract",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A committed architecture note states the chosen embedding model and rejects the main alternatives with project-specific reasons.",
+          "- AC2: The note identifies CSP, localhost access, route authorization, asset loading, and lifecycle assumptions that implementation must satisfy.",
+          "- AC3: The first milestone's supported/unsupported viewer surfaces are listed so later slices can test against a concrete contract.",
+          "- AC4: The decision preserves the canonical viewer API as the source of truth and forbids reimplementing normal viewer routes in TypeScript."
+        ],
+        "Problem": [
+          "- The migration can fail by choosing the wrong embedding model: an iframe may be fragile, while a full TypeScript route bridge would recreate the old duplicated cockpit. The project needs a small, explicit host contract before implementation slices spread across VS Code, Python, and viewer assets."
+        ]
+      },
+      "status": "Ready",
+      "title": "Define the VS Code embedded viewer host contract"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add a vs code-managed local viewer server lifecycle, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add a VS Code-managed local viewer server lifecycle",
+        "use when": "Implementing the scaffolded slice for Add a VS Code-managed local viewer server lifecycle."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_527_add_a_vs_code_managed_local_viewer_server_lifecycle"
+        ],
+        "prod": [
+          "prod_036_vs_code_embedded_viewer_parity"
+        ],
+        "req": [
+          "req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui"
+        ],
+        "task": [
+          "task_284_orchestrate_vs_code_embedded_viewer_parity"
+        ]
+      },
+      "path": "logics/backlog/item_527_add_a_vs_code_managed_local_viewer_server_lifecycle.md",
+      "ref": "item_527_add_a_vs_code_managed_local_viewer_server_lifecycle",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The extension can start a local viewer backend for the current workspace root and reports the selected URL to callers.",
+          "- AC2: Repeated opens for the same root reuse the existing server instead of starting duplicates.",
+          "- AC3: Startup failures show actionable diagnostics in a VS Code output channel and in the panel placeholder.",
+          "- AC4: Deactivate and root changes stop or retire managed processes without leaving stale child processes.",
+          "- AC5: Unit tests cover lifecycle success, reuse, failure, and cleanup paths."
+        ],
+        "Problem": [
+          "- The VS Code panel cannot embed the canonical viewer until the extension can reliably start, reuse, restart, and stop a `logics-manager view` backend for the active workspace root."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add a VS Code-managed local viewer server lifecycle"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, render the canonical viewer inside the vs code logics panel, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Render the canonical viewer inside the VS Code Logics panel",
+        "use when": "Implementing the scaffolded slice for Render the canonical viewer inside the VS Code Logics panel."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_528_render_the_canonical_viewer_inside_the_vs_code_logics_panel"
+        ],
+        "prod": [
+          "prod_036_vs_code_embedded_viewer_parity"
+        ],
+        "req": [
+          "req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui"
+        ],
+        "task": [
+          "task_284_orchestrate_vs_code_embedded_viewer_parity"
+        ]
+      },
+      "path": "logics/backlog/item_528_render_the_canonical_viewer_inside_the_vs_code_logics_panel.md",
+      "ref": "item_528_render_the_canonical_viewer_inside_the_vs_code_logics_panel",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Opening the Logics panel in VS Code renders the canonical viewer visual shell, not the historical toolbar/details webview.",
+          "- AC2: The embedded viewer fetches real workspace data through the managed local viewer API.",
+          "- AC3: The read-only surfaces listed in scope render without console CSP errors in a VS Code extension development host.",
+          "- AC4: Browser viewer launch remains unaffected and existing viewer tests still pass.",
+          "- AC5: A smoke test or harness check verifies that the VS Code shell loads the embedded viewer and receives `/api/items` data."
+        ],
+        "Problem": [
+          "- The current `logicsWebviewHtml.ts` builds the historical VS Code cockpit and hydrates it through VS Code messages. Users need the Logics panel to display the same viewer UI that the local browser viewer displays."
+        ]
+      },
+      "status": "Ready",
+      "title": "Render the canonical viewer inside the VS Code Logics panel"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate VS Code embedded viewer parity",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_526_define_the_vs_code_embedded_viewer_host_contract",
+          "item_527_add_a_vs_code_managed_local_viewer_server_lifecycle",
+          "item_528_render_the_canonical_viewer_inside_the_vs_code_logics_panel",
+          "item_529_bring_viewer_write_actions_and_focus_workflows_to_parity_in_vs_code",
+          "item_530_retire_the_historical_vs_code_cockpit_and_command_surface"
+        ],
+        "prod": [
+          "prod_036_vs_code_embedded_viewer_parity"
+        ],
+        "req": [
+          "req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui"
+        ],
+        "task": [
+          "task_284_orchestrate_vs_code_embedded_viewer_parity"
+        ]
+      },
+      "path": "logics/tasks/task_284_orchestrate_vs_code_embedded_viewer_parity.md",
+      "ref": "task_284_orchestrate_vs_code_embedded_viewer_parity",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- Run `python3 -m logics_manager lint --require-status`.",
+          "- Run scaffold command tests."
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate VS Code embedded viewer parity"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, bring viewer write actions and focus workflows to parity in vs code, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Bring viewer write actions and focus workflows to parity in VS Code",
+        "use when": "Implementing the scaffolded slice for Bring viewer write actions and focus workflows to parity in VS Code."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_529_bring_viewer_write_actions_and_focus_workflows_to_parity_in_vs_code"
+        ],
+        "prod": [
+          "prod_036_vs_code_embedded_viewer_parity"
+        ],
+        "req": [
+          "req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui"
+        ],
+        "task": [
+          "task_284_orchestrate_vs_code_embedded_viewer_parity"
+        ]
+      },
+      "path": "logics/backlog/item_529_bring_viewer_write_actions_and_focus_workflows_to_parity_in_vs_code.md",
+      "ref": "item_529_bring_viewer_write_actions_and_focus_workflows_to_parity_in_vs_code",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A route/action parity matrix is committed and tied to tests or manual smoke proof.",
+          "- AC2: Status update, new request, document edit/read preview, CDX status/report navigation, workspace preview, Git/CI/release refresh, and diagnostics work inside VS Code through the viewer backend.",
+          "- AC3: Unsupported actions show a clear disabled state or error reason in the embedded UI.",
+          "- AC4: VS Code commands can open the embedded viewer focused on a selected Logics ref or the current Logics document.",
+          "- AC5: Security-sensitive mutating actions still satisfy the viewer's local authorization and CSRF/origin expectations."
+        ],
+        "Problem": [
+          "- Read-only rendering is not enough. The current viewer includes mutating and local-runtime actions such as status changes, new requests, bootstrap, CDX session management, Git commit/fetch, file open, workspace actions, and workshop terminals. The VS Code embed needs a deliberate parity pass so actions either work through the same routes or fail clearly."
+        ]
+      },
+      "status": "Ready",
+      "title": "Bring viewer write actions and focus workflows to parity in VS Code"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, retire the historical vs code cockpit and command surface, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Retire the historical VS Code cockpit and command surface",
+        "use when": "Implementing the scaffolded slice for Retire the historical VS Code cockpit and command surface."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_530_retire_the_historical_vs_code_cockpit_and_command_surface"
+        ],
+        "prod": [
+          "prod_036_vs_code_embedded_viewer_parity"
+        ],
+        "req": [
+          "req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui"
+        ],
+        "task": [
+          "task_284_orchestrate_vs_code_embedded_viewer_parity"
+        ]
+      },
+      "path": "logics/backlog/item_530_retire_the_historical_vs_code_cockpit_and_command_surface.md",
+      "ref": "item_530_retire_the_historical_vs_code_cockpit_and_command_surface",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Normal VS Code use no longer exercises the historical cockpit HTML or TypeScript Logics indexing path.",
+          "- AC2: Command palette entries no longer advertise actions that are better handled inside the embedded viewer UI.",
+          "- AC3: Dead VS Code controllers and tests are removed after references are gone.",
+          "- AC4: README and `docs/vscode.md` clearly state that VS Code hosts the canonical viewer.",
+          "- AC5: `npm run lint`, focused VS Code tests, viewer tests, `logics-manager lint --require-status`, and `logics-manager audit --group-by-doc` pass."
+        ],
+        "Problem": [
+          "- After the embedded viewer reaches parity, keeping the old VS Code cockpit code and command palette actions will preserve drift risk and confuse users about which surface is canonical."
+        ]
+      },
+      "status": "Ready",
+      "title": "Retire the historical VS Code cockpit and command surface"
+    }
+  ],
+  "estimates": {
+    "char_count": 19027,
+    "companion_doc_count": 3,
+    "doc_count": 7
+  },
+  "generated_at": "2026-07-05T11:02:50Z",
+  "handoff": {
+    "companion_doc_count": 3,
+    "enabled": true,
+    "source_refs": [
+      "req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui",
+      "item_526_define_the_vs_code_embedded_viewer_host_contract",
+      "item_527_add_a_vs_code_managed_local_viewer_server_lifecycle",
+      "item_528_render_the_canonical_viewer_inside_the_vs_code_logics_panel",
+      "item_529_bring_viewer_write_actions_and_focus_workflows_to_parity_in_vs_code",
+      "item_530_retire_the_historical_vs_code_cockpit_and_command_surface",
+      "task_284_orchestrate_vs_code_embedded_viewer_parity"
+    ],
+    "validation_summary_count": 1
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui,item_526_define_the_vs_code_embedded_viewer_host_contract,item_527_add_a_vs_code_managed_local_viewer_server_lifecycle,item_528_render_the_canonical_viewer_inside_the_vs_code_logics_panel,item_529_bring_viewer_write_actions_and_focus_workflows_to_parity_in_vs_code,item_530_retire_the_historical_vs_code_cockpit_and_command_surface,task_284_orchestrate_vs_code_embedded_viewer_parity",
+  "refs": [
+    "req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui",
+    "item_526_define_the_vs_code_embedded_viewer_host_contract",
+    "item_527_add_a_vs_code_managed_local_viewer_server_lifecycle",
+    "item_528_render_the_canonical_viewer_inside_the_vs_code_logics_panel",
+    "item_529_bring_viewer_write_actions_and_focus_workflows_to_parity_in_vs_code",
+    "item_530_retire_the_historical_vs_code_cockpit_and_command_surface",
+    "task_284_orchestrate_vs_code_embedded_viewer_parity"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different version",
+      "changelog: evidence targets a different version",
+      "local_validation: evidence targets a different version",
+      "git_push: evidence targets a different version",
+      "ci: evidence targets a different version",
+      "github_release: evidence targets a different version"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different version",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "stale"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.15.7"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_284_orchestrate_vs_code_embedded_viewer_parity.md",
+      "ref": "task_284_orchestrate_vs_code_embedded_viewer_parity"
+    }
+  ]
+}

@@ -642,6 +642,24 @@ describe("LogicsViewProvider", () => {
     expect(sendText).toHaveBeenCalledWith("cdx work", true);
   });
 
+  it("preserves spaces and quotes in workshop terminal commands", async () => {
+    const sendText = vi.fn();
+    mocks.createTerminal.mockReturnValue({ show: vi.fn(), sendText });
+    let didReceiveMessage: ((message: unknown) => Promise<void> | void) | undefined;
+    provider.resolveWebviewView({
+      webview: {
+        html: "",
+        cspSource: "vscode-webview://test",
+        onDidReceiveMessage: vi.fn((callback) => { didReceiveMessage = callback; }),
+        postMessage: vi.fn()
+      }
+    } as never);
+
+    await didReceiveMessage?.({ type: "launch-workshop-terminal", command: ["sh", "-lc", "printf \"it's fine\""], label: "quoted" });
+
+    expect(sendText).toHaveBeenCalledWith("sh -lc 'printf \"it'\\''s fine\"'", true);
+  });
+
   it("renders an embedded viewer startup error when the server fails", async () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
     (provider as any).view = {

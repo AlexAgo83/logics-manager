@@ -202,9 +202,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
           const root = await viewProviderSupport.getActionRoot.call(this);
           const terminal = vscode.window.createTerminal({ name: message.label || "Logics terminal", cwd: root || undefined });
           terminal.show(true);
-          const command = message.command?.length === 3 && message.command[0] === "sh" && message.command[1] === "-lc"
-            ? message.command[2]
-            : message.command?.map((part) => /[\s"'\\]/.test(part) ? `'${part.replace(/'/g, "'\\''")}'` : part).join(" ");
+          const command = message.command?.map((part) => /[\s"'\\]/.test(part) ? `'${part.replace(/'/g, "'\\''")}'` : part).join(" ");
           if (command) terminal.sendText(command, true);
           return;
         }

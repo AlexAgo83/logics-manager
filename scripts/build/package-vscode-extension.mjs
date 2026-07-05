@@ -25,6 +25,7 @@ export function packageVsix(outputPath) {
       files: [
         "README.md",
         "LICENSE",
+        "VERSION",
         "dist/**",
         "clients/shared-web/media/**",
         "logics_manager/**",
@@ -41,7 +42,7 @@ export function packageVsix(outputPath) {
       "utf8",
     );
 
-    for (const fileName of ["README.md", "LICENSE"]) {
+    for (const fileName of ["README.md", "LICENSE", "VERSION"]) {
       const source = path.join(root, fileName);
       if (fs.existsSync(source)) {
         fs.copyFileSync(source, path.join(stageDir, fileName));

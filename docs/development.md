@@ -69,6 +69,12 @@ Windows notes:
 
 The standalone local viewer host is built with esbuild from `clients/viewer/src/browser-host/index.js`. Run `npm run bundle:viewer-host` after editing the source entrypoint, then `npm run check:viewer-host` to verify that `clients/viewer/browser-host.js` is byte-stable.
 
+The VS Code Logics panel embeds the canonical local viewer by starting a
+managed `logics-manager view --host 127.0.0.1 --port 0 --no-open` process and
+loading that loopback URL in a webview iframe. Keep normal viewer routes in
+Python; add TypeScript only for VS Code lifecycle, focus, CSP, or documented
+bridge exceptions.
+
 The VS Code and local-viewer shared webview scripts `mainApp.js` and
 `renderBoardApp.js` are hand-authored directly under `clients/shared-web/media/`
 alongside the other shared media files. Editing any shared web asset is a

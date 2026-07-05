@@ -2,13 +2,18 @@
 
 # VS Code Extension
 
-The VS Code extension is the human cockpit around the same runtime. It helps you:
+The VS Code extension hosts the same local viewer served by
+`logics-manager view` inside the Logics panel. The viewer remains the canonical
+UI for board navigation, previews, CDX status, workspace browsing, recent
+activity, Git/CI/release status, diagnostics, and workflow actions.
 
-- browse workflow docs as a board or list;
-- preview Logics Markdown with clickable references and Mermaid rendering;
-- create and promote workflow items without leaving the editor;
-- inspect recent activity, status, theme, confidence, stale work, and backlog coverage;
-- run validation-oriented actions from the UI.
+The extension now owns only the VS Code-specific shell:
+
+- starting and reusing a local `logics-manager view --port 0` process;
+- embedding that viewer in the Logics panel;
+- opening the same viewer externally;
+- restarting the managed viewer;
+- focusing the viewer on the current Logics document.
 
 Install from the Marketplace:
 
@@ -80,16 +85,28 @@ The harness runs at `http://localhost:4173/` and supports mock scenarios such as
 ## Commands
 
 - `Logics: Refresh`
-- `Logics: Refresh Agents`
-- `Logics: Select Agent`
-- `Logics: Open Item`
-- `Logics: Promote Item`
-- `Logics: New Request`
-- `Logics: Create Companion Doc`
-- `Logics: Check Environment`
-- `Logics: Open Hybrid Insights`
-- `Logics: Open Logics Insights`
-- `Logics: Triage Item`
-- `Logics: Assess Diff Risk`
-- `Logics: Build Validation Checklist`
-- `Logics: Review Doc Consistency`
+- `Logics: Open Viewer`
+- `Logics: Restart Viewer`
+- `Logics: Open Viewer Externally`
+- `Logics: Focus Current Item`
+
+Workflow actions that used to be separate command palette entries now live in
+the embedded viewer itself. This keeps VS Code and browser usage on the same
+UI and backend API.
+
+## Embedded Viewer Parity
+
+| Surface | VS Code behavior |
+| --- | --- |
+| Board, list, details, and document preview | Same viewer UI loaded from the managed local viewer server. |
+| Recent activity, Git, CI, release, diagnostics | Same `/api/*` routes as the browser viewer. |
+| CDX status, missions, reports | Same viewer screens and backend routes. |
+| Workspace preview | Same viewer workspace browser. |
+| Workflow writes and status changes | Routed through the viewer backend, not reimplemented in TypeScript. |
+| File opening | Uses the viewer behavior; editor-native file opening can be added only as a documented route exception. |
+| LAN mode | Use `logics-manager view --lan` or the external viewer path; LAN embedding is not a separate VS Code mode. |
+| Remote VS Code / SSH / Codespaces | Not part of the first embedded-viewer milestone. |
+
+The extension intentionally does not mirror viewer `/api/*` routes in
+TypeScript. If a VS Code-only bridge becomes necessary for one action, document
+that exception before adding it.

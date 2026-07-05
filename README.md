@@ -17,7 +17,7 @@ request -> backlog item -> task -> implementation
 
 Everything else in this repository is a client around that runtime:
 
-- the VS Code extension gives humans a board, details panel, previews, search, and insights;
+- the VS Code extension embeds the same local viewer inside VS Code;
 - the MCP server gives assistants a bounded tool API over the same CLI;
 - the npm package and Python package are distribution paths for the same runtime.
 
@@ -43,7 +43,7 @@ The result is a repo-local memory layer that reduces re-explaining, keeps implem
 | Layer | Purpose |
 | --- | --- |
 | CLI runtime | Canonical workflow engine for creating, promoting, auditing, repairing, and closing Logics docs. |
-| VS Code extension | Human-facing cockpit for navigating and managing the Markdown corpus. |
+| VS Code extension | VS Code host for the canonical local viewer, with editor lifecycle and focus commands. |
 | MCP server | Assistant-facing adapter that exposes bounded Logics tools without giving agents a shell. |
 | Bundled agent skills | Reusable skills (e.g. `/corpus`) installed into Claude Code / Codex homes via `logics-manager skills install`. See [docs/cli.md](docs/cli.md#bundled-agent-skills). |
 | npm / Python packaging | Installation paths for the same CLI/runtime. |
@@ -168,8 +168,9 @@ A short tour of each surface:
   with consistency checks; lints and audits traceability; exports indexes,
   context packs, and graph data; and serves both the local browser viewer and
   the bounded MCP tool surface. See [docs/cli.md](docs/cli.md).
-- The **VS Code extension** is the human cockpit around the same runtime — board,
-  details panel, previews, search, and insights. See [docs/vscode.md](docs/vscode.md).
+- The **VS Code extension** hosts the same local viewer inside VS Code and keeps
+  editor-specific commands limited to viewer lifecycle and focus shortcuts. See
+  [docs/vscode.md](docs/vscode.md).
 - The **MCP server** gives assistants a bounded tool API over the same CLI
   without arbitrary filesystem or shell access. See [docs/mcp.md](docs/mcp.md).
 

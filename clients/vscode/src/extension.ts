@@ -77,20 +77,10 @@ export function activate(context: vscode.ExtensionContext): void {
 
   context.subscriptions.push(
     vscode.commands.registerCommand("logics.refresh", () => provider?.refresh()),
-    vscode.commands.registerCommand("logics.refreshAgents", () => provider?.refreshAgentsFromCommand()),
-    vscode.commands.registerCommand("logics.selectAgent", () => provider?.selectAgentFromPalette()),
-    vscode.commands.registerCommand("logics.open", () => provider?.openFromPalette()),
-    vscode.commands.registerCommand("logics.promote", () => provider?.promoteFromPalette()),
-    vscode.commands.registerCommand("logics.newRequest", () => provider?.createRequest()),
-    vscode.commands.registerCommand("logics.createCompanionDoc", () => provider?.createCompanionDocFromPalette()),
-    vscode.commands.registerCommand("logics.checkEnvironment", () => provider?.checkEnvironmentFromCommand()),
-    vscode.commands.registerCommand("logics.openHybridInsights", () => provider?.openHybridInsightsFromCommand()),
-    vscode.commands.registerCommand("logics.openLogicsInsights", () => provider?.openLogicsInsightsFromCommand()),
-    vscode.commands.registerCommand("logics.openOnboarding", () => provider?.openOnboardingFromCommand()),
-    vscode.commands.registerCommand("logics.assistTriage", () => provider?.triageWorkflowDocFromCommand()),
-    vscode.commands.registerCommand("logics.assistDiffRisk", () => provider?.assessDiffRiskFromCommand()),
-    vscode.commands.registerCommand("logics.assistValidationChecklist", () => provider?.buildValidationChecklistFromCommand()),
-    vscode.commands.registerCommand("logics.assistDocConsistency", () => provider?.reviewDocConsistencyFromCommand())
+    vscode.commands.registerCommand("logics.openViewer", () => provider?.openEmbeddedViewerFromCommand()),
+    vscode.commands.registerCommand("logics.restartViewer", () => provider?.restartEmbeddedViewerFromCommand()),
+    vscode.commands.registerCommand("logics.openViewerExternal", () => provider?.openEmbeddedViewerExternalFromCommand()),
+    vscode.commands.registerCommand("logics.focusCurrent", () => provider?.focusCurrentLogicsDocumentFromCommand())
   );
 
   setupWatcher();

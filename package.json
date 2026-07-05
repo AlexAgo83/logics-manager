@@ -66,56 +66,20 @@
         "title": "Logics: Refresh"
       },
       {
-        "command": "logics.refreshAgents",
-        "title": "Logics: Refresh Agents"
+        "command": "logics.openViewer",
+        "title": "Logics: Open Viewer"
       },
       {
-        "command": "logics.selectAgent",
-        "title": "Logics: Select Agent"
+        "command": "logics.restartViewer",
+        "title": "Logics: Restart Viewer"
       },
       {
-        "command": "logics.open",
-        "title": "Logics: Open Item"
+        "command": "logics.openViewerExternal",
+        "title": "Logics: Open Viewer Externally"
       },
       {
-        "command": "logics.promote",
-        "title": "Logics: Promote Item"
-      },
-      {
-        "command": "logics.newRequest",
-        "title": "Logics: New Request"
-      },
-      {
-        "command": "logics.createCompanionDoc",
-        "title": "Logics: Create Companion Doc"
-      },
-      {
-        "command": "logics.checkEnvironment",
-        "title": "Logics: Check Environment"
-      },
-      {
-        "command": "logics.openHybridInsights",
-        "title": "Logics: Open Hybrid Insights"
-      },
-      {
-        "command": "logics.openLogicsInsights",
-        "title": "Logics: Open Logics Insights"
-      },
-      {
-        "command": "logics.assistTriage",
-        "title": "Logics: Triage Item"
-      },
-      {
-        "command": "logics.assistDiffRisk",
-        "title": "Logics: Assess Diff Risk"
-      },
-      {
-        "command": "logics.assistValidationChecklist",
-        "title": "Logics: Build Validation Checklist"
-      },
-      {
-        "command": "logics.assistDocConsistency",
-        "title": "Logics: Review Doc Consistency"
+        "command": "logics.focusCurrent",
+        "title": "Logics: Focus Current Item"
       }
     ]
   },

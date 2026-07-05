@@ -12,6 +12,10 @@ const mocks = vi.hoisted(() => ({
 
 const provider = {
   refresh: vi.fn(),
+  openEmbeddedViewerFromCommand: vi.fn(),
+  restartEmbeddedViewerFromCommand: vi.fn(),
+  openEmbeddedViewerExternalFromCommand: vi.fn(),
+  focusCurrentLogicsDocumentFromCommand: vi.fn(),
   refreshAgentsFromCommand: vi.fn(),
   selectAgentFromPalette: vi.fn(),
   openFromPalette: vi.fn(),
@@ -84,6 +88,10 @@ describe("extension.activate", () => {
     mocks.onDidChangeWorkspaceFolders.mockReset();
     mocks.getConfiguration.mockReset();
     provider.refresh.mockReset();
+    provider.openEmbeddedViewerFromCommand.mockReset();
+    provider.restartEmbeddedViewerFromCommand.mockReset();
+    provider.openEmbeddedViewerExternalFromCommand.mockReset();
+    provider.focusCurrentLogicsDocumentFromCommand.mockReset();
     provider.refreshAgentsFromCommand.mockReset();
     provider.selectAgentFromPalette.mockReset();
     provider.openFromPalette.mockReset();
@@ -175,13 +183,18 @@ describe("extension.activate", () => {
     ]);
 
     commandHandlers.get("logics.refresh")?.();
-    commandHandlers.get("logics.checkEnvironment")?.();
-    commandHandlers.get("logics.openLogicsInsights")?.();
-    commandHandlers.get("logics.openOnboarding")?.();
+    commandHandlers.get("logics.openViewer")?.();
+    commandHandlers.get("logics.restartViewer")?.();
+    commandHandlers.get("logics.openViewerExternal")?.();
+    commandHandlers.get("logics.focusCurrent")?.();
     expect(provider.refresh).toHaveBeenCalledTimes(2);
-    expect(provider.checkEnvironmentFromCommand).toHaveBeenCalledTimes(1);
-    expect(provider.openLogicsInsightsFromCommand).toHaveBeenCalledTimes(1);
-    expect(provider.openOnboardingFromCommand).toHaveBeenCalledTimes(1);
+    expect(provider.openEmbeddedViewerFromCommand).toHaveBeenCalledTimes(1);
+    expect(provider.restartEmbeddedViewerFromCommand).toHaveBeenCalledTimes(1);
+    expect(provider.openEmbeddedViewerExternalFromCommand).toHaveBeenCalledTimes(1);
+    expect(provider.focusCurrentLogicsDocumentFromCommand).toHaveBeenCalledTimes(1);
+    expect(commandHandlers.has("logics.checkEnvironment")).toBe(false);
+    expect(commandHandlers.has("logics.openLogicsInsights")).toBe(false);
+    expect(commandHandlers.has("logics.openOnboarding")).toBe(false);
 
     watchers[0]?.didChange?.();
     vi.advanceTimersByTime(299);

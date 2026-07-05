@@ -563,6 +563,45 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     await this.logicsCorpusInsightsController.openLogicsInsightsFromTools();
   }
 
+  async openEmbeddedViewerFromCommand(): Promise<void> {
+    await this.renderEmbeddedViewer();
+  }
+
+  async restartEmbeddedViewerFromCommand(): Promise<void> {
+    await this.restartEmbeddedViewer();
+  }
+
+  async openEmbeddedViewerExternalFromCommand(): Promise<void> {
+    const { root } = viewProviderSupport.resolveProjectRoot.call(this);
+    if (!root) {
+      void vscode.window.showErrorMessage("No project root found. Open a workspace or set a project root first.");
+      return;
+    }
+    try {
+      const server = await this.viewerServerManager.getOrStart(root);
+      this.embeddedViewerUrl = server.url;
+      await vscode.env.openExternal(vscode.Uri.parse(server.url));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      void vscode.window.showErrorMessage(`Could not open Logics viewer: ${message}`);
+    }
+  }
+
+  async focusCurrentLogicsDocumentFromCommand(): Promise<void> {
+    const { root } = viewProviderSupport.resolveProjectRoot.call(this);
+    const activePath = vscode.window.activeTextEditor?.document.uri.fsPath;
+    if (!root || !activePath) {
+      void vscode.window.showWarningMessage("Open a Logics document before focusing the viewer.");
+      return;
+    }
+    const ref = path.basename(activePath).replace(/\.(md|markdown)$/i, "");
+    if (!/^(req|item|task)_\d+/.test(ref)) {
+      void vscode.window.showWarningMessage("The active editor is not a request, backlog item, or task document.");
+      return;
+    }
+    await this.renderEmbeddedViewer(ref);
+  }
+
   openOnboardingFromCommand(): void {
     viewProviderSupport.openOnboardingPanel.call(this);
   }

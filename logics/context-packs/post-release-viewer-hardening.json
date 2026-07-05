@@ -1,0 +1,453 @@
+{
+  "budgets": {
+    "max_docs": 28,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_290_post_release_viewer_and_vs_code_hardening item_533_restore_valid_vs_code_recovery_guidance_for_environment_checks item_534_persist_viewer_project_last_used_order_outside_volatile_origins item_535_make_split_cdx_usage_gauge_missing_data_semantics_symmetric item_536_clean_up_embedded_viewer_server_processes_on_startup_timeout item_537_harden_vs_code_terminal_bridge_command_handling task_287_orchestrate_post_release_viewer_hardening --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_533_restore_valid_vs_code_recovery_guidance_for_environment_checks",
+          "item_534_persist_viewer_project_last_used_order_outside_volatile_origins",
+          "item_535_make_split_cdx_usage_gauge_missing_data_semantics_symmetric",
+          "item_536_clean_up_embedded_viewer_server_processes_on_startup_timeout",
+          "item_537_harden_vs_code_terminal_bridge_command_handling"
+        ],
+        "prod": [
+          "prod_038_post_release_viewer_hardening"
+        ],
+        "req": [
+          "req_290_post_release_viewer_and_vs_code_hardening"
+        ],
+        "task": [
+          "task_287_orchestrate_post_release_viewer_hardening"
+        ]
+      },
+      "path": "logics/product/prod_038_post_release_viewer_hardening.md",
+      "ref": "prod_038_post_release_viewer_hardening",
+      "sections": {
+        "Goals": [
+          "- Keep VS Code recovery guidance accurate and actionable.",
+          "- Persist project recency in a place that is stable across embedded viewer server restarts.",
+          "- Render CDX usage data faithfully when partial usage windows are unavailable.",
+          "- Ensure embedded viewer server lifecycle failures do not leak child processes.",
+          "- Make terminal-launch behavior predictable across the supported VS Code environments."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the viewer and VS Code integration changes added since v2.15.7 ready for release by closing the review findings around command guidance, durable viewer state, usage telemetry display, process cleanup, and terminal command handling."
+        ],
+        "References": [
+          "- Product back-reference: `req_290_post_release_viewer_and_vs_code_hardening`",
+          "- Task back-reference: `task_287_orchestrate_post_release_viewer_hardening`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Post-release viewer hardening"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, post-release viewer and vs code hardening, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Post-release viewer and VS Code hardening",
+        "use when": "You need to implement or review the scaffolded workflow for Post-release viewer and VS Code hardening."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_533_restore_valid_vs_code_recovery_guidance_for_environment_checks",
+          "item_534_persist_viewer_project_last_used_order_outside_volatile_origins",
+          "item_535_make_split_cdx_usage_gauge_missing_data_semantics_symmetric",
+          "item_536_clean_up_embedded_viewer_server_processes_on_startup_timeout",
+          "item_537_harden_vs_code_terminal_bridge_command_handling"
+        ],
+        "prod": [
+          "prod_038_post_release_viewer_hardening"
+        ],
+        "req": [
+          "req_290_post_release_viewer_and_vs_code_hardening"
+        ]
+      },
+      "path": "logics/request/req_290_post_release_viewer_and_vs_code_hardening.md",
+      "ref": "req_290_post_release_viewer_and_vs_code_hardening",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- Stale user-facing references to Logics: Check Environment are either backed by a registered command again or replaced with valid recovery guidance.",
+          "- Project last-used ordering survives VS Code embedded viewer restarts and dynamic embedded-server ports.",
+          "- The split CDX usage gauge renders each missing 5-hour or weekly window as unknown without falling back to unrelated availability data.",
+          "- ViewerServerManager startup timeouts terminate or clean up the spawned server process so late readiness cannot leave an unmanaged process behind.",
+          "- The VS Code terminal bridge handles commands with spaces and quotes correctly for supported shells, or explicitly constrains the command surface and tests that boundary.",
+          "- Focused viewer, VS Code extension, lint, and Logics validation commands pass after the fixes are implemented."
+        ],
+        "Needs": [
+          "- Resolve the review findings identified across the changes added after release v2.15.7.",
+          "- Keep the VS Code embedded viewer behavior aligned with user-facing guidance and terminal-launch expectations.",
+          "- Make viewer state and usage indicators durable and truthful across the embedded and browser-host surfaces.",
+          "- Prevent unmanaged viewer server processes and shell-command handling regressions before the next release."
+        ]
+      },
+      "status": "Draft",
+      "title": "Post-release viewer and VS Code hardening"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, restore valid vs code recovery guidance for environment checks, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Restore valid VS Code recovery guidance for environment checks",
+        "use when": "Implementing the scaffolded slice for Restore valid VS Code recovery guidance for environment checks."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_533_restore_valid_vs_code_recovery_guidance_for_environment_checks"
+        ],
+        "prod": [
+          "prod_038_post_release_viewer_hardening"
+        ],
+        "req": [
+          "req_290_post_release_viewer_and_vs_code_hardening"
+        ],
+        "task": [
+          "task_287_orchestrate_post_release_viewer_hardening"
+        ]
+      },
+      "path": "logics/backlog/item_533_restore_valid_vs_code_recovery_guidance_for_environment_checks.md",
+      "ref": "item_533_restore_valid_vs_code_recovery_guidance_for_environment_checks",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- No user-facing message references an unavailable VS Code command.",
+          "- The chosen command guidance is covered by focused tests or an equivalent command-surface assertion.",
+          "- Manual command discovery in VS Code matches the documented recovery text."
+        ],
+        "Problem": [
+          "- The Logics: Check Environment command was removed from the contributed and registered command surface, but multiple VS Code user-facing messages still tell users to run it.",
+          "- Following that guidance currently leads users to a missing command instead of a recovery path."
+        ]
+      },
+      "status": "Ready",
+      "title": "Restore valid VS Code recovery guidance for environment checks"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, persist viewer project last-used order outside volatile origins, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Persist viewer project last-used order outside volatile origins",
+        "use when": "Implementing the scaffolded slice for Persist viewer project last-used order outside volatile origins."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_534_persist_viewer_project_last_used_order_outside_volatile_origins"
+        ],
+        "prod": [
+          "prod_038_post_release_viewer_hardening"
+        ],
+        "req": [
+          "req_290_post_release_viewer_and_vs_code_hardening"
+        ],
+        "task": [
+          "task_287_orchestrate_post_release_viewer_hardening"
+        ]
+      },
+      "path": "logics/backlog/item_534_persist_viewer_project_last_used_order_outside_volatile_origins.md",
+      "ref": "item_534_persist_viewer_project_last_used_order_outside_volatile_origins",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- A project opened most recently in VS Code remains first after the embedded viewer server restarts on a different port.",
+          "- Browser-host behavior remains compatible for non-VS Code users.",
+          "- Tests cover the durable ordering path rather than only same-origin localStorage."
+        ],
+        "Problem": [
+          "- The project last-used timestamp is stored in browser localStorage.",
+          "- The VS Code embedded viewer starts on a dynamic port, so the browser origin can change and lose the localStorage-backed ordering."
+        ]
+      },
+      "status": "Ready",
+      "title": "Persist viewer project last-used order outside volatile origins"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, make split cdx usage gauge missing-data semantics symmetric, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Make split CDX usage gauge missing-data semantics symmetric",
+        "use when": "Implementing the scaffolded slice for Make split CDX usage gauge missing-data semantics symmetric."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_535_make_split_cdx_usage_gauge_missing_data_semantics_symmetric"
+        ],
+        "prod": [
+          "prod_038_post_release_viewer_hardening"
+        ],
+        "req": [
+          "req_290_post_release_viewer_and_vs_code_hardening"
+        ],
+        "task": [
+          "task_287_orchestrate_post_release_viewer_hardening"
+        ]
+      },
+      "path": "logics/backlog/item_535_make_split_cdx_usage_gauge_missing_data_semantics_symmetric.md",
+      "ref": "item_535_make_split_cdx_usage_gauge_missing_data_semantics_symmetric",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- Missing 5-hour data displays as neutral or unknown.",
+          "- Missing weekly data continues to display as neutral or unknown.",
+          "- Complete 5-hour and weekly data still renders the expected split gauge values."
+        ],
+        "Problem": [
+          "- The split usage gauge handles a missing weekly window as unknown, but a missing 5-hour window can fall back to generic availability data.",
+          "- That fallback makes partial usage telemetry look more precise than it is."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make split CDX usage gauge missing-data semantics symmetric"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate post-release viewer hardening",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_533_restore_valid_vs_code_recovery_guidance_for_environment_checks",
+          "item_534_persist_viewer_project_last_used_order_outside_volatile_origins",
+          "item_535_make_split_cdx_usage_gauge_missing_data_semantics_symmetric",
+          "item_536_clean_up_embedded_viewer_server_processes_on_startup_timeout",
+          "item_537_harden_vs_code_terminal_bridge_command_handling"
+        ],
+        "prod": [
+          "prod_038_post_release_viewer_hardening"
+        ],
+        "req": [
+          "req_290_post_release_viewer_and_vs_code_hardening"
+        ],
+        "task": [
+          "task_287_orchestrate_post_release_viewer_hardening"
+        ]
+      },
+      "path": "logics/tasks/task_287_orchestrate_post_release_viewer_hardening.md",
+      "ref": "task_287_orchestrate_post_release_viewer_hardening",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- Run `python3 -m logics_manager lint --require-status`.",
+          "- Run scaffold command tests."
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate post-release viewer hardening"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, clean up embedded viewer server processes on startup timeout, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Clean up embedded viewer server processes on startup timeout",
+        "use when": "Implementing the scaffolded slice for Clean up embedded viewer server processes on startup timeout."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_536_clean_up_embedded_viewer_server_processes_on_startup_timeout"
+        ],
+        "prod": [
+          "prod_038_post_release_viewer_hardening"
+        ],
+        "req": [
+          "req_290_post_release_viewer_and_vs_code_hardening"
+        ],
+        "task": [
+          "task_287_orchestrate_post_release_viewer_hardening"
+        ]
+      },
+      "path": "logics/backlog/item_536_clean_up_embedded_viewer_server_processes_on_startup_timeout.md",
+      "ref": "item_536_clean_up_embedded_viewer_server_processes_on_startup_timeout",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- A startup timeout leaves no live untracked child process.",
+          "- Late readiness after timeout is ignored safely.",
+          "- Tests cover timeout cleanup and still pass for successful startup."
+        ],
+        "Problem": [
+          "- ViewerServerManager rejects startup after a timeout but does not kill the child process created for that startup attempt.",
+          "- A server that becomes ready after the timeout can continue running without being tracked by the manager."
+        ]
+      },
+      "status": "Ready",
+      "title": "Clean up embedded viewer server processes on startup timeout"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, harden vs code terminal bridge command handling, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Harden VS Code terminal bridge command handling",
+        "use when": "Implementing the scaffolded slice for Harden VS Code terminal bridge command handling."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_537_harden_vs_code_terminal_bridge_command_handling"
+        ],
+        "prod": [
+          "prod_038_post_release_viewer_hardening"
+        ],
+        "req": [
+          "req_290_post_release_viewer_and_vs_code_hardening"
+        ],
+        "task": [
+          "task_287_orchestrate_post_release_viewer_hardening"
+        ]
+      },
+      "path": "logics/backlog/item_537_harden_vs_code_terminal_bridge_command_handling.md",
+      "ref": "item_537_harden_vs_code_terminal_bridge_command_handling",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- Supported terminal-launch commands are sent in a form the configured shell can run.",
+          "- Unsupported command shapes fail early or are never emitted by the viewer protocol.",
+          "- Focused tests cover the selected portability boundary."
+        ],
+        "Problem": [
+          "- The terminal bridge converts command arrays with POSIX single-quote escaping before sending text to a VS Code terminal.",
+          "- That behavior can fail for Windows shells or shell configurations that do not interpret POSIX quoting."
+        ]
+      },
+      "status": "Ready",
+      "title": "Harden VS Code terminal bridge command handling"
+    }
+  ],
+  "estimates": {
+    "char_count": 12966,
+    "companion_doc_count": 1,
+    "doc_count": 7
+  },
+  "generated_at": "2026-07-05T12:12:01Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_290_post_release_viewer_and_vs_code_hardening",
+      "item_533_restore_valid_vs_code_recovery_guidance_for_environment_checks",
+      "item_534_persist_viewer_project_last_used_order_outside_volatile_origins",
+      "item_535_make_split_cdx_usage_gauge_missing_data_semantics_symmetric",
+      "item_536_clean_up_embedded_viewer_server_processes_on_startup_timeout",
+      "item_537_harden_vs_code_terminal_bridge_command_handling",
+      "task_287_orchestrate_post_release_viewer_hardening"
+    ],
+    "validation_summary_count": 1
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_290_post_release_viewer_and_vs_code_hardening,item_533_restore_valid_vs_code_recovery_guidance_for_environment_checks,item_534_persist_viewer_project_last_used_order_outside_volatile_origins,item_535_make_split_cdx_usage_gauge_missing_data_semantics_symmetric,item_536_clean_up_embedded_viewer_server_processes_on_startup_timeout,item_537_harden_vs_code_terminal_bridge_command_handling,task_287_orchestrate_post_release_viewer_hardening",
+  "refs": [
+    "req_290_post_release_viewer_and_vs_code_hardening",
+    "item_533_restore_valid_vs_code_recovery_guidance_for_environment_checks",
+    "item_534_persist_viewer_project_last_used_order_outside_volatile_origins",
+    "item_535_make_split_cdx_usage_gauge_missing_data_semantics_symmetric",
+    "item_536_clean_up_embedded_viewer_server_processes_on_startup_timeout",
+    "item_537_harden_vs_code_terminal_bridge_command_handling",
+    "task_287_orchestrate_post_release_viewer_hardening"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different version",
+      "changelog: evidence targets a different version",
+      "local_validation: evidence targets a different version",
+      "git_push: evidence targets a different version",
+      "ci: evidence targets a different version",
+      "github_release: evidence targets a different version"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different version",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "stale"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.15.7"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_287_orchestrate_post_release_viewer_hardening.md",
+      "ref": "task_287_orchestrate_post_release_viewer_hardening"
+    }
+  ]
+}

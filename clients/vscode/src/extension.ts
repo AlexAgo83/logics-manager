@@ -77,6 +77,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
   context.subscriptions.push(
     vscode.commands.registerCommand("logics.refresh", () => provider?.refresh()),
+    vscode.commands.registerCommand("logics.checkEnvironment", () => provider?.checkEnvironmentFromCommand()),
     vscode.commands.registerCommand("logics.openViewer", () => provider?.openEmbeddedViewerFromCommand()),
     vscode.commands.registerCommand("logics.restartViewer", () => provider?.restartEmbeddedViewerFromCommand()),
     vscode.commands.registerCommand("logics.openViewerExternal", () => provider?.openEmbeddedViewerExternalFromCommand()),

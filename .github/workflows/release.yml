@@ -99,6 +99,30 @@ jobs:
           generate_release_notes: true
           files: artifacts/vscode/logics-manager-${{ steps.release_changelog.outputs.version }}.vsix
 
+  publish-marketplace:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Package VSIX
+        run: npm run package
+
+      - name: Publish to VS Code Marketplace
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: npx vsce publish --packagePath "artifacts/vscode/logics-manager-$(node -p "require('./package.json').version").vsix"
+
   publish-npm:
     needs: release
     permissions:

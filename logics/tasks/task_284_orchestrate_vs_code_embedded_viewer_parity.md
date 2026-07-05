@@ -2,9 +2,9 @@
 > From version: 2.15.7
 > Schema version: 1.0
 > Status: In progress
-> Understanding: 93
+> Understanding: 94
 > Confidence: 87
-> Progress: 28
+> Progress: 42
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -16,7 +16,7 @@
 # Plan
 - [x] 1. Slice A: write the embedding ADR/contract and decide the minimal host model. Do not edit runtime behavior before the CSP/API/lifecycle assumptions are explicit.
 - [x] 2. Slice B: add the VS Code viewer server manager with mocked lifecycle tests. This can land before any visible UI replacement.
-- [ ] 3. Slice C: replace the Logics panel shell with the embedded canonical viewer in read-only mode and prove `/api/items` plus core status/read surfaces load inside VS Code.
+- [x] 3. Slice C: replace the Logics panel shell with the embedded canonical viewer in read-only mode and prove `/api/items` plus core status/read surfaces load inside VS Code.
 - [ ] 4. Slice D: audit and enable write/action parity route by route, preserving Python viewer backend ownership and documenting disabled actions.
 - [ ] 5. Slice E: add focus commands and trim command palette entries to viewer lifecycle/focus affordances.
 - [ ] 6. Slice F: remove or fallback-gate the historical VS Code cockpit, delete dead controllers/tests, and update docs.

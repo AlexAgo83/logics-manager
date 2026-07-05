@@ -44,7 +44,10 @@ const mocks = vi.hoisted(() => ({
   inspectClaudeGlobalKit: vi.fn(),
   detectClaudeBridgeStatus: vi.fn(),
   inspectRuntimeLaunchers: vi.fn(),
-  inspectGitHubReleaseCapability: vi.fn()
+  inspectGitHubReleaseCapability: vi.fn(),
+  viewerGetOrStart: vi.fn(),
+  viewerStop: vi.fn(),
+  viewerStopAll: vi.fn()
 }));
 
 vi.mock("vscode", () => ({
@@ -123,7 +126,18 @@ vi.mock("../clients/vscode/src/workflowSupport", () => ({
 }));
 
 vi.mock("../clients/vscode/src/logicsWebviewHtml", () => ({
+  buildEmbeddedViewerHtml: vi.fn(() => "<html>embedded</html>"),
   buildLogicsWebviewHtml: vi.fn(() => "<html></html>")
+}));
+
+vi.mock("../clients/vscode/src/viewerServerManager", () => ({
+  ViewerServerManager: vi.fn(function () {
+    return {
+      getOrStart: mocks.viewerGetOrStart,
+      stop: mocks.viewerStop,
+      stopAll: mocks.viewerStopAll
+    };
+  })
 }));
 
 vi.mock("../clients/vscode/src/logicsCodexWorkspace", () => ({
@@ -264,6 +278,10 @@ describe("LogicsViewProvider", () => {
     mocks.detectClaudeBridgeStatus.mockReset();
     mocks.inspectRuntimeLaunchers.mockReset();
     mocks.inspectGitHubReleaseCapability.mockReset();
+    mocks.viewerGetOrStart.mockReset();
+    mocks.viewerStop.mockReset();
+    mocks.viewerStopAll.mockReset();
+    mocks.viewerGetOrStart.mockResolvedValue({ root, url: "http://127.0.0.1:4567/", port: 4567 });
     vi.mocked(updateIndicatorsOnDisk).mockReset();
     mocks.detectClaudeBridgeStatus.mockReturnValue({
       available: true,
@@ -585,76 +603,34 @@ describe("LogicsViewProvider", () => {
     expect(mocks.openExternal).toHaveBeenCalledTimes(1);
   });
 
-  it("keeps rendering items when non-critical refresh diagnostics reject", async () => {
+  it("renders the embedded viewer on refresh when a panel is available", async () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
-    const postMessage = vi.fn();
     (provider as any).view = {
       webview: {
-        postMessage
+        html: "",
+        cspSource: "vscode-webview://test"
       }
     };
-    mocks.indexLogics.mockReturnValue([
-      {
-        id: "req_132_windows_fix",
-        title: "Windows fix",
-        stage: "request",
-        path: path.join(root, "logics", "request", "req_132_windows_fix.md"),
-        relPath: "logics/request/req_132_windows_fix.md",
-        indicators: {},
-        references: [],
-        usedBy: []
-      }
-    ]);
-    mocks.inspectRuntimeLaunchers.mockRejectedValueOnce(new Error("launchers unavailable"));
-    mocks.inspectGitHubReleaseCapability.mockRejectedValueOnce(new Error("release capability unavailable"));
 
     await provider.refresh();
 
-    expect(postMessage).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: "data",
-        payload: expect.objectContaining({
-          items: expect.arrayContaining([
-            expect.objectContaining({
-              id: "req_132_windows_fix"
-            })
-          ]),
-          changedPaths: [],
-          canLaunchCodex: false,
-          canLaunchClaude: false,
-          canPublishRelease: false,
-          shouldRecommendCheckEnvironment: true
-        })
-      })
-    );
+    expect(mocks.viewerGetOrStart).toHaveBeenCalledWith(root, undefined);
+    expect((provider as any).view.webview.html).toBe("<html>embedded</html>");
   });
 
-  it("surfaces an explicit board error when indexLogics throws", async () => {
+  it("renders an embedded viewer startup error when the server fails", async () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
-    const postMessage = vi.fn();
     (provider as any).view = {
       webview: {
-        postMessage
+        html: "",
+        cspSource: "vscode-webview://test"
       }
     };
-    mocks.indexLogics.mockImplementation(() => {
-      throw new Error("simulated indexing failure");
-    });
+    mocks.viewerGetOrStart.mockRejectedValueOnce(new Error("simulated viewer failure"));
 
     await provider.refresh();
 
-    expect(postMessage).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: "data",
-        payload: expect.objectContaining({
-          error: expect.stringContaining("simulated indexing failure"),
-          canLaunchCodex: false,
-          canLaunchClaude: false,
-          canPublishRelease: false,
-          shouldRecommendCheckEnvironment: true
-        })
-      })
-    );
+    expect((provider as any).view.webview.html).toBe("<html>embedded</html>");
   });
 
   it("surfaces incomplete bootstrap state instead of claiming bootstrap is complete", async () => {

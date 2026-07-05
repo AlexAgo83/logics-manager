@@ -1,6 +1,88 @@
 import * as vscode from "vscode";
 import { getNonce } from "./logicsReadPreviewHtml";
 
+export type EmbeddedViewerHtmlState =
+  | { kind: "loading"; message?: string }
+  | { kind: "ready"; url: string; root: string }
+  | { kind: "error"; message: string; detail?: string };
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+export function buildEmbeddedViewerHtml(webview: vscode.Webview, state: EmbeddedViewerHtmlState): string {
+  const nonce = getNonce();
+  const frameOrigin = state.kind === "ready" ? new URL(state.url).origin : "";
+  const frameSrc = frameOrigin || "'none'";
+  const body = state.kind === "ready"
+    ? `
+      <header class="topbar">
+        <div>
+          <strong>Logics Viewer</strong>
+          <span>${escapeHtml(state.root)}</span>
+        </div>
+        <nav>
+          <button type="button" data-action="reload">Reload</button>
+          <button type="button" data-action="restart-viewer">Restart</button>
+          <button type="button" data-action="open-external-viewer">Open externally</button>
+        </nav>
+      </header>
+      <iframe id="viewer-frame" src="${escapeHtml(state.url)}" title="Logics viewer"></iframe>
+    `
+    : `
+      <main class="state state--${state.kind}">
+        <strong>${state.kind === "loading" ? "Starting Logics viewer" : "Viewer unavailable"}</strong>
+        <p>${escapeHtml(state.kind === "loading" ? state.message ?? "Launching the canonical local viewer." : state.message)}</p>
+        ${state.kind === "error" && state.detail ? `<pre>${escapeHtml(state.detail)}</pre>` : ""}
+        ${state.kind === "error" ? '<button type="button" data-action="restart-viewer">Retry</button>' : ""}
+      </main>
+    `;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; frame-src ${frameSrc}; img-src ${webview.cspSource} data: https:; style-src 'unsafe-inline'; script-src 'nonce-${nonce}';" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Logics Viewer</title>
+  <style>
+    html, body { height: 100%; margin: 0; overflow: hidden; background: var(--vscode-editor-background, #1f1f1f); color: var(--vscode-editor-foreground, #e6e6e6); font-family: var(--vscode-font-family, system-ui, sans-serif); }
+    body { display: flex; flex-direction: column; }
+    .topbar { min-height: 34px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 8px; border-bottom: 1px solid color-mix(in srgb, currentColor 16%, transparent); background: var(--vscode-sideBar-background, #181818); box-sizing: border-box; }
+    .topbar div { min-width: 0; display: flex; align-items: center; gap: 8px; }
+    .topbar span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--vscode-descriptionForeground, #aaa); font-size: 12px; }
+    nav { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
+    button { border: 1px solid var(--vscode-button-border, transparent); color: var(--vscode-button-foreground, white); background: var(--vscode-button-background, #0e639c); border-radius: 3px; padding: 4px 9px; font: inherit; font-size: 12px; cursor: pointer; }
+    button:hover { background: var(--vscode-button-hoverBackground, #1177bb); }
+    iframe { flex: 1 1 auto; width: 100%; border: 0; background: white; }
+    .state { height: 100%; display: grid; place-content: center; gap: 10px; padding: 24px; text-align: center; box-sizing: border-box; }
+    .state p { max-width: 560px; margin: 0; color: var(--vscode-descriptionForeground, #aaa); }
+    .state pre { max-width: min(680px, 90vw); max-height: 220px; overflow: auto; text-align: left; white-space: pre-wrap; background: color-mix(in srgb, currentColor 8%, transparent); padding: 12px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  ${body}
+  <script nonce="${nonce}">
+    const vscode = acquireVsCodeApi();
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-action]");
+      if (!button) return;
+      const action = button.getAttribute("data-action");
+      if (action === "reload") {
+        document.getElementById("viewer-frame")?.contentWindow?.location.reload();
+        return;
+      }
+      vscode.postMessage({ type: action });
+    });
+  </script>
+</body>
+</html>`;
+}
+
 function activityIcon() {
   return `
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">

@@ -66,6 +66,10 @@
         "title": "Logics: Refresh"
       },
       {
+        "command": "logics.checkEnvironment",
+        "title": "Logics: Check Environment"
+      },
+      {
         "command": "logics.openViewer",
         "title": "Logics: Open Viewer"
       },

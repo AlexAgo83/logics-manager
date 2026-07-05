@@ -63,7 +63,12 @@ export class ViewerServerManager {
     ];
     const child = this.spawnProcess(python.command, args, {
       cwd: root,
-      env: { ...process.env, NO_COLOR: "1" },
+      env: {
+        ...process.env,
+        NO_COLOR: "1",
+        // The bundled viewer must not suggest `self-update` (that updates the npm CLI, not this extension).
+        LOGICS_MANAGER_UPDATE_COMMAND: "code --install-extension cdx-logics.cdx-logics-vscode --force"
+      },
       stdio: ["ignore", "pipe", "pipe"]
     });
 

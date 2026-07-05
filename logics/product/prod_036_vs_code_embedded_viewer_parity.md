@@ -1,6 +1,6 @@
 ## prod_036_vs_code_embedded_viewer_parity - VS Code embedded viewer parity
 > Date: 2026-07-05
-> Status: Accepted
+> Status: Settled
 > Related request: `req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui`
 > Related backlog: `item_526_define_the_vs_code_embedded_viewer_host_contract`, `item_527_add_a_vs_code_managed_local_viewer_server_lifecycle`, `item_528_render_the_canonical_viewer_inside_the_vs_code_logics_panel`, `item_529_bring_viewer_write_actions_and_focus_workflows_to_parity_in_vs_code`, `item_530_retire_the_historical_vs_code_cockpit_and_command_surface`
 > Related task: `task_284_orchestrate_vs_code_embedded_viewer_parity`

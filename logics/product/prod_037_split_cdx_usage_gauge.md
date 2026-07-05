@@ -1,6 +1,6 @@
 ## prod_037_split_cdx_usage_gauge - Split CDX usage gauge
 > Date: 2026-07-05
-> Status: Proposed
+> Status: Settled
 > Related request: `req_289_split_the_cdx_usage_gauge_into_5h_and_week_columns`
 > Related backlog: `item_532_render_split_5h_week_cdx_usage_gauge`
 > Related task: `task_286_implement_split_5h_week_cdx_usage_gauge`

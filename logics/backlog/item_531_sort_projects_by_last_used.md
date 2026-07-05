@@ -1,10 +1,10 @@
 ## item_531_sort_projects_by_last_used - Sort projects by last used
 > From version: 2.15.7
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 84
 > Confidence: 80
-> Progress: 0
+> Progress: 100%
 > Complexity: Low
 > Theme: Viewer project navigation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -63,6 +63,7 @@ In the viewer project list, favorited Logics projects are not ordered by recent 
 - Hybrid rationale: Derived from request `req_288_sort_projects_by_last_used` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_288_sort_projects_by_last_used.md`.
 - Generated locally by logics-manager.
+- Task `task_285_sort_projects_by_last_used` was finished via `logics-manager flow finish task` on 2026-07-05.
 
 # Tasks
 - `task_285_sort_projects_by_last_used`

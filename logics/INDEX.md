@@ -364,7 +364,7 @@
 | [req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors](request/req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors.md) | Single-source the shared web assets and stop committing build mirrors | Done |  |  | request/req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors.md |
 | [req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting](request/req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting.md) | Make flow scaffold request-chain fail-fast, atomic, and self-documenting | Done |  |  | request/req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting.md |
 | [req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui](request/req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui.md) | Make the VS Code extension host the same Logics viewer UI | Done |  |  | request/req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui.md |
-| [req_288_sort_projects_by_last_used](request/req_288_sort_projects_by_last_used.md) | Sort projects by last used | Draft |  |  | request/req_288_sort_projects_by_last_used.md |
+| [req_288_sort_projects_by_last_used](request/req_288_sort_projects_by_last_used.md) | Sort projects by last used | Ready |  |  | request/req_288_sort_projects_by_last_used.md |
 
 ## Backlog
 
@@ -900,6 +900,7 @@
 | [item_528_render_the_canonical_viewer_inside_the_vs_code_logics_panel](backlog/item_528_render_the_canonical_viewer_inside_the_vs_code_logics_panel.md) | Render the canonical viewer inside the VS Code Logics panel | Done |  | 100% | backlog/item_528_render_the_canonical_viewer_inside_the_vs_code_logics_panel.md |
 | [item_529_bring_viewer_write_actions_and_focus_workflows_to_parity_in_vs_code](backlog/item_529_bring_viewer_write_actions_and_focus_workflows_to_parity_in_vs_code.md) | Bring viewer write actions and focus workflows to parity in VS Code | Done |  | 100% | backlog/item_529_bring_viewer_write_actions_and_focus_workflows_to_parity_in_vs_code.md |
 | [item_530_retire_the_historical_vs_code_cockpit_and_command_surface](backlog/item_530_retire_the_historical_vs_code_cockpit_and_command_surface.md) | Retire the historical VS Code cockpit and command surface | Done |  | 100% | backlog/item_530_retire_the_historical_vs_code_cockpit_and_command_surface.md |
+| [item_531_sort_projects_by_last_used](backlog/item_531_sort_projects_by_last_used.md) | Sort projects by last used | Ready |  | 0 | backlog/item_531_sort_projects_by_last_used.md |
 
 ## Tasks
 
@@ -1183,3 +1184,4 @@
 | [task_282_orchestrate_single_sourcing_of_shared_web_assets](tasks/task_282_orchestrate_single_sourcing_of_shared_web_assets.md) | Orchestrate single-sourcing of shared web assets | Done | digital | 100% | tasks/task_282_orchestrate_single_sourcing_of_shared_web_assets.md |
 | [task_283_orchestrate_scaffold_robustness_hardening](tasks/task_283_orchestrate_scaffold_robustness_hardening.md) | Orchestrate scaffold robustness hardening | Done | digital | 100% | tasks/task_283_orchestrate_scaffold_robustness_hardening.md |
 | [task_284_orchestrate_vs_code_embedded_viewer_parity](tasks/task_284_orchestrate_vs_code_embedded_viewer_parity.md) | Orchestrate VS Code embedded viewer parity | Done | codex | 100% | tasks/task_284_orchestrate_vs_code_embedded_viewer_parity.md |
+| [task_285_sort_projects_by_last_used](tasks/task_285_sort_projects_by_last_used.md) | Sort projects by last used | Ready |  | 0 | tasks/task_285_sort_projects_by_last_used.md |

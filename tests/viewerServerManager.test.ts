@@ -57,6 +57,22 @@ describe("viewerServerManager", () => {
     ]);
   });
 
+  it("detects the viewer URL when stdout arrives in chunks", async () => {
+    const child = fakeChild();
+    const manager = new ViewerServerManager({
+      extensionRoot: "/extension",
+      spawnProcess: vi.fn(() => child) as never,
+      detectPython: async () => ({ command: "python3", argsPrefix: [], displayLabel: "python3" })
+    });
+
+    const ready = manager.getOrStart("/repo");
+    await tick();
+    child.stdout.emit("data", "Local: http://127.0.");
+    child.stdout.emit("data", "0.1:3456/\n");
+
+    await expect(ready).resolves.toMatchObject({ url: "http://127.0.0.1:3456/" });
+  });
+
   it("adds focus without restarting the reused viewer", async () => {
     const child = fakeChild();
     const manager = new ViewerServerManager({

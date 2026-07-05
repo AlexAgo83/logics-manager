@@ -5666,6 +5666,29 @@ describe("local viewer browser host", () => {
     const targets = Array.from(gauges).map((node) => node.getAttribute("data-viewer-cdx-usage-refresh"));
     expect(targets).toContain("work2");
     expect(targets).toContain("corvus");
+    const work2Gauge = dom.window.document.querySelector('.viewer-cdx__ok-cell [data-viewer-cdx-usage-refresh="work2"]') as HTMLElement | null;
+    expect(work2Gauge?.getAttribute("title")).toContain("5h remaining: 0%");
+    expect(work2Gauge?.getAttribute("title")).toContain("week remaining: 3%");
+    expect(work2Gauge?.querySelectorAll(".viewer-workshop__usage-segment").length).toBe(2);
+    expect(work2Gauge?.querySelector(".viewer-workshop__usage-segment--week")).toBeTruthy();
+  });
+
+  it("keeps known CDX usage when the weekly gauge value is missing", async () => {
+    const payload = cdxRowsStatusPayload();
+    payload.body.payload.status.rows[0].remaining_week_pct = null;
+    const { dom } = createViewerDom({
+      cdxResponse: payload
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    const gauge = dom.window.document.querySelector('.viewer-cdx__ok-cell [data-viewer-cdx-usage-refresh="work2"]') as HTMLElement | null;
+    expect(gauge?.getAttribute("title")).toContain("5h remaining: 0%");
+    expect(gauge?.getAttribute("title")).toContain("week remaining: unknown");
   });
 
   it("refreshes a CDX status table usage gauge after clicking it", async () => {
@@ -5673,7 +5696,7 @@ describe("local viewer browser host", () => {
     const { dom } = createViewerDom({
       cdxResponseFactory: () => {
         const payload = cdxRowsStatusPayload();
-        payload.body.payload.status.rows[0].available_pct = refreshed ? 88 : 7;
+        payload.body.payload.status.rows[0].remaining_5h_pct = refreshed ? 88 : 7;
         return payload;
       }
     });

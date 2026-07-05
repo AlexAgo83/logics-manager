@@ -1,7 +1,7 @@
 ## req_289_split_the_cdx_usage_gauge_into_5h_and_week_columns - Split the CDX usage gauge into 5h and week columns
 > From version: 2.15.7
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Low

@@ -1,6 +1,6 @@
 ## prod_038_post_release_viewer_hardening - Post-release viewer hardening
 > Date: 2026-07-05
-> Status: Proposed
+> Status: Settled
 > Related request: `req_290_post_release_viewer_and_vs_code_hardening`
 > Related backlog: `item_533_restore_valid_vs_code_recovery_guidance_for_environment_checks`, `item_534_persist_viewer_project_last_used_order_outside_volatile_origins`, `item_535_make_split_cdx_usage_gauge_missing_data_semantics_symmetric`, `item_536_clean_up_embedded_viewer_server_processes_on_startup_timeout`, `item_537_harden_vs_code_terminal_bridge_command_handling`
 > Related task: `task_287_orchestrate_post_release_viewer_hardening`

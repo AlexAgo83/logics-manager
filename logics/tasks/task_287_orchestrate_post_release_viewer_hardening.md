@@ -1,13 +1,14 @@
 ## task_287_orchestrate_post_release_viewer_hardening - Orchestrate post-release viewer hardening
 > From version: 2.15.7
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Owner: codex
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
@@ -29,9 +30,9 @@
 - `item_537_harden_vs_code_terminal_bridge_command_handling`
 
 # Definition of Done (DoD)
-- [ ] Generated request, product, backlog, and task docs are present.
-- [ ] Context-pack handoff is available when requested.
-- [ ] Validation passes.
+- [x] Generated request, product, backlog, and task docs are present.
+- [x] Context-pack handoff is available when requested.
+- [x] Validation passes.
 
 # AC Traceability
 - request-Stale user-facing references to Logics: Check Environment are either backed by a registered command again or replaced with valid recovery guidance. -> `item_533_restore_valid_vs_code_recovery_guidance_for_environment_checks`. Proof: command guidance is the first implementation slice and must be closed before release validation.
@@ -48,9 +49,14 @@
 - Run `npm run lint`.
 - Run `logics-manager lint --require-status`.
 - Run `logics-manager audit --group-by-doc`.
+- Finish workflow executed on 2026-07-05.
+- Linked backlog/request close verification passed.
 
 # Report
 - Corpus scaffolded from the post-release review; implementation has not started.
+- Finished on 2026-07-05.
+- Linked backlog item(s): `item_533_restore_valid_vs_code_recovery_guidance_for_environment_checks`, `item_534_persist_viewer_project_last_used_order_outside_volatile_origins`, `item_535_make_split_cdx_usage_gauge_missing_data_semantics_symmetric`, `item_536_clean_up_embedded_viewer_server_processes_on_startup_timeout`, `item_537_harden_vs_code_terminal_bridge_command_handling`
+- Related request(s): `req_290_post_release_viewer_and_vs_code_hardening`
 
 # AI Context
 - Summary: Orchestrate post-release viewer hardening

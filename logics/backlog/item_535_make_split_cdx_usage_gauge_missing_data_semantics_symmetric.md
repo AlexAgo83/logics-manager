@@ -1,10 +1,10 @@
 ## item_535_make_split_cdx_usage_gauge_missing_data_semantics_symmetric - Make split CDX usage gauge missing-data semantics symmetric
 > From version: 2.15.7
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Usage telemetry display
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -50,3 +50,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_287_orchestrate_post_release_viewer_hardening` was finished via `logics-manager flow finish task` on 2026-07-05.

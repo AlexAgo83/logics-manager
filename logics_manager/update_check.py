@@ -12,6 +12,7 @@ from urllib.request import urlopen
 
 NPM_LATEST_URL = "https://registry.npmjs.org/@grifhinz%2Flogics-manager/latest"
 DISABLE_ENV = "LOGICS_MANAGER_NO_UPDATE_CHECK"
+UPDATE_COMMAND_ENV = "LOGICS_MANAGER_UPDATE_COMMAND"
 CHECK_INTERVAL_SECONDS = 24 * 60 * 60
 
 
@@ -156,7 +157,7 @@ def get_update_info(
         latest_version=latest or None,
         update_available=is_newer_version(latest, current_version),
         checked_at=now_value,
-        update_command="logics-manager self-update",
+        update_command=os.environ.get(UPDATE_COMMAND_ENV) or "logics-manager self-update",
         source="npm",
     )
 

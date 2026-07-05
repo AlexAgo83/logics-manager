@@ -1,7 +1,7 @@
 ## req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui - Make the VS Code extension host the same Logics viewer UI
 > From version: 2.15.7
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High

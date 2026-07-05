@@ -34,26 +34,26 @@ describe("inspectKitUpdateNeed", () => {
     expect(inspectKitUpdateNeed(oldRoot)).toEqual({
       currentVersion: "1.6.9",
       minimumVersion: "1.7.x",
-      maximumVersion: "1.13.x",
+      maximumVersion: "2.15.x",
       kind: "too-old",
       signature: "kit-too-old:1.6.9->1.7.x"
     });
 
     const newRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-version-new-"));
     roots.push(newRoot);
-    fs.writeFileSync(path.join(newRoot, "VERSION"), "1.14.0\n", "utf8");
+    fs.writeFileSync(path.join(newRoot, "VERSION"), "2.16.0\n", "utf8");
 
     expect(inspectKitUpdateNeed(newRoot)).toEqual({
-      currentVersion: "1.14.0",
+      currentVersion: "2.16.0",
       minimumVersion: "1.7.x",
-      maximumVersion: "1.13.x",
+      maximumVersion: "2.15.x",
       kind: "too-new",
-      signature: "kit-too-new:1.14.0->1.13.x"
+      signature: "kit-too-new:2.16.0->2.15.x"
     });
 
     const supportedRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-version-supported-"));
     roots.push(supportedRoot);
-    fs.writeFileSync(path.join(supportedRoot, "VERSION"), "1.13.0\n", "utf8");
+    fs.writeFileSync(path.join(supportedRoot, "VERSION"), "2.15.7\n", "utf8");
 
     expect(inspectKitUpdateNeed(supportedRoot)).toBeNull();
   });

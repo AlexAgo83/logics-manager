@@ -126,6 +126,7 @@
     "ci:fast": "npm run compile && npm run lint && npm run test:coverage && npm run test:smoke && npm run lint:logics && npm run package:ci",
     "ci:check": "node scripts/ci-check.mjs",
     "dev": "npm run compile && code --extensionDevelopmentPath=.",
+    "test:vscode": "npm run bundle:viewer-host && npm run build:assets && npm run compile && open -na 'Visual Studio Code' --args --extensionDevelopmentPath=\"$PWD\" \"$PWD\"",
     "debug:webview": "node clients/viewer/debug-webview/server.mjs",
     "package:ci": "node scripts/build/package-ci.mjs",
     "package": "npm run compile && node scripts/build/package-release.mjs",

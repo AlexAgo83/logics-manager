@@ -78,7 +78,9 @@ export type PublicationResult<TEntry> = {
 
 export function buildRepoKitSource(root: string): RepoKitSource {
   const resolvedRoot = path.resolve(root);
-  const repoSkillsRoot = path.join(resolvedRoot, "logics", "skills");
+  const workflowSkillsRoot = path.join(resolvedRoot, "logics", "skills");
+  const bundledSkillsRoot = path.join(resolvedRoot, "logics_manager", "skill_assets");
+  const repoSkillsRoot = fs.existsSync(workflowSkillsRoot) ? workflowSkillsRoot : bundledSkillsRoot;
   const repoSkills = discoverRepoSkills(resolvedRoot, { includeOptional: true });
   return {
     resolvedRoot,
@@ -203,7 +205,10 @@ export function runPublicationLifecycle<TManifest extends CommonManifest<TEntry>
 }
 
 export function discoverRepoSkills(root: string, options?: { includeOptional?: boolean }): RepoSkill[] {
-  const skillsRoot = path.join(root, "logics", "skills");
+  const workflowSkillsRoot = path.join(root, "logics", "skills");
+  const skillsRoot = fs.existsSync(workflowSkillsRoot)
+    ? workflowSkillsRoot
+    : path.join(root, "logics_manager", "skill_assets");
   if (!fs.existsSync(skillsRoot)) {
     return [];
   }

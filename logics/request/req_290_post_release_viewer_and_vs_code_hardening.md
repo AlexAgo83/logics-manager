@@ -1,7 +1,7 @@
 ## req_290_post_release_viewer_and_vs_code_hardening - Post-release viewer and VS Code hardening
 > From version: 2.15.7
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

@@ -1,10 +1,10 @@
 ## item_534_persist_viewer_project_last_used_order_outside_volatile_origins - Persist viewer project last-used order outside volatile origins
 > From version: 2.15.7
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer state durability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -51,3 +51,6 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_287_orchestrate_post_release_viewer_hardening` was finished via `logics-manager flow finish task` on 2026-07-05.

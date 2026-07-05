@@ -26,9 +26,9 @@ export function buildEmbeddedViewerHtml(webview: vscode.Webview, state: Embedded
           <span>${escapeHtml(state.root)}</span>
         </div>
         <nav>
-          <button type="button" data-action="reload">Reload</button>
-          <button type="button" data-action="restart-viewer">Restart</button>
-          <button type="button" data-action="open-external-viewer">Open externally</button>
+          <button class="toolbar-action" type="button" data-action="reload">Reload</button>
+          <button class="toolbar-action" type="button" data-action="restart-viewer">Restart</button>
+          <button class="toolbar-action" type="button" data-action="open-external-viewer">Open externally</button>
         </nav>
       </header>
       <iframe id="viewer-frame" src="${escapeHtml(state.url)}" title="Logics viewer"></iframe>
@@ -58,6 +58,8 @@ export function buildEmbeddedViewerHtml(webview: vscode.Webview, state: Embedded
     nav { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
     button { border: 1px solid var(--vscode-button-border, transparent); color: var(--vscode-button-foreground, white); background: var(--vscode-button-background, #0e639c); border-radius: 3px; padding: 4px 9px; font: inherit; font-size: 12px; cursor: pointer; }
     button:hover { background: var(--vscode-button-hoverBackground, #1177bb); }
+    .toolbar-action { padding: 2px 6px; border-color: transparent; color: var(--vscode-descriptionForeground, #aaa); background: transparent; }
+    .toolbar-action:hover { color: var(--vscode-foreground, #ddd); background: var(--vscode-toolbar-hoverBackground, rgba(90, 93, 94, .31)); }
     iframe { flex: 1 1 auto; width: 100%; border: 0; background: white; }
     .state { height: 100%; display: grid; place-content: center; gap: 10px; padding: 24px; text-align: center; box-sizing: border-box; }
     .state p { max-width: 560px; margin: 0; color: var(--vscode-descriptionForeground, #aaa); }

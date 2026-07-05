@@ -13,7 +13,7 @@ from urllib.request import urlopen
 NPM_LATEST_URL = "https://registry.npmjs.org/@grifhinz%2Flogics-manager/latest"
 DISABLE_ENV = "LOGICS_MANAGER_NO_UPDATE_CHECK"
 UPDATE_COMMAND_ENV = "LOGICS_MANAGER_UPDATE_COMMAND"
-CHECK_INTERVAL_SECONDS = 24 * 60 * 60
+CHECK_INTERVAL_SECONDS = 60 * 60
 
 
 @dataclass(frozen=True)

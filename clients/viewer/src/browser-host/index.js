@@ -368,9 +368,8 @@ import {
   }
 
   function workshopUsesSystemTerminal() {
-    return viewerPreferences.workshopUseSystemTerminal === true;
+    return viewerPreferences.workshopUseSystemTerminal === true || window.parent !== window;
   }
-
   function syncWorkshopSystemTerminalControls() {
     document.querySelectorAll("[data-viewer-workshop-system-terminal]").forEach((node) => {
       if (node instanceof HTMLInputElement) {
@@ -4382,6 +4381,7 @@ import {
 
   async function spawnSystemWorkshopTerminal(options = {}) {
     try {
+      if (window.parent !== window) { const id = `vscode-terminal-${Date.now()}-${workshopExternalLaunches.length + 1}`, command = Array.isArray(options.command) ? options.command.map(String) : [], label = String(options.label || "terminal"); window.parent.postMessage({ type: "launch-workshop-terminal", command, label }, "*"); workshopExternalLaunches.push({ id, label, command, terminal: "VS Code", nativeRef: id }); renderWorkshopTerminalList(); await showWorkshop({ tab: "terminals" }); setMeta(`Opened VS Code terminal: ${label}.`); return id; }
       const body = {};
       if (Array.isArray(options.command) && options.command.length) body.command = options.command;
       if (options.label) body.label = String(options.label);

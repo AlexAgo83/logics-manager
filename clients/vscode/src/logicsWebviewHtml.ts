@@ -68,6 +68,11 @@ export function buildEmbeddedViewerHtml(webview: vscode.Webview, state: Embedded
   ${body}
   <script nonce="${nonce}">
     const vscode = acquireVsCodeApi();
+    const frameOrigin = ${JSON.stringify(frameOrigin)};
+    window.addEventListener("message", (event) => {
+      if (!frameOrigin || event.origin !== frameOrigin || !event.data || event.data.type !== "launch-workshop-terminal") return;
+      vscode.postMessage(event.data);
+    });
     document.addEventListener("click", (event) => {
       const button = event.target?.closest?.("[data-action]");
       if (!button) return;

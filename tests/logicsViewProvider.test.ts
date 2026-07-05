@@ -618,6 +618,30 @@ describe("LogicsViewProvider", () => {
     expect((provider as any).view.webview.html).toBe("<html>embedded</html>");
   });
 
+  it("opens workshop terminal requests from the embedded viewer in VS Code", async () => {
+    const show = vi.fn();
+    const sendText = vi.fn();
+    mocks.createTerminal.mockReturnValue({ show, sendText });
+    let didReceiveMessage: ((message: unknown) => Promise<void> | void) | undefined;
+    const view = {
+      webview: {
+        html: "",
+        cspSource: "vscode-webview://test",
+        onDidReceiveMessage: vi.fn((callback) => {
+          didReceiveMessage = callback;
+        }),
+        postMessage: vi.fn()
+      }
+    };
+
+    provider.resolveWebviewView(view as never);
+    await didReceiveMessage?.({ type: "launch-workshop-terminal", command: ["cdx", "work"], label: "cdx work" });
+
+    expect(mocks.createTerminal).toHaveBeenCalledWith({ name: "cdx work", cwd: root });
+    expect(show).toHaveBeenCalledWith(true);
+    expect(sendText).toHaveBeenCalledWith("cdx work", true);
+  });
+
   it("renders an embedded viewer startup error when the server fails", async () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
     (provider as any).view = {

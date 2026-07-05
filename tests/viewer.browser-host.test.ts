@@ -79,11 +79,13 @@ function createViewerDom(options: {
   updateStatusResponse?: { ok: boolean; status?: number; body?: unknown };
   terminalCommands?: Array<{ command: string[]; label: string }>;
   externalTerminalCommands?: Array<{ command: string[]; label: string }>;
+  embeddedInVsCode?: boolean;
   terminalRenames?: Array<{ sessionId: string; label: string }>;
   autoRefreshIntervalSeconds?: number;
   autoRefreshIntervalForced?: boolean;
   url?: string;
 } = {}) {
+  const parentMessages: unknown[] = [];
   const html = `<!doctype html><html><body>
     <div id="viewer-meta"></div>
     <button id="viewer-repo-pill" type="button" aria-expanded="false" aria-controls="viewer-project-menu"><span data-viewer-project-label>repository</span><span>v</span></button>
@@ -1375,6 +1377,12 @@ function createViewerDom(options: {
       return respond(url, fetchOptions);
     }
   });
+  if (options.embeddedInVsCode) {
+    Object.defineProperty(dom.window, "parent", {
+      configurable: true,
+      value: { postMessage: (message: unknown) => parentMessages.push(message) }
+    });
+  }
 
   loadScript(dom, "clients/shared-web/media/renderMarkdown.js");
   new vm.Script(`
@@ -1390,7 +1398,7 @@ function createViewerDom(options: {
   loadScript(dom, "clients/viewer/browser-host.js");
   dom.window.dispatchEvent(new dom.window.Event("load"));
   openBrowserHostDoms.push(dom);
-  return { dom, calls, fetchCalls };
+  return { dom, calls, fetchCalls, parentMessages };
 }
 
 describe("local viewer browser host", () => {
@@ -2916,6 +2924,42 @@ describe("local viewer browser host", () => {
     (customModal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
     await flushViewerAsync();
     expect(terminalCommands).toContainEqual({ command: ["sh", "-lc", "pwd"], label: "pwd" });
+  });
+
+  it("defaults to VS Code terminals when embedded in the VS Code viewer", async () => {
+    const terminalCommands: Array<{ command: string[]; label: string }> = [];
+    const externalTerminalCommands: Array<{ command: string[]; label: string }> = [];
+    const { dom, parentMessages } = createViewerDom({
+      embeddedInVsCode: true,
+      terminalCommands,
+      externalTerminalCommands,
+      capabilities: {
+        logics: { state: "ready", available: true, message: "Logics corpus found." },
+        workspace: { state: "ready", available: true, message: "Workspace root can be inspected." },
+        workshop: { state: "ready", available: true, message: "Workshop ready.", detail: { commandsAvailable: true, terminalsAvailable: true } },
+        git: { state: "ready", available: true, message: "Git repository detected." },
+        ci: { state: "ready", available: true, message: "GitHub Actions can be inspected." },
+        cdx: { state: "ready", available: true, message: "CDX executable detected." },
+        cdxRuns: { state: "unsupported", available: false, message: "CDX assistant run registry is not available yet." }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+    const toggle = dom.window.document.querySelector("[data-viewer-workshop-system-terminal]") as HTMLInputElement | null;
+    expect(toggle?.checked).toBe(true);
+
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    dom.window.document.querySelector("[data-viewer-workshop-terminal-new]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    expect(terminalCommands).toEqual([]);
+    expect(externalTerminalCommands).toEqual([]);
+    expect(parentMessages).toContainEqual({ type: "launch-workshop-terminal", command: [], label: "terminal" });
+    expect(dom.window.document.querySelector("[data-viewer-workshop-external]")?.textContent).toContain("external");
   });
 
   it("starts a custom Workshop terminal from an available CDX session", async () => {

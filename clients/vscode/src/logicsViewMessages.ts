@@ -38,6 +38,7 @@ export type LogicsWebviewMessage =
   | { type: "new-request-guided"; draft?: GuidedRequestDraft }
   | { type: "launch-codex-overlay" }
   | { type: "launch-claude" }
+  | { type: "launch-workshop-terminal"; command?: string[]; label?: string }
   | { type: "fix-docs" }
   | { type: "select-agent" }
   | { type: "bootstrap-logics" }
@@ -115,6 +116,12 @@ export function parseLogicsWebviewMessage(value: unknown): LogicsWebviewMessage 
     case "change-project-root":
     case "reset-project-root":
       return { type } as LogicsWebviewMessage;
+    case "launch-workshop-terminal":
+      return {
+        type,
+        command: Array.isArray(value.command) ? value.command.filter((part): part is string => typeof part === "string" && part.length > 0) : undefined,
+        label: readString(value.label)
+      };
     case "new-request-guided": {
       const draft = isRecord(value.draft)
         ? {

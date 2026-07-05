@@ -102,7 +102,9 @@
     "asset_paths": []
   },
   "external_publication": [
-    { "id": "npm_package", "kind": "package_registry", "required": false, "url_template": "https://www.npmjs.com/package/logics-manager/v/{version}" }
+    { "id": "npm_package", "kind": "package_registry", "required": false, "url_template": "https://www.npmjs.com/package/@grifhinz/logics-manager/v/{version}" },
+    { "id": "pypi_package", "kind": "package_registry", "required": false, "url_template": "https://pypi.org/project/logics-manager/{version}/" },
+    { "id": "vscode_marketplace", "kind": "package_registry", "required": false, "url_template": "https://marketplace.visualstudio.com/items?itemName=cdx-logics.logics-manager" }
   ],
   "assistant_readiness": {
     "must_inspect_status_before_claiming_ready": true,

@@ -9,7 +9,7 @@ import {
   loadAgentRegistry
 } from "./agentRegistry";
 import { parseGitStatusEntries } from "./workflowSupport";
-import { buildEmbeddedViewerHtml, buildLogicsWebviewHtml } from "./logicsWebviewHtml";
+import { buildEmbeddedViewerHtml } from "./logicsWebviewHtml";
 import { LogicsViewDocumentController } from "./logicsViewDocumentController";
 import { inspectLogicsEnvironment } from "./logicsEnvironment";
 import {
@@ -43,6 +43,7 @@ import {
 import { inspectKitUpdateNeed } from "./logicsKitVersionSupport";
 import { installLogicsViewProviderBindings } from "./logicsViewProviderBindings";
 import * as viewProviderSupport from "./logicsViewProviderSupport";
+import { installEmbeddedViewerBindings } from "./logicsEmbeddedViewerSupport";
 import { ViewerServerManager } from "./viewerServerManager";
 const PROJECT_GITHUB_URL = "https://github.com/AlexAgo83/logics-manager";
 
@@ -67,6 +68,12 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   private embeddedViewerUrl?: string;
   declare buildLogicsYamlBlocksQuickPickItem: (root: string) => (vscode.QuickPickItem & { action: () => Promise<void> }) | null;
   declare buildMissingEnvLocalQuickPickItem: (root: string) => (vscode.QuickPickItem & { action: () => Promise<void> }) | null;
+  declare renderEmbeddedViewer: (focus?: string) => Promise<void>;
+  declare restartEmbeddedViewer: () => Promise<void>;
+  declare openEmbeddedViewerFromCommand: () => Promise<void>;
+  declare restartEmbeddedViewerFromCommand: () => Promise<void>;
+  declare openEmbeddedViewerExternalFromCommand: () => Promise<void>;
+  declare focusCurrentLogicsDocumentFromCommand: () => Promise<void>;
 
   constructor(
     private readonly context: vscode.ExtensionContext,
@@ -117,6 +124,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       getReadPreviewPanel: () => viewProviderSupport.getReadPreviewPanel.call(this)
     });
     installLogicsViewProviderBindings(this);
+    installEmbeddedViewerBindings(this as never);
   }
 
   private async injectAgentPromptIntoCodexChat(agent: AgentDefinition): Promise<void> {
@@ -432,47 +440,6 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  private async renderEmbeddedViewer(focus?: string): Promise<void> {
-    const view = this.view;
-    if (!view) {
-      return;
-    }
-    const { root, invalidOverridePath } = viewProviderSupport.resolveProjectRoot.call(this);
-    if (!root) {
-      view.webview.html = buildEmbeddedViewerHtml(view.webview, {
-        kind: "error",
-        message: invalidOverridePath
-          ? `Configured project root not found: ${invalidOverridePath}.`
-          : "Open a workspace or set a project root from the Logics commands."
-      });
-      return;
-    }
-    view.webview.html = buildEmbeddedViewerHtml(view.webview, { kind: "loading", message: `Starting viewer for ${root}` });
-    try {
-      const server = await this.viewerServerManager.getOrStart(root, focus);
-      if (this.view !== view) {
-        return;
-      }
-      this.embeddedViewerUrl = server.url;
-      view.webview.html = buildEmbeddedViewerHtml(view.webview, { kind: "ready", url: server.url, root });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      view.webview.html = buildEmbeddedViewerHtml(view.webview, {
-        kind: "error",
-        message: "Could not start the embedded Logics viewer.",
-        detail: message
-      });
-    }
-  }
-
-  private async restartEmbeddedViewer(): Promise<void> {
-    const { root } = viewProviderSupport.resolveProjectRoot.call(this);
-    if (root) {
-      this.viewerServerManager.stop(root);
-    }
-    await this.renderEmbeddedViewer();
-  }
-
   async openFromPalette(): Promise<void> {
     if (!this.items.length) {
       await this.refresh();
@@ -561,45 +528,6 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
   async openLogicsInsightsFromCommand(): Promise<void> {
     await this.logicsCorpusInsightsController.openLogicsInsightsFromTools();
-  }
-
-  async openEmbeddedViewerFromCommand(): Promise<void> {
-    await this.renderEmbeddedViewer();
-  }
-
-  async restartEmbeddedViewerFromCommand(): Promise<void> {
-    await this.restartEmbeddedViewer();
-  }
-
-  async openEmbeddedViewerExternalFromCommand(): Promise<void> {
-    const { root } = viewProviderSupport.resolveProjectRoot.call(this);
-    if (!root) {
-      void vscode.window.showErrorMessage("No project root found. Open a workspace or set a project root first.");
-      return;
-    }
-    try {
-      const server = await this.viewerServerManager.getOrStart(root);
-      this.embeddedViewerUrl = server.url;
-      await vscode.env.openExternal(vscode.Uri.parse(server.url));
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      void vscode.window.showErrorMessage(`Could not open Logics viewer: ${message}`);
-    }
-  }
-
-  async focusCurrentLogicsDocumentFromCommand(): Promise<void> {
-    const { root } = viewProviderSupport.resolveProjectRoot.call(this);
-    const activePath = vscode.window.activeTextEditor?.document.uri.fsPath;
-    if (!root || !activePath) {
-      void vscode.window.showWarningMessage("Open a Logics document before focusing the viewer.");
-      return;
-    }
-    const ref = path.basename(activePath).replace(/\.(md|markdown)$/i, "");
-    if (!/^(req|item|task)_\d+/.test(ref)) {
-      void vscode.window.showWarningMessage("The active editor is not a request, backlog item, or task document.");
-      return;
-    }
-    await this.renderEmbeddedViewer(ref);
   }
 
   openOnboardingFromCommand(): void {

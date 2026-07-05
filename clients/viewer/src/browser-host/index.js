@@ -347,9 +347,6 @@ import {
   let cdxCloseTarget = null;
   let viewerPreferences = readViewerPreferences();
   let autoRefreshIntervalForcedByLaunch = false;
-  // View-transition guard. Prevents a slow async render (a previous document
-  // fetch, or a silent auto-refresh in flight) from committing its DOM write
-  // after the operator has already opened a different screen.
   let viewSeq = 0; // bumps on every view transition (operator or silent refresh)
   let userViewSeq = 0; // bumps only on operator-initiated transitions
   let activeUserViewController = null;
@@ -364,19 +361,11 @@ import {
 
   function updateViewerPreferences(patch) {
     writeViewerPreferences({ ...viewerPreferences, ...patch });
-    if (patch.projectLastUsedAt && window.parent !== window) {
-      window.parent.postMessage({ type: "viewer-project-last-used", projectLastUsedAt: patch.projectLastUsedAt }, "*");
-    }
+    if (patch.projectLastUsedAt && window.parent !== window) window.parent.postMessage({ type: "viewer-project-last-used", projectLastUsedAt: patch.projectLastUsedAt }, "*");
     syncWorkshopSystemTerminalControls();
   }
 
-  window.addEventListener("message", (event) => {
-    if (event.data?.type !== "viewer-project-last-used") return;
-    const projectLastUsedAt = event.data.projectLastUsedAt;
-    if (!projectLastUsedAt || typeof projectLastUsedAt !== "object" || Array.isArray(projectLastUsedAt)) return;
-    writeViewerPreferences({ ...viewerPreferences, projectLastUsedAt });
-    renderProjectMenu();
-  });
+  window.addEventListener("message", (event) => { const projectLastUsedAt = event.data?.type === "viewer-project-last-used" ? event.data.projectLastUsedAt : null; if (projectLastUsedAt && typeof projectLastUsedAt === "object" && !Array.isArray(projectLastUsedAt)) { writeViewerPreferences({ ...viewerPreferences, projectLastUsedAt }); renderProjectMenu(); } });
 
   function workshopUsesSystemTerminal() {
     return viewerPreferences.workshopUseSystemTerminal === true || window.parent !== window;

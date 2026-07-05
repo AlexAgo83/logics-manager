@@ -3845,8 +3845,18 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     }
     function updateViewerPreferences(patch) {
       writeViewerPreferences({ ...viewerPreferences, ...patch });
+      if (patch.projectLastUsedAt && window.parent !== window) {
+        window.parent.postMessage({ type: "viewer-project-last-used", projectLastUsedAt: patch.projectLastUsedAt }, "*");
+      }
       syncWorkshopSystemTerminalControls();
     }
+    window.addEventListener("message", (event) => {
+      if (event.data?.type !== "viewer-project-last-used") return;
+      const projectLastUsedAt = event.data.projectLastUsedAt;
+      if (!projectLastUsedAt || typeof projectLastUsedAt !== "object" || Array.isArray(projectLastUsedAt)) return;
+      writeViewerPreferences({ ...viewerPreferences, projectLastUsedAt });
+      renderProjectMenu();
+    });
     function workshopUsesSystemTerminal() {
       return viewerPreferences.workshopUseSystemTerminal === true || window.parent !== window;
     }

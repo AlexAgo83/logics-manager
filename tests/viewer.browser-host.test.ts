@@ -2333,6 +2333,23 @@ describe("local viewer browser host", () => {
     expect(rows.slice(0, 4)).toEqual(["active-project", "new-used", "old-used", "missing-used"]);
   });
 
+  it("restores project last-used ordering from the VS Code host", async () => {
+    const { dom } = createViewerDom({
+      initialPreferences: { version: 1, favoriteProjects: ["project-active", "project-cdx"] }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.dispatchEvent(new dom.window.MessageEvent("message", {
+      data: { type: "viewer-project-last-used", projectLastUsedAt: { "project-cdx": "2026-07-05T10:00:00.000Z" } },
+      source: dom.window.parent
+    }));
+
+    const stored = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "{}");
+    expect(stored.projectLastUsedAt).toEqual({ "project-cdx": "2026-07-05T10:00:00.000Z" });
+  });
+
   it("restores favorite projects from viewer preferences", async () => {
     const { dom } = createViewerDom({
       initialPreferences: { version: 1, favoriteProjects: ["project-cdx"] }

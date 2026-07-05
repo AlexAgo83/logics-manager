@@ -31,6 +31,8 @@ export type GuidedRequestDraft = {
 export type LogicsWebviewMessage =
   | { type: "ready" }
   | { type: "refresh" }
+  | { type: "restart-viewer" }
+  | { type: "open-external-viewer" }
   | { type: "create-item"; kind: "request" | "backlog" | "task" }
   | { type: "new-request" }
   | { type: "new-request-guided"; draft?: GuidedRequestDraft }
@@ -84,6 +86,8 @@ export function parseLogicsWebviewMessage(value: unknown): LogicsWebviewMessage 
   switch (type) {
     case "ready":
     case "refresh":
+    case "restart-viewer":
+    case "open-external-viewer":
     case "new-request":
     case "launch-codex-overlay":
     case "launch-claude":

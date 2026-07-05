@@ -36,7 +36,7 @@ import * as vscode from "vscode";
 import { buildLogicsCorpusInsightsHtml } from "../clients/vscode/src/logicsCorpusInsightsHtml";
 import { buildHybridInsightsHtml } from "../clients/vscode/src/logicsHybridInsightsHtml";
 import { buildReadPreviewHtml } from "../clients/vscode/src/logicsReadPreviewHtml";
-import { buildLogicsWebviewHtml } from "../clients/vscode/src/logicsWebviewHtml";
+import { buildEmbeddedViewerHtml, buildLogicsWebviewHtml } from "../clients/vscode/src/logicsWebviewHtml";
 
 type WebviewLike = {
   cspSource: string;
@@ -62,6 +62,20 @@ describe("logics HTML builders", () => {
     dateTimeFormatSpy = null;
     randomSpy.mockClear();
     vi.useRealTimers();
+  });
+
+  it("renders the embedded viewer iframe with a bounded frame CSP", () => {
+    const html = buildEmbeddedViewerHtml(createWebview() as never, {
+      kind: "ready",
+      url: "http://127.0.0.1:4321/?focus=req_001_demo",
+      root: "/workspace/project"
+    });
+    const dom = new JSDOM(html);
+    const csp = dom.window.document.querySelector("meta[http-equiv='Content-Security-Policy']")?.getAttribute("content") || "";
+
+    expect(csp).toContain("frame-src http://127.0.0.1:4321");
+    expect(dom.window.document.querySelector("iframe")?.getAttribute("src")).toBe("http://127.0.0.1:4321/?focus=req_001_demo");
+    expect(html).toContain("data-action=\"restart-viewer\"");
   });
 
   it("renders the hybrid insights report snapshot", () => {

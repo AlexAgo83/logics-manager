@@ -142,8 +142,10 @@ def test_viewer_current_version_falls_back_to_installed_metadata(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr(viewer_module, "REPO_ROOT", tmp_path)
-    monkeypatch.setattr(viewer_module.metadata, "version", lambda _name: "2.5.0")
+    from logics_manager import update_check as update_check_module
+
+    monkeypatch.setattr(update_check_module, "PACKAGE_ROOT", tmp_path)
+    monkeypatch.setattr(update_check_module.metadata, "version", lambda _name: "2.5.0")
 
     assert viewer_module._current_version() == "2.5.0"
 

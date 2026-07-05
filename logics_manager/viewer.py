@@ -21,7 +21,6 @@ import tomllib
 import webbrowser
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from importlib import metadata
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, quote, unquote, urlparse
@@ -33,7 +32,7 @@ from .config import ConfigError, find_repo_root
 from .lint import lint_payload
 from .release import load_release_context, release_reset_payload, release_status_payload
 from .sync import update_workflow_indicators_payload
-from .update_check import get_update_info
+from .update_check import current_version as package_current_version, get_update_info
 from .viewer_docs import (
     DOC_FAMILIES,
     _infer_stage,
@@ -235,16 +234,7 @@ NODE_MERMAID_ROOT = REPO_ROOT / "node_modules" / "mermaid" / "dist"
 
 
 def _current_version() -> str:
-    try:
-        version = (REPO_ROOT / "VERSION").read_text(encoding="utf-8").strip()
-    except OSError:
-        version = ""
-    if version:
-        return version
-    try:
-        return metadata.version("logics-manager")
-    except metadata.PackageNotFoundError:
-        return "0.0.0"
+    return package_current_version()
 
 
 def viewer_data_payload(

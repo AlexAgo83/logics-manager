@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from importlib import metadata
 import json
 import os
 from pathlib import Path
@@ -14,6 +15,20 @@ NPM_LATEST_URL = "https://registry.npmjs.org/@grifhinz%2Flogics-manager/latest"
 DISABLE_ENV = "LOGICS_MANAGER_NO_UPDATE_CHECK"
 UPDATE_COMMAND_ENV = "LOGICS_MANAGER_UPDATE_COMMAND"
 CHECK_INTERVAL_SECONDS = 60 * 60
+PACKAGE_ROOT = Path(__file__).resolve().parents[1]
+
+
+def current_version() -> str:
+    try:
+        version = (PACKAGE_ROOT / "VERSION").read_text(encoding="utf-8").strip()
+    except OSError:
+        version = ""
+    if version:
+        return version
+    try:
+        return metadata.version("logics-manager")
+    except metadata.PackageNotFoundError:
+        return "0.0.0"
 
 
 @dataclass(frozen=True)

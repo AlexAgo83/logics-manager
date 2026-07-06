@@ -48,7 +48,7 @@ describe("inspectKitUpdateNeed", () => {
       minimumVersion: "1.7.x",
       maximumVersion: "2.15.x",
       kind: "too-new",
-      signature: "kit-too-new:2.16.0->2.15.x"
+      signature: "kit-too-new:2.16.x->2.15.x"
     });
 
     const supportedRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-version-supported-"));
@@ -56,5 +56,16 @@ describe("inspectKitUpdateNeed", () => {
     fs.writeFileSync(path.join(supportedRoot, "VERSION"), "2.15.7\n", "utf8");
 
     expect(inspectKitUpdateNeed(supportedRoot)).toBeNull();
+  });
+
+  it("keeps too-new prompts stable across patch updates", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-version-new-patch-"));
+    roots.push(root);
+
+    fs.writeFileSync(path.join(root, "VERSION"), "2.16.3\n", "utf8");
+    const first = inspectKitUpdateNeed(root)?.signature;
+
+    fs.writeFileSync(path.join(root, "VERSION"), "2.16.4\n", "utf8");
+    expect(inspectKitUpdateNeed(root)?.signature).toBe(first);
   });
 });

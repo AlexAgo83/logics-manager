@@ -45,6 +45,6 @@ export function inspectKitUpdateNeed(root: string): LogicsKitUpdateNeed | null {
     minimumVersion,
     maximumVersion,
     kind: isTooOld ? "too-old" : "too-new",
-    signature: isTooOld ? `kit-too-old:${raw}->${minimumVersion}` : `kit-too-new:${raw}->${maximumVersion}`
+    signature: isTooOld ? `kit-too-old:${raw}->${minimumVersion}` : `kit-too-new:${major}.${minor}.x->${maximumVersion}`
   };
 }

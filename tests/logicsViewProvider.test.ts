@@ -640,6 +640,16 @@ describe("LogicsViewProvider", () => {
     expect(mocks.createTerminal).toHaveBeenCalledWith({ name: "cdx work", cwd: root });
     expect(show).toHaveBeenCalledWith(true);
     expect(sendText).toHaveBeenCalledWith("cdx work", true);
+
+    // The viewer's active project (switcher) wins over the workspace root.
+    const otherProject = fs.mkdtempSync(path.join(os.tmpdir(), "logics-other-"));
+    mocks.isExistingDirectory.mockImplementation((value: string) => value === otherProject);
+    await didReceiveMessage?.({ type: "launch-workshop-terminal", command: ["cdx", "work"], label: "cdx work", cwd: otherProject });
+    expect(mocks.createTerminal).toHaveBeenLastCalledWith({ name: "cdx work", cwd: otherProject });
+
+    // A stale/nonexistent viewer root falls back to the workspace root.
+    await didReceiveMessage?.({ type: "launch-workshop-terminal", command: ["cdx", "work"], label: "cdx work", cwd: path.join(otherProject, "missing") });
+    expect(mocks.createTerminal).toHaveBeenLastCalledWith({ name: "cdx work", cwd: root });
   });
 
   it("preserves spaces and quotes in workshop terminal commands", async () => {

@@ -7386,7 +7386,7 @@ ${line}` : line;
       try {
         if (window.parent !== window) {
           const id2 = `vscode-terminal-${Date.now()}-${workshopExternalLaunches.length + 1}`, command = Array.isArray(options.command) ? options.command.map(String) : [], label = String(options.label || "terminal");
-          window.parent.postMessage({ type: "launch-workshop-terminal", command, label }, "*");
+          window.parent.postMessage({ type: "launch-workshop-terminal", command, label, cwd: latestRepoRoot2 || "" }, "*");
           workshopExternalLaunches.push({ id: id2, label, command, terminal: "VS Code", nativeRef: id2 });
           renderWorkshopTerminalList();
           await showWorkshop({ tab: "terminals" });

@@ -2,7 +2,7 @@
 > Date: 2026-07-12
 > Status: Proposed
 > Related request: `req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints`
-> Related backlog: `item_540_propagate_task_progress_to_linked_backlog_items_during_development`, `item_541_codify_task_wave_checkpoints_and_documentation_updates_in_generated_workflows`
+> Related backlog: `item_540_propagate_task_progress_to_linked_backlog_items_during_development`
 > Related task: `task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -46,5 +46,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints`
+- Product back-reference: `item_540_propagate_task_progress_to_linked_backlog_items_during_development`
 - Task back-reference: `task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance`

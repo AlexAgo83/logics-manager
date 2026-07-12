@@ -1,7 +1,7 @@
 ## req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints - Sync backlog progress during task development and codify task checkpoints
 > From version: 2.17.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

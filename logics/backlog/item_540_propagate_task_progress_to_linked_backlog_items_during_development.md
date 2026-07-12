@@ -1,10 +1,10 @@
 ## item_540_propagate_task_progress_to_linked_backlog_items_during_development - Propagate task progress to linked backlog items during development
 > From version: 2.17.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 50%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Workflow progress governance
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -68,3 +68,9 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance`
+
+# Notes
+- Task `task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance` was finished via `logics-manager flow finish task` on 2026-07-12.

@@ -1,10 +1,10 @@
 ## item_541_codify_task_wave_checkpoints_and_documentation_updates_in_generated_workflows - Codify task wave checkpoints and documentation updates in generated workflows
 > From version: 2.17.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 50%
+> Progress: 100%
 > Complexity: Low
 > Theme: Workflow progress governance
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -39,6 +39,7 @@
 - request-AC7 -> This backlog slice. Proof: AC2: The wording explicitly avoids requiring commits for every micro-step and does not imply that tooling will auto-commit.
 - request-AC8 -> This backlog slice. Proof: AC3: The guidance is present in the task template or generation path used by normal `flow` task creation.
 - request-AC9 -> This backlog slice. Proof: AC4: Agent-facing CLI docs mention the checkpoint contract once in the task lifecycle section.
+- request-AC5 -> This backlog slice. Proof: Implemented in commit cbe34127; validated with python -m pytest tests/python/test_cli_main.py, lint, and audit. Source: `cbe34127`
 
 # Decision framing
 - Product framing: Not needed
@@ -59,3 +60,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance`
+
+# Notes
+- Task `task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance` was finished via `logics-manager flow finish task` on 2026-07-12.

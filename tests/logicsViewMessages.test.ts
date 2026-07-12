@@ -7,6 +7,10 @@ describe("logicsViewMessages", () => {
     expect(parseLogicsWebviewMessage({ type: "reset-project-root" })).toEqual({ type: "reset-project-root" });
     expect(parseLogicsWebviewMessage({ type: "restart-viewer" })).toEqual({ type: "restart-viewer" });
     expect(parseLogicsWebviewMessage({ type: "open-external-viewer" })).toEqual({ type: "open-external-viewer" });
+    expect(parseLogicsWebviewMessage({ type: "open-external-link", target: "https://github.com/AlexAgo83/logics-manager" })).toEqual({
+      type: "open-external-link",
+      target: "https://github.com/AlexAgo83/logics-manager"
+    });
     expect(parseLogicsWebviewMessage({ type: "launch-workshop-terminal", command: ["cdx", "work"], label: "cdx work" })).toEqual({
       type: "launch-workshop-terminal",
       command: ["cdx", "work"],

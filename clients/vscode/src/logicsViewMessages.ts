@@ -33,6 +33,7 @@ export type LogicsWebviewMessage =
   | { type: "refresh" }
   | { type: "restart-viewer" }
   | { type: "open-external-viewer" }
+  | { type: "open-external-link"; target: string }
   | { type: "create-item"; kind: "request" | "backlog" | "task" }
   | { type: "new-request" }
   | { type: "new-request-guided"; draft?: GuidedRequestDraft }
@@ -116,6 +117,10 @@ export function parseLogicsWebviewMessage(value: unknown): LogicsWebviewMessage 
     case "change-project-root":
     case "reset-project-root":
       return { type } as LogicsWebviewMessage;
+    case "open-external-link": {
+      const target = readString(value.target);
+      return target ? { type, target } : null;
+    }
     case "launch-workshop-terminal":
       return {
         type,

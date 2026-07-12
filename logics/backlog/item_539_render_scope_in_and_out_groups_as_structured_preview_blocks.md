@@ -1,10 +1,10 @@
 ## item_539_render_scope_in_and_out_groups_as_structured_preview_blocks - Render Scope In and Out groups as structured preview blocks
 > From version: 2.17.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 80%
 > Complexity: Medium
 > Theme: Viewer document readability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

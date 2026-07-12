@@ -2815,6 +2815,7 @@ import {
     if (screen === "CDX missions") return showCdxMissions(opts);
     if (screen === "CDX reports") return showCdxRuns(opts);
     if (screen === "CDX history") return showCdxHistory(opts);
+    if (screen === "CDX disk") return showCdxDisk(opts);
     if (screen === "Remote") {
       if (latestCiScreenMode === "release") return showReleaseStatus(opts);
       if (latestCiScreenMode === "runs") return showCiStatus(opts);
@@ -5898,6 +5899,117 @@ import {
     setMeta(options.silent ? "CDX history refreshed." : "CDX history loaded.");
   }
 
+  function renderCdxDisk(payload) {
+    if (!payload || payload.state !== "ok") {
+      return `
+        <div class="viewer-cdx">
+          ${renderCdxModeSwitcher("disk")}
+          <div class="viewer-cdx__state">${escapeHtml(payload?.message || "CDX disk usage is unavailable.")}</div>
+        </div>
+      `;
+    }
+    const disk = payload.disk && typeof payload.disk === "object" ? payload.disk : {};
+    const profiles = Array.isArray(disk.children) ? disk.children : [];
+    const candidates = Array.isArray(disk.candidates) ? disk.candidates : [];
+    const totalBytes = Number(disk.bytes) || 0;
+    const cards = [
+      ["Total", String(disk.size || "-")],
+      ["Profiles", String(profiles.length)],
+      ["Reclaimable", String(disk.reclaimable_size || "0 B")]
+    ].map(([label, value]) => `
+      <div class="viewer-cdx__card">
+        <div class="viewer-cdx__label">${escapeHtml(label)}</div>
+        <div class="viewer-cdx__value">${escapeHtml(value)}</div>
+      </div>
+    `).join("");
+    const profileRows = profiles.slice().sort((left, right) => (Number(right.bytes) || 0) - (Number(left.bytes) || 0)).map((profile) => {
+      const bytes = Number(profile.bytes) || 0;
+      const share = totalBytes > 0 ? `${Math.round((bytes / totalBytes) * 100)}%` : "-";
+      return `
+        <tr title="${escapeHtml(String(profile.path || ""))}">
+          <td><strong>${escapeHtml(String(profile.name || "-"))}</strong></td>
+          <td>${escapeHtml(String(profile.size || "-"))}</td>
+          <td>${escapeHtml(share)}</td>
+        </tr>
+      `;
+    }).join("");
+    const candidateRows = candidates.map((candidate) => `
+      <tr title="${escapeHtml(String(candidate.path || ""))}">
+        <td><strong>${escapeHtml(String(candidate.profile || "-"))}</strong></td>
+        <td>${escapeHtml(String(candidate.kind || "-"))}</td>
+        <td>${escapeHtml(String(candidate.size || "-"))}</td>
+        <td>${escapeHtml(String(candidate.reason || "-"))}</td>
+      </tr>
+    `).join("");
+    const cleanupHint = candidates.length
+      ? `<div class="viewer-cdx__meta">Reclaim from a terminal: <code>cdx clean profiles --tmp</code> or <code>cdx clean profiles --old-logs 30</code> (both confirm before deleting).</div>`
+      : "";
+    return `
+      <div class="viewer-cdx">
+        ${renderCdxModeSwitcher("disk")}
+        <div class="viewer-cdx__summary">${cards}</div>
+        <section class="viewer-cdx__section">
+          <div class="viewer-ci__heading"><h2>Profiles</h2><span>${escapeHtml(String(disk.path || ""))}</span></div>
+          <div class="viewer-cdx__table-wrap">
+            <table class="viewer-cdx__table">
+              <thead><tr><th>PROFILE</th><th>SIZE</th><th>SHARE</th></tr></thead>
+              <tbody>${profileRows || '<tr><td colspan="3" class="viewer-cdx__empty">No profiles reported.</td></tr>'}</tbody>
+            </table>
+          </div>
+        </section>
+        <section class="viewer-cdx__section">
+          <div class="viewer-ci__heading"><h2>Cleanup candidates</h2><span>${escapeHtml(disk.reclaimable_size || "0 B")} reclaimable</span></div>
+          <div class="viewer-cdx__table-wrap">
+            <table class="viewer-cdx__table">
+              <thead><tr><th>PROFILE</th><th>KIND</th><th>SIZE</th><th>REASON</th></tr></thead>
+              <tbody>${candidateRows || '<tr><td colspan="4" class="viewer-cdx__empty">Nothing safe to clean up.</td></tr>'}</tbody>
+            </table>
+          </div>
+          ${cleanupHint}
+        </section>
+      </div>
+    `;
+  }
+
+  async function showCdxDisk(options = {}) {
+    if (!isCapabilityAvailable("cdx")) {
+      const message = capabilityMessage("cdx", "CDX is not available for this project.");
+      setDocument("CDX disk", renderCdxDisk({ state: capability("cdx").state, message }));
+      setMeta(message);
+      return;
+    }
+    if (!options.silent) {
+      setMeta("Scanning CDX disk usage...");
+    }
+    const view = options.view || beginView({ silent: Boolean(options.silent) });
+    let response;
+    let data = {};
+    try {
+      // The server caches disk scans for 5 minutes; explicit Refresh rescans.
+      response = await fetch("/api/cdx-disk", options.force
+        ? { signal: view.signal, cache: "no-store", headers: { "Cache-Control": "no-cache" } }
+        : { signal: view.signal });
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
+    } catch (error) {
+      if (isAbortError(error)) {
+        return;
+      }
+      throw error;
+    }
+    if (isViewStale(view)) {
+      return;
+    }
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to load CDX disk usage.");
+    }
+    setDocument("CDX disk", renderCdxDisk(data.payload));
+    setMeta(options.silent ? "CDX disk usage refreshed." : "CDX disk usage loaded.");
+  }
+
   async function showCdxReport(runId, options = {}) {
     if (!runId) {
       return;
@@ -6938,6 +7050,8 @@ import {
             withPrimaryAction("cdx-missions", "Loading CDX missions", showCdxMissions);
           } else if (section === "history") {
             withPrimaryAction("cdx-history", "Loading CDX history", showCdxHistory);
+          } else if (section === "disk") {
+            withPrimaryAction("cdx-disk", "Loading CDX disk usage", showCdxDisk);
           } else {
             withPrimaryAction("cdx", "Checking CDX status", showCdxStatus);
           }
@@ -7137,6 +7251,8 @@ import {
           withPrimaryAction("cdx-missions", "Loading CDX missions", showCdxMissions);
         } else if (mode === "history") {
           withPrimaryAction("cdx-history", "Loading CDX history", showCdxHistory);
+        } else if (mode === "disk") {
+          withPrimaryAction("cdx-disk", "Loading CDX disk usage", showCdxDisk);
         } else {
           withPrimaryAction("cdx", "Checking CDX status", showCdxStatus);
         }

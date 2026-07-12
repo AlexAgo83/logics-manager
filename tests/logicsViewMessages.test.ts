@@ -12,6 +12,12 @@ describe("logicsViewMessages", () => {
       command: ["cdx", "work"],
       label: "cdx work"
     });
+    expect(parseLogicsWebviewMessage({ type: "launch-workshop-terminal", command: ["cdx", "work"], label: "cdx work", cwd: "/workspace/other-project" })).toEqual({
+      type: "launch-workshop-terminal",
+      command: ["cdx", "work"],
+      label: "cdx work",
+      cwd: "/workspace/other-project"
+    });
     expect(parseLogicsWebviewMessage({ type: "tool-action", action: "change-project-root" })).toEqual({
       type: "tool-action",
       action: "change-project-root"

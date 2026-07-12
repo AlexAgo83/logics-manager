@@ -199,7 +199,10 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
           await this.launchClaudeFromTools();
           return;
         case "launch-workshop-terminal": {
-          const root = await viewProviderSupport.getActionRoot.call(this);
+          // The embedded viewer can have a different active project than the
+          // VS Code workspace (project switcher); prefer the root it reports.
+          const viewerRoot = message.cwd && isExistingDirectory(message.cwd) ? message.cwd : null;
+          const root = viewerRoot || await viewProviderSupport.getActionRoot.call(this);
           const terminal = vscode.window.createTerminal({ name: message.label || "Logics terminal", cwd: root || undefined });
           terminal.show(true);
           const command = message.command?.map((part) => /[\s"'\\]/.test(part) ? `'${part.replace(/'/g, "'\\''")}'` : part).join(" ");

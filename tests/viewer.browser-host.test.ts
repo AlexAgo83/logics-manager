@@ -3017,7 +3017,7 @@ describe("local viewer browser host", () => {
 
     expect(terminalCommands).toEqual([]);
     expect(externalTerminalCommands).toEqual([]);
-    expect(parentMessages).toContainEqual({ type: "launch-workshop-terminal", command: [], label: "terminal" });
+    expect(parentMessages).toContainEqual({ type: "launch-workshop-terminal", command: [], label: "terminal", cwd: "/workspace/logics-manager" });
     expect(dom.window.document.querySelector("[data-viewer-workshop-external]")?.textContent).toContain("external");
   });
 

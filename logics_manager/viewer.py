@@ -2511,6 +2511,43 @@ def cdx_history_payload(repo_root: Path, *, runner: Any | None = None, which: An
     }
 
 
+def cdx_disk_payload(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
+    cdx_which = which or shutil.which
+    if not cdx_which("cdx"):
+        return {"state": "unavailable", "message": "CDX executable is not available on PATH.", "disk": {}}
+    cdx_runner = runner or subprocess.run
+    try:
+        # Disk scans walk every profile directory; give them more room than the
+        # 5s read-only default. JSON output is progress-free by design.
+        result = cdx_runner(
+            ["cdx", "disk", "profiles", "--json", "--candidates"],
+            cwd=repo_root,
+            text=True,
+            capture_output=True,
+            stdin=subprocess.DEVNULL,
+            timeout=_scaled_timeout(repo_root, 60),
+        )
+    except subprocess.TimeoutExpired:
+        return {"state": "timeout", "message": "CDX disk scan timed out.", "disk": {}}
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"state": "error", "message": f"Unable to run CDX disk: {exc}", "disk": {}}
+    if result.returncode != 0:
+        message = (result.stderr or result.stdout or "CDX disk failed.").strip().splitlines()[0]
+        return {"state": "error", "message": message, "disk": {}}
+    try:
+        parsed = json.loads(result.stdout or "{}")
+    except json.JSONDecodeError:
+        return {"state": "invalid-json", "message": "CDX disk returned invalid JSON.", "disk": {}}
+    disk = parsed.get("disk") if isinstance(parsed, dict) else None
+    if not isinstance(disk, dict):
+        return {"state": "invalid-json", "message": "CDX disk JSON must include a disk object.", "disk": {}}
+    return {
+        "state": "ok",
+        "message": str(parsed.get("message") or ""),
+        "disk": disk,
+    }
+
+
 def cdx_run_report_payload(repo_root: Path, run_id: str, *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
     cdx_which = which or shutil.which
     if not run_id:
@@ -3835,6 +3872,9 @@ VIEWER_EVENT_REMOTE_POLL_SECONDS = 5.0
 def _status_cache_ttl_seconds(name: str) -> float:
     if name in {"ci", "ci-status", "releaseRuns", "release-runs"}:
         return REMOTE_STATUS_CACHE_TTL_SECONDS
+    if name in {"cdxDisk", "cdx-disk"}:
+        # Disk scans walk every profile directory; don't redo them on every poll.
+        return 300.0
     return STATUS_CACHE_TTL_SECONDS
 
 
@@ -3985,6 +4025,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
                 "cdx": {"cdx-status", "cdx-runs", "cdx-history", "status"},
                 "cdxRuns": {"cdx-runs", "status"},
                 "cdxHistory": {"cdx-history"},
+                "cdxDisk": {"cdx-disk"},
             }
             component_names = set(names)
             cache_names: set[str] = set()
@@ -4071,6 +4112,7 @@ _STATUS_ROUTE_TABLE: dict[str, tuple[str, str]] = {
     "/api/cdx-status": ("cdx-status", "cdx"),
     "/api/cdx-runs": ("cdx-runs", "cdxRuns"),
     "/api/cdx-history": ("cdx-history", "cdxHistory"),
+    "/api/cdx-disk": ("cdx-disk", "cdxDisk"),
 }
 
 
@@ -4118,6 +4160,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             "cdx": lambda: cdx_status_payload(repo_root),
             "cdxRuns": lambda: cdx_runs_payload(repo_root),
             "cdxHistory": lambda: cdx_history_payload(repo_root),
+            "cdxDisk": lambda: cdx_disk_payload(repo_root),
         }
         return self.server.status_component(name, producers[name], force=force)
 

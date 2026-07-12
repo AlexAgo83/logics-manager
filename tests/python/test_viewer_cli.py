@@ -41,6 +41,7 @@ from logics_manager.viewer import (
     cdx_permission_payload,
     cdx_remove_payload,
     cdx_reset_payload,
+    cdx_disk_payload,
     cdx_history_payload,
     cdx_run_report_payload,
     cdx_runs_payload,
@@ -497,10 +498,12 @@ def test_viewer_status_route_table_covers_all_status_endpoints() -> None:
         "/api/cdx-status",
         "/api/cdx-runs",
         "/api/cdx-history",
+        "/api/cdx-disk",
     }
     # Each route maps to a (label, component) the status producer understands.
     assert table["/api/git-status"] == ("git-status", "git")
     assert table["/api/cdx-history"] == ("cdx-history", "cdxHistory")
+    assert table["/api/cdx-disk"] == ("cdx-disk", "cdxDisk")
 
 
 def test_viewer_read_json_body_handles_malformed_content_length() -> None:
@@ -1500,6 +1503,49 @@ def test_viewer_cdx_reset_payload_uses_reset_yes_json(tmp_path: Path) -> None:
 
     failed = cdx_reset_payload(tmp_path, "work2", runner=failing_runner, which=lambda _name: "/usr/bin/cdx")
     assert failed == {"ok": False, "error": "No banked Codex reset is available for work2."}
+
+
+def test_viewer_cdx_disk_payload_uses_disk_profiles_candidates_json(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+    disk = {
+        "target": "profiles",
+        "path": "/home/user/.cdx/profiles",
+        "bytes": 2048,
+        "size": "2 KB",
+        "children": [{"name": "work", "path": "/home/user/.cdx/profiles/work", "bytes": 2048, "size": "2 KB"}],
+        "candidates": [],
+        "reclaimable_bytes": 0,
+        "reclaimable_size": "0 B",
+    }
+
+    def runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        assert kwargs["cwd"] == tmp_path
+        assert kwargs["timeout"] == 60
+        return subprocess.CompletedProcess(args, 0, json.dumps({"message": "Measured", "disk": disk}), "")
+
+    payload = cdx_disk_payload(tmp_path, runner=runner, which=lambda _name: "/usr/bin/cdx")
+
+    assert payload == {"state": "ok", "message": "Measured", "disk": disk}
+    assert calls == [["cdx", "disk", "profiles", "--json", "--candidates"]]
+
+    assert cdx_disk_payload(tmp_path, runner=runner, which=lambda _name: None)["state"] == "unavailable"
+
+    def failing_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(args, 1, "", "disk scan failed")
+
+    failed = cdx_disk_payload(tmp_path, runner=failing_runner, which=lambda _name: "/usr/bin/cdx")
+    assert failed == {"state": "error", "message": "disk scan failed", "disk": {}}
+
+    def invalid_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(args, 0, "{not-json", "")
+
+    assert cdx_disk_payload(tmp_path, runner=invalid_runner, which=lambda _name: "/usr/bin/cdx")["state"] == "invalid-json"
+
+    def missing_disk_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(args, 0, json.dumps({"message": "ok"}), "")
+
+    assert cdx_disk_payload(tmp_path, runner=missing_disk_runner, which=lambda _name: "/usr/bin/cdx")["state"] == "invalid-json"
 
 
 def test_viewer_cdx_permission_payload_uses_set_permission_json(tmp_path: Path) -> None:

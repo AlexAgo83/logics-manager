@@ -126,6 +126,7 @@ function createViewerDom(options: {
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:missions">Missions</button>
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:runs">Reports</button>
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:history">History</button>
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:disk">Disk</button>
       </div>
     </div>
     <button id="viewer-insights" type="button">Insights</button>
@@ -895,6 +896,34 @@ function createViewerDom(options: {
           ok: true,
           status: 200,
           json: async () => ({ ok: true, payload: { message: "Import complete." } })
+        };
+      }
+      if (url === "/api/cdx-disk") {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            payload: {
+              state: "ok",
+              message: "Measured CDX profiles disk usage: 3 GB",
+              disk: {
+                target: "profiles",
+                path: "/home/user/.cdx/profiles",
+                bytes: 3_000_000_000,
+                size: "3 GB",
+                children: [
+                  { name: "work2", path: "/home/user/.cdx/profiles/work2", bytes: 2_000_000_000, size: "2 GB" },
+                  { name: "corvus", path: "/home/user/.cdx/profiles/corvus", bytes: 1_000_000_000, size: "1 GB" }
+                ],
+                candidates: [
+                  { profile: "work2", kind: "old-logs", path: "/home/user/.cdx/profiles/work2/logs", bytes: 500_000_000, size: "500 MB", reason: "log files older than 30 days", risk: "safe" }
+                ],
+                reclaimable_bytes: 500_000_000,
+                reclaimable_size: "500 MB"
+              }
+            }
+          })
         };
       }
       if (url === "/api/cdx-reset") {
@@ -6054,6 +6083,32 @@ describe("local viewer browser host", () => {
     resolveToggle?.();
     await flushViewerAsync();
     await flushViewerAsync();
+  });
+
+  it("renders the CDX disk screen with profile shares and cleanup candidates", async () => {
+    const { dom, calls } = createViewerDom({ cdxResponse: cdxRowsStatusPayload() });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:disk"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    expect(calls).toContain("/api/cdx-disk");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX disk");
+    const text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("Total");
+    expect(text).toContain("3 GB");
+    expect(text).toContain("Reclaimable");
+    expect(text).toContain("500 MB");
+    expect(text).toContain("work2");
+    expect(text).toContain("67%");
+    expect(text).toContain("old-logs");
+    expect(text).toContain("log files older than 30 days");
+    expect(text).toContain("cdx clean profiles --tmp");
+
+    const diskTab = dom.window.document.querySelector('[data-viewer-cdx-mode="disk"]');
+    expect(diskTab?.classList.contains("is-active")).toBe(true);
   });
 
   it("activates a banked CDX reset from the status table after confirmation", async () => {

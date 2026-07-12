@@ -75,6 +75,7 @@
 | [prod_036_vs_code_embedded_viewer_parity](product/prod_036_vs_code_embedded_viewer_parity.md) | VS Code embedded viewer parity | Settled |  |  | product/prod_036_vs_code_embedded_viewer_parity.md |
 | [prod_037_split_cdx_usage_gauge](product/prod_037_split_cdx_usage_gauge.md) | Split CDX usage gauge | Settled |  |  | product/prod_037_split_cdx_usage_gauge.md |
 | [prod_038_post_release_viewer_hardening](product/prod_038_post_release_viewer_hardening.md) | Post-release viewer hardening | Settled |  |  | product/prod_038_post_release_viewer_hardening.md |
+| [prod_039_git_history_commit_diff_preview](product/prod_039_git_history_commit_diff_preview.md) | Git history commit diff preview | Proposed |  |  | product/prod_039_git_history_commit_diff_preview.md |
 
 ## Requests
 
@@ -369,6 +370,7 @@
 | [req_288_sort_projects_by_last_used](request/req_288_sort_projects_by_last_used.md) | Sort projects by last used | Done |  |  | request/req_288_sort_projects_by_last_used.md |
 | [req_289_split_the_cdx_usage_gauge_into_5h_and_week_columns](request/req_289_split_the_cdx_usage_gauge_into_5h_and_week_columns.md) | Split the CDX usage gauge into 5h and week columns | Done |  |  | request/req_289_split_the_cdx_usage_gauge_into_5h_and_week_columns.md |
 | [req_290_post_release_viewer_and_vs_code_hardening](request/req_290_post_release_viewer_and_vs_code_hardening.md) | Post-release viewer and VS Code hardening | Done |  |  | request/req_290_post_release_viewer_and_vs_code_hardening.md |
+| [req_291_preview_commit_diffs_from_git_history](request/req_291_preview_commit_diffs_from_git_history.md) | Preview commit diffs from Git history | Draft |  |  | request/req_291_preview_commit_diffs_from_git_history.md |
 
 ## Backlog
 
@@ -911,6 +913,7 @@
 | [item_535_make_split_cdx_usage_gauge_missing_data_semantics_symmetric](backlog/item_535_make_split_cdx_usage_gauge_missing_data_semantics_symmetric.md) | Make split CDX usage gauge missing-data semantics symmetric | Done |  | 100% | backlog/item_535_make_split_cdx_usage_gauge_missing_data_semantics_symmetric.md |
 | [item_536_clean_up_embedded_viewer_server_processes_on_startup_timeout](backlog/item_536_clean_up_embedded_viewer_server_processes_on_startup_timeout.md) | Clean up embedded viewer server processes on startup timeout | Done |  | 100% | backlog/item_536_clean_up_embedded_viewer_server_processes_on_startup_timeout.md |
 | [item_537_harden_vs_code_terminal_bridge_command_handling](backlog/item_537_harden_vs_code_terminal_bridge_command_handling.md) | Harden VS Code terminal bridge command handling | Done |  | 100% | backlog/item_537_harden_vs_code_terminal_bridge_command_handling.md |
+| [item_538_add_clickable_git_history_commit_diffs](backlog/item_538_add_clickable_git_history_commit_diffs.md) | Add clickable Git history commit diffs | Ready |  | 0% | backlog/item_538_add_clickable_git_history_commit_diffs.md |
 
 ## Tasks
 
@@ -1197,3 +1200,4 @@
 | [task_285_sort_projects_by_last_used](tasks/task_285_sort_projects_by_last_used.md) | Sort projects by last used | Done |  | 100% | tasks/task_285_sort_projects_by_last_used.md |
 | [task_286_implement_split_5h_week_cdx_usage_gauge](tasks/task_286_implement_split_5h_week_cdx_usage_gauge.md) | Implement split 5h/week CDX usage gauge | Done |  | 100% | tasks/task_286_implement_split_5h_week_cdx_usage_gauge.md |
 | [task_287_orchestrate_post_release_viewer_hardening](tasks/task_287_orchestrate_post_release_viewer_hardening.md) | Orchestrate post-release viewer hardening | Done | codex | 100% | tasks/task_287_orchestrate_post_release_viewer_hardening.md |
+| [task_288_orchestrate_git_history_commit_diff_previews](tasks/task_288_orchestrate_git_history_commit_diff_previews.md) | Orchestrate Git history commit diff previews | Ready |  | 0% | tasks/task_288_orchestrate_git_history_commit_diff_previews.md |

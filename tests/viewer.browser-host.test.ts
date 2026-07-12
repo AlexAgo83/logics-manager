@@ -49,6 +49,7 @@ function createViewerDom(options: {
   filePreviewResponse?: { path: string; name: string; content: string; truncated?: boolean };
   editResponse?: { ok: boolean; status?: number; body: unknown };
   gitDiffResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
+  gitCommitDiffResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   gitCommitResponse?: { ok: boolean; status?: number; body?: unknown };
   gitPreviewResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   gitResponseFactory?: () => { ok: boolean; status?: number; body?: unknown; rawBody?: string };
@@ -1139,6 +1140,33 @@ function createViewerDom(options: {
               diff: "diff --git a/logics/request/req_001_demo.md b/logics/request/req_001_demo.md\n+Demo",
               truncated: false,
               logicsType: "request"
+            }
+          })
+        };
+      }
+      if (String(url).startsWith("/api/git-commit-diff")) {
+        if (options.gitCommitDiffResponse) {
+          return {
+            ok: options.gitCommitDiffResponse.ok,
+            status: options.gitCommitDiffResponse.status ?? (options.gitCommitDiffResponse.ok ? 200 : 500),
+            json: async () => {
+              if (options.gitCommitDiffResponse?.rawBody !== undefined) {
+                throw new Error("Invalid JSON");
+              }
+              return options.gitCommitDiffResponse?.body || {};
+            }
+          };
+        }
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: {
+              state: "ok",
+              ref: "abc1234",
+              mode: "commit",
+              diff: "commit abc1234\n\ndiff --git a/a.md b/a.md\n+Commit",
+              truncated: false
             }
           })
         };
@@ -3973,10 +4001,50 @@ describe("local viewer browser host", () => {
     expect(historyDomain?.textContent).toContain("2");
     expect((content?.querySelector('[data-viewer-git-panel="history"]') as HTMLElement | null)?.hidden).toBe(false);
     expect((content?.querySelector('[data-viewer-git-panel="staged"]') as HTMLElement | null)?.hidden).toBe(true);
-    expect((content?.querySelector("[data-viewer-git-detail]") as HTMLElement | null)?.hidden).toBe(true);
-    expect(content?.querySelector(".viewer-git__workspace")?.classList.contains("has-diff-detail")).toBe(false);
+    expect((content?.querySelector("[data-viewer-git-detail]") as HTMLElement | null)?.hidden).toBe(false);
+    expect(content?.querySelector(".viewer-git__workspace")?.classList.contains("has-diff-detail")).toBe(true);
+    expect(content?.querySelector("[data-viewer-git-diff]")?.textContent).toContain("Select a commit to preview its diff.");
     expect(content?.textContent).toContain("Demo commit");
     expect(content?.textContent).toContain("HEAD -> main");
+  });
+
+  it("loads a Git history commit diff into the shared detail pane", async () => {
+    const { dom, calls } = createViewerDom({
+      gitCommitDiffResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            ref: "abc1234",
+            mode: "commit",
+            diff: "commit abc1234\n\ndiff --git a/logics/request/req_001_demo.md b/logics/request/req_001_demo.md\n+Commit demo",
+            truncated: false
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const historyDomain = dom.window.document.querySelector('[data-viewer-git-domain="history"]') as HTMLElement | null;
+    historyDomain?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    const commitButton = dom.window.document.querySelector('[data-viewer-git-commit="abc1234"]') as HTMLElement | null;
+    commitButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const content = dom.window.document.getElementById("viewer-document-content");
+    expect(calls).toContain("/api/git-commit-diff?ref=abc1234");
+    expect(commitButton?.classList.contains("is-active")).toBe(true);
+    expect(content?.querySelector(".viewer-git__detail-title")?.textContent).toBe("Commit diff");
+    expect(content?.querySelector(".viewer-git__diff-meta")?.textContent).toContain("abc1234 · commit");
+    expect(content?.querySelector(".viewer-git__diff-line--meta")?.textContent).toContain("diff --git");
+    expect(content?.querySelector(".viewer-git__diff-line--add")?.textContent).toContain("+Commit demo");
   });
 
   it("opens a Git commit modal and submits selected files with a message", async () => {

@@ -56,6 +56,7 @@ from logics_manager.viewer import (
     gitlab_repo_url,
     github_repo_url,
     git_commit_payload,
+    git_commit_diff_payload,
     git_diff_payload,
     git_fetch_payload,
     git_file_preview_payload,
@@ -1306,6 +1307,30 @@ def test_viewer_git_diff_payload_is_read_only_bounded_and_path_safe(tmp_path: Pa
     assert ["git", "diff", "--no-ext-diff", "--unified=80", "--cached", "--", "logics/request/req_001_demo.md"] in calls
     assert not any("push" in call or "fetch" in call or "pull" in call for call in calls for _ in [call])
     assert git_diff_payload(tmp_path, "../outside.md", which=lambda _name: "/usr/bin/git")["state"] == "error"
+
+
+def test_viewer_git_commit_diff_payload_is_read_only_bounded_and_ref_safe(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        if args[1:] == ["rev-parse", "--is-inside-work-tree"]:
+            return subprocess.CompletedProcess(args, 0, "true\n", "")
+        if args[1:] == ["show", "--no-ext-diff", "--format=medium", "--stat", "--patch", "--find-renames", "--unified=80", "abc1234"]:
+            return subprocess.CompletedProcess(args, 0, "commit abc1234\n\ndiff --git a/a.md b/a.md\n+" + ("x" * 40), "")
+        raise AssertionError(args)
+
+    payload = git_commit_diff_payload(tmp_path, "abc1234", max_chars=48, runner=runner, which=lambda _name: "/usr/bin/git")
+
+    assert payload["state"] == "ok"
+    assert payload["mode"] == "commit"
+    assert payload["ref"] == "abc1234"
+    assert payload["truncated"] is True
+    assert len(payload["diff"]) == 48
+    assert ["git", "show", "--no-ext-diff", "--format=medium", "--stat", "--patch", "--find-renames", "--unified=80", "abc1234"] in calls
+    assert not any("push" in call or "fetch" in call or "pull" in call for call in calls for _ in [call])
+    assert git_commit_diff_payload(tmp_path, "HEAD~1", which=lambda _name: "/usr/bin/git")["state"] == "error"
+    assert git_commit_diff_payload(tmp_path, "abc1234", which=lambda _name: "")["state"] == "unavailable"
 
 
 def test_viewer_git_file_preview_payload_is_read_only_bounded_and_path_safe(tmp_path: Path) -> None:

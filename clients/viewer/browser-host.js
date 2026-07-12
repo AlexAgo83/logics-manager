@@ -31,7 +31,7 @@
   }
   function applyGitDomain(domain) {
     const selected = domain || "changes";
-    const diffDomains = /* @__PURE__ */ new Set(["changes", "staged", "worktree", "untracked"]);
+    const diffDomains = /* @__PURE__ */ new Set(["changes", "staged", "worktree", "untracked", "history"]);
     const showDiffDetail = diffDomains.has(selected);
     document.querySelectorAll(".viewer-git__domain[data-viewer-git-domain]").forEach((node) => {
       if (node instanceof HTMLElement) {
@@ -9200,14 +9200,16 @@ ${line}` : line;
       };
       const historyRows = recentCommits.length ? recentCommits.map((commit, index) => `
         <li class="viewer-git__commit-row" ${index >= gitHistoryPageSize ? "hidden data-viewer-git-history-hidden" : ""}>
-          <div class="viewer-git__commit-main">
-            <code>${escapeHtml(commit.hash || "")}</code>
-            <strong>${escapeHtml(commit.subject || "Untitled commit")}</strong>
-          </div>
-          <div class="viewer-git__commit-meta">
-            <span>${escapeHtml([commit.author, commit.date].filter(Boolean).join(" \xB7 ") || "Unknown")}</span>
-            ${commit.refs ? `<span class="viewer-git__commit-refs">${escapeHtml(commit.refs)}</span>` : ""}
-          </div>
+          <button class="viewer-git__commit" type="button" data-viewer-git-commit="${escapeHtml(commit.hash || "")}">
+            <span class="viewer-git__commit-main">
+              <code>${escapeHtml(commit.hash || "")}</code>
+              <strong>${escapeHtml(commit.subject || "Untitled commit")}</strong>
+            </span>
+            <span class="viewer-git__commit-meta">
+              <span>${escapeHtml([commit.author, commit.date].filter(Boolean).join(" \xB7 ") || "Unknown")}</span>
+              ${commit.refs ? `<span class="viewer-git__commit-refs">${escapeHtml(commit.refs)}</span>` : ""}
+            </span>
+          </button>
         </li>
       `).join("") + renderGitHistoryReveal(Math.max(0, recentCommits.length - gitHistoryPageSize)) : `<li class="viewer-git__commit-row">${escapeHtml(payload.latestCommit || "No commit history available.")}</li>`;
       const history = `
@@ -9258,7 +9260,7 @@ ${line}` : line;
           </div>
           <section class="viewer-git__detail" aria-label="Git diff" data-viewer-git-detail>
             <div class="viewer-git__detail-title">Diff preview</div>
-            <div class="viewer-git__diff" data-viewer-git-diff>Select a changed file to preview its diff.</div>
+            <div class="viewer-git__diff" data-viewer-git-diff>Select a changed file or history commit to preview its diff.</div>
           </section>
         </div>
       </div>
@@ -9284,6 +9286,18 @@ ${line}` : line;
         language: "diff",
         lineClassName: (line) => `viewer-git__diff-line viewer-git__diff-line--${gitDiffLineKind(line)}`,
         renderLineHtml: (line) => escapeHtml(line || " ")
+      });
+    }
+    function setActiveGitCommit(button) {
+      document.querySelectorAll("[data-viewer-git-commit]").forEach((node) => {
+        if (node instanceof HTMLElement) {
+          node.classList.toggle("is-active", node === button);
+        }
+      });
+      document.querySelectorAll("[data-viewer-git-file]").forEach((node) => {
+        if (node instanceof HTMLElement) {
+          node.classList.remove("is-active");
+        }
       });
     }
     async function loadGitDiff(path, cached, button = null) {
@@ -9316,6 +9330,33 @@ ${line}` : line;
         return;
       }
       diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.path || path)} \xB7 ${escapeHtml(payload.mode || "worktree")}${payload.truncated ? " \xB7 truncated" : ""}</div>${renderGitDiffPreview(content)}`;
+    }
+    async function loadGitCommitDiff(ref, button = null) {
+      const diffPanel = document.querySelector("[data-viewer-git-diff]");
+      const detailTitle = document.querySelector("[data-viewer-git-detail] .viewer-git__detail-title");
+      if (!(diffPanel instanceof HTMLElement) || !ref) {
+        return;
+      }
+      if (button instanceof HTMLElement) {
+        setActiveGitCommit(button);
+      }
+      if (detailTitle instanceof HTMLElement) {
+        detailTitle.textContent = "Commit diff";
+      }
+      diffPanel.textContent = "Loading commit diff...";
+      const response = await fetch(`/api/git-commit-diff?${new URLSearchParams({ ref }).toString()}`);
+      const data = await response.json();
+      const payload = data.payload || {};
+      if (!response.ok || !data.ok || payload.state !== "ok") {
+        diffPanel.textContent = payload.message || data.error || "Unable to load commit diff.";
+        return;
+      }
+      const content = payload.diff || "";
+      if (!content.trim()) {
+        diffPanel.textContent = payload.message || "No diff is available for this commit.";
+        return;
+      }
+      diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.ref || ref)} \xB7 commit${payload.truncated ? " \xB7 truncated" : ""}</div>${renderGitDiffPreview(content)}`;
     }
     async function loadGitFilePreview(path, diffPanel, detailTitle = null, options = {}) {
       if (detailTitle instanceof HTMLElement) {
@@ -9870,6 +9911,7 @@ ${line}` : line;
         const gitHistoryRevealTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-history-reveal]") : null;
         const gitDomainTarget = event.target instanceof Element ? event.target.closest(".viewer-git__domain[data-viewer-git-domain]") : null;
         const gitFileTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-file]") : null;
+        const gitCommitTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-commit]") : null;
         const gitPreviewFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-preview-full]") : null;
         const workspaceTreeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-tree]") : null;
         const workspacePreviewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview]") : null;
@@ -10322,7 +10364,16 @@ ${line}` : line;
           return;
         }
         if (gitDomainTarget instanceof HTMLElement) {
-          applyGitDomain(gitDomainTarget.getAttribute("data-viewer-git-domain") || "changes");
+          const domain = gitDomainTarget.getAttribute("data-viewer-git-domain") || "changes";
+          applyGitDomain(domain);
+          const diffPanel = document.querySelector("[data-viewer-git-diff]");
+          if (domain === "history" && diffPanel instanceof HTMLElement && !document.querySelector("[data-viewer-git-commit].is-active")) {
+            diffPanel.textContent = "Select a commit to preview its diff.";
+          }
+          return;
+        }
+        if (gitCommitTarget instanceof HTMLElement) {
+          loadGitCommitDiff(gitCommitTarget.getAttribute("data-viewer-git-commit") || "", gitCommitTarget).catch((error) => setMeta(error.message));
           return;
         }
         if (gitFileTarget instanceof HTMLElement) {

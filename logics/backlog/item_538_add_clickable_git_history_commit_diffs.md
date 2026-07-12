@@ -1,10 +1,10 @@
 ## item_538_add_clickable_git_history_commit_diffs - Add clickable Git history commit diffs
 > From version: 2.17.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 80%
 > Complexity: Medium
 > Theme: Viewer Git history
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

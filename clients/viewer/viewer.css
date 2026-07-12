@@ -3753,7 +3753,8 @@
 }
 
 .viewer-git__domain,
-.viewer-git__file {
+.viewer-git__file,
+.viewer-git__commit {
   width: 100%;
   min-width: 0;
   border: 1px solid var(--vscode-panel-border, #333333);
@@ -3781,7 +3782,8 @@
 }
 
 .viewer-git__domain.is-active,
-.viewer-git__file.is-active {
+.viewer-git__file.is-active,
+.viewer-git__commit.is-active {
   border-color: var(--vscode-focusBorder, #4ea1ff);
   background: color-mix(in srgb, var(--vscode-editorWidget-background, #202020) 72%, var(--vscode-textLink-foreground, #4ea1ff));
 }
@@ -3840,10 +3842,6 @@
 
 .viewer-git__commit-row {
   min-width: 0;
-  padding: 8px 9px;
-  border: 1px solid var(--vscode-panel-border, #333333);
-  border-radius: 6px;
-  background: var(--vscode-editorWidget-background, #202020);
 }
 
 .viewer-git__commit-row[hidden] {
@@ -3871,6 +3869,11 @@
 .viewer-git__reveal:hover {
   border-color: color-mix(in srgb, var(--vscode-textLink-foreground, #4ea1ff) 45%, var(--vscode-panel-border, #333333));
   color: var(--vscode-textLink-foreground, #4ea1ff);
+}
+
+.viewer-git__commit {
+  display: block;
+  padding: 8px 9px;
 }
 
 .viewer-git__commit-main,

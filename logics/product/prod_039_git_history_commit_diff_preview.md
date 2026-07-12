@@ -6,6 +6,8 @@
 > Related task: `task_288_orchestrate_git_history_commit_diff_previews`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Confidence: 100%
+> Non-semantic edit: closeout refreshed generated back-reference text without changing product meaning.
 
 # Overview
 Extend the existing Git History tab so recent commits can be clicked to preview their diffs in the same detail pane and renderer already used by working-tree changes.
@@ -42,5 +44,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_291_preview_commit_diffs_from_git_history`
+- Product back-reference: `item_538_add_clickable_git_history_commit_diffs`
 - Task back-reference: `task_288_orchestrate_git_history_commit_diff_previews`

@@ -1,7 +1,7 @@
 ## req_292_improve_scope_section_rendering_in_document_previews - Improve Scope section rendering in document previews
 > From version: 2.17.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

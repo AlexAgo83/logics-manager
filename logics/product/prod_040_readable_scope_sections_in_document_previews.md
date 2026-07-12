@@ -6,6 +6,7 @@
 > Related task: `task_289_orchestrate_scope_section_preview_rendering`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Non-semantic edit: closeout refreshed generated back-reference text without changing product meaning.
 
 # Overview
 Make Scope sections in Logics document previews scan like structured In/Out groups while preserving the existing markdown authoring format.
@@ -42,5 +43,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_292_improve_scope_section_rendering_in_document_previews`
+- Product back-reference: `item_539_render_scope_in_and_out_groups_as_structured_preview_blocks`
 - Task back-reference: `task_289_orchestrate_scope_section_preview_rendering`

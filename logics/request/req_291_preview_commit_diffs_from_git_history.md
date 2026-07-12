@@ -1,7 +1,7 @@
 ## req_291_preview_commit_diffs_from_git_history - Preview commit diffs from Git history
 > From version: 2.17.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

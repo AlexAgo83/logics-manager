@@ -1,10 +1,10 @@
 ## item_539_render_scope_in_and_out_groups_as_structured_preview_blocks - Render Scope In and Out groups as structured preview blocks
 > From version: 2.17.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 80%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer document readability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -64,3 +64,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_289_orchestrate_scope_section_preview_rendering`
+
+# Notes
+- Task `task_289_orchestrate_scope_section_preview_rendering` was finished via `logics-manager flow finish task` on 2026-07-12.

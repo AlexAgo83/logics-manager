@@ -39,7 +39,7 @@ export function applyCdxBadge(host, selector, desiredLabel, makeHtml) {
 
 export function applyGitDomain(domain) {
     const selected = domain || "changes";
-    const diffDomains = new Set(["changes", "staged", "worktree", "untracked"]);
+    const diffDomains = new Set(["changes", "staged", "worktree", "untracked", "history"]);
     const showDiffDetail = diffDomains.has(selected);
     document.querySelectorAll(".viewer-git__domain[data-viewer-git-domain]").forEach((node) => {
       if (node instanceof HTMLElement) {

@@ -1483,6 +1483,49 @@ def git_diff_payload(
     }
 
 
+def git_commit_diff_payload(
+    repo_root: Path,
+    ref: str,
+    *,
+    max_chars: int = 20000,
+    runner: Any | None = None,
+    which: Any | None = None,
+) -> dict[str, Any]:
+    git_which = which or shutil.which
+    if not git_which("git"):
+        return {"state": "unavailable", "message": "Git is not available on PATH."}
+    normalized = str(ref or "").strip()
+    if not re.fullmatch(r"[0-9a-fA-F]{4,40}", normalized):
+        return {"state": "error", "message": "Unsafe Git commit ref."}
+    try:
+        inside = _run_read_only_git(repo_root, ["rev-parse", "--is-inside-work-tree"], runner=runner)
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"state": "error", "message": f"Unable to run Git show: {exc}"}
+    if inside.returncode != 0 or inside.stdout.strip().lower() != "true":
+        return {"state": "not-repository", "message": "This folder is not inside a Git worktree."}
+
+    args = ["show", "--no-ext-diff", "--format=medium", "--stat", "--patch", "--find-renames", "--unified=80", normalized]
+    try:
+        diff = _run_read_only_git(repo_root, args, runner=runner)
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"state": "error", "message": f"Unable to collect Git commit diff: {exc}"}
+    if diff.returncode != 0:
+        message = (diff.stderr or diff.stdout or "Git show failed.").strip().splitlines()[0]
+        return {"state": "error", "message": message}
+    content = diff.stdout
+    truncated = len(content) > max_chars
+    if truncated:
+        content = content[:max_chars]
+    return {
+        "state": "ok",
+        "ref": normalized,
+        "mode": "commit",
+        "diff": content,
+        "truncated": truncated,
+        "message": "" if content else "No diff is available for this commit.",
+    }
+
+
 def git_file_preview_payload(
     repo_root: Path,
     rel_path: str,
@@ -4672,6 +4715,10 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             rel_path = params.get("path", [""])[0]
             cached = params.get("cached", [""])[0].lower() in {"1", "true", "yes"}
             self._send_json({"ok": True, "payload": git_diff_payload(self.server.repo_root, rel_path, cached=cached)})
+            return
+        if route == "/api/git-commit-diff":
+            ref = parse_qs(parsed.query).get("ref", [""])[0]
+            self._send_json({"ok": True, "payload": git_commit_diff_payload(self.server.repo_root, ref)})
             return
         if route == "/api/git-file-preview":
             params = parse_qs(parsed.query)

@@ -3836,6 +3836,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     let cdxCloseTarget = null;
     let viewerPreferences = readViewerPreferences();
     let autoRefreshIntervalForcedByLaunch = false;
+    let embeddedHost = "";
     let viewSeq = 0;
     let userViewSeq = 0;
     let activeUserViewController = null;
@@ -3860,6 +3861,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     });
     window.addEventListener("message", (event) => {
       if (event.data?.type !== "viewer-embed-host" || event.data.host !== "vscode" || window.parent === window) return;
+      embeddedHost = "vscode";
       const section = document.getElementById("viewer-vscode-section");
       if (!(section instanceof HTMLElement)) return;
       section.hidden = false;
@@ -4790,12 +4792,18 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         if (latestRepository.webUrl) {
           github.hidden = false;
           github.href = latestRepository.webUrl;
+          github.onclick = (event) => {
+            if (embeddedHost !== "vscode" || window.parent === window) return;
+            event.preventDefault();
+            window.parent.postMessage({ type: "open-external-link", target: latestRepository.webUrl }, "*");
+          };
           const providerLabel = latestRepository.provider === "gitlab" ? "GitLab" : latestRepository.provider === "github" ? "GitHub" : "remote";
           github.title = `Open ${providerLabel} repository`;
           github.setAttribute("aria-label", `Open ${providerLabel} repository`);
         } else {
           github.hidden = true;
           github.removeAttribute("href");
+          github.onclick = null;
         }
       }
       if (folder instanceof HTMLButtonElement) {

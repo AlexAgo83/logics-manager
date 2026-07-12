@@ -162,6 +162,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
             await vscode.env.openExternal(vscode.Uri.parse(this.embeddedViewerUrl));
           }
           return;
+        case "open-external-link":
+          await vscode.env.openExternal(vscode.Uri.parse(message.target));
+          return;
         case "open":
           await viewProviderSupport.openItem.call(this, message.id);
           return;

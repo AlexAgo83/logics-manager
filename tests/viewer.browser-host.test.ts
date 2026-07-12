@@ -3807,6 +3807,25 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Repository folder opened.");
   });
 
+  it("opens repository shortcuts through VS Code when embedded", async () => {
+    const { dom, parentMessages } = createViewerDom({ embeddedInVsCode: true });
+    const api = dom.window.acquireVsCodeApi();
+
+    dom.window.dispatchEvent(new dom.window.MessageEvent("message", { data: { type: "viewer-embed-host", host: "vscode" } }));
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const github = dom.window.document.getElementById("viewer-repo-github") as HTMLAnchorElement | null;
+    const event = new dom.window.MouseEvent("click", { bubbles: true, cancelable: true });
+    github?.dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(parentMessages).toContainEqual({
+      type: "open-external-link",
+      target: "https://github.com/AlexAgo83/logics-manager"
+    });
+  });
+
   it("falls back to the embedded folder picker when opening the local folder is unavailable", async () => {
     const { dom, calls } = createViewerDom({
       openRepoFolderResponse: { ok: false, status: 403, body: { ok: false, error: "Local folder cannot be opened from this client." } }

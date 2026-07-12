@@ -63,7 +63,7 @@ export function buildEmbeddedViewerHtml(webview: vscode.Webview, state: Embedded
       if (!frameOrigin || event.origin !== frameOrigin || !event.data) return;
       if (event.data.type === "viewer-project-last-used") {
         vscode.setState({ ...(vscode.getState() || {}), projectLastUsedAt: event.data.projectLastUsedAt });
-      } else if (event.data.type === "launch-workshop-terminal" || event.data.type === "restart-viewer" || event.data.type === "open-external-viewer") {
+      } else if (event.data.type === "launch-workshop-terminal" || event.data.type === "restart-viewer" || event.data.type === "open-external-viewer" || event.data.type === "open-external-link") {
         vscode.postMessage(event.data);
       }
     });

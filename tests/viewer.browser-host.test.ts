@@ -253,6 +253,12 @@ function createViewerDom(options: {
     "- Related task: [task doc](logics/tasks/task_001_blocked.md)",
     "- Render **markdown**.",
     "",
+    "# Scope",
+    "- In:",
+    "  - Render `Scope` groups.",
+    "- Out:",
+    "  - Change non-Scope lists.",
+    "",
     "# Validation",
     "- [x] Preview renders.",
     "",
@@ -2180,6 +2186,11 @@ describe("local viewer browser host", () => {
     expect(meta?.textContent).not.toContain("Reminder");
     expect(dom.window.document.querySelector("#viewer-document-content .markdown-preview__section-heading--acceptance")?.textContent).toBe("Needs");
     expect(dom.window.document.querySelector("#viewer-document-content .markdown-preview__section-heading--validation")?.textContent).toBe("Validation");
+    const scope = dom.window.document.querySelector("#viewer-document-content .markdown-preview__scope");
+    expect(scope).toBeTruthy();
+    expect(scope?.querySelector(".markdown-preview__scope-group--in .markdown-preview__scope-label")?.textContent).toBe("In");
+    expect(scope?.querySelector(".markdown-preview__scope-group--out .markdown-preview__scope-label")?.textContent).toBe("Out");
+    expect(scope?.querySelector(".markdown-preview__scope-group--in code")?.textContent).toBe("Scope");
     expect(dom.window.document.querySelector("#viewer-document-content .markdown-preview__ac-id")?.textContent).toBe("AC1");
     const trace = dom.window.document.querySelector("#viewer-document-content .markdown-preview__trace");
     expect(trace?.querySelector(".markdown-preview__trace-ac")?.textContent).toBe("AC1");

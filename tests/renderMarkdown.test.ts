@@ -54,4 +54,36 @@ describe("renderMarkdown", () => {
     expect(html).toContain("&lt;script&gt;alert(&#39;x&#39;)&lt;/script&gt;");
     expect(html).not.toContain("> Status: Draft");
   });
+
+  it("renders generated Scope In and Out lists as structured groups", () => {
+    const api = loadMarkdownApi();
+
+    const html = api.renderMarkdownToHtml([
+      "# Scope",
+      "- In:",
+      "  - Render `Scope` groups.",
+      "  - Link `logics/tasks/task_001_demo.md`.",
+      "- Out:",
+      "  - Change non-Scope lists."
+    ].join("\n"));
+
+    expect(html).toContain('class="markdown-preview__scope"');
+    expect(html).toContain('class="markdown-preview__scope-group markdown-preview__scope-group--in"');
+    expect(html).toContain('<div class="markdown-preview__scope-label">In</div>');
+    expect(html).toContain("<code>Scope</code>");
+    expect(html).toContain("T001");
+    expect(html).not.toContain("<li>In:</li>");
+  });
+
+  it("keeps In and Out bullets generic outside Scope or unsupported Scope shapes", () => {
+    const api = loadMarkdownApi();
+
+    const generic = api.renderMarkdownToHtml(["# Notes", "- In:", "  - Keep generic."].join("\n"));
+    const unsupported = api.renderMarkdownToHtml(["# Scope", "- In:", "- peer item"].join("\n"));
+
+    expect(generic).not.toContain("markdown-preview__scope");
+    expect(generic).toContain("<li>In:</li>");
+    expect(unsupported).not.toContain("markdown-preview__scope");
+    expect(unsupported).toContain("<li>In:</li>");
+  });
 });

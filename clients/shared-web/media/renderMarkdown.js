@@ -217,6 +217,7 @@
     let listType = null;
     let listItems = [];
     let codeFence = null;
+    let currentSectionKind = null;
 
     function flushParagraph() {
       if (paragraph.length === 0) {
@@ -235,6 +236,15 @@
         listItems = [];
         return;
       }
+      if (listType === "ul" && currentSectionKind === "scope") {
+        const scopeHtml = renderScopeList(listItems);
+        if (scopeHtml) {
+          html.push(scopeHtml);
+          listType = null;
+          listItems = [];
+          return;
+        }
+      }
       html.push(`<${listType}>`);
       listItems.forEach((item) => {
         html.push(renderListItem(item));
@@ -242,6 +252,33 @@
       html.push(`</${listType}>`);
       listType = null;
       listItems = [];
+    }
+
+    function renderScopeList(items) {
+      const groups = [];
+      let current = null;
+      for (const item of items) {
+        const text = String(item.text || "").trim();
+        const groupMatch = item.indent === 0 && text.match(/^(In|Out):$/i);
+        if (groupMatch) {
+          current = { label: groupMatch[1][0].toUpperCase() + groupMatch[1].slice(1).toLowerCase(), items: [] };
+          groups.push(current);
+          continue;
+        }
+        if (!current || item.indent === 0 || item.checkbox || item.acId || item.traceAc || item.validationCommand) {
+          return "";
+        }
+        current.items.push(text);
+      }
+      if (!groups.length || groups.some((group) => group.items.length === 0)) {
+        return "";
+      }
+      return `<div class="markdown-preview__scope">${groups.map((group) => `
+        <section class="markdown-preview__scope-group markdown-preview__scope-group--${escapeHtml(group.label.toLowerCase())}">
+          <div class="markdown-preview__scope-label">${escapeHtml(group.label)}</div>
+          <ul class="markdown-preview__scope-items">${group.items.map((item) => `<li>${renderInlineMarkdown(item)}</li>`).join("")}</ul>
+        </section>
+      `).join("")}</div>`;
     }
 
     function renderListItem(item) {
@@ -315,6 +352,7 @@
         const level = headingMatch[1].length;
         const headingText = headingMatch[2].trim();
         const headingKind = sectionHeadingKind(headingText);
+        currentSectionKind = headingKind;
         const classAttr = headingKind ? ` class="markdown-preview__section-heading markdown-preview__section-heading--${escapeHtml(headingKind)}"` : "";
         html.push(`<h${level}${classAttr}>${renderInlineMarkdown(headingText)}</h${level}>`);
         continue;
@@ -362,7 +400,8 @@
           continue;
         }
         const acMatch = unorderedMatch[1].match(/^(AC\d+):\s+(.*)$/i);
-        listItems.push(acMatch ? { acId: acMatch[1].toUpperCase(), text: acMatch[2] } : { text: unorderedMatch[1] });
+        const indent = (line.match(/^(\s*)-/)?.[1] || "").length;
+        listItems.push(acMatch ? { acId: acMatch[1].toUpperCase(), text: acMatch[2], indent } : { text: unorderedMatch[1], indent });
         continue;
       }
 
@@ -406,6 +445,10 @@
       .preview__body .markdown-preview__task-item{margin:.15em 0;}
       .preview__body .markdown-preview__task-label{display:inline-flex;align-items:flex-start;gap:.65em;}
       .preview__body .markdown-preview__task-checkbox{margin-top:.2em;width:1rem;height:1rem;flex:0 0 auto;accent-color:#0369a1;}
+      .preview__body .markdown-preview__scope{display:grid;gap:10px;margin:14px 0;}
+      .preview__body .markdown-preview__scope-group{padding:10px 12px;border:1px solid rgba(148,163,184,.32);border-radius:10px;background:#fff7ed;}
+      .preview__body .markdown-preview__scope-label{margin-bottom:6px;color:#c2410c;font-size:12px;font-weight:700;text-transform:uppercase;}
+      .preview__body .markdown-preview__scope-items{margin:0;padding-left:20px;}
       .preview__body .markdown-preview__table-wrap{overflow-x:auto;margin:18px 0;border:1px solid rgba(148,163,184,.28);border-radius:16px;background:rgba(255,255,255,.78);}
       .preview__body table{width:100%;min-width:520px;border-collapse:collapse;border-spacing:0;}
       .preview__body thead th{background:#dbeafe;color:#0f172a;font-weight:700;}

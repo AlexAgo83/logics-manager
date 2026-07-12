@@ -1327,6 +1327,32 @@
 .markdown-preview__section-heading--plan { --section-heading-color: #2563eb; }
 .markdown-preview__section-heading--closeout { --section-heading-color: #be123c; }
 
+.markdown-preview__scope {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0 14px;
+}
+
+.markdown-preview__scope-group {
+  padding: 8px 10px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--vscode-editorWidget-background, #202020) 76%, transparent);
+}
+
+.markdown-preview__scope-label {
+  margin-bottom: 5px;
+  color: #d97706;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.markdown-preview__scope-items {
+  margin: 0;
+  padding-left: 18px;
+}
+
 .markdown-preview__ac {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);

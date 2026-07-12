@@ -24,7 +24,6 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, quote, unquote, urlparse
-
 from .audit import audit_payload
 from . import viewer_diagnostics
 from .bootstrap import bootstrap_payload
@@ -50,6 +49,7 @@ from .viewer_lan import (
     LanDeviceRegistry,
     LanPairingBroker,
 )
+from . import viewer_project_tools
 from .viewer_workshop import (
     _WORKSHOP_SESSION_BUFFER_MAX,
     _WORKSHOP_SESSION_TTL_SECONDS,
@@ -69,8 +69,6 @@ from .viewer_workshop import (
     workshop_terminal_default_command,
     workshop_terminals_available,
 )
-
-
 VIEWER_STATUS_OPTIONS_BY_STAGE = {
     "request": ("Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"),
     "backlog": ("Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"),
@@ -210,8 +208,6 @@ WORKSPACE_IGNORED_DIRS = {
 }
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_VIEWER_ASSETS_ROOT = Path(__file__).resolve().parent / "viewer_assets"
-
-
 def _resolve_asset_root(repo_candidate: Path, packaged_candidate: Path, marker: str = "") -> Path:
     """Prefer the live repo source tree; fall back to the packaged viewer_assets
     mirror shipped in the wheel. ``marker`` is a child that must exist for the
@@ -550,7 +546,6 @@ def viewer_project_capabilities(
         message=workshop_message,
         detail={"terminalsAvailable": terminals_available, "commandsAvailable": workshop_available},
     )
-
     return {
         "logics": logics,
         "workspace": workspace,
@@ -559,6 +554,7 @@ def viewer_project_capabilities(
         "ci": ci,
         "cdx": cdx,
         "cdxRuns": cdx_runs,
+        **viewer_project_tools.detect_project_tools(repo_root),
     }
 
 
@@ -3958,6 +3954,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/cdx-reset",
         "/api/release-reset",
         "/api/update-status",
+        *viewer_project_tools.MUTATING_ROUTES,
         "/api/lan/devices/revoke",
     }
 )
@@ -4686,6 +4683,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         if route == "/api/capabilities":
             self._send_json({"ok": True, "payload": viewer_project_capabilities(self.server.repo_root)})
             return
+        if viewer_project_tools.handle_get(self, route): return
         if route == "/api/events":
             self._stream_viewer_events()
             return
@@ -5075,6 +5073,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             except OSError as exc:
                 self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
             return
+        if viewer_project_tools.handle_post(self, parsed.path): return
         if parsed.path == "/api/restart-viewer":
             self.server.request_restart()
             self._send_json({"ok": True, "message": "Viewer server restarting."})

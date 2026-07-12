@@ -1664,8 +1664,22 @@ describe("local viewer browser host", () => {
     const labels = Array.from(dom.window.document.querySelectorAll(".viewer-topbar__actions > button, .viewer-topbar__actions > .viewer-nav-menu > button, .viewer-topbar__actions > .viewer-refresh-menu > button"))
       .map((node) => node.textContent?.trim().replace(/\s+/g, " "));
 
-    expect(labels).toEqual(["Workshop", "Remote", "CDX", "Settings"]);
+    expect(labels).toEqual(["Project", "Workshop", "Remote", "CDX", "Settings"]);
     expect(dom.window.document.getElementById("viewer-getting-started")?.textContent).toContain("Getting Started");
+  });
+
+  it("declares conditional project translation and theme screens", () => {
+    const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
+    const source = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/projectTools.js"), "utf8");
+    const dom = new JSDOM(html);
+
+    expect(dom.window.document.getElementById("viewer-project-tools-nav")?.hasAttribute("hidden")).toBe(true);
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="project:translations"]')).not.toBeNull();
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="project:theme"]')).not.toBeNull();
+    expect(source).toContain('"/api/project-i18n"');
+    expect(source).toContain('"/api/project-theme"');
+    expect(source).toContain('"/api/project-i18n-value"');
+    expect(source).toContain('"/api/project-theme-value"');
   });
 
   it("keeps topbar menus intact and reserves document header navigation for screen segments", () => {

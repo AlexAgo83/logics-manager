@@ -81,6 +81,7 @@ from logics_manager.viewer import (
     workspace_tree_payload,
 )
 from logics_manager.update_check import get_update_info, is_newer_version
+from logics_manager.viewer_project_tools import i18n_payload, theme_payload, update_i18n_value, update_theme_value
 from flow_fixtures import write_ac_traceability_chain
 
 from conftest import (
@@ -2510,6 +2511,77 @@ def test_viewer_project_capabilities_report_missing_optional_bricks(tmp_path: Pa
     assert capabilities["ci"]["state"] == "hidden"
     assert capabilities["cdx"]["state"] == "missing"
     assert capabilities["cdxRuns"]["state"] == "missing"
+    assert capabilities["i18n"]["state"] == "hidden"
+    assert capabilities["theme"]["state"] == "hidden"
+
+
+def test_viewer_project_tools_detect_and_edit_json_and_css(tmp_path: Path) -> None:
+    locale_dir = tmp_path / "src" / "i18n"
+    locale_dir.mkdir(parents=True)
+    (locale_dir / "en.json").write_text('{\n  "app": {"title": "Hello", "save": "Save"}\n}\n', encoding="utf-8")
+    (locale_dir / "fr.json").write_text('{\n  "app": {"title": "Bonjour"}\n}\n', encoding="utf-8")
+    (tmp_path / "src" / "styles.css").write_text(
+        ':root {\n  --color-primary: #123456;\n  --radius-card: 8px;\n}\n', encoding="utf-8"
+    )
+
+    capabilities = viewer_project_capabilities(tmp_path, which=lambda _name: None)
+    assert capabilities["i18n"]["detail"]["convention"] == "json-catalog"
+    assert capabilities["theme"]["detail"]["convention"] == "css-custom-properties"
+
+    translations = i18n_payload(tmp_path)
+    assert translations["diagnostics"]["fr"]["missing"] == ["app.save"]
+    fr_revision = next(locale["revision"] for locale in translations["locales"] if locale["id"] == "fr")
+    updated_translations = update_i18n_value(
+        tmp_path, locale="fr", key="app.title", value="Salut", revision=fr_revision
+    )
+    assert next(row for row in updated_translations["rows"] if row["key"] == "app.title")["values"]["fr"] == "Salut"
+
+    theme = theme_payload(tmp_path)
+    assert theme["selectors"][0]["tokens"][0]["group"] == "colors"
+    updated_theme = update_theme_value(
+        tmp_path,
+        selector=":root",
+        name="--color-primary",
+        value="#abcdef",
+        revision=theme["revision"],
+    )
+    assert updated_theme["selectors"][0]["tokens"][0]["value"] == "#abcdef"
+
+
+def test_viewer_project_tool_edits_reject_stale_or_structural_values(tmp_path: Path) -> None:
+    locale_dir = tmp_path / "locales"
+    locale_dir.mkdir()
+    (locale_dir / "en.json").write_text('{"title":"Hello"}\n', encoding="utf-8")
+    (locale_dir / "fr.json").write_text('{"title":"Bonjour"}\n', encoding="utf-8")
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "theme.css").write_text(":root { --accent: red; }\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="changed"):
+        update_i18n_value(tmp_path, locale="fr", key="title", value="Salut", revision="stale")
+    theme = theme_payload(tmp_path)
+    with pytest.raises(ValueError, match="structure"):
+        update_theme_value(
+            tmp_path, selector=":root", name="--accent", value="red; } body {", revision=theme["revision"]
+        )
+
+
+def test_viewer_project_tools_fail_closed_for_ambiguous_or_invalid_sources(tmp_path: Path) -> None:
+    for rel_dir in ("locales", "messages"):
+        directory = tmp_path / rel_dir
+        directory.mkdir()
+        (directory / "en.json").write_text('{"title":"Hello"}', encoding="utf-8")
+        (directory / "fr.json").write_text('{"title":"Bonjour"}', encoding="utf-8")
+
+    ambiguous = viewer_project_capabilities(tmp_path, which=lambda _name: None)
+    assert ambiguous["i18n"]["state"] == "error"
+    assert "configure" in ambiguous["i18n"]["message"]
+
+    (tmp_path / ".logics-viewer.json").write_text(
+        json.dumps({"i18n": {"directory": "missing"}, "theme": {"path": "missing.css"}}), encoding="utf-8"
+    )
+    invalid = viewer_project_capabilities(tmp_path, which=lambda _name: None)
+    assert invalid["i18n"]["state"] == "error"
+    assert invalid["theme"]["state"] == "error"
 
 
 def test_viewer_project_capabilities_detect_ready_git_ci_and_cdx(tmp_path: Path) -> None:

@@ -1,7 +1,7 @@
 ## req_294_convention_aware_project_i18n_and_theme_viewer_screens - Convention-aware project i18n and theme viewer screens
 > From version: 2.17.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High

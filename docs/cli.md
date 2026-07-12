@@ -132,6 +132,37 @@ The topbar includes focused operational views:
 | CDX | Guarded assistant workflows for audits, release reviews, corpus planning, and pre-release preparation. |
 | Settings | Viewer preferences, display controls, refresh behavior, and local UI state. |
 
+The topbar also shows a conditional **Project** menu when the selected repository
+uses a supported project convention:
+
+- **Translations** recognizes two or more locale-named JSON files (`en.json`,
+  `fr-FR.json`, and similar) under `src/i18n`, `src/locales`, `locales`, or
+  `messages`. It aligns nested keys, reports missing, extra, and empty values,
+  supports search, and can edit existing string values.
+- **Theme** recognizes CSS custom properties in `src/theme.css`,
+  `src/styles.css`, `styles/theme.css`, `app/globals.css`, or `src/app.css`. It
+  groups tokens into colors, typography, spacing, radii, shadows, and other
+  values, provides isolated previews, and can edit existing declaration values.
+
+Repositories can choose sources explicitly with a repo-root
+`.logics-viewer.json` file:
+
+```json
+{
+  "i18n": { "directory": "src/i18n", "sourceLocale": "en" },
+  "theme": { "path": "src/styles.css" }
+}
+```
+
+Translation dictionaries and theme modes defined in JavaScript or TypeScript
+are detected when they use conventional `src/i18n.*` or `src/theme.*` paths,
+but remain read-only because rewriting executable source is intentionally out of
+scope. Project-tool reads are bounded to repository files of at most 1 MB, 20
+locales, and 10,000 translation keys. Writes accept a logical locale/key or
+selector/property pair rather than an arbitrary path, require the viewer's
+existing mutation authorization, reject stale revisions, validate the new value,
+and atomically replace only the detected source file.
+
 For remote status, the viewer detects GitHub and GitLab remotes from
 `git remote -v`. GitHub Actions status uses `gh`; GitLab CI status uses `glab`
 against the configured GitLab host when a `.gitlab-ci.yml` or

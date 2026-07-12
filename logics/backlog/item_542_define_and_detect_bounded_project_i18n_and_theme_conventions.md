@@ -1,10 +1,10 @@
 ## item_542_define_and_detect_bounded_project_i18n_and_theme_conventions - Define and detect bounded project i18n and theme conventions
 > From version: 2.17.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Project capability detection
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -55,3 +55,6 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery` was finished via `logics-manager flow finish task` on 2026-07-13.

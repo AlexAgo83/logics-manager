@@ -1,10 +1,10 @@
 ## item_545_add_theme_token_inspection_and_live_preview - Add theme token inspection and live preview
 > From version: 2.17.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Theme viewer
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -55,3 +55,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery` was finished via `logics-manager flow finish task` on 2026-07-13.

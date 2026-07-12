@@ -4836,3 +4836,24 @@
   opacity: 0.6;
   cursor: progress;
 }
+
+.viewer-project-tool { display: grid; gap: 1rem; }
+.viewer-project-tool__summary { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; color: var(--vscode-descriptionForeground, #9da5b4); }
+.viewer-project-tool__summary strong { color: var(--vscode-foreground, #d4d4d4); }
+.viewer-project-tool__search { display: flex; gap: .5rem; align-items: center; }
+.viewer-project-tool__search input { flex: 1; min-width: 12rem; padding: .45rem .6rem; color: inherit; background: var(--vscode-input-background, #242424); border: 1px solid var(--vscode-panel-border, #454545); border-radius: 6px; }
+.viewer-project-tool__table-wrap { overflow: auto; border: 1px solid var(--vscode-panel-border, #454545); border-radius: 8px; }
+.viewer-project-tool table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.viewer-project-tool th, .viewer-project-tool td { min-width: 12rem; padding: .55rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--vscode-panel-border, #454545); }
+.viewer-project-tool__key { position: sticky; left: 0; z-index: 1; background: var(--vscode-editor-background, #1e1e1e); font-family: ui-monospace, monospace; }
+.viewer-project-tool td.is-missing { color: #f0a44b; background: color-mix(in srgb, #f0a44b 8%, transparent); }
+.viewer-project-tool td.is-empty { color: var(--vscode-descriptionForeground, #9da5b4); }
+.viewer-project-tool__edit { float: right; margin-left: .5rem; color: inherit; background: transparent; border: 1px solid var(--vscode-panel-border, #454545); border-radius: 4px; cursor: pointer; }
+.viewer-project-tool__group { display: grid; gap: .6rem; }
+.viewer-project-tool__group h2 { margin: 0; text-transform: capitalize; }
+.viewer-project-tool__tokens { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: .6rem; }
+.viewer-project-tool__token { display: grid; grid-template-columns: 2.5rem 1fr auto; gap: .7rem; align-items: center; padding: .7rem; border: 1px solid var(--vscode-panel-border, #454545); border-radius: 8px; background: var(--vscode-editorWidget-background, #202020); }
+.viewer-project-tool__token strong, .viewer-project-tool__token small, .viewer-project-tool__token code { display: block; overflow-wrap: anywhere; }
+.viewer-project-tool__token small { color: var(--vscode-descriptionForeground, #9da5b4); }
+.viewer-project-tool__swatch, .viewer-project-tool__shape { width: 2.3rem; height: 2.3rem; display: block; border: 1px solid var(--vscode-panel-border, #454545); border-radius: 4px; }
+.viewer-project-tool__shape { background: currentColor; }

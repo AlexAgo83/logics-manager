@@ -174,6 +174,7 @@ import {
   writeActivityStateForRoot,
   writeStoredState
 } from "./render.js";
+import { openProjectTool, setupProjectToolInteractions, updateProjectToolControls } from "./projectTools.js";
 import {
   WORKSHOP_TERMINAL_MIN_COLS,
   WORKSHOP_TERMINAL_MIN_ROWS,
@@ -188,7 +189,6 @@ import {
   statusOptionsByStage,
   workshopTabs
 } from "./constants.js";
-
 (() => {
   const nativeFetch = window.fetch.bind(window);
   window.fetch = function patchedFetch(input, init) {
@@ -203,16 +203,13 @@ import {
   // --lan-rw, and a paired device should not lose access if the share
   // URL is regenerated.
   captureLanTokenFromUrl();
-
   const originalFetch = window.fetch.bind(window);
   function viewerFetch(input, init) {
     return originalFetch(input, withLanAuthorization(input, init));
   }
-
   window.fetch = (input, init) => {
     return viewerFetch(input, init);
   };
-
   if (typeof window.EventSource === "function") {
     const NativeEventSource = window.EventSource;
     window.EventSource = function PatchedEventSource(url, init) {
@@ -1353,7 +1350,7 @@ import {
       bootstrapButton.disabled = !latestCanBootstrapLogics;
       bootstrapButton.title = latestBootstrapLogicsTitle || "Bootstrap Logics in this project";
     }
-
+    updateProjectToolControls(isCapabilityAvailable, navMenuItem);
     const workshop = workshopButton();
     if (workshop instanceof HTMLElement) {
       // The Explorer screen now lives as a Workshop sub-tab (alongside
@@ -6873,6 +6870,7 @@ import {
         withPrimaryAction("edit-document", "Opening document", () => editDocument(selectedItem()));
       });
     }
+    setupProjectToolInteractions(setDocument, setMeta);
     document.addEventListener("change", (event) => {
       const sessionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session]") : null;
       const cdxSessionConfigInputTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-config-input]") : null;
@@ -7095,7 +7093,9 @@ import {
         const [screen, section] = (navTarget.getAttribute("data-viewer-nav-target") || "").split(":");
         // Collapse the menu once a sub-section is chosen.
         closeNavMenus();
-        if (screen === "workshop") {
+        if (screen === "project") {
+          withPrimaryAction(`project-${section}`, `Opening project ${section}`, () => openProjectTool(section === "theme" ? "theme" : "i18n", { beginView, isViewStale, setDocument, setMeta }));
+        } else if (screen === "workshop") {
           withPrimaryAction("workshop-nav", `Opening Workshop ${section}`, () => showWorkshop({ tab: section }));
         } else if (screen === "remote") {
           if (section === "release") {

@@ -1,10 +1,10 @@
 ## item_541_codify_task_wave_checkpoints_and_documentation_updates_in_generated_workflows - Codify task wave checkpoints and documentation updates in generated workflows
 > From version: 2.17.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 50%
 > Complexity: Low
 > Theme: Workflow progress governance
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

@@ -21,6 +21,8 @@ logics-manager flow list
 logics-manager flow show req_001_example
 logics-manager flow promote request-to-backlog req_001_example
 logics-manager flow promote backlog-to-task item_001_example
+logics-manager flow start task_001_example
+logics-manager flow progress task task_001_example --progress 40%
 logics-manager flow finish task task_001_example
 logics-manager sync read-doc req_001_example --max-chars 6000
 logics-manager sync context-pack req_001_example task_001_example --format json
@@ -346,6 +348,8 @@ switch back to the published PyPI package.
 Do not mark a Logics task as `Done` by editing markdown indicators manually.
 Use the canonical `logics-manager` guarded finish command so closure propagates correctly from task -> backlog -> request and the linked chain is verified.
 
+During multi-wave task work, use `logics-manager flow progress task ... --progress <n>%` instead of editing `Progress` by hand. The command updates the task and recalculates linked backlog item progress from linked tasks.
+
 ```bash
 npm run logics:finish:task -- logics/tasks/task_020_orchestration_delivery_for_req_019_req_020_and_req_021.md
 ```
@@ -362,6 +366,8 @@ For multi-wave delivery work, prefer coherent checkpoints:
 - update the linked Logics docs during the wave that changes the behavior;
 - leave the repo in a commit-ready state at the end of the wave;
 - then create the reviewed commit checkpoint instead of batching several undocumented partial states.
+
+This follows ADR 009: tooling should guide commit-ready checkpoints, not auto-commit or require one commit for every micro-step.
 
 ## Notes
 

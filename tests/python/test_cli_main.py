@@ -515,6 +515,73 @@ def test_flow_start_marks_doc_in_progress_with_env_owner(
     assert "> Owner: codex" in text
 
 
+def test_flow_start_task_updates_linked_backlog_progress(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    item_path = repo_root / "logics" / "backlog" / "item_001_demo.md"
+    task_path = repo_root / "logics" / "tasks" / "task_001_demo.md"
+    _write_minimal_workflow_doc(item_path, title="Demo backlog", kind="backlog", status="Ready", links=["task_001_demo"])
+    _write_minimal_workflow_doc(task_path, title="Demo task", kind="task", status="Ready", links=["item_001_demo"])
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["flow", "start", "task_001_demo", "--format", "json"])
+
+    payload = json.loads(capsys.readouterr().out)
+    item_text = item_path.read_text(encoding="utf-8")
+    assert exit_code == 0
+    assert "logics/backlog/item_001_demo.md" in payload["changed_files"]
+    assert "> Status: In progress" in item_text
+    assert "> Progress: 10%" in item_text
+
+
+def test_flow_progress_task_updates_linked_backlog_average(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    item_path = repo_root / "logics" / "backlog" / "item_001_demo.md"
+    task_one = repo_root / "logics" / "tasks" / "task_001_demo.md"
+    task_two = repo_root / "logics" / "tasks" / "task_002_demo.md"
+    _write_minimal_workflow_doc(item_path, title="Demo backlog", kind="backlog", status="In progress", links=["task_001_demo", "task_002_demo"])
+    _write_minimal_workflow_doc(task_one, title="Demo task", kind="task", status="In progress", links=["item_001_demo"])
+    _write_minimal_workflow_doc(task_two, title="Other task", kind="task", status="Ready", links=["item_001_demo"])
+    task_two.write_text(task_two.read_text(encoding="utf-8").replace("> Schema version: 1.0", "> Schema version: 1.0\n> Progress: 100%"), encoding="utf-8")
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["flow", "progress", "task", "task_001_demo", "--progress", "40%", "--format", "json"])
+
+    payload = json.loads(capsys.readouterr().out)
+    assert exit_code == 0
+    assert payload["progress"] == "40%"
+    assert "> Progress: 40%" in task_one.read_text(encoding="utf-8")
+    assert "> Progress: 70%" in item_path.read_text(encoding="utf-8")
+
+
+def test_flow_progress_task_rejects_invalid_progress_without_writes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    task_path = repo_root / "logics" / "tasks" / "task_001_demo.md"
+    _write_minimal_workflow_doc(task_path, title="Demo task", kind="task", status="Ready", links=[])
+    before = task_path.read_text(encoding="utf-8")
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    with pytest.raises(SystemExit):
+        main(["flow", "progress", "task", "task_001_demo", "--progress", "soon"])
+
+    assert task_path.read_text(encoding="utf-8") == before
+
+
 def test_flow_start_warns_without_owner_and_overrides_existing_owner(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -1894,6 +1961,7 @@ def test_main_runs_native_flow_deliver_from_product(
     assert "request-AC3 -> This backlog slice. Proof:" in backlog_text
     assert "- Product brief(s): `prod_001_demo_product`" in task_text
     assert "request-AC3 -> This task. Proof:" in task_text
+    assert "Meaningful waves followed ADR 009" in task_text
 
 
 def test_main_runs_native_flow_promote_request_to_backlog(
@@ -2025,7 +2093,10 @@ def test_main_runs_native_flow_promote_backlog_to_task(
     assert exit_code == 0
     created = repo_root / "logics" / "tasks" / "task_001_demo_backlog.md"
     assert created.is_file()
-    assert "```mermaid" not in created.read_text(encoding="utf-8")
+    created_text = created.read_text(encoding="utf-8")
+    assert "```mermaid" not in created_text
+    assert "Meaningful waves followed ADR 009" in created_text
+    assert "flow progress task" in created_text
     assert "Created task from backlog" in captured.out
     assert created.stem in source_path.read_text(encoding="utf-8")
 
@@ -3243,7 +3314,9 @@ def test_main_runs_native_bootstrap_repairs_stale_instructions(
     instructions_text = (repo_root / "logics" / "instructions.md").read_text(encoding="utf-8")
     assert "# Codex Context" in instructions_text
     assert "python3 -m logics_manager flow start" in instructions_text
+    assert "python3 -m logics_manager flow progress task" in instructions_text
     assert "python3 -m logics_manager flow finish task" in instructions_text
+    assert "ADR 009 checkpoints" in instructions_text
     assert "set a deliberate `# Priority` tier" in instructions_text
     assert "Sequence delivery plans and roadmaps by status priority order" in instructions_text
 
@@ -3267,6 +3340,7 @@ def test_main_runs_native_bootstrap_creates_local_assistant_bridge(
     assert "logics-manager release plan <version>" in logics_text
     assert "logics-manager release evidence add" in logics_text
     assert "logics-manager flow start <ref>" in logics_text
+    assert "logics-manager flow progress task <ref> --progress <n>%" in logics_text
     assert "logics-manager flow finish task <path>" in logics_text
     assert "logics-manager sync refresh-mermaid-signatures" in logics_text
     assert "logics-manager view" in logics_text

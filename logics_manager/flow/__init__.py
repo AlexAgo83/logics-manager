@@ -9,7 +9,7 @@ from pathlib import Path
 
 from ..audit import audit_payload
 from ..cli_output import print_payload
-from ..doc_parsing import extract_refs, section_lines
+from ..doc_parsing import extract_refs, progress_value, section_lines
 from ..flow_evidence import has_ac_proof as _has_ac_proof
 from ..flow_evidence import has_validation_evidence as _has_validation_evidence
 from ..flow_evidence import structured_validation_line as _structured_validation_line
@@ -247,6 +247,10 @@ def _build_help() -> str:
             "  start <ref>",
             "    Mark a workflow doc as In progress and record an owner.",
             "    Flags: --owner, --format {text,json}, --dry-run",
+            "",
+            "  progress task <source> --progress <n%>",
+            "    Update task progress and recalculate linked backlog item progress.",
+            "    Flags: --progress, --format {text,json}, --dry-run",
             "",
             "  repair <gates|ac-traceability|links|mermaid>",
             "    Apply deterministic closeout repairs.",
@@ -765,6 +769,46 @@ def _build_finish_kind_help(kind: str) -> str:
     )
 
 
+def _build_progress_help() -> str:
+    return "\n".join(
+        [
+            "Logics Flow Progress",
+            "Update managed progress indicators and propagate parent state.",
+            "",
+            "Usage:",
+            "  logics-manager flow progress task <source> --progress <n%> [args...]",
+            "",
+            "Commands:",
+            "  task <source>",
+            "    Update task progress and linked backlog item progress.",
+            "    Flags: --progress, --format {text,json}, --dry-run",
+            "",
+            "Example:",
+            "  logics-manager flow progress task task_003_fix_docs --progress 40%",
+        ]
+    )
+
+
+def _build_progress_kind_help(kind: str) -> str:
+    return "\n".join(
+        [
+            f"Logics Flow Progress {kind.title()}",
+            f"Update {kind} progress and propagate linked state.",
+            "",
+            "Usage:",
+            f"  logics-manager flow progress {kind} <source> --progress <n%> [args...]",
+            "",
+            "Flags:",
+            "  --progress",
+            "  --format {text,json}",
+            "  --dry-run",
+            "",
+            "Example:",
+            "  logics-manager flow progress task task_003_fix_docs --progress 40%",
+        ]
+    )
+
+
 def _print_help(text: str) -> None:
     print(colorize_help(text))
 
@@ -1114,6 +1158,11 @@ def _is_doc_done(path: Path, kind: DocKind) -> bool:
         if progress_value == "100%":
             return True
     return False
+
+
+def _has_done_status(path: Path) -> bool:
+    lines = path.read_text(encoding="utf-8").splitlines()
+    return _normalize_status(_indicator_value_from_lines(lines, "Status")) in {"done", "archived"}
 
 
 def _section_text(text: str, heading: str) -> str:
@@ -1754,7 +1803,8 @@ def _build_native_task_doc(
             "# Plan",
             "- [ ] 1. Confirm scope, dependencies, and linked acceptance criteria.",
             "- [ ] 2. Implement the next coherent delivery wave.",
-            "- [ ] 3. Checkpoint the wave in a commit-ready state, validate it, and update the linked Logics docs.",
+            "- [ ] 3. Update affected Logics docs in the same wave and leave the repository commit-ready.",
+            "- [ ] 4. Keep commit creation under operator control; do not force one commit per micro-step.",
             "- [ ] GATE: do not close a wave or step until the relevant automated tests and quality checks have been run successfully.",
             "",
             "# Backlog",
@@ -1764,6 +1814,7 @@ def _build_native_task_doc(
             "- [ ] Code is implemented and reviewed.",
             "- [ ] Validation passes.",
             "- [ ] Linked docs are synchronized.",
+            "- [ ] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.",
             "",
             "# AC Traceability",
             "- request-AC1 -> This task. Proof: implementation delivers the bounded request need.",
@@ -2307,6 +2358,7 @@ def _build_native_task_from_backlog(
             "- [ ] The backlog scope is implemented.",
             "- [ ] Acceptance criteria are covered.",
             "- [ ] Validation passes.",
+            "- [ ] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.",
             "",
             "# Backlog",
             f"- `{backlog_ref}`",
@@ -2316,6 +2368,7 @@ def _build_native_task_from_backlog(
             "",
             "# Validation",
             "- Run `python3 -m logics_manager lint --require-status`.",
+            f"- Use `python3 -m logics_manager flow progress task {ref}.md --progress <n>%` during multi-wave work.",
             f"- Run `python3 -m logics_manager flow finish task {ref}.md` after implementation.",
             "",
             "# Report",
@@ -2528,6 +2581,15 @@ def build_parser() -> argparse.ArgumentParser:
     finish_task.add_argument("--format", choices=("text", "json"), default="text")
     finish_task.add_argument("--dry-run", action="store_true")
     finish_task.set_defaults(func=cmd_finish_task)
+
+    progress_parser = sub.add_parser("progress", help="Update managed workflow progress and propagate parent state.")
+    progress_sub = progress_parser.add_subparsers(dest="kind", required=True)
+    progress_task = progress_sub.add_parser("task", help="Update task progress and linked backlog item progress.")
+    progress_task.add_argument("source")
+    progress_task.add_argument("--progress", required=True)
+    progress_task.add_argument("--format", choices=("text", "json"), default="text")
+    progress_task.add_argument("--dry-run", action="store_true")
+    progress_task.set_defaults(func=cmd_progress_task)
 
     return parser
 
@@ -3317,6 +3379,67 @@ def _upsert_workflow_indicator(lines: list[str], key: str, value: str) -> list[s
     return updated
 
 
+BACKLOG_ACTIVE_PROGRESS_FLOOR = 10
+PROGRESS_CLOSED_STATUSES = {"done", "blocked", "obsolete", "archived"}
+
+
+def _write_workflow_indicators(path: Path, updates: dict[str, str], *, dry_run: bool) -> bool:
+    lines = path.read_text(encoding="utf-8").splitlines()
+    updated = lines
+    for key, value in updates.items():
+        updated = _upsert_workflow_indicator(updated, key, value)
+    changed = updated != lines
+    if changed and not dry_run:
+        path.write_text("\n".join(updated) + "\n", encoding="utf-8")
+    return changed
+
+
+def _task_progress_for_backlog(task_path: Path, *, active_task_path: Path | None = None) -> int:
+    lines = task_path.read_text(encoding="utf-8").splitlines()
+    status = _normalize_status(_indicator_value_from_lines(lines, "Status"))
+    if active_task_path is not None and task_path == active_task_path:
+        status = "in progress"
+    if status in {"done", "archived"}:
+        return 100
+    explicit = progress_value(_indicator_value_from_lines(lines, "Progress"))
+    if explicit is not None and explicit > 0:
+        return explicit
+    if status == "in progress":
+        return BACKLOG_ACTIVE_PROGRESS_FLOOR
+    return 0
+
+
+def _sync_linked_backlog_progress(repo_root: Path, task_path: Path, *, dry_run: bool, active_task_path: Path | None = None) -> list[str]:
+    task_text = _strip_mermaid_blocks(task_path.read_text(encoding="utf-8"))
+    changed: list[str] = []
+    for item_ref in sorted(_extract_refs(task_text, DOC_KINDS["backlog"].prefix)):
+        item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
+        if item_path is None:
+            continue
+        item_lines = item_path.read_text(encoding="utf-8").splitlines()
+        item_status = _normalize_status(_indicator_value_from_lines(item_lines, "Status"))
+        if item_status in PROGRESS_CLOSED_STATUSES:
+            continue
+        linked_tasks = _collect_docs_linking_ref(repo_root, DOC_KINDS["task"], item_ref)
+        if not linked_tasks:
+            continue
+        total = sum(_task_progress_for_backlog(path, active_task_path=active_task_path) for path in linked_tasks)
+        progress = round(total / len(linked_tasks))
+        updates = {"Progress": f"{progress}%"}
+        if progress > 0 and item_status in {"", "draft", "ready"}:
+            updates["Status"] = "In progress"
+        if _write_workflow_indicators(item_path, updates, dry_run=dry_run):
+            changed.append(item_path.relative_to(repo_root).as_posix())
+    return changed
+
+
+def _parse_progress_arg(value: str) -> int:
+    match = re.fullmatch(r"\s*(\d{1,3})%?\s*", value)
+    if not match:
+        raise SystemExit(f"Invalid progress `{value}`. Expected 0-100 or 0%-100%.")
+    return max(0, min(100, int(match.group(1))))
+
+
 def start_payload(repo_root: Path, source: str, *, owner: str | None, dry_run: bool) -> dict[str, object]:
     source_path, kind = _resolve_any_workflow_source(repo_root, source)
     lines = source_path.read_text(encoding="utf-8").splitlines()
@@ -3335,6 +3458,9 @@ def start_payload(repo_root: Path, source: str, *, owner: str | None, dry_run: b
     changed = updated != lines
     if changed and not dry_run:
         source_path.write_text("\n".join(updated) + "\n", encoding="utf-8")
+    changed_files = [source_path.relative_to(repo_root).as_posix()] if changed else []
+    if kind == "task":
+        changed_files.extend(_sync_linked_backlog_progress(repo_root, source_path, dry_run=dry_run, active_task_path=source_path))
 
     return {
         "command": "start",
@@ -3346,6 +3472,7 @@ def start_payload(repo_root: Path, source: str, *, owner: str | None, dry_run: b
         "previous_owner": previous_owner or None,
         "warnings": warnings,
         "changed": changed,
+        "changed_files": sorted(set(changed_files)),
         "dry_run": dry_run,
     }
 
@@ -3360,6 +3487,35 @@ def cmd_start(args: argparse.Namespace) -> dict[str, object]:
         print(f"Started {payload['source']}: {payload['status']}{owner_text}")
         for warning in payload["warnings"]:
             print(f"Warning: {warning}")
+    return payload
+
+
+def progress_task_payload(repo_root: Path, source: str, *, progress: str, dry_run: bool) -> dict[str, object]:
+    source_path = _resolve_workflow_source(repo_root, DOC_KINDS["task"], source)
+    parsed = _parse_progress_arg(progress)
+    changed_files: list[str] = []
+    if _write_workflow_indicators(source_path, {"Progress": f"{parsed}%"}, dry_run=dry_run):
+        changed_files.append(source_path.relative_to(repo_root).as_posix())
+    changed_files.extend(_sync_linked_backlog_progress(repo_root, source_path, dry_run=dry_run))
+    return {
+        "command": "progress",
+        "kind": "task",
+        "source": source_path.relative_to(repo_root).as_posix(),
+        "progress": f"{parsed}%",
+        "changed_files": sorted(set(changed_files)),
+        "dry_run": dry_run,
+    }
+
+
+def cmd_progress_task(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    payload = progress_task_payload(repo_root, args.source, progress=args.progress, dry_run=args.dry_run)
+    if args.format == "json":
+        print_payload(payload, args.format)
+    else:
+        print(f"Updated task progress {payload['source']}: {payload['progress']}")
+        for rel_path in payload["changed_files"]:
+            print(f"- changed: {rel_path}")
     return payload
 
 def _build_scaffold_request_doc(repo_root: Path, ref: str, title: str, input_payload: dict[str, object]) -> str:
@@ -3550,6 +3706,8 @@ def _build_scaffold_task_doc(repo_root: Path, ref: str, title: str, request_ref:
             "",
             "# Plan",
             *[f"- [ ] {idx}. {step}" for idx, step in enumerate(steps, start=1)],
+            "- [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.",
+            "- [ ] Keep commit creation under operator control; do not force one commit per micro-step.",
             "- [ ] GATE: do not close until lint, audit, and scaffold validation pass.",
             "",
             "# Backlog",
@@ -3559,6 +3717,7 @@ def _build_scaffold_task_doc(repo_root: Path, ref: str, title: str, request_ref:
             "- [ ] Generated request, product, backlog, and task docs are present.",
             "- [ ] Context-pack handoff is available when requested.",
             "- [ ] Validation passes.",
+            "- [ ] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.",
             "",
             "# AC Traceability",
             "- request-AC1 -> This task. Proof: scaffold command generated the request-chain corpus.",
@@ -3609,6 +3768,7 @@ def _build_split_orchestration_task_doc(repo_root: Path, ref: str, title: str, r
             "- [ ] 1. Review the generated backlog slices and request AC mapping.",
             "- [ ] 2. Promote or implement the next highest-priority slice.",
             "- [ ] 3. Keep validation and request traceability updated as slices close.",
+            "- [ ] 4. Apply ADR 009 checkpoints: update affected Logics docs during each meaningful wave and leave the repo commit-ready.",
             "",
             "# Backlog",
             *[f"- `{item_ref}`" for item_ref in item_refs],
@@ -3617,6 +3777,7 @@ def _build_split_orchestration_task_doc(repo_root: Path, ref: str, title: str, r
             "- [ ] Generated backlog slices are linked and ready for implementation.",
             "- [ ] Slice ownership and next action are clear.",
             "- [ ] Validation passes.",
+            "- [ ] Meaningful waves followed ADR 009 without automatic commits or one commit per micro-step.",
             "",
             "# AC Traceability",
             "- request-AC2 -> This task. Proof: orchestration task coordinates the AC-aware split.",
@@ -4361,6 +4522,7 @@ def _close_chain_for_kind(repo_root: Path, source_path: Path, kind: DOC_KINDS, *
     if kind.kind == "task":
         _mark_section_checkboxes_done(source_path, "Definition of Done (DoD)", dry_run)
         _record_finished_task_follow_up(repo_root, source_path, dry_run)
+        _sync_linked_backlog_progress(repo_root, source_path, dry_run=dry_run)
 
         linked_item_refs = sorted(_extract_refs(text, DOC_KINDS["backlog"].prefix))
         for item_ref in linked_item_refs:
@@ -4369,7 +4531,7 @@ def _close_chain_for_kind(repo_root: Path, source_path: Path, kind: DOC_KINDS, *
                 continue
             linked_tasks = _collect_docs_linking_ref(repo_root, DOC_KINDS["task"], item_ref)
             if linked_tasks and all(_is_doc_done(task_path, DOC_KINDS["task"]) for task_path in linked_tasks):
-                if not _is_doc_done(item_path, DOC_KINDS["backlog"]):
+                if not _has_done_status(item_path):
                     _close_doc(item_path, DOC_KINDS["backlog"], dry_run)
                     if not quiet:
                         print(f"Auto-closed backlog item {item_ref} (all linked tasks are done).")
@@ -4483,7 +4645,13 @@ def main(argv: list[str]) -> int:
     if argv[0] == "finish" and len(argv) > 1 and argv[1] == "task" and _help_requested(argv, 2):
         _print_help(_build_finish_kind_help(argv[1]))
         return 0
-    valid_commands = {"new", "list", "show", "companion", "deliver", "scaffold", "validate", "validate-closeout", "start", "repair", "closeout", "promote", "split", "close", "withdraw", "finish"}
+    if argv[0] == "progress" and _help_requested(argv, 1):
+        _print_help(_build_progress_help())
+        return 0
+    if argv[0] == "progress" and len(argv) > 1 and argv[1] == "task" and _help_requested(argv, 2):
+        _print_help(_build_progress_kind_help(argv[1]))
+        return 0
+    valid_commands = {"new", "list", "show", "companion", "deliver", "scaffold", "validate", "validate-closeout", "start", "progress", "repair", "closeout", "promote", "split", "close", "withdraw", "finish"}
     if argv[0] not in valid_commands:
         hint = " Use `logics-manager flow show <ref>` to inspect a workflow doc." if argv[0] in {"read", "view", "cat"} else " Run `logics-manager flow --help` for valid commands."
         raise SystemExit(f"Unsupported flow subcommand: {argv[0]}.{hint}")

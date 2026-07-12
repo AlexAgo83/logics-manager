@@ -921,7 +921,8 @@ function createViewerDom(options: {
                 ],
                 reclaimable_bytes: 500_000_000,
                 reclaimable_size: "500 MB"
-              }
+              },
+              measured_at: new Date(Date.now() - 2 * 60_000).toISOString()
             }
           })
         };
@@ -6106,6 +6107,7 @@ describe("local viewer browser host", () => {
     expect(text).toContain("old-logs");
     expect(text).toContain("log files older than 30 days");
     expect(text).toContain("cdx clean profiles --tmp");
+    expect(text).toContain("cached 5 min");
 
     const diskTab = dom.window.document.querySelector('[data-viewer-cdx-mode="disk"]');
     expect(diskTab?.classList.contains("is-active")).toBe(true);

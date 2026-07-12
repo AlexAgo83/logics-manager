@@ -8828,10 +8828,12 @@ ${line}` : line;
       const profiles = Array.isArray(disk.children) ? disk.children : [];
       const candidates = Array.isArray(disk.candidates) ? disk.candidates : [];
       const totalBytes = Number(disk.bytes) || 0;
+      const measured = formatCdxResetAt(String(payload.measured_at || ""));
       const cards = [
         ["Total", String(disk.size || "-")],
         ["Profiles", String(profiles.length)],
-        ["Reclaimable", String(disk.reclaimable_size || "0 B")]
+        ["Reclaimable", String(disk.reclaimable_size || "0 B")],
+        ["Scanned", measured ? `${measured} \xB7 cached 5 min` : "-"]
       ].map(([label, value]) => `
       <div class="viewer-cdx__card">
         <div class="viewer-cdx__label">${escapeHtml(label)}</div>
@@ -8893,6 +8895,12 @@ ${line}` : line;
       }
       if (!options.silent) {
         setMeta("Scanning CDX disk usage...");
+        setDocument("CDX disk", `
+        <div class="viewer-cdx">
+          ${renderCdxModeSwitcher("disk")}
+          <div class="viewer-cdx__state">Scanning profile disk usage${options.force ? " (forced rescan)" : ""}... This can take a minute on large installs; results are then cached for 5 minutes.</div>
+        </div>
+      `);
       }
       const view = options.view || beginView({ silent: Boolean(options.silent) });
       let response;

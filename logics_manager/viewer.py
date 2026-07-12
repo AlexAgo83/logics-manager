@@ -2545,6 +2545,9 @@ def cdx_disk_payload(repo_root: Path, *, runner: Any | None = None, which: Any |
         "state": "ok",
         "message": str(parsed.get("message") or ""),
         "disk": disk,
+        # Scan wall-clock; the route caches this payload for 5 minutes, so the
+        # UI can show how stale the numbers are.
+        "measured_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
     }
 
 

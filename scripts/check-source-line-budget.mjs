@@ -27,14 +27,16 @@ const allowedOversizedFiles = new Map(
     "logics_manager/audit.py": { maxLines: 1200, ref: "req_273" },
     "logics_manager/release.py": { maxLines: 1200, ref: "req_273" },
     "logics_manager/assist_support.py": { maxLines: 1600, ref: "req_273" },
-    "logics_manager/viewer.py": { maxLines: 5794, ref: "req_273" },
+    // 5833: banked CDX reset endpoint (/api/cdx-reset) added here.
+    "logics_manager/viewer.py": { maxLines: 5833, ref: "req_273" },
     "logics_manager/flow/__init__.py": { maxLines: 4520, ref: "req_273" },
     // req_273: de-glued frontend sources. esbuild/concatenation now consume these directly
     // instead of a regex part-manifest + readFileSync.join, so the bundles stay byte-stable.
     // 7250: viewer screen minimization and workshop terminal follow-ups added here;
     // 7356: viewer settings/menu follow-up added two lines around the render hot spots;
+    // 7405: banked CDX reset column + confirm/activate flow;
     // reclaim via the paused state.js/git/workshop split.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 7356, ref: "req_273" },
+    "clients/viewer/src/browser-host/index.js": { maxLines: 7405, ref: "req_273" },
     // De-monolith passes 1-3: pure helpers/data extracted out of index.js. May
     // be split by domain (cdx/git/dom) in later passes as they grow.
     "clients/viewer/src/browser-host/util.js": { maxLines: 1200, ref: "browser-host-split" },

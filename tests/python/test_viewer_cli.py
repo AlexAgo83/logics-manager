@@ -40,6 +40,7 @@ from logics_manager.viewer import (
     cdx_config_payload,
     cdx_permission_payload,
     cdx_remove_payload,
+    cdx_reset_payload,
     cdx_history_payload,
     cdx_run_report_payload,
     cdx_runs_payload,
@@ -1474,6 +1475,31 @@ def test_viewer_cdx_remove_payload_uses_rmv_force_json(tmp_path: Path) -> None:
         "ok": False,
         "error": "Invalid session name.",
     }
+
+
+def test_viewer_cdx_reset_payload_uses_reset_yes_json(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+
+    def runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        assert kwargs["cwd"] == tmp_path
+        assert kwargs["timeout"] == 30
+        return subprocess.CompletedProcess(args, 0, json.dumps({"message": "Activated banked Codex reset for work2"}), "")
+
+    payload = cdx_reset_payload(tmp_path, "work2", runner=runner, which=lambda _name: "/usr/bin/cdx")
+
+    assert payload == {"ok": True, "message": "Activated banked Codex reset for work2"}
+    assert calls == [["cdx", "reset", "work2", "--yes", "--json"]]
+    assert cdx_reset_payload(tmp_path, "../bad", runner=runner, which=lambda _name: "/usr/bin/cdx") == {
+        "ok": False,
+        "error": "Invalid session name.",
+    }
+
+    def failing_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(args, 1, "", "No banked Codex reset is available for work2.")
+
+    failed = cdx_reset_payload(tmp_path, "work2", runner=failing_runner, which=lambda _name: "/usr/bin/cdx")
+    assert failed == {"ok": False, "error": "No banked Codex reset is available for work2."}
 
 
 def test_viewer_cdx_permission_payload_uses_set_permission_json(tmp_path: Path) -> None:

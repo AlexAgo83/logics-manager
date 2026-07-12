@@ -328,6 +328,7 @@ import {
   let latestCdxHistoryPayload = null;
   const pendingCdxSessionToggles = new Map();
   const pendingCdxSessionPermissions = new Map();
+  const pendingCdxSessionResets = new Set();
   // Per-section badge counters. `missions` is a live gauge (number of mission
   // runs currently in progress) and carries no seen-tracking. `runs`/`history`
   // are deltas: `seen` is the set of identifiers the user has already looked at,
@@ -4712,6 +4713,22 @@ import {
       },
       remaining5h: (item) => `<td>${escapeHtml(cdxPct(cdxField(item, ["remaining_5h_pct", "remaining5hPct"], NaN)))}</td>`,
       remainingWeek: (item) => `<td>${escapeHtml(cdxPct(cdxField(item, ["remaining_week_pct", "remainingWeekPct"], NaN)))}</td>`,
+      banked: (item) => {
+        const count = Number(cdxField(item, ["reset_credits_available", "resetCreditsAvailable"], NaN));
+        const name = String(cdxField(item, ["session_name", "name", "id", "value"], "")).trim();
+        if (!Number.isFinite(count) || count <= 0) {
+          return `<td>${Number.isFinite(count) ? escapeHtml(String(count)) : "-"}</td>`;
+        }
+        const credits = cdxField(item, ["reset_credits", "resetCredits"], []);
+        const expirations = (Array.isArray(credits) ? credits : [])
+          .map((credit) => credit && (credit.expires_at || credit.expiresAt))
+          .filter(Boolean)
+          .sort();
+        const expiresHint = expirations.length ? `, next expires ${formatCdxResetAt(expirations[0])}` : "";
+        if (!name || name === "-") return `<td>${escapeHtml(String(count))}</td>`;
+        const pending = pendingCdxSessionResets.has(name);
+        return `<td><button class="viewer-cdx__banked-reset${pending ? " is-updating" : ""}" type="button" data-viewer-cdx-reset="${escapeHtml(name)}" title="Activate one banked reset for ${escapeHtml(name)}${escapeHtml(expiresHint)}"${pending ? " disabled" : ""}>${escapeHtml(String(count))}</button></td>`;
+      },
       block: (item) => `<td>${escapeHtml(cdxSessionBlock(item))}</td>`,
       credits: (item) => `<td>${escapeHtml(formatCdxCredits(cdxField(item, ["credits", "cr"], "-")))}</td>`,
       reset5h: (item) => `<td>${escapeHtml(formatCdxResetAt(cdxField(item, ["reset_5h_at", "reset5hAt", "reset_at", "resetAt"], "")))}</td>`,
@@ -6887,6 +6904,7 @@ import {
       const cdxApplyPlanTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-apply-plan]") : null;
       const cdxMissionOutputTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mission-output]") : null;
       const cdxToggleTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-toggle]") : null;
+      const cdxResetTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-reset]") : null;
       const cdxSessionActionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-action]") : null;
       const cdxSessionConfigSubmitTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-config-submit]") : null;
       const cdxSessionConfigCancelTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session-config-cancel]") : null;
@@ -6949,6 +6967,37 @@ import {
         }).finally(() => {
           pendingCdxSessionToggles.delete(sessionName);
           rerenderCdxStatusFromPreferences();
+        });
+        return;
+      }
+      if (cdxResetTarget instanceof HTMLButtonElement) {
+        event.preventDefault();
+        const sessionName = cdxResetTarget.getAttribute("data-viewer-cdx-reset") || "";
+        if (!sessionName || pendingCdxSessionResets.has(sessionName)) return;
+        showThemedConfirmModal({
+          title: "Activate banked reset",
+          message: `Consume one banked Codex reset for ${sessionName}? This spends a reset credit.`,
+          submitLabel: "Activate"
+        }).then((confirmed) => {
+          if (!confirmed) return undefined;
+          pendingCdxSessionResets.add(sessionName);
+          rerenderCdxStatusFromPreferences();
+          return fetch("/api/cdx-reset", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ session: sessionName }),
+          }).then((r) => r.json().then((data) => ({ ok: r.ok, data }))).then(({ ok, data }) => {
+            if (!ok || !data.ok) {
+              throw new Error(data.error || "Reset failed.");
+            }
+            setMeta(data.payload?.message || `Activated banked reset for ${sessionName}.`);
+            return showCdxStatus({ silent: true, force: true }).catch(() => {});
+          }).catch((error) => {
+            setMeta(`CDX reset: ${error?.message || error}`);
+          }).finally(() => {
+            pendingCdxSessionResets.delete(sessionName);
+            rerenderCdxStatusFromPreferences();
+          });
         });
         return;
       }

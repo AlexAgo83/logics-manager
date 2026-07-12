@@ -42,6 +42,7 @@ export const cdxStatusColumns = [
     { id: "ok", label: "OK" },
     { id: "remaining5h", label: "5H" },
     { id: "remainingWeek", label: "WEEK" },
+    { id: "banked", label: "BANKED" },
     { id: "block", label: "BLOCK", defaultVisible: false },
     { id: "credits", label: "CR", defaultVisible: false },
     { id: "reset5h", label: "RESET 5H" },

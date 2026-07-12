@@ -1526,6 +1526,8 @@ def test_viewer_cdx_disk_payload_uses_disk_profiles_candidates_json(tmp_path: Pa
 
     payload = cdx_disk_payload(tmp_path, runner=runner, which=lambda _name: "/usr/bin/cdx")
 
+    measured_at = payload.pop("measured_at")
+    assert re.match(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}", measured_at)
     assert payload == {"state": "ok", "message": "Measured", "disk": disk}
     assert calls == [["cdx", "disk", "profiles", "--json", "--candidates"]]
 

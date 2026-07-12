@@ -1,0 +1,274 @@
+{
+  "budgets": {
+    "max_docs": 16,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints item_540_propagate_task_progress_to_linked_backlog_items_during_development item_541_codify_task_wave_checkpoints_and_documentation_updates_in_generated_workflows task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_540_propagate_task_progress_to_linked_backlog_items_during_development",
+          "item_541_codify_task_wave_checkpoints_and_documentation_updates_in_generated_workflows"
+        ],
+        "prod": [
+          "prod_041_live_backlog_progress_and_checkpointed_task_execution"
+        ],
+        "req": [
+          "req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints"
+        ],
+        "task": [
+          "task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance"
+        ]
+      },
+      "path": "logics/product/prod_041_live_backlog_progress_and_checkpointed_task_execution.md",
+      "ref": "prod_041_live_backlog_progress_and_checkpointed_task_execution",
+      "status": "Proposed",
+      "title": "Live backlog progress and checkpointed task execution"
+    },
+    {
+      "kind": "architecture",
+      "linked_refs": {
+        "adr": [
+          "adr_009_treat_logics_task_waves_as_coherent_documented_commit_checkpoints"
+        ],
+        "item": [
+          "item_098_strengthen_logics_task_waves_with_commit_and_documentation_update_checkpoints"
+        ],
+        "req": [
+          "req_075_strengthen_logics_task_waves_with_commit_and_documentation_update_checkpoints"
+        ]
+      },
+      "path": "logics/architecture/adr_009_treat_logics_task_waves_as_coherent_documented_commit_checkpoints.md",
+      "ref": "adr_009_treat_logics_task_waves_as_coherent_documented_commit_checkpoints",
+      "status": "Settled",
+      "title": "Treat Logics task waves as coherent documented commit checkpoints"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, sync backlog progress during task development and codify task checkpoints, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Sync backlog progress during task development and codify task checkpoints",
+        "use when": "You need to implement or review the scaffolded workflow for Sync backlog progress during task development and codify task checkpoints."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "adr": [
+          "adr_009_treat_logics_task_waves_as_coherent_documented_commit_checkpoints"
+        ],
+        "item": [
+          "item_540_propagate_task_progress_to_linked_backlog_items_during_development",
+          "item_541_codify_task_wave_checkpoints_and_documentation_updates_in_generated_workflows"
+        ],
+        "prod": [
+          "prod_041_live_backlog_progress_and_checkpointed_task_execution"
+        ],
+        "req": [
+          "req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints"
+        ]
+      },
+      "path": "logics/request/req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints.md",
+      "ref": "req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Sync backlog progress during task development and codify task checkpoints"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, propagate task progress to linked backlog items during development, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Propagate task progress to linked backlog items during development",
+        "use when": "Implementing the scaffolded slice for Propagate task progress to linked backlog items during development."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_540_propagate_task_progress_to_linked_backlog_items_during_development"
+        ],
+        "prod": [
+          "prod_041_live_backlog_progress_and_checkpointed_task_execution"
+        ],
+        "req": [
+          "req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints"
+        ],
+        "task": [
+          "task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance"
+        ]
+      },
+      "path": "logics/backlog/item_540_propagate_task_progress_to_linked_backlog_items_during_development.md",
+      "ref": "item_540_propagate_task_progress_to_linked_backlog_items_during_development",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Propagate task progress to linked backlog items during development"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, codify task wave checkpoints and documentation updates in generated workflows, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Codify task wave checkpoints and documentation updates in generated workflows",
+        "use when": "Implementing the scaffolded slice for Codify task wave checkpoints and documentation updates in generated workflows."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_541_codify_task_wave_checkpoints_and_documentation_updates_in_generated_workflows"
+        ],
+        "prod": [
+          "prod_041_live_backlog_progress_and_checkpointed_task_execution"
+        ],
+        "req": [
+          "req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints"
+        ],
+        "task": [
+          "task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance"
+        ]
+      },
+      "path": "logics/backlog/item_541_codify_task_wave_checkpoints_and_documentation_updates_in_generated_workflows.md",
+      "ref": "item_541_codify_task_wave_checkpoints_and_documentation_updates_in_generated_workflows",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Codify task wave checkpoints and documentation updates in generated workflows"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate live backlog progress and checkpointed task guidance",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_540_propagate_task_progress_to_linked_backlog_items_during_development",
+          "item_541_codify_task_wave_checkpoints_and_documentation_updates_in_generated_workflows"
+        ],
+        "prod": [
+          "prod_041_live_backlog_progress_and_checkpointed_task_execution"
+        ],
+        "req": [
+          "req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints"
+        ],
+        "task": [
+          "task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance"
+        ]
+      },
+      "path": "logics/tasks/task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance.md",
+      "ref": "task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrate live backlog progress and checkpointed task guidance"
+    }
+  ],
+  "estimates": {
+    "char_count": 5949,
+    "companion_doc_count": 2,
+    "doc_count": 4
+  },
+  "generated_at": "2026-07-12T20:01:42Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints",
+      "item_540_propagate_task_progress_to_linked_backlog_items_during_development",
+      "item_541_codify_task_wave_checkpoints_and_documentation_updates_in_generated_workflows",
+      "task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance"
+    ],
+    "validation_summary_count": 1
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints,item_540_propagate_task_progress_to_linked_backlog_items_during_development,item_541_codify_task_wave_checkpoints_and_documentation_updates_in_generated_workflows,task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance",
+  "refs": [
+    "req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints",
+    "item_540_propagate_task_progress_to_linked_backlog_items_during_development",
+    "item_541_codify_task_wave_checkpoints_and_documentation_updates_in_generated_workflows",
+    "task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.17.0"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance.md",
+      "ref": "task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance"
+    }
+  ]
+}

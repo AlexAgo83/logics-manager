@@ -77,6 +77,7 @@
 | [prod_038_post_release_viewer_hardening](product/prod_038_post_release_viewer_hardening.md) | Post-release viewer hardening | Settled |  |  | product/prod_038_post_release_viewer_hardening.md |
 | [prod_039_git_history_commit_diff_preview](product/prod_039_git_history_commit_diff_preview.md) | Git history commit diff preview | Proposed |  |  | product/prod_039_git_history_commit_diff_preview.md |
 | [prod_040_readable_scope_sections_in_document_previews](product/prod_040_readable_scope_sections_in_document_previews.md) | Readable Scope sections in document previews | Proposed |  |  | product/prod_040_readable_scope_sections_in_document_previews.md |
+| [prod_041_live_backlog_progress_and_checkpointed_task_execution](product/prod_041_live_backlog_progress_and_checkpointed_task_execution.md) | Live backlog progress and checkpointed task execution | Proposed |  |  | product/prod_041_live_backlog_progress_and_checkpointed_task_execution.md |
 
 ## Requests
 
@@ -373,6 +374,7 @@
 | [req_290_post_release_viewer_and_vs_code_hardening](request/req_290_post_release_viewer_and_vs_code_hardening.md) | Post-release viewer and VS Code hardening | Done |  |  | request/req_290_post_release_viewer_and_vs_code_hardening.md |
 | [req_291_preview_commit_diffs_from_git_history](request/req_291_preview_commit_diffs_from_git_history.md) | Preview commit diffs from Git history | Draft |  |  | request/req_291_preview_commit_diffs_from_git_history.md |
 | [req_292_improve_scope_section_rendering_in_document_previews](request/req_292_improve_scope_section_rendering_in_document_previews.md) | Improve Scope section rendering in document previews | Draft |  |  | request/req_292_improve_scope_section_rendering_in_document_previews.md |
+| [req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints](request/req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints.md) | Sync backlog progress during task development and codify task checkpoints | Draft |  |  | request/req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints.md |
 
 ## Backlog
 
@@ -917,6 +919,8 @@
 | [item_537_harden_vs_code_terminal_bridge_command_handling](backlog/item_537_harden_vs_code_terminal_bridge_command_handling.md) | Harden VS Code terminal bridge command handling | Done |  | 100% | backlog/item_537_harden_vs_code_terminal_bridge_command_handling.md |
 | [item_538_add_clickable_git_history_commit_diffs](backlog/item_538_add_clickable_git_history_commit_diffs.md) | Add clickable Git history commit diffs | Ready |  | 0% | backlog/item_538_add_clickable_git_history_commit_diffs.md |
 | [item_539_render_scope_in_and_out_groups_as_structured_preview_blocks](backlog/item_539_render_scope_in_and_out_groups_as_structured_preview_blocks.md) | Render Scope In and Out groups as structured preview blocks | Ready |  | 0% | backlog/item_539_render_scope_in_and_out_groups_as_structured_preview_blocks.md |
+| [item_540_propagate_task_progress_to_linked_backlog_items_during_development](backlog/item_540_propagate_task_progress_to_linked_backlog_items_during_development.md) | Propagate task progress to linked backlog items during development | Ready |  | 0% | backlog/item_540_propagate_task_progress_to_linked_backlog_items_during_development.md |
+| [item_541_codify_task_wave_checkpoints_and_documentation_updates_in_generated_workflows](backlog/item_541_codify_task_wave_checkpoints_and_documentation_updates_in_generated_workflows.md) | Codify task wave checkpoints and documentation updates in generated workflows | Ready |  | 0% | backlog/item_541_codify_task_wave_checkpoints_and_documentation_updates_in_generated_workflows.md |
 
 ## Tasks
 
@@ -1205,3 +1209,4 @@
 | [task_287_orchestrate_post_release_viewer_hardening](tasks/task_287_orchestrate_post_release_viewer_hardening.md) | Orchestrate post-release viewer hardening | Done | codex | 100% | tasks/task_287_orchestrate_post_release_viewer_hardening.md |
 | [task_288_orchestrate_git_history_commit_diff_previews](tasks/task_288_orchestrate_git_history_commit_diff_previews.md) | Orchestrate Git history commit diff previews | Ready |  | 0% | tasks/task_288_orchestrate_git_history_commit_diff_previews.md |
 | [task_289_orchestrate_scope_section_preview_rendering](tasks/task_289_orchestrate_scope_section_preview_rendering.md) | Orchestrate Scope section preview rendering | Ready |  | 0% | tasks/task_289_orchestrate_scope_section_preview_rendering.md |
+| [task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance](tasks/task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance.md) | Orchestrate live backlog progress and checkpointed task guidance | Ready |  | 0% | tasks/task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance.md |

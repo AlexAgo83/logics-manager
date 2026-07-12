@@ -1,0 +1,220 @@
+{
+  "budgets": {
+    "max_docs": 12,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_291_preview_commit_diffs_from_git_history item_538_add_clickable_git_history_commit_diffs task_288_orchestrate_git_history_commit_diff_previews --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_538_add_clickable_git_history_commit_diffs"
+        ],
+        "prod": [
+          "prod_039_git_history_commit_diff_preview"
+        ],
+        "req": [
+          "req_291_preview_commit_diffs_from_git_history"
+        ],
+        "task": [
+          "task_288_orchestrate_git_history_commit_diff_previews"
+        ]
+      },
+      "path": "logics/product/prod_039_git_history_commit_diff_preview.md",
+      "ref": "prod_039_git_history_commit_diff_preview",
+      "status": "Proposed",
+      "title": "Git history commit diff preview"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, preview commit diffs from git history, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Preview commit diffs from Git history",
+        "use when": "You need to implement or review the scaffolded workflow for Preview commit diffs from Git history."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_538_add_clickable_git_history_commit_diffs"
+        ],
+        "prod": [
+          "prod_039_git_history_commit_diff_preview"
+        ],
+        "req": [
+          "req_291_preview_commit_diffs_from_git_history"
+        ]
+      },
+      "path": "logics/request/req_291_preview_commit_diffs_from_git_history.md",
+      "ref": "req_291_preview_commit_diffs_from_git_history",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Preview commit diffs from Git history"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add clickable git history commit diffs, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add clickable Git history commit diffs",
+        "use when": "Implementing the scaffolded slice for Add clickable Git history commit diffs."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_538_add_clickable_git_history_commit_diffs"
+        ],
+        "prod": [
+          "prod_039_git_history_commit_diff_preview"
+        ],
+        "req": [
+          "req_291_preview_commit_diffs_from_git_history"
+        ],
+        "task": [
+          "task_288_orchestrate_git_history_commit_diff_previews"
+        ]
+      },
+      "path": "logics/backlog/item_538_add_clickable_git_history_commit_diffs.md",
+      "ref": "item_538_add_clickable_git_history_commit_diffs",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Add clickable Git history commit diffs"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate Git history commit diff previews",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_538_add_clickable_git_history_commit_diffs"
+        ],
+        "prod": [
+          "prod_039_git_history_commit_diff_preview"
+        ],
+        "req": [
+          "req_291_preview_commit_diffs_from_git_history"
+        ],
+        "task": [
+          "task_288_orchestrate_git_history_commit_diff_previews"
+        ]
+      },
+      "path": "logics/tasks/task_288_orchestrate_git_history_commit_diff_previews.md",
+      "ref": "task_288_orchestrate_git_history_commit_diff_previews",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrate Git history commit diff previews"
+    }
+  ],
+  "estimates": {
+    "char_count": 2867,
+    "companion_doc_count": 1,
+    "doc_count": 3
+  },
+  "generated_at": "2026-07-12T19:47:41Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_291_preview_commit_diffs_from_git_history",
+      "item_538_add_clickable_git_history_commit_diffs",
+      "task_288_orchestrate_git_history_commit_diff_previews"
+    ],
+    "validation_summary_count": 1
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_291_preview_commit_diffs_from_git_history,item_538_add_clickable_git_history_commit_diffs,task_288_orchestrate_git_history_commit_diff_previews",
+  "refs": [
+    "req_291_preview_commit_diffs_from_git_history",
+    "item_538_add_clickable_git_history_commit_diffs",
+    "task_288_orchestrate_git_history_commit_diff_previews"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.17.0"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_288_orchestrate_git_history_commit_diff_previews.md",
+      "ref": "task_288_orchestrate_git_history_commit_diff_previews"
+    }
+  ]
+}

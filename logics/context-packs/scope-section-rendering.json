@@ -1,0 +1,220 @@
+{
+  "budgets": {
+    "max_docs": 12,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_292_improve_scope_section_rendering_in_document_previews item_539_render_scope_in_and_out_groups_as_structured_preview_blocks task_289_orchestrate_scope_section_preview_rendering --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_539_render_scope_in_and_out_groups_as_structured_preview_blocks"
+        ],
+        "prod": [
+          "prod_040_readable_scope_sections_in_document_previews"
+        ],
+        "req": [
+          "req_292_improve_scope_section_rendering_in_document_previews"
+        ],
+        "task": [
+          "task_289_orchestrate_scope_section_preview_rendering"
+        ]
+      },
+      "path": "logics/product/prod_040_readable_scope_sections_in_document_previews.md",
+      "ref": "prod_040_readable_scope_sections_in_document_previews",
+      "status": "Proposed",
+      "title": "Readable Scope sections in document previews"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, improve scope section rendering in document previews, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Improve Scope section rendering in document previews",
+        "use when": "You need to implement or review the scaffolded workflow for Improve Scope section rendering in document previews."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_539_render_scope_in_and_out_groups_as_structured_preview_blocks"
+        ],
+        "prod": [
+          "prod_040_readable_scope_sections_in_document_previews"
+        ],
+        "req": [
+          "req_292_improve_scope_section_rendering_in_document_previews"
+        ]
+      },
+      "path": "logics/request/req_292_improve_scope_section_rendering_in_document_previews.md",
+      "ref": "req_292_improve_scope_section_rendering_in_document_previews",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Improve Scope section rendering in document previews"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, render scope in and out groups as structured preview blocks, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Render Scope In and Out groups as structured preview blocks",
+        "use when": "Implementing the scaffolded slice for Render Scope In and Out groups as structured preview blocks."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_539_render_scope_in_and_out_groups_as_structured_preview_blocks"
+        ],
+        "prod": [
+          "prod_040_readable_scope_sections_in_document_previews"
+        ],
+        "req": [
+          "req_292_improve_scope_section_rendering_in_document_previews"
+        ],
+        "task": [
+          "task_289_orchestrate_scope_section_preview_rendering"
+        ]
+      },
+      "path": "logics/backlog/item_539_render_scope_in_and_out_groups_as_structured_preview_blocks.md",
+      "ref": "item_539_render_scope_in_and_out_groups_as_structured_preview_blocks",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Render Scope In and Out groups as structured preview blocks"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate Scope section preview rendering",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_539_render_scope_in_and_out_groups_as_structured_preview_blocks"
+        ],
+        "prod": [
+          "prod_040_readable_scope_sections_in_document_previews"
+        ],
+        "req": [
+          "req_292_improve_scope_section_rendering_in_document_previews"
+        ],
+        "task": [
+          "task_289_orchestrate_scope_section_preview_rendering"
+        ]
+      },
+      "path": "logics/tasks/task_289_orchestrate_scope_section_preview_rendering.md",
+      "ref": "task_289_orchestrate_scope_section_preview_rendering",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrate Scope section preview rendering"
+    }
+  ],
+  "estimates": {
+    "char_count": 3311,
+    "companion_doc_count": 1,
+    "doc_count": 3
+  },
+  "generated_at": "2026-07-12T19:53:49Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_292_improve_scope_section_rendering_in_document_previews",
+      "item_539_render_scope_in_and_out_groups_as_structured_preview_blocks",
+      "task_289_orchestrate_scope_section_preview_rendering"
+    ],
+    "validation_summary_count": 1
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_292_improve_scope_section_rendering_in_document_previews,item_539_render_scope_in_and_out_groups_as_structured_preview_blocks,task_289_orchestrate_scope_section_preview_rendering",
+  "refs": [
+    "req_292_improve_scope_section_rendering_in_document_previews",
+    "item_539_render_scope_in_and_out_groups_as_structured_preview_blocks",
+    "task_289_orchestrate_scope_section_preview_rendering"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.17.0"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_289_orchestrate_scope_section_preview_rendering.md",
+      "ref": "task_289_orchestrate_scope_section_preview_rendering"
+    }
+  ]
+}

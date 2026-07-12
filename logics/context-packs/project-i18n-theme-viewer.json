@@ -1,0 +1,508 @@
+{
+  "budgets": {
+    "max_docs": 64,
+    "max_docs_per_ref": 8
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_294_convention_aware_project_i18n_and_theme_viewer_screens item_542_define_and_detect_bounded_project_i18n_and_theme_conventions item_543_add_translation_catalog_inspection_and_completeness_diagnostics item_544_enable_safe_editing_of_supported_json_translation_catalogs item_545_add_theme_token_inspection_and_live_preview item_546_enable_safe_editing_of_css_custom_property_theme_tokens item_547_harden_shared_host_parity_and_document_the_supported_project_conventions task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery --mode full --profile deep --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_542_define_and_detect_bounded_project_i18n_and_theme_conventions",
+          "item_543_add_translation_catalog_inspection_and_completeness_diagnostics",
+          "item_544_enable_safe_editing_of_supported_json_translation_catalogs",
+          "item_545_add_theme_token_inspection_and_live_preview",
+          "item_546_enable_safe_editing_of_css_custom_property_theme_tokens",
+          "item_547_harden_shared_host_parity_and_document_the_supported_project_conventions"
+        ],
+        "prod": [
+          "prod_042_convention_aware_project_surfaces"
+        ],
+        "req": [
+          "req_294_convention_aware_project_i18n_and_theme_viewer_screens"
+        ],
+        "task": [
+          "task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery"
+        ]
+      },
+      "path": "logics/product/prod_042_convention_aware_project_surfaces.md",
+      "ref": "prod_042_convention_aware_project_surfaces",
+      "sections": {
+        "Goals": [
+          "- Make translation completeness and theme choices visible without leaving the project cockpit.",
+          "- Provide safe in-viewer editing for deterministic data formats.",
+          "- Give unsupported or partially supported conventions an honest read-only or unavailable state.",
+          "- Establish a small capability contract that can support another project surface later without speculative extension machinery.",
+          "- Protect repository data and avoid leaking sampled project identity into committed artifacts."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Extend Logics Viewer with repository-aware project screens that appear only for supported conventions, beginning with internationalization catalogs and visual theme tokens. The feature favors deterministic, safe adapters over a generic plugin framework and preserves one shared implementation across browser and VS Code hosts."
+        ],
+        "References": [
+          "- Product back-reference: `req_294_convention_aware_project_i18n_and_theme_viewer_screens`",
+          "- Task back-reference: `task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Convention-aware project surfaces"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, convention-aware project i18n and theme viewer screens, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Convention-aware project i18n and theme viewer screens",
+        "use when": "You need to implement or review the scaffolded workflow for Convention-aware project i18n and theme viewer screens."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_542_define_and_detect_bounded_project_i18n_and_theme_conventions",
+          "item_543_add_translation_catalog_inspection_and_completeness_diagnostics",
+          "item_544_enable_safe_editing_of_supported_json_translation_catalogs",
+          "item_545_add_theme_token_inspection_and_live_preview",
+          "item_546_enable_safe_editing_of_css_custom_property_theme_tokens",
+          "item_547_harden_shared_host_parity_and_document_the_supported_project_conventions"
+        ],
+        "prod": [
+          "prod_042_convention_aware_project_surfaces"
+        ],
+        "req": [
+          "req_294_convention_aware_project_i18n_and_theme_viewer_screens"
+        ]
+      },
+      "path": "logics/request/req_294_convention_aware_project_i18n_and_theme_viewer_screens.md",
+      "ref": "req_294_convention_aware_project_i18n_and_theme_viewer_screens",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- Viewer status reports independent i18n and theme capabilities with detected convention, source paths, read/write support, and an actionable unsupported reason without returning file contents in the status payload.",
+          "- Project navigation shows Translations and Theme only when their corresponding capability is available, in both standalone and VS Code embedded viewer contexts.",
+          "- Supported locale catalogs can be searched, compared by key, filtered for missing or extra entries, and edited without losing nested JSON structure.",
+          "- Supported CSS custom-property themes can be previewed by semantic category and edited with validation, while source-defined theme modes remain read-only.",
+          "- Every write is limited to detected files inside the selected repository, requires the existing viewer mutation authorization, detects stale revisions, validates the new representation, and replaces the target atomically.",
+          "- Fixtures and tests describe sample repositories only with neutral identifiers such as sample-json-catalog, sample-inline-dictionary, and sample-css-theme."
+        ],
+        "Needs": [
+          "- Add project-level viewer screens for inspecting and safely editing internationalization catalogs and visual theme tokens when a supported repository convention is detected.",
+          "- Keep unsupported projects unchanged by exposing screens only through explicit capability detection.",
+          "- Use the same browser viewer implementation in standalone and VS Code embedded contexts.",
+          "- Ground the initial conventions in anonymized repository patterns without exposing source project names, business data, or absolute paths."
+        ]
+      },
+      "status": "Draft",
+      "title": "Convention-aware project i18n and theme viewer screens"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, define and detect bounded project i18n and theme conventions, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Define and detect bounded project i18n and theme conventions",
+        "use when": "Implementing the scaffolded slice for Define and detect bounded project i18n and theme conventions."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_542_define_and_detect_bounded_project_i18n_and_theme_conventions"
+        ],
+        "prod": [
+          "prod_042_convention_aware_project_surfaces"
+        ],
+        "req": [
+          "req_294_convention_aware_project_i18n_and_theme_viewer_screens"
+        ],
+        "task": [
+          "task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery"
+        ]
+      },
+      "path": "logics/backlog/item_542_define_and_detect_bounded_project_i18n_and_theme_conventions.md",
+      "ref": "item_542_define_and_detect_bounded_project_i18n_and_theme_conventions",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- Explicit configuration wins over automatic detection and invalid configured paths fail closed with a useful reason.",
+          "- Automatic detection examines a documented bounded set of candidate paths and files.",
+          "- Ambiguous matches are reported as non-editable until explicitly configured.",
+          "- All returned paths are normalized, repository-relative, and verified to remain inside the selected repository.",
+          "- Unit tests cover supported, read-only, ambiguous, malformed, missing, and path-escape cases."
+        ],
+        "Problem": [
+          "- The viewer has no contract for discovering project-level i18n or theme sources.",
+          "- Broad heuristic scanning could be slow, ambiguous, or unsafe, while requiring one hard-coded project layout would make the screens too narrow."
+        ]
+      },
+      "status": "Ready",
+      "title": "Define and detect bounded project i18n and theme conventions"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add translation catalog inspection and completeness diagnostics, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add translation catalog inspection and completeness diagnostics",
+        "use when": "Implementing the scaffolded slice for Add translation catalog inspection and completeness diagnostics."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_543_add_translation_catalog_inspection_and_completeness_diagnostics"
+        ],
+        "prod": [
+          "prod_042_convention_aware_project_surfaces"
+        ],
+        "req": [
+          "req_294_convention_aware_project_i18n_and_theme_viewer_screens"
+        ],
+        "task": [
+          "task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery"
+        ]
+      },
+      "path": "logics/backlog/item_543_add_translation_catalog_inspection_and_completeness_diagnostics.md",
+      "ref": "item_543_add_translation_catalog_inspection_and_completeness_diagnostics",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- Nested JSON catalogs render as aligned locale columns with deterministic dotted-key ordering.",
+          "- Missing, empty, and extra values are visually distinct and filterable.",
+          "- Search matches both translation keys and visible values.",
+          "- Changing projects invalidates prior payloads and reloads capability state without showing stale repository data.",
+          "- Browser-host and Python tests cover navigation visibility, rendering, diagnostics, bounds, and read-only states."
+        ],
+        "Problem": [
+          "- Translation catalogs are difficult to compare across locale files, and missing or surplus keys are only visible through manual file inspection.",
+          "- The viewer has no project-oriented tabular surface for this data."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add translation catalog inspection and completeness diagnostics"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, enable safe editing of supported json translation catalogs, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Enable safe editing of supported JSON translation catalogs",
+        "use when": "Implementing the scaffolded slice for Enable safe editing of supported JSON translation catalogs."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_544_enable_safe_editing_of_supported_json_translation_catalogs"
+        ],
+        "prod": [
+          "prod_042_convention_aware_project_surfaces"
+        ],
+        "req": [
+          "req_294_convention_aware_project_i18n_and_theme_viewer_screens"
+        ],
+        "task": [
+          "task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery"
+        ]
+      },
+      "path": "logics/backlog/item_544_enable_safe_editing_of_supported_json_translation_catalogs.md",
+      "ref": "item_544_enable_safe_editing_of_supported_json_translation_catalogs",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- An authorized local edit updates only the detected locale file and preserves unrelated keys and nested objects.",
+          "- Read-only viewer modes, unsupported conventions, arbitrary paths, invalid value types, path escapes, and stale revisions are rejected.",
+          "- A failed validation or write leaves the original file intact.",
+          "- Successful saves refresh diagnostics and clear the cell's dirty state.",
+          "- Tests cover authorization, conflict, validation, atomic-write failure, and successful nested JSON updates."
+        ],
+        "Problem": [
+          "- Inspection alone still requires users to leave the viewer for routine missing-value corrections.",
+          "- Naive whole-file writes risk overwriting concurrent changes, escaping the intended files, or corrupting catalog structure."
+        ]
+      },
+      "status": "Ready",
+      "title": "Enable safe editing of supported JSON translation catalogs"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add theme token inspection and live preview, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add theme token inspection and live preview",
+        "use when": "Implementing the scaffolded slice for Add theme token inspection and live preview."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_545_add_theme_token_inspection_and_live_preview"
+        ],
+        "prod": [
+          "prod_042_convention_aware_project_surfaces"
+        ],
+        "req": [
+          "req_294_convention_aware_project_i18n_and_theme_viewer_screens"
+        ],
+        "task": [
+          "task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery"
+        ]
+      },
+      "path": "logics/backlog/item_545_add_theme_token_inspection_and_live_preview.md",
+      "ref": "item_545_add_theme_token_inspection_and_live_preview",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- Supported CSS variables render in deterministic semantic groups with their raw values and source selector.",
+          "- Recognized colors, font declarations, spacing, and radii receive an appropriate preview while unknown values remain visible as text.",
+          "- Theme previews are isolated from the viewer's own CSS and cannot restyle the viewer shell.",
+          "- Source-defined theme modes are visible but have no edit controls.",
+          "- Tests cover multiple selectors, CSS variable references, unknown values, source-defined read-only modes, and style isolation."
+        ],
+        "Problem": [
+          "- A project's visual choices are distributed across token declarations and theme selectors, making the active palette and typography hard to review as a system.",
+          "- Source-defined mode maps can be discovered but cannot safely be rewritten with a data-only editor."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add theme token inspection and live preview"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, enable safe editing of css custom-property theme tokens, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Enable safe editing of CSS custom-property theme tokens",
+        "use when": "Implementing the scaffolded slice for Enable safe editing of CSS custom-property theme tokens."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_546_enable_safe_editing_of_css_custom_property_theme_tokens"
+        ],
+        "prod": [
+          "prod_042_convention_aware_project_surfaces"
+        ],
+        "req": [
+          "req_294_convention_aware_project_i18n_and_theme_viewer_screens"
+        ],
+        "task": [
+          "task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery"
+        ]
+      },
+      "path": "logics/backlog/item_546_enable_safe_editing_of_css_custom_property_theme_tokens.md",
+      "ref": "item_546_enable_safe_editing_of_css_custom_property_theme_tokens",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- An authorized edit changes exactly one existing declaration value and preserves comments, ordering, whitespace outside the value, and unrelated CSS.",
+          "- Structural CSS input, unknown selectors or properties, duplicate ambiguous declarations, stale revisions, and unauthorized requests are rejected.",
+          "- Failed edits leave the source file intact and keep the proposed value visible for correction.",
+          "- The preview refreshes from the persisted source after a successful save.",
+          "- Focused tests cover safe replacement, ambiguous matches, malicious values, authorization, conflicts, and atomic-write failure."
+        ],
+        "Problem": [
+          "- Theme review becomes more useful when a designer or developer can make a bounded token adjustment and see the preview immediately.",
+          "- Generic CSS rewriting can destroy comments, formatting, or unrelated rules, so edits must target only an existing detected declaration."
+        ]
+      },
+      "status": "Ready",
+      "title": "Enable safe editing of CSS custom-property theme tokens"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, harden shared-host parity and document the supported project conventions, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Harden shared-host parity and document the supported project conventions",
+        "use when": "Implementing the scaffolded slice for Harden shared-host parity and document the supported project conventions."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_547_harden_shared_host_parity_and_document_the_supported_project_conventions"
+        ],
+        "prod": [
+          "prod_042_convention_aware_project_surfaces"
+        ],
+        "req": [
+          "req_294_convention_aware_project_i18n_and_theme_viewer_screens"
+        ],
+        "task": [
+          "task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery"
+        ]
+      },
+      "path": "logics/backlog/item_547_harden_shared_host_parity_and_document_the_supported_project_conventions.md",
+      "ref": "item_547_harden_shared_host_parity_and_document_the_supported_project_conventions",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- Both screens behave consistently in standalone and VS Code embedded viewer hosts.",
+          "- Project switching never retains capability state, source content, revisions, or dirty edits from the previous repository.",
+          "- Documentation explains supported conventions and why detected source modules are read-only.",
+          "- No committed fixture, documentation, mockup, or snapshot names a sampled neighboring project or contains its business content.",
+          "- Focused tests, viewer host checks, lint, and Logics validation pass with no generated-asset drift."
+        ],
+        "Problem": [
+          "- New project screens cross the Python host, browser renderer, project switching, LAN authorization, and VS Code embedding boundaries.",
+          "- Without explicit convention documentation, users cannot predict why a screen is editable, read-only, ambiguous, or hidden."
+        ]
+      },
+      "status": "Ready",
+      "title": "Harden shared-host parity and document the supported project conventions"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate convention-aware i18n and theme viewer delivery",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_542_define_and_detect_bounded_project_i18n_and_theme_conventions",
+          "item_543_add_translation_catalog_inspection_and_completeness_diagnostics",
+          "item_544_enable_safe_editing_of_supported_json_translation_catalogs",
+          "item_545_add_theme_token_inspection_and_live_preview",
+          "item_546_enable_safe_editing_of_css_custom_property_theme_tokens",
+          "item_547_harden_shared_host_parity_and_document_the_supported_project_conventions"
+        ],
+        "prod": [
+          "prod_042_convention_aware_project_surfaces"
+        ],
+        "req": [
+          "req_294_convention_aware_project_i18n_and_theme_viewer_screens"
+        ],
+        "task": [
+          "task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery"
+        ]
+      },
+      "path": "logics/tasks/task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery.md",
+      "ref": "task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- Run `python3 -m logics_manager lint --require-status`.",
+          "- Run scaffold command tests."
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate convention-aware i18n and theme viewer delivery"
+    }
+  ],
+  "estimates": {
+    "char_count": 17553,
+    "companion_doc_count": 1,
+    "doc_count": 8
+  },
+  "generated_at": "2026-07-12T22:10:55Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_294_convention_aware_project_i18n_and_theme_viewer_screens",
+      "item_542_define_and_detect_bounded_project_i18n_and_theme_conventions",
+      "item_543_add_translation_catalog_inspection_and_completeness_diagnostics",
+      "item_544_enable_safe_editing_of_supported_json_translation_catalogs",
+      "item_545_add_theme_token_inspection_and_live_preview",
+      "item_546_enable_safe_editing_of_css_custom_property_theme_tokens",
+      "item_547_harden_shared_host_parity_and_document_the_supported_project_conventions",
+      "task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery"
+    ],
+    "validation_summary_count": 1
+  },
+  "mode": "full",
+  "profile": "deep",
+  "ref": "req_294_convention_aware_project_i18n_and_theme_viewer_screens,item_542_define_and_detect_bounded_project_i18n_and_theme_conventions,item_543_add_translation_catalog_inspection_and_completeness_diagnostics,item_544_enable_safe_editing_of_supported_json_translation_catalogs,item_545_add_theme_token_inspection_and_live_preview,item_546_enable_safe_editing_of_css_custom_property_theme_tokens,item_547_harden_shared_host_parity_and_document_the_supported_project_conventions,task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery",
+  "refs": [
+    "req_294_convention_aware_project_i18n_and_theme_viewer_screens",
+    "item_542_define_and_detect_bounded_project_i18n_and_theme_conventions",
+    "item_543_add_translation_catalog_inspection_and_completeness_diagnostics",
+    "item_544_enable_safe_editing_of_supported_json_translation_catalogs",
+    "item_545_add_theme_token_inspection_and_live_preview",
+    "item_546_enable_safe_editing_of_css_custom_property_theme_tokens",
+    "item_547_harden_shared_host_parity_and_document_the_supported_project_conventions",
+    "task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.17.1"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery.md",
+      "ref": "task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery"
+    }
+  ]
+}

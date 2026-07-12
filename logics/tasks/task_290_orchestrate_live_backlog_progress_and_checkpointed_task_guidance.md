@@ -1,10 +1,10 @@
 ## task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance - Orchestrate live backlog progress and checkpointed task guidance
 > From version: 2.17.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 50%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.

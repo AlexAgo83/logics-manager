@@ -4785,3 +4785,25 @@
   background: var(--vscode-errorForeground, #e06c75);
   color: var(--vscode-editor-background, #1e1e1e);
 }
+
+.viewer-cdx__banked-reset {
+  background: none;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin: 0;
+  cursor: pointer;
+  font: inherit;
+  color: var(--vscode-charts-yellow, #e5c07b);
+  transition: background 0.15s, color 0.15s;
+}
+
+.viewer-cdx__banked-reset:hover:not(:disabled) {
+  background: var(--vscode-charts-yellow, #e5c07b);
+  color: var(--vscode-editor-background, #1e1e1e);
+}
+
+.viewer-cdx__banked-reset.is-updating {
+  opacity: 0.6;
+  cursor: progress;
+}

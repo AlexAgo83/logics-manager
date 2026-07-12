@@ -3329,6 +3329,41 @@ def cdx_remove_payload(
         return {"ok": True, "message": result.stdout.strip() or "Remove complete."}
 
 
+def cdx_reset_payload(
+    repo_root: Path,
+    session: str,
+    *,
+    runner: Any | None = None,
+    which: Any | None = None,
+) -> dict[str, Any]:
+    cdx_which = which or shutil.which
+    if not cdx_which("cdx"):
+        return {"ok": False, "error": "CDX executable not available."}
+    if not session:
+        return {"ok": False, "error": "Session name is required."}
+    if not re.match(r"^[A-Za-z0-9_.:-]{1,120}$", session):
+        return {"ok": False, "error": "Invalid session name."}
+    cdx_runner = runner or subprocess.run
+    try:
+        result = cdx_runner(
+            ["cdx", "reset", session, "--yes", "--json"],
+            cwd=repo_root,
+            text=True,
+            capture_output=True,
+            timeout=_scaled_timeout(repo_root, 30),
+        )
+    except subprocess.TimeoutExpired:
+        return {"ok": False, "error": "CDX reset timed out."}
+    if result.returncode != 0:
+        msg = (result.stderr or result.stdout or "").strip()
+        return {"ok": False, "error": msg or "CDX reset failed."}
+    try:
+        parsed = json.loads(result.stdout)
+        return {"ok": True, "message": parsed.get("message") or "Reset activated."}
+    except Exception:
+        return {"ok": True, "message": result.stdout.strip() or "Reset activated."}
+
+
 def cdx_permission_payload(
     repo_root: Path,
     session: str,
@@ -3834,6 +3869,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/cdx-permission",
         "/api/cdx-config",
         "/api/cdx-remove",
+        "/api/cdx-reset",
         "/api/release-reset",
         "/api/update-status",
         "/api/lan/devices/revoke",
@@ -5085,6 +5121,19 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"ok": True, "payload": result})
             else:
                 self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, result.get("error", "Remove failed."))
+            return
+        if parsed.path == "/api/cdx-reset":
+            try:
+                body = self._read_json_body_strict()
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+                return
+            session = str(body.get("session") or "")
+            result = cdx_reset_payload(self.server.repo_root, session)
+            if result.get("ok"):
+                self._send_json({"ok": True, "payload": result})
+            else:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, result.get("error", "Reset failed."))
             return
         if parsed.path == "/api/update-status":
             try:

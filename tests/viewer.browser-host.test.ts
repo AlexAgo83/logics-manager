@@ -897,6 +897,13 @@ function createViewerDom(options: {
           json: async () => ({ ok: true, payload: { message: "Import complete." } })
         };
       }
+      if (url === "/api/cdx-reset") {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ ok: true, payload: { message: "Activated banked Codex reset for work2" } })
+        };
+      }
       if (url === "/api/cdx-toggle") {
         if (options.cdxToggleGate) {
           await options.cdxToggleGate;
@@ -1453,6 +1460,11 @@ describe("local viewer browser host", () => {
                 remaining_5h_pct: 0,
                 remaining_week_pct: 3,
                 credits: "9.6752125000",
+                reset_credits_available: 2,
+                reset_credits: [
+                  { id: "rc-1", label: "weekly", expires_at: weekReset },
+                  { id: "rc-2", label: "weekly", expires_at: weekReset }
+                ],
                 reset_5h_at: soonReset,
                 reset_week_at: weekReset,
                 updated_at: new Date(Date.now() - 90_000).toISOString()
@@ -5719,8 +5731,12 @@ describe("local viewer browser host", () => {
     expect(text).toContain("5H");
     const headers = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__table th")).map((node) => node.textContent?.trim());
     expect(headers).toContain("PERM.");
+    expect(headers).toContain("BANKED");
     expect(headers).not.toContain("BLOCK");
     expect(headers).not.toContain("CR");
+    const bankedButton = dom.window.document.querySelector('[data-viewer-cdx-reset="work2"]') as HTMLButtonElement | null;
+    expect(bankedButton?.textContent).toBe("2");
+    expect(bankedButton?.title).toContain("Activate one banked reset for work2");
     const permissionLabels = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__permission-label")).map((node) => node.textContent?.trim());
     expect(permissionLabels).toEqual(["-", "review"]);
     expect(text).not.toContain("9.68");
@@ -6038,6 +6054,38 @@ describe("local viewer browser host", () => {
     resolveToggle?.();
     await flushViewerAsync();
     await flushViewerAsync();
+  });
+
+  it("activates a banked CDX reset from the status table after confirmation", async () => {
+    const payload = cdxRowsStatusPayload();
+    const { dom, fetchCalls } = createViewerDom({ cdxResponse: payload });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    const bankedButton = dom.window.document.querySelector('[data-viewer-cdx-reset="work2"]') as HTMLButtonElement | null;
+    expect(bankedButton).toBeTruthy();
+
+    bankedButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    let modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    expect(modal?.textContent).toContain("Consume one banked Codex reset for work2");
+    (modal?.querySelector(".viewer-themed-modal__cancel") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    expect(fetchCalls.find((call) => call.url === "/api/cdx-reset")).toBeUndefined();
+
+    dom.window.document.querySelector('[data-viewer-cdx-reset="work2"]')
+      ?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(fetchCalls.find((call) => call.url === "/api/cdx-reset")?.options?.body).toBe(JSON.stringify({ session: "work2" }));
   });
 
   it("edits CDX session permission values from the session config modal", async () => {

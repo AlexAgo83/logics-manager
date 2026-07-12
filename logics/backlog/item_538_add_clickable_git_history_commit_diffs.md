@@ -1,10 +1,10 @@
 ## item_538_add_clickable_git_history_commit_diffs - Add clickable Git history commit diffs
 > From version: 2.17.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 80%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer Git history
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -67,3 +67,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_288_orchestrate_git_history_commit_diff_previews`
+
+# Notes
+- Task `task_288_orchestrate_git_history_commit_diff_previews` was finished via `logics-manager flow finish task` on 2026-07-12.

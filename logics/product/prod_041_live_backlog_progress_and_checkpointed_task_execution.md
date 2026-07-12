@@ -1,6 +1,6 @@
 ## prod_041_live_backlog_progress_and_checkpointed_task_execution - Live backlog progress and checkpointed task execution
 > Date: 2026-07-12
-> Status: Proposed
+> Status: Settled
 > Related request: `req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints`
 > Related backlog: `item_540_propagate_task_progress_to_linked_backlog_items_during_development`
 > Related task: `task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance`

@@ -1,6 +1,6 @@
 ## prod_039_git_history_commit_diff_preview - Git history commit diff preview
 > Date: 2026-07-12
-> Status: Proposed
+> Status: Settled
 > Related request: `req_291_preview_commit_diffs_from_git_history`
 > Related backlog: `item_538_add_clickable_git_history_commit_diffs`
 > Related task: `task_288_orchestrate_git_history_commit_diff_previews`

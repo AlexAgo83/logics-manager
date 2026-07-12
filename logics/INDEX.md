@@ -78,6 +78,7 @@
 | [prod_039_git_history_commit_diff_preview](product/prod_039_git_history_commit_diff_preview.md) | Git history commit diff preview | Settled |  |  | product/prod_039_git_history_commit_diff_preview.md |
 | [prod_040_readable_scope_sections_in_document_previews](product/prod_040_readable_scope_sections_in_document_previews.md) | Readable Scope sections in document previews | Settled |  |  | product/prod_040_readable_scope_sections_in_document_previews.md |
 | [prod_041_live_backlog_progress_and_checkpointed_task_execution](product/prod_041_live_backlog_progress_and_checkpointed_task_execution.md) | Live backlog progress and checkpointed task execution | Settled |  |  | product/prod_041_live_backlog_progress_and_checkpointed_task_execution.md |
+| [prod_042_convention_aware_project_surfaces](product/prod_042_convention_aware_project_surfaces.md) | Convention-aware project surfaces | Proposed |  |  | product/prod_042_convention_aware_project_surfaces.md |
 
 ## Requests
 
@@ -375,6 +376,7 @@
 | [req_291_preview_commit_diffs_from_git_history](request/req_291_preview_commit_diffs_from_git_history.md) | Preview commit diffs from Git history | Done |  |  | request/req_291_preview_commit_diffs_from_git_history.md |
 | [req_292_improve_scope_section_rendering_in_document_previews](request/req_292_improve_scope_section_rendering_in_document_previews.md) | Improve Scope section rendering in document previews | Done |  |  | request/req_292_improve_scope_section_rendering_in_document_previews.md |
 | [req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints](request/req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints.md) | Sync backlog progress during task development and codify task checkpoints | Done |  |  | request/req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints.md |
+| [req_294_convention_aware_project_i18n_and_theme_viewer_screens](request/req_294_convention_aware_project_i18n_and_theme_viewer_screens.md) | Convention-aware project i18n and theme viewer screens | Draft |  |  | request/req_294_convention_aware_project_i18n_and_theme_viewer_screens.md |
 
 ## Backlog
 
@@ -921,6 +923,12 @@
 | [item_539_render_scope_in_and_out_groups_as_structured_preview_blocks](backlog/item_539_render_scope_in_and_out_groups_as_structured_preview_blocks.md) | Render Scope In and Out groups as structured preview blocks | Done |  | 100% | backlog/item_539_render_scope_in_and_out_groups_as_structured_preview_blocks.md |
 | [item_540_propagate_task_progress_to_linked_backlog_items_during_development](backlog/item_540_propagate_task_progress_to_linked_backlog_items_during_development.md) | Propagate task progress to linked backlog items during development | Done |  | 100% | backlog/item_540_propagate_task_progress_to_linked_backlog_items_during_development.md |
 | [item_541_codify_task_wave_checkpoints_and_documentation_updates_in_generated_workflows](backlog/item_541_codify_task_wave_checkpoints_and_documentation_updates_in_generated_workflows.md) | Codify task wave checkpoints and documentation updates in generated workflows | Done |  | 100% | backlog/item_541_codify_task_wave_checkpoints_and_documentation_updates_in_generated_workflows.md |
+| [item_542_define_and_detect_bounded_project_i18n_and_theme_conventions](backlog/item_542_define_and_detect_bounded_project_i18n_and_theme_conventions.md) | Define and detect bounded project i18n and theme conventions | Ready |  | 0% | backlog/item_542_define_and_detect_bounded_project_i18n_and_theme_conventions.md |
+| [item_543_add_translation_catalog_inspection_and_completeness_diagnostics](backlog/item_543_add_translation_catalog_inspection_and_completeness_diagnostics.md) | Add translation catalog inspection and completeness diagnostics | Ready |  | 0% | backlog/item_543_add_translation_catalog_inspection_and_completeness_diagnostics.md |
+| [item_544_enable_safe_editing_of_supported_json_translation_catalogs](backlog/item_544_enable_safe_editing_of_supported_json_translation_catalogs.md) | Enable safe editing of supported JSON translation catalogs | Ready |  | 0% | backlog/item_544_enable_safe_editing_of_supported_json_translation_catalogs.md |
+| [item_545_add_theme_token_inspection_and_live_preview](backlog/item_545_add_theme_token_inspection_and_live_preview.md) | Add theme token inspection and live preview | Ready |  | 0% | backlog/item_545_add_theme_token_inspection_and_live_preview.md |
+| [item_546_enable_safe_editing_of_css_custom_property_theme_tokens](backlog/item_546_enable_safe_editing_of_css_custom_property_theme_tokens.md) | Enable safe editing of CSS custom-property theme tokens | Ready |  | 0% | backlog/item_546_enable_safe_editing_of_css_custom_property_theme_tokens.md |
+| [item_547_harden_shared_host_parity_and_document_the_supported_project_conventions](backlog/item_547_harden_shared_host_parity_and_document_the_supported_project_conventions.md) | Harden shared-host parity and document the supported project conventions | Ready |  | 0% | backlog/item_547_harden_shared_host_parity_and_document_the_supported_project_conventions.md |
 
 ## Tasks
 
@@ -1210,3 +1218,4 @@
 | [task_288_orchestrate_git_history_commit_diff_previews](tasks/task_288_orchestrate_git_history_commit_diff_previews.md) | Orchestrate Git history commit diff previews | Done | codex | 100% | tasks/task_288_orchestrate_git_history_commit_diff_previews.md |
 | [task_289_orchestrate_scope_section_preview_rendering](tasks/task_289_orchestrate_scope_section_preview_rendering.md) | Orchestrate Scope section preview rendering | Done | codex | 100% | tasks/task_289_orchestrate_scope_section_preview_rendering.md |
 | [task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance](tasks/task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance.md) | Orchestrate live backlog progress and checkpointed task guidance | Done |  | 100% | tasks/task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance.md |
+| [task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery](tasks/task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery.md) | Orchestrate convention-aware i18n and theme viewer delivery | Ready |  | 0% | tasks/task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery.md |

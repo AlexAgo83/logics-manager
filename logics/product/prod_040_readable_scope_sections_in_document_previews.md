@@ -1,6 +1,6 @@
 ## prod_040_readable_scope_sections_in_document_previews - Readable Scope sections in document previews
 > Date: 2026-07-12
-> Status: Proposed
+> Status: Settled
 > Related request: `req_292_improve_scope_section_rendering_in_document_previews`
 > Related backlog: `item_539_render_scope_in_and_out_groups_as_structured_preview_blocks`
 > Related task: `task_289_orchestrate_scope_section_preview_rendering`

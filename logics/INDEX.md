@@ -75,9 +75,9 @@
 | [prod_036_vs_code_embedded_viewer_parity](product/prod_036_vs_code_embedded_viewer_parity.md) | VS Code embedded viewer parity | Settled |  |  | product/prod_036_vs_code_embedded_viewer_parity.md |
 | [prod_037_split_cdx_usage_gauge](product/prod_037_split_cdx_usage_gauge.md) | Split CDX usage gauge | Settled |  |  | product/prod_037_split_cdx_usage_gauge.md |
 | [prod_038_post_release_viewer_hardening](product/prod_038_post_release_viewer_hardening.md) | Post-release viewer hardening | Settled |  |  | product/prod_038_post_release_viewer_hardening.md |
-| [prod_039_git_history_commit_diff_preview](product/prod_039_git_history_commit_diff_preview.md) | Git history commit diff preview | Proposed |  |  | product/prod_039_git_history_commit_diff_preview.md |
-| [prod_040_readable_scope_sections_in_document_previews](product/prod_040_readable_scope_sections_in_document_previews.md) | Readable Scope sections in document previews | Proposed |  |  | product/prod_040_readable_scope_sections_in_document_previews.md |
-| [prod_041_live_backlog_progress_and_checkpointed_task_execution](product/prod_041_live_backlog_progress_and_checkpointed_task_execution.md) | Live backlog progress and checkpointed task execution | Proposed |  |  | product/prod_041_live_backlog_progress_and_checkpointed_task_execution.md |
+| [prod_039_git_history_commit_diff_preview](product/prod_039_git_history_commit_diff_preview.md) | Git history commit diff preview | Settled |  |  | product/prod_039_git_history_commit_diff_preview.md |
+| [prod_040_readable_scope_sections_in_document_previews](product/prod_040_readable_scope_sections_in_document_previews.md) | Readable Scope sections in document previews | Settled |  |  | product/prod_040_readable_scope_sections_in_document_previews.md |
+| [prod_041_live_backlog_progress_and_checkpointed_task_execution](product/prod_041_live_backlog_progress_and_checkpointed_task_execution.md) | Live backlog progress and checkpointed task execution | Settled |  |  | product/prod_041_live_backlog_progress_and_checkpointed_task_execution.md |
 
 ## Requests
 

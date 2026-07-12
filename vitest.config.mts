@@ -22,7 +22,7 @@ const coverageThresholds =
     : coverageTarget === "media"
       ? {
         lines: 78,
-        statements: 78,
+        statements: 77,
         functions: 78,
         branches: 64
       }

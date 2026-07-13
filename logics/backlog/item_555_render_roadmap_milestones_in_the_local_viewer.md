@@ -1,10 +1,10 @@
 ## item_555_render_roadmap_milestones_in_the_local_viewer - Render roadmap milestones in the local viewer
 > From version: 2.18.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 10%
+> Progress: 100%
 > Complexity: High
 > Theme: Roadmap planning viewer
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -40,6 +40,8 @@
 - request-AC6 -> This backlog slice. Proof: AC4: Existing doc cards or details show roadmap placement such as `Roadmap: 0.1` when linked.
 - request-AC7 -> This backlog slice. Proof: AC5: Viewer tests cover populated, empty, and malformed-roadmap states without blank-screen failures.
 - request-AC9 -> This backlog slice. Proof: AC5: Viewer tests cover populated, empty, and malformed-roadmap states without blank-screen failures.
+- request-AC8 -> This backlog slice. Proof: Implemented roadmap document kind, CLI propose/show/validate, sync/search/index/audit/lint/MCP/Obsidian integration, viewer milestone rendering, docs, generated status constants, and targeted tests passing. Source: `task_293_deliver_first_class_roadmap_planning_support`
+- request-AC10 -> This backlog slice. Proof: Implemented roadmap document kind, CLI propose/show/validate, sync/search/index/audit/lint/MCP/Obsidian integration, viewer milestone rendering, docs, generated status constants, and targeted tests passing. Source: `task_293_deliver_first_class_roadmap_planning_support`
 
 # Decision framing
 - Product framing: Not needed
@@ -60,3 +62,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_293_deliver_first_class_roadmap_planning_support`
+
+# Notes
+- Task `task_293_deliver_first_class_roadmap_planning_support` was finished via `logics-manager flow finish task` on 2026-07-13.

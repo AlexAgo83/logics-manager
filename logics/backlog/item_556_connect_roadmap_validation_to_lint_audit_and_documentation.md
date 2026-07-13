@@ -1,10 +1,10 @@
 ## item_556_connect_roadmap_validation_to_lint_audit_and_documentation - Connect roadmap validation to lint, audit, and documentation
 > From version: 2.18.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 10%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Roadmap planning governance
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -37,6 +37,8 @@
 - request-AC8 -> This backlog slice. Proof: AC2: `logics-manager audit --group-by-doc` includes roadmap findings grouped by roadmap doc path.
 - request-AC9 -> This backlog slice. Proof: AC3: Docs explain roadmap versus request/backlog/task versus release in concrete terms.
 - request-AC10 -> This backlog slice. Proof: AC4: Existing repos without roadmap docs continue to pass current validation unless they already have unrelated findings.
+- request-AC6 -> This backlog slice. Proof: Implemented roadmap document kind, CLI propose/show/validate, sync/search/index/audit/lint/MCP/Obsidian integration, viewer milestone rendering, docs, generated status constants, and targeted tests passing. Source: `task_293_deliver_first_class_roadmap_planning_support`
+- request-AC7 -> This backlog slice. Proof: Implemented roadmap document kind, CLI propose/show/validate, sync/search/index/audit/lint/MCP/Obsidian integration, viewer milestone rendering, docs, generated status constants, and targeted tests passing. Source: `task_293_deliver_first_class_roadmap_planning_support`
 
 # Decision framing
 - Product framing: Not needed
@@ -57,3 +59,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_293_deliver_first_class_roadmap_planning_support`
+
+# Notes
+- Task `task_293_deliver_first_class_roadmap_planning_support` was finished via `logics-manager flow finish task` on 2026-07-13.

@@ -737,7 +737,9 @@ export function normalizeCapabilities(payload) {
       git: capabilities.git || { state: "ready", available: true, message: "" },
       ci: capabilities.ci || { state: "ready", available: true, message: "" },
       cdx: capabilities.cdx || { state: "ready", available: true, message: "" },
-      cdxRuns: capabilities.cdxRuns || { state: "unsupported", available: false, message: "" }
+      cdxRuns: capabilities.cdxRuns || { state: "unsupported", available: false, message: "" },
+      i18n: capabilities.i18n || { state: "hidden", available: false, message: "" },
+      theme: capabilities.theme || { state: "hidden", available: false, message: "" }
     };
   }
 

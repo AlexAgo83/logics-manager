@@ -2,7 +2,7 @@
 > Date: 2026-07-13
 > Status: Proposed
 > Related request: `req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling`
-> Related backlog: `item_548_define_the_versioned_optional_i18n_contract_and_schema`, `item_549_add_i18n_contract_lifecycle_commands_and_validation`, `item_550_make_i18n_readiness_a_default_new_project_consideration`, `item_551_use_the_declared_i18n_contract_in_viewer_project_tools`, `item_552_document_and_harden_the_i18n_contract_rollout`
+> Related backlog: `item_548_define_the_versioned_optional_i18n_contract_and_schema`
 > Related task: `task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -50,5 +50,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling`
+- Product back-reference: `item_548_define_the_versioned_optional_i18n_contract_and_schema`
 - Task back-reference: `task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery`

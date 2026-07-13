@@ -1,7 +1,7 @@
 ## req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling - Optional project-owned i18n contract and lifecycle tooling
 > From version: 2.17.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High

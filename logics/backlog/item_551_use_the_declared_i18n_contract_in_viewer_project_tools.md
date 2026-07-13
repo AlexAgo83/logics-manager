@@ -1,10 +1,10 @@
 ## item_551_use_the_declared_i18n_contract_in_viewer_project_tools - Use the declared i18n contract in viewer project tools
 > From version: 2.17.1
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 65%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer contract integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -55,3 +55,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery`
+
+# Notes
+- Task `task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery` was finished via `logics-manager flow finish task` on 2026-07-13.

@@ -6815,10 +6815,10 @@ import {
         setMeta(`Copy failed — long-press to select: ${share}`);
       }
     });
-    // The Workshop / Remote / CDX buttons toggle their sub-section menu rather
+    // The Project / Workshop / Remote / CDX buttons toggle their sub-section menu rather
     // than navigating directly: a click opens the menu so its items stay
     // clickable; choosing an item (handled below) performs the navigation.
-    ["viewer-workshop", "viewer-ci", "viewer-cdx"].forEach((id) => {
+    ["viewer-project-tools", "viewer-workshop", "viewer-ci", "viewer-cdx"].forEach((id) => {
       const button = document.getElementById(id);
       // Guard against the init block running more than once (the load event can
       // fire twice), which would otherwise double-bind and cancel the toggle.

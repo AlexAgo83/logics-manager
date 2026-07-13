@@ -3731,7 +3731,7 @@ def test_demo_corpus_covers_board_states(tmp_path):
     root = viewer_module.ensure_demo_corpus(tmp_path)
     items = collect_viewer_items(root)
     by_stage = {item["stage"] for item in items}
-    assert by_stage == {"request", "backlog", "task", "product", "architecture", "spec"}
+    assert by_stage == {"request", "backlog", "task", "product", "roadmap", "architecture", "spec"}
 
     def status_of(doc_id):
         return next(i for i in items if i["id"] == doc_id)["indicators"].get("Status")
@@ -3753,6 +3753,9 @@ def test_demo_corpus_covers_board_states(tmp_path):
     # orphaned supporting doc has no usedBy links
     orphan = next(i for i in items if i["id"] == "prod_demo_orphan")
     assert orphan["usedBy"] == []
+    roadmap = next(i for i in items if i["id"] == "road_demo_auth")
+    assert roadmap["stage"] == "roadmap"
+    assert roadmap["references"][0]["path"] == "logics/product/prod_demo_linked.md"
 
     # Promotion chain: the active request has linked delivery children.
     promoted = next(i for i in items if i["id"] == "req_demo_auth_login")

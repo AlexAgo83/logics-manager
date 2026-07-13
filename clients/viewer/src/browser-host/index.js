@@ -2993,6 +2993,12 @@ import {
     if (viewerFilterState.status === "done" && !isClosed(item)) {
       return false;
     }
+    if (!["any", "ready", "in-progress", "blocked", "done"].includes(viewerFilterState.status)) {
+      const expected = String(viewerFilterState.status || "").replace(/-/g, " ");
+      if (status !== expected) {
+        return false;
+      }
+    }
 
     if (viewerFilterState.relation === "unlinked" && hasLinks(item)) {
       return false;
@@ -3036,7 +3042,7 @@ import {
       blocked: "Blocked",
       "needs-promotion": "Needs promotion",
       recent: "Recently changed"
-    }[value] || "Active work";
+    }[value] || "All docs";
   }
 
   function setFocusMenuOpen(open) {
@@ -3119,7 +3125,7 @@ import {
     const activeLabels = Object.entries(viewerFilterState)
       .filter(([key, value]) => value !== defaultFilterState[key])
       .map(([key, value]) => `${key}: ${String(value).replace("-", " ")}`);
-    const suffix = activeLabels.length > 0 ? ` · ${activeLabels.join(" · ")}` : " · Active work";
+    const suffix = activeLabels.length > 0 ? ` · ${activeLabels.join(" · ")}` : " · All docs";
     count.textContent = `${visibleCount} of ${latestItems.length} docs shown${suffix}`;
   }
 

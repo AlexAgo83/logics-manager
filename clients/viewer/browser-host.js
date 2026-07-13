@@ -1335,7 +1335,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
   var maxAutoRefreshIntervalSeconds = 60;
   var defaultAutoRefreshIntervalMs = 15 * 1e3;
   var defaultFilterState = {
-    focus: "active",
+    focus: "all",
     type: "all",
     status: "any",
     relation: "any",
@@ -6273,6 +6273,12 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       if (viewerFilterState.status === "done" && !isClosed(item)) {
         return false;
       }
+      if (!["any", "ready", "in-progress", "blocked", "done"].includes(viewerFilterState.status)) {
+        const expected = String(viewerFilterState.status || "").replace(/-/g, " ");
+        if (status !== expected) {
+          return false;
+        }
+      }
       if (viewerFilterState.relation === "unlinked" && hasLinks(item)) {
         return false;
       }
@@ -6311,7 +6317,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         blocked: "Blocked",
         "needs-promotion": "Needs promotion",
         recent: "Recently changed"
-      }[value] || "Active work";
+      }[value] || "All docs";
     }
     function setFocusMenuOpen(open) {
       const menu = document.getElementById("focus-menu-options");
@@ -6387,7 +6393,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       }
       const visibleCount = latestItems.filter(matchesViewerFilter).length;
       const activeLabels = Object.entries(viewerFilterState).filter(([key, value]) => value !== defaultFilterState[key]).map(([key, value]) => `${key}: ${String(value).replace("-", " ")}`);
-      const suffix = activeLabels.length > 0 ? ` \xB7 ${activeLabels.join(" \xB7 ")}` : " \xB7 Active work";
+      const suffix = activeLabels.length > 0 ? ` \xB7 ${activeLabels.join(" \xB7 ")}` : " \xB7 All docs";
       count.textContent = `${visibleCount} of ${latestItems.length} docs shown${suffix}`;
     }
     function renderInsightBars(entries, total) {

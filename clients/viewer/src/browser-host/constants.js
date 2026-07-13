@@ -26,7 +26,7 @@ export const maxAutoRefreshIntervalSeconds = 60;
 export const defaultAutoRefreshIntervalMs = 15 * 1000;
 
 export const defaultFilterState = {
-    focus: "active",
+    focus: "all",
     type: "all",
     status: "any",
     relation: "any",

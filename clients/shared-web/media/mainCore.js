@@ -1,4 +1,6 @@
 (() => {
+  const FILTER_STATE_VERSION = 2;
+
   function normalizeWorkspacePath(value) {
     if (!value) {
       return "";
@@ -100,6 +102,7 @@
     function getSnapshot(scrollValues = { boardLeft: 0, boardTop: 0, detailsTop: 0 }) {
       return {
         workspaceRoot: state.activeWorkspaceRoot,
+        filterStateVersion: FILTER_STATE_VERSION,
         selectedId: state.selectedId,
         hideCompleted: state.hideCompleted,
         hideProcessedRequests: state.hideProcessedRequests,
@@ -157,7 +160,7 @@
       } else if (nextState && typeof nextState.hideUsedRequests === "boolean") {
         state.hideProcessedRequests = nextState.hideUsedRequests;
       }
-      if (nextState && typeof nextState.hideSpec === "boolean") {
+      if (nextState && typeof nextState.hideSpec === "boolean" && Number(nextState.filterStateVersion || 0) >= FILTER_STATE_VERSION) {
         state.hideSpec = nextState.hideSpec;
       }
       if (nextState && typeof nextState.showCompanionDocs === "boolean") {

@@ -6,9 +6,18 @@
 > Related task: `task_293_deliver_first_class_roadmap_planning_support`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Non-semantic edit: Added overview Mermaid diagram for audit hygiene.
 
 # Overview
 Add a roadmap planning layer to Logics Manager so operators and AI agents can turn a corpus into ordered product/action milestones such as 0.1, 0.2, 0.3, and 1.0, then inspect and validate that plan in the CLI and viewer.
+
+```mermaid
+flowchart TD
+    Corpus[Existing corpus] --> Roadmap[Versioned roadmap]
+    Roadmap --> CLI[CLI propose show validate]
+    Roadmap --> Viewer[Viewer milestone timeline]
+    Roadmap --> Agents[AI handoff context]
+```
 
 # Goals
 - Represent roadmap milestones as structured Logics docs with stable refs and links.

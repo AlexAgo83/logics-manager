@@ -32,6 +32,7 @@ ALLOWED_WRITE_DIRS = (
     "logics/backlog",
     "logics/tasks",
     "logics/product",
+    "logics/roadmap",
     "logics/architecture",
 )
 MAX_RAW_DIFF_CHARS = 12000
@@ -116,6 +117,21 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
         ),
     },
     {
+        "name": "create_roadmap",
+        "description": "Create a Logics roadmap companion document with versioned milestones.",
+        "inputSchema": _tool_schema(
+            {
+                "title": {"type": "string"},
+                "milestones": {"type": "array", "items": {"type": "string"}},
+                "product_path": {"type": "string"},
+                "request_paths": {"type": "array", "items": {"type": "string"}},
+                "backlog_paths": {"type": "array", "items": {"type": "string"}},
+                "task_paths": {"type": "array", "items": {"type": "string"}},
+            },
+            ["title"],
+        ),
+    },
+    {
         "name": "list_companion_docs",
         "description": "List Logics companion documents such as product briefs, roadmaps, and architecture decisions.",
         "inputSchema": _tool_schema(
@@ -169,7 +185,7 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
         "description": "List Logics workflow documents by bounded criteria.",
         "inputSchema": _tool_schema(
             {
-                "kind": {"type": "string", "enum": ["all", "request", "backlog", "task"]},
+                "kind": {"type": "string", "enum": ["all", "request", "backlog", "task", "product", "roadmap", "architecture", "spec"]},
                 "status": {"type": "string"},
                 "ref_prefix": {"type": "string"},
                 "limit": {"type": "integer"},
@@ -182,7 +198,7 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
         "inputSchema": _tool_schema(
             {
                 "query": {"type": "string"},
-                "kind": {"type": "string", "enum": ["all", "request", "backlog", "task"]},
+                "kind": {"type": "string", "enum": ["all", "request", "backlog", "task", "product", "roadmap", "architecture", "spec"]},
                 "status": {"type": "string"},
                 "limit": {"type": "integer"},
                 "max_snippet_chars": {"type": "integer"},
@@ -205,7 +221,7 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
         "description": "List actionable Logics follow-up areas with request creation commands.",
         "inputSchema": _tool_schema(
             {
-                "source_kind": {"type": "string", "enum": ["all", "request", "backlog", "task", "product", "architecture"]},
+                "source_kind": {"type": "string", "enum": ["all", "request", "backlog", "task", "product", "roadmap", "architecture"]},
                 "include_closed": {"type": "boolean"},
                 "closed_only": {"type": "boolean"},
                 "limit": {"type": "integer"},
@@ -1195,6 +1211,47 @@ def _tool_create_product_brief(root: Path, args: dict[str, Any], name: str) -> d
     }
 
 
+def _tool_create_roadmap(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    title = str(args.get("title") or "").strip()
+    if not title:
+        raise McpToolError("missing_required_argument", "title is required.", details={"argument": "title"})
+    command = ["flow", "roadmap", "propose", "--title", title, "--format", "json"]
+    for milestone in args.get("milestones") or []:
+        command.extend(["--milestone", str(milestone)])
+    linked_refs: dict[str, Any] = {}
+    if args.get("product_path"):
+        rel_path = _relative_path(root, str(args["product_path"]), ("logics/product",))
+        ref = _flow_path_ref(rel_path.as_posix())
+        if ref:
+            command.extend(["--product-ref", ref])
+            linked_refs["product_path"] = rel_path.as_posix()
+    for key, flag, directory in (
+        ("request_paths", "--request-ref", "logics/request"),
+        ("backlog_paths", "--backlog-ref", "logics/backlog"),
+        ("task_paths", "--task-ref", "logics/tasks"),
+    ):
+        values = args.get(key) if isinstance(args.get(key), list) else []
+        linked_refs[key] = []
+        for value in values:
+            rel_path = _relative_path(root, str(value), (directory,))
+            ref = _flow_path_ref(rel_path.as_posix())
+            if ref:
+                command.extend([flag, ref])
+                linked_refs[key].append(rel_path.as_posix())
+    payload = _json_from_stdout(_run_command(root, command).stdout)
+    return {
+        "ok": True,
+        "path": payload["path"],
+        "ref": payload["ref"],
+        "milestones": payload.get("milestones", []),
+        "linked_refs": {key: value for key, value in linked_refs.items() if value},
+        "document_preview": _document_preview(root, str(payload["path"])),
+        "next_suggested_tool": "read_logics_doc",
+        **_validation_result(root, include_audit=True),
+        **_show_git_diff(root, [str(payload["path"])]),
+    }
+
+
 _TOOL_HANDLERS: dict[str, Any] = {
     "run_logics_lint": _tool_run_logics_lint,
     "run_logics_audit": _tool_run_logics_audit,
@@ -1230,6 +1287,7 @@ _TOOL_HANDLERS: dict[str, Any] = {
     "promote_request_to_backlog": _tool_promote_request_to_backlog,
     "promote_backlog_to_task": _tool_promote_backlog_to_task,
     "create_product_brief": _tool_create_product_brief,
+    "create_roadmap": _tool_create_roadmap,
     "create_architecture_decision": _tool_create_product_brief,
 }
 

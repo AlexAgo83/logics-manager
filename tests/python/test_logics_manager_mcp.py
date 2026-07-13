@@ -99,6 +99,25 @@ def test_mcp_update_indicators_rejects_illegal_status_transition(tmp_path: Path)
         call_tool("update_workflow_indicators", {"source": source, "status": "Ready"}, repo_root=repo_root)
 
 
+def test_mcp_create_roadmap_and_context_pack_seed(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+
+    roadmap = call_tool(
+        "create_roadmap",
+        {"title": "Demo Roadmap", "milestones": ["0.1: MVP", "1.0: Stable"]},
+        repo_root=repo_root,
+    )
+    listed = call_tool("list_logics_docs", {"kind": "roadmap"}, repo_root=repo_root)
+    pack = call_tool("build_context_pack", {"ref": roadmap["ref"], "mode": "full"}, repo_root=repo_root)
+
+    assert roadmap["ok"] is True
+    assert roadmap["ref"] == "road_001_demo_roadmap"
+    assert roadmap["milestones"] == ["0.1", "1.0"]
+    assert listed["items"][0]["kind"] == "roadmap"
+    assert pack["docs"][0]["ref"] == "road_001_demo_roadmap"
+    assert pack["docs"][0]["sections"]["Milestones"][0] == "## 0.1 - MVP"
+
+
 def test_mcp_rejects_absolute_paths(tmp_path: Path) -> None:
     repo_root = _repo(tmp_path)
 

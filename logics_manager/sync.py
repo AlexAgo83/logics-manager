@@ -231,6 +231,7 @@ def _context_pack_doc_entry(doc: WorkflowDocModel, mode: str) -> dict[str, objec
         "request": ["Needs", "Acceptance criteria"],
         "backlog": ["Problem", "Acceptance criteria"],
         "task": ["Context", "Validation"],
+        "roadmap": ["Summary", "Milestones", "Sequencing", "Risks"],
     }.get(doc.kind, [])
     entry["sections"] = {heading: [line for line in doc.sections.get(heading, []) if line.strip()][:6] for heading in section_names}
     return entry

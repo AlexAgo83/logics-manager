@@ -532,8 +532,7 @@
 .viewer-screen-activity #attention-toggle,
 .viewer-screen-activity .toolbar__mode-button,
 .viewer-screen-project #activity-clear {
-  visibility: hidden;
-  pointer-events: none;
+  display: none;
 }
 
 .viewer-screen-document #filter-toggle,

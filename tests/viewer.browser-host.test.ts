@@ -1607,7 +1607,7 @@ describe("local viewer browser host", () => {
   it("styles the view slider and the mobile search/slider reflow", () => {
     const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
     expect(css).toMatch(/\.toolbar__view-slider\[data-current-mode="project"\]::after/);
-    expect(css).toMatch(/\.viewer-screen-activity #filter-toggle,\s*\.viewer-screen-activity #focus-menu,\s*\.viewer-screen-activity #attention-toggle,\s*\.viewer-screen-activity \.toolbar__mode-button,\s*\.viewer-screen-project #activity-clear\s*\{[^}]*visibility: hidden;[^}]*pointer-events: none;/s);
+    expect(css).toMatch(/\.viewer-screen-activity #filter-toggle,\s*\.viewer-screen-activity #focus-menu,\s*\.viewer-screen-activity #attention-toggle,\s*\.viewer-screen-activity \.toolbar__mode-button,\s*\.viewer-screen-project #activity-clear\s*\{[^}]*display: none;/s);
     expect(css).toMatch(/\.viewer-screen-document #filter-toggle/);
     expect(css).not.toMatch(/\.viewer-code__gutter/);
     expect(css).not.toMatch(/\.viewer-code__body/);

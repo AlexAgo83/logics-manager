@@ -37,6 +37,40 @@ describe("webview chrome toolbar and filter behavior", () => {
     expect(filterToggle?.getAttribute("aria-label")).toContain("non-default");
   });
 
+  it("does not badge local viewer clear-filter hide toggles as active filters", () => {
+    const { dom } = bootstrapWebview();
+    dom.window.__CDX_LOGICS_VIEWER_FILTER__ = () => true;
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const filterToggle = dom.window.document.getElementById("filter-toggle");
+    filterToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const hideCompleteToggle = dom.window.document.getElementById("hide-complete") as HTMLInputElement | null;
+    if (hideCompleteToggle) {
+      hideCompleteToggle.checked = false;
+      hideCompleteToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    filterToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(filterToggle?.getAttribute("data-has-active-controls")).toBe("false");
+    expect(filterToggle?.classList.contains("toolbar__filter--active")).toBe(false);
+
+    filterToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    const searchInput = dom.window.document.getElementById("search-input") as HTMLInputElement | null;
+    if (searchInput) {
+      searchInput.value = "blocked";
+      searchInput.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    }
+    filterToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(filterToggle?.getAttribute("data-has-active-controls")).toBe("true");
+  });
+
   it("clears the filter badge when reset restores all filter defaults", () => {
     const { dom } = bootstrapWebview();
 

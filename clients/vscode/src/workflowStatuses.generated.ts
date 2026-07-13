@@ -5,6 +5,7 @@ export const STATUS_STAGES: Record<string, readonly string[]> = {
   "backlog": ["Draft","Ready","In progress","Blocked","Done","Obsolete","Archived"],
   "task": ["Draft","Ready","In progress","Blocked","Done","Obsolete","Archived"],
   "product": ["Draft","Proposed","Active","Accepted","Validated","Rejected","Superseded","Settled","Archived"],
+  "roadmap": ["Draft","Proposed","Active","Accepted","Validated","Rejected","Superseded","Settled","Archived"],
   "architecture": ["Draft","Proposed","Accepted","Validated","Rejected","Superseded","Settled","Archived"],
   "spec": ["Draft","Ready","In progress","Done","Validated","Settled","Archived"]
 };

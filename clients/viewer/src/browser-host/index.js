@@ -2299,12 +2299,36 @@ import {
     return escapeHtml(value);
   }
 
+  function roadmapMilestones(markdown) {
+    const milestones = [];
+    String(markdown || "").split(/\r?\n/).forEach((line) => {
+      const match = line.match(/^##\s+(\d+(?:\.\d+){1,2})\s+-\s+(.+?)\s*$/);
+      if (match) milestones.push({ version: match[1], title: match[2] });
+    });
+    return milestones;
+  }
+
+  function renderRoadmapMilestones(markdown) {
+    const milestones = roadmapMilestones(markdown);
+    if (!milestones.length) return "";
+    return `<section class="viewer-roadmap" aria-label="Roadmap milestones">
+      ${milestones.map((milestone, index) => `
+        <div class="viewer-roadmap__milestone">
+          <span class="viewer-roadmap__version">${escapeHtml(milestone.version)}</span>
+          <span class="viewer-roadmap__dot" aria-hidden="true"></span>
+          <span class="viewer-roadmap__title">${escapeHtml(milestone.title)}</span>
+          ${index < milestones.length - 1 ? '<span class="viewer-roadmap__line" aria-hidden="true"></span>' : ""}
+        </div>
+      `).join("")}
+    </section>`;
+  }
+
   function workflowRefInfo(value) {
     const raw = String(value || "").trim().replace(/^`|`$/g, "").replace(/\\/g, "/").replace(/^\.?\//, "");
     if (!raw || raw.startsWith("/") || raw.startsWith("~") || raw.split("/").includes("..")) return null;
     const stem = raw.replace(/\.md$/i, "").split("/").pop() || "";
     const directory = raw.split("/").slice(-2, -1)[0] || "";
-    const match = stem.match(/^(req|item|task|prod|adr|spec)_(\d+)/i);
+    const match = stem.match(/^(req|item|task|prod|road|adr|spec)_(\d+)/i);
     if (!match) return null;
     const kindByPrefix = { req: "request", item: "backlog", task: "task", prod: "product", road: "roadmap", adr: "architecture", spec: "spec" };
     const prefixByKind = { request: "R", backlog: "I", task: "T", product: "P", roadmap: "M", architecture: "A", spec: "S" };
@@ -3302,7 +3326,8 @@ import {
       const bodyHtml = api && typeof api.renderMarkdownToHtml === "function"
         ? api.renderMarkdownToHtml(markdown)
         : `<pre>${escapeHtml(markdown)}</pre>`;
-      const html = `${renderDocumentMeta(documentItem)}${bodyHtml}`;
+      const roadmapHtml = item.stage === "roadmap" ? renderRoadmapMilestones(markdown) : "";
+      const html = `${renderDocumentMeta(documentItem)}${roadmapHtml}${bodyHtml}`;
       // Header reads as: [type pill] Object name, with the file path as subtitle.
       const objectName = String(item.title || "").trim() || docPath;
       setDocument(objectName, html, {

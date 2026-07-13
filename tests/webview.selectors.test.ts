@@ -373,18 +373,27 @@ describe("webview selectors behavior", () => {
 
     const board = dom.window.document.getElementById("board");
 
-    // By default showCompanionDocs=true, hideSpec=true
+    // By default showCompanionDocs=true, hideSpec=false
     const columns = Array.from(board?.querySelectorAll(".column") || []);
     const stages = columns.map((c) => (c as HTMLElement).dataset.stage);
     expect(stages).toContain("product");
     expect(stages).toContain("architecture");
-    expect(stages).not.toContain("spec");
+    expect(stages).toContain("spec");
 
-    // Toggle spec visibility
+    // Toggle spec visibility off and back on
     const filterToggle = dom.window.document.getElementById("filter-toggle");
     filterToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
     const hideSpecToggle = dom.window.document.getElementById("hide-spec") as HTMLInputElement | null;
+    if (hideSpecToggle) {
+      hideSpecToggle.checked = true;
+      hideSpecToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    const hiddenColumns = Array.from(board?.querySelectorAll(".column") || []);
+    const hiddenStages = hiddenColumns.map((c) => (c as HTMLElement).dataset.stage);
+    expect(hiddenStages).not.toContain("spec");
+
     if (hideSpecToggle) {
       hideSpecToggle.checked = false;
       hideSpecToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));

@@ -4980,5 +4980,6 @@
 .viewer-project-tool__token { display: grid; grid-template-columns: 2.5rem 1fr auto; gap: .7rem; align-items: center; padding: .7rem; border: 1px solid var(--vscode-panel-border, #454545); border-radius: 8px; background: var(--vscode-editorWidget-background, #202020); }
 .viewer-project-tool__token strong, .viewer-project-tool__token small, .viewer-project-tool__token code { display: block; overflow-wrap: anywhere; }
 .viewer-project-tool__token small { color: var(--vscode-descriptionForeground, #9da5b4); }
-.viewer-project-tool__swatch, .viewer-project-tool__shape { width: 2.3rem; height: 2.3rem; display: block; border: 1px solid var(--vscode-panel-border, #454545); border-radius: 4px; }
+.viewer-project-tool__swatch, .viewer-project-tool__shape, .viewer-project-tool__placeholder { width: 2.3rem; height: 2.3rem; display: block; }
+.viewer-project-tool__swatch, .viewer-project-tool__shape { border: 1px solid var(--vscode-panel-border, #454545); border-radius: 4px; }
 .viewer-project-tool__shape { background: currentColor; }

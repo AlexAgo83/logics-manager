@@ -3726,7 +3726,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     const safeRadius = /^-?[0-9.]+(?:px|rem|em|%)$/.test(value);
     if (token.group === "colors" && safeColor) return `<span class="viewer-project-tool__swatch" style="background:${escapeHtml2(value)}"></span>`;
     if (token.group === "radii" && safeRadius) return `<span class="viewer-project-tool__shape" style="border-radius:${escapeHtml2(value)}"></span>`;
-    return "";
+    return `<span class="viewer-project-tool__placeholder" aria-hidden="true"></span>`;
   }
   function renderProjectTheme(payload) {
     if (payload?.state !== "ready") return `<div class="viewer-project-tool__empty"><h2>Theme</h2><p>${escapeHtml2(payload?.capability?.message || "Theme source is read-only.")}</p></div>`;

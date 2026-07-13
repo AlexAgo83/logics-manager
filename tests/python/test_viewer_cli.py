@@ -2580,6 +2580,20 @@ def test_viewer_project_tools_detect_and_edit_json_and_css(tmp_path: Path) -> No
     assert updated_theme["selectors"][0]["tokens"][0]["value"] == "#abcdef"
 
 
+def test_viewer_project_tools_detect_monorepo_css_tokens(tmp_path: Path) -> None:
+    token_file = tmp_path / "apps" / "web" / "src" / "styles" / "tokens.css"
+    token_file.parent.mkdir(parents=True)
+    token_file.write_text(
+        ":root {\n  --color-page: #f8fafc;\n  --space-page: 24px;\n}\n",
+        encoding="utf-8",
+    )
+
+    capabilities = viewer_project_capabilities(tmp_path, which=lambda _name: None)
+
+    assert capabilities["theme"]["state"] == "ready"
+    assert capabilities["theme"]["detail"]["paths"] == ["apps/web/src/styles/tokens.css"]
+
+
 def test_viewer_project_tool_edits_reject_stale_or_structural_values(tmp_path: Path) -> None:
     locale_dir = tmp_path / "locales"
     locale_dir.mkdir()

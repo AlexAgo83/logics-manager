@@ -18,7 +18,7 @@ MAX_LOCALES = 20
 MAX_KEYS = 10_000
 LOCALE_DIRS = ("src/i18n", "src/locales", "locales", "messages")
 INLINE_I18N_FILES = ("src/i18n.ts", "src/i18n.js", "src/lib/i18n.ts", "src/lib/i18n.js", "src/app/lib/i18n.ts", "src/app/lib/i18n.js")
-THEME_CSS_FILES = ("src/theme.css", "src/styles.css", "styles/theme.css", "app/globals.css", "src/app.css", "src/app/styles.css")
+THEME_CSS_FILES = ("src/theme.css", "src/styles.css", "styles/theme.css", "app/globals.css", "src/app.css", "src/app/styles.css", "src/styles/tokens.css")
 THEME_CODE_FILES = ("src/theme.ts", "src/theme.js", "src/lib/theme.ts", "src/lib/theme.js", "src/app/lib/themeModes.ts", "src/prefs/theme.ts")
 MUTATING_ROUTES = {"/api/project-i18n-value", "/api/project-theme-value"}
 LOCALE_NAME = re.compile(r"^[A-Za-z]{2,3}(?:[-_][A-Za-z0-9]{2,8})?$")
@@ -170,7 +170,7 @@ def detect_project_tools(root: Path) -> dict[str, Any]:
 
     theme_config = config.get("theme") if isinstance(config.get("theme"), dict) else {}
     configured_theme = str(theme_config.get("path") or "")
-    candidates = (configured_theme,) if configured_theme else tuple(_candidate_paths(root, THEME_CSS_FILES, ("*/src/theme.css", "*/src/styles.css", "*/src/app.css", "*/src/app/styles.css")))
+    candidates = (configured_theme,) if configured_theme else tuple(_candidate_paths(root, THEME_CSS_FILES, ("*/src/theme.css", "*/src/styles.css", "*/src/app.css", "*/src/app/styles.css", "*/src/styles/tokens.css", "*/*/src/styles/tokens.css")))
     css_matches: list[str] = []
     css_roots: list[str] = []
     for rel in candidates:

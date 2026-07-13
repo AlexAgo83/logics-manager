@@ -148,6 +148,18 @@
             <path d="M4 6h16l-6 7v5l-4 2v-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
           </svg>
         </button>
+        <div class="toolbar__focus-menu" id="focus-menu">
+          <button class="toolbar__filter toolbar__focus-button" id="focus-menu-toggle" aria-label="Choose corpus focus" aria-haspopup="true" aria-expanded="false" aria-controls="focus-menu-options" title="Choose corpus focus">
+            <span id="focus-menu-label">Active work</span>
+          </button>
+          <div class="toolbar__focus-menu-options" id="focus-menu-options" role="menu" aria-label="Corpus focus" hidden>
+            <button class="toolbar__focus-menu-option" type="button" role="menuitemradio" data-viewer-focus-value="active">Active work</button>
+            <button class="toolbar__focus-menu-option" type="button" role="menuitemradio" data-viewer-focus-value="all">All docs</button>
+            <button class="toolbar__focus-menu-option" type="button" role="menuitemradio" data-viewer-focus-value="blocked">Blocked</button>
+            <button class="toolbar__focus-menu-option" type="button" role="menuitemradio" data-viewer-focus-value="needs-promotion">Needs promotion</button>
+            <button class="toolbar__focus-menu-option" type="button" role="menuitemradio" data-viewer-focus-value="recent">Recently changed</button>
+          </div>
+        </div>
         <button class="toolbar__filter" id="activity-clear" aria-label="Clear local activity history" title="Clear local activity history">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 7h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M9 7V5h6v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M8 10v8m4-8v8m4-8v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
         </button>
@@ -166,20 +178,6 @@
       </div>
     </div>
     <div class="filter-panel viewer-filter-panel" id="filter-panel" aria-hidden="true" role="group" aria-label="View controls" hidden>
-      <div class="viewer-filter-panel__column viewer-filter-panel__column--focus">
-        <div class="viewer-filter-panel__section">
-          <label class="viewer-filter-select">
-            <span class="viewer-filter-panel__label">Focus</span>
-            <select data-viewer-filter-group="focus" aria-label="Corpus focus">
-              <option value="active">Active work</option>
-              <option value="all">All docs</option>
-              <option value="blocked">Blocked</option>
-              <option value="needs-promotion">Needs promotion</option>
-              <option value="recent">Recently changed</option>
-            </select>
-          </label>
-        </div>
-      </div>
       <div class="viewer-filter-panel__column viewer-filter-panel__column--narrow">
         <div class="viewer-filter-panel__section">
           <label class="viewer-filter-select">

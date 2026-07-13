@@ -5969,6 +5969,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       updateFilterSummary();
       applyLocalViewerChrome();
       bindRefreshMenuControls();
+      bindFocusMenuControls();
       if (activityPanelIsOpen()) {
         dispatchViewerActivityUpdate();
       }
@@ -6277,6 +6278,57 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       setControlValue("hide-empty-columns", true, "change");
       updateFilterSummary();
     }
+    function focusFilterLabel(value) {
+      return {
+        active: "Active work",
+        all: "All docs",
+        blocked: "Blocked",
+        "needs-promotion": "Needs promotion",
+        recent: "Recently changed"
+      }[value] || "Active work";
+    }
+    function setFocusMenuOpen(open) {
+      const menu = document.getElementById("focus-menu-options");
+      const button = document.getElementById("focus-menu-toggle");
+      if (menu) menu.hidden = !open;
+      if (button) button.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    function updateFocusMenuState() {
+      const value = viewerFilterState.focus || defaultFilterState.focus;
+      const label = focusFilterLabel(value);
+      const labelNode = document.getElementById("focus-menu-label");
+      const button = document.getElementById("focus-menu-toggle");
+      if (labelNode) labelNode.textContent = label;
+      if (button) button.title = `Corpus focus: ${label}`;
+      document.querySelectorAll("[data-viewer-focus-value]").forEach((node) => {
+        if (node instanceof HTMLElement) {
+          node.setAttribute("aria-checked", node.getAttribute("data-viewer-focus-value") === value ? "true" : "false");
+        }
+      });
+    }
+    function bindFocusMenuControls() {
+      const button = document.getElementById("focus-menu-toggle");
+      const menu = document.getElementById("focus-menu-options");
+      if (button) {
+        button.onclick = (event) => {
+          event.stopPropagation();
+          setFocusMenuOpen(Boolean(menu?.hidden));
+        };
+      }
+      if (menu) {
+        menu.onclick = (event) => {
+          event.stopPropagation();
+        };
+      }
+      document.querySelectorAll("[data-viewer-focus-value]").forEach((node) => {
+        if (node instanceof HTMLElement) {
+          node.onclick = () => {
+            applyViewerFilter("focus", node.getAttribute("data-viewer-focus-value") || "");
+            setFocusMenuOpen(false);
+          };
+        }
+      });
+    }
     function clearLocalPreset() {
       viewerFilterState = { ...defaultFilterState };
       window.__CDX_LOGICS_VIEWER_FILTER__ = matchesViewerFilter;
@@ -6290,6 +6342,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       updateFilterSummary();
     }
     function updateFilterSummary() {
+      updateFocusMenuState();
       document.querySelectorAll("[data-viewer-filter-group]").forEach((control) => {
         if (control instanceof HTMLSelectElement) {
           const group = control.getAttribute("data-viewer-filter-group") || "";
@@ -9762,14 +9815,20 @@ ${line}` : line;
         });
       }
       bindRefreshMenuControls();
+      bindFocusMenuControls();
       document.addEventListener("click", (event) => {
         const target = event.target;
         const button = refreshMenuButton();
         const panel = refreshMenuPanel();
+        const focusButton = document.getElementById("focus-menu-toggle");
+        const focusPanel = document.getElementById("focus-menu-options");
         const gitActions = document.getElementById("viewer-git-actions");
         try {
           if (target && (button?.contains(target) || panel?.contains(target))) {
             return;
+          }
+          if (!(target && (focusButton?.contains(target) || focusPanel?.contains(target)))) {
+            setFocusMenuOpen(false);
           }
           if (!(target && gitActions?.contains(target))) {
             setGitActionsMenuOpen(false);
@@ -9781,6 +9840,7 @@ ${line}` : line;
       document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") {
           setRefreshMenuOpen(false);
+          setFocusMenuOpen(false);
           setGitActionsMenuOpen(false);
           closeNavMenus();
           setProjectMenuOpen(false);

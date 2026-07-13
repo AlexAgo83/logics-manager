@@ -3105,6 +3105,16 @@ import {
 
   function updateFilterSummary() {
     updateFocusMenuState();
+    const activeLabels = Object.entries(viewerFilterState)
+      .filter(([key, value]) => value !== defaultFilterState[key])
+      .map(([key, value]) => `${key}: ${String(value).replace("-", " ")}`);
+    const hasActiveFilters = activeLabels.length > 0;
+    const filterButton = document.getElementById("filter-toggle");
+    if (filterButton instanceof HTMLElement) {
+      filterButton.setAttribute("data-viewer-filter-active", String(hasActiveFilters));
+      filterButton.setAttribute("data-has-active-controls", String(hasActiveFilters));
+      filterButton.classList.toggle("toolbar__filter--active", hasActiveFilters);
+    }
     document.querySelectorAll("[data-viewer-filter-group]").forEach((control) => {
       if (control instanceof HTMLSelectElement) {
         const group = control.getAttribute("data-viewer-filter-group") || "";
@@ -3122,9 +3132,6 @@ import {
       return;
     }
     const visibleCount = latestItems.filter(matchesViewerFilter).length;
-    const activeLabels = Object.entries(viewerFilterState)
-      .filter(([key, value]) => value !== defaultFilterState[key])
-      .map(([key, value]) => `${key}: ${String(value).replace("-", " ")}`);
     const suffix = activeLabels.length > 0 ? ` · ${activeLabels.join(" · ")}` : " · All docs";
     count.textContent = `${visibleCount} of ${latestItems.length} docs shown${suffix}`;
   }

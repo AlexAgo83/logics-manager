@@ -142,7 +142,8 @@
   color: var(--vscode-button-background, #0e639c);
 }
 
-#filter-toggle[data-has-active-controls="true"]::after {
+#filter-toggle[data-has-active-controls="true"]::after,
+#filter-toggle[data-viewer-filter-active="true"]::after {
   content: "";
   position: absolute;
   top: 3px;

@@ -141,6 +141,7 @@ function createViewerDom(options: {
     <button id="viewer-copy-diagnostics" type="button">Copy diagnostics</button>
     <a id="viewer-version-link" href="https://github.com/AlexAgo83/logics-manager">v0.0.0</a>
     <button id="activity-clear" type="button">Clear activity</button>
+    <button id="filter-toggle" type="button">Filters</button>
     <button id="activity-toggle" type="button" aria-pressed="false">Activity</button>
     <div id="focus-menu">
       <button id="focus-menu-toggle" type="button" aria-expanded="false" aria-controls="focus-menu-options"><span id="focus-menu-label">Active work</span></button>
@@ -7109,6 +7110,27 @@ describe("local viewer browser host", () => {
     expect((reloaded.dom.window.document.querySelector('[data-viewer-filter-group="status"]') as HTMLSelectElement | null)?.value).toBe("blocked");
     expect(reloaded.dom.window.__CDX_LOGICS_VIEWER_FILTER__({ stage: "task", indicators: { Status: "Blocked" }, references: [], usedBy: [] })).toBe(true);
     expect(reloaded.dom.window.__CDX_LOGICS_VIEWER_FILTER__({ stage: "request", indicators: { Status: "Blocked" }, references: [], usedBy: [] })).toBe(false);
+  });
+
+  it("marks the filter toggle when browser-host filters differ from defaults", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const toggle = dom.window.document.getElementById("filter-toggle");
+    setViewerFilter(dom, "type", "task");
+
+    expect(toggle?.getAttribute("data-viewer-filter-active")).toBe("true");
+    expect(toggle?.getAttribute("data-has-active-controls")).toBe("true");
+    expect(toggle?.classList.contains("toolbar__filter--active")).toBe(true);
+
+    dom.window.document.getElementById("filter-reset")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(toggle?.getAttribute("data-viewer-filter-active")).toBe("false");
+    expect(toggle?.getAttribute("data-has-active-controls")).toBe("false");
+    expect(toggle?.classList.contains("toolbar__filter--active")).toBe(false);
   });
 
   it("supports corpus-management filters for relationships, companion docs, stale work, and promotion gaps", async () => {

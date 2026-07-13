@@ -78,8 +78,8 @@
 | [prod_039_git_history_commit_diff_preview](product/prod_039_git_history_commit_diff_preview.md) | Git history commit diff preview | Settled |  |  | product/prod_039_git_history_commit_diff_preview.md |
 | [prod_040_readable_scope_sections_in_document_previews](product/prod_040_readable_scope_sections_in_document_previews.md) | Readable Scope sections in document previews | Settled |  |  | product/prod_040_readable_scope_sections_in_document_previews.md |
 | [prod_041_live_backlog_progress_and_checkpointed_task_execution](product/prod_041_live_backlog_progress_and_checkpointed_task_execution.md) | Live backlog progress and checkpointed task execution | Settled |  |  | product/prod_041_live_backlog_progress_and_checkpointed_task_execution.md |
-| [prod_042_convention_aware_project_surfaces](product/prod_042_convention_aware_project_surfaces.md) | Convention-aware project surfaces | Proposed |  |  | product/prod_042_convention_aware_project_surfaces.md |
-| [prod_043_project_owned_internationalization_readiness](product/prod_043_project_owned_internationalization_readiness.md) | Project-owned internationalization readiness | Proposed |  |  | product/prod_043_project_owned_internationalization_readiness.md |
+| [prod_042_convention_aware_project_surfaces](product/prod_042_convention_aware_project_surfaces.md) | Convention-aware project surfaces | Settled |  |  | product/prod_042_convention_aware_project_surfaces.md |
+| [prod_043_project_owned_internationalization_readiness](product/prod_043_project_owned_internationalization_readiness.md) | Project-owned internationalization readiness | Settled |  |  | product/prod_043_project_owned_internationalization_readiness.md |
 
 ## Requests
 

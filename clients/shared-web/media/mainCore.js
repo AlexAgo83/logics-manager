@@ -283,6 +283,9 @@
       state.hideSpec = options.defaultFilterState.hideSpec;
       state.showCompanionDocs = options.defaultFilterState.showCompanionDocs;
       state.hideEmptyColumns = options.defaultFilterState.hideEmptyColumns;
+      state.searchQuery = "";
+      state.groupMode = "stage";
+      state.sortMode = "updated-desc";
     }
 
     function setFilterPanelOpen(isOpen) {

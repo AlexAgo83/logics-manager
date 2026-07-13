@@ -75,6 +75,7 @@ export const statusOptionsByStage = {
     backlog: ["Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"],
     task: ["Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"],
     product: ["Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
+    roadmap: ["Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
     architecture: ["Draft", "Proposed", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
     spec: ["Draft", "Ready", "In progress", "Done", "Validated", "Settled", "Archived"]
   };
@@ -130,6 +131,7 @@ export const onboardingDocGuide = [
     ["If you think \"here is the problem and context...\"", "-> request"],
     ["If you think \"this needs a scoped delivery slice...\"", "-> item"],
     ["If you think \"we want...\"", "-> product brief"],
+    ["If you think \"we should ship this over time...\"", "-> roadmap"],
     ["If you think \"we decided...\"", "-> ADR"],
     ["If you think \"the system should...\"", "-> spec"],
     ["If you think \"let's do...\"", "-> task"]
@@ -140,6 +142,7 @@ export const stageBadgeLabels = {
     backlog: "Backlog",
     task: "Task",
     product: "Product",
+    roadmap: "Roadmap",
     architecture: "Architecture",
     spec: "Spec"
   };

@@ -79,6 +79,7 @@ def _build_root_help() -> str:
         "",
         "Common workflows:",
         '  logics-manager flow new request --title "My request"',
+        '  logics-manager flow roadmap propose --title "Project roadmap" --milestone "0.1: MVP"',
         "  logics-manager audit --group-by-doc",
         "  logics-manager status",
         "  logics-manager flow show req_001_example",
@@ -88,7 +89,7 @@ def _build_root_help() -> str:
         "",
         "Workflow authoring:",
         "  flow       Create, promote, split, close, and finish workflow docs.",
-        "             Subcommands: new, list, show, companion, deliver, scaffold, validate, validate-closeout, repair, closeout, promote, split, close, finish",
+        "             Subcommands: new, list, show, companion, roadmap, deliver, scaffold, validate, validate-closeout, repair, closeout, promote, split, close, finish",
         "  sync       Maintain generated workflow state and doc metadata.",
         "             Subcommands: close-eligible-requests, refresh-mermaid-signatures,",
         "                          schema-status, read-doc, list-docs, search-docs,",
@@ -498,7 +499,7 @@ def main(argv: list[str] | None = None) -> int:
     if command == "followups":
         parser = argparse.ArgumentParser(prog="logics-manager followups", add_help=False)
         parser.add_argument("--limit", type=int, default=50)
-        parser.add_argument("--source-kind", choices=("all", "request", "backlog", "task", "product", "architecture"), default="all")
+        parser.add_argument("--source-kind", choices=("all", "request", "backlog", "task", "product", "roadmap", "architecture"), default="all")
         parser.add_argument("--include-closed", action="store_true")
         parser.add_argument("--closed-only", action="store_true")
         parser.add_argument("--format", choices=("text", "json"), default="text")
@@ -529,7 +530,7 @@ def main(argv: list[str] | None = None) -> int:
     if command == "search":
         parser = argparse.ArgumentParser(prog="logics-manager search", add_help=False)
         parser.add_argument("query")
-        parser.add_argument("--kind", choices=("all", "request", "backlog", "task"), default="all")
+        parser.add_argument("--kind", choices=("all", "request", "backlog", "task", "product", "roadmap", "architecture", "spec"), default="all")
         parser.add_argument("--status")
         parser.add_argument("--limit", type=int, default=20)
         parser.add_argument("--max-snippet-chars", type=int, default=240)

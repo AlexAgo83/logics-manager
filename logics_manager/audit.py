@@ -22,10 +22,11 @@ DOC_KINDS = {
     "backlog": ("logics/backlog", "item", True),
     "task": ("logics/tasks", "task", True),
     "product": ("logics/product", "prod", False),
+    "roadmap": ("logics/roadmap", "road", False),
     "architecture": ("logics/architecture", "adr", False),
 }
 
-REF_PREFIXES = ("req", "item", "task", "prod", "adr", "spec")
+REF_PREFIXES = ("req", "item", "task", "prod", "road", "adr", "spec")
 STATUS_IN_PROGRESS = {"draft", "ready", "in progress", "blocked"}
 STATUS_DONE = {"done", "archived", "obsolete", "validated", "settled", "superseded"}
 
@@ -36,6 +37,10 @@ COMPANION_PLACEHOLDERS: dict[str, tuple[str, ...]] = {
         "Primary user or segment",
         "Primary product goal",
         "Main open product question to resolve",
+    ),
+    "roadmap": (
+        "TODO: define roadmap milestone",
+        "TODO: add roadmap exit signal",
     ),
     "architecture": (
         "Summarize the chosen direction, what changes, and the main impacted areas.",
@@ -159,6 +164,8 @@ def _has_mermaid_block(text: str) -> bool:
 def _companion_doc_is_mature(doc: "DocMeta") -> bool:
     status = _status_normalized(doc.status)
     if doc.kind.kind == "product":
+        return status in {"active", "accepted", "validated", "settled", "archived"}
+    if doc.kind.kind == "roadmap":
         return status in {"active", "accepted", "validated", "settled", "archived"}
     if doc.kind.kind == "architecture":
         return status in {"accepted", "validated", "superseded", "settled", "archived"}
@@ -681,16 +688,17 @@ def audit_payload(
             )
 
     for doc in docs.values():
-        if doc.kind.kind not in {"product", "architecture"}:
+        if doc.kind.kind not in {"product", "roadmap", "architecture"}:
             continue
 
         linked_refs: set[str] = set()
-        for prefix in ("req", "item", "task", "prod", "adr"):
+        for prefix in ("req", "item", "task", "prod", "road", "adr"):
             linked_refs.update(_extract_refs(doc.text, prefix))
 
         companion_is_mature = _companion_doc_is_mature(doc)
 
-        if not any(ref.startswith(("req_", "item_", "task_")) for ref in linked_refs):
+        primary_prefixes = ("req_", "item_", "task_", "prod_") if doc.kind.kind == "roadmap" else ("req_", "item_", "task_")
+        if not any(ref.startswith(primary_prefixes) for ref in linked_refs):
             primary_link_severity = "blocking" if strict_governance or companion_is_mature else "warning"
             issues.append(
                 AuditIssue(
@@ -700,7 +708,7 @@ def audit_payload(
                     severity=primary_link_severity,
                 )
             )
-        if not _has_mermaid_block(doc.text):
+        if doc.kind.kind != "roadmap" and not _has_mermaid_block(doc.text):
             mermaid_severity = "blocking" if strict_governance or companion_is_mature else "warning"
             issues.append(
                 AuditIssue(

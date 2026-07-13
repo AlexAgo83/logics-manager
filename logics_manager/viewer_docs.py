@@ -29,6 +29,7 @@ DOC_FAMILIES = (
     ViewerDocFamily("backlog", "logics/backlog", ("item_",)),
     ViewerDocFamily("task", "logics/tasks", ("task_",)),
     ViewerDocFamily("product", "logics/product", ("prod_",)),
+    ViewerDocFamily("roadmap", "logics/roadmap", ("road_",)),
     ViewerDocFamily("architecture", "logics/architecture", ("adr_",)),
     ViewerDocFamily("spec", "logics/specs", ("spec_", "req_")),
 )
@@ -209,6 +210,7 @@ def _extract_references(content: str, lines: list[str]) -> list[dict[str, str]]:
     manual_links = {
         *_section_links(content, "References"),
         *_indicator_links(lines, {"related request", "related backlog", "related task", "related architecture"}),
+        *_indicator_links(lines, {"related product", "related roadmap"}),
     }
     for link in sorted(manual_links):
         references.append({"kind": "manual", "label": "Reference", "path": link})

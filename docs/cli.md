@@ -5,7 +5,7 @@
 The CLI is the stable contract for Logics. It supports:
 
 - bootstrapping the `logics/` tree;
-- creating requests, backlog items, tasks, product briefs, and ADRs;
+- creating requests, backlog items, tasks, product briefs, roadmaps, and ADRs;
 - promoting request -> backlog and backlog -> task;
 - splitting large requests or backlog items;
 - closing tasks, backlog items, and requests with consistency checks;
@@ -24,6 +24,7 @@ logics-manager flow promote backlog-to-task item_001_example
 logics-manager flow start task_001_example
 logics-manager flow progress task task_001_example --progress 40%
 logics-manager flow finish task task_001_example
+logics-manager flow roadmap propose --title "Project roadmap" --milestone "0.1: MVP"
 logics-manager sync read-doc req_001_example --max-chars 6000
 logics-manager sync context-pack req_001_example task_001_example --format json
 logics-manager sync refresh-mermaid-signatures task_001_example
@@ -43,6 +44,12 @@ For linked context, use `logics-manager sync context-pack <refs...>` with a
 small set of request, backlog, or task refs. The command deduplicates each
 ref's direct neighborhood and supports `--mode diff-first` when recent changes
 matter.
+
+For longer-term product sequencing, use `logics-manager flow roadmap propose`
+to create a `logics/roadmap/road_*.md` companion doc with versioned milestones
+such as `0.1`, `0.2`, and `1.0`. Use `flow roadmap show <road_ref>` for a
+bounded read and `flow roadmap validate <road_ref>` before handing the plan to
+another assistant.
 
 Workflow Mermaid blocks in request, backlog, and task docs are optional legacy
 presentation. The source of truth is the structured Markdown: indicators,
@@ -430,6 +437,6 @@ This follows ADR 009: tooling should guide commit-ready checkpoints, not auto-co
   - `Derived from \`logics/<stage>/<file>.md\`` or `Promoted from \`...\``
   - `# Backlog` section in requests
   - `# References` and `# Used by` sections with backticked relative paths
-- For companion docs (`prod_*`, `adr_*`), `Related request/backlog/task/architecture` indicators are also indexed as managed-doc links.
+- For companion docs (`prod_*`, `road_*`, `adr_*`), `Related request/backlog/task/product/roadmap/architecture` indicators are also indexed as managed-doc links.
 - Companion docs should still mirror those links under `# References` with canonical relative paths so the runtime and plugin stay aligned.
 - Legacy nested list blocks (`- References:` / `- Used by:`) are also parsed for backward compatibility.

@@ -142,6 +142,38 @@ def test_viewer_collects_items_with_relationships(tmp_path: Path) -> None:
     assert task["references"][0]["path"] == "logics/backlog/item_001_demo.md"
 
 
+def test_viewer_collects_roadmap_items(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    roadmap_dir = repo_root / "logics" / "roadmap"
+    roadmap_dir.mkdir(parents=True)
+    (roadmap_dir / "road_001_demo_plan.md").write_text(
+        "\n".join(
+            [
+                "## road_001_demo_plan - Demo Plan",
+                "> Date: 2026-07-13",
+                "> Status: Proposed",
+                "> Related product: (none yet)",
+                "> Related request: (none yet)",
+                "> Reminder: Update roadmap links.",
+                "# Summary",
+                "Versioned plan.",
+                "# Milestones",
+                "## 0.1 - MVP",
+                "- Goal: first slice.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    items = collect_viewer_items(repo_root)
+    roadmap = next(item for item in items if item["id"] == "road_001_demo_plan")
+
+    assert roadmap["stage"] == "roadmap"
+    assert roadmap["indicators"]["Status"] == "Proposed"
+    assert normalize_viewer_focus_target(repo_root, "road_001_demo_plan") == "logics/roadmap/road_001_demo_plan.md"
+
+
 def test_viewer_current_version_falls_back_to_installed_metadata(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

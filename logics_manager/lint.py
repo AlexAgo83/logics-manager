@@ -29,6 +29,7 @@ KINDS = {
     "backlog": Kind("logics/backlog", ("item",), True, ("From version", "Understanding", "Confidence", "Progress"), stage_statuses("backlog")),
     "task": Kind("logics/tasks", ("task",), True, ("From version", "Understanding", "Confidence", "Progress"), stage_statuses("task")),
     "product": Kind("logics/product", ("prod",), False, ("Date", "Status", "Related request", "Related backlog", "Related task", "Related architecture", "Reminder"), stage_statuses("product")),
+    "roadmap": Kind("logics/roadmap", ("road",), False, ("Date", "Status", "Related product", "Related request", "Reminder"), stage_statuses("roadmap")),
     "architecture": Kind("logics/architecture", ("adr",), False, ("Date", "Status", "Drivers", "Related request", "Related backlog", "Related task", "Reminder"), stage_statuses("architecture")),
     "spec": Kind("logics/specs", ("spec", "req"), False, ("From version", "Status", "Understanding", "Confidence"), stage_statuses("spec")),
 }

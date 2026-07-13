@@ -226,6 +226,10 @@ def _build_help() -> str:
             "    Create a companion doc from the integrated runtime.",
             "    Flags: --title, --source-ref, --request-ref, --backlog-ref, --task-ref, --format {text,json}, --dry-run",
             "",
+            "  roadmap <propose|show|validate>",
+            "    Create, inspect, or validate a versioned roadmap doc.",
+            "    Flags: propose --title, --milestone, --product-ref, --request-ref, --backlog-ref, --task-ref, --format {text,json}, --dry-run",
+            "",
             "  deliver --from-product <source>",
             "    Create a linked request, backlog item, and task from a product brief.",
             "    Flags: --title, --finish, --format {text,json}, --dry-run",
@@ -292,6 +296,7 @@ def _build_help() -> str:
             "  logics-manager sync context-pack req_001_my_request item_002_slice task_003_orchestrate --handoff --format json",
             "  logics-manager flow validate req_001_my_request --fixable --explain",
             "  logics-manager flow deliver --from-product prod_017_delivery_loop",
+            '  logics-manager flow roadmap propose --title "New project" --milestone "0.1: MVP"',
             "  logics-manager flow show req_001_my_request",
             "  logics-manager flow validate-closeout task_003_fix_docs",
             "  logics-manager flow repair gates task_003_fix_docs",
@@ -1921,6 +1926,139 @@ def _next_adr_ref(repo_root: Path, title: str) -> str:
                     highest = max(highest, int(parts[1]))
     return f"adr_{highest + 1:03d}_{_slugify(title)}"
 
+
+def _next_roadmap_ref(repo_root: Path, title: str) -> str:
+    directory = repo_root / "logics" / "roadmap"
+    highest = 0
+    if directory.is_dir():
+        for path in directory.glob("road_*.md"):
+            parts = path.stem.split("_", 2)
+            if len(parts) >= 2 and parts[1].isdigit():
+                highest = max(highest, int(parts[1]))
+    return f"road_{highest + 1:03d}_{_slugify(title)}"
+
+
+def _roadmap_ref_line(refs: list[str]) -> str:
+    return ", ".join(f"`{ref}`" for ref in refs) if refs else "(none yet)"
+
+
+def _split_milestones(values: list[str]) -> list[tuple[str, str]]:
+    raw = values or ["0.1: Establish the first usable slice.", "0.2: Expand the workflow.", "1.0: Stabilize the release target."]
+    milestones: list[tuple[str, str]] = []
+    for value in raw:
+        version, _, title = value.partition(":")
+        version = version.strip()
+        title = title.strip() or version
+        if not re.match(r"^\d+(?:\.\d+){1,2}$", version):
+            version = f"0.{len(milestones) + 1}"
+            title = value.strip()
+        milestones.append((version, title))
+    return milestones
+
+
+def _build_native_roadmap(
+    repo_root: Path,
+    title: str,
+    *,
+    milestones: list[str] | None = None,
+    product_ref: str | None = None,
+    request_refs: list[str] | None = None,
+    backlog_refs: list[str] | None = None,
+    task_refs: list[str] | None = None,
+) -> tuple[str, str]:
+    ref = _next_roadmap_ref(repo_root, title)
+    parsed_milestones = _split_milestones(milestones or [])
+    request_refs = request_refs or []
+    backlog_refs = backlog_refs or []
+    task_refs = task_refs or []
+    content = [
+        f"## {ref} - {title}",
+        f"> Date: {date.today().isoformat()}",
+        "> Status: Proposed",
+        f"> Related product: {f'`{product_ref}`' if product_ref else '(none yet)'}",
+        f"> Related request: {_roadmap_ref_line(request_refs)}",
+        "> Reminder: Update status, milestone scope, linked refs, risks, and success signals when you edit this doc.",
+        "",
+        "# Summary",
+        f"Plan the path from first usable increment to stable release for {title.lower()}.",
+        "",
+        "# Milestones",
+    ]
+    for version, milestone_title in parsed_milestones:
+        content.extend(
+            [
+                f"## {version} - {milestone_title}",
+                "- Goal: Define the smallest useful outcome for this increment.",
+                "- Scope: Link the request, backlog items, specs, or tasks that make this increment real.",
+                "- Exit signal: The increment can be validated without transcript context.",
+                "",
+            ]
+        )
+    content.extend(
+        [
+            "# Sequencing",
+            "- Deliver milestones in ascending version order unless dependencies force a documented exception.",
+            "- Keep each increment independently reviewable and linked to concrete workflow docs.",
+            "",
+            "# Risks",
+            "- Long-term scope can drift unless every milestone keeps a clear exit signal.",
+            "- Version labels are planning targets, not release promises.",
+            "",
+            "# References",
+            f"- Product brief(s): {f'`{product_ref}`' if product_ref else '(none yet)'}",
+            f"- Request(s): {_roadmap_ref_line(request_refs)}",
+            f"- Backlog item(s): {_roadmap_ref_line(backlog_refs)}",
+            f"- Task(s): {_roadmap_ref_line(task_refs)}",
+            "",
+            "# AI Context",
+            f"- Summary: Roadmap for {title}.",
+            f"- Keywords: roadmap, milestones, versions, {title.lower()}",
+            f"- Use when: Planning or sequencing versions for {title}.",
+            "- Skip when: You need execution details for a single backlog item or task.",
+            "",
+        ]
+    )
+    return ref, "\n".join(content).rstrip() + "\n"
+
+
+def _resolve_roadmap_source(repo_root: Path, source: str) -> Path:
+    raw = Path(source)
+    if raw.is_absolute() or any(part == ".." for part in raw.parts):
+        raise SystemExit("Unsupported roadmap source. Use a road_... ref or repo-relative roadmap path.")
+    if len(raw.parts) == 1 and raw.suffix != ".md":
+        candidate = repo_root / "logics" / "roadmap" / f"{source}.md"
+    else:
+        candidate = (repo_root / raw).resolve()
+        ensure_relative_to(candidate, repo_root, label="roadmap source")
+    if candidate.parent != (repo_root / "logics" / "roadmap").resolve() or not candidate.name.startswith("road_"):
+        raise SystemExit("Expected roadmap source under `logics/roadmap` with a `road_...` filename.")
+    if not candidate.is_file():
+        raise SystemExit(f"Roadmap source not found: {source}")
+    return candidate
+
+
+def roadmap_validate_payload(repo_root: Path, source: str) -> dict[str, object]:
+    path = _resolve_roadmap_source(repo_root, source)
+    text = path.read_text(encoding="utf-8")
+    lines = text.splitlines()
+    issues: list[str] = []
+    if not lines or not lines[0].startswith(f"## {path.stem} - "):
+        issues.append("bad or missing roadmap heading")
+    for key in ("Date", "Status", "Related product", "Related request", "Reminder"):
+        if _indicator_value_from_lines(lines, key) is None:
+            issues.append(f"missing indicator: {key}")
+    milestone_lines = [line for line in lines if re.match(r"^## \d+(?:\.\d+){1,2}\s+-\s+", line)]
+    if not milestone_lines:
+        issues.append("missing versioned milestones")
+    return {
+        "command": "roadmap validate",
+        "ok": not issues,
+        "ref": path.stem,
+        "path": path.relative_to(repo_root).as_posix(),
+        "milestone_count": len(milestone_lines),
+        "issues": issues,
+    }
+
 def _append_doc_section_bullets(path: Path, heading: str, bullets: list[str], *, dry_run: bool) -> None:
     if dry_run:
         return
@@ -2433,6 +2571,30 @@ def build_parser() -> argparse.ArgumentParser:
         kind_parser.add_argument("--dry-run", action="store_true")
         kind_parser.set_defaults(func=cmd_companion)
 
+    roadmap_parser = sub.add_parser("roadmap", help="Create, inspect, or validate versioned roadmap docs.")
+    roadmap_sub = roadmap_parser.add_subparsers(dest="roadmap_command", required=True)
+    roadmap_propose = roadmap_sub.add_parser("propose", help="Create a roadmap companion doc.")
+    roadmap_propose.add_argument("--title", required=True)
+    roadmap_propose.add_argument("--milestone", action="append", default=[], help="Versioned milestone such as `0.1: MVP`. Repeatable.")
+    roadmap_propose.add_argument("--product-ref")
+    roadmap_propose.add_argument("--request-ref", action="append", default=[])
+    roadmap_propose.add_argument("--backlog-ref", action="append", default=[])
+    roadmap_propose.add_argument("--task-ref", action="append", default=[])
+    roadmap_propose.add_argument("--format", choices=("text", "json"), default="text")
+    roadmap_propose.add_argument("--dry-run", action="store_true")
+    roadmap_propose.set_defaults(func=cmd_roadmap_propose)
+
+    roadmap_show = roadmap_sub.add_parser("show", help="Show a bounded roadmap document view.")
+    roadmap_show.add_argument("source")
+    roadmap_show.add_argument("--max-chars", type=int, default=4000)
+    roadmap_show.add_argument("--format", choices=("text", "json"), default="text")
+    roadmap_show.set_defaults(func=cmd_roadmap_show)
+
+    roadmap_validate = roadmap_sub.add_parser("validate", help="Validate a roadmap document contract.")
+    roadmap_validate.add_argument("source")
+    roadmap_validate.add_argument("--format", choices=("text", "json"), default="text")
+    roadmap_validate.set_defaults(func=cmd_roadmap_validate)
+
     deliver_parser = sub.add_parser("deliver", help="Create a delivery chain from a product brief.")
     deliver_parser.add_argument("--from-product", required=True)
     deliver_parser.add_argument("--title")
@@ -2770,6 +2932,83 @@ def cmd_companion(args: argparse.Namespace) -> dict[str, object]:
         print_payload(payload, args.format)
     else:
         print(f"Created companion doc: {payload['path']}")
+    return payload
+
+
+def cmd_roadmap_propose(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    ref, content = _build_native_roadmap(
+        repo_root,
+        args.title,
+        milestones=args.milestone,
+        product_ref=args.product_ref,
+        request_refs=args.request_ref,
+        backlog_refs=args.backlog_ref,
+        task_refs=args.task_ref,
+    )
+    planned_path = repo_root / "logics" / "roadmap" / f"{ref}.md"
+    if not args.dry_run:
+        _write_new_doc(planned_path, content)
+        if args.format != "json":
+            print(f"Wrote {planned_path}")
+    elif args.format != "json":
+        preview = content if len(content) <= 2000 else content[:2000] + "\n...\n"
+        print(f"[dry-run] would write: {planned_path}")
+        print(preview)
+
+    payload = {
+        "command": "roadmap propose",
+        "kind": "roadmap",
+        "ref": ref,
+        "path": planned_path.relative_to(repo_root).as_posix(),
+        "milestones": [version for version, _title in _split_milestones(args.milestone)],
+        "dry_run": args.dry_run,
+    }
+    if args.format == "json":
+        print_payload(payload, args.format)
+    else:
+        print(f"Created roadmap: {payload['path']}")
+    return payload
+
+
+def cmd_roadmap_show(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    path = _resolve_roadmap_source(repo_root, args.source)
+    content = path.read_text(encoding="utf-8")
+    lines = content.splitlines()
+    title = _extract_doc_title(path)
+    payload = {
+        "command": "roadmap show",
+        "kind": "roadmap",
+        "ref": path.stem,
+        "path": path.relative_to(repo_root).as_posix(),
+        "title": title,
+        "status": _indicator_value_from_lines(lines, "Status") or "",
+        "content": content[: max(1, min(args.max_chars, 12000))],
+        "truncated": len(content) > max(1, min(args.max_chars, 12000)),
+    }
+    if args.format == "json":
+        print_payload(payload, args.format)
+    else:
+        print(f"{payload['ref']} (roadmap): {payload['title']}")
+        print(f"- path: {payload['path']}")
+        print(f"- status: {payload['status']}")
+        print("")
+        print(str(payload["content"]).rstrip())
+    return payload
+
+
+def cmd_roadmap_validate(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    payload = roadmap_validate_payload(repo_root, args.source)
+    if args.format == "json":
+        print_payload(payload, args.format)
+    else:
+        print(f"Roadmap validation: {'OK' if payload['ok'] else 'FAILED'}")
+        print(f"- path: {payload['path']}")
+        print(f"- milestones: {payload['milestone_count']}")
+        for issue in payload["issues"]:
+            print(f"- {issue}")
     return payload
 
 
@@ -4651,7 +4890,7 @@ def main(argv: list[str]) -> int:
     if argv[0] == "progress" and len(argv) > 1 and argv[1] == "task" and _help_requested(argv, 2):
         _print_help(_build_progress_kind_help(argv[1]))
         return 0
-    valid_commands = {"new", "list", "show", "companion", "deliver", "scaffold", "validate", "validate-closeout", "start", "progress", "repair", "closeout", "promote", "split", "close", "withdraw", "finish"}
+    valid_commands = {"new", "list", "show", "companion", "roadmap", "deliver", "scaffold", "validate", "validate-closeout", "start", "progress", "repair", "closeout", "promote", "split", "close", "withdraw", "finish"}
     if argv[0] not in valid_commands:
         hint = " Use `logics-manager flow show <ref>` to inspect a workflow doc." if argv[0] in {"read", "view", "cat"} else " Run `logics-manager flow --help` for valid commands."
         raise SystemExit(f"Unsupported flow subcommand: {argv[0]}.{hint}")

@@ -7,6 +7,7 @@ The MCP server is an assistant-facing adapter over the CLI. It is useful when a 
 The MCP surface can:
 
 - create and promote workflow docs;
+- list companion docs including product briefs, roadmaps, and ADRs;
 - read, list, search, and build context packs from approved Logics docs;
 - update controlled indicators and append bounded notes;
 - finish or close workflow docs through canonical commands;

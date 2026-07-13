@@ -11,7 +11,7 @@ from logics_manager.doc_parsing import extract_refs, priority_rank, priority_tie
 from logics_manager.statuses import closed_statuses, open_statuses
 
 WORKFLOW_KINDS = ("request", "backlog", "task")
-COMPANION_KINDS = ("product", "architecture")
+COMPANION_KINDS = ("product", "roadmap", "architecture")
 OPEN_STATUSES = set(open_statuses())
 CLOSED_STATUSES = set(closed_statuses())
 
@@ -36,6 +36,7 @@ def _doc_dirs(repo_root: Path) -> dict[str, Path]:
         "backlog": repo_root / "logics" / "backlog",
         "task": repo_root / "logics" / "tasks",
         "product": repo_root / "logics" / "product",
+        "roadmap": repo_root / "logics" / "roadmap",
         "architecture": repo_root / "logics" / "architecture",
     }
 

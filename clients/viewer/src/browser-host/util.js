@@ -707,6 +707,7 @@ export function isSafeLogicsDocPath(value) {
       "logics/backlog/",
       "logics/tasks/",
       "logics/product/",
+      "logics/roadmap/",
       "logics/architecture/",
       "logics/specs/"
     ].some((prefix) => path.startsWith(prefix));

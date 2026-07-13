@@ -44,6 +44,7 @@ ROOT_COMMANDS = (
     "config",
     "doctor",
     "release",
+    "i18n",
     "obsidian",
     "mcp",
     "skills",
@@ -109,6 +110,7 @@ def _build_root_help() -> str:
         "             and release_ready for agent workflows.",
         "  doctor     Check required workflow directories and schema metadata.",
         "  release    Plan, inspect, and validate project-owned release workflow state.",
+        "  i18n       Initialize, inspect, lint, and validate optional project translation catalogs.",
         "  obsidian   Sync, check, or clean the opt-in Obsidian frontmatter projection.",
         "",
         "Agent and integration surfaces:",
@@ -301,6 +303,10 @@ def main(argv: list[str] | None = None) -> int:
         from .release import main as release_main
 
         return release_main(rest)
+    if command == "i18n":
+        from .i18n import main as i18n_main
+
+        return i18n_main(rest)
     if command == "obsidian":
         from .obsidian import main as obsidian_main
 

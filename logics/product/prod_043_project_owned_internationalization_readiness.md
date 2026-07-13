@@ -1,6 +1,6 @@
 ## prod_043_project_owned_internationalization_readiness - Project-owned internationalization readiness
 > Date: 2026-07-13
-> Status: Proposed
+> Status: Settled
 > Related request: `req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling`
 > Related backlog: `item_548_define_the_versioned_optional_i18n_contract_and_schema`
 > Related task: `task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery`

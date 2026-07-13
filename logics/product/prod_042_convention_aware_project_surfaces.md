@@ -1,6 +1,6 @@
 ## prod_042_convention_aware_project_surfaces - Convention-aware project surfaces
 > Date: 2026-07-13
-> Status: Proposed
+> Status: Settled
 > Related request: `req_294_convention_aware_project_i18n_and_theme_viewer_screens`
 > Related backlog: `item_542_define_and_detect_bounded_project_i18n_and_theme_conventions`, `item_543_add_translation_catalog_inspection_and_completeness_diagnostics`, `item_544_enable_safe_editing_of_supported_json_translation_catalogs`, `item_545_add_theme_token_inspection_and_live_preview`, `item_546_enable_safe_editing_of_css_custom_property_theme_tokens`, `item_547_harden_shared_host_parity_and_document_the_supported_project_conventions`
 > Related task: `task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery`

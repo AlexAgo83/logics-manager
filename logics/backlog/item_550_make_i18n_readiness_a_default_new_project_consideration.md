@@ -1,10 +1,10 @@
 ## item_550_make_i18n_readiness_a_default_new_project_consideration - Make i18n readiness a default new-project consideration
 > From version: 2.17.1
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 65%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Project bootstrap guidance
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -54,3 +54,9 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery`
+
+# Notes
+- Task `task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery` was finished via `logics-manager flow finish task` on 2026-07-13.

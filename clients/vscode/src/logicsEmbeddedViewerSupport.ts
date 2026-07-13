@@ -6,6 +6,7 @@ import * as viewProviderSupport from "./logicsViewProviderSupport";
 type EmbeddedViewerHost = {
   view?: vscode.WebviewView;
   embeddedViewerUrl?: string;
+  embeddedViewerRoot?: string;
   viewerServerManager: {
     getOrStart(root: string, focus?: string): Promise<{ url: string }>;
     stop(root: string): void;
@@ -42,11 +43,15 @@ async function renderEmbeddedViewer(this: EmbeddedViewerHost, focus?: string): P
     });
     return;
   }
+  if (!focus && this.embeddedViewerUrl && this.embeddedViewerRoot === root) {
+    return;
+  }
   view.webview.html = buildEmbeddedViewerHtml(view.webview, { kind: "loading", message: `Starting viewer for ${root}` });
   try {
     const server = await this.viewerServerManager.getOrStart(root, focus);
     if (this.view !== view) return;
     this.embeddedViewerUrl = server.url;
+    this.embeddedViewerRoot = root;
     view.webview.html = buildEmbeddedViewerHtml(view.webview, { kind: "ready", url: server.url, root });
   } catch (error) {
     view.webview.html = buildEmbeddedViewerHtml(view.webview, {
@@ -60,6 +65,8 @@ async function renderEmbeddedViewer(this: EmbeddedViewerHost, focus?: string): P
 async function restartEmbeddedViewer(this: EmbeddedViewerHost): Promise<void> {
   const { root } = viewProviderSupport.resolveProjectRoot.call(this as never);
   if (root) this.viewerServerManager.stop(root);
+  this.embeddedViewerUrl = undefined;
+  this.embeddedViewerRoot = undefined;
   await renderEmbeddedViewer.call(this);
 }
 

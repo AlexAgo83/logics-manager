@@ -622,11 +622,15 @@
   display: none;
 }
 
-.viewer-settings-menu__heading::after {
+.viewer-settings-menu__section > summary.viewer-settings-menu__heading::after {
   content: "›";
   font-size: 14px;
   line-height: 1;
   transition: transform .15s ease;
+}
+
+.viewer-settings-menu__section > div.viewer-settings-menu__heading {
+  cursor: default;
 }
 
 .viewer-settings-menu__section[open] > .viewer-settings-menu__heading::after {

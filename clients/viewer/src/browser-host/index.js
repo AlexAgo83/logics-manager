@@ -6834,9 +6834,11 @@ import {
         withPrimaryAction("insights", "Loading insights", showCorpusInsights);
       });
     });
-    document.getElementById("viewer-getting-started")?.addEventListener("click", () => {
-      setRefreshMenuOpen(false);
-      showGettingStarted();
+    document.querySelectorAll("#viewer-getting-started, [data-action=\"getting-started\"]").forEach((button) => {
+      button.addEventListener("click", () => {
+        setRefreshMenuOpen(false);
+        showGettingStarted();
+      });
     });
     document.getElementById("viewer-restart-server")?.addEventListener("click", () => {
       setRefreshMenuOpen(false);

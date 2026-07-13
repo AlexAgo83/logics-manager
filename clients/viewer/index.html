@@ -100,26 +100,36 @@
             <button class="btn" data-action="refresh" type="button" title="Refresh viewer data now">Refresh now</button>
           </section>
           <section class="viewer-settings-menu__section" aria-label="Viewer utilities">
-            <div class="viewer-settings-menu__heading">Utilities</div>
+            <div class="viewer-settings-menu__heading">Guides</div>
             <button class="btn" id="viewer-getting-started" type="button" title="Open the Logics getting started guide">Getting Started</button>
             <button class="btn" id="viewer-bootstrap-logics" type="button" title="Bootstrap Logics in this project" hidden>Bootstrap Logics</button>
+          </section>
+          <section class="viewer-settings-menu__section" aria-label="Terminal settings">
             <div class="viewer-settings-menu__heading">Terminals</div>
             <label class="viewer-auto-refresh" title="Choose between the embedded xterm.js terminal and the system terminal app">
               <input type="checkbox" data-viewer-workshop-system-terminal />
               <span>System terminal</span>
             </label>
+          </section>
+          <section class="viewer-settings-menu__section" aria-label="Server utilities">
             <div class="viewer-settings-menu__heading">Server</div>
             <button class="btn" id="viewer-copy-diagnostics" type="button" title="Copy recent viewer crash diagnostics">Copy diagnostics</button>
             <button class="btn" id="viewer-restart-server" type="button" title="Restart the local viewer server">Restart</button>
             <button class="btn" id="viewer-stop-server" type="button" title="Stop the local viewer server">Stop</button>
+          </section>
+          <section class="viewer-settings-menu__section" aria-label="Corpus utilities">
+            <div class="viewer-settings-menu__heading">Corpus</div>
             <button class="btn" id="viewer-insights" type="button" title="Show corpus insights">Insights</button>
             <button class="btn" id="viewer-health" type="button" title="Show lint and audit health">Health</button>
-            <div class="viewer-settings-menu__vscode" id="viewer-vscode-section" hidden>
-              <div class="viewer-settings-menu__heading">VS Code panel</div>
-              <button class="btn" id="viewer-vscode-reload" type="button" title="Reload the embedded viewer">Reload</button>
-              <button class="btn" id="viewer-vscode-restart" type="button" title="Restart the embedded viewer server process">Restart panel</button>
-              <button class="btn" id="viewer-vscode-open-external" type="button" title="Open the viewer in your browser">Open externally</button>
-            </div>
+          </section>
+          <section class="viewer-settings-menu__section viewer-settings-menu__vscode" id="viewer-vscode-section" aria-label="VS Code panel utilities" hidden>
+            <div class="viewer-settings-menu__heading">VS Code panel</div>
+            <button class="btn" id="viewer-vscode-reload" type="button" title="Reload the embedded viewer">Reload</button>
+            <button class="btn" id="viewer-vscode-restart" type="button" title="Restart the embedded viewer server process">Restart panel</button>
+            <button class="btn" id="viewer-vscode-open-external" type="button" title="Open the viewer in your browser">Open externally</button>
+          </section>
+          <section class="viewer-settings-menu__section" aria-label="About Logics Manager">
+            <div class="viewer-settings-menu__heading">About</div>
             <a class="viewer-settings-menu__version" id="viewer-version-link" href="https://github.com/AlexAgo83/logics-manager" target="_blank" rel="noreferrer" title="Open Logics Manager on GitHub">v0.0.0</a>
           </section>
         </div>

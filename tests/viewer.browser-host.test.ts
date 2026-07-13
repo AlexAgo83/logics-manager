@@ -1681,6 +1681,9 @@ describe("local viewer browser host", () => {
 
     expect(labels).toEqual(["Workshop", "Remote", "CDX", "Settings"]);
     expect(dom.window.document.getElementById("viewer-getting-started")?.textContent).toContain("Getting Started");
+    const settingsHeadings = Array.from(dom.window.document.querySelectorAll("#viewer-refresh-menu .viewer-settings-menu__heading"))
+      .map((node) => node.textContent?.trim());
+    expect(settingsHeadings).toEqual(["Refresh", "Guides", "Terminals", "Server", "Corpus", "VS Code panel", "About"]);
   });
 
   it("declares conditional project translation and theme screens", () => {

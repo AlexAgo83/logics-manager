@@ -6917,6 +6917,13 @@ import {
       setRefreshMenuOpen(false);
       withPrimaryAction("health", "Checking health", showHealth);
     });
+    document.addEventListener("toggle", (event) => {
+      const current = event.target instanceof Element ? event.target.closest("#viewer-refresh-menu details.viewer-settings-menu__section") : null;
+      if (!(current instanceof HTMLDetailsElement) || !current.open) return;
+      document.querySelectorAll("#viewer-refresh-menu details.viewer-settings-menu__section[open]").forEach((section) => {
+        if (section !== current && section instanceof HTMLDetailsElement) section.open = false;
+      });
+    }, true);
     document.getElementById("viewer-lan-banner-copy")?.addEventListener("click", async () => {
       const share = latestLanShareUrl;
       if (!share) return;

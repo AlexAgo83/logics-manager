@@ -1684,6 +1684,9 @@ describe("local viewer browser host", () => {
     const settingsHeadings = Array.from(dom.window.document.querySelectorAll("#viewer-refresh-menu .viewer-settings-menu__heading"))
       .map((node) => node.textContent?.trim());
     expect(settingsHeadings).toEqual(["Refresh", "Guides", "Terminals", "Server", "Corpus", "VS Code panel", "About"]);
+    expect(dom.window.document.querySelectorAll("#viewer-refresh-menu details.viewer-settings-menu__section")).toHaveLength(7);
+    expect(dom.window.document.querySelector("#viewer-refresh-menu details[open]")).toBeNull();
+    expect(Array.from(dom.window.document.querySelectorAll("#viewer-refresh-menu details")).every((node) => node.getAttribute("name") === "viewer-settings")).toBe(true);
   });
 
   it("declares conditional project translation and theme screens", () => {

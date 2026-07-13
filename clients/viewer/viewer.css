@@ -606,10 +606,44 @@
 }
 
 .viewer-settings-menu__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   color: var(--vscode-descriptionForeground, #9da5b4);
+  cursor: pointer;
   font-size: 11px;
   font-weight: 700;
+  list-style: none;
   text-transform: uppercase;
+}
+
+.viewer-settings-menu__heading::-webkit-details-marker {
+  display: none;
+}
+
+.viewer-settings-menu__heading::after {
+  content: "›";
+  font-size: 14px;
+  line-height: 1;
+  transition: transform .15s ease;
+}
+
+.viewer-settings-menu__section[open] > .viewer-settings-menu__heading::after {
+  transform: rotate(90deg);
+}
+
+.viewer-settings-menu__heading:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder, #007fd4);
+  outline-offset: 3px;
+}
+
+.viewer-settings-menu__section[open] > .viewer-settings-menu__heading {
+  margin-bottom: 8px;
+}
+
+.viewer-settings-menu__section[open] > :not(.viewer-settings-menu__heading) + :not(.viewer-settings-menu__heading) {
+  margin-top: 6px;
 }
 
 .viewer-settings-menu__section > .btn {

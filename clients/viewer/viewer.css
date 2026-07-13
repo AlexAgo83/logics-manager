@@ -2464,6 +2464,12 @@
   border-left: 1px solid var(--vscode-editorWidget-background, rgb(0 0 0 / 45%));
 }
 
+.viewer-workshop__usage--single .viewer-workshop__usage-segment {
+  inset-inline-start: 0;
+  width: 100%;
+  border-left: 0;
+}
+
 .viewer-workshop__usage-fill {
   position: absolute;
   inset-inline: 0;
@@ -2474,6 +2480,10 @@
 
 .viewer-workshop__usage--ok .viewer-workshop__usage-fill {
   background: var(--vscode-testing-iconPassed, #4ec9b0);
+}
+
+.viewer-workshop__usage:not(.viewer-workshop__usage--single) .viewer-workshop__usage-segment--week.viewer-workshop__usage--ok .viewer-workshop__usage-fill {
+  background: color-mix(in srgb, var(--vscode-charts-blue, #3794ff) 72%, white);
 }
 
 .viewer-workshop__usage--warn .viewer-workshop__usage-fill {

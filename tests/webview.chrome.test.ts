@@ -1,7 +1,16 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { baseItem, bootstrapWebview, pushData } from "./webviewHarnessTestUtils";
 
 describe("webview chrome toolbar and filter behavior", () => {
+  it("only draws the filter badge from the non-default controls flag", () => {
+    const css = readFileSync(join(process.cwd(), "clients/shared-web/media/css/toolbar.css"), "utf8");
+
+    expect(css).toContain('#filter-toggle[data-has-active-controls="true"]::after');
+    expect(css).not.toContain(".toolbar__filter--active::after");
+  });
+
   it("highlights the filter toggle when non-default controls are active but panel is closed", () => {
     const { dom } = bootstrapWebview();
 

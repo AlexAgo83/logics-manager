@@ -142,7 +142,7 @@
   color: var(--vscode-button-background, #0e639c);
 }
 
-.toolbar__filter--active::after {
+#filter-toggle[data-has-active-controls="true"]::after {
   content: "";
   position: absolute;
   top: 3px;

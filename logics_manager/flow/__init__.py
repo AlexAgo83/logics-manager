@@ -1535,6 +1535,9 @@ def repair_links_payload(repo_root: Path, source: str, *, dry_run: bool) -> dict
         backlog_ref = item_refs[0] if item_refs else None
         request_ref = request_refs[0] if request_refs else None
         lines = before.splitlines()
+        product_status = _normalize_status(_indicator_value_from_lines(lines, "Status"))
+        if product_status not in {"settled", "archived", "rejected", "superseded"}:
+            lines = _replace_indicator_line(lines, "Status", "Settled")
         if request_ref:
             lines = _replace_indicator_line(lines, "Related request", f"`{request_ref}`")
         if backlog_ref:

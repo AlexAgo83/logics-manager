@@ -1266,6 +1266,7 @@ def _build_claude_instructions(repo_root: Path) -> dict[str, object]:
             "During task execution, treat meaningful waves as ADR 009 checkpoints: update affected Logics docs inside the wave and leave the repo commit-ready; actual commits stay under operator control.",
             "When grooming or creating backlog items, set a deliberate `# Priority` tier (`High`, `Medium`, or `Low`) with a one-line rationale instead of leaving the default unreviewed.",
             "Sequence delivery plans and roadmaps by status priority order before lower-priority work when dependencies allow.",
+            "When delivery consumes a linked product brief, `flow closeout` should settle it; otherwise set the brief to `Settled` or `Superseded` through the CLI instead of leaving it `Proposed`.",
             "",
         ]
     ).rstrip() + "\n"

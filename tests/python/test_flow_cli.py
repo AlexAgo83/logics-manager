@@ -714,6 +714,56 @@ def test_closeout_rolls_back_failed_repairs(tmp_path: Path) -> None:
     assert task_path.read_text(encoding="utf-8") == original_task_text
 
 
+def test_closeout_settles_linked_product_brief(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    paths = write_ac_traceability_chain(repo_root)
+    product_path = repo_root / "logics" / "product" / "prod_001_demo.md"
+    product_path.parent.mkdir(parents=True)
+    product_path.write_text(
+        "\n".join(
+            [
+                "## prod_001_demo - Demo Product",
+                "> Date: 2026-07-13",
+                "> Status: Proposed",
+                "> Related request: (none yet)",
+                "> Related backlog: (none yet)",
+                "> Related task: (none yet)",
+                "> Related architecture: (none yet)",
+                "> Reminder: Update this doc.",
+                "# Overview",
+                "Demo product.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    task_path = paths["task"]
+    paths["backlog"].write_text(
+        paths["backlog"].read_text(encoding="utf-8")
+        + "\n# AC Traceability\n- request-AC1 -> This backlog slice. Proof: closeout regression covers it.\n",
+        encoding="utf-8",
+    )
+    task_path.write_text(
+        task_path.read_text(encoding="utf-8")
+        + "\n# Product\n- `prod_001_demo`\n# AC Traceability\n- request-AC1 -> This task. Proof: closeout regression covers it.\n",
+        encoding="utf-8",
+    )
+
+    payload = closeout_payload(
+        repo_root,
+        "task_001_demo",
+        validations=["pytest passed"],
+        run_index=False,
+        run_lint=False,
+        run_audit=False,
+        dry_run=False,
+    )
+
+    assert payload["ok"] is True
+    assert "> Status: Settled" in product_path.read_text(encoding="utf-8")
+    assert "> Related task: `task_001_demo`" in product_path.read_text(encoding="utf-8")
+
+
 def test_flow_show_reads_workflow_doc_content(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

@@ -80,7 +80,7 @@
 | [prod_041_live_backlog_progress_and_checkpointed_task_execution](product/prod_041_live_backlog_progress_and_checkpointed_task_execution.md) | Live backlog progress and checkpointed task execution | Settled |  |  | product/prod_041_live_backlog_progress_and_checkpointed_task_execution.md |
 | [prod_042_convention_aware_project_surfaces](product/prod_042_convention_aware_project_surfaces.md) | Convention-aware project surfaces | Settled |  |  | product/prod_042_convention_aware_project_surfaces.md |
 | [prod_043_project_owned_internationalization_readiness](product/prod_043_project_owned_internationalization_readiness.md) | Project-owned internationalization readiness | Settled |  |  | product/prod_043_project_owned_internationalization_readiness.md |
-| [prod_044_first_class_roadmap_planning](product/prod_044_first_class_roadmap_planning.md) | First-class roadmap planning | Proposed |  |  | product/prod_044_first_class_roadmap_planning.md |
+| [prod_044_first_class_roadmap_planning](product/prod_044_first_class_roadmap_planning.md) | First-class roadmap planning | Settled |  |  | product/prod_044_first_class_roadmap_planning.md |
 
 ## Roadmaps
 

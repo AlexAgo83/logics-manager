@@ -1,0 +1,245 @@
+{
+  "title": "Optional project-owned i18n contract and lifecycle tooling",
+  "references": [
+    "logics/release/contract.json",
+    "logics/release/release-contract.v1.schema.json",
+    "logics_manager/release.py",
+    "logics_manager/cli.py",
+    "logics_manager/bootstrap.py",
+    "logics_manager/viewer_project_tools.py",
+    "docs/release.md",
+    "docs/cli.md",
+    "tests/python/test_release_contract_schema.py",
+    "tests/python/test_viewer_cli.py",
+    "tests/python/test_cli_main.py"
+  ],
+  "request": {
+    "complexity": "High",
+    "theme": "Internationalization governance",
+    "needs": [
+      "Define a versioned, framework-neutral internationalization contract that projects may adopt without making internationalization mandatory for existing repositories.",
+      "Let Logics Manager initialize, inspect, plan, lint, and validate the declared contract with a lifecycle similar to the existing release contract.",
+      "Make internationalization readiness a default consideration for new user-interface projects, even when they initially ship only one source locale.",
+      "Let the viewer consume the declared contract as its authoritative catalog configuration while retaining bounded convention detection for legacy projects."
+    ],
+    "context": [
+      "The viewer already detects and edits JSON locale catalogs through a small set of conventional paths, but that capability does not define a portable project-owned governance contract.",
+      "The release workflow demonstrates a repository-owned JSON contract, schema validation, stable status and plan payloads, CLI rendering, context projection, fixtures, and viewer integration that can be reused without copying its publication or evidence machinery.",
+      "Observed applications use framework-specific runtime adapters but converge on stable semantic keys, one JSON catalog per locale, explicit source and default locales, deterministic fallback, and parity checks.",
+      "Legacy repositories need advisory discovery rather than automatic failure. Once a repository declares the contract, invalid catalogs or configuration must fail validation deterministically.",
+      "New projects should start i18n-ready, not necessarily multilingual: a single source-locale catalog and explicit contract are a valid initial state."
+    ],
+    "acceptance_criteria": [
+      "A documented version-1 project contract under logics/i18n defines applicability, source locale, default locale, supported locales, catalog path pattern, fallback locale, stable semantic keys, string leaves, and named placeholder parity without prescribing a runtime library.",
+      "Logics Manager exposes stable text and JSON forms of i18n status, init, plan, lint, and validate; read-only commands do not modify the repository and initialization refuses to overwrite existing sources without an explicit safe option.",
+      "Repositories without a contract remain valid and receive an actionable advisory state, while repositories with a declared contract fail validation for schema errors, path escapes, missing catalogs, key mismatches, empty or non-string leaves, invalid semantic keys, and placeholder mismatches.",
+      "A source-only single-locale contract is valid, and adding a locale produces a deterministic plan rather than requiring a shared runtime dependency or automatic translation.",
+      "New-project guidance and generated assistant context recommend considering or initializing the contract for user-interface work, with an explicit not-applicable path for repositories that do not own user-facing copy.",
+      "The viewer prefers the project-owned contract over heuristic detection, reports contract diagnostics, preserves the current legacy fallback, and edits only validated catalog files inside the selected repository.",
+      "Documentation, anonymized fixtures, focused Python tests, browser-host tests, repository lint, and Logics validation pass."
+    ]
+  },
+  "product": {
+    "title": "Project-owned internationalization readiness",
+    "overview": "Give projects a small optional contract that makes internationalization readiness explicit, testable, visible in Logics Manager, and usable by the viewer without forcing one framework or immediate multilingual delivery.",
+    "goals": [
+      "Establish one portable contract for catalog layout and correctness across frontend stacks.",
+      "Make i18n readiness the default starting posture for new user-interface projects.",
+      "Provide deterministic local diagnostics and migration planning for existing projects.",
+      "Reuse the release-contract interaction model where it fits while keeping the i18n lifecycle smaller.",
+      "Keep legacy repositories and non-user-interface projects unblocked until they deliberately adopt or decline the contract."
+    ],
+    "non_goals": [
+      "Mandate multiple translated locales at project creation time.",
+      "Select or distribute one runtime i18n library for every framework.",
+      "Translate text automatically or call an external translation service.",
+      "Rewrite executable JavaScript or TypeScript translation dictionaries during initialization.",
+      "Copy the release evidence store, publication gates, or state machine into the i18n lifecycle.",
+      "Make every existing backend, library, prototype, or developer tool fail because it has no i18n contract."
+    ]
+  },
+  "backlog_items": [
+    {
+      "title": "Define the versioned optional i18n contract and schema",
+      "priority": "High",
+      "complexity": "Medium",
+      "theme": "Internationalization contract",
+      "request_acs": [
+        "A documented version-1 project contract under logics/i18n defines applicability, source locale, default locale, supported locales, catalog path pattern, fallback locale, stable semantic keys, string leaves, and named placeholder parity without prescribing a runtime library.",
+        "Repositories without a contract remain valid and receive an actionable advisory state, while repositories with a declared contract fail validation for schema errors, path escapes, missing catalogs, key mismatches, empty or non-string leaves, invalid semantic keys, and placeholder mismatches.",
+        "A source-only single-locale contract is valid, and adding a locale produces a deterministic plan rather than requiring a shared runtime dependency or automatic translation."
+      ],
+      "problem": [
+        "Current convention detection describes what the viewer happens to understand, not what a project deliberately owns.",
+        "Without a versioned schema, source locale, fallback, catalog paths, and validation expectations can drift between projects."
+      ],
+      "scope_in": [
+        "Define a compact version-1 JSON schema and neutral fixtures under logics/i18n.",
+        "Represent applicable and explicitly not-applicable projects without requiring a contract in legacy repositories.",
+        "Define source, default, fallback, locale list, and a repository-relative catalog path pattern.",
+        "Document semantic dotted keys, string-only leaves, named placeholders, and exact catalog key parity.",
+        "Allow one source locale as a complete initial contract state.",
+        "Resolve and validate every configured path inside the repository root."
+      ],
+      "scope_out": [
+        "Runtime translation APIs or framework adapters.",
+        "ICU parsing, plural-rule execution, or machine translation.",
+        "Release-style evidence recording."
+      ],
+      "acceptance_criteria": [
+        "The schema accepts applicable single-locale and multi-locale fixtures plus an explicit not-applicable fixture.",
+        "The schema rejects unknown required-shape variants, invalid locale identifiers, absolute paths, and catalog patterns without a locale placeholder.",
+        "Contract documentation distinguishes sourceLocale, defaultLocale, and fallbackLocale.",
+        "The key and placeholder rules are deterministic and framework-neutral.",
+        "Fixtures and documentation use neutral project identities and content."
+      ]
+    },
+    {
+      "title": "Add i18n contract lifecycle commands and validation",
+      "priority": "High",
+      "complexity": "High",
+      "theme": "Internationalization CLI",
+      "request_acs": [
+        "Logics Manager exposes stable text and JSON forms of i18n status, init, plan, lint, and validate; read-only commands do not modify the repository and initialization refuses to overwrite existing sources without an explicit safe option.",
+        "Repositories without a contract remain valid and receive an actionable advisory state, while repositories with a declared contract fail validation for schema errors, path escapes, missing catalogs, key mismatches, empty or non-string leaves, invalid semantic keys, and placeholder mismatches.",
+        "A source-only single-locale contract is valid, and adding a locale produces a deterministic plan rather than requiring a shared runtime dependency or automatic translation."
+      ],
+      "problem": [
+        "Projects cannot currently ask Logics Manager whether their translation contract is absent, declared, incomplete, or valid.",
+        "Hand-created catalogs commonly drift in keys and placeholders and may accidentally reference files outside the intended repository."
+      ],
+      "scope_in": [
+        "Add i18n status, init, plan, lint, and validate command routing with stable text and JSON payloads.",
+        "Keep status, plan, lint, and validate non-mutating.",
+        "Make init create the smallest valid source-only contract and source catalog, with dry-run and overwrite protection.",
+        "Validate contract schema, containment, catalog existence, JSON shape, semantic keys, exact locale parity, empty values, and named placeholder parity.",
+        "Return advisory success when no contract exists and strict failure after adoption.",
+        "Project the bounded status and safe next actions into shared context surfaces where release guidance is already exposed."
+      ],
+      "scope_out": [
+        "Generating translations or installing runtime dependencies.",
+        "Statically proving every application call site in the first version.",
+        "A daemon, remote service, or central contract registry."
+      ],
+      "acceptance_criteria": [
+        "Every command supports documented text and JSON output with deterministic exit behavior.",
+        "Read-only commands leave tracked and untracked repository state unchanged.",
+        "Initialization dry-run reports proposed paths and initialization refuses ambiguous or pre-existing sources by default.",
+        "Validation reports precise locale, key, path, and placeholder findings without exposing unrelated file contents.",
+        "Focused tests cover absent, not-applicable, valid single-locale, valid multi-locale, malformed, escaping, mismatched, and unsafe initialization cases."
+      ]
+    },
+    {
+      "title": "Make i18n readiness a default new-project consideration",
+      "priority": "High",
+      "complexity": "Medium",
+      "theme": "Project bootstrap guidance",
+      "request_acs": [
+        "New-project guidance and generated assistant context recommend considering or initializing the contract for user-interface work, with an explicit not-applicable path for repositories that do not own user-facing copy.",
+        "A source-only single-locale contract is valid, and adding a locale produces a deterministic plan rather than requiring a shared runtime dependency or automatic translation."
+      ],
+      "problem": [
+        "Internationalization is usually considered only after user-visible strings have become coupled to components or source-language phrases.",
+        "Making every repository multilingual by force would create noise for services, libraries, and prototypes that own no user-facing copy."
+      ],
+      "scope_in": [
+        "Add concise i18n readiness guidance to generated assistant instructions and relevant new-project or bootstrap documentation.",
+        "Recommend i18n init when a new project will own user-facing copy.",
+        "Explain that one source locale is sufficient at project creation.",
+        "Offer an explicit not-applicable declaration or documented choice for projects without localizable UI.",
+        "Keep existing repositories advisory until they adopt the contract."
+      ],
+      "scope_out": [
+        "Automatically modifying every repository during bootstrap.",
+        "Blocking non-UI project creation.",
+        "Requiring a second locale or translated values before product work begins."
+      ],
+      "acceptance_criteria": [
+        "Fresh generated guidance mentions i18n readiness and the status/init commands without claiming the feature is mandatory.",
+        "The guidance clearly separates applicable, source-only, multilingual, and not-applicable states.",
+        "Existing bootstrapped repositories are not mutated merely by running a status command.",
+        "Tests assert the generated guidance and preserve existing release guidance."
+      ]
+    },
+    {
+      "title": "Use the declared i18n contract in viewer project tools",
+      "priority": "Medium",
+      "complexity": "Medium",
+      "theme": "Viewer contract integration",
+      "request_acs": [
+        "The viewer prefers the project-owned contract over heuristic detection, reports contract diagnostics, preserves the current legacy fallback, and edits only validated catalog files inside the selected repository.",
+        "Documentation, anonymized fixtures, focused Python tests, browser-host tests, repository lint, and Logics validation pass."
+      ],
+      "problem": [
+        "The viewer currently infers locale paths and may infer the wrong source locale from filename ordering.",
+        "Keeping separate viewer-only and governance configuration authoritative would create conflicting sources of truth."
+      ],
+      "scope_in": [
+        "Read a valid project-owned i18n contract before the existing viewer configuration and convention detectors.",
+        "Map declared catalogs, source locale, editability, and validation diagnostics into the existing project capability payload.",
+        "Keep current bounded JSON and source-dictionary detection when no contract exists.",
+        "Fail closed for an adopted but invalid contract instead of silently falling back to another source.",
+        "Document migration from viewer-only i18n configuration without removing theme configuration."
+      ],
+      "scope_out": [
+        "Changing the translation editor into a runtime application preview.",
+        "Editing executable source dictionaries.",
+        "Removing legacy detection in version 1."
+      ],
+      "acceptance_criteria": [
+        "A valid declared contract determines catalog paths and source locale even when heuristic ordering differs.",
+        "An invalid adopted contract produces an actionable unavailable state and no edit controls.",
+        "A legacy repository without a contract retains current detection and editing behavior.",
+        "All viewer reads and writes remain bounded, authorized, revision-aware, atomic, and contained in the repository.",
+        "Python and browser tests cover declared, invalid, not-applicable, and legacy project states."
+      ]
+    },
+    {
+      "title": "Document and harden the i18n contract rollout",
+      "priority": "Medium",
+      "complexity": "Medium",
+      "theme": "Internationalization adoption",
+      "request_acs": [
+        "Documentation, anonymized fixtures, focused Python tests, browser-host tests, repository lint, and Logics validation pass.",
+        "New-project guidance and generated assistant context recommend considering or initializing the contract for user-interface work, with an explicit not-applicable path for repositories that do not own user-facing copy."
+      ],
+      "problem": [
+        "A contract is only useful if project maintainers can adopt it incrementally and understand why validation fails.",
+        "Examples copied from real neighboring repositories could expose identities or couple the feature to one application."
+      ],
+      "scope_in": [
+        "Document source-only initialization, adding a locale, adopting existing JSON catalogs, and migrating source-language-key dictionaries.",
+        "Document command exit behavior, CI usage, viewer precedence, recovery from invalid contracts, and not-applicable projects.",
+        "Add anonymized fixtures covering common JSON catalog layouts and migration states.",
+        "Run CLI, context, bootstrap, viewer, lint, and Logics validation suites relevant to the feature.",
+        "Record later candidates only when a concrete unsupported runtime or message syntax requires them."
+      ],
+      "scope_out": [
+        "Per-framework runtime tutorials beyond a minimal adapter boundary.",
+        "Real project names, business copy, client data, or absolute paths in fixtures and documentation.",
+        "A translation management platform integration."
+      ],
+      "acceptance_criteria": [
+        "Documentation gives a complete source-only and existing-catalog adoption path.",
+        "Examples use neutral names and contain no sampled business data or absolute local paths.",
+        "CI guidance uses the contract validator without requiring a runtime dependency.",
+        "Relevant tests, repository lint, and Logics validation pass without generated-asset drift."
+      ]
+    }
+  ],
+  "orchestration_task": {
+    "title": "Orchestrate optional i18n contract and lifecycle delivery",
+    "plan": [
+      "Define the smallest version-1 contract, schema, and anonymized fixtures, including source-only and not-applicable states.",
+      "Implement non-mutating status, plan, lint, and validate payloads before adding guarded initialization.",
+      "Add safe source-only initialization with dry-run and overwrite protection, then project bounded guidance into assistant context.",
+      "Make the viewer prefer valid declared contracts while preserving legacy detection for repositories that have not adopted one.",
+      "Document new-project and migration workflows, run focused CLI and viewer tests plus repository validation, and close with traceability evidence."
+    ]
+  },
+  "context_pack": {
+    "out": "logics/context-packs/optional-i18n-contract.json",
+    "mode": "full",
+    "profile": "deep"
+  }
+}

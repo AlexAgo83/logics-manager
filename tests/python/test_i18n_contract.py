@@ -5,6 +5,7 @@ from pathlib import Path
 
 from logics_manager.cli import main
 from logics_manager.i18n import i18n_init_payload, i18n_plan_payload, i18n_validate_payload
+from logics_manager.viewer_project_tools import detect_project_tools
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -99,3 +100,22 @@ def test_cli_supports_json_status_and_init(tmp_path: Path, monkeypatch, capsys) 
     assert json.loads(capsys.readouterr().out)["written"] is True
     assert main(["i18n", "validate", "--format", "json"]) == 0
     assert json.loads(capsys.readouterr().out)["state"] == "valid"
+
+
+def test_viewer_prefers_valid_contract_and_fails_closed_when_invalid(tmp_path: Path) -> None:
+    root = _repo(tmp_path)
+    _write_contract(root)
+    catalog = root / "src/i18n"
+    catalog.mkdir(parents=True)
+    for locale, value in (("en", "Save"), ("fr", "Enregistrer")):
+        (catalog / f"{locale}.json").write_text(json.dumps({"common": {"save": value}}), encoding="utf-8")
+
+    capability = detect_project_tools(root)["i18n"]
+    assert capability["state"] == "ready"
+    assert capability["detail"]["sourceLocale"] == "en"
+    assert capability["detail"]["contract"] == "logics/i18n/contract.json"
+
+    (catalog / "fr.json").write_text(json.dumps({"common": {"bad key": "Enregistrer"}}), encoding="utf-8")
+    invalid = detect_project_tools(root)["i18n"]
+    assert invalid["state"] == "error"
+    assert invalid["available"] is False

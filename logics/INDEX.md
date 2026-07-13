@@ -80,6 +80,7 @@
 | [prod_041_live_backlog_progress_and_checkpointed_task_execution](product/prod_041_live_backlog_progress_and_checkpointed_task_execution.md) | Live backlog progress and checkpointed task execution | Settled |  |  | product/prod_041_live_backlog_progress_and_checkpointed_task_execution.md |
 | [prod_042_convention_aware_project_surfaces](product/prod_042_convention_aware_project_surfaces.md) | Convention-aware project surfaces | Settled |  |  | product/prod_042_convention_aware_project_surfaces.md |
 | [prod_043_project_owned_internationalization_readiness](product/prod_043_project_owned_internationalization_readiness.md) | Project-owned internationalization readiness | Settled |  |  | product/prod_043_project_owned_internationalization_readiness.md |
+| [prod_044_first_class_roadmap_planning](product/prod_044_first_class_roadmap_planning.md) | First-class roadmap planning | Proposed |  |  | product/prod_044_first_class_roadmap_planning.md |
 
 ## Requests
 
@@ -379,6 +380,7 @@
 | [req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints](request/req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints.md) | Sync backlog progress during task development and codify task checkpoints | Done |  |  | request/req_293_sync_backlog_progress_during_task_development_and_codify_task_checkpoints.md |
 | [req_294_convention_aware_project_i18n_and_theme_viewer_screens](request/req_294_convention_aware_project_i18n_and_theme_viewer_screens.md) | Convention-aware project i18n and theme viewer screens | Done |  |  | request/req_294_convention_aware_project_i18n_and_theme_viewer_screens.md |
 | [req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling](request/req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling.md) | Optional project-owned i18n contract and lifecycle tooling | Done |  |  | request/req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling.md |
+| [req_296_add_first_class_roadmap_planning_to_logics_manager](request/req_296_add_first_class_roadmap_planning_to_logics_manager.md) | Add first-class roadmap planning to Logics Manager | Draft |  |  | request/req_296_add_first_class_roadmap_planning_to_logics_manager.md |
 
 ## Backlog
 
@@ -936,6 +938,10 @@
 | [item_550_make_i18n_readiness_a_default_new_project_consideration](backlog/item_550_make_i18n_readiness_a_default_new_project_consideration.md) | Make i18n readiness a default new-project consideration | Done |  | 100% | backlog/item_550_make_i18n_readiness_a_default_new_project_consideration.md |
 | [item_551_use_the_declared_i18n_contract_in_viewer_project_tools](backlog/item_551_use_the_declared_i18n_contract_in_viewer_project_tools.md) | Use the declared i18n contract in viewer project tools | Done |  | 100% | backlog/item_551_use_the_declared_i18n_contract_in_viewer_project_tools.md |
 | [item_552_document_and_harden_the_i18n_contract_rollout](backlog/item_552_document_and_harden_the_i18n_contract_rollout.md) | Document and harden the i18n contract rollout | Done |  | 100% | backlog/item_552_document_and_harden_the_i18n_contract_rollout.md |
+| [item_553_add_roadmap_document_kind_and_parsing_contract](backlog/item_553_add_roadmap_document_kind_and_parsing_contract.md) | Add roadmap document kind and parsing contract | Ready |  | 0% | backlog/item_553_add_roadmap_document_kind_and_parsing_contract.md |
+| [item_554_implement_roadmap_cli_propose_show_and_validate_commands](backlog/item_554_implement_roadmap_cli_propose_show_and_validate_commands.md) | Implement roadmap CLI propose, show, and validate commands | Ready |  | 0% | backlog/item_554_implement_roadmap_cli_propose_show_and_validate_commands.md |
+| [item_555_render_roadmap_milestones_in_the_local_viewer](backlog/item_555_render_roadmap_milestones_in_the_local_viewer.md) | Render roadmap milestones in the local viewer | Ready |  | 0% | backlog/item_555_render_roadmap_milestones_in_the_local_viewer.md |
+| [item_556_connect_roadmap_validation_to_lint_audit_and_documentation](backlog/item_556_connect_roadmap_validation_to_lint_audit_and_documentation.md) | Connect roadmap validation to lint, audit, and documentation | Ready |  | 0% | backlog/item_556_connect_roadmap_validation_to_lint_audit_and_documentation.md |
 
 ## Tasks
 
@@ -1227,3 +1233,4 @@
 | [task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance](tasks/task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance.md) | Orchestrate live backlog progress and checkpointed task guidance | Done |  | 100% | tasks/task_290_orchestrate_live_backlog_progress_and_checkpointed_task_guidance.md |
 | [task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery](tasks/task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery.md) | Orchestrate convention-aware i18n and theme viewer delivery | Done | codex | 100% | tasks/task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery.md |
 | [task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery](tasks/task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery.md) | Orchestrate optional i18n contract and lifecycle delivery | Done | codex | 100% | tasks/task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery.md |
+| [task_293_deliver_first_class_roadmap_planning_support](tasks/task_293_deliver_first_class_roadmap_planning_support.md) | Deliver first-class roadmap planning support | Ready |  | 0% | tasks/task_293_deliver_first_class_roadmap_planning_support.md |

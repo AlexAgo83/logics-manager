@@ -1,0 +1,460 @@
+{
+  "budgets": {
+    "max_docs": 56,
+    "max_docs_per_ref": 8
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling item_548_define_the_versioned_optional_i18n_contract_and_schema item_549_add_i18n_contract_lifecycle_commands_and_validation item_550_make_i18n_readiness_a_default_new_project_consideration item_551_use_the_declared_i18n_contract_in_viewer_project_tools item_552_document_and_harden_the_i18n_contract_rollout task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery --mode full --profile deep --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_548_define_the_versioned_optional_i18n_contract_and_schema",
+          "item_549_add_i18n_contract_lifecycle_commands_and_validation",
+          "item_550_make_i18n_readiness_a_default_new_project_consideration",
+          "item_551_use_the_declared_i18n_contract_in_viewer_project_tools",
+          "item_552_document_and_harden_the_i18n_contract_rollout"
+        ],
+        "prod": [
+          "prod_043_project_owned_internationalization_readiness"
+        ],
+        "req": [
+          "req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling"
+        ],
+        "task": [
+          "task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery"
+        ]
+      },
+      "path": "logics/product/prod_043_project_owned_internationalization_readiness.md",
+      "ref": "prod_043_project_owned_internationalization_readiness",
+      "sections": {
+        "Goals": [
+          "- Establish one portable contract for catalog layout and correctness across frontend stacks.",
+          "- Make i18n readiness the default starting posture for new user-interface projects.",
+          "- Provide deterministic local diagnostics and migration planning for existing projects.",
+          "- Reuse the release-contract interaction model where it fits while keeping the i18n lifecycle smaller.",
+          "- Keep legacy repositories and non-user-interface projects unblocked until they deliberately adopt or decline the contract."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Give projects a small optional contract that makes internationalization readiness explicit, testable, visible in Logics Manager, and usable by the viewer without forcing one framework or immediate multilingual delivery."
+        ],
+        "References": [
+          "- Product back-reference: `req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling`",
+          "- Task back-reference: `task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Project-owned internationalization readiness"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, optional project-owned i18n contract and lifecycle tooling, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Optional project-owned i18n contract and lifecycle tooling",
+        "use when": "You need to implement or review the scaffolded workflow for Optional project-owned i18n contract and lifecycle tooling."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_548_define_the_versioned_optional_i18n_contract_and_schema",
+          "item_549_add_i18n_contract_lifecycle_commands_and_validation",
+          "item_550_make_i18n_readiness_a_default_new_project_consideration",
+          "item_551_use_the_declared_i18n_contract_in_viewer_project_tools",
+          "item_552_document_and_harden_the_i18n_contract_rollout"
+        ],
+        "prod": [
+          "prod_043_project_owned_internationalization_readiness"
+        ],
+        "req": [
+          "req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling"
+        ]
+      },
+      "path": "logics/request/req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling.md",
+      "ref": "req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- A documented version-1 project contract under logics/i18n defines applicability, source locale, default locale, supported locales, catalog path pattern, fallback locale, stable semantic keys, string leaves, and named placeholder parity without prescribing a runtime library.",
+          "- Logics Manager exposes stable text and JSON forms of i18n status, init, plan, lint, and validate; read-only commands do not modify the repository and initialization refuses to overwrite existing sources without an explicit safe option.",
+          "- Repositories without a contract remain valid and receive an actionable advisory state, while repositories with a declared contract fail validation for schema errors, path escapes, missing catalogs, key mismatches, empty or non-string leaves, invalid semantic keys, and placeholder mismatches.",
+          "- A source-only single-locale contract is valid, and adding a locale produces a deterministic plan rather than requiring a shared runtime dependency or automatic translation.",
+          "- New-project guidance and generated assistant context recommend considering or initializing the contract for user-interface work, with an explicit not-applicable path for repositories that do not own user-facing copy.",
+          "- The viewer prefers the project-owned contract over heuristic detection, reports contract diagnostics, preserves the current legacy fallback, and edits only validated catalog files inside the selected repository."
+        ],
+        "Needs": [
+          "- Define a versioned, framework-neutral internationalization contract that projects may adopt without making internationalization mandatory for existing repositories.",
+          "- Let Logics Manager initialize, inspect, plan, lint, and validate the declared contract with a lifecycle similar to the existing release contract.",
+          "- Make internationalization readiness a default consideration for new user-interface projects, even when they initially ship only one source locale.",
+          "- Let the viewer consume the declared contract as its authoritative catalog configuration while retaining bounded convention detection for legacy projects."
+        ]
+      },
+      "status": "Draft",
+      "title": "Optional project-owned i18n contract and lifecycle tooling"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, define the versioned optional i18n contract and schema, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Define the versioned optional i18n contract and schema",
+        "use when": "Implementing the scaffolded slice for Define the versioned optional i18n contract and schema."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_548_define_the_versioned_optional_i18n_contract_and_schema"
+        ],
+        "prod": [
+          "prod_043_project_owned_internationalization_readiness"
+        ],
+        "req": [
+          "req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling"
+        ],
+        "task": [
+          "task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery"
+        ]
+      },
+      "path": "logics/backlog/item_548_define_the_versioned_optional_i18n_contract_and_schema.md",
+      "ref": "item_548_define_the_versioned_optional_i18n_contract_and_schema",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- The schema accepts applicable single-locale and multi-locale fixtures plus an explicit not-applicable fixture.",
+          "- The schema rejects unknown required-shape variants, invalid locale identifiers, absolute paths, and catalog patterns without a locale placeholder.",
+          "- Contract documentation distinguishes sourceLocale, defaultLocale, and fallbackLocale.",
+          "- The key and placeholder rules are deterministic and framework-neutral.",
+          "- Fixtures and documentation use neutral project identities and content."
+        ],
+        "Problem": [
+          "- Current convention detection describes what the viewer happens to understand, not what a project deliberately owns.",
+          "- Without a versioned schema, source locale, fallback, catalog paths, and validation expectations can drift between projects."
+        ]
+      },
+      "status": "Ready",
+      "title": "Define the versioned optional i18n contract and schema"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add i18n contract lifecycle commands and validation, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add i18n contract lifecycle commands and validation",
+        "use when": "Implementing the scaffolded slice for Add i18n contract lifecycle commands and validation."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_549_add_i18n_contract_lifecycle_commands_and_validation"
+        ],
+        "prod": [
+          "prod_043_project_owned_internationalization_readiness"
+        ],
+        "req": [
+          "req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling"
+        ],
+        "task": [
+          "task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery"
+        ]
+      },
+      "path": "logics/backlog/item_549_add_i18n_contract_lifecycle_commands_and_validation.md",
+      "ref": "item_549_add_i18n_contract_lifecycle_commands_and_validation",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- Every command supports documented text and JSON output with deterministic exit behavior.",
+          "- Read-only commands leave tracked and untracked repository state unchanged.",
+          "- Initialization dry-run reports proposed paths and initialization refuses ambiguous or pre-existing sources by default.",
+          "- Validation reports precise locale, key, path, and placeholder findings without exposing unrelated file contents.",
+          "- Focused tests cover absent, not-applicable, valid single-locale, valid multi-locale, malformed, escaping, mismatched, and unsafe initialization cases."
+        ],
+        "Problem": [
+          "- Projects cannot currently ask Logics Manager whether their translation contract is absent, declared, incomplete, or valid.",
+          "- Hand-created catalogs commonly drift in keys and placeholders and may accidentally reference files outside the intended repository."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add i18n contract lifecycle commands and validation"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, make i18n readiness a default new-project consideration, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Make i18n readiness a default new-project consideration",
+        "use when": "Implementing the scaffolded slice for Make i18n readiness a default new-project consideration."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_550_make_i18n_readiness_a_default_new_project_consideration"
+        ],
+        "prod": [
+          "prod_043_project_owned_internationalization_readiness"
+        ],
+        "req": [
+          "req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling"
+        ],
+        "task": [
+          "task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery"
+        ]
+      },
+      "path": "logics/backlog/item_550_make_i18n_readiness_a_default_new_project_consideration.md",
+      "ref": "item_550_make_i18n_readiness_a_default_new_project_consideration",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- Fresh generated guidance mentions i18n readiness and the status/init commands without claiming the feature is mandatory.",
+          "- The guidance clearly separates applicable, source-only, multilingual, and not-applicable states.",
+          "- Existing bootstrapped repositories are not mutated merely by running a status command.",
+          "- Tests assert the generated guidance and preserve existing release guidance."
+        ],
+        "Problem": [
+          "- Internationalization is usually considered only after user-visible strings have become coupled to components or source-language phrases.",
+          "- Making every repository multilingual by force would create noise for services, libraries, and prototypes that own no user-facing copy."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make i18n readiness a default new-project consideration"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, use the declared i18n contract in viewer project tools, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Use the declared i18n contract in viewer project tools",
+        "use when": "Implementing the scaffolded slice for Use the declared i18n contract in viewer project tools."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_551_use_the_declared_i18n_contract_in_viewer_project_tools"
+        ],
+        "prod": [
+          "prod_043_project_owned_internationalization_readiness"
+        ],
+        "req": [
+          "req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling"
+        ],
+        "task": [
+          "task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery"
+        ]
+      },
+      "path": "logics/backlog/item_551_use_the_declared_i18n_contract_in_viewer_project_tools.md",
+      "ref": "item_551_use_the_declared_i18n_contract_in_viewer_project_tools",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- A valid declared contract determines catalog paths and source locale even when heuristic ordering differs.",
+          "- An invalid adopted contract produces an actionable unavailable state and no edit controls.",
+          "- A legacy repository without a contract retains current detection and editing behavior.",
+          "- All viewer reads and writes remain bounded, authorized, revision-aware, atomic, and contained in the repository.",
+          "- Python and browser tests cover declared, invalid, not-applicable, and legacy project states."
+        ],
+        "Problem": [
+          "- The viewer currently infers locale paths and may infer the wrong source locale from filename ordering.",
+          "- Keeping separate viewer-only and governance configuration authoritative would create conflicting sources of truth."
+        ]
+      },
+      "status": "Ready",
+      "title": "Use the declared i18n contract in viewer project tools"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, document and harden the i18n contract rollout, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Document and harden the i18n contract rollout",
+        "use when": "Implementing the scaffolded slice for Document and harden the i18n contract rollout."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_552_document_and_harden_the_i18n_contract_rollout"
+        ],
+        "prod": [
+          "prod_043_project_owned_internationalization_readiness"
+        ],
+        "req": [
+          "req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling"
+        ],
+        "task": [
+          "task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery"
+        ]
+      },
+      "path": "logics/backlog/item_552_document_and_harden_the_i18n_contract_rollout.md",
+      "ref": "item_552_document_and_harden_the_i18n_contract_rollout",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- Documentation gives a complete source-only and existing-catalog adoption path.",
+          "- Examples use neutral names and contain no sampled business data or absolute local paths.",
+          "- CI guidance uses the contract validator without requiring a runtime dependency.",
+          "- Relevant tests, repository lint, and Logics validation pass without generated-asset drift."
+        ],
+        "Problem": [
+          "- A contract is only useful if project maintainers can adopt it incrementally and understand why validation fails.",
+          "- Examples copied from real neighboring repositories could expose identities or couple the feature to one application."
+        ]
+      },
+      "status": "Ready",
+      "title": "Document and harden the i18n contract rollout"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate optional i18n contract and lifecycle delivery",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_548_define_the_versioned_optional_i18n_contract_and_schema",
+          "item_549_add_i18n_contract_lifecycle_commands_and_validation",
+          "item_550_make_i18n_readiness_a_default_new_project_consideration",
+          "item_551_use_the_declared_i18n_contract_in_viewer_project_tools",
+          "item_552_document_and_harden_the_i18n_contract_rollout"
+        ],
+        "prod": [
+          "prod_043_project_owned_internationalization_readiness"
+        ],
+        "req": [
+          "req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling"
+        ],
+        "task": [
+          "task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery"
+        ]
+      },
+      "path": "logics/tasks/task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery.md",
+      "ref": "task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- Run `python3 -m logics_manager lint --require-status`.",
+          "- Run scaffold command tests."
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate optional i18n contract and lifecycle delivery"
+    }
+  ],
+  "estimates": {
+    "char_count": 15410,
+    "companion_doc_count": 1,
+    "doc_count": 7
+  },
+  "generated_at": "2026-07-13T08:57:15Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling",
+      "item_548_define_the_versioned_optional_i18n_contract_and_schema",
+      "item_549_add_i18n_contract_lifecycle_commands_and_validation",
+      "item_550_make_i18n_readiness_a_default_new_project_consideration",
+      "item_551_use_the_declared_i18n_contract_in_viewer_project_tools",
+      "item_552_document_and_harden_the_i18n_contract_rollout",
+      "task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery"
+    ],
+    "validation_summary_count": 1
+  },
+  "mode": "full",
+  "profile": "deep",
+  "ref": "req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling,item_548_define_the_versioned_optional_i18n_contract_and_schema,item_549_add_i18n_contract_lifecycle_commands_and_validation,item_550_make_i18n_readiness_a_default_new_project_consideration,item_551_use_the_declared_i18n_contract_in_viewer_project_tools,item_552_document_and_harden_the_i18n_contract_rollout,task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery",
+  "refs": [
+    "req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling",
+    "item_548_define_the_versioned_optional_i18n_contract_and_schema",
+    "item_549_add_i18n_contract_lifecycle_commands_and_validation",
+    "item_550_make_i18n_readiness_a_default_new_project_consideration",
+    "item_551_use_the_declared_i18n_contract_in_viewer_project_tools",
+    "item_552_document_and_harden_the_i18n_contract_rollout",
+    "task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.17.1"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery.md",
+      "ref": "task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery"
+    }
+  ]
+}

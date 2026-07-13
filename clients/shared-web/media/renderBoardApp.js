@@ -6,6 +6,7 @@
     backlog: "Backlog item",
     task: "Task",
     product: "Product brief",
+    roadmap: "Roadmap",
     architecture: "Architecture decision",
     spec: "Spec"
   };
@@ -628,15 +629,17 @@
       const counts = companionDocs.reduce(
         (acc, companion) => {
           if (companion.stage === "product") acc.product += 1;
+          if (companion.stage === "roadmap") acc.roadmap += 1;
           if (companion.stage === "architecture") acc.architecture += 1;
           return acc;
         },
-        { product: 0, architecture: 0 }
+        { product: 0, roadmap: 0, architecture: 0 }
       );
 
       const label = (text, count) => (count > 1 ? `${text} ${count}` : text);
       const parts = [];
       if (counts.product > 0) parts.push(label("PROD", counts.product));
+      if (counts.roadmap > 0) parts.push(label("ROAD", counts.roadmap));
       if (counts.architecture > 0) parts.push(label("ADR", counts.architecture));
       if (specs.length > 0) parts.push(label("SPEC", specs.length));
       return parts.join(" • ");
@@ -816,6 +819,7 @@
         backlog: "I",
         task: "T",
         product: "P",
+        roadmap: "M",
         architecture: "A",
         spec: "S"
       };

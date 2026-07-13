@@ -329,6 +329,11 @@ function browserExerciseScript(name) {
         if (focus instanceof HTMLSelectElement) {
           focus.value = "all";
           focus.dispatchEvent(new Event("change", { bubbles: true }));
+        } else {
+          const allDocs = document.querySelector('[data-viewer-focus-value="all"]');
+          if (allDocs instanceof HTMLElement) {
+            allDocs.click();
+          }
         }
       }
       await waitFor(() => document.querySelectorAll(".card[data-id]").length > 0, "cards");

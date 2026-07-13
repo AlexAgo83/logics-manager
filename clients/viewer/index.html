@@ -150,7 +150,7 @@
         </button>
         <div class="toolbar__focus-menu" id="focus-menu">
           <button class="toolbar__filter toolbar__focus-button" id="focus-menu-toggle" aria-label="Choose corpus focus" aria-haspopup="true" aria-expanded="false" aria-controls="focus-menu-options" title="Choose corpus focus">
-            <span id="focus-menu-label">Active work</span>
+            <span id="focus-menu-label">All docs</span>
           </button>
           <div class="toolbar__focus-menu-options" id="focus-menu-options" role="menu" aria-label="Corpus focus" hidden>
             <button class="toolbar__focus-menu-option" type="button" role="menuitemradio" data-viewer-focus-value="active">Active work</button>
@@ -189,6 +189,10 @@
               <option value="backlog">Backlog</option>
               <option value="task">Tasks</option>
               <option value="companion">Companions</option>
+              <option value="product">Product briefs</option>
+              <option value="roadmap">Roadmaps</option>
+              <option value="architecture">Architecture decisions</option>
+              <option value="spec">Specs</option>
             </select>
           </label>
         </div>
@@ -197,10 +201,20 @@
             <span class="viewer-filter-panel__label">Status</span>
             <select data-viewer-filter-group="status" aria-label="Status">
               <option value="any">Any</option>
+              <option value="draft">Draft</option>
               <option value="ready">Ready</option>
+              <option value="proposed">Proposed</option>
+              <option value="active">Active</option>
+              <option value="accepted">Accepted</option>
               <option value="in-progress">In progress</option>
               <option value="blocked">Blocked</option>
               <option value="done">Done</option>
+              <option value="validated">Validated</option>
+              <option value="rejected">Rejected</option>
+              <option value="superseded">Superseded</option>
+              <option value="settled">Settled</option>
+              <option value="obsolete">Obsolete</option>
+              <option value="archived">Archived</option>
             </select>
           </label>
         </div>

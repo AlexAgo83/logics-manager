@@ -4016,7 +4016,7 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("focus: blocked");
 
     dom.window.document.getElementById("filter-reset")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    expect((dom.window.document.querySelector('[data-viewer-filter-group="focus"]') as HTMLSelectElement | null)?.value).toBe("active");
+    expect((dom.window.document.querySelector('[data-viewer-filter-group="focus"]') as HTMLSelectElement | null)?.value).toBe("all");
   });
 
   it("applies corpus focus from the toolbar focus menu", async () => {
@@ -7071,6 +7071,7 @@ describe("local viewer browser host", () => {
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-focus-value="active"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
     const matches = (item: Record<string, unknown>) => dom.window.__CDX_LOGICS_VIEWER_FILTER__(item);
 

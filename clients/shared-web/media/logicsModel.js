@@ -11,6 +11,8 @@
         return "task";
       case "product":
         return "product brief";
+      case "roadmap":
+        return "roadmap";
       case "architecture":
         return "architecture decision";
       case "spec":
@@ -30,6 +32,8 @@
         return "Tasks";
       case "product":
         return "Product briefs";
+      case "roadmap":
+        return "Roadmaps";
       case "architecture":
         return "Architecture decisions";
       case "spec":
@@ -44,7 +48,7 @@
   }
 
   function isCompanionStage(stage) {
-    return stage === "product" || stage === "architecture";
+    return stage === "product" || stage === "roadmap" || stage === "architecture";
   }
 
   function normalizeManagedDocValue(value) {
@@ -71,6 +75,9 @@
     const fileStem = inferManagedDocId(normalizedValue);
     if (normalizedValue.startsWith("logics/product/") || fileStem.startsWith("prod_")) {
       return "product";
+    }
+    if (normalizedValue.startsWith("logics/roadmap/") || fileStem.startsWith("road_")) {
+      return "roadmap";
     }
     if (normalizedValue.startsWith("logics/architecture/") || fileStem.startsWith("adr_")) {
       return "architecture";
@@ -154,7 +161,7 @@
       registerCompanion(resolveCompanionFromValue(usage.relPath || usage.id, allItems, usage));
     });
 
-    const order = ["product", "architecture"];
+    const order = ["product", "roadmap", "architecture"];
     return Array.from(companions.values()).sort((left, right) => {
       const leftIndex = order.indexOf(left.stage);
       const rightIndex = order.indexOf(right.stage);

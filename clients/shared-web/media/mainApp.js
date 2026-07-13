@@ -73,10 +73,11 @@
   const defaultFilterState = {
     hideCompleted: true,
     hideProcessedRequests: true,
-    hideSpec: true,
+    hideSpec: false,
     showCompanionDocs: true,
     hideEmptyColumns: true
   };
+  const filterStateVersion = 2;
 
   let items = [];
   let selectedId = null;
@@ -133,7 +134,7 @@
   const previousState = vscode.getState() || null;
 
   const primaryStageOrder = ["request", "backlog", "task"];
-  const companionStageOrder = ["product", "architecture"];
+  const companionStageOrder = ["product", "roadmap", "architecture"];
   const stackedQuery = window.matchMedia("(max-width: 900px)");
   const compactListQuery = window.matchMedia("(max-width: 500px)");
   const projectGithubUrl = "https://github.com/AlexAgo83/logics-manager";
@@ -180,6 +181,7 @@
   function getSnapshot(scrollValues = { boardLeft: 0, boardTop: 0, detailsTop: 0 }) {
     return {
       workspaceRoot: activeWorkspaceRoot,
+      filterStateVersion,
       selectedId,
       hideCompleted,
       hideProcessedRequests,
@@ -244,7 +246,7 @@
     } else if (nextState && typeof nextState.hideUsedRequests === "boolean") {
       hideProcessedRequests = nextState.hideUsedRequests;
     }
-    if (nextState && typeof nextState.hideSpec === "boolean") {
+    if (nextState && typeof nextState.hideSpec === "boolean" && Number(nextState.filterStateVersion || 0) >= filterStateVersion) {
       hideSpec = nextState.hideSpec;
     }
     if (nextState && typeof nextState.showCompanionDocs === "boolean") {

@@ -477,12 +477,15 @@
     }
 
     function hasNonDefaultSecondaryControls() {
+      const ignoreHideTogglesForLocalViewer = typeof window.__CDX_LOGICS_VIEWER_FILTER__ === "function";
       return (
-        getHideCompleted() !== defaultFilterState.hideCompleted ||
-        getHideProcessedRequests() !== defaultFilterState.hideProcessedRequests ||
-        getHideSpec() !== defaultFilterState.hideSpec ||
-        getShowCompanionDocs() !== defaultFilterState.showCompanionDocs ||
-        getHideEmptyColumns() !== defaultFilterState.hideEmptyColumns ||
+        (!ignoreHideTogglesForLocalViewer && (
+          getHideCompleted() !== defaultFilterState.hideCompleted ||
+          getHideProcessedRequests() !== defaultFilterState.hideProcessedRequests ||
+          getHideSpec() !== defaultFilterState.hideSpec ||
+          getShowCompanionDocs() !== defaultFilterState.showCompanionDocs ||
+          getHideEmptyColumns() !== defaultFilterState.hideEmptyColumns
+        )) ||
         options.normalizeSearchValue(getSearchQuery()) !== "" ||
         getGroupMode() !== "stage" ||
         (getSortMode() !== "updated-desc" && getSortMode() !== "default")

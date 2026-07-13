@@ -3708,7 +3708,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       return `<tr><th class="viewer-project-tool__key">${escapeHtml2(row.key)}</th>${cells}</tr>`;
     }).join("");
     const missingCount = Object.values(payload.diagnostics || {}).reduce((sum, entry) => sum + (entry?.missing?.length || 0), 0);
-    return `<div class="viewer-project-tool"><div class="viewer-project-tool__summary"><strong>${escapeHtml2(rows.length)} keys</strong><span>${escapeHtml2(locales.length)} locales</span><span>${escapeHtml2(missingCount)} missing</span></div><label class="viewer-project-tool__search">Search <input type="search" data-project-i18n-search placeholder="Key or translation"></label><div class="viewer-project-tool__table-wrap"><table><thead><tr><th>Key</th>${heads}</tr></thead><tbody data-project-i18n-rows>${body}</tbody></table></div></div>`;
+    return `<div class="viewer-project-tool"><div class="viewer-project-tool__summary"><strong>${escapeHtml2(rows.length)} keys</strong><span>${escapeHtml2(locales.length)} locales</span><span>${escapeHtml2(missingCount)} missing</span>${payload.readOnly ? "<span>Read-only source dictionary</span>" : ""}</div><label class="viewer-project-tool__search">Search <input type="search" data-project-i18n-search placeholder="Key or translation"></label><div class="viewer-project-tool__table-wrap"><table><thead><tr><th>Key</th>${heads}</tr></thead><tbody data-project-i18n-rows>${body}</tbody></table></div></div>`;
   }
   function themeTokenPreview(token) {
     const value = String(token.value || "").trim();

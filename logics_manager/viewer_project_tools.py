@@ -167,11 +167,65 @@ def _flatten(value: Any, prefix: str = "") -> dict[str, str]:
     return result
 
 
+def _balanced_object(text: str, start: int) -> str:
+    depth = 0
+    quote = ""
+    escaped = False
+    for index in range(start, len(text)):
+        char = text[index]
+        if quote:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = ""
+            continue
+        if char in {'"', "'"}:
+            quote = char
+        elif char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start:index + 1]
+    raise ValueError("Unterminated source translation object.")
+
+
+def _source_dictionary_payload(root: Path, capability: dict[str, Any]) -> dict[str, Any]:
+    rel_path = capability["detail"]["paths"][0]
+    text = _read_text(_inside_file(root, rel_path))
+    locales: list[dict[str, Any]] = []
+    values_by_locale: dict[str, dict[str, str]] = {}
+    for match in re.finditer(r"(?m)^\s*([A-Za-z]{2,3}(?:[-_][A-Za-z0-9]{2,8})?)\s*:\s*\{", text):
+        locale = match.group(1)
+        try:
+            source = re.sub(r",\s*}", "}", _balanced_object(text, match.end() - 1))
+            parsed = json.loads(source)
+            values = _flatten(parsed)
+        except (json.JSONDecodeError, ValueError):
+            continue
+        values_by_locale[locale] = values
+        locales.append({"id": locale, "path": rel_path, "revision": _revision(text)})
+    if not locales:
+        return {"state": "read-only", "capability": capability, "locales": [], "rows": [], "message": "Source dictionary shape is not inspectable safely."}
+    all_keys = sorted({key for values in values_by_locale.values() for key in values})
+    source_id = "source"
+    source_values = {key: key for key in all_keys}
+    locales.insert(0, {"id": source_id, "path": rel_path, "revision": _revision(text)})
+    values_by_locale[source_id] = source_values
+    rows = [{"key": key, "values": {locale["id"]: values_by_locale[locale["id"]].get(key) for locale in locales}} for key in all_keys]
+    diagnostics = {locale["id"]: {"missing": [], "extra": [], "empty": []} for locale in locales}
+    return {"state": "ready", "readOnly": True, "capability": capability, "sourceLocale": source_id, "locales": locales, "rows": rows, "diagnostics": diagnostics}
+
+
 def i18n_payload(root: Path) -> dict[str, Any]:
     capability = detect_project_tools(root)["i18n"]
     if not capability.get("available"):
         raise ValueError(capability["message"])
     detail = capability.get("detail", {})
+    if detail.get("convention") == "source-dictionary":
+        return _source_dictionary_payload(root, capability)
     if detail.get("convention") != "json-catalog":
         return {"state": "read-only", "capability": capability, "locales": [], "rows": []}
     locales: list[dict[str, Any]] = []

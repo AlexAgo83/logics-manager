@@ -409,6 +409,7 @@ def _demo_corpus_docs() -> list[tuple[str, str]]:
         ("logics/tasks/task_demo_ready.md", _demo_doc("task_demo_ready", "Queued implementation task", "Ready", 0)),
         # Supporting docs: one linked (clean), one orphaned (attention).
         ("logics/product/prod_demo_linked.md", _demo_doc("prod_demo_linked", "Auth product brief", "Settled", None, related=[("Related backlog", "item_demo_auth_login")])),
+        ("logics/roadmap/road_demo_auth.md", _demo_doc("road_demo_auth", "Auth roadmap", "Active", None, references=["prod_demo_linked"], related=[("Related product", "prod_demo_linked")])),
         ("logics/product/prod_demo_orphan.md", _demo_doc("prod_demo_orphan", "Unlinked product brief", "Proposed", None)),
         ("logics/architecture/adr_demo_linked.md", _demo_doc("adr_demo_linked", "Passkey storage decision", "Accepted", None, related=[("Related task", "task_demo_auth_login")])),
         ("logics/specs/spec_demo_auth.md", _demo_doc("spec_demo_auth", "Passkey ceremony spec", "Validated", None, references=["req_demo_auth_login"])),

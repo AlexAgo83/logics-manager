@@ -132,8 +132,8 @@ The topbar includes focused operational views:
 | CDX | Guarded assistant workflows for audits, release reviews, corpus planning, and pre-release preparation. |
 | Settings | Viewer preferences, display controls, refresh behavior, and local UI state. |
 
-The topbar also shows a conditional **Project** menu when the selected repository
-uses a supported project convention:
+The **Workshop** menu adds a separated project-tools section when the selected
+repository uses a supported project convention:
 
 - **Translations** recognizes two or more locale-named JSON files (`en.json`,
   `fr-FR.json`, and similar) under `src/i18n`, `src/locales`, `locales`, or

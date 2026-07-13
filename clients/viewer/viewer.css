@@ -275,6 +275,20 @@
   cursor: pointer;
 }
 
+.viewer-nav-menu__item[hidden] {
+  display: none;
+}
+
+.viewer-nav-menu__separator {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--vscode-menu-separatorBackground, var(--vscode-panel-border, #454545));
+}
+
+.viewer-nav-menu__separator[hidden] {
+  display: none;
+}
+
 .viewer-nav-menu__badges {
   display: inline-flex;
   align-items: center;

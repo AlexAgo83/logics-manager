@@ -49,19 +49,15 @@
       <div class="viewer-topbar__meta" id="viewer-meta">Read-only local viewer</div>
     </div>
     <div class="viewer-topbar__actions">
-      <div class="viewer-nav-menu" data-viewer-nav="project-tools" id="viewer-project-tools-nav" hidden>
-        <button class="btn" id="viewer-project-tools" type="button" title="Show project translations and theme" aria-haspopup="menu">Project</button>
-        <div class="viewer-nav-menu__panel" role="menu" aria-label="Project sections">
-          <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="project:translations">Translations</button>
-          <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="project:theme">Theme</button>
-        </div>
-      </div>
       <div class="viewer-nav-menu" data-viewer-nav="workshop">
-        <button class="btn" id="viewer-workshop" type="button" title="Show Workshop (terminals, commands, explorer)" aria-haspopup="menu" hidden>Workshop</button>
+        <button class="btn" id="viewer-workshop" type="button" title="Show Workshop and project tools" aria-haspopup="menu" hidden>Workshop</button>
         <div class="viewer-nav-menu__panel" role="menu" aria-label="Workshop sections">
           <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="workshop:terminals">Terminals</button>
           <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="workshop:commands">Commands</button>
           <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="workshop:explorer">Explorer</button>
+          <div class="viewer-nav-menu__separator" data-project-tools-separator role="separator" hidden></div>
+          <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="project:translations" hidden>Translations</button>
+          <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="project:theme" hidden>Theme</button>
         </div>
       </div>
       <div class="viewer-nav-menu" data-viewer-nav="remote">

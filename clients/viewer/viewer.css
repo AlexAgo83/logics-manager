@@ -1358,6 +1358,7 @@
 .markdown-preview__doc-ref--backlog { --doc-ref-color: #2563eb; }
 .markdown-preview__doc-ref--task { --doc-ref-color: #0f766e; }
 .markdown-preview__doc-ref--product { --doc-ref-color: #7c3aed; }
+.markdown-preview__doc-ref--roadmap { --doc-ref-color: #0e7490; }
 .markdown-preview__doc-ref--architecture { --doc-ref-color: #be123c; }
 .markdown-preview__doc-ref--spec { --doc-ref-color: #15803d; }
 
@@ -1394,6 +1395,52 @@
 .markdown-preview__section-heading--references { --section-heading-color: #7c3aed; }
 .markdown-preview__section-heading--plan { --section-heading-color: #2563eb; }
 .markdown-preview__section-heading--closeout { --section-heading-color: #be123c; }
+
+.viewer-roadmap {
+  display: grid;
+  gap: 0;
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--vscode-editorWidget-background, #202020) 72%, transparent);
+}
+
+.viewer-roadmap__milestone {
+  display: grid;
+  grid-template-columns: minmax(44px, auto) 16px minmax(0, 1fr);
+  column-gap: 8px;
+  align-items: center;
+  min-height: 28px;
+  position: relative;
+}
+
+.viewer-roadmap__version {
+  color: #0e7490;
+  font-weight: 700;
+}
+
+.viewer-roadmap__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #0e7490;
+  justify-self: center;
+}
+
+.viewer-roadmap__line {
+  position: absolute;
+  left: calc(44px + 15px);
+  top: 18px;
+  bottom: -10px;
+  width: 1px;
+  background: color-mix(in srgb, #0e7490 45%, transparent);
+}
+
+.viewer-roadmap__title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 
 .markdown-preview__scope {
   display: grid;

@@ -647,6 +647,7 @@ ${entry?.message || ""}`;
       "logics/backlog/",
       "logics/tasks/",
       "logics/product/",
+      "logics/roadmap/",
       "logics/architecture/",
       "logics/specs/"
     ].some((prefix) => path.startsWith(prefix));
@@ -1379,6 +1380,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     backlog: ["Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"],
     task: ["Draft", "Ready", "In progress", "Blocked", "Done", "Obsolete", "Archived"],
     product: ["Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
+    roadmap: ["Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
     architecture: ["Draft", "Proposed", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
     spec: ["Draft", "Ready", "In progress", "Done", "Validated", "Settled", "Archived"]
   };
@@ -1432,6 +1434,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     ['If you think "here is the problem and context..."', "-> request"],
     ['If you think "this needs a scoped delivery slice..."', "-> item"],
     ['If you think "we want..."', "-> product brief"],
+    ['If you think "we should ship this over time..."', "-> roadmap"],
     ['If you think "we decided..."', "-> ADR"],
     ['If you think "the system should..."', "-> spec"],
     [`If you think "let's do..."`, "-> task"]
@@ -1441,6 +1444,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     backlog: "Backlog",
     task: "Task",
     product: "Product",
+    roadmap: "Roadmap",
     architecture: "Architecture",
     spec: "Spec"
   };
@@ -5665,15 +5669,37 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       }
       return escapeHtml(value);
     }
+    function roadmapMilestones(markdown) {
+      const milestones = [];
+      String(markdown || "").split(/\r?\n/).forEach((line) => {
+        const match = line.match(/^##\s+(\d+(?:\.\d+){1,2})\s+-\s+(.+?)\s*$/);
+        if (match) milestones.push({ version: match[1], title: match[2] });
+      });
+      return milestones;
+    }
+    function renderRoadmapMilestones(markdown) {
+      const milestones = roadmapMilestones(markdown);
+      if (!milestones.length) return "";
+      return `<section class="viewer-roadmap" aria-label="Roadmap milestones">
+      ${milestones.map((milestone, index) => `
+        <div class="viewer-roadmap__milestone">
+          <span class="viewer-roadmap__version">${escapeHtml(milestone.version)}</span>
+          <span class="viewer-roadmap__dot" aria-hidden="true"></span>
+          <span class="viewer-roadmap__title">${escapeHtml(milestone.title)}</span>
+          ${index < milestones.length - 1 ? '<span class="viewer-roadmap__line" aria-hidden="true"></span>' : ""}
+        </div>
+      `).join("")}
+    </section>`;
+    }
     function workflowRefInfo(value) {
       const raw = String(value || "").trim().replace(/^`|`$/g, "").replace(/\\/g, "/").replace(/^\.?\//, "");
       if (!raw || raw.startsWith("/") || raw.startsWith("~") || raw.split("/").includes("..")) return null;
       const stem = raw.replace(/\.md$/i, "").split("/").pop() || "";
       const directory = raw.split("/").slice(-2, -1)[0] || "";
-      const match = stem.match(/^(req|item|task|prod|adr|spec)_(\d+)/i);
+      const match = stem.match(/^(req|item|task|prod|road|adr|spec)_(\d+)/i);
       if (!match) return null;
-      const kindByPrefix = { req: "request", item: "backlog", task: "task", prod: "product", adr: "architecture", spec: "spec" };
-      const prefixByKind = { request: "R", backlog: "I", task: "T", product: "P", architecture: "A", spec: "S" };
+      const kindByPrefix = { req: "request", item: "backlog", task: "task", prod: "product", road: "roadmap", adr: "architecture", spec: "spec" };
+      const prefixByKind = { request: "R", backlog: "I", task: "T", product: "P", roadmap: "M", architecture: "A", spec: "S" };
       const kind = directory === "specs" ? "spec" : kindByPrefix[match[1].toLowerCase()];
       const prefix = prefixByKind[kind];
       return prefix ? { label: `${prefix}${match[2]}`, target: raw, kind } : null;
@@ -6229,7 +6255,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       if (viewerFilterState.type === "workflow" && !["request", "backlog", "task"].includes(item.stage)) {
         return false;
       }
-      if (viewerFilterState.type === "companion" && !["product", "architecture", "spec"].includes(item.stage)) {
+      if (viewerFilterState.type === "companion" && !["product", "roadmap", "architecture", "spec"].includes(item.stage)) {
         return false;
       }
       if (!["all", "workflow", "companion"].includes(viewerFilterState.type) && item.stage !== viewerFilterState.type) {
@@ -6550,7 +6576,8 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
           markdown = api.stripLeadingDocumentFrontMatter(markdown, item);
         }
         const bodyHtml = api && typeof api.renderMarkdownToHtml === "function" ? api.renderMarkdownToHtml(markdown) : `<pre>${escapeHtml(markdown)}</pre>`;
-        const html = `${renderDocumentMeta(documentItem)}${bodyHtml}`;
+        const roadmapHtml = item.stage === "roadmap" ? renderRoadmapMilestones(markdown) : "";
+        const html = `${renderDocumentMeta(documentItem)}${roadmapHtml}${bodyHtml}`;
         const objectName = String(item.title || "").trim() || docPath;
         setDocument(objectName, html, {
           item: documentItem,

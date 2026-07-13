@@ -6369,11 +6369,11 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       window.__CDX_LOGICS_VIEWER_FILTER__ = matchesViewerFilter;
       persistViewerFilterState();
       setControlValue("search-input", "", "input");
-      setControlValue("hide-complete", true, "change");
-      setControlValue("hide-processed-requests", true, "change");
+      setControlValue("hide-complete", false, "change");
+      setControlValue("hide-processed-requests", false, "change");
       setControlValue("hide-spec", false, "change");
       setControlValue("show-companion-docs", true, "change");
-      setControlValue("hide-empty-columns", true, "change");
+      setControlValue("hide-empty-columns", false, "change");
       updateFilterSummary();
     }
     function updateFilterSummary() {

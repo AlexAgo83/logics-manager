@@ -18,12 +18,13 @@ MAX_LOCALES = 20
 MAX_KEYS = 10_000
 LOCALE_DIRS = ("src/i18n", "src/locales", "locales", "messages")
 INLINE_I18N_FILES = ("src/i18n.ts", "src/i18n.js", "src/lib/i18n.ts", "src/lib/i18n.js", "src/app/lib/i18n.ts", "src/app/lib/i18n.js")
-THEME_CSS_FILES = ("src/theme.css", "src/styles.css", "styles/theme.css", "app/globals.css", "src/app.css")
+THEME_CSS_FILES = ("src/theme.css", "src/styles.css", "styles/theme.css", "app/globals.css", "src/app.css", "src/app/styles.css")
 THEME_CODE_FILES = ("src/theme.ts", "src/theme.js", "src/lib/theme.ts", "src/lib/theme.js", "src/app/lib/themeModes.ts", "src/prefs/theme.ts")
 MUTATING_ROUTES = {"/api/project-i18n-value", "/api/project-theme-value"}
 LOCALE_NAME = re.compile(r"^[A-Za-z]{2,3}(?:[-_][A-Za-z0-9]{2,8})?$")
 CSS_VAR = re.compile(r"(--[A-Za-z0-9_-]+)\s*:\s*([^;{}]+);", re.MULTILINE)
 CSS_BLOCK = re.compile(r"([^{}]+)\{([^{}]*)\}", re.MULTILINE)
+CSS_IMPORT = re.compile(r"""@import\s+(?:url\()?["']([^"')]+)["']\)?\s*;""")
 
 
 def _capability(state: str, available: bool, message: str, **detail: Any) -> dict[str, Any]:
@@ -55,6 +56,28 @@ def _candidate_paths(root: Path, exact: tuple[str, ...], patterns: tuple[str, ..
     for pattern in patterns:
         candidates.extend(path.relative_to(root).as_posix() for path in root.glob(pattern) if path.is_file())
     return sorted(set(candidates))
+
+
+def _theme_css_token_files(root: Path, rel_path: str, seen: set[str] | None = None) -> list[str]:
+    seen = seen or set()
+    if rel_path in seen:
+        return []
+    seen.add(rel_path)
+    path = _inside_file(root, rel_path)
+    text = _read_text(path)
+    if CSS_VAR.search(text):
+        return [path.relative_to(root.resolve()).as_posix()]
+    matches: list[str] = []
+    for imported in CSS_IMPORT.findall(text):
+        if "://" in imported or imported.startswith(("/", "#")):
+            continue
+        try:
+            next_path = (path.parent / imported).resolve()
+            rel_import = next_path.relative_to(root.resolve()).as_posix()
+            matches.extend(_theme_css_token_files(root, rel_import, seen))
+        except (FileNotFoundError, OSError, UnicodeError, ValueError):
+            continue
+    return sorted(set(matches))
 
 
 def _revision(text: str) -> str:
@@ -147,24 +170,26 @@ def detect_project_tools(root: Path) -> dict[str, Any]:
 
     theme_config = config.get("theme") if isinstance(config.get("theme"), dict) else {}
     configured_theme = str(theme_config.get("path") or "")
-    candidates = (configured_theme,) if configured_theme else tuple(_candidate_paths(root, THEME_CSS_FILES, ("*/src/theme.css", "*/src/styles.css", "*/src/app.css")))
+    candidates = (configured_theme,) if configured_theme else tuple(_candidate_paths(root, THEME_CSS_FILES, ("*/src/theme.css", "*/src/styles.css", "*/src/app.css", "*/src/app/styles.css")))
     css_matches: list[str] = []
+    css_roots: list[str] = []
     for rel in candidates:
         try:
-            path = _inside_file(root, rel)
-            if CSS_VAR.search(_read_text(path)):
-                css_matches.append(path.relative_to(root.resolve()).as_posix())
+            matches = _theme_css_token_files(root, rel)
+            if matches:
+                css_roots.append(rel)
+                css_matches.extend(matches)
         except (FileNotFoundError, OSError, UnicodeError, ValueError):
             continue
-    if len(css_matches) > 1:
+    css_matches = sorted(set(css_matches))
+    if len(css_roots) > 1:
         theme = _capability("error", False, "Multiple theme token files detected; configure theme.path explicitly.")
     elif configured_theme and not css_matches:
         theme = _capability("error", False, f"Configured theme source is unavailable: {configured_theme}.")
     elif css_matches:
-        css_path = css_matches[0]
         theme = _capability(
             "ready", True, "CSS custom-property theme detected.", convention="css-custom-properties",
-            editable=True, paths=[css_path],
+            editable=len(css_matches) == 1, paths=css_matches,
         )
     else:
         code_path = next(iter(_candidate_paths(root, THEME_CODE_FILES, ("*/src/theme.ts", "*/src/theme.js", "*/src/lib/theme.ts", "*/src/lib/theme.js", "*/src/app/lib/themeModes.ts"))), "")
@@ -358,17 +383,21 @@ def theme_payload(root: Path) -> dict[str, Any]:
     detail = capability.get("detail", {})
     if detail.get("convention") != "css-custom-properties":
         return {"state": "read-only", "capability": capability, "selectors": []}
-    rel_path = detail["paths"][0]
-    text = _read_text(_inside_file(root, rel_path))
     selectors = []
-    for selector_text, body in CSS_BLOCK.findall(text):
-        tokens = [
-            {"name": name, "value": value.strip(), "group": _theme_group(name, value)}
-            for name, value in CSS_VAR.findall(body)
-        ]
-        if tokens:
-            selectors.append({"selector": selector_text.strip(), "tokens": tokens})
-    return {"state": "ready", "capability": capability, "path": rel_path, "revision": _revision(text), "selectors": selectors}
+    revision_source = ""
+    paths = detail.get("paths", [])
+    for rel_path in paths:
+        text = _read_text(_inside_file(root, rel_path))
+        revision_source += text
+        for selector_text, body in CSS_BLOCK.findall(text):
+            tokens = [
+                {"name": name, "value": value.strip(), "group": _theme_group(name, value)}
+                for name, value in CSS_VAR.findall(body)
+            ]
+            if tokens:
+                selectors.append({"path": rel_path, "selector": selector_text.strip(), "tokens": tokens})
+    path_label = paths[0] if len(paths) == 1 else f"{len(paths)} CSS files"
+    return {"state": "ready", "capability": capability, "path": path_label, "paths": paths, "revision": _revision(revision_source), "selectors": selectors}
 
 
 def update_theme_value(root: Path, *, selector: str, name: str, value: str, revision: str) -> dict[str, Any]:

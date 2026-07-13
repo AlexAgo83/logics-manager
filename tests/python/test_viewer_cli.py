@@ -2606,6 +2606,26 @@ def test_viewer_project_tools_detect_bounded_one_level_app_sources(tmp_path: Pat
     assert payload["rows"][0]["values"] == {"source": "Bonjour", "en": "Hello"}
 
 
+def test_viewer_project_tools_follow_css_import_entrypoints(tmp_path: Path) -> None:
+    styles = tmp_path / "src" / "app" / "styles"
+    styles.mkdir(parents=True)
+    (tmp_path / "src" / "app" / "styles.css").write_text(
+        '@import "./styles/base.css";\n@import "./styles/theme.css";\n',
+        encoding="utf-8",
+    )
+    (styles / "base.css").write_text(".shell { --theme-primary: #17374e; }\n", encoding="utf-8")
+    (styles / "theme.css").write_text(".theme-dark { --theme-primary: #7fc5ff; }\n", encoding="utf-8")
+
+    capabilities = viewer_project_capabilities(tmp_path, which=lambda _name: None)
+    theme = theme_payload(tmp_path)
+
+    assert capabilities["theme"]["detail"]["convention"] == "css-custom-properties"
+    assert capabilities["theme"]["detail"]["editable"] is False
+    assert capabilities["theme"]["detail"]["paths"] == ["src/app/styles/base.css", "src/app/styles/theme.css"]
+    assert [selector["selector"] for selector in theme["selectors"]] == [".shell", ".theme-dark"]
+    assert [selector["tokens"][0]["name"] for selector in theme["selectors"]] == ["--theme-primary", "--theme-primary"]
+
+
 def test_viewer_project_capabilities_detect_ready_git_ci_and_cdx(tmp_path: Path) -> None:
     (tmp_path / "logics").mkdir()
     workflows = tmp_path / ".github" / "workflows"

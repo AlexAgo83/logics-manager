@@ -7145,6 +7145,22 @@ describe("local viewer browser host", () => {
     expect(toggle?.classList.contains("toolbar__filter--active")).toBe(false);
   });
 
+  it("clears local viewer hide filters when filters are cleared", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect((dom.window.document.getElementById("hide-complete") as HTMLInputElement | null)?.checked).toBe(true);
+    expect((dom.window.document.getElementById("hide-processed-requests") as HTMLInputElement | null)?.checked).toBe(true);
+
+    dom.window.document.getElementById("filter-reset")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect((dom.window.document.getElementById("hide-complete") as HTMLInputElement | null)?.checked).toBe(false);
+    expect((dom.window.document.getElementById("hide-processed-requests") as HTMLInputElement | null)?.checked).toBe(false);
+  });
+
   it("supports corpus-management filters for relationships, companion docs, stale work, and promotion gaps", async () => {
     const { dom } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();

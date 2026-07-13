@@ -231,6 +231,7 @@
 }
 
 /* Collapse the wrapper when its trigger button is capability-hidden. */
+.viewer-nav-menu[hidden],
 .viewer-nav-menu:has(> .btn[hidden]) {
   display: none;
 }

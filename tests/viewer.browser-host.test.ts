@@ -104,6 +104,13 @@ function createViewerDom(options: {
       <button id="viewer-lan-banner-pair" type="button" hidden>Pair this device</button>
       <span id="viewer-lan-banner-paired" hidden></span>
     </div>
+    <div class="viewer-nav-menu" data-viewer-nav="project-tools" id="viewer-project-tools-nav">
+      <button id="viewer-project-tools" type="button">Project</button>
+      <div class="viewer-nav-menu__panel" role="menu">
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="project:translations">Translations</button>
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="project:theme">Theme</button>
+      </div>
+    </div>
     <div class="viewer-nav-menu" data-viewer-nav="workshop">
       <button id="viewer-workshop" type="button" hidden>Workshop</button>
       <div class="viewer-nav-menu__panel" role="menu">
@@ -1680,6 +1687,8 @@ describe("local viewer browser host", () => {
     expect(source).toContain('"/api/project-theme"');
     expect(source).toContain('"/api/project-i18n-value"');
     expect(source).toContain('"/api/project-theme-value"');
+    const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
+    expect(css).toMatch(/\.viewer-nav-menu\[hidden\][\s\S]*?display: none;/);
   });
 
   it("keeps topbar menus intact and reserves document header navigation for screen segments", () => {
@@ -2714,6 +2723,12 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     // Clicking the button opens its menu (and does not navigate on its own).
+    const projectWrapper = dom.window.document.querySelector('[data-viewer-nav="project-tools"]');
+    expect(projectWrapper?.classList.contains("is-open")).toBe(false);
+    dom.window.document.getElementById("viewer-project-tools")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(projectWrapper?.classList.contains("is-open")).toBe(true);
+
     const remoteWrapper = dom.window.document.querySelector('[data-viewer-nav="remote"]');
     expect(remoteWrapper?.classList.contains("is-open")).toBe(false);
     dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));

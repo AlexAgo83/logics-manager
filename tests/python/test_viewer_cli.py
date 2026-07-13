@@ -2584,6 +2584,20 @@ def test_viewer_project_tools_fail_closed_for_ambiguous_or_invalid_sources(tmp_p
     assert invalid["theme"]["state"] == "error"
 
 
+def test_viewer_project_tools_detect_bounded_one_level_app_sources(tmp_path: Path) -> None:
+    app = tmp_path / "sample-app" / "src"
+    app.mkdir(parents=True)
+    (app / "i18n.js").write_text("export const translations = {};", encoding="utf-8")
+    (app / "styles.css").write_text(":root { --color-primary: #123456; }", encoding="utf-8")
+
+    capabilities = viewer_project_capabilities(tmp_path, which=lambda _name: None)
+
+    assert capabilities["i18n"]["detail"]["convention"] == "source-dictionary"
+    assert capabilities["i18n"]["detail"]["editable"] is False
+    assert capabilities["theme"]["detail"]["convention"] == "css-custom-properties"
+    assert capabilities["theme"]["detail"]["paths"] == ["sample-app/src/styles.css"]
+
+
 def test_viewer_project_capabilities_detect_ready_git_ci_and_cdx(tmp_path: Path) -> None:
     (tmp_path / "logics").mkdir()
     workflows = tmp_path / ".github" / "workflows"

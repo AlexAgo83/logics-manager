@@ -9793,7 +9793,7 @@ ${line}` : line;
           setMeta(`Copy failed \u2014 long-press to select: ${share}`);
         }
       });
-      ["viewer-workshop", "viewer-ci", "viewer-cdx"].forEach((id) => {
+      ["viewer-project-tools", "viewer-workshop", "viewer-ci", "viewer-cdx"].forEach((id) => {
         const button = document.getElementById(id);
         if (!(button instanceof HTMLElement) || button.dataset.navBound === "1") return;
         button.dataset.navBound = "1";

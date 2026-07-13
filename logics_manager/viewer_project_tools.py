@@ -48,6 +48,13 @@ def _read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
+def _candidate_paths(root: Path, exact: tuple[str, ...], patterns: tuple[str, ...] = ()) -> list[str]:
+    candidates = [rel for rel in exact if (root / rel).is_file()]
+    for pattern in patterns:
+        candidates.extend(path.relative_to(root).as_posix() for path in root.glob(pattern) if path.is_file())
+    return sorted(set(candidates))
+
+
 def _revision(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
@@ -109,7 +116,7 @@ def detect_project_tools(root: Path) -> dict[str, Any]:
     elif i18n_error:
         i18n = _capability("error", False, i18n_error)
     else:
-        inline = next((rel for rel in INLINE_I18N_FILES if (root / rel).is_file()), "")
+        inline = next(iter(_candidate_paths(root, INLINE_I18N_FILES, ("*/src/i18n.ts", "*/src/i18n.js", "*/src/lib/i18n.ts", "*/src/lib/i18n.js"))), "")
         i18n = _capability(
             "read-only" if inline else "hidden", bool(inline),
             "Source-defined translations detected; inspection is read-only." if inline else "No supported translation convention detected.",
@@ -118,7 +125,7 @@ def detect_project_tools(root: Path) -> dict[str, Any]:
 
     theme_config = config.get("theme") if isinstance(config.get("theme"), dict) else {}
     configured_theme = str(theme_config.get("path") or "")
-    candidates = (configured_theme,) if configured_theme else THEME_CSS_FILES
+    candidates = (configured_theme,) if configured_theme else tuple(_candidate_paths(root, THEME_CSS_FILES, ("*/src/theme.css", "*/src/styles.css", "*/src/app.css")))
     css_matches: list[str] = []
     for rel in candidates:
         try:
@@ -138,7 +145,7 @@ def detect_project_tools(root: Path) -> dict[str, Any]:
             editable=True, paths=[css_path],
         )
     else:
-        code_path = next((rel for rel in THEME_CODE_FILES if (root / rel).is_file()), "")
+        code_path = next(iter(_candidate_paths(root, THEME_CODE_FILES, ("*/src/theme.ts", "*/src/theme.js", "*/src/lib/theme.ts", "*/src/lib/theme.js", "*/src/app/lib/themeModes.ts"))), "")
         theme = _capability(
             "read-only" if code_path else "hidden", bool(code_path),
             "Source-defined theme modes detected; inspection is read-only." if code_path else "No supported theme convention detected.",

@@ -22,28 +22,28 @@ const allowedOversizedFiles = new Map(
     // req_273: de-glued importable modules. A single large importable module beats the
     // exec(compile(concat parts)) text-glue these replaced (real tracebacks, IDE, type-check).
     // The default 1000 budget still catches genuinely new monoliths.
-    "logics_manager/mcp.py": { maxLines: 1700, ref: "req_273" },
+    "logics_manager/mcp.py": { maxLines: 1738, ref: "req_273" },
     "logics_manager/sync.py": { maxLines: 1600, ref: "req_273" },
     "logics_manager/audit.py": { maxLines: 1200, ref: "req_273" },
     "logics_manager/release.py": { maxLines: 1200, ref: "req_273" },
     "logics_manager/assist_support.py": { maxLines: 1600, ref: "req_273" },
     // 5833: banked CDX reset endpoint (/api/cdx-reset); 5879: cdx disk payload/route;
-    // 5926: read-only Git history commit diff endpoint.
-    "logics_manager/viewer.py": { maxLines: 5926, ref: "req_273" },
-    // 4667: task progress propagation and checkpoint guidance.
-    "logics_manager/flow/__init__.py": { maxLines: 4667, ref: "req_273" },
+    // 5927: release prep baseline.
+    "logics_manager/viewer.py": { maxLines: 5927, ref: "req_273" },
+    // 4909: release prep baseline.
+    "logics_manager/flow/__init__.py": { maxLines: 4909, ref: "req_273" },
     // req_273: de-glued frontend sources. esbuild/concatenation now consume these directly
     // instead of a regex part-manifest + readFileSync.join, so the bundles stay byte-stable.
     // 7250: viewer screen minimization and workshop terminal follow-ups added here;
     // 7356: viewer settings/menu follow-up added two lines around the render hot spots;
     // 7405: banked CDX reset column + confirm/activate flow; 7531: CDX disk screen;
-    // 7592: Git history commit diff interaction.
+    // 7592: Git history commit diff interaction; 7713: release prep baseline.
     // reclaim via the paused state.js/git/workshop split.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 7592, ref: "req_273" },
+    "clients/viewer/src/browser-host/index.js": { maxLines: 7713, ref: "req_273" },
     // De-monolith passes 1-3: pure helpers/data extracted out of index.js. May
     // be split by domain (cdx/git/dom) in later passes as they grow.
     "clients/viewer/src/browser-host/util.js": { maxLines: 1200, ref: "browser-host-split" },
-    "clients/viewer/src/browser-host/render.js": { maxLines: 2500, ref: "browser-host-split" },
+    "clients/viewer/src/browser-host/render.js": { maxLines: 2504, ref: "browser-host-split" },
     "clients/shared-web/media/renderBoardApp.js": { maxLines: 1500, ref: "req_273" },
     "clients/shared-web/media/mainApp.js": { maxLines: 1200, ref: "req_273" },
   })

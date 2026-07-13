@@ -593,6 +593,11 @@ describe("webview harness core behaviors", () => {
 
     modeButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
+    if (hideSpecToggle) {
+      hideSpecToggle.checked = true;
+      hideSpecToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
     if (searchInput) {
       searchInput.value = "spec";
       searchInput.dispatchEvent(new dom.window.Event("input", { bubbles: true }));

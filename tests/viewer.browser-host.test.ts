@@ -5969,6 +5969,7 @@ describe("local viewer browser host", () => {
   it("does not substitute general availability when the 5h gauge value is missing", async () => {
     const payload = cdxRowsStatusPayload();
     payload.body.payload.status.rows[0].remaining_5h_pct = null;
+    payload.body.payload.status.rows[0].reset_5h_at = null;
     const { dom } = createViewerDom({ cdxResponse: payload });
     const api = dom.window.acquireVsCodeApi();
 
@@ -5980,8 +5981,17 @@ describe("local viewer browser host", () => {
     const gauge = dom.window.document.querySelector('.viewer-cdx__ok-cell [data-viewer-cdx-usage-refresh="work2"]') as HTMLElement | null;
     expect(gauge?.getAttribute("title")).not.toContain("5h remaining");
     expect(gauge?.getAttribute("title")).toContain("week remaining: 3%");
+    expect(gauge?.classList.contains("viewer-workshop__usage--single")).toBe(true);
     expect(gauge?.querySelectorAll(".viewer-workshop__usage-segment").length).toBe(1);
     expect(gauge?.querySelector(".viewer-workshop__usage-segment--week")).toBeTruthy();
+
+    const headers = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__table th")).map((node) => node.textContent?.trim());
+    const fiveHourIndex = headers.indexOf("5H");
+    const resetFiveHourIndex = headers.indexOf("RESET 5H");
+    const work2Row = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__table tbody tr")).find((row) => row.textContent?.includes("work2"));
+    const cells = Array.from(work2Row?.querySelectorAll("td") || []);
+    expect(cells[fiveHourIndex]?.textContent?.trim()).toBe("");
+    expect(cells[resetFiveHourIndex]?.textContent?.trim()).toBe("");
   });
 
   it("hides the 5H status column when no session reports 5h quota", async () => {

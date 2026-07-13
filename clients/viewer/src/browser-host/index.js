@@ -4717,7 +4717,10 @@ import {
         }
         return `<td>${renderCdxRemainingPill(item) || escapeHtml(cdxPct(cdxField(item, ["available_pct", "availablePct"], NaN)))}</td>`;
       },
-      remaining5h: (item) => `<td>${escapeHtml(cdxPct(cdxField(item, ["remaining_5h_pct", "remaining5hPct"], NaN)))}</td>`,
+      remaining5h: (item) => {
+        const pct = cdxField(item, ["remaining_5h_pct", "remaining5hPct"], NaN);
+        return `<td>${Number.isFinite(Number(pct)) ? escapeHtml(cdxPct(pct)) : ""}</td>`;
+      },
       remainingWeek: (item) => `<td>${escapeHtml(cdxPct(cdxField(item, ["remaining_week_pct", "remainingWeekPct"], NaN)))}</td>`,
       banked: (item) => {
         const count = Number(cdxField(item, ["reset_credits_available", "resetCreditsAvailable"], NaN));
@@ -4737,7 +4740,10 @@ import {
       },
       block: (item) => `<td>${escapeHtml(cdxSessionBlock(item))}</td>`,
       credits: (item) => `<td>${escapeHtml(formatCdxCredits(cdxField(item, ["credits", "cr"], "-")))}</td>`,
-      reset5h: (item) => `<td>${escapeHtml(formatCdxResetAt(cdxField(item, ["reset_5h_at", "reset5hAt", "reset_at", "resetAt"], "")))}</td>`,
+      reset5h: (item) => {
+        const pct = cdxField(item, ["remaining_5h_pct", "remaining5hPct"], NaN);
+        return `<td>${Number.isFinite(Number(pct)) ? escapeHtml(formatCdxResetAt(cdxField(item, ["reset_5h_at", "reset5hAt", "reset_at", "resetAt"], ""))) : ""}</td>`;
+      },
       resetWeek: (item) => `<td>${escapeHtml(formatCdxResetAt(cdxField(item, ["reset_week_at", "resetWeekAt", "reset_at", "resetAt"], "")))}</td>`,
       updated: (item) => `<td>${escapeHtml(formatCdxResetAt(cdxField(item, ["updated_at", "updatedAt"], "")))}</td>`
     };

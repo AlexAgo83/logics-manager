@@ -1,6 +1,6 @@
 ## prod_044_first_class_roadmap_planning - First-class roadmap planning
 > Date: 2026-07-13
-> Status: Proposed
+> Status: Settled
 > Related request: `req_296_add_first_class_roadmap_planning_to_logics_manager`
 > Related backlog: `item_553_add_roadmap_document_kind_and_parsing_contract`
 > Related task: `task_293_deliver_first_class_roadmap_planning_support`

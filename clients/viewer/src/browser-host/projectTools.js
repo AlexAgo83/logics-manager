@@ -26,7 +26,7 @@ function themeTokenPreview(token) {
   const safeRadius = /^-?[0-9.]+(?:px|rem|em|%)$/.test(value);
   if (token.group === "colors" && safeColor) return `<span class="viewer-project-tool__swatch" style="background:${escapeHtml(value)}"></span>`;
   if (token.group === "radii" && safeRadius) return `<span class="viewer-project-tool__shape" style="border-radius:${escapeHtml(value)}"></span>`;
-  return "";
+  return `<span class="viewer-project-tool__placeholder" aria-hidden="true"></span>`;
 }
 
 export function renderProjectTheme(payload) {

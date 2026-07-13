@@ -1696,9 +1696,11 @@ describe("local viewer browser host", () => {
     expect(source).toContain('"/api/project-theme"');
     expect(source).toContain('"/api/project-i18n-value"');
     expect(source).toContain('"/api/project-theme-value"');
+    expect(source).toContain("viewer-project-tool__placeholder");
     const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
     expect(css).toMatch(/\.viewer-nav-menu\[hidden\][\s\S]*?display: none;/);
     expect(css).toMatch(/\.viewer-nav-menu__item\[hidden\][\s\S]*?display: none;/);
+    expect(css).toContain(".viewer-project-tool__placeholder");
   });
 
   it("preserves project capabilities and reveals only their supported menu entries", async () => {

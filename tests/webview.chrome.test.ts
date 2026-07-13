@@ -37,6 +37,35 @@ describe("webview chrome toolbar and filter behavior", () => {
     expect(filterToggle?.getAttribute("aria-label")).toContain("non-default");
   });
 
+  it("clears the filter badge when reset restores all filter defaults", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem]
+    });
+
+    const filterToggle = dom.window.document.getElementById("filter-toggle");
+    filterToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const searchInput = dom.window.document.getElementById("search-input") as HTMLInputElement | null;
+    if (searchInput) {
+      searchInput.value = "blocked";
+      searchInput.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    }
+    const sortBySelect = dom.window.document.getElementById("sort-by") as HTMLSelectElement | null;
+    if (sortBySelect) {
+      sortBySelect.value = "status-asc";
+      sortBySelect.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    dom.window.document.getElementById("filter-reset")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    filterToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(filterToggle?.getAttribute("data-has-active-controls")).toBe("false");
+    expect(filterToggle?.classList.contains("toolbar__filter--active")).toBe(false);
+  });
+
   it("syncs group-by disabled state based on view mode", () => {
     const { dom } = bootstrapWebview();
 

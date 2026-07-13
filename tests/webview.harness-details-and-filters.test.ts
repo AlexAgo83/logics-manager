@@ -9,7 +9,7 @@ import {
 } from "./webviewHarnessTestUtils";
 
 describe("webview harness filters, details, and docs", () => {
-  it("hides SPEC by default and applies the toggle in board and list modes", () => {
+  it("shows SPEC by default and applies the toggle in board and list modes", () => {
     const { dom, persistedStates } = bootstrapWebview({ harness: true });
     pushData(dom, {
       root: "/workspace/mock",
@@ -21,17 +21,8 @@ describe("webview harness filters, details, and docs", () => {
     const hideSpecToggle = document.getElementById("hide-spec") as HTMLInputElement | null;
     const modeButton = document.querySelector('[data-action="toggle-view-mode"]');
 
-    expect(hideSpecToggle?.checked).toBe(true);
-    expect(board?.textContent?.includes("No items match the current filters.")).toBe(true);
-    expect(document.querySelector('.column[data-stage="spec"], .list-view__section[data-stage="spec"]')).toBeNull();
-
-    if (hideSpecToggle) {
-      hideSpecToggle.checked = false;
-      hideSpecToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
-    }
-
+    expect(hideSpecToggle?.checked).toBe(false);
     expect(document.querySelectorAll('.column[data-stage="spec"]').length).toBe(1);
-    expect(persistedStates.some((state) => state.hideSpec === false)).toBe(true);
 
     modeButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     expect(document.querySelectorAll('.list-view__section[data-stage="spec"]').length).toBe(1);
@@ -42,6 +33,7 @@ describe("webview harness filters, details, and docs", () => {
     }
 
     expect(document.querySelector('.column[data-stage="spec"], .list-view__section[data-stage="spec"]')).toBeNull();
+    expect(board?.textContent?.includes("No items match the current filters.")).toBe(true);
     expect(persistedStates.some((state) => state.hideSpec === true)).toBe(true);
   });
 

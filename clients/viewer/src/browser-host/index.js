@@ -4741,7 +4741,11 @@ import {
       resetWeek: (item) => `<td>${escapeHtml(formatCdxResetAt(cdxField(item, ["reset_week_at", "resetWeekAt", "reset_at", "resetAt"], "")))}</td>`,
       updated: (item) => `<td>${escapeHtml(formatCdxResetAt(cdxField(item, ["updated_at", "updatedAt"], "")))}</td>`
     };
-    const activeColumns = cdxStatusColumns.filter((column) => visibleColumns[column.id]);
+    const hasFiveHourQuota = sessions.some((entry) => {
+      const item = entry && typeof entry === "object" ? entry : { value: entry };
+      return Number.isFinite(Number(cdxField(item, ["remaining_5h_pct", "remaining5hPct"], NaN)));
+    });
+    const activeColumns = cdxStatusColumns.filter((column) => visibleColumns[column.id] && (column.id !== "remaining5h" || hasFiveHourQuota));
     const rows = sessions.slice(0, 24).map((entry) => {
       const item = entry && typeof entry === "object" ? entry : { value: entry };
       return `

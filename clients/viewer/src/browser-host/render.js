@@ -1061,11 +1061,15 @@ export function renderCdxUsageGauge(usage, sessionName) {
       const raw = Number(value?.percent), hasPct = value?.percent !== null && value?.percent !== undefined && Number.isFinite(raw);
       const pct = hasPct ? Math.max(0, Math.min(100, raw)) : 0;
       const resetText = value?.reset && value.reset !== "-" ? ` · resets ${value.reset}` : "";
-      return { pct, tone: hasPct ? cdxRemainingClass(pct) : "neutral", title: `${label} remaining: ${hasPct ? `${pct}%` : "unknown"}${resetText}` };
+      return { hasPct, pct, tone: hasPct ? cdxRemainingClass(pct) : "neutral", title: `${label} remaining: ${hasPct ? `${pct}%` : "unknown"}${resetText}` };
     };
     const fiveHour = part("5h", usage?.fiveHour || usage), week = part("week", usage?.week);
-    const title = `CDX usage remaining: ${fiveHour.title}; ${week.title} · click to refresh`;
-    return `<span class="viewer-workshop__usage" data-viewer-cdx-usage-refresh="${escapeHtml(sessionName)}" role="button" tabindex="0" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}"><span class="viewer-workshop__usage-segment viewer-workshop__usage--${fiveHour.tone}" title="${escapeHtml(fiveHour.title)}" aria-label="${escapeHtml(fiveHour.title)}"><span class="viewer-workshop__usage-fill" style="height:${fiveHour.pct}%"></span></span><span class="viewer-workshop__usage-segment viewer-workshop__usage-segment--week viewer-workshop__usage--${week.tone}" title="${escapeHtml(week.title)}" aria-label="${escapeHtml(week.title)}"><span class="viewer-workshop__usage-fill" style="height:${week.pct}%"></span></span></span>`;
+    const parts = [
+      fiveHour.hasPct ? `<span class="viewer-workshop__usage-segment viewer-workshop__usage--${fiveHour.tone}" title="${escapeHtml(fiveHour.title)}" aria-label="${escapeHtml(fiveHour.title)}"><span class="viewer-workshop__usage-fill" style="height:${fiveHour.pct}%"></span></span>` : "",
+      `<span class="viewer-workshop__usage-segment viewer-workshop__usage-segment--week viewer-workshop__usage--${week.tone}" title="${escapeHtml(week.title)}" aria-label="${escapeHtml(week.title)}"><span class="viewer-workshop__usage-fill" style="height:${week.pct}%"></span></span>`
+    ].filter(Boolean);
+    const title = `CDX usage remaining: ${[fiveHour.hasPct ? fiveHour.title : "", week.title].filter(Boolean).join("; ")} · click to refresh`;
+    return `<span class="viewer-workshop__usage" data-viewer-cdx-usage-refresh="${escapeHtml(sessionName)}" role="button" tabindex="0" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">${parts.join("")}</span>`;
   }
 
 export function renderCiBadge(value) {

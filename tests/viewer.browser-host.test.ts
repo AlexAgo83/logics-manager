@@ -5978,8 +5978,28 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
 
     const gauge = dom.window.document.querySelector('.viewer-cdx__ok-cell [data-viewer-cdx-usage-refresh="work2"]') as HTMLElement | null;
-    expect(gauge?.getAttribute("title")).toContain("5h remaining: unknown");
+    expect(gauge?.getAttribute("title")).not.toContain("5h remaining");
     expect(gauge?.getAttribute("title")).toContain("week remaining: 3%");
+    expect(gauge?.querySelectorAll(".viewer-workshop__usage-segment").length).toBe(1);
+    expect(gauge?.querySelector(".viewer-workshop__usage-segment--week")).toBeTruthy();
+  });
+
+  it("hides the 5H status column when no session reports 5h quota", async () => {
+    const payload = cdxRowsStatusPayload();
+    payload.body.payload.status.rows.forEach((row) => {
+      row.remaining_5h_pct = null;
+    });
+    const { dom } = createViewerDom({ cdxResponse: payload });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    const headers = Array.from(dom.window.document.querySelectorAll(".viewer-cdx__table th")).map((node) => node.textContent?.trim());
+    expect(headers).not.toContain("5H");
+    expect(headers).toContain("WEEK");
   });
 
   it("refreshes a CDX status table usage gauge after clicking it", async () => {

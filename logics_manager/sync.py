@@ -39,18 +39,20 @@ DOC_KINDS = {
 }
 COMPANION_KINDS = {
     "prod": {"directory": "logics/product", "kind": "product"},
+    "road": {"directory": "logics/roadmap", "kind": "roadmap"},
     "adr": {"directory": "logics/architecture", "kind": "architecture"},
 }
 INDICATOR_TARGET_KINDS = {
     **DOC_KINDS,
     "product": {"directory": "logics/product", "prefix": "prod"},
+    "roadmap": {"directory": "logics/roadmap", "prefix": "road"},
     "architecture": {"directory": "logics/architecture", "prefix": "adr"},
     "spec": {"directory": "logics/specs", "prefix": ("spec", "req")},
 }
 
 _find_repo_root = find_repo_root
 
-REF_PREFIXES = ("req", "item", "task", "prod", "adr", "spec")
+REF_PREFIXES = ("req", "item", "task", "prod", "road", "adr", "spec")
 _CONTEXT_PACK_CACHE: dict[str, dict[str, object]] = {}
 MERMAID_BLOCK_PATTERN = re.compile(r"```mermaid\s*\n(.*?)\n```", re.DOTALL)
 MERMAID_SIGNATURE_PATTERN = re.compile(r"^\s*%%\s*logics-signature:\s*(.+?)\s*$", re.MULTILINE)
@@ -140,7 +142,7 @@ def _extract_sections(text: str) -> dict[str, list[str]]:
 
 def _detect_workflow_kind(path: Path) -> str:
     normalized = path.as_posix()
-    for kind, spec in DOC_KINDS.items():
+    for kind, spec in INDICATOR_TARGET_KINDS.items():
         if f"/{spec['directory']}/" in f"/{normalized}":
             return kind
     return "unknown"
@@ -167,13 +169,14 @@ def parse_workflow_doc(path: Path, *, repo_root: Path | None = None) -> Workflow
 
 def _load_workflow_docs(repo_root: Path) -> dict[str, WorkflowDocModel]:
     docs: dict[str, WorkflowDocModel] = {}
-    for kind in DOC_KINDS.values():
+    for kind in INDICATOR_TARGET_KINDS.values():
         directory = repo_root / kind["directory"]
         if not directory.is_dir():
             continue
-        for path in sorted(directory.glob(f"{kind['prefix']}_*.md")):
-            doc = parse_workflow_doc(path, repo_root=repo_root)
-            docs[doc.ref] = doc
+        for prefix in _prefixes(kind):
+            for path in sorted(directory.glob(f"{prefix}_*.md")):
+                doc = parse_workflow_doc(path, repo_root=repo_root)
+                docs[doc.ref] = doc
     return docs
 
 
@@ -266,7 +269,7 @@ def _context_pack_companion_entries(repo_root: Path, docs: list[WorkflowDocModel
     refs: list[str] = []
     seen: set[str] = set()
     for doc in docs:
-        for prefix in ("prod", "adr"):
+        for prefix in ("prod", "road", "adr"):
             for ref in doc.refs.get(prefix, []):
                 if ref in seen:
                     continue
@@ -482,6 +485,7 @@ def _default_section_names(kind: str) -> list[str]:
         "request": ["Needs", "Context", "Acceptance criteria", "Backlog", "Tasks", "AI Context"],
         "backlog": ["Problem", "Scope", "Acceptance criteria", "AC Traceability", "Tasks", "AI Context"],
         "task": ["Definition of Done (DoD)", "Backlog", "Acceptance criteria", "Validation", "Report", "AI Context"],
+        "roadmap": ["Summary", "Milestones", "Sequencing", "Risks", "References", "AI Context"],
     }.get(kind, ["AI Context"])
 
 
@@ -905,7 +909,7 @@ def build_parser() -> argparse.ArgumentParser:
     read_doc.set_defaults(func=cmd_read_doc)
 
     list_docs = sub.add_parser("list-docs", help="List workflow docs by bounded criteria.")
-    list_docs.add_argument("--kind", choices=("all", "request", "backlog", "task"), default="all")
+    list_docs.add_argument("--kind", choices=("all", "request", "backlog", "task", "product", "roadmap", "architecture", "spec"), default="all")
     list_docs.add_argument("--status", default=None)
     list_docs.add_argument("--ref-prefix", default=None)
     list_docs.add_argument("--limit", type=int, default=50)
@@ -917,7 +921,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     search_docs = sub.add_parser("search-docs", help="Search approved workflow docs with bounded snippets.")
     search_docs.add_argument("query")
-    search_docs.add_argument("--kind", choices=("all", "request", "backlog", "task"), default="all")
+    search_docs.add_argument("--kind", choices=("all", "request", "backlog", "task", "product", "roadmap", "architecture", "spec"), default="all")
     search_docs.add_argument("--status", default=None)
     search_docs.add_argument("--limit", type=int, default=20)
     search_docs.add_argument("--max-snippet-chars", type=int, default=240)
@@ -996,11 +1000,11 @@ def _build_help() -> str:
             "",
             "  list-docs",
             "    List workflow docs by bounded criteria.",
-            "    Flags: --kind {all,request,backlog,task}, --status, --ref-prefix, --limit, --recent, --open, --changed, --format {text,json}",
+            "    Flags: --kind {all,request,backlog,task,product,roadmap,architecture,spec}, --status, --ref-prefix, --limit, --recent, --open, --changed, --format {text,json}",
             "",
             "  search-docs <query>",
             "    Search approved workflow docs with bounded snippets.",
-            "    Flags: --kind {all,request,backlog,task}, --status, --limit, --max-snippet-chars, --format {text,json}",
+            "    Flags: --kind {all,request,backlog,task,product,roadmap,architecture,spec}, --status, --limit, --max-snippet-chars, --format {text,json}",
             "",
             "  update-indicators <source>",
             "    Update approved indicators on one workflow doc.",
@@ -1117,7 +1121,7 @@ def _build_subcommand_help(command: str) -> str:
                 "  logics-manager sync list-docs [args...]",
                 "",
                 "Flags:",
-                "  --kind {all,request,backlog,task}",
+                "  --kind {all,request,backlog,task,product,roadmap,architecture,spec}",
                 "  --status",
                 "  --ref-prefix",
                 "  --limit",
@@ -1141,7 +1145,7 @@ def _build_subcommand_help(command: str) -> str:
                 "  logics-manager sync search-docs <query> [args...]",
                 "",
                 "Flags:",
-                "  --kind {all,request,backlog,task}",
+                "  --kind {all,request,backlog,task,product,roadmap,architecture,spec}",
                 "  --status",
                 "  --limit",
                 "  --max-snippet-chars",

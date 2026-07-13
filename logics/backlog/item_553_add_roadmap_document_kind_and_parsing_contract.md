@@ -1,10 +1,10 @@
 ## item_553_add_roadmap_document_kind_and_parsing_contract - Add roadmap document kind and parsing contract
 > From version: 2.18.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Medium
 > Theme: Roadmap planning model
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

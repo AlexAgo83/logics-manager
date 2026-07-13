@@ -173,6 +173,48 @@ def test_sync_read_doc_text_includes_bounded_content(
     assert "Agents need useful body text." in captured.out
 
 
+def test_sync_list_and_read_roadmap_docs(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    roadmap_dir = repo_root / "logics" / "roadmap"
+    roadmap_dir.mkdir(parents=True)
+    (roadmap_dir / "road_001_demo_plan.md").write_text(
+        "\n".join(
+            [
+                "## road_001_demo_plan - Demo Plan",
+                "> Date: 2026-07-13",
+                "> Status: Proposed",
+                "> Related product: (none yet)",
+                "> Related request: (none yet)",
+                "> Reminder: Update roadmap links.",
+                "# Summary",
+                "Versioned plan.",
+                "# Milestones",
+                "## 0.1 - MVP",
+                "- Goal: first slice.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["sync", "list-docs", "--kind", "roadmap", "--format", "json"])
+    listed = json.loads(capsys.readouterr().out)
+    assert exit_code == 0
+    assert listed["items"][0]["kind"] == "roadmap"
+    assert listed["items"][0]["ref"] == "road_001_demo_plan"
+
+    exit_code = main(["sync", "read-doc", "road_001_demo_plan", "--format", "json"])
+    read = json.loads(capsys.readouterr().out)
+    assert exit_code == 0
+    assert read["kind"] == "roadmap"
+    assert read["sections"]["Milestones"][0] == "## 0.1 - MVP"
+
+
 def test_sync_context_pack_accepts_multiple_refs(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

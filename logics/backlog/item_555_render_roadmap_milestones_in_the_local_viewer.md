@@ -1,10 +1,10 @@
 ## item_555_render_roadmap_milestones_in_the_local_viewer - Render roadmap milestones in the local viewer
 > From version: 2.18.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: High
 > Theme: Roadmap planning viewer
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

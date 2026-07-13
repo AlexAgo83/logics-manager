@@ -117,10 +117,10 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
     },
     {
         "name": "list_companion_docs",
-        "description": "List Logics companion documents such as product briefs and architecture decisions.",
+        "description": "List Logics companion documents such as product briefs, roadmaps, and architecture decisions.",
         "inputSchema": _tool_schema(
             {
-                "kind": {"type": "string", "enum": ["all", "product", "architecture"]},
+                "kind": {"type": "string", "enum": ["all", "product", "roadmap", "architecture"]},
                 "limit": {"type": "integer"},
             }
         ),
@@ -733,6 +733,8 @@ def _companion_doc_entry(repo_root: Path, rel_path: Path, kind: str) -> dict[str
         "request": _parse_companion_refs(_indicator_from_lines(lines, "Related request")),
         "backlog": _parse_companion_refs(_indicator_from_lines(lines, "Related backlog")),
         "task": _parse_companion_refs(_indicator_from_lines(lines, "Related task")),
+        "product": _parse_companion_refs(_indicator_from_lines(lines, "Related product")),
+        "roadmap": _parse_companion_refs(_indicator_from_lines(lines, "Related roadmap")),
         "architecture": _parse_companion_refs(_indicator_from_lines(lines, "Related architecture")),
     }
     return {
@@ -746,11 +748,14 @@ def _companion_doc_entry(repo_root: Path, rel_path: Path, kind: str) -> dict[str
 
 
 def _list_companion_docs(repo_root: Path, *, kind: str = "all", limit: int = 50) -> dict[str, Any]:
-    if kind not in {"all", "product", "architecture"}:
-        raise McpToolError("invalid_argument_value", "Unsupported companion document kind.", details={"kind": kind, "allowed": ["all", "product", "architecture"]})
+    allowed = {"all", "product", "roadmap", "architecture"}
+    if kind not in allowed:
+        raise McpToolError("invalid_argument_value", "Unsupported companion document kind.", details={"kind": kind, "allowed": sorted(allowed)})
     targets = []
     if kind in {"all", "product"}:
         targets.append(("product", Path("logics/product"), "prod_*.md"))
+    if kind in {"all", "roadmap"}:
+        targets.append(("roadmap", Path("logics/roadmap"), "road_*.md"))
     if kind in {"all", "architecture"}:
         targets.append(("architecture", Path("logics/architecture"), "adr_*.md"))
     items: list[dict[str, Any]] = []

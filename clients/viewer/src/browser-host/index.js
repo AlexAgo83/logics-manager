@@ -2306,8 +2306,8 @@ import {
     const directory = raw.split("/").slice(-2, -1)[0] || "";
     const match = stem.match(/^(req|item|task|prod|adr|spec)_(\d+)/i);
     if (!match) return null;
-    const kindByPrefix = { req: "request", item: "backlog", task: "task", prod: "product", adr: "architecture", spec: "spec" };
-    const prefixByKind = { request: "R", backlog: "I", task: "T", product: "P", architecture: "A", spec: "S" };
+    const kindByPrefix = { req: "request", item: "backlog", task: "task", prod: "product", road: "roadmap", adr: "architecture", spec: "spec" };
+    const prefixByKind = { request: "R", backlog: "I", task: "T", product: "P", roadmap: "M", architecture: "A", spec: "S" };
     const kind = directory === "specs" ? "spec" : kindByPrefix[match[1].toLowerCase()];
     const prefix = prefixByKind[kind];
     return prefix ? { label: `${prefix}${match[2]}`, target: raw, kind } : null;
@@ -2950,7 +2950,7 @@ import {
     if (viewerFilterState.type === "workflow" && !["request", "backlog", "task"].includes(item.stage)) {
       return false;
     }
-    if (viewerFilterState.type === "companion" && !["product", "architecture", "spec"].includes(item.stage)) {
+    if (viewerFilterState.type === "companion" && !["product", "roadmap", "architecture", "spec"].includes(item.stage)) {
       return false;
     }
     if (!["all", "workflow", "companion"].includes(viewerFilterState.type) && item.stage !== viewerFilterState.type) {

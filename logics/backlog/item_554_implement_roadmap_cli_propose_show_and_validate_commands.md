@@ -1,10 +1,10 @@
 ## item_554_implement_roadmap_cli_propose_show_and_validate_commands - Implement roadmap CLI propose, show, and validate commands
 > From version: 2.18.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: High
 > Theme: Roadmap planning CLI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

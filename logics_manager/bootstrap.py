@@ -7,7 +7,7 @@ from pathlib import Path
 from .assist import _build_claude_instructions
 
 
-WORKFLOW_DIRS: tuple[str, ...] = ("request", "backlog", "tasks", "specs", "product", "architecture", "external", ".cache")
+WORKFLOW_DIRS: tuple[str, ...] = ("request", "backlog", "tasks", "specs", "product", "roadmap", "architecture", "external", ".cache")
 MANAGED_LOGICS_START = "<!-- logics-manager:managed:start -->"
 MANAGED_LOGICS_END = "<!-- logics-manager:managed:end -->"
 AGENTS_LOGICS_REFERENCE = "@LOGICS.md"

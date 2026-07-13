@@ -133,6 +133,48 @@ def test_flow_new_request_uses_indicator_args(
     assert "> Theme: Workflow" in text
 
 
+def test_flow_roadmap_propose_show_and_validate(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "roadmap").mkdir(parents=True)
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(
+        [
+            "flow",
+            "roadmap",
+            "propose",
+            "--title",
+            "Demo Plan",
+            "--milestone",
+            "0.1: MVP",
+            "--milestone",
+            "1.0: Stable",
+            "--format",
+            "json",
+        ]
+    )
+    created = json.loads(capsys.readouterr().out)
+    assert exit_code == 0
+    assert created["ref"] == "road_001_demo_plan"
+    assert created["milestones"] == ["0.1", "1.0"]
+
+    exit_code = main(["flow", "roadmap", "show", "road_001_demo_plan", "--format", "json"])
+    shown = json.loads(capsys.readouterr().out)
+    assert exit_code == 0
+    assert shown["kind"] == "roadmap"
+    assert "## 0.1 - MVP" in shown["content"]
+
+    exit_code = main(["flow", "roadmap", "validate", "road_001_demo_plan", "--format", "json"])
+    validated = json.loads(capsys.readouterr().out)
+    assert exit_code == 0
+    assert validated["ok"] is True
+    assert validated["milestone_count"] == 2
+
+
 def test_flow_withdraw_marks_doc_obsolete_and_records_supersession(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

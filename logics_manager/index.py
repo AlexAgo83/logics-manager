@@ -24,12 +24,13 @@ class Entry:
 SECTION_DEFINITIONS = (
     ("Architecture decisions", "logics/architecture", False),
     ("Product briefs", "logics/product", False),
+    ("Roadmaps", "logics/roadmap", False),
     ("Requests", "logics/request", False),
     ("Backlog", "logics/backlog", True),
     ("Tasks", "logics/tasks", True),
 )
 
-SECTION_COUNT_KEYS = ("architecture", "product", "request", "backlog", "task")
+SECTION_COUNT_KEYS = ("architecture", "product", "roadmap", "request", "backlog", "task")
 
 
 def _parse_doc(path: Path) -> Entry:

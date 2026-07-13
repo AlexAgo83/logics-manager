@@ -33,12 +33,13 @@ Use these as quick starting points when you want the plugin or the shared Logics
 - If you think "here is the problem and context..." -> request
 - If you think "this needs a scoped delivery slice..." -> item
 - If you think "we want..." -> product brief
+- If you think "we should ship this over time..." -> roadmap
 - If you think "we decided..." -> ADR
 - If you think "the system should..." -> spec
 - If you think "let's do..." -> task
 
 Companion doc statuses are intentionally separate from workflow statuses:
-product briefs use `Draft`, `Proposed`, `Active`, `Accepted`, `Validated`, `Rejected`,
+product briefs and roadmaps use `Draft`, `Proposed`, `Active`, `Accepted`, `Validated`, `Rejected`,
 `Superseded`, `Settled`, or `Archived`; ADRs use `Draft`, `Proposed`,
 `Accepted`, `Validated`, `Rejected`, `Superseded`, `Settled`, or `Archived`.
 Use `Settled` when the subject is closed, consumed by delivery, and no longer

@@ -31,6 +31,7 @@ AI-heavy projects often lose context between chats, agents, and implementation p
 - `backlog item`: a scoped delivery slice;
 - `task`: executable implementation work;
 - `product brief`: product framing and intent;
+- `roadmap`: versioned long-term plan such as `0.1 -> 0.2 -> 1.0`;
 - `ADR`: architectural decisions;
 - `spec`: behavioral contract.
 
@@ -103,6 +104,12 @@ Create the first workflow document:
 logics-manager flow new request --title "Improve onboarding"
 ```
 
+Create a longer-term plan when the work spans several versions:
+
+```bash
+logics-manager flow roadmap propose --title "Improve onboarding" --milestone "0.1: MVP" --milestone "0.2: Guided setup"
+```
+
 Validate the workflow corpus:
 
 ```bash
@@ -165,7 +172,7 @@ are clickable.
 A short tour of each surface:
 
 - The **CLI** is the canonical workflow engine. It creates requests, backlog
-  items, tasks, product briefs, and ADRs; promotes and splits them; closes work
+  items, tasks, product briefs, roadmaps, and ADRs; promotes and splits them; closes work
   with consistency checks; lints and audits traceability; exports indexes,
   context packs, and graph data; and serves both the local browser viewer and
   the bounded MCP tool surface. See [docs/cli.md](docs/cli.md).

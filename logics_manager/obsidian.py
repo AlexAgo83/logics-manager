@@ -18,6 +18,7 @@ DOC_TYPES = {
     "backlog": ("logics/backlog", "item"),
     "task": ("logics/tasks", "task"),
     "product": ("logics/product", "prod"),
+    "roadmap": ("logics/roadmap", "road"),
     "architecture": ("logics/architecture", "adr"),
     "spec": ("logics/specs", "spec"),
 }

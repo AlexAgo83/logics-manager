@@ -66,6 +66,7 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
   public readonly environmentOutput: vscode.OutputChannel;
   private runtimeLaunchers: RuntimeLaunchersSnapshot = UNAVAILABLE_LAUNCHER_STATE;
   private embeddedViewerUrl?: string;
+  private embeddedViewerRoot?: string;
   declare buildLogicsYamlBlocksQuickPickItem: (root: string) => (vscode.QuickPickItem & { action: () => Promise<void> }) | null;
   declare buildMissingEnvLocalQuickPickItem: (root: string) => (vscode.QuickPickItem & { action: () => Promise<void> }) | null;
   declare renderEmbeddedViewer: (focus?: string) => Promise<void>;

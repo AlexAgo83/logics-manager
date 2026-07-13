@@ -229,6 +229,7 @@ vi.mock("../clients/vscode/src/logicsEnvironment", () => ({
 
 import { detectClaudeBridgeStatus, inspectLogicsEnvironment } from "../clients/vscode/src/logicsEnvironment";
 import { LogicsViewProvider } from "../clients/vscode/src/logicsViewProvider";
+import { buildEmbeddedViewerHtml } from "../clients/vscode/src/logicsWebviewHtml";
 import { buildBootstrapCommitMessage, isBootstrapScopedPath, parseGitStatusEntries } from "../clients/vscode/src/workflowSupport";
 
 describe("LogicsViewProvider", () => {
@@ -282,6 +283,7 @@ describe("LogicsViewProvider", () => {
     mocks.viewerStop.mockReset();
     mocks.viewerStopAll.mockReset();
     mocks.viewerGetOrStart.mockResolvedValue({ root, url: "http://127.0.0.1:4567/", port: 4567 });
+    vi.mocked(buildEmbeddedViewerHtml).mockClear();
     vi.mocked(updateIndicatorsOnDisk).mockReset();
     mocks.detectClaudeBridgeStatus.mockReturnValue({
       available: true,
@@ -616,6 +618,22 @@ describe("LogicsViewProvider", () => {
 
     expect(mocks.viewerGetOrStart).toHaveBeenCalledWith(root, undefined);
     expect((provider as any).view.webview.html).toBe("<html>embedded</html>");
+  });
+
+  it("keeps the embedded viewer iframe on same-root watcher refreshes", async () => {
+    fs.mkdirSync(path.join(root, "logics"), { recursive: true });
+    (provider as any).view = {
+      webview: {
+        html: "",
+        cspSource: "vscode-webview://test"
+      }
+    };
+
+    await provider.refresh();
+    await provider.refresh();
+
+    expect(mocks.viewerGetOrStart).toHaveBeenCalledTimes(1);
+    expect(buildEmbeddedViewerHtml).toHaveBeenCalledTimes(2);
   });
 
   it("opens workshop terminal requests from the embedded viewer in VS Code", async () => {

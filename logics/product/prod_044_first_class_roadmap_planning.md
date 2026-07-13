@@ -2,7 +2,7 @@
 > Date: 2026-07-13
 > Status: Proposed
 > Related request: `req_296_add_first_class_roadmap_planning_to_logics_manager`
-> Related backlog: `item_553_add_roadmap_document_kind_and_parsing_contract`, `item_554_implement_roadmap_cli_propose_show_and_validate_commands`, `item_555_render_roadmap_milestones_in_the_local_viewer`, `item_556_connect_roadmap_validation_to_lint_audit_and_documentation`
+> Related backlog: `item_553_add_roadmap_document_kind_and_parsing_contract`
 > Related task: `task_293_deliver_first_class_roadmap_planning_support`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -37,5 +37,5 @@ Add a roadmap planning layer to Logics Manager so operators and AI agents can tu
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_296_add_first_class_roadmap_planning_to_logics_manager`
+- Product back-reference: `item_553_add_roadmap_document_kind_and_parsing_contract`
 - Task back-reference: `task_293_deliver_first_class_roadmap_planning_support`

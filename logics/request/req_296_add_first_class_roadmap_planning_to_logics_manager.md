@@ -1,7 +1,7 @@
 ## req_296_add_first_class_roadmap_planning_to_logics_manager - Add first-class roadmap planning to Logics Manager
 > From version: 2.18.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High

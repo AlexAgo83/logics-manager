@@ -1,10 +1,10 @@
 ## item_552_document_and_harden_the_i18n_contract_rollout - Document and harden the i18n contract rollout
 > From version: 2.17.1
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 30%
 > Complexity: Medium
 > Theme: Internationalization adoption
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

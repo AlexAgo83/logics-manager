@@ -1,10 +1,10 @@
 ## item_549_add_i18n_contract_lifecycle_commands_and_validation - Add i18n contract lifecycle commands and validation
 > From version: 2.17.1
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 30%
 > Complexity: High
 > Theme: Internationalization CLI
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

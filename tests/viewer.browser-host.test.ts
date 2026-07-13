@@ -142,6 +142,14 @@ function createViewerDom(options: {
     <a id="viewer-version-link" href="https://github.com/AlexAgo83/logics-manager">v0.0.0</a>
     <button id="activity-clear" type="button">Clear activity</button>
     <button id="activity-toggle" type="button" aria-pressed="false">Activity</button>
+    <div id="focus-menu">
+      <button id="focus-menu-toggle" type="button" aria-expanded="false" aria-controls="focus-menu-options"><span id="focus-menu-label">Active work</span></button>
+      <div id="focus-menu-options" hidden>
+        <button type="button" data-viewer-focus-value="active">Active work</button>
+        <button type="button" data-viewer-focus-value="all">All docs</button>
+        <button type="button" data-viewer-focus-value="blocked">Blocked</button>
+      </div>
+    </div>
     <div class="viewer-refresh-menu">
       <button id="viewer-refresh-menu-button" type="button" aria-expanded="false" aria-controls="viewer-refresh-menu">Refresh</button>
       <div id="viewer-refresh-menu" hidden>
@@ -1562,10 +1570,13 @@ describe("local viewer browser host", () => {
     const dom = new JSDOM(html);
     const panel = dom.window.document.getElementById("filter-panel");
     const toggle = dom.window.document.getElementById("filter-toggle");
+    const focusMenu = dom.window.document.getElementById("focus-menu");
 
     expect(panel?.hasAttribute("hidden")).toBe(true);
     expect(panel?.getAttribute("aria-hidden")).toBe("true");
     expect(toggle?.getAttribute("aria-expanded")).toBe("false");
+    expect(focusMenu).toBeTruthy();
+    expect(panel?.querySelector('[data-viewer-filter-group="focus"]')).toBeNull();
   });
 
   it("places the Activity/Project slider to the right of the search docs bar", () => {
@@ -1595,7 +1606,7 @@ describe("local viewer browser host", () => {
   it("styles the view slider and the mobile search/slider reflow", () => {
     const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
     expect(css).toMatch(/\.toolbar__view-slider\[data-current-mode="project"\]::after/);
-    expect(css).toMatch(/\.viewer-screen-activity #filter-toggle,\s*\.viewer-screen-activity #attention-toggle,\s*\.viewer-screen-activity \.toolbar__mode-button,\s*\.viewer-screen-project #activity-clear\s*\{[^}]*visibility: hidden;[^}]*pointer-events: none;/s);
+    expect(css).toMatch(/\.viewer-screen-activity #filter-toggle,\s*\.viewer-screen-activity #focus-menu,\s*\.viewer-screen-activity #attention-toggle,\s*\.viewer-screen-activity \.toolbar__mode-button,\s*\.viewer-screen-project #activity-clear\s*\{[^}]*visibility: hidden;[^}]*pointer-events: none;/s);
     expect(css).toMatch(/\.viewer-screen-document #filter-toggle/);
     expect(css).not.toMatch(/\.viewer-code__gutter/);
     expect(css).not.toMatch(/\.viewer-code__body/);
@@ -4006,6 +4017,24 @@ describe("local viewer browser host", () => {
 
     dom.window.document.getElementById("filter-reset")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     expect((dom.window.document.querySelector('[data-viewer-filter-group="focus"]') as HTMLSelectElement | null)?.value).toBe("active");
+  });
+
+  it("applies corpus focus from the toolbar focus menu", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    dom.window.document.getElementById("focus-menu-toggle")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(dom.window.document.getElementById("focus-menu-options")?.hidden).toBe(false);
+
+    dom.window.document.querySelector('[data-viewer-focus-value="blocked"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(dom.window.document.getElementById("focus-menu-options")?.hidden).toBe(true);
+    expect(dom.window.document.getElementById("focus-menu-label")?.textContent).toBe("Blocked");
+    expect((dom.window.document.querySelector('[data-viewer-filter-group="focus"]') as HTMLSelectElement | null)?.value).toBe("blocked");
+    expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("focus: blocked");
   });
 
   it("renders the local Git status screen from the read-only endpoint", async () => {

@@ -104,19 +104,15 @@ function createViewerDom(options: {
       <button id="viewer-lan-banner-pair" type="button" hidden>Pair this device</button>
       <span id="viewer-lan-banner-paired" hidden></span>
     </div>
-    <div class="viewer-nav-menu" data-viewer-nav="project-tools" id="viewer-project-tools-nav">
-      <button id="viewer-project-tools" type="button">Project</button>
-      <div class="viewer-nav-menu__panel" role="menu">
-        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="project:translations">Translations</button>
-        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="project:theme">Theme</button>
-      </div>
-    </div>
     <div class="viewer-nav-menu" data-viewer-nav="workshop">
       <button id="viewer-workshop" type="button" hidden>Workshop</button>
       <div class="viewer-nav-menu__panel" role="menu">
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="workshop:terminals">Terminals</button>
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="workshop:commands">Commands</button>
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="workshop:explorer">Explorer</button>
+        <div class="viewer-nav-menu__separator" data-project-tools-separator role="separator" hidden></div>
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="project:translations" hidden>Translations</button>
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="project:theme" hidden>Theme</button>
       </div>
     </div>
     <div class="viewer-nav-menu" data-viewer-nav="remote">
@@ -1671,7 +1667,7 @@ describe("local viewer browser host", () => {
     const labels = Array.from(dom.window.document.querySelectorAll(".viewer-topbar__actions > button, .viewer-topbar__actions > .viewer-nav-menu > button, .viewer-topbar__actions > .viewer-refresh-menu > button"))
       .map((node) => node.textContent?.trim().replace(/\s+/g, " "));
 
-    expect(labels).toEqual(["Project", "Workshop", "Remote", "CDX", "Settings"]);
+    expect(labels).toEqual(["Workshop", "Remote", "CDX", "Settings"]);
     expect(dom.window.document.getElementById("viewer-getting-started")?.textContent).toContain("Getting Started");
   });
 
@@ -1680,15 +1676,17 @@ describe("local viewer browser host", () => {
     const source = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/projectTools.js"), "utf8");
     const dom = new JSDOM(html);
 
-    expect(dom.window.document.getElementById("viewer-project-tools-nav")?.hasAttribute("hidden")).toBe(true);
-    expect(dom.window.document.querySelector('[data-viewer-nav-target="project:translations"]')).not.toBeNull();
-    expect(dom.window.document.querySelector('[data-viewer-nav-target="project:theme"]')).not.toBeNull();
+    const workshop = dom.window.document.querySelector('[data-viewer-nav="workshop"]');
+    expect(workshop?.querySelector('[data-project-tools-separator]')).not.toBeNull();
+    expect(workshop?.querySelector('[data-viewer-nav-target="project:translations"]')).not.toBeNull();
+    expect(workshop?.querySelector('[data-viewer-nav-target="project:theme"]')).not.toBeNull();
     expect(source).toContain('"/api/project-i18n"');
     expect(source).toContain('"/api/project-theme"');
     expect(source).toContain('"/api/project-i18n-value"');
     expect(source).toContain('"/api/project-theme-value"');
     const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
     expect(css).toMatch(/\.viewer-nav-menu\[hidden\][\s\S]*?display: none;/);
+    expect(css).toMatch(/\.viewer-nav-menu__item\[hidden\][\s\S]*?display: none;/);
   });
 
   it("preserves project capabilities and reveals only their supported menu entries", async () => {
@@ -1702,9 +1700,11 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
     await flushViewerAsync();
 
-    expect((dom.window.document.getElementById("viewer-project-tools-nav") as HTMLElement).hidden).toBe(false);
+    expect((dom.window.document.querySelector("[data-project-tools-separator]") as HTMLElement).hidden).toBe(false);
     expect((dom.window.document.querySelector('[data-viewer-nav-target="project:translations"]') as HTMLButtonElement).hidden).toBe(false);
     expect((dom.window.document.querySelector('[data-viewer-nav-target="project:theme"]') as HTMLButtonElement).hidden).toBe(true);
+    dom.window.document.getElementById("viewer-workshop")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(dom.window.document.querySelector('[data-viewer-nav="workshop"]')?.classList.contains("is-open")).toBe(true);
   });
 
   it("keeps topbar menus intact and reserves document header navigation for screen segments", () => {
@@ -2739,12 +2739,6 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     // Clicking the button opens its menu (and does not navigate on its own).
-    const projectWrapper = dom.window.document.querySelector('[data-viewer-nav="project-tools"]');
-    expect(projectWrapper?.classList.contains("is-open")).toBe(false);
-    dom.window.document.getElementById("viewer-project-tools")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(projectWrapper?.classList.contains("is-open")).toBe(true);
-
     const remoteWrapper = dom.window.document.querySelector('[data-viewer-nav="remote"]');
     expect(remoteWrapper?.classList.contains("is-open")).toBe(false);
     dom.window.document.getElementById("viewer-ci")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));

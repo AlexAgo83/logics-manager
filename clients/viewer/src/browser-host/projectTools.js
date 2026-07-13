@@ -77,12 +77,12 @@ export function filterTranslationRows(search) {
 }
 
 export function updateProjectToolControls(isAvailable, navMenuItem) {
-  const nav = document.getElementById("viewer-project-tools-nav");
+  const separator = document.querySelector("[data-project-tools-separator]");
   const translations = navMenuItem("project:translations");
   const theme = navMenuItem("project:theme");
   const hasI18n = isAvailable("i18n");
   const hasTheme = isAvailable("theme");
-  if (nav instanceof HTMLElement) nav.hidden = !(hasI18n || hasTheme);
+  if (separator instanceof HTMLElement) separator.hidden = !(hasI18n || hasTheme);
   if (translations instanceof HTMLButtonElement) translations.hidden = !hasI18n;
   if (theme instanceof HTMLButtonElement) theme.hidden = !hasTheme;
 }

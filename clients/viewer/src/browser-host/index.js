@@ -1358,10 +1358,10 @@ import {
       // the workshop or the workspace capability is available.
       const workshopAvailable = isCapabilityAvailable("workshop");
       const workspaceAvailable = isCapabilityAvailable("workspace");
-      const workshopVisible = workshopAvailable || workspaceAvailable;
+      const workshopVisible = workshopAvailable || workspaceAvailable || isCapabilityAvailable("i18n") || isCapabilityAvailable("theme");
       workshop.hidden = !workshopVisible;
       if (workshopVisible) {
-        setButtonAvailable(workshop, "Show Workshop (terminals, commands, explorer)");
+        setButtonAvailable(workshop, "Show Workshop and project tools");
       } else {
         setButtonUnavailable(workshop, capabilityMessage("workshop", "Workshop is not available for this project."));
       }
@@ -6815,10 +6815,10 @@ import {
         setMeta(`Copy failed — long-press to select: ${share}`);
       }
     });
-    // The Project / Workshop / Remote / CDX buttons toggle their sub-section menu rather
+    // The Workshop / Remote / CDX buttons toggle their sub-section menu rather
     // than navigating directly: a click opens the menu so its items stay
     // clickable; choosing an item (handled below) performs the navigation.
-    ["viewer-project-tools", "viewer-workshop", "viewer-ci", "viewer-cdx"].forEach((id) => {
+    ["viewer-workshop", "viewer-ci", "viewer-cdx"].forEach((id) => {
       const button = document.getElementById(id);
       // Guard against the init block running more than once (the load event can
       // fire twice), which would otherwise double-bind and cancel the toggle.

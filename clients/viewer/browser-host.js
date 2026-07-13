@@ -3762,12 +3762,12 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     });
   }
   function updateProjectToolControls(isAvailable, navMenuItem2) {
-    const nav = document.getElementById("viewer-project-tools-nav");
+    const separator = document.querySelector("[data-project-tools-separator]");
     const translations = navMenuItem2("project:translations");
     const theme = navMenuItem2("project:theme");
     const hasI18n = isAvailable("i18n");
     const hasTheme = isAvailable("theme");
-    if (nav instanceof HTMLElement) nav.hidden = !(hasI18n || hasTheme);
+    if (separator instanceof HTMLElement) separator.hidden = !(hasI18n || hasTheme);
     if (translations instanceof HTMLButtonElement) translations.hidden = !hasI18n;
     if (theme instanceof HTMLButtonElement) theme.hidden = !hasTheme;
   }
@@ -4852,10 +4852,10 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       if (workshop instanceof HTMLElement) {
         const workshopAvailable = isCapabilityAvailable("workshop");
         const workspaceAvailable = isCapabilityAvailable("workspace");
-        const workshopVisible = workshopAvailable || workspaceAvailable;
+        const workshopVisible = workshopAvailable || workspaceAvailable || isCapabilityAvailable("i18n") || isCapabilityAvailable("theme");
         workshop.hidden = !workshopVisible;
         if (workshopVisible) {
-          setButtonAvailable(workshop, "Show Workshop (terminals, commands, explorer)");
+          setButtonAvailable(workshop, "Show Workshop and project tools");
         } else {
           setButtonUnavailable(workshop, capabilityMessage("workshop", "Workshop is not available for this project."));
         }
@@ -9795,7 +9795,7 @@ ${line}` : line;
           setMeta(`Copy failed \u2014 long-press to select: ${share}`);
         }
       });
-      ["viewer-project-tools", "viewer-workshop", "viewer-ci", "viewer-cdx"].forEach((id) => {
+      ["viewer-workshop", "viewer-ci", "viewer-cdx"].forEach((id) => {
         const button = document.getElementById(id);
         if (!(button instanceof HTMLElement) || button.dataset.navBound === "1") return;
         button.dataset.navBound = "1";

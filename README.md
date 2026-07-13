@@ -155,6 +155,7 @@ are clickable.
 | Topic | What's inside |
 | --- | --- |
 | [Core CLI](docs/cli.md) | Commands, agent cookbook, local browser viewer, CLI contracts, closing work, notes. |
+| [Project i18n contract](docs/i18n.md) | Optional source-only and multi-locale catalog governance, validation, viewer integration, and migration. |
 | [VS Code Extension](docs/vscode.md) | Features, installation, development from source, command palette. |
 | [MCP For Assistants](docs/mcp.md) | Assistant-facing tool surface, connector plans, assistant model. |
 | [Onboarding Prompts](docs/onboarding.md) | Starting-point prompts for need, framing, orchestration, execution. |

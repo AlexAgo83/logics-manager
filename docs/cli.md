@@ -142,6 +142,9 @@ logics-manager i18n lint
 logics-manager i18n validate
 ```
 
+See [Project i18n contract](i18n.md) for the complete source-only, existing
+catalog, locale-addition, CI, and compatibility-migration workflows.
+
 The contract lives at `logics/i18n/contract.json`. A new UI project may begin
 with one source-locale JSON catalog; multiple translations are not required at
 initialization. Repositories without a contract remain valid and receive

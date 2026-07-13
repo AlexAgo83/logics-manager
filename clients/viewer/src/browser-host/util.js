@@ -837,6 +837,7 @@ export function primaryActionControls() {
       "#viewer-repo-folder",
       "#viewer-document-status",
       "#viewer-release-reset",
+      '[data-action="getting-started"]',
       '[data-action="refresh"]',
       '[data-viewer-action="edit-document"]',
       "[data-viewer-project-id]",

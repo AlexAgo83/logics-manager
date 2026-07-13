@@ -1,0 +1,428 @@
+{
+  "budgets": {
+    "max_docs": 48,
+    "max_docs_per_ref": 8
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_296_add_first_class_roadmap_planning_to_logics_manager item_553_add_roadmap_document_kind_and_parsing_contract item_554_implement_roadmap_cli_propose_show_and_validate_commands item_555_render_roadmap_milestones_in_the_local_viewer item_556_connect_roadmap_validation_to_lint_audit_and_documentation task_293_deliver_first_class_roadmap_planning_support --mode full --profile deep --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_553_add_roadmap_document_kind_and_parsing_contract",
+          "item_554_implement_roadmap_cli_propose_show_and_validate_commands",
+          "item_555_render_roadmap_milestones_in_the_local_viewer",
+          "item_556_connect_roadmap_validation_to_lint_audit_and_documentation"
+        ],
+        "prod": [
+          "prod_044_first_class_roadmap_planning"
+        ],
+        "req": [
+          "req_296_add_first_class_roadmap_planning_to_logics_manager"
+        ],
+        "task": [
+          "task_293_deliver_first_class_roadmap_planning_support"
+        ]
+      },
+      "path": "logics/product/prod_044_first_class_roadmap_planning.md",
+      "ref": "prod_044_first_class_roadmap_planning",
+      "sections": {
+        "Goals": [
+          "- Represent roadmap milestones as structured Logics docs with stable refs and links.",
+          "- Let AI agents propose milestone plans from existing product/spec/backlog context.",
+          "- Make milestone sequence and scope visible in the local viewer.",
+          "- Keep roadmap planning separate from release evidence while allowing future release linkage.",
+          "- Give downstream implementation agents enough validation and context to safely evolve large corpora."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Add a roadmap planning layer to Logics Manager so operators and AI agents can turn a corpus into ordered product/action milestones such as 0.1, 0.2, 0.3, and 1.0, then inspect and validate that plan in the CLI and viewer."
+        ],
+        "References": [
+          "- Product back-reference: `req_296_add_first_class_roadmap_planning_to_logics_manager`",
+          "- Task back-reference: `task_293_deliver_first_class_roadmap_planning_support`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "First-class roadmap planning"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, add first-class roadmap planning to logics manager, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Add first-class roadmap planning to Logics Manager",
+        "use when": "You need to implement or review the scaffolded workflow for Add first-class roadmap planning to Logics Manager."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_553_add_roadmap_document_kind_and_parsing_contract",
+          "item_554_implement_roadmap_cli_propose_show_and_validate_commands",
+          "item_555_render_roadmap_milestones_in_the_local_viewer",
+          "item_556_connect_roadmap_validation_to_lint_audit_and_documentation"
+        ],
+        "prod": [
+          "prod_044_first_class_roadmap_planning"
+        ],
+        "req": [
+          "req_296_add_first_class_roadmap_planning_to_logics_manager"
+        ]
+      },
+      "path": "logics/request/req_296_add_first_class_roadmap_planning_to_logics_manager.md",
+      "ref": "req_296_add_first_class_roadmap_planning_to_logics_manager",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Logics Manager recognizes roadmap docs under `logics/roadmap/` with stable refs like `road_001_*` and includes them in sync/list/search/read/context-pack flows.",
+          "- AC2: A standard roadmap document contract supports milestones with label, goal, scope, cuts, linked refs, dependencies, risks, validation gates, exit criteria, and status.",
+          "- AC3: Roadmap refs and `Related roadmap` links are parsed consistently across request, backlog, task, product, architecture, and spec docs.",
+          "- AC4: CLI support can create or propose a roadmap from bounded corpus context and can show/validate an existing roadmap.",
+          "- AC5: Validation reports broken roadmap links, empty milestones, duplicate milestone labels, unknown milestone statuses, and open high-priority work not placed in any roadmap milestone when a roadmap exists.",
+          "- AC6: The viewer exposes a Roadmap screen that renders milestone order and linked refs, with a compact progress/status summary per milestone."
+        ],
+        "Needs": [
+          "- Logics Manager should treat long-range roadmap planning as a first-class workflow surface instead of leaving MVP, V1, and version-slice intent buried in product briefs or specs.",
+          "- Operators and AI agents need a stable way to propose milestone plans such as 0.1 -> 0.2 -> 0.3 -> 1.0 from an existing corpus.",
+          "- Roadmap milestones must link back to existing requests, backlog items, tasks, specs, product briefs, and architecture decisions without replacing those docs.",
+          "- The CLI should let an agent create, inspect, validate, and refresh roadmap plans using bounded corpus context.",
+          "- The local viewer should make the roadmap understandable visually, including milestone order, linked refs, completion state, risks, cuts, and exit criteria.",
+          "- Validation should catch broken refs, empty milestones, unplanned open work, and stale roadmap links without forcing release workflow semantics onto product planning."
+        ]
+      },
+      "status": "Draft",
+      "title": "Add first-class roadmap planning to Logics Manager"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add roadmap document kind and parsing contract, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add roadmap document kind and parsing contract",
+        "use when": "Implementing the scaffolded slice for Add roadmap document kind and parsing contract."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_553_add_roadmap_document_kind_and_parsing_contract"
+        ],
+        "prod": [
+          "prod_044_first_class_roadmap_planning"
+        ],
+        "req": [
+          "req_296_add_first_class_roadmap_planning_to_logics_manager"
+        ],
+        "task": [
+          "task_293_deliver_first_class_roadmap_planning_support"
+        ]
+      },
+      "path": "logics/backlog/item_553_add_roadmap_document_kind_and_parsing_contract.md",
+      "ref": "item_553_add_roadmap_document_kind_and_parsing_contract",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A `logics/roadmap/road_001_demo.md` fixture is discovered with kind `roadmap`, ref `road_001_demo`, title, status, and linked refs.",
+          "- AC2: `sync list-docs --kind roadmap`, `sync read-doc road_001_demo`, and context packs include roadmap docs.",
+          "- AC3: `Related roadmap: road_001_demo` is recognized from other doc kinds and appears in linked refs.",
+          "- AC4: Roadmap templates do not require hand-editing generated indicator lines.",
+          "- AC5: Tests cover both full path and short ref resolution for roadmap docs."
+        ],
+        "Problem": [
+          "- Logics Manager cannot currently distinguish long-range delivery intent from product/spec prose, so AI agents have no stable object to update when planning milestone slices."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add roadmap document kind and parsing contract"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, implement roadmap cli propose, show, and validate commands, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Implement roadmap CLI propose, show, and validate commands",
+        "use when": "Implementing the scaffolded slice for Implement roadmap CLI propose, show, and validate commands."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_554_implement_roadmap_cli_propose_show_and_validate_commands"
+        ],
+        "prod": [
+          "prod_044_first_class_roadmap_planning"
+        ],
+        "req": [
+          "req_296_add_first_class_roadmap_planning_to_logics_manager"
+        ],
+        "task": [
+          "task_293_deliver_first_class_roadmap_planning_support"
+        ]
+      },
+      "path": "logics/backlog/item_554_implement_roadmap_cli_propose_show_and_validate_commands.md",
+      "ref": "item_554_implement_roadmap_cli_propose_show_and_validate_commands",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `logics-manager roadmap propose --dry-run` returns a milestone plan without writing files.",
+          "- AC2: `logics-manager roadmap propose --write` creates `logics/roadmap/road_###_*.md` with stable refs and exact linked Logics refs.",
+          "- AC3: `logics-manager roadmap show <ref>` prints milestone labels, goals, statuses, linked refs, and validation gates.",
+          "- AC4: `logics-manager roadmap validate <ref>` exits nonzero on broken refs or malformed milestone sections and prints actionable findings.",
+          "- AC5: Tests cover empty corpus, existing roadmap, and a CR-League-shaped corpus fixture."
+        ],
+        "Problem": [
+          "- Operators need a repeatable CLI path for creating and maintaining roadmap plans, and AI agents need deterministic inputs/outputs instead of ad hoc chat plans."
+        ]
+      },
+      "status": "Ready",
+      "title": "Implement roadmap CLI propose, show, and validate commands"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, render roadmap milestones in the local viewer, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Render roadmap milestones in the local viewer",
+        "use when": "Implementing the scaffolded slice for Render roadmap milestones in the local viewer."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_555_render_roadmap_milestones_in_the_local_viewer"
+        ],
+        "prod": [
+          "prod_044_first_class_roadmap_planning"
+        ],
+        "req": [
+          "req_296_add_first_class_roadmap_planning_to_logics_manager"
+        ],
+        "task": [
+          "task_293_deliver_first_class_roadmap_planning_support"
+        ]
+      },
+      "path": "logics/backlog/item_555_render_roadmap_milestones_in_the_local_viewer.md",
+      "ref": "item_555_render_roadmap_milestones_in_the_local_viewer",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The viewer has a discoverable Roadmap screen when roadmap docs exist.",
+          "- AC2: Milestones render in declared order with label, title/goal, status, linked refs, risks, and exit criteria.",
+          "- AC3: Linked refs inside milestones are clickable through existing viewer document navigation.",
+          "- AC4: Existing doc cards or details show roadmap placement such as `Roadmap: 0.1` when linked.",
+          "- AC5: Viewer tests cover populated, empty, and malformed-roadmap states without blank-screen failures."
+        ],
+        "Problem": [
+          "- Even if roadmap docs exist, operators need to inspect milestone sequence, scope, progress, and linked refs visually while working in the viewer."
+        ]
+      },
+      "status": "Ready",
+      "title": "Render roadmap milestones in the local viewer"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, connect roadmap validation to lint, audit, and documentation, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Connect roadmap validation to lint, audit, and documentation",
+        "use when": "Implementing the scaffolded slice for Connect roadmap validation to lint, audit, and documentation."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_556_connect_roadmap_validation_to_lint_audit_and_documentation"
+        ],
+        "prod": [
+          "prod_044_first_class_roadmap_planning"
+        ],
+        "req": [
+          "req_296_add_first_class_roadmap_planning_to_logics_manager"
+        ],
+        "task": [
+          "task_293_deliver_first_class_roadmap_planning_support"
+        ]
+      },
+      "path": "logics/backlog/item_556_connect_roadmap_validation_to_lint_audit_and_documentation.md",
+      "ref": "item_556_connect_roadmap_validation_to_lint_audit_and_documentation",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `logics-manager lint --require-status` accepts well-formed roadmap docs and reports malformed roadmap milestones.",
+          "- AC2: `logics-manager audit --group-by-doc` includes roadmap findings grouped by roadmap doc path.",
+          "- AC3: Docs explain roadmap versus request/backlog/task versus release in concrete terms.",
+          "- AC4: Existing repos without roadmap docs continue to pass current validation unless they already have unrelated findings.",
+          "- AC5: Tests cover roadmap-aware lint/audit behavior and no-roadmap backwards compatibility."
+        ],
+        "Problem": [
+          "- Roadmap docs will decay unless standard validation and documentation explain how they relate to existing workflow docs and releases."
+        ]
+      },
+      "status": "Ready",
+      "title": "Connect roadmap validation to lint, audit, and documentation"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Deliver first-class roadmap planning support",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_553_add_roadmap_document_kind_and_parsing_contract",
+          "item_554_implement_roadmap_cli_propose_show_and_validate_commands",
+          "item_555_render_roadmap_milestones_in_the_local_viewer",
+          "item_556_connect_roadmap_validation_to_lint_audit_and_documentation"
+        ],
+        "prod": [
+          "prod_044_first_class_roadmap_planning"
+        ],
+        "req": [
+          "req_296_add_first_class_roadmap_planning_to_logics_manager"
+        ],
+        "task": [
+          "task_293_deliver_first_class_roadmap_planning_support"
+        ]
+      },
+      "path": "logics/tasks/task_293_deliver_first_class_roadmap_planning_support.md",
+      "ref": "task_293_deliver_first_class_roadmap_planning_support",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- Run `python3 -m logics_manager lint --require-status`.",
+          "- Run scaffold command tests."
+        ]
+      },
+      "status": "Ready",
+      "title": "Deliver first-class roadmap planning support"
+    }
+  ],
+  "estimates": {
+    "char_count": 12720,
+    "companion_doc_count": 1,
+    "doc_count": 6
+  },
+  "generated_at": "2026-07-13T20:18:38Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_296_add_first_class_roadmap_planning_to_logics_manager",
+      "item_553_add_roadmap_document_kind_and_parsing_contract",
+      "item_554_implement_roadmap_cli_propose_show_and_validate_commands",
+      "item_555_render_roadmap_milestones_in_the_local_viewer",
+      "item_556_connect_roadmap_validation_to_lint_audit_and_documentation",
+      "task_293_deliver_first_class_roadmap_planning_support"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "deep",
+  "ref": "req_296_add_first_class_roadmap_planning_to_logics_manager,item_553_add_roadmap_document_kind_and_parsing_contract,item_554_implement_roadmap_cli_propose_show_and_validate_commands,item_555_render_roadmap_milestones_in_the_local_viewer,item_556_connect_roadmap_validation_to_lint_audit_and_documentation,task_293_deliver_first_class_roadmap_planning_support",
+  "refs": [
+    "req_296_add_first_class_roadmap_planning_to_logics_manager",
+    "item_553_add_roadmap_document_kind_and_parsing_contract",
+    "item_554_implement_roadmap_cli_propose_show_and_validate_commands",
+    "item_555_render_roadmap_milestones_in_the_local_viewer",
+    "item_556_connect_roadmap_validation_to_lint_audit_and_documentation",
+    "task_293_deliver_first_class_roadmap_planning_support"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.18.0"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_293_deliver_first_class_roadmap_planning_support.md",
+      "ref": "task_293_deliver_first_class_roadmap_planning_support"
+    }
+  ]
+}

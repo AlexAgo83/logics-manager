@@ -9,6 +9,8 @@ from http import HTTPStatus
 from pathlib import Path
 from typing import Any
 
+from .i18n import CONTRACT_PATH, i18n_validate_payload
+
 
 CONFIG_FILE = ".logics-viewer.json"
 MAX_SOURCE_BYTES = 1_000_000
@@ -94,28 +96,48 @@ def detect_project_tools(root: Path) -> dict[str, Any]:
         unavailable = _capability("error", False, str(config["_error"]))
         return {"i18n": unavailable, "theme": unavailable.copy()}
 
-    i18n_config = config.get("i18n") if isinstance(config.get("i18n"), dict) else {}
-    i18n_dir = str(i18n_config.get("directory") or "")
-    try:
-        catalogs = _json_catalog_files(root, i18n_dir)
-    except ValueError as exc:
+    contract_status = i18n_validate_payload(root) if (root / CONTRACT_PATH).is_file() else None
+    if contract_status and contract_status["state"] == "not_applicable":
+        i18n = _capability("hidden", False, "Project i18n contract is not applicable.")
         catalogs = []
-        i18n_error = str(exc)
-    except OSError:
+        i18n_error = ""
+    elif contract_status and not contract_status["ok"]:
+        i18n = _capability("error", False, "Project i18n contract is invalid.", diagnostics=contract_status["findings"])
         catalogs = []
-        i18n_error = "Unable to inspect translation sources."
+        i18n_error = ""
+    elif contract_status:
+        contract = contract_status["contract"]
+        pattern = contract["catalog"]["path"]
+        paths = [pattern.replace("{locale}", locale) for locale in contract["locales"]]
+        i18n = _capability(
+            "ready", True, "Project-owned i18n contract detected.", convention="json-catalog",
+            editable=True, paths=paths, sourceLocale=contract["source_locale"], contract=CONTRACT_PATH.as_posix(),
+        )
+        catalogs = []
+        i18n_error = ""
     else:
-        i18n_error = f"Configured translation directory is unavailable: {i18n_dir}." if i18n_dir and not catalogs else ""
-    if catalogs:
+        i18n_config = config.get("i18n") if isinstance(config.get("i18n"), dict) else {}
+        i18n_dir = str(i18n_config.get("directory") or "")
+        try:
+            catalogs = _json_catalog_files(root, i18n_dir)
+        except ValueError as exc:
+            catalogs = []
+            i18n_error = str(exc)
+        except OSError:
+            catalogs = []
+            i18n_error = "Unable to inspect translation sources."
+        else:
+            i18n_error = f"Configured translation directory is unavailable: {i18n_dir}." if i18n_dir and not catalogs else ""
+    if not contract_status and catalogs:
         paths = [path.relative_to(root.resolve()).as_posix() for path in catalogs]
         source_locale = str(i18n_config.get("sourceLocale") or catalogs[0].stem)
         i18n = _capability(
             "ready", True, "JSON locale catalog detected.", convention="json-catalog",
             editable=True, paths=paths, sourceLocale=source_locale,
         )
-    elif i18n_error:
+    elif not contract_status and i18n_error:
         i18n = _capability("error", False, i18n_error)
-    else:
+    elif not contract_status:
         inline = next(iter(_candidate_paths(root, INLINE_I18N_FILES, ("*/src/i18n.ts", "*/src/i18n.js", "*/src/lib/i18n.ts", "*/src/lib/i18n.js"))), "")
         i18n = _capability(
             "read-only" if inline else "hidden", bool(inline),

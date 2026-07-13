@@ -15,6 +15,7 @@ from .lint import expected_workflow_mermaid_signature
 from .statuses import transition_error
 from .path_utils import resolve_repo_output_path
 from .release import release_context_pack_payload
+from .i18n import i18n_plan_payload
 from .termstyle import colorize_help
 
 
@@ -299,6 +300,7 @@ def _context_pack_cache_key(
     changed_paths: list[str],
     ordered_docs: list[WorkflowDocModel],
     release_context: dict[str, object],
+    i18n_context: dict[str, object],
     handoff: bool,
 ) -> str:
     payload = {
@@ -308,6 +310,7 @@ def _context_pack_cache_key(
         "profile": profile,
         "changed_paths": changed_paths,
         "release": release_context,
+        "i18n": i18n_context,
         "handoff": handoff,
         "docs": [
             {
@@ -352,6 +355,7 @@ def _build_context_pack(
             seen.add(doc.ref)
     changed_paths = _git_changed_paths(repo_root) if mode == "diff-first" else []
     release_context = release_context_pack_payload(repo_root)
+    i18n_context = i18n_plan_payload(repo_root)
     cache_key = _context_pack_cache_key(
         repo_root,
         seed_ref,
@@ -360,6 +364,7 @@ def _build_context_pack(
         changed_paths=changed_paths,
         ordered_docs=ordered,
         release_context=release_context,
+        i18n_context=i18n_context,
         handoff=handoff,
     )
     cached_pack = _CONTEXT_PACK_CACHE.get(cache_key)
@@ -382,6 +387,7 @@ def _build_context_pack(
         "budgets": {"max_docs": per_seed_limit * max(1, len(seed_refs)), "max_docs_per_ref": per_seed_limit},
         "changed_paths": changed_paths,
         "release": release_context,
+        "i18n": i18n_context,
         "handoff": {
             "enabled": handoff,
             "source_refs": seed_refs,

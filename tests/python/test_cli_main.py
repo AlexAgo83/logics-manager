@@ -3339,6 +3339,9 @@ def test_main_runs_native_bootstrap_creates_local_assistant_bridge(
     assert "logics-manager release status" in logics_text
     assert "logics-manager release plan <version>" in logics_text
     assert "logics-manager release evidence add" in logics_text
+    assert "logics-manager i18n status" in logics_text
+    assert "logics-manager i18n init --source-locale <locale>" in logics_text
+    assert "logics-manager i18n validate" in logics_text
     assert "logics-manager flow start <ref>" in logics_text
     assert "logics-manager flow progress task <ref> --progress <n>%" in logics_text
     assert "logics-manager flow finish task <path>" in logics_text

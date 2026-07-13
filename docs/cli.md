@@ -132,6 +132,24 @@ The topbar includes focused operational views:
 | CDX | Guarded assistant workflows for audits, release reviews, corpus planning, and pre-release preparation. |
 | Settings | Viewer preferences, display controls, refresh behavior, and local UI state. |
 
+Projects may adopt the optional project-owned i18n contract:
+
+```bash
+logics-manager i18n status
+logics-manager i18n init --source-locale fr
+logics-manager i18n plan
+logics-manager i18n lint
+logics-manager i18n validate
+```
+
+The contract lives at `logics/i18n/contract.json`. A new UI project may begin
+with one source-locale JSON catalog; multiple translations are not required at
+initialization. Repositories without a contract remain valid and receive
+advisory guidance. Once adopted, validation checks repository-contained catalog
+paths, semantic key segments, string and non-empty leaves, exact locale parity,
+and named placeholder parity. Projects without user-facing copy may initialize
+the contract with `i18n init --not-applicable --reason "..."`.
+
 The **Workshop** menu adds a separated project-tools section when the selected
 repository uses a supported project convention:
 
@@ -144,8 +162,8 @@ repository uses a supported project convention:
   groups tokens into colors, typography, spacing, radii, shadows, and other
   values, provides isolated previews, and can edit existing declaration values.
 
-Repositories can choose sources explicitly with a repo-root
-`.logics-viewer.json` file:
+The viewer prefers a valid project-owned i18n contract. Legacy repositories can
+still choose sources explicitly with a repo-root `.logics-viewer.json` file:
 
 ```json
 {

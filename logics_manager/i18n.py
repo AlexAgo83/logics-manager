@@ -12,7 +12,7 @@ from .config import find_repo_root
 
 CONTRACT_PATH = Path("logics/i18n/contract.json")
 LOCALE_RE = re.compile(r"^[a-z]{2,3}(?:-[A-Z]{2})?$")
-KEY_SEGMENT_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_-]*$")
+KEY_SEGMENT_RE = re.compile(r"^[^.{}\x00-\x1f]+$")
 PLACEHOLDER_RE = re.compile(r"\{([A-Za-z][A-Za-z0-9_]*)\}")
 
 

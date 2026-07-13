@@ -73,7 +73,7 @@ def test_validate_reports_catalog_parity_values_keys_and_placeholders(tmp_path: 
     catalog = root / "src/i18n"
     catalog.mkdir(parents=True)
     (catalog / "en.json").write_text(json.dumps({"common": {"hello": "Hello {name}", "save": "Save"}}), encoding="utf-8")
-    (catalog / "fr.json").write_text(json.dumps({"common": {"hello": "Bonjour {user}", "bad key": "", "count": 1}}), encoding="utf-8")
+    (catalog / "fr.json").write_text(json.dumps({"common": {"hello": "Bonjour {user}", "bad.key": "", "count": 1}}), encoding="utf-8")
 
     payload = i18n_validate_payload(root)
     codes = {finding["code"] for finding in payload["findings"]}

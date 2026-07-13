@@ -1772,8 +1772,10 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Getting Started");
     const content = dom.window.document.getElementById("viewer-document-content");
     expect(content?.querySelector(".viewer-onboarding")).not.toBeNull();
-    expect(content?.textContent).toContain("Logics in four steps");
-    expect(content?.textContent).toContain("Need");
+    expect(content?.textContent).toContain("Logics workflow map");
+    expect(content?.textContent).toContain("Workflow Intake");
+    expect(content?.textContent).toContain("roadmap");
+    expect(content?.textContent).toContain("i18n contract");
     expect(content?.textContent).toContain("What each document is for");
   });
 

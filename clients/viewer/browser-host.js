@@ -1387,58 +1387,60 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
   };
   var onboardingStages = [
     {
-      label: "Need",
-      tagline: "Capture what matters",
-      description: "Start by writing down what you need: a goal, a problem, or an idea. Logics keeps this as a request so you can refine it and track where it goes.",
+      label: "Workflow Intake",
+      tagline: "Capture the reason before the work",
+      description: "Start with a request when the need is still a problem, question, or goal. Use product briefs for product framing and roadmaps when the answer needs staged delivery instead of one task.",
       prompts: [
-        "Draft a new request for this problem: <describe the need or pain point>.",
-        "Ask me any clarifying questions and suggest options that would make the request stronger."
+        "Draft a request for this need and ask only the questions required to make it actionable.",
+        "Create or update the product brief, then propose a roadmap with 0.1, 0.2, and 1.0 slices."
       ],
-      mapping: "Maps to a Logics request document in logics/request/.",
+      mapping: "Maps to logics/request/, logics/product/, and logics/roadmap/.",
       actions: [{ label: "New Request", action: "new-request" }]
     },
     {
-      label: "Framing",
-      tagline: "Understand before you act",
-      description: "Shape the need into something actionable. Add context, scope, and acceptance criteria so a human or assistant can pick it up without re-explaining the whole problem.",
+      label: "Delivery Slices",
+      tagline: "Turn intent into scoped work",
+      description: "Promote framed work into backlog items, then create orchestration tasks when a slice is ready to execute. Keep each task small enough to validate and commit cleanly.",
       prompts: [
-        "Split the new request into backlog items and separate delivery slices.",
-        "Ask me any questions that would improve confidence or understanding before finalizing the backlog."
+        "Split this request or roadmap slice into backlog items with acceptance criteria.",
+        "Create orchestration tasks for the next useful delivery slice."
       ],
-      mapping: "Maps to a Logics backlog document in logics/backlog/.",
-      actions: [{ label: "Triage Item", action: "assist-triage" }]
-    },
-    {
-      label: "Orchestration Tasks",
-      tagline: "Create the task plan before execution",
-      description: "Turn backlog work into explicit tasks. Preserve dependencies and keep the delivery sequence visible so execution stays focused.",
-      prompts: [
-        "Create orchestration tasks from this backlog item and split the work into the smallest useful delivery slices.",
-        "List the tasks needed to execute this backlog item in order, with brief context for each one."
-      ],
-      mapping: "Maps to orchestration task planning in logics/tasks/.",
+      mapping: "Maps to logics/backlog/ and logics/tasks/.",
       actions: []
     },
     {
       label: "Execution",
-      tagline: "Deliver with context",
-      description: "Use the task document to carry the full history of decisions while work is delivered, validated, and closed out.",
+      tagline: "Work from the task, commit by wave",
+      description: "Use the active task as the execution contract. Commit after each coherent wave or task, keep validation evidence close, and avoid leaving unrelated changes mixed in.",
       prompts: [
-        "Execute task <task id or title>. Commit after each wave and keep going until the work is done.",
-        "If needed, make brief assumptions and keep moving."
+        "Execute task <task id>. Commit after each useful wave and keep going until it is done.",
+        "Validate the changed surface, update docs if needed, then close the task with evidence."
       ],
-      mapping: "Maps to a Logics task document in logics/tasks/.",
+      mapping: "Maps to task execution, commits, checks, and activity in the viewer.",
       actions: [{ label: "CDX Missions", action: "cdx-missions" }]
+    },
+    {
+      label: "Closeout",
+      tagline: "Settle the documents that are no longer open",
+      description: "When a subject is finished, update linked requests, product briefs, specs, ADRs, and roadmaps instead of leaving stale open context. Use Settled or Superseded for planning docs that are done or replaced.",
+      prompts: [
+        "Close out the linked Logics chain for this task and mark replaced planning docs as superseded.",
+        "Audit the viewer for open docs that should be Done, Settled, or Superseded after this work."
+      ],
+      mapping: "Maps to statuses across request, backlog, task, product, roadmap, ADR, and spec docs.",
+      actions: [{ label: "Open Health", action: "health" }]
     }
   ];
   var onboardingDocGuide = [
-    ['If you think "here is the problem and context..."', "-> request"],
-    ['If you think "this needs a scoped delivery slice..."', "-> item"],
-    ['If you think "we want..."', "-> product brief"],
-    ['If you think "we should ship this over time..."', "-> roadmap"],
-    ['If you think "we decided..."', "-> ADR"],
-    ['If you think "the system should..."', "-> spec"],
-    [`If you think "let's do..."`, "-> task"]
+    ["Problem, goal, or user request", "-> request"],
+    ["Product intent, constraints, and positioning", "-> product brief"],
+    ["Longer staged plan such as MVP, 0.1, 0.2, V1", "-> roadmap"],
+    ["Scoped delivery slice with acceptance criteria", "-> backlog item"],
+    ["Decision that should survive implementation", "-> ADR"],
+    ["Behavior, contract, or UX requirement", "-> spec"],
+    ["Executable work package for an agent or human", "-> task"],
+    ["Project-owned copy/locales", "-> i18n contract"],
+    ["Design tokens and editable project theme", "-> theme"]
   ];
   var stageBadgeLabels = {
     request: "Request",
@@ -3443,13 +3445,13 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     return `
       <div class="viewer-onboarding">
         <header class="viewer-onboarding__header">
-          <h1>Logics in four steps</h1>
-          <p>Logics is a lightweight delivery workflow that keeps project context in plain Markdown: readable by humans, diffable in git, and usable by AI assistants without re-explaining history every time.</p>
+          <h1>Logics workflow map</h1>
+          <p>Use Logics to keep product intent, roadmap, delivery slices, tasks, decisions, specs, theme, and i18n context in plain project files that humans and AI assistants can both follow.</p>
         </header>
         <div class="viewer-onboarding__stages">${stages}</div>
         <section class="viewer-onboarding__doc-guide">
           <h2>What each document is for</h2>
-          <p>A quick rule of thumb for choosing the right artifact before writing.</p>
+          <p>A quick rule of thumb for choosing the right artifact before writing or asking an assistant to act.</p>
           <div class="viewer-onboarding__doc-grid">${docs}</div>
         </section>
         <footer class="viewer-onboarding__footer">

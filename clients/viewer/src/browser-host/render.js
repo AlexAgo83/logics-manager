@@ -2211,13 +2211,13 @@ export function renderViewerOnboarding() {
     return `
       <div class="viewer-onboarding">
         <header class="viewer-onboarding__header">
-          <h1>Logics in four steps</h1>
-          <p>Logics is a lightweight delivery workflow that keeps project context in plain Markdown: readable by humans, diffable in git, and usable by AI assistants without re-explaining history every time.</p>
+          <h1>Logics workflow map</h1>
+          <p>Use Logics to keep product intent, roadmap, delivery slices, tasks, decisions, specs, theme, and i18n context in plain project files that humans and AI assistants can both follow.</p>
         </header>
         <div class="viewer-onboarding__stages">${stages}</div>
         <section class="viewer-onboarding__doc-guide">
           <h2>What each document is for</h2>
-          <p>A quick rule of thumb for choosing the right artifact before writing.</p>
+          <p>A quick rule of thumb for choosing the right artifact before writing or asking an assistant to act.</p>
           <div class="viewer-onboarding__doc-grid">${docs}</div>
         </section>
         <footer class="viewer-onboarding__footer">

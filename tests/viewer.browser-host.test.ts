@@ -1691,6 +1691,22 @@ describe("local viewer browser host", () => {
     expect(css).toMatch(/\.viewer-nav-menu\[hidden\][\s\S]*?display: none;/);
   });
 
+  it("preserves project capabilities and reveals only their supported menu entries", async () => {
+    const { dom } = createViewerDom({
+      capabilities: {
+        i18n: { state: "ready", available: true, message: "JSON locale catalog detected." },
+        theme: { state: "hidden", available: false, message: "No supported theme convention detected." }
+      }
+    });
+    dom.window.acquireVsCodeApi().postMessage({ type: "ready" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect((dom.window.document.getElementById("viewer-project-tools-nav") as HTMLElement).hidden).toBe(false);
+    expect((dom.window.document.querySelector('[data-viewer-nav-target="project:translations"]') as HTMLButtonElement).hidden).toBe(false);
+    expect((dom.window.document.querySelector('[data-viewer-nav-target="project:theme"]') as HTMLButtonElement).hidden).toBe(true);
+  });
+
   it("keeps topbar menus intact and reserves document header navigation for screen segments", () => {
     const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
     const dom = new JSDOM(html);

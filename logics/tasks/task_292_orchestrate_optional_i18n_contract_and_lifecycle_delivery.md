@@ -1,13 +1,14 @@
 ## task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery - Orchestrate optional i18n contract and lifecycle delivery
 > From version: 2.17.1
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 30%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Owner: codex
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.

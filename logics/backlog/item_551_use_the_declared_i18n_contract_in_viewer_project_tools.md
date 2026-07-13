@@ -1,10 +1,10 @@
 ## item_551_use_the_declared_i18n_contract_in_viewer_project_tools - Use the declared i18n contract in viewer project tools
 > From version: 2.17.1
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 30%
 > Complexity: Medium
 > Theme: Viewer contract integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

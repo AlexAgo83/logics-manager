@@ -1,10 +1,10 @@
 ## item_548_define_the_versioned_optional_i18n_contract_and_schema - Define the versioned optional i18n contract and schema
 > From version: 2.17.1
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 30%
 > Complexity: Medium
 > Theme: Internationalization contract
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

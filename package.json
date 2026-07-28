@@ -154,11 +154,13 @@
     "yauzl": "^3.2.0"
   },
   "overrides": {
-    "fast-uri": "3.1.2",
-    "dompurify": "3.4.11",
+    "fast-uri": "3.1.4",
+    "dompurify": "3.4.12",
     "minimatch@10.2.5": {
-      "brace-expansion": "5.0.6"
+      "brace-expansion": "5.0.8"
     },
+    "js-yaml": "4.3.0",
+    "linkify-it": "5.0.2",
     "qs": "6.15.2",
     "undici": "7.28.0",
     "ws": "8.21.0"

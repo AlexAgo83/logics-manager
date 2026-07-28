@@ -1,0 +1,451 @@
+{
+  "budgets": {
+    "max_docs": 28,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [
+    "logics/backlog/item_568_define_the_logics_design_prompt_pack_schema_and_templates.md",
+    "logics/backlog/item_569_implement_the_logics_manager_design_cli.md",
+    "logics/backlog/item_570_generate_cr_league_style_icon_sheet_and_object_set_prompt_contracts.md",
+    "logics/backlog/item_571_add_asset_machining_and_audit_instructions_to_design_packs.md",
+    "logics/backlog/item_572_document_and_validate_the_logics_design_workflow.md",
+    "logics/context-packs/logics-design-asset-prompt-packs.json",
+    "logics/product/prod_047_logics_design_asset_prompt_packs.md",
+    "logics/request/req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows.md",
+    "logics/tasks/task_296_orchestrate_logics_design_asset_prompt_pack_delivery.md"
+  ],
+  "command": "logics-manager sync context-pack req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows item_568_define_the_logics_design_prompt_pack_schema_and_templates item_569_implement_the_logics_manager_design_cli item_570_generate_cr_league_style_icon_sheet_and_object_set_prompt_contracts item_571_add_asset_machining_and_audit_instructions_to_design_packs item_572_document_and_validate_the_logics_design_workflow task_296_orchestrate_logics_design_asset_prompt_pack_delivery --mode diff-first --profile normal",
+  "companion_docs": [],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, add logics design asset prompt packs for ai-generated artwork workflows, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Add Logics Design asset prompt packs for AI-generated artwork workflows",
+        "use when": "You need to implement or review the scaffolded workflow for Add Logics Design asset prompt packs for AI-generated artwork workflows."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_568_define_the_logics_design_prompt_pack_schema_and_templates",
+          "item_569_implement_the_logics_manager_design_cli",
+          "item_570_generate_cr_league_style_icon_sheet_and_object_set_prompt_contracts",
+          "item_571_add_asset_machining_and_audit_instructions_to_design_packs",
+          "item_572_document_and_validate_the_logics_design_workflow"
+        ],
+        "prod": [
+          "prod_047_logics_design_asset_prompt_packs"
+        ],
+        "req": [
+          "req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows"
+        ]
+      },
+      "path": "logics/request/req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows.md",
+      "ref": "req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A `logics-manager design` CLI surface can create a design prompt pack from a Logics ref or free-form text and emit both text and JSON output.",
+          "- AC2: The pack schema supports asset kind, generator target, transparency/background, dimensions, count, recommended layout, ordering, naming, style constraints, negative constraints, and post-processing steps.",
+          "- AC3: The tool recommends layout heuristics without forcing them: 4x4 for simple icon batches, 2x2 for semi-complex sets, one image per prompt for heroes/scenes, and metadata-oriented object sets for game assets.",
+          "- AC4: Generated prompt text is copy-paste-ready for external AI generators and explicitly includes constraints such as no text/letters/numbers when relevant.",
+          "- AC5: The pack includes machining instructions for extraction, background removal, recentering, manual recrop triggers, transparent output, audit sizes, and integration validation.",
+          "- AC6: Built-in templates cover at least icon-sheet, object-set, hero-image, UI-icon-replacement, and game-object-with-metadata workflows."
+        ],
+        "Needs": [
+          "- Operators need a repeatable way to turn a Logics need or free-form asset request into a copy-paste-ready prompt for an external AI image generator.",
+          "- The tool should produce more than a prompt: it should also specify transparency, grid layout, asset count, naming, order, dimensions, padding, and post-processing instructions.",
+          "- The tool should recommend 4x4 sheets for simple icon batches when useful, but must not force grid sheets when single-image, 2x2, or object-set generation is a better fit.",
+          "- Generated packs should include an asset machining plan inspired by CR League: extraction, recentering, background removal, manual recrop triggers, audit sizes, and integration validation.",
+          "- The first implementation should not call image-generation APIs or mutate app assets; it should create a design prompt pack humans or agents can copy into ChatGPT or another generator.",
+          "- The output should be usable by another AI developer without rediscovering the CR League rules."
+        ]
+      },
+      "status": "Draft",
+      "title": "Add Logics Design asset prompt packs for AI-generated artwork workflows"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, define the logics design prompt pack schema and templates, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Define the Logics Design prompt pack schema and templates",
+        "use when": "Implementing the scaffolded slice for Define the Logics Design prompt pack schema and templates."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_568_define_the_logics_design_prompt_pack_schema_and_templates"
+        ],
+        "prod": [
+          "prod_047_logics_design_asset_prompt_packs"
+        ],
+        "req": [
+          "req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows"
+        ],
+        "task": [
+          "task_296_orchestrate_logics_design_asset_prompt_pack_delivery"
+        ]
+      },
+      "path": "logics/backlog/item_568_define_the_logics_design_prompt_pack_schema_and_templates.md",
+      "ref": "item_568_define_the_logics_design_prompt_pack_schema_and_templates",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The schema can represent icon sheets, object sets, hero images, UI icon replacements, and game-object metadata packs.",
+          "- AC2: Layout recommendation returns 4x4, 2x2, single, or multi-view recommendations based on kind/count without forcing a grid when it is not suitable.",
+          "- AC3: Invalid packs fail before write with clear field-level errors.",
+          "- AC4: Tests cover schema validation and layout recommendation edge cases."
+        ],
+        "Problem": [
+          "- Without a stable pack model, prompt output will become ad hoc prose and will miss critical production details such as transparency, ordering, naming, and extraction constraints."
+        ]
+      },
+      "status": "Ready",
+      "title": "Define the Logics Design prompt pack schema and templates"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, implement the logics-manager design cli, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Implement the logics-manager design CLI",
+        "use when": "Implementing the scaffolded slice for Implement the logics-manager design CLI."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_569_implement_the_logics_manager_design_cli"
+        ],
+        "prod": [
+          "prod_047_logics_design_asset_prompt_packs"
+        ],
+        "req": [
+          "req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows"
+        ],
+        "task": [
+          "task_296_orchestrate_logics_design_asset_prompt_pack_delivery"
+        ]
+      },
+      "path": "logics/backlog/item_569_implement_the_logics_manager_design_cli.md",
+      "ref": "item_569_implement_the_logics_manager_design_cli",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `logics-manager design prompt --text ... --kind icon-sheet --count 16 --format text` prints copy-paste-ready prompt text.",
+          "- AC2: `--format json` emits a schema-valid prompt pack.",
+          "- AC3: `--out logics/design/<slug>/` writes markdown/json artifacts and refuses paths outside the repo.",
+          "- AC4: Tests cover normal, dry-run, and invalid-input CLI paths."
+        ],
+        "Problem": [
+          "- Operators need a stable command that turns a Logics ref or free-form need into copy-paste-ready generator instructions and optional repo-bounded artifacts."
+        ]
+      },
+      "status": "Ready",
+      "title": "Implement the logics-manager design CLI"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, generate cr league style icon-sheet and object-set prompt contracts, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Generate CR League style icon-sheet and object-set prompt contracts",
+        "use when": "Implementing the scaffolded slice for Generate CR League style icon-sheet and object-set prompt contracts."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_570_generate_cr_league_style_icon_sheet_and_object_set_prompt_contracts"
+        ],
+        "prod": [
+          "prod_047_logics_design_asset_prompt_packs"
+        ],
+        "req": [
+          "req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows"
+        ],
+        "task": [
+          "task_296_orchestrate_logics_design_asset_prompt_pack_delivery"
+        ]
+      },
+      "path": "logics/backlog/item_570_generate_cr_league_style_icon_sheet_and_object_set_prompt_contracts.md",
+      "ref": "item_570_generate_cr_league_style_icon_sheet_and_object_set_prompt_contracts",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The 4x4 icon-sheet prompt includes all CR League-derived constraints and explicit asset order.",
+          "- AC2: Non-16 counts get a reasonable recommendation without forcing 4x4.",
+          "- AC3: Hero-image prompts do not include sheet/grid instructions.",
+          "- AC4: Snapshot or focused tests verify the prompt content."
+        ],
+        "Problem": [
+          "- AI image generators often fail if the prompt says only 'make icons'; CR League needed precise sheet structure, ordering, no-text constraints, padding, transparent background, and post-generation audit rules."
+        ]
+      },
+      "status": "Ready",
+      "title": "Generate CR League style icon-sheet and object-set prompt contracts"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate Logics Design asset prompt pack delivery",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_568_define_the_logics_design_prompt_pack_schema_and_templates",
+          "item_569_implement_the_logics_manager_design_cli",
+          "item_570_generate_cr_league_style_icon_sheet_and_object_set_prompt_contracts",
+          "item_571_add_asset_machining_and_audit_instructions_to_design_packs",
+          "item_572_document_and_validate_the_logics_design_workflow"
+        ],
+        "prod": [
+          "prod_047_logics_design_asset_prompt_packs"
+        ],
+        "req": [
+          "req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows"
+        ],
+        "task": [
+          "task_296_orchestrate_logics_design_asset_prompt_pack_delivery"
+        ]
+      },
+      "path": "logics/tasks/task_296_orchestrate_logics_design_asset_prompt_pack_delivery.md",
+      "ref": "task_296_orchestrate_logics_design_asset_prompt_pack_delivery",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- Run `python3 -m logics_manager lint --require-status`.",
+          "- Run scaffold command tests."
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate Logics Design asset prompt pack delivery"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_568_define_the_logics_design_prompt_pack_schema_and_templates",
+          "item_569_implement_the_logics_manager_design_cli",
+          "item_570_generate_cr_league_style_icon_sheet_and_object_set_prompt_contracts",
+          "item_571_add_asset_machining_and_audit_instructions_to_design_packs",
+          "item_572_document_and_validate_the_logics_design_workflow"
+        ],
+        "prod": [
+          "prod_047_logics_design_asset_prompt_packs"
+        ],
+        "req": [
+          "req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows"
+        ],
+        "task": [
+          "task_296_orchestrate_logics_design_asset_prompt_pack_delivery"
+        ]
+      },
+      "path": "logics/product/prod_047_logics_design_asset_prompt_packs.md",
+      "ref": "prod_047_logics_design_asset_prompt_packs",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Logics Design asset prompt packs"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add asset machining and audit instructions to design packs, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add asset machining and audit instructions to design packs",
+        "use when": "Implementing the scaffolded slice for Add asset machining and audit instructions to design packs."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_571_add_asset_machining_and_audit_instructions_to_design_packs"
+        ],
+        "prod": [
+          "prod_047_logics_design_asset_prompt_packs"
+        ],
+        "req": [
+          "req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows"
+        ],
+        "task": [
+          "task_296_orchestrate_logics_design_asset_prompt_pack_delivery"
+        ]
+      },
+      "path": "logics/backlog/item_571_add_asset_machining_and_audit_instructions_to_design_packs.md",
+      "ref": "item_571_add_asset_machining_and_audit_instructions_to_design_packs",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Icon-sheet packs include extraction, recentering, manual recrop, and multi-size audit steps.",
+          "- AC2: Game-object packs include metadata and calibration guidance inspired by the car asset workflow.",
+          "- AC3: Packs clearly state that human visual audit remains required.",
+          "- AC4: Tests verify machining sections appear for sheet/object kinds and stay absent or simplified for hero images."
+        ],
+        "Problem": [
+          "- The prompt alone is not enough; CR League succeeded because the asset workflow also defined extraction, background removal, recentering, manual recrop, audit sheets, and app integration checks."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add asset machining and audit instructions to design packs"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, document and validate the logics design workflow, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Document and validate the Logics Design workflow",
+        "use when": "Implementing the scaffolded slice for Document and validate the Logics Design workflow."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_572_document_and_validate_the_logics_design_workflow"
+        ],
+        "prod": [
+          "prod_047_logics_design_asset_prompt_packs"
+        ],
+        "req": [
+          "req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows"
+        ],
+        "task": [
+          "task_296_orchestrate_logics_design_asset_prompt_pack_delivery"
+        ]
+      },
+      "path": "logics/backlog/item_572_document_and_validate_the_logics_design_workflow.md",
+      "ref": "item_572_document_and_validate_the_logics_design_workflow",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: README or docs include concise `logics-manager design` examples and non-goals.",
+          "- AC2: Generated packs include clear next steps for external generation and local audit.",
+          "- AC3: Tests or docs verify the command does not promise automatic image generation.",
+          "- AC4: MCP exposure is either implemented with tests or explicitly deferred in the task report."
+        ],
+        "Problem": [
+          "- A new design command will be misused unless its boundaries are explicit: prompt pack generation only, no image generation, no credentials, no automatic app import."
+        ]
+      },
+      "status": "Ready",
+      "title": "Document and validate the Logics Design workflow"
+    }
+  ],
+  "estimates": {
+    "char_count": 13617,
+    "companion_doc_count": 0,
+    "doc_count": 8
+  },
+  "generated_at": "2026-07-28T19:38:13Z",
+  "handoff": {
+    "companion_doc_count": 0,
+    "enabled": false,
+    "source_refs": [
+      "req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows",
+      "item_568_define_the_logics_design_prompt_pack_schema_and_templates",
+      "item_569_implement_the_logics_manager_design_cli",
+      "item_570_generate_cr_league_style_icon_sheet_and_object_set_prompt_contracts",
+      "item_571_add_asset_machining_and_audit_instructions_to_design_packs",
+      "item_572_document_and_validate_the_logics_design_workflow",
+      "task_296_orchestrate_logics_design_asset_prompt_pack_delivery"
+    ],
+    "validation_summary_count": 0
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "diff-first",
+  "profile": "normal",
+  "ref": "req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows,item_568_define_the_logics_design_prompt_pack_schema_and_templates,item_569_implement_the_logics_manager_design_cli,item_570_generate_cr_league_style_icon_sheet_and_object_set_prompt_contracts,item_571_add_asset_machining_and_audit_instructions_to_design_packs,item_572_document_and_validate_the_logics_design_workflow,task_296_orchestrate_logics_design_asset_prompt_pack_delivery",
+  "refs": [
+    "req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows",
+    "item_568_define_the_logics_design_prompt_pack_schema_and_templates",
+    "item_569_implement_the_logics_manager_design_cli",
+    "item_570_generate_cr_league_style_icon_sheet_and_object_set_prompt_contracts",
+    "item_571_add_asset_machining_and_audit_instructions_to_design_packs",
+    "item_572_document_and_validate_the_logics_design_workflow",
+    "task_296_orchestrate_logics_design_asset_prompt_pack_delivery"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.19.1"
+  },
+  "validation_summary": []
+}

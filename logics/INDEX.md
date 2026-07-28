@@ -81,9 +81,9 @@
 | [prod_042_convention_aware_project_surfaces](product/prod_042_convention_aware_project_surfaces.md) | Convention-aware project surfaces | Settled |  |  | product/prod_042_convention_aware_project_surfaces.md |
 | [prod_043_project_owned_internationalization_readiness](product/prod_043_project_owned_internationalization_readiness.md) | Project-owned internationalization readiness | Settled |  |  | product/prod_043_project_owned_internationalization_readiness.md |
 | [prod_044_first_class_roadmap_planning](product/prod_044_first_class_roadmap_planning.md) | First-class roadmap planning | Settled |  |  | product/prod_044_first_class_roadmap_planning.md |
-| [prod_045_logics_operator_ergonomics](product/prod_045_logics_operator_ergonomics.md) | Logics operator ergonomics | Proposed |  |  | product/prod_045_logics_operator_ergonomics.md |
-| [prod_046_cdx_memory_viewer_inspection](product/prod_046_cdx_memory_viewer_inspection.md) | CDX Memory viewer inspection | Proposed |  |  | product/prod_046_cdx_memory_viewer_inspection.md |
-| [prod_047_logics_design_asset_prompt_packs](product/prod_047_logics_design_asset_prompt_packs.md) | Logics Design asset prompt packs | Proposed |  |  | product/prod_047_logics_design_asset_prompt_packs.md |
+| [prod_045_logics_operator_ergonomics](product/prod_045_logics_operator_ergonomics.md) | Logics operator ergonomics | Settled |  |  | product/prod_045_logics_operator_ergonomics.md |
+| [prod_046_cdx_memory_viewer_inspection](product/prod_046_cdx_memory_viewer_inspection.md) | CDX Memory viewer inspection | Settled |  |  | product/prod_046_cdx_memory_viewer_inspection.md |
+| [prod_047_logics_design_asset_prompt_packs](product/prod_047_logics_design_asset_prompt_packs.md) | Logics Design asset prompt packs | Settled |  |  | product/prod_047_logics_design_asset_prompt_packs.md |
 
 ## Roadmaps
 

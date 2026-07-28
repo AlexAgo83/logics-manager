@@ -1,7 +1,11 @@
 from __future__ import annotations
 
 import json
+import os
 import re
+import subprocess
+import sys
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -11,6 +15,7 @@ from .config import ConfigError, load_repo_config
 
 REQUIRED_DIRECTORIES = ("logics/request", "logics/backlog", "logics/tasks")
 SCHEMA_VERSION_PATTERN = re.compile(r"^\s*>\s*Schema version:\s*(.+?)\s*$", re.MULTILINE)
+PACKAGE_LINE_PATTERN = re.compile(r'^\s*"([^"]+)"\s*,?\s*$')
 
 
 @dataclass(frozen=True)
@@ -107,6 +112,80 @@ def doctor_payload(repo_root: Path) -> dict[str, Any]:
     return payload
 
 
+def _declared_pyproject_packages(repo_root: Path) -> set[str]:
+    pyproject = repo_root / "pyproject.toml"
+    if not pyproject.is_file():
+        return set()
+    text = pyproject.read_text(encoding="utf-8")
+    match = re.search(r"(?ms)^\[tool\.setuptools\]\s*^packages\s*=\s*\[(.*?)^\]", text)
+    if not match:
+        return set()
+    packages: set[str] = set()
+    for line in match.group(1).splitlines():
+        package_match = PACKAGE_LINE_PATTERN.match(line)
+        if package_match:
+            packages.add(package_match.group(1))
+    return packages
+
+
+def _importable_checkout_packages(repo_root: Path) -> set[str]:
+    root = repo_root / "logics_manager"
+    if not root.is_dir():
+        return set()
+    packages = {"logics_manager"}
+    for path in root.rglob("*"):
+        if not path.is_dir() or path.name == "__pycache__":
+            continue
+        if not any(child.is_file() for child in path.iterdir()):
+            continue
+        packages.add(".".join(path.relative_to(repo_root).parts))
+    return packages
+
+
+def _clean_wheel_install_check(repo_root: Path) -> dict[str, Any]:
+    with tempfile.TemporaryDirectory(prefix="logics-packaging-") as tmp:
+        venv = Path(tmp) / "venv"
+        create = subprocess.run([sys.executable, "-m", "venv", str(venv)], cwd=repo_root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False)
+        if create.returncode != 0:
+            return {"ok": False, "step": "venv", "message": create.stderr.strip() or create.stdout.strip()}
+        python = venv / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+        install = subprocess.run([str(python), "-m", "pip", "install", str(repo_root)], cwd=repo_root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False)
+        if install.returncode != 0:
+            return {"ok": False, "step": "install", "message": install.stderr.strip()[-1000:] or install.stdout.strip()[-1000:]}
+        smoke = subprocess.run([str(python), "-m", "logics_manager", "--help"], cwd=repo_root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False)
+        return {
+            "ok": smoke.returncode == 0,
+            "step": "smoke",
+            "message": "clean install smoke passed" if smoke.returncode == 0 else (smoke.stderr.strip() or smoke.stdout.strip()),
+        }
+
+
+def doctor_packaging_payload(repo_root: Path, *, clean_install: bool = True) -> dict[str, Any]:
+    declared = _declared_pyproject_packages(repo_root)
+    discovered = _importable_checkout_packages(repo_root)
+    missing = sorted(discovered - declared)
+    checks: list[dict[str, Any]] = [
+        {
+            "id": "metadata_subpackages",
+            "status": "passed" if not missing else "failed",
+            "message": "all checkout packages are declared" if not missing else "missing from pyproject.toml packages: " + ", ".join(missing),
+        }
+    ]
+    if clean_install:
+        result = _clean_wheel_install_check(repo_root)
+        checks.append({"id": "clean_wheel_install", "status": "passed" if result["ok"] else "failed", "message": result["message"], "step": result["step"]})
+    ok = all(check["status"] == "passed" for check in checks)
+    return {
+        "ok": ok,
+        "command": "doctor packaging",
+        "checks": checks,
+        "declared_packages": sorted(declared),
+        "discovered_packages": sorted(discovered),
+        "missing_packages": missing,
+        "clean_install": clean_install,
+    }
+
+
 def render_doctor(repo_root: Path, *, output_format: str = "text") -> str:
     payload = doctor_payload(repo_root)
     if output_format == "json":
@@ -124,4 +203,14 @@ def render_doctor(repo_root: Path, *, output_format: str = "text") -> str:
         remaining = len(payload["issues"]) - max_issues
         if remaining > 0:
             lines.append(f"... and {remaining} more issue(s).")
+    return "\n".join(lines)
+
+
+def render_doctor_packaging(repo_root: Path, *, clean_install: bool = True, output_format: str = "text") -> str:
+    payload = doctor_packaging_payload(repo_root, clean_install=clean_install)
+    if output_format == "json":
+        return json.dumps(payload, indent=2, sort_keys=True)
+    lines = ["Logics packaging doctor: OK" if payload["ok"] else "Logics packaging doctor: FAILED"]
+    for check in payload["checks"]:
+        lines.append(f"- {check['id']}: {check['status']} ({check['message']})")
     return "\n".join(lines)

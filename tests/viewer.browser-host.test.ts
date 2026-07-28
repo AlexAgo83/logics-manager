@@ -130,6 +130,7 @@ function createViewerDom(options: {
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:missions">Missions</button>
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:runs">Reports</button>
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:history">History</button>
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:memory">Memory</button>
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="cdx:disk">Disk</button>
       </div>
     </div>
@@ -942,6 +943,30 @@ function createViewerDom(options: {
                 reclaimable_size: "500 MB"
               },
               measured_at: new Date(Date.now() - 2 * 60_000).toISOString()
+            }
+          })
+        };
+      }
+      if (String(url).startsWith("/api/cdx-memory")) {
+        const scope = new URL(`http://viewer.test${url}`).searchParams.get("scope") || "current";
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            payload: {
+              state: "ready",
+              scope,
+              source_path: `/home/user/.cdx/memory/${scope}.md`,
+              exists: true,
+              detected_repo: "/workspace/logics-manager",
+              bytes_before: 42,
+              bytes_after: 24,
+              noise_ratio: 0.1,
+              warnings: scope === "global" ? ["high-noise-memory"] : [],
+              raw_excerpt: `${scope} raw /usage`,
+              cleaned_excerpt: `${scope} cleaned handoff`,
+              latest_useful_handoff: "2026-07-28"
             }
           })
         };
@@ -6320,6 +6345,34 @@ describe("local viewer browser host", () => {
 
     const diskTab = dom.window.document.querySelector('[data-viewer-cdx-mode="disk"]');
     expect(diskTab?.classList.contains("is-active")).toBe(true);
+  });
+
+  it("renders the CDX memory screen with scope and raw toggles", async () => {
+    const { dom, calls } = createViewerDom({ cdxResponse: cdxRowsStatusPayload() });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="cdx:memory"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    expect(calls).toContain("/api/cdx-memory?scope=current");
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX memory");
+    let text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("current cleaned handoff");
+    expect(text).not.toContain("current raw /usage");
+
+    dom.window.document.querySelector('[data-viewer-cdx-memory-view="raw"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("current raw /usage");
+
+    dom.window.document.querySelector('[data-viewer-cdx-memory-scope="global"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    expect(calls).toContain("/api/cdx-memory?scope=global");
+    text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
+    expect(text).toContain("global raw /usage");
+    expect(text).toContain("high-noise-memory");
   });
 
   it("activates a banked CDX reset from the status table after confirmation", async () => {

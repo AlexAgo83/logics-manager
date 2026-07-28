@@ -25,9 +25,14 @@ logics-manager flow start task_001_example
 logics-manager flow progress task task_001_example --progress 40%
 logics-manager flow finish task task_001_example
 logics-manager flow roadmap propose --title "Project roadmap" --milestone "0.1: MVP"
+logics-manager roadmap status
+logics-manager roadmap place task_001_example --milestone "0.1: MVP"
 logics-manager sync read-doc req_001_example --max-chars 6000
 logics-manager sync context-pack req_001_example task_001_example --format json
 logics-manager sync refresh-mermaid-signatures task_001_example
+logics-manager assist cdx-memory show --scope current --clean
+logics-manager design prompt --text "garage upgrade icons" --kind icon-sheet --count 16 --out logics/design/garage-icons
+logics-manager doctor packaging --metadata-only
 logics-manager flow closeout task_001_example --validation-command "pytest tests" --validation-result passed --lint --audit
 logics-manager view --open
 logics-manager view --focus req_001_example --read --open
@@ -50,6 +55,18 @@ to create a `logics/roadmap/road_*.md` companion doc with versioned milestones
 such as `0.1`, `0.2`, and `1.0`. Use `flow roadmap show <road_ref>` for a
 bounded read and `flow roadmap validate <road_ref>` before handing the plan to
 another assistant.
+
+For daily roadmap upkeep, use `logics-manager roadmap status` to list open
+High/Medium workflow refs that are not mentioned in roadmap files, then
+`logics-manager roadmap place <ref> --milestone "<name>"` to append a specific
+ref under a milestone. This is intentionally a placement helper, not an
+automatic planner.
+
+For external AI asset workflows, use `logics-manager design prompt --text ...`
+to generate a prompt pack for an image generator. It supports icon sheets,
+object sets, hero images, UI icon replacements, and game-object metadata
+prompts, including transparent-background and 2x2/4x4 sheet guidance. The
+command writes `prompt.md` and `prompt-pack.json` only when `--out` is passed.
 
 Workflow Mermaid blocks in request, backlog, and task docs are optional legacy
 presentation. The source of truth is the structured Markdown: indicators,
@@ -126,7 +143,7 @@ Use the CLI viewer when you want to inspect the Logics corpus outside VS Code:
 logics-manager view --open
 ```
 
-The viewer starts a localhost-only browser UI on `127.0.0.1:8765` by default. It shows the same workflow board/list experience as the extension, with search, filters, document previews, corpus insights, lint/audit health, Mermaid rendering, auto-refresh, and an edit shortcut that opens the selected Markdown file in the system editor.
+The viewer starts a localhost-only browser UI on `127.0.0.1:8765` by default. It shows the same workflow board/list experience as the extension, with search, filters, document previews, corpus insights, lint/audit health, Mermaid rendering, auto-refresh, and an edit shortcut that opens the selected Markdown file in the system editor. The CDX section includes a read-only Memory sub-screen that reuses `assist cdx-memory show` payloads with scope controls and raw/cleaned excerpts.
 
 The topbar includes focused operational views:
 

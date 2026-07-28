@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from logics_manager.statuses import (
+    canonical_status,
     closed_statuses,
     open_statuses,
     stage_statuses,
@@ -23,6 +24,13 @@ def test_open_and_closed_sets_are_disjoint_and_cover_obsolete() -> None:
 def test_transition_rejects_unknown_status_for_stage() -> None:
     assert transition_error("task", "Ready", "Bogus") is not None
     assert transition_error("task", "Ready", "In progress") is None
+
+
+def test_canonical_status_accepts_common_aliases() -> None:
+    assert canonical_status("task", "In Progress") == "In progress"
+    assert canonical_status("task", "in_progress") == "In progress"
+    assert canonical_status("task", "in progress") == "In progress"
+    assert transition_error("task", "Ready", "In Progress") is None
 
 
 def test_transition_rejects_leaving_a_terminal_status() -> None:

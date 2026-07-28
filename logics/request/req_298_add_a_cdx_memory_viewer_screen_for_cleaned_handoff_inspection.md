@@ -1,7 +1,7 @@
 ## req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection - Add a CDX Memory viewer screen for cleaned handoff inspection
 > From version: 2.19.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 93
 > Confidence: 88
 > Complexity: Medium

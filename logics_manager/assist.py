@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
 
 from .config import ConfigError, find_repo_root, load_repo_config
 from .doctor import doctor_payload
@@ -107,6 +108,8 @@ from .assist_context import (
     cmd_roi_report,
     cmd_runtime_status,
 )
+from .cdx_memory import cdx_memory_payload
+from .cli_output import render_payload
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -206,6 +209,15 @@ def build_parser() -> argparse.ArgumentParser:
     claude_instructions.add_argument("--dry-run", action="store_true")
     claude_instructions.set_defaults(func=cmd_claude_instructions)
 
+    cdx_memory = sub.add_parser("cdx-memory", help="Read bounded cleaned context from `cdx memory`.")
+    cdx_memory_sub = cdx_memory.add_subparsers(dest="cdx_memory_command", required=True)
+    cdx_memory_show = cdx_memory_sub.add_parser("show", help="Show cleaned CDX memory context.")
+    cdx_memory_show.add_argument("--scope", choices=("current", "global", "project"), default="current")
+    cdx_memory_show.add_argument("--clean", action="store_true", help="Prefer cleaned excerpt in text output.")
+    cdx_memory_show.add_argument("--max-chars", type=int, default=4000)
+    cdx_memory_show.add_argument("--format", choices=("text", "json"), default="text")
+    cdx_memory_show.set_defaults(func=cmd_cdx_memory_show)
+
     next_step = sub.add_parser("next-step", help="Suggest the next bounded Logics step for a target doc.")
     next_step.add_argument("ref", nargs="?", help="Optional workflow ref for a target doc.")
     next_step.add_argument("--format", choices=("text", "json"), default="text")
@@ -246,6 +258,21 @@ def build_parser() -> argparse.ArgumentParser:
     handoff.set_defaults(func=cmd_handoff)
 
     return parser
+
+
+def cmd_cdx_memory_show(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = find_repo_root(Path.cwd())
+    payload = cdx_memory_payload(repo_root, scope=args.scope, max_chars=max(200, min(args.max_chars, 20000)))
+    if args.format == "json":
+        print(render_payload(payload, "json"))
+    else:
+        excerpt = payload.get("cleaned_excerpt") if args.clean else payload.get("raw_excerpt")
+        print(f"CDX memory {payload.get('scope')}: {payload.get('state')}")
+        for warning in payload.get("warnings", []):
+            print(f"- warning: {warning}")
+        if excerpt:
+            print(str(excerpt))
+    return payload
 
 
 def _build_help() -> str:

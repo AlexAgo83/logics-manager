@@ -211,6 +211,15 @@ def test_release_reset_reports_missing_config(tmp_path: Path) -> None:
     assert result["reset"] is False
 
 
+def test_release_evidence_add_help_exits_cleanly(capsys: pytest.CaptureFixture[str]) -> None:
+    exit_code = main(["release", "evidence", "add", "--help"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Usage: logics-manager release evidence add" in captured.out
+    assert "Example:" in captured.out
+
+
 def test_release_plan_is_non_mutating_and_lists_expected_steps(tmp_path: Path) -> None:
     repo_root = _write_release_repo(tmp_path, _passing_evidence())
 

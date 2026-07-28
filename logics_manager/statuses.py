@@ -55,6 +55,15 @@ def workflow_statuses() -> tuple[str, ...]:
     return tuple(seen)
 
 
+def canonical_status(stage: str, value: str) -> str:
+    """Return the canonical status label for common casing/separator aliases."""
+    cleaned = " ".join(value.replace("_", " ").replace("-", " ").split()).lower()
+    for status in stage_statuses(stage):
+        if " ".join(status.replace("_", " ").replace("-", " ").split()).lower() == cleaned:
+            return status
+    return value
+
+
 def transition_error(stage: str, previous: str | None, target: str) -> str | None:
     """Return a human-readable error if the transition is illegal, else None.
 
@@ -64,6 +73,7 @@ def transition_error(stage: str, previous: str | None, target: str) -> str | Non
     ponytail: membership + terminal rule; add per-status edges if a workflow needs them.
     """
     allowed = stage_statuses(stage)
+    target = canonical_status(stage, target)
     if allowed and target not in allowed:
         return f"`{target}` is not a valid status for {stage} (allowed: {', '.join(allowed)})."
     prev = (previous or "").strip()

@@ -44,6 +44,11 @@ const steps = [
 runStep("Generate viewer assets", npmCommand(), ["run", "build:assets"]);
 
 runStep("Logics docs lint (strict status)", steps[0].command, steps[0].args);
+runStep(
+  "Python packaging metadata check",
+  pythonInvocation.command,
+  [...pythonInvocation.argsPrefix, "-m", "logics_manager", "doctor", "packaging", "--metadata-only"]
+);
 
 const requestSnapshot = captureRequestSnapshot();
 runStep(

@@ -820,6 +820,7 @@ ${entry?.message || ""}`;
         <button class="viewer-cdx__mode${active === "missions" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="missions" aria-selected="${active === "missions" ? "true" : "false"}">Missions</button>
         <button class="viewer-cdx__mode${active === "runs" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="runs" aria-selected="${active === "runs" ? "true" : "false"}">Reports</button>
         <button class="viewer-cdx__mode${active === "history" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="history" aria-selected="${active === "history" ? "true" : "false"}">History</button>
+        <button class="viewer-cdx__mode${active === "memory" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="memory" aria-selected="${active === "memory" ? "true" : "false"}">Memory</button>
         <button class="viewer-cdx__mode${active === "disk" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="disk" aria-selected="${active === "disk" ? "true" : "false"}">Disk</button>
       </div>
     `;
@@ -3926,6 +3927,9 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     let latestCdxStatusPayload = null;
     let latestCdxRunsPayload = null;
     let latestCdxHistoryPayload = null;
+    let latestCdxMemoryPayload = null;
+    let latestCdxMemoryScope = "current";
+    let latestCdxMemoryView = "cleaned";
     const pendingCdxSessionToggles = /* @__PURE__ */ new Map();
     const pendingCdxSessionPermissions = /* @__PURE__ */ new Map();
     const pendingCdxSessionResets = /* @__PURE__ */ new Set();
@@ -6143,6 +6147,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       if (screen === "CDX missions") return showCdxMissions(opts);
       if (screen === "CDX reports") return showCdxRuns(opts);
       if (screen === "CDX history") return showCdxHistory(opts);
+      if (screen === "CDX memory") return showCdxMemory(opts);
       if (screen === "CDX disk") return showCdxDisk(opts);
       if (screen === "Remote") {
         if (latestCiScreenMode === "release") return showReleaseStatus(opts);
@@ -9030,6 +9035,82 @@ ${line}` : line;
       }
       setMeta(options.silent ? "CDX history refreshed." : "CDX history loaded.");
     }
+    function renderCdxMemory(payload, scope = "current", viewMode = "cleaned") {
+      const state = payload?.state || "unavailable";
+      const warningRows = Array.isArray(payload?.warnings) && payload.warnings.length ? `<div class="viewer-cdx__pills">${payload.warnings.map((warning) => `<span class="viewer-cdx__pill">${escapeHtml(String(warning))}</span>`).join("")}</div>` : "";
+      const cards = [
+        ["Scope", scope],
+        ["State", state],
+        ["Source", payload?.source_path || "-"],
+        ["Noise", payload?.noise_ratio !== void 0 ? `${Math.round(Number(payload.noise_ratio || 0) * 100)}%` : "-"]
+      ].map(([label, value]) => `
+      <div class="viewer-cdx__card">
+        <div class="viewer-cdx__label">${escapeHtml(label)}</div>
+        <div class="viewer-cdx__value">${escapeHtml(String(value))}</div>
+      </div>
+    `).join("");
+      const scopeButtons = ["current", "global", "project"].map((item) => `
+      <button class="viewer-cdx__mode${scope === item ? " is-active" : ""}" type="button" data-viewer-cdx-memory-scope="${item}">${escapeHtml(cdxLabel(item))}</button>
+    `).join("");
+      const viewButtons = ["cleaned", "raw"].map((item) => `
+      <button class="viewer-cdx__mode${viewMode === item ? " is-active" : ""}" type="button" data-viewer-cdx-memory-view="${item}">${escapeHtml(cdxLabel(item))}</button>
+    `).join("");
+      const excerpt = viewMode === "raw" ? payload?.raw_excerpt : payload?.cleaned_excerpt;
+      const body = excerpt ? renderCodeViewer(String(excerpt), { language: "markdown", truncated: false }) : `<div class="viewer-cdx__empty">${escapeHtml(payload?.message || "No CDX memory content reported.")}</div>`;
+      return `
+      <div class="viewer-cdx">
+        ${renderCdxModeSwitcher("memory")}
+        <div class="viewer-cdx__summary">${cards}</div>
+        <div class="viewer-cdx__controls" aria-label="CDX memory controls">
+          <div class="viewer-cdx__modes" role="tablist" aria-label="CDX memory scope">${scopeButtons}</div>
+          <div class="viewer-cdx__modes" role="tablist" aria-label="CDX memory excerpt">${viewButtons}</div>
+        </div>
+        ${warningRows}
+        <section class="viewer-cdx__section">
+          <div class="viewer-ci__heading"><h2>Memory</h2><span>${escapeHtml(String(payload?.latest_useful_handoff || ""))}</span></div>
+          ${body}
+        </section>
+      </div>
+    `;
+    }
+    async function showCdxMemory(options = {}) {
+      if (!isCapabilityAvailable("cdx")) {
+        const message = capabilityMessage("cdx", "CDX is not available for this project.");
+        latestCdxMemoryPayload = { state: capability("cdx").state, message };
+        setDocument("CDX memory", renderCdxMemory(latestCdxMemoryPayload, latestCdxMemoryScope, latestCdxMemoryView));
+        setMeta(message);
+        return;
+      }
+      latestCdxMemoryScope = options.scope || latestCdxMemoryScope || "current";
+      if (!options.silent) {
+        setMeta("Loading CDX memory...");
+      }
+      const view = options.view || beginView({ silent: Boolean(options.silent) });
+      let response;
+      let data = {};
+      try {
+        response = await fetch(`/api/cdx-memory?${new URLSearchParams({ scope: latestCdxMemoryScope }).toString()}`, { signal: view.signal, cache: "no-store" });
+        try {
+          data = await response.json();
+        } catch {
+          data = {};
+        }
+      } catch (error) {
+        if (isAbortError(error)) {
+          return;
+        }
+        throw error;
+      }
+      if (isViewStale(view)) {
+        return;
+      }
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || "Unable to load CDX memory.");
+      }
+      latestCdxMemoryPayload = data.payload;
+      setDocument("CDX memory", renderCdxMemory(data.payload, latestCdxMemoryScope, latestCdxMemoryView));
+      setMeta(options.silent ? "CDX memory refreshed." : "CDX memory loaded.");
+    }
     function renderCdxDisk(payload) {
       if (!payload || payload.state !== "ok") {
         return `
@@ -10158,6 +10239,8 @@ ${line}` : line;
         const projectPickTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-pick]") : null;
         const ciModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-ci-mode]") : null;
         const cdxModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mode]") : null;
+        const cdxMemoryScopeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-memory-scope]") : null;
+        const cdxMemoryViewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-memory-view]") : null;
         const cdxBackRunsTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-back-runs]") : null;
         const cdxReportTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-report]") : null;
         const cdxArtifactTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-artifact-path]") : null;
@@ -10204,6 +10287,8 @@ ${line}` : line;
               withPrimaryAction("cdx-missions", "Loading CDX missions", showCdxMissions);
             } else if (section === "history") {
               withPrimaryAction("cdx-history", "Loading CDX history", showCdxHistory);
+            } else if (section === "memory") {
+              withPrimaryAction("cdx-memory", "Loading CDX memory", showCdxMemory);
             } else if (section === "disk") {
               withPrimaryAction("cdx-disk", "Loading CDX disk usage", showCdxDisk);
             } else {
@@ -10402,6 +10487,17 @@ ${line}` : line;
           withPrimaryAction("cdx-artifact", "Opening CDX artifact", () => openCdxArtifact(cdxArtifactTarget.getAttribute("data-viewer-cdx-artifact-path") || ""));
           return;
         }
+        if (cdxMemoryScopeTarget instanceof HTMLElement) {
+          const scope = cdxMemoryScopeTarget.getAttribute("data-viewer-cdx-memory-scope") || "current";
+          withPrimaryAction(`cdx-memory-${scope}`, "Loading CDX memory", () => showCdxMemory({ scope }));
+          return;
+        }
+        if (cdxMemoryViewTarget instanceof HTMLElement) {
+          latestCdxMemoryView = cdxMemoryViewTarget.getAttribute("data-viewer-cdx-memory-view") || "cleaned";
+          setDocument("CDX memory", renderCdxMemory(latestCdxMemoryPayload, latestCdxMemoryScope, latestCdxMemoryView));
+          setMeta(`CDX memory ${latestCdxMemoryView} view.`);
+          return;
+        }
         if (cdxModeTarget instanceof HTMLElement) {
           const mode = cdxModeTarget.getAttribute("data-viewer-cdx-mode") || "status";
           if (mode === "runs") {
@@ -10410,6 +10506,8 @@ ${line}` : line;
             withPrimaryAction("cdx-missions", "Loading CDX missions", showCdxMissions);
           } else if (mode === "history") {
             withPrimaryAction("cdx-history", "Loading CDX history", showCdxHistory);
+          } else if (mode === "memory") {
+            withPrimaryAction("cdx-memory", "Loading CDX memory", showCdxMemory);
           } else if (mode === "disk") {
             withPrimaryAction("cdx-disk", "Loading CDX disk usage", showCdxDisk);
           } else {

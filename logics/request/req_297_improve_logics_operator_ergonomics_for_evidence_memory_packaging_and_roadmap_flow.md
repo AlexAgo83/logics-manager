@@ -1,7 +1,7 @@
 ## req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow - Improve Logics operator ergonomics for evidence, memory, packaging, and roadmap flow
 > From version: 2.19.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 94
 > Confidence: 90
 > Complexity: High

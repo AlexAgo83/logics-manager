@@ -5,6 +5,7 @@ import contextlib
 import json
 import re
 import subprocess
+import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -39,6 +40,14 @@ GATE_STATUSES = {"pending", "passed", "failed", "stale", "skipped", "not_configu
 SOURCE_EVIDENCE_KINDS = {"command", "file", "git", "ci"}
 PUBLICATION_EVIDENCE_KINDS = {"github_release", "external"}
 EVIDENCE_KINDS = {"command", "file", "git", "ci", "github_release", "external"}
+
+
+def release_evidence_add_example(gate_id: str = "<gate>") -> str:
+    return (
+        "logics-manager release evidence add "
+        f"{gate_id} --kind command --status passed --summary \"<evidence summary>\" "
+        "--target-version <version> --commit <sha>"
+    )
 
 
 @dataclass(frozen=True)
@@ -958,13 +967,29 @@ def main(argv: list[str] | None = None) -> int:
             )
         )
         return 0
+    if argv[:3] == ["evidence", "add", "--help"] or argv[:3] == ["evidence", "add", "-h"]:
+        print(
+            "\n".join(
+                [
+                    "Usage: logics-manager release evidence add <gate> --kind <kind> --status <status> --summary <text> [args...]",
+                    "",
+                    f"Kinds: {', '.join(sorted(EVIDENCE_KINDS))}",
+                    f"Statuses: {', '.join(sorted(GATE_STATUSES))}",
+                    "",
+                    "Example:",
+                    f"  {release_evidence_add_example()}",
+                ]
+            )
+        )
+        return 0
     if len(argv) >= 2 and argv[1] in {"-h", "--help"}:
         help_text = {
             "status": "Usage: logics-manager release status [--format text|json]",
             "discover": "Usage: logics-manager release discover [--write] [--force] [--format text|json]",
             "plan": "Usage: logics-manager release plan <version> [--format text|json]",
             "validate": "Usage: logics-manager release validate <version> [--format text|json]",
-            "evidence": "Usage: logics-manager release evidence add <gate> --kind <kind> --status <status> --summary <text> [--format text|json]",
+            "evidence": "Usage: logics-manager release evidence add <gate> --kind <kind> --status <status> --summary <text> [--format text|json]\nExample:\n  "
+            + release_evidence_add_example(),
         }.get(argv[0])
         if help_text:
             print(help_text)
@@ -999,7 +1024,12 @@ def main(argv: list[str] | None = None) -> int:
     evidence_add.add_argument("--command", dest="evidence_command_text")
     evidence_add.add_argument("--run-id")
     evidence_add.add_argument("--format", choices=("text", "json"), default="text")
-    parsed = parser.parse_args(argv)
+    try:
+        parsed = parser.parse_args(argv)
+    except SystemExit as exc:
+        if argv[:2] == ["evidence", "add"]:
+            print(f"Example: {release_evidence_add_example(argv[2] if len(argv) > 2 else '<gate>')}", file=sys.stderr)
+        raise exc
     if parsed.command is None:
         raise SystemExit("Usage: logics-manager release <plan|status|validate> [args...]")
     repo_root = find_repo_root(Path.cwd())

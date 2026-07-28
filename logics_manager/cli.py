@@ -21,7 +21,7 @@ from .insights import followups_payload, health_payload, render_followups, rende
 from .insights import product_consistency_payload, render_product_consistency
 from .lint import lint_payload, render_lint
 from .sync import search_logics_docs_payload
-from .doctor import render_doctor
+from .doctor import doctor_packaging_payload, render_doctor
 from .termstyle import colorize_help
 from .update_check import current_version as package_current_version, get_update_notice
 
@@ -43,6 +43,8 @@ ROOT_COMMANDS = (
     "view",
     "config",
     "doctor",
+    "roadmap",
+    "design",
     "release",
     "i18n",
     "obsidian",
@@ -100,6 +102,8 @@ def _build_root_help() -> str:
         "  product-consistency  Check product brief lineage links.",
         "  status     Summarize open workflow docs and next actions.",
         "  search     Search workflow docs directly.",
+        "  roadmap   Inspect and place open workflow refs in roadmap files.",
+        "  design    Generate asset prompt packs for external AI image tools.",
         "  view       Start a local read-only browser viewer for the Logics corpus.",
         "             Subcommand: view diagnostics [--limit N] [--format text|json].",
         "",
@@ -289,6 +293,24 @@ def main(argv: list[str] | None = None) -> int:
         print(output)
         return 0
     if command == "doctor":
+        if rest[:1] == ["packaging"]:
+            parser = argparse.ArgumentParser(prog="logics-manager doctor packaging", add_help=False)
+            parser.add_argument("--metadata-only", action="store_true")
+            parser.add_argument("--format", choices=("text", "json"), default="text")
+            parsed = parser.parse_args(rest[1:])
+            repo_root = find_repo_root(Path.cwd())
+            try:
+                payload = doctor_packaging_payload(repo_root, clean_install=not parsed.metadata_only)
+            except ConfigError as exc:
+                raise SystemExit(str(exc)) from exc
+            if parsed.format == "json":
+                print(json.dumps(payload, indent=2, sort_keys=True))
+            else:
+                lines = ["Logics packaging doctor: OK" if payload["ok"] else "Logics packaging doctor: FAILED"]
+                for check in payload["checks"]:
+                    lines.append(f"- {check['id']}: {check['status']} ({check['message']})")
+                print("\n".join(lines))
+            return 0 if payload["ok"] else 1
         doctor_args = rest
         parser = argparse.ArgumentParser(prog="logics-manager doctor", add_help=False)
         parser.add_argument("--format", choices=("text", "json"), default="text")
@@ -304,6 +326,14 @@ def main(argv: list[str] | None = None) -> int:
         from .release import main as release_main
 
         return release_main(rest)
+    if command == "roadmap":
+        from .roadmap import main as roadmap_main
+
+        return roadmap_main(rest)
+    if command == "design":
+        from .design import main as design_main
+
+        return design_main(rest)
     if command == "i18n":
         from .i18n import main as i18n_main
 

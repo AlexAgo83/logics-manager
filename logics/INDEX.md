@@ -83,6 +83,7 @@
 | [prod_044_first_class_roadmap_planning](product/prod_044_first_class_roadmap_planning.md) | First-class roadmap planning | Settled |  |  | product/prod_044_first_class_roadmap_planning.md |
 | [prod_045_logics_operator_ergonomics](product/prod_045_logics_operator_ergonomics.md) | Logics operator ergonomics | Proposed |  |  | product/prod_045_logics_operator_ergonomics.md |
 | [prod_046_cdx_memory_viewer_inspection](product/prod_046_cdx_memory_viewer_inspection.md) | CDX Memory viewer inspection | Proposed |  |  | product/prod_046_cdx_memory_viewer_inspection.md |
+| [prod_047_logics_design_asset_prompt_packs](product/prod_047_logics_design_asset_prompt_packs.md) | Logics Design asset prompt packs | Proposed |  |  | product/prod_047_logics_design_asset_prompt_packs.md |
 
 ## Roadmaps
 
@@ -389,6 +390,7 @@ _None_
 | [req_296_add_first_class_roadmap_planning_to_logics_manager](request/req_296_add_first_class_roadmap_planning_to_logics_manager.md) | Add first-class roadmap planning to Logics Manager | Done |  |  | request/req_296_add_first_class_roadmap_planning_to_logics_manager.md |
 | [req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow](request/req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow.md) | Improve Logics operator ergonomics for evidence, memory, packaging, and roadmap flow | Draft |  |  | request/req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow.md |
 | [req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection](request/req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection.md) | Add a CDX Memory viewer screen for cleaned handoff inspection | Draft |  |  | request/req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection.md |
+| [req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows](request/req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows.md) | Add Logics Design asset prompt packs for AI-generated artwork workflows | Draft |  |  | request/req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows.md |
 
 ## Backlog
 
@@ -961,6 +963,11 @@ _None_
 | [item_565_render_the_cdx_memory_sub_screen_in_the_viewer](backlog/item_565_render_the_cdx_memory_sub_screen_in_the_viewer.md) | Render the CDX Memory sub-screen in the viewer | Ready |  | 0% | backlog/item_565_render_the_cdx_memory_sub_screen_in_the_viewer.md |
 | [item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use](backlog/item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use.md) | Surface CDX memory quality warnings without blocking CDX use | Ready |  | 0% | backlog/item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use.md |
 | [item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests](backlog/item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests.md) | Validate CDX Memory screen integration with focused visual and payload tests | Ready |  | 0% | backlog/item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests.md |
+| [item_568_define_the_logics_design_prompt_pack_schema_and_templates](backlog/item_568_define_the_logics_design_prompt_pack_schema_and_templates.md) | Define the Logics Design prompt pack schema and templates | Ready |  | 0% | backlog/item_568_define_the_logics_design_prompt_pack_schema_and_templates.md |
+| [item_569_implement_the_logics_manager_design_cli](backlog/item_569_implement_the_logics_manager_design_cli.md) | Implement the logics-manager design CLI | Ready |  | 0% | backlog/item_569_implement_the_logics_manager_design_cli.md |
+| [item_570_generate_cr_league_style_icon_sheet_and_object_set_prompt_contracts](backlog/item_570_generate_cr_league_style_icon_sheet_and_object_set_prompt_contracts.md) | Generate CR League style icon-sheet and object-set prompt contracts | Ready |  | 0% | backlog/item_570_generate_cr_league_style_icon_sheet_and_object_set_prompt_contracts.md |
+| [item_571_add_asset_machining_and_audit_instructions_to_design_packs](backlog/item_571_add_asset_machining_and_audit_instructions_to_design_packs.md) | Add asset machining and audit instructions to design packs | Ready |  | 0% | backlog/item_571_add_asset_machining_and_audit_instructions_to_design_packs.md |
+| [item_572_document_and_validate_the_logics_design_workflow](backlog/item_572_document_and_validate_the_logics_design_workflow.md) | Document and validate the Logics Design workflow | Ready |  | 0% | backlog/item_572_document_and_validate_the_logics_design_workflow.md |
 
 ## Tasks
 
@@ -1255,3 +1262,4 @@ _None_
 | [task_293_deliver_first_class_roadmap_planning_support](tasks/task_293_deliver_first_class_roadmap_planning_support.md) | Deliver first-class roadmap planning support | Done | codex | 100% | tasks/task_293_deliver_first_class_roadmap_planning_support.md |
 | [task_294_orchestrate_logics_operator_ergonomics_improvements](tasks/task_294_orchestrate_logics_operator_ergonomics_improvements.md) | Orchestrate Logics operator ergonomics improvements | Ready |  | 0% | tasks/task_294_orchestrate_logics_operator_ergonomics_improvements.md |
 | [task_295_orchestrate_cdx_memory_viewer_screen_delivery](tasks/task_295_orchestrate_cdx_memory_viewer_screen_delivery.md) | Orchestrate CDX Memory viewer screen delivery | Ready |  | 0% | tasks/task_295_orchestrate_cdx_memory_viewer_screen_delivery.md |
+| [task_296_orchestrate_logics_design_asset_prompt_pack_delivery](tasks/task_296_orchestrate_logics_design_asset_prompt_pack_delivery.md) | Orchestrate Logics Design asset prompt pack delivery | Ready |  | 0% | tasks/task_296_orchestrate_logics_design_asset_prompt_pack_delivery.md |

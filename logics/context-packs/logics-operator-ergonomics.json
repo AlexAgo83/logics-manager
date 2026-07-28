@@ -1,0 +1,690 @@
+{
+  "budgets": {
+    "max_docs": 72,
+    "max_docs_per_ref": 8
+  },
+  "changed_paths": [
+    "logics/backlog/item_557_make_logics_remediation_messages_copy_paste_safe.md",
+    "logics/backlog/item_558_normalize_workflow_status_aliases_before_persistence.md",
+    "logics/backlog/item_559_harden_release_evidence_help_and_examples.md",
+    "logics/backlog/item_560_add_package_truth_checks_for_shipped_cli_behavior.md",
+    "logics/backlog/item_561_document_rtk_wrapper_safe_command_forms.md",
+    "logics/backlog/item_562_use_cdx_memory_as_the_structured_source_for_assistant_context.md",
+    "logics/backlog/item_563_make_roadmap_status_and_placement_part_of_the_daily_flow.md",
+    "logics/context-packs/logics-operator-ergonomics.json",
+    "logics/product/prod_045_logics_operator_ergonomics.md",
+    "logics/request/req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow.md",
+    "logics/tasks/task_294_orchestrate_logics_operator_ergonomics_improvements.md"
+  ],
+  "command": "logics-manager sync context-pack req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow item_557_make_logics_remediation_messages_copy_paste_safe item_558_normalize_workflow_status_aliases_before_persistence item_559_harden_release_evidence_help_and_examples item_560_add_package_truth_checks_for_shipped_cli_behavior item_561_document_rtk_wrapper_safe_command_forms item_562_use_cdx_memory_as_the_structured_source_for_assistant_context item_563_make_roadmap_status_and_placement_part_of_the_daily_flow task_294_orchestrate_logics_operator_ergonomics_improvements --mode diff-first --profile deep --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_557_make_logics_remediation_messages_copy_paste_safe",
+          "item_558_normalize_workflow_status_aliases_before_persistence",
+          "item_559_harden_release_evidence_help_and_examples",
+          "item_560_add_package_truth_checks_for_shipped_cli_behavior",
+          "item_561_document_rtk_wrapper_safe_command_forms",
+          "item_562_use_cdx_memory_as_the_structured_source_for_assistant_context",
+          "item_563_make_roadmap_status_and_placement_part_of_the_daily_flow"
+        ],
+        "prod": [
+          "prod_045_logics_operator_ergonomics"
+        ],
+        "req": [
+          "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow"
+        ],
+        "task": [
+          "task_294_orchestrate_logics_operator_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/product/prod_045_logics_operator_ergonomics.md",
+      "ref": "prod_045_logics_operator_ergonomics",
+      "sections": {
+        "Goals": [
+          "- Reduce avoidable operator mistakes in common Logics remediation and release-evidence flows.",
+          "- Make assistant handoffs cleaner by consuming structured `cdx memory` output and cleaning terminal noise.",
+          "- Prove package/install behavior from built artifacts before release work is trusted.",
+          "- Make roadmap docs useful during daily planning and closeout instead of only existing as companion documents."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make Logics Manager easier for agents and operators to use correctly by turning known friction points into copy-paste-safe CLI guidance, package truth checks, cleaned CDX memory context, and practical roadmap maintenance commands.",
+          "```mermaid",
+          "flowchart TD",
+          "    Friction[Observed operator friction] --> CLI[Copy-paste-safe CLI guidance]",
+          "    Friction --> Memory[Clean cdx memory context]",
+          "    Friction --> Packaging[Package truth checks]"
+        ],
+        "References": [
+          "- Product back-reference: `req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow`",
+          "- Task back-reference: `task_294_orchestrate_logics_operator_ergonomics_improvements`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Logics operator ergonomics"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_553_add_roadmap_document_kind_and_parsing_contract"
+        ],
+        "prod": [
+          "prod_044_first_class_roadmap_planning"
+        ],
+        "req": [
+          "req_296_add_first_class_roadmap_planning_to_logics_manager"
+        ],
+        "task": [
+          "task_293_deliver_first_class_roadmap_planning_support"
+        ]
+      },
+      "path": "logics/product/prod_044_first_class_roadmap_planning.md",
+      "ref": "prod_044_first_class_roadmap_planning",
+      "sections": {
+        "Goals": [
+          "- Represent roadmap milestones as structured Logics docs with stable refs and links.",
+          "- Let AI agents propose milestone plans from existing product/spec/backlog context.",
+          "- Make milestone sequence and scope visible in the local viewer.",
+          "- Keep roadmap planning separate from release evidence while allowing future release linkage.",
+          "- Give downstream implementation agents enough validation and context to safely evolve large corpora."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Add a roadmap planning layer to Logics Manager so operators and AI agents can turn a corpus into ordered product/action milestones such as 0.1, 0.2, 0.3, and 1.0, then inspect and validate that plan in the CLI and viewer.",
+          "```mermaid",
+          "flowchart TD",
+          "    Corpus[Existing corpus] --> Roadmap[Versioned roadmap]",
+          "    Roadmap --> CLI[CLI propose show validate]",
+          "    Roadmap --> Viewer[Viewer milestone timeline]"
+        ],
+        "References": [
+          "- Product back-reference: `item_553_add_roadmap_document_kind_and_parsing_contract`",
+          "- Task back-reference: `task_293_deliver_first_class_roadmap_planning_support`"
+        ]
+      },
+      "status": "Settled",
+      "title": "First-class roadmap planning"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, improve logics operator ergonomics for evidence, memory, packaging, and roadmap flow, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Improve Logics operator ergonomics for evidence, memory, packaging, and roadmap flow",
+        "use when": "You need to implement or review the scaffolded workflow for Improve Logics operator ergonomics for evidence, memory, packaging, and roadmap flow."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_557_make_logics_remediation_messages_copy_paste_safe",
+          "item_558_normalize_workflow_status_aliases_before_persistence",
+          "item_559_harden_release_evidence_help_and_examples",
+          "item_560_add_package_truth_checks_for_shipped_cli_behavior",
+          "item_561_document_rtk_wrapper_safe_command_forms",
+          "item_562_use_cdx_memory_as_the_structured_source_for_assistant_context",
+          "item_563_make_roadmap_status_and_placement_part_of_the_daily_flow"
+        ],
+        "prod": [
+          "prod_045_logics_operator_ergonomics"
+        ],
+        "req": [
+          "req_296_add_first_class_roadmap_planning_to_logics_manager",
+          "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow"
+        ]
+      },
+      "path": "logics/request/req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow.md",
+      "ref": "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Indicator-gate lint failures print a copy-paste-safe `sync update-indicators` example and explicitly mention the `Non-semantic edit` escape hatch.",
+          "- AC2: Workflow status inputs accept common aliases such as `In Progress`, `in_progress`, and `in progress`, then persist the canonical status label.",
+          "- AC3: `release evidence add --help` shows help successfully, and evidence-add argument errors include a complete example command for the target gate.",
+          "- AC4: A packaging doctor or CI check proves that all importable `logics_manager.*` subpackages are included in package metadata and that a clean wheel exposes critical CLI commands.",
+          "- AC5: RTK wrapper documentation and generated assistant instructions name safe forms for targeted npm commands, including `rtk npm exec -- vitest ...` instead of `rtk npx vitest ...`.",
+          "- AC6: An assistant-facing command can read `cdx memory` current/global scopes as JSON, clean ANSI/TUI noise, summarize quality signals, and emit a bounded context payload without directly depending on raw `.cdx/contexts` paths."
+        ],
+        "Needs": [
+          "- Logics blocking messages should provide copy-paste-safe remediation commands when the tool already knows the deterministic fix.",
+          "- Workflow status inputs should tolerate common casing and separator variants while preserving canonical status text in files.",
+          "- Release evidence recording should be hard to misuse at the end of a release, when exact version and SHA evidence matters most.",
+          "- Packaging checks should prove installed artifacts, not only source-tree behavior, before a release is considered healthy.",
+          "- RTK wrapper guidance should name known semantic traps so assistants do not wrap one-off commands incorrectly.",
+          "- Logics Manager should consume the new `cdx memory` surface for bounded, cleaned handoff context instead of scraping raw context files directly."
+        ]
+      },
+      "status": "Draft",
+      "title": "Improve Logics operator ergonomics for evidence, memory, packaging, and roadmap flow"
+    },
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, add first-class roadmap planning to logics manager, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Add first-class roadmap planning to Logics Manager",
+        "use when": "You need to implement or review the scaffolded workflow for Add first-class roadmap planning to Logics Manager."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_553_add_roadmap_document_kind_and_parsing_contract",
+          "item_554_implement_roadmap_cli_propose_show_and_validate_commands",
+          "item_555_render_roadmap_milestones_in_the_local_viewer",
+          "item_556_connect_roadmap_validation_to_lint_audit_and_documentation"
+        ],
+        "prod": [
+          "prod_044_first_class_roadmap_planning"
+        ],
+        "req": [
+          "req_296_add_first_class_roadmap_planning_to_logics_manager"
+        ]
+      },
+      "path": "logics/request/req_296_add_first_class_roadmap_planning_to_logics_manager.md",
+      "ref": "req_296_add_first_class_roadmap_planning_to_logics_manager",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Logics Manager recognizes roadmap docs under `logics/roadmap/` with stable refs like `road_001_*` and includes them in sync/list/search/read/context-pack flows.",
+          "- AC2: A standard roadmap document contract supports milestones with label, goal, scope, cuts, linked refs, dependencies, risks, validation gates, exit criteria, and status.",
+          "- AC3: Roadmap refs and `Related roadmap` links are parsed consistently across request, backlog, task, product, architecture, and spec docs.",
+          "- AC4: CLI support can create or propose a roadmap from bounded corpus context and can show/validate an existing roadmap.",
+          "- AC5: Validation reports broken roadmap links, empty milestones, duplicate milestone labels, unknown milestone statuses, and open high-priority work not placed in any roadmap milestone when a roadmap exists.",
+          "- AC6: The viewer exposes a Roadmap screen that renders milestone order and linked refs, with a compact progress/status summary per milestone."
+        ],
+        "Needs": [
+          "- Logics Manager should treat long-range roadmap planning as a first-class workflow surface instead of leaving MVP, V1, and version-slice intent buried in product briefs or specs.",
+          "- Operators and AI agents need a stable way to propose milestone plans such as 0.1 -> 0.2 -> 0.3 -> 1.0 from an existing corpus.",
+          "- Roadmap milestones must link back to existing requests, backlog items, tasks, specs, product briefs, and architecture decisions without replacing those docs.",
+          "- The CLI should let an agent create, inspect, validate, and refresh roadmap plans using bounded corpus context.",
+          "- The local viewer should make the roadmap understandable visually, including milestone order, linked refs, completion state, risks, cuts, and exit criteria.",
+          "- Validation should catch broken refs, empty milestones, unplanned open work, and stale roadmap links without forcing release workflow semantics onto product planning."
+        ]
+      },
+      "status": "Done",
+      "title": "Add first-class roadmap planning to Logics Manager"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, make logics remediation messages copy-paste safe, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Make Logics remediation messages copy-paste safe",
+        "use when": "Implementing the scaffolded slice for Make Logics remediation messages copy-paste safe."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_557_make_logics_remediation_messages_copy_paste_safe"
+        ],
+        "prod": [
+          "prod_045_logics_operator_ergonomics"
+        ],
+        "req": [
+          "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow"
+        ],
+        "task": [
+          "task_294_orchestrate_logics_operator_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/backlog/item_557_make_logics_remediation_messages_copy_paste_safe.md",
+      "ref": "item_557_make_logics_remediation_messages_copy_paste_safe",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A changed workflow doc without indicator updates prints a complete update-indicators example and the non-semantic marker option.",
+          "- AC2: `sync update-indicators --help` includes at least one copy-paste-safe example and the canonical request status spelling.",
+          "- AC3: Tests cover both the lint message and help text."
+        ],
+        "Problem": [
+          "- Indicator-gate failures already know the deterministic remedy, but the current hint is too generic and can still leave assistants guessing whether to update indicators or mark a non-semantic edit."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make Logics remediation messages copy-paste safe"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, normalize workflow status aliases before persistence, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Normalize workflow status aliases before persistence",
+        "use when": "Implementing the scaffolded slice for Normalize workflow status aliases before persistence."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_558_normalize_workflow_status_aliases_before_persistence"
+        ],
+        "prod": [
+          "prod_045_logics_operator_ergonomics"
+        ],
+        "req": [
+          "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow"
+        ],
+        "task": [
+          "task_294_orchestrate_logics_operator_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/backlog/item_558_normalize_workflow_status_aliases_before_persistence.md",
+      "ref": "item_558_normalize_workflow_status_aliases_before_persistence",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `In Progress`, `in_progress`, and `in progress` are accepted and persisted as `In progress`.",
+          "- AC2: Unknown statuses still fail, but the error lists the allowed canonical labels.",
+          "- AC3: Tests cover request, backlog, and task status normalization where those kinds allow status updates."
+        ],
+        "Problem": [
+          "- A user or assistant can type `In Progress` and get rejected even though the intended canonical value is obvious: `In progress`."
+        ]
+      },
+      "status": "Ready",
+      "title": "Normalize workflow status aliases before persistence"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, harden release evidence help and examples, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Harden release evidence help and examples",
+        "use when": "Implementing the scaffolded slice for Harden release evidence help and examples."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_559_harden_release_evidence_help_and_examples"
+        ],
+        "prod": [
+          "prod_045_logics_operator_ergonomics"
+        ],
+        "req": [
+          "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow"
+        ],
+        "task": [
+          "task_294_orchestrate_logics_operator_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/backlog/item_559_harden_release_evidence_help_and_examples.md",
+      "ref": "item_559_harden_release_evidence_help_and_examples",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `release evidence add --help` exits 0 and displays the required flags.",
+          "- AC2: Missing-field errors include one complete example command.",
+          "- AC3: Tests cover help and missing-field paths."
+        ],
+        "Problem": [
+          "- `release evidence add --help` currently behaves like an invalid invocation, and missing required fields at publication time cost attention when the operator needs exact evidence."
+        ]
+      },
+      "status": "Ready",
+      "title": "Harden release evidence help and examples"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add package truth checks for shipped cli behavior, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add package truth checks for shipped CLI behavior",
+        "use when": "Implementing the scaffolded slice for Add package truth checks for shipped CLI behavior."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_560_add_package_truth_checks_for_shipped_cli_behavior"
+        ],
+        "prod": [
+          "prod_045_logics_operator_ergonomics"
+        ],
+        "req": [
+          "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow"
+        ],
+        "task": [
+          "task_294_orchestrate_logics_operator_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/backlog/item_560_add_package_truth_checks_for_shipped_cli_behavior.md",
+      "ref": "item_560_add_package_truth_checks_for_shipped_cli_behavior",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: CI fails if a `logics_manager.*` subpackage is importable in the checkout but absent from explicit packaging metadata.",
+          "- AC2: The packaging doctor builds and installs a wheel in a clean venv and validates critical CLI commands.",
+          "- AC3: Tests or release documentation prove the check is part of the release path."
+        ],
+        "Problem": [
+          "- Source-tree behavior can look correct while a built wheel omits a Python subpackage because package metadata is explicit."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add package truth checks for shipped CLI behavior"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, document rtk wrapper-safe command forms, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Document RTK wrapper-safe command forms",
+        "use when": "Implementing the scaffolded slice for Document RTK wrapper-safe command forms."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_561_document_rtk_wrapper_safe_command_forms"
+        ],
+        "prod": [
+          "prod_045_logics_operator_ergonomics"
+        ],
+        "req": [
+          "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow"
+        ],
+        "task": [
+          "task_294_orchestrate_logics_operator_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/backlog/item_561_document_rtk_wrapper_safe_command_forms.md",
+      "ref": "item_561_document_rtk_wrapper_safe_command_forms",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `RTK.md` documents `rtk npm exec -- vitest ...` as the safe targeted Vitest form.",
+          "- AC2: Generated assistant instructions mention using raw commands when exact one-off semantics matter.",
+          "- AC3: A test asserts the wrapper caveat appears in generated instructions."
+        ],
+        "Problem": [
+          "- The wrapper is preferred for noisy commands, but some one-off command forms such as `npx` can change semantics when wrapped naively."
+        ]
+      },
+      "status": "Ready",
+      "title": "Document RTK wrapper-safe command forms"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, use cdx memory as the structured source for assistant context, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Use cdx memory as the structured source for assistant context",
+        "use when": "Implementing the scaffolded slice for Use cdx memory as the structured source for assistant context."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_562_use_cdx_memory_as_the_structured_source_for_assistant_context"
+        ],
+        "prod": [
+          "prod_045_logics_operator_ergonomics"
+        ],
+        "req": [
+          "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow"
+        ],
+        "task": [
+          "task_294_orchestrate_logics_operator_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/backlog/item_562_use_cdx_memory_as_the_structured_source_for_assistant_context.md",
+      "ref": "item_562_use_cdx_memory_as_the_structured_source_for_assistant_context",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The command reads `cdx memory` JSON when available and returns bounded cleaned content.",
+          "- AC2: ANSI/TUI noise and huge spinner lines are removed from a fixture while useful commands and final summaries remain.",
+          "- AC3: The command degrades gracefully when `cdx` is missing or `cdx memory` is unsupported.",
+          "- AC4: Tests cover clean, noisy, and unavailable-command paths."
+        ],
+        "Problem": [
+          "- Raw CDX context files can contain ANSI escape sequences, huge TUI spinner lines, `/usage` prompts, and other noise that makes handoffs expensive and misleading."
+        ]
+      },
+      "status": "Ready",
+      "title": "Use cdx memory as the structured source for assistant context"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate Logics operator ergonomics improvements",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_557_make_logics_remediation_messages_copy_paste_safe",
+          "item_558_normalize_workflow_status_aliases_before_persistence",
+          "item_559_harden_release_evidence_help_and_examples",
+          "item_560_add_package_truth_checks_for_shipped_cli_behavior",
+          "item_561_document_rtk_wrapper_safe_command_forms",
+          "item_562_use_cdx_memory_as_the_structured_source_for_assistant_context",
+          "item_563_make_roadmap_status_and_placement_part_of_the_daily_flow"
+        ],
+        "prod": [
+          "prod_045_logics_operator_ergonomics"
+        ],
+        "req": [
+          "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow"
+        ],
+        "task": [
+          "task_294_orchestrate_logics_operator_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/tasks/task_294_orchestrate_logics_operator_ergonomics_improvements.md",
+      "ref": "task_294_orchestrate_logics_operator_ergonomics_improvements",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- Run `python3 -m logics_manager lint --require-status`.",
+          "- Run scaffold command tests."
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate Logics operator ergonomics improvements"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_557_make_logics_remediation_messages_copy_paste_safe",
+          "item_558_normalize_workflow_status_aliases_before_persistence",
+          "item_559_harden_release_evidence_help_and_examples",
+          "item_560_add_package_truth_checks_for_shipped_cli_behavior",
+          "item_561_document_rtk_wrapper_safe_command_forms",
+          "item_562_use_cdx_memory_as_the_structured_source_for_assistant_context",
+          "item_563_make_roadmap_status_and_placement_part_of_the_daily_flow"
+        ],
+        "prod": [
+          "prod_045_logics_operator_ergonomics"
+        ],
+        "req": [
+          "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow"
+        ],
+        "task": [
+          "task_294_orchestrate_logics_operator_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/product/prod_045_logics_operator_ergonomics.md",
+      "ref": "prod_045_logics_operator_ergonomics",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Logics operator ergonomics"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, make roadmap status and placement part of the daily flow, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Make roadmap status and placement part of the daily flow",
+        "use when": "Implementing the scaffolded slice for Make roadmap status and placement part of the daily flow."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_563_make_roadmap_status_and_placement_part_of_the_daily_flow"
+        ],
+        "prod": [
+          "prod_045_logics_operator_ergonomics"
+        ],
+        "req": [
+          "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow"
+        ],
+        "task": [
+          "task_294_orchestrate_logics_operator_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/backlog/item_563_make_roadmap_status_and_placement_part_of_the_daily_flow.md",
+      "ref": "item_563_make_roadmap_status_and_placement_part_of_the_daily_flow",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A roadmap status command summarizes current roadmaps and unplaced high/medium open work.",
+          "- AC2: A place command updates roadmap placement and validates refs without manual edits.",
+          "- AC3: Closeout or validate prints recommendations when roadmap placement is stale, but does not block task finish solely for roadmap hygiene.",
+          "- AC4: Repos without roadmap docs remain quiet and pass validation."
+        ],
+        "Problem": [
+          "- Roadmap support exists, but there is no natural command to see what is unplaced, place a ref into a milestone, or keep milestones updated during task closeout."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make roadmap status and placement part of the daily flow"
+    }
+  ],
+  "estimates": {
+    "char_count": 23145,
+    "companion_doc_count": 2,
+    "doc_count": 11
+  },
+  "generated_at": "2026-07-28T19:00:47Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow",
+      "item_557_make_logics_remediation_messages_copy_paste_safe",
+      "item_558_normalize_workflow_status_aliases_before_persistence",
+      "item_559_harden_release_evidence_help_and_examples",
+      "item_560_add_package_truth_checks_for_shipped_cli_behavior",
+      "item_561_document_rtk_wrapper_safe_command_forms",
+      "item_562_use_cdx_memory_as_the_structured_source_for_assistant_context",
+      "item_563_make_roadmap_status_and_placement_part_of_the_daily_flow",
+      "task_294_orchestrate_logics_operator_ergonomics_improvements"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "diff-first",
+  "profile": "deep",
+  "ref": "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow,item_557_make_logics_remediation_messages_copy_paste_safe,item_558_normalize_workflow_status_aliases_before_persistence,item_559_harden_release_evidence_help_and_examples,item_560_add_package_truth_checks_for_shipped_cli_behavior,item_561_document_rtk_wrapper_safe_command_forms,item_562_use_cdx_memory_as_the_structured_source_for_assistant_context,item_563_make_roadmap_status_and_placement_part_of_the_daily_flow,task_294_orchestrate_logics_operator_ergonomics_improvements",
+  "refs": [
+    "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow",
+    "item_557_make_logics_remediation_messages_copy_paste_safe",
+    "item_558_normalize_workflow_status_aliases_before_persistence",
+    "item_559_harden_release_evidence_help_and_examples",
+    "item_560_add_package_truth_checks_for_shipped_cli_behavior",
+    "item_561_document_rtk_wrapper_safe_command_forms",
+    "item_562_use_cdx_memory_as_the_structured_source_for_assistant_context",
+    "item_563_make_roadmap_status_and_placement_part_of_the_daily_flow",
+    "task_294_orchestrate_logics_operator_ergonomics_improvements"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.19.1"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_294_orchestrate_logics_operator_ergonomics_improvements.md",
+      "ref": "task_294_orchestrate_logics_operator_ergonomics_improvements"
+    }
+  ]
+}

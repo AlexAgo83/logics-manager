@@ -81,6 +81,7 @@
 | [prod_042_convention_aware_project_surfaces](product/prod_042_convention_aware_project_surfaces.md) | Convention-aware project surfaces | Settled |  |  | product/prod_042_convention_aware_project_surfaces.md |
 | [prod_043_project_owned_internationalization_readiness](product/prod_043_project_owned_internationalization_readiness.md) | Project-owned internationalization readiness | Settled |  |  | product/prod_043_project_owned_internationalization_readiness.md |
 | [prod_044_first_class_roadmap_planning](product/prod_044_first_class_roadmap_planning.md) | First-class roadmap planning | Settled |  |  | product/prod_044_first_class_roadmap_planning.md |
+| [prod_045_logics_operator_ergonomics](product/prod_045_logics_operator_ergonomics.md) | Logics operator ergonomics | Proposed |  |  | product/prod_045_logics_operator_ergonomics.md |
 
 ## Roadmaps
 
@@ -385,6 +386,7 @@ _None_
 | [req_294_convention_aware_project_i18n_and_theme_viewer_screens](request/req_294_convention_aware_project_i18n_and_theme_viewer_screens.md) | Convention-aware project i18n and theme viewer screens | Done |  |  | request/req_294_convention_aware_project_i18n_and_theme_viewer_screens.md |
 | [req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling](request/req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling.md) | Optional project-owned i18n contract and lifecycle tooling | Done |  |  | request/req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling.md |
 | [req_296_add_first_class_roadmap_planning_to_logics_manager](request/req_296_add_first_class_roadmap_planning_to_logics_manager.md) | Add first-class roadmap planning to Logics Manager | Done |  |  | request/req_296_add_first_class_roadmap_planning_to_logics_manager.md |
+| [req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow](request/req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow.md) | Improve Logics operator ergonomics for evidence, memory, packaging, and roadmap flow | Draft |  |  | request/req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow.md |
 
 ## Backlog
 
@@ -946,6 +948,13 @@ _None_
 | [item_554_implement_roadmap_cli_propose_show_and_validate_commands](backlog/item_554_implement_roadmap_cli_propose_show_and_validate_commands.md) | Implement roadmap CLI propose, show, and validate commands | Done |  | 100% | backlog/item_554_implement_roadmap_cli_propose_show_and_validate_commands.md |
 | [item_555_render_roadmap_milestones_in_the_local_viewer](backlog/item_555_render_roadmap_milestones_in_the_local_viewer.md) | Render roadmap milestones in the local viewer | Done |  | 100% | backlog/item_555_render_roadmap_milestones_in_the_local_viewer.md |
 | [item_556_connect_roadmap_validation_to_lint_audit_and_documentation](backlog/item_556_connect_roadmap_validation_to_lint_audit_and_documentation.md) | Connect roadmap validation to lint, audit, and documentation | Done |  | 100% | backlog/item_556_connect_roadmap_validation_to_lint_audit_and_documentation.md |
+| [item_557_make_logics_remediation_messages_copy_paste_safe](backlog/item_557_make_logics_remediation_messages_copy_paste_safe.md) | Make Logics remediation messages copy-paste safe | Ready |  | 0% | backlog/item_557_make_logics_remediation_messages_copy_paste_safe.md |
+| [item_558_normalize_workflow_status_aliases_before_persistence](backlog/item_558_normalize_workflow_status_aliases_before_persistence.md) | Normalize workflow status aliases before persistence | Ready |  | 0% | backlog/item_558_normalize_workflow_status_aliases_before_persistence.md |
+| [item_559_harden_release_evidence_help_and_examples](backlog/item_559_harden_release_evidence_help_and_examples.md) | Harden release evidence help and examples | Ready |  | 0% | backlog/item_559_harden_release_evidence_help_and_examples.md |
+| [item_560_add_package_truth_checks_for_shipped_cli_behavior](backlog/item_560_add_package_truth_checks_for_shipped_cli_behavior.md) | Add package truth checks for shipped CLI behavior | Ready |  | 0% | backlog/item_560_add_package_truth_checks_for_shipped_cli_behavior.md |
+| [item_561_document_rtk_wrapper_safe_command_forms](backlog/item_561_document_rtk_wrapper_safe_command_forms.md) | Document RTK wrapper-safe command forms | Ready |  | 0% | backlog/item_561_document_rtk_wrapper_safe_command_forms.md |
+| [item_562_use_cdx_memory_as_the_structured_source_for_assistant_context](backlog/item_562_use_cdx_memory_as_the_structured_source_for_assistant_context.md) | Use cdx memory as the structured source for assistant context | Ready |  | 0% | backlog/item_562_use_cdx_memory_as_the_structured_source_for_assistant_context.md |
+| [item_563_make_roadmap_status_and_placement_part_of_the_daily_flow](backlog/item_563_make_roadmap_status_and_placement_part_of_the_daily_flow.md) | Make roadmap status and placement part of the daily flow | Ready |  | 0% | backlog/item_563_make_roadmap_status_and_placement_part_of_the_daily_flow.md |
 
 ## Tasks
 
@@ -1238,3 +1247,4 @@ _None_
 | [task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery](tasks/task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery.md) | Orchestrate convention-aware i18n and theme viewer delivery | Done | codex | 100% | tasks/task_291_orchestrate_convention_aware_i18n_and_theme_viewer_delivery.md |
 | [task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery](tasks/task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery.md) | Orchestrate optional i18n contract and lifecycle delivery | Done | codex | 100% | tasks/task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery.md |
 | [task_293_deliver_first_class_roadmap_planning_support](tasks/task_293_deliver_first_class_roadmap_planning_support.md) | Deliver first-class roadmap planning support | Done | codex | 100% | tasks/task_293_deliver_first_class_roadmap_planning_support.md |
+| [task_294_orchestrate_logics_operator_ergonomics_improvements](tasks/task_294_orchestrate_logics_operator_ergonomics_improvements.md) | Orchestrate Logics operator ergonomics improvements | Ready |  | 0% | tasks/task_294_orchestrate_logics_operator_ergonomics_improvements.md |

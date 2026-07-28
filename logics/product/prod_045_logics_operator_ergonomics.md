@@ -49,6 +49,14 @@ flowchart TD
 - Use `logics-manager roadmap ...` as the primary roadmap surface; keep `flow roadmap ...` aliases only when they are cheap wrappers.
 - Split packaging proof into a fast metadata coverage check in `ci:check` and a slower clean-wheel install check in `doctor packaging` / release validation.
 - Add a read-only CDX Memory sub-screen under the existing CDX viewer area, backed by the same cleaned `cdx memory` payload used by assistant context.
+- Deliver the broad ergonomics request as separate implementation slices and commits when practical; avoid one large mixed change.
+- Treat `cdx memory ... --json` as the official memory source. Legacy file reads may exist only as degraded/unavailable fallbacks, not as the normal path.
+- Keep roadmap support focused on daily placement and status, not a full planning database or AI planner.
+
+# Open questions
+- Should `req_297` be implemented as one release wave or as separate operator-controlled commits per slice? Recommendation: separate commits by slice because the request touches CLI help, release evidence, packaging, memory, and roadmap behavior.
+- Should legacy `.cdx` memory file reads be supported at all? Recommendation: only as a fallback state when `cdx memory` is unavailable.
+- Should roadmap closeout prompts be blocking? Recommendation: no; they should be visible and copy-paste-safe, but non-blocking.
 
 # Success signals
 - Generated docs pass lint and audit without broad manual rewrites.

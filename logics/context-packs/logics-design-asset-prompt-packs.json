@@ -3,17 +3,7 @@
     "max_docs": 28,
     "max_docs_per_ref": 4
   },
-  "changed_paths": [
-    "logics/backlog/item_568_define_the_logics_design_prompt_pack_schema_and_templates.md",
-    "logics/backlog/item_569_implement_the_logics_manager_design_cli.md",
-    "logics/backlog/item_570_generate_cr_league_style_icon_sheet_and_object_set_prompt_contracts.md",
-    "logics/backlog/item_571_add_asset_machining_and_audit_instructions_to_design_packs.md",
-    "logics/backlog/item_572_document_and_validate_the_logics_design_workflow.md",
-    "logics/context-packs/logics-design-asset-prompt-packs.json",
-    "logics/product/prod_047_logics_design_asset_prompt_packs.md",
-    "logics/request/req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows.md",
-    "logics/tasks/task_296_orchestrate_logics_design_asset_prompt_pack_delivery.md"
-  ],
+  "changed_paths": [],
   "command": "logics-manager sync context-pack req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows item_568_define_the_logics_design_prompt_pack_schema_and_templates item_569_implement_the_logics_manager_design_cli item_570_generate_cr_league_style_icon_sheet_and_object_set_prompt_contracts item_571_add_asset_machining_and_audit_instructions_to_design_packs item_572_document_and_validate_the_logics_design_workflow task_296_orchestrate_logics_design_asset_prompt_pack_delivery --mode diff-first --profile normal",
   "companion_docs": [],
   "docs": [
@@ -212,7 +202,11 @@
       "schema_version": "1.0",
       "sections": {
         "Context": [
-          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked.",
+          "- Ship prompt-pack generation before any asset-processing automation.",
+          "- Make free-form `--text` the smallest reliable path; add Logics-ref reading if existing sync readers make it cheap.",
+          "- Defer MCP unless the CLI schema has stabilized and the adapter is a thin wrapper.",
+          "- Keep 4x4 recommendations heuristic, not mandatory."
         ],
         "Validation": [
           "- Run `python3 -m logics_manager lint --require-status`.",
@@ -330,11 +324,11 @@
     }
   ],
   "estimates": {
-    "char_count": 13617,
+    "char_count": 13953,
     "companion_doc_count": 0,
     "doc_count": 8
   },
-  "generated_at": "2026-07-28T19:38:13Z",
+  "generated_at": "2026-07-28T19:45:47Z",
   "handoff": {
     "companion_doc_count": 0,
     "enabled": false,

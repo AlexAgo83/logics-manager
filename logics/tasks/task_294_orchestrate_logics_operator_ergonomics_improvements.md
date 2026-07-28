@@ -2,15 +2,19 @@
 > From version: 2.19.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 92
-> Confidence: 88
-> Progress: 0%
+> Understanding: 94
+> Confidence: 90
+> Progress: 0
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
+- Deliver this broad request as separate implementation slices and commits when practical.
+- Implement `cdx memory` integration before the viewer work that depends on it.
+- Keep roadmap support focused on daily `status` and `place`, with non-blocking closeout recommendations.
+- Do not build a new planning database, AI roadmap planner, or memory store in this wave.
 
 # Plan
 - [ ] 1. Slice 1: Fix copy-paste-safe remediation messages for indicator lint and update-indicators help. Run focused CLI/help tests.
@@ -24,6 +28,12 @@
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.
+
+# Delivery guidance
+- Prefer separate implementation commits by slice because this request spans unrelated operational surfaces.
+- Implement `cdx memory` integration before the viewer work that depends on it.
+- Keep roadmap commands focused on `status` and `place`; do not build a full planner.
+- Keep roadmap closeout recommendations non-blocking.
 
 # Backlog
 - `item_557_make_logics_remediation_messages_copy_paste_safe`

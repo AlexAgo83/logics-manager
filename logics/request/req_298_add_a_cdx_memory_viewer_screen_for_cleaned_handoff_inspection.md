@@ -2,8 +2,8 @@
 > From version: 2.19.1
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 93
+> Confidence: 88
 > Complexity: Medium
 > Theme: Viewer memory inspection
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -21,6 +21,10 @@
 - Existing viewer CDX areas already expose session/status/history/mission information; Memory belongs as a CDX sub-screen beside those surfaces, not as a new global navigation category.
 - Existing CDX rendering helpers already cover rows, badges, pills, detail code blocks, path links, and empty states. The smallest correct UI should reuse these helpers.
 - The screen should favor inspection and confidence: source scope, bytes before/after, estimated noise ratio, detected repo, latest useful handoff, warnings, and a raw/cleaned toggle.
+- Implementation guidance: optimize the first screen for daily operator confidence, not deep diagnostics.
+- Implementation guidance: keep raw excerpts folded by default and never expose memory mutation controls in this corpus.
+- Implementation guidance: reuse the shared cleaned `cdx memory` payload from the assistant-context work; do not add a separate viewer-only scraper.
+- Open question for the operator: how much visual coverage to require. Recommendation: use the smallest existing browser-host coverage that catches rendering, scope switching, toggles, warning states, and layout regressions.
 
 # Acceptance criteria
 - AC1: The viewer exposes a CDX Memory sub-screen or tab that is reachable from the existing CDX surface without adding a new top-level navigation item.

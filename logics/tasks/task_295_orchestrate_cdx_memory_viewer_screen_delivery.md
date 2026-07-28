@@ -2,15 +2,18 @@
 > From version: 2.19.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 93
+> Confidence: 88
+> Progress: 0
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
+- Build for daily inspection first: scope, source, quality status, latest useful handoff, warnings, and raw/cleaned toggle.
+- Keep raw excerpts folded by default and never allow memory mutation from this screen.
+- Reuse the shared cleaned memory payload; do not add a separate viewer-only scraper.
 
 # Plan
 - [ ] 1. Slice 1: Add the read-only `/api/cdx-memory` payload by delegating to the shared cleaned `cdx memory` logic. Validate ready, empty, unavailable, unsupported-json, and noisy payload states with Python tests.
@@ -21,6 +24,11 @@
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.
+
+# Delivery guidance
+- Build for daily inspection first: scope, source, quality status, latest useful handoff, warnings, and raw/cleaned toggle.
+- Keep raw excerpts folded by default and never allow memory mutation from this screen.
+- Reuse the shared cleaned memory payload; do not add a separate viewer-only scraper.
 
 # Backlog
 - `item_564_expose_cleaned_cdx_memory_through_a_viewer_api_payload`

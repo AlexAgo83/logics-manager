@@ -2,15 +2,19 @@
 > From version: 2.19.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 93
+> Confidence: 88
+> Progress: 0
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
+- Ship prompt-pack generation before any asset-processing automation.
+- Make free-form `--text` the smallest reliable path; add Logics-ref reading if existing sync readers make it cheap.
+- Defer MCP unless the CLI schema has stabilized and the adapter is a thin wrapper.
+- Keep 4x4 recommendations heuristic, not mandatory.
 
 # Plan
 - [ ] 1. Slice 1: Define the prompt-pack schema and template model. Add validation and layout recommendation tests before the CLI writes anything.
@@ -22,6 +26,12 @@
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.
+
+# Delivery guidance
+- Ship prompt-pack generation before any asset-processing automation.
+- Make free-form `--text` the smallest reliable path; add Logics-ref reading if existing sync readers make it cheap.
+- Defer MCP unless the CLI schema has stabilized and the adapter is a thin wrapper.
+- Keep 4x4 recommendations heuristic, not mandatory.
 
 # Backlog
 - `item_568_define_the_logics_design_prompt_pack_schema_and_templates`

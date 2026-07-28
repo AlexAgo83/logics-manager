@@ -43,6 +43,16 @@ flowchart TD
 # Key product decisions
 - Use structured input as the source of truth for generated docs.
 - Keep generated write paths local and repo-bounded.
+- Prioritize a small CLI contract before MCP exposure. Add MCP only after the CLI output shape is stable and the wrapper is trivial.
+- Support both free-form `--text` and Logics-ref input, but make `--text` the simplest reliable MVP path.
+- Generate instructions and prompt packs only in the first wave; do not generate images or write app assets.
+- Keep machining guidance textual and template-driven unless repeated repo usage proves a script is worth adding.
+- Recommend 4x4 sheets only for simple icon batches where it helps generator reliability; use 2x2, single-image, or metadata-oriented object prompts when those fit better.
+
+# Open questions
+- Should `logics-manager design` read Logics refs immediately or start with free-form input? Recommendation: support both if existing doc readers make it cheap, but do not block the MVP on rich ref parsing.
+- Should the first wave include asset-processing scripts? Recommendation: no; ship machining instructions first, then add scripts only after repeated demand across repositories.
+- Should MCP be part of the first delivery? Recommendation: defer unless the CLI contract is already stable and the implementation is tiny.
 
 # Success signals
 - Generated docs pass lint and audit without broad manual rewrites.

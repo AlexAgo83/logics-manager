@@ -2,8 +2,8 @@
 > From version: 2.19.1
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 92
-> Confidence: 88
+> Understanding: 94
+> Confidence: 90
 > Complexity: High
 > Theme: Operator ergonomics
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -28,6 +28,10 @@
 - Product decision: packaging verification should be two-tiered: a cheap metadata-vs-subpackages check in `ci:check`, and a slower clean-wheel install check in `doctor packaging` / release validation.
 - Product decision: the viewer should add a CDX Memory sub-screen under the existing CDX area, showing scopes, cleanup quality, latest useful handoff, and warnings without editing Codex memory.
 - The smallest useful delivery is a set of CLI and assistant-surface refinements with focused tests; avoid building a new planning database, AI planner, or memory store.
+- Implementation guidance: deliver this broad request as separate implementation slices and commits when practical because it spans CLI help, release evidence, packaging, memory, and roadmap behavior.
+- Implementation guidance: treat `cdx memory ... --json` as the official memory source; legacy `.cdx` file reads may exist only as degraded/unavailable fallbacks.
+- Implementation guidance: roadmap prompts should support daily status and placement, stay non-blocking at closeout, and avoid becoming a full planner.
+- Open question for the operator: whether to ship all slices in one release wave or separate commits. Recommendation: separate commits by slice.
 
 # Acceptance criteria
 - AC1: Indicator-gate lint failures print a copy-paste-safe `sync update-indicators` example and explicitly mention the `Non-semantic edit` escape hatch.

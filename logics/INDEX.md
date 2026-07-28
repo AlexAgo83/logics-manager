@@ -82,6 +82,7 @@
 | [prod_043_project_owned_internationalization_readiness](product/prod_043_project_owned_internationalization_readiness.md) | Project-owned internationalization readiness | Settled |  |  | product/prod_043_project_owned_internationalization_readiness.md |
 | [prod_044_first_class_roadmap_planning](product/prod_044_first_class_roadmap_planning.md) | First-class roadmap planning | Settled |  |  | product/prod_044_first_class_roadmap_planning.md |
 | [prod_045_logics_operator_ergonomics](product/prod_045_logics_operator_ergonomics.md) | Logics operator ergonomics | Proposed |  |  | product/prod_045_logics_operator_ergonomics.md |
+| [prod_046_cdx_memory_viewer_inspection](product/prod_046_cdx_memory_viewer_inspection.md) | CDX Memory viewer inspection | Proposed |  |  | product/prod_046_cdx_memory_viewer_inspection.md |
 
 ## Roadmaps
 
@@ -387,6 +388,7 @@ _None_
 | [req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling](request/req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling.md) | Optional project-owned i18n contract and lifecycle tooling | Done |  |  | request/req_295_optional_project_owned_i18n_contract_and_lifecycle_tooling.md |
 | [req_296_add_first_class_roadmap_planning_to_logics_manager](request/req_296_add_first_class_roadmap_planning_to_logics_manager.md) | Add first-class roadmap planning to Logics Manager | Done |  |  | request/req_296_add_first_class_roadmap_planning_to_logics_manager.md |
 | [req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow](request/req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow.md) | Improve Logics operator ergonomics for evidence, memory, packaging, and roadmap flow | Draft |  |  | request/req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow.md |
+| [req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection](request/req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection.md) | Add a CDX Memory viewer screen for cleaned handoff inspection | Draft |  |  | request/req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection.md |
 
 ## Backlog
 
@@ -955,6 +957,10 @@ _None_
 | [item_561_document_rtk_wrapper_safe_command_forms](backlog/item_561_document_rtk_wrapper_safe_command_forms.md) | Document RTK wrapper-safe command forms | Ready |  | 0% | backlog/item_561_document_rtk_wrapper_safe_command_forms.md |
 | [item_562_use_cdx_memory_as_the_structured_source_for_assistant_context](backlog/item_562_use_cdx_memory_as_the_structured_source_for_assistant_context.md) | Use cdx memory as the structured source for assistant context | Ready |  | 0% | backlog/item_562_use_cdx_memory_as_the_structured_source_for_assistant_context.md |
 | [item_563_make_roadmap_status_and_placement_part_of_the_daily_flow](backlog/item_563_make_roadmap_status_and_placement_part_of_the_daily_flow.md) | Make roadmap status and placement part of the daily flow | Ready |  | 0% | backlog/item_563_make_roadmap_status_and_placement_part_of_the_daily_flow.md |
+| [item_564_expose_cleaned_cdx_memory_through_a_viewer_api_payload](backlog/item_564_expose_cleaned_cdx_memory_through_a_viewer_api_payload.md) | Expose cleaned CDX memory through a viewer API payload | Ready |  | 0% | backlog/item_564_expose_cleaned_cdx_memory_through_a_viewer_api_payload.md |
+| [item_565_render_the_cdx_memory_sub_screen_in_the_viewer](backlog/item_565_render_the_cdx_memory_sub_screen_in_the_viewer.md) | Render the CDX Memory sub-screen in the viewer | Ready |  | 0% | backlog/item_565_render_the_cdx_memory_sub_screen_in_the_viewer.md |
+| [item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use](backlog/item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use.md) | Surface CDX memory quality warnings without blocking CDX use | Ready |  | 0% | backlog/item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use.md |
+| [item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests](backlog/item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests.md) | Validate CDX Memory screen integration with focused visual and payload tests | Ready |  | 0% | backlog/item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests.md |
 
 ## Tasks
 
@@ -1248,3 +1254,4 @@ _None_
 | [task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery](tasks/task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery.md) | Orchestrate optional i18n contract and lifecycle delivery | Done | codex | 100% | tasks/task_292_orchestrate_optional_i18n_contract_and_lifecycle_delivery.md |
 | [task_293_deliver_first_class_roadmap_planning_support](tasks/task_293_deliver_first_class_roadmap_planning_support.md) | Deliver first-class roadmap planning support | Done | codex | 100% | tasks/task_293_deliver_first_class_roadmap_planning_support.md |
 | [task_294_orchestrate_logics_operator_ergonomics_improvements](tasks/task_294_orchestrate_logics_operator_ergonomics_improvements.md) | Orchestrate Logics operator ergonomics improvements | Ready |  | 0% | tasks/task_294_orchestrate_logics_operator_ergonomics_improvements.md |
+| [task_295_orchestrate_cdx_memory_viewer_screen_delivery](tasks/task_295_orchestrate_cdx_memory_viewer_screen_delivery.md) | Orchestrate CDX Memory viewer screen delivery | Ready |  | 0% | tasks/task_295_orchestrate_cdx_memory_viewer_screen_delivery.md |

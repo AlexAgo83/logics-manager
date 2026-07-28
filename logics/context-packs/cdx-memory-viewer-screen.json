@@ -1,0 +1,608 @@
+{
+  "budgets": {
+    "max_docs": 48,
+    "max_docs_per_ref": 8
+  },
+  "changed_paths": [
+    "logics/backlog/item_564_expose_cleaned_cdx_memory_through_a_viewer_api_payload.md",
+    "logics/backlog/item_565_render_the_cdx_memory_sub_screen_in_the_viewer.md",
+    "logics/backlog/item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use.md",
+    "logics/backlog/item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests.md",
+    "logics/context-packs/cdx-memory-viewer-screen.json",
+    "logics/product/prod_046_cdx_memory_viewer_inspection.md",
+    "logics/request/req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection.md",
+    "logics/tasks/task_295_orchestrate_cdx_memory_viewer_screen_delivery.md"
+  ],
+  "command": "logics-manager sync context-pack req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection item_564_expose_cleaned_cdx_memory_through_a_viewer_api_payload item_565_render_the_cdx_memory_sub_screen_in_the_viewer item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests task_295_orchestrate_cdx_memory_viewer_screen_delivery --mode diff-first --profile deep --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_564_expose_cleaned_cdx_memory_through_a_viewer_api_payload",
+          "item_565_render_the_cdx_memory_sub_screen_in_the_viewer",
+          "item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use",
+          "item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests"
+        ],
+        "prod": [
+          "prod_046_cdx_memory_viewer_inspection"
+        ],
+        "req": [
+          "req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection"
+        ],
+        "task": [
+          "task_295_orchestrate_cdx_memory_viewer_screen_delivery"
+        ]
+      },
+      "path": "logics/product/prod_046_cdx_memory_viewer_inspection.md",
+      "ref": "prod_046_cdx_memory_viewer_inspection",
+      "sections": {
+        "Goals": [
+          "- Make current/global Codex memory visible from the existing CDX viewer area.",
+          "- Reuse the shared cleaned memory payload from the assistant context command.",
+          "- Show quality signals that help operators decide whether memory is trustworthy for handoff.",
+          "- Keep the screen read-only and bounded."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Add a read-only CDX Memory sub-screen to the Logics viewer so operators can inspect cleaned Codex memory scopes and handoff quality before using memory-derived context.",
+          "```mermaid",
+          "flowchart TD",
+          "    CdxMemory[cdx memory JSON] --> Cleaner[Shared clean memory payload]",
+          "    Cleaner --> Api[Viewer API payload]",
+          "    Api --> Screen[CDX Memory screen]"
+        ],
+        "References": [
+          "- Product back-reference: `req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection`",
+          "- Task back-reference: `task_295_orchestrate_cdx_memory_viewer_screen_delivery`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "CDX Memory viewer inspection"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_557_make_logics_remediation_messages_copy_paste_safe",
+          "item_558_normalize_workflow_status_aliases_before_persistence",
+          "item_559_harden_release_evidence_help_and_examples",
+          "item_560_add_package_truth_checks_for_shipped_cli_behavior",
+          "item_561_document_rtk_wrapper_safe_command_forms",
+          "item_562_use_cdx_memory_as_the_structured_source_for_assistant_context",
+          "item_563_make_roadmap_status_and_placement_part_of_the_daily_flow"
+        ],
+        "prod": [
+          "prod_045_logics_operator_ergonomics"
+        ],
+        "req": [
+          "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow"
+        ],
+        "task": [
+          "task_294_orchestrate_logics_operator_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/product/prod_045_logics_operator_ergonomics.md",
+      "ref": "prod_045_logics_operator_ergonomics",
+      "sections": {
+        "Goals": [
+          "- Reduce avoidable operator mistakes in common Logics remediation and release-evidence flows.",
+          "- Make assistant handoffs cleaner by consuming structured `cdx memory` output, cleaning terminal noise, and exposing the result in a CDX Memory viewer sub-screen.",
+          "- Prove package/install behavior from built artifacts before release work is trusted, with a cheap `ci:check` metadata gate and a heavier clean-wheel doctor/release gate.",
+          "- Make roadmap docs useful during daily planning and closeout through top-level `logics-manager roadmap status/place` commands instead of only companion-document views."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded.",
+          "- Use `logics-manager roadmap ...` as the primary roadmap surface; keep `flow roadmap ...` aliases only when they are cheap wrappers.",
+          "- Split packaging proof into a fast metadata coverage check in `ci:check` and a slower clean-wheel install check in `doctor packaging` / release validation.",
+          "- Add a read-only CDX Memory sub-screen under the existing CDX viewer area, backed by the same cleaned `cdx memory` payload used by assistant context."
+        ],
+        "Overview": [
+          "Make Logics Manager easier for agents and operators to use correctly by turning known friction points into copy-paste-safe CLI guidance, package truth checks, cleaned CDX memory context visible in the viewer, and practical top-level roadmap maintenance commands.",
+          "```mermaid",
+          "flowchart TD",
+          "    Friction[Observed operator friction] --> CLI[Copy-paste-safe CLI guidance]",
+          "    Friction --> Memory[Clean cdx memory context]",
+          "    Memory --> Screen[CDX Memory viewer screen]"
+        ],
+        "References": [
+          "- Product back-reference: `req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow`",
+          "- Task back-reference: `task_294_orchestrate_logics_operator_ergonomics_improvements`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Logics operator ergonomics"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, add a cdx memory viewer screen for cleaned handoff inspection, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Add a CDX Memory viewer screen for cleaned handoff inspection",
+        "use when": "You need to implement or review the scaffolded workflow for Add a CDX Memory viewer screen for cleaned handoff inspection."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_562_use_cdx_memory_as_the_structured_source_for_assistant_context",
+          "item_564_expose_cleaned_cdx_memory_through_a_viewer_api_payload",
+          "item_565_render_the_cdx_memory_sub_screen_in_the_viewer",
+          "item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use",
+          "item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests"
+        ],
+        "prod": [
+          "prod_046_cdx_memory_viewer_inspection"
+        ],
+        "req": [
+          "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow",
+          "req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection"
+        ]
+      },
+      "path": "logics/request/req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection.md",
+      "ref": "req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The viewer exposes a CDX Memory sub-screen or tab that is reachable from the existing CDX surface without adding a new top-level navigation item.",
+          "- AC2: The screen fetches a viewer API payload backed by the shared cleaned `cdx memory` logic and supports at least current and global scopes.",
+          "- AC3: The screen renders source path, scope, bytes before/after cleaning, estimated noise ratio, detected repo, warnings, and latest useful handoff excerpt.",
+          "- AC4: The screen provides a compact raw/cleaned inspection toggle without allowing memory mutation.",
+          "- AC5: Empty memory, unavailable `cdx memory`, unsupported JSON, and noisy-memory cleanup states are rendered explicitly and do not blank the viewer.",
+          "- AC6: Badges or status labels make high-noise, stale, or unavailable memory visible from the CDX area."
+        ],
+        "Needs": [
+          "- Operators need a viewer-native way to inspect Codex memory quality before handing memory-derived context to another assistant.",
+          "- The CDX Memory screen should reuse the cleaned `cdx memory` payload from the assistant context work rather than scraping raw `.cdx/contexts` paths itself.",
+          "- The screen must be read-only: it can show current/global scopes, quality warnings, and raw/cleaned excerpts, but must not edit, clear, or append memory.",
+          "- The UI should fit inside the existing CDX area and share existing viewer CDX visual patterns instead of adding a new top-level product surface.",
+          "- Unavailable `cdx memory`, empty memory, noisy memory, and stale handoff states need explicit UI states so the operator can trust what they are seeing."
+        ]
+      },
+      "status": "Draft",
+      "title": "Add a CDX Memory viewer screen for cleaned handoff inspection"
+    },
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, improve logics operator ergonomics for evidence, memory, packaging, and roadmap flow, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Improve Logics operator ergonomics for evidence, memory, packaging, and roadmap flow",
+        "use when": "You need to implement or review the scaffolded workflow for Improve Logics operator ergonomics for evidence, memory, packaging, and roadmap flow."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_557_make_logics_remediation_messages_copy_paste_safe",
+          "item_558_normalize_workflow_status_aliases_before_persistence",
+          "item_559_harden_release_evidence_help_and_examples",
+          "item_560_add_package_truth_checks_for_shipped_cli_behavior",
+          "item_561_document_rtk_wrapper_safe_command_forms",
+          "item_562_use_cdx_memory_as_the_structured_source_for_assistant_context",
+          "item_563_make_roadmap_status_and_placement_part_of_the_daily_flow"
+        ],
+        "prod": [
+          "prod_045_logics_operator_ergonomics"
+        ],
+        "req": [
+          "req_296_add_first_class_roadmap_planning_to_logics_manager",
+          "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow"
+        ]
+      },
+      "path": "logics/request/req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow.md",
+      "ref": "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Indicator-gate lint failures print a copy-paste-safe `sync update-indicators` example and explicitly mention the `Non-semantic edit` escape hatch.",
+          "- AC2: Workflow status inputs accept common aliases such as `In Progress`, `in_progress`, and `in progress`, then persist the canonical status label.",
+          "- AC3: `release evidence add --help` shows help successfully, and evidence-add argument errors include a complete example command for the target gate.",
+          "- AC4: `ci:check` runs a cheap metadata-vs-subpackages packaging check, and `doctor packaging` / release validation can run a clean-wheel install check for critical CLI commands.",
+          "- AC5: RTK wrapper documentation and generated assistant instructions name safe forms for targeted npm commands, including `rtk npm exec -- vitest ...` instead of `rtk npx vitest ...`.",
+          "- AC6: An assistant-facing command can read `cdx memory` current/global scopes as JSON, clean ANSI/TUI noise, summarize quality signals, and emit a bounded context payload without directly depending on raw `.cdx/contexts` paths."
+        ],
+        "Needs": [
+          "- Logics blocking messages should provide copy-paste-safe remediation commands when the tool already knows the deterministic fix.",
+          "- Workflow status inputs should tolerate common casing and separator variants while preserving canonical status text in files.",
+          "- Release evidence recording should be hard to misuse at the end of a release, when exact version and SHA evidence matters most.",
+          "- Packaging checks should prove installed artifacts, not only source-tree behavior, before a release is considered healthy.",
+          "- RTK wrapper guidance should name known semantic traps so assistants do not wrap one-off commands incorrectly.",
+          "- Logics Manager should consume the new `cdx memory` surface for bounded, cleaned handoff context instead of scraping raw context files directly."
+        ]
+      },
+      "status": "Draft",
+      "title": "Improve Logics operator ergonomics for evidence, memory, packaging, and roadmap flow"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, use cdx memory as the structured source for assistant context, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Use cdx memory as the structured source for assistant context",
+        "use when": "Implementing the scaffolded slice for Use cdx memory as the structured source for assistant context."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_562_use_cdx_memory_as_the_structured_source_for_assistant_context"
+        ],
+        "prod": [
+          "prod_045_logics_operator_ergonomics"
+        ],
+        "req": [
+          "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow"
+        ],
+        "task": [
+          "task_294_orchestrate_logics_operator_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/backlog/item_562_use_cdx_memory_as_the_structured_source_for_assistant_context.md",
+      "ref": "item_562_use_cdx_memory_as_the_structured_source_for_assistant_context",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The command reads `cdx memory` JSON when available and returns bounded cleaned content.",
+          "- AC2: ANSI/TUI noise and huge spinner lines are removed from a fixture while useful commands and final summaries remain.",
+          "- AC3: The command degrades gracefully when `cdx` is missing or `cdx memory` is unsupported.",
+          "- AC4: The viewer exposes a CDX Memory sub-screen using the same cleaned payload with current/global scope selection and clear warnings.",
+          "- AC5: Tests cover clean, noisy, unavailable-command, and viewer rendering paths."
+        ],
+        "Problem": [
+          "- Raw CDX context files can contain ANSI escape sequences, huge TUI spinner lines, `/usage` prompts, and other noise that makes handoffs expensive and misleading.",
+          "- Operators also need to inspect that cleaned memory in the Logics viewer, not only through a CLI payload, before trusting it as assistant context."
+        ]
+      },
+      "status": "Ready",
+      "title": "Use cdx memory as the structured source for assistant context"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, expose cleaned cdx memory through a viewer api payload, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Expose cleaned CDX memory through a viewer API payload",
+        "use when": "Implementing the scaffolded slice for Expose cleaned CDX memory through a viewer API payload."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_564_expose_cleaned_cdx_memory_through_a_viewer_api_payload"
+        ],
+        "prod": [
+          "prod_046_cdx_memory_viewer_inspection"
+        ],
+        "req": [
+          "req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection"
+        ],
+        "task": [
+          "task_295_orchestrate_cdx_memory_viewer_screen_delivery"
+        ]
+      },
+      "path": "logics/backlog/item_564_expose_cleaned_cdx_memory_through_a_viewer_api_payload.md",
+      "ref": "item_564_expose_cleaned_cdx_memory_through_a_viewer_api_payload",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `/api/cdx-memory?scope=current` returns a ready payload when `cdx memory show --json` succeeds.",
+          "- AC2: The payload includes source path, scope, byte counts, noise ratio, detected repo, warnings, and raw/cleaned bounded excerpts.",
+          "- AC3: Missing or unsupported `cdx memory` produces an explicit non-throwing unavailable payload.",
+          "- AC4: Python tests cover ready, empty, unavailable, unsupported-json, and noisy-memory paths."
+        ],
+        "Problem": [
+          "- The viewer needs a stable payload contract for memory inspection, but should not duplicate raw cdx memory parsing or cleaning logic."
+        ]
+      },
+      "status": "Ready",
+      "title": "Expose cleaned CDX memory through a viewer API payload"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, render the cdx memory sub-screen in the viewer, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Render the CDX Memory sub-screen in the viewer",
+        "use when": "Implementing the scaffolded slice for Render the CDX Memory sub-screen in the viewer."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_565_render_the_cdx_memory_sub_screen_in_the_viewer"
+        ],
+        "prod": [
+          "prod_046_cdx_memory_viewer_inspection"
+        ],
+        "req": [
+          "req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection"
+        ],
+        "task": [
+          "task_295_orchestrate_cdx_memory_viewer_screen_delivery"
+        ]
+      },
+      "path": "logics/backlog/item_565_render_the_cdx_memory_sub_screen_in_the_viewer.md",
+      "ref": "item_565_render_the_cdx_memory_sub_screen_in_the_viewer",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The CDX area exposes a Memory sub-screen reachable by keyboard and pointer.",
+          "- AC2: The screen renders quality metrics and excerpts using existing CDX visual language.",
+          "- AC3: Raw/cleaned toggle changes only the excerpt panel and does not expose mutation controls.",
+          "- AC4: Browser-host tests cover populated, scope-switch, toggle, and empty-state UI."
+        ],
+        "Problem": [
+          "- Operators need an inspectable UI for cleaned memory, not only JSON output from a CLI command."
+        ]
+      },
+      "status": "Ready",
+      "title": "Render the CDX Memory sub-screen in the viewer"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, surface cdx memory quality warnings without blocking cdx use, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Surface CDX memory quality warnings without blocking CDX use",
+        "use when": "Implementing the scaffolded slice for Surface CDX memory quality warnings without blocking CDX use."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use"
+        ],
+        "prod": [
+          "prod_046_cdx_memory_viewer_inspection"
+        ],
+        "req": [
+          "req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection"
+        ],
+        "task": [
+          "task_295_orchestrate_cdx_memory_viewer_screen_delivery"
+        ]
+      },
+      "path": "logics/backlog/item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use.md",
+      "ref": "item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: High-noise, unavailable, stale, and ready memory states have distinct visible labels.",
+          "- AC2: Memory warnings do not block existing CDX status/history/mission rendering.",
+          "- AC3: Tests cover warning labels and fallback behavior."
+        ],
+        "Problem": [
+          "- A noisy or unavailable memory source should be visible before an operator relies on it, but it should not block unrelated CDX status, history, or mission workflows."
+        ]
+      },
+      "status": "Ready",
+      "title": "Surface CDX memory quality warnings without blocking CDX use"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, validate cdx memory screen integration with focused visual and payload tests, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Validate CDX Memory screen integration with focused visual and payload tests",
+        "use when": "Implementing the scaffolded slice for Validate CDX Memory screen integration with focused visual and payload tests."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests"
+        ],
+        "prod": [
+          "prod_046_cdx_memory_viewer_inspection"
+        ],
+        "req": [
+          "req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection"
+        ],
+        "task": [
+          "task_295_orchestrate_cdx_memory_viewer_screen_delivery"
+        ]
+      },
+      "path": "logics/backlog/item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests.md",
+      "ref": "item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Focused tests fail if the Memory screen renders blank for ready or unavailable payloads.",
+          "- AC2: Tests assert scope controls, raw/cleaned toggle, warning labels, and bounded excerpts.",
+          "- AC3: Closeout notes name the exact Python and browser-host commands used."
+        ],
+        "Problem": [
+          "- Viewer screens can regress through blank panels, unstable layout, or untested fetch states when a new CDX sub-screen is added."
+        ]
+      },
+      "status": "Ready",
+      "title": "Validate CDX Memory screen integration with focused visual and payload tests"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_564_expose_cleaned_cdx_memory_through_a_viewer_api_payload",
+          "item_565_render_the_cdx_memory_sub_screen_in_the_viewer",
+          "item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use",
+          "item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests"
+        ],
+        "prod": [
+          "prod_046_cdx_memory_viewer_inspection"
+        ],
+        "req": [
+          "req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection"
+        ],
+        "task": [
+          "task_295_orchestrate_cdx_memory_viewer_screen_delivery"
+        ]
+      },
+      "path": "logics/product/prod_046_cdx_memory_viewer_inspection.md",
+      "ref": "prod_046_cdx_memory_viewer_inspection",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "CDX Memory viewer inspection"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate CDX Memory viewer screen delivery",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_564_expose_cleaned_cdx_memory_through_a_viewer_api_payload",
+          "item_565_render_the_cdx_memory_sub_screen_in_the_viewer",
+          "item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use",
+          "item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests"
+        ],
+        "prod": [
+          "prod_046_cdx_memory_viewer_inspection"
+        ],
+        "req": [
+          "req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection"
+        ],
+        "task": [
+          "task_295_orchestrate_cdx_memory_viewer_screen_delivery"
+        ]
+      },
+      "path": "logics/tasks/task_295_orchestrate_cdx_memory_viewer_screen_delivery.md",
+      "ref": "task_295_orchestrate_cdx_memory_viewer_screen_delivery",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- Run `python3 -m logics_manager lint --require-status`.",
+          "- Run scaffold command tests."
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate CDX Memory viewer screen delivery"
+    }
+  ],
+  "estimates": {
+    "char_count": 21095,
+    "companion_doc_count": 2,
+    "doc_count": 9
+  },
+  "generated_at": "2026-07-28T19:30:47Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection",
+      "item_564_expose_cleaned_cdx_memory_through_a_viewer_api_payload",
+      "item_565_render_the_cdx_memory_sub_screen_in_the_viewer",
+      "item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use",
+      "item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests",
+      "task_295_orchestrate_cdx_memory_viewer_screen_delivery"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "diff-first",
+  "profile": "deep",
+  "ref": "req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection,item_564_expose_cleaned_cdx_memory_through_a_viewer_api_payload,item_565_render_the_cdx_memory_sub_screen_in_the_viewer,item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use,item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests,task_295_orchestrate_cdx_memory_viewer_screen_delivery",
+  "refs": [
+    "req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection",
+    "item_564_expose_cleaned_cdx_memory_through_a_viewer_api_payload",
+    "item_565_render_the_cdx_memory_sub_screen_in_the_viewer",
+    "item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use",
+    "item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests",
+    "task_295_orchestrate_cdx_memory_viewer_screen_delivery"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.19.1"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_295_orchestrate_cdx_memory_viewer_screen_delivery.md",
+      "ref": "task_295_orchestrate_cdx_memory_viewer_screen_delivery"
+    }
+  ]
+}

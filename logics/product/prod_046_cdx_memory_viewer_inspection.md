@@ -38,6 +38,15 @@ flowchart TD
 # Key product decisions
 - Use structured input as the source of truth for generated docs.
 - Keep generated write paths local and repo-bounded.
+- Optimize the first screen for daily operator confidence, not deep diagnostics: scope, quality, latest useful handoff, warnings, and a compact raw/cleaned toggle.
+- Reuse the shared cleaned `cdx memory` logic from the assistant-context work. Do not duplicate raw `.cdx` scraping in the viewer.
+- Keep long raw content folded by default so the CDX surface stays scannable.
+- Render degraded states explicitly when `cdx memory` is unavailable, empty, unsupported, stale, or noisy.
+
+# Open questions
+- Should the screen favor diagnostic detail or daily operation? Recommendation: daily operation first; keep detailed raw excerpts available but collapsed.
+- Should it support memory mutation later? Recommendation: no for this corpus. Mutation belongs in a separate explicit request.
+- Should browser visual coverage be broad? Recommendation: use the smallest existing browser-host coverage that catches rendering, scope switching, toggles, warning states, and layout regressions.
 
 # Success signals
 - Generated docs pass lint and audit without broad manual rewrites.

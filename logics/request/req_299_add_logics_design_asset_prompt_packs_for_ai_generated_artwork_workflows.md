@@ -2,8 +2,8 @@
 > From version: 2.19.1
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 93
+> Confidence: 88
 > Complexity: High
 > Theme: Design asset workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -22,6 +22,11 @@
 - CR League cars used a different workflow: raw generations outside the app, processed manifests, top/side exports, crop to transparent canvas, metadata, point detection, preview overlays, and calibration knobs for real-world generator/background drift.
 - The Logics Manager implementation should be generic enough for icon sheets, object sets, hero images, UI command icons, and game objects with metadata, while staying small and deterministic.
 - A design prompt pack should be committed or emitted as markdown/json under a repo-bounded path such as `logics/design/<slug>/`, but should not store generated copyrighted images or generator credentials.
+- Implementation guidance: ship prompt-pack generation before any asset-processing automation.
+- Implementation guidance: make free-form `--text` the smallest reliable path; add Logics-ref reading if existing sync readers make it cheap.
+- Implementation guidance: defer MCP exposure unless the CLI contract is already stable and the adapter is a thin wrapper.
+- Implementation guidance: keep 4x4 recommendations heuristic, not mandatory; use 2x2, single-image, or metadata-oriented object prompts when those fit better.
+- Open question for the operator: whether the first wave should include machining scripts. Recommendation: no, ship machining instructions first and add scripts only after repeated demand across repositories.
 
 # Acceptance criteria
 - AC1: A `logics-manager design` CLI surface can create a design prompt pack from a Logics ref or free-form text and emit both text and JSON output.

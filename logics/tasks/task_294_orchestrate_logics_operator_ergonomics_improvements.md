@@ -2,8 +2,8 @@
 > From version: 2.19.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92
+> Confidence: 88
 > Progress: 0%
 > Complexity: Medium
 > Theme: Implementation delivery
@@ -16,10 +16,10 @@
 - [ ] 1. Slice 1: Fix copy-paste-safe remediation messages for indicator lint and update-indicators help. Run focused CLI/help tests.
 - [ ] 2. Slice 2: Add shared status alias normalization and wire it into status-writing paths. Run status normalization tests.
 - [ ] 3. Slice 3: Harden release evidence help and missing-field examples. Run release CLI tests.
-- [ ] 4. Slice 4: Add packaging truth checks, starting with metadata coverage and a clean-wheel doctor command if it stays small. Run packaging tests and the release-adjacent check.
+- [ ] 4. Slice 4: Add packaging truth checks in two tiers: metadata coverage in `ci:check`, clean-wheel install proof in `doctor packaging` / release validation. Run packaging tests and the release-adjacent check.
 - [ ] 5. Slice 5: Update RTK wrapper-safe documentation and generated assistant instructions. Run instruction snapshot tests.
-- [ ] 6. Slice 6: Add cdx-memory assistant context reading and cleaning. Run noisy-memory fixture tests.
-- [ ] 7. Slice 7: Add roadmap status/place daily-flow commands and non-blocking closeout recommendations. Run roadmap CLI/audit tests.
+- [ ] 6. Slice 6: Add cdx-memory assistant context reading, cleaning, and the read-only CDX Memory viewer sub-screen. Run noisy-memory fixture and viewer-state tests.
+- [ ] 7. Slice 7: Add top-level `logics-manager roadmap status/place` daily-flow commands, optional cheap `flow roadmap` aliases, and non-blocking closeout recommendations. Run roadmap CLI/audit tests.
 - [ ] 8. Closeout: run `npm run ci:check` or the smallest equivalent full local gate available, plus `logics-manager lint --require-status`, `logics-manager audit --group-by-doc`, and `git diff --check`; record which slices shipped and which were deliberately deferred.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.

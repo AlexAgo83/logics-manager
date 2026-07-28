@@ -2,8 +2,8 @@
 > From version: 2.19.1
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92
+> Confidence: 88
 > Complexity: High
 > Theme: Operator ergonomics
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -15,6 +15,7 @@
 - Packaging checks should prove installed artifacts, not only source-tree behavior, before a release is considered healthy.
 - RTK wrapper guidance should name known semantic traps so assistants do not wrap one-off commands incorrectly.
 - Logics Manager should consume the new `cdx memory` surface for bounded, cleaned handoff context instead of scraping raw context files directly.
+- The Logics viewer should expose cleaned CDX memory as a CDX sub-screen so operators can inspect handoff quality before injecting it into assistant context.
 - Roadmap support should become useful in the daily flow: visible status, easy placement of refs into milestones, and closeout prompts that keep the plan current.
 
 # Context
@@ -23,18 +24,22 @@
 - `logics-manager sync update-indicators --help` lists flags but not the values or remediation examples an assistant can safely copy.
 - `cdx memory list --json` returns structured current/global memory metadata, and `cdx memory show --json` returns raw content that may contain ANSI/TUI noise and huge spinner lines.
 - The repo has first-class roadmap code and docs, but `logics-manager sync list-docs --kind roadmap --format json` returns zero items, so roadmap is a capability rather than an actively used planning object.
+- Product decision: roadmap should have a top-level command surface (`logics-manager roadmap status/place`) with `flow roadmap` kept as a compatibility alias when cheap.
+- Product decision: packaging verification should be two-tiered: a cheap metadata-vs-subpackages check in `ci:check`, and a slower clean-wheel install check in `doctor packaging` / release validation.
+- Product decision: the viewer should add a CDX Memory sub-screen under the existing CDX area, showing scopes, cleanup quality, latest useful handoff, and warnings without editing Codex memory.
 - The smallest useful delivery is a set of CLI and assistant-surface refinements with focused tests; avoid building a new planning database, AI planner, or memory store.
 
 # Acceptance criteria
 - AC1: Indicator-gate lint failures print a copy-paste-safe `sync update-indicators` example and explicitly mention the `Non-semantic edit` escape hatch.
 - AC2: Workflow status inputs accept common aliases such as `In Progress`, `in_progress`, and `in progress`, then persist the canonical status label.
 - AC3: `release evidence add --help` shows help successfully, and evidence-add argument errors include a complete example command for the target gate.
-- AC4: A packaging doctor or CI check proves that all importable `logics_manager.*` subpackages are included in package metadata and that a clean wheel exposes critical CLI commands.
+- AC4: `ci:check` runs a cheap metadata-vs-subpackages packaging check, and `doctor packaging` / release validation can run a clean-wheel install check for critical CLI commands.
 - AC5: RTK wrapper documentation and generated assistant instructions name safe forms for targeted npm commands, including `rtk npm exec -- vitest ...` instead of `rtk npx vitest ...`.
 - AC6: An assistant-facing command can read `cdx memory` current/global scopes as JSON, clean ANSI/TUI noise, summarize quality signals, and emit a bounded context payload without directly depending on raw `.cdx/contexts` paths.
-- AC7: Roadmap flow exposes a practical status surface and a command to place existing refs into milestones without hand-editing roadmap docs.
-- AC8: Task closeout or flow validation surfaces stale/missing roadmap placement as a non-blocking recommendation when roadmap docs exist, without making roadmap mandatory for repos that do not use it.
-- AC9: Focused Python and TypeScript tests cover the changed CLI behavior, memory cleaning, packaging verification, and roadmap status/place behavior.
+- AC7: The viewer exposes a CDX Memory sub-screen that reuses the cleaned memory payload, highlights quality warnings, and gives read-only access to current/global scopes.
+- AC8: Top-level roadmap commands expose practical status and placement flows, with `flow roadmap` aliases kept when cheap.
+- AC9: Task closeout or flow validation surfaces stale/missing roadmap placement as a non-blocking recommendation when roadmap docs exist, without making roadmap mandatory for repos that do not use it.
+- AC10: Focused Python and TypeScript tests cover the changed CLI behavior, memory cleaning, viewer memory screen, packaging verification, and roadmap status/place behavior.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

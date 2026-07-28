@@ -2,8 +2,8 @@
 > From version: 2.19.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92
+> Confidence: 88
 > Progress: 0%
 > Complexity: Medium
 > Theme: Roadmap planning
@@ -14,8 +14,9 @@
 
 # Scope
 - In:
-  - Add `logics-manager roadmap status` or `logics-manager flow roadmap status` to list roadmap docs, milestone summaries, open high/medium refs not placed in a roadmap, and stale roadmap warnings.
-  - Add `logics-manager roadmap place <ref> --roadmap <road_ref> --milestone <label>` or the equivalent under `flow roadmap` to update roadmap placement without hand-editing.
+  - Add top-level `logics-manager roadmap status` to list roadmap docs, milestone summaries, open high/medium refs not placed in a roadmap, and stale roadmap warnings.
+  - Add top-level `logics-manager roadmap place <ref> --roadmap <road_ref> --milestone <label>` to update roadmap placement without hand-editing.
+  - Keep `logics-manager flow roadmap status/place` as compatibility aliases when that is cheap and does not duplicate implementation logic.
   - Make flow validate or closeout emit non-blocking roadmap recommendations when roadmap docs exist and linked work is done or unplaced.
   - Keep repositories with zero roadmap docs passing with no warning.
   - Add tests for no-roadmap, populated-roadmap, unplaced-high-priority, and place-command update paths.
@@ -25,14 +26,15 @@
   - Requiring every open task to belong to a roadmap.
 
 # Acceptance criteria
-- AC1: A roadmap status command summarizes current roadmaps and unplaced high/medium open work.
-- AC2: A place command updates roadmap placement and validates refs without manual edits.
+- AC1: `logics-manager roadmap status` summarizes current roadmaps and unplaced high/medium open work.
+- AC2: `logics-manager roadmap place` updates roadmap placement and validates refs without manual edits.
 - AC3: Closeout or validate prints recommendations when roadmap placement is stale, but does not block task finish solely for roadmap hygiene.
 - AC4: Repos without roadmap docs remain quiet and pass validation.
+- AC5: `flow roadmap status/place` aliases are present or explicitly documented as omitted because the top-level command is the single supported surface.
 
 # AC Traceability
-- request-AC7 -> This backlog slice. Proof: AC1: A roadmap status command summarizes current roadmaps and unplaced high/medium open work.
-- request-AC8 -> This backlog slice. Proof: AC2: A place command updates roadmap placement and validates refs without manual edits.
+- request-AC8 -> This backlog slice. Proof: AC1: `logics-manager roadmap status` summarizes current roadmaps and unplaced high/medium open work.
+- request-AC9 -> This backlog slice. Proof: AC3: Closeout or validate prints recommendations when roadmap placement is stale, but does not block task finish solely for roadmap hygiene.
 
 # Decision framing
 - Product framing: Not needed

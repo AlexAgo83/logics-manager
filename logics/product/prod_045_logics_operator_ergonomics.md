@@ -9,31 +9,34 @@
 > Non-semantic edit: Added overview Mermaid diagram.
 
 # Overview
-Make Logics Manager easier for agents and operators to use correctly by turning known friction points into copy-paste-safe CLI guidance, package truth checks, cleaned CDX memory context, and practical roadmap maintenance commands.
+Make Logics Manager easier for agents and operators to use correctly by turning known friction points into copy-paste-safe CLI guidance, package truth checks, cleaned CDX memory context visible in the viewer, and practical top-level roadmap maintenance commands.
 
 ```mermaid
 flowchart TD
     Friction[Observed operator friction] --> CLI[Copy-paste-safe CLI guidance]
     Friction --> Memory[Clean cdx memory context]
-    Friction --> Packaging[Package truth checks]
-    Friction --> Roadmap[Roadmap status and placement]
+    Memory --> Screen[CDX Memory viewer screen]
+    Friction --> Packaging[Two-tier package truth checks]
+    Friction --> Roadmap[Top-level roadmap status and placement]
     CLI --> Handoff[Ready-to-dev handoff]
     Memory --> Handoff
+    Screen --> Handoff
     Packaging --> Handoff
     Roadmap --> Handoff
 ```
 
 # Goals
 - Reduce avoidable operator mistakes in common Logics remediation and release-evidence flows.
-- Make assistant handoffs cleaner by consuming structured `cdx memory` output and cleaning terminal noise.
-- Prove package/install behavior from built artifacts before release work is trusted.
-- Make roadmap docs useful during daily planning and closeout instead of only existing as companion documents.
+- Make assistant handoffs cleaner by consuming structured `cdx memory` output, cleaning terminal noise, and exposing the result in a CDX Memory viewer sub-screen.
+- Prove package/install behavior from built artifacts before release work is trusted, with a cheap `ci:check` metadata gate and a heavier clean-wheel doctor/release gate.
+- Make roadmap docs useful during daily planning and closeout through top-level `logics-manager roadmap status/place` commands instead of only companion-document views.
 
 # Non-goals
 - Replacing the existing request -> backlog -> task workflow chain.
 - Creating a separate memory database inside Logics Manager.
 - Making roadmap placement mandatory in repositories without roadmap docs.
 - Adding drag-and-drop roadmap editing or an AI roadmap planner in this wave.
+- Adding a Codex memory editor, mutation UI, or timeline in this wave.
 - Changing RTK behavior itself.
 
 # Scope and guardrails
@@ -43,10 +46,14 @@ flowchart TD
 # Key product decisions
 - Use structured input as the source of truth for generated docs.
 - Keep generated write paths local and repo-bounded.
+- Use `logics-manager roadmap ...` as the primary roadmap surface; keep `flow roadmap ...` aliases only when they are cheap wrappers.
+- Split packaging proof into a fast metadata coverage check in `ci:check` and a slower clean-wheel install check in `doctor packaging` / release validation.
+- Add a read-only CDX Memory sub-screen under the existing CDX viewer area, backed by the same cleaned `cdx memory` payload used by assistant context.
 
 # Success signals
 - Generated docs pass lint and audit without broad manual rewrites.
 - Context-pack output can be handed to an implementation agent directly.
+- Operators can inspect current/global CDX memory quality, warnings, and cleaned handoff text in the viewer before using it as assistant context.
 
 # References
 - Product back-reference: `req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow`

@@ -27,6 +27,7 @@ from urllib.parse import parse_qs, quote, unquote, urlparse
 from .audit import audit_payload
 from . import viewer_diagnostics
 from .bootstrap import bootstrap_payload
+from .cdx_memory import cdx_memory_payload
 from .config import ConfigError, find_repo_root
 from .lint import lint_payload
 from .release import load_release_context, release_reset_payload, release_status_payload
@@ -4071,6 +4072,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
                 "cdxRuns": {"cdx-runs", "status"},
                 "cdxHistory": {"cdx-history"},
                 "cdxDisk": {"cdx-disk"},
+                "cdxMemory": {"cdx-memory", "status"},
             }
             component_names = set(names)
             cache_names: set[str] = set()
@@ -4158,6 +4160,7 @@ _STATUS_ROUTE_TABLE: dict[str, tuple[str, str]] = {
     "/api/cdx-runs": ("cdx-runs", "cdxRuns"),
     "/api/cdx-history": ("cdx-history", "cdxHistory"),
     "/api/cdx-disk": ("cdx-disk", "cdxDisk"),
+    "/api/cdx-memory": ("cdx-memory", "cdxMemory"),
 }
 
 
@@ -4206,6 +4209,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             "cdxRuns": lambda: cdx_runs_payload(repo_root),
             "cdxHistory": lambda: cdx_history_payload(repo_root),
             "cdxDisk": lambda: cdx_disk_payload(repo_root),
+            "cdxMemory": lambda: cdx_memory_payload(repo_root),
         }
         return self.server.status_component(name, producers[name], force=force)
 
@@ -4688,6 +4692,12 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         if viewer_project_tools.handle_get(self, route): return
         if route == "/api/events":
             self._stream_viewer_events()
+            return
+        if route == "/api/cdx-memory":
+            scope = parse_qs(parsed.query).get("scope", ["current"])[0]
+            if scope not in {"current", "global", "project"}:
+                scope = "current"
+            self._send_status_json(f"cdx-memory:{scope}", lambda *, force=False: cdx_memory_payload(self.server.repo_root, scope=scope))
             return
         status_route = _STATUS_ROUTE_TABLE.get(route)
         if status_route is not None:

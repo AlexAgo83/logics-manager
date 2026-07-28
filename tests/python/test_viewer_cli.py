@@ -533,11 +533,13 @@ def test_viewer_status_route_table_covers_all_status_endpoints() -> None:
         "/api/cdx-runs",
         "/api/cdx-history",
         "/api/cdx-disk",
+        "/api/cdx-memory",
     }
     # Each route maps to a (label, component) the status producer understands.
     assert table["/api/git-status"] == ("git-status", "git")
     assert table["/api/cdx-history"] == ("cdx-history", "cdxHistory")
     assert table["/api/cdx-disk"] == ("cdx-disk", "cdxDisk")
+    assert table["/api/cdx-memory"] == ("cdx-memory", "cdxMemory")
 
 
 def test_viewer_read_json_body_handles_malformed_content_length() -> None:
@@ -3188,6 +3190,30 @@ def test_viewer_cdx_status_endpoint_returns_payload(monkeypatch: pytest.MonkeyPa
         assert payload["ok"] is True
         assert payload["payload"]["state"] == "ok"
         assert payload["payload"]["status"]["availability"] == "ready"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
+def test_viewer_cdx_memory_endpoint_returns_scoped_payload(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    (tmp_path / "logics").mkdir()
+    monkeypatch.setattr(
+        viewer_module,
+        "cdx_memory_payload",
+        lambda repo_root, *, scope="current": {"state": "ready", "scope": scope, "cleaned_excerpt": str(repo_root)},
+    )
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("GET", "/api/cdx-memory?scope=global")
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+        assert response.status == 200
+        assert payload["ok"] is True
+        assert payload["payload"]["scope"] == "global"
     finally:
         server.shutdown()
         server.server_close()

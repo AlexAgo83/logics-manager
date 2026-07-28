@@ -1,13 +1,14 @@
 ## task_295_orchestrate_cdx_memory_viewer_screen_delivery - Orchestrate CDX Memory viewer screen delivery
 > From version: 2.19.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 93
 > Confidence: 88
-> Progress: 0
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Owner: codex
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
@@ -37,23 +38,37 @@
 - `item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests`
 
 # Definition of Done (DoD)
-- [ ] Generated request, product, backlog, and task docs are present.
-- [ ] Context-pack handoff is available when requested.
-- [ ] Validation passes.
-- [ ] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
+- [x] Generated request, product, backlog, and task docs are present.
+- [x] Context-pack handoff is available when requested.
+- [x] Validation passes.
+- [x] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
 
 # AC Traceability
 - request-AC1 -> This task. Proof: scaffold command generated the request-chain corpus.
 - request-AC4 -> This task. Proof: optional context-pack handoff is supported.
 - request-AC6 -> This task. Proof: dry-run and collision checks bound file changes.
 - request-AC8 -> This task. Proof: CLI help documents the one-pass scaffold workflow.
+- request-AC2 -> This task. Evidence needed: The screen fetches a viewer API payload backed by the shared cleaned `cdx memory` logic and supports at least current and global scopes.
+- request-AC3 -> This task. Evidence needed: The screen renders source path, scope, bytes before/after cleaning, estimated noise ratio, detected repo, warnings, and latest useful handoff excerpt.
+- request-AC5 -> This task. Evidence needed: Empty memory, unavailable `cdx memory`, unsupported JSON, and noisy-memory cleanup states are rendered explicitly and do not blank the viewer.
+- request-AC7 -> This task. Evidence needed: Python tests cover the viewer payload for populated, empty, unavailable, and noisy memory cases.
+- request-AC2 -> This task. Proof: Implemented assist cdx-memory show, /api/cdx-memory, and the read-only CDX Memory viewer sub-screen with scope controls, warnings, and raw/cleaned excerpts. Validation: npm run ci:check passed and focused Memory tests passed. Source: `task_295_orchestrate_cdx_memory_viewer_screen_delivery`
+- request-AC3 -> This task. Proof: Implemented assist cdx-memory show, /api/cdx-memory, and the read-only CDX Memory viewer sub-screen with scope controls, warnings, and raw/cleaned excerpts. Validation: npm run ci:check passed and focused Memory tests passed. Source: `task_295_orchestrate_cdx_memory_viewer_screen_delivery`
+- request-AC5 -> This task. Proof: Implemented assist cdx-memory show, /api/cdx-memory, and the read-only CDX Memory viewer sub-screen with scope controls, warnings, and raw/cleaned excerpts. Validation: npm run ci:check passed and focused Memory tests passed. Source: `task_295_orchestrate_cdx_memory_viewer_screen_delivery`
+- request-AC7 -> This task. Proof: Implemented assist cdx-memory show, /api/cdx-memory, and the read-only CDX Memory viewer sub-screen with scope controls, warnings, and raw/cleaned excerpts. Validation: npm run ci:check passed and focused Memory tests passed. Source: `task_295_orchestrate_cdx_memory_viewer_screen_delivery`
 
 # Validation
 - Run `python3 -m logics_manager lint --require-status`.
 - Run scaffold command tests.
+- Implemented shared CDX memory payload, assist cdx-memory show, /api/cdx-memory, and the read-only CDX Memory viewer sub-screen with current/global/project scope controls plus raw/cleaned toggle and warnings. Validation: focused Python payload/API tests passed, focused browser-host CDX Memory test passed, npm run ci:check passed.
+- Finish workflow executed on 2026-07-28.
+- Linked backlog/request close verification passed.
 
 # Report
 - Implementation complete.
+- Finished on 2026-07-28.
+- Linked backlog item(s): `item_564_expose_cleaned_cdx_memory_through_a_viewer_api_payload`, `item_565_render_the_cdx_memory_sub_screen_in_the_viewer`, `item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use`, `item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests`
+- Related request(s): `req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection`
 
 # AI Context
 - Summary: Orchestrate CDX Memory viewer screen delivery

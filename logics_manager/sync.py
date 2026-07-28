@@ -12,7 +12,7 @@ from pathlib import Path
 from .config import find_repo_root
 from .doc_parsing import extract_refs, git_changed_paths, indicator_value, priority_tier
 from .lint import expected_workflow_mermaid_signature
-from .statuses import transition_error
+from .statuses import canonical_status, transition_error
 from .path_utils import resolve_repo_output_path
 from .release import release_context_pack_payload
 from .i18n import i18n_plan_payload
@@ -679,6 +679,7 @@ def update_workflow_indicators_payload(repo_root: Path, source: str, indicators:
     lines = _read_lines(repo_root, path)
     if "Status" in cleaned:
         previous_status = _indicator_value(lines, "Status")
+        cleaned["Status"] = canonical_status(kind, cleaned["Status"])
         error = transition_error(kind, previous_status, cleaned["Status"])
         if error:
             raise SystemExit(error)
@@ -1171,6 +1172,15 @@ def _build_subcommand_help(command: str) -> str:
                 "  --complexity",
                 "  --format {text,json}",
                 "  --dry-run",
+                "",
+                "Status values:",
+                "  request/backlog/task: Draft, Ready, In progress, Blocked, Done, Obsolete, Archived",
+                "  aliases accepted: In Progress, in_progress, in progress",
+                "",
+                "Examples:",
+                "  logics-manager sync update-indicators task_001_demo --status \"In progress\" --progress 25%",
+                "  logics-manager sync update-indicators req_001_demo --confidence 90",
+                "  Add `> Non-semantic edit:` when the doc change intentionally does not alter indicators.",
             ]
         )
     if command == "append-note":

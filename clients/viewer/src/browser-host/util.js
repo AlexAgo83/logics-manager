@@ -899,6 +899,7 @@ export function renderCdxModeSwitcher(active) {
         <button class="viewer-cdx__mode${active === "missions" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="missions" aria-selected="${active === "missions" ? "true" : "false"}">Missions</button>
         <button class="viewer-cdx__mode${active === "runs" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="runs" aria-selected="${active === "runs" ? "true" : "false"}">Reports</button>
         <button class="viewer-cdx__mode${active === "history" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="history" aria-selected="${active === "history" ? "true" : "false"}">History</button>
+        <button class="viewer-cdx__mode${active === "memory" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="memory" aria-selected="${active === "memory" ? "true" : "false"}">Memory</button>
         <button class="viewer-cdx__mode${active === "disk" ? " is-active" : ""}" type="button" data-viewer-cdx-mode="disk" aria-selected="${active === "disk" ? "true" : "false"}">Disk</button>
       </div>
     `;

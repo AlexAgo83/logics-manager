@@ -1,10 +1,10 @@
 ## item_568_define_the_logics_design_prompt_pack_schema_and_templates - Define the Logics Design prompt pack schema and templates
 > From version: 2.19.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Design pack model
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -34,6 +34,14 @@
 - request-AC3 -> This backlog slice. Proof: AC2: Layout recommendation returns 4x4, 2x2, single, or multi-view recommendations based on kind/count without forcing a grid when it is not suitable.
 - request-AC6 -> This backlog slice. Proof: AC3: Invalid packs fail before write with clear field-level errors.
 - request-AC8 -> This backlog slice. Proof: AC4: Tests cover schema validation and layout recommendation edge cases.
+- request-AC5 -> This backlog slice. Evidence needed: The pack includes machining instructions for extraction, background removal, recentering, manual recrop triggers, transparent output, audit sizes, and integration validation.
+- request-AC7 -> This backlog slice. Evidence needed: The command can write a repo-bounded markdown/json bundle under `logics/design/<slug>/` and can dry-run without writing.
+- request-AC9 -> This backlog slice. Evidence needed: Documentation and examples make clear that Logics Design does not generate images, manage credentials, or replace human visual audit.
+- request-AC10 -> This backlog slice. Evidence needed: Focused tests cover CLI text/json output, layout recommendation heuristics, schema validation, repo-bounded writes, and the CR League-inspired 4x4 icon-sheet prompt.
+- request-AC5 -> This backlog slice. Proof: Implemented logics-manager design prompt with text/ref input, asset kind templates, transparent and 2x2/4x4 guidance, machining notes, JSON/text output, and repo-bounded prompt-pack writes. Validation: npm run ci:check passed and focused design CLI tests passed. Source: `task_296_orchestrate_logics_design_asset_prompt_pack_delivery`
+- request-AC7 -> This backlog slice. Proof: Implemented logics-manager design prompt with text/ref input, asset kind templates, transparent and 2x2/4x4 guidance, machining notes, JSON/text output, and repo-bounded prompt-pack writes. Validation: npm run ci:check passed and focused design CLI tests passed. Source: `task_296_orchestrate_logics_design_asset_prompt_pack_delivery`
+- request-AC9 -> This backlog slice. Proof: Implemented logics-manager design prompt with text/ref input, asset kind templates, transparent and 2x2/4x4 guidance, machining notes, JSON/text output, and repo-bounded prompt-pack writes. Validation: npm run ci:check passed and focused design CLI tests passed. Source: `task_296_orchestrate_logics_design_asset_prompt_pack_delivery`
+- request-AC10 -> This backlog slice. Proof: Implemented logics-manager design prompt with text/ref input, asset kind templates, transparent and 2x2/4x4 guidance, machining notes, JSON/text output, and repo-bounded prompt-pack writes. Validation: npm run ci:check passed and focused design CLI tests passed. Source: `task_296_orchestrate_logics_design_asset_prompt_pack_delivery`
 
 # Decision framing
 - Product framing: Not needed
@@ -54,3 +62,6 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_296_orchestrate_logics_design_asset_prompt_pack_delivery` was finished via `logics-manager flow finish task` on 2026-07-28.

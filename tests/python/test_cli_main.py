@@ -177,6 +177,94 @@ def test_main_renders_the_canonical_claude_instructions_manifest(capsys: pytest.
     assert payload["path"] == "logics/instructions.md"
     assert payload["line_count"] > 0
     assert "python3 -m logics_manager flow finish task" in payload["content"]
+    assert "rtk npm exec -- vitest" in payload["content"]
+
+
+def test_main_assist_cdx_memory_show_uses_shared_payload(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.setattr("logics_manager.assist.find_repo_root", lambda _cwd: tmp_path)
+    monkeypatch.setattr(
+        "logics_manager.assist.cdx_memory_payload",
+        lambda *_args, **_kwargs: {
+            "ok": True,
+            "state": "ready",
+            "scope": "current",
+            "warnings": [],
+            "cleaned_excerpt": "Clean handoff",
+            "raw_excerpt": "Raw handoff",
+        },
+    )
+
+    exit_code = main(["assist", "cdx-memory", "show", "--clean"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "CDX memory current: ready" in captured.out
+    assert "Clean handoff" in captured.out
+
+
+def test_main_roadmap_status_reports_unplaced_refs(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    _write_subprocess_json_repo(tmp_path)
+    (tmp_path / "logics" / "roadmap").mkdir(parents=True)
+    (tmp_path / "logics" / "roadmap" / "road_001_plan.md").write_text("## road_001_plan - Plan\n\n## Now\n\n- `req_001_demo`\n", encoding="utf-8")
+    monkeypatch.setattr("logics_manager.roadmap.find_repo_root", lambda _cwd: tmp_path)
+
+    exit_code = main(["roadmap", "status", "--format", "json"])
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 0
+    assert payload["ok"] is True
+    assert {row["ref"] for row in payload["unplaced"]} == {"item_001_demo", "task_001_demo"}
+
+
+def test_main_roadmap_place_adds_ref_to_milestone(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    _write_subprocess_json_repo(tmp_path)
+    (tmp_path / "logics" / "roadmap").mkdir(parents=True)
+    roadmap = tmp_path / "logics" / "roadmap" / "road_001_plan.md"
+    roadmap.write_text("## road_001_plan - Plan\n\n## Now\n", encoding="utf-8")
+    monkeypatch.setattr("logics_manager.roadmap.find_repo_root", lambda _cwd: tmp_path)
+
+    exit_code = main(["roadmap", "place", "task_001_demo", "--milestone", "Now", "--format", "json"])
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 0
+    assert payload["state"] == "updated"
+    assert "`task_001_demo`: Demo task" in roadmap.read_text(encoding="utf-8")
+
+
+def test_main_design_prompt_generates_prompt_pack(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    _write_subprocess_json_repo(tmp_path)
+    monkeypatch.setattr("logics_manager.design.find_repo_root", lambda _cwd: tmp_path)
+
+    exit_code = main([
+        "design",
+        "prompt",
+        "--text",
+        "garage upgrade icons",
+        "--kind",
+        "icon-sheet",
+        "--count",
+        "16",
+        "--ref",
+        "task_001_demo",
+        "--out",
+        "logics/design/garage-icons",
+        "--format",
+        "json",
+    ])
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 0
+    assert payload["layout"] == "4x4 grid"
+    assert payload["transparent"] is True
+    assert "task_001_demo - Demo task" in payload["prompt"]
+    assert (tmp_path / "logics" / "design" / "garage-icons" / "prompt.md").is_file()
 
 
 def test_main_accepts_json_alias_for_native_root_command(
@@ -1567,6 +1655,50 @@ def test_render_doctor_reports_missing_workflow_dirs(tmp_path: Path) -> None:
     assert "missing_directory" in output
 
 
+def test_doctor_packaging_metadata_check_reports_missing_package(tmp_path: Path) -> None:
+    from logics_manager.doctor import doctor_packaging_payload
+
+    repo_root = tmp_path / "repo"
+    package_dir = repo_root / "logics_manager" / "extra"
+    package_dir.mkdir(parents=True)
+    (repo_root / "logics_manager" / "__init__.py").write_text("", encoding="utf-8")
+    (package_dir / "__init__.py").write_text("", encoding="utf-8")
+    (repo_root / "pyproject.toml").write_text(
+        "\n".join(
+            [
+                "[tool.setuptools]",
+                "packages = [",
+                '  "logics_manager",',
+                "]",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    payload = doctor_packaging_payload(repo_root, clean_install=False)
+
+    assert payload["ok"] is False
+    assert payload["missing_packages"] == ["logics_manager.extra"]
+
+
+def test_main_doctor_packaging_metadata_only(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = Path(tempfile.mkdtemp(prefix="logics-packaging-"))
+    (repo_root / "logics_manager").mkdir()
+    (repo_root / "logics_manager" / "__init__.py").write_text("", encoding="utf-8")
+    (repo_root / "pyproject.toml").write_text('[tool.setuptools]\npackages = [\n  "logics_manager",\n]\n', encoding="utf-8")
+    monkeypatch.setattr("logics_manager.cli.find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["doctor", "packaging", "--metadata-only", "--format", "json"])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 0
+    assert payload["checks"][0]["id"] == "metadata_subpackages"
+
+
 @pytest.mark.parametrize(
     "argv",
     [
@@ -1723,7 +1855,7 @@ def test_lint_changed_doc_hint_is_runnable_and_mentions_non_semantic_marker(tmp_
     payload = lint_payload(repo_root, require_status=True)
     message = payload["issues"][0]["message"]
 
-    assert "logics-manager sync update-indicators req_001_demo --confidence <n>" in message
+    assert "logics-manager sync update-indicators req_001_demo --understanding <n> --confidence <n>" in message
     assert "`> Non-semantic edit:`" in message
 
 

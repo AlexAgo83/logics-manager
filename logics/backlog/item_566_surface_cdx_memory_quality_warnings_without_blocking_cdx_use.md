@@ -1,10 +1,10 @@
 ## item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use - Surface CDX memory quality warnings without blocking CDX use
 > From version: 2.19.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Viewer trust signals
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -31,6 +31,10 @@
 - request-AC5 -> This backlog slice. Proof: AC1: High-noise, unavailable, stale, and ready memory states have distinct visible labels.
 - request-AC6 -> This backlog slice. Proof: AC2: Memory warnings do not block existing CDX status/history/mission rendering.
 - request-AC8 -> This backlog slice. Proof: AC3: Tests cover warning labels and fallback behavior.
+- request-AC4 -> This backlog slice. Evidence needed: The screen provides a compact raw/cleaned inspection toggle without allowing memory mutation.
+- request-AC7 -> This backlog slice. Evidence needed: Python tests cover the viewer payload for populated, empty, unavailable, and noisy memory cases.
+- request-AC4 -> This backlog slice. Proof: Implemented assist cdx-memory show, /api/cdx-memory, and the read-only CDX Memory viewer sub-screen with scope controls, warnings, and raw/cleaned excerpts. Validation: npm run ci:check passed and focused Memory tests passed. Source: `task_295_orchestrate_cdx_memory_viewer_screen_delivery`
+- request-AC7 -> This backlog slice. Proof: Implemented assist cdx-memory show, /api/cdx-memory, and the read-only CDX Memory viewer sub-screen with scope controls, warnings, and raw/cleaned excerpts. Validation: npm run ci:check passed and focused Memory tests passed. Source: `task_295_orchestrate_cdx_memory_viewer_screen_delivery`
 
 # Decision framing
 - Product framing: Not needed
@@ -51,3 +55,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_295_orchestrate_cdx_memory_viewer_screen_delivery` was finished via `logics-manager flow finish task` on 2026-07-28.

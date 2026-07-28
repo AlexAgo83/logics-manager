@@ -173,6 +173,26 @@ def test_sync_read_doc_text_includes_bounded_content(
     assert "Agents need useful body text." in captured.out
 
 
+def test_sync_update_indicators_canonicalizes_status_alias(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    task_dir = repo_root / "logics" / "tasks"
+    task_dir.mkdir(parents=True)
+    task_path = task_dir / "task_001_demo.md"
+    _write_minimal_workflow_doc(task_path, title="Demo task", kind="task", status="Ready", links=[])
+    monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["sync", "update-indicators", "task_001_demo", "--status", "in_progress", "--format", "json"])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 0
+    assert payload["updated_indicators"]["Status"] == "In progress"
+    assert "> Status: In progress" in task_path.read_text(encoding="utf-8")
+
+
 def test_sync_list_and_read_roadmap_docs(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

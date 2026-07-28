@@ -1,7 +1,7 @@
 ## req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows - Add Logics Design asset prompt packs for AI-generated artwork workflows
 > From version: 2.19.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 93
 > Confidence: 88
 > Complexity: High

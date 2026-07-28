@@ -2,8 +2,8 @@
 > From version: 2.19.1
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92
+> Confidence: 88
 > Progress: 0%
 > Complexity: Medium
 > Theme: Packaging
@@ -15,17 +15,18 @@
 # Scope
 - In:
   - Add or strengthen a Python test that compares discovered `logics_manager.*` subpackages with package metadata.
-  - Add `logics-manager doctor packaging` or a CI helper that builds a wheel, installs it into a clean venv, and checks `logics-manager --version` plus critical commands such as `flow finish --help` and `release status --help`.
-  - Wire the cheap metadata check into `ci:check`; keep the clean-wheel check available for release validation if it is too slow for every local run.
+  - Wire the cheap metadata-vs-subpackages check into `ci:check`.
+  - Add `logics-manager doctor packaging` for the heavier clean-wheel path: build a wheel, install it into a clean venv, and check `logics-manager --version` plus critical commands such as `flow finish --help` and `release status --help`.
+  - Make release validation or release guidance call out `doctor packaging` as the release-time artifact-truth gate.
   - Document the command in release guidance.
 - Out:
   - Changing package managers or publishing workflows.
   - Adding a new dependency for packaging inspection.
 
 # Acceptance criteria
-- AC1: CI fails if a `logics_manager.*` subpackage is importable in the checkout but absent from explicit packaging metadata.
-- AC2: The packaging doctor builds and installs a wheel in a clean venv and validates critical CLI commands.
-- AC3: Tests or release documentation prove the check is part of the release path.
+- AC1: `ci:check` fails if a `logics_manager.*` subpackage is importable in the checkout but absent from explicit packaging metadata.
+- AC2: `logics-manager doctor packaging` builds and installs a wheel in a clean venv and validates critical CLI commands.
+- AC3: Release validation or release documentation proves the clean-wheel doctor is part of the release path.
 
 # AC Traceability
 - request-AC4 -> This backlog slice. Proof: AC1: CI fails if a `logics_manager.*` subpackage is importable in the checkout but absent from explicit packaging metadata.

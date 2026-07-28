@@ -3,19 +3,7 @@
     "max_docs": 72,
     "max_docs_per_ref": 8
   },
-  "changed_paths": [
-    "logics/backlog/item_557_make_logics_remediation_messages_copy_paste_safe.md",
-    "logics/backlog/item_558_normalize_workflow_status_aliases_before_persistence.md",
-    "logics/backlog/item_559_harden_release_evidence_help_and_examples.md",
-    "logics/backlog/item_560_add_package_truth_checks_for_shipped_cli_behavior.md",
-    "logics/backlog/item_561_document_rtk_wrapper_safe_command_forms.md",
-    "logics/backlog/item_562_use_cdx_memory_as_the_structured_source_for_assistant_context.md",
-    "logics/backlog/item_563_make_roadmap_status_and_placement_part_of_the_daily_flow.md",
-    "logics/context-packs/logics-operator-ergonomics.json",
-    "logics/product/prod_045_logics_operator_ergonomics.md",
-    "logics/request/req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow.md",
-    "logics/tasks/task_294_orchestrate_logics_operator_ergonomics_improvements.md"
-  ],
+  "changed_paths": [],
   "command": "logics-manager sync context-pack req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow item_557_make_logics_remediation_messages_copy_paste_safe item_558_normalize_workflow_status_aliases_before_persistence item_559_harden_release_evidence_help_and_examples item_560_add_package_truth_checks_for_shipped_cli_behavior item_561_document_rtk_wrapper_safe_command_forms item_562_use_cdx_memory_as_the_structured_source_for_assistant_context item_563_make_roadmap_status_and_placement_part_of_the_daily_flow task_294_orchestrate_logics_operator_ergonomics_improvements --mode diff-first --profile deep --handoff",
   "companion_docs": [
     {
@@ -45,21 +33,24 @@
       "sections": {
         "Goals": [
           "- Reduce avoidable operator mistakes in common Logics remediation and release-evidence flows.",
-          "- Make assistant handoffs cleaner by consuming structured `cdx memory` output and cleaning terminal noise.",
-          "- Prove package/install behavior from built artifacts before release work is trusted.",
-          "- Make roadmap docs useful during daily planning and closeout instead of only existing as companion documents."
+          "- Make assistant handoffs cleaner by consuming structured `cdx memory` output, cleaning terminal noise, and exposing the result in a CDX Memory viewer sub-screen.",
+          "- Prove package/install behavior from built artifacts before release work is trusted, with a cheap `ci:check` metadata gate and a heavier clean-wheel doctor/release gate.",
+          "- Make roadmap docs useful during daily planning and closeout through top-level `logics-manager roadmap status/place` commands instead of only companion-document views."
         ],
         "Key product decisions": [
           "- Use structured input as the source of truth for generated docs.",
-          "- Keep generated write paths local and repo-bounded."
+          "- Keep generated write paths local and repo-bounded.",
+          "- Use `logics-manager roadmap ...` as the primary roadmap surface; keep `flow roadmap ...` aliases only when they are cheap wrappers.",
+          "- Split packaging proof into a fast metadata coverage check in `ci:check` and a slower clean-wheel install check in `doctor packaging` / release validation.",
+          "- Add a read-only CDX Memory sub-screen under the existing CDX viewer area, backed by the same cleaned `cdx memory` payload used by assistant context."
         ],
         "Overview": [
-          "Make Logics Manager easier for agents and operators to use correctly by turning known friction points into copy-paste-safe CLI guidance, package truth checks, cleaned CDX memory context, and practical roadmap maintenance commands.",
+          "Make Logics Manager easier for agents and operators to use correctly by turning known friction points into copy-paste-safe CLI guidance, package truth checks, cleaned CDX memory context visible in the viewer, and practical top-level roadmap maintenance commands.",
           "```mermaid",
           "flowchart TD",
           "    Friction[Observed operator friction] --> CLI[Copy-paste-safe CLI guidance]",
           "    Friction --> Memory[Clean cdx memory context]",
-          "    Friction --> Packaging[Package truth checks]"
+          "    Memory --> Screen[CDX Memory viewer screen]"
         ],
         "References": [
           "- Product back-reference: `req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow`",
@@ -151,7 +142,7 @@
           "- AC1: Indicator-gate lint failures print a copy-paste-safe `sync update-indicators` example and explicitly mention the `Non-semantic edit` escape hatch.",
           "- AC2: Workflow status inputs accept common aliases such as `In Progress`, `in_progress`, and `in progress`, then persist the canonical status label.",
           "- AC3: `release evidence add --help` shows help successfully, and evidence-add argument errors include a complete example command for the target gate.",
-          "- AC4: A packaging doctor or CI check proves that all importable `logics_manager.*` subpackages are included in package metadata and that a clean wheel exposes critical CLI commands.",
+          "- AC4: `ci:check` runs a cheap metadata-vs-subpackages packaging check, and `doctor packaging` / release validation can run a clean-wheel install check for critical CLI commands.",
           "- AC5: RTK wrapper documentation and generated assistant instructions name safe forms for targeted npm commands, including `rtk npm exec -- vitest ...` instead of `rtk npx vitest ...`.",
           "- AC6: An assistant-facing command can read `cdx memory` current/global scopes as JSON, clean ANSI/TUI noise, summarize quality signals, and emit a bounded context payload without directly depending on raw `.cdx/contexts` paths."
         ],
@@ -354,9 +345,9 @@
       "schema_version": "1.0",
       "sections": {
         "Acceptance criteria": [
-          "- AC1: CI fails if a `logics_manager.*` subpackage is importable in the checkout but absent from explicit packaging metadata.",
-          "- AC2: The packaging doctor builds and installs a wheel in a clean venv and validates critical CLI commands.",
-          "- AC3: Tests or release documentation prove the check is part of the release path."
+          "- AC1: `ci:check` fails if a `logics_manager.*` subpackage is importable in the checkout but absent from explicit packaging metadata.",
+          "- AC2: `logics-manager doctor packaging` builds and installs a wheel in a clean venv and validates critical CLI commands.",
+          "- AC3: Release validation or release documentation proves the clean-wheel doctor is part of the release path."
         ],
         "Problem": [
           "- Source-tree behavior can look correct while a built wheel omits a Python subpackage because package metadata is explicit."
@@ -433,10 +424,12 @@
           "- AC1: The command reads `cdx memory` JSON when available and returns bounded cleaned content.",
           "- AC2: ANSI/TUI noise and huge spinner lines are removed from a fixture while useful commands and final summaries remain.",
           "- AC3: The command degrades gracefully when `cdx` is missing or `cdx memory` is unsupported.",
-          "- AC4: Tests cover clean, noisy, and unavailable-command paths."
+          "- AC4: The viewer exposes a CDX Memory sub-screen using the same cleaned payload with current/global scope selection and clear warnings.",
+          "- AC5: Tests cover clean, noisy, unavailable-command, and viewer rendering paths."
         ],
         "Problem": [
-          "- Raw CDX context files can contain ANSI escape sequences, huge TUI spinner lines, `/usage` prompts, and other noise that makes handoffs expensive and misleading."
+          "- Raw CDX context files can contain ANSI escape sequences, huge TUI spinner lines, `/usage` prompts, and other noise that makes handoffs expensive and misleading.",
+          "- Operators also need to inspect that cleaned memory in the Logics viewer, not only through a CLI payload, before trusting it as assistant context."
         ]
       },
       "status": "Ready",
@@ -542,10 +535,11 @@
       "schema_version": "1.0",
       "sections": {
         "Acceptance criteria": [
-          "- AC1: A roadmap status command summarizes current roadmaps and unplaced high/medium open work.",
-          "- AC2: A place command updates roadmap placement and validates refs without manual edits.",
+          "- AC1: `logics-manager roadmap status` summarizes current roadmaps and unplaced high/medium open work.",
+          "- AC2: `logics-manager roadmap place` updates roadmap placement and validates refs without manual edits.",
           "- AC3: Closeout or validate prints recommendations when roadmap placement is stale, but does not block task finish solely for roadmap hygiene.",
-          "- AC4: Repos without roadmap docs remain quiet and pass validation."
+          "- AC4: Repos without roadmap docs remain quiet and pass validation.",
+          "- AC5: `flow roadmap status/place` aliases are present or explicitly documented as omitted because the top-level command is the single supported surface."
         ],
         "Problem": [
           "- Roadmap support exists, but there is no natural command to see what is unplaced, place a ref into a milestone, or keep milestones updated during task closeout."
@@ -556,11 +550,11 @@
     }
   ],
   "estimates": {
-    "char_count": 23145,
+    "char_count": 24358,
     "companion_doc_count": 2,
     "doc_count": 11
   },
-  "generated_at": "2026-07-28T19:00:47Z",
+  "generated_at": "2026-07-28T19:24:55Z",
   "handoff": {
     "companion_doc_count": 2,
     "enabled": true,

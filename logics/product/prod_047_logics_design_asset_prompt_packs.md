@@ -1,6 +1,6 @@
 ## prod_047_logics_design_asset_prompt_packs - Logics Design asset prompt packs
 > Date: 2026-07-28
-> Status: Proposed
+> Status: Settled
 > Related request: `req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows`
 > Related backlog: `item_568_define_the_logics_design_prompt_pack_schema_and_templates`, `item_569_implement_the_logics_manager_design_cli`, `item_570_generate_cr_league_style_icon_sheet_and_object_set_prompt_contracts`, `item_571_add_asset_machining_and_audit_instructions_to_design_packs`, `item_572_document_and_validate_the_logics_design_workflow`
 > Related task: `task_296_orchestrate_logics_design_asset_prompt_pack_delivery`

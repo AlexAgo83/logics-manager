@@ -1,6 +1,6 @@
 ## prod_046_cdx_memory_viewer_inspection - CDX Memory viewer inspection
 > Date: 2026-07-28
-> Status: Proposed
+> Status: Settled
 > Related request: `req_298_add_a_cdx_memory_viewer_screen_for_cleaned_handoff_inspection`
 > Related backlog: `item_564_expose_cleaned_cdx_memory_through_a_viewer_api_payload`, `item_565_render_the_cdx_memory_sub_screen_in_the_viewer`, `item_566_surface_cdx_memory_quality_warnings_without_blocking_cdx_use`, `item_567_validate_cdx_memory_screen_integration_with_focused_visual_and_payload_tests`
 > Related task: `task_295_orchestrate_cdx_memory_viewer_screen_delivery`

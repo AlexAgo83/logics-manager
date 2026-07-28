@@ -1,6 +1,6 @@
 ## prod_045_logics_operator_ergonomics - Logics operator ergonomics
 > Date: 2026-07-28
-> Status: Proposed
+> Status: Settled
 > Related request: `req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow`
 > Related backlog: `item_557_make_logics_remediation_messages_copy_paste_safe`, `item_558_normalize_workflow_status_aliases_before_persistence`, `item_559_harden_release_evidence_help_and_examples`, `item_560_add_package_truth_checks_for_shipped_cli_behavior`, `item_561_document_rtk_wrapper_safe_command_forms`, `item_562_use_cdx_memory_as_the_structured_source_for_assistant_context`, `item_563_make_roadmap_status_and_placement_part_of_the_daily_flow`
 > Related task: `task_294_orchestrate_logics_operator_ergonomics_improvements`

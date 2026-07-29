@@ -57,12 +57,15 @@ export function buildEmbeddedViewerHtml(webview: vscode.Webview, state: Embedded
     const frame = document.getElementById("viewer-frame");
     frame?.addEventListener("load", () => {
       frame.contentWindow?.postMessage({ type: "viewer-project-last-used", projectLastUsedAt: vscode.getState()?.projectLastUsedAt || {} }, frameOrigin);
+      frame.contentWindow?.postMessage({ type: "viewer-favorite-projects", favoriteProjects: vscode.getState()?.favoriteProjects || [] }, frameOrigin);
       frame.contentWindow?.postMessage({ type: "viewer-embed-host", host: "vscode" }, frameOrigin);
     });
     window.addEventListener("message", (event) => {
       if (!frameOrigin || event.origin !== frameOrigin || !event.data) return;
       if (event.data.type === "viewer-project-last-used") {
         vscode.setState({ ...(vscode.getState() || {}), projectLastUsedAt: event.data.projectLastUsedAt });
+      } else if (event.data.type === "viewer-favorite-projects") {
+        vscode.setState({ ...(vscode.getState() || {}), favoriteProjects: event.data.favoriteProjects });
       } else if (event.data.type === "launch-workshop-terminal" || event.data.type === "restart-viewer" || event.data.type === "open-external-viewer" || event.data.type === "open-external-link") {
         vscode.postMessage(event.data);
       }

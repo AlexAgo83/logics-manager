@@ -71,10 +71,19 @@ def test_transparency_defaults_to_the_kind() -> None:
 
 @pytest.mark.parametrize(
     ("count", "expected"),
-    [(1, (1, 1)), (4, (2, 2)), (5, (4, 4)), (16, (4, 4)), (17, (4, 5)), (24, (4, 6))],
+    [(1, (1, 1)), (4, (2, 2)), (5, (4, 2)), (10, (4, 3)), (16, (4, 4)), (17, (4, 5)), (24, (4, 6))],
 )
 def test_grid_shape(count: int, expected: tuple[int, int]) -> None:
     assert grid_for(count) == expected
+
+
+@pytest.mark.parametrize("count", range(1, 25))
+def test_grid_never_wastes_a_whole_row(count: int) -> None:
+    # Announcing a 4x4 grid for 10 assets left six cells unaccounted for; the generator either
+    # invents filler or returns blanks that the slicer then has to detect.
+    columns, rows = grid_for(count)
+    assert columns * rows >= count
+    assert (columns * rows) - count < columns
 
 
 def test_sheet_total_is_the_grid_times_the_cell() -> None:

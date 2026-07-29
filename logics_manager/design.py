@@ -100,6 +100,15 @@ def parse_cell_size(value: str) -> tuple[int, int]:
     return width, height
 
 
+def parse_cells(value: str) -> list[str]:
+    """Pipe-separated per-cell descriptions, in fill order."""
+    entries = [entry.strip() for entry in value.split("|")]
+    entries = [entry for entry in entries if entry]
+    if not entries:
+        raise SystemExit("--cells must list at least one asset")
+    return entries
+
+
 def grid_for(count: int) -> tuple[int, int]:
     """Columns and rows for a sliceable sheet, filled left to right then top to bottom."""
     if count <= 1:
@@ -159,6 +168,7 @@ def design_prompt_payload(
     palette: str | None = None,
     style: str | None = None,
     safe_area: str | None = None,
+    cells: str | None = None,
 ) -> dict[str, object]:
     if kind not in ASSET_KINDS:
         raise SystemExit(f"Unsupported asset kind: {kind}")
@@ -166,6 +176,12 @@ def design_prompt_payload(
         raise SystemExit("--count must be >= 1")
 
     profile = _profile(kind)
+    cell_list = parse_cells(cells) if cells else []
+    if cell_list and not profile["sliceable"]:
+        raise SystemExit(f"--cells needs a sliceable kind; {kind} produces a single image")
+    # The manifest is the authority on how many assets there are, so the two can never disagree.
+    if cell_list:
+        count = len(cell_list)
     # A single-image kind cannot host several assets. The previous default of 4 produced
     # "Create 4 hero image asset(s)" directly above "Canvas: 1 image".
     if not profile["sliceable"]:
@@ -195,6 +211,10 @@ def design_prompt_payload(
         ),
         "exclude": "Exclude: " + ", ".join(str(item) for item in profile["exclude"]) + ".",
     }
+    if cell_list:
+        sections["cells"] = "Assets, in fill order:\n" + "\n".join(
+            f"{index}. {entry}" for index, entry in enumerate(cell_list, start=1)
+        )
     if palette:
         sections["palette"] = f"Palette: {palette}. Do not introduce colours outside it."
     if style:
@@ -207,7 +227,7 @@ def design_prompt_payload(
             "text is composited there."
         )
 
-    order = ("subject", "target", "canvas", "safe_area", "palette", "style", "quality", "exclude")
+    order = ("subject", "target", "canvas", "cells", "safe_area", "palette", "style", "quality", "exclude")
     prompt = "\n".join(sections[key] for key in order if key in sections)
 
     return {
@@ -224,6 +244,7 @@ def design_prompt_payload(
         "palette": palette or "",
         "style": style or "",
         "safe_area": safe_area or "",
+        "cells": cell_list,
         "prompt": prompt,
         "sections": sections,
         "machining": list(profile["machining"]),
@@ -251,6 +272,7 @@ def main(argv: list[str] | None = None) -> int:
     prompt.add_argument("--palette", help="Palette to hold the generator to, for example 'near-black #0f0d12 and orange #ff6a1f'.")
     prompt.add_argument("--style", help="Style anchor, for example 'glossy 3D board-game token'.")
     prompt.add_argument("--safe-area", help="Region to keep clear for composited text, for example 'the left half' or 'the bottom third'.")
+    prompt.add_argument("--cells", help="Pipe-separated per-cell descriptions in fill order; sets --count. Example: 'create-league: a trophy plinth|join-league: a keycard'.")
     # The default comes from the kind; these flags only force the exception.
     prompt.add_argument("--transparent", dest="transparent", action="store_true", default=None)
     prompt.add_argument("--no-transparent", dest="transparent", action="store_false")
@@ -270,6 +292,7 @@ def main(argv: list[str] | None = None) -> int:
         palette=args.palette,
         style=args.style,
         safe_area=args.safe_area,
+        cells=args.cells,
     )
     if args.out:
         payload = write_prompt_pack(repo_root, payload, args.out)

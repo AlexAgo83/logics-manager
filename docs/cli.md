@@ -79,6 +79,9 @@ Useful options:
 - `--safe-area "the left half"` names and places the region kept free for
   composited text. Generators put the subject dead centre when the zone is only
   implied.
+- `--cells "create-league: a trophy plinth|join-league: a keycard"` lists what
+  goes in each cell, in fill order, and sets `--count` from the list so the two
+  can never disagree. Sliceable kinds only.
 - `--ref <workflow-ref>` adds the doc title and lifts its art-direction bullets
   (palette, style, do-not, avoid) into the prompt.
 - `--transparent` / `--no-transparent` only force the exception; the default now

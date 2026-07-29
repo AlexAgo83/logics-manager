@@ -12,6 +12,7 @@ from logics_manager.design import (
     design_prompt_payload,
     grid_for,
     parse_cell_size,
+    parse_cells,
     write_prompt_pack,
 )
 
@@ -116,6 +117,27 @@ def test_sheet_kinds_forbid_an_opaque_background() -> None:
     exclude = str(payload(kind="icon-sheet", count=16)["sections"]["exclude"])
     assert "any opaque or gradient background" in exclude
     assert "cropped or clipped assets" in exclude
+
+
+def test_cells_drive_the_count_and_the_grid() -> None:
+    # The manifest is the authority: --count can no longer disagree with the listed assets.
+    result = payload(kind="icon-sheet", count=16, cell_size="256x256", cells="a: one|b: two|c: three")
+    assert result["count"] == 3
+    prompt = str(result["prompt"])
+    assert "2x2 grid, 512x512 total" in prompt
+    assert "1. a: one" in prompt
+    assert "3. c: three" in prompt
+
+
+def test_cells_are_rejected_on_a_single_image_kind() -> None:
+    with pytest.raises(SystemExit):
+        payload(kind="hero-image", cells="a: one|b: two")
+
+
+def test_parse_cells_trims_and_rejects_empty() -> None:
+    assert parse_cells(" a | b |") == ["a", "b"]
+    with pytest.raises(SystemExit):
+        parse_cells("  |  ")
 
 
 def test_sections_expose_the_same_body_as_the_prompt() -> None:

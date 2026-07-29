@@ -31,7 +31,7 @@ logics-manager sync read-doc req_001_example --max-chars 6000
 logics-manager sync context-pack req_001_example task_001_example --format json
 logics-manager sync refresh-mermaid-signatures task_001_example
 logics-manager assist cdx-memory show --scope current --clean
-logics-manager design prompt --text "garage upgrade icons" --kind icon-sheet --count 16 --out logics/design/garage-icons
+logics-manager design prompt --text "garage upgrade icons" --kind icon-sheet --cell-size 256x256 --cells "boost: a turbo|repair: a wrench" --out logics/design/garage-icons
 logics-manager doctor packaging --metadata-only
 logics-manager flow closeout task_001_example --validation-command "pytest tests" --validation-result passed --lint --audit
 logics-manager view --open

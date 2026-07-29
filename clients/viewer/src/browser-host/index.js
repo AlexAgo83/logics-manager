@@ -364,10 +364,12 @@ import {
   function updateViewerPreferences(patch) {
     writeViewerPreferences({ ...viewerPreferences, ...patch });
     if (patch.projectLastUsedAt && window.parent !== window) window.parent.postMessage({ type: "viewer-project-last-used", projectLastUsedAt: patch.projectLastUsedAt }, "*");
+    if (patch.favoriteProjects && window.parent !== window) window.parent.postMessage({ type: "viewer-favorite-projects", favoriteProjects: patch.favoriteProjects }, "*");
     syncWorkshopSystemTerminalControls();
   }
 
   window.addEventListener("message", (event) => { const projectLastUsedAt = event.data?.type === "viewer-project-last-used" ? event.data.projectLastUsedAt : null; if (projectLastUsedAt && typeof projectLastUsedAt === "object" && !Array.isArray(projectLastUsedAt)) { writeViewerPreferences({ ...viewerPreferences, projectLastUsedAt }); renderProjectMenu(); } });
+  window.addEventListener("message", (event) => { const favoriteProjects = event.data?.type === "viewer-favorite-projects" ? event.data.favoriteProjects : null; if (Array.isArray(favoriteProjects)) { writeViewerPreferences({ ...viewerPreferences, favoriteProjects: favoriteProjects.map((value) => String(value)).filter(Boolean).sort() }); renderProjectMenu(); } });
 
   window.addEventListener("message", (event) => {
     if (event.data?.type !== "viewer-embed-host" || event.data.host !== "vscode" || window.parent === window) return;
@@ -6014,16 +6016,12 @@ import {
   }
 
   function renderCdxMemory(payload, scope = "current", viewMode = "cleaned") {
-    const state = payload?.state || "unavailable";
+    const state = payload?.state || "unavailable", cleaned = String(payload?.cleaned_excerpt || ""), raw = String(payload?.raw_excerpt || ""), source = String(payload?.source_path || "");
+    const bytesBefore = Number(payload?.bytes_before || 0), bytesAfter = Number(payload?.bytes_after || 0), sizeLabel = bytesBefore ? `${Math.round(bytesAfter / 1024)} KB / ${Math.round(bytesBefore / 1024)} KB` : "-";
     const warningRows = Array.isArray(payload?.warnings) && payload.warnings.length
       ? `<div class="viewer-cdx__pills">${payload.warnings.map((warning) => `<span class="viewer-cdx__pill">${escapeHtml(String(warning))}</span>`).join("")}</div>`
       : "";
-    const cards = [
-      ["Scope", scope],
-      ["State", state],
-      ["Source", payload?.source_path || "-"],
-      ["Noise", payload?.noise_ratio !== undefined ? `${Math.round(Number(payload.noise_ratio || 0) * 100)}%` : "-"]
-    ].map(([label, value]) => `
+    const cards = [["Memory", cdxLabel(scope)], ["Status", cdxLabel(state)], ["Cleaned", sizeLabel], ["Noise", payload?.noise_ratio !== undefined ? `${Math.round(Number(payload.noise_ratio || 0) * 100)}%` : "-"]].map(([label, value]) => `
       <div class="viewer-cdx__card">
         <div class="viewer-cdx__label">${escapeHtml(label)}</div>
         <div class="viewer-cdx__value">${escapeHtml(String(value))}</div>
@@ -6035,23 +6033,25 @@ import {
     const viewButtons = ["cleaned", "raw"].map((item) => `
       <button class="viewer-cdx__mode${viewMode === item ? " is-active" : ""}" type="button" data-viewer-cdx-memory-view="${item}">${escapeHtml(cdxLabel(item))}</button>
     `).join("");
-    const excerpt = viewMode === "raw" ? payload?.raw_excerpt : payload?.cleaned_excerpt;
+    const excerpt = viewMode === "raw" ? raw : cleaned, api = markdownApi();
     const body = excerpt
-      ? renderCodeViewer(String(excerpt), { language: "markdown", truncated: false })
+      ? viewMode === "raw"
+        ? renderCodeViewer(excerpt, { language: "markdown", truncated: false })
+        : `<div class="viewer-cdx__memory-body markdown-preview">${api && typeof api.renderMarkdownToHtml === "function" ? api.renderMarkdownToHtml(excerpt) : `<pre>${escapeHtml(excerpt)}</pre>`}</div>`
       : `<div class="viewer-cdx__empty">${escapeHtml(payload?.message || "No CDX memory content reported.")}</div>`;
     return `
       <div class="viewer-cdx">
         ${renderCdxModeSwitcher("memory")}
+        <section class="viewer-cdx__section viewer-cdx__section--primary">
+          <div class="viewer-ci__heading"><h2>${viewMode === "raw" ? "Raw Memory" : "Useful Handoff"}</h2><span>${escapeHtml(source)}</span></div>
+          ${body}
+        </section>
         <div class="viewer-cdx__summary">${cards}</div>
         <div class="viewer-cdx__controls" aria-label="CDX memory controls">
           <div class="viewer-cdx__modes" role="tablist" aria-label="CDX memory scope">${scopeButtons}</div>
           <div class="viewer-cdx__modes" role="tablist" aria-label="CDX memory excerpt">${viewButtons}</div>
         </div>
         ${warningRows}
-        <section class="viewer-cdx__section">
-          <div class="viewer-ci__heading"><h2>Memory</h2><span>${escapeHtml(String(payload?.latest_useful_handoff || ""))}</span></div>
-          ${body}
-        </section>
       </div>
     `;
   }

@@ -3263,6 +3263,19 @@
   padding: 12px;
 }
 
+.viewer-cdx__section--primary {
+  background: color-mix(in srgb, var(--vscode-editorWidget-background, #202020) 88%, var(--vscode-editor-background, #1f1f1f));
+}
+
+.viewer-cdx__memory-body {
+  max-width: 980px;
+  color: var(--vscode-foreground, #d4d4d4);
+}
+
+.viewer-cdx__memory-body pre {
+  white-space: pre-wrap;
+}
+
 .viewer-cdx__heading {
   margin: 0 0 10px;
   font-size: 13px;

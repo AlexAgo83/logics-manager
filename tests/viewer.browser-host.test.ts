@@ -2519,6 +2519,22 @@ describe("local viewer browser host", () => {
     expect(stored.projectLastUsedAt).toEqual({ "project-cdx": "2026-07-05T10:00:00.000Z" });
   });
 
+  it("restores favorite projects from the VS Code host", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.dispatchEvent(new dom.window.MessageEvent("message", {
+      data: { type: "viewer-favorite-projects", favoriteProjects: ["project-cdx"] },
+      source: dom.window.parent
+    }));
+
+    const stored = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "{}");
+    expect(stored.favoriteProjects).toEqual(["project-cdx"]);
+    expect(dom.window.document.querySelector('[data-viewer-project-favorite="project-cdx"]')?.getAttribute("aria-pressed")).toBe("true");
+  });
+
   it("restores favorite projects from viewer preferences", async () => {
     const { dom } = createViewerDom({
       initialPreferences: { version: 1, favoriteProjects: ["project-cdx"] }
@@ -6361,11 +6377,14 @@ describe("local viewer browser host", () => {
     let text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
     expect(text).toContain("current cleaned handoff");
     expect(text).not.toContain("current raw /usage");
+    expect(dom.window.document.querySelector(".viewer-cdx__memory-body")).toBeTruthy();
+    expect(dom.window.document.querySelector(".viewer-code")).toBeNull();
 
     dom.window.document.querySelector('[data-viewer-cdx-memory-view="raw"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
     text = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
     expect(text).toContain("current raw /usage");
+    expect(dom.window.document.querySelector(".viewer-code")).toBeTruthy();
 
     dom.window.document.querySelector('[data-viewer-cdx-memory-scope="global"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();

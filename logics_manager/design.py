@@ -110,13 +110,17 @@ def parse_cells(value: str) -> list[str]:
 
 
 def grid_for(count: int) -> tuple[int, int]:
-    """Columns and rows for a sliceable sheet, filled left to right then top to bottom."""
+    """Columns and rows for a sliceable sheet, filled left to right then top to bottom.
+
+    The grid tracks the count instead of snapping to 4x4: announcing a 4x4 grid for 10 assets
+    leaves six cells the generator has to invent something for, or leaves blank.
+    """
     if count <= 1:
         return 1, 1
+    if count == 2:
+        return 2, 1
     if count <= 4:
         return 2, 2
-    if count <= 16:
-        return 4, 4
     return 4, -(-count // 4)
 
 

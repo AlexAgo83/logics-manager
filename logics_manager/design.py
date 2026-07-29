@@ -20,7 +20,11 @@ KIND_PROFILES: dict[str, dict[str, object]] = {
         "sliceable": True,
         "transparent": True,
         "quality": "Clean silhouettes, consistent lighting and perspective, readable at 24px, 32px and 48px.",
-        "exclude": ["text", "letters", "numbers", "labels", "grid lines", "watermarks", "background decoration"],
+        "exclude": [
+            "text", "letters", "numbers", "labels", "grid lines", "watermarks",
+            "background decoration", "any opaque or gradient background",
+            "drop shadows cast onto the transparent background", "cropped or clipped assets",
+        ],
         "machining": [
             "slice grid cells before resizing",
             "trim transparent padding only after slicing",
@@ -31,7 +35,10 @@ KIND_PROFILES: dict[str, dict[str, object]] = {
         "sliceable": True,
         "transparent": True,
         "quality": "Consistent scale, lighting and palette across every object.",
-        "exclude": ["text", "letters", "numbers", "labels", "watermarks", "background decoration"],
+        "exclude": [
+            "text", "letters", "numbers", "labels", "watermarks", "background decoration",
+            "cropped or clipped assets",
+        ],
         "machining": [
             "slice grid cells before resizing",
             "trim transparent padding only after slicing",
@@ -52,7 +59,8 @@ KIND_PROFILES: dict[str, dict[str, object]] = {
     "hero-image": {
         "sliceable": False,
         "transparent": False,
-        "quality": "Cinematic composition and lighting. Keep one region low in detail so a title can be composited over it.",
+        "quality": "Cinematic composition and lighting.",
+        "quality_without_safe_area": "Keep one region low in detail so a title can be composited over it.",
         "exclude": ["text", "letters", "numbers", "logos", "watermarks", "UI chrome", "sponsor decals"],
         "machining": ["export as a single image", "no slicing"],
     },
@@ -60,7 +68,10 @@ KIND_PROFILES: dict[str, dict[str, object]] = {
         "sliceable": True,
         "transparent": True,
         "quality": "Each object readable in isolation; keep proportions comparable so they can share one in-game scale.",
-        "exclude": ["text", "letters", "numbers", "labels", "watermarks", "background decoration"],
+        "exclude": [
+            "text", "letters", "numbers", "labels", "watermarks", "background decoration",
+            "cropped or clipped assets",
+        ],
         "machining": [
             "slice grid cells before resizing",
             "trim transparent padding only after slicing",
@@ -147,6 +158,7 @@ def design_prompt_payload(
     cell_size: str | None = None,
     palette: str | None = None,
     style: str | None = None,
+    safe_area: str | None = None,
 ) -> dict[str, object]:
     if kind not in ASSET_KINDS:
         raise SystemExit(f"Unsupported asset kind: {kind}")
@@ -176,15 +188,26 @@ def design_prompt_payload(
         "subject": f"Create {count} {kind.replace('-', ' ')} asset(s) for: {need}.{ref_context}".strip(),
         "target": f"Generator target: {generator_target}.",
         "canvas": _canvas_line(kind, count, transparent, cell),
-        "quality": str(profile["quality"]),
+        "quality": " ".join(
+            part
+            for part in (str(profile["quality"]), None if safe_area else profile.get("quality_without_safe_area"))
+            if part
+        ),
         "exclude": "Exclude: " + ", ".join(str(item) for item in profile["exclude"]) + ".",
     }
     if palette:
         sections["palette"] = f"Palette: {palette}. Do not introduce colours outside it."
     if style:
         sections["style"] = f"Style: {style}."
+    if safe_area:
+        # Generators need the reserved zone named and placed, not merely implied. "Keep a region
+        # free" produces a subject dead centre; "keep the left half dark" produces usable art.
+        sections["safe_area"] = (
+            f"Reserved zone: keep {safe_area} low in detail and free of subject matter; "
+            "text is composited there."
+        )
 
-    order = ("subject", "target", "canvas", "palette", "style", "quality", "exclude")
+    order = ("subject", "target", "canvas", "safe_area", "palette", "style", "quality", "exclude")
     prompt = "\n".join(sections[key] for key in order if key in sections)
 
     return {
@@ -200,6 +223,7 @@ def design_prompt_payload(
         "ref": ref or "",
         "palette": palette or "",
         "style": style or "",
+        "safe_area": safe_area or "",
         "prompt": prompt,
         "sections": sections,
         "machining": list(profile["machining"]),
@@ -226,6 +250,7 @@ def main(argv: list[str] | None = None) -> int:
     prompt.add_argument("--cell-size", help="Per-cell pixel size such as 256x256; the sheet total is derived from the grid.")
     prompt.add_argument("--palette", help="Palette to hold the generator to, for example 'near-black #0f0d12 and orange #ff6a1f'.")
     prompt.add_argument("--style", help="Style anchor, for example 'glossy 3D board-game token'.")
+    prompt.add_argument("--safe-area", help="Region to keep clear for composited text, for example 'the left half' or 'the bottom third'.")
     # The default comes from the kind; these flags only force the exception.
     prompt.add_argument("--transparent", dest="transparent", action="store_true", default=None)
     prompt.add_argument("--no-transparent", dest="transparent", action="store_false")
@@ -244,6 +269,7 @@ def main(argv: list[str] | None = None) -> int:
         cell_size=args.cell_size,
         palette=args.palette,
         style=args.style,
+        safe_area=args.safe_area,
     )
     if args.out:
         payload = write_prompt_pack(repo_root, payload, args.out)

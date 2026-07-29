@@ -63,10 +63,28 @@ ref under a milestone. This is intentionally a placement helper, not an
 automatic planner.
 
 For external AI asset workflows, use `logics-manager design prompt --text ...`
-to generate a prompt pack for an image generator. It supports icon sheets,
-object sets, hero images, UI icon replacements, and game-object metadata
-prompts, including transparent-background and 2x2/4x4 sheet guidance. The
-command writes `prompt.md` and `prompt-pack.json` only when `--out` is passed.
+to generate a prompt pack for an image generator. Each asset kind carries its own
+profile, so a single-image kind such as `hero-image` never receives sheet
+instructions, forces `--count` to 1, and defaults to an opaque background, while
+sheet kinds get grid, padding, and slicing guidance.
+
+Useful options:
+
+- `--cell-size 256x256` states the per-cell pixel size and derives the sheet
+  total from the grid, for example `4x4 grid, 1024x1024 total with 256x256 cells`.
+  Without it the generator picks its own resolution, which is the usual cause of
+  a sheet coming back at half the size you needed.
+- `--palette` and `--style` are carried through as their own lines so a second
+  generation stays consistent with the first.
+- `--ref <workflow-ref>` adds the doc title and lifts its art-direction bullets
+  (palette, style, do-not, avoid) into the prompt.
+- `--transparent` / `--no-transparent` only force the exception; the default now
+  comes from the kind.
+
+The payload exposes both the assembled `prompt` string and a `sections` map
+(`subject`, `target`, `canvas`, `palette`, `style`, `quality`, `exclude`) for
+callers that want to recompose it. The command writes `prompt.md` and
+`prompt-pack.json` only when `--out` is passed.
 
 Workflow Mermaid blocks in request, backlog, and task docs are optional legacy
 presentation. The source of truth is the structured Markdown: indicators,

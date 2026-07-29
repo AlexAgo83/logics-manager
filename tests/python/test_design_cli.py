@@ -101,6 +101,23 @@ def test_palette_and_style_are_carried_through() -> None:
     assert "Palette:" not in str(payload(kind="icon-sheet")["prompt"])
 
 
+def test_safe_area_places_the_reserved_zone() -> None:
+    result = payload(kind="hero-image", safe_area="the left half")
+    prompt = str(result["prompt"])
+    assert "keep the left half low in detail" in prompt
+    # The vague fallback drops once the zone is placed, instead of saying it twice.
+    assert "Keep one region low in detail" not in prompt
+    assert "Keep one region low in detail" in str(payload(kind="hero-image")["prompt"])
+
+
+def test_sheet_kinds_forbid_an_opaque_background() -> None:
+    # The cr-league icon sheet came back with a gradient background despite the canvas line
+    # asking for transparency, so the prohibition also belongs in the exclusion list.
+    exclude = str(payload(kind="icon-sheet", count=16)["sections"]["exclude"])
+    assert "any opaque or gradient background" in exclude
+    assert "cropped or clipped assets" in exclude
+
+
 def test_sections_expose_the_same_body_as_the_prompt() -> None:
     result = payload(kind="icon-sheet", count=16)
     sections = result["sections"]

@@ -76,6 +76,9 @@ Useful options:
   a sheet coming back at half the size you needed.
 - `--palette` and `--style` are carried through as their own lines so a second
   generation stays consistent with the first.
+- `--safe-area "the left half"` names and places the region kept free for
+  composited text. Generators put the subject dead centre when the zone is only
+  implied.
 - `--ref <workflow-ref>` adds the doc title and lifts its art-direction bullets
   (palette, style, do-not, avoid) into the prompt.
 - `--transparent` / `--no-transparent` only force the exception; the default now

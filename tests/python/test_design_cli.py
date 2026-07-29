@@ -1,0 +1,140 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import pytest
+
+from logics_manager.design import (
+    ASSET_KINDS,
+    KIND_PROFILES,
+    art_direction_from,
+    design_prompt_payload,
+    grid_for,
+    parse_cell_size,
+    write_prompt_pack,
+)
+
+# Imperative sheet instructions, not bare words: the hero canvas legitimately says "no cells,
+# no panels" as a prohibition, which is the opposite of telling the generator to build a grid.
+SHEET_INSTRUCTIONS = (
+    "one asset per cell",
+    "fill left-to-right",
+    "arrange assets",
+    "slice",
+    "trim transparent padding",
+    "x2 grid",
+    "x4 grid",
+)
+
+
+def payload(**kwargs: object) -> dict[str, object]:
+    options: dict[str, object] = {"need": "garage upgrade art"}
+    options.update(kwargs)
+    return design_prompt_payload(Path.cwd(), **options)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize("kind", ASSET_KINDS)
+def test_every_declared_kind_has_a_profile(kind: str) -> None:
+    # Guards the structural bug: the prompt body is built from the profile, so a kind added to
+    # ASSET_KINDS without one would silently fall back to another kind's instructions.
+    profile = KIND_PROFILES[kind]
+    assert isinstance(profile["sliceable"], bool)
+    assert isinstance(profile["transparent"], bool)
+    assert profile["quality"]
+    assert profile["exclude"]
+    assert profile["machining"]
+
+
+@pytest.mark.parametrize("kind", [kind for kind in ASSET_KINDS if not KIND_PROFILES[kind]["sliceable"]])
+def test_single_image_kinds_never_mention_slicing(kind: str) -> None:
+    result = payload(kind=kind, count=4)
+    text = str(result["prompt"]).lower() + " " + " ".join(str(item) for item in result["machining"]).lower()
+    for phrase in SHEET_INSTRUCTIONS:
+        assert phrase not in text, f"{kind} prompt still instructs {phrase!r}"
+
+
+def test_single_image_kind_clamps_the_count() -> None:
+    result = payload(kind="hero-image", count=4)
+    assert result["count"] == 1
+    assert "Create 1 hero image asset(s)" in str(result["prompt"])
+    assert result["layout"] == "1 image"
+
+
+def test_transparency_defaults_to_the_kind() -> None:
+    assert payload(kind="icon-sheet")["transparent"] is True
+    assert payload(kind="hero-image")["transparent"] is False
+    # The flag still forces the exception.
+    assert payload(kind="hero-image", transparent=True)["transparent"] is True
+
+
+@pytest.mark.parametrize(
+    ("count", "expected"),
+    [(1, (1, 1)), (4, (2, 2)), (5, (4, 4)), (16, (4, 4)), (17, (4, 5)), (24, (4, 6))],
+)
+def test_grid_shape(count: int, expected: tuple[int, int]) -> None:
+    assert grid_for(count) == expected
+
+
+def test_sheet_total_is_the_grid_times_the_cell() -> None:
+    result = payload(kind="icon-sheet", count=16, cell_size="256x256")
+    assert "1024x1024 total with 256x256 cells" in str(result["prompt"])
+    assert result["cell_size"] == "256x256"
+
+
+def test_cell_size_on_a_single_image_states_the_frame() -> None:
+    result = payload(kind="hero-image", cell_size="1672x941")
+    assert "one full-bleed image, 1672x941" in str(result["prompt"])
+
+
+def test_cell_size_rejects_junk() -> None:
+    with pytest.raises(SystemExit):
+        parse_cell_size("big")
+
+
+def test_palette_and_style_are_carried_through() -> None:
+    result = payload(kind="icon-sheet", palette="near-black #0f0d12 and orange #ff6a1f", style="glossy 3D token")
+    prompt = str(result["prompt"])
+    assert "Palette: near-black #0f0d12 and orange #ff6a1f" in prompt
+    assert "Style: glossy 3D token" in prompt
+    # Omitted when not supplied, rather than emitting an empty line.
+    assert "Palette:" not in str(payload(kind="icon-sheet")["prompt"])
+
+
+def test_sections_expose_the_same_body_as_the_prompt() -> None:
+    result = payload(kind="icon-sheet", count=16)
+    sections = result["sections"]
+    assert isinstance(sections, dict)
+    for value in sections.values():
+        assert value in str(result["prompt"])
+
+
+def test_art_direction_keeps_only_constraint_bullets() -> None:
+    body = """
+# Brief
+Some prose that should not travel.
+
+- Palette: charcoal and orange only
+- Style: board-game token
+- Do not use blue
+- The team ships on Friday
+"""
+    extracted = art_direction_from(body)
+    assert "Palette: charcoal and orange only" in extracted
+    assert "Do not use blue" in extracted
+    assert "ships on Friday" not in extracted
+    assert "prose that should not travel" not in extracted
+
+
+def test_rejects_unknown_kind_and_zero_count() -> None:
+    with pytest.raises(SystemExit):
+        payload(kind="poster")
+    with pytest.raises(SystemExit):
+        payload(kind="icon-sheet", count=0)
+
+
+def test_write_prompt_pack_emits_both_files(tmp_path: Path) -> None:
+    result = write_prompt_pack(tmp_path, payload(kind="icon-sheet", count=16), "design/icons")
+    written = json.loads((tmp_path / "design" / "icons" / "prompt-pack.json").read_text(encoding="utf-8"))
+    assert written["asset_kind"] == "icon-sheet"
+    assert (tmp_path / "design" / "icons" / "prompt.md").read_text(encoding="utf-8").strip() == str(result["prompt"])

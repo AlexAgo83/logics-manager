@@ -12,22 +12,127 @@ from .sync import _load_workflow_docs
 
 ASSET_KINDS = ("icon-sheet", "object-set", "hero-image", "ui-icon-replacement", "game-object-with-metadata")
 
+# One profile per asset kind. The prompt body is assembled from these rather than concatenated
+# from fixed strings, so a kind that is not sliceable can never be told to arrange cells in a
+# grid or to trim padding after slicing. Adding a kind without a profile fails the test suite.
+KIND_PROFILES: dict[str, dict[str, object]] = {
+    "icon-sheet": {
+        "sliceable": True,
+        "transparent": True,
+        "quality": "Clean silhouettes, consistent lighting and perspective, readable at 24px, 32px and 48px.",
+        "exclude": ["text", "letters", "numbers", "labels", "grid lines", "watermarks", "background decoration"],
+        "machining": [
+            "slice grid cells before resizing",
+            "trim transparent padding only after slicing",
+            "name files 01-name.png, 02-name.png, ...",
+        ],
+    },
+    "object-set": {
+        "sliceable": True,
+        "transparent": True,
+        "quality": "Consistent scale, lighting and palette across every object.",
+        "exclude": ["text", "letters", "numbers", "labels", "watermarks", "background decoration"],
+        "machining": [
+            "slice grid cells before resizing",
+            "trim transparent padding only after slicing",
+            "name files 01-name.png, 02-name.png, ...",
+        ],
+    },
+    "ui-icon-replacement": {
+        "sliceable": True,
+        "transparent": True,
+        "quality": "Match the stroke weight and corner radius of the icons being replaced; readable at 16px and 24px.",
+        "exclude": ["text", "letters", "numbers", "labels", "grid lines", "watermarks", "drop shadows on the transparent background"],
+        "machining": [
+            "slice grid cells before resizing",
+            "trim transparent padding only after slicing",
+            "keep the replaced icon's file name",
+        ],
+    },
+    "hero-image": {
+        "sliceable": False,
+        "transparent": False,
+        "quality": "Cinematic composition and lighting. Keep one region low in detail so a title can be composited over it.",
+        "exclude": ["text", "letters", "numbers", "logos", "watermarks", "UI chrome", "sponsor decals"],
+        "machining": ["export as a single image", "no slicing"],
+    },
+    "game-object-with-metadata": {
+        "sliceable": True,
+        "transparent": True,
+        "quality": "Each object readable in isolation; keep proportions comparable so they can share one in-game scale.",
+        "exclude": ["text", "letters", "numbers", "labels", "watermarks", "background decoration"],
+        "machining": [
+            "slice grid cells before resizing",
+            "trim transparent padding only after slicing",
+            "record per-object metadata (name, tags, in-game scale) alongside each file",
+        ],
+    },
+}
 
-def _slug(value: str) -> str:
-    slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
-    return slug or "asset-pack"
+_SIZE = re.compile(r"^(\d+)\s*[x×]\s*(\d+)$")
+
+
+def _profile(kind: str) -> dict[str, object]:
+    profile = KIND_PROFILES.get(kind)
+    if profile is None:  # pragma: no cover - guarded by ASSET_KINDS and the profile coverage test
+        raise SystemExit(f"Unsupported asset kind: {kind}")
+    return profile
+
+
+def parse_cell_size(value: str) -> tuple[int, int]:
+    match = _SIZE.match(value.strip())
+    if not match:
+        raise SystemExit("--cell-size must look like 256x256")
+    width, height = int(match.group(1)), int(match.group(2))
+    if width < 1 or height < 1:
+        raise SystemExit("--cell-size must be positive")
+    return width, height
+
+
+def grid_for(count: int) -> tuple[int, int]:
+    """Columns and rows for a sliceable sheet, filled left to right then top to bottom."""
+    if count <= 1:
+        return 1, 1
+    if count <= 4:
+        return 2, 2
+    if count <= 16:
+        return 4, 4
+    return 4, -(-count // 4)
 
 
 def _layout_for(kind: str, count: int) -> str:
-    if kind == "hero-image":
+    if not _profile(kind)["sliceable"]:
         return "1 image"
-    if count <= 1:
+    columns, rows = grid_for(count)
+    if columns == 1 and rows == 1:
         return "single asset"
-    if count <= 4:
-        return "2x2 grid"
-    if count <= 16:
-        return "4x4 grid"
-    return "multiple 4x4 grids"
+    return f"{columns}x{rows} grid"
+
+
+def _canvas_line(kind: str, count: int, transparent: bool, cell: tuple[int, int] | None) -> str:
+    background = "transparent background PNG" if transparent else "opaque background"
+    if not _profile(kind)["sliceable"]:
+        size = f", {cell[0]}x{cell[1]}" if cell else ""
+        return f"Canvas: one full-bleed image{size}; {background}. No cells, no panels, no padding between elements."
+    columns, rows = grid_for(count)
+    size = f", {columns * cell[0]}x{rows * cell[1]} total with {cell[0]}x{cell[1]} cells" if cell else ""
+    return (
+        f"Canvas: {columns}x{rows} grid{size}; {background}; one asset per cell, centered, "
+        "with generous padding and no bleed between cells. Fill left-to-right, then top-to-bottom."
+    )
+
+
+# Art-direction bullets are the ones worth carrying into a generator prompt. The rest of a
+# workflow doc is prose that would only dilute the instruction.
+_ART_DIRECTION = re.compile(
+    r"^\s*[-*]\s*(palette|colou?rs?|style|art direction|typography|iconography|do not|avoid|exclude)\b",
+    re.I,
+)
+
+
+def art_direction_from(body: str) -> str:
+    lines = [line.strip() for line in (body or "").splitlines() if _ART_DIRECTION.match(line)]
+    return "\n".join(lines[:8])
 
 
 def design_prompt_payload(
@@ -36,45 +141,68 @@ def design_prompt_payload(
     need: str,
     kind: str = "object-set",
     count: int = 4,
-    transparent: bool = True,
+    transparent: bool | None = None,
     generator_target: str = "general AI image generator",
     ref: str | None = None,
+    cell_size: str | None = None,
+    palette: str | None = None,
+    style: str | None = None,
 ) -> dict[str, object]:
     if kind not in ASSET_KINDS:
         raise SystemExit(f"Unsupported asset kind: {kind}")
     if count < 1:
         raise SystemExit("--count must be >= 1")
+
+    profile = _profile(kind)
+    # A single-image kind cannot host several assets. The previous default of 4 produced
+    # "Create 4 hero image asset(s)" directly above "Canvas: 1 image".
+    if not profile["sliceable"]:
+        count = 1
+    if transparent is None:
+        transparent = bool(profile["transparent"])
+    cell = parse_cell_size(cell_size) if cell_size else None
+
     ref_context = ""
     if ref:
         doc = _load_workflow_docs(repo_root).get(ref)
         if not doc:
             raise SystemExit(f"Unknown workflow ref: {ref}")
         ref_context = f"\nWorkflow context: {ref} - {doc.title}."
-    transparency = "transparent background PNG" if transparent else "opaque background"
-    layout = _layout_for(kind, count)
-    prompt = "\n".join([
-        f"Create {count} {kind.replace('-', ' ')} asset(s) for: {need}.{ref_context}".strip(),
-        f"Generator target: {generator_target}.",
-        f"Canvas: {layout}; use {transparency}; keep each asset separated with generous padding.",
-        "For sheets, arrange assets left-to-right then top-to-bottom. Do not add labels, numbers, watermarks, UI chrome, or background decoration.",
-        "Keep shapes clean, readable at small sizes, and consistent in lighting, perspective, and palette.",
-        "Asset extraction notes: export each cell as an individual PNG, trim transparent padding only after slicing, and keep original order in filenames.",
-    ])
+        constraints = art_direction_from(getattr(doc, "body", "") or "")
+        if constraints:
+            ref_context += f"\nConstraints from that doc:\n{constraints}"
+
+    sections: dict[str, str] = {
+        "subject": f"Create {count} {kind.replace('-', ' ')} asset(s) for: {need}.{ref_context}".strip(),
+        "target": f"Generator target: {generator_target}.",
+        "canvas": _canvas_line(kind, count, transparent, cell),
+        "quality": str(profile["quality"]),
+        "exclude": "Exclude: " + ", ".join(str(item) for item in profile["exclude"]) + ".",
+    }
+    if palette:
+        sections["palette"] = f"Palette: {palette}. Do not introduce colours outside it."
+    if style:
+        sections["style"] = f"Style: {style}."
+
+    order = ("subject", "target", "canvas", "palette", "style", "quality", "exclude")
+    prompt = "\n".join(sections[key] for key in order if key in sections)
+
     return {
         "ok": True,
         "kind": "logics-design-prompt-pack",
         "asset_kind": kind,
         "count": count,
-        "layout": layout,
+        "layout": _layout_for(kind, count),
+        "cell_size": f"{cell[0]}x{cell[1]}" if cell else "",
+        "sliceable": bool(profile["sliceable"]),
         "transparent": transparent,
         "generator_target": generator_target,
         "ref": ref or "",
+        "palette": palette or "",
+        "style": style or "",
         "prompt": prompt,
-        "machining": [
-            "slice grid cells before resizing",
-            "preserve transparency when requested",
-            "name files 01-name.png, 02-name.png, ...",
-        ],
+        "sections": sections,
+        "machining": list(profile["machining"]),
     }
 
 
@@ -95,13 +223,28 @@ def main(argv: list[str] | None = None) -> int:
     prompt.add_argument("--count", type=int, default=4)
     prompt.add_argument("--ref")
     prompt.add_argument("--generator-target", default="general AI image generator")
-    prompt.add_argument("--transparent", dest="transparent", action="store_true", default=True)
+    prompt.add_argument("--cell-size", help="Per-cell pixel size such as 256x256; the sheet total is derived from the grid.")
+    prompt.add_argument("--palette", help="Palette to hold the generator to, for example 'near-black #0f0d12 and orange #ff6a1f'.")
+    prompt.add_argument("--style", help="Style anchor, for example 'glossy 3D board-game token'.")
+    # The default comes from the kind; these flags only force the exception.
+    prompt.add_argument("--transparent", dest="transparent", action="store_true", default=None)
     prompt.add_argument("--no-transparent", dest="transparent", action="store_false")
     prompt.add_argument("--out")
     prompt.add_argument("--format", choices=("text", "json"), default="text")
     args = parser.parse_args(argv)
     repo_root = find_repo_root(Path.cwd())
-    payload = design_prompt_payload(repo_root, need=args.text, kind=args.kind, count=args.count, transparent=args.transparent, generator_target=args.generator_target, ref=args.ref)
+    payload = design_prompt_payload(
+        repo_root,
+        need=args.text,
+        kind=args.kind,
+        count=args.count,
+        transparent=args.transparent,
+        generator_target=args.generator_target,
+        ref=args.ref,
+        cell_size=args.cell_size,
+        palette=args.palette,
+        style=args.style,
+    )
     if args.out:
         payload = write_prompt_pack(repo_root, payload, args.out)
     if args.format == "json":

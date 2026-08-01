@@ -355,6 +355,8 @@ Worth preserving; these carried the session.
   Most of my lost time was vocabulary discovery.
 
 # References
+- Field answers to grooming questions, with verbatim invocations, outputs, and the
+  generated/rewritten task pair: `logics/external/prod_048_field_answers_2026_08_01.md`.
 - Session context: external project `cts` (recruiting dashboard), `logics-manager 2.19.5`,
   2026-08-01. Four request chains scaffolded and audited, one delivered end to end,
   one roadmap settled and one opened.

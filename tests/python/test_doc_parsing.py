@@ -9,10 +9,23 @@ import logics_manager.sync as sync
 from logics_manager import doc_parsing
 
 
-def test_extract_refs_sorts_dedupes_and_optionally_strips_mermaid() -> None:
-    text = "see req_002_b and req_001_a and req_001_a\n```mermaid\nreq_999_x\n```\n"
-    assert doc_parsing.extract_refs(text, "req") == ["req_001_a", "req_002_b", "req_999_x"]
+def test_extract_refs_sorts_dedupes_and_excludes_fenced_blocks() -> None:
+    # Every fence is excluded now, so the mermaid flag is redundant for fenced
+    # mermaid and both calls agree. Inline spans stay: they are how real links
+    # are written in this corpus.
+    text = "see req_002_b and `req_001_a` and req_001_a\n```mermaid\nreq_999_x\n```\n"
+    assert doc_parsing.extract_refs(text, "req") == ["req_001_a", "req_002_b"]
     assert doc_parsing.extract_refs(text, "req", strip_mermaid=True) == ["req_001_a", "req_002_b"]
+
+
+def test_extract_refs_excludes_any_fence_language_and_keeps_inline_spans() -> None:
+    text = (
+        "- Request: `req_300_real_link`\n"
+        "```\nreq_999_bare_fence\n```\n"
+        "```python\nref = 'req_888_python_fence'\n```\n"
+        "prose mentioning `req_777_inline`\n"
+    )
+    assert doc_parsing.extract_refs(text, "req") == ["req_300_real_link", "req_777_inline"]
 
 
 def test_indicator_value_and_progress_value() -> None:

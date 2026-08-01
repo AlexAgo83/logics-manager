@@ -1022,6 +1022,38 @@ def _resolve_doc_path(repo_root: Path, kind: DocKind, ref: str) -> Path | None:
     return matches[0] if len(matches) == 1 else None
 
 
+ALL_DOC_DIRECTORIES = {
+    "request": "logics/request",
+    "backlog": "logics/backlog",
+    "task": "logics/tasks",
+    "product": "logics/product",
+    "roadmap": "logics/roadmap",
+    "architecture": "logics/architecture",
+    "spec": "logics/specs",
+}
+
+
+def _locate_doc_anywhere(repo_root: Path, ref: str) -> tuple[Path, str] | None:
+    """Find a document by bare ref across every kind, for honest error messages."""
+    for kind_name, directory in ALL_DOC_DIRECTORIES.items():
+        path = repo_root / directory / f"{ref}.md"
+        if path.is_file():
+            return path, kind_name
+    return None
+
+
+def _wrong_kind_error(repo_root: Path, source: str, kind: DocKind) -> str:
+    """Say the document is of another kind rather than claiming it does not exist."""
+    located = _locate_doc_anywhere(repo_root, source)
+    if located is None:
+        return f"Source not found: {source}"
+    _path, actual_kind = located
+    return (
+        f"`{source}` is a {actual_kind} document; this command accepts a {kind.kind} "
+        f"(a `{kind.prefix}_...` ref under `{kind.directory}`)."
+    )
+
+
 def _resolve_workflow_source(repo_root: Path, kind: DocKind, source: str) -> Path:
     raw = Path(source)
     if raw.is_absolute():
@@ -1032,7 +1064,7 @@ def _resolve_workflow_source(repo_root: Path, kind: DocKind, source: str) -> Pat
     elif len(raw.parts) == 1 and raw.suffix != ".md":
         path = _resolve_doc_path(repo_root, kind, source)
         if path is None:
-            raise SystemExit(f"Source not found: {source}")
+            raise SystemExit(_wrong_kind_error(repo_root, source, kind))
         return path
     else:
         candidate = (repo_root / raw).resolve()
@@ -1588,15 +1620,40 @@ def _resolve_any_workflow_source(repo_root: Path, source: str) -> tuple[Path, st
             return _resolve_workflow_source(repo_root, DOC_KINDS[kind], source), kind
         except SystemExit:
             continue
+    # A companion carries findings too, so resolving it here is what lets a repair
+    # be addressed at the same granularity as the finding that named it.
+    located = _locate_doc_anywhere(repo_root, Path(source).stem if source.endswith(".md") else source)
+    if located is not None:
+        return located
     raise SystemExit(f"Workflow source not found: {source}{_did_you_mean_hint(repo_root, source)}")
+
+
+MERMAID_SIGNATURE_KINDS = ("request", "backlog", "task")
 
 
 def repair_mermaid_payload(repo_root: Path, refs: list[str], *, dry_run: bool) -> dict[str, object]:
     changed_paths: set[Path] = set()
+    skipped: list[dict[str, str]] = []
     for ref in refs:
         path, kind = _resolve_any_workflow_source(repo_root, ref)
+        if kind not in MERMAID_SIGNATURE_KINDS:
+            # Only workflow kinds have a derivable signature. Saying so beats a
+            # traceback, and beats reporting zero changes as if there were nothing
+            # to do.
+            skipped.append(
+                {
+                    "ref": ref,
+                    "kind": kind,
+                    "reason": (
+                        f"mermaid signatures are derived for {', '.join(MERMAID_SIGNATURE_KINDS)} documents only; "
+                        f"`{ref}` is a {kind} document, whose diagram is authored by hand"
+                    ),
+                }
+            )
+            continue
         before = path.read_text(encoding="utf-8")
         if "```mermaid" not in before:
+            skipped.append({"ref": ref, "kind": kind, "reason": "document has no Mermaid block to refresh"})
             continue
         else:
             signature = expected_workflow_mermaid_signature(kind, before.splitlines())
@@ -1610,6 +1667,7 @@ def repair_mermaid_payload(repo_root: Path, refs: list[str], *, dry_run: bool) -
         "kind": "mermaid",
         "refs": refs,
         "changed_files": sorted(path.as_posix() for path in changed_paths),
+        "skipped": skipped,
         "dry_run": dry_run,
     }
 
@@ -3344,6 +3402,10 @@ def _print_repair_payload(payload: dict[str, object], output_format: str) -> Non
     print(f"Repair {payload['kind']}: {action} {len(changed_files)} file(s).")
     for rel_path in changed_files:
         print(f"- {rel_path}")
+    # "0 files" is ambiguous between nothing to do and wrong input; naming what was
+    # skipped, and why, removes the ambiguity the field report flagged.
+    for entry in payload.get("skipped", []):
+        print(f"- skipped `{entry['ref']}`: {entry['reason']}")
 
 
 REPAIR_VERIFY_CODES = {

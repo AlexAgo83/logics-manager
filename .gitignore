@@ -49,3 +49,7 @@ LOGICS.md
 # Claude Code local settings
 .claude/
 .mcp.json
+
+# Attachments dropped into the workflow corpus: kept local, never versioned
+logics/external/**
+!logics/external/.gitkeep

@@ -2,8 +2,8 @@
 > From version: 2.19.5
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92
+> Confidence: 86
 > Progress: 0%
 > Complexity: Medium
 > Theme: Gates
@@ -22,6 +22,9 @@
   - Add a re-baseline path that refreshes the signature without changing any value.
   - Correct the gate's suggested remedy so it is achievable for every kind it fires on.
   - Preserve the template format when writing indicator values.
+  - Extend the same mutation path to the `Related request`, `Related backlog`,
+    `Related task` and `Related product` indicator family, so an existing document
+    can be linked to a chain after the fact.
 - Out:
   - Changing which indicators each kind declares.
   - Adding a command that reports approved indicators up front, which belongs to the deferred `doctor` request.
@@ -32,6 +35,7 @@
 - AC3: A body edit that changes no indicator value can be re-baselined, clearing the gate without altering any value.
 - AC4: The gate's suggested remedy succeeds on a roadmap that legitimately keeps its status.
 - AC5: A written indicator value matches the format the templates use, verified on a document that already carries the suffixed form.
+- AC6: An existing document can be linked to a request, backlog item, task or product brief through a command, with no hand edit of an indicator line.
 
 # AC Traceability
 - request-AC10 -> This backlog slice. Proof: AC1: Requesting an indicator the target kind does not declare fails with an error naming that kind's accepted set.

@@ -2,8 +2,8 @@
 > From version: 2.19.5
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92
+> Confidence: 87
 > Progress: 0%
 > Complexity: High
 > Theme: Generated content
@@ -33,6 +33,7 @@
 - AC3: Scaffolding an input whose backlog items do not collectively claim every request AC reports each unclaimed AC by identifier.
 - AC4: The generated `# Validation` section contains one line that the `validation_evidence_missing` gate rejects and that no reader would mistake for evidence.
 - AC5: A test scaffolds from a fixture input and asserts the generated task asserts nothing that has not happened.
+- AC6: Immediately after scaffolding, `flow validate` reports deferred task-level traceability for every request acceptance criterion, with none suppressed by a generated proof claim. This is the check the current boilerplate silences, and it is the one that would have caught it.
 
 # AC Traceability
 - request-AC3 -> This backlog slice. Proof: AC1: A freshly scaffolded task contains no completion claim in any section, and its `# Report` states that work has not started.

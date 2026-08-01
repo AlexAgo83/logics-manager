@@ -497,7 +497,8 @@ def main(argv: list[str] | None = None) -> int:
             payload = index_payload(repo_root, out=parsed.out)
         except ConfigError as exc:
             raise SystemExit(str(exc)) from exc
-        output = render_payload(payload, parsed.format, f"Wrote {payload['output_path']}")
+        verb = "Wrote" if payload["changed"] else "Unchanged"
+        output = render_payload(payload, parsed.format, f"{verb} {payload['output_path']}")
         print(output)
         return 0 if payload["ok"] else 1
     if command == "status":

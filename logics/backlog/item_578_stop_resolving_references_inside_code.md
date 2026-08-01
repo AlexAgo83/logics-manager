@@ -1,10 +1,10 @@
 ## item_578_stop_resolving_references_inside_code - Stop resolving references inside code
 > From version: 2.19.5
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Low
 > Theme: Reference handling
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

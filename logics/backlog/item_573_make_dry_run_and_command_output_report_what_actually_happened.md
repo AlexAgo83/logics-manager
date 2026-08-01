@@ -1,10 +1,10 @@
 ## item_573_make_dry_run_and_command_output_report_what_actually_happened - Make dry-run and command output report what actually happened
 > From version: 2.19.5
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Low
 > Theme: Truthful output
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

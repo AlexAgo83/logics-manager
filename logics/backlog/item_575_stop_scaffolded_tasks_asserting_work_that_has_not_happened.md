@@ -1,10 +1,10 @@
 ## item_575_stop_scaffolded_tasks_asserting_work_that_has_not_happened - Stop scaffolded tasks asserting work that has not happened
 > From version: 2.19.5
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 92
 > Confidence: 87
-> Progress: 0%
+> Progress: 10%
 > Complexity: High
 > Theme: Generated content
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

@@ -111,12 +111,16 @@ def index_payload(repo_root: Path, *, out: str = "logics/INDEX.md") -> dict[str,
     ).rstrip() + "\n"
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(content, encoding="utf-8")
+    previous = out_path.read_text(encoding="utf-8") if out_path.exists() else None
+    changed = previous != content
+    if changed:
+        out_path.write_text(content, encoding="utf-8")
 
     counts = {key: len(entries) for key, (_, entries, _) in zip(SECTION_COUNT_KEYS, sections)}
     return {
         "ok": True,
         "output_path": output_path,
+        "changed": changed,
         "counts": counts,
     }
 
@@ -125,7 +129,9 @@ def render_index(repo_root: Path, *, out: str = "logics/INDEX.md", output_format
     payload = index_payload(repo_root, out=out)
     if output_format == "json":
         return json.dumps(payload, indent=2, sort_keys=True)
-    return f"Wrote {payload['output_path']}"
+    if payload["changed"]:
+        return f"Wrote {payload['output_path']}"
+    return f"Unchanged {payload['output_path']}"
 
 
 def build_parser() -> argparse.ArgumentParser:

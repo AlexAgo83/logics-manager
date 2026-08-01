@@ -1,7 +1,7 @@
 ## task_297_orchestrate_agent_facing_correctness_remediation - Orchestrate agent-facing correctness remediation
 > From version: 2.19.5
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 0%

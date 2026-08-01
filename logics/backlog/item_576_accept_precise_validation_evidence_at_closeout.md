@@ -1,10 +1,10 @@
 ## item_576_accept_precise_validation_evidence_at_closeout - Accept precise validation evidence at closeout
 > From version: 2.19.5
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Medium
 > Theme: Gates
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

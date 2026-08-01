@@ -1,9 +1,9 @@
 ## prod_048_agent_facing_correctness_of_generated_docs_and_cli_contracts - Agent-facing correctness of generated docs and CLI contracts
 > Date: 2026-08-01
 > Status: Proposed
-> Related request: (none yet)
+> Related request: `req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts`
 > Related backlog: (none yet)
-> Related task: (none yet)
+> Related task: `task_297_orchestrate_agent_facing_correctness_remediation`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
@@ -207,8 +207,17 @@ A gate whose only satisfiable exit is a false statement is a correctness problem
 not an ergonomics one.
 
 Related: `sync update-indicators <ref>` with no flags errors with `At least one
-workflow indicator is required` instead of performing a no-op refresh, which is
-what "I edited the body, re-baseline it" actually needs.
+workflow indicator is required` (`sync.py:673`) instead of performing a no-op
+refresh, which is what "I edited the body, re-baseline it" actually needs.
+
+**Root cause shared with findings 8 and 9.** `APPROVED_WORKFLOW_INDICATORS`
+(`sync.py:59`) is a single global tuple, while `lint.py:KINDS` declares the
+indicator set **per kind** — `roadmap` carries neither `Understanding` nor
+`Confidence`. The two lists never consult each other, so the gate can recommend
+a flag the target kind does not accept. All three findings live in
+`update_workflow_indicators_payload` (`sync.py:667-705`): per-kind validation
+closes 7, a no-op re-baseline path closes 8, and normalising the written value
+closes 9. Three findings, one function.
 
 ## 8. Indicator values must drift to satisfy the gate
 
@@ -240,10 +249,42 @@ failures); npm run lint passed; ..."` failed with the **same** preflight error a
 section from imperative form ("Run `npm test`...") into past-tense statements
 ("`npm test` passed on 2026-08-01: 26 assertions, 0 failures").
 
-So the required shape is "past-tense lines inside the section", the `--validation`
-flag does not write into that section in a way the checker accepts, and the
-documented repair is a dead end. The check itself is good and caught a real gap —
-only its remedy is wrong.
+**Root cause, confirmed in code.** The field report attributed this to the gate
+running before the writer. The opposite is true: the writer runs first
+(`flow/__init__.py:3457-3461`), the preflight second (`3485`), and the
+`changed files: 0` comes from the rollback that restores the snapshot when the
+preflight fails (`3489-3491`). The evidence was written, then reverted.
+
+The actual rejection happens in `flow_evidence.py:32`:
+
+```python
+invalid_markers = ("...", "todo", "tbd", "pending", "needs ", "need ", "not ok", "failed", "failure", "failing")
+```
+
+`0 failures` contains the substring `failure`, so the bullet is skipped. The
+evidence was rejected **for being precise**: stating the failure count is what
+disqualified it. `has_validation_evidence` iterates per bullet, so the
+hand-written version passed only because it was multi-line — `npm run lint
+passed on 2026-08-01` cleared the check while the `npm test` line carrying
+`0 failures` was skipped exactly as the flag's single blob had been. Reproduced:
+
+| Input to `has_validation_evidence` | Result |
+| --- | --- |
+| the `--validation` blob as one bullet | `False` |
+| same blob with `, 0 failures` removed | `True` |
+| the `npm test` line alone, with `0 failures` | `False` |
+| the hand-written multi-bullet section | `True` |
+
+**Regression, not a long-standing defect.** The blocklist was introduced by
+`72d3553e` "fix: reject weak closeout validation evidence" (2026-06-07, shipped
+in `v2.10.0`). Before it there was no substring filter and the blob would have
+been accepted. A hardening fix overshot.
+
+This narrows the correction considerably. It is not a reordering of gate and
+writer — which would be a risky refactor of the closeout pipeline — but a
+detector fix in a 74-line module, testable directly on `has_validation_evidence`
+without driving a full closeout. The check itself is good and caught a real gap;
+only its matching is wrong.
 
 ## 11. Status vocabularies are discoverable only through errors
 
@@ -258,6 +299,14 @@ the roadmap vocabulary by guessing wrong:
 The error is excellent; the only way to reach it is to fail. Same for scaffold
 input: `request.complexity` rejected `Small` and named the enum
 (`Low, Medium, High`) only on failure.
+
+The scaffold input schema has the same gap in both directions. The `corpus`
+skill documents the `context_pack.profile` enum but not `complexity`, which is
+how `Small` was reached. Conversely, the input silently accepts `priority` on
+backlog items, a key absent from the documented list in
+`skill_assets/corpus/SKILL.md:23` — it was passed only because an existing file
+happened to carry it. Undocumented-but-accepted is the mirror image of the same
+problem: neither the accepted set nor the rejected set is discoverable up front.
 
 ## 12. `flow list` prints help in its documented default form
 
@@ -287,7 +336,30 @@ This also means the rule cannot distinguish "this document links to a missing
 document" from "this document is about links". A brief written in one repository
 about work in another can never satisfy it.
 
-## 14. Roadmap milestone parsing silently drops non-numeric versions
+**Confirmed and split in two.** `audit.py:155-157` strips only ` ```mermaid `
+blocks before extracting references; no other fence and no inline code span is
+excluded. The in-scope half is therefore a parser fix, not a design decision: a
+reference inside a code block is text, not a link. The deferred half is an escape
+syntax for citing a reference in running prose, which needs design and which the
+parser fix largely subsumes.
+
+## 15. Commands do not report what they actually changed
+
+Three instances of the same shape as finding 6, all found while working normally:
+
+- `flow start` also modified the three linked backlog items, not just the named
+  task. Plausibly intended, but nothing in the output says so. An agent that
+  commits after `flow start` stages files it did not know were touched.
+- `logics-manager index` always prints `Wrote logics/INDEX.md`, whether or not the
+  file changed. There is no way to tell an effective run from a no-op.
+- `flow progress task --progress 100%` lists the changed files but never states
+  the resulting value, so the write cannot be confirmed from the output alone.
+
+Individually trivial. Together they define the class: a command's output is the
+only thing an agent can observe, and these three describe an outcome that is not
+the one that occurred.
+
+## 16. Roadmap milestone parsing silently drops non-numeric versions
 
 I wrote four milestones, one labelled `## 0.9.S - Lot S: Security posture` to mark
 a parallel track. `flow roadmap validate` returned `OK` with `milestones: 3`. No
@@ -295,20 +367,76 @@ warning named the dropped heading. A milestone invisible to the tooling is a
 milestone that gets skipped; the count was the only clue, and only because I read
 it. Renaming to `0.9.4` fixed it.
 
-# Uncertainties I could not resolve
+# Uncertainties, resolved
 
-- Whether `flow repair ac-traceability` is meant to rewrite task traceability at
-  all, or only to repair request-side links. The help text does not say, and
-  `would change 0 file(s)` is ambiguous between "nothing to do" and "wrong kind
-  of input".
-- Whether `--validation` on `flow closeout` is supposed to write into
-  `# Validation` or to record evidence elsewhere. It reported success on the flag
-  while the preflight still failed.
-- Whether the boilerplate in scaffolded tasks is intended as a placeholder that
-  authors are expected to overwrite. If so, nothing in the output says so, and
-  `Implementation complete.` is the wrong placeholder text in any case.
-- Which indicators are "approved" per document kind. The gate lists them in its
-  error, but I found no command that reports them up front.
+The four open questions from the field report were settled against the source
+during grooming.
+
+- **Does `--validation` write into `# Validation`?** Yes. The writer runs before
+  the preflight and appends correctly; the rollback on preflight failure is what
+  made it look inert. See finding 10.
+- **Which indicators are approved per kind?** They are declared per kind in
+  `lint.py:KINDS`, but the mutation path validates against a single global tuple
+  in `sync.py:59`. No command reports them, and the two declarations disagree.
+  See finding 7.
+- **Is the scaffolded task boilerplate an intended placeholder?** It is frozen
+  literal text at four call sites (`flow/__init__.py:1839, 2516, 3975, 4033`),
+  unchanged since it was introduced. Nothing marks it as a placeholder, and
+  `Implementation complete.` is the wrong placeholder text regardless.
+- **Is `flow repair ac-traceability` meant to rewrite task traceability?** Still
+  open, and the only genuine design question left in the lot. Both repair
+  commands accept a request and report `would change 0 file(s)` for findings that
+  live on tasks and companions. Either their scope widens to cover the findings
+  that name them, or the findings stop implying a repair exists.
+
+# Provenance
+
+Whether each defect is a regression matters for how it is tested. Settled by
+`git log`, since the field session only ever ran `2.19.5`.
+
+| Finding | Origin | Verdict |
+| --- | --- | --- |
+| 10 | `72d3553e` "fix: reject weak closeout validation evidence", 2026-06-07, shipped `v2.10.0` | **Regression.** A hardening fix added the substring blocklist; before it the flag's evidence was accepted. Needs a non-regression test on the exact rejected string. |
+| 1, 2 | `cd68dbf7` / `f92d9d20`, `v2.0.0`, carried unchanged through two refactors | Never worked. Frozen boilerplate. |
+| 3 | `cc31f320`, `v2.0.0` — `Drivers` was required by lint from the start and never emitted | Never worked. |
+
+# Correction sites
+
+The fourteen findings collapse onto roughly eight edit sites. This is the shape
+that matters for slicing the work, not the finding count.
+
+| Site | Closes |
+| --- | --- |
+| `_build_native_adr` (`flow/__init__.py:2269-2299`) | 2, 3 |
+| Scaffolded task templates (4 call sites) | 1 |
+| `update_workflow_indicators_payload` (`sync.py:667-705`) | 7, 8, 9 |
+| `has_validation_evidence` (`flow_evidence.py:30-51`) | 10 |
+| Reference extraction (`audit.py:155-157`) | 13, in-scope half |
+| Reference resolution in `flow repair *` | 4, 5 |
+| Command output wording (dry-run, `index`, `flow start`, `flow progress`) | 6, 15 |
+| Vocabulary surfacing and milestone parsing | 11, 12, 16 |
+
+# Local reproduction
+
+Scaffolding the remediation chain in this repository reproduced three findings
+without needing the external project, which removes the field session from the
+critical path for whoever implements this.
+
+- **Finding 1.** The generated orchestration task claimed `AC1`, `AC4`, `AC6` and
+  `AC8` as proven by the scaffold command's own criteria, and its `# Report` read
+  `Implementation complete.` at `Progress: 0%`. The side effect is worse than the
+  text: those four false claims **suppressed the deferred-traceability warnings**
+  for four of eighteen criteria, so `flow validate` reported fourteen deferrals
+  instead of eighteen. The boilerplate does not merely mislead a reader, it
+  silences the check that would have caught it. The block was rewritten by hand.
+- **Findings 4 and 5.** The freshly generated product brief triggered
+  `companion_doc_missing_mermaid`. `flow repair mermaid` against the request
+  reference returned `would change 0 file(s)`, and against the brief's own
+  reference returned `Workflow source not found` for a document created seconds
+  earlier. The diagram was written by hand.
+
+Any implementer can therefore reproduce these three by running the scaffold in
+this repository, with no access to the external corpus.
 
 # What worked well
 
@@ -342,22 +470,57 @@ Worth preserving; these carried the session.
 - A semantic body edit that does not change status can be re-baselined without
   inventing indicator drift and without labelling it non-semantic.
 - `flow roadmap validate` reports every heading it did not parse as a milestone.
+- No command reports having created, written, or completed something it did not do.
 
-# Open questions
+# Ordering
 
-- Should scaffolded AC traceability be generated from `backlog_items[].request_acs`
-  automatically? The data is already in the scaffold input, and re-deriving it by
-  hand is exactly where I found two genuine coverage holes (a request AC covered
-  by no backlog item, and an AC that required human action no agent can perform).
-  Generating it would have surfaced those on day one.
-- Is there value in a `logics-manager doctor <ref>` that reports, for one document,
-  which indicators are approved, which statuses are valid, and which repairs apply?
-  Most of my lost time was vocabulary discovery.
+Time lost and risk carried point in different directions, so the lot is ordered
+by risk first.
+
+**Highest latent risk, near-zero cost.** Findings 6 and 16 cost seconds in the
+field, but both were caught only by double-checking. A dry-run that reports
+creation, and a milestone that vanishes without warning, are silent by
+construction — an agent in a hurry misses both and proceeds on a false premise.
+These lead.
+
+**Highest measured cost.** Finding 1 dominates: four tasks rewritten across two
+corpora, plus the AC mapping re-derived by hand while the data sat unused in the
+scaffold input. That re-derivation is also what surfaced two real coverage holes,
+including a request AC that no backlog item claimed and that required human
+action no agent could perform. Generating traceability from
+`backlog_items[].request_acs` would have reported both at scaffold time. This is
+the single highest-value change in the lot.
+
+**Then, in order:** 10 (regression, four diagnostic attempts, documented repair
+points at the wrong fix), 7+8+9 (one function, a permanent per-edit tax), 13
+(parser half), 5 and 4 (reference resolution and inert repairs, related), 3, 2,
+then 11, 12, 15.
+
+# Scope decisions
+
+- `# Validation` on scaffolded tasks: emit one obviously-not-evidence line such
+  as `- (no validation recorded yet)`, not an empty section. An empty section
+  reads as "nothing to validate", and the `validation_evidence_missing` gate
+  needs something to reject.
+- Companion templates: neutral prompts such as `- (decision to document)`, not
+  empty bodies. The prompt must be impossible to mistake for content — that is
+  precisely what failed, since the generated text was plausible enough not to be
+  detected as a placeholder.
+- `--touch` on `sync update-indicators`: refresh the signature without touching
+  values. A re-baseline that moves the numbers recreates finding 8 under another
+  name.
+- `logics-manager doctor`: out of scope. It is the only new feature in the brief,
+  and its value depends on these corrections landing first — if vocabularies
+  surface in errors and repairs work, it becomes less necessary. Revisit after.
+- Finding 13: parser fix in scope, escape syntax deferred.
 
 # References
 - Field answers to grooming questions, with verbatim invocations, outputs, and the
-  generated/rewritten task pair: `logics/external/prod_048_field_answers_2026_08_01.md`.
+  generated/rewritten task pair: see the field-answers note dated 2026-08-01 under
+  the corpus attachments directory (`external/`), kept local and unversioned.
 - Session context: external project `cts` (recruiting dashboard), `logics-manager 2.19.5`,
   2026-08-01. Four request chains scaffolded and audited, one delivered end to end,
-  one roadmap settled and one opened.
+  one roadmap settled and one opened. Useful commits in that repository: scaffold
+  of the two request chains in their generated state, the hand-rewritten task pair,
+  and the two roadmap revisions.
 - Predecessor: `prod_045_logics_operator_ergonomics`.

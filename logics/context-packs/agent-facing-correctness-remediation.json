@@ -1,0 +1,756 @@
+{
+  "budgets": {
+    "max_docs": 88,
+    "max_docs_per_ref": 8
+  },
+  "changed_paths": [
+    "logics/backlog/item_573_make_dry_run_and_command_output_report_what_actually_happened.md",
+    "logics/backlog/item_574_report_roadmap_headings_that_are_not_parsed_as_milestones.md",
+    "logics/backlog/item_575_stop_scaffolded_tasks_asserting_work_that_has_not_happened.md",
+    "logics/backlog/item_576_accept_precise_validation_evidence_at_closeout.md",
+    "logics/backlog/item_577_make_indicator_updates_kind_aware_and_honestly_exitable.md",
+    "logics/backlog/item_578_stop_resolving_references_inside_code.md",
+    "logics/backlog/item_579_make_repair_commands_accept_the_references_they_name_and_fix_the_findings_that_name_them.md",
+    "logics/backlog/item_580_make_companion_documents_lint_clean_and_free_of_foreign_content.md",
+    "logics/backlog/item_581_make_vocabularies_discoverable_without_failing_first.md",
+    "logics/product/prod_049_agent_facing_correctness_remediation.md",
+    "logics/request/req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts.md",
+    "logics/tasks/task_297_orchestrate_agent_facing_correctness_remediation.md"
+  ],
+  "command": "logics-manager sync context-pack req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts item_573_make_dry_run_and_command_output_report_what_actually_happened item_574_report_roadmap_headings_that_are_not_parsed_as_milestones item_575_stop_scaffolded_tasks_asserting_work_that_has_not_happened item_576_accept_precise_validation_evidence_at_closeout item_577_make_indicator_updates_kind_aware_and_honestly_exitable item_578_stop_resolving_references_inside_code item_579_make_repair_commands_accept_the_references_they_name_and_fix_the_findings_that_name_them item_580_make_companion_documents_lint_clean_and_free_of_foreign_content item_581_make_vocabularies_discoverable_without_failing_first task_297_orchestrate_agent_facing_correctness_remediation --mode diff-first --profile deep --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "prod": [
+          "prod_045_logics_operator_ergonomics",
+          "prod_048_agent_facing_correctness_of_generated_docs_and_cli_contracts"
+        ]
+      },
+      "path": "logics/product/prod_048_agent_facing_correctness_of_generated_docs_and_cli_contracts.md",
+      "ref": "prod_048_agent_facing_correctness_of_generated_docs_and_cli_contracts",
+      "sections": {
+        "Goals": [
+          "- Make every generated document true about the project it is generated into, or",
+          "  visibly empty, never confidently wrong.",
+          "- Make one reference form work across every command that accepts a reference.",
+          "- Make advertised repair commands either fix the finding they are advertised for",
+          "  or stop advertising themselves.",
+          "- Give the \"modified without updating indicators\" gate an honest exit for"
+        ],
+        "Overview": [
+          "Field report from a full working session on an external project (`cts`, recruiting",
+          "dashboard) using `logics-manager 2.19.5` end to end: scaffolding four request",
+          "chains, auditing them for handoff, closing a roadmap, opening another, and",
+          "delivering one chain through `flow start` -> `flow progress` -> `flow closeout`.",
+          "The workflow model held up well. What did not hold up is the **content the tool",
+          "generates** and the **consistency of its CLI contracts**. Two classes of problem"
+        ],
+        "References": [
+          "- Field answers to grooming questions, with verbatim invocations, outputs, and the",
+          "  generated/rewritten task pair: see the field-answers note dated 2026-08-01 under",
+          "  the corpus attachments directory (`external/`), kept local and unversioned.",
+          "- Session context: external project `cts` (recruiting dashboard), `logics-manager 2.19.5`,",
+          "  2026-08-01. Four request chains scaffolded and audited, one delivered end to end,",
+          "  one roadmap settled and one opened. Useful commits in that repository: scaffold"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Agent-facing correctness of generated docs and CLI contracts"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_573_make_dry_run_and_command_output_report_what_actually_happened",
+          "item_574_report_roadmap_headings_that_are_not_parsed_as_milestones",
+          "item_575_stop_scaffolded_tasks_asserting_work_that_has_not_happened",
+          "item_576_accept_precise_validation_evidence_at_closeout",
+          "item_577_make_indicator_updates_kind_aware_and_honestly_exitable",
+          "item_578_stop_resolving_references_inside_code",
+          "item_579_make_repair_commands_accept_the_references_they_name_and_fix_the_findings_that_name_them",
+          "item_580_make_companion_documents_lint_clean_and_free_of_foreign_content",
+          "item_581_make_vocabularies_discoverable_without_failing_first"
+        ],
+        "prod": [
+          "prod_049_agent_facing_correctness_remediation"
+        ],
+        "req": [
+          "req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts"
+        ],
+        "task": [
+          "task_297_orchestrate_agent_facing_correctness_remediation"
+        ]
+      },
+      "path": "logics/product/prod_049_agent_facing_correctness_remediation.md",
+      "ref": "prod_049_agent_facing_correctness_remediation",
+      "sections": {
+        "Goals": [
+          "- Make every generated document true about the project it is generated into, or visibly empty.",
+          "- Make every command message an accurate report of what the command did.",
+          "- Make reference handling uniform across commands, with errors that name the real restriction.",
+          "- Give every gate an exit that is a true statement.",
+          "- Derive scaffolded traceability from data the input already carries, and surface the coverage holes that derivation exposes."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Correct the generated content and CLI contract defects recorded in prod_048, so that an agent that trusts logics-manager output produces correct work rather than confidently wrong work."
+        ],
+        "References": [
+          "- Product back-reference: `req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts`",
+          "- Task back-reference: `task_297_orchestrate_agent_facing_correctness_remediation`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Agent-facing correctness remediation"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, agent-facing correctness of generated docs and cli contracts, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Agent-facing correctness of generated docs and CLI contracts",
+        "use when": "You need to implement or review the scaffolded workflow for Agent-facing correctness of generated docs and CLI contracts."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_573_make_dry_run_and_command_output_report_what_actually_happened",
+          "item_574_report_roadmap_headings_that_are_not_parsed_as_milestones",
+          "item_575_stop_scaffolded_tasks_asserting_work_that_has_not_happened",
+          "item_576_accept_precise_validation_evidence_at_closeout",
+          "item_577_make_indicator_updates_kind_aware_and_honestly_exitable",
+          "item_578_stop_resolving_references_inside_code",
+          "item_579_make_repair_commands_accept_the_references_they_name_and_fix_the_findings_that_name_them",
+          "item_580_make_companion_documents_lint_clean_and_free_of_foreign_content",
+          "item_581_make_vocabularies_discoverable_without_failing_first"
+        ],
+        "prod": [
+          "prod_048_agent_facing_correctness_of_generated_docs_and_cli_contracts",
+          "prod_049_agent_facing_correctness_remediation"
+        ],
+        "req": [
+          "req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts"
+        ]
+      },
+      "path": "logics/request/req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts.md",
+      "ref": "req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: No dry-run path reports a completed action. Every dry-run message uses the conditional form, and no trailing summary line contradicts it.",
+          "- AC2: Roadmap validation reports every `##` heading it did not parse as a milestone, naming the heading, instead of silently lowering the count.",
+          "- AC3: No scaffolded document asserts work that has not happened. A freshly scaffolded task at zero progress contains no completion claim in any section.",
+          "- AC4: Scaffolded AC traceability is derived from `backlog_items[].request_acs` in the scaffold input, mapping each request AC to the backlog item that claims it.",
+          "- AC5: Scaffolding reports every request acceptance criterion claimed by no backlog item, at scaffold time rather than at review time.",
+          "- AC6: Scaffolded `# Validation` carries one line that cannot be mistaken for evidence, and that the `validation_evidence_missing` gate still rejects."
+        ],
+        "Needs": [
+          "- Generated documents must be true about the project they are generated into, or visibly empty, never confidently wrong.",
+          "- Command output must describe what actually happened, so an agent that trusts it does not proceed on a false premise.",
+          "- A reference form accepted by one command must be accepted by every command that takes a reference, or the error must explain the kind restriction.",
+          "- A gate must have at least one exit that is a true statement.",
+          "- Advertised repairs must fix the findings that name them, or the findings must stop implying a repair exists."
+        ]
+      },
+      "status": "Draft",
+      "title": "Agent-facing correctness of generated docs and CLI contracts"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, make dry-run and command output report what actually happened, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Make dry-run and command output report what actually happened",
+        "use when": "Implementing the scaffolded slice for Make dry-run and command output report what actually happened."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_573_make_dry_run_and_command_output_report_what_actually_happened"
+        ],
+        "prod": [
+          "prod_049_agent_facing_correctness_remediation"
+        ],
+        "req": [
+          "req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts"
+        ],
+        "task": [
+          "task_297_orchestrate_agent_facing_correctness_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_573_make_dry_run_and_command_output_report_what_actually_happened.md",
+      "ref": "item_573_make_dry_run_and_command_output_report_what_actually_happened",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `flow companion architecture --dry-run` and `flow roadmap propose --dry-run` produce no line asserting creation, and the filesystem is unchanged after each.",
+          "- AC2: `logics-manager index` output distinguishes a run that wrote the index from a run that did not.",
+          "- AC3: `flow start` output lists every modified document, verified against the actual change set.",
+          "- AC4: `flow progress` output states the resulting progress value.",
+          "- AC5: A test asserts that no dry-run path in the flow CLI emits a past-tense completion claim."
+        ],
+        "Problem": [
+          "- `flow companion` and `flow roadmap propose` print an unconditional past-tense summary line after their dry-run preview, so the output states that a document was created when nothing was written.",
+          "- `logics-manager index` prints the same success line whether or not it changed the file, `flow start` silently modifies linked backlog items, and `flow progress` never states the resulting value.",
+          "- These cost almost nothing to hit and were caught only by double-checking, which makes them the highest latent risk in the lot: an agent that trusts the message skips the real invocation."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make dry-run and command output report what actually happened"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, report roadmap headings that are not parsed as milestones, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Report roadmap headings that are not parsed as milestones",
+        "use when": "Implementing the scaffolded slice for Report roadmap headings that are not parsed as milestones."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_574_report_roadmap_headings_that_are_not_parsed_as_milestones"
+        ],
+        "prod": [
+          "prod_049_agent_facing_correctness_remediation"
+        ],
+        "req": [
+          "req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts"
+        ],
+        "task": [
+          "task_297_orchestrate_agent_facing_correctness_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_574_report_roadmap_headings_that_are_not_parsed_as_milestones.md",
+      "ref": "item_574_report_roadmap_headings_that_are_not_parsed_as_milestones",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A roadmap containing a heading with a non-numeric version segment produces a warning naming that heading verbatim.",
+          "- AC2: The milestone count and the reported headings together account for every `##` heading in the document.",
+          "- AC3: A test covers a roadmap mixing parsed and unparsed headings."
+        ],
+        "Problem": [
+          "- A milestone heading with a non-numeric version was dropped silently: `flow roadmap validate` returned `OK` with a lowered count and named nothing.",
+          "- A milestone invisible to the tooling is a milestone that gets skipped, and the count was the only clue that anything had been lost."
+        ]
+      },
+      "status": "Ready",
+      "title": "Report roadmap headings that are not parsed as milestones"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, stop scaffolded tasks asserting work that has not happened, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Stop scaffolded tasks asserting work that has not happened",
+        "use when": "Implementing the scaffolded slice for Stop scaffolded tasks asserting work that has not happened."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_575_stop_scaffolded_tasks_asserting_work_that_has_not_happened"
+        ],
+        "prod": [
+          "prod_049_agent_facing_correctness_remediation"
+        ],
+        "req": [
+          "req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts"
+        ],
+        "task": [
+          "task_297_orchestrate_agent_facing_correctness_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_575_stop_scaffolded_tasks_asserting_work_that_has_not_happened.md",
+      "ref": "item_575_stop_scaffolded_tasks_asserting_work_that_has_not_happened",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A freshly scaffolded task contains no completion claim in any section, and its `# Report` states that work has not started.",
+          "- AC2: The generated `# AC Traceability` maps each request AC to the backlog item declaring it in `request_acs`, with no reference to the scaffold command's own criteria.",
+          "- AC3: Scaffolding an input whose backlog items do not collectively claim every request AC reports each unclaimed AC by identifier.",
+          "- AC4: The generated `# Validation` section contains one line that the `validation_evidence_missing` gate rejects and that no reader would mistake for evidence.",
+          "- AC5: A test scaffolds from a fixture input and asserts the generated task asserts nothing that has not happened."
+        ],
+        "Problem": [
+          "- Every scaffolded task carries frozen boilerplate whose `# Report` section reads `Implementation complete.` on a task at zero progress and `Ready` status, so an agent opening the task first reads a finished job.",
+          "- The AC traceability block maps to the scaffold command's own acceptance criteria rather than the request's, producing statements that are false about the target project.",
+          "- The `# Validation` section prescribes this tool's verification steps rather than the target project's gates.",
+          "- The correct mapping is already present in the scaffold input under `backlog_items[].request_acs` and is simply not consumed.",
+          "- Re-deriving that mapping by hand is what exposed two genuine coverage holes in the field, including a request AC that no backlog item claimed and that required human action no agent could perform."
+        ]
+      },
+      "status": "Ready",
+      "title": "Stop scaffolded tasks asserting work that has not happened"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, accept precise validation evidence at closeout, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Accept precise validation evidence at closeout",
+        "use when": "Implementing the scaffolded slice for Accept precise validation evidence at closeout."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_576_accept_precise_validation_evidence_at_closeout"
+        ],
+        "prod": [
+          "prod_049_agent_facing_correctness_remediation"
+        ],
+        "req": [
+          "req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts"
+        ],
+        "task": [
+          "task_297_orchestrate_agent_facing_correctness_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_576_accept_precise_validation_evidence_at_closeout.md",
+      "ref": "item_576_accept_precise_validation_evidence_at_closeout",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A single bullet reading `npm test passed (26 assertions, 0 failures)` is accepted as validation evidence.",
+          "- AC2: A bullet reporting an actual failure, a pending state, or a placeholder is still rejected.",
+          "- AC3: `flow closeout --validation` with the field's verbatim string succeeds where it previously failed, with a test pinning that exact string.",
+          "- AC4: The repair hint on `validation_evidence_missing` names an action that satisfies the gate.",
+          "- AC5: Closeout output distinguishes evidence rolled back after a failed preflight from evidence never written."
+        ],
+        "Problem": [
+          "- `has_validation_evidence` skips any bullet containing the substring `failure`, so evidence stating a zero failure count is rejected for being precise.",
+          "- The detector iterates per bullet, so a single-bullet `--validation` blob is rejected outright while a multi-line section survives because an unrelated line clears the check.",
+          "- The preflight then rolls back the evidence the writer had already appended, which reads as the flag having done nothing.",
+          "- The documented repair points at the flag that cannot satisfy the gate, so the operator is sent to a dead end.",
+          "- This is a regression: the substring blocklist was introduced in v2.10.0 by a fix intended to reject weak evidence."
+        ]
+      },
+      "status": "Ready",
+      "title": "Accept precise validation evidence at closeout"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, make indicator updates kind-aware and honestly exitable, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Make indicator updates kind-aware and honestly exitable",
+        "use when": "Implementing the scaffolded slice for Make indicator updates kind-aware and honestly exitable."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_577_make_indicator_updates_kind_aware_and_honestly_exitable"
+        ],
+        "prod": [
+          "prod_049_agent_facing_correctness_remediation"
+        ],
+        "req": [
+          "req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts"
+        ],
+        "task": [
+          "task_297_orchestrate_agent_facing_correctness_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_577_make_indicator_updates_kind_aware_and_honestly_exitable.md",
+      "ref": "item_577_make_indicator_updates_kind_aware_and_honestly_exitable",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Requesting an indicator the target kind does not declare fails with an error naming that kind's accepted set.",
+          "- AC2: The per-kind indicator set is read from one declaration, with a test asserting the mutation path and the linter cannot diverge.",
+          "- AC3: A body edit that changes no indicator value can be re-baselined, clearing the gate without altering any value.",
+          "- AC4: The gate's suggested remedy succeeds on a roadmap that legitimately keeps its status.",
+          "- AC5: A written indicator value matches the format the templates use, verified on a document that already carries the suffixed form."
+        ],
+        "Problem": [
+          "- The mutation path validates against a single global tuple of approved indicators while the linter declares them per document kind, so the two disagree and the gate can recommend a flag the target kind does not accept.",
+          "- On a roadmap the recommended remedy cannot work, leaving the marker for non-semantic edits as the only exit, which forces labelling a semantic edit as non-semantic.",
+          "- Passing current values returns unchanged and leaves the gate red, so clearing it requires inventing numeric drift, which degrades the indicators into edit counters.",
+          "- Written values drop the percent suffix the templates use, so a corpus ends up mixing two forms for one indicator."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make indicator updates kind-aware and honestly exitable"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, stop resolving references inside code, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Stop resolving references inside code",
+        "use when": "Implementing the scaffolded slice for Stop resolving references inside code."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_578_stop_resolving_references_inside_code"
+        ],
+        "prod": [
+          "prod_049_agent_facing_correctness_remediation"
+        ],
+        "req": [
+          "req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts"
+        ],
+        "task": [
+          "task_297_orchestrate_agent_facing_correctness_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_578_stop_resolving_references_inside_code.md",
+      "ref": "item_578_stop_resolving_references_inside_code",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A reference inside a fenced code block is not resolved as a link.",
+          "- AC2: A reference inside an inline code span is not resolved as a link.",
+          "- AC3: A genuine reference outside code is still resolved, with a test covering all three forms in one document.",
+          "- AC4: Lint, audit and the repair commands agree on which references a document contains."
+        ],
+        "Problem": [
+          "- Reference extraction strips fenced mermaid blocks only, so a reference quoted in any other fence or in an inline code span is resolved as a genuine link.",
+          "- Writing the field report tripped the audit three times, and quoting the diagnostic reproduced the diagnostic.",
+          "- Any document that discusses references cannot show one without inventing an unresolvable link, and the rule cannot distinguish a document that links to a missing document from a document that is about links."
+        ]
+      },
+      "status": "Ready",
+      "title": "Stop resolving references inside code"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, make repair commands accept the references they name and fix the findings that name them, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Make repair commands accept the references they name and fix the findings that name them",
+        "use when": "Implementing the scaffolded slice for Make repair commands accept the references they name and fix the findings that name them."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_579_make_repair_commands_accept_the_references_they_name_and_fix_the_findings_that_name_them"
+        ],
+        "prod": [
+          "prod_049_agent_facing_correctness_remediation"
+        ],
+        "req": [
+          "req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts"
+        ],
+        "task": [
+          "task_297_orchestrate_agent_facing_correctness_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_579_make_repair_commands_accept_the_references_they_name_and_fix_the_findings_that_name_them.md",
+      "ref": "item_579_make_repair_commands_accept_the_references_they_name_and_fix_the_findings_that_name_them",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The decision on repair scope is recorded in the corpus before implementation begins.",
+          "- AC2: Each of the six reference forms recorded in the field report resolves, or fails with an error naming the kind restriction.",
+          "- AC3: No command reports an existing document as missing.",
+          "- AC4: Every audit finding that names a repair command is fixed by running that command, verified on a corpus reproducing the field's warnings.",
+          "- AC5: Any finding that keeps no repair no longer names one in its output."
+        ],
+        "Problem": [
+          "- The same document produces two different errors depending on the reference form: the bare reference reports the document as missing, which is false, while the path reports the kind restriction, which is true.",
+          "- Both repair commands accept only a request, while the findings that name them live on tasks and companion documents, so they report changing nothing while the findings persist.",
+          "- The flag that takes references is plural and kind-agnostic in name while being kind-restricted in behaviour.",
+          "- Whether these commands are meant to cover task-side traceability at all is the one genuine design question left in the lot, and must be settled before the slice is implemented."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make repair commands accept the references they name and fix the findings that name them"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate agent-facing correctness remediation",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_573_make_dry_run_and_command_output_report_what_actually_happened",
+          "item_574_report_roadmap_headings_that_are_not_parsed_as_milestones",
+          "item_575_stop_scaffolded_tasks_asserting_work_that_has_not_happened",
+          "item_576_accept_precise_validation_evidence_at_closeout",
+          "item_577_make_indicator_updates_kind_aware_and_honestly_exitable",
+          "item_578_stop_resolving_references_inside_code",
+          "item_579_make_repair_commands_accept_the_references_they_name_and_fix_the_findings_that_name_them",
+          "item_580_make_companion_documents_lint_clean_and_free_of_foreign_content",
+          "item_581_make_vocabularies_discoverable_without_failing_first"
+        ],
+        "prod": [
+          "prod_049_agent_facing_correctness_remediation"
+        ],
+        "req": [
+          "req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts"
+        ],
+        "task": [
+          "task_297_orchestrate_agent_facing_correctness_remediation"
+        ]
+      },
+      "path": "logics/tasks/task_297_orchestrate_agent_facing_correctness_remediation.md",
+      "ref": "task_297_orchestrate_agent_facing_correctness_remediation",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- Run `python3 -m logics_manager lint --require-status`.",
+          "- Run scaffold command tests."
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate agent-facing correctness remediation"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_573_make_dry_run_and_command_output_report_what_actually_happened",
+          "item_574_report_roadmap_headings_that_are_not_parsed_as_milestones",
+          "item_575_stop_scaffolded_tasks_asserting_work_that_has_not_happened",
+          "item_576_accept_precise_validation_evidence_at_closeout",
+          "item_577_make_indicator_updates_kind_aware_and_honestly_exitable",
+          "item_578_stop_resolving_references_inside_code",
+          "item_579_make_repair_commands_accept_the_references_they_name_and_fix_the_findings_that_name_them",
+          "item_580_make_companion_documents_lint_clean_and_free_of_foreign_content",
+          "item_581_make_vocabularies_discoverable_without_failing_first"
+        ],
+        "prod": [
+          "prod_049_agent_facing_correctness_remediation"
+        ],
+        "req": [
+          "req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts"
+        ],
+        "task": [
+          "task_297_orchestrate_agent_facing_correctness_remediation"
+        ]
+      },
+      "path": "logics/product/prod_049_agent_facing_correctness_remediation.md",
+      "ref": "prod_049_agent_facing_correctness_remediation",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Agent-facing correctness remediation"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, make companion documents lint-clean and free of foreign content, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Make companion documents lint-clean and free of foreign content",
+        "use when": "Implementing the scaffolded slice for Make companion documents lint-clean and free of foreign content."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_580_make_companion_documents_lint_clean_and_free_of_foreign_content"
+        ],
+        "prod": [
+          "prod_049_agent_facing_correctness_remediation"
+        ],
+        "req": [
+          "req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts"
+        ],
+        "task": [
+          "task_297_orchestrate_agent_facing_correctness_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_580_make_companion_documents_lint_clean_and_free_of_foreign_content.md",
+      "ref": "item_580_make_companion_documents_lint_clean_and_free_of_foreign_content",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A freshly generated architecture companion passes `logics-manager lint` with no manual edit.",
+          "- AC2: No generated companion body contains content about a product other than the one named in the invocation.",
+          "- AC3: Every generated placeholder is recognisable as a placeholder on sight.",
+          "- AC4: A test generates each companion kind and asserts lint passes immediately."
+        ],
+        "Problem": [
+          "- The architecture companion generator does not emit the indicator its own linter requires, so every invocation is followed by a guaranteed lint failure the caller must fix by hand.",
+          "- Its body is hardcoded prose about this tool's own architecture, which leaked verbatim into an unrelated product's decision record and was discarded in full.",
+          "- The generated text was plausible enough not to read as a placeholder, which is why it had to be detected as wrong before it could be replaced."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make companion documents lint-clean and free of foreign content"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, make vocabularies discoverable without failing first, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Make vocabularies discoverable without failing first",
+        "use when": "Implementing the scaffolded slice for Make vocabularies discoverable without failing first."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_581_make_vocabularies_discoverable_without_failing_first"
+        ],
+        "prod": [
+          "prod_049_agent_facing_correctness_remediation"
+        ],
+        "req": [
+          "req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts"
+        ],
+        "task": [
+          "task_297_orchestrate_agent_facing_correctness_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_581_make_vocabularies_discoverable_without_failing_first.md",
+      "ref": "item_581_make_vocabularies_discoverable_without_failing_first",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `logics-manager flow list` with no arguments produces a listing.",
+          "- AC2: The status vocabulary for each document kind is reachable from help output without triggering a failure.",
+          "- AC3: The scaffold input enums are documented where the keys are documented.",
+          "- AC4: The documented scaffold key list and the accepted key set agree, verified by a test."
+        ],
+        "Problem": [
+          "- Status vocabularies and scaffold input enums are named only in failure messages, so the only way to learn them is to guess wrong.",
+          "- The documented scaffold key list omits the `complexity` enum and omits a key the input silently accepts, so neither the accepted set nor the rejected set is discoverable up front.",
+          "- `flow list` prints its usage block in the exact default form its own help text gives as the first example.",
+          "- Most of the time lost in the field was vocabulary discovery."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make vocabularies discoverable without failing first"
+    }
+  ],
+  "estimates": {
+    "char_count": 29063,
+    "companion_doc_count": 2,
+    "doc_count": 12
+  },
+  "generated_at": "2026-08-01T19:45:16Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts",
+      "item_573_make_dry_run_and_command_output_report_what_actually_happened",
+      "item_574_report_roadmap_headings_that_are_not_parsed_as_milestones",
+      "item_575_stop_scaffolded_tasks_asserting_work_that_has_not_happened",
+      "item_576_accept_precise_validation_evidence_at_closeout",
+      "item_577_make_indicator_updates_kind_aware_and_honestly_exitable",
+      "item_578_stop_resolving_references_inside_code",
+      "item_579_make_repair_commands_accept_the_references_they_name_and_fix_the_findings_that_name_them",
+      "item_580_make_companion_documents_lint_clean_and_free_of_foreign_content",
+      "item_581_make_vocabularies_discoverable_without_failing_first",
+      "task_297_orchestrate_agent_facing_correctness_remediation"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "diff-first",
+  "profile": "deep",
+  "ref": "req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts,item_573_make_dry_run_and_command_output_report_what_actually_happened,item_574_report_roadmap_headings_that_are_not_parsed_as_milestones,item_575_stop_scaffolded_tasks_asserting_work_that_has_not_happened,item_576_accept_precise_validation_evidence_at_closeout,item_577_make_indicator_updates_kind_aware_and_honestly_exitable,item_578_stop_resolving_references_inside_code,item_579_make_repair_commands_accept_the_references_they_name_and_fix_the_findings_that_name_them,item_580_make_companion_documents_lint_clean_and_free_of_foreign_content,item_581_make_vocabularies_discoverable_without_failing_first,task_297_orchestrate_agent_facing_correctness_remediation",
+  "refs": [
+    "req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts",
+    "item_573_make_dry_run_and_command_output_report_what_actually_happened",
+    "item_574_report_roadmap_headings_that_are_not_parsed_as_milestones",
+    "item_575_stop_scaffolded_tasks_asserting_work_that_has_not_happened",
+    "item_576_accept_precise_validation_evidence_at_closeout",
+    "item_577_make_indicator_updates_kind_aware_and_honestly_exitable",
+    "item_578_stop_resolving_references_inside_code",
+    "item_579_make_repair_commands_accept_the_references_they_name_and_fix_the_findings_that_name_them",
+    "item_580_make_companion_documents_lint_clean_and_free_of_foreign_content",
+    "item_581_make_vocabularies_discoverable_without_failing_first",
+    "task_297_orchestrate_agent_facing_correctness_remediation"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.19.5"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Run `python3 -m logics_manager lint --require-status`.",
+        "- Run scaffold command tests."
+      ],
+      "path": "logics/tasks/task_297_orchestrate_agent_facing_correctness_remediation.md",
+      "ref": "task_297_orchestrate_agent_facing_correctness_remediation"
+    }
+  ]
+}

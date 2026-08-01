@@ -341,3 +341,163 @@ def test_scaffolded_chain_defers_every_request_ac_with_none_suppressed(
         if finding["code"] == "ac_missing_task_traceability"
     }
     assert deferred == {"AC1", "AC2", "AC3"}
+
+
+# --- item_576: precise validation evidence is accepted ---------------------
+
+
+FIELD_VALIDATION_BLOB = (
+    "npm test passed (26 assertions, 0 failures); npm run lint passed; "
+    "npm run check:size passed; npm run build passed; npm run a11y passed; "
+    "drag states verified by scripts/capture-drag-states.mjs (is-target, is-blocked, "
+    "is-dragging observed and cleared after Escape-cancel)"
+)
+
+
+@pytest.mark.parametrize(
+    ("bullet", "expected"),
+    [
+        # The exact string rejected in the field. Regression from v2.10.0 (72d3553e).
+        (FIELD_VALIDATION_BLOB, True),
+        ("`npm test` passed on 2026-08-01: 26 assertions, 0 failures.", True),
+        ("pytest passed with no failures.", True),
+        ("suite passed, zero failures", True),
+        # Genuinely weak evidence must still be refused.
+        ("npm test failed with 3 errors.", False),
+        ("the suite is failing.", False),
+        ("npm test passed but 2 failures remain.", False),
+        ("(no validation recorded yet)", False),
+        ("Run `npm test`.", False),
+        ("todo: run the suite.", False),
+        ("validation pending.", False),
+    ],
+)
+def test_validation_evidence_accepts_precision_and_rejects_weakness(bullet: str, expected: bool) -> None:
+    from logics_manager.flow_evidence import has_validation_evidence
+
+    assert has_validation_evidence(f"# Validation\n- {bullet}\n") is expected
+
+
+def test_validation_evidence_repair_hint_is_itself_acceptable() -> None:
+    """The old hint suggested `... passed`, and `...` is a rejection marker."""
+    from logics_manager.flow import validate_closeout_payload  # noqa: F401
+    from logics_manager.flow_evidence import has_validation_evidence
+
+    suggested = "npm test passed on 2026-08-01: 26 assertions, 0 failures"
+    assert has_validation_evidence(f"# Validation\n- {suggested}\n") is True
+    assert has_validation_evidence("# Validation\n- ... passed\n") is False
+
+
+# --- item_577: kind-aware, honestly exitable indicator updates -------------
+
+
+def _write_indicator_doc(repo_root: Path, rel: str, ref: str, lines: list[str]) -> str:
+    (repo_root / "logics" / rel).mkdir(parents=True, exist_ok=True)
+    (repo_root / "logics" / rel / f"{ref}.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return ref
+
+
+def test_indicator_not_declared_by_the_kind_is_rejected_naming_the_accepted_set(tmp_path: Path) -> None:
+    from logics_manager.sync import update_workflow_indicators_payload
+
+    repo_root = _repo(tmp_path)
+    ref = _write_indicator_doc(
+        repo_root, "roadmap", "road_001_probe",
+        ["## road_001_probe - Probe", "> Date: 2026-08-01", "> Status: Active",
+         "> Related product: (none yet)", "> Related request: (none yet)", "> Reminder: Update."],
+    )
+
+    with pytest.raises(SystemExit) as excinfo:
+        update_workflow_indicators_payload(repo_root, ref, {"Understanding": "92"})
+
+    message = str(excinfo.value)
+    assert "not accepted for roadmap" in message
+    assert "Status" in message  # names what the kind does accept
+
+
+def test_mutation_path_and_linter_read_the_same_per_kind_declaration() -> None:
+    from logics_manager.lint import KINDS
+    from logics_manager.sync import MUTABLE_WORKFLOW_INDICATORS, approved_indicators_for_kind
+
+    for kind, spec in KINDS.items():
+        allowed = set(approved_indicators_for_kind(kind))
+        # One declaration: the mutation path may not accept anything the kind does
+        # not declare as mutable, and Progress only where the linter requires it.
+        assert allowed <= set(spec.mutable_indicators)
+        assert allowed <= set(MUTABLE_WORKFLOW_INDICATORS)
+        if not spec.requires_progress:
+            assert "Progress" not in allowed
+    # A roadmap must reject the numeric indicators the old gate recommended.
+    assert "Understanding" not in approved_indicators_for_kind("roadmap")
+    # A task must still accept the descriptive fields its template carries.
+    assert {"Status", "Theme", "Complexity", "Progress"} <= set(approved_indicators_for_kind("task"))
+
+
+def test_touch_re_baselines_without_changing_any_value(tmp_path: Path) -> None:
+    from logics_manager.sync import update_workflow_indicators_payload
+
+    repo_root = _repo(tmp_path)
+    ref = _write_indicator_doc(
+        repo_root, "roadmap", "road_001_probe",
+        ["## road_001_probe - Probe", "> Date: 2026-08-01", "> Status: Active",
+         "> Related product: (none yet)", "> Related request: (none yet)", "> Reminder: Update."],
+    )
+    before = (repo_root / "logics" / "roadmap" / f"{ref}.md").read_text(encoding="utf-8")
+
+    payload = update_workflow_indicators_payload(repo_root, ref, {}, touch=True)
+    after = (repo_root / "logics" / "roadmap" / f"{ref}.md").read_text(encoding="utf-8")
+
+    assert payload["touched"] is True
+    assert payload["changed"] is False
+    assert "> Indicators reviewed:" in after
+    for line in before.splitlines():
+        if line.startswith("> "):
+            assert line in after, f"touch altered {line!r}"
+
+
+def test_touch_is_offered_by_the_gate_and_the_remedy_only_names_accepted_flags(tmp_path: Path) -> None:
+    from logics_manager.lint import MUTABLE_INDICATOR_FLAGS, KINDS
+
+    # The roadmap kind declares no numeric indicator, so the old hint's
+    # --understanding/--confidence could never satisfy it.
+    roadmap_mutable = set(KINDS["roadmap"].required_indicators) & set(MUTABLE_INDICATOR_FLAGS)
+    assert "Understanding" not in roadmap_mutable
+    assert "Confidence" not in roadmap_mutable
+    assert roadmap_mutable == {"Status"}
+
+
+def test_indicator_write_preserves_the_template_percent_form(tmp_path: Path) -> None:
+    from logics_manager.sync import update_workflow_indicators_payload
+
+    repo_root = _repo(tmp_path)
+    ref = _write_indicator_doc(
+        repo_root, "request", "req_001_probe",
+        ["## req_001_probe - Probe", "> From version: 2.19.5",
+         "> Understanding: 90%", "> Confidence: 85%"],
+    )
+
+    update_workflow_indicators_payload(repo_root, ref, {"Understanding": "92"})
+    text = (repo_root / "logics" / "request" / f"{ref}.md").read_text(encoding="utf-8")
+
+    assert "> Understanding: 92%" in text
+    assert "> Understanding: 92\n" not in text
+
+
+def test_an_existing_document_can_be_linked_to_a_chain_by_command(tmp_path: Path) -> None:
+    from logics_manager.sync import update_workflow_indicators_payload
+
+    repo_root = _repo(tmp_path)
+    ref = _write_indicator_doc(
+        repo_root, "product", "prod_001_probe",
+        ["## prod_001_probe - Probe", "> Date: 2026-08-01", "> Status: Proposed",
+         "> Related request: (none yet)", "> Related backlog: (none yet)",
+         "> Related task: (none yet)", "> Reminder: Update."],
+    )
+
+    payload = update_workflow_indicators_payload(
+        repo_root, ref, {"Related request": "`req_300_probe`"}
+    )
+    text = (repo_root / "logics" / "product" / f"{ref}.md").read_text(encoding="utf-8")
+
+    assert payload["changed"] is True
+    assert "> Related request: `req_300_probe`" in text

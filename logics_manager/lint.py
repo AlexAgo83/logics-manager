@@ -15,6 +15,10 @@ from .obsidian import validate_frontmatter_file
 from .statuses import stage_statuses
 
 
+_WORKFLOW_MUTABLE = ("Status", "Progress", "Understanding", "Confidence", "Theme", "Complexity")
+_COMPANION_MUTABLE = ("Status", "Related request", "Related backlog", "Related task", "Related product", "Related architecture")
+
+
 @dataclass(frozen=True)
 class Kind:
     directory: str
@@ -22,15 +26,20 @@ class Kind:
     requires_progress: bool
     required_indicators: tuple[str, ...]
     allowed_statuses: tuple[str, ...]
+    # What `sync update-indicators` may write on this kind. Distinct from
+    # `required_indicators`: Theme is mutable on a task without being required,
+    # and Understanding is required on a request but meaningless on a roadmap.
+    # Declared here so the mutation path and the linter cannot drift apart.
+    mutable_indicators: tuple[str, ...] = _WORKFLOW_MUTABLE
 
 
 KINDS = {
     "request": Kind("logics/request", ("req",), False, ("From version", "Understanding", "Confidence"), stage_statuses("request")),
     "backlog": Kind("logics/backlog", ("item",), True, ("From version", "Understanding", "Confidence", "Progress"), stage_statuses("backlog")),
     "task": Kind("logics/tasks", ("task",), True, ("From version", "Understanding", "Confidence", "Progress"), stage_statuses("task")),
-    "product": Kind("logics/product", ("prod",), False, ("Date", "Status", "Related request", "Related backlog", "Related task", "Related architecture", "Reminder"), stage_statuses("product")),
-    "roadmap": Kind("logics/roadmap", ("road",), False, ("Date", "Status", "Related product", "Related request", "Reminder"), stage_statuses("roadmap")),
-    "architecture": Kind("logics/architecture", ("adr",), False, ("Date", "Status", "Drivers", "Related request", "Related backlog", "Related task", "Reminder"), stage_statuses("architecture")),
+    "product": Kind("logics/product", ("prod",), False, ("Date", "Status", "Related request", "Related backlog", "Related task", "Related architecture", "Reminder"), stage_statuses("product"), _COMPANION_MUTABLE),
+    "roadmap": Kind("logics/roadmap", ("road",), False, ("Date", "Status", "Related product", "Related request", "Reminder"), stage_statuses("roadmap"), _COMPANION_MUTABLE),
+    "architecture": Kind("logics/architecture", ("adr",), False, ("Date", "Status", "Drivers", "Related request", "Related backlog", "Related task", "Reminder"), stage_statuses("architecture"), _COMPANION_MUTABLE),
     "spec": Kind("logics/specs", ("spec", "req"), False, ("From version", "Status", "Understanding", "Confidence"), stage_statuses("spec")),
 }
 
@@ -400,6 +409,18 @@ def _doc_diff(repo_root: Path, rel_path: Path) -> str:
     return ""
 
 
+REVIEWED_INDICATOR = "Indicators reviewed"
+NUMERIC_INDICATORS = {"Progress", "Understanding", "Confidence"}
+MUTABLE_INDICATOR_FLAGS = {
+    "Status": "status",
+    "Progress": "progress",
+    "Understanding": "understanding",
+    "Confidence": "confidence",
+    "Theme": "theme",
+    "Complexity": "complexity",
+}
+
+
 def _diff_has_indicator_changes(repo_root: Path, rel_path: Path, indicators: set[str]) -> bool:
     if not indicators:
         return True
@@ -552,14 +573,26 @@ def lint_payload(repo_root: Path, *, require_status: bool = False) -> dict[str, 
             if rel_path in modified_paths and rel_path not in untracked_paths:
                 required = set(kind.required_indicators)
                 if (
-                    not _diff_has_indicator_changes(repo_root, rel_path, required)
+                    # `Indicators reviewed` is the honest exit: the author confirms the
+                    # values were reconsidered and did not move. Without it the only
+                    # satisfiable exit for a kind that declares no numeric indicator was
+                    # to label a semantic edit non-semantic.
+                    not _diff_has_indicator_changes(repo_root, rel_path, required | {REVIEWED_INDICATOR})
                     and not _diff_is_status_only_normalization(repo_root, rel_path)
                     and not _has_non_semantic_edit_marker(_read_lines(path))
                 ):
+                    mutable = [key for key in MUTABLE_INDICATOR_FLAGS if key in required]
+                    flags = " ".join(
+                        f"--{MUTABLE_INDICATOR_FLAGS[key]} {'<n>' if key in NUMERIC_INDICATORS else '<value>'}"
+                        for key in mutable
+                    )
+                    remedy = f"logics-manager sync update-indicators {path.stem} {flags}".strip()
                     issues.append(
                         "modified without updating indicators: "
                         + ", ".join(sorted(required))
-                        + f" (fix: logics-manager sync update-indicators {path.stem} --understanding <n> --confidence <n>; "
+                        + (f" (fix: {remedy}; " if mutable else " (fix: ")
+                        + f"or `logics-manager sync update-indicators {path.stem} --touch` "
+                        + "if the values were reviewed and did not change; "
                         + "or add `> Non-semantic edit:` for intentionally non-semantic edits)"
                     )
             if issues:

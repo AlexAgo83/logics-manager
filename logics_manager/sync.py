@@ -6,12 +6,12 @@ import os
 import re
 from copy import deepcopy
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 from .config import find_repo_root
 from .doc_parsing import extract_refs, git_changed_paths, indicator_value, priority_tier
-from .lint import expected_workflow_mermaid_signature
+from .lint import REVIEWED_INDICATOR, expected_workflow_mermaid_signature
 from .statuses import canonical_status, transition_error
 from .path_utils import resolve_repo_output_path
 from .release import release_context_pack_payload
@@ -57,6 +57,28 @@ _CONTEXT_PACK_CACHE: dict[str, dict[str, object]] = {}
 MERMAID_BLOCK_PATTERN = re.compile(r"```mermaid\s*\n(.*?)\n```", re.DOTALL)
 MERMAID_SIGNATURE_PATTERN = re.compile(r"^\s*%%\s*logics-signature:\s*(.+?)\s*$", re.MULTILINE)
 APPROVED_WORKFLOW_INDICATORS = ("Status", "Progress", "Understanding", "Confidence", "Theme", "Complexity")
+# Link indicators are mutable too: without them, attaching an existing document to a
+# chain has no supported path and `companion_doc_missing_primary_link` has no remedy.
+RELATED_WORKFLOW_INDICATORS = ("Related request", "Related backlog", "Related task", "Related product", "Related architecture")
+MUTABLE_WORKFLOW_INDICATORS = (*APPROVED_WORKFLOW_INDICATORS, *RELATED_WORKFLOW_INDICATORS)
+
+
+def approved_indicators_for_kind(kind: str) -> tuple[str, ...]:
+    """Indicators this document kind accepts, derived from the linter's declaration.
+
+    The mutation path used to validate against one global tuple while `lint.KINDS`
+    declared them per kind, so the indicator gate could recommend a flag the target
+    kind rejects. Both now read the same source.
+    """
+    from .lint import KINDS as _LINT_KINDS
+
+    spec = _LINT_KINDS.get(kind)
+    if spec is None:
+        return MUTABLE_WORKFLOW_INDICATORS
+    declared = set(spec.mutable_indicators)
+    if not spec.requires_progress:
+        declared.discard("Progress")
+    return tuple(key for key in MUTABLE_WORKFLOW_INDICATORS if key in declared)
 MAX_MUTATION_TEXT_CHARS = 2000
 OPEN_STATUS_EXCLUSIONS = {"accepted", "archived", "closed", "done", "obsolete", "settled", "superseded", "validated"}
 
@@ -647,6 +669,18 @@ def _clean_mutation_text(text: str, *, field: str) -> str:
     return cleaned
 
 
+def _formatted_indicator_value(lines: list[str], key: str, value: str) -> str:
+    """Keep the document's existing notation so a corpus never mixes two forms.
+
+    Templates write `> Understanding: 90%`; writing a bare number next to them left
+    both spellings live in the same corpus and both rendered in INDEX.md.
+    """
+    current = _indicator_value(lines, key)
+    if current and current.strip().endswith("%") and value.isdigit():
+        return f"{value}%"
+    return value
+
+
 def _replace_indicator(lines: list[str], key: str, value: str) -> tuple[list[str], bool]:
     rendered = f"> {key}: {value}"
     for idx, line in enumerate(lines):
@@ -664,18 +698,32 @@ def _replace_indicator(lines: list[str], key: str, value: str) -> tuple[list[str
     return updated, True
 
 
-def update_workflow_indicators_payload(repo_root: Path, source: str, indicators: dict[str, str], *, dry_run: bool = False) -> dict[str, object]:
-    unknown = sorted(set(indicators) - set(APPROVED_WORKFLOW_INDICATORS))
+def update_workflow_indicators_payload(
+    repo_root: Path,
+    source: str,
+    indicators: dict[str, str],
+    *,
+    dry_run: bool = False,
+    touch: bool = False,
+) -> dict[str, object]:
+    unknown = sorted(set(indicators) - set(MUTABLE_WORKFLOW_INDICATORS))
     if unknown:
         raise SystemExit(f"Unsupported workflow indicator(s): {', '.join(unknown)}.")
     cleaned = {key: _clean_mutation_text(value, field=key) for key, value in indicators.items() if value is not None}
-    if not cleaned:
-        raise SystemExit("At least one workflow indicator is required.")
+    if not cleaned and not touch:
+        raise SystemExit("At least one workflow indicator is required, or pass --touch to re-baseline without changing values.")
 
     targets = _resolve_target_docs(repo_root, [source], kinds=INDICATOR_TARGET_KINDS)
     if len(targets) != 1:
         raise SystemExit(f"Expected one workflow doc target for `{source}`.")
     kind, path = targets[0]
+    allowed = approved_indicators_for_kind(kind)
+    rejected = sorted(set(cleaned) - set(allowed))
+    if rejected:
+        raise SystemExit(
+            f"{', '.join(rejected)} not accepted for {kind} documents "
+            f"(accepted: {', '.join(allowed) or 'none'})."
+        )
     lines = _read_lines(repo_root, path)
     if "Status" in cleaned:
         previous_status = _indicator_value(lines, "Status")
@@ -684,14 +732,17 @@ def update_workflow_indicators_payload(repo_root: Path, source: str, indicators:
         if error:
             raise SystemExit(error)
     changed = False
-    for key in APPROVED_WORKFLOW_INDICATORS:
+    for key in MUTABLE_WORKFLOW_INDICATORS:
         if key not in cleaned:
             continue
-        if key == "Progress" and kind not in {"backlog", "task"}:
-            raise SystemExit("Progress is only supported for backlog and task documents.")
-        lines, key_changed = _replace_indicator(lines, key, cleaned[key])
+        lines, key_changed = _replace_indicator(lines, key, _formatted_indicator_value(lines, key, cleaned[key]))
         changed = changed or key_changed
-    if changed and not dry_run:
+    if touch:
+        # Stamping the review date is a true statement, and it gives the indicator
+        # gate a diff to see without inventing movement in the values themselves.
+        lines, _ = _replace_indicator(lines, REVIEWED_INDICATOR, date.today().isoformat())
+    write = changed or touch
+    if write and not dry_run:
         path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
         if kind in DOC_KINDS:
             refresh_workflow_mermaid_signature_file(path, kind, dry_run=False, repo_root=repo_root)
@@ -699,8 +750,10 @@ def update_workflow_indicators_payload(repo_root: Path, source: str, indicators:
         "path": path.relative_to(repo_root).as_posix(),
         "ref": path.stem,
         "kind": kind,
+        "approved_indicators": list(allowed),
         "updated_indicators": cleaned,
         "changed": changed,
+        "touched": bool(touch),
         "dry_run": dry_run,
     }
 
@@ -938,6 +991,16 @@ def build_parser() -> argparse.ArgumentParser:
     update_indicators.add_argument("--confidence")
     update_indicators.add_argument("--theme")
     update_indicators.add_argument("--complexity")
+    update_indicators.add_argument("--related-request")
+    update_indicators.add_argument("--related-backlog")
+    update_indicators.add_argument("--related-task")
+    update_indicators.add_argument("--related-product")
+    update_indicators.add_argument("--related-architecture")
+    update_indicators.add_argument(
+        "--touch",
+        action="store_true",
+        help="Re-baseline after a body edit without changing any indicator value.",
+    )
     update_indicators.add_argument("--format", choices=("text", "json"), default="text")
     update_indicators.add_argument("--dry-run", action="store_true")
     update_indicators.set_defaults(func=cmd_update_indicators)
@@ -1361,10 +1424,23 @@ def cmd_update_indicators(args: argparse.Namespace) -> dict[str, object]:
         "Confidence": args.confidence,
         "Theme": args.theme,
         "Complexity": args.complexity,
+        "Related request": args.related_request,
+        "Related backlog": args.related_backlog,
+        "Related task": args.related_task,
+        "Related product": args.related_product,
+        "Related architecture": args.related_architecture,
     }
-    payload = update_workflow_indicators_payload(repo_root, args.source, {key: value for key, value in indicators.items() if value is not None}, dry_run=args.dry_run)
+    payload = update_workflow_indicators_payload(
+        repo_root,
+        args.source,
+        {key: value for key, value in indicators.items() if value is not None},
+        dry_run=args.dry_run,
+        touch=args.touch,
+    )
     if args.format == "json":
         print(json.dumps(payload, indent=2, sort_keys=True))
+    elif payload["touched"] and not payload["changed"]:
+        print(f"Re-baselined {payload['path']} without changing any indicator value.")
     else:
         print(f"Updated indicators for {payload['path']} (changed: {payload['changed']}).")
     return {"command": "sync", "kind": "update-indicators", "repo_root": repo_root.as_posix(), **payload}

@@ -27,17 +27,28 @@ def section_lines(lines: list[str], heading: str) -> list[str]:
     return out
 
 
+FAILURE_WORD_PATTERN = re.compile(r"\b(failed|failures?|failing)\b")
+# "0 failures", "no failures", "zero failures" state a clean result. Matching the
+# bare substring rejected the most precise evidence available, which is what the
+# v2.10.0 hardening got wrong.
+NEGATED_FAILURE_PATTERN = re.compile(r"\b(?:0|no|zero|without)\s+(?:\w+\s+)?failures?\b")
+
+
 def has_validation_evidence(text: str) -> bool:
     concrete_ok_context = ("lint", "audit", "test", "pytest", "npm", "ci", "coverage", "smoke", "package")
-    invalid_markers = ("...", "todo", "tbd", "pending", "needs ", "need ", "not ok", "failed", "failure", "failing")
+    invalid_markers = ("...", "todo", "tbd", "pending", "needs ", "need ", "not ok")
     for line in section_lines(text.splitlines(), "Validation"):
         stripped = line.strip()
         if not stripped.startswith("- "):
             continue
         value = stripped[2:].strip().lower()
-        if not value or value.startswith("run `") or value.startswith("run the "):
+        if not value or value.startswith("run `") or value.startswith("run the ") or value.startswith("("):
             continue
         if any(marker in value for marker in invalid_markers):
+            continue
+        # A reported failure still disqualifies the line; a stated absence of
+        # failures does not.
+        if FAILURE_WORD_PATTERN.search(NEGATED_FAILURE_PATTERN.sub(" ", value)):
             continue
         if "command:" in value and "result:" in value and ("date:" in value or "session:" in value):
             result_match = re.search(r"\bresult:\s*([^|,;]+)", value)

@@ -1253,7 +1253,7 @@ def validate_closeout_payload(repo_root: Path, source: str) -> dict[str, object]
                 task_path.relative_to(repo_root),
                 "validation_evidence_missing",
                 "`# Validation` has no concrete passing validation evidence",
-                f"python3 -m logics_manager flow closeout {task_ref} --validation \"... passed\"",
+                f"python3 -m logics_manager flow closeout {task_ref} --validation \"<command> passed on <date>: <result>\"",
             )
         )
 
@@ -3593,6 +3593,13 @@ def cmd_closeout(args: argparse.Namespace) -> dict[str, object]:
         print(f"- changed files: {len(payload['changed_files'])}")
         for rel_path in payload["changed_files"]:
             print(f"  - {rel_path}")
+        # Without this, a rolled-back write is indistinguishable from never having
+        # written anything, which is what made `--validation` look inert.
+        attempted = payload.get("attempted_changed_files") or []
+        if payload.get("rolled_back") and attempted:
+            print(f"- rolled back after failed preflight: {len(attempted)} file(s) written then restored")
+            for rel_path in attempted:
+                print(f"  - {rel_path}")
         preflight = payload.get("preflight")
         if isinstance(preflight, dict) and preflight.get("issues"):
             print("- preflight issues:")

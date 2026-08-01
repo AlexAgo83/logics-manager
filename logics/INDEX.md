@@ -84,6 +84,7 @@
 | [prod_045_logics_operator_ergonomics](product/prod_045_logics_operator_ergonomics.md) | Logics operator ergonomics | Settled |  |  | product/prod_045_logics_operator_ergonomics.md |
 | [prod_046_cdx_memory_viewer_inspection](product/prod_046_cdx_memory_viewer_inspection.md) | CDX Memory viewer inspection | Settled |  |  | product/prod_046_cdx_memory_viewer_inspection.md |
 | [prod_047_logics_design_asset_prompt_packs](product/prod_047_logics_design_asset_prompt_packs.md) | Logics Design asset prompt packs | Settled |  |  | product/prod_047_logics_design_asset_prompt_packs.md |
+| [prod_048_agent_facing_correctness_of_generated_docs_and_cli_contracts](product/prod_048_agent_facing_correctness_of_generated_docs_and_cli_contracts.md) | 14. Roadmap milestone parsing silently drops non-numeric versions | Proposed |  |  | product/prod_048_agent_facing_correctness_of_generated_docs_and_cli_contracts.md |
 
 ## Roadmaps
 

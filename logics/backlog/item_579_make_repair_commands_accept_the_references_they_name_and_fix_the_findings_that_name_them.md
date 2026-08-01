@@ -2,8 +2,8 @@
 > From version: 2.19.5
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 93
+> Confidence: 88
 > Progress: 0%
 > Complexity: High
 > Theme: Reference handling
@@ -39,7 +39,22 @@
 
 # Decision framing
 - Product framing: Not needed
-- Architecture framing: Not needed
+- Architecture framing: Needed — repair scope must be settled before implementation.
+- Recommendation: widen coverage rather than remove the repair hints. A finding is
+  emitted against a specific document, so the repair must be addressable at the
+  same granularity as the finding. Today `companion_doc_missing_mermaid` fires on
+  a companion while its repair accepts only a request, and `ac_missing_task_traceability`
+  fires on a request while the boilerplate it should rewrite lives on a task. Both
+  repairs are deterministic and mechanical, which is exactly the class worth
+  automating; removing the hint would delete a working fix path to make the message
+  honest, which is the wrong trade.
+- Proposed rule: a repair command accepts the reference of any document that can
+  carry the finding it repairs, and every finding names a command that, run
+  verbatim, resolves it. If a finding has no such command, it names none.
+- Suggested implementation order: make reference resolution uniform first, since
+  the current `Source not found` on an existing document hides the kind restriction
+  and makes the coverage question hard to reason about. Widening coverage on top of
+  a resolver that reports honestly is a much smaller change than doing both at once.
 
 # Links
 - Product brief(s): `prod_049_agent_facing_correctness_remediation`

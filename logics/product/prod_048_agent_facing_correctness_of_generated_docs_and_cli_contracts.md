@@ -389,6 +389,14 @@ during grooming.
   live on tasks and companions. Either their scope widens to cover the findings
   that name them, or the findings stop implying a repair exists.
 
+  Recommendation, recorded in `item_579`: **widen coverage**. A finding is
+  emitted against a specific document, so the repair must be addressable at the
+  same granularity as the finding. Both repairs are deterministic and mechanical,
+  which is precisely the class worth automating; removing the hint would delete a
+  working fix path in order to make the message honest, which is the wrong trade.
+  Fix reference resolution first — while an existing document is reported as
+  missing, the coverage question is hard to reason about at all.
+
 # Provenance
 
 Whether each defect is a regression matters for how it is tested. Settled by
@@ -437,6 +445,27 @@ critical path for whoever implements this.
 
 Any implementer can therefore reproduce these three by running the scaffold in
 this repository, with no access to the external corpus.
+
+## 17. No command links an existing document to a chain
+
+Rewiring the two hand-fixed documents surfaced a gap the field session did not
+hit. `prod_048` carried `Related request: (none yet)` once the remediation chain
+existed, and nothing in the CLI could set it: `sync update-indicators` accepts
+only the six mutable workflow indicators, `flow companion --source-ref` creates
+new documents rather than linking existing ones, and `flow deliver` derives a
+chain from a brief instead of attaching one. The indicator line had to be edited
+by hand, which the scaffolding guidance explicitly warns against, because no
+supported path exists.
+
+This matters beyond convenience. `companion_doc_missing_primary_link` is a
+warning the tool emits and provides no way to clear, which puts it in the same
+class as finding 4: a finding with no reachable remedy.
+
+Suggested fix, folded into the indicator slice rather than given its own: extend
+the same mutation path to the `Related *` indicator family, so linking is a
+command rather than a hand edit. The site is already being opened for findings
+7, 8 and 9, and the per-kind validation being added there is exactly what this
+needs — `Related product` is meaningful on a roadmap and not on a request.
 
 # What worked well
 

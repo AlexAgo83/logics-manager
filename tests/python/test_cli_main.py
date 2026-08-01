@@ -1787,7 +1787,8 @@ def test_render_index_builds_markdown_and_json(tmp_path: Path) -> None:
     assert payload["ok"] is True
     assert payload["counts"]["request"] == 1
     assert payload["counts"]["backlog"] == 1
-    assert "Wrote logics/INDEX.md" == render_index(repo_root, output_format="text")
+    # The first call above wrote the index, so a second run is a no-op and says so.
+    assert "Unchanged logics/INDEX.md" == render_index(repo_root, output_format="text")
     json_output = render_index(repo_root, output_format="json")
     assert '"ok": true' in json_output
 

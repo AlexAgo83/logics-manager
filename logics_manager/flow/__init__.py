@@ -1832,11 +1832,10 @@ def _build_native_task_doc(
             "- backlog-AC2 -> This task. Proof: task provides the executable implementation surface.",
             "",
             "# Validation",
-            "- Run `python3 -m logics_manager lint --require-status`.",
-            "- Run the task-specific automated tests.",
+            "- (no validation recorded yet)",
             "",
             "# Report",
-            "- Implementation complete.",
+            "- Not started.",
             "",
             "# AI Context",
             f"- Summary: Implement {title.lower()}.",
@@ -2053,12 +2052,22 @@ def roadmap_validate_payload(repo_root: Path, source: str) -> dict[str, object]:
     milestone_lines = [line for line in lines if re.match(r"^## \d+(?:\.\d+){1,2}\s+-\s+", line)]
     if not milestone_lines:
         issues.append("missing versioned milestones")
+    # A `##` heading that is neither the document title nor a parsable milestone is
+    # invisible to every downstream consumer. Name it instead of lowering the count.
+    unparsed_headings = [
+        line.strip()
+        for index, line in enumerate(lines)
+        if line.startswith("## ")
+        and line not in milestone_lines
+        and not (index == 0 or line.startswith(f"## {path.stem} - "))
+    ]
     return {
         "command": "roadmap validate",
         "ok": not issues,
         "ref": path.stem,
         "path": path.relative_to(repo_root).as_posix(),
         "milestone_count": len(milestone_lines),
+        "unparsed_headings": unparsed_headings,
         "issues": issues,
     }
 
@@ -2507,13 +2516,15 @@ def _build_native_task_from_backlog(
             "# Acceptance criteria",
             *[f"- {item}" for item in acceptance],
             "",
+            "# Plan",
+            f"- [ ] Use `python3 -m logics_manager flow progress task {ref}.md --progress <n>%` during multi-wave work.",
+            f"- [ ] Run `python3 -m logics_manager flow finish task {ref}.md` after implementation.",
+            "",
             "# Validation",
-            "- Run `python3 -m logics_manager lint --require-status`.",
-            f"- Use `python3 -m logics_manager flow progress task {ref}.md --progress <n>%` during multi-wave work.",
-            f"- Run `python3 -m logics_manager flow finish task {ref}.md` after implementation.",
+            "- (no validation recorded yet)",
             "",
             "# Report",
-            "- Implementation complete.",
+            "- Not started.",
             "",
             "# AI Context",
             f"- Summary: Implement {backlog_title.lower()}.",
@@ -2934,7 +2945,7 @@ def cmd_companion(args: argparse.Namespace) -> dict[str, object]:
     if args.format == "json":
         print_payload(payload, args.format)
     else:
-        print(f"Created companion doc: {payload['path']}")
+        print(f"{'Would create' if args.dry_run else 'Created'} companion doc: {payload['path']}")
     return payload
 
 
@@ -2970,7 +2981,7 @@ def cmd_roadmap_propose(args: argparse.Namespace) -> dict[str, object]:
     if args.format == "json":
         print_payload(payload, args.format)
     else:
-        print(f"Created roadmap: {payload['path']}")
+        print(f"{'Would create' if args.dry_run else 'Created'} roadmap: {payload['path']}")
     return payload
 
 
@@ -3010,6 +3021,8 @@ def cmd_roadmap_validate(args: argparse.Namespace) -> dict[str, object]:
         print(f"Roadmap validation: {'OK' if payload['ok'] else 'FAILED'}")
         print(f"- path: {payload['path']}")
         print(f"- milestones: {payload['milestone_count']}")
+        for heading in payload["unparsed_headings"]:
+            print(f"- warning: heading not parsed as a milestone: {heading}")
         for issue in payload["issues"]:
             print(f"- {issue}")
     return payload
@@ -3727,6 +3740,8 @@ def cmd_start(args: argparse.Namespace) -> dict[str, object]:
     else:
         owner_text = f" owner={payload['owner']}" if payload.get("owner") else " owner=(none)"
         print(f"Started {payload['source']}: {payload['status']}{owner_text}")
+        for rel_path in payload["changed_files"]:
+            print(f"- changed: {rel_path}")
         for warning in payload["warnings"]:
             print(f"Warning: {warning}")
     return payload
@@ -3926,10 +3941,55 @@ def _build_scaffold_backlog_doc(repo_root: Path, ref: str, request_ref: str, pro
     ).rstrip() + "\n"
 
 
+def _scaffold_input_request_ac_ids(input_payload: dict[str, object]) -> list[str]:
+    """Acceptance criterion identifiers declared by the scaffold input, in declaration order."""
+    request = input_payload.get("request") if isinstance(input_payload.get("request"), dict) else {}
+    ids: list[str] = []
+    for entry in _string_list(request, "acceptance_criteria", default=[]):
+        match = re.match(r"\s*(AC\d+)\b", entry.strip(), re.IGNORECASE)
+        if match:
+            ids.append(_normalize_ac_id(match.group(1)))
+    return ids
+
+
+def _scaffold_ac_ownership(input_payload: dict[str, object], item_refs: list[str]) -> tuple[dict[str, list[str]], list[str]]:
+    """Map each backlog item ref to the request ACs it claims, and list the unclaimed ones.
+
+    The mapping already exists in the scaffold input under `backlog_items[].request_acs`;
+    deriving it here is what surfaces request criteria that no slice has taken on.
+    """
+    items = input_payload.get("backlog_items") if isinstance(input_payload.get("backlog_items"), list) else []
+    owned: dict[str, list[str]] = {}
+    claimed: set[str] = set()
+    for item_ref, item in zip(item_refs, items):
+        if not isinstance(item, dict):
+            continue
+        acs = [_normalize_ac_id(value) for value in _string_list(item, "request_acs", default=[])]
+        if acs:
+            owned[item_ref] = acs
+            claimed.update(acs)
+    unclaimed = [ac_id for ac_id in _scaffold_input_request_ac_ids(input_payload) if ac_id not in claimed]
+    return owned, unclaimed
+
+
+def _scaffold_task_ac_trace(input_payload: dict[str, object], item_refs: list[str]) -> list[str]:
+    owned, unclaimed = _scaffold_ac_ownership(input_payload, item_refs)
+    lines = [
+        f"- {', '.join(f'request-{ac_id}' for ac_id in acs)} -> `{item_ref}`. Proof deferred to slice closeout."
+        for item_ref, acs in owned.items()
+    ]
+    lines.extend(
+        f"- request-{ac_id} -> (unclaimed). No backlog slice declares this criterion."
+        for ac_id in unclaimed
+    )
+    return lines or ["- (no request acceptance criteria declared in the scaffold input)"]
+
+
 def _build_scaffold_task_doc(repo_root: Path, ref: str, title: str, request_ref: str, product_ref: str, item_refs: list[str], input_payload: dict[str, object]) -> str:
     task = input_payload.get("orchestration_task") if isinstance(input_payload.get("orchestration_task"), dict) else {}
     title = _string_value(task, "title", default=title)
     steps = _string_list(task, "plan", default=["Review generated corpus.", "Promote or implement the first backlog slice.", "Validate and update workflow docs."])
+    ac_trace = _scaffold_task_ac_trace(input_payload, item_refs)
     return "\n".join(
         [
             f"## {ref} - {title}",
@@ -3962,17 +4022,13 @@ def _build_scaffold_task_doc(repo_root: Path, ref: str, title: str, request_ref:
             "- [ ] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.",
             "",
             "# AC Traceability",
-            "- request-AC1 -> This task. Proof: scaffold command generated the request-chain corpus.",
-            "- request-AC4 -> This task. Proof: optional context-pack handoff is supported.",
-            "- request-AC6 -> This task. Proof: dry-run and collision checks bound file changes.",
-            "- request-AC8 -> This task. Proof: CLI help documents the one-pass scaffold workflow.",
+            *ac_trace,
             "",
             "# Validation",
-            "- Run `python3 -m logics_manager lint --require-status`.",
-            "- Run scaffold command tests.",
+            "- (no validation recorded yet)",
             "",
             "# Report",
-            "- Implementation complete.",
+            "- Not started.",
             "",
             "# AI Context",
             f"- Summary: {title}",
@@ -4027,10 +4083,10 @@ def _build_split_orchestration_task_doc(repo_root: Path, ref: str, title: str, r
             "- request-AC7 -> This task. Proof: generated task is covered by split request tests.",
             "",
             "# Validation",
-            "- Run `python3 -m logics_manager lint --require-status`.",
+            "- (no validation recorded yet)",
             "",
             "# Report",
-            "- Implementation complete.",
+            "- Not started.",
             "",
             "# AI Context",
             f"- Summary: {title}",
@@ -4243,6 +4299,7 @@ def scaffold_request_chain_payload(
         "task_ref": task_ref,
         "created_refs": [request_ref, product_ref, *item_refs, task_ref],
         "created_paths": created_paths,
+        "unclaimed_request_acs": _scaffold_ac_ownership(input_payload, item_refs)[1],
         "changed_files": sorted(dict.fromkeys(changed_files)),
         "context_pack_path": context_pack_path,
         "context_pack": context_pack_payload,
@@ -4298,6 +4355,8 @@ def cmd_scaffold_request_chain(args: argparse.Namespace) -> dict[str, object]:
         print(f"{action} request chain: {payload['request_ref']}")
         for rel_path in payload["changed_files"]:
             print(f"- {rel_path}")
+        for ac_id in payload["unclaimed_request_acs"]:
+            print(f"Warning: request {ac_id} is claimed by no backlog item.")
         print(f"Next action: {payload['next_action']}")
         if "ready_to_dev" in payload:
             print(f"Inline validation: {'ready-to-dev (no blocking findings)' if payload['ready_to_dev'] else 'blocking findings present'}")

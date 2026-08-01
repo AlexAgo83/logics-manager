@@ -1,10 +1,10 @@
 ## item_577_make_indicator_updates_kind_aware_and_honestly_exitable - Make indicator updates kind-aware and honestly exitable
 > From version: 2.19.5
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 92
 > Confidence: 86
-> Progress: 0%
+> Progress: 10%
 > Complexity: Medium
 > Theme: Gates
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

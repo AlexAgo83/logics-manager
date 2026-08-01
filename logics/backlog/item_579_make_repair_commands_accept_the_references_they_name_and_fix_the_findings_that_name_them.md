@@ -1,10 +1,10 @@
 ## item_579_make_repair_commands_accept_the_references_they_name_and_fix_the_findings_that_name_them - Make repair commands accept the references they name and fix the findings that name them
 > From version: 2.19.5
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 93
 > Confidence: 88
-> Progress: 0%
+> Progress: 10%
 > Complexity: High
 > Theme: Reference handling
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

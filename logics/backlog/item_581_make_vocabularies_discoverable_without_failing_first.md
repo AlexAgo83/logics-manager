@@ -1,10 +1,10 @@
 ## item_581_make_vocabularies_discoverable_without_failing_first - Make vocabularies discoverable without failing first
 > From version: 2.19.5
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Medium
 > Theme: Discoverability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

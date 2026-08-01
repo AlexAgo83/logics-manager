@@ -1,6 +1,6 @@
 ## prod_048_agent_facing_correctness_of_generated_docs_and_cli_contracts - Agent-facing correctness of generated docs and CLI contracts
 > Date: 2026-08-01
-> Status: Proposed
+> Status: Settled
 > Related request: `req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts`
 > Related backlog: (none yet)
 > Related task: `task_297_orchestrate_agent_facing_correctness_remediation`
@@ -423,6 +423,35 @@ that matters for slicing the work, not the finding count.
 | Reference resolution in `flow repair *` | 4, 5 |
 | Command output wording (dry-run, `index`, `flow start`, `flow progress`) | 6, 15 |
 | Vocabulary surfacing and milestone parsing | 11, 12, 16 |
+
+# Outcome
+
+Delivered through `req_300` on 2026-08-01, in nine slices ordered by risk. Every
+finding is now covered by a regression test in
+`tests/python/test_agent_facing_correctness.py`, using the field report's verbatim
+strings wherever it captured one. The suite went from 562 to 610 tests.
+
+Three findings turned out narrower than reported, each verified against source
+rather than accepted:
+
+- **Finding 10** is not a gate running ahead of its writer. The writer runs first;
+  a substring blocklist rejected `0 failures` for containing `failure`, and the
+  rollback on preflight failure hid the write. A regression from `v2.10.0`, fixed
+  in a 74-line module rather than by reordering the closeout pipeline.
+- **Finding 4** is two separate things. The `ac-traceability` repair does reach
+  linked tasks — confirmed on the live corpus. And `companion_doc_missing_mermaid`
+  names no repair command at all; the expectation came from the command's name. A
+  companion's diagram is authored, not derived, so the repair now says so instead
+  of reporting zero changes.
+- **Finding 13** splits cleanly. Excluding fenced blocks was the whole defect.
+  Excluding inline code spans, which the slice originally asked for, would have
+  deleted every genuine link, since backticks are this corpus's link notation.
+  That criterion was withdrawn with the reason recorded on `item_578`.
+
+One gap surfaced while delivering: the placeholder seeded into `# Validation` and
+`# Report` stayed in place when real content was appended beside it, so a section
+could read "no validation recorded yet" directly above recorded validation.
+`sync append-note` now drops the seeded placeholder on first real content.
 
 # Local reproduction
 

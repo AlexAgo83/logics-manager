@@ -2281,7 +2281,7 @@ def _build_native_product_brief(
             "> Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.",
             "",
             "# Overview",
-            f"Logics should keep a single, predictable product surface for {title.lower()}.",
+            f"- (overview to write: what {title.lower()} is for, and for whom)",
             "",
             "```mermaid",
             "%% logics-kind: product",
@@ -2293,24 +2293,20 @@ def _build_native_product_brief(
             "```",
             "",
             "# Goals",
-            "- Keep the operator experience bounded and easy to reason about.",
-            "- Preserve the CLI as the canonical workflow entrypoint.",
+            "- (goal to document)",
             "",
             "# Non-goals",
-            "- Rebuilding the VS Code plugin UI in this document.",
-            "- Adding a remote runtime boundary.",
+            "- (non-goal to document)",
             "",
             "# Scope and guardrails",
-            "- In: user-facing workflow shape, CLI contract, and migration boundaries.",
-            "- Out: unrelated UI redesign or cloud-hosted orchestration.",
+            "- In: (to document)",
+            "- Out: (to document)",
             "",
             "# Key product decisions",
-            "- Keep the runtime integrated and local.",
-            "- Keep assistant-facing instructions derived from the runtime.",
+            "- (decision to document)",
             "",
             "# Success signals",
-            "- The change can be used without extra manual setup.",
-            "- The product can be explained from a single reference surface.",
+            "- (success signal to document)",
             "",
             "# References",
             f"- Product back-reference: {related_backlog}",
@@ -2341,21 +2337,20 @@ def _build_native_adr(
             f"> Related request: {related_request}",
             f"> Related backlog: {related_backlog}",
             f"> Related task: {related_task}",
+            "> Drivers: (drivers to document)",
             "> Reminder: Update status, linked refs, decision rationale, consequences, and follow-up work when you edit this doc.",
             "",
             "# Overview",
-            f"This ADR captures the native direction for {title.lower()}.",
+            f"- (overview to write: the decision {title.lower()} records, in one line)",
             "",
             "# Context",
-            "- The runtime is being consolidated into the main repo.",
-            "- Legacy skill/bootstrap boundaries are being retired.",
+            "- (context to document)",
             "",
             "# Decision",
-            "- Prefer a native Python runtime with a minimal plugin shell.",
+            "- (decision to document)",
             "",
             "# Consequences",
-            "- The CLI becomes the primary operational surface.",
-            "- Companion docs can be generated from the same runtime contract.",
+            "- (consequence to document)",
             "",
             "# References",
             f"- Related request: {related_request}",
@@ -2617,6 +2612,10 @@ def build_parser() -> argparse.ArgumentParser:
             kind_parser.add_argument("--smoke-test", action="store_true", dest="fixture", help="Alias for --fixture.")
         _add_common_doc_args(kind_parser, kind)
         kind_parser.set_defaults(func=cmd_new)
+
+    statuses_parser = sub.add_parser("statuses", help="Report the status vocabulary and settable indicators per document kind.")
+    statuses_parser.add_argument("--format", choices=("text", "json"), default="text")
+    statuses_parser.set_defaults(func=cmd_statuses)
 
     list_parser = sub.add_parser("list", help="List workflow docs that are still active.")
     list_parser.add_argument("--kind", choices=LIST_KIND_CHOICES, default="all")
@@ -2924,6 +2923,35 @@ def cmd_new(args: argparse.Namespace) -> dict[str, object]:
         print_payload(payload, args.format)
     else:
         print(f"Created {doc_kind.kind}: {payload['path']}")
+    return payload
+
+
+def cmd_statuses(args: argparse.Namespace) -> dict[str, object]:
+    """Report each kind's status vocabulary and mutable indicators up front.
+
+    Both were previously reachable only by guessing wrong, which is where most of
+    the field session's lost time went.
+    """
+    from ..lint import KINDS
+    from ..sync import approved_indicators_for_kind
+
+    kinds = {
+        name: {
+            "statuses": list(spec.allowed_statuses),
+            "mutable_indicators": list(approved_indicators_for_kind(name)),
+            "required_indicators": list(spec.required_indicators),
+        }
+        for name, spec in KINDS.items()
+    }
+    payload = {"command": "statuses", "kinds": kinds}
+    if args.format == "json":
+        print_payload(payload, args.format)
+    else:
+        for name, spec in kinds.items():
+            print(f"{name}:")
+            print(f"- statuses: {', '.join(spec['statuses'])}")
+            print(f"- settable indicators: {', '.join(spec['mutable_indicators']) or 'none'}")
+            print(f"- required indicators: {', '.join(spec['required_indicators'])}")
     return payload
 
 
@@ -4182,7 +4210,16 @@ Input JSON shape (--example prints a ready-to-edit skeleton):
   backlog_items         [ { title (required), priority, complexity, theme, request_acs[],
                             problem[], scope_in[], scope_out[], acceptance_criteria[] } ]  (required, non-empty)
   orchestration_task    { title, plan[] }
-  context_pack          { out, mode, profile }"""
+  context_pack          { out, mode, profile }
+
+Accepted values (rejecting an input is not the only way to learn these):
+  request.complexity            Low | Medium | High
+  backlog_items[].complexity    Low | Medium | High
+  backlog_items[].priority      free text; High/Medium/Low are the conventional tiers
+  context_pack.profile          tiny | normal | deep
+  context_pack.mode             summary-only | diff-first | full
+
+Run `logics-manager flow statuses` for the status vocabulary of each document kind."""
 
 
 def _scaffold_request_chain_example() -> dict[str, object]:
@@ -4961,7 +4998,9 @@ def main(argv: list[str]) -> int:
     if argv[0] == "new" and len(argv) > 1 and argv[1] in DOC_KINDS and _help_requested(argv, 2):
         _print_help(_build_new_kind_help(argv[1]))
         return 0
-    if argv[0] == "list" and _help_requested(argv, 1):
+    # `list` takes no positional argument, so a bare invocation is the documented
+    # default form, not a request for help. Only an explicit help flag prints help.
+    if argv[0] == "list" and len(argv) > 1 and argv[1] in HELP_FLAGS:
         _print_help(_build_list_help())
         return 0
     if argv[0] == "show" and _help_requested(argv, 1):
@@ -5021,7 +5060,7 @@ def main(argv: list[str]) -> int:
     if argv[0] == "progress" and len(argv) > 1 and argv[1] == "task" and _help_requested(argv, 2):
         _print_help(_build_progress_kind_help(argv[1]))
         return 0
-    valid_commands = {"new", "list", "show", "companion", "roadmap", "deliver", "scaffold", "validate", "validate-closeout", "start", "progress", "repair", "closeout", "promote", "split", "close", "withdraw", "finish"}
+    valid_commands = {"new", "list", "statuses", "show", "companion", "roadmap", "deliver", "scaffold", "validate", "validate-closeout", "start", "progress", "repair", "closeout", "promote", "split", "close", "withdraw", "finish"}
     if argv[0] not in valid_commands:
         hint = " Use `logics-manager flow show <ref>` to inspect a workflow doc." if argv[0] in {"read", "view", "cat"} else " Run `logics-manager flow --help` for valid commands."
         raise SystemExit(f"Unsupported flow subcommand: {argv[0]}.{hint}")

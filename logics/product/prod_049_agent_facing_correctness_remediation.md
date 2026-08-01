@@ -1,8 +1,8 @@
 ## prod_049_agent_facing_correctness_remediation - Agent-facing correctness remediation
 > Date: 2026-08-01
-> Status: Proposed
+> Status: Settled
 > Related request: `req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts`
-> Related backlog: `item_573_make_dry_run_and_command_output_report_what_actually_happened`, `item_574_report_roadmap_headings_that_are_not_parsed_as_milestones`, `item_575_stop_scaffolded_tasks_asserting_work_that_has_not_happened`, `item_576_accept_precise_validation_evidence_at_closeout`, `item_577_make_indicator_updates_kind_aware_and_honestly_exitable`, `item_578_stop_resolving_references_inside_code`, `item_579_make_repair_commands_accept_the_references_they_name_and_fix_the_findings_that_name_them`, `item_580_make_companion_documents_lint_clean_and_free_of_foreign_content`, `item_581_make_vocabularies_discoverable_without_failing_first`
+> Related backlog: `item_573_make_dry_run_and_command_output_report_what_actually_happened`
 > Related task: `task_297_orchestrate_agent_facing_correctness_remediation`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -57,5 +57,5 @@ flowchart TD
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts`
+- Product back-reference: `item_573_make_dry_run_and_command_output_report_what_actually_happened`
 - Task back-reference: `task_297_orchestrate_agent_facing_correctness_remediation`

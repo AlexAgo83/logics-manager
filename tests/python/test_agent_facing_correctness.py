@@ -578,3 +578,108 @@ def test_a_companion_reference_resolves_instead_of_reporting_not_found(tmp_path:
     path, kind = _resolve_any_workflow_source(repo_root, "prod_001_probe")
     assert kind == "product"
     assert path.name == "prod_001_probe.md"
+
+
+# --- item_580 / item_581: templates and discoverability --------------------
+
+
+@pytest.mark.parametrize("kind", ["architecture", "product"])
+def test_generated_companion_passes_lint_immediately(
+    kind: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from logics_manager.lint import lint_payload
+
+    repo_root = _repo(tmp_path, "request", "backlog", "tasks", "product", "architecture", "roadmap", "specs")
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    main(["flow", "companion", kind, "--title", "Pipeline triage model for the New stage"])
+    capsys.readouterr()
+
+    payload = lint_payload(repo_root, require_status=True)
+    assert payload["issues"] == [], payload["issues"]
+
+
+@pytest.mark.parametrize("kind", ["architecture", "product"])
+def test_generated_companion_body_carries_no_foreign_product_content(
+    kind: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    repo_root = _repo(tmp_path, "product", "architecture")
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    main(["flow", "companion", kind, "--title", "Candidate dashboard"])
+    capsys.readouterr()
+
+    directory = "architecture" if kind == "architecture" else "product"
+    text = next((repo_root / "logics" / directory).glob("*.md")).read_text(encoding="utf-8")
+    # Verbatim leaks observed in the field, all about this tool rather than the target.
+    for leak in (
+        "consolidated into the main repo",
+        "Legacy skill/bootstrap",
+        "native Python runtime",
+        "VS Code plugin",
+        "CLI as the canonical workflow entrypoint",
+    ):
+        assert leak not in text, f"foreign content leaked: {leak}"
+
+
+@pytest.mark.parametrize("kind", ["architecture", "product"])
+def test_every_generated_placeholder_is_recognisable_as_one(
+    kind: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    repo_root = _repo(tmp_path, "product", "architecture")
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    main(["flow", "companion", kind, "--title", "Candidate dashboard"])
+    capsys.readouterr()
+
+    directory = "architecture" if kind == "architecture" else "product"
+    text = next((repo_root / "logics" / directory).glob("*.md")).read_text(encoding="utf-8")
+    body_bullets = [
+        line.strip()
+        for line in text.splitlines()
+        if line.startswith("- ") and "Related" not in line and "`" not in line
+    ]
+    assert body_bullets, "template should seed prompts"
+    for bullet in body_bullets:
+        assert "(" in bullet and ")" in bullet, f"not obviously a placeholder: {bullet}"
+
+
+def test_flow_list_lists_in_its_documented_default_form(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from tests.python.flow_start_fixture import write_task_with_linked_items
+
+    repo_root = _repo(tmp_path, "tasks", "backlog", "request")
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+    write_task_with_linked_items(repo_root)
+
+    exit_code = main(["flow", "list"])
+    out = capsys.readouterr().out
+
+    assert exit_code == 0
+    assert "Usage:" not in out
+    assert "Flow docs in progress:" in out
+
+
+def test_status_vocabulary_is_reachable_without_failing_first(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    repo_root = _repo(tmp_path, "request")
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["flow", "statuses", "--format", "json"])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 0
+    # The field session learned this one by guessing wrong.
+    assert "Settled" in payload["kinds"]["roadmap"]["statuses"]
+    assert payload["kinds"]["roadmap"]["mutable_indicators"] == ["Status", "Related request", "Related product"]
+
+
+def test_scaffold_schema_documents_the_enums_and_the_accepted_keys() -> None:
+    from logics_manager.flow import SCAFFOLD_REQUEST_CHAIN_SCHEMA_HELP as schema
+
+    assert "Low | Medium | High" in schema
+    assert "tiny | normal | deep" in schema
+    # `priority` was accepted but undocumented.
+    assert "priority" in schema

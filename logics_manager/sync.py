@@ -79,6 +79,7 @@ def approved_indicators_for_kind(kind: str) -> tuple[str, ...]:
     if not spec.requires_progress:
         declared.discard("Progress")
     return tuple(key for key in MUTABLE_WORKFLOW_INDICATORS if key in declared)
+SEEDED_SECTION_PLACEHOLDERS = {"- (no validation recorded yet)", "- Not started."}
 MAX_MUTATION_TEXT_CHARS = 2000
 OPEN_STATUS_EXCLUSIONS = {"accepted", "archived", "closed", "done", "obsolete", "settled", "superseded", "validated"}
 
@@ -797,6 +798,11 @@ def append_workflow_note_payload(repo_root: Path, source: str, *, note_kind: str
             changed = False
         else:
             lines.insert(insert_at, bullet)
+            # Drop the scaffold's seeded placeholder once real content arrives, so a
+            # section never shows "nothing recorded" next to what was just recorded.
+            for idx in range(insert_at - 1, section_start - 1, -1):
+                if lines[idx].strip() in SEEDED_SECTION_PLACEHOLDERS:
+                    del lines[idx]
     mermaid_signature_refreshed = False
     if changed and not dry_run:
         path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")

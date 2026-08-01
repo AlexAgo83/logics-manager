@@ -16,7 +16,11 @@ from .statuses import stage_statuses
 
 
 _WORKFLOW_MUTABLE = ("Status", "Progress", "Understanding", "Confidence", "Theme", "Complexity")
-_COMPANION_MUTABLE = ("Status", "Related request", "Related backlog", "Related task", "Related product", "Related architecture")
+# Each companion kind may only set the link fields it actually declares, so
+# `flow statuses` reports the truth rather than a superset.
+_PRODUCT_MUTABLE = ("Status", "Related request", "Related backlog", "Related task", "Related architecture")
+_ROADMAP_MUTABLE = ("Status", "Related request", "Related product")
+_ADR_MUTABLE = ("Status", "Related request", "Related backlog", "Related task")
 
 
 @dataclass(frozen=True)
@@ -37,9 +41,9 @@ KINDS = {
     "request": Kind("logics/request", ("req",), False, ("From version", "Understanding", "Confidence"), stage_statuses("request")),
     "backlog": Kind("logics/backlog", ("item",), True, ("From version", "Understanding", "Confidence", "Progress"), stage_statuses("backlog")),
     "task": Kind("logics/tasks", ("task",), True, ("From version", "Understanding", "Confidence", "Progress"), stage_statuses("task")),
-    "product": Kind("logics/product", ("prod",), False, ("Date", "Status", "Related request", "Related backlog", "Related task", "Related architecture", "Reminder"), stage_statuses("product"), _COMPANION_MUTABLE),
-    "roadmap": Kind("logics/roadmap", ("road",), False, ("Date", "Status", "Related product", "Related request", "Reminder"), stage_statuses("roadmap"), _COMPANION_MUTABLE),
-    "architecture": Kind("logics/architecture", ("adr",), False, ("Date", "Status", "Drivers", "Related request", "Related backlog", "Related task", "Reminder"), stage_statuses("architecture"), _COMPANION_MUTABLE),
+    "product": Kind("logics/product", ("prod",), False, ("Date", "Status", "Related request", "Related backlog", "Related task", "Related architecture", "Reminder"), stage_statuses("product"), _PRODUCT_MUTABLE),
+    "roadmap": Kind("logics/roadmap", ("road",), False, ("Date", "Status", "Related product", "Related request", "Reminder"), stage_statuses("roadmap"), _ROADMAP_MUTABLE),
+    "architecture": Kind("logics/architecture", ("adr",), False, ("Date", "Status", "Drivers", "Related request", "Related backlog", "Related task", "Reminder"), stage_statuses("architecture"), _ADR_MUTABLE),
     "spec": Kind("logics/specs", ("spec", "req"), False, ("From version", "Status", "Understanding", "Confidence"), stage_statuses("spec")),
 }
 

@@ -20,10 +20,26 @@ def strip_mermaid_blocks(text: str) -> str:
     return _MERMAID_BLOCK.sub("", text)
 
 
+FENCED_BLOCK_PATTERN = re.compile(r"^[ \t]*(`{3,}|~{3,}).*?(?:\n[\s\S]*?)?^[ \t]*\1[ \t]*$", re.MULTILINE)
+
+
+def strip_fenced_blocks(text: str) -> str:
+    """Remove every fenced code block, whatever its language.
+
+    A reference inside a fence is an example, not a link. Only mermaid fences used
+    to be stripped, so a document that quoted a reference — a runbook, a convention
+    note, a field report — created an unresolvable link by describing one. Inline
+    code spans are deliberately kept: backticks are how this corpus writes its real
+    links, so excluding them would delete every genuine reference.
+    """
+    return FENCED_BLOCK_PATTERN.sub("", text)
+
+
 def extract_refs(text: str, prefix: str, *, strip_mermaid: bool = False) -> list[str]:
     """Return the sorted, de-duplicated doc refs of ``prefix`` found in ``text``."""
     if strip_mermaid:
         text = strip_mermaid_blocks(text)
+    text = strip_fenced_blocks(text)
     pattern = re.compile(rf"\b{re.escape(prefix)}_\d+_[a-z0-9_]+\b")
     return sorted({match.group(0) for match in pattern.finditer(text)})
 

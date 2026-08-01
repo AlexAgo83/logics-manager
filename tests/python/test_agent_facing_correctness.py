@@ -501,3 +501,80 @@ def test_an_existing_document_can_be_linked_to_a_chain_by_command(tmp_path: Path
 
     assert payload["changed"] is True
     assert "> Related request: `req_300_probe`" in text
+
+
+# --- item_578 / item_579: reference handling -------------------------------
+
+
+def test_references_inside_any_fence_are_not_links_but_inline_spans_are() -> None:
+    from logics_manager.doc_parsing import extract_refs
+
+    doc = (
+        "# Links\n- Request: `req_300_real_link`\n\n"
+        "```\nBLOCKING: missing target `req_999_bare_fence`\n```\n\n"
+        "```python\nref = 'req_888_python_fence'\n```\n\n"
+        "prose mentioning `req_777_inline`\n"
+    )
+    assert extract_refs(doc, "req") == ["req_300_real_link", "req_777_inline"]
+
+
+def test_lint_audit_and_repair_agree_on_a_documents_references(tmp_path: Path) -> None:
+    from logics_manager import audit as audit_module
+    from logics_manager import sync as sync_module
+    from logics_manager.doc_parsing import extract_refs
+
+    doc = "- Request: `req_300_real`\n```\nreq_999_quoted\n```\n"
+    shared = set(extract_refs(doc, "req"))
+    # audit returns a set, sync a list; the membership must agree either way.
+    assert shared == set(audit_module._extract_refs(doc, "req"))
+    assert shared == set(sync_module._extract_refs(doc, "req"))
+    assert shared == {"req_300_real"}
+
+
+def test_a_bare_ref_of_the_wrong_kind_is_not_reported_as_missing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from tests.python.flow_start_fixture import write_task_with_linked_items
+    from logics_manager.flow import _resolve_workflow_source, DOC_KINDS
+
+    repo_root = _repo(tmp_path, "tasks", "backlog", "request")
+    task_ref, _ = write_task_with_linked_items(repo_root)
+
+    with pytest.raises(SystemExit) as excinfo:
+        _resolve_workflow_source(repo_root, DOC_KINDS["request"], task_ref)
+
+    message = str(excinfo.value)
+    # The defect: an existing document was reported as missing.
+    assert "not found" not in message.lower()
+    assert "is a task document" in message
+    assert "accepts a request" in message
+
+
+def test_repair_mermaid_explains_why_it_skipped_instead_of_reporting_zero(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from logics_manager.flow import repair_mermaid_payload
+
+    repo_root = _repo(tmp_path, "product")
+    (repo_root / "logics" / "product" / "prod_001_probe.md").write_text(
+        "## prod_001_probe - Probe\n> Status: Proposed\n", encoding="utf-8"
+    )
+
+    payload = repair_mermaid_payload(repo_root, ["prod_001_probe"], dry_run=True)
+
+    assert payload["changed_files"] == []
+    assert payload["skipped"], "a no-op must say why it did nothing"
+    assert payload["skipped"][0]["kind"] == "product"
+
+
+def test_a_companion_reference_resolves_instead_of_reporting_not_found(tmp_path: Path) -> None:
+    from logics_manager.flow import _resolve_any_workflow_source
+
+    repo_root = _repo(tmp_path, "product")
+    (repo_root / "logics" / "product" / "prod_001_probe.md").write_text(
+        "## prod_001_probe - Probe\n> Status: Proposed\n", encoding="utf-8"
+    )
+
+    path, kind = _resolve_any_workflow_source(repo_root, "prod_001_probe")
+    assert kind == "product"
+    assert path.name == "prod_001_probe.md"

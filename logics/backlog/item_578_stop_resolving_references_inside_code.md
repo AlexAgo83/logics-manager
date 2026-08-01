@@ -8,6 +8,7 @@
 > Complexity: Low
 > Theme: Reference handling
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-01
 
 # Problem
 - Reference extraction strips fenced mermaid blocks only, so a reference quoted in any other fence or in an inline code span is resolved as a genuine link.
@@ -23,9 +24,9 @@
   - An escape syntax for citing a reference in running prose, which is deferred and largely subsumed by this fix.
 
 # Acceptance criteria
-- AC1: A reference inside a fenced code block is not resolved as a link.
-- AC2: A reference inside an inline code span is not resolved as a link.
-- AC3: A genuine reference outside code is still resolved, with a test covering all three forms in one document.
+- AC1: A reference inside a fenced code block is not resolved as a link, whatever the fence language.
+- AC2: WITHDRAWN during implementation. This originally required inline code spans to be excluded too. That is incompatible with the corpus: backticks are how every genuine link is written (`- Request: \`req_...\``), so excluding inline spans would delete every real reference rather than only the quoted ones. Fenced blocks carry the whole reported defect; inline spans must keep resolving.
+- AC3: A genuine reference outside a fence is still resolved, including one written as an inline span, with a test covering all forms in one document.
 - AC4: Lint, audit and the repair commands agree on which references a document contains.
 
 # AC Traceability

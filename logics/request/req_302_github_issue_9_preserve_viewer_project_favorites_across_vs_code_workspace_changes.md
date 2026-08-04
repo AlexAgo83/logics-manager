@@ -1,12 +1,13 @@
 ## req_302_github_issue_9_preserve_viewer_project_favorites_across_vs_code_workspace_changes - GitHub issue #9: Preserve viewer project favorites across VS Code workspace changes
 > From version: 2.19.6
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium
 > Theme: GitHub issue intake
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-04
 
 # Needs
 - Preserve viewer project favorites across VS Code workspace changes
@@ -43,10 +44,10 @@ Users who work across several projects lose their navigation setup and must repe
 - AC1: The issue is triaged into a bounded Logics workflow before implementation.
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Companion docs
 - Product brief(s): (none yet)
@@ -65,6 +66,7 @@ Users who work across several projects lose their navigation setup and must repe
 
 # Backlog
 - none
+- `item_587_github_issue_9_preserve_viewer_project_favorites_across_vs_code_workspace_changes`
 
 # Provenance
 - Origin: `github`

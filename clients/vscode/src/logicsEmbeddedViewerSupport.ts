@@ -4,6 +4,7 @@ import { buildEmbeddedViewerHtml } from "./logicsWebviewHtml";
 import * as viewProviderSupport from "./logicsViewProviderSupport";
 
 type EmbeddedViewerHost = {
+  context: vscode.ExtensionContext;
   view?: vscode.WebviewView;
   embeddedViewerUrl?: string;
   embeddedViewerRoot?: string;
@@ -12,6 +13,8 @@ type EmbeddedViewerHost = {
     stop(root: string): void;
   };
 };
+
+const VIEWER_PROJECT_PREFERENCES_KEY = "logics.viewerProjectPreferences.v1";
 
 export function installEmbeddedViewerBindings(host: EmbeddedViewerHost): void {
   const target = host as EmbeddedViewerHost & {
@@ -52,7 +55,7 @@ async function renderEmbeddedViewer(this: EmbeddedViewerHost, focus?: string): P
     if (this.view !== view) return;
     this.embeddedViewerUrl = server.url;
     this.embeddedViewerRoot = root;
-    view.webview.html = buildEmbeddedViewerHtml(view.webview, { kind: "ready", url: server.url, root });
+    view.webview.html = buildEmbeddedViewerHtml(view.webview, { kind: "ready", url: server.url, root }, this.context.globalState.get(VIEWER_PROJECT_PREFERENCES_KEY) || {});
   } catch (error) {
     view.webview.html = buildEmbeddedViewerHtml(view.webview, {
       kind: "error",

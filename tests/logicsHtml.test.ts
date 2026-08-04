@@ -81,6 +81,17 @@ describe("logics HTML builders", () => {
     expect(html).toContain("launch-workshop-terminal");
   });
 
+  it("hydrates the embedded viewer from extension-owned project preferences", () => {
+    const html = buildEmbeddedViewerHtml(createWebview() as never, { kind: "ready", url: "http://127.0.0.1:4321", root: "/workspace/project" }, {
+      favoriteProjects: ["project-cdx"],
+      projectLastUsedAt: { "project-cdx": "2026-08-04T12:00:00Z" }
+    });
+
+    expect(html).toContain('favoriteProjects: ["project-cdx"]');
+    expect(html).toContain('"project-cdx":"2026-08-04T12:00:00Z"');
+    expect(html).toContain('viewer-project-preferences');
+  });
+
   it("renders the hybrid insights report snapshot", () => {
     dateTimeFormatSpy = vi.spyOn(Intl, "DateTimeFormat").mockImplementation(
       (function mockDateTimeFormat(

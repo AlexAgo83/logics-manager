@@ -1,0 +1,52 @@
+## item_585_show_request_provenance_and_linked_issue_state_in_logics_viewers - Show request provenance and linked issue state in Logics viewers
+> From version: 2.19.6
+> Schema version: 1.0
+> Status: Ready
+> Understanding: 90%
+> Confidence: 85%
+> Progress: 0%
+> Complexity: Medium
+> Theme: Viewer request tracking
+> Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+
+# Problem
+- Operators cannot yet see the external origin and linked issue state while navigating the Logics delivery chain.
+
+# Scope
+- In:
+  - Render request origin, GitHub link, and available compact issue state in local and embedded viewers.
+  - Add filters or views for untriaged, linked, and blocked external requests.
+  - Degrade gracefully when GitHub is not configured or unavailable.
+- Out:
+  - Embedding GitHub's full issue UI.
+  - Editing arbitrary GitHub discussion content from the viewer.
+
+# Acceptance criteria
+- AC1: A linked request clearly shows its origin and opens the external issue safely.
+- AC2: Operators can identify untriaged and active linked requests from a viewer surface.
+- AC3: Missing credentials or GitHub errors produce a clear non-blocking state.
+- AC4: Viewer tests cover linked, unlinked, and unavailable-provider states.
+
+# AC Traceability
+- request-AC2 -> This backlog slice. Proof: AC1: A linked request clearly shows its origin and opens the external issue safely.
+- request-AC5 -> This backlog slice. Proof: AC2: Operators can identify untriaged and active linked requests from a viewer surface.
+
+# Decision framing
+- Product framing: Not needed
+- Architecture framing: Not needed
+
+# Links
+- Product brief(s): `prod_050_multi_channel_request_intake_and_github_issues_bridge`
+- Architecture decision(s): (none yet)
+- Request: `req_301_create_a_multi_channel_request_intake_and_github_issues_bridge`
+- Primary task(s): `task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery`
+
+# AI Context
+- Summary: Show request provenance and linked issue state in Logics viewers
+- Keywords: scaffolded-backlog, show request provenance and linked issue state in logics viewers, implementation-ready
+- Use when: Implementing the scaffolded slice for Show request provenance and linked issue state in Logics viewers.
+- Skip when: The change belongs to another backlog slice.
+
+# Priority
+- Priority: Medium - makes the shared workflow observable
+- Rationale: Set by scaffold input or defaulted for grooming.

@@ -45,7 +45,10 @@ def update_created_request(repo_root: Path, rel_path: str, arguments: dict[str, 
     path = repo_root / rel_path
     lines = path.read_text(encoding="utf-8").splitlines()
     bullets = lambda key: [str(item).strip() for item in arguments.get(key, []) if str(item).strip()] if isinstance(arguments.get(key), list) else []
-    acceptance = [f"- AC{index}: {re.sub(r'^AC\d+\s*:\s*', '', item).strip()}" for index, item in enumerate(bullets("acceptance_criteria"), start=1)]
+    acceptance = [
+        "- AC{}: {}".format(index, re.sub(r"^AC\d+\s*:\s*", "", item).strip())
+        for index, item in enumerate(bullets("acceptance_criteria"), start=1)
+    ]
     lines = _replace_section(lines, "Needs", [f"- {item}" for item in bullets("needs")])
     lines = _replace_section(lines, "Context", [f"- {item}" for item in bullets("context")])
     lines = _replace_section(lines, "Acceptance criteria", acceptance)

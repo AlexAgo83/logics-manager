@@ -47,7 +47,6 @@ import { installEmbeddedViewerBindings } from "./logicsEmbeddedViewerSupport";
 import { ViewerServerManager } from "./viewerServerManager";
 const PROJECT_GITHUB_URL = "https://github.com/AlexAgo83/logics-manager";
 const VIEWER_PROJECT_PREFERENCES_KEY = "logics.viewerProjectPreferences.v1";
-
 export class LogicsViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = "logics.orchestrator";
 

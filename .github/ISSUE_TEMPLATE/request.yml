@@ -1,6 +1,6 @@
 name: Feature request
 description: Propose a user or product need.
-labels: ["type:request", "logics:triage"]
+labels: ["type:request"]
 body:
   - type: textarea
     id: problem

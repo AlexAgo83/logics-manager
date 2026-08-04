@@ -1,6 +1,6 @@
 name: Bug report
 description: Report behavior that is not working as expected.
-labels: ["type:bug", "logics:triage"]
+labels: ["type:bug"]
 body:
   - type: textarea
     id: expected

@@ -110,12 +110,24 @@ def _build_summary_points(content: str, fallback_title: str) -> list[str]:
         *_summary_entries(content, "Problem", 2),
         *_summary_entries(content, "Context", 2),
         *_summary_entries(content, "Scope", 2),
+        *_summary_entries(content, "Provenance", 2),
     ]
     deduped: list[str] = []
     for entry in entries:
         if entry.lower() not in {existing.lower() for existing in deduped}:
             deduped.append(entry)
     return deduped[:4] or [fallback_title]
+
+
+def _provenance(content: str) -> dict[str, str]:
+    values: dict[str, str] = {}
+    for line in _extract_section_lines(content, "Provenance"):
+        match = re.match(r"\s*-\s*(Origin|External issue):\s*(.+)", line, flags=re.IGNORECASE)
+        if not match:
+            continue
+        key = "origin" if match.group(1).lower() == "origin" else "externalUrl"
+        values[key] = match.group(2).strip().strip("`")
+    return values
 
 
 def _collect_backticked_links(text: str) -> list[str]:
@@ -279,6 +291,7 @@ def collect_viewer_items(repo_root: Path) -> list[dict[str, Any]]:
                     "updatedAt": stat.st_mtime_ns,
                     "indicators": _viewer_indicators(lines),
                     "summaryPoints": _build_summary_points(content, title),
+                    "provenance": _provenance(content),
                     "acceptanceCriteria": _summary_entries(content, "Acceptance criteria", 6),
                     "lineCount": len(lines),
                     "charCount": len(content),

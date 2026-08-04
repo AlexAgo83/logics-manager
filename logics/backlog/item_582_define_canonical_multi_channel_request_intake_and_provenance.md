@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Request contract and controlled creation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-04
 
 # Problem
 - Current request creation is Logics-native but does not make external or agent origin a first-class, consistent concept.
@@ -32,6 +33,9 @@
 - request-AC1 -> This backlog slice. Proof: AC1: Supported request creation accepts a validated origin and optional external reference.
 - request-AC2 -> This backlog slice. Proof: AC2: Created requests render provenance and external links without manual Markdown edits.
 - request-AC7 -> This backlog slice. Proof: AC3: Existing request creation remains compatible when no external origin is supplied.
+- request-AC4 -> This backlog slice. Evidence needed: The GitHub bridge uses least-privilege credentials, treats issue content as untrusted, and requires an approval checkpoint before implementation work begins.
+- request-AC5 -> This backlog slice. Evidence needed: Request-to-delivery progress is visible in Logics viewers, with direct GitHub links and a compact linked-issue state when configured.
+- request-AC6 -> This backlog slice. Evidence needed: Selected Logics lifecycle events can post traceable status updates to GitHub, while the implementation avoids a full two-way comment and field mirror.
 
 # Decision framing
 - Product framing: Not needed
@@ -52,3 +56,9 @@
 # Priority
 - Priority: High - establishes the contract used by every entry channel
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery`
+
+# Notes
+- Task `task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery` was finished via `logics-manager flow finish task` on 2026-08-04.

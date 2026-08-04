@@ -6,7 +6,7 @@ Logics is the canonical workflow after a request is accepted. GitHub Issues is a
 
 ## Intake
 
-Create these repository labels once before enabling the forms: `type:bug`, `type:request`, `logics:triage`, `logics:accepted`, `logics:in-progress`, `logics:delivered`, and `logics:declined`. The bundled forms add `logics:triage`. Adding that label explicitly runs the intake workflow, which creates a Logics request on a branch and opens a PR. Review the PR before merging or promoting the request.
+Create these repository labels once before enabling the forms: `type:bug`, `type:request`, `logics:triage`, `logics:accepted`, `logics:in-progress`, `logics:delivered`, and `logics:declined`. A maintainer adds `logics:triage` after reviewing an issue; that explicit action runs the intake workflow, which creates a Logics request on a branch and opens a PR. Review the PR before merging or promoting the request.
 
 Issue content is untrusted. The bridge records it as context; it never executes it or starts implementation.
 

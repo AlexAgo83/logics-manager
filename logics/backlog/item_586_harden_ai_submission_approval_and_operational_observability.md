@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Agent safety and operations
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-04
 
 # Problem
 - Agent-created requests and GitHub-derived content add provenance, prompt-injection, authorization, and audit concerns that need an explicit operational model.
@@ -34,6 +35,8 @@
 - request-AC2 -> This backlog slice. Proof: AC2: No agent or issue payload can cause implementation to begin without the defined approval checkpoint.
 - request-AC4 -> This backlog slice. Proof: AC3: Diagnostics identify failed inbound and outbound bridge actions without exposing secrets.
 - request-AC6 -> This backlog slice. Proof: AC4: Security-focused tests cover unauthorized invocation and instruction-like untrusted content.
+- request-AC5 -> This backlog slice. Evidence needed: Request-to-delivery progress is visible in Logics viewers, with direct GitHub links and a compact linked-issue state when configured.
+- request-AC7 -> This backlog slice. Evidence needed: The integration is optional per repository and leaves existing Logics-only workflows unchanged.
 
 # Decision framing
 - Product framing: Not needed
@@ -54,3 +57,9 @@
 # Priority
 - Priority: High - protects the new trust boundary before broader automation
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery`
+
+# Notes
+- Task `task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery` was finished via `logics-manager flow finish task` on 2026-08-04.

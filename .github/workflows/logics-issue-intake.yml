@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   create-request:
-    if: github.event.label.name == 'logics:triage' && github.event.issue.pull_request == null
+    if: github.event.label.name == 'logics:triage'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6

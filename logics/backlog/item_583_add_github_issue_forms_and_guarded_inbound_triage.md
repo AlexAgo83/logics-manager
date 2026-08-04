@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: GitHub intake
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-04
 
 # Problem
 - GitHub issues have no standardized, guarded path into the Logics corpus.
@@ -33,6 +34,8 @@
 - request-AC3 -> This backlog slice. Proof: AC1: Forms collect the minimum structured information for bugs and requests.
 - request-AC4 -> This backlog slice. Proof: AC2: Only an explicit triage trigger invokes the bridge.
 - request-AC7 -> This backlog slice. Proof: AC3: The bridge creates a reviewable linked Request and reports its ref back to the issue.
+- request-AC5 -> This backlog slice. Evidence needed: Request-to-delivery progress is visible in Logics viewers, with direct GitHub links and a compact linked-issue state when configured.
+- request-AC6 -> This backlog slice. Evidence needed: Selected Logics lifecycle events can post traceable status updates to GitHub, while the implementation avoids a full two-way comment and field mirror.
 
 # Decision framing
 - Product framing: Not needed
@@ -53,3 +56,9 @@
 # Priority
 - Priority: High - delivers the first external request path
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery`
+
+# Notes
+- Task `task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery` was finished via `logics-manager flow finish task` on 2026-08-04.

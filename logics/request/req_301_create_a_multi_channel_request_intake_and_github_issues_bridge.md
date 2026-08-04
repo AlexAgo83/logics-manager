@@ -1,7 +1,7 @@
 ## req_301_create_a_multi_channel_request_intake_and_github_issues_bridge - Create a multi-channel request intake and GitHub Issues bridge
 > From version: 2.19.6
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High

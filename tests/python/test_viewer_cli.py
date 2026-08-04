@@ -174,6 +174,20 @@ def test_viewer_collects_roadmap_items(tmp_path: Path) -> None:
     assert normalize_viewer_focus_target(repo_root, "road_001_demo_plan") == "logics/roadmap/road_001_demo_plan.md"
 
 
+def test_viewer_exposes_request_provenance(tmp_path: Path) -> None:
+    request_dir = tmp_path / "logics" / "request"
+    request_dir.mkdir(parents=True)
+    (request_dir / "req_001_imported.md").write_text(
+        "## req_001_imported - Imported issue\n> Status: Draft\n# Needs\n- Import it.\n# Provenance\n- Origin: `github`\n- External issue: https://github.com/acme/demo/issues/42\n",
+        encoding="utf-8",
+    )
+
+    request = collect_viewer_items(tmp_path)[0]
+
+    assert request["provenance"] == {"origin": "github", "externalUrl": "https://github.com/acme/demo/issues/42"}
+    assert "Origin: `github`" in request["summaryPoints"]
+
+
 def test_viewer_current_version_falls_back_to_installed_metadata(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

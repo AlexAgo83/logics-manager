@@ -1,14 +1,23 @@
 ## prod_050_multi_channel_request_intake_and_github_issues_bridge - Multi-channel request intake and GitHub Issues bridge
 > Date: 2026-08-04
-> Status: Proposed
+> Status: Settled
 > Related request: `req_301_create_a_multi_channel_request_intake_and_github_issues_bridge`
-> Related backlog: `item_582_define_canonical_multi_channel_request_intake_and_provenance`, `item_583_add_github_issue_forms_and_guarded_inbound_triage`, `item_584_add_explicit_github_lifecycle_notifications`, `item_585_show_request_provenance_and_linked_issue_state_in_logics_viewers`, `item_586_harden_ai_submission_approval_and_operational_observability`
+> Related backlog: `item_582_define_canonical_multi_channel_request_intake_and_provenance`
 > Related task: `task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-04
 
 # Overview
 Make Logics the canonical request and delivery workspace for human, agent, and GitHub-originated work. GitHub Issues remains an optional external intake and communication channel, connected by deliberate links and guarded lifecycle updates rather than a broad synchronization layer.
+
+```mermaid
+flowchart LR
+    Input[Human agent or GitHub issue] --> Request[Logics request]
+    Request --> Triage[Approval and triage]
+    Triage --> Delivery[Backlog task delivery]
+    Delivery --> Feedback[Linked GitHub update]
+```
 
 # Goals
 - Give people and AI agents a consistent way to submit and track requests in Logics.
@@ -35,5 +44,5 @@ Make Logics the canonical request and delivery workspace for human, agent, and G
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_301_create_a_multi_channel_request_intake_and_github_issues_bridge`
+- Product back-reference: `item_582_define_canonical_multi_channel_request_intake_and_provenance`
 - Task back-reference: `task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery`

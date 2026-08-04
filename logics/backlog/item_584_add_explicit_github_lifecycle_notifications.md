@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: GitHub delivery feedback
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-04
 
 # Problem
 - Once work moves into Logics, external GitHub reporters lack a lightweight, reliable indication of its outcome.
@@ -32,6 +33,7 @@
 - request-AC4 -> This backlog slice. Proof: AC1: Selected lifecycle changes create one traceable GitHub update per linked issue.
 - request-AC6 -> This backlog slice. Proof: AC2: Retries do not duplicate comments or transitions.
 - request-AC7 -> This backlog slice. Proof: AC3: Issue closure requires the configured explicit confirmation path.
+- request-AC5 -> This backlog slice. Evidence needed: Request-to-delivery progress is visible in Logics viewers, with direct GitHub links and a compact linked-issue state when configured.
 
 # Decision framing
 - Product framing: Not needed
@@ -52,3 +54,9 @@
 # Priority
 - Priority: Medium - closes the feedback loop after safe intake exists
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery`
+
+# Notes
+- Task `task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery` was finished via `logics-manager flow finish task` on 2026-08-04.

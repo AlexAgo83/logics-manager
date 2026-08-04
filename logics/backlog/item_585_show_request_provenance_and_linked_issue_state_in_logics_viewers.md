@@ -1,10 +1,10 @@
 ## item_585_show_request_provenance_and_linked_issue_state_in_logics_viewers - Show request provenance and linked issue state in Logics viewers
 > From version: 2.19.6
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 40%
 > Complexity: Medium
 > Theme: Viewer request tracking
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

@@ -76,6 +76,10 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
                 "acceptance_criteria": {"type": "array", "items": {"type": "string"}},
                 "theme": {"type": "string"},
                 "complexity": {"type": "string", "enum": ["Low", "Medium", "High"]},
+                "origin": {"type": "string", "enum": ["human", "agent", "github"]},
+                "external_url": {"type": "string"},
+                "external_id": {"type": "string"},
+                "actor": {"type": "string"},
             },
             ["title", "needs", "context", "acceptance_criteria"],
         ),
@@ -659,6 +663,35 @@ def _replace_section(lines: list[str], heading: str, replacement: list[str]) -> 
     return [*lines[:start], *replacement, "", *lines[end:]]
 
 
+def _upsert_section(lines: list[str], heading: str, replacement: list[str]) -> list[str]:
+    updated = _replace_section(lines, heading, replacement)
+    if updated != lines:
+        return updated
+    return [*lines, "", f"# {heading}", *replacement]
+
+
+def _provenance_lines(arguments: dict[str, Any]) -> list[str]:
+    origin = str(arguments.get("origin") or "human").strip()
+    external_url = str(arguments.get("external_url") or "").strip()
+    external_id = str(arguments.get("external_id") or "").strip()
+    actor = str(arguments.get("actor") or "").strip()
+    if external_url:
+        parsed = urlparse(external_url)
+        if parsed.scheme != "https" or not parsed.netloc:
+            raise McpToolError("invalid_argument_value", "external_url must be an absolute HTTPS URL.", details={"argument": "external_url"})
+    if origin == "github" and not re.match(r"^https://github\.com/[^/]+/[^/]+/issues/\d+/?$", external_url):
+        raise McpToolError("invalid_argument_value", "GitHub-originated requests require a GitHub issue URL.", details={"argument": "external_url"})
+    lines = [f"- Origin: `{origin}`"]
+    if actor:
+        lines.append(f"- Actor: `{actor}`")
+    if external_id:
+        lines.append(f"- External id: `{external_id}`")
+    if external_url:
+        lines.append(f"- External issue: {external_url}")
+    lines.append("- Approval: required before implementation starts.")
+    return lines
+
+
 def _refresh_mermaid_signature(path: Path, kind: str) -> None:
     lines = path.read_text(encoding="utf-8").splitlines()
     expected = expected_workflow_mermaid_signature(kind, lines)
@@ -686,6 +719,7 @@ def _update_created_request(repo_root: Path, rel_path: str, arguments: dict[str,
     lines = _replace_section(lines, "Needs", needs)
     lines = _replace_section(lines, "Context", context)
     lines = _replace_section(lines, "Acceptance criteria", acceptance)
+    lines = _upsert_section(lines, "Provenance", _provenance_lines(arguments))
     path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     _refresh_mermaid_signature(path, "request")
 

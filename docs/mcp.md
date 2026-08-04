@@ -13,6 +13,8 @@ The MCP surface can:
 - finish or close workflow docs through canonical commands;
 - run lint, audit, deterministic repairs, split operations, and Logics-scoped diffs.
 
+`create_request` accepts optional provenance fields: `origin` (`human`, `agent`, or `github`), `external_url`, `external_id`, and `actor`. GitHub origins require an HTTPS GitHub issue URL and always record an approval checkpoint before implementation.
+
 Inspect the exposed tools:
 
 ```bash

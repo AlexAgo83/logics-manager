@@ -11,6 +11,7 @@ Detailed documentation for `logics-manager`, split by surface. The main
 | [Project i18n contract](./i18n.md) | Optional source-only and multi-locale catalog governance, validation, viewer integration, and migration. |
 | [VS Code Extension](./vscode.md) | Embedded host for the canonical local viewer inside VS Code. |
 | [MCP For Assistants](./mcp.md) | Assistant-facing adapter over the CLI, connector plans, and the local-first assistant model. |
+| [GitHub Issues bridge](./github-issues.md) | Optional GitHub intake, agent provenance, and manual lifecycle feedback. |
 | [Onboarding Prompts](./onboarding.md) | Starting-point prompts for need, framing, orchestration, and execution. |
 | [Development & Validation](./development.md) | Requirements, runtime compatibility, validation commands, Windows validation, and accessibility baseline. |
 | [Deploy / Release (VSIX)](./release.md) | Versioning, changelog validation, packaging, and release steps. |

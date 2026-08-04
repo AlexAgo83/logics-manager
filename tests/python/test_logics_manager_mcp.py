@@ -152,6 +152,51 @@ def test_mcp_rejects_unknown_arguments(tmp_path: Path) -> None:
         raise AssertionError("Expected unknown arguments to be rejected.")
 
 
+def test_mcp_create_request_records_validated_github_provenance(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+
+    created = call_tool(
+        "create_request",
+        {
+            "title": "Imported issue",
+            "needs": ["n"],
+            "context": ["c"],
+            "acceptance_criteria": ["a"],
+            "origin": "github",
+            "external_url": "https://github.com/acme/demo/issues/42",
+            "external_id": "#42",
+            "actor": "github-actions[bot]",
+        },
+        repo_root=repo_root,
+    )
+
+    text = (repo_root / created["path"]).read_text(encoding="utf-8")
+    assert "# Provenance" in text
+    assert "- Origin: `github`" in text
+    assert "https://github.com/acme/demo/issues/42" in text
+    assert "Approval: required before implementation starts." in text
+
+
+def test_mcp_rejects_non_issue_url_for_github_provenance(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+
+    with pytest.raises(McpToolError) as exc:
+        call_tool(
+            "create_request",
+            {
+                "title": "Bad imported issue",
+                "needs": ["n"],
+                "context": ["c"],
+                "acceptance_criteria": ["a"],
+                "origin": "github",
+                "external_url": "https://example.com/not-an-issue",
+            },
+            repo_root=repo_root,
+        )
+
+    assert exc.value.code == "invalid_argument_value"
+
+
 def test_mcp_command_errors_scrub_raw_output_details(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     repo_root = _repo(tmp_path)
 

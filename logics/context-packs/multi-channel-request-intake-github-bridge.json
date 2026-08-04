@@ -1,231 +1,11 @@
 {
   "budgets": {
-    "max_docs": 28,
+    "max_docs": 32,
     "max_docs_per_ref": 4
   },
   "changed_paths": [],
-  "command": "logics-manager sync context-pack req_301_create_a_multi_channel_request_intake_and_github_issues_bridge item_582_define_canonical_multi_channel_request_intake_and_provenance item_583_add_github_issue_forms_and_guarded_inbound_triage item_584_add_explicit_github_lifecycle_notifications item_585_show_request_provenance_and_linked_issue_state_in_logics_viewers item_586_harden_ai_submission_approval_and_operational_observability task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery --mode full --profile normal --handoff",
-  "companion_docs": [
-    {
-      "kind": "product",
-      "linked_refs": {
-        "item": [
-          "item_208_define_the_three_step_onboarding_model_and_operator_copy",
-          "item_209_add_the_three_step_onboarding_model_to_guided_request_entry_surfaces_and_validate_workflow_alignment"
-        ],
-        "prod": [
-          "prod_004_logics_auto_orchestration_vision"
-        ],
-        "req": [
-          "req_119_three_step_onboarding_for_need_framing_and_execution"
-        ],
-        "task": [
-          "task_109_orchestration_delivery_for_req_119_three_step_onboarding"
-        ]
-      },
-      "path": "logics/product/prod_004_logics_auto_orchestration_vision.md",
-      "ref": "prod_004_logics_auto_orchestration_vision",
-      "sections": {
-        "Goals": [
-          "- Define the long-term product direction for a more self-orchestrating Logics workflow.",
-          "- Keep the near-term focus on onboarding and workflow comprehension rather than collapsing directly into automation work.",
-          "- Establish guardrails for future autonomy so later backlog items can be evaluated against a clear product intent."
-        ],
-        "Key product decisions": [
-          "- Treat Need, Framing, Orchestration Tasks, and Execution as the user-facing mental model, even if preparation remains an internal system phase.",
-          "- Deliver the four-step onboarding first as a one-shot webview so the entry model is stable before increasing autonomy deeper in the workflow.",
-          "- Use the onboarding as a first-run or post-update explanation surface, not as a permanent operational workspace.",
-          "- Use this brief as the product frame for later exploration of autonomy levels, diagnostic behavior, and progressive orchestration.",
-          "- Prefer assisted orchestration with visible checkpoints over opaque full automation that hides decision points from the operator."
-        ],
-        "Overview": [
-          "Logics should eventually move beyond a workflow that users must manually pilot step by step.",
-          "The product direction is to let users start from a simple expressed need while the system progressively absorbs more of the framing, preparation, and delivery orchestration.",
-          "The immediate product slice remains a one-shot onboarding webview that explains the four-step model, while auto orchestration stays as a bounded follow-on vision rather than current delivery scope.",
-          "The expected outcome is a future workflow that feels more guided and less protocol-heavy without sacrificing control, traceability, or operator trust.",
-          "```mermaid",
-          "%% logics-kind: product"
-        ],
-        "References": [
-          "- `logics/request/req_119_three_step_onboarding_for_need_framing_and_execution.md`",
-          "- `logics/backlog/item_208_define_the_three_step_onboarding_model_and_operator_copy.md`",
-          "- `logics/backlog/item_209_add_the_three_step_onboarding_model_to_guided_request_entry_surfaces_and_validate_workflow_alignment.md`",
-          "- `logics/tasks/task_109_orchestration_delivery_for_req_119_three_step_onboarding.md`"
-        ]
-      },
-      "status": "Settled",
-      "title": "Logics auto orchestration vision"
-    },
-    {
-      "kind": "product",
-      "linked_refs": {
-        "adr": [
-          "adr_022_chatgpt_logics_agent_mcp_contract"
-        ],
-        "item": [
-          "item_352_build_a_chatgpt_logics_agent"
-        ],
-        "prod": [
-          "prod_004_logics_auto_orchestration_vision",
-          "prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api",
-          "prod_010_chatgpt_logics_agent"
-        ],
-        "req": [
-          "req_191_build_a_chatgpt_logics_agent"
-        ],
-        "task": [
-          "task_153_build_a_chatgpt_logics_agent"
-        ]
-      },
-      "path": "logics/product/prod_010_chatgpt_logics_agent.md",
-      "ref": "prod_010_chatgpt_logics_agent",
-      "sections": {
-        "Goals": [
-          "- Let ChatGPT create and refine Logics workflow documents from natural product conversation.",
-          "- Make the idea to delivery path feel continuous without replacing the existing Logics workflow.",
-          "- Keep `logics-manager` as the canonical write path for workflow document creation and transitions.",
-          "- Expose only focused, safe Logics actions to ChatGPT instead of general filesystem or shell access.",
-          "- Support local-first usage by running the MCP server on the operator machine and exposing it to ChatGPT through a controlled HTTPS tunnel when needed.",
-          "- Give the user visible confidence after every write through clear summaries, validation results, and `git diff` style review."
-        ],
-        "Key product decisions": [
-          "- ChatGPT is the product framing agent; Codex is the delivery agent.",
-          "- Logics remains the shared source of truth and audit trail.",
-          "- The MCP server should wrap `logics-manager` instead of reimplementing workflow behavior.",
-          "- The initial tool surface should be intentionally small and product-specific.",
-          "- Write actions should operate on repo-relative paths only and reject absolute paths.",
-          "- The MCP server should expose local Logics capability through HTTPS only for ChatGPT compatibility, but the execution stays on the user's machine."
-        ],
-        "Overview": [
-          "The ChatGPT Logics Agent turns everyday product conversation into structured Logics workflow documents.",
-          "The user can discuss an idea in ChatGPT, refine the intent naturally, and ask the agent to create the corresponding request, backlog slice, or executable task directly in the local Logics corpus.",
-          "Codex remains the execution engine: it picks up prepared Logics tasks, changes the code, validates the result, and closes the work through the canonical workflow.",
-          "The product promise is a continuous path from conversation to delivery:",
-          "idea, decision, Logics document, Codex execution, verified outcome.",
-          "```mermaid"
-        ],
-        "References": [
-          "- `logics/request/req_191_build_a_chatgpt_logics_agent.md`",
-          "- `logics/backlog/item_352_build_a_chatgpt_logics_agent.md`",
-          "- `logics/tasks/task_153_build_a_chatgpt_logics_agent.md`",
-          "- `logics/architecture/adr_022_chatgpt_logics_agent_mcp_contract.md`",
-          "- `LOGICS.md`",
-          "- `RTK.md`"
-        ]
-      },
-      "status": "Settled",
-      "title": "ChatGPT Logics Agent"
-    },
-    {
-      "kind": "product",
-      "linked_refs": {
-        "adr": [
-          "adr_022_chatgpt_logics_agent_mcp_contract"
-        ],
-        "item": [
-          "item_353_read_list_search_and_context_mcp_tools",
-          "item_354_closure_and_deterministic_maintenance_mcp_tools",
-          "item_355_controlled_workflow_document_mutation_mcp_tools",
-          "item_356_split_and_audit_repair_mcp_tools",
-          "item_357_local_mcp_connector_launcher_for_chatgpt_developer_mode"
-        ],
-        "prod": [
-          "prod_011_expanded_logics_mcp_action_surface_for_local_chatgpt_workflows"
-        ],
-        "req": [
-          "req_191_build_a_chatgpt_logics_agent",
-          "req_192_expand_local_chatgpt_mcp_action_surface"
-        ],
-        "task": [
-          "task_154_read_list_search_and_context_mcp_tools",
-          "task_155_closure_and_deterministic_maintenance_mcp_tools",
-          "task_156_controlled_workflow_document_mutation_mcp_tools",
-          "task_157_split_and_audit_repair_mcp_tools",
-          "task_158_local_mcp_connector_launcher_for_chatgpt_developer_mode"
-        ]
-      },
-      "path": "logics/product/prod_011_expanded_logics_mcp_action_surface_for_local_chatgpt_workflows.md",
-      "ref": "prod_011_expanded_logics_mcp_action_surface_for_local_chatgpt_workflows",
-      "sections": {
-        "Goals": [
-          "- Let a local ChatGPT workflow inspect existing Logics docs without loading the whole repository.",
-          "- Let ChatGPT make controlled document updates through canonical Logics operations instead of direct Markdown editing.",
-          "- Support common workflow loops: understand a request, build context, split scope, update indicators, append report notes, finish tasks, refresh generated metadata, and validate.",
-          "- Keep the CLI as the canonical runtime and make MCP a bounded adapter over that runtime.",
-          "- Keep the option-A local-first model viable: each user runs their own local MCP server and points ChatGPT developer mode at that endpoint."
-        ],
-        "Key product decisions": [
-          "- Prefer narrow tools over a generic `edit_document` operation.",
-          "- Prefer refs or repo-relative paths over absolute paths.",
-          "- Every write tool should return changed paths, a validation snapshot, a diff summary, and a next suggested tool when appropriate.",
-          "- Read tools should return compact structured data first and bounded text previews second.",
-          "- Mutating tools should refuse dirty tracked-source conflicts unless the operation is explicitly designed to reconcile them.",
-          "- MCP should expose only operations that already exist in, or can be cleanly added to, `logics-manager`."
-        ],
-        "Overview": [
-          "The first ChatGPT MCP test proved that a local Logics repository can be exposed safely enough for a short developer-mode workflow: ChatGPT can create a request, promote it to backlog, promote it to task, run validation, and summarize the diff. That is enough to prove transport and guardrails, but it is not yet enough for a useful day-to-day product workflow.",
-          "The next product step is to expand the MCP action surface so ChatGPT can read, understand, refine, and close Logics documents through bounded operations while still avoiding arbitrary shell access and free-form Markdown edits.",
-          "```mermaid",
-          "flowchart TD",
-          "    User[Local operator] --> ChatGPT[ChatGPT developer mode]",
-          "    ChatGPT --> MCP[Local Logics MCP connector]"
-        ],
-        "References": [
-          "- Product back-reference: (none yet)",
-          "- Task back-reference: `logics/tasks/task_154_read_list_search_and_context_mcp_tools.md`, `logics/tasks/task_155_closure_and_deterministic_maintenance_mcp_tools.md`, `logics/tasks/task_156_controlled_workflow_document_mutation_mcp_tools.md`, `logics/tasks/task_157_split_and_audit_repair_mcp_tools.md`, `logics/tasks/task_158_local_mcp_connector_launcher_for_chatgpt_developer_mode.md`",
-          "- Related request: `logics/request/req_192_expand_local_chatgpt_mcp_action_surface.md`",
-          "- Original connector request: `logics/request/req_191_build_a_chatgpt_logics_agent.md`",
-          "- Related architecture: `logics/architecture/adr_022_chatgpt_logics_agent_mcp_contract.md`"
-        ]
-      },
-      "status": "Settled",
-      "title": "Expanded Logics MCP action surface for local ChatGPT workflows"
-    },
-    {
-      "kind": "product",
-      "linked_refs": {
-        "item": [
-          "item_582_define_canonical_multi_channel_request_intake_and_provenance",
-          "item_583_add_github_issue_forms_and_guarded_inbound_triage",
-          "item_584_add_explicit_github_lifecycle_notifications",
-          "item_585_show_request_provenance_and_linked_issue_state_in_logics_viewers",
-          "item_586_harden_ai_submission_approval_and_operational_observability"
-        ],
-        "prod": [
-          "prod_050_multi_channel_request_intake_and_github_issues_bridge"
-        ],
-        "req": [
-          "req_301_create_a_multi_channel_request_intake_and_github_issues_bridge"
-        ],
-        "task": [
-          "task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery"
-        ]
-      },
-      "path": "logics/product/prod_050_multi_channel_request_intake_and_github_issues_bridge.md",
-      "ref": "prod_050_multi_channel_request_intake_and_github_issues_bridge",
-      "sections": {
-        "Goals": [
-          "- Give people and AI agents a consistent way to submit and track requests in Logics.",
-          "- Turn approved GitHub issues into traceable Logics workflow work with minimal operator friction.",
-          "- Expose request provenance and linked GitHub state in the local and embedded viewers.",
-          "- Preserve operator control, local-first safety, and the existing canonical Logics lifecycle."
-        ],
-        "Key product decisions": [
-          "- Use structured input as the source of truth for generated docs.",
-          "- Keep generated write paths local and repo-bounded."
-        ],
-        "Overview": [
-          "Make Logics the canonical request and delivery workspace for human, agent, and GitHub-originated work. GitHub Issues remains an optional external intake and communication channel, connected by deliberate links and guarded lifecycle updates rather than a broad synchronization layer."
-        ],
-        "References": [
-          "- Product back-reference: `req_301_create_a_multi_channel_request_intake_and_github_issues_bridge`",
-          "- Task back-reference: `task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery`"
-        ]
-      },
-      "status": "Proposed",
-      "title": "Multi-channel request intake and GitHub Issues bridge"
-    }
-  ],
+  "command": "logics-manager sync context-pack req_301_create_a_multi_channel_request_intake_and_github_issues_bridge prod_050_multi_channel_request_intake_and_github_issues_bridge item_582_define_canonical_multi_channel_request_intake_and_provenance item_583_add_github_issue_forms_and_guarded_inbound_triage item_584_add_explicit_github_lifecycle_notifications item_585_show_request_provenance_and_linked_issue_state_in_logics_viewers item_586_harden_ai_submission_approval_and_operational_observability task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery --mode summary-only --profile normal",
+  "companion_docs": [],
   "docs": [
     {
       "ai_context": {
@@ -256,21 +36,6 @@
       "path": "logics/request/req_301_create_a_multi_channel_request_intake_and_github_issues_bridge.md",
       "ref": "req_301_create_a_multi_channel_request_intake_and_github_issues_bridge",
       "schema_version": "1.0",
-      "sections": {
-        "Acceptance criteria": [
-          "- AC1: Logics exposes one canonical request-intake contract that records the origin as human, agent, or GitHub and supports an optional external issue URL and identifier.",
-          "- AC2: A human or an authorized AI can create and follow a request through supported Logics surfaces without hand-editing workflow Markdown.",
-          "- AC3: A repository can provide GitHub bug and feature-request forms plus an explicit triage trigger that creates or proposes a linked Logics request.",
-          "- AC4: The GitHub bridge uses least-privilege credentials, treats issue content as untrusted, and requires an approval checkpoint before implementation work begins.",
-          "- AC5: Request-to-delivery progress is visible in Logics viewers, with direct GitHub links and a compact linked-issue state when configured.",
-          "- AC6: Selected Logics lifecycle events can post traceable status updates to GitHub, while the implementation avoids a full two-way comment and field mirror."
-        ],
-        "Needs": [
-          "- Let people and AI agents create requests through one canonical Logics workflow instead of requiring a GitHub-specific entry path.",
-          "- Accept GitHub Issues as an optional external intake channel and preserve a traceable link through request, backlog, task, and delivery.",
-          "- Let operators follow request state in Logics viewers and communicate meaningful state changes back to GitHub without maintaining a fragile full mirror."
-        ]
-      },
       "status": "Draft",
       "title": "Create a multi-channel request intake and GitHub Issues bridge"
     },
@@ -299,18 +64,7 @@
       "path": "logics/backlog/item_582_define_canonical_multi_channel_request_intake_and_provenance.md",
       "ref": "item_582_define_canonical_multi_channel_request_intake_and_provenance",
       "schema_version": "1.0",
-      "sections": {
-        "Acceptance criteria": [
-          "- AC1: Supported request creation accepts a validated origin and optional external reference.",
-          "- AC2: Created requests render provenance and external links without manual Markdown edits.",
-          "- AC3: Existing request creation remains compatible when no external origin is supplied.",
-          "- AC4: Focused tests cover valid metadata, invalid origin or URL rejection, and legacy-compatible creation."
-        ],
-        "Problem": [
-          "- Current request creation is Logics-native but does not make external or agent origin a first-class, consistent concept."
-        ]
-      },
-      "status": "Ready",
+      "status": "In progress",
       "title": "Define canonical multi-channel request intake and provenance"
     },
     {
@@ -338,18 +92,7 @@
       "path": "logics/backlog/item_583_add_github_issue_forms_and_guarded_inbound_triage.md",
       "ref": "item_583_add_github_issue_forms_and_guarded_inbound_triage",
       "schema_version": "1.0",
-      "sections": {
-        "Acceptance criteria": [
-          "- AC1: Forms collect the minimum structured information for bugs and requests.",
-          "- AC2: Only an explicit triage trigger invokes the bridge.",
-          "- AC3: The bridge creates a reviewable linked Request and reports its ref back to the issue.",
-          "- AC4: Tests cover trusted event handling, malformed payload refusal, duplicate delivery handling, and permission boundaries."
-        ],
-        "Problem": [
-          "- GitHub issues have no standardized, guarded path into the Logics corpus."
-        ]
-      },
-      "status": "Ready",
+      "status": "In progress",
       "title": "Add GitHub Issue forms and guarded inbound triage"
     },
     {
@@ -377,19 +120,35 @@
       "path": "logics/backlog/item_584_add_explicit_github_lifecycle_notifications.md",
       "ref": "item_584_add_explicit_github_lifecycle_notifications",
       "schema_version": "1.0",
-      "sections": {
-        "Acceptance criteria": [
-          "- AC1: Selected lifecycle changes create one traceable GitHub update per linked issue.",
-          "- AC2: Retries do not duplicate comments or transitions.",
-          "- AC3: Issue closure requires the configured explicit confirmation path.",
-          "- AC4: A bridge failure is surfaced in Logics without blocking local workflow progress."
+      "status": "In progress",
+      "title": "Add explicit GitHub lifecycle notifications"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_582_define_canonical_multi_channel_request_intake_and_provenance",
+          "item_583_add_github_issue_forms_and_guarded_inbound_triage",
+          "item_584_add_explicit_github_lifecycle_notifications",
+          "item_585_show_request_provenance_and_linked_issue_state_in_logics_viewers",
+          "item_586_harden_ai_submission_approval_and_operational_observability"
         ],
-        "Problem": [
-          "- Once work moves into Logics, external GitHub reporters lack a lightweight, reliable indication of its outcome."
+        "prod": [
+          "prod_050_multi_channel_request_intake_and_github_issues_bridge"
+        ],
+        "req": [
+          "req_301_create_a_multi_channel_request_intake_and_github_issues_bridge"
+        ],
+        "task": [
+          "task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery"
         ]
       },
-      "status": "Ready",
-      "title": "Add explicit GitHub lifecycle notifications"
+      "path": "logics/product/prod_050_multi_channel_request_intake_and_github_issues_bridge.md",
+      "ref": "prod_050_multi_channel_request_intake_and_github_issues_bridge",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "Multi-channel request intake and GitHub Issues bridge"
     },
     {
       "ai_context": {
@@ -420,44 +179,8 @@
       "path": "logics/tasks/task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery.md",
       "ref": "task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery",
       "schema_version": "1.0",
-      "sections": {
-        "Context": [
-          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
-        ],
-        "Validation": [
-          "- (no validation recorded yet)"
-        ]
-      },
-      "status": "Ready",
+      "status": "In progress",
       "title": "Orchestrate multi-channel request intake and GitHub Issues bridge delivery"
-    },
-    {
-      "ai_context": {},
-      "kind": "product",
-      "linked_refs": {
-        "item": [
-          "item_582_define_canonical_multi_channel_request_intake_and_provenance",
-          "item_583_add_github_issue_forms_and_guarded_inbound_triage",
-          "item_584_add_explicit_github_lifecycle_notifications",
-          "item_585_show_request_provenance_and_linked_issue_state_in_logics_viewers",
-          "item_586_harden_ai_submission_approval_and_operational_observability"
-        ],
-        "prod": [
-          "prod_050_multi_channel_request_intake_and_github_issues_bridge"
-        ],
-        "req": [
-          "req_301_create_a_multi_channel_request_intake_and_github_issues_bridge"
-        ],
-        "task": [
-          "task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery"
-        ]
-      },
-      "path": "logics/product/prod_050_multi_channel_request_intake_and_github_issues_bridge.md",
-      "ref": "prod_050_multi_channel_request_intake_and_github_issues_bridge",
-      "schema_version": "1.0",
-      "sections": {},
-      "status": "Proposed",
-      "title": "Multi-channel request intake and GitHub Issues bridge"
     },
     {
       "ai_context": {
@@ -484,18 +207,7 @@
       "path": "logics/backlog/item_585_show_request_provenance_and_linked_issue_state_in_logics_viewers.md",
       "ref": "item_585_show_request_provenance_and_linked_issue_state_in_logics_viewers",
       "schema_version": "1.0",
-      "sections": {
-        "Acceptance criteria": [
-          "- AC1: A linked request clearly shows its origin and opens the external issue safely.",
-          "- AC2: Operators can identify untriaged and active linked requests from a viewer surface.",
-          "- AC3: Missing credentials or GitHub errors produce a clear non-blocking state.",
-          "- AC4: Viewer tests cover linked, unlinked, and unavailable-provider states."
-        ],
-        "Problem": [
-          "- Operators cannot yet see the external origin and linked issue state while navigating the Logics delivery chain."
-        ]
-      },
-      "status": "Ready",
+      "status": "In progress",
       "title": "Show request provenance and linked issue state in Logics viewers"
     },
     {
@@ -523,32 +235,22 @@
       "path": "logics/backlog/item_586_harden_ai_submission_approval_and_operational_observability.md",
       "ref": "item_586_harden_ai_submission_approval_and_operational_observability",
       "schema_version": "1.0",
-      "sections": {
-        "Acceptance criteria": [
-          "- AC1: Agent-originated requests retain actor and source-context provenance.",
-          "- AC2: No agent or issue payload can cause implementation to begin without the defined approval checkpoint.",
-          "- AC3: Diagnostics identify failed inbound and outbound bridge actions without exposing secrets.",
-          "- AC4: Security-focused tests cover unauthorized invocation and instruction-like untrusted content."
-        ],
-        "Problem": [
-          "- Agent-created requests and GitHub-derived content add provenance, prompt-injection, authorization, and audit concerns that need an explicit operational model."
-        ]
-      },
-      "status": "Ready",
+      "status": "In progress",
       "title": "Harden AI submission, approval, and operational observability"
     }
   ],
   "estimates": {
-    "char_count": 24520,
-    "companion_doc_count": 4,
+    "char_count": 8791,
+    "companion_doc_count": 0,
     "doc_count": 8
   },
-  "generated_at": "2026-08-04T14:36:56Z",
+  "generated_at": "2026-08-04T14:39:47Z",
   "handoff": {
-    "companion_doc_count": 4,
-    "enabled": true,
+    "companion_doc_count": 0,
+    "enabled": false,
     "source_refs": [
       "req_301_create_a_multi_channel_request_intake_and_github_issues_bridge",
+      "prod_050_multi_channel_request_intake_and_github_issues_bridge",
       "item_582_define_canonical_multi_channel_request_intake_and_provenance",
       "item_583_add_github_issue_forms_and_guarded_inbound_triage",
       "item_584_add_explicit_github_lifecycle_notifications",
@@ -556,7 +258,7 @@
       "item_586_harden_ai_submission_approval_and_operational_observability",
       "task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery"
     ],
-    "validation_summary_count": 1
+    "validation_summary_count": 0
   },
   "i18n": {
     "actions": [
@@ -572,11 +274,12 @@
     "ok": true,
     "state": "absent"
   },
-  "mode": "full",
+  "mode": "summary-only",
   "profile": "normal",
-  "ref": "req_301_create_a_multi_channel_request_intake_and_github_issues_bridge,item_582_define_canonical_multi_channel_request_intake_and_provenance,item_583_add_github_issue_forms_and_guarded_inbound_triage,item_584_add_explicit_github_lifecycle_notifications,item_585_show_request_provenance_and_linked_issue_state_in_logics_viewers,item_586_harden_ai_submission_approval_and_operational_observability,task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery",
+  "ref": "req_301_create_a_multi_channel_request_intake_and_github_issues_bridge,prod_050_multi_channel_request_intake_and_github_issues_bridge,item_582_define_canonical_multi_channel_request_intake_and_provenance,item_583_add_github_issue_forms_and_guarded_inbound_triage,item_584_add_explicit_github_lifecycle_notifications,item_585_show_request_provenance_and_linked_issue_state_in_logics_viewers,item_586_harden_ai_submission_approval_and_operational_observability,task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery",
   "refs": [
     "req_301_create_a_multi_channel_request_intake_and_github_issues_bridge",
+    "prod_050_multi_channel_request_intake_and_github_issues_bridge",
     "item_582_define_canonical_multi_channel_request_intake_and_provenance",
     "item_583_add_github_issue_forms_and_guarded_inbound_triage",
     "item_584_add_explicit_github_lifecycle_notifications",
@@ -585,7 +288,13 @@
     "task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery"
   ],
   "release": {
-    "blocking_reasons": [],
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
     "configured": true,
     "contract_path": "logics/release/contract.json",
     "guidance": [
@@ -593,46 +302,46 @@
       "Use release status or validate before preparing or claiming release readiness.",
       "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
     ],
-    "next_action": "Release evidence is complete.",
+    "next_action": "version_metadata: evidence targets a different commit",
     "publication_actions": [
       "GitHub release publication",
       "external publication"
     ],
     "required_gates": [
       {
-        "blocking_reason": null,
+        "blocking_reason": "evidence targets a different commit",
         "id": "version_metadata",
         "required": true,
         "state": "preparing",
-        "status": "passed"
+        "status": "stale"
       },
       {
-        "blocking_reason": null,
+        "blocking_reason": "evidence targets a different commit",
         "id": "changelog",
         "required": true,
         "state": "preparing",
-        "status": "passed"
+        "status": "stale"
       },
       {
-        "blocking_reason": null,
+        "blocking_reason": "evidence targets a different commit",
         "id": "local_validation",
         "required": true,
         "state": "local_validation",
-        "status": "passed"
+        "status": "stale"
       },
       {
-        "blocking_reason": null,
+        "blocking_reason": "evidence targets a different commit",
         "id": "git_push",
         "required": true,
         "state": "pushed",
-        "status": "passed"
+        "status": "stale"
       },
       {
-        "blocking_reason": null,
+        "blocking_reason": "evidence targets a different commit",
         "id": "ci",
         "required": true,
         "state": "ci_verification",
-        "status": "passed"
+        "status": "stale"
       },
       {
         "blocking_reason": null,
@@ -647,16 +356,8 @@
       "logics-manager release plan <version>",
       "logics-manager release validate <version>"
     ],
-    "state": "ready",
+    "state": "blocked",
     "target_version": "2.19.6"
   },
-  "validation_summary": [
-    {
-      "items": [
-        "- (no validation recorded yet)"
-      ],
-      "path": "logics/tasks/task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery.md",
-      "ref": "task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery"
-    }
-  ]
+  "validation_summary": []
 }

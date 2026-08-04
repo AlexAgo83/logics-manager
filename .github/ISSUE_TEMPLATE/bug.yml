@@ -1,0 +1,16 @@
+name: Bug report
+description: Report behavior that is not working as expected.
+labels: ["type:bug", "logics:triage"]
+body:
+  - type: textarea
+    id: expected
+    attributes: {label: Expected behavior}
+    validations: {required: true}
+  - type: textarea
+    id: actual
+    attributes: {label: Actual behavior}
+    validations: {required: true}
+  - type: textarea
+    id: reproduce
+    attributes: {label: Steps to reproduce}
+    validations: {required: true}

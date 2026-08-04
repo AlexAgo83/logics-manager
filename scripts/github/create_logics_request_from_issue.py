@@ -18,7 +18,7 @@ def main() -> None:
     body = str(issue.get("body") or "").strip()
     branch = f"logics/issue-{number}"
     existing = subprocess.run(
-        ["gh", "pr", "list", "--head", branch, "--state", "open", "--json", "url"],
+        ["gh", "pr", "list", "--head", f"{event['repository']['owner']['login']}:{branch}", "--state", "open", "--json", "url"],
         check=True,
         text=True,
         capture_output=True,

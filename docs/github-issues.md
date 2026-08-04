@@ -21,3 +21,5 @@ Run `Logics issue update` manually to post `accepted`, `in-progress`, `delivered
 ## Credentials
 
 The workflow uses the ephemeral `GITHUB_TOKEN` with contents, pull-request, and issue write permissions. Do not add a personal access token for normal operation.
+
+In the repository Actions settings, allow workflows to create pull requests. The intake workflow intentionally opens a reviewable PR instead of writing the request directly to `main`.

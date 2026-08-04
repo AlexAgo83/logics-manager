@@ -17,6 +17,16 @@ def main() -> None:
     title = str(issue["title"]).strip()
     body = str(issue.get("body") or "").strip()
     branch = f"logics/issue-{number}"
+    existing = subprocess.run(
+        ["gh", "pr", "list", "--head", branch, "--state", "open", "--json", "url"],
+        check=True,
+        text=True,
+        capture_output=True,
+    )
+    open_prs = json.loads(existing.stdout)
+    if open_prs:
+        subprocess.run(["gh", "issue", "comment", str(number), "--body", f"Logics request is already awaiting review: {open_prs[0]['url']}"], check=True)
+        return
     args = {
         "title": f"GitHub issue #{number}: {title}",
         "needs": [title],

@@ -396,6 +396,7 @@ _None_
 | [req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows](request/req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows.md) | Add Logics Design asset prompt packs for AI-generated artwork workflows | Done |  |  | request/req_299_add_logics_design_asset_prompt_packs_for_ai_generated_artwork_workflows.md |
 | [req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts](request/req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts.md) | Agent-facing correctness of generated docs and CLI contracts | Done |  |  | request/req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts.md |
 | [req_301_create_a_multi_channel_request_intake_and_github_issues_bridge](request/req_301_create_a_multi_channel_request_intake_and_github_issues_bridge.md) | Create a multi-channel request intake and GitHub Issues bridge | Done |  |  | request/req_301_create_a_multi_channel_request_intake_and_github_issues_bridge.md |
+| [req_302_github_issue_9_preserve_viewer_project_favorites_across_vs_code_workspace_changes](request/req_302_github_issue_9_preserve_viewer_project_favorites_across_vs_code_workspace_changes.md) | Suggested acceptance criteria | Done |  |  | request/req_302_github_issue_9_preserve_viewer_project_favorites_across_vs_code_workspace_changes.md |
 
 ## Backlog
 
@@ -987,6 +988,7 @@ _None_
 | [item_584_add_explicit_github_lifecycle_notifications](backlog/item_584_add_explicit_github_lifecycle_notifications.md) | Add explicit GitHub lifecycle notifications | Done |  | 100% | backlog/item_584_add_explicit_github_lifecycle_notifications.md |
 | [item_585_show_request_provenance_and_linked_issue_state_in_logics_viewers](backlog/item_585_show_request_provenance_and_linked_issue_state_in_logics_viewers.md) | Show request provenance and linked issue state in Logics viewers | Done |  | 100% | backlog/item_585_show_request_provenance_and_linked_issue_state_in_logics_viewers.md |
 | [item_586_harden_ai_submission_approval_and_operational_observability](backlog/item_586_harden_ai_submission_approval_and_operational_observability.md) | Harden AI submission, approval, and operational observability | Done |  | 100% | backlog/item_586_harden_ai_submission_approval_and_operational_observability.md |
+| [item_587_github_issue_9_preserve_viewer_project_favorites_across_vs_code_workspace_changes](backlog/item_587_github_issue_9_preserve_viewer_project_favorites_across_vs_code_workspace_changes.md) | GitHub issue #9: Preserve viewer project favorites across VS Code workspace changes | Done |  | 100% | backlog/item_587_github_issue_9_preserve_viewer_project_favorites_across_vs_code_workspace_changes.md |
 
 ## Tasks
 
@@ -1284,3 +1286,4 @@ _None_
 | [task_296_orchestrate_logics_design_asset_prompt_pack_delivery](tasks/task_296_orchestrate_logics_design_asset_prompt_pack_delivery.md) | Orchestrate Logics Design asset prompt pack delivery | Done | codex | 100% | tasks/task_296_orchestrate_logics_design_asset_prompt_pack_delivery.md |
 | [task_297_orchestrate_agent_facing_correctness_remediation](tasks/task_297_orchestrate_agent_facing_correctness_remediation.md) | Orchestrate agent-facing correctness remediation | Done |  | 100% | tasks/task_297_orchestrate_agent_facing_correctness_remediation.md |
 | [task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery](tasks/task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery.md) | Orchestrate multi-channel request intake and GitHub Issues bridge delivery | Done | codex | 100% | tasks/task_298_orchestrate_multi_channel_request_intake_and_github_issues_bridge_delivery.md |
+| [task_299_github_issue_9_preserve_viewer_project_favorites_across_vs_code_workspace_changes](tasks/task_299_github_issue_9_preserve_viewer_project_favorites_across_vs_code_workspace_changes.md) | GitHub issue #9: Preserve viewer project favorites across VS Code workspace changes | Done | codex | 100% | tasks/task_299_github_issue_9_preserve_viewer_project_favorites_across_vs_code_workspace_changes.md |

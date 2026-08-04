@@ -14,7 +14,9 @@ function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
-export function buildEmbeddedViewerHtml(webview: vscode.Webview, state: EmbeddedViewerHtmlState): string {
+export type ViewerProjectPreferences = { favoriteProjects?: string[]; projectLastUsedAt?: Record<string, string> };
+
+export function buildEmbeddedViewerHtml(webview: vscode.Webview, state: EmbeddedViewerHtmlState, preferences: ViewerProjectPreferences = {}): string {
   const nonce = getNonce();
   const frameOrigin = state.kind === "ready" ? new URL(state.url).origin : "";
   const frameSrc = frameOrigin || "'none'";
@@ -56,16 +58,18 @@ export function buildEmbeddedViewerHtml(webview: vscode.Webview, state: Embedded
     const frameOrigin = ${JSON.stringify(frameOrigin)};
     const frame = document.getElementById("viewer-frame");
     frame?.addEventListener("load", () => {
-      frame.contentWindow?.postMessage({ type: "viewer-project-last-used", projectLastUsedAt: vscode.getState()?.projectLastUsedAt || {} }, frameOrigin);
-      frame.contentWindow?.postMessage({ type: "viewer-favorite-projects", favoriteProjects: vscode.getState()?.favoriteProjects || [] }, frameOrigin);
+      frame.contentWindow?.postMessage({ type: "viewer-project-last-used", projectLastUsedAt: ${JSON.stringify(preferences.projectLastUsedAt || {})} }, frameOrigin);
+      frame.contentWindow?.postMessage({ type: "viewer-favorite-projects", favoriteProjects: ${JSON.stringify(preferences.favoriteProjects || [])} }, frameOrigin);
       frame.contentWindow?.postMessage({ type: "viewer-embed-host", host: "vscode" }, frameOrigin);
     });
     window.addEventListener("message", (event) => {
       if (!frameOrigin || event.origin !== frameOrigin || !event.data) return;
       if (event.data.type === "viewer-project-last-used") {
         vscode.setState({ ...(vscode.getState() || {}), projectLastUsedAt: event.data.projectLastUsedAt });
+        vscode.postMessage({ type: "viewer-project-preferences", projectLastUsedAt: event.data.projectLastUsedAt });
       } else if (event.data.type === "viewer-favorite-projects") {
         vscode.setState({ ...(vscode.getState() || {}), favoriteProjects: event.data.favoriteProjects });
+        vscode.postMessage({ type: "viewer-project-preferences", favoriteProjects: event.data.favoriteProjects });
       } else if (event.data.type === "launch-workshop-terminal" || event.data.type === "restart-viewer" || event.data.type === "open-external-viewer" || event.data.type === "open-external-link") {
         vscode.postMessage(event.data);
       }

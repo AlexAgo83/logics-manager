@@ -34,6 +34,7 @@ export type LogicsWebviewMessage =
   | { type: "restart-viewer" }
   | { type: "open-external-viewer" }
   | { type: "open-external-link"; target: string }
+  | { type: "viewer-project-preferences"; favoriteProjects?: string[]; projectLastUsedAt?: Record<string, string> }
   | { type: "create-item"; kind: "request" | "backlog" | "task" }
   | { type: "new-request" }
   | { type: "new-request-guided"; draft?: GuidedRequestDraft }
@@ -120,6 +121,13 @@ export function parseLogicsWebviewMessage(value: unknown): LogicsWebviewMessage 
     case "open-external-link": {
       const target = readString(value.target);
       return target ? { type, target } : null;
+    }
+    case "viewer-project-preferences": {
+      const favoriteProjects = Array.isArray(value.favoriteProjects) ? value.favoriteProjects.filter((entry): entry is string => typeof entry === "string" && entry.length > 0) : undefined;
+      const projectLastUsedAt = isRecord(value.projectLastUsedAt)
+        ? Object.fromEntries(Object.entries(value.projectLastUsedAt).filter(([, entry]) => typeof entry === "string")) as Record<string, string>
+        : undefined;
+      return favoriteProjects || projectLastUsedAt ? { type, favoriteProjects, projectLastUsedAt } : null;
     }
     case "launch-workshop-terminal":
       return {

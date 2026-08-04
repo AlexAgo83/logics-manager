@@ -46,6 +46,7 @@ import * as viewProviderSupport from "./logicsViewProviderSupport";
 import { installEmbeddedViewerBindings } from "./logicsEmbeddedViewerSupport";
 import { ViewerServerManager } from "./viewerServerManager";
 const PROJECT_GITHUB_URL = "https://github.com/AlexAgo83/logics-manager";
+const VIEWER_PROJECT_PREFERENCES_KEY = "logics.viewerProjectPreferences.v1";
 
 export class LogicsViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = "logics.orchestrator";
@@ -149,6 +150,11 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
         return;
       }
       switch (message.type) {
+        case "viewer-project-preferences": {
+          const current = this.context.globalState.get<{ favoriteProjects?: string[]; projectLastUsedAt?: Record<string, string> }>(VIEWER_PROJECT_PREFERENCES_KEY) || {};
+          await this.context.globalState.update(VIEWER_PROJECT_PREFERENCES_KEY, { ...current, ...message });
+          return;
+        }
         case "ready":
           await this.renderEmbeddedViewer();
           return;

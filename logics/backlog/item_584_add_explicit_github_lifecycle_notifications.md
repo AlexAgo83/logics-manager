@@ -1,10 +1,10 @@
 ## item_584_add_explicit_github_lifecycle_notifications - Add explicit GitHub lifecycle notifications
 > From version: 2.19.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: GitHub delivery feedback
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

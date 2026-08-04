@@ -1,0 +1,26 @@
+name: Logics issue update
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_url: {description: GitHub issue URL, required: true, type: string}
+      state: {description: Lifecycle state, required: true, type: choice, options: [accepted, in-progress, delivered, declined]}
+      logics_ref: {description: Linked Logics ref, required: true, type: string}
+
+permissions:
+  issues: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post explicit lifecycle update
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_URL: ${{ inputs.issue_url }}
+          STATE: ${{ inputs.state }}
+          LOGICS_REF: ${{ inputs.logics_ref }}
+        run: |
+          case "$ISSUE_URL" in https://github.com/*/*/issues/[0-9]* ) ;; *) echo "Invalid GitHub issue URL" >&2; exit 2;; esac
+          gh issue edit "$ISSUE_URL" --add-label "logics:$STATE"
+          gh issue comment "$ISSUE_URL" --body "Logics lifecycle update: **$STATE** — linked workflow: \`$LOGICS_REF\`."

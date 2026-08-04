@@ -23,6 +23,7 @@ from .config import ConfigError, find_repo_root
 from .flow import flow_list_payload
 from .insights import followups_payload, health_payload, product_consistency_payload, status_payload
 from .lint import expected_workflow_mermaid_signature, lint_payload
+from .mcp_request import update_created_request
 from .release import release_plan_payload, release_status_payload
 from .sync import append_workflow_note_payload, build_context_pack_payload, list_logics_docs_payload, read_logics_doc_payload, search_logics_docs_payload, update_workflow_indicators_payload
 
@@ -647,81 +648,6 @@ def _bullets(values: Any) -> list[str]:
     return out
 
 
-def _replace_section(lines: list[str], heading: str, replacement: list[str]) -> list[str]:
-    start = None
-    for idx, line in enumerate(lines):
-        if line.startswith("# ") and line[2:].strip().lower() == heading.lower():
-            start = idx + 1
-            break
-    if start is None:
-        return lines
-    end = len(lines)
-    for idx in range(start, len(lines)):
-        if lines[idx].startswith("# "):
-            end = idx
-            break
-    return [*lines[:start], *replacement, "", *lines[end:]]
-
-
-def _upsert_section(lines: list[str], heading: str, replacement: list[str]) -> list[str]:
-    updated = _replace_section(lines, heading, replacement)
-    if updated != lines:
-        return updated
-    return [*lines, "", f"# {heading}", *replacement]
-
-
-def _provenance_lines(arguments: dict[str, Any]) -> list[str]:
-    origin = str(arguments.get("origin") or "human").strip()
-    external_url = str(arguments.get("external_url") or "").strip()
-    external_id = str(arguments.get("external_id") or "").strip()
-    actor = str(arguments.get("actor") or "").strip()
-    if external_url:
-        parsed = urlparse(external_url)
-        if parsed.scheme != "https" or not parsed.netloc:
-            raise McpToolError("invalid_argument_value", "external_url must be an absolute HTTPS URL.", details={"argument": "external_url"})
-    if origin == "github" and not re.match(r"^https://github\.com/[^/]+/[^/]+/issues/\d+/?$", external_url):
-        raise McpToolError("invalid_argument_value", "GitHub-originated requests require a GitHub issue URL.", details={"argument": "external_url"})
-    lines = [f"- Origin: `{origin}`"]
-    if actor:
-        lines.append(f"- Actor: `{actor}`")
-    if external_id:
-        lines.append(f"- External id: `{external_id}`")
-    if external_url:
-        lines.append(f"- External issue: {external_url}")
-    lines.append("- Approval: required before implementation starts.")
-    return lines
-
-
-def _refresh_mermaid_signature(path: Path, kind: str) -> None:
-    lines = path.read_text(encoding="utf-8").splitlines()
-    expected = expected_workflow_mermaid_signature(kind, lines)
-    if not expected:
-        return
-    updated = re.sub(
-        r"^(\s*%%\s*logics-signature:\s*).+$",
-        rf"\g<1>{expected}",
-        "\n".join(lines),
-        count=1,
-        flags=re.MULTILINE,
-    )
-    path.write_text(updated.rstrip() + "\n", encoding="utf-8")
-
-
-def _update_created_request(repo_root: Path, rel_path: str, arguments: dict[str, Any]) -> None:
-    path = repo_root / rel_path
-    lines = path.read_text(encoding="utf-8").splitlines()
-    needs = [f"- {item}" for item in _bullets(arguments.get("needs"))]
-    context = [f"- {item}" for item in _bullets(arguments.get("context"))]
-    acceptance = []
-    for index, item in enumerate(_bullets(arguments.get("acceptance_criteria")), start=1):
-        text = re.sub(r"^AC\d+\s*:\s*", "", item).strip()
-        acceptance.append(f"- AC{index}: {text}")
-    lines = _replace_section(lines, "Needs", needs)
-    lines = _replace_section(lines, "Context", context)
-    lines = _replace_section(lines, "Acceptance criteria", acceptance)
-    lines = _upsert_section(lines, "Provenance", _provenance_lines(arguments))
-    path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
-    _refresh_mermaid_signature(path, "request")
 
 
 def _flow_path_ref(path_value: str | None) -> str | None:
@@ -1171,7 +1097,10 @@ def _tool_create_request(root: Path, args: dict[str, Any], name: str) -> dict[st
     if args.get("complexity"):
         command.extend(["--complexity", str(args["complexity"])])
     payload = _created_doc_from_stdout(_run_command(root, command).stdout, command="new", kind="request")
-    _update_created_request(root, str(payload["path"]), args)
+    try:
+        update_created_request(root, str(payload["path"]), args)
+    except ValueError as exc:
+        raise McpToolError("invalid_argument_value", str(exc), details={"argument": "external_url"}) from exc
     return {
         "ok": True,
         "path": payload["path"],

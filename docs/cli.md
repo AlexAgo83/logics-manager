@@ -38,6 +38,25 @@ logics-manager view --open
 logics-manager view --focus req_001_example --read --open
 ```
 
+## Targeting a repository explicitly
+
+Every command accepts `--repo-root DIR`, in any position, and operates on that
+repository regardless of the current working directory:
+
+```bash
+logics-manager status --repo-root /path/to/project
+logics-manager --repo-root=/path/to/project flow list
+logics-manager flow new request --repo-root "/path/with spaces" --title "..."
+```
+
+Without it, the repository is discovered by walking up from the current
+directory, exactly as before. This is what an external orchestrator should use
+instead of changing directory per invocation — it also keeps repository paths
+out of shell command strings, so paths containing spaces work.
+
+The path must exist and contain a `logics/` directory. `bootstrap` is the one
+exemption, since creating `logics/` is its job.
+
 ## Discovering the command contract
 
 Every command and subcommand answers `--help` (and `-h`) with its own usage and

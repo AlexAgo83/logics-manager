@@ -1,10 +1,10 @@
 ## item_595_bundle_the_agent_delegation_skills_for_distribution - Bundle the agent delegation skills for distribution
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Low
 > Theme: Agent enablement
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

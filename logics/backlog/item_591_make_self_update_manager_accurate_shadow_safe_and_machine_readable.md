@@ -1,10 +1,10 @@
 ## item_591_make_self_update_manager_accurate_shadow_safe_and_machine_readable - Make self-update manager-accurate, shadow-safe, and machine-readable
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Medium
 > Theme: Runtime maintenance
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

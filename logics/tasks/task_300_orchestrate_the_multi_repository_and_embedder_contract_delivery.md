@@ -1,7 +1,7 @@
 ## task_300_orchestrate_the_multi_repository_and_embedder_contract_delivery - Orchestrate the multi-repository and embedder contract delivery
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 0%

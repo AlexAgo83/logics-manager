@@ -1,7 +1,7 @@
 ## req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports - Give the viewer surfaces the same workflow signals the CLI reports
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

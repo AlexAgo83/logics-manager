@@ -1,13 +1,14 @@
 ## item_601_show_per_project_state_in_the_project_switcher - Show per-project state in the project switcher
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Project switcher
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-07
 
 # Problem
 - The switcher reports only whether each sibling project holds a corpus, so finding where work is blocked means switching into every project in turn.
@@ -36,6 +37,8 @@
 - request-AC5 -> This backlog slice. Proof: AC1: Each listed project shows its open-work count and issue signals.
 - request-AC6 -> This backlog slice. Proof: AC2: A project that fails to report is shown with its error, and the others are still listed.
 - request-AC8 -> This backlog slice. Proof: AC3: Viewer startup time is unaffected, because the state loads on demand.
+- request-AC4 -> This backlog slice. Proof: Delivered across commits 39273708 (age-cache invalidation), a90566ec (one age and one threshold), 40c64da3 (/api/health), cdfa141c (per-project switcher state and one corpus definition), 65dc821c (install details in the viewer). Validated with python -m pytest tests/python (909 passed) and npx vitest run (760 passed), lint, and audit. Source: `65dc821c`
+- request-AC7 -> This backlog slice. Proof: Delivered across commits 39273708 (age-cache invalidation), a90566ec (one age and one threshold), 40c64da3 (/api/health), cdfa141c (per-project switcher state and one corpus definition), 65dc821c (install details in the viewer). Validated with python -m pytest tests/python (909 passed) and npx vitest run (760 passed), lint, and audit. Source: `65dc821c`
 
 # Decision framing
 - Product framing: Not needed
@@ -56,3 +59,9 @@
 # Priority
 - Priority: Medium - answers where work is blocked without switching projects
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals`
+
+# Notes
+- Task `task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals` was finished via `logics-manager flow finish task` on 2026-08-07.

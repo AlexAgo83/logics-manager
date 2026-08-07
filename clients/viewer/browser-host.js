@@ -2550,16 +2550,21 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       </div>
     `;
   }
-  function renderHealthSummary(lintData, auditData) {
+  function renderHealthSummary(lintData, auditData, healthData = null) {
     const lintPayload = lintData.payload || {};
     const auditPayload = auditData.payload || {};
     const blocking = countPayloadEntries(lintPayload, ["issue_count", "issues"]) + countPayloadEntries(auditPayload, ["issue_count", "issues"]);
     const warnings = countPayloadEntries(lintPayload, ["warning_count", "warnings"]) + countPayloadEntries(auditPayload, ["warning_count", "warnings"]);
     const findings = collectHealthFindings(lintData, auditData);
     const releaseReady = Boolean(lintPayload.ok) && Boolean(auditPayload.release_ready ?? auditPayload.ok);
+    const healthPayload = healthData && healthData.ok !== false ? healthData.payload || {} : null;
+    const workflowIssues = healthPayload?.issues || {};
+    const staleDocs = Array.isArray(healthPayload?.stale_docs) ? healthPayload.stale_docs : [];
     const cards = [
       ["Blocking", blocking],
       ["Warnings", warnings],
+      ["Workflow signals", healthPayload ? healthPayload.issue_count ?? 0 : "Unavailable"],
+      ["Stale docs", healthPayload ? healthPayload.stale_doc_count ?? 0 : "Unavailable"],
       ["Release ready", releaseReady ? "Yes" : "No"]
     ].map(([label, value]) => `
         <div class="viewer-health__card">
@@ -2579,6 +2584,24 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
             </li>
           `;
     }).join("") : '<li class="viewer-health__empty">No lint or audit findings were reported.</li>';
+    const workflowGroups = Object.entries(workflowIssues).filter(([, entries]) => Array.isArray(entries) && entries.length > 0).map(([key, entries]) => {
+      const label = key.replace(/_/g, " ");
+      const rows = entries.map((entry) => {
+        const path = entry?.path || "";
+        const control = path && isSafeLogicsDocPath(path) ? `<button class="viewer-health__path" type="button" data-viewer-doc-path="${escapeHtml(path)}">${escapeHtml(entry?.ref || path)}</button>` : `<span class="viewer-health__meta">${escapeHtml(entry?.ref || "Unknown document")}</span>`;
+        return `<li class="viewer-health__issue">${control}<div class="viewer-health__meta">${escapeHtml(entry?.status || "")}</div></li>`;
+      }).join("");
+      return `<section class="viewer-health__section"><h2 class="viewer-health__heading">${escapeHtml(label)}</h2><ul class="viewer-health__list">${rows}</ul></section>`;
+    }).join("");
+    const staleSection = staleDocs.length ? `<section class="viewer-health__section">
+          <h2 class="viewer-health__heading">Stale documents (untouched ${escapeHtml(healthPayload?.stale_after_days ?? "?")}+ days)</h2>
+          <ul class="viewer-health__list">${staleDocs.map((entry) => {
+      const path = entry?.path || "";
+      const control = path && isSafeLogicsDocPath(path) ? `<button class="viewer-health__path" type="button" data-viewer-doc-path="${escapeHtml(path)}">${escapeHtml(entry?.ref || path)}</button>` : `<span class="viewer-health__meta">${escapeHtml(entry?.ref || "Unknown document")}</span>`;
+      return `<li class="viewer-health__issue">${control}<div class="viewer-health__meta">${escapeHtml(entry?.age_days ?? "?")} days \xB7 ${escapeHtml(entry?.status || "")}</div></li>`;
+    }).join("")}</ul>
+        </section>` : "";
+    const unavailable = healthData && healthData.ok === false ? `<section class="viewer-health__section"><div class="viewer-health__meta">Workflow health is unavailable: ${escapeHtml(healthData.error || "unknown error")}</div></section>` : "";
     return `
       <div class="viewer-health">
         <div class="viewer-health__summary">${cards}</div>
@@ -2586,6 +2609,9 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
           <h2 class="viewer-health__heading">Validation findings</h2>
           <ul class="viewer-health__list">${list}</ul>
         </section>
+        ${workflowGroups}
+        ${staleSection}
+        ${unavailable}
       </div>
     `;
   }
@@ -6688,15 +6714,19 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       const view = options.view || beginView();
       setMeta("Checking health...");
       try {
-        const [lintResponse, auditResponse] = await Promise.all([
+        const [lintResponse, auditResponse, healthResponse] = await Promise.all([
           fetch("/api/lint", { signal: view.signal }),
-          fetch("/api/audit", { signal: view.signal })
+          fetch("/api/audit", { signal: view.signal }),
+          // Workflow health is a separate report: a failure here must not blank
+          // the screen, so it degrades to an "unavailable" note instead.
+          fetch("/api/health", { signal: view.signal }).catch(() => null)
         ]);
         const [lintData, auditData] = await Promise.all([lintResponse.json(), auditResponse.json()]);
+        const healthData = healthResponse ? await healthResponse.json().catch(() => ({ ok: false, error: "unreadable response" })) : { ok: false, error: "unreachable" };
         if (isViewStale(view)) {
           return;
         }
-        setDocument("Validation health", renderHealthSummary(lintData, auditData));
+        setDocument("Validation health", renderHealthSummary(lintData, auditData, healthData));
         setMeta("Health loaded.");
       } catch (error) {
         if (isAbortError(error)) {

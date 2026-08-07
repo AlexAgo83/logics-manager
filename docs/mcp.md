@@ -27,6 +27,37 @@ Run the local stdio server:
 python3 -m logics_manager mcp serve --repo-root .
 ```
 
+## Passing tool arguments
+
+`mcp call` accepts its arguments from four sources, so structured data never has
+to survive a shell quoting chain:
+
+```bash
+mcp call read_logics_doc --arguments '{"source": "req_001_example"}'   # inline
+mcp call read_logics_doc --arguments @args.json                        # a file
+mcp call read_logics_doc --arguments @-        < args.json             # stdin
+mcp call list_logics_docs --arg kind=request --arg limit=5             # pairs
+```
+
+`--arg` values parse as JSON when they can, so `limit=5` is a number and
+`dry_run=true` is a boolean; anything else stays a string. Pairs are merged over
+`--arguments`, so a file can carry the bulk and a pair can override one field.
+
+Prefer `@-` when driving the CLI over SSH or through another shell: the payload
+travels on stdin instead of the command line.
+
+## Output envelope
+
+Under `--format json` (or `--json`), a failure returns JSON too:
+
+```json
+{"ok": false, "error": {"code": "command_failed", "message": "..."}}
+```
+
+The process exit code is zero exactly when `ok` is true. `health` follows this:
+it used to always exit 0 while reporting `ok: false`, so a caller had to parse
+the payload to notice a problem.
+
 ## Previewing a mutation
 
 Every tool that is not `read-only` accepts `dry_run`. When set, nothing is

@@ -417,6 +417,25 @@ def _maybe_print_update_notice(command: str, argv: list[str]) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Run one command, keeping machine-readable output machine-readable.
+
+    A failure used to print a plain-text message even under `--format json`, so
+    every caller wrote defensive parsing for output that was JSON on success and
+    prose on failure. Errors now leave through the same envelope.
+    """
+    raw_argv = sys.argv[1:] if argv is None else argv
+    json_mode = _is_json_mode(_expand_json_alias(raw_argv))
+    try:
+        return _dispatch(argv)
+    except SystemExit as exc:
+        code = exc.code
+        if not json_mode or not isinstance(code, str):
+            raise
+        print(json.dumps({"ok": False, "error": {"code": "command_failed", "message": code}}, indent=2, sort_keys=True))
+        return 1
+
+
+def _dispatch(argv: list[str] | None = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
     if not argv:
@@ -791,7 +810,10 @@ def main(argv: list[str] | None = None) -> int:
         except ConfigError as exc:
             raise SystemExit(str(exc)) from exc
         print(output)
-        return 0
+        # Behavior change: this used to always exit 0, so the reported `ok: false`
+        # and the exit status disagreed and a caller had to parse the payload to
+        # notice a problem.
+        return 0 if payload["ok"] else 1
     if command == "followups":
         parser = command_parser("logics-manager followups")
         parser.add_argument("--limit", type=int, default=50)

@@ -1,0 +1,654 @@
+{
+  "budgets": {
+    "max_docs": 28,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports item_598_invalidate_the_document_age_cache_when_the_repository_moves item_599_derive_document_age_and_staleness_from_one_implementation item_600_serve_the_workflow_health_report_to_the_viewer item_601_show_per_project_state_in_the_project_switcher item_602_report_the_resolved_install_in_the_viewer_s_update_state task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_365_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "prod": [
+          "prod_005_logics_corpus_navigation_views",
+          "prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api",
+          "prod_015_cli_product_maturity_roadmap",
+          "prod_020_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "req": [
+          "req_201_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "task": [
+          "task_166_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ]
+      },
+      "path": "logics/product/prod_020_local_web_viewer_for_cli_driven_logics_work.md",
+      "ref": "prod_020_local_web_viewer_for_cli_driven_logics_work",
+      "sections": {
+        "Goals": [
+          "- Add a CLI-launched local viewer command, for example `logics-manager view` or `logics-manager serve-view`.",
+          "- Open a browser page that shows the Logics board, document details, relationships, status indicators, and markdown content.",
+          "- Reuse the existing webview assets and behavior where practical instead of creating a separate UI model.",
+          "- Introduce a clean host adapter boundary so the same UI can run under VS Code or under a local browser server.",
+          "- Keep the first version read-only by default so the feature is useful without creating mutation risk.",
+          "- Expose simple local API endpoints for corpus data, document reads, lint/audit summaries, and refresh signals."
+        ],
+        "Key product decisions": [
+          "- Treat the viewer as a visual companion to the CLI, not a replacement for either CLI or VS Code.",
+          "- Start read-only, then add bounded actions only after the host adapter and API boundary are stable.",
+          "- Keep dangerous or mutating work in the terminal for the first version.",
+          "- Prefer a browser local server over a rich terminal TUI because document navigation, board scanning, and markdown reading benefit from real layout, links, and persistent UI state.",
+          "- Reuse the existing webview implementation through a browser host adapter instead of maintaining a parallel UI.",
+          "- Keep the local API intentionally small: corpus data, document content, validation summaries, and refresh."
+        ],
+        "Overview": [
+          "Logics has become usable from the CLI, but the operator still loses the visual scanability that makes the VS Code webview useful.",
+          "The product opportunity is a local browser viewer launched from the CLI: a lightweight, local-only web surface that lets an operator inspect the Logics corpus, board, details, links, audits, and document content without opening VS Code.",
+          "The direction is not to recreate VS Code in the browser.",
+          "It is to make the existing webview experience portable through a small host adapter and a local server.",
+          "The CLI remains the canonical command surface, while the browser viewer becomes a visual companion for reading, scanning, and eventually triggering bounded actions.",
+          "The intended product feeling is: the operator keeps using the CLI, but can open a local visual cockpit when the workflow becomes too document-heavy for terminal output alone."
+        ],
+        "References": [
+          "- `logics/request/req_201_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/backlog/item_365_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/tasks/task_166_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/product/prod_005_logics_corpus_navigation_views.md`",
+          "- `logics/product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md`",
+          "- `logics/product/prod_015_cli_product_maturity_roadmap.md`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Local web viewer for CLI-driven Logics work"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_526_define_the_vs_code_embedded_viewer_host_contract",
+          "item_527_add_a_vs_code_managed_local_viewer_server_lifecycle",
+          "item_528_render_the_canonical_viewer_inside_the_vs_code_logics_panel",
+          "item_529_bring_viewer_write_actions_and_focus_workflows_to_parity_in_vs_code",
+          "item_530_retire_the_historical_vs_code_cockpit_and_command_surface"
+        ],
+        "prod": [
+          "prod_036_vs_code_embedded_viewer_parity"
+        ],
+        "req": [
+          "req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui"
+        ],
+        "task": [
+          "task_284_orchestrate_vs_code_embedded_viewer_parity"
+        ]
+      },
+      "path": "logics/product/prod_036_vs_code_embedded_viewer_parity.md",
+      "ref": "prod_036_vs_code_embedded_viewer_parity",
+      "sections": {
+        "Goals": [
+          "- One user-facing viewer UI across browser and VS Code.",
+          "- One backend API contract for viewer data and actions.",
+          "- A smaller VS Code extension that focuses on editor integration, viewer lifecycle, and focus commands.",
+          "- A clear retirement path for historical VS Code-only workflow UI and commands."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Turn the VS Code extension's Logics panel into an embedded host for the canonical local viewer so VS Code and browser users see the same cockpit, actions, status surfaces, and visual behavior.",
+          "```mermaid",
+          "flowchart LR",
+          "    Runtime[logics-manager viewer server] --> Api[Canonical viewer API]",
+          "    Api --> Browser[Browser viewer]",
+          "    Api --> VSCode[VS Code embedded viewer]"
+        ],
+        "References": [
+          "- Product back-reference: `req_287_make_the_vs_code_extension_host_the_same_logics_viewer_ui`",
+          "- Task back-reference: `task_284_orchestrate_vs_code_embedded_viewer_parity`"
+        ]
+      },
+      "status": "Settled",
+      "title": "VS Code embedded viewer parity"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_588_accept_an_explicit_repository_root_on_every_command"
+        ],
+        "prod": [
+          "prod_051_multi_repository_and_embedder_contract_for_the_logics_cli"
+        ],
+        "req": [
+          "req_303_make_logics_manager_embeddable_by_external_orchestrators_across_multiple_repositories"
+        ],
+        "task": [
+          "task_300_orchestrate_the_multi_repository_and_embedder_contract_delivery"
+        ]
+      },
+      "path": "logics/product/prod_051_multi_repository_and_embedder_contract_for_the_logics_cli.md",
+      "ref": "prod_051_multi_repository_and_embedder_contract_for_the_logics_cli",
+      "sections": {
+        "Goals": [
+          "- Remove the working-directory constraint from every command surface.",
+          "- Let an operator expose exactly the tool capability an integration needs, and nothing more.",
+          "- Make mutation preview, machine-readable output, and exit codes consistent across the whole surface.",
+          "- Publish the workflow signals and delegation skills that embedders currently rebuild by hand."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make logics-manager a dependable building block for external orchestrators that drive Logics work across many repositories. The CLI gains explicit repository targeting, a bounded MCP surface, a uniform mutation and output contract, a trustworthy self-update, and the workflow-age signals callers currently reconstruct themselves, so an embedder writes configuration instead of glue.",
+          "```mermaid",
+          "flowchart LR",
+          "    Embedder[External orchestrator] --> Root[--repo-root]",
+          "    Embedder --> Fleet[fleet status / health]",
+          "    Root --> Repo[One repository]"
+        ],
+        "References": [
+          "- Product back-reference: `item_588_accept_an_explicit_repository_root_on_every_command`",
+          "- Task back-reference: `task_300_orchestrate_the_multi_repository_and_embedder_contract_delivery`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Multi-repository and embedder contract for the Logics CLI"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_598_invalidate_the_document_age_cache_when_the_repository_moves",
+          "item_599_derive_document_age_and_staleness_from_one_implementation",
+          "item_600_serve_the_workflow_health_report_to_the_viewer",
+          "item_601_show_per_project_state_in_the_project_switcher",
+          "item_602_report_the_resolved_install_in_the_viewer_s_update_state"
+        ],
+        "prod": [
+          "prod_053_one_workflow_signal_every_logics_surface"
+        ],
+        "req": [
+          "req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports"
+        ],
+        "task": [
+          "task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals"
+        ]
+      },
+      "path": "logics/product/prod_053_one_workflow_signal_every_logics_surface.md",
+      "ref": "prod_053_one_workflow_signal_every_logics_surface",
+      "sections": {
+        "Goals": [
+          "- Report one age and one staleness verdict, whichever surface is asked.",
+          "- Give the viewer access to the workflow health report it currently cannot reach.",
+          "- Answer per-project state where a project is already being chosen.",
+          "- Leave exactly one implementation of each shared judgement behind."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the browser viewer and the embedded editor panel report the same document age, the same staleness verdict, and the same workflow health as the CLI, from one implementation rather than three. Fix the caching defect that would otherwise freeze those signals in any long-running surface before wiring them up."
+        ],
+        "References": [
+          "- Product back-reference: `req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports`",
+          "- Task back-reference: `task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "One workflow signal, every Logics surface"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, give the viewer surfaces the same workflow signals the cli reports, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Give the viewer surfaces the same workflow signals the CLI reports",
+        "use when": "You need to implement or review the scaffolded workflow for Give the viewer surfaces the same workflow signals the CLI reports."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_598_invalidate_the_document_age_cache_when_the_repository_moves",
+          "item_599_derive_document_age_and_staleness_from_one_implementation",
+          "item_600_serve_the_workflow_health_report_to_the_viewer",
+          "item_601_show_per_project_state_in_the_project_switcher",
+          "item_602_report_the_resolved_install_in_the_viewer_s_update_state"
+        ],
+        "prod": [
+          "prod_020_local_web_viewer_for_cli_driven_logics_work",
+          "prod_036_vs_code_embedded_viewer_parity",
+          "prod_051_multi_repository_and_embedder_contract_for_the_logics_cli",
+          "prod_053_one_workflow_signal_every_logics_surface"
+        ],
+        "req": [
+          "req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports"
+        ]
+      },
+      "path": "logics/request/req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports.md",
+      "ref": "req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The document-age lookup returns current results in a long-running process, and a document committed after an earlier lookup is dated correctly.",
+          "- AC2: Every surface derives a document's age from the same source, with the same fallback for a document that has no commit yet.",
+          "- AC3: One configurable threshold decides staleness everywhere; no surface carries its own hardcoded value.",
+          "- AC4: The viewer can read the workflow health report, and its health screen shows the blocked and stale signals that report carries.",
+          "- AC5: The project switcher shows each project's open-work and issue state without requiring the operator to switch into it.",
+          "- AC6: Whether a directory holds a Logics corpus is decided by one shared implementation."
+        ],
+        "Needs": [
+          "- Fix a shipped defect where document ages freeze in any long-running process, before any surface starts displaying them.",
+          "- Report one document age and one staleness verdict across the CLI, the browser viewer, and the embedded editor panel, instead of three answers that disagree.",
+          "- Let the viewer reach the workflow health report, and show per-project state where an operator already chooses a project."
+        ]
+      },
+      "status": "Draft",
+      "title": "Give the viewer surfaces the same workflow signals the CLI reports"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, invalidate the document-age cache when the repository moves, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Invalidate the document-age cache when the repository moves",
+        "use when": "Implementing the scaffolded slice for Invalidate the document-age cache when the repository moves."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_598_invalidate_the_document_age_cache_when_the_repository_moves"
+        ],
+        "prod": [
+          "prod_053_one_workflow_signal_every_logics_surface"
+        ],
+        "req": [
+          "req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports"
+        ],
+        "task": [
+          "task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals"
+        ]
+      },
+      "path": "logics/backlog/item_598_invalidate_the_document_age_cache_when_the_repository_moves.md",
+      "ref": "item_598_invalidate_the_document_age_cache_when_the_repository_moves",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Two lookups in one process, with a commit between them, return results reflecting that commit.",
+          "- AC2: Repeated lookups with no commit in between do not repeat the full walk.",
+          "- AC3: A repository with no version-control history still returns the filesystem fallback.",
+          "- AC4: A test fails against the current implementation and passes against the fix."
+        ],
+        "Problem": [
+          "- The batched age lookup caches its result per process with no invalidation, which is correct for a one-shot command and wrong for a long-running one.",
+          "- In the MCP server, a document committed after the first lookup is never dated and existing ages freeze for the life of the process. Wiring the viewer to this lookup would freeze its display the same way, on a surface that refreshes every fifteen seconds."
+        ]
+      },
+      "status": "Ready",
+      "title": "Invalidate the document-age cache when the repository moves"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, derive document age and staleness from one implementation, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Derive document age and staleness from one implementation",
+        "use when": "Implementing the scaffolded slice for Derive document age and staleness from one implementation."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_599_derive_document_age_and_staleness_from_one_implementation"
+        ],
+        "prod": [
+          "prod_053_one_workflow_signal_every_logics_surface"
+        ],
+        "req": [
+          "req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports"
+        ],
+        "task": [
+          "task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals"
+        ]
+      },
+      "path": "logics/backlog/item_599_derive_document_age_and_staleness_from_one_implementation.md",
+      "ref": "item_599_derive_document_age_and_staleness_from_one_implementation",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A document's reported age is identical whichever surface reports it.",
+          "- AC2: The age survives a fresh clone, where every file shares one filesystem timestamp.",
+          "- AC3: No surface carries its own staleness threshold; changing the configured value changes every surface.",
+          "- AC4: The existing timestamp field keeps its name and format.",
+          "- AC5: Tests cover a committed document, an untracked one, and agreement between the surfaces."
+        ],
+        "Problem": [
+          "- The browser viewer dates documents from filesystem mtime, so a fresh clone gives every document the same date and any recency ordering becomes meaningless.",
+          "- The embedded editor panel then computes staleness over that mtime with its own hardcoded thirty-day threshold, while the CLI uses a configurable fourteen-day threshold over commit dates. The same document can be stale in one surface and current in the other."
+        ]
+      },
+      "status": "Ready",
+      "title": "Derive document age and staleness from one implementation"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, serve the workflow health report to the viewer, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Serve the workflow health report to the viewer",
+        "use when": "Implementing the scaffolded slice for Serve the workflow health report to the viewer."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_600_serve_the_workflow_health_report_to_the_viewer"
+        ],
+        "prod": [
+          "prod_053_one_workflow_signal_every_logics_surface"
+        ],
+        "req": [
+          "req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports"
+        ],
+        "task": [
+          "task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals"
+        ]
+      },
+      "path": "logics/backlog/item_600_serve_the_workflow_health_report_to_the_viewer.md",
+      "ref": "item_600_serve_the_workflow_health_report_to_the_viewer",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The route returns the workflow health report for the active repository.",
+          "- AC2: The health screen shows blocked documents and stale documents from that report.",
+          "- AC3: Existing validation findings remain shown and unchanged.",
+          "- AC4: A refresh cycle does not repeat the full age walk when no commit has landed.",
+          "- AC5: A failure to produce the report is surfaced without blanking the screen."
+        ],
+        "Problem": [
+          "- The viewer serves lint and audit but has no route to the workflow health report, so its health screen is built from validation findings alone.",
+          "- Blocked documents, backlog items with no task, and stale documents are therefore invisible in the viewer, even though the CLI reports all three."
+        ]
+      },
+      "status": "Ready",
+      "title": "Serve the workflow health report to the viewer"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate viewer parity with the CLI workflow signals",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_598_invalidate_the_document_age_cache_when_the_repository_moves",
+          "item_599_derive_document_age_and_staleness_from_one_implementation",
+          "item_600_serve_the_workflow_health_report_to_the_viewer",
+          "item_601_show_per_project_state_in_the_project_switcher",
+          "item_602_report_the_resolved_install_in_the_viewer_s_update_state"
+        ],
+        "prod": [
+          "prod_053_one_workflow_signal_every_logics_surface"
+        ],
+        "req": [
+          "req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports"
+        ],
+        "task": [
+          "task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals"
+        ]
+      },
+      "path": "logics/tasks/task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals.md",
+      "ref": "task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate viewer parity with the CLI workflow signals"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_598_invalidate_the_document_age_cache_when_the_repository_moves",
+          "item_599_derive_document_age_and_staleness_from_one_implementation",
+          "item_600_serve_the_workflow_health_report_to_the_viewer",
+          "item_601_show_per_project_state_in_the_project_switcher",
+          "item_602_report_the_resolved_install_in_the_viewer_s_update_state"
+        ],
+        "prod": [
+          "prod_053_one_workflow_signal_every_logics_surface"
+        ],
+        "req": [
+          "req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports"
+        ],
+        "task": [
+          "task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals"
+        ]
+      },
+      "path": "logics/product/prod_053_one_workflow_signal_every_logics_surface.md",
+      "ref": "prod_053_one_workflow_signal_every_logics_surface",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "One workflow signal, every Logics surface"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, show per-project state in the project switcher, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Show per-project state in the project switcher",
+        "use when": "Implementing the scaffolded slice for Show per-project state in the project switcher."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_601_show_per_project_state_in_the_project_switcher"
+        ],
+        "prod": [
+          "prod_053_one_workflow_signal_every_logics_surface"
+        ],
+        "req": [
+          "req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports"
+        ],
+        "task": [
+          "task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals"
+        ]
+      },
+      "path": "logics/backlog/item_601_show_per_project_state_in_the_project_switcher.md",
+      "ref": "item_601_show_per_project_state_in_the_project_switcher",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Each listed project shows its open-work count and issue signals.",
+          "- AC2: A project that fails to report is shown with its error, and the others are still listed.",
+          "- AC3: Viewer startup time is unaffected, because the state loads on demand.",
+          "- AC4: One implementation decides whether a directory holds a corpus, used by every caller.",
+          "- AC5: Tests cover a healthy project, a failing one, and a directory that holds no corpus."
+        ],
+        "Problem": [
+          "- The switcher reports only whether each sibling project holds a corpus, so finding where work is blocked means switching into every project in turn.",
+          "- The fleet report already answers that in one call, and corpus detection is meanwhile implemented in four separate places."
+        ]
+      },
+      "status": "Ready",
+      "title": "Show per-project state in the project switcher"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, report the resolved install in the viewer's update state, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Report the resolved install in the viewer's update state",
+        "use when": "Implementing the scaffolded slice for Report the resolved install in the viewer's update state."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_602_report_the_resolved_install_in_the_viewer_s_update_state"
+        ],
+        "prod": [
+          "prod_053_one_workflow_signal_every_logics_surface"
+        ],
+        "req": [
+          "req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports"
+        ],
+        "task": [
+          "task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals"
+        ]
+      },
+      "path": "logics/backlog/item_602_report_the_resolved_install_in_the_viewer_s_update_state.md",
+      "ref": "item_602_report_the_resolved_install_in_the_viewer_s_update_state",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The update state names the resolved manager and the executable path.",
+          "- AC2: Duplicate executables on PATH are reported and shown as a warning.",
+          "- AC3: A single clean install produces no warning.",
+          "- AC4: The existing update fields keep their names and meaning.",
+          "- AC5: Detection is reused from the CLI, not reimplemented."
+        ],
+        "Problem": [
+          "- The viewer reports the installed and available versions but not which package manager owns the running copy, where it lives, or whether another executable of the same name is on PATH.",
+          "- A shadowing duplicate install has caused real breakage twice, and the CLI now detects it, but an operator working in the viewer cannot see it."
+        ]
+      },
+      "status": "Ready",
+      "title": "Report the resolved install in the viewer's update state"
+    }
+  ],
+  "estimates": {
+    "char_count": 22979,
+    "companion_doc_count": 4,
+    "doc_count": 8
+  },
+  "generated_at": "2026-08-07T14:32:10Z",
+  "handoff": {
+    "companion_doc_count": 4,
+    "enabled": true,
+    "source_refs": [
+      "req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports",
+      "item_598_invalidate_the_document_age_cache_when_the_repository_moves",
+      "item_599_derive_document_age_and_staleness_from_one_implementation",
+      "item_600_serve_the_workflow_health_report_to_the_viewer",
+      "item_601_show_per_project_state_in_the_project_switcher",
+      "item_602_report_the_resolved_install_in_the_viewer_s_update_state",
+      "task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports,item_598_invalidate_the_document_age_cache_when_the_repository_moves,item_599_derive_document_age_and_staleness_from_one_implementation,item_600_serve_the_workflow_health_report_to_the_viewer,item_601_show_per_project_state_in_the_project_switcher,item_602_report_the_resolved_install_in_the_viewer_s_update_state,task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals",
+  "refs": [
+    "req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports",
+    "item_598_invalidate_the_document_age_cache_when_the_repository_moves",
+    "item_599_derive_document_age_and_staleness_from_one_implementation",
+    "item_600_serve_the_workflow_health_report_to_the_viewer",
+    "item_601_show_per_project_state_in_the_project_switcher",
+    "item_602_report_the_resolved_install_in_the_viewer_s_update_state",
+    "task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.19.7"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals.md",
+      "ref": "task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals"
+    }
+  ]
+}

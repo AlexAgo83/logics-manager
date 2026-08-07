@@ -27,6 +27,27 @@ Run the local stdio server:
 python3 -m logics_manager mcp serve --repo-root .
 ```
 
+## Previewing a mutation
+
+Every tool that is not `read-only` accepts `dry_run`. When set, nothing is
+written and the response describes what would change, using one shape across
+all of them:
+
+```json
+{
+  "ok": true,
+  "dry_run": true,
+  "summary": "Would create request req_305_example",
+  "planned_paths": ["logics/request/req_305_example.md"],
+  "planned_refs": ["req_305_example"]
+}
+```
+
+Omitting `dry_run` keeps each tool's existing default, which is to apply.
+`autofix_ac_traceability` and `autofix_structure` have no underlying dry-run
+mode, so their preview runs the audit without the repair flag and returns the
+findings the repair would address, under the same keys plus `findings`.
+
 ## Bounding the served surface
 
 Every tool carries a `capability`: `read-only`, `mutating` (creates or edits

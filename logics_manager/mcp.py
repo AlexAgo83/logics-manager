@@ -82,6 +82,7 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
                 "external_url": {"type": "string"},
                 "external_id": {"type": "string"},
                 "actor": {"type": "string"},
+                "dry_run": {"type": "boolean"},
             },
             ["title", "needs", "context", "acceptance_criteria"],
         ),
@@ -89,12 +90,18 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
     {
         "name": "promote_request_to_backlog",
         "description": "Promote an existing Logics request to a backlog item.",
-        "inputSchema": _tool_schema({"request_path": {"type": "string"}}, ["request_path"]),
+        "inputSchema": _tool_schema(
+            {"request_path": {"type": "string"}, "dry_run": {"type": "boolean"}},
+            ["request_path"],
+        ),
     },
     {
         "name": "promote_backlog_to_task",
         "description": "Promote an existing Logics backlog item to an executable task.",
-        "inputSchema": _tool_schema({"backlog_path": {"type": "string"}}, ["backlog_path"]),
+        "inputSchema": _tool_schema(
+            {"backlog_path": {"type": "string"}, "dry_run": {"type": "boolean"}},
+            ["backlog_path"],
+        ),
     },
     {
         "name": "create_product_brief",
@@ -105,6 +112,7 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
                 "request_path": {"type": "string"},
                 "backlog_path": {"type": "string"},
                 "task_path": {"type": "string"},
+                "dry_run": {"type": "boolean"},
             },
             ["title"],
         ),
@@ -118,6 +126,7 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
                 "request_path": {"type": "string"},
                 "backlog_path": {"type": "string"},
                 "task_path": {"type": "string"},
+                "dry_run": {"type": "boolean"},
             },
             ["title"],
         ),
@@ -133,6 +142,7 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
                 "request_paths": {"type": "array", "items": {"type": "string"}},
                 "backlog_paths": {"type": "array", "items": {"type": "string"}},
                 "task_paths": {"type": "array", "items": {"type": "string"}},
+                "dry_run": {"type": "boolean"},
             },
             ["title"],
         ),
@@ -304,12 +314,16 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
     {
         "name": "autofix_ac_traceability",
         "description": "Run deterministic audit autofix for missing AC traceability skeleton entries.",
-        "inputSchema": _tool_schema({"paths": {"type": "array", "items": {"type": "string"}}, "refs": {"type": "array", "items": {"type": "string"}}}),
+        "inputSchema": _tool_schema({"paths": {"type": "array", "items": {"type": "string"}}, "refs": {"type": "array", "items": {"type": "string"}},
+                "dry_run": {"type": "boolean"},
+            }),
     },
     {
         "name": "autofix_structure",
         "description": "Run deterministic audit autofix for supported workflow document structure repairs.",
-        "inputSchema": _tool_schema({"paths": {"type": "array", "items": {"type": "string"}}, "refs": {"type": "array", "items": {"type": "string"}}}),
+        "inputSchema": _tool_schema({"paths": {"type": "array", "items": {"type": "string"}}, "refs": {"type": "array", "items": {"type": "string"}},
+                "dry_run": {"type": "boolean"},
+            }),
     },
     {
         "name": "run_logics_lint",
@@ -916,6 +930,29 @@ def _nonempty_titles(values: Any) -> list[str]:
     return titles
 
 
+def _dry_run_result(
+    repo_root: Path,
+    *,
+    summary: str,
+    paths: list[str] | None = None,
+    refs: list[str] | None = None,
+) -> dict[str, Any]:
+    """One preview shape for every mutating tool.
+
+    Some tools previewed a change and others applied immediately, with no
+    principle telling them apart, so callers had to document the difference
+    tool by tool. Every mutating tool now accepts `dry_run` and, when set,
+    returns this: what would change, and nothing written.
+    """
+    return {
+        "ok": True,
+        "dry_run": True,
+        "summary": summary,
+        "planned_paths": sorted({path for path in (paths or []) if path}),
+        "planned_refs": sorted({ref for ref in (refs or []) if ref}),
+    }
+
+
 def _workflow_write_result(repo_root: Path, payload: dict[str, Any], *, paths: list[str] | None = None) -> dict[str, Any]:
     return {
         "ok": True,
@@ -1123,8 +1160,34 @@ def _tool_autofix_ac_traceability(root: Path, args: dict[str, Any], name: str) -
     raw_paths = args.get("paths") if isinstance(args.get("paths"), list) else []
     paths = [_relative_path(root, str(path), ("logics",)).as_posix() for path in raw_paths]
     refs = [str(ref).strip() for ref in args.get("refs", []) if str(ref).strip()] if isinstance(args.get("refs"), list) else []
-    _ensure_no_dirty_conflict(root, paths or ["logics"])
+    dry_run = bool(args.get("dry_run", False))
+    if not dry_run:
+        _ensure_no_dirty_conflict(root, paths or ["logics"])
     flag = "--autofix-ac-traceability" if name == "autofix_ac_traceability" else "--autofix-structure"
+    if dry_run:
+        # `audit` has no --dry-run: run it without the autofix flag, so it
+        # reports the findings the repair would address without writing.
+        preview_command = ["audit", "--format", "json"]
+        if paths:
+            preview_command.append("--paths")
+            preview_command.extend(paths)
+        if refs:
+            preview_command.append("--refs")
+            preview_command.extend(refs)
+        preview = _run_json_command(root, preview_command)
+        findings = [
+            finding for finding in preview.get("findings", [])
+            if str(finding.get("repair_kind") or "") == (
+                "ac-traceability" if name == "autofix_ac_traceability" else "structure"
+            )
+        ]
+        result = _dry_run_result(
+            root,
+            summary=f"Would apply {name} to {len(findings)} finding(s)",
+            paths=[str(finding.get("path")) for finding in findings],
+        )
+        result["findings"] = findings
+        return result
     command = ["audit", flag, "--format", "json"]
     if paths:
         command.append("--paths")
@@ -1225,12 +1288,22 @@ def _tool_create_request(root: Path, args: dict[str, Any], name: str) -> dict[st
     title = str(args.get("title") or "").strip()
     if not title:
         raise McpToolError("missing_required_argument", "title is required.", details={"argument": "title"})
+    dry_run = bool(args.get("dry_run", False))
     command = ["flow", "new", "request", "--title", title, "--format", "json"]
     if args.get("theme"):
         command.extend(["--theme", str(args["theme"])])
     if args.get("complexity"):
         command.extend(["--complexity", str(args["complexity"])])
+    if dry_run:
+        command.append("--dry-run")
     payload = _created_doc_from_stdout(_run_command(root, command).stdout, command="new", kind="request")
+    if dry_run:
+        return _dry_run_result(
+            root,
+            summary=f"Would create request {payload['ref']}",
+            paths=[str(payload["path"])],
+            refs=[str(payload["ref"])],
+        )
     try:
         update_created_request(root, str(payload["path"]), args)
     except ValueError as exc:
@@ -1248,8 +1321,20 @@ def _tool_create_request(root: Path, args: dict[str, Any], name: str) -> dict[st
 
 def _tool_promote_request_to_backlog(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     rel_path = _relative_path(root, str(args.get("request_path") or ""), ("logics/request",))
-    _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
-    payload = _json_from_stdout(_run_command(root, ["flow", "promote", "request-to-backlog", rel_path.as_posix(), "--format", "json"]).stdout)
+    dry_run = bool(args.get("dry_run", False))
+    if not dry_run:
+        _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
+    command = ["flow", "promote", "request-to-backlog", rel_path.as_posix(), "--format", "json"]
+    if dry_run:
+        command.append("--dry-run")
+    payload = _json_from_stdout(_run_command(root, command).stdout)
+    if dry_run:
+        return _dry_run_result(
+            root,
+            summary=f"Would promote {rel_path.stem} to a backlog item",
+            paths=[str(payload["source"]), str(payload["created_path"])],
+            refs=[str(payload["created_ref"])],
+        )
     return {
         "ok": True,
         "source_path": payload["source"],
@@ -1263,8 +1348,20 @@ def _tool_promote_request_to_backlog(root: Path, args: dict[str, Any], name: str
 
 def _tool_promote_backlog_to_task(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     rel_path = _relative_path(root, str(args.get("backlog_path") or ""), ("logics/backlog",))
-    _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
-    payload = _json_from_stdout(_run_command(root, ["flow", "promote", "backlog-to-task", rel_path.as_posix(), "--format", "json"]).stdout)
+    dry_run = bool(args.get("dry_run", False))
+    if not dry_run:
+        _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
+    command = ["flow", "promote", "backlog-to-task", rel_path.as_posix(), "--format", "json"]
+    if dry_run:
+        command.append("--dry-run")
+    payload = _json_from_stdout(_run_command(root, command).stdout)
+    if dry_run:
+        return _dry_run_result(
+            root,
+            summary=f"Would promote {rel_path.stem} to a task",
+            paths=[str(payload["source"]), str(payload["created_path"])],
+            refs=[str(payload["created_ref"])],
+        )
     return {
         "ok": True,
         "source_path": payload["source"],
@@ -1280,6 +1377,7 @@ def _tool_create_product_brief(root: Path, args: dict[str, Any], name: str) -> d
     title = str(args.get("title") or "").strip()
     if not title:
         raise McpToolError("missing_required_argument", "title is required.", details={"argument": "title"})
+    dry_run = bool(args.get("dry_run", False))
     companion_kind = "product" if name == "create_product_brief" else "architecture"
     command = ["flow", "companion", companion_kind, "--title", title, "--format", "json"]
     ref_args = (
@@ -1295,7 +1393,16 @@ def _tool_create_product_brief(root: Path, args: dict[str, Any], name: str) -> d
             if ref:
                 command.extend([flag, ref])
                 linked_refs[key] = rel_path.as_posix()
+    if dry_run:
+        command.append("--dry-run")
     payload = _json_from_stdout(_run_command(root, command).stdout)
+    if dry_run:
+        return _dry_run_result(
+            root,
+            summary=f"Would create {companion_kind} doc {payload['ref']}",
+            paths=[str(payload["path"])],
+            refs=[str(payload["ref"])],
+        )
     return {
         "ok": True,
         "path": payload["path"],
@@ -1312,6 +1419,7 @@ def _tool_create_roadmap(root: Path, args: dict[str, Any], name: str) -> dict[st
     title = str(args.get("title") or "").strip()
     if not title:
         raise McpToolError("missing_required_argument", "title is required.", details={"argument": "title"})
+    dry_run = bool(args.get("dry_run", False))
     command = ["flow", "roadmap", "propose", "--title", title, "--format", "json"]
     for milestone in args.get("milestones") or []:
         command.extend(["--milestone", str(milestone)])
@@ -1335,7 +1443,16 @@ def _tool_create_roadmap(root: Path, args: dict[str, Any], name: str) -> dict[st
             if ref:
                 command.extend([flag, ref])
                 linked_refs[key].append(rel_path.as_posix())
+    if dry_run:
+        command.append("--dry-run")
     payload = _json_from_stdout(_run_command(root, command).stdout)
+    if dry_run:
+        return _dry_run_result(
+            root,
+            summary=f"Would create roadmap {payload['ref']}",
+            paths=[str(payload["path"])],
+            refs=[str(payload["ref"])],
+        )
     return {
         "ok": True,
         "path": payload["path"],

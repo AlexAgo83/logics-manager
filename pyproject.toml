@@ -38,3 +38,30 @@ logics_manager = [
   "viewer_assets/viewer/*",
   "skill_assets/*/SKILL.md",
 ]
+
+[tool.ruff]
+line-length = 200
+target-version = "py311"
+
+[tool.ruff.lint]
+# Deliberately narrow, so it passes today and every future failure is a real
+# defect rather than a style debate.
+#
+# F401 (unused import) is NOT enabled: this codebase re-exports on purpose --
+# `assist.py` re-exports ~66 names from `assist_support` so existing call sites
+# and monkeypatch targets keep working, and `tests/python/conftest.py` provides
+# a shared import surface for the suite. Enabling it would report ~583 findings,
+# nearly all of them intentional.
+#
+# I001 (import sorting) is NOT enabled: it would rewrite import blocks across
+# the codebase for no defect.
+select = [
+  "E9",    # syntax and IO errors
+  "F63",   # invalid comparisons
+  "F7",    # syntax that is valid but wrong (break outside loop, ...)
+  "F811",  # redefined while unused
+  "F821",  # undefined name
+  "F841",  # unused local variable
+  "F541",  # f-string with no placeholders
+  "PLE",   # pylint errors
+]

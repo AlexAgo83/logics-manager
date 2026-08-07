@@ -146,3 +146,30 @@ For new UI controls in this project:
 - Dynamic toggles must keep ARIA state in sync (`aria-expanded`, `aria-disabled`, `aria-pressed`).
 - Custom interactive elements must be keyboard reachable (`tabindex`) and activatable (`Enter`/`Space`).
 - Keep hover/focus descriptions consistent across toolbar, board, menus, and details panel.
+
+## Static guardrails
+
+```bash
+python3 -m ruff check logics_manager tests/python scripts
+python3 scripts/check_function_length.py
+python3 -m coverage run --source=logics_manager -m pytest tests/python -q
+python3 -m coverage report --fail-under=73
+```
+
+All four run in `scripts/ci-check.mjs`.
+
+**Ruff is deliberately narrow.** `F401` (unused import) is off: this codebase
+re-exports on purpose — `assist.py` re-exports ~66 names from `assist_support`
+so existing call sites and monkeypatch targets keep working, and
+`tests/python/conftest.py` is a shared import surface for the suite. Enabling it
+would report ~583 findings, nearly all intentional. `I001` (import sorting) is
+off for the same reason: it rewrites blocks without fixing a defect.
+
+**The function-length ceiling is 120 lines**, with the existing violations
+grandfathered in `scripts/long_functions_baseline.json`. That file is a debt
+ledger, and it should only shrink. A new or grown over-long function fails the
+build; `--update` re-freezes it after a legitimate split.
+
+**Python coverage sits around 75%**, with the floor at 73. The floor check runs
+after the test suite, which is backgrounded, because coverage data does not
+exist before it finishes.

@@ -1,10 +1,10 @@
 ## item_603_cache_the_project_switcher_s_per_project_scan - Cache the project switcher's per-project scan
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Status: In progress
+> Understanding: 95%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: Low
 > Theme: Viewer responsiveness
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

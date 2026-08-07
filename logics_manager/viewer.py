@@ -3946,6 +3946,10 @@ def _status_cache_ttl_seconds(name: str) -> float:
     if name in {"cdxDisk", "cdx-disk"}:
         # Disk scans walk every profile directory; don't redo them on every poll.
         return 300.0
+    if name == "projectState":
+        # Scanning every sibling corpus takes seconds; the switcher opens often
+        # and the numbers move on the scale of a commit, not a keystroke.
+        return 120.0
     return STATUS_CACHE_TTL_SECONDS
 
 
@@ -4066,13 +4070,20 @@ class LogicsViewerServer(ThreadingHTTPServer):
                     entry["message"] = "Synthetic dev-only corpus covering every board card state."
         return registry
 
-    def project_state_payload(self) -> dict[str, Any]:
-        """Open-work and issue counts per listed project.
+    def project_state_payload(self, *, force: bool = False) -> dict[str, Any]:
+        """Open-work and issue counts per listed project, cached.
 
         Reuses the per-repository reports the fleet command already aggregates,
         rather than adding a third aggregation. A project that fails is reported
         with its error so the others still render.
+
+        Cached through the same mechanism as the git, CI, and session panels:
+        the scan measured about six seconds across thirty-three sibling corpora
+        and used to re-run on every menu open.
         """
+        return self.status_component("projectState", self._build_project_state, force=force)
+
+    def _build_project_state(self) -> dict[str, Any]:
         projects: dict[str, Any] = {}
         for entry in self.project_registry_payload():
             root = Path(str(entry["root"]))

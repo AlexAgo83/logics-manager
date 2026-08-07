@@ -25,8 +25,8 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Python coverage tooling
-        run: python -m pip install --upgrade coverage pytest
+      - name: Install Python test and coverage tooling
+        run: python -m pip install --upgrade coverage pytest ruff
 
       - name: Setup Node
         uses: actions/setup-node@v6
@@ -51,8 +51,8 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Python coverage tooling
-        run: python -m pip install --upgrade coverage pytest
+      - name: Install Python test and coverage tooling
+        run: python -m pip install --upgrade coverage pytest ruff
 
       - name: Setup Node
         uses: actions/setup-node@v6

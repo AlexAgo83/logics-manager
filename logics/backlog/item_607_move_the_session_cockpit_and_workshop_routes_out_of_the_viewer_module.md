@@ -1,10 +1,10 @@
 ## item_607_move_the_session_cockpit_and_workshop_routes_out_of_the_viewer_module - Move the session cockpit and workshop routes out of the viewer module
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Medium
 > Theme: Module boundaries
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

@@ -1,4 +1,11 @@
 const coverageTarget = process.env.CDX_PLUGIN_COVERAGE_TARGET ?? "combined";
+// `clients/viewer/src/browser-host/**` is deliberately absent from every target.
+// Its tests (tests/viewer.browser-host.test.ts, ~7.4k lines) load the *built*
+// bundle `clients/viewer/browser-host.js` into JSDOM, so instrumenting the
+// sources attributes nothing back to them and reports under 2% for code that is
+// substantially tested. Including it would produce a false signal, not a
+// missing one. Measuring it properly means having the tests load the sources
+// instead -- a test-harness change for a number, not for safety.
 const coverageInclude =
   coverageTarget === "src"
     ? ["clients/vscode/src/**/*.ts"]

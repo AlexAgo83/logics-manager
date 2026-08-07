@@ -401,7 +401,7 @@ def _print_externally_managed_update_guidance(package_name: str) -> None:
                 f"  npm install -g {DEFAULT_SELF_UPDATE_PACKAGE}@latest",
                 "",
                 "Advanced override, at your own risk:",
-                f"  logics-manager update --manager pip --break-system-packages",
+                "  logics-manager update --manager pip --break-system-packages",
             ]
         )
     )

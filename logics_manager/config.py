@@ -216,6 +216,17 @@ def _deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any
     return merged
 
 
+def holds_corpus(path: Path) -> bool:
+    """Whether a directory is a Logics repository root.
+
+    One definition, shared by every caller. It was independently re-tested in
+    the repository resolver, the fleet report, the viewer's project entry, and
+    its project picker, so a change to what counts as a corpus had four places
+    to remember.
+    """
+    return (path / "logics").is_dir()
+
+
 _REPO_ROOT_OVERRIDE: Path | None = None
 
 
@@ -237,7 +248,7 @@ def set_repo_root_override(path: Path | str | None, *, require_corpus: bool = Tr
     resolved = candidate.resolve()
     # `bootstrap` is what creates `logics/`, so it targets a directory that does
     # not have one yet.
-    if require_corpus and not (resolved / "logics").is_dir():
+    if require_corpus and not holds_corpus(resolved):
         raise ConfigError(f"--repo-root path contains no 'logics/' directory: {resolved}")
     _REPO_ROOT_OVERRIDE = resolved
     return resolved
@@ -252,7 +263,7 @@ def find_repo_root(start: Path) -> Path:
         return _REPO_ROOT_OVERRIDE
     current = start.resolve()
     for candidate in [current, *current.parents]:
-        if (candidate / "logics").is_dir():
+        if holds_corpus(candidate):
             return candidate
     raise ConfigError("Could not locate repo root (missing 'logics/' directory). Run from inside the repo.")
 

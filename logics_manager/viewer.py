@@ -28,8 +28,8 @@ from .audit import audit_payload
 from . import viewer_diagnostics
 from .bootstrap import bootstrap_payload
 from .cdx_memory import cdx_memory_payload
-from .config import ConfigError, find_repo_root
-from .insights import health_payload
+from .config import ConfigError, find_repo_root, holds_corpus
+from .insights import health_payload, status_payload
 from .lint import lint_payload
 from .release import load_release_context, release_reset_payload, release_status_payload
 from .sync import update_workflow_indicators_payload
@@ -287,7 +287,11 @@ def _viewer_project_id(repo_root: Path) -> str:
 def _looks_like_viewer_project(path: Path) -> bool:
     if not path.is_dir():
         return False
-    return any((path / marker).exists() for marker in ("logics", ".git", "package.json", "pyproject.toml", "logics.yaml"))
+    # Deliberately broader than holds_corpus: the switcher also offers projects
+    # with no corpus yet, so they can be bootstrapped from the viewer.
+    return holds_corpus(path) or any(
+        (path / marker).exists() for marker in (".git", "package.json", "pyproject.toml", "logics.yaml")
+    )
 
 
 def discover_viewer_project_roots(repo_root: Path, *, max_projects: int = 40) -> list[Path]:
@@ -318,7 +322,7 @@ def discover_viewer_project_roots(repo_root: Path, *, max_projects: int = 40) ->
 def viewer_project_entry(repo_root: Path, *, active_root: Path | None = None) -> dict[str, Any]:
     root = repo_root.resolve()
     active = active_root.resolve() if active_root else root
-    has_logics = (root / "logics").is_dir()
+    has_logics = holds_corpus(root)
     available = root.is_dir()
     return {
         "id": _viewer_project_id(root),
@@ -1706,7 +1710,7 @@ def project_picker_tree_payload(base_root: Path, rel_path: str = "", *, max_entr
         entries.append({
             "name": child.name,
             "path": rel,
-            "hasLogics": (child / "logics").is_dir(),
+            "hasLogics": holds_corpus(child),
         })
     return {
         "state": "ok",
@@ -4041,6 +4045,35 @@ class LogicsViewerServer(ThreadingHTTPServer):
                     entry["message"] = "Synthetic dev-only corpus covering every board card state."
         return registry
 
+    def project_state_payload(self) -> dict[str, Any]:
+        """Open-work and issue counts per listed project.
+
+        Reuses the per-repository reports the fleet command already aggregates,
+        rather than adding a third aggregation. A project that fails is reported
+        with its error so the others still render.
+        """
+        projects: dict[str, Any] = {}
+        for entry in self.project_registry_payload():
+            root = Path(str(entry["root"]))
+            if not entry.get("hasLogics"):
+                projects[str(entry["id"])] = {"ok": True, "hasLogics": False}
+                continue
+            try:
+                status = status_payload(root, limit=1)
+                health = health_payload(root, limit=1)
+            except (ConfigError, OSError, ValueError) as exc:
+                projects[str(entry["id"])] = {"ok": False, "error": str(exc)}
+                continue
+            projects[str(entry["id"])] = {
+                "ok": True,
+                "hasLogics": True,
+                "openCount": status.get("open_count", 0),
+                "issueCount": health.get("issue_count", 0),
+                "staleCount": health.get("stale_doc_count", 0),
+                "nextActions": status.get("next_actions", []),
+            }
+        return {"projects": projects}
+
     def status_component(self, name: str, producer: Any, *, force: bool = False) -> Any:
         """Return a status component payload, recomputing at most once per TTL.
 
@@ -4673,6 +4706,14 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/projects":
             self._send_json({"ok": True, "payload": {"projects": self.server.project_registry_payload()}})
+            return
+        if route == "/api/projects-state":
+            # Loaded on demand, when the switcher opens: the switcher listed
+            # projects with no state at all, so finding where work was blocked
+            # meant switching into each one in turn. Scanning at viewer startup
+            # instead would pay for every listed project before the first
+            # screen renders.
+            self._send_json({"ok": True, "payload": self.server.project_state_payload()})
             return
         if route == "/api/doc":
             rel_path = parse_qs(parsed.query).get("path", [""])[0]
@@ -5807,7 +5848,7 @@ def _resolve_viewer_root(start: Path) -> Path:
 def main(argv: list[str]) -> int:
     args = build_parser().parse_args(argv)
     repo_root = _resolve_viewer_root(Path.cwd())
-    if not (repo_root / "logics").is_dir():
+    if not holds_corpus(repo_root):
         if not _confirm_launch_without_corpus(repo_root, assume_yes=args.yes):
             print("Aborted.")
             return 0

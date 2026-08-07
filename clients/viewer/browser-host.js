@@ -775,15 +775,28 @@ ${entry?.message || ""}`;
   function projectPreferenceId(project) {
     return String(project?.id || project?.root || project?.name || "");
   }
-  function projectStateLabel(project) {
-    if (project?.active) {
-      return "current";
-    }
+  function projectStateLabel(project, state = null) {
     if (project?.available === false) {
       return "missing";
     }
     if (project?.hasLogics === false) {
       return "no Logics";
+    }
+    if (state && state.ok === false) {
+      return project?.active ? "current" : "unreadable";
+    }
+    if (state && state.hasLogics !== false) {
+      const parts = [`${state.openCount ?? 0} open`];
+      if (state.issueCount) {
+        parts.push(`${state.issueCount} issue${state.issueCount === 1 ? "" : "s"}`);
+      }
+      if (state.staleCount) {
+        parts.push(`${state.staleCount} stale`);
+      }
+      return project?.active ? `current \xB7 ${parts.join(" \xB7 ")}` : parts.join(" \xB7 ");
+    }
+    if (project?.active) {
+      return "current";
     }
     return "available";
   }
@@ -4592,7 +4605,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
           </button>
           <button class="viewer-project-switcher__item${project.active ? " is-active" : ""}" type="button" role="menuitem" data-viewer-project-id="${escapeHtml(project.id || "")}" title="${escapeHtml(project.root || project.name || "")}">
             <span class="viewer-project-switcher__item-name">${escapeHtml(project.name || "project")}</span>
-            <span class="viewer-project-switcher__item-state">${escapeHtml(projectStateLabel(project))}</span>
+            <span class="viewer-project-switcher__item-state">${escapeHtml(projectStateLabel(project, latestProjectState[project.id] || null))}</span>
             <span class="viewer-project-switcher__item-path">${escapeHtml(project.root || "")}</span>
           </button>
         </div>
@@ -4607,6 +4620,16 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     `;
       menu.innerHTML = `${projectRows}${pickerRow}`;
     }
+    let latestProjectState = {};
+    async function loadProjectState() {
+      try {
+        const response = await fetch("/api/projects-state");
+        const data = await response.json();
+        latestProjectState = data?.payload?.projects || {};
+        renderProjectMenu();
+      } catch {
+      }
+    }
     function setProjectMenuOpen(open) {
       const button = repoPill();
       const menu = projectMenu();
@@ -4616,6 +4639,9 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       const nextOpen = Boolean(open);
       menu.hidden = !nextOpen;
       button.setAttribute("aria-expanded", nextOpen ? "true" : "false");
+      if (nextOpen) {
+        void loadProjectState();
+      }
     }
     async function switchViewerProject(projectId) {
       if (!projectId) {

@@ -854,15 +854,31 @@ export function projectPreferenceId(project) {
     return String(project?.id || project?.root || project?.name || "");
   }
 
-export function projectStateLabel(project) {
-    if (project?.active) {
-      return "current";
-    }
+export function projectStateLabel(project, state = null) {
     if (project?.available === false) {
       return "missing";
     }
     if (project?.hasLogics === false) {
       return "no Logics";
+    }
+    // Once the on-demand scan has landed, say what is actually going on in the
+    // project. The switcher used to report only whether a corpus existed, so
+    // finding where work was blocked meant switching into each one in turn.
+    if (state && state.ok === false) {
+      return project?.active ? "current" : "unreadable";
+    }
+    if (state && state.hasLogics !== false) {
+      const parts = [`${state.openCount ?? 0} open`];
+      if (state.issueCount) {
+        parts.push(`${state.issueCount} issue${state.issueCount === 1 ? "" : "s"}`);
+      }
+      if (state.staleCount) {
+        parts.push(`${state.staleCount} stale`);
+      }
+      return project?.active ? `current \xB7 ${parts.join(" \xB7 ")}` : parts.join(" \xB7 ");
+    }
+    if (project?.active) {
+      return "current";
     }
     return "available";
   }

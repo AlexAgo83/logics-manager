@@ -1,10 +1,10 @@
 ## task_301_restore_the_per_command_help_contract_across_the_cli_surface - Restore the per-command help contract across the CLI surface
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -33,6 +33,11 @@
 # AC Traceability
 - request-AC1, request-AC2, request-AC4, request-AC5 -> `item_596_register_the_help_flag_at_the_shared_parser_construction_point`. Proof deferred to slice closeout.
 - request-AC1, request-AC3 -> `item_597_assert_help_behavior_across_an_enumerated_command_surface`. Proof deferred to slice closeout.
+- request-AC1 -> This task. Evidence needed: Every command and subcommand of the CLI responds to its help flag by printing usage and exiting successfully.
+- request-AC2 -> This task. Evidence needed: The fix is applied at the shared parser construction point, so a newly added command inherits working help without further action.
+- request-AC3 -> This task. Evidence needed: A test enumerates the command surface and asserts help behavior for each entry, rather than checking a hand-maintained list.
+- request-AC4 -> This task. Evidence needed: Help output names the command's own flags and remains consistent with the top-level help listing.
+- request-AC5 -> This task. Evidence needed: Existing invocations and their exit codes are unchanged apart from the help flag.
 
 # Validation
 - (no validation recorded yet)

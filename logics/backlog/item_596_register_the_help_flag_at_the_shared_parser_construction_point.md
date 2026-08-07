@@ -1,10 +1,10 @@
 ## item_596_register_the_help_flag_at_the_shared_parser_construction_point - Register the help flag at the shared parser construction point
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: CLI contract discoverability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

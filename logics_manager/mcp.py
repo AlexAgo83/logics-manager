@@ -1797,7 +1797,7 @@ def connector_plan(*, repo_root: Path, host: str, port: int, bearer_token: str |
             "auth_value": token,
         },
         "smoke_checks": {
-            "health": urls.get("health_url", f"<your HTTPS tunnel URL>/health"),
+            "health": urls.get("health_url", "<your HTTPS tunnel URL>/health"),
             "mcp_tools_list": urls.get("mcp_url", "<your HTTPS tunnel URL>/mcp"),
         },
         "warnings": ["No-bearer mode is unauthenticated. Use only for short-lived local debugging."] if no_bearer else [],

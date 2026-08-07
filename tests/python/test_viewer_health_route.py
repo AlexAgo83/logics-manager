@@ -159,7 +159,65 @@ def test_a_failing_project_does_not_hide_the_others(corpus: Path, monkeypatch) -
     monkeypatch.setattr(viewer_module, "status_payload", exploding)
     monkeypatch.setattr(viewer_module, "health_payload", lambda root, **kw: {"issue_count": 0, "stale_doc_count": 0})
 
-    payload = viewer_module.LogicsViewerServer.project_state_payload(server)["projects"]
+    # the isolation logic lives in the builder; the caching wrapper is tested separately
+    payload = viewer_module.LogicsViewerServer._build_project_state(server)["projects"]
     assert payload["a"] == {"ok": False, "error": "boom"}
     assert payload["b"]["ok"] is True
     assert payload["b"]["openCount"] == 3
+
+
+# ---- the scan is cached (item_603) ----
+
+
+def _fake_server(builder):
+    from threading import Lock
+
+    return SimpleNamespace(
+        repo_root="/tmp/logics-cache-probe",
+        status_components={},
+        status_cache={},
+        status_cache_lock=Lock(),
+        _build_project_state=builder,
+    )
+
+
+def _call(server, **kwargs):
+    from logics_manager.viewer import LogicsViewerServer
+
+    server.status_component = lambda name, producer, *, force=False: (
+        LogicsViewerServer.status_component(server, name, producer, force=force)
+    )
+    return LogicsViewerServer.project_state_payload(server, **kwargs)
+
+
+def test_repeated_requests_do_not_rescan() -> None:
+    """The scan measured ~6s across 33 corpora and used to run on every open."""
+    calls = {"n": 0}
+
+    def builder():
+        calls["n"] += 1
+        return {"projects": {}}
+
+    server = _fake_server(builder)
+    for _ in range(5):
+        _call(server)
+    assert calls["n"] == 1, f"rescanned {calls['n']} times for five requests"
+
+
+def test_a_forced_request_rescans() -> None:
+    calls = {"n": 0}
+
+    def builder():
+        calls["n"] += 1
+        return {"projects": {}}
+
+    server = _fake_server(builder)
+    _call(server)
+    _call(server, force=True)
+    assert calls["n"] == 2
+
+
+def test_the_scan_is_still_on_demand(viewer: str) -> None:
+    """Caching must not turn into scanning while the viewer starts."""
+    payload = _get(viewer, "/api/projects-state")["payload"]
+    assert "projects" in payload

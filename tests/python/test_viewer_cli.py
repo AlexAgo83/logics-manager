@@ -66,7 +66,6 @@ from logics_manager.viewer import (
     open_repo_folder_payload,
     open_system_terminal_payload,
     read_doc_payload,
-    render_start_status,
     viewer_project_registry,
     viewer_project_capabilities,
     VIEWER_MUTATING_ROUTES,

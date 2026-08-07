@@ -1,0 +1,23 @@
+{
+  "ceiling": 120,
+  "grandfathered": {
+    "logics_manager/assist.py::_build_command_help": 290,
+    "logics_manager/assist.py::build_parser": 146,
+    "logics_manager/assist_support.py::_build_hybrid_roi_report": 240,
+    "logics_manager/audit.py::audit_payload": 372,
+    "logics_manager/bootstrap.py::bootstrap_payload": 126,
+    "logics_manager/cli.py::_dispatch": 465,
+    "logics_manager/flow/__init__.py::build_parser": 231,
+    "logics_manager/flow/__init__.py::closeout_payload": 125,
+    "logics_manager/flow/__init__.py::cmd_split_request": 147,
+    "logics_manager/flow/__init__.py::scaffold_request_chain_payload": 132,
+    "logics_manager/flow/__init__.py::validate_closeout_payload": 165,
+    "logics_manager/mcp.py::main": 123,
+    "logics_manager/release.py::main": 121,
+    "logics_manager/sync.py::_build_subcommand_help": 189,
+    "logics_manager/viewer.py::cdx_mission_plan_payload": 128,
+    "logics_manager/viewer.py::do_GET": 217,
+    "logics_manager/viewer.py::do_POST": 493,
+    "logics_manager/viewer.py::main": 143
+  }
+}

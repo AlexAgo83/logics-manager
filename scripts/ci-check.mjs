@@ -24,9 +24,25 @@ const steps = [
   { label: "README badge metadata drift check", command: npmCommand(), args: ["run", "docs:check"] },
   { label: "npm audit policy", command: npmCommand(), args: ["run", "audit:ci"] },
   {
+    label: "Python lint",
+    command: pythonInvocation.command,
+    args: [...pythonInvocation.argsPrefix, "-m", "ruff", "check", "logics_manager", "tests/python", "scripts"]
+  },
+  {
+    label: "Python function-length ceiling",
+    command: pythonInvocation.command,
+    args: [...pythonInvocation.argsPrefix, "scripts/check_function_length.py"]
+  },
+  {
+    // Coverage tooling was installed in CI under a step named for it, then never
+    // invoked: no Python coverage existed while the step name claimed otherwise.
+    // The floor sits below the measured value so the build does not start red.
     label: "Logics manager CLI tests",
     command: pythonInvocation.command,
-    args: [...pythonInvocation.argsPrefix, "-m", "pytest", "tests/python/", "-q"]
+    args: [
+      ...pythonInvocation.argsPrefix,
+      "-m", "coverage", "run", "--source=logics_manager", "-m", "pytest", "tests/python/", "-q"
+    ]
   },
   { label: "Viewer browser-host bundle freshness", command: npmCommand(), args: ["run", "check:viewer-host"] },
   { label: "Compile", command: npmCommand(), args: ["run", "compile"] },
@@ -80,6 +96,13 @@ if (backgroundStep) {
   if (result.code !== 0) {
     process.exit(result.code ?? 1);
   }
+  // Only meaningful once the suite above has finished writing coverage data,
+  // which is why it lives here and not in the step list.
+  runStep(
+    "Python coverage floor",
+    pythonInvocation.command,
+    [...pythonInvocation.argsPrefix, "-m", "coverage", "report", "--fail-under=73"]
+  );
 }
 
 function npmCommand() {

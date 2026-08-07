@@ -38,6 +38,36 @@ logics-manager view --open
 logics-manager view --focus req_001_example --read --open
 ```
 
+## Reporting across several repositories
+
+`fleet` answers "what is happening everywhere" in one call:
+
+```bash
+logics-manager fleet status --root ~/projects
+logics-manager fleet health --root ~/projects --format json
+```
+
+Discovery is a directory listing — any immediate child of `--root` containing a
+`logics/` directory counts — so there is no repository registry to keep in sync.
+It does not recurse.
+
+A repository that fails is reported inline under its own key, and the remaining
+repositories are still reported:
+
+```json
+{
+  "ok": false,
+  "failed_count": 1,
+  "repositories": {
+    "alpha": {"error": "..."},
+    "beta": {"ok": true, "issue_count": 0}
+  }
+}
+```
+
+The command is read-only. Mutating across repositories is deliberately out of
+scope: target one explicitly with `--repo-root`.
+
 ## Document age and stale work
 
 `sync list-docs` and `sync read-doc` report `updated_at` (the timestamp of the

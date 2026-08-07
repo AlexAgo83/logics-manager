@@ -53,6 +53,7 @@ ROOT_COMMANDS = (
     "self-update",
     "update",
     "search",
+    "fleet",
 )
 
 
@@ -130,6 +131,8 @@ def _build_root_help() -> str:
         "  followups  List follow-up areas with request creation commands.",
         "  product-consistency  Check product brief lineage links.",
         "  status     Summarize open workflow docs and next actions.",
+        "  fleet      Report status or health across every corpus under a root directory.",
+        "             Subcommands: fleet status, fleet health [--root DIR].",
         "  search     Search workflow docs directly.",
         "  roadmap   Inspect and place open workflow refs in roadmap files.",
         "  design    Generate asset prompt packs for external AI image tools.",
@@ -694,6 +697,10 @@ def _dispatch(argv: list[str] | None = None) -> int:
             state["message"] = f"{manager} exited {result.returncode}."
             _print_update_state(state, "json")
         return result.returncode
+    if command == "fleet":
+        from .fleet import main as fleet_main
+
+        return fleet_main(rest)
     if command == "flow":
         from .flow import main as flow_main
 

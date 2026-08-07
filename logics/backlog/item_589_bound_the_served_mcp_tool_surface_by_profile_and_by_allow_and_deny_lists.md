@@ -1,13 +1,14 @@
 ## item_589_bound_the_served_mcp_tool_surface_by_profile_and_by_allow_and_deny_lists - Bound the served MCP tool surface by profile and by allow and deny lists
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 95%
 > Progress: 100%
 > Complexity: Medium
 > Theme: MCP surface control
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-07
 
 # Problem
 - The MCP server exposes its entire tool set with no filtering, including tools that delete, rename, split, and auto-fix documents.
@@ -34,6 +35,12 @@
 # AC Traceability
 - request-AC2 -> This backlog slice. Proof: AC1: Every tool carries a capability classification, and the classification is visible in the tool-definition output.
 - request-AC9 -> This backlog slice. Proof: AC2: Starting the server with a read-only profile exposes no mutating or destructive tool.
+- request-AC3 -> This backlog slice. Proof: Delivered across commits 9dfb6c40 (--repo-root), 8929fcaa (MCP tool profiles), d763cf5a (uniform dry_run), 43c247c7 (self-update resolution), 7bd3ff60 (doc age and stale signal), 66f44f76 (quoting-free arguments and JSON envelope), a2697d2d (fleet reporting), fb5ae780 (bundled delegation skills). Validated with python -m pytest tests/python (888 passed), lint, and audit. Source: `fb5ae780`
+- request-AC4 -> This backlog slice. Proof: Delivered across commits 9dfb6c40 (--repo-root), 8929fcaa (MCP tool profiles), d763cf5a (uniform dry_run), 43c247c7 (self-update resolution), 7bd3ff60 (doc age and stale signal), 66f44f76 (quoting-free arguments and JSON envelope), a2697d2d (fleet reporting), fb5ae780 (bundled delegation skills). Validated with python -m pytest tests/python (888 passed), lint, and audit. Source: `fb5ae780`
+- request-AC5 -> This backlog slice. Proof: Delivered across commits 9dfb6c40 (--repo-root), 8929fcaa (MCP tool profiles), d763cf5a (uniform dry_run), 43c247c7 (self-update resolution), 7bd3ff60 (doc age and stale signal), 66f44f76 (quoting-free arguments and JSON envelope), a2697d2d (fleet reporting), fb5ae780 (bundled delegation skills). Validated with python -m pytest tests/python (888 passed), lint, and audit. Source: `fb5ae780`
+- request-AC6 -> This backlog slice. Proof: Delivered across commits 9dfb6c40 (--repo-root), 8929fcaa (MCP tool profiles), d763cf5a (uniform dry_run), 43c247c7 (self-update resolution), 7bd3ff60 (doc age and stale signal), 66f44f76 (quoting-free arguments and JSON envelope), a2697d2d (fleet reporting), fb5ae780 (bundled delegation skills). Validated with python -m pytest tests/python (888 passed), lint, and audit. Source: `fb5ae780`
+- request-AC7 -> This backlog slice. Proof: Delivered across commits 9dfb6c40 (--repo-root), 8929fcaa (MCP tool profiles), d763cf5a (uniform dry_run), 43c247c7 (self-update resolution), 7bd3ff60 (doc age and stale signal), 66f44f76 (quoting-free arguments and JSON envelope), a2697d2d (fleet reporting), fb5ae780 (bundled delegation skills). Validated with python -m pytest tests/python (888 passed), lint, and audit. Source: `fb5ae780`
+- request-AC8 -> This backlog slice. Proof: Delivered across commits 9dfb6c40 (--repo-root), 8929fcaa (MCP tool profiles), d763cf5a (uniform dry_run), 43c247c7 (self-update resolution), 7bd3ff60 (doc age and stale signal), 66f44f76 (quoting-free arguments and JSON envelope), a2697d2d (fleet reporting), fb5ae780 (bundled delegation skills). Validated with python -m pytest tests/python (888 passed), lint, and audit. Source: `fb5ae780`
 
 # Decision framing
 - Product framing: Not needed
@@ -54,3 +61,9 @@
 # Priority
 - Priority: High - removes the largest category of external glue
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_300_orchestrate_the_multi_repository_and_embedder_contract_delivery`
+
+# Notes
+- Task `task_300_orchestrate_the_multi_repository_and_embedder_contract_delivery` was finished via `logics-manager flow finish task` on 2026-08-07.

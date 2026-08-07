@@ -1,13 +1,14 @@
 ## item_593_provide_quoting_free_tool_arguments_and_a_consistent_output_envelope - Provide quoting-free tool arguments and a consistent output envelope
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Automation contract
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-07
 
 # Problem
 - Direct tool invocation accepts its arguments only as a single command-line string, so an embedder passing them through a remote shell has to escape structured data through several quoting layers.
@@ -36,6 +37,11 @@
 # AC Traceability
 - request-AC6 -> This backlog slice. Proof: AC1: Tool arguments can be supplied from standard input, from a file, or as repeated key-and-value pairs, with the inline string still accepted.
 - request-AC9 -> This backlog slice. Proof: AC2: Structured argument data containing quotes, spaces, and newlines round-trips intact through the non-inline paths.
+- request-AC3 -> This backlog slice. Proof: Delivered across commits 9dfb6c40 (--repo-root), 8929fcaa (MCP tool profiles), d763cf5a (uniform dry_run), 43c247c7 (self-update resolution), 7bd3ff60 (doc age and stale signal), 66f44f76 (quoting-free arguments and JSON envelope), a2697d2d (fleet reporting), fb5ae780 (bundled delegation skills). Validated with python -m pytest tests/python (888 passed), lint, and audit. Source: `fb5ae780`
+- request-AC4 -> This backlog slice. Proof: Delivered across commits 9dfb6c40 (--repo-root), 8929fcaa (MCP tool profiles), d763cf5a (uniform dry_run), 43c247c7 (self-update resolution), 7bd3ff60 (doc age and stale signal), 66f44f76 (quoting-free arguments and JSON envelope), a2697d2d (fleet reporting), fb5ae780 (bundled delegation skills). Validated with python -m pytest tests/python (888 passed), lint, and audit. Source: `fb5ae780`
+- request-AC5 -> This backlog slice. Proof: Delivered across commits 9dfb6c40 (--repo-root), 8929fcaa (MCP tool profiles), d763cf5a (uniform dry_run), 43c247c7 (self-update resolution), 7bd3ff60 (doc age and stale signal), 66f44f76 (quoting-free arguments and JSON envelope), a2697d2d (fleet reporting), fb5ae780 (bundled delegation skills). Validated with python -m pytest tests/python (888 passed), lint, and audit. Source: `fb5ae780`
+- request-AC7 -> This backlog slice. Proof: Delivered across commits 9dfb6c40 (--repo-root), 8929fcaa (MCP tool profiles), d763cf5a (uniform dry_run), 43c247c7 (self-update resolution), 7bd3ff60 (doc age and stale signal), 66f44f76 (quoting-free arguments and JSON envelope), a2697d2d (fleet reporting), fb5ae780 (bundled delegation skills). Validated with python -m pytest tests/python (888 passed), lint, and audit. Source: `fb5ae780`
+- request-AC8 -> This backlog slice. Proof: Delivered across commits 9dfb6c40 (--repo-root), 8929fcaa (MCP tool profiles), d763cf5a (uniform dry_run), 43c247c7 (self-update resolution), 7bd3ff60 (doc age and stale signal), 66f44f76 (quoting-free arguments and JSON envelope), a2697d2d (fleet reporting), fb5ae780 (bundled delegation skills). Validated with python -m pytest tests/python (888 passed), lint, and audit. Source: `fb5ae780`
 
 # Decision framing
 - Product framing: Not needed
@@ -56,3 +62,9 @@
 # Priority
 - Priority: Medium - closes the last transport-shaped gap
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_300_orchestrate_the_multi_repository_and_embedder_contract_delivery`
+
+# Notes
+- Task `task_300_orchestrate_the_multi_repository_and_embedder_contract_delivery` was finished via `logics-manager flow finish task` on 2026-08-07.

@@ -1,14 +1,26 @@
 ## prod_051_multi_repository_and_embedder_contract_for_the_logics_cli - Multi-repository and embedder contract for the Logics CLI
 > Date: 2026-08-07
-> Status: Proposed
+> Status: Settled
 > Related request: `req_303_make_logics_manager_embeddable_by_external_orchestrators_across_multiple_repositories`
-> Related backlog: `item_588_accept_an_explicit_repository_root_on_every_command`, `item_589_bound_the_served_mcp_tool_surface_by_profile_and_by_allow_and_deny_lists`, `item_590_give_every_mutating_operation_a_uniform_dry_run_preview`, `item_591_make_self_update_manager_accurate_shadow_safe_and_machine_readable`, `item_592_expose_document_age_and_a_stale_document_health_signal`, `item_593_provide_quoting_free_tool_arguments_and_a_consistent_output_envelope`, `item_594_report_status_and_health_across_every_repository_under_a_root`, `item_595_bundle_the_agent_delegation_skills_for_distribution`
+> Related backlog: `item_588_accept_an_explicit_repository_root_on_every_command`
 > Related task: `task_300_orchestrate_the_multi_repository_and_embedder_contract_delivery`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
 # Overview
 Make logics-manager a dependable building block for external orchestrators that drive Logics work across many repositories. The CLI gains explicit repository targeting, a bounded MCP surface, a uniform mutation and output contract, a trustworthy self-update, and the workflow-age signals callers currently reconstruct themselves, so an embedder writes configuration instead of glue.
+
+```mermaid
+flowchart LR
+    Embedder[External orchestrator] --> Root[--repo-root]
+    Embedder --> Fleet[fleet status / health]
+    Root --> Repo[One repository]
+    Fleet --> Repo
+    Embedder --> Surface[MCP profile and allow/deny]
+    Surface --> Tools[Bounded tool surface]
+    Tools --> Preview[Uniform dry_run]
+    Repo --> Signals[Age, stale docs, JSON envelope]
+```
 
 # Goals
 - Remove the working-directory constraint from every command surface.
@@ -35,5 +47,5 @@ Make logics-manager a dependable building block for external orchestrators that 
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_303_make_logics_manager_embeddable_by_external_orchestrators_across_multiple_repositories`
+- Product back-reference: `item_588_accept_an_explicit_repository_root_on_every_command`
 - Task back-reference: `task_300_orchestrate_the_multi_repository_and_embedder_contract_delivery`

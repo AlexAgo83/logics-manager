@@ -1,7 +1,7 @@
 ## req_303_make_logics_manager_embeddable_by_external_orchestrators_across_multiple_repositories - Make logics-manager embeddable by external orchestrators across multiple repositories
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High

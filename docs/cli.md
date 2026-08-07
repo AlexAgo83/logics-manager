@@ -38,6 +38,34 @@ logics-manager view --open
 logics-manager view --focus req_001_example --read --open
 ```
 
+## Keeping the install current
+
+`logics-manager update` resolves the package manager from the executable that is
+actually running — a `pipx/venvs/` path, an npm package directory carrying our
+`package.json`, or a `site-packages` install — and only falls back to guessing
+when the layout is unrecognised.
+
+```bash
+logics-manager update --check --format json   # report state, install nothing
+logics-manager update                         # update the running copy
+logics-manager update --manager pipx          # override the resolution
+```
+
+`--check --format json` reports `manager`, `path`, `current_version`,
+`latest_version`, `update_available`, and any `shadowing_executables`, so an
+automated updater no longer has to match on the phrase "already at latest
+version".
+
+If the layout is unrecognised **and** another `logics-manager` is already on
+PATH, the update is refused rather than guessed: guessing wrong is what
+installed a second, shadowing copy in the field. Pass an explicit `--manager`,
+or `--allow-shadow` to accept the guess. Duplicates on PATH are also reported by
+`logics-manager doctor`, under `environment_warnings` — they are an install-layout
+problem, not a corpus problem, so they do not change the doctor verdict.
+
+The two distribution package names are `@grifhinz/logics-manager` on npm and
+`logics-manager` on PyPI; they ship the same CLI.
+
 ## Targeting a repository explicitly
 
 Every command accepts `--repo-root DIR`, in any position, and operates on that

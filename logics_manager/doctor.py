@@ -83,6 +83,33 @@ def _check_schema_versions(repo_root: Path) -> list[DoctorIssue]:
     return issues
 
 
+def _check_duplicate_executables() -> list[DoctorIssue]:
+    """Report several logics-manager executables on PATH.
+
+    Two installs from different package managers means `--version` and an
+    update can disagree about which copy they act on. This has happened twice
+    in the field, each time after a self-update installed a second executable
+    that shadowed the first.
+    """
+    from .cli import running_executable_path, shadowing_executables
+
+    executable = running_executable_path()
+    others = shadowing_executables(executable)
+    if not others:
+        return []
+    return [
+        DoctorIssue(
+            code="duplicate_executables",
+            path=str(executable) if executable else "logics-manager",
+            message="Several logics-manager executables are on PATH: " + ", ".join(others),
+            remediation=(
+                "Keep one install. Inspect with `type -a logics-manager`, then remove the "
+                "others (`pipx uninstall logics-manager`, `npm uninstall -g @grifhinz/logics-manager`)."
+            ),
+        )
+    ]
+
+
 def doctor_payload(repo_root: Path) -> dict[str, Any]:
     issues: list[DoctorIssue] = []
     issues.extend(_check_required_directories(repo_root))
@@ -108,6 +135,10 @@ def doctor_payload(repo_root: Path) -> dict[str, Any]:
         "config_path": str(config_path.relative_to(repo_root)) if config_path is not None else None,
         "workflow_doc_count": sum(1 for directory in REQUIRED_DIRECTORIES for _ in (repo_root / directory).glob("*.md") if (repo_root / directory).is_dir()),
         "missing_schema_version_count": sum(1 for issue in issues if issue.code == "missing_schema_version"),
+        # Kept out of `issues`/`ok`: this is about the machine's install layout,
+        # not the corpus, and folding it in would make a repo-level result vary
+        # with the caller's PATH.
+        "environment_warnings": [issue.to_dict() for issue in _check_duplicate_executables()],
     }
     return payload
 
@@ -203,6 +234,9 @@ def render_doctor(repo_root: Path, *, output_format: str = "text") -> str:
         remaining = len(payload["issues"]) - max_issues
         if remaining > 0:
             lines.append(f"... and {remaining} more issue(s).")
+    for warning in payload.get("environment_warnings", []):
+        lines.append(f"- warning [{warning['code']}] {warning['message']}")
+        lines.append(f"  remediation: {warning['remediation']}")
     return "\n".join(lines)
 
 

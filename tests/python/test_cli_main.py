@@ -1425,6 +1425,12 @@ def test_main_prefers_pipx_self_update_when_running_from_pipx(
     monkeypatch.setattr("logics_manager.cli.which", lambda command: "/usr/bin/pipx" if command == "pipx" else "/usr/bin/npm")
     monkeypatch.setattr("logics_manager.cli._is_running_from_npm_package", lambda: False)
     monkeypatch.setattr("logics_manager.cli._is_running_from_pipx", lambda _package_name: True)
+    # the running executable is now the primary evidence, ahead of the heuristics above
+    monkeypatch.setattr(
+        "logics_manager.cli.detect_running_manager",
+        lambda _package_name=None: ("pipx", Path("/opt/pipx/venvs/logics-manager/bin/logics-manager")),
+    )
+    monkeypatch.setattr("logics_manager.cli.shadowing_executables", lambda _executable, _command="logics-manager": [])
     monkeypatch.setattr(
         "logics_manager.cli.metadata.version",
         lambda _name: "2.1.1",

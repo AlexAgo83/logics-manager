@@ -23,7 +23,7 @@ from .lint import lint_payload, render_lint
 from .sync import search_logics_docs_payload
 from .doctor import doctor_packaging_payload, render_doctor
 from .termstyle import colorize_help
-from .update_check import current_version as package_current_version, get_update_notice
+from .update_check import current_version as package_current_version, get_update_info, get_update_notice
 
 
 DEFAULT_SELF_UPDATE_PY_PACKAGE = "logics-manager"
@@ -212,6 +212,123 @@ def _is_running_from_npm_package() -> bool:
     except (OSError, json.JSONDecodeError):
         return False
     return payload.get("name") == DEFAULT_SELF_UPDATE_PACKAGE
+
+
+def latest_available_version() -> str | None:
+    """Published version, or None when the registry is unreachable."""
+    return get_update_info(get_cli_version()).latest_version
+
+
+def _print_update_state(state: dict[str, object], output_format: str) -> None:
+    if output_format == "json":
+        print(json.dumps(state, indent=2, sort_keys=True, default=str))
+        return
+    if state.get("message"):
+        print(state["message"])
+        return
+    lines = [
+        f"logics-manager {state.get('current_version')} via {state.get('manager')}",
+        f"  path: {state.get('path') or 'unknown'}",
+    ]
+    latest = state.get("latest_version")
+    if latest:
+        lines.append(
+            f"  latest: {latest}" + ("" if state.get("update_available") else " (already at latest version)")
+        )
+    else:
+        lines.append("  latest: unknown (registry unreachable)")
+    shadows = state.get("shadowing_executables") or []
+    if shadows:
+        lines.append("  other executables on PATH:")
+        lines.extend(f"    - {path}" for path in shadows)  # type: ignore[union-attr]
+    print("\n".join(lines))
+
+
+def running_executable_path() -> Path | None:
+    """The file that was actually invoked, symlinks resolved.
+
+    `sys.argv[0]` is the console script for a pip/pipx install, and the bundled
+    Python entry point for the npm install. Either way it is the only reliable
+    evidence of which package manager owns this process.
+    """
+    raw = sys.argv[0] if sys.argv else ""
+    if not raw:
+        return None
+    candidate = Path(raw)
+    if not candidate.exists():
+        located = which(candidate.name)
+        if not located:
+            return None
+        candidate = Path(located)
+    try:
+        return candidate.resolve()
+    except OSError:
+        return candidate
+
+
+def _npm_package_root_for(path: Path) -> Path | None:
+    """The npm package directory owning `path`, if our package.json is above it."""
+    for parent in [path, *path.parents]:
+        manifest = parent / "package.json"
+        if not manifest.is_file():
+            continue
+        try:
+            payload = json.loads(manifest.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if payload.get("name") == DEFAULT_SELF_UPDATE_PACKAGE:
+            return parent
+    return None
+
+
+def detect_running_manager(
+    package_name: str = DEFAULT_SELF_UPDATE_PY_PACKAGE,
+) -> tuple[str | None, Path | None]:
+    """Resolve the package manager that owns the running executable.
+
+    Inferring this from packaging heuristics instead has twice resolved a
+    package-manager-installed copy to a different manager, each time installing
+    a second executable earlier on PATH that silently shadowed the first.
+    """
+    executable = running_executable_path()
+    if executable is None:
+        return None, None
+
+    parts = [part.lower() for part in executable.parts]
+    expected = package_name.replace("_", "-").lower()
+    for index in range(len(parts) - 2):
+        if parts[index] == "pipx" and parts[index + 1] == "venvs" and parts[index + 2] == expected:
+            return "pipx", executable
+
+    if _npm_package_root_for(executable) is not None:
+        return "npm", executable
+
+    module_root = Path(__file__).resolve().parent
+    if _npm_package_root_for(module_root) is not None:
+        return "npm", executable
+
+    if "site-packages" in parts or "dist-packages" in parts:
+        return "pip", executable
+    try:
+        metadata.version(package_name)
+    except metadata.PackageNotFoundError:
+        return None, executable
+    return "pip", executable
+
+
+def shadowing_executables(executable: Path | None, command: str = "logics-manager") -> list[str]:
+    """Other executables of the same name on PATH, excluding the running one."""
+    if executable is None:
+        return []
+    others = []
+    for candidate in _find_executable_paths(command):
+        try:
+            resolved = Path(candidate).resolve()
+        except OSError:
+            resolved = Path(candidate)
+        if resolved != executable:
+            others.append(candidate)
+    return others
 
 
 def _find_executable_paths(command: str) -> list[str]:
@@ -423,10 +540,23 @@ def main(argv: list[str] | None = None) -> int:
         parser.add_argument("--python-package", default=DEFAULT_SELF_UPDATE_PY_PACKAGE)
         parser.add_argument("--break-system-packages", action="store_true")
         parser.add_argument("--dry-run", action="store_true")
+        parser.add_argument("--check", action="store_true", help="Report the update state without installing anything.")
+        parser.add_argument("--format", choices=("text", "json"), default="text")
+        parser.add_argument(
+            "--allow-shadow",
+            action="store_true",
+            help="Install even though another logics-manager executable is on PATH.",
+        )
         parsed = parser.parse_args(rest)
 
+        detected_manager, executable = detect_running_manager(parsed.python_package)
+        shadows = shadowing_executables(executable)
         manager = parsed.manager
         if manager == "auto":
+            manager = detected_manager
+        if manager is None:
+            # No evidence from the running executable: fall back to the old
+            # heuristic chain rather than refusing to update at all.
             if _is_running_from_npm_package() and which("npm"):
                 manager = "npm"
             elif _is_running_from_pipx(parsed.python_package) and which("pipx"):
@@ -438,6 +568,63 @@ def main(argv: list[str] | None = None) -> int:
                     manager = "npm" if which("npm") else "pip"
                 else:
                     manager = "pip"
+
+        state = {
+            "ok": True,
+            "manager": manager,
+            "detected_manager": detected_manager,
+            "path": str(executable) if executable else None,
+            "current_version": get_cli_version(),
+            "latest_version": None,
+            "updated": False,
+            "shadowing_executables": shadows,
+        }
+
+        if parsed.check:
+            state["latest_version"] = latest_available_version()
+            state["update_available"] = bool(
+                state["latest_version"] and state["latest_version"] != state["current_version"]
+            )
+            _print_update_state(state, parsed.format)
+            return 0
+
+        # Refuse only when the update would install somewhere other than where the
+        # running copy lives -- that is what creates a shadowing second executable,
+        # and it is exactly what happened in the field. Duplicates that already
+        # exist are reported, not treated as a reason to refuse.
+        # When the running executable identifies its own manager, that manager is
+        # used and no shadow can be created. The dangerous case is the remaining
+        # one: the layout is unrecognised, so the manager is a guess, and another
+        # executable is already on PATH -- guessing wrong there is exactly what
+        # installed a second, shadowing copy in the field. Refuse rather than
+        # guess. An explicit --manager is the operator's decision and passes.
+        would_shadow = (
+            parsed.manager == "auto"
+            and detected_manager is None
+            and bool(shadows)
+            and not parsed.allow_shadow
+        )
+        if would_shadow:
+            state["ok"] = False
+            state["error"] = "ambiguous_install"
+            state["message"] = (
+                "Refusing to update: this copy's install layout is unrecognised, and other "
+                "logics-manager executables are already on PATH, so an automatic choice "
+                f"could install a second shadowing copy. Guessed manager: {manager}."
+            )
+            _print_update_state(state, parsed.format)
+            if parsed.format != "json":
+                _print_path_conflict_guidance([str(executable), *shadows] if executable else shadows)
+                print(
+                    "\nRe-run with an explicit `--manager pip|pipx|npm`, or `--allow-shadow` "
+                    "to accept the guess."
+                )
+            return 1
+        if shadows and parsed.format != "json":
+            print(
+                "Warning: other logics-manager executables are on PATH; `logics-manager doctor` lists them.",
+                file=sys.stderr,
+            )
 
         if manager == "pip":
             if _is_externally_managed_python() and not parsed.break_system_packages:
@@ -460,17 +647,33 @@ def main(argv: list[str] | None = None) -> int:
             command = [npm, "install", "-g", f"{parsed.package}@latest"]
 
         if parsed.dry_run:
-            print("Dry run: " + " ".join(command))
+            state["command"] = command
+            if parsed.format == "json":
+                _print_update_state(state, "json")
+            else:
+                print("Dry run: " + " ".join(command))
             return 0
 
         result = subprocess.run(command, check=False)
+        state["ok"] = result.returncode == 0
+        state["updated"] = result.returncode == 0
+        state["exit_code"] = result.returncode
         if result.returncode == 0:
             target = parsed.python_package if manager == "pip" else parsed.package
             if manager == "pipx":
                 target = parsed.python_package
-            print(f"Updated {target} via {manager}.")
-            if manager == "npm":
-                _print_path_conflict_guidance(_find_executable_paths("logics-manager"))
+            state["package"] = target
+            if parsed.format == "json":
+                state["latest_version"] = latest_available_version()
+                _print_update_state(state, "json")
+            else:
+                print(f"Updated {target} via {manager}.")
+                if manager == "npm":
+                    _print_path_conflict_guidance(_find_executable_paths("logics-manager"))
+        elif parsed.format == "json":
+            state["error"] = "install_failed"
+            state["message"] = f"{manager} exited {result.returncode}."
+            _print_update_state(state, "json")
         return result.returncode
     if command == "flow":
         from .flow import main as flow_main

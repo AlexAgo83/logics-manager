@@ -1,13 +1,14 @@
 ## item_610_cover_the_extracted_route_branches_and_the_fleet_report - Cover the extracted route branches and the fleet report
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Coverage of moved code
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-07
 
 # Problem
 - The two route modules extracted from the viewer report the lowest coverage in the repository, and the fleet report is not much better. Their read paths were verified against a live viewer, but roughly twenty write branches are exercised by nothing.
@@ -55,3 +56,9 @@
 # Priority
 - Priority: Medium - the least covered code in the repository, and recently moved
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_304_orchestrate_the_second_review_remediation`
+
+# Notes
+- Task `task_304_orchestrate_the_second_review_remediation` was finished via `logics-manager flow finish task` on 2026-08-07.

@@ -1,10 +1,10 @@
 ## item_597_assert_help_behavior_across_an_enumerated_command_surface - Assert help behavior across an enumerated command surface
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Regression coverage
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -32,6 +32,8 @@
 # AC Traceability
 - request-AC1 -> This backlog slice. Proof: AC1: The test derives the command list from the CLI's own registration, with no hand-maintained literal list.
 - request-AC3 -> This backlog slice. Proof: AC2: The test fails, naming the command, if any command regresses on its help flag.
+- request-AC4 -> This backlog slice. Evidence needed: Help output names the command's own flags and remains consistent with the top-level help listing.
+- request-AC5 -> This backlog slice. Evidence needed: Existing invocations and their exit codes are unchanged apart from the help flag.
 
 # Decision framing
 - Product framing: Not needed

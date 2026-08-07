@@ -266,9 +266,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="logics-manager i18n", add_help=False)
     sub = parser.add_subparsers(dest="command")
     for name in ("status", "plan", "lint", "validate"):
-        command = sub.add_parser(name, add_help=False)
+        command = sub.add_parser(name)
         command.add_argument("--format", choices=("text", "json"), default="text")
-    init = sub.add_parser("init", add_help=False)
+    init = sub.add_parser("init")
     init.add_argument("--source-locale")
     init.add_argument("--catalog", default="src/i18n/{locale}.json")
     init.add_argument("--not-applicable", action="store_true")

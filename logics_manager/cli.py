@@ -138,6 +138,18 @@ def _print_help(text: str) -> None:
     print(colorize_help(text))
 
 
+def command_parser(prog: str) -> argparse.ArgumentParser:
+    """Build a parser for one command.
+
+    Every hand-built command parser must go through here: `argparse` only
+    registers `--help` when `add_help` stays on its default, and commands that
+    turned it off answered their own help flag with a usage error instead. The
+    generated `LOGICS.md` bridge points operators and agents at per-command
+    help as the current command contract, so that has to hold everywhere.
+    """
+    return argparse.ArgumentParser(prog=prog)
+
+
 def get_cli_version() -> str:
     return package_current_version()
 
@@ -279,10 +291,23 @@ def main(argv: list[str] | None = None) -> int:
 
     rest = argv[1:]
     if command == "config":
-        if not rest or rest[0] != "show":
+        if rest[:1] in ([], ["-h"], ["--help"]):
+            _print_help(
+                "\n".join(
+                    [
+                        "Logics config CLI",
+                        "Render the merged runtime config for this repository.",
+                        "",
+                        "Usage:",
+                        "  logics-manager config show [--format text|json]",
+                    ]
+                )
+            )
+            return 0 if rest else 1
+        if rest[0] != "show":
             raise SystemExit("Usage: logics-manager config show [args...]")
         config_args = rest[1:]
-        parser = argparse.ArgumentParser(prog="logics-manager config show", add_help=False)
+        parser = command_parser("logics-manager config show")
         parser.add_argument("--format", choices=("text", "json"), default="text")
         parsed = parser.parse_args(config_args)
         repo_root = find_repo_root(Path.cwd())
@@ -294,7 +319,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if command == "doctor":
         if rest[:1] == ["packaging"]:
-            parser = argparse.ArgumentParser(prog="logics-manager doctor packaging", add_help=False)
+            parser = command_parser("logics-manager doctor packaging")
             parser.add_argument("--metadata-only", action="store_true")
             parser.add_argument("--format", choices=("text", "json"), default="text")
             parsed = parser.parse_args(rest[1:])
@@ -312,7 +337,7 @@ def main(argv: list[str] | None = None) -> int:
                 print("\n".join(lines))
             return 0 if payload["ok"] else 1
         doctor_args = rest
-        parser = argparse.ArgumentParser(prog="logics-manager doctor", add_help=False)
+        parser = command_parser("logics-manager doctor")
         parser.add_argument("--format", choices=("text", "json"), default="text")
         parsed = parser.parse_args(doctor_args)
         repo_root = find_repo_root(Path.cwd())
@@ -343,7 +368,7 @@ def main(argv: list[str] | None = None) -> int:
 
         return obsidian_main(rest)
     if command == "bootstrap":
-        parser = argparse.ArgumentParser(prog="logics-manager bootstrap", add_help=False)
+        parser = command_parser("logics-manager bootstrap")
         parser.add_argument("--check", action="store_true")
         parser.add_argument("--format", choices=("text", "json"), default="text")
         parsed = parser.parse_args(rest)
@@ -355,7 +380,7 @@ def main(argv: list[str] | None = None) -> int:
         print(render_bootstrap(payload, output_format=parsed.format))
         return 0 if payload["ok"] else 1
     if command in {"self-update", "update"}:
-        parser = argparse.ArgumentParser(prog=f"logics-manager {command}", add_help=False)
+        parser = command_parser(f"logics-manager {command}")
         parser.add_argument("--manager", choices=("auto", "pip", "pipx", "npm"), default="auto")
         parser.add_argument("--package", default=DEFAULT_SELF_UPDATE_PACKAGE)
         parser.add_argument("--python-package", default=DEFAULT_SELF_UPDATE_PY_PACKAGE)
@@ -432,7 +457,7 @@ def main(argv: list[str] | None = None) -> int:
         if rest[:1] == ["diagnostics"]:
             from .viewer_diagnostics import render_diagnostics
 
-            parser = argparse.ArgumentParser(prog="logics-manager view diagnostics")
+            parser = command_parser("logics-manager view diagnostics")
             parser.add_argument("--limit", type=int, default=20)
             parser.add_argument("--format", choices=("text", "json"), default="text")
             parsed = parser.parse_args(rest[1:])
@@ -488,7 +513,7 @@ def main(argv: list[str] | None = None) -> int:
         print(output)
         return 0 if payload["ok"] else 1
     if command == "index":
-        parser = argparse.ArgumentParser(prog="logics-manager index", add_help=False)
+        parser = command_parser("logics-manager index")
         parser.add_argument("--out", default="logics/INDEX.md")
         parser.add_argument("--format", choices=("text", "json"), default="text")
         parsed = parser.parse_args(rest)
@@ -502,7 +527,7 @@ def main(argv: list[str] | None = None) -> int:
         print(output)
         return 0 if payload["ok"] else 1
     if command == "status":
-        parser = argparse.ArgumentParser(prog="logics-manager status", add_help=False)
+        parser = command_parser("logics-manager status")
         parser.add_argument("--limit", type=int, default=10)
         parser.add_argument("--format", choices=("text", "json"), default="text")
         parsed = parser.parse_args(rest)
@@ -515,7 +540,7 @@ def main(argv: list[str] | None = None) -> int:
         print(output)
         return 0
     if command == "health":
-        parser = argparse.ArgumentParser(prog="logics-manager health", add_help=False)
+        parser = command_parser("logics-manager health")
         parser.add_argument("--limit", type=int, default=10)
         parser.add_argument("--format", choices=("text", "json"), default="text")
         parsed = parser.parse_args(rest)
@@ -528,7 +553,7 @@ def main(argv: list[str] | None = None) -> int:
         print(output)
         return 0
     if command == "followups":
-        parser = argparse.ArgumentParser(prog="logics-manager followups", add_help=False)
+        parser = command_parser("logics-manager followups")
         parser.add_argument("--limit", type=int, default=50)
         parser.add_argument("--source-kind", choices=("all", "request", "backlog", "task", "product", "roadmap", "architecture"), default="all")
         parser.add_argument("--include-closed", action="store_true")
@@ -559,7 +584,7 @@ def main(argv: list[str] | None = None) -> int:
         print(output)
         return 0 if payload["ok"] else 1
     if command == "search":
-        parser = argparse.ArgumentParser(prog="logics-manager search", add_help=False)
+        parser = command_parser("logics-manager search")
         parser.add_argument("query")
         parser.add_argument("--kind", choices=("all", "request", "backlog", "task", "product", "roadmap", "architecture", "spec"), default="all")
         parser.add_argument("--status")
@@ -586,7 +611,7 @@ def main(argv: list[str] | None = None) -> int:
         print(output)
         return 0
     if command == "product-consistency":
-        parser = argparse.ArgumentParser(prog="logics-manager product-consistency", add_help=False)
+        parser = command_parser("logics-manager product-consistency")
         parser.add_argument("--limit", type=int, default=50)
         parser.add_argument("--strict", action="store_true")
         parser.add_argument("--format", choices=("text", "json"), default="text")
@@ -596,7 +621,7 @@ def main(argv: list[str] | None = None) -> int:
         print(render_product_consistency(repo_root, output_format=parsed.format, limit=parsed.limit))
         return 1 if parsed.strict and not payload["ok"] else 0
     if command == "lint":
-        parser = argparse.ArgumentParser(prog="logics-manager lint", add_help=False)
+        parser = command_parser("logics-manager lint")
         parser.add_argument("--require-status", action="store_true")
         parser.add_argument("--format", choices=("text", "json"), default="text")
         parsed = parser.parse_args(rest)

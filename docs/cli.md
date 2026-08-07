@@ -38,6 +38,22 @@ logics-manager view --open
 logics-manager view --focus req_001_example --read --open
 ```
 
+## Discovering the command contract
+
+Every command and subcommand answers `--help` (and `-h`) with its own usage and
+flags, and exits `0`:
+
+```bash
+logics-manager --help              # the command listing
+logics-manager status --help       # one command's own flags
+logics-manager flow new request --help
+```
+
+This is the authoritative source for the current contract, which is why the
+generated `LOGICS.md` bridge points at it. `tests/python/test_cli_help_contract.py`
+enumerates the command surface from the CLI's own registration and asserts the
+behavior for each entry, so a newly added command cannot quietly opt out.
+
 ## Agent workflow cookbook
 
 For bounded workflow inspection, prefer `logics-manager flow show <ref>` or

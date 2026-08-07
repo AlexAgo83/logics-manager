@@ -1038,7 +1038,7 @@ import {
           </button>
           <button class="viewer-project-switcher__item${project.active ? " is-active" : ""}" type="button" role="menuitem" data-viewer-project-id="${escapeHtml(project.id || "")}" title="${escapeHtml(project.root || project.name || "")}">
             <span class="viewer-project-switcher__item-name">${escapeHtml(project.name || "project")}</span>
-            <span class="viewer-project-switcher__item-state">${escapeHtml(projectStateLabel(project))}</span>
+            <span class="viewer-project-switcher__item-state">${escapeHtml(projectStateLabel(project, latestProjectState[project.id] || null))}</span>
             <span class="viewer-project-switcher__item-path">${escapeHtml(project.root || "")}</span>
           </button>
         </div>
@@ -1054,6 +1054,21 @@ import {
     menu.innerHTML = `${projectRows}${pickerRow}`;
   }
 
+  let latestProjectState = {};
+
+  async function loadProjectState() {
+    // On demand, when the switcher opens: scanning every listed project at
+    // viewer startup would pay for all of them before the first screen renders.
+    try {
+      const response = await fetch("/api/projects-state");
+      const data = await response.json();
+      latestProjectState = data?.payload?.projects || {};
+      renderProjectMenu();
+    } catch {
+      // the switcher still lists projects without their state
+    }
+  }
+
   function setProjectMenuOpen(open) {
     const button = repoPill();
     const menu = projectMenu();
@@ -1063,6 +1078,9 @@ import {
     const nextOpen = Boolean(open);
     menu.hidden = !nextOpen;
     button.setAttribute("aria-expanded", nextOpen ? "true" : "false");
+    if (nextOpen) {
+      void loadProjectState();
+    }
   }
 
   async function switchViewerProject(projectId) {

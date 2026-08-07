@@ -14,6 +14,7 @@ import time
 import urllib.error
 import urllib.request
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -106,3 +107,59 @@ def test_health_route_is_read_only(viewer: str) -> None:
     with pytest.raises(urllib.error.HTTPError) as caught:
         urllib.request.urlopen(request, timeout=30)
     assert caught.value.code in (404, 405)
+
+
+# ---- per-project state (item_601) ----
+
+
+def test_projects_state_reports_each_listed_project(viewer: str) -> None:
+    listed = {entry["id"] for entry in _get(viewer, "/api/projects")["payload"]["projects"]}
+    state = _get(viewer, "/api/projects-state")["payload"]["projects"]
+    assert set(state) == listed, "the switcher would show a project with no state"
+
+
+def test_projects_state_carries_open_and_issue_counts(viewer: str) -> None:
+    state = _get(viewer, "/api/projects-state")["payload"]["projects"]
+    corpora = [entry for entry in state.values() if entry.get("hasLogics")]
+    assert corpora, "no project with a corpus was reported"
+    for entry in corpora:
+        for key in ("openCount", "issueCount", "staleCount"):
+            assert key in entry, f"missing {key}"
+
+
+def test_projects_without_a_corpus_are_marked_not_scanned(viewer: str) -> None:
+    state = _get(viewer, "/api/projects-state")["payload"]["projects"]
+    for entry in state.values():
+        if entry.get("hasLogics") is False:
+            assert entry["ok"] is True
+            assert "openCount" not in entry
+
+
+def test_a_failing_project_does_not_hide_the_others(corpus: Path, monkeypatch) -> None:
+    """One unreadable project must not take the whole switcher down.
+
+    Driven through the payload rather than HTTP: the failure has to be injected,
+    and a live server gives no seam to inject it.
+    """
+    from logics_manager import viewer as viewer_module
+
+    server = SimpleNamespace(
+        project_registry_payload=lambda: [
+            {"id": "a", "root": str(corpus), "hasLogics": True},
+            {"id": "b", "root": str(corpus), "hasLogics": True},
+        ]
+    )
+
+    def exploding(root, **kwargs):
+        if not getattr(exploding, "failed", False):
+            exploding.failed = True
+            raise ValueError("boom")
+        return {"open_count": 3, "next_actions": []}
+
+    monkeypatch.setattr(viewer_module, "status_payload", exploding)
+    monkeypatch.setattr(viewer_module, "health_payload", lambda root, **kw: {"issue_count": 0, "stale_doc_count": 0})
+
+    payload = viewer_module.LogicsViewerServer.project_state_payload(server)["projects"]
+    assert payload["a"] == {"ok": False, "error": "boom"}
+    assert payload["b"]["ok"] is True
+    assert payload["b"]["openCount"] == 3

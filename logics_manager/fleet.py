@@ -16,7 +16,7 @@ import json
 from pathlib import Path
 
 from .cli_output import render_payload
-from .config import ConfigError
+from .config import ConfigError, holds_corpus
 from .insights import health_payload, status_payload
 from .termstyle import colorize_help
 
@@ -44,7 +44,7 @@ def discover_corpora(root: Path) -> list[Path]:
     """Immediate children of `root` that hold a Logics corpus."""
     if not root.is_dir():
         return []
-    found = [child for child in root.iterdir() if child.is_dir() and (child / "logics").is_dir()]
+    found = [child for child in root.iterdir() if child.is_dir() and holds_corpus(child)]
     return sorted(found, key=lambda path: path.name)
 
 

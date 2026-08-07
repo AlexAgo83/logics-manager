@@ -74,7 +74,8 @@ scope: target one explicitly with `--repo-root`.
 document's most recent commit) and `age_days` alongside the existing fields. A
 document with no commit yet falls back to its filesystem mtime, so an
 uncommitted draft is still dated. The lookup is one batched `git log` walk over
-`logics/`, cached per process — not one call per document.
+`logics/`, cached against the current commit — not one call per document, and
+not frozen for the life of a long-running process either.
 
 `health` reports open documents untouched for longer than a threshold:
 
@@ -158,6 +159,18 @@ documents live. All three feed the Validation health screen.
 
 `/api/health` is read-only, and a failure to produce the report degrades to an
 "unavailable" note rather than blanking the screen.
+
+## The project switcher
+
+The switcher lists the active project and its siblings. Opening it loads each
+project's open-work count, issue signals, and stale-document count from
+`/api/projects-state`, reusing the same per-repository reports `fleet` reports,
+so "where is work blocked" is answered without switching into each project.
+
+The scan runs when the menu opens, not while the viewer starts, and a project
+that fails to report is shown as unreadable while the others still render.
+Directories with no `logics/` are still listed — the switcher is also how a
+project gets bootstrapped — and are simply not scanned.
 
 ## Discovering the command contract
 

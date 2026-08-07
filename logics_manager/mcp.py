@@ -20,7 +20,7 @@ from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 from .audit import audit_payload
-from .config import ConfigError, find_repo_root
+from .config import ConfigError, find_repo_root, holds_corpus
 from .flow import flow_list_payload
 from .insights import followups_payload, health_payload, product_consistency_payload, status_payload
 from .lint import expected_workflow_mermaid_signature, lint_payload
@@ -523,7 +523,7 @@ def _repo_root(repo_root: Path | None = None) -> Path:
             root = find_repo_root(Path.cwd()).resolve()
         except ConfigError as exc:
             raise McpToolError("command_failed", str(exc)) from exc
-    if not (root / "logics").is_dir():
+    if not holds_corpus(root):
         raise McpToolError("command_failed", f"Repository root has no logics directory: {root}")
     return root
 

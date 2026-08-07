@@ -173,3 +173,23 @@ build; `--update` re-freezes it after a legitimate split.
 **Python coverage sits around 75%**, with the floor at 73. The floor check runs
 after the test suite, which is backgrounded, because coverage data does not
 exist before it finishes.
+
+## Viewer route modules
+
+`viewer.py` serves the corpus. Two subsystems that are not the viewer live in
+their own modules and are dispatched from it:
+
+| Module | Routes |
+| --- | --- |
+| `viewer_cdx_routes.py` | the session cockpit (`/api/cdx-*`) |
+| `viewer_workshop_routes.py` | the workshop terminal (`/api/workshop-*`) |
+| `viewer_project_tools.py` | project i18n and theme |
+
+Each exposes `handle_get(handler, route, parsed)` and `handle_post(handler,
+parsed)`, returning `True` when it handled the route and `False` to let the
+caller keep dispatching. Returning `True` for a route it did not handle would
+swallow the response, so that is covered by a test.
+
+Route classification stays in `viewer.py`: `VIEWER_MUTATING_ROUTES` still lists
+the moved mutating routes, which is what keeps them behind loopback or a paired
+device over the network.

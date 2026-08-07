@@ -221,3 +221,59 @@ def test_the_scan_is_still_on_demand(viewer: str) -> None:
     """Caching must not turn into scanning while the viewer starts."""
     payload = _get(viewer, "/api/projects-state")["payload"]
     assert "projects" in payload
+
+
+# ---- the extracted route modules (item_607) ----
+
+
+@pytest.mark.parametrize(
+    "route",
+    [
+        "/api/cdx-status",
+        "/api/cdx-runs",
+        "/api/cdx-memory?scope=current",
+        "/api/workshop-commands",
+        "/api/workshop-sessions",
+        "/api/workshop-terminals",
+    ],
+)
+def test_moved_routes_keep_their_contract(route: str, viewer: str) -> None:
+    """Paths, status codes, and payload envelope are unchanged by the move."""
+    with urllib.request.urlopen(viewer + route, timeout=60) as response:
+        assert response.status == 200, route
+        assert json.load(response)["ok"] is True
+
+
+def test_the_moved_routes_keep_their_mutating_classification() -> None:
+    """A route that lost its mutating status would become writable over the network."""
+    from logics_manager.viewer import VIEWER_MUTATING_ROUTES
+
+    for route in (
+        "/api/cdx-mission-run",
+        "/api/cdx-import",
+        "/api/cdx-reset",
+        "/api/workshop-terminal-start",
+        "/api/workshop-terminal-input",
+        "/api/workshop-command-start",
+    ):
+        assert route in VIEWER_MUTATING_ROUTES, f"{route} is no longer gated"
+
+
+def test_the_route_modules_expose_the_shared_contract() -> None:
+    from logics_manager import viewer_cdx_routes, viewer_workshop_routes
+
+    for module in (viewer_cdx_routes, viewer_workshop_routes):
+        assert callable(module.handle_get)
+        assert callable(module.handle_post)
+
+
+def test_an_unknown_route_is_declined_by_both_modules() -> None:
+    """Returning True for a route it did not handle would swallow the response."""
+    from types import SimpleNamespace
+
+    from logics_manager import viewer_cdx_routes, viewer_workshop_routes
+
+    parsed = SimpleNamespace(path="/api/definitely-not-a-route", query="")
+    for module in (viewer_cdx_routes, viewer_workshop_routes):
+        assert module.handle_get(None, "/api/definitely-not-a-route", parsed) is False
+        assert module.handle_post(None, parsed) is False

@@ -211,7 +211,40 @@ def _deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any
     return merged
 
 
+_REPO_ROOT_OVERRIDE: Path | None = None
+
+
+def set_repo_root_override(path: Path | str | None, *, require_corpus: bool = True) -> Path | None:
+    """Pin the repository every command operates on, ignoring the caller's cwd.
+
+    Set once from `--repo-root` before command dispatch. Every command reaches
+    its repository through `find_repo_root`, so overriding here covers the whole
+    surface; an embedder targeting several repositories no longer has to spawn
+    each invocation with a changed working directory.
+    """
+    global _REPO_ROOT_OVERRIDE
+    if path is None:
+        _REPO_ROOT_OVERRIDE = None
+        return None
+    candidate = Path(path).expanduser()
+    if not candidate.is_dir():
+        raise ConfigError(f"--repo-root path does not exist or is not a directory: {candidate}")
+    resolved = candidate.resolve()
+    # `bootstrap` is what creates `logics/`, so it targets a directory that does
+    # not have one yet.
+    if require_corpus and not (resolved / "logics").is_dir():
+        raise ConfigError(f"--repo-root path contains no 'logics/' directory: {resolved}")
+    _REPO_ROOT_OVERRIDE = resolved
+    return resolved
+
+
+def get_repo_root_override() -> Path | None:
+    return _REPO_ROOT_OVERRIDE
+
+
 def find_repo_root(start: Path) -> Path:
+    if _REPO_ROOT_OVERRIDE is not None:
+        return _REPO_ROOT_OVERRIDE
     current = start.resolve()
     for candidate in [current, *current.parents]:
         if (candidate / "logics").is_dir():

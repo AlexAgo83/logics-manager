@@ -9,6 +9,7 @@ from pathlib import Path
 
 from ..audit import audit_payload
 from ..cli_output import print_payload
+from ..config import ConfigError, find_repo_root
 from ..doc_parsing import extract_refs, progress_value, section_lines
 from ..flow_evidence import has_ac_proof as _has_ac_proof
 from ..flow_evidence import has_validation_evidence as _has_validation_evidence
@@ -842,11 +843,16 @@ def _split_titles(raw_titles: list[str]) -> list[str]:
 
 
 def _find_repo_root(start: Path) -> Path:
-    current = start.resolve()
-    for candidate in [current, *current.parents]:
-        if (candidate / "logics").is_dir():
-            return candidate
-    raise SystemExit("Could not locate repo root (missing 'logics/' directory). Run from inside the repo.")
+    """Delegate to the canonical resolver so `--repo-root` reaches flow too.
+
+    This used to re-implement the walk, which meant the override set before
+    dispatch was invisible here and `flow` alone still required the caller's
+    working directory to be inside the target repository.
+    """
+    try:
+        return find_repo_root(start)
+    except ConfigError as exc:
+        raise SystemExit(str(exc)) from exc
 
 
 def _plan_doc(repo_root: Path, directory: str, prefix: str, title: str, dry_run: bool = False) -> PlannedDoc:

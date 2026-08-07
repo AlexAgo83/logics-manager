@@ -1,10 +1,10 @@
 ## item_594_report_status_and_health_across_every_repository_under_a_root - Report status and health across every repository under a root
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Medium
 > Theme: Fleet reporting
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

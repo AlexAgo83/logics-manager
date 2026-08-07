@@ -15,7 +15,7 @@ from .assist import main as assist_main
 from .audit import audit_payload, build_parser as build_audit_parser
 from .audit import render_audit
 from .cli_output import render_payload
-from .config import ConfigError, find_repo_root, render_config_show
+from .config import ConfigError, find_repo_root, render_config_show, set_repo_root_override
 from .index import index_payload, render_index
 from .insights import followups_payload, health_payload, render_followups, render_health, render_status, status_payload
 from .insights import product_consistency_payload, render_product_consistency
@@ -56,6 +56,33 @@ ROOT_COMMANDS = (
 )
 
 
+def _extract_repo_root(argv: list[str]) -> tuple[list[str], str | None]:
+    """Pull `--repo-root PATH` (or `--repo-root=PATH`) out of any position.
+
+    Handled before dispatch rather than per command: every command reaches its
+    repository through `find_repo_root`, so one extraction plus one override
+    covers the whole surface.
+    """
+    remaining: list[str] = []
+    value: str | None = None
+    index = 0
+    while index < len(argv):
+        arg = argv[index]
+        if arg == "--repo-root":
+            if index + 1 >= len(argv):
+                raise SystemExit("--repo-root requires a path argument.")
+            value = argv[index + 1]
+            index += 2
+            continue
+        if arg.startswith("--repo-root="):
+            value = arg.split("=", 1)[1]
+            index += 1
+            continue
+        remaining.append(arg)
+        index += 1
+    return remaining, value
+
+
 def _expand_json_alias(argv: list[str]) -> list[str]:
     expanded: list[str] = []
     for arg in argv:
@@ -78,6 +105,8 @@ def _build_root_help() -> str:
         "Top-level options:",
         "  -h, --help      Show this help message and exit.",
         "  -v, --version   Print the installed version and exit.",
+        "  --repo-root DIR Target this repository instead of discovering one from the",
+        "                  current directory. Accepted by every command.",
         "",
         "Common workflows:",
         '  logics-manager flow new request --title "My request"',
@@ -284,9 +313,17 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     argv = _expand_json_alias(argv)
+    argv, repo_root_option = _extract_repo_root(argv)
+    if not argv:
+        _print_help(_build_root_help())
+        return 1
     command = argv[0]
     if command not in ROOT_COMMANDS:
         raise SystemExit(f"Unsupported command: {command}")
+    try:
+        set_repo_root_override(repo_root_option, require_corpus=command != "bootstrap")
+    except ConfigError as exc:
+        raise SystemExit(str(exc)) from exc
     _maybe_print_update_notice(command, argv)
 
     rest = argv[1:]

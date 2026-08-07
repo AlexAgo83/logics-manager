@@ -1,10 +1,10 @@
 ## item_589_bound_the_served_mcp_tool_surface_by_profile_and_by_allow_and_deny_lists - Bound the served MCP tool surface by profile and by allow and deny lists
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Medium
 > Theme: MCP surface control
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

@@ -1,10 +1,10 @@
 ## item_592_expose_document_age_and_a_stale_document_health_signal - Expose document age and a stale-document health signal
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Medium
 > Theme: Workflow signals
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

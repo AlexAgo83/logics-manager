@@ -27,6 +27,42 @@ Run the local stdio server:
 python3 -m logics_manager mcp serve --repo-root .
 ```
 
+## Bounding the served surface
+
+Every tool carries a `capability`: `read-only`, `mutating` (creates or edits
+documents), or `destructive` (removes a document or restructures the corpus
+around it — `delete_logics_file`, `rename_logics_file`, `split_request`,
+`split_backlog`).
+
+`--profile` selects a capability level, `--allow-tools` adds name patterns on
+top, and `--deny-tools` removes them. Deny always wins. All three are accepted
+by `serve`, `serve-http`, `tools`, and `call`, and apply to every transport.
+
+```bash
+# a status glance: nothing can write
+python3 -m logics_manager mcp serve --profile read-only
+
+# everything except the destructive tools
+python3 -m logics_manager mcp serve --profile curated
+
+# read-only plus one capture tool
+python3 -m logics_manager mcp serve --profile read-only --allow-tools create_request
+
+# the full surface minus a specific family
+python3 -m logics_manager mcp serve --deny-tools 'delete_*,rename_*'
+```
+
+The default is `--profile full`, which is the whole surface — unchanged from
+before. A pattern that matches no tool is an error rather than a silent no-op,
+and both server transports print the resolved surface to stderr at startup:
+
+```
+Logics MCP surface: profile=read-only tools=15/36
+```
+
+Calling a tool outside the selection returns an `unsupported_action` error
+naming its capability and the active profile.
+
 Run the local HTTP server for an HTTPS tunnel:
 
 ```bash

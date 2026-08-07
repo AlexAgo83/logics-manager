@@ -12,6 +12,7 @@ import signal
 import subprocess
 import sys
 import time
+from fnmatch import fnmatch
 from pathlib import Path
 from typing import Any
 from urllib.error import URLError
@@ -355,7 +356,140 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
         ),
     },
 ]
+READ_ONLY = "read-only"
+MUTATING = "mutating"
+DESTRUCTIVE = "destructive"
+
+# What each tool can do to the corpus. Serving the whole set is all-or-nothing
+# without this: an integration that only needs a status glance would otherwise
+# have to accept delete/rename/split as standing surface, or wrap a curated
+# subset in a server of its own.
+TOOL_CAPABILITIES: dict[str, str] = {
+    # read-only
+    "list_companion_docs": READ_ONLY,
+    "list_active_work": READ_ONLY,
+    "read_logics_doc": READ_ONLY,
+    "build_context_pack": READ_ONLY,
+    "get_release_status": READ_ONLY,
+    "get_release_plan": READ_ONLY,
+    "list_logics_docs": READ_ONLY,
+    "search_logics_docs": READ_ONLY,
+    "get_logics_status": READ_ONLY,
+    "get_logics_health": READ_ONLY,
+    "list_logics_followups": READ_ONLY,
+    "check_product_consistency": READ_ONLY,
+    "run_logics_lint": READ_ONLY,
+    "run_logics_audit": READ_ONLY,
+    "show_git_diff": READ_ONLY,
+    # mutating: creates or edits documents, never removes or restructures them
+    "create_request": MUTATING,
+    "promote_request_to_backlog": MUTATING,
+    "promote_backlog_to_task": MUTATING,
+    "create_product_brief": MUTATING,
+    "create_architecture_decision": MUTATING,
+    "create_roadmap": MUTATING,
+    "scaffold_request_chain": MUTATING,
+    "finish_task": MUTATING,
+    "close_workflow_doc": MUTATING,
+    "close_eligible_requests": MUTATING,
+    "refresh_mermaid_signatures": MUTATING,
+    "update_workflow_indicators": MUTATING,
+    "append_report_entry": MUTATING,
+    "append_validation_note": MUTATING,
+    "append_decision_note": MUTATING,
+    "autofix_ac_traceability": MUTATING,
+    "autofix_structure": MUTATING,
+    # destructive: removes a document, or restructures the corpus around it
+    "delete_logics_file": DESTRUCTIVE,
+    "rename_logics_file": DESTRUCTIVE,
+    "split_request": DESTRUCTIVE,
+    "split_backlog": DESTRUCTIVE,
+}
+
+TOOL_PROFILES: dict[str, tuple[str, ...]] = {
+    READ_ONLY: (READ_ONLY,),
+    "curated": (READ_ONLY, MUTATING),
+    "full": (READ_ONLY, MUTATING, DESTRUCTIVE),
+}
+DEFAULT_TOOL_PROFILE = "full"
+
+for _tool in TOOL_DEFINITIONS:
+    _tool["capability"] = TOOL_CAPABILITIES.get(str(_tool["name"]), MUTATING)
+
 TOOLS_BY_NAME = {str(tool["name"]): tool for tool in TOOL_DEFINITIONS}
+
+_EXPOSED_TOOLS: frozenset[str] | None = None
+_ACTIVE_PROFILE: str = DEFAULT_TOOL_PROFILE
+
+
+class ToolSelectionError(ValueError):
+    """Raised for an unusable --profile/--allow-tools/--deny-tools selection."""
+
+
+def _match_patterns(patterns: list[str] | None) -> tuple[set[str], list[str]]:
+    """Expand glob patterns against the tool names; report the ones that match nothing."""
+    matched: set[str] = set()
+    unmatched: list[str] = []
+    for pattern in patterns or []:
+        hits = {name for name in TOOLS_BY_NAME if fnmatch(name, pattern)}
+        if hits:
+            matched |= hits
+        else:
+            unmatched.append(pattern)
+    return matched, unmatched
+
+
+def select_tools(
+    *,
+    profile: str = DEFAULT_TOOL_PROFILE,
+    allow: list[str] | None = None,
+    deny: list[str] | None = None,
+) -> list[str]:
+    """Resolve the served tool names. Deny always wins over allow and profile."""
+    if profile not in TOOL_PROFILES:
+        raise ToolSelectionError(
+            f"Unknown tool profile: {profile!r} (choose from {', '.join(sorted(TOOL_PROFILES))})"
+        )
+    capabilities = TOOL_PROFILES[profile]
+    selected = {name for name, capability in TOOL_CAPABILITIES.items() if capability in capabilities}
+    selected &= set(TOOLS_BY_NAME)
+
+    allowed, unmatched_allow = _match_patterns(allow)
+    denied, unmatched_deny = _match_patterns(deny)
+    unmatched = unmatched_allow + unmatched_deny
+    if unmatched:
+        raise ToolSelectionError(
+            "No tool matches: " + ", ".join(sorted(unmatched))
+            + ". Check the names with `logics-manager mcp tools`."
+        )
+    if allow:
+        selected |= allowed
+    selected -= denied
+    if not selected:
+        raise ToolSelectionError("The selection leaves no tool exposed.")
+    return sorted(selected)
+
+
+def set_exposed_tools(names: list[str] | None, *, profile: str = DEFAULT_TOOL_PROFILE) -> None:
+    global _EXPOSED_TOOLS, _ACTIVE_PROFILE
+    _EXPOSED_TOOLS = None if names is None else frozenset(names)
+    _ACTIVE_PROFILE = profile
+
+
+def exposed_tool_names() -> list[str]:
+    if _EXPOSED_TOOLS is None:
+        return sorted(TOOLS_BY_NAME)
+    return sorted(_EXPOSED_TOOLS)
+
+
+def exposed_tool_definitions() -> list[dict[str, Any]]:
+    if _EXPOSED_TOOLS is None:
+        return TOOL_DEFINITIONS
+    return [tool for tool in TOOL_DEFINITIONS if str(tool["name"]) in _EXPOSED_TOOLS]
+
+
+def active_tool_profile() -> str:
+    return _ACTIVE_PROFILE
 
 
 def _server_version() -> str:
@@ -1260,6 +1394,12 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
     args = arguments or {}
     if name not in TOOLS_BY_NAME:
         raise McpToolError("unsupported_action", f"Unsupported MCP tool: {name}")
+    if _EXPOSED_TOOLS is not None and name not in _EXPOSED_TOOLS:
+        raise McpToolError(
+            "unsupported_action",
+            f"MCP tool `{name}` is not exposed by this server "
+            f"(capability: {TOOL_CAPABILITIES.get(name, MUTATING)}, profile: {_ACTIVE_PROFILE}).",
+        )
     _validate_arguments(name, args)
     handler = _TOOL_HANDLERS.get(name)
     if handler is None:
@@ -1288,7 +1428,7 @@ def handle_jsonrpc(message: dict[str, Any], *, repo_root: Path | None = None) ->
                 "serverInfo": {"name": "logics-manager", "version": _server_version()},
             }
         elif method == "tools/list":
-            result = {"tools": TOOL_DEFINITIONS}
+            result = {"tools": exposed_tool_definitions()}
         elif method == "tools/call":
             params = message.get("params") if isinstance(message.get("params"), dict) else {}
             name = str(params.get("name") or "")
@@ -1308,8 +1448,20 @@ def handle_jsonrpc(message: dict[str, Any], *, repo_root: Path | None = None) ->
         return {"jsonrpc": JSONRPC_VERSION, "id": request_id, "error": {"code": -32000, "message": exc.message, "data": error_payload}}
 
 
+def _print_surface_banner() -> None:
+    """Say which tools this process actually serves, on both transports."""
+    names = exposed_tool_names()
+    print(
+        f"Logics MCP surface: profile={active_tool_profile()} tools={len(names)}/{len(TOOLS_BY_NAME)}",
+        file=sys.stderr,
+    )
+    if len(names) != len(TOOLS_BY_NAME):
+        print("Exposed tools: " + ", ".join(names), file=sys.stderr)
+
+
 def serve_stdio(*, repo_root: Path | None = None) -> int:
     root = _repo_root(repo_root)
+    _print_surface_banner()
     for line in sys.stdin:
         stripped = line.strip()
         if not stripped:
@@ -1426,6 +1578,7 @@ def serve_http(*, repo_root: Path | None = None, host: str = "127.0.0.1", port: 
     root = _repo_root(repo_root)
     token = bearer_token or os.environ.get(AUTH_ENV_VAR)
     server = ThreadingHTTPServer((host, port), make_http_handler(root, bearer_token=token))
+    _print_surface_banner()
     print(f"Logics MCP HTTP listening on http://{host}:{server.server_port}/mcp", file=sys.stderr)
     if token:
         print("Logics MCP HTTP requires Authorization: Bearer <token> for POST /mcp", file=sys.stderr)
@@ -1650,10 +1803,44 @@ def main(argv: list[str] | None = None) -> int:
     tunnel.add_argument("--port", type=int, default=8765)
     tunnel.add_argument("--bearer-token", default=None)
     tunnel.add_argument("--no-bearer", action="store_true", help="Run without bearer auth for short-lived local debugging.")
+    for surface in (serve, serve_http_parser, tools, call):
+        surface.add_argument(
+            "--profile",
+            choices=sorted(TOOL_PROFILES),
+            default=DEFAULT_TOOL_PROFILE,
+            help="Expose only tools at or below this capability level.",
+        )
+        surface.add_argument(
+            "--allow-tools",
+            default=None,
+            help="Comma-separated tool name patterns to add to the profile (e.g. 'read_*,list_*').",
+        )
+        surface.add_argument(
+            "--deny-tools",
+            default=None,
+            help="Comma-separated tool name patterns to remove. Takes precedence over --profile and --allow-tools.",
+        )
+
     parsed = parser.parse_args(argv)
 
+    if getattr(parsed, "profile", None) is not None:
+        def _split(value: str | None) -> list[str] | None:
+            if not value:
+                return None
+            return [part.strip() for part in value.split(",") if part.strip()]
+
+        try:
+            selected = select_tools(
+                profile=parsed.profile,
+                allow=_split(parsed.allow_tools),
+                deny=_split(parsed.deny_tools),
+            )
+        except ToolSelectionError as exc:
+            raise SystemExit(str(exc)) from exc
+        set_exposed_tools(selected, profile=parsed.profile)
+
     if parsed.command == "tools":
-        print(json.dumps({"tools": TOOL_DEFINITIONS}, indent=2, sort_keys=True))
+        print(json.dumps({"profile": active_tool_profile(), "tools": exposed_tool_definitions()}, indent=2, sort_keys=True))
         return 0
     if parsed.command == "serve":
         return serve_stdio(repo_root=Path(parsed.repo_root) if parsed.repo_root else None)

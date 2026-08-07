@@ -136,3 +136,88 @@ def test_help_is_available(fleet: Path) -> None:
         result = _run(args)
         assert result.returncode == 0, args
         assert result.stdout.strip()
+
+
+# ---- the command surface (item_610) ----
+
+
+def test_help_without_arguments_reports_usage_and_fails(capsys) -> None:
+    """No arguments is a usage error, not a successful no-op."""
+    from logics_manager.fleet import main
+
+    assert main([]) == 1
+    assert "fleet" in capsys.readouterr().out.lower()
+
+
+def test_explicit_help_succeeds(capsys) -> None:
+    from logics_manager.fleet import main
+
+    assert main(["--help"]) == 0
+    assert "fleet" in capsys.readouterr().out.lower()
+
+
+def test_an_unknown_report_is_rejected() -> None:
+    from logics_manager.fleet import main
+
+    with pytest.raises(SystemExit, match="status|health"):
+        main(["nonsense"])
+
+
+def test_a_missing_root_is_rejected(tmp_path: Path) -> None:
+    from logics_manager.fleet import main
+
+    with pytest.raises(SystemExit, match="does not exist"):
+        main(["status", "--root", str(tmp_path / "absent")])
+
+
+@pytest.mark.parametrize("report", ["status", "health"])
+@pytest.mark.parametrize("fmt", ["text", "json"])
+def test_both_reports_render_in_both_formats(report: str, fmt: str, fleet: Path, capsys) -> None:
+    from logics_manager.fleet import main
+
+    assert main([report, "--root", str(fleet), "--format", fmt]) == 0
+    out = capsys.readouterr().out
+    assert out.strip(), f"{report}/{fmt} printed nothing"
+    if fmt == "json":
+        assert json.loads(out)["report"] == report
+
+
+def test_the_text_report_names_an_empty_root(tmp_path: Path, capsys) -> None:
+    from logics_manager.fleet import main
+
+    assert main(["status", "--root", str(tmp_path)]) == 0
+    assert "no Logics corpus" in capsys.readouterr().out
+
+
+def test_the_text_report_shows_a_failing_repository(fleet: Path, monkeypatch, capsys) -> None:
+    from logics_manager import fleet as fleet_module
+
+    monkeypatch.setattr(
+        fleet_module, "status_payload", lambda path, **kwargs: (_ for _ in ()).throw(ValueError("boom"))
+    )
+    assert fleet_module.main(["status", "--root", str(fleet)]) == 1
+    out = capsys.readouterr().out
+    assert "ERROR" in out and "boom" in out
+
+
+def test_the_health_text_report_mentions_stale_documents(fleet: Path, monkeypatch, capsys) -> None:
+    from logics_manager import fleet as fleet_module
+
+    monkeypatch.setattr(
+        fleet_module,
+        "health_payload",
+        lambda path, **kwargs: {"ok": True, "issue_count": 2, "stale_doc_count": 3, "workflow_doc_count": 9},
+    )
+    assert fleet_module.main(["health", "--root", str(fleet)]) == 0
+    assert "3 stale" in capsys.readouterr().out
+
+
+def test_the_limit_is_passed_through(fleet: Path, monkeypatch) -> None:
+    from logics_manager import fleet as fleet_module
+
+    seen: list[int] = []
+    monkeypatch.setattr(
+        fleet_module, "status_payload", lambda path, **kwargs: seen.append(kwargs.get("limit")) or {"ok": True}
+    )
+    fleet_module.main(["status", "--root", str(fleet), "--limit", "3"])
+    assert seen and set(seen) == {3}

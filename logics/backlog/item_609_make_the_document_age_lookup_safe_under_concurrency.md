@@ -1,10 +1,10 @@
 ## item_609_make_the_document_age_lookup_safe_under_concurrency - Make the document-age lookup safe under concurrency
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Status: In progress
+> Understanding: 95%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: Low
 > Theme: Shared cache correctness
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

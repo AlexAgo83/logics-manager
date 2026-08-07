@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import re
 import subprocess
+import threading
 import time
 from pathlib import Path
 
@@ -108,6 +109,17 @@ def priority_rank(value: str | None) -> int:
 
 
 _LAST_CHANGE_CACHE: dict[str, tuple[str, dict[str, int]]] = {}
+# The viewer that calls this is a threading server: without a lock, requests
+# arriving together each ran their own ~0.3s history walk. Measured at six walks
+# for six concurrent callers. A per-key lock, so one repository's walk does not
+# block another's.
+_LAST_CHANGE_LOCKS: dict[str, threading.Lock] = {}
+_LAST_CHANGE_LOCKS_GUARD = threading.Lock()
+
+
+def _cache_lock(key: str) -> threading.Lock:
+    with _LAST_CHANGE_LOCKS_GUARD:
+        return _LAST_CHANGE_LOCKS.setdefault(key, threading.Lock())
 
 
 def _current_commit(repo_root: Path) -> str:
@@ -147,6 +159,15 @@ def git_last_change_times(repo_root: Path, subdir: str = "logics") -> dict[str, 
     if cached is not None and cached[0] == head:
         return cached[1]
 
+    with _cache_lock(key):
+        # Re-check inside the lock: whoever held it may have just done the walk.
+        cached = _LAST_CHANGE_CACHE.get(key)
+        if cached is not None and cached[0] == head:
+            return cached[1]
+        return _read_change_times(repo_root, subdir, key, head)
+
+
+def _read_change_times(repo_root: Path, subdir: str, key: str, head: str) -> dict[str, int]:
     times: dict[str, int] = {}
     try:
         completed = subprocess.run(

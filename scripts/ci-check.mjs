@@ -101,7 +101,7 @@ if (backgroundStep) {
   runStep(
     "Python coverage floor",
     pythonInvocation.command,
-    [...pythonInvocation.argsPrefix, "-m", "coverage", "report", "--fail-under=73"]
+    [...pythonInvocation.argsPrefix, "-m", "coverage", "report", "--fail-under=75"]
   );
 }
 

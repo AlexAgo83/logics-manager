@@ -31,6 +31,13 @@ function packPackage() {
   return { ...payload[0], packageDir };
 }
 
+// Each test spawns `npm pack` against a deliberately cold cache, and the second
+// installs the resulting tarball. Vitest's 5s default was never proportionate to
+// that: it held on Linux and timed out on Windows, where npm runs through
+// cmd.exe and has to rebuild the cache from scratch. These are surface
+// assertions, not a performance benchmark.
+const PACK_TIMEOUT_MS = 120_000;
+
 describe("npm package surface", () => {
   it("packages the CLI wrapper without bundling the whole repo", () => {
     const packed = packPackage();
@@ -61,7 +68,7 @@ describe("npm package surface", () => {
     } finally {
       fs.rmSync(packed.packageDir, { recursive: true, force: true });
     }
-  });
+  }, PACK_TIMEOUT_MS);
 
   it("installs and runs the published CLI wrapper from a packed tarball", () => {
     const packed = packPackage();
@@ -97,5 +104,5 @@ describe("npm package surface", () => {
       fs.rmSync(cacheDir, { recursive: true, force: true });
       fs.rmSync(packed.packageDir, { recursive: true, force: true });
     }
-  }, 60000);
+  }, PACK_TIMEOUT_MS);
 });

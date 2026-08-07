@@ -1,0 +1,575 @@
+{
+  "budgets": {
+    "max_docs": 16,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_304_make_the_documented_per_command_help_contract_work_across_the_whole_cli_surface item_596_register_the_help_flag_at_the_shared_parser_construction_point item_597_assert_help_behavior_across_an_enumerated_command_surface task_301_restore_the_per_command_help_contract_across_the_cli_surface --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "adr": [
+          "adr_012_keep_the_vs_code_plugin_as_a_thin_client_over_shared_hybrid_runtime_commands",
+          "adr_013_replace_repo_local_codex_workspace_overlays_with_a_global_published_logics_kit"
+        ],
+        "item": [
+          "item_339_integrate_the_runtime_into_cdx_logics_vscode_and_remove_the_skills_checkout",
+          "item_340_package_logics_manager_as_a_polished_installable_cli",
+          "item_341_generate_assistant_bridges_and_instructions_from_the_integrated_runtime",
+          "item_342_remove_the_legacy_logics_skills_submodule_and_manual_bootstrap_path",
+          "item_343_eliminate_legacy_cdx_logics_kit_compatibility_surfaces_from_the_extension_runtime",
+          "item_344_add_an_npm_distribution_surface_for_logics_manager"
+        ],
+        "prod": [
+          "prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api"
+        ],
+        "req": [
+          "req_069_add_an_operator_facing_logics_codex_workspace_manager_cli",
+          "req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit",
+          "req_095_adapt_the_vs_code_logics_plugin_to_expose_hybrid_assist_runtime_status_actions_audit_and_cross_agent_messaging",
+          "req_188_unify_logics_into_a_bundled_cli_and_integrated_runtime"
+        ],
+        "task": [
+          "task_148_integrate_the_runtime_into_cdx_logics_vscode_and_remove_the_skills_checkout",
+          "task_149_package_logics_manager_as_a_polished_installable_cli",
+          "task_150_generate_assistant_bridges_and_instructions_from_the_integrated_runtime"
+        ]
+      },
+      "path": "logics/product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md",
+      "ref": "prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api",
+      "sections": {
+        "Goals": [
+          "- Provide a CLI that can do everything the plugin can do today, without requiring the plugin.",
+          "- Make the CLI the canonical place for workflow and runtime behavior, not a second implementation.",
+          "- Expose a stable, machine-readable contract so the plugin can delegate to the CLI instead of mirroring logic in TypeScript.",
+          "- Support the full Logics kit surface through the same CLI contract, including repo bootstrap, validation, workflow operations, runtime diagnostics, release-oriented actions, and every other supported kit capability.",
+          "- Eliminate the standalone `cdx-logics-kit` dependency by integrating the runtime into `cdx-logics-vscode` directly.",
+          "- Preserve behavior across the migration so the new integrated runtime is a drop-in replacement, not a partial port."
+        ],
+        "Key product decisions": [
+          "- The CLI is the source of truth for Logics operations.",
+          "- The VS Code plugin should remain a full UX client over the CLI, not a second workflow engine.",
+          "- Every user-facing Logics capability should be reachable from the CLI, even when a plugin surface also exists.",
+          "- The CLI must include all kit maintenance and repair commands, not only day-to-day workflow actions.",
+          "- CLI commands should favor stable verbs, structured outputs, and clear failure modes so they can be embedded by other tools.",
+          "- The CLI should support both human-readable text and stable JSON output everywhere that automation needs it."
+        ],
+        "Overview": [
+          "Logics should have one stable CLI that can be used with or without the VS Code plugin.",
+          "The CLI should become the canonical operator API for the Logics runtime, with the plugin acting as a full UX client that delegates runtime execution instead of reimplementing workflow logic.",
+          "The target binary name is `logics-manager`.",
+          "In the final state, the Logics runtime code should live directly inside `cdx-logics-vscode`, and the standalone `cdx-logics-kit` dependency should no longer be required as a separate repo boundary for normal usage.",
+          "The repository should be able to function without `cdx-logics-kit` at all once the migration is complete.",
+          "Once functional, `logics-manager` should be distributable through both `pip` and `npm`."
+        ],
+        "References": [
+          "- `README.md`",
+          "- `logics/request/req_069_add_an_operator_facing_logics_codex_workspace_manager_cli.md`",
+          "- `logics/request/req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit.md`",
+          "- `logics/request/req_095_adapt_the_vs_code_logics_plugin_to_expose_hybrid_assist_runtime_status_actions_audit_and_cross_agent_messaging.md`",
+          "- `logics/architecture/adr_012_keep_the_vs_code_plugin_as_a_thin_client_over_shared_hybrid_runtime_commands.md`",
+          "- `logics/architecture/adr_013_replace_repo_local_codex_workspace_overlays_with_a_global_published_logics_kit.md`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Logics CLI as the primary operator surface and unified runtime API"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_361_mature_cli_product_contracts"
+        ],
+        "prod": [
+          "prod_013_cli_primary_usage_audit_and_hardening"
+        ],
+        "req": [
+          "req_197_mature_cli_product_contracts"
+        ],
+        "task": [
+          "task_162_mature_cli_product_contracts"
+        ]
+      },
+      "path": "logics/product/prod_013_cli_primary_usage_audit_and_hardening.md",
+      "ref": "prod_013_cli_primary_usage_audit_and_hardening",
+      "sections": {
+        "Goals": [
+          "- Make the documented CLI examples work exactly as written, especially ref-based workflow commands.",
+          "- Make automation output reliable: `--format json` must produce parseable JSON without human text mixed in.",
+          "- Keep every write bounded to the repository unless a command explicitly and safely supports external output.",
+          "- Fail loudly on unknown flags, invalid paths, and unsupported source forms.",
+          "- Preserve the CLI as the canonical workflow entrypoint for local Logics operations."
+        ],
+        "Key product decisions": [
+          "- Treat request, backlog, and task refs as first-class CLI inputs wherever help examples show refs.",
+          "- Treat repo-relative paths as first-class CLI inputs when they identify valid Logics docs.",
+          "- Reject absolute paths and `..` traversal for workflow mutations unless a command explicitly documents an external read/write mode.",
+          "- Make strict argument parsing the default for native root-routed commands.",
+          "- Keep `--dry-run` side-effect free, including directory creation for planned outputs.",
+          "- Keep npm as a thin launcher and Python as the source of CLI behavior."
+        ],
+        "Overview": [
+          "The Logics Manager CLI is now the primary operator surface for creating, promoting, auditing, and maintaining workflow docs. The product expectation is no longer \"the CLI exists as a helper\"; it must behave like the canonical interface: predictable, scriptable, bounded to the repo, and aligned with its own help text.",
+          "The first audit pass found several CLI contract gaps that directly affect day-to-day use: documented refs are not accepted by `flow promote`/`split`/`close`/`finish`, unknown flags are silently ignored on native root-routed commands, and several `--out` paths can write outside the repository before failing or succeeding. These are product issues because they erode trust in the CLI as the main workflow.",
+          "```mermaid",
+          "%% logics-kind: product",
+          "%% logics-signature: product|cli-primary-surface|hardening-contract",
+          "flowchart TD"
+        ],
+        "References": [
+          "- Product back-reference: `item_361_mature_cli_product_contracts`",
+          "- Task back-reference: `task_162_mature_cli_product_contracts`",
+          "- Audit finding: `flow` help documents ref inputs, but implementation resolves sources as filesystem paths.",
+          "- Audit finding: `index`, `sync`, and `assist` output paths can escape the repository.",
+          "- Audit finding: root-routed native commands use `parse_known_args` and ignore unknown flags.",
+          "- Audit finding: some `--format json` commands mix human text with JSON output."
+        ]
+      },
+      "status": "Settled",
+      "title": "CLI primary usage audit and hardening"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_596_register_the_help_flag_at_the_shared_parser_construction_point",
+          "item_597_assert_help_behavior_across_an_enumerated_command_surface"
+        ],
+        "prod": [
+          "prod_052_reliable_cli_help_and_command_contract_discovery"
+        ],
+        "req": [
+          "req_304_make_the_documented_per_command_help_contract_work_across_the_whole_cli_surface"
+        ],
+        "task": [
+          "task_301_restore_the_per_command_help_contract_across_the_cli_surface"
+        ]
+      },
+      "path": "logics/product/prod_052_reliable_cli_help_and_command_contract_discovery.md",
+      "ref": "prod_052_reliable_cli_help_and_command_contract_discovery",
+      "sections": {
+        "Goals": [
+          "- Make per-command help a dependable contract for operators and agents.",
+          "- Remove the class of defect rather than its current instances.",
+          "- Keep the command surface self-verifying as it grows."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Guarantee that the per-command help the generated instructions point to actually works, everywhere, and stays working as the command surface grows. Fix the defect where it is constructed rather than where it is observed, and enumerate the surface in a test so the next command cannot silently regress."
+        ],
+        "References": [
+          "- Product back-reference: `req_304_make_the_documented_per_command_help_contract_work_across_the_whole_cli_surface`",
+          "- Task back-reference: `task_301_restore_the_per_command_help_contract_across_the_cli_surface`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Reliable CLI help and command contract discovery"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_557_make_logics_remediation_messages_copy_paste_safe",
+          "item_558_normalize_workflow_status_aliases_before_persistence",
+          "item_559_harden_release_evidence_help_and_examples",
+          "item_560_add_package_truth_checks_for_shipped_cli_behavior",
+          "item_561_document_rtk_wrapper_safe_command_forms",
+          "item_562_use_cdx_memory_as_the_structured_source_for_assistant_context",
+          "item_563_make_roadmap_status_and_placement_part_of_the_daily_flow"
+        ],
+        "prod": [
+          "prod_045_logics_operator_ergonomics"
+        ],
+        "req": [
+          "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow"
+        ],
+        "task": [
+          "task_294_orchestrate_logics_operator_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/product/prod_045_logics_operator_ergonomics.md",
+      "ref": "prod_045_logics_operator_ergonomics",
+      "sections": {
+        "Goals": [
+          "- Reduce avoidable operator mistakes in common Logics remediation and release-evidence flows.",
+          "- Make assistant handoffs cleaner by consuming structured `cdx memory` output, cleaning terminal noise, and exposing the result in a CDX Memory viewer sub-screen.",
+          "- Prove package/install behavior from built artifacts before release work is trusted, with a cheap `ci:check` metadata gate and a heavier clean-wheel doctor/release gate.",
+          "- Make roadmap docs useful during daily planning and closeout through top-level `logics-manager roadmap status/place` commands instead of only companion-document views."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded.",
+          "- Use `logics-manager roadmap ...` as the primary roadmap surface; keep `flow roadmap ...` aliases only when they are cheap wrappers.",
+          "- Split packaging proof into a fast metadata coverage check in `ci:check` and a slower clean-wheel install check in `doctor packaging` / release validation.",
+          "- Add a read-only CDX Memory sub-screen under the existing CDX viewer area, backed by the same cleaned `cdx memory` payload used by assistant context.",
+          "- Deliver the broad ergonomics request as separate implementation slices and commits when practical; avoid one large mixed change."
+        ],
+        "Overview": [
+          "Make Logics Manager easier for agents and operators to use correctly by turning known friction points into copy-paste-safe CLI guidance, package truth checks, cleaned CDX memory context visible in the viewer, and practical top-level roadmap maintenance commands.",
+          "```mermaid",
+          "flowchart TD",
+          "    Friction[Observed operator friction] --> CLI[Copy-paste-safe CLI guidance]",
+          "    Friction --> Memory[Clean cdx memory context]",
+          "    Memory --> Screen[CDX Memory viewer screen]"
+        ],
+        "References": [
+          "- Product back-reference: `req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow`",
+          "- Task back-reference: `task_294_orchestrate_logics_operator_ergonomics_improvements`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Logics operator ergonomics"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, make the documented per-command help contract work across the whole cli surface, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Make the documented per-command help contract work across the whole CLI surface",
+        "use when": "You need to implement or review the scaffolded workflow for Make the documented per-command help contract work across the whole CLI surface."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_559_harden_release_evidence_help_and_examples",
+          "item_596_register_the_help_flag_at_the_shared_parser_construction_point",
+          "item_597_assert_help_behavior_across_an_enumerated_command_surface"
+        ],
+        "prod": [
+          "prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api",
+          "prod_013_cli_primary_usage_audit_and_hardening",
+          "prod_052_reliable_cli_help_and_command_contract_discovery"
+        ],
+        "req": [
+          "req_304_make_the_documented_per_command_help_contract_work_across_the_whole_cli_surface"
+        ]
+      },
+      "path": "logics/request/req_304_make_the_documented_per_command_help_contract_work_across_the_whole_cli_surface.md",
+      "ref": "req_304_make_the_documented_per_command_help_contract_work_across_the_whole_cli_surface",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Every command and subcommand of the CLI responds to its help flag by printing usage and exiting successfully.",
+          "- AC2: The fix is applied at the shared parser construction point, so a newly added command inherits working help without further action.",
+          "- AC3: A test enumerates the command surface and asserts help behavior for each entry, rather than checking a hand-maintained list.",
+          "- AC4: Help output names the command's own flags and remains consistent with the top-level help listing.",
+          "- AC5: Existing invocations and their exit codes are unchanged apart from the help flag."
+        ],
+        "Needs": [
+          "- Make the help flag work on every command, since the generated instructions bridge tells operators and agents to use it as the authoritative source for the current command contract.",
+          "- Fix the defect at the shared parser construction point rather than one command at a time, so it cannot reappear on the next command added.",
+          "- Prove the whole surface stays covered with a test that enumerates commands rather than listing them by hand."
+        ]
+      },
+      "status": "Draft",
+      "title": "Make the documented per-command help contract work across the whole CLI surface"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, harden release evidence help and examples, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Harden release evidence help and examples",
+        "use when": "Implementing the scaffolded slice for Harden release evidence help and examples."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_559_harden_release_evidence_help_and_examples"
+        ],
+        "prod": [
+          "prod_045_logics_operator_ergonomics"
+        ],
+        "req": [
+          "req_297_improve_logics_operator_ergonomics_for_evidence_memory_packaging_and_roadmap_flow"
+        ],
+        "task": [
+          "task_294_orchestrate_logics_operator_ergonomics_improvements"
+        ]
+      },
+      "path": "logics/backlog/item_559_harden_release_evidence_help_and_examples.md",
+      "ref": "item_559_harden_release_evidence_help_and_examples",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `release evidence add --help` exits 0 and displays the required flags.",
+          "- AC2: Missing-field errors include one complete example command.",
+          "- AC3: Tests cover help and missing-field paths."
+        ],
+        "Problem": [
+          "- `release evidence add --help` currently behaves like an invalid invocation, and missing required fields at publication time cost attention when the operator needs exact evidence."
+        ]
+      },
+      "status": "Done",
+      "title": "Harden release evidence help and examples"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, register the help flag at the shared parser construction point, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Register the help flag at the shared parser construction point",
+        "use when": "Implementing the scaffolded slice for Register the help flag at the shared parser construction point."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_596_register_the_help_flag_at_the_shared_parser_construction_point"
+        ],
+        "prod": [
+          "prod_052_reliable_cli_help_and_command_contract_discovery"
+        ],
+        "req": [
+          "req_304_make_the_documented_per_command_help_contract_work_across_the_whole_cli_surface"
+        ],
+        "task": [
+          "task_301_restore_the_per_command_help_contract_across_the_cli_surface"
+        ]
+      },
+      "path": "logics/backlog/item_596_register_the_help_flag_at_the_shared_parser_construction_point.md",
+      "ref": "item_596_register_the_help_flag_at_the_shared_parser_construction_point",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Each of the eleven affected commands prints usage and exits successfully on its help flag.",
+          "- AC2: Help registration is handled once, at the shared construction point, not per command.",
+          "- AC3: Commands that already handled help correctly are unchanged.",
+          "- AC4: Help output for an affected command names that command's own flags.",
+          "- AC5: Non-help invocations keep their current output and exit codes."
+        ],
+        "Problem": [
+          "- Hand-built argument parsers across the CLI entry point disable automatic help registration, so eleven top-level commands answer their own help flag with a usage error and a non-zero exit.",
+          "- An earlier fix addressed a single release subcommand rather than the shared construction, so the defect persisted everywhere else and can reappear on the next command added."
+        ]
+      },
+      "status": "Ready",
+      "title": "Register the help flag at the shared parser construction point"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, assert help behavior across an enumerated command surface, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Assert help behavior across an enumerated command surface",
+        "use when": "Implementing the scaffolded slice for Assert help behavior across an enumerated command surface."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_597_assert_help_behavior_across_an_enumerated_command_surface"
+        ],
+        "prod": [
+          "prod_052_reliable_cli_help_and_command_contract_discovery"
+        ],
+        "req": [
+          "req_304_make_the_documented_per_command_help_contract_work_across_the_whole_cli_surface"
+        ],
+        "task": [
+          "task_301_restore_the_per_command_help_contract_across_the_cli_surface"
+        ]
+      },
+      "path": "logics/backlog/item_597_assert_help_behavior_across_an_enumerated_command_surface.md",
+      "ref": "item_597_assert_help_behavior_across_an_enumerated_command_surface",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The test derives the command list from the CLI's own registration, with no hand-maintained literal list.",
+          "- AC2: The test fails, naming the command, if any command regresses on its help flag.",
+          "- AC3: The test covers nested subcommands as well as top-level commands.",
+          "- AC4: The test passes against the corrected implementation and fails against the current one."
+        ],
+        "Problem": [
+          "- Nothing checks that a command answers its help flag, which is how eleven commands drifted and how a targeted earlier fix left the rest broken.",
+          "- A hand-maintained list of commands in a test would drift the same way the surface did."
+        ]
+      },
+      "status": "Ready",
+      "title": "Assert help behavior across an enumerated command surface"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Restore the per-command help contract across the CLI surface",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_596_register_the_help_flag_at_the_shared_parser_construction_point",
+          "item_597_assert_help_behavior_across_an_enumerated_command_surface"
+        ],
+        "prod": [
+          "prod_052_reliable_cli_help_and_command_contract_discovery"
+        ],
+        "req": [
+          "req_304_make_the_documented_per_command_help_contract_work_across_the_whole_cli_surface"
+        ],
+        "task": [
+          "task_301_restore_the_per_command_help_contract_across_the_cli_surface"
+        ]
+      },
+      "path": "logics/tasks/task_301_restore_the_per_command_help_contract_across_the_cli_surface.md",
+      "ref": "task_301_restore_the_per_command_help_contract_across_the_cli_surface",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Restore the per-command help contract across the CLI surface"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_596_register_the_help_flag_at_the_shared_parser_construction_point",
+          "item_597_assert_help_behavior_across_an_enumerated_command_surface"
+        ],
+        "prod": [
+          "prod_052_reliable_cli_help_and_command_contract_discovery"
+        ],
+        "req": [
+          "req_304_make_the_documented_per_command_help_contract_work_across_the_whole_cli_surface"
+        ],
+        "task": [
+          "task_301_restore_the_per_command_help_contract_across_the_cli_surface"
+        ]
+      },
+      "path": "logics/product/prod_052_reliable_cli_help_and_command_contract_discovery.md",
+      "ref": "prod_052_reliable_cli_help_and_command_contract_discovery",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Reliable CLI help and command contract discovery"
+    }
+  ],
+  "estimates": {
+    "char_count": 21459,
+    "companion_doc_count": 4,
+    "doc_count": 6
+  },
+  "generated_at": "2026-08-07T13:04:48Z",
+  "handoff": {
+    "companion_doc_count": 4,
+    "enabled": true,
+    "source_refs": [
+      "req_304_make_the_documented_per_command_help_contract_work_across_the_whole_cli_surface",
+      "item_596_register_the_help_flag_at_the_shared_parser_construction_point",
+      "item_597_assert_help_behavior_across_an_enumerated_command_surface",
+      "task_301_restore_the_per_command_help_contract_across_the_cli_surface"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_304_make_the_documented_per_command_help_contract_work_across_the_whole_cli_surface,item_596_register_the_help_flag_at_the_shared_parser_construction_point,item_597_assert_help_behavior_across_an_enumerated_command_surface,task_301_restore_the_per_command_help_contract_across_the_cli_surface",
+  "refs": [
+    "req_304_make_the_documented_per_command_help_contract_work_across_the_whole_cli_surface",
+    "item_596_register_the_help_flag_at_the_shared_parser_construction_point",
+    "item_597_assert_help_behavior_across_an_enumerated_command_surface",
+    "task_301_restore_the_per_command_help_contract_across_the_cli_surface"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.19.7"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_301_restore_the_per_command_help_contract_across_the_cli_surface.md",
+      "ref": "task_301_restore_the_per_command_help_contract_across_the_cli_surface"
+    }
+  ]
+}

@@ -1,10 +1,10 @@
 ## item_599_derive_document_age_and_staleness_from_one_implementation - Derive document age and staleness from one implementation
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Medium
 > Theme: Single source of truth
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

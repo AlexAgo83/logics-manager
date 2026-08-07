@@ -1,7 +1,7 @@
 ## task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals - Orchestrate viewer parity with the CLI workflow signals
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 0%

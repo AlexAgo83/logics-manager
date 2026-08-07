@@ -1,10 +1,10 @@
 ## item_598_invalidate_the_document_age_cache_when_the_repository_moves - Invalidate the document-age cache when the repository moves
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Status: In progress
+> Understanding: 95%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Low
 > Theme: Correctness of the age lookup
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

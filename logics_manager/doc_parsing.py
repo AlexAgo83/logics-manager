@@ -107,20 +107,45 @@ def priority_rank(value: str | None) -> int:
     return {"High": 0, "Medium": 1, "Low": 2}.get(value or DEFAULT_PRIORITY, 1)
 
 
-_LAST_CHANGE_CACHE: dict[str, dict[str, int]] = {}
+_LAST_CHANGE_CACHE: dict[str, tuple[str, dict[str, int]]] = {}
+
+
+def _current_commit(repo_root: Path) -> str:
+    """The repository's current commit, or "" when there is no history."""
+    try:
+        completed = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=repo_root,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            check=False,
+            timeout=10,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+    return completed.stdout.strip() if completed.returncode == 0 else ""
 
 
 def git_last_change_times(repo_root: Path, subdir: str = "logics") -> dict[str, int]:
     """Repo-relative path -> commit timestamp of its most recent change.
 
-    One `git log` walk for the whole subtree, cached per process. A watchdog
-    doing this per document instead spent one subprocess per file just to date
-    it; the batched walk costs about as much as a single one.
+    One `git log` walk for the whole subtree, cached against the commit it was
+    read at. A watchdog doing this per document instead spent one subprocess per
+    file just to date it; the batched walk costs about as much as a single one.
+
+    The cache is keyed on the current commit, not merely on the repository: it
+    originally had no invalidation at all, which is harmless for a one-shot
+    command and wrong for a long-running one. In `mcp serve`, a document
+    committed after the first lookup was never dated and every age froze for the
+    life of the process. Re-reading the commit costs a few milliseconds against
+    the walk's few hundred.
     """
     key = f"{repo_root}:{subdir}"
+    head = _current_commit(repo_root)
     cached = _LAST_CHANGE_CACHE.get(key)
-    if cached is not None:
-        return cached
+    if cached is not None and cached[0] == head:
+        return cached[1]
 
     times: dict[str, int] = {}
     try:
@@ -134,7 +159,7 @@ def git_last_change_times(repo_root: Path, subdir: str = "logics") -> dict[str, 
             timeout=30,
         )
     except (OSError, subprocess.TimeoutExpired):
-        _LAST_CHANGE_CACHE[key] = times
+        _LAST_CHANGE_CACHE[key] = (head, times)
         return times
     if completed.returncode == 0 and completed.stdout:
         current = 0
@@ -149,7 +174,7 @@ def git_last_change_times(repo_root: Path, subdir: str = "logics") -> dict[str, 
             # the log is newest-first, so the first sighting is the latest change
             if path and current and path not in times:
                 times[path] = current
-    _LAST_CHANGE_CACHE[key] = times
+    _LAST_CHANGE_CACHE[key] = (head, times)
     return times
 
 

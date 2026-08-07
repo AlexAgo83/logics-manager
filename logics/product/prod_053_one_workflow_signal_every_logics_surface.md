@@ -1,8 +1,8 @@
 ## prod_053_one_workflow_signal_every_logics_surface - One workflow signal, every Logics surface
 > Date: 2026-08-07
-> Status: Proposed
+> Status: Settled
 > Related request: `req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports`
-> Related backlog: `item_598_invalidate_the_document_age_cache_when_the_repository_moves`, `item_599_derive_document_age_and_staleness_from_one_implementation`, `item_600_serve_the_workflow_health_report_to_the_viewer`, `item_601_show_per_project_state_in_the_project_switcher`, `item_602_report_the_resolved_install_in_the_viewer_s_update_state`
+> Related backlog: `item_598_invalidate_the_document_age_cache_when_the_repository_moves`
 > Related task: `task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -47,5 +47,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports`
+- Product back-reference: `item_598_invalidate_the_document_age_cache_when_the_repository_moves`
 - Task back-reference: `task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals`

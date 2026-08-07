@@ -1,10 +1,10 @@
 ## item_601_show_per_project_state_in_the_project_switcher - Show per-project state in the project switcher
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Medium
 > Theme: Project switcher
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

@@ -1,10 +1,10 @@
 ## item_600_serve_the_workflow_health_report_to_the_viewer - Serve the workflow health report to the viewer
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Low
 > Theme: Viewer health screen
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

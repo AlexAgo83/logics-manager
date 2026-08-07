@@ -1,10 +1,10 @@
 ## item_602_report_the_resolved_install_in_the_viewer_s_update_state - Report the resolved install in the viewer's update state
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Low
 > Theme: Update visibility
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

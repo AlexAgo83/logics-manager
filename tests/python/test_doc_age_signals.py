@@ -216,3 +216,68 @@ def test_change_times_are_read_in_one_pass(corpus: Path, monkeypatch: pytest.Mon
     payload = list_logics_docs_payload(corpus)
     assert len([item for item in payload["items"] if item["ref"].endswith("_batch")]) == 5
     assert len(calls) == 1, f"expected one git log walk, got {len(calls)}"
+
+
+# ---- cache invalidation (item_598) ----
+
+
+def test_a_commit_during_one_process_is_picked_up(corpus: Path) -> None:
+    """The MCP server is long-running: a doc committed later must still be dated.
+
+    The cache originally had no invalidation, so in one process the second
+    document was never dated and every age froze.
+    """
+    _write_doc(corpus, "request", "req_040_first")
+    _commit(corpus, "first")
+    assert "logics/request/req_040_first.md" in git_last_change_times(corpus)
+
+    _write_doc(corpus, "request", "req_041_second")
+    _commit(corpus, "second")
+    dated = git_last_change_times(corpus)
+    assert "logics/request/req_041_second.md" in dated, (
+        "a document committed after the first lookup was never dated"
+    )
+
+
+def test_ages_do_not_freeze_after_a_commit(corpus: Path) -> None:
+    _write_doc(corpus, "request", "req_042_aging")
+    _commit(corpus, "old", days_ago=40)
+    first = health_payload(corpus)["stale_doc_count"]
+    assert first == 1
+
+    # the doc is edited and re-committed today: it is no longer stale
+    path = corpus / "logics" / "request" / "req_042_aging.md"
+    path.write_text(path.read_text(encoding="utf-8") + "\n- Revisited.\n", encoding="utf-8")
+    _commit(corpus, "refreshed")
+    assert health_payload(corpus)["stale_doc_count"] == 0, "the age was served from a frozen cache"
+
+
+def test_repeated_lookups_without_a_commit_reuse_the_walk(
+    corpus: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Invalidation must not turn every call back into a full walk."""
+    _write_doc(corpus, "request", "req_043_cached")
+    _commit(corpus, "add")
+    doc_parsing._LAST_CHANGE_CACHE.clear()
+
+    walks: list[list[str]] = []
+    real_run = subprocess.run
+
+    def counting_run(command, *args, **kwargs):
+        if isinstance(command, list) and command[:2] == ["git", "log"]:
+            walks.append(command)
+        return real_run(command, *args, **kwargs)
+
+    monkeypatch.setattr(doc_parsing.subprocess, "run", counting_run)
+    for _ in range(4):
+        git_last_change_times(corpus)
+    assert len(walks) == 1, f"expected the walk to be reused, ran it {len(walks)} times"
+
+
+def test_a_repository_without_history_still_returns_the_fallback(tmp_path: Path) -> None:
+    root = tmp_path / "nohistory"
+    (root / "logics" / "request").mkdir(parents=True)
+    _write_doc(root, "request", "req_044_untracked")
+    assert git_last_change_times(root) == {}
+    stamp = last_change_time(root, "logics/request/req_044_untracked.md")
+    assert stamp is not None

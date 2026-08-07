@@ -1565,6 +1565,46 @@ def handle_jsonrpc(message: dict[str, Any], *, repo_root: Path | None = None) ->
         return {"jsonrpc": JSONRPC_VERSION, "id": request_id, "error": {"code": -32000, "message": exc.message, "data": error_payload}}
 
 
+def resolve_call_arguments(source: str, pairs: list[str] | None = None) -> dict[str, Any]:
+    """Build the tool arguments from an inline string, a file, stdin, or key=value pairs.
+
+    Inline JSON is the only form an embedder could use before, so passing
+    structured data through an SSH or cmd.exe quoting chain meant escaping it by
+    hand; one integration gave up and restricted every mutating call to local
+    execution instead. `@-` and `@path` remove the shell from that path entirely.
+    """
+    text = source or "{}"
+    if text == "@-":
+        text = sys.stdin.read()
+    elif text.startswith("@"):
+        path = Path(text[1:]).expanduser()
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            raise ValueError(f"Could not read arguments file {path}: {exc}") from exc
+    text = text.strip() or "{}"
+    try:
+        arguments = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Invalid JSON arguments: {exc}") from exc
+    if not isinstance(arguments, dict):
+        raise ValueError("Arguments must be a JSON object.")
+
+    for pair in pairs or []:
+        if "=" not in pair:
+            raise ValueError(f"Invalid --arg {pair!r}: expected KEY=VALUE.")
+        key, raw = pair.split("=", 1)
+        key = key.strip()
+        if not key:
+            raise ValueError(f"Invalid --arg {pair!r}: the key is empty.")
+        try:
+            # so --arg limit=5 and --arg dry_run=true are not strings
+            arguments[key] = json.loads(raw)
+        except json.JSONDecodeError:
+            arguments[key] = raw
+    return arguments
+
+
 def _print_surface_banner() -> None:
     """Say which tools this process actually serves, on both transports."""
     names = exposed_tool_names()
@@ -1903,7 +1943,18 @@ def main(argv: list[str] | None = None) -> int:
     tools.add_argument("--format", choices=("json",), default="json")
     call = sub.add_parser("call", help="Call one MCP tool directly for local testing.")
     call.add_argument("name")
-    call.add_argument("--arguments", default="{}")
+    call.add_argument(
+        "--arguments",
+        default="{}",
+        help="Inline JSON object, `@path` to read a JSON file, or `@-` to read stdin.",
+    )
+    call.add_argument(
+        "--arg",
+        action="append",
+        default=[],
+        metavar="KEY=VALUE",
+        help="Scalar argument, repeatable. Merged over --arguments. Values parse as JSON when possible.",
+    )
     call.add_argument("--repo-root", default=None)
     connect = sub.add_parser("connect", help="Print local HTTP connector setup for ChatGPT developer mode.")
     connect.add_argument("--repo-root", default=None)
@@ -1965,11 +2016,9 @@ def main(argv: list[str] | None = None) -> int:
         return serve_http(repo_root=Path(parsed.repo_root) if parsed.repo_root else None, host=parsed.host, port=parsed.port, bearer_token=parsed.bearer_token)
     if parsed.command == "call":
         try:
-            arguments = json.loads(parsed.arguments)
-        except json.JSONDecodeError as exc:
-            raise SystemExit(f"Invalid JSON arguments: {exc}") from exc
-        if not isinstance(arguments, dict):
-            raise SystemExit("Arguments must be a JSON object.")
+            arguments = resolve_call_arguments(parsed.arguments, parsed.arg)
+        except ValueError as exc:
+            raise SystemExit(str(exc)) from exc
         try:
             with contextlib.redirect_stdout(io.StringIO()):
                 payload = call_tool(parsed.name, arguments, repo_root=Path(parsed.repo_root) if parsed.repo_root else None)

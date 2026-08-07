@@ -1,8 +1,8 @@
 ## prod_054_guardrails_proportionate_to_the_codebase - Guardrails proportionate to the codebase
 > Date: 2026-08-07
-> Status: Proposed
+> Status: Settled
 > Related request: `req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split`
-> Related backlog: `item_603_cache_the_project_switcher_s_per_project_scan`, `item_604_make_the_coverage_signals_report_the_truth`, `item_605_add_a_python_linter_and_a_function_length_ceiling`, `item_606_detect_divergence_between_the_document_models`, `item_607_move_the_session_cockpit_and_workshop_routes_out_of_the_viewer_module`
+> Related backlog: `item_603_cache_the_project_switcher_s_per_project_scan`
 > Related task: `task_303_orchestrate_the_repository_review_remediation`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -48,5 +48,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split`
+- Product back-reference: `item_603_cache_the_project_switcher_s_per_project_scan`
 - Task back-reference: `task_303_orchestrate_the_repository_review_remediation`

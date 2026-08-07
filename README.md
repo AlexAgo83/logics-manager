@@ -46,7 +46,7 @@ The result is a repo-local memory layer that reduces re-explaining, keeps implem
 | CLI runtime | Canonical workflow engine for creating, promoting, auditing, repairing, and closing Logics docs. |
 | VS Code extension | VS Code host for the canonical local viewer, with editor lifecycle and focus commands. |
 | MCP server | Assistant-facing adapter that exposes bounded Logics tools without giving agents a shell. |
-| Bundled agent skills | Reusable skills (e.g. `/corpus`) installed into Claude Code / Codex homes via `logics-manager skills install`. See [docs/cli.md](docs/cli.md#bundled-agent-skills). |
+| Bundled agent skills | Reusable skills (`/corpus`, `/groom-issues`, `/implement-task`, `/review-project`) installed into Claude Code / Codex homes via `logics-manager skills install`. See [docs/cli.md](docs/cli.md#bundled-agent-skills). |
 | npm / Python packaging | Installation paths for the same CLI/runtime. |
 
 The CLI owns the behavior. The extension and MCP server call into it instead of reimplementing workflow logic.

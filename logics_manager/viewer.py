@@ -29,6 +29,7 @@ from . import viewer_diagnostics
 from .bootstrap import bootstrap_payload
 from .cdx_memory import cdx_memory_payload
 from .config import ConfigError, find_repo_root
+from .insights import health_payload
 from .lint import lint_payload
 from .release import load_release_context, release_reset_payload, release_status_payload
 from .sync import update_workflow_indicators_payload
@@ -4685,6 +4686,17 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/audit":
             self._send_json({"ok": True, "payload": audit_payload(self.server.repo_root)})
+            return
+        if route == "/api/health":
+            # The health screen was built from lint and audit alone, so blocked
+            # documents, backlog items with no task, and stale documents were
+            # reported by the CLI and invisible here.
+            try:
+                payload = health_payload(self.server.repo_root)
+            except (ConfigError, OSError, ValueError) as exc:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+                return
+            self._send_json({"ok": True, "payload": payload})
             return
         if route == "/api/capabilities":
             self._send_json({"ok": True, "payload": viewer_project_capabilities(self.server.repo_root)})

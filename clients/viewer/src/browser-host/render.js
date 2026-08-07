@@ -1252,7 +1252,7 @@ export function renderGitSummarySegments(label, segments) {
     `;
   }
 
-export function renderHealthSummary(lintData, auditData) {
+export function renderHealthSummary(lintData, auditData, healthData = null) {
     const lintPayload = lintData.payload || {};
     const auditPayload = auditData.payload || {};
     const blocking = countPayloadEntries(lintPayload, ["issue_count", "issues"]) +
@@ -1261,10 +1261,18 @@ export function renderHealthSummary(lintData, auditData) {
       countPayloadEntries(auditPayload, ["warning_count", "warnings"]);
     const findings = collectHealthFindings(lintData, auditData);
     const releaseReady = Boolean(lintPayload.ok) && Boolean(auditPayload.release_ready ?? auditPayload.ok);
+    // Workflow health is a separate report from lint and audit: blocked docs,
+    // backlog items with no task, and stale docs are only reported there, so
+    // this screen showed none of them.
+    const healthPayload = healthData && healthData.ok !== false ? healthData.payload || {} : null;
+    const workflowIssues = healthPayload?.issues || {};
+    const staleDocs = Array.isArray(healthPayload?.stale_docs) ? healthPayload.stale_docs : [];
 
     const cards = [
       ["Blocking", blocking],
       ["Warnings", warnings],
+      ["Workflow signals", healthPayload ? healthPayload.issue_count ?? 0 : "Unavailable"],
+      ["Stale docs", healthPayload ? healthPayload.stale_doc_count ?? 0 : "Unavailable"],
       ["Release ready", releaseReady ? "Yes" : "No"]
     ]
       .map(([label, value]) => `
@@ -1292,6 +1300,37 @@ export function renderHealthSummary(lintData, auditData) {
         }).join("")
       : '<li class="viewer-health__empty">No lint or audit findings were reported.</li>';
 
+    const workflowGroups = Object.entries(workflowIssues)
+      .filter(([, entries]) => Array.isArray(entries) && entries.length > 0)
+      .map(([key, entries]) => {
+        const label = key.replace(/_/g, " ");
+        const rows = entries.map((entry) => {
+          const path = entry?.path || "";
+          const control = path && isSafeLogicsDocPath(path)
+            ? `<button class="viewer-health__path" type="button" data-viewer-doc-path="${escapeHtml(path)}">${escapeHtml(entry?.ref || path)}</button>`
+            : `<span class="viewer-health__meta">${escapeHtml(entry?.ref || "Unknown document")}</span>`;
+          return `<li class="viewer-health__issue">${control}<div class="viewer-health__meta">${escapeHtml(entry?.status || "")}</div></li>`;
+        }).join("");
+        return `<section class="viewer-health__section"><h2 class="viewer-health__heading">${escapeHtml(label)}</h2><ul class="viewer-health__list">${rows}</ul></section>`;
+      }).join("");
+
+    const staleSection = staleDocs.length
+      ? `<section class="viewer-health__section">
+          <h2 class="viewer-health__heading">Stale documents (untouched ${escapeHtml(healthPayload?.stale_after_days ?? "?")}+ days)</h2>
+          <ul class="viewer-health__list">${staleDocs.map((entry) => {
+            const path = entry?.path || "";
+            const control = path && isSafeLogicsDocPath(path)
+              ? `<button class="viewer-health__path" type="button" data-viewer-doc-path="${escapeHtml(path)}">${escapeHtml(entry?.ref || path)}</button>`
+              : `<span class="viewer-health__meta">${escapeHtml(entry?.ref || "Unknown document")}</span>`;
+            return `<li class="viewer-health__issue">${control}<div class="viewer-health__meta">${escapeHtml(entry?.age_days ?? "?")} days · ${escapeHtml(entry?.status || "")}</div></li>`;
+          }).join("")}</ul>
+        </section>`
+      : "";
+
+    const unavailable = healthData && healthData.ok === false
+      ? `<section class="viewer-health__section"><div class="viewer-health__meta">Workflow health is unavailable: ${escapeHtml(healthData.error || "unknown error")}</div></section>`
+      : "";
+
     return `
       <div class="viewer-health">
         <div class="viewer-health__summary">${cards}</div>
@@ -1299,6 +1338,9 @@ export function renderHealthSummary(lintData, auditData) {
           <h2 class="viewer-health__heading">Validation findings</h2>
           <ul class="viewer-health__list">${list}</ul>
         </section>
+        ${workflowGroups}
+        ${staleSection}
+        ${unavailable}
       </div>
     `;
   }

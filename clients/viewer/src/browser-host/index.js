@@ -3435,15 +3435,21 @@ import {
     const view = options.view || beginView();
     setMeta("Checking health...");
     try {
-      const [lintResponse, auditResponse] = await Promise.all([
+      const [lintResponse, auditResponse, healthResponse] = await Promise.all([
         fetch("/api/lint", { signal: view.signal }),
-        fetch("/api/audit", { signal: view.signal })
+        fetch("/api/audit", { signal: view.signal }),
+        // Workflow health is a separate report: a failure here must not blank
+        // the screen, so it degrades to an "unavailable" note instead.
+        fetch("/api/health", { signal: view.signal }).catch(() => null)
       ]);
       const [lintData, auditData] = await Promise.all([lintResponse.json(), auditResponse.json()]);
+      const healthData = healthResponse
+        ? await healthResponse.json().catch(() => ({ ok: false, error: "unreadable response" }))
+        : { ok: false, error: "unreachable" };
       if (isViewStale(view)) {
         return;
       }
-      setDocument("Validation health", renderHealthSummary(lintData, auditData));
+      setDocument("Validation health", renderHealthSummary(lintData, auditData, healthData));
       setMeta("Health loaded.");
     } catch (error) {
       if (isAbortError(error)) {

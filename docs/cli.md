@@ -149,6 +149,16 @@ out of shell command strings, so paths containing spaces work.
 The path must exist and contain a `logics/` directory. `bootstrap` is the one
 exemption, since creating `logics/` is its job.
 
+## The viewer's health screen
+
+The browser viewer serves `/api/lint`, `/api/audit`, and `/api/health`. The
+first two carry validation findings; the third carries the workflow health
+report, which is where blocked documents, backlog items with no task, and stale
+documents live. All three feed the Validation health screen.
+
+`/api/health` is read-only, and a failure to produce the report degrades to an
+"unavailable" note rather than blanking the screen.
+
 ## Discovering the command contract
 
 Every command and subcommand answers `--help` (and `-h`) with its own usage and

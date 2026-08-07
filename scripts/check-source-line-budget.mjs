@@ -18,11 +18,18 @@ const excludedSegments = new Set([
 
 const allowedOversizedFiles = new Map(
   Object.entries({
-    "clients/vscode/src/logicsCorpusInsightsHtml.ts": { maxLines: 1114, ref: "unplanned-current" },
+    // 1117: req_305 replaced this panel's own staleness computation with the
+    // configured threshold, so one surface stopped disagreeing with the CLI.
+    "clients/vscode/src/logicsCorpusInsightsHtml.ts": { maxLines: 1117, ref: "req_305" },
     // req_273: de-glued importable modules. A single large importable module beats the
     // exec(compile(concat parts)) text-glue these replaced (real tracebacks, IDE, type-check).
     // The default 1000 budget still catches genuinely new monoliths.
-    "logics_manager/mcp.py": { maxLines: 1738, ref: "req_273" },
+    // 2054: req_303 added the capability/profile tool-surface selection, uniform
+    // dry_run across every mutating tool, and quoting-free argument sources.
+    // Extraction was attempted and backed out: the selection needs the tool
+    // registry that lives here, so a separate module only bought an injection
+    // dance and an import cycle for 133 of the 316 lines.
+    "logics_manager/mcp.py": { maxLines: 2054, ref: "req_303" },
     "logics_manager/sync.py": { maxLines: 1600, ref: "req_273" },
     "logics_manager/audit.py": { maxLines: 1200, ref: "req_273" },
     "logics_manager/release.py": { maxLines: 1200, ref: "req_273" },
@@ -40,11 +47,15 @@ const allowedOversizedFiles = new Map(
     // 7592: Git history commit diff interaction; 7713: release prep baseline;
     // 7816: CDX memory sub-screen.
     // reclaim via the paused state.js/git/workshop split.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 7816, ref: "req_273" },
+    // 7853: req_305 added the workflow-health fetch and the on-demand
+    // per-project switcher scan.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 7853, ref: "req_305" },
     // De-monolith passes 1-3: pure helpers/data extracted out of index.js. May
     // be split by domain (cdx/git/dom) in later passes as they grow.
     "clients/viewer/src/browser-host/util.js": { maxLines: 1200, ref: "browser-host-split" },
-    "clients/viewer/src/browser-host/render.js": { maxLines: 2504, ref: "browser-host-split" },
+    // 2546: req_305 added the workflow-health sections (blocked docs, stale docs)
+    // to the health screen, which previously showed lint and audit only.
+    "clients/viewer/src/browser-host/render.js": { maxLines: 2546, ref: "req_305" },
     "clients/shared-web/media/renderBoardApp.js": { maxLines: 1500, ref: "req_273" },
     "clients/shared-web/media/mainApp.js": { maxLines: 1200, ref: "req_273" },
   })

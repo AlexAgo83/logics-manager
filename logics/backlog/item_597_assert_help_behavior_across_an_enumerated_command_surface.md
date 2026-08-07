@@ -1,9 +1,9 @@
 ## item_597_assert_help_behavior_across_an_enumerated_command_surface - Assert help behavior across an enumerated command surface
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: In progress
-> Understanding: 90%
-> Confidence: 85%
+> Status: Done
+> Understanding: 95%
+> Confidence: 95%
 > Progress: 100%
 > Complexity: Low
 > Theme: Regression coverage
@@ -34,6 +34,8 @@
 - request-AC3 -> This backlog slice. Proof: AC2: The test fails, naming the command, if any command regresses on its help flag.
 - request-AC4 -> This backlog slice. Evidence needed: Help output names the command's own flags and remains consistent with the top-level help listing.
 - request-AC5 -> This backlog slice. Evidence needed: Existing invocations and their exit codes are unchanged apart from the help flag.
+- request-AC4 -> This backlog slice. Proof: Implemented in commit 0086e92a; every command and subcommand answers --help with usage and exit 0, enforced by tests/python/test_cli_help_contract.py (124 passed, 25 failures against the previous implementation). Validated with python -m pytest tests/python (737 passed), lint, and audit. Source: `0086e92a`
+- request-AC5 -> This backlog slice. Proof: Implemented in commit 0086e92a; every command and subcommand answers --help with usage and exit 0, enforced by tests/python/test_cli_help_contract.py (124 passed, 25 failures against the previous implementation). Validated with python -m pytest tests/python (737 passed), lint, and audit. Source: `0086e92a`
 
 # Decision framing
 - Product framing: Not needed
@@ -54,3 +56,9 @@
 # Priority
 - Priority: High - prevents the fix from decaying command by command
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_301_restore_the_per_command_help_contract_across_the_cli_surface`
+
+# Notes
+- Task `task_301_restore_the_per_command_help_contract_across_the_cli_surface` was finished via `logics-manager flow finish task` on 2026-08-07.

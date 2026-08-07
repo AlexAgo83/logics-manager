@@ -22,6 +22,11 @@ DEFAULT_LOGICS_CONFIG: dict[str, Any] = {
         "enabled": True,
         "path": "logics/.cache/runtime_index.json",
     },
+    "health": {
+        # Days without a change before a non-closed doc is reported as stale.
+        # A watchdog watching for forgotten drafts had to hardcode its own.
+        "stale_after_days": 14,
+    },
     "obsidian": {
         "enabled": False,
     },

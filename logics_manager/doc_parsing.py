@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import re
 import subprocess
+import time
 from pathlib import Path
 
 _MERMAID_BLOCK = re.compile(r"```mermaid\s*\n.*?\n```", flags=re.DOTALL)
@@ -104,6 +105,75 @@ def priority_tier(lines: list[str]) -> str:
 
 def priority_rank(value: str | None) -> int:
     return {"High": 0, "Medium": 1, "Low": 2}.get(value or DEFAULT_PRIORITY, 1)
+
+
+_LAST_CHANGE_CACHE: dict[str, dict[str, int]] = {}
+
+
+def git_last_change_times(repo_root: Path, subdir: str = "logics") -> dict[str, int]:
+    """Repo-relative path -> commit timestamp of its most recent change.
+
+    One `git log` walk for the whole subtree, cached per process. A watchdog
+    doing this per document instead spent one subprocess per file just to date
+    it; the batched walk costs about as much as a single one.
+    """
+    key = f"{repo_root}:{subdir}"
+    cached = _LAST_CHANGE_CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    times: dict[str, int] = {}
+    try:
+        completed = subprocess.run(
+            ["git", "log", "--format=C%ct", "--name-only", "--", subdir],
+            cwd=repo_root,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            check=False,
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        _LAST_CHANGE_CACHE[key] = times
+        return times
+    if completed.returncode == 0 and completed.stdout:
+        current = 0
+        for line in completed.stdout.splitlines():
+            if line.startswith("C"):
+                try:
+                    current = int(line[1:])
+                except ValueError:
+                    current = 0
+                continue
+            path = line.strip()
+            # the log is newest-first, so the first sighting is the latest change
+            if path and current and path not in times:
+                times[path] = current
+    _LAST_CHANGE_CACHE[key] = times
+    return times
+
+
+def last_change_time(repo_root: Path, path: str, times: dict[str, int] | None = None) -> int | None:
+    """Last-change timestamp for one doc, falling back to filesystem mtime.
+
+    An untracked or newly written doc has no commit yet; dating it from the
+    filesystem is better than reporting nothing.
+    """
+    lookup = git_last_change_times(repo_root) if times is None else times
+    stamp = lookup.get(path)
+    if stamp:
+        return stamp
+    try:
+        return int((repo_root / path).stat().st_mtime)
+    except OSError:
+        return None
+
+
+def age_in_days(timestamp: int | None, *, now: int | None = None) -> int | None:
+    if not timestamp:
+        return None
+    reference = int(time.time()) if now is None else now
+    return max(0, int((reference - timestamp) / 86400))
 
 
 def git_changed_paths(

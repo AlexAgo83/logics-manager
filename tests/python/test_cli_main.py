@@ -1206,10 +1206,14 @@ def test_main_dispatches_to_expected_underlying_script(
 ) -> None:
     recorded: dict[str, object] = {}
 
-    def fake_run(command: list[str], check: bool) -> subprocess.CompletedProcess[object]:
-        recorded["command"] = command
-        recorded["check"] = check
-        return subprocess.CompletedProcess(command, 0)
+    def fake_run(command: list[str], check: bool = False, **kwargs: object) -> subprocess.CompletedProcess[object]:
+        # accepts kwargs, and ignores git: this patches subprocess.run globally,
+        # so incidental queries (the batched git-log walk behind doc ages) land
+        # here too. Only a dispatch to an underlying script is being recorded.
+        if not (isinstance(command, list) and command[:1] == ["git"]):
+            recorded["command"] = command
+            recorded["check"] = check
+        return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
 
     monkeypatch.setattr(subprocess, "run", fake_run)
     if argv[:2] in (

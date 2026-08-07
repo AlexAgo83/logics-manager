@@ -38,6 +38,35 @@ logics-manager view --open
 logics-manager view --focus req_001_example --read --open
 ```
 
+## Document age and stale work
+
+`sync list-docs` and `sync read-doc` report `updated_at` (the timestamp of the
+document's most recent commit) and `age_days` alongside the existing fields. A
+document with no commit yet falls back to its filesystem mtime, so an
+uncommitted draft is still dated. The lookup is one batched `git log` walk over
+`logics/`, cached per process — not one call per document.
+
+`health` reports open documents untouched for longer than a threshold:
+
+```json
+{
+  "stale_after_days": 14,
+  "stale_doc_count": 2,
+  "stale_docs": [{"ref": "req_010_example", "age_days": 41, "...": "..."}]
+}
+```
+
+Configure the threshold in `logics.yaml`:
+
+```yaml
+health:
+  stale_after_days: 30
+```
+
+Stale documents are reported outside `issues`/`issue_count`, and do not change
+the `ok` verdict: age is a nudge, not a correctness problem, and folding it in
+would flip `ok` for every corpus that has one old open document.
+
 ## Keeping the install current
 
 `logics-manager update` resolves the package manager from the executable that is

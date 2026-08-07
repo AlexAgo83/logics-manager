@@ -230,9 +230,18 @@ the command skips Mermaid-free workflow docs. For end-of-delivery cleanup, use
 ## Bundled agent skills
 
 `logics-manager` ships reusable agent skills (Claude Code and Codex share the
-`skills/<name>/SKILL.md` format). The bundled `/corpus` skill encodes the full
-scaffold flow: request → product brief → backlog → orchestration task →
-context pack, with validation and commit steps.
+`skills/<name>/SKILL.md` format), covering the workflow end to end:
+
+| Skill | Stage |
+| --- | --- |
+| `/corpus` | Scaffold a chain from a need: request → product brief → backlog → orchestration task → context pack. |
+| `/groom-issues` | Turn external tracker issues into a scoped corpus, keeping provenance. |
+| `/implement-task` | Build one scaffolded task, validate it, record it, close it out. |
+| `/review-project` | Read a codebase and capture the findings as one lightweight request. |
+
+They depend only on this project's own command surface — no specific
+orchestrator, agent runtime, or model provider — so they update with the
+package instead of being copied by hand onto each machine.
 
 ```bash
 logics-manager skills list

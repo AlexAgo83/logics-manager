@@ -160,6 +160,14 @@ def _declared_pyproject_packages(repo_root: Path) -> set[str]:
 
 
 def _importable_checkout_packages(repo_root: Path) -> set[str]:
+    """Directories that must be declared as packages in pyproject.toml.
+
+    A directory whose name is not a valid Python identifier can never be an
+    importable package, so declaring it would be meaningless -- setuptools ships
+    it through the `package-data` globs instead. Asset directories named for
+    readability (`skill_assets/groom-issues/`) are exactly that case, and
+    flagging them was a false positive.
+    """
     root = repo_root / "logics_manager"
     if not root.is_dir():
         return set()
@@ -169,7 +177,10 @@ def _importable_checkout_packages(repo_root: Path) -> set[str]:
             continue
         if not any(child.is_file() for child in path.iterdir()):
             continue
-        packages.add(".".join(path.relative_to(repo_root).parts))
+        parts = path.relative_to(repo_root).parts
+        if not all(part.isidentifier() for part in parts):
+            continue
+        packages.add(".".join(parts))
     return packages
 
 

@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, quote, unquote, urlparse
 from .audit import audit_payload
-from . import viewer_diagnostics
+from . import viewer_cdx_routes, viewer_diagnostics, viewer_workshop_routes
 from .bootstrap import bootstrap_payload
 from .cdx_memory import cdx_memory_payload
 from .config import ConfigError, find_repo_root, holds_corpus
@@ -4778,11 +4778,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         if route == "/api/events":
             self._stream_viewer_events()
             return
-        if route == "/api/cdx-memory":
-            scope = parse_qs(parsed.query).get("scope", ["current"])[0]
-            if scope not in {"current", "global", "project"}:
-                scope = "current"
-            self._send_status_json(f"cdx-memory:{scope}", lambda *, force=False: cdx_memory_payload(self.server.repo_root, scope=scope))
+        if viewer_cdx_routes.handle_get(self, route, parsed):
             return
         status_route = _STATUS_ROUTE_TABLE.get(route)
         if status_route is not None:
@@ -4800,10 +4796,6 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                     "cdxRuns": self._status_component("cdxRuns", force=force),
                 },
             )
-            return
-        if route == "/api/cdx-run-report":
-            run_id = parse_qs(parsed.query).get("runId", [""])[0]
-            self._send_json({"ok": True, "payload": cdx_run_report_payload(self.server.repo_root, run_id)})
             return
         if route == "/api/git-diff":
             params = parse_qs(parsed.query)
@@ -4845,51 +4837,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             except ValueError as exc:
                 self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
             return
-        if route == "/api/workshop-commands":
-            try:
-                self._send_json({"ok": True, "payload": workshop_commands_payload(self.server.repo_root)})
-            except ValueError as exc:
-                self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
-            return
-        if route == "/api/workshop-sessions":
-            self._send_json({"ok": True, "payload": {"sessions": self.server.workshop_sessions.list()}})
-            return
-        if route == "/api/workshop-terminals":
-            self._send_json({"ok": True, "payload": {"sessions": self.server.workshop_terminals.list(), "available": workshop_terminals_available()}})
-            return
-        if route.startswith("/api/workshop-terminal/"):
-            tail = route[len("/api/workshop-terminal/"):]
-            parts = tail.split("/", 1)
-            session_id = parts[0]
-            kind = parts[1] if len(parts) > 1 else "status"
-            session = self.server.workshop_terminals.get(session_id)
-            if session is None:
-                self._send_error_json(HTTPStatus.NOT_FOUND, "Workshop terminal not found.")
-                return
-            if kind == "status":
-                self._send_json({"ok": True, "payload": session.status_payload()})
-                return
-            if kind == "stream":
-                self._stream_workshop_terminal(session, parsed)
-                return
-            self._send_error_json(HTTPStatus.NOT_FOUND, "Unknown terminal sub-resource.")
-            return
-        if route.startswith("/api/workshop-session/"):
-            tail = route[len("/api/workshop-session/"):]
-            parts = tail.split("/", 1)
-            session_id = parts[0]
-            kind = parts[1] if len(parts) > 1 else "status"
-            session = self.server.workshop_sessions.get(session_id)
-            if session is None:
-                self._send_error_json(HTTPStatus.NOT_FOUND, "Workshop session not found.")
-                return
-            if kind == "status":
-                self._send_json({"ok": True, "payload": session.status_payload()})
-                return
-            if kind == "stream":
-                self._stream_workshop_session(session, parsed)
-                return
-            self._send_error_json(HTTPStatus.NOT_FOUND, "Unknown session sub-resource.")
+        if viewer_workshop_routes.handle_get(self, route, parsed):
             return
         if route == "/api/workspace-file":
             rel_path = parse_qs(parsed.query).get("path", [""])[0]
@@ -5020,131 +4968,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             except FileNotFoundError as exc:
                 self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
             return
-        if parsed.path == "/api/workshop-command-start":
-            try:
-                body = self._read_json_body_strict()
-                command_id = str(body.get("commandId") or "")
-                if not command_id:
-                    self._send_error_json(HTTPStatus.BAD_REQUEST, "Missing commandId.")
-                    return
-                catalog = workshop_commands_payload(self.server.repo_root)
-                entry = next((c for c in catalog.get("commands", []) if c.get("id") == command_id), None)
-                if entry is None:
-                    self._send_error_json(HTTPStatus.NOT_FOUND, "Unknown command id.")
-                    return
-                session = self.server.workshop_sessions.create(entry, self.server.repo_root)
-                self._send_json({"ok": True, "payload": session.status_payload()})
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-            except ValueError as exc:
-                self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
-            return
-        if parsed.path == "/api/workshop-terminal-start":
-            try:
-                body = self._read_json_body_strict()
-                command_override = body.get("command")
-                label = str(body.get("label") or "")
-                command = command_override if isinstance(command_override, list) and all(isinstance(p, str) for p in command_override) and command_override else workshop_terminal_default_command()
-                try:
-                    initial_cols = int(body.get("cols") or 0)
-                    initial_rows = int(body.get("rows") or 0)
-                except (TypeError, ValueError):
-                    initial_cols = initial_rows = 0
-                session = self.server.workshop_terminals.create(
-                    command,
-                    self.server.repo_root,
-                    label=label,
-                    initial_cols=initial_cols or 80,
-                    initial_rows=initial_rows or 24,
-                )
-                self._send_json({"ok": True, "payload": session.status_payload()})
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-            except ValueError as exc:
-                self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
-            return
-        if parsed.path == "/api/workshop-terminal-external-start":
-            try:
-                body = self._read_json_body_strict()
-                payload = open_system_terminal_payload(self.server.repo_root, body)
-                self._send_json({"ok": True, "payload": payload})
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-            except ValueError as exc:
-                self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
-            except (OSError, subprocess.SubprocessError) as exc:
-                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, f"System terminal launch failed: {exc}")
-            return
-        if parsed.path == "/api/workshop-terminal-input":
-            try:
-                body = self._read_json_body_strict()
-                session_id = str(body.get("sessionId") or "")
-                data = str(body.get("data") or "")
-                session = self.server.workshop_terminals.get(session_id)
-                if session is None:
-                    self._send_error_json(HTTPStatus.NOT_FOUND, "Workshop terminal not found.")
-                    return
-                session.write(data)
-                self._send_json({"ok": True})
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-            return
-        if parsed.path == "/api/workshop-terminal-resize":
-            try:
-                body = self._read_json_body_strict()
-                session_id = str(body.get("sessionId") or "")
-                rows = int(body.get("rows") or 0)
-                cols = int(body.get("cols") or 0)
-                session = self.server.workshop_terminals.get(session_id)
-                if session is None:
-                    self._send_error_json(HTTPStatus.NOT_FOUND, "Workshop terminal not found.")
-                    return
-                session.resize(rows, cols)
-                self._send_json({"ok": True})
-            except (json.JSONDecodeError, ValueError):
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid resize body.")
-            return
-        if parsed.path == "/api/workshop-terminal-rename":
-            try:
-                body = self._read_json_body_strict()
-                session_id = str(body.get("sessionId") or "")
-                label = str(body.get("label") or "")
-                session = self.server.workshop_terminals.get(session_id)
-                if session is None:
-                    self._send_error_json(HTTPStatus.NOT_FOUND, "Workshop terminal not found.")
-                    return
-                session.rename(label)
-                self._send_json({"ok": True, "payload": session.status_payload()})
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-            except ValueError as exc:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, str(exc))
-            return
-        if parsed.path == "/api/workshop-terminal-stop":
-            try:
-                body = self._read_json_body_strict()
-                session_id = str(body.get("sessionId") or "")
-                session = self.server.workshop_terminals.get(session_id)
-                if session is None:
-                    self._send_error_json(HTTPStatus.NOT_FOUND, "Workshop terminal not found.")
-                    return
-                session.stop()
-                self._send_json({"ok": True, "payload": session.status_payload()})
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-            return
-        if parsed.path == "/api/workshop-command-stop":
-            try:
-                body = self._read_json_body_strict()
-                session_id = str(body.get("sessionId") or "")
-                session = self.server.workshop_sessions.get(session_id)
-                if session is None:
-                    self._send_error_json(HTTPStatus.NOT_FOUND, "Workshop session not found.")
-                    return
-                session.stop()
-                self._send_json({"ok": True, "payload": session.status_payload()})
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+        if viewer_workshop_routes.handle_post(self, parsed):
             return
         if parsed.path == "/api/bootstrap-logics":
             try:
@@ -5179,150 +5003,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self.server.request_stop()
             self._send_json({"ok": True, "message": "Viewer server stopping."})
             return
-        if parsed.path == "/api/cdx-report-request":
-            try:
-                body = self._read_json_body_strict()
-                report_payload = cdx_run_report_payload(self.server.repo_root, str(body.get("runId") or ""))
-                if report_payload.get("state") != "ok":
-                    self._send_error_json(HTTPStatus.BAD_GATEWAY, str(report_payload.get("message") or "Unable to load CDX report."))
-                    return
-                created = create_request_from_cdx_report(self.server.repo_root, report_payload)
-                self._send_json({"ok": True, "created": created, "payload": self.server.viewer_payload(selected_id=created["id"])})
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-            except OSError as exc:
-                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
-            return
-        if parsed.path == "/api/cdx-mission-plan":
-            try:
-                body = self._read_json_body_strict()
-                self._send_json({"ok": True, "payload": cdx_mission_plan_payload(self.server.repo_root, body)})
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-            return
-        if parsed.path == "/api/cdx-mission-run":
-            try:
-                body = self._read_json_body_strict()
-                self._send_json({"ok": True, "payload": cdx_mission_run_payload(self.server.repo_root, body)})
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-            return
-        if parsed.path == "/api/cdx-mission-apply-plan":
-            try:
-                body = self._read_json_body_strict()
-                self._send_json({"ok": True, "payload": cdx_mission_apply_plan_payload(self.server.repo_root, body)})
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-            return
-        if parsed.path == "/api/cdx-import":
-            try:
-                body = self._read_json_body_strict()
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-                return
-            file_b64 = str(body.get("fileBase64") or "")
-            passphrase = str(body.get("passphrase") or "")
-            merge = bool(body.get("merge", True))
-            force = bool(body.get("force", False))
-            if not file_b64:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "fileBase64 is required.")
-                return
-            import base64
-            try:
-                file_bytes = base64.b64decode(file_b64)
-            except Exception:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid base64 in fileBase64.")
-                return
-            result = cdx_import_payload(self.server.repo_root, file_bytes, passphrase, merge, force)
-            if result.get("ok"):
-                self._send_json({"ok": True, "payload": result})
-            else:
-                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, result.get("error", "Import failed."))
-            return
-        if parsed.path == "/api/cdx-export":
-            try:
-                body = self._read_json_body_strict()
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-                return
-            sessions = [str(s) for s in (body.get("sessions") or []) if s]
-            passphrase = str(body.get("passphrase") or "")
-            include_auth = bool(body.get("includeAuth", True))
-            result = cdx_export_payload(self.server.repo_root, sessions, passphrase, include_auth)
-            if result.get("ok"):
-                self._send_json({"ok": True, "payload": result})
-            else:
-                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, result.get("error", "Export failed."))
-            return
-        if parsed.path == "/api/cdx-toggle":
-            try:
-                body = self._read_json_body_strict()
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-                return
-            session = str(body.get("session") or "")
-            enable = bool(body.get("enable", True))
-            result = cdx_toggle_payload(self.server.repo_root, session, enable)
-            if result.get("ok"):
-                self._send_json({"ok": True, "payload": result})
-            else:
-                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, result.get("error", "Toggle failed."))
-            return
-        if parsed.path == "/api/cdx-permission":
-            try:
-                body = self._read_json_body_strict()
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-                return
-            session = str(body.get("session") or "")
-            permission = str(body.get("permission") or "")
-            result = cdx_permission_payload(self.server.repo_root, session, permission)
-            if result.get("ok"):
-                self._send_json({"ok": True, "payload": result})
-            else:
-                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, result.get("error", "Permission update failed."))
-            return
-        if parsed.path == "/api/cdx-config":
-            try:
-                body = self._read_json_body_strict()
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-                return
-            session = str(body.get("session") or "")
-            power = str(body.get("power")) if body.get("power") is not None else None
-            model = str(body.get("model")) if body.get("model") is not None else None
-            fast = bool(body.get("fast")) if body.get("fast") is not None else None
-            result = cdx_config_payload(self.server.repo_root, session, power=power, model=model, fast=fast)
-            if result.get("ok"):
-                self._send_json({"ok": True, "payload": result})
-            else:
-                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, result.get("error", "Config update failed."))
-            return
-        if parsed.path == "/api/cdx-remove":
-            try:
-                body = self._read_json_body_strict()
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-                return
-            session = str(body.get("session") or "")
-            result = cdx_remove_payload(self.server.repo_root, session)
-            if result.get("ok"):
-                self._send_json({"ok": True, "payload": result})
-            else:
-                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, result.get("error", "Remove failed."))
-            return
-        if parsed.path == "/api/cdx-reset":
-            try:
-                body = self._read_json_body_strict()
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-                return
-            session = str(body.get("session") or "")
-            result = cdx_reset_payload(self.server.repo_root, session)
-            if result.get("ok"):
-                self._send_json({"ok": True, "payload": result})
-            else:
-                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, result.get("error", "Reset failed."))
+        if viewer_cdx_routes.handle_post(self, parsed):
             return
         if parsed.path == "/api/update-status":
             try:
@@ -5373,17 +5054,6 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             try:
                 body = self._read_json_body_strict()
                 self._send_json({"ok": True, "payload": file_preview_payload(self.server.repo_root, str(body.get("path", "")))})
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-            except (FileNotFoundError, ValueError) as exc:
-                self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
-            except OSError as exc:
-                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
-            return
-        if parsed.path == "/api/cdx-artifact-preview":
-            try:
-                body = self._read_json_body_strict()
-                self._send_json({"ok": True, "payload": cdx_artifact_preview_payload(self.server.repo_root, str(body.get("path", "")))})
             except json.JSONDecodeError:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
             except (FileNotFoundError, ValueError) as exc:

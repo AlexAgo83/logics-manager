@@ -1,13 +1,14 @@
 ## item_605_add_a_python_linter_and_a_function_length_ceiling - Add a Python linter and a function-length ceiling
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Static guardrails
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-07
 
 # Problem
 - Roughly twenty-seven thousand lines of Python have no linter, while the JavaScript linter covers only the editor extension sources.
@@ -35,6 +36,8 @@
 - request-AC4 -> This backlog slice. Proof: AC1: The linter runs in continuous integration and passes on the current codebase without code changes beyond configuration.
 - request-AC5 -> This backlog slice. Proof: AC2: A new function above the ceiling fails the build.
 - request-AC8 -> This backlog slice. Proof: AC3: The grandfathered functions are listed explicitly, not suppressed silently.
+- request-AC6 -> This backlog slice. Proof: Delivered across commits 541b4b88 (cached switcher scan, honest coverage signals, ruff and the function-length ceiling, model-divergence detector) and 2825ca97 (cockpit and workshop route extraction). Validated with ruff, scripts/check_function_length.py, python -m pytest tests/python (927 passed) at 75% coverage against a 73% floor, and npx vitest run (760 passed). Source: `2825ca97`
+- request-AC7 -> This backlog slice. Proof: Delivered across commits 541b4b88 (cached switcher scan, honest coverage signals, ruff and the function-length ceiling, model-divergence detector) and 2825ca97 (cockpit and workshop route extraction). Validated with ruff, scripts/check_function_length.py, python -m pytest tests/python (927 passed) at 75% coverage against a 73% floor, and npx vitest run (760 passed). Source: `2825ca97`
 
 # Decision framing
 - Product framing: Not needed
@@ -55,3 +58,9 @@
 # Priority
 - Priority: High - the missing guardrail behind the other findings
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_303_orchestrate_the_repository_review_remediation`
+
+# Notes
+- Task `task_303_orchestrate_the_repository_review_remediation` was finished via `logics-manager flow finish task` on 2026-08-07.

@@ -1,13 +1,14 @@
 ## item_603_cache_the_project_switcher_s_per_project_scan - Cache the project switcher's per-project scan
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Progress: 100%
 > Complexity: Low
 > Theme: Viewer responsiveness
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-07
 
 # Problem
 - The per-project scan takes about six seconds across thirty-three sibling corpora and runs again on every menu open, because it was wired directly to the per-repository reports.
@@ -33,6 +34,11 @@
 # AC Traceability
 - request-AC1 -> This backlog slice. Proof: AC1: A second request within the cache window does not rescan the projects.
 - request-AC8 -> This backlog slice. Proof: AC2: The scan still runs on demand rather than during viewer startup.
+- request-AC3 -> This backlog slice. Proof: Delivered across commits 541b4b88 (cached switcher scan, honest coverage signals, ruff and the function-length ceiling, model-divergence detector) and 2825ca97 (cockpit and workshop route extraction). Validated with ruff, scripts/check_function_length.py, python -m pytest tests/python (927 passed) at 75% coverage against a 73% floor, and npx vitest run (760 passed). Source: `2825ca97`
+- request-AC4 -> This backlog slice. Proof: Delivered across commits 541b4b88 (cached switcher scan, honest coverage signals, ruff and the function-length ceiling, model-divergence detector) and 2825ca97 (cockpit and workshop route extraction). Validated with ruff, scripts/check_function_length.py, python -m pytest tests/python (927 passed) at 75% coverage against a 73% floor, and npx vitest run (760 passed). Source: `2825ca97`
+- request-AC5 -> This backlog slice. Proof: Delivered across commits 541b4b88 (cached switcher scan, honest coverage signals, ruff and the function-length ceiling, model-divergence detector) and 2825ca97 (cockpit and workshop route extraction). Validated with ruff, scripts/check_function_length.py, python -m pytest tests/python (927 passed) at 75% coverage against a 73% floor, and npx vitest run (760 passed). Source: `2825ca97`
+- request-AC6 -> This backlog slice. Proof: Delivered across commits 541b4b88 (cached switcher scan, honest coverage signals, ruff and the function-length ceiling, model-divergence detector) and 2825ca97 (cockpit and workshop route extraction). Validated with ruff, scripts/check_function_length.py, python -m pytest tests/python (927 passed) at 75% coverage against a 73% floor, and npx vitest run (760 passed). Source: `2825ca97`
+- request-AC7 -> This backlog slice. Proof: Delivered across commits 541b4b88 (cached switcher scan, honest coverage signals, ruff and the function-length ceiling, model-divergence detector) and 2825ca97 (cockpit and workshop route extraction). Validated with ruff, scripts/check_function_length.py, python -m pytest tests/python (927 passed) at 75% coverage against a 73% floor, and npx vitest run (760 passed). Source: `2825ca97`
 
 # Decision framing
 - Product framing: Not needed
@@ -53,3 +59,9 @@
 # Priority
 - Priority: High - a regression shipped with the switcher feature
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_303_orchestrate_the_repository_review_remediation`
+
+# Notes
+- Task `task_303_orchestrate_the_repository_review_remediation` was finished via `logics-manager flow finish task` on 2026-08-07.

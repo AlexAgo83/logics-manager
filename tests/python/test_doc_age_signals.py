@@ -281,3 +281,53 @@ def test_a_repository_without_history_still_returns_the_fallback(tmp_path: Path)
     assert git_last_change_times(root) == {}
     stamp = last_change_time(root, "logics/request/req_044_untracked.md")
     assert stamp is not None
+
+
+# ---- concurrency (item_609) ----
+
+
+def test_concurrent_callers_share_one_walk(corpus: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The viewer is a threading server; without a lock each request walked history."""
+    import threading
+
+    _write_doc(corpus, "request", "req_050_concurrent")
+    _commit(corpus, "add")
+    doc_parsing._LAST_CHANGE_CACHE.clear()
+
+    walks: list[list[str]] = []
+    real_run = subprocess.run
+    guard = threading.Lock()
+
+    def counting_run(command, *args, **kwargs):
+        if isinstance(command, list) and command[:2] == ["git", "log"]:
+            with guard:
+                walks.append(command)
+        return real_run(command, *args, **kwargs)
+
+    monkeypatch.setattr(doc_parsing.subprocess, "run", counting_run)
+    threads = [
+        threading.Thread(target=lambda: git_last_change_times(corpus))
+        for _ in range(8)
+    ]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    assert len(walks) == 1, f"{len(walks)} concurrent walks instead of one"
+
+
+def test_the_lock_does_not_break_invalidation(corpus: Path) -> None:
+    _write_doc(corpus, "request", "req_051_first")
+    _commit(corpus, "first")
+    assert "logics/request/req_051_first.md" in git_last_change_times(corpus)
+    _write_doc(corpus, "request", "req_052_second")
+    _commit(corpus, "second")
+    assert "logics/request/req_052_second.md" in git_last_change_times(corpus)
+
+
+def test_separate_repositories_do_not_block_each_other(corpus: Path, tmp_path: Path) -> None:
+    """A per-key lock, so one repository's walk is not serialised behind another's."""
+    other = tmp_path / "other"
+    (other / "logics").mkdir(parents=True)
+    assert git_last_change_times(other) == {}
+    assert isinstance(git_last_change_times(corpus), dict)

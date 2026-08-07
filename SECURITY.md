@@ -73,6 +73,21 @@ request on a LAN-exposed instance:
    with a valid token. `--lan-rw` requires the request to come from a
    paired device or from loopback.
 
+### What a paired device can actually do
+
+`--lan-rw` grants more than document edits. The workshop terminal takes its
+command from the request body — `POST /api/workshop-terminal-start` with a
+`command` array — so a paired device can **run commands under the account the
+viewer runs as**. That is the feature: it is a terminal, and it is what makes
+the viewer usable from a phone. But it means pairing a device is closer to
+handing out shell access than to granting write permission on a document.
+
+The three checks above are what stand between the network and that capability.
+Nothing sandboxes the command itself.
+
+So: pair only devices you control, on a network you trust. For anything else,
+prefer a Tailscale / WireGuard tunnel over public exposure, even with TLS.
+Without `--lan-rw`, none of this is reachable: the endpoint returns 403.
+
 Recommended setup for phone access: `--lan --lan-rw --tls` (auto-generates
-a self-signed cert). For cross-network access prefer a Tailscale /
-WireGuard tunnel over public exposure, even with TLS.
+a self-signed cert), on a home or tunnelled network.

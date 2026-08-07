@@ -170,7 +170,7 @@ grandfathered in `scripts/long_functions_baseline.json`. That file is a debt
 ledger, and it should only shrink. A new or grown over-long function fails the
 build; `--update` re-freezes it after a legitimate split.
 
-**Python coverage sits around 75%**, with the floor at 73. The floor check runs
+**Python coverage sits around 76%**, with the floor at 75. The floor check runs
 after the test suite, which is backgrounded, because coverage data does not
 exist before it finishes.
 
@@ -193,3 +193,9 @@ swallow the response, so that is covered by a test.
 Route classification stays in `viewer.py`: `VIEWER_MUTATING_ROUTES` still lists
 the moved mutating routes, which is what keeps them behind loopback or a paired
 device over the network.
+
+The two viewer route modules sit lower (47% and 42%). Their request-layer
+branches — malformed bodies, missing arguments, unknown ids, and the mutating
+classification — are covered; what is not is the success path of each write,
+which needs a live session cockpit or a real PTY. That is a deliberate stopping
+point, not an oversight.

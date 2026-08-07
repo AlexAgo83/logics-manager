@@ -5462,7 +5462,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--lan-rw",
         action="store_true",
-        help="Allow paired devices to mutate state over LAN. Devices must complete a PIN handshake first (PIN is printed on the host's stdout). Implies --lan.",
+        help="Allow paired devices to write over LAN, which includes running commands under your account: the workshop terminal takes its command from the request. Devices must complete a PIN handshake first (PIN is printed on the host's stdout). Grant it only on a network you trust, or over a private tunnel. Implies --lan.",
     )
     parser.add_argument(
         "--tls",

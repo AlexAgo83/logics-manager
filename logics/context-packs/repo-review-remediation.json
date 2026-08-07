@@ -1,0 +1,649 @@
+{
+  "budgets": {
+    "max_docs": 28,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split item_603_cache_the_project_switcher_s_per_project_scan item_604_make_the_coverage_signals_report_the_truth item_605_add_a_python_linter_and_a_function_length_ceiling item_606_detect_divergence_between_the_document_models item_607_move_the_session_cockpit_and_workshop_routes_out_of_the_viewer_module task_303_orchestrate_the_repository_review_remediation --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_361_mature_cli_product_contracts"
+        ],
+        "prod": [
+          "prod_013_cli_primary_usage_audit_and_hardening"
+        ],
+        "req": [
+          "req_197_mature_cli_product_contracts"
+        ],
+        "task": [
+          "task_162_mature_cli_product_contracts"
+        ]
+      },
+      "path": "logics/product/prod_013_cli_primary_usage_audit_and_hardening.md",
+      "ref": "prod_013_cli_primary_usage_audit_and_hardening",
+      "sections": {
+        "Goals": [
+          "- Make the documented CLI examples work exactly as written, especially ref-based workflow commands.",
+          "- Make automation output reliable: `--format json` must produce parseable JSON without human text mixed in.",
+          "- Keep every write bounded to the repository unless a command explicitly and safely supports external output.",
+          "- Fail loudly on unknown flags, invalid paths, and unsupported source forms.",
+          "- Preserve the CLI as the canonical workflow entrypoint for local Logics operations."
+        ],
+        "Key product decisions": [
+          "- Treat request, backlog, and task refs as first-class CLI inputs wherever help examples show refs.",
+          "- Treat repo-relative paths as first-class CLI inputs when they identify valid Logics docs.",
+          "- Reject absolute paths and `..` traversal for workflow mutations unless a command explicitly documents an external read/write mode.",
+          "- Make strict argument parsing the default for native root-routed commands.",
+          "- Keep `--dry-run` side-effect free, including directory creation for planned outputs.",
+          "- Keep npm as a thin launcher and Python as the source of CLI behavior."
+        ],
+        "Overview": [
+          "The Logics Manager CLI is now the primary operator surface for creating, promoting, auditing, and maintaining workflow docs. The product expectation is no longer \"the CLI exists as a helper\"; it must behave like the canonical interface: predictable, scriptable, bounded to the repo, and aligned with its own help text.",
+          "The first audit pass found several CLI contract gaps that directly affect day-to-day use: documented refs are not accepted by `flow promote`/`split`/`close`/`finish`, unknown flags are silently ignored on native root-routed commands, and several `--out` paths can write outside the repository before failing or succeeding. These are product issues because they erode trust in the CLI as the main workflow.",
+          "```mermaid",
+          "%% logics-kind: product",
+          "%% logics-signature: product|cli-primary-surface|hardening-contract",
+          "flowchart TD"
+        ],
+        "References": [
+          "- Product back-reference: `item_361_mature_cli_product_contracts`",
+          "- Task back-reference: `task_162_mature_cli_product_contracts`",
+          "- Audit finding: `flow` help documents ref inputs, but implementation resolves sources as filesystem paths.",
+          "- Audit finding: `index`, `sync`, and `assist` output paths can escape the repository.",
+          "- Audit finding: root-routed native commands use `parse_known_args` and ignore unknown flags.",
+          "- Audit finding: some `--format json` commands mix human text with JSON output."
+        ]
+      },
+      "status": "Settled",
+      "title": "CLI primary usage audit and hardening"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_533_restore_valid_vs_code_recovery_guidance_for_environment_checks",
+          "item_534_persist_viewer_project_last_used_order_outside_volatile_origins",
+          "item_535_make_split_cdx_usage_gauge_missing_data_semantics_symmetric",
+          "item_536_clean_up_embedded_viewer_server_processes_on_startup_timeout",
+          "item_537_harden_vs_code_terminal_bridge_command_handling"
+        ],
+        "prod": [
+          "prod_038_post_release_viewer_hardening"
+        ],
+        "req": [
+          "req_290_post_release_viewer_and_vs_code_hardening"
+        ],
+        "task": [
+          "task_287_orchestrate_post_release_viewer_hardening"
+        ]
+      },
+      "path": "logics/product/prod_038_post_release_viewer_hardening.md",
+      "ref": "prod_038_post_release_viewer_hardening",
+      "sections": {
+        "Goals": [
+          "- Keep VS Code recovery guidance accurate and actionable.",
+          "- Persist project recency in a place that is stable across embedded viewer server restarts.",
+          "- Render CDX usage data faithfully when partial usage windows are unavailable.",
+          "- Ensure embedded viewer server lifecycle failures do not leak child processes.",
+          "- Make terminal-launch behavior predictable across the supported VS Code environments."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the viewer and VS Code integration changes added since v2.15.7 ready for release by closing the review findings around command guidance, durable viewer state, usage telemetry display, process cleanup, and terminal command handling.",
+          "```mermaid",
+          "flowchart LR",
+          "    Review[Post-release review] --> Commands[VS Code guidance]",
+          "    Review --> Recency[Durable project recency]",
+          "    Review --> Usage[Split CDX missing data]"
+        ],
+        "References": [
+          "- Product back-reference: `req_290_post_release_viewer_and_vs_code_hardening`",
+          "- Task back-reference: `task_287_orchestrate_post_release_viewer_hardening`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Post-release viewer hardening"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_598_invalidate_the_document_age_cache_when_the_repository_moves"
+        ],
+        "prod": [
+          "prod_053_one_workflow_signal_every_logics_surface"
+        ],
+        "req": [
+          "req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports"
+        ],
+        "task": [
+          "task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals"
+        ]
+      },
+      "path": "logics/product/prod_053_one_workflow_signal_every_logics_surface.md",
+      "ref": "prod_053_one_workflow_signal_every_logics_surface",
+      "sections": {
+        "Goals": [
+          "- Report one age and one staleness verdict, whichever surface is asked.",
+          "- Give the viewer access to the workflow health report it currently cannot reach.",
+          "- Answer per-project state where a project is already being chosen.",
+          "- Leave exactly one implementation of each shared judgement behind."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the browser viewer and the embedded editor panel report the same document age, the same staleness verdict, and the same workflow health as the CLI, from one implementation rather than three. Fix the caching defect that would otherwise freeze those signals in any long-running surface before wiring them up.",
+          "```mermaid",
+          "flowchart LR",
+          "    Git[Commit history] --> Lookup[Batched age lookup]",
+          "    Lookup --> Health[Workflow health report]",
+          "    Lookup --> Items[Viewer document items]"
+        ],
+        "References": [
+          "- Product back-reference: `item_598_invalidate_the_document_age_cache_when_the_repository_moves`",
+          "- Task back-reference: `task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals`"
+        ]
+      },
+      "status": "Settled",
+      "title": "One workflow signal, every Logics surface"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_603_cache_the_project_switcher_s_per_project_scan",
+          "item_604_make_the_coverage_signals_report_the_truth",
+          "item_605_add_a_python_linter_and_a_function_length_ceiling",
+          "item_606_detect_divergence_between_the_document_models",
+          "item_607_move_the_session_cockpit_and_workshop_routes_out_of_the_viewer_module"
+        ],
+        "prod": [
+          "prod_054_guardrails_proportionate_to_the_codebase"
+        ],
+        "req": [
+          "req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split"
+        ],
+        "task": [
+          "task_303_orchestrate_the_repository_review_remediation"
+        ]
+      },
+      "path": "logics/product/prod_054_guardrails_proportionate_to_the_codebase.md",
+      "ref": "prod_054_guardrails_proportionate_to_the_codebase",
+      "sections": {
+        "Goals": [
+          "- Report measurements that are true, or stop implying they are taken.",
+          "- Catch a regression in continuous integration rather than in a later review.",
+          "- Prefer a detector over a refactor where the risk is divergence, not incorrectness.",
+          "- Bring the largest module back to a reviewable size without changing behavior."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the repository's own quality signals trustworthy and automatic. Correct the measurements that report nothing or report something false, add the missing static guardrails, detect model divergence instead of merging models, and only then split the module that has grown past comfortable review."
+        ],
+        "References": [
+          "- Product back-reference: `req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split`",
+          "- Task back-reference: `task_303_orchestrate_the_repository_review_remediation`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Guardrails proportionate to the codebase"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, act on the repository review: measurement honesty, guardrails, and the viewer module split, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Act on the repository review: measurement honesty, guardrails, and the viewer module split",
+        "use when": "You need to implement or review the scaffolded workflow for Act on the repository review: measurement honesty, guardrails, and the viewer module split."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_603_cache_the_project_switcher_s_per_project_scan",
+          "item_604_make_the_coverage_signals_report_the_truth",
+          "item_605_add_a_python_linter_and_a_function_length_ceiling",
+          "item_606_detect_divergence_between_the_document_models",
+          "item_607_move_the_session_cockpit_and_workshop_routes_out_of_the_viewer_module"
+        ],
+        "prod": [
+          "prod_013_cli_primary_usage_audit_and_hardening",
+          "prod_038_post_release_viewer_hardening",
+          "prod_053_one_workflow_signal_every_logics_surface",
+          "prod_054_guardrails_proportionate_to_the_codebase"
+        ],
+        "req": [
+          "req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split"
+        ]
+      },
+      "path": "logics/request/req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split.md",
+      "ref": "req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The project switcher's per-project scan reuses the viewer's existing cache instead of rescanning on every menu open.",
+          "- AC2: Continuous integration measures Python coverage and fails below an agreed floor, or stops installing tooling it never invokes.",
+          "- AC3: The reason the browser host is excluded from JavaScript coverage is recorded where the exclusion is configured.",
+          "- AC4: A Python linter runs in continuous integration with a rule set the current codebase can pass.",
+          "- AC5: A function-length ceiling prevents new violations without requiring the existing ones to be rewritten.",
+          "- AC6: A test detects divergence between the document models rather than merging them."
+        ],
+        "Needs": [
+          "- Fix a performance regression introduced with the project switcher's per-project scan.",
+          "- Make the project's own quality measurements say something true: report the coverage that is actually measured, and explain the one that deliberately is not.",
+          "- Add the automated guardrails a codebase this size is missing, before splitting its largest module.",
+          "- Detect divergence between the several document models rather than merging them, and split the one module that has grown past what a reviewer can hold."
+        ]
+      },
+      "status": "Draft",
+      "title": "Act on the repository review: measurement honesty, guardrails, and the viewer module split"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, cache the project switcher's per-project scan, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Cache the project switcher's per-project scan",
+        "use when": "Implementing the scaffolded slice for Cache the project switcher's per-project scan."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_603_cache_the_project_switcher_s_per_project_scan"
+        ],
+        "prod": [
+          "prod_054_guardrails_proportionate_to_the_codebase"
+        ],
+        "req": [
+          "req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split"
+        ],
+        "task": [
+          "task_303_orchestrate_the_repository_review_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_603_cache_the_project_switcher_s_per_project_scan.md",
+      "ref": "item_603_cache_the_project_switcher_s_per_project_scan",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A second request within the cache window does not rescan the projects.",
+          "- AC2: The scan still runs on demand rather than during viewer startup.",
+          "- AC3: A project that fails is still reported with its error while the others render.",
+          "- AC4: A test asserts the underlying reports are not rebuilt on a cached request."
+        ],
+        "Problem": [
+          "- The per-project scan takes about six seconds across thirty-three sibling corpora and runs again on every menu open, because it was wired directly to the per-repository reports.",
+          "- The viewer already has a time-to-live cache used for its git, CI, and session panels, and the scan simply does not use it."
+        ]
+      },
+      "status": "Ready",
+      "title": "Cache the project switcher's per-project scan"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, make the coverage signals report the truth, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Make the coverage signals report the truth",
+        "use when": "Implementing the scaffolded slice for Make the coverage signals report the truth."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_604_make_the_coverage_signals_report_the_truth"
+        ],
+        "prod": [
+          "prod_054_guardrails_proportionate_to_the_codebase"
+        ],
+        "req": [
+          "req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split"
+        ],
+        "task": [
+          "task_303_orchestrate_the_repository_review_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_604_make_the_coverage_signals_report_the_truth.md",
+      "ref": "item_604_make_the_coverage_signals_report_the_truth",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Python coverage is either measured with an enforced floor, or its unused tooling step is gone.",
+          "- AC2: If enforced, the floor sits below the currently measured value so the build does not start red.",
+          "- AC3: The browser host exclusion carries its reason where the exclusion is configured.",
+          "- AC4: Existing JavaScript coverage targets and thresholds are unchanged."
+        ],
+        "Problem": [
+          "- Continuous integration installs Python coverage tooling under a step named for it, then runs the suite without invoking it, so no Python coverage exists while the step name says otherwise. Measured directly it is around seventy-five percent.",
+          "- The browser host is excluded from JavaScript coverage for a correct but unrecorded reason: its tests load the built bundle rather than its sources, so instrumenting the sources would report a number far below the real coverage and invite unnecessary work."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make the coverage signals report the truth"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add a python linter and a function-length ceiling, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add a Python linter and a function-length ceiling",
+        "use when": "Implementing the scaffolded slice for Add a Python linter and a function-length ceiling."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_605_add_a_python_linter_and_a_function_length_ceiling"
+        ],
+        "prod": [
+          "prod_054_guardrails_proportionate_to_the_codebase"
+        ],
+        "req": [
+          "req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split"
+        ],
+        "task": [
+          "task_303_orchestrate_the_repository_review_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_605_add_a_python_linter_and_a_function_length_ceiling.md",
+      "ref": "item_605_add_a_python_linter_and_a_function_length_ceiling",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The linter runs in continuous integration and passes on the current codebase without code changes beyond configuration.",
+          "- AC2: A new function above the ceiling fails the build.",
+          "- AC3: The grandfathered functions are listed explicitly, not suppressed silently.",
+          "- AC4: A deliberately introduced violation is demonstrated to fail, then removed."
+        ],
+        "Problem": [
+          "- Roughly twenty-seven thousand lines of Python have no linter, while the JavaScript linter covers only the editor extension sources.",
+          "- A minimal static pass found no bare exception handlers but seventeen functions longer than a hundred and twenty lines, the largest a request handler at nearly five hundred. Nothing prevents the next one."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add a Python linter and a function-length ceiling"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate the repository review remediation",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_603_cache_the_project_switcher_s_per_project_scan",
+          "item_604_make_the_coverage_signals_report_the_truth",
+          "item_605_add_a_python_linter_and_a_function_length_ceiling",
+          "item_606_detect_divergence_between_the_document_models",
+          "item_607_move_the_session_cockpit_and_workshop_routes_out_of_the_viewer_module"
+        ],
+        "prod": [
+          "prod_054_guardrails_proportionate_to_the_codebase"
+        ],
+        "req": [
+          "req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split"
+        ],
+        "task": [
+          "task_303_orchestrate_the_repository_review_remediation"
+        ]
+      },
+      "path": "logics/tasks/task_303_orchestrate_the_repository_review_remediation.md",
+      "ref": "task_303_orchestrate_the_repository_review_remediation",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the repository review remediation"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_603_cache_the_project_switcher_s_per_project_scan",
+          "item_604_make_the_coverage_signals_report_the_truth",
+          "item_605_add_a_python_linter_and_a_function_length_ceiling",
+          "item_606_detect_divergence_between_the_document_models",
+          "item_607_move_the_session_cockpit_and_workshop_routes_out_of_the_viewer_module"
+        ],
+        "prod": [
+          "prod_054_guardrails_proportionate_to_the_codebase"
+        ],
+        "req": [
+          "req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split"
+        ],
+        "task": [
+          "task_303_orchestrate_the_repository_review_remediation"
+        ]
+      },
+      "path": "logics/product/prod_054_guardrails_proportionate_to_the_codebase.md",
+      "ref": "prod_054_guardrails_proportionate_to_the_codebase",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Guardrails proportionate to the codebase"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, detect divergence between the document models, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Detect divergence between the document models",
+        "use when": "Implementing the scaffolded slice for Detect divergence between the document models."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_606_detect_divergence_between_the_document_models"
+        ],
+        "prod": [
+          "prod_054_guardrails_proportionate_to_the_codebase"
+        ],
+        "req": [
+          "req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split"
+        ],
+        "task": [
+          "task_303_orchestrate_the_repository_review_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_606_detect_divergence_between_the_document_models.md",
+      "ref": "item_606_detect_divergence_between_the_document_models",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The test compares every document model and passes against the current codebase.",
+          "- AC2: An injected divergence fails the test, naming the models and documents.",
+          "- AC3: The shared derived fields are covered, so re-forking one is caught.",
+          "- AC4: The test runs in continuous integration with the rest of the suite."
+        ],
+        "Problem": [
+          "- Six independent implementations parse the same workflow documents into six different models. They agree exactly today, on which documents exist and on their statuses, so merging them would be a large change against a theoretical risk.",
+          "- The derived fields are where it has already gone wrong: two staleness thresholds disagreed across surfaces, and one age computation existed three times, until a recent change unified them."
+        ]
+      },
+      "status": "Ready",
+      "title": "Detect divergence between the document models"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, move the session cockpit and workshop routes out of the viewer module, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Move the session cockpit and workshop routes out of the viewer module",
+        "use when": "Implementing the scaffolded slice for Move the session cockpit and workshop routes out of the viewer module."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_607_move_the_session_cockpit_and_workshop_routes_out_of_the_viewer_module"
+        ],
+        "prod": [
+          "prod_054_guardrails_proportionate_to_the_codebase"
+        ],
+        "req": [
+          "req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split"
+        ],
+        "task": [
+          "task_303_orchestrate_the_repository_review_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_607_move_the_session_cockpit_and_workshop_routes_out_of_the_viewer_module.md",
+      "ref": "item_607_move_the_session_cockpit_and_workshop_routes_out_of_the_viewer_module",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Every extracted route keeps its path, response shape, and status code.",
+          "- AC2: The read-only and mutating-route classifications still apply to the moved routes.",
+          "- AC3: Network-exposure restrictions behave identically before and after.",
+          "- AC4: The existing test suites pass with no test changed for reasons other than an import path.",
+          "- AC5: The viewer module is materially smaller and its request handler is reviewable."
+        ],
+        "Problem": [
+          "- The viewer module is around six thousand lines, and the majority of its routes belong to two subsystems that are not the viewer: the session cockpit and the workshop terminal.",
+          "- Its request handler alone is nearly five hundred lines, which is past what a reviewer can hold while checking an authorization or read-only rule."
+        ]
+      },
+      "status": "Ready",
+      "title": "Move the session cockpit and workshop routes out of the viewer module"
+    }
+  ],
+  "estimates": {
+    "char_count": 22432,
+    "companion_doc_count": 4,
+    "doc_count": 8
+  },
+  "generated_at": "2026-08-07T15:41:43Z",
+  "handoff": {
+    "companion_doc_count": 4,
+    "enabled": true,
+    "source_refs": [
+      "req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split",
+      "item_603_cache_the_project_switcher_s_per_project_scan",
+      "item_604_make_the_coverage_signals_report_the_truth",
+      "item_605_add_a_python_linter_and_a_function_length_ceiling",
+      "item_606_detect_divergence_between_the_document_models",
+      "item_607_move_the_session_cockpit_and_workshop_routes_out_of_the_viewer_module",
+      "task_303_orchestrate_the_repository_review_remediation"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split,item_603_cache_the_project_switcher_s_per_project_scan,item_604_make_the_coverage_signals_report_the_truth,item_605_add_a_python_linter_and_a_function_length_ceiling,item_606_detect_divergence_between_the_document_models,item_607_move_the_session_cockpit_and_workshop_routes_out_of_the_viewer_module,task_303_orchestrate_the_repository_review_remediation",
+  "refs": [
+    "req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split",
+    "item_603_cache_the_project_switcher_s_per_project_scan",
+    "item_604_make_the_coverage_signals_report_the_truth",
+    "item_605_add_a_python_linter_and_a_function_length_ceiling",
+    "item_606_detect_divergence_between_the_document_models",
+    "item_607_move_the_session_cockpit_and_workshop_routes_out_of_the_viewer_module",
+    "task_303_orchestrate_the_repository_review_remediation"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.19.7"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_303_orchestrate_the_repository_review_remediation.md",
+      "ref": "task_303_orchestrate_the_repository_review_remediation"
+    }
+  ]
+}

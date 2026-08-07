@@ -1,13 +1,14 @@
 ## item_608_state_that_network_writes_grant_command_execution - State that network writes grant command execution
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Progress: 100%
 > Complexity: Low
 > Theme: Stated risk
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-07
 
 # Problem
 - The workshop terminal endpoint runs the command supplied in the request body, so any client authorized to write over the network can run commands under the operator's account. Confirmed by reproduction.
@@ -34,6 +35,8 @@
 - request-AC1 -> This backlog slice. Proof: AC1: The option's help states the command-execution capability in plain terms.
 - request-AC2 -> This backlog slice. Proof: AC2: The security document describes it where it describes the network model.
 - request-AC5 -> This backlog slice. Proof: AC3: No authorization behavior changes; the same requests are refused and allowed as before.
+- request-AC4 -> This backlog slice. Proof: Delivered in commit 6d6f004d. Validated with ruff, scripts/check_function_length.py, python -m pytest tests/python (990 passed) at 76% coverage against a raised 75% floor, and npx vitest run (760 passed). Source: `6d6f004d`
+- request-AC6 -> This backlog slice. Proof: Delivered in commit 6d6f004d. Validated with ruff, scripts/check_function_length.py, python -m pytest tests/python (990 passed) at 76% coverage against a raised 75% floor, and npx vitest run (760 passed). Source: `6d6f004d`
 
 # Decision framing
 - Product framing: Not needed
@@ -54,3 +57,9 @@
 # Priority
 - Priority: High - an exposure decision is currently made against the wrong risk
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_304_orchestrate_the_second_review_remediation`
+
+# Notes
+- Task `task_304_orchestrate_the_second_review_remediation` was finished via `logics-manager flow finish task` on 2026-08-07.

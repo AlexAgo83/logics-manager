@@ -1,7 +1,7 @@
 ## req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches - Close the gaps the second review found: stated risk, cache concurrency, and untested route branches
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

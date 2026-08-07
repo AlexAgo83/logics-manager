@@ -1,8 +1,8 @@
 ## prod_055_say_what_it_does_and_test_what_was_moved - Say what it does, and test what was moved
 > Date: 2026-08-07
-> Status: Proposed
+> Status: Settled
 > Related request: `req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches`
-> Related backlog: `item_608_state_that_network_writes_grant_command_execution`, `item_609_make_the_document_age_lookup_safe_under_concurrency`, `item_610_cover_the_extracted_route_branches_and_the_fleet_report`
+> Related backlog: `item_608_state_that_network_writes_grant_command_execution`
 > Related task: `task_304_orchestrate_the_second_review_remediation`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -45,5 +45,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches`
+- Product back-reference: `item_608_state_that_network_writes_grant_command_execution`
 - Task back-reference: `task_304_orchestrate_the_second_review_remediation`

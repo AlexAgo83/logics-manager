@@ -1,9 +1,9 @@
 ## item_596_register_the_help_flag_at_the_shared_parser_construction_point - Register the help flag at the shared parser construction point
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: In progress
-> Understanding: 90%
-> Confidence: 85%
+> Status: Done
+> Understanding: 95%
+> Confidence: 95%
 > Progress: 100%
 > Complexity: Low
 > Theme: CLI contract discoverability
@@ -57,3 +57,9 @@
 # Priority
 - Priority: High - the documented discovery path currently fails
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_301_restore_the_per_command_help_contract_across_the_cli_surface`
+
+# Notes
+- Task `task_301_restore_the_per_command_help_contract_across_the_cli_surface` was finished via `logics-manager flow finish task` on 2026-08-07.

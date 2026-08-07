@@ -1,7 +1,7 @@
 ## req_304_make_the_documented_per_command_help_contract_work_across_the_whole_cli_surface - Make the documented per-command help contract work across the whole CLI surface
 > From version: 2.19.7
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Low

@@ -1,0 +1,547 @@
+{
+  "budgets": {
+    "max_docs": 20,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches item_608_state_that_network_writes_grant_command_execution item_609_make_the_document_age_lookup_safe_under_concurrency item_610_cover_the_extracted_route_branches_and_the_fleet_report task_304_orchestrate_the_second_review_remediation --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_533_restore_valid_vs_code_recovery_guidance_for_environment_checks",
+          "item_534_persist_viewer_project_last_used_order_outside_volatile_origins",
+          "item_535_make_split_cdx_usage_gauge_missing_data_semantics_symmetric",
+          "item_536_clean_up_embedded_viewer_server_processes_on_startup_timeout",
+          "item_537_harden_vs_code_terminal_bridge_command_handling"
+        ],
+        "prod": [
+          "prod_038_post_release_viewer_hardening"
+        ],
+        "req": [
+          "req_290_post_release_viewer_and_vs_code_hardening"
+        ],
+        "task": [
+          "task_287_orchestrate_post_release_viewer_hardening"
+        ]
+      },
+      "path": "logics/product/prod_038_post_release_viewer_hardening.md",
+      "ref": "prod_038_post_release_viewer_hardening",
+      "sections": {
+        "Goals": [
+          "- Keep VS Code recovery guidance accurate and actionable.",
+          "- Persist project recency in a place that is stable across embedded viewer server restarts.",
+          "- Render CDX usage data faithfully when partial usage windows are unavailable.",
+          "- Ensure embedded viewer server lifecycle failures do not leak child processes.",
+          "- Make terminal-launch behavior predictable across the supported VS Code environments."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the viewer and VS Code integration changes added since v2.15.7 ready for release by closing the review findings around command guidance, durable viewer state, usage telemetry display, process cleanup, and terminal command handling.",
+          "```mermaid",
+          "flowchart LR",
+          "    Review[Post-release review] --> Commands[VS Code guidance]",
+          "    Review --> Recency[Durable project recency]",
+          "    Review --> Usage[Split CDX missing data]"
+        ],
+        "References": [
+          "- Product back-reference: `req_290_post_release_viewer_and_vs_code_hardening`",
+          "- Task back-reference: `task_287_orchestrate_post_release_viewer_hardening`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Post-release viewer hardening"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_598_invalidate_the_document_age_cache_when_the_repository_moves"
+        ],
+        "prod": [
+          "prod_053_one_workflow_signal_every_logics_surface"
+        ],
+        "req": [
+          "req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports"
+        ],
+        "task": [
+          "task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals"
+        ]
+      },
+      "path": "logics/product/prod_053_one_workflow_signal_every_logics_surface.md",
+      "ref": "prod_053_one_workflow_signal_every_logics_surface",
+      "sections": {
+        "Goals": [
+          "- Report one age and one staleness verdict, whichever surface is asked.",
+          "- Give the viewer access to the workflow health report it currently cannot reach.",
+          "- Answer per-project state where a project is already being chosen.",
+          "- Leave exactly one implementation of each shared judgement behind."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the browser viewer and the embedded editor panel report the same document age, the same staleness verdict, and the same workflow health as the CLI, from one implementation rather than three. Fix the caching defect that would otherwise freeze those signals in any long-running surface before wiring them up.",
+          "```mermaid",
+          "flowchart LR",
+          "    Git[Commit history] --> Lookup[Batched age lookup]",
+          "    Lookup --> Health[Workflow health report]",
+          "    Lookup --> Items[Viewer document items]"
+        ],
+        "References": [
+          "- Product back-reference: `item_598_invalidate_the_document_age_cache_when_the_repository_moves`",
+          "- Task back-reference: `task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals`"
+        ]
+      },
+      "status": "Settled",
+      "title": "One workflow signal, every Logics surface"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_603_cache_the_project_switcher_s_per_project_scan"
+        ],
+        "prod": [
+          "prod_054_guardrails_proportionate_to_the_codebase"
+        ],
+        "req": [
+          "req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split"
+        ],
+        "task": [
+          "task_303_orchestrate_the_repository_review_remediation"
+        ]
+      },
+      "path": "logics/product/prod_054_guardrails_proportionate_to_the_codebase.md",
+      "ref": "prod_054_guardrails_proportionate_to_the_codebase",
+      "sections": {
+        "Goals": [
+          "- Report measurements that are true, or stop implying they are taken.",
+          "- Catch a regression in continuous integration rather than in a later review.",
+          "- Prefer a detector over a refactor where the risk is divergence, not incorrectness.",
+          "- Bring the largest module back to a reviewable size without changing behavior."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the repository's own quality signals trustworthy and automatic. Correct the measurements that report nothing or report something false, add the missing static guardrails, detect model divergence instead of merging models, and only then split the module that has grown past comfortable review.",
+          "```mermaid",
+          "flowchart LR",
+          "    Review[Repository review] --> Fix[Cached switcher scan]",
+          "    Review --> Truth[Honest coverage signals]",
+          "    Review --> Lint[Python linter and ceiling]"
+        ],
+        "References": [
+          "- Product back-reference: `item_603_cache_the_project_switcher_s_per_project_scan`",
+          "- Task back-reference: `task_303_orchestrate_the_repository_review_remediation`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Guardrails proportionate to the codebase"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_608_state_that_network_writes_grant_command_execution",
+          "item_609_make_the_document_age_lookup_safe_under_concurrency",
+          "item_610_cover_the_extracted_route_branches_and_the_fleet_report"
+        ],
+        "prod": [
+          "prod_055_say_what_it_does_and_test_what_was_moved"
+        ],
+        "req": [
+          "req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches"
+        ],
+        "task": [
+          "task_304_orchestrate_the_second_review_remediation"
+        ]
+      },
+      "path": "logics/product/prod_055_say_what_it_does_and_test_what_was_moved.md",
+      "ref": "prod_055_say_what_it_does_and_test_what_was_moved",
+      "sections": {
+        "Goals": [
+          "- Let an exposure decision be made against the real capability.",
+          "- Remove duplicated work when concurrent requests arrive together.",
+          "- Exercise the branches that only a live request reaches.",
+          "- Leave every authorization rule exactly as it is."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the viewer's documented risk match its real capability, make the shared age lookup safe in the threaded server it now runs inside, and cover the request branches a recent extraction exposed. Three narrow corrections behind one review pass, none of them changing what the software is allowed to do."
+        ],
+        "References": [
+          "- Product back-reference: `req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches`",
+          "- Task back-reference: `task_304_orchestrate_the_second_review_remediation`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Say what it does, and test what was moved"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, close the gaps the second review found: stated risk, cache concurrency, and untested route branches, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Close the gaps the second review found: stated risk, cache concurrency, and untested route branches",
+        "use when": "You need to implement or review the scaffolded workflow for Close the gaps the second review found: stated risk, cache concurrency, and untested route branches."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_608_state_that_network_writes_grant_command_execution",
+          "item_609_make_the_document_age_lookup_safe_under_concurrency",
+          "item_610_cover_the_extracted_route_branches_and_the_fleet_report"
+        ],
+        "prod": [
+          "prod_038_post_release_viewer_hardening",
+          "prod_053_one_workflow_signal_every_logics_surface",
+          "prod_054_guardrails_proportionate_to_the_codebase",
+          "prod_055_say_what_it_does_and_test_what_was_moved"
+        ],
+        "req": [
+          "req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches"
+        ]
+      },
+      "path": "logics/request/req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches.md",
+      "ref": "req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The option that enables network writes states that a paired device can run commands under the operator's account.",
+          "- AC2: The security document describes that capability where it describes the rest of the network model, rather than only as write access.",
+          "- AC3: The shared document-age lookup is safe to call concurrently and does not repeat its history walk for callers arriving together.",
+          "- AC4: The extracted route modules and the fleet report have tests covering their write and error branches, not only their read paths.",
+          "- AC5: No guarding behavior changes: the same requests are refused, and the same ones are allowed.",
+          "- AC6: Coverage of the newly tested modules is materially higher, and the repository floor is raised to match."
+        ],
+        "Needs": [
+          "- State the real capability a paired network device is granted, so the decision to expose the viewer is made against what it actually does.",
+          "- Make the shared document-age lookup safe to call from the viewer's threaded server, which is what it is now wired into.",
+          "- Test the request branches that a recent extraction made visible but left unexercised."
+        ]
+      },
+      "status": "Draft",
+      "title": "Close the gaps the second review found: stated risk, cache concurrency, and untested route branches"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, state that network writes grant command execution, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "State that network writes grant command execution",
+        "use when": "Implementing the scaffolded slice for State that network writes grant command execution."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_608_state_that_network_writes_grant_command_execution"
+        ],
+        "prod": [
+          "prod_055_say_what_it_does_and_test_what_was_moved"
+        ],
+        "req": [
+          "req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches"
+        ],
+        "task": [
+          "task_304_orchestrate_the_second_review_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_608_state_that_network_writes_grant_command_execution.md",
+      "ref": "item_608_state_that_network_writes_grant_command_execution",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The option's help states the command-execution capability in plain terms.",
+          "- AC2: The security document describes it where it describes the network model.",
+          "- AC3: No authorization behavior changes; the same requests are refused and allowed as before.",
+          "- AC4: A test asserts the wording is present, so it cannot be dropped silently."
+        ],
+        "Problem": [
+          "- The workshop terminal endpoint runs the command supplied in the request body, so any client authorized to write over the network can run commands under the operator's account. Confirmed by reproduction.",
+          "- Both the option's help text and the security document describe that authorization as writing or mutating state, so an operator deciding whether to expose the viewer on an untrusted network evaluates document edits rather than command execution."
+        ]
+      },
+      "status": "Ready",
+      "title": "State that network writes grant command execution"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, make the document-age lookup safe under concurrency, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Make the document-age lookup safe under concurrency",
+        "use when": "Implementing the scaffolded slice for Make the document-age lookup safe under concurrency."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_609_make_the_document_age_lookup_safe_under_concurrency"
+        ],
+        "prod": [
+          "prod_055_say_what_it_does_and_test_what_was_moved"
+        ],
+        "req": [
+          "req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches"
+        ],
+        "task": [
+          "task_304_orchestrate_the_second_review_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_609_make_the_document_age_lookup_safe_under_concurrency.md",
+      "ref": "item_609_make_the_document_age_lookup_safe_under_concurrency",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Several concurrent callers produce one history walk, not one each.",
+          "- AC2: A commit still invalidates the cache as it does today.",
+          "- AC3: A repository with no history still returns the filesystem fallback.",
+          "- AC4: A test counts the walks under concurrency and fails against the current implementation."
+        ],
+        "Problem": [
+          "- The shared lookup caches in a plain module dictionary with no lock, while the viewer that now calls it serves requests on threads. Six concurrent calls were measured performing six full history walks of about a third of a second each.",
+          "- There is no corruption, only duplicated work, but a cached component in the same server already guards its own state with a lock, so the protection exists and was simply not reused."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make the document-age lookup safe under concurrency"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, cover the extracted route branches and the fleet report, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Cover the extracted route branches and the fleet report",
+        "use when": "Implementing the scaffolded slice for Cover the extracted route branches and the fleet report."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_610_cover_the_extracted_route_branches_and_the_fleet_report"
+        ],
+        "prod": [
+          "prod_055_say_what_it_does_and_test_what_was_moved"
+        ],
+        "req": [
+          "req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches"
+        ],
+        "task": [
+          "task_304_orchestrate_the_second_review_remediation"
+        ]
+      },
+      "path": "logics/backlog/item_610_cover_the_extracted_route_branches_and_the_fleet_report.md",
+      "ref": "item_610_cover_the_extracted_route_branches_and_the_fleet_report",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Both extracted modules cover their write and error branches, not only their read paths.",
+          "- AC2: The fleet report covers argument handling, both report kinds, both output formats, and its failure paths.",
+          "- AC3: Each module is shown to decline a route it does not own.",
+          "- AC4: Coverage of the three modules is materially higher than at the start.",
+          "- AC5: The repository floor is raised to just under the new measured total."
+        ],
+        "Problem": [
+          "- The two route modules extracted from the viewer report the lowest coverage in the repository, and the fleet report is not much better. Their read paths were verified against a live viewer, but roughly twenty write branches are exercised by nothing.",
+          "- They were equally untested before the extraction; the move only made that visible in the report. A refactor that quietly broke one of those branches would not have been caught."
+        ]
+      },
+      "status": "Ready",
+      "title": "Cover the extracted route branches and the fleet report"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate the second review remediation",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_608_state_that_network_writes_grant_command_execution",
+          "item_609_make_the_document_age_lookup_safe_under_concurrency",
+          "item_610_cover_the_extracted_route_branches_and_the_fleet_report"
+        ],
+        "prod": [
+          "prod_055_say_what_it_does_and_test_what_was_moved"
+        ],
+        "req": [
+          "req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches"
+        ],
+        "task": [
+          "task_304_orchestrate_the_second_review_remediation"
+        ]
+      },
+      "path": "logics/tasks/task_304_orchestrate_the_second_review_remediation.md",
+      "ref": "task_304_orchestrate_the_second_review_remediation",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the second review remediation"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_608_state_that_network_writes_grant_command_execution",
+          "item_609_make_the_document_age_lookup_safe_under_concurrency",
+          "item_610_cover_the_extracted_route_branches_and_the_fleet_report"
+        ],
+        "prod": [
+          "prod_055_say_what_it_does_and_test_what_was_moved"
+        ],
+        "req": [
+          "req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches"
+        ],
+        "task": [
+          "task_304_orchestrate_the_second_review_remediation"
+        ]
+      },
+      "path": "logics/product/prod_055_say_what_it_does_and_test_what_was_moved.md",
+      "ref": "prod_055_say_what_it_does_and_test_what_was_moved",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Say what it does, and test what was moved"
+    }
+  ],
+  "estimates": {
+    "char_count": 17298,
+    "companion_doc_count": 4,
+    "doc_count": 6
+  },
+  "generated_at": "2026-08-07T16:25:16Z",
+  "handoff": {
+    "companion_doc_count": 4,
+    "enabled": true,
+    "source_refs": [
+      "req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches",
+      "item_608_state_that_network_writes_grant_command_execution",
+      "item_609_make_the_document_age_lookup_safe_under_concurrency",
+      "item_610_cover_the_extracted_route_branches_and_the_fleet_report",
+      "task_304_orchestrate_the_second_review_remediation"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches,item_608_state_that_network_writes_grant_command_execution,item_609_make_the_document_age_lookup_safe_under_concurrency,item_610_cover_the_extracted_route_branches_and_the_fleet_report,task_304_orchestrate_the_second_review_remediation",
+  "refs": [
+    "req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches",
+    "item_608_state_that_network_writes_grant_command_execution",
+    "item_609_make_the_document_age_lookup_safe_under_concurrency",
+    "item_610_cover_the_extracted_route_branches_and_the_fleet_report",
+    "task_304_orchestrate_the_second_review_remediation"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.19.7"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_304_orchestrate_the_second_review_remediation.md",
+      "ref": "task_304_orchestrate_the_second_review_remediation"
+    }
+  ]
+}

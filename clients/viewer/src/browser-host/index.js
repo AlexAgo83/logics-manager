@@ -2717,19 +2717,32 @@ import {
       { name: "logics-manager", fallbackCommand: "logics-manager self-update", info: updateInfo },
       { name: "cdx", fallbackCommand: "cdx update", info: cdxUpdateInfo }
     ].filter(({ info }) => info && info.updateAvailable === true && info.latestVersion);
-    if (notices.length === 0) {
+    // A second executable on PATH shadows the first, and has broken updates
+    // twice in the field. Worth saying even when nothing needs updating.
+    const duplicates = Array.isArray(updateInfo?.shadowingExecutables) ? updateInfo.shadowingExecutables : [];
+    if (notices.length === 0 && duplicates.length === 0) {
       banner.hidden = true;
       return;
     }
     const copy = updateCopy();
     const command = updateCommand();
     if (copy) {
-      copy.textContent = notices
-        .map(({ name, info }) => `${name} ${info.latestVersion} is available. Current version: ${info.currentVersion || "unknown"}.`)
-        .join(" ");
+      const messages = notices
+        .map(({ name, info }) => `${name} ${info.latestVersion} is available. Current version: ${info.currentVersion || "unknown"}.`);
+      if (duplicates.length > 0) {
+        const running = updateInfo?.executablePath ? ` Running: ${updateInfo.executablePath}.` : "";
+        const manager = updateInfo?.manager ? ` Resolved manager: ${updateInfo.manager}.` : "";
+        messages.push(
+          `Warning: ${duplicates.length} other logics-manager executable${duplicates.length === 1 ? "" : "s"} on PATH `
+          + `(${duplicates.join(", ")}).${running}${manager} Updating may act on a copy you are not running.`
+        );
+      }
+      copy.textContent = messages.join(" ");
     }
     if (command) {
-      command.textContent = notices.map(({ fallbackCommand, info }) => info.updateCommand || fallbackCommand).join(" && ");
+      command.textContent = notices.length
+        ? notices.map(({ fallbackCommand, info }) => info.updateCommand || fallbackCommand).join(" && ")
+        : "logics-manager doctor";
     }
     banner.hidden = false;
   }

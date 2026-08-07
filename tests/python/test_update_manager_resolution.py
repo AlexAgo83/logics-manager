@@ -238,3 +238,54 @@ def test_duplicates_do_not_change_the_corpus_verdict(tmp_path: Path, monkeypatch
     assert all(
         issue["code"] != "duplicate_executables" for issue in payload["issues"]
     ), "an install-layout warning leaked into the corpus issue list"
+
+
+# ---- the viewer surfaces the same install details (item_602) ----
+
+
+def test_viewer_update_info_names_the_resolved_install(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from logics_manager import viewer as viewer_module
+
+    running = _make_executable(tmp_path / "a" / "logics-manager")
+    _make_executable(tmp_path / "b" / "logics-manager")
+    monkeypatch.setenv("PATH", f"{tmp_path / 'a'}:{tmp_path / 'b'}")
+    monkeypatch.setattr(sys, "argv", [str(running)])
+    monkeypatch.setattr(cli, "detect_running_manager", lambda _p=None: ("pipx", running.resolve()))
+
+    payload = viewer_module._viewer_update_info()
+    assert payload["manager"] == "pipx"
+    assert payload["executablePath"] == str(running.resolve())
+    assert len(payload["shadowingExecutables"]) == 1
+
+
+def test_viewer_update_info_is_quiet_with_a_single_install(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from logics_manager import viewer as viewer_module
+
+    running = _make_executable(tmp_path / "a" / "logics-manager")
+    monkeypatch.setenv("PATH", str(running.parent))
+    monkeypatch.setattr(sys, "argv", [str(running)])
+    assert viewer_module._viewer_update_info()["shadowingExecutables"] == []
+
+
+def test_viewer_update_info_keeps_the_existing_fields() -> None:
+    from logics_manager import viewer as viewer_module
+
+    payload = viewer_module._viewer_update_info()
+    for key in ("currentVersion", "latestVersion", "updateAvailable", "checkedAt", "updateCommand", "source"):
+        assert key in payload, f"{key} was dropped from the viewer update payload"
+
+
+def test_viewer_update_info_survives_a_detection_failure(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Install introspection must never take the viewer's payload down."""
+    from logics_manager import viewer as viewer_module
+
+    def explode(*args, **kwargs):
+        raise OSError("no PATH here")
+
+    monkeypatch.setattr(cli, "detect_running_manager", explode)
+    payload = viewer_module._viewer_update_info()
+    assert "currentVersion" in payload

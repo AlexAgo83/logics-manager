@@ -131,6 +131,11 @@ problem, not a corpus problem, so they do not change the doctor verdict.
 The two distribution package names are `@grifhinz/logics-manager` on npm and
 `logics-manager` on PyPI; they ship the same CLI.
 
+The viewer reports the same install details in its update banner — the resolved
+manager, the running executable's path, and any duplicate executables on PATH —
+so a shadowing install is visible without opening a terminal. The banner appears
+for a duplicate even when nothing needs updating.
+
 ## Targeting a repository explicitly
 
 Every command accepts `--repo-root DIR`, in any position, and operates on that

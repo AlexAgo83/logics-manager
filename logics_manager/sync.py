@@ -10,7 +10,7 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 
 from .config import find_repo_root
-from .doc_parsing import extract_refs, git_changed_paths, indicator_value, priority_tier
+from .doc_parsing import age_in_days, extract_refs, git_changed_paths, git_last_change_times, indicator_value, last_change_time, priority_tier
 from .lint import REVIEWED_INDICATOR, expected_workflow_mermaid_signature
 from .statuses import canonical_status, transition_error
 from .path_utils import resolve_repo_output_path
@@ -534,10 +534,20 @@ def read_logics_doc_payload(repo_root: Path, source: str, *, max_chars: int = 40
         "status": doc.indicators.get("Status", ""),
         "indicators": doc.indicators,
         "linked_refs": {prefix: refs for prefix, refs in doc.refs.items() if refs},
+        **_doc_age_fields(repo_root, doc.path),
         "sections": selected_sections,
         "content": text[:max_chars],
         "truncated": len(text) > max_chars,
         "max_chars": max_chars,
+    }
+
+
+def _doc_age_fields(repo_root: Path, path: str, times: dict[str, int] | None = None) -> dict[str, object]:
+    """Last-change timestamp and age, so callers stop shelling out per document."""
+    stamp = last_change_time(repo_root, path, times)
+    return {
+        "updated_at": stamp,
+        "age_days": age_in_days(stamp),
     }
 
 
@@ -554,6 +564,7 @@ def list_logics_docs_payload(
 ) -> dict[str, object]:
     docs = sorted(_load_workflow_docs(repo_root).values(), key=lambda doc: doc.path)
     changed_paths = set(_git_changed_paths(repo_root)) if changed else set()
+    change_times = git_last_change_times(repo_root)
     if kind != "all":
         docs = [doc for doc in docs if doc.kind == kind]
     if status:
@@ -591,6 +602,7 @@ def list_logics_docs_payload(
                 "title": doc.title,
                 "status": doc.indicators.get("Status", ""),
                 "linked_refs": {prefix: refs for prefix, refs in doc.refs.items() if refs},
+                **_doc_age_fields(repo_root, doc.path, change_times),
             }
             for doc in limited
         ],

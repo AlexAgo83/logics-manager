@@ -7,7 +7,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-from logics_manager.doc_parsing import extract_refs, priority_rank, priority_tier, progress_value, strip_mermaid_blocks
+from logics_manager.config import ConfigError, load_repo_config
+from logics_manager.doc_parsing import age_in_days, extract_refs, git_last_change_times, last_change_time, priority_rank, priority_tier, progress_value, strip_mermaid_blocks
 from logics_manager.statuses import closed_statuses, open_statuses
 
 WORKFLOW_KINDS = ("request", "backlog", "task")
@@ -228,6 +229,7 @@ def health_payload(repo_root: Path, *, limit: int = 10) -> dict[str, object]:
         "backlog_without_task": backlog_without_task,
     }
     issue_count = sum(len(items) for items in issue_groups.values())
+    stale_after_days, stale = _stale_docs(repo_root, open_docs)
     return {
         "ok": issue_count == 0,
         "doc_count": len(docs),
@@ -236,7 +238,45 @@ def health_payload(repo_root: Path, *, limit: int = 10) -> dict[str, object]:
         "counts": _status_counts(docs),
         "issue_count": issue_count,
         "issues": {key: [_doc_summary(doc) for doc in items[:limit]] for key, items in issue_groups.items()},
+        # Reported separately from `issues`: age is a nudge, not a correctness
+        # problem, and folding it into issue_count would flip `ok` for every
+        # existing corpus that has an old open doc.
+        "stale_after_days": stale_after_days,
+        "stale_doc_count": len(stale),
+        "stale_docs": stale[:limit],
     }
+
+
+def _stale_docs(repo_root: Path, open_docs: list) -> tuple[int, list[dict[str, object]]]:
+    """Open docs untouched for longer than the configured threshold.
+
+    A watchdog looking for forgotten drafts had to run one `git log` per
+    document and apply its own hardcoded threshold, duplicating a judgement
+    that belongs to the corpus.
+    """
+    try:
+        config, _ = load_repo_config(repo_root)
+    except ConfigError:
+        config = {}
+    raw = (config.get("health") or {}).get("stale_after_days", 14)
+    try:
+        threshold = int(raw)
+    except (TypeError, ValueError):
+        threshold = 14
+
+    times = git_last_change_times(repo_root)
+    stale: list[dict[str, object]] = []
+    for doc in open_docs:
+        stamp = last_change_time(repo_root, doc.rel_path, times)
+        age = age_in_days(stamp)
+        if age is None or age < threshold:
+            continue
+        entry = _doc_summary(doc)
+        entry["updated_at"] = stamp
+        entry["age_days"] = age
+        stale.append(entry)
+    stale.sort(key=lambda entry: (-int(entry["age_days"] or 0), str(entry.get("ref", ""))))
+    return threshold, stale
 
 
 def render_health(repo_root: Path, *, output_format: str = "text", limit: int = 10) -> str:
@@ -259,6 +299,12 @@ def render_health(repo_root: Path, *, output_format: str = "text", limit: int = 
         lines.append(f"- {label}:")
         for item in items:
             lines.append(f"  - {item['ref']} [{item['status']}]: {item['title']}")
+    if payload.get("stale_doc_count"):
+        lines.append(
+            f"- stale docs (untouched {payload['stale_after_days']}+ days): {payload['stale_doc_count']}"
+        )
+        for item in payload["stale_docs"]:
+            lines.append(f"  - {item['ref']} [{item['status']}]: {item['age_days']}d")
     return "\n".join(lines)
 
 

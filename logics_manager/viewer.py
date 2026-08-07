@@ -261,7 +261,7 @@ def viewer_data_payload(
         "autoRefreshIntervalSeconds": auto_refresh_interval_seconds,
         "autoRefreshIntervalForced": auto_refresh_interval_forced,
         "items": collect_viewer_items(repo_root),
-        "updateInfo": get_update_info(_current_version()).to_payload(),
+        "updateInfo": _viewer_update_info(),
         "cdxUpdateInfo": cdx_update_info_payload(repo_root),
         "selectedId": selected_id,
         "changedPaths": [],
@@ -277,6 +277,27 @@ def viewer_data_payload(
         "bootstrapWarning": bootstrap_warning,
         "environmentWarning": viewer_environment_warning(active_root),
     }
+
+
+def _viewer_update_info() -> dict[str, Any]:
+    """Update state, plus which install the viewer is actually running.
+
+    A shadowing duplicate install has broken updates twice in the field. The CLI
+    detects it, but an operator working in the viewer had no way to see it
+    without opening a terminal.
+    """
+    payload = get_update_info(_current_version()).to_payload()
+    try:
+        from .cli import detect_running_manager, shadowing_executables
+
+        manager, executable = detect_running_manager()
+        duplicates = shadowing_executables(executable)
+    except Exception:  # noqa: BLE001 - install introspection must never break the viewer
+        return payload
+    payload["manager"] = manager
+    payload["executablePath"] = str(executable) if executable else None
+    payload["shadowingExecutables"] = duplicates
+    return payload
 
 
 def _viewer_project_id(repo_root: Path) -> str:

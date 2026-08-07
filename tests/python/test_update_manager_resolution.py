@@ -13,6 +13,7 @@ assert what would be chosen, and what is refused.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -23,6 +24,16 @@ from logics_manager import cli
 from logics_manager.doctor import _check_duplicate_executables
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _set_path(monkeypatch: pytest.MonkeyPatch, *directories: Path) -> None:
+    """Build PATH with the platform's own separator.
+
+    Hardcoding ":" made Windows read the whole string as a single directory
+    name, so every lookup found nothing and six shadow-detection tests failed
+    against correct production code.
+    """
+    monkeypatch.setenv("PATH", os.pathsep.join(str(directory) for directory in directories))
 
 
 def _executable_name(stem: str) -> str:
@@ -122,14 +133,14 @@ def test_npm_layout_wins_over_a_pip_lookalike_path(tmp_path: Path, monkeypatch: 
 def test_shadowing_executables_lists_only_other_copies(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     running = _make_executable(tmp_path / "a" / "logics-manager")
     other = _make_executable(tmp_path / "b" / "logics-manager")
-    monkeypatch.setenv("PATH", f"{running.parent}:{other.parent}")
+    _set_path(monkeypatch, running.parent, other.parent)
     found = cli.shadowing_executables(running.resolve(), running.name)
     assert [Path(path).resolve() for path in found] == [other.resolve()]
 
 
 def test_no_shadow_when_only_one_copy_exists(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     running = _make_executable(tmp_path / "a" / "logics-manager")
-    monkeypatch.setenv("PATH", str(running.parent))
+    _set_path(monkeypatch, running.parent)
     assert cli.shadowing_executables(running.resolve(), running.name) == []
 
 
@@ -139,7 +150,7 @@ def test_update_refuses_to_guess_while_duplicates_exist(
     """Unrecognised layout + another copy on PATH = the case that shadowed in the field."""
     running = _make_executable(tmp_path / "a" / "logics-manager")
     _make_executable(tmp_path / "b" / "logics-manager")
-    monkeypatch.setenv("PATH", f"{tmp_path / 'a'}:{tmp_path / 'b'}")
+    _set_path(monkeypatch, tmp_path / 'a', tmp_path / 'b')
     monkeypatch.setattr(sys, "argv", [str(running)])
     monkeypatch.setattr(cli, "detect_running_manager", lambda _p=None: (None, running.resolve()))
 
@@ -158,7 +169,7 @@ def test_a_recognised_layout_updates_despite_duplicates(
     """Knowing the owning manager means no shadow can be created, so do not block."""
     running = _make_executable(tmp_path / "a" / "logics-manager")
     _make_executable(tmp_path / "b" / "logics-manager")
-    monkeypatch.setenv("PATH", f"{tmp_path / 'a'}:{tmp_path / 'b'}")
+    _set_path(monkeypatch, tmp_path / 'a', tmp_path / 'b')
     monkeypatch.setattr(sys, "argv", [str(running)])
     monkeypatch.setattr(cli, "detect_running_manager", lambda _p=None: ("pip", running.resolve()))
     monkeypatch.setattr(cli, "_is_externally_managed_python", lambda: False)
@@ -173,7 +184,7 @@ def test_an_explicit_manager_is_never_refused(
 ) -> None:
     running = _make_executable(tmp_path / "a" / "logics-manager")
     _make_executable(tmp_path / "b" / "logics-manager")
-    monkeypatch.setenv("PATH", f"{tmp_path / 'a'}:{tmp_path / 'b'}")
+    _set_path(monkeypatch, tmp_path / 'a', tmp_path / 'b')
     monkeypatch.setattr(sys, "argv", [str(running)])
     monkeypatch.setattr(cli, "detect_running_manager", lambda _p=None: (None, running.resolve()))
     monkeypatch.setattr(cli, "_is_externally_managed_python", lambda: False)
@@ -183,7 +194,7 @@ def test_an_explicit_manager_is_never_refused(
 def test_allow_shadow_overrides_the_refusal(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys) -> None:
     running = _make_executable(tmp_path / "a" / "logics-manager")
     _make_executable(tmp_path / "b" / "logics-manager")
-    monkeypatch.setenv("PATH", f"{tmp_path / 'a'}:{tmp_path / 'b'}")
+    _set_path(monkeypatch, tmp_path / 'a', tmp_path / 'b')
     monkeypatch.setattr(sys, "argv", [str(running)])
     # pin the manager: the fake PATH has no npm/pipx to resolve against
     exit_code = cli.main(["update", "--allow-shadow", "--dry-run", "--manager", "pip"])
@@ -223,7 +234,7 @@ def test_help_flag_prints_usage() -> None:
 def test_doctor_reports_duplicate_executables(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     running = _make_executable(tmp_path / "a" / "logics-manager")
     _make_executable(tmp_path / "b" / "logics-manager")
-    monkeypatch.setenv("PATH", f"{tmp_path / 'a'}:{tmp_path / 'b'}")
+    _set_path(monkeypatch, tmp_path / 'a', tmp_path / 'b')
     monkeypatch.setattr(sys, "argv", [str(running)])
     issues = _check_duplicate_executables()
     assert [issue.code for issue in issues] == ["duplicate_executables"]
@@ -231,7 +242,7 @@ def test_doctor_reports_duplicate_executables(tmp_path: Path, monkeypatch: pytes
 
 def test_doctor_is_quiet_with_a_single_install(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     running = _make_executable(tmp_path / "a" / "logics-manager")
-    monkeypatch.setenv("PATH", str(running.parent))
+    _set_path(monkeypatch, running.parent)
     monkeypatch.setattr(sys, "argv", [str(running)])
     assert _check_duplicate_executables() == []
 
@@ -244,7 +255,7 @@ def test_duplicates_do_not_change_the_corpus_verdict(tmp_path: Path, monkeypatch
     (corpus / "logics" / "request").mkdir(parents=True)
     running = _make_executable(tmp_path / "a" / "logics-manager")
     _make_executable(tmp_path / "b" / "logics-manager")
-    monkeypatch.setenv("PATH", f"{tmp_path / 'a'}:{tmp_path / 'b'}")
+    _set_path(monkeypatch, tmp_path / 'a', tmp_path / 'b')
     monkeypatch.setattr(sys, "argv", [str(running)])
 
     payload = doctor_payload(corpus)
@@ -264,7 +275,7 @@ def test_viewer_update_info_names_the_resolved_install(
 
     running = _make_executable(tmp_path / "a" / "logics-manager")
     _make_executable(tmp_path / "b" / "logics-manager")
-    monkeypatch.setenv("PATH", f"{tmp_path / 'a'}:{tmp_path / 'b'}")
+    _set_path(monkeypatch, tmp_path / 'a', tmp_path / 'b')
     monkeypatch.setattr(sys, "argv", [str(running)])
     monkeypatch.setattr(cli, "detect_running_manager", lambda _p=None: ("pipx", running.resolve()))
 
@@ -280,7 +291,7 @@ def test_viewer_update_info_is_quiet_with_a_single_install(
     from logics_manager import viewer as viewer_module
 
     running = _make_executable(tmp_path / "a" / "logics-manager")
-    monkeypatch.setenv("PATH", str(running.parent))
+    _set_path(monkeypatch, running.parent)
     monkeypatch.setattr(sys, "argv", [str(running)])
     assert viewer_module._viewer_update_info()["shadowingExecutables"] == []
 

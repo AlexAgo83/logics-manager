@@ -25,7 +25,21 @@ from logics_manager.doctor import _check_duplicate_executables
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
+def _executable_name(stem: str) -> str:
+    """`logics-manager` on POSIX, `logics-manager.exe` on Windows.
+
+    PATH lookup on Windows appends PATHEXT suffixes, so an extension-less file
+    is invisible to it -- which is exactly what a real install looks like, and
+    what these fixtures have to reproduce. Found by the Windows CI job: six
+    tests passed on macOS and failed there, against correct production code.
+    """
+    if sys.platform == "win32" and not Path(stem).suffix:
+        return stem + ".exe"
+    return stem
+
+
 def _make_executable(path: Path) -> Path:
+    path = path.with_name(_executable_name(path.name))
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
     path.chmod(0o755)
@@ -109,14 +123,14 @@ def test_shadowing_executables_lists_only_other_copies(tmp_path: Path, monkeypat
     running = _make_executable(tmp_path / "a" / "logics-manager")
     other = _make_executable(tmp_path / "b" / "logics-manager")
     monkeypatch.setenv("PATH", f"{running.parent}:{other.parent}")
-    found = cli.shadowing_executables(running.resolve())
+    found = cli.shadowing_executables(running.resolve(), running.name)
     assert [Path(path).resolve() for path in found] == [other.resolve()]
 
 
 def test_no_shadow_when_only_one_copy_exists(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     running = _make_executable(tmp_path / "a" / "logics-manager")
     monkeypatch.setenv("PATH", str(running.parent))
-    assert cli.shadowing_executables(running.resolve()) == []
+    assert cli.shadowing_executables(running.resolve(), running.name) == []
 
 
 def test_update_refuses_to_guess_while_duplicates_exist(

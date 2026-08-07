@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import quote, unquote, urlencode
 
-from .doc_parsing import priority_tier
+from .doc_parsing import age_in_days, git_last_change_times, last_change_time, priority_tier
 
 
 @dataclass(frozen=True)
@@ -279,7 +279,6 @@ def collect_viewer_items(repo_root: Path) -> list[dict[str, Any]]:
             for ref in references:
                 if ref["kind"] == "from":
                     promoted_sources.add(_normalize_ref(ref["path"]))
-            stat = path.stat()
             items.append(
                 {
                     "id": path.stem,
@@ -288,7 +287,6 @@ def collect_viewer_items(repo_root: Path) -> list[dict[str, Any]]:
                     "path": str(path),
                     "relPath": rel_path,
                     "filename": path.name,
-                    "updatedAt": stat.st_mtime_ns,
                     "indicators": _viewer_indicators(lines),
                     "summaryPoints": _build_summary_points(content, title),
                     "provenance": _provenance(content),
@@ -331,6 +329,13 @@ def collect_viewer_items(repo_root: Path) -> list[dict[str, Any]]:
             item["isPromoted"] = True
 
     items.sort(key=lambda item: (STAGE_ORDER.get(str(item["stage"]), 99), str(item["id"])))
+    # Dated from the commit history, not from filesystem mtime: a fresh clone
+    # gives every file one identical mtime, which made every "recently updated"
+    # ordering meaningless and every age wrong. `last_change_time` falls back to
+    # mtime for a document that has no commit yet.
+    change_times = git_last_change_times(repo_root)
     for item in items:
-        item["updatedAt"] = datetime.fromtimestamp(Path(str(item["path"])).stat().st_mtime).isoformat()
+        stamp = last_change_time(repo_root, str(item["relPath"]), change_times)
+        item["updatedAt"] = datetime.fromtimestamp(stamp).isoformat() if stamp else ""
+        item["ageDays"] = age_in_days(stamp)
     return items

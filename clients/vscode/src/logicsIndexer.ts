@@ -1,3 +1,4 @@
+import { execFileSync } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -18,6 +19,7 @@ export interface LogicsItem {
   relPath: string;
   filename: string;
   updatedAt: string;
+  ageDays: number | null;
   indicators: Record<string, string>;
   summaryPoints: string[];
   acceptanceCriteria: string[];
@@ -53,7 +55,78 @@ export const MANAGED_DOC_FAMILIES: ManagedDocFamily[] = [
 export const STAGE_ORDER = MANAGED_DOC_FAMILIES.map((family) => family.stage);
 const STAGE_ORDER_INDEX = new Map(STAGE_ORDER.map((stage, index) => [stage, index]));
 
+export const DEFAULT_STALE_AFTER_DAYS = 14;
+
+/**
+ * Repo-relative path -> commit timestamp (ms) of its most recent change.
+ *
+ * Mirrors `doc_parsing.git_last_change_times`: one log walk for the whole
+ * subtree. Dating documents from `fs.statSync().mtime` instead made every
+ * document share one date after a fresh clone, which silently broke both the
+ * "recently updated" ordering and the stale-work panel that reads it.
+ */
+export function gitLastChangeTimes(root: string): Map<string, number> {
+  const times = new Map<string, number>();
+  let stdout = "";
+  try {
+    stdout = execFileSync("git", ["log", "--format=C%ct", "--name-only", "--", "logics"], {
+      cwd: root,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+      timeout: 30000,
+      maxBuffer: 64 * 1024 * 1024
+    });
+  } catch {
+    return times;
+  }
+  let current = 0;
+  for (const line of stdout.split(/\r?\n/)) {
+    if (line.startsWith("C")) {
+      const parsed = Number.parseInt(line.slice(1), 10);
+      current = Number.isFinite(parsed) ? parsed : 0;
+      continue;
+    }
+    const relPath = line.trim();
+    // newest-first, so the first sighting is the latest change
+    if (relPath && current && !times.has(relPath)) {
+      times.set(relPath, current * 1000);
+    }
+  }
+  return times;
+}
+
+/**
+ * `health.stale_after_days` from the project's own config.
+ *
+ * The threshold is a project judgement, not a client preference: this panel
+ * used to carry its own hardcoded thirty days while the CLI reported fourteen,
+ * so the same document could be stale in one surface and current in the other.
+ */
+export function readStaleAfterDays(root: string): number {
+  try {
+    const text = fs.readFileSync(path.join(root, "logics.yaml"), "utf8");
+    const match = text.match(/^health:\s*$[\s\S]*?^\s+stale_after_days:\s*(\d+)\s*$/m);
+    if (match) {
+      const parsed = Number.parseInt(match[1], 10);
+      if (Number.isFinite(parsed) && parsed > 0) {
+        return parsed;
+      }
+    }
+  } catch {
+    // no config, or unreadable: the documented default applies
+  }
+  return DEFAULT_STALE_AFTER_DAYS;
+}
+
+export function ageInDays(timestampMs: number | null | undefined, nowMs = Date.now()): number | null {
+  if (!timestampMs) {
+    return null;
+  }
+  return Math.max(0, Math.floor((nowMs - timestampMs) / 86400000));
+}
+
 export function indexLogics(root: string): LogicsItem[] {
+  const changeTimes = gitLastChangeTimes(root);
   const items: LogicsItem[] = [];
   const promotedSources = new Set<string>();
   const usageMap = new Map<string, LogicsUsage[]>();
@@ -103,7 +176,8 @@ export function indexLogics(root: string): LogicsItem[] {
         path: fullPath,
         relPath,
         filename: entry.name,
-        updatedAt: stat.mtime.toISOString(),
+        updatedAt: new Date(changeTimes.get(relPath) ?? stat.mtime.getTime()).toISOString(),
+        ageDays: ageInDays(changeTimes.get(relPath) ?? stat.mtime.getTime()),
         indicators,
         summaryPoints,
         acceptanceCriteria,

@@ -97,6 +97,11 @@ Stale documents are reported outside `issues`/`issue_count`, and do not change
 the `ok` verdict: age is a nudge, not a correctness problem, and folding it in
 would flip `ok` for every corpus that has one old open document.
 
+The same age and the same threshold apply on every surface — the CLI, the
+browser viewer, and the VS Code insights panel all date documents from the
+commit history and read `health.stale_after_days` from `logics.yaml`. Changing
+that one value changes all three.
+
 ## Keeping the install current
 
 `logics-manager update` resolves the package manager from the executable that is

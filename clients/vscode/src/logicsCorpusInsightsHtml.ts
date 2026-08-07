@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 import { getNonce } from "./logicsReadPreviewHtml";
-import { LogicsItem, compareStages } from "./logicsIndexer";
+import { LogicsItem, compareStages, readStaleAfterDays } from "./logicsIndexer";
 import { asString, escapeHtml, formatPercent, formatRelativeDate, parseProgress, parseTimestamp } from "./insightsFormat";
 import { buildPieSlices, renderList, renderPieChart, renderStatCard } from "./insightsCharts";
 import {
@@ -336,8 +336,11 @@ function summarizeRequestsWithoutBacklog(items: LogicsItem[]): LogicsItem[] {
   });
 }
 
-function summarizeStaleOpenItems(items: LogicsItem[], nowMs: number): LogicsItem[] {
-  const thresholdMs = nowMs - 30 * 24 * 60 * 60 * 1000;
+function summarizeStaleOpenItems(items: LogicsItem[], nowMs: number, staleAfterDays: number): LogicsItem[] {
+  // The threshold is the project's, read from logics.yaml, not this panel's.
+  // It used to be a hardcoded thirty days while the CLI reported the configured
+  // fourteen, so the same document could be stale here and current there.
+  const thresholdMs = nowMs - staleAfterDays * 86400000;
   return items.filter((item) => {
     if (!WORKFLOW_STAGES.has(item.stage)) {
       return false;
@@ -390,7 +393,8 @@ export function buildLogicsCorpusInsightsHtml(params: {
   const dayTimelinePoints = summarizeTimeline(items, nowMs, { period: "day", bucketCount: 15 });
   const blockedItems = workflowItems.filter((item) => asString(item.indicators.Status, "") === "Blocked");
   const wipItems = workflowItems.filter((item) => asString(item.indicators.Status, "") === "In progress");
-  const staleItems = summarizeStaleOpenItems(workflowItems, nowMs);
+  const staleAfterDays = readStaleAfterDays(root);
+  const staleItems = summarizeStaleOpenItems(workflowItems, nowMs, staleAfterDays);
   const requestsWithoutBacklog = summarizeRequestsWithoutBacklog(items);
   const statusDistribution = summarizeStatusDistribution(workflowItems);
   const themeDistribution = summarizeThemeDistribution(items);

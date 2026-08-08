@@ -3,32 +3,102 @@ import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
 import { JSDOM, VirtualConsole } from "jsdom";
 import { WebSocket } from "ws";
+import { layoutChecks } from "./helpers/viewer-layout-checks.mjs";
 
 const repoRoot = process.cwd();
-const artifactsDir = join(repoRoot, "artifacts", "local-viewer-smoke");
+// Redirectable so the campaign's own regression test does not overwrite a real run's report.
+const artifactsDir = process.env.VIEWER_CAMPAIGN_OUT
+  ? (isAbsolute(process.env.VIEWER_CAMPAIGN_OUT) ? process.env.VIEWER_CAMPAIGN_OUT : join(repoRoot, process.env.VIEWER_CAMPAIGN_OUT))
+  : join(repoRoot, "artifacts", "local-viewer-smoke");
 mkdirSync(artifactsDir, { recursive: true });
 
-const viewports = [
+const allViewports = [
   { name: "desktop", width: 1440, height: 900 },
   { name: "tablet", width: 820, height: 1180 },
   { name: "mobile", width: 390, height: 844 }
 ];
+// Narrowing the sweep keeps the campaign's own regression test to one viewport instead
+// of three. A run that skips viewports says so in the report rather than silently
+// reporting less than it looks like it did.
+const requested = (process.env.VIEWER_CAMPAIGN_VIEWPORTS || "").split(",").map((name) => name.trim()).filter(Boolean);
+const viewports = requested.length ? allViewports.filter((viewport) => requested.includes(viewport.name)) : allViewports;
+// Drives the "a failed check does not end the run" property from outside the page.
+const injectFailure = process.env.VIEWER_CAMPAIGN_INJECT_FAILURE === "1";
+
+// Every check the run performed, in order, each with a verdict and the value it
+// measured. The campaign used to raise on the first failure, so one defect hid every
+// check behind it and a reviewer learned one fact per run.
+const checks = [];
+
+function record(name, verdict, measured, detail) {
+  checks.push({ name, verdict, measured, ...(detail ? { detail } : {}) });
+  return checks[checks.length - 1];
+}
+
+/** A check that could not run is not a check that failed: a missing prerequisite is not a defect. */
+function skip(name, reason) {
+  return record(name, "skipped", reason);
+}
 
 const viewer = await startViewer();
+let mode = "none";
 if (viewer.skipped) {
   console.warn(viewer.reason);
-  writeFileSync(join(artifactsDir, "summary.json"), JSON.stringify({ skipped: true, reason: viewer.reason }, null, 2));
+  skip("viewer starts", viewer.reason);
 } else {
   try {
     const chrome = findChrome();
     const windowsCiServerOnly = process.platform === "win32" && process.env.CI === "true";
-    const results = windowsCiServerOnly
-      ? await runServerSmoke(viewer.url)
-      : chrome ? await runChromeSmoke(chrome, viewer.url) : await runJsdomFallback(viewer.url);
-    writeFileSync(join(artifactsDir, "summary.json"), JSON.stringify({ url: viewer.url, mode: windowsCiServerOnly ? "server" : chrome ? "chrome" : "jsdom", results }, null, 2));
+    mode = windowsCiServerOnly ? "server" : chrome ? "chrome" : "jsdom";
+    if (windowsCiServerOnly) {
+      await runServerSmoke(viewer.url);
+    } else if (chrome) {
+      await runChromeSmoke(chrome, viewer.url);
+    } else {
+      await runJsdomFallback(viewer.url);
+    }
   } finally {
     viewer.process.kill();
   }
+}
+
+for (const viewport of allViewports.filter((entry) => !viewports.includes(entry))) {
+  skip(`${viewport.name}: whole viewport`, "not requested by VIEWER_CAMPAIGN_VIEWPORTS");
+}
+writeReport({ url: viewer.url ?? null, mode, checks });
+const failed = checks.filter((check) => check.verdict === "failed");
+if (failed.length) {
+  console.error(`Viewer campaign: ${failed.length} check(s) failed. See ${join(artifactsDir, "report.txt")}`);
+  process.exitCode = 1;
+}
+
+function writeReport({ url, mode, checks }) {
+  writeFileSync(join(artifactsDir, "summary.json"), JSON.stringify({ url, mode, checks }, null, 2));
+  const width = Math.max(0, ...checks.map((check) => check.name.length));
+  const lines = [
+    "Viewer UI campaign",
+    `url: ${url ?? "(not started)"}`,
+    `mode: ${mode}`,
+    "",
+    ...checks.map(
+      (check) =>
+        `${check.verdict === "ok" ? "OK  " : check.verdict === "failed" ? "KO  " : "--  "}` +
+        `${check.name.padEnd(width)}  ${check.measured ?? ""}`
+    ),
+    ""
+  ];
+  const failures = checks.filter((check) => check.verdict === "failed");
+  if (failures.length) {
+    lines.push("Findings:");
+    // A KO is a defect OR a stale expectation. The measured value is what decides which,
+    // so it is printed beside every verdict rather than only on failure.
+    for (const failure of failures) {
+      lines.push(`- ${failure.name}: ${failure.detail ?? failure.measured ?? "no detail"}`);
+    }
+  } else {
+    lines.push("No findings. A run with zero findings is not a pass on its own: open the captures.");
+  }
+  writeFileSync(join(artifactsDir, "report.txt"), lines.join("\n") + "\n");
 }
 
 async function startViewer() {
@@ -100,7 +170,6 @@ function findChrome() {
 }
 
 async function runChromeSmoke(chrome, url) {
-  const results = [];
   for (const viewport of viewports) {
     const browser = await startChrome(chrome, viewport);
     try {
@@ -124,22 +193,27 @@ async function runChromeSmoke(chrome, url) {
       await cdp.send("Page.navigate", { url });
       await cdp.waitFor("Page.loadEventFired");
       const result = await evaluate(cdp, browserExerciseScript(viewport.name));
-      if (!result.ok) {
-        writeFileSync(join(artifactsDir, `${viewport.name}-failure.html`), result.html || "");
-        throw new Error(`${viewport.name}: ${result.error || "smoke failed"}`);
+      for (const check of result.checks || []) {
+        record(`${viewport.name}: ${check.name}`, check.verdict, check.measured, check.detail);
       }
+      if (result.html) {
+        writeFileSync(join(artifactsDir, `${viewport.name}-failure.html`), result.html);
+      }
+      // The captures are written on a failing run too: they are what a reviewer opens to
+      // tell a defect from a stale expectation.
       const screenshot = await cdp.send("Page.captureScreenshot", { format: "png", captureBeyondViewport: true });
       writeFileSync(join(artifactsDir, `${viewport.name}.png`), Buffer.from(screenshot.data, "base64"));
-      if (errors.length) {
-        throw new Error(`${viewport.name}: browser errors:\n${errors.join("\n")}`);
-      }
-      results.push({ viewport, ...result });
+      record(
+        `${viewport.name}: console is clean`,
+        errors.length ? "failed" : "ok",
+        `${errors.length} error/warning(s)`,
+        errors.join("\n") || undefined
+      );
       cdp.close();
     } finally {
       await stopChrome(browser);
     }
   }
-  return results;
 }
 
 async function stopChrome(browser) {
@@ -160,16 +234,20 @@ async function stopChrome(browser) {
 async function runServerSmoke(url) {
   const htmlResponse = await fetch(url);
   const html = await htmlResponse.text();
-  if (!htmlResponse.ok || !html.includes('id="board"') || !html.includes('id="viewer-meta"')) {
-    throw new Error("Windows CI server smoke did not return the viewer shell.");
-  }
+  const shellOk = htmlResponse.ok && html.includes('id="board"') && html.includes('id="viewer-meta"');
+  record("server: viewer shell is served", shellOk ? "ok" : "failed", `${html.length} bytes, status ${htmlResponse.status}`);
   const itemsResponse = await fetch(new URL("/api/items", url));
   const items = await itemsResponse.json();
-  if (!itemsResponse.ok || !items?.ok || !Array.isArray(items?.payload?.items)) {
-    throw new Error("Windows CI server smoke did not return a valid item payload.");
+  const payloadOk = itemsResponse.ok && items?.ok && Array.isArray(items?.payload?.items);
+  record(
+    "server: item payload is valid",
+    payloadOk ? "ok" : "failed",
+    payloadOk ? `${items.payload.items.length} item(s)` : `status ${itemsResponse.status}`
+  );
+  for (const viewport of viewports) {
+    skip(`${viewport.name}: rendered checks`, "server-only pass, no browser available");
   }
   writeFileSync(join(artifactsDir, "windows-ci-server.html"), html);
-  return [{ viewport: { name: "windows-ci-server", width: 0, height: 0 }, serverOnly: true, items: items.payload.items.length }];
 }
 
 async function startChrome(chrome, viewport) {
@@ -321,56 +399,97 @@ function browserExerciseScript(name) {
         await delay(75);
       }
     };
+    const LAYOUT_CHECKS = (${layoutChecks.toString()})(window);
+    const checks = [];
+    // A failing check no longer ends the run. Later checks may depend on it and fail in
+    // turn -- that is reported too, and reads as one cause rather than one fact per run.
+    const check = async (name, run) => {
+      try {
+        checks.push({ name, verdict: "ok", measured: String(await run() ?? "") });
+      } catch (error) {
+        checks.push({ name, verdict: "failed", measured: "", detail: error.message });
+      }
+    };
     (async () => {
       if (window.acquireVsCodeApi) window.acquireVsCodeApi().postMessage({ type: "ready" });
-      await waitFor(() => text("#viewer-filter-count").includes("docs shown"), "payload");
-      if (document.querySelectorAll(".card[data-id]").length === 0) {
-        const focus = document.querySelector('[data-viewer-filter-group="focus"]');
-        if (focus instanceof HTMLSelectElement) {
-          focus.value = "all";
-          focus.dispatchEvent(new Event("change", { bubbles: true }));
-        } else {
-          const allDocs = document.querySelector('[data-viewer-focus-value="all"]');
-          if (allDocs instanceof HTMLElement) {
-            allDocs.click();
+      if (${injectFailure ? "true" : "false"}) {
+        await check("injected failure", () => { throw new Error("injected on purpose"); });
+      }
+      await check("payload arrives", async () => {
+        await waitFor(() => text("#viewer-filter-count").includes("docs shown"), "payload");
+        return text("#viewer-filter-count").trim();
+      });
+      await check("board shows cards", async () => {
+        if (document.querySelectorAll(".card[data-id]").length === 0) {
+          const focus = document.querySelector('[data-viewer-filter-group="focus"]');
+          if (focus instanceof HTMLSelectElement) {
+            focus.value = "all";
+            focus.dispatchEvent(new Event("change", { bubbles: true }));
+          } else {
+            const allDocs = document.querySelector('[data-viewer-focus-value="all"]');
+            if (allDocs instanceof HTMLElement) allDocs.click();
           }
         }
+        await waitFor(() => document.querySelectorAll(".card[data-id]").length > 0, "cards");
+        return document.querySelectorAll(".card[data-id]").length + " card(s)";
+      });
+      for (const [label, selector] of [["topbar", ".viewer-topbar"], ["repo pill", "#viewer-repo-pill"], ["board", "#board"], ["details", "#details"]]) {
+        await check(label + " is not blank", () => {
+          const value = text(selector).trim();
+          if (!value) throw new Error(selector + " rendered blank");
+          return value.length + " chars";
+        });
       }
-      await waitFor(() => document.querySelectorAll(".card[data-id]").length > 0, "cards");
-      if (!text(".viewer-topbar").trim()) throw new Error("topbar blank");
-      if (!text("#viewer-repo-pill").trim()) throw new Error("repo pill blank");
-      if (!text("#board").trim()) throw new Error("board blank");
-      if (!text("#details").trim()) throw new Error("details blank");
-      click(".card[data-id]");
-      click('[data-action="read"]');
-      await waitFor(() => !document.getElementById("viewer-document").hidden && text("#viewer-document-content").trim(), "read preview");
-      click("#viewer-insights");
-      await waitFor(() => text("#viewer-document-content").includes("Flow health"), "insights");
-      click("#viewer-health");
-      await waitFor(() => text("#viewer-document-content").includes("Validation findings"), "health");
-      const auto = document.getElementById("viewer-auto-refresh");
-      auto.checked = false;
-      auto.dispatchEvent(new Event("change", { bubbles: true }));
-      auto.checked = true;
-      auto.dispatchEvent(new Event("change", { bubbles: true }));
-      click('[data-action="refresh"]');
-      await waitFor(() => /refreshed|no viewer changes/.test(text("#viewer-meta")), "refresh");
-      click("#activity-toggle");
-      await delay(150);
-      const activityPanel = document.getElementById("activity-panel");
-      const entry = activityPanel && !activityPanel.hidden ? document.querySelector(".activity-panel__entry") : null;
-      if (entry) {
+      await check("a card opens its document", async () => {
+        click(".card[data-id]");
+        click('[data-action="read"]');
+        await waitFor(() => !document.getElementById("viewer-document").hidden && text("#viewer-document-content").trim(), "read preview");
+        return text("#viewer-document-title").trim();
+      });
+      await check("insights renders", async () => {
+        click("#viewer-insights");
+        await waitFor(() => text("#viewer-document-content").includes("Flow health"), "insights");
+        return "Flow health";
+      });
+      await check("health renders", async () => {
+        click("#viewer-health");
+        await waitFor(() => text("#viewer-document-content").includes("Validation findings"), "health");
+        return "Validation findings";
+      });
+      await check("refresh reports what it did", async () => {
+        const auto = document.getElementById("viewer-auto-refresh");
+        auto.checked = false;
+        auto.dispatchEvent(new Event("change", { bubbles: true }));
+        auto.checked = true;
+        auto.dispatchEvent(new Event("change", { bubbles: true }));
+        click('[data-action="refresh"]');
+        await waitFor(() => /refreshed|no viewer changes/.test(text("#viewer-meta")), "refresh");
+        return text("#viewer-meta").trim();
+      });
+      await check("activity entry opens its document", async () => {
+        click("#activity-toggle");
+        await delay(150);
+        const activityPanel = document.getElementById("activity-panel");
+        const entry = activityPanel && !activityPanel.hidden ? document.querySelector(".activity-panel__entry") : null;
+        if (!entry) return "no activity entry to open";
         entry.dispatchEvent(new MouseEvent("click", { bubbles: true, view: window }));
         entry.dispatchEvent(new MouseEvent("dblclick", { bubbles: true, view: window }));
         await waitFor(() => !document.getElementById("viewer-document").hidden, "activity read");
+        return "opened";
+      });
+      for (const layoutCheck of LAYOUT_CHECKS) {
+        await check(layoutCheck.name, layoutCheck.run);
       }
-      resolve({ ok: true, name: ${JSON.stringify(name)}, cards: document.querySelectorAll(".card[data-id]").length, title: text("#viewer-document-title") });
-    })().catch((error) => resolve({ ok: false, error: error.message, html: document.documentElement.outerHTML }));
+      const failed = checks.some((entry) => entry.verdict === "failed");
+      resolve({ checks, html: failed ? document.documentElement.outerHTML : "" });
+    })().catch((error) => resolve({
+      checks: [...checks, { name: "campaign completes", verdict: "failed", measured: "", detail: error.message }],
+      html: document.documentElement.outerHTML
+    }));
   })`;
 }
 
 async function runJsdomFallback(url) {
-  const results = [];
   for (const viewport of viewports) {
     const browserErrors = [];
     const virtualConsole = new VirtualConsole();
@@ -400,19 +519,28 @@ async function runJsdomFallback(url) {
       }
     });
     try {
-      await waitFor(() => dom.window.document.readyState === "complete", `${viewport.name} load`);
-      dom.window.acquireVsCodeApi?.().postMessage({ type: "ready" });
-      await waitFor(() => text(dom, "#viewer-filter-count").includes("docs shown"), `${viewport.name} payload`);
-      writeFileSync(join(artifactsDir, `${viewport.name}.html`), dom.serialize());
-      if (browserErrors.length) {
-        throw new Error(`${viewport.name}: ${browserErrors.join("\n")}`);
+      try {
+        await waitFor(() => dom.window.document.readyState === "complete", `${viewport.name} load`);
+        dom.window.acquireVsCodeApi?.().postMessage({ type: "ready" });
+        await waitFor(() => text(dom, "#viewer-filter-count").includes("docs shown"), `${viewport.name} payload`);
+        record(`${viewport.name}: payload renders`, "ok", text(dom, "#viewer-filter-count").trim());
+      } catch (error) {
+        record(`${viewport.name}: payload renders`, "failed", "no payload", error.message);
       }
-      results.push({ viewport, fallback: true, filterCount: text(dom, "#viewer-filter-count") });
+      writeFileSync(join(artifactsDir, `${viewport.name}.html`), dom.serialize());
+      record(
+        `${viewport.name}: console is clean`,
+        browserErrors.length ? "failed" : "ok",
+        `${browserErrors.length} error(s)`,
+        browserErrors.join("\n") || undefined
+      );
+      // The headless DOM lays nothing out, so every geometry check is unmeasurable here
+      // rather than passing by default.
+      skip(`${viewport.name}: layout checks`, "headless DOM performs no layout");
     } finally {
       dom.window.close();
     }
   }
-  return results;
 }
 
 function text(dom, selector) {

@@ -7,7 +7,7 @@
 > Complexity: High
 > Theme: An explicit architecture, assembled from what is already there
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-08 23:11:53
+> Indicators reviewed: 2026-08-09 01:36:26
 
 # Needs
 - Reach the viewer's shared state through one named thing rather than three hand-built seams.
@@ -26,8 +26,8 @@
 
 # Acceptance criteria
 - AC1: The viewer's shared state lives in one named module, and each screen reaches what it does not own through it rather than through a hand-built accessor.
-- AC2: A cached component is invalidated by the change notice the server already sends, keyed on the vocabulary the server already uses.
-- AC3: Hand-written staleness comparisons are removed where the notice covers them, and any that remain state why they are still needed.
+- AC2: WITHDRAWN after measurement -- the vocabulary maps onto seven of thirty-two caches, three of the matches are interface state, and every screen already fetches when it opens. Recorded on `item_631`.
+- AC3: WITHDRAWN -- the comparisons are optimistic-update bookkeeping, not staleness detection. Recorded on `item_631`.
 - AC4: The polling fallback keeps working when the stream is unavailable, and a run with no stream is still correct.
 - AC5: A screen is added by declaring it, and the host routes without testing screen titles.
 - AC6: No framework, no new runtime, and no new endpoint: the bundle keeps its current shape and the extension webview keeps working.

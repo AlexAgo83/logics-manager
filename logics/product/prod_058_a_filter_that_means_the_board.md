@@ -1,8 +1,8 @@
 ## prod_058_a_filter_that_means_the_board - A filter that means the board
 > Date: 2026-08-08
-> Status: Proposed
+> Status: Settled
 > Related request: `req_310_make_the_board_filters_answer_with_what_the_board_actually_shows`
-> Related backlog: `item_619_give_the_viewer_one_filtering_authority`, `item_620_make_the_count_above_the_board_describe_the_board`, `item_621_say_what_a_status_option_selects_and_what_it_would_return`, `item_622_let_the_campaign_catch_a_filter_that_lies`
+> Related backlog: `item_619_give_the_viewer_one_filtering_authority`
 > Related task: `task_307_orchestrate_the_board_filter_corrections`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -46,5 +46,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_310_make_the_board_filters_answer_with_what_the_board_actually_shows`
+- Product back-reference: `item_619_give_the_viewer_one_filtering_authority`
 - Task back-reference: `task_307_orchestrate_the_board_filter_corrections`

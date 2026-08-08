@@ -1,7 +1,7 @@
 ## req_310_make_the_board_filters_answer_with_what_the_board_actually_shows - Make the board filters answer with what the board actually shows
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

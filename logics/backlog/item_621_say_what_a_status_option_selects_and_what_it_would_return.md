@@ -8,6 +8,7 @@
 > Complexity: Low
 > Theme: Honest options
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 17:47:31
 
 # Problem
 - The status option Done asks whether a document is closed rather than whether its status is Done, so the 85 Settled documents answer yes and the option counts 1311 where 1226 are Done. Terminal is not the same as Done, which is the distinction the audit already had to learn.
@@ -33,6 +34,11 @@
 - request-AC4 -> This backlog slice. Proof: `selects Done by status rather than by being closed` in `tests/viewer.browser-host.test.ts`; Settled and Archived no longer answer to Done.
 - request-AC5 -> This backlog slice. Proof: `says on each filter option what it would return` and `never disables the option currently chosen` in the same file.
 - request-AC8 -> This backlog slice. Proof: `counts an option added to the markup later without being edited`; all four tests fail against the previous implementation.
+- request-AC1 -> This backlog slice. Evidence needed: One authority decides whether a document is shown; a panel selection is not undone by an inherited toggle.
+- request-AC2 -> This backlog slice. Evidence needed: The count above the board is produced by the same predicate the board uses, and states the number of cards the board would render.
+- request-AC3 -> This backlog slice. Evidence needed: On a corpus where every document is finished, a type or status selection returns the documents it names.
+- request-AC6 -> This backlog slice. Evidence needed: The extension webview, which has no panel, keeps filtering exactly as it does today.
+- request-AC7 -> This backlog slice. Evidence needed: The campaign fails when the count and the board disagree, and when a filter returns documents it did not name.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
@@ -52,3 +58,9 @@
 # Priority
 - Priority: Medium - two options that quietly mean something else
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_307_orchestrate_the_board_filter_corrections`
+
+# Notes
+- Task `task_307_orchestrate_the_board_filter_corrections` was finished via `logics-manager flow finish task` on 2026-08-08.

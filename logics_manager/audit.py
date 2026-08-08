@@ -267,6 +267,7 @@ def _is_done(doc: DocMeta) -> bool:
 
 
 def _is_abandoned(doc: DocMeta) -> bool:
+    """Terminal but not delivered: no implementation chain is owed, by any check."""
     return doc.status is not None and doc.status in STATUS_ABANDONED
 
 
@@ -784,8 +785,6 @@ def audit_payload(
 
     if not skip_ac_traceability:
         for request in [doc for doc in docs.values() if doc.kind.kind == "request"]:
-            # Abandoned work has no chain to trace, and reaching it here would report
-            # the same missing backlog the delivered-request check just stopped asking for.
             if not _is_strict_scope(request, cutoff) or _is_abandoned(request):
                 continue
             ac_ids = _extract_request_ac_ids(request)

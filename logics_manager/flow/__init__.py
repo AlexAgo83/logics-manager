@@ -3482,6 +3482,35 @@ def _restore_file_snapshot(repo_root: Path, snapshot: dict[str, str]) -> None:
         path = repo_root / rel_path
         path.write_text(content, encoding="utf-8")
 
+def _closeout_checks(
+    repo_root: Path, *, run_lint: bool, run_audit: bool
+) -> tuple[dict[str, object] | None, dict[str, object] | None, bool]:
+    """The requested post-close checks, and whether they all passed."""
+    lint_result = lint_payload(repo_root, require_status=True) if run_lint else None
+    audit_result = (
+        audit_payload(repo_root, legacy_cutoff_version="1.1.0", group_by_doc=True) if run_audit else None
+    )
+    ok = True
+    if lint_result is not None and not lint_result.get("ok", False):
+        ok = False
+    if audit_result is not None and audit_result.get("issue_count", 0):
+        ok = False
+    return lint_result, audit_result, ok
+
+
+def _closeout_outcome(ok: bool, dry_run: bool) -> tuple[bool, bool]:
+    """What became of the task, said apart from whether the post-close checks passed.
+
+    The requested checks run repository-wide and after the task is already closed, so a
+    blocker held by an unrelated corpus turns `ok` false on a closeout that fully happened.
+    `ok` stays false -- a caller gating a commit on it is right to -- but it is no longer
+    the only thing said, and a caller can tell this from a preflight rollback, where
+    nothing was closed at all.
+    """
+    closed = not dry_run
+    return closed, closed and not ok
+
+
 def closeout_payload(
     repo_root: Path,
     source: str,
@@ -3581,27 +3610,8 @@ def closeout_payload(
             index_result = index_payload(repo_root)
             changed_files.add(str(index_result["output_path"]))
 
-    lint_result: dict[str, object] | None = None
-    if run_lint:
-        lint_result = lint_payload(repo_root, require_status=True)
-
-    audit_result: dict[str, object] | None = None
-    if run_audit:
-        audit_result = audit_payload(repo_root, legacy_cutoff_version="1.1.0", group_by_doc=True)
-
-    ok = True
-    if lint_result is not None and not lint_result.get("ok", False):
-        ok = False
-    if audit_result is not None and audit_result.get("issue_count", 0):
-        ok = False
-
-    # The requested checks run repository-wide and after the task is already closed, so
-    # a blocker held by an unrelated corpus turns `ok` false on a closeout that fully
-    # happened. `ok` stays false -- a caller gating a commit on it is right to -- but it
-    # is no longer the only thing said: `closed` reports what became of the task, and a
-    # caller can tell this from a preflight rollback, where nothing was closed at all.
-    closed = not dry_run
-    post_close_validation_failed = closed and not ok
+    lint_result, audit_result, ok = _closeout_checks(repo_root, run_lint=run_lint, run_audit=run_audit)
+    closed, post_close_validation_failed = _closeout_outcome(ok, dry_run)
 
     return {
         "command": "closeout",

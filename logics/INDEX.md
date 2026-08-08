@@ -98,6 +98,7 @@
 | [prod_059_sub_systems_beside_the_core_not_inside_it](product/prod_059_sub_systems_beside_the_core_not_inside_it.md) | Sub-systems beside the core, not inside it | Settled |  |  | product/prod_059_sub_systems_beside_the_core_not_inside_it.md |
 | [prod_060_the_browser_host_down_to_the_viewer](product/prod_060_the_browser_host_down_to_the_viewer.md) | The browser host, down to the viewer | Settled |  |  | product/prod_060_the_browser_host_down_to_the_viewer.md |
 | [prod_061_the_architecture_written_down](product/prod_061_the_architecture_written_down.md) | The architecture, written down | Proposed |  |  | product/prod_061_the_architecture_written_down.md |
+| [prod_062_say_what_just_happened](product/prod_062_say_what_just_happened.md) | Say what just happened | Proposed |  |  | product/prod_062_say_what_just_happened.md |
 
 ## Roadmaps
 
@@ -419,6 +420,7 @@ _None_
 | [req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet](request/req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet.md) | Lift the viewer's sub-systems out of its core, and turn the size ledger into a ratchet | Done |  |  | request/req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet.md |
 | [req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved](request/req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved.md) | Finish lifting the browser host's sub-systems, on the seam cdx proved | Done |  |  | request/req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved.md |
 | [req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens](request/req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens.md) | Write down the architecture the viewer already has: a named store, server-driven invalidation, declared screens | Ready |  |  | request/req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens.md |
+| [req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done](request/req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done.md) | Close what the attended tour found: say what is unavailable, count what is shown, report when a screen is done | Ready |  |  | request/req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done.md |
 
 ## Backlog
 
@@ -1056,6 +1058,9 @@ _None_
 | [item_630_name_the_viewer_s_shared_state](backlog/item_630_name_the_viewer_s_shared_state.md) | Name the viewer's shared state | Ready |  | 0% | backlog/item_630_name_the_viewer_s_shared_state.md |
 | [item_631_let_the_server_s_change_notice_invalidate_the_cache](backlog/item_631_let_the_server_s_change_notice_invalidate_the_cache.md) | Let the server's change notice invalidate the cache | Ready |  | 0% | backlog/item_631_let_the_server_s_change_notice_invalidate_the_cache.md |
 | [item_632_let_a_screen_declare_itself](backlog/item_632_let_a_screen_declare_itself.md) | Let a screen declare itself | Ready |  | 0% | backlog/item_632_let_a_screen_declare_itself.md |
+| [item_633_say_what_is_unavailable_before_it_is_chosen](backlog/item_633_say_what_is_unavailable_before_it_is_chosen.md) | Say what is unavailable before it is chosen | Ready |  | 0% | backlog/item_633_say_what_is_unavailable_before_it_is_chosen.md |
+| [item_634_make_the_count_follow_the_search_box_too](backlog/item_634_make_the_count_follow_the_search_box_too.md) | Make the count follow the search box too | Ready |  | 0% | backlog/item_634_make_the_count_follow_the_search_box_too.md |
+| [item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over](backlog/item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over.md) | Report when a screen is done, and stop reporting what is over | Ready |  | 0% | backlog/item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over.md |
 
 ## Tasks
 
@@ -1365,3 +1370,4 @@ _None_
 | [task_308_orchestrate_lifting_the_sub_systems_out_of_the_core](tasks/task_308_orchestrate_lifting_the_sub_systems_out_of_the_core.md) | Orchestrate lifting the sub-systems out of the core | Done |  | 100% | tasks/task_308_orchestrate_lifting_the_sub_systems_out_of_the_core.md |
 | [task_309_orchestrate_finishing_the_browser_host_split](tasks/task_309_orchestrate_finishing_the_browser_host_split.md) | Orchestrate finishing the browser host split | Done |  | 100% | tasks/task_309_orchestrate_finishing_the_browser_host_split.md |
 | [task_310_orchestrate_naming_the_viewer_architecture](tasks/task_310_orchestrate_naming_the_viewer_architecture.md) | Orchestrate naming the viewer architecture | Ready |  | 0% | tasks/task_310_orchestrate_naming_the_viewer_architecture.md |
+| [task_311_orchestrate_the_attended_tour_findings](tasks/task_311_orchestrate_the_attended_tour_findings.md) | Orchestrate the attended tour findings | Ready |  | 0% | tasks/task_311_orchestrate_the_attended_tour_findings.md |

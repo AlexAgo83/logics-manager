@@ -1,0 +1,501 @@
+{
+  "budgets": {
+    "max_docs": 20,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done item_633_say_what_is_unavailable_before_it_is_chosen item_634_make_the_count_follow_the_search_box_too item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over task_311_orchestrate_the_attended_tour_findings --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value"
+        ],
+        "prod": [
+          "prod_057_a_viewer_campaign_that_reports_what_it_saw"
+        ],
+        "req": [
+          "req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured"
+        ],
+        "task": [
+          "task_306_orchestrate_the_viewer_ui_campaign"
+        ]
+      },
+      "path": "logics/product/prod_057_a_viewer_campaign_that_reports_what_it_saw.md",
+      "ref": "prod_057_a_viewer_campaign_that_reports_what_it_saw",
+      "sections": {
+        "Goals": [
+          "- Make a run readable after the fact, not only pass or fail.",
+          "- Catch the defects that only appear when the real interface is drawn at a real size.",
+          "- Keep the campaign honest about coverage by deriving its lists from the interface.",
+          "- Reuse the machinery that already exists rather than adding a browser-automation dependency."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Turn the existing viewer visual smoke into a campaign: it keeps gating a delivery, and it also becomes readable. Every check is named and reported with the value it measured, a failure no longer hides the checks behind it, and the assertions grow to cover the layout defects a green unit suite is blind to. One campaign, driven against the standalone viewer, covers the interface both the viewer and the extension render.",
+          "```mermaid",
+          "flowchart LR",
+          "    Viewer[Real viewer, three viewports] --> Checks[Named checks]",
+          "    Checks --> Report[Verdict + measured value]",
+          "    Checks --> Shots[Captures]"
+        ],
+        "References": [
+          "- Product back-reference: `item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value`",
+          "- Task back-reference: `task_306_orchestrate_the_viewer_ui_campaign`"
+        ]
+      },
+      "status": "Settled",
+      "title": "A viewer campaign that reports what it saw"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_619_give_the_viewer_one_filtering_authority"
+        ],
+        "prod": [
+          "prod_058_a_filter_that_means_the_board"
+        ],
+        "req": [
+          "req_310_make_the_board_filters_answer_with_what_the_board_actually_shows"
+        ],
+        "task": [
+          "task_307_orchestrate_the_board_filter_corrections"
+        ]
+      },
+      "path": "logics/product/prod_058_a_filter_that_means_the_board.md",
+      "ref": "prod_058_a_filter_that_means_the_board",
+      "sections": {
+        "Goals": [
+          "- Make a filter selection the thing that decides what is shown.",
+          "- Make the number above the board describe the board.",
+          "- Make an option that can return nothing say so instead of looking broken.",
+          "- Leave the extension webview, which has no panel, filtering as it does today."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "The board applies two filtering systems in series and reports on only one of them, so on a finished corpus the count promises hundreds of documents above an empty board. Give the viewer one filtering authority, make the count ask the same question the board asks, and let the campaign fail when the two disagree.",
+          "```mermaid",
+          "flowchart LR",
+          "    Panel[Filter panel] --> Authority[One filtering authority]",
+          "    Toggles[Inherited toggles] --> Authority",
+          "    Authority --> Board[Board cards]"
+        ],
+        "References": [
+          "- Product back-reference: `item_619_give_the_viewer_one_filtering_authority`",
+          "- Task back-reference: `task_307_orchestrate_the_board_filter_corrections`"
+        ]
+      },
+      "status": "Settled",
+      "title": "A filter that means the board"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_633_say_what_is_unavailable_before_it_is_chosen",
+          "item_634_make_the_count_follow_the_search_box_too",
+          "item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over"
+        ],
+        "prod": [
+          "prod_062_say_what_just_happened"
+        ],
+        "req": [
+          "req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done"
+        ],
+        "task": [
+          "task_311_orchestrate_the_attended_tour_findings"
+        ]
+      },
+      "path": "logics/product/prod_062_say_what_just_happened.md",
+      "ref": "prod_062_say_what_just_happened",
+      "sections": {
+        "Goals": [
+          "- Make an unavailable action say so before it is chosen.",
+          "- Make the number above the board describe the board, under every filter.",
+          "- Make a finished screen say it is finished.",
+          "- Teach the campaign to catch all of it, since it was green on all of it."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "An attended walk of the viewer found four surfaces that stay silent about what they did: two menu entries that open nothing, a count that stops counting when you search, screens that never report completion, and a warning that never goes away. Each is small; together they are the same defect the last three requests kept finding, on the surfaces a passing suite cannot see."
+        ],
+        "References": [
+          "- Product back-reference: `req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done`",
+          "- Task back-reference: `task_311_orchestrate_the_attended_tour_findings`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Say what just happened"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, close what the attended tour found: say what is unavailable, count what is shown, report when a screen is done, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Close what the attended tour found: say what is unavailable, count what is shown, report when a screen is done",
+        "use when": "You need to implement or review the scaffolded workflow for Close what the attended tour found: say what is unavailable, count what is shown, report when a screen is done."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_633_say_what_is_unavailable_before_it_is_chosen",
+          "item_634_make_the_count_follow_the_search_box_too",
+          "item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over"
+        ],
+        "prod": [
+          "prod_057_a_viewer_campaign_that_reports_what_it_saw",
+          "prod_058_a_filter_that_means_the_board",
+          "prod_062_say_what_just_happened"
+        ],
+        "req": [
+          "req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done"
+        ]
+      },
+      "path": "logics/request/req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done.md",
+      "ref": "req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A navigation entry that cannot open a screen states why before it is chosen, rather than leaving the previous screen in place.",
+          "- AC2: A project with no i18n or theme convention is answered as a normal result, not as a client error, and the console stays clean on it.",
+          "- AC3: The count above the board follows every filter, including the search box.",
+          "- AC4: Every screen reports when it has finished, and no status line outlives what it describes.",
+          "- AC5: The start-up PATH warning can be dismissed for the session and returns on the next one, or sooner if the condition changes.",
+          "- AC6: The campaign fails on each of these, so none of them can come back unnoticed."
+        ],
+        "Needs": [
+          "- Let a menu entry that cannot open anything say so before it is chosen.",
+          "- Let the count above the board follow every filter, the search box included.",
+          "- Let a screen say when it has finished loading, and stop saying it is still working when it is not.",
+          "- Let the campaign catch each of these, since it was green on all of them."
+        ]
+      },
+      "status": "Draft",
+      "title": "Close what the attended tour found: say what is unavailable, count what is shown, report when a screen is done"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, say what is unavailable before it is chosen, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Say what is unavailable before it is chosen",
+        "use when": "Implementing the scaffolded slice for Say what is unavailable before it is chosen."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_633_say_what_is_unavailable_before_it_is_chosen"
+        ],
+        "prod": [
+          "prod_062_say_what_just_happened"
+        ],
+        "req": [
+          "req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done"
+        ],
+        "task": [
+          "task_311_orchestrate_the_attended_tour_findings"
+        ]
+      },
+      "path": "logics/backlog/item_633_say_what_is_unavailable_before_it_is_chosen.md",
+      "ref": "item_633_say_what_is_unavailable_before_it_is_chosen",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: On a project with no convention, each entry states why it is unavailable before it is chosen.",
+          "- AC2: Choosing it never leaves another screen in place while claiming to have opened.",
+          "- AC3: The server answers such a project as a normal result, and the console records no error.",
+          "- AC4: A project that does have a convention still opens its screen.",
+          "- AC5: Tests cover both cases and fail against the current implementation."
+        ],
+        "Problem": [
+          "- Choosing Translations or Theme leaves the document showing the Workshop explorer, title included. The only feedback is a status line most operators will not look at, so a working button reads as a broken one.",
+          "- The server answers those two requests with HTTP 400 on a project that simply has no such convention. That is a client error status for a correct request, and it puts two red errors in the console of an ordinary project every time the entries are touched.",
+          "- The rule this repeats is already written down for filter options: an action that can return nothing says so before it is chosen, with the reason."
+        ]
+      },
+      "status": "Ready",
+      "title": "Say what is unavailable before it is chosen"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, make the count follow the search box too, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Make the count follow the search box too",
+        "use when": "Implementing the scaffolded slice for Make the count follow the search box too."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_634_make_the_count_follow_the_search_box_too"
+        ],
+        "prod": [
+          "prod_062_say_what_just_happened"
+        ],
+        "req": [
+          "req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done"
+        ],
+        "task": [
+          "task_311_orchestrate_the_attended_tour_findings"
+        ]
+      },
+      "path": "logics/backlog/item_634_make_the_count_follow_the_search_box_too.md",
+      "ref": "item_634_make_the_count_follow_the_search_box_too",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: With a query typed, the count equals what the board renders.",
+          "- AC2: Clearing the query returns the count to the unfiltered total.",
+          "- AC3: The campaign drives the search box and fails when the count disagrees with the board.",
+          "- AC4: A test covers the query path and fails against the current implementation."
+        ],
+        "Problem": [
+          "- Typing a query narrowed the board to nine cards while the count kept reading 1337 of 1337 docs shown. The per-column counts were right; the global one was not recomputed at all.",
+          "- The count was already made to ask the board's own predicate, and the search box is part of that predicate. What is missing is that nothing recomputes it when the query changes.",
+          "- The campaign is green on this because its count-versus-board check walks the filter selects and never types anything."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make the count follow the search box too"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, report when a screen is done, and stop reporting what is over, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Report when a screen is done, and stop reporting what is over",
+        "use when": "Implementing the scaffolded slice for Report when a screen is done, and stop reporting what is over."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over"
+        ],
+        "prod": [
+          "prod_062_say_what_just_happened"
+        ],
+        "req": [
+          "req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done"
+        ],
+        "task": [
+          "task_311_orchestrate_the_attended_tour_findings"
+        ]
+      },
+      "path": "logics/backlog/item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over.md",
+      "ref": "item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Every navigation target ends with the status bar in a terminal state, Terminals and Commands included.",
+          "- AC2: A transient status does not outlive the action it describes.",
+          "- AC3: The PATH warning can be dismissed, stays dismissed for the session, and returns on the next one or when the condition changes.",
+          "- AC4: The campaign asserts the terminal status state per screen, walking the navigation targets from the interface.",
+          "- AC5: Tests cover the completion signal, the transient status, and the dismissal, and fail against the current implementation."
+        ],
+        "Problem": [
+          "- Terminals and Commands leave the status bar reading Workshop / terminals, with no completion word, while the other twelve screens end on loaded. An operator cannot tell a finished screen from one still working.",
+          "- The status bar also outlives what it describes: it was still reading Closing preview after the preview had closed.",
+          "- The PATH warning is the same silence from the other side: it says something true and then never stops saying it, taking two lines on every screen and a third of a phone display."
+        ]
+      },
+      "status": "Ready",
+      "title": "Report when a screen is done, and stop reporting what is over"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate the attended tour findings",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_633_say_what_is_unavailable_before_it_is_chosen",
+          "item_634_make_the_count_follow_the_search_box_too",
+          "item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over"
+        ],
+        "prod": [
+          "prod_062_say_what_just_happened"
+        ],
+        "req": [
+          "req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done"
+        ],
+        "task": [
+          "task_311_orchestrate_the_attended_tour_findings"
+        ]
+      },
+      "path": "logics/tasks/task_311_orchestrate_the_attended_tour_findings.md",
+      "ref": "task_311_orchestrate_the_attended_tour_findings",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the attended tour findings"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_633_say_what_is_unavailable_before_it_is_chosen",
+          "item_634_make_the_count_follow_the_search_box_too",
+          "item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over"
+        ],
+        "prod": [
+          "prod_062_say_what_just_happened"
+        ],
+        "req": [
+          "req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done"
+        ],
+        "task": [
+          "task_311_orchestrate_the_attended_tour_findings"
+        ]
+      },
+      "path": "logics/product/prod_062_say_what_just_happened.md",
+      "ref": "prod_062_say_what_just_happened",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Say what just happened"
+    }
+  ],
+  "estimates": {
+    "char_count": 15578,
+    "companion_doc_count": 3,
+    "doc_count": 6
+  },
+  "generated_at": "2026-08-08T20:43:02Z",
+  "handoff": {
+    "companion_doc_count": 3,
+    "enabled": true,
+    "source_refs": [
+      "req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done",
+      "item_633_say_what_is_unavailable_before_it_is_chosen",
+      "item_634_make_the_count_follow_the_search_box_too",
+      "item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over",
+      "task_311_orchestrate_the_attended_tour_findings"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done,item_633_say_what_is_unavailable_before_it_is_chosen,item_634_make_the_count_follow_the_search_box_too,item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over,task_311_orchestrate_the_attended_tour_findings",
+  "refs": [
+    "req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done",
+    "item_633_say_what_is_unavailable_before_it_is_chosen",
+    "item_634_make_the_count_follow_the_search_box_too",
+    "item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over",
+    "task_311_orchestrate_the_attended_tour_findings"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.20.0"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_311_orchestrate_the_attended_tour_findings.md",
+      "ref": "task_311_orchestrate_the_attended_tour_findings"
+    }
+  ]
+}

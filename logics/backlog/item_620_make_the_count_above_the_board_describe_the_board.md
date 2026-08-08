@@ -8,6 +8,7 @@
 > Complexity: Low
 > Theme: One number, one meaning
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 17:47:31
 
 # Problem
 - The count filters the item list through the panel predicate alone, while the board filters through the panel predicate and then the inherited checkboxes. The two answers are computed in different modules from different inputs, so nothing forces them to agree.
@@ -32,6 +33,11 @@
 - request-AC2 -> This backlog slice. Proof: `counts what the board renders, not what the panel alone would allow` and `agrees with the board for every panel selection, including one that allows nothing` in `tests/webview.filter-authority.test.ts`.
 - request-AC7 -> This backlog slice. Proof: the count is produced by `window.__CDX_LOGICS_VISIBLE_COUNT__`, which filters through the board's own `isVisible`; the campaign check lands with `item_622`.
 - request-AC8 -> This backlog slice. Proof: both tests fail against the previous implementation.
+- request-AC1 -> This backlog slice. Evidence needed: One authority decides whether a document is shown; a panel selection is not undone by an inherited toggle.
+- request-AC3 -> This backlog slice. Evidence needed: On a corpus where every document is finished, a type or status selection returns the documents it names.
+- request-AC4 -> This backlog slice. Evidence needed: The status option Done selects documents whose status is Done, distinctly from documents that are merely closed.
+- request-AC5 -> This backlog slice. Evidence needed: A status option that can return nothing says so before it is chosen, rather than looking like a broken filter.
+- request-AC6 -> This backlog slice. Evidence needed: The extension webview, which has no panel, keeps filtering exactly as it does today.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
@@ -51,3 +57,9 @@
 # Priority
 - Priority: High - the surface that reports the filter contradicts it
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_307_orchestrate_the_board_filter_corrections`
+
+# Notes
+- Task `task_307_orchestrate_the_board_filter_corrections` was finished via `logics-manager flow finish task` on 2026-08-08.

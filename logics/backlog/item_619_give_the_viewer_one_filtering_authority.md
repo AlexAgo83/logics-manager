@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: One filtering authority
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 17:47:30
 
 # Problem
 - Applying a panel selection re-arms the five inherited checkboxes, and the visibility path then applies both systems in series. Hiding completed documents is among them, so on a corpus whose documents are all finished the board is emptied by the act of filtering it.
@@ -35,6 +36,10 @@
 - request-AC3 -> This backlog slice. Proof: the same test drives a corpus whose documents are all Done or Settled; measured against the running viewer, type workflow went from 0 rendered cards to the documents it names.
 - request-AC6 -> This backlog slice. Proof: `keeps the inherited toggles authoritative where there is no panel` in the same file, plus the 180 existing browser-host tests passing.
 - request-AC8 -> This backlog slice. Proof: the six tests in `tests/webview.filter-authority.test.ts`; five fail against the previous implementation.
+- request-AC2 -> This backlog slice. Evidence needed: The count above the board is produced by the same predicate the board uses, and states the number of cards the board would render.
+- request-AC4 -> This backlog slice. Evidence needed: The status option Done selects documents whose status is Done, distinctly from documents that are merely closed.
+- request-AC5 -> This backlog slice. Evidence needed: A status option that can return nothing says so before it is chosen, rather than looking like a broken filter.
+- request-AC7 -> This backlog slice. Evidence needed: The campaign fails when the count and the board disagree, and when a filter returns documents it did not name.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
@@ -54,3 +59,9 @@
 # Priority
 - Priority: High - the board is unusable on a finished corpus
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_307_orchestrate_the_board_filter_corrections`
+
+# Notes
+- Task `task_307_orchestrate_the_board_filter_corrections` was finished via `logics-manager flow finish task` on 2026-08-08.

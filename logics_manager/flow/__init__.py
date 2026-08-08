@@ -11,7 +11,7 @@ from ..audit import audit_payload
 from ..cli_output import print_payload
 from ..config import ConfigError, find_repo_root
 from ..doc_parsing import extract_refs, progress_value, section_lines
-from ..flow_evidence import has_ac_proof as _has_ac_proof
+from ..flow_evidence import ac_proof_expectation as _ac_proof_expectation, ac_proof_state as _ac_proof_state, has_ac_proof as _has_ac_proof
 from ..help_flags import flag_lines, subparser_for
 from ..flow_evidence import has_validation_evidence as _has_validation_evidence
 from ..flow_evidence import structured_validation_line as _structured_validation_line
@@ -844,6 +844,20 @@ def _mermaid_closeout_issue(path: Path, kind: str) -> str | None:
     return None
 
 
+def _ac_proof_message(ac_id: str, level: str, paths: list[Path], *, target: str) -> str:
+    """Say which of the two situations this is, and print the form either way.
+
+    A criterion with no line at all and one whose line a repair prepared but nobody filled
+    are different problems with different next actions, and the finding used to call both
+    "missing proof" without ever stating what a proof looks like.
+    """
+    states = {_ac_proof_state(path.read_text(encoding="utf-8"), ac_id) for path in paths if path.exists()}
+    expectation = _ac_proof_expectation(ac_id, target=target)
+    if "placeholder" in states:
+        return f"`{ac_id}` has a {level} traceability line whose proof is still a placeholder; fill it: {expectation}"
+    return f"`{ac_id}` missing {level} proof; expected: {expectation}"
+
+
 def _closeout_issue(path: Path, code: str, message: str, repair_command: str | None = None) -> dict[str, str]:
     issue = {
         "path": path.as_posix(),
@@ -969,7 +983,7 @@ def validate_closeout_payload(repo_root: Path, source: str) -> dict[str, object]
                     _closeout_issue(
                         request_path.relative_to(repo_root),
                         "ac_missing_item_traceability",
-                        f"`{ac_id}` missing backlog-level proof",
+                        _ac_proof_message(ac_id, "backlog-level", item_paths, target="item"),
                         f"python3 -m logics_manager flow repair ac-traceability {request_ref}",
                     )
                 )
@@ -978,7 +992,7 @@ def validate_closeout_payload(repo_root: Path, source: str) -> dict[str, object]
                     _closeout_issue(
                         request_path.relative_to(repo_root),
                         "ac_missing_task_traceability",
-                        f"`{ac_id}` missing task-level proof",
+                        _ac_proof_message(ac_id, "task-level", [task_path], target="task"),
                         f"python3 -m logics_manager flow repair ac-traceability {request_ref}",
                     )
                 )

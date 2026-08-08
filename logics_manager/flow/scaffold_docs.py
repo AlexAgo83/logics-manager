@@ -265,9 +265,14 @@ def _scaffold_ac_ownership(input_payload: dict[str, object], item_refs: list[str
 
 def _scaffold_task_ac_trace(input_payload: dict[str, object], item_refs: list[str]) -> list[str]:
     owned, unclaimed = _scaffold_ac_ownership(input_payload, item_refs)
+    # One line per criterion, because the closeout gate counts them that way: a line
+    # naming several criteria is evidence for none of them. This used to emit grouped
+    # lines, so a corpus the scaffold produced could not satisfy the gate the same tool
+    # applies to it at closeout, and every operator rewrote them by hand.
     lines = [
-        f"- {', '.join(f'request-{ac_id}' for ac_id in acs)} -> `{item_ref}`. Proof deferred to slice closeout."
+        f"- request-{ac_id} -> `{item_ref}`. Proof deferred to slice closeout."
         for item_ref, acs in owned.items()
+        for ac_id in acs
     ]
     lines.extend(
         f"- request-{ac_id} -> (unclaimed). No backlog slice declares this criterion."

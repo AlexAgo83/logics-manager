@@ -20,7 +20,7 @@ from ..audit import audit_payload
 from ..cli_output import print_payload
 from ..config import ConfigError, find_repo_root
 from ..doc_parsing import extract_refs, progress_value, section_lines
-from ..flow_evidence import has_ac_proof as _has_ac_proof
+from ..flow_evidence import AC_PROOF_PLACEHOLDER, has_ac_proof as _has_ac_proof
 from ..flow_evidence import has_validation_evidence as _has_validation_evidence
 from ..flow_evidence import structured_validation_line as _structured_validation_line
 from ..index import index_payload
@@ -583,7 +583,11 @@ def _ac_traceability_entry(ac_id: str, target: str, text: str, proof: str | None
         if proof_source and proof_source.strip():
             rendered += f" Source: `{proof_source.strip()}`"
         return rendered
-    return f"request-{ac_id} -> {target}. Evidence needed: {text}"
+    # The placeholder has to satisfy the check the repair was recommended by: it used to
+    # write `Evidence needed:`, which `has_ac_proof` does not accept, so running the
+    # remediation a finding suggested left that same finding in place. It also restated the
+    # criterion verbatim, which made an unfilled entry hard to spot beside a real one.
+    return f"request-{ac_id} -> {target}. Proof: {AC_PROOF_PLACEHOLDER}"
 
 
 def _did_you_mean_hint(repo_root: Path, source: str) -> str:

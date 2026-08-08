@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-09 00:05:20
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
@@ -15,7 +16,7 @@
 # Plan
 - [x] 1. Give the viewer a preference store split between the operator and the corpus, served to both hosts.
 - [x] 2. Merge favourite changes rather than overwriting the set, and let a window notice one starred elsewhere.
-- [ ] 3. Keep a paired device's token across a restart, and say where it lives.
+- [x] 3. Keep a paired device's token across a restart: WITHDRAWN after measurement, recorded on `item_640`. A LAN device's origin is stable and the server's registry is already persistent.
 - [ ] 4. Reduce the editor's global state to a first-paint cache and remove the write nothing reads.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.

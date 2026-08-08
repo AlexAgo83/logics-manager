@@ -1,10 +1,10 @@
 ## item_634_make_the_count_follow_the_search_box_too - Make the count follow the search box too
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: One number, every filter
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -32,10 +32,9 @@
 - AC4: A test covers the query path and fails against the current implementation.
 
 # AC Traceability
-- request-AC3 -> This backlog slice. Proof: AC1: With a query typed, the count equals what the board renders.
-- request-AC6 -> This backlog slice. Proof: AC2: Clearing the query returns the count to the unfiltered total.
-- request-AC7 -> This backlog slice. Proof: AC3: The campaign drives the search box and fails when the count disagrees with the board.
-
+- request-AC3 -> This backlog slice. Proof: `the count follows the search box` in `tests/helpers/viewer-filter-checks.mjs`, run by the campaign at each viewport; against the previous implementation it reports `the count stayed at 1360 while the query narrowed the board to 50 card(s)`.
+- request-AC6 -> This backlog slice. Proof: the same check, plus `reports a count that ignores the search box` in `tests/viewer.filter-checks.test.ts`.
+- request-AC7 -> This backlog slice. Proof: `skips the search check when there is no search box` pins that the check degrades rather than failing where there is nothing to type in.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

@@ -74,6 +74,55 @@ export function filterChecks(window) {
       }
     },
     {
+      name: "the count follows the search box",
+      run: async () => {
+        await reset();
+        const input = document.getElementById("search-input");
+        if (!input) return "no search box to type in";
+        const before = announced();
+        input.value = "zzz-no-document-matches-this";
+        input.dispatchEvent(new window.Event("input", { bubbles: true }));
+        await delay(600);
+        const narrowed = announced();
+        input.value = "";
+        input.dispatchEvent(new window.Event("input", { bubbles: true }));
+        await delay(600);
+        const restored = announced();
+        if (narrowed === before) {
+          throw new Error(`the count stayed at ${before} while the query narrowed the board to ${rendered()} card(s)`);
+        }
+        if (restored !== before) {
+          throw new Error(`clearing the query left the count at ${restored}, not ${before}`);
+        }
+        return `${before} -> ${narrowed} -> ${restored}`;
+      }
+    },
+    {
+      name: "a control that regroups the board changes what it shows",
+      run: async () => {
+        await reset();
+        const control = document.getElementById("group-by");
+        if (!control) return "no grouping control";
+        const headings = () =>
+          Array.from(document.querySelectorAll("#board .column__title-label")).map((node) => node.textContent.trim()).join("|");
+        const seen = new Map();
+        for (const option of Array.from(control.options)) {
+          control.value = option.value;
+          control.dispatchEvent(new window.Event("change", { bubbles: true }));
+          await delay(600);
+          seen.set(option.value, headings());
+        }
+        const duplicates = [...seen.entries()].filter(
+          ([value, layout]) => [...seen.entries()].some(([other, otherLayout]) => other !== value && otherLayout === layout)
+        );
+        if (duplicates.length) {
+          throw new Error(`${duplicates.map(([value]) => value).join(", ")} leave the board grouped identically`);
+        }
+        await reset();
+        return [...seen.keys()].join(", ");
+      }
+    },
+    {
       name: "a filter returns only what it names",
       run: async () => {
         await reset();

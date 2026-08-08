@@ -1,10 +1,10 @@
 ## task_311_orchestrate_the_attended_tour_findings - Orchestrate the attended tour findings
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 40%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -15,9 +15,9 @@
 
 # Plan
 - [ ] 1. Say what is unavailable before it is chosen, and stop answering an ordinary project with a client error.
-- [ ] 2. Recompute the count for the search box, and teach the campaign to type.
+- [x] 2. Recompute the count for the search box, and teach the campaign to type.
 - [ ] 3. Report completion on every screen, clear a status that is over, let the PATH warning be dismissed for the session, and close the document panel on Escape.
-- [ ] 4. Group the board by status when that mode is chosen, and drop Theme, which is implemented nowhere.
+- [x] 4. Group the board by status when that mode is chosen, and drop Theme, which is implemented nowhere.
 - [ ] 5. Give every screen a heading structure, keeping the visual design as it is.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.

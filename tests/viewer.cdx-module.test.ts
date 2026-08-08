@@ -11,6 +11,13 @@ import { describe, expect, it } from "vitest";
 
 const cdxSource = readFileSync("clients/viewer/src/browser-host/cdx.js", "utf8");
 const hostSource = readFileSync("clients/viewer/src/browser-host/index.js", "utf8");
+const renderSource = readFileSync("clients/viewer/src/browser-host/render.js", "utf8");
+const utilSource = readFileSync("clients/viewer/src/browser-host/util.js", "utf8");
+const filtersSource = readFileSync("clients/viewer/src/browser-host/filters.js", "utf8");
+
+function withoutImports(source: string): string {
+  return source.replace(/import\s*\{[^}]*\}\s*from\s*"[^"]+";/gs, "");
+}
 
 function returnedNames(): string[] {
   const block = /\n  return \{\n([\s\S]*?)\n  \};\n\}/.exec(cdxSource)![1];
@@ -53,5 +60,21 @@ describe("the lifted cdx screen", () => {
 
   it("does not import the host back", () => {
     expect(cdxSource).not.toContain('from "./index.js"');
+  });
+
+  it("leaves the shared render module carrying nothing only this screen consumes", () => {
+    // req_312: 26 exports sat in the module every surface imports while serving one
+    // caller. The list is derived, so a rendering function added later is covered.
+    const exported = [...renderSource.matchAll(/^export function ([A-Za-z0-9_]+)/gm)].map((match) => match[1]);
+    const others = [hostSource, utilSource, filtersSource].map(withoutImports).join("\n");
+    const cdxBody = withoutImports(cdxSource);
+
+    const cdxOnly = exported.filter((name) => {
+      const bare = new RegExp(`(?<![A-Za-z0-9_.])${name}(?![A-Za-z0-9_])`);
+      const renderRest = withoutImports(renderSource).replace(new RegExp(`^export function ${name}\\b.*$`, "m"), "");
+      return bare.test(cdxBody) && !bare.test(others) && !bare.test(renderRest);
+    });
+
+    expect(cdxOnly).toEqual([]);
   });
 });

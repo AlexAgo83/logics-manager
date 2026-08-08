@@ -267,6 +267,12 @@ async function startChrome(chrome, viewport) {
   ];
   if (process.platform !== "darwin") {
     args.unshift("--no-sandbox");
+  } else {
+    // A headless Chrome still reaches for the macOS Keychain, which interrupts a local
+    // run with an authorization dialog about Chrome Safe Storage. The mock keychain is
+    // Chromium's documented answer for test launches; it also keeps this browser away
+    // from real saved passwords, which a campaign has no business touching.
+    args.unshift("--use-mock-keychain", "--disable-features=DialMediaRouteProvider");
   }
   const child = spawn(chrome, args, { stdio: ["ignore", "pipe", "pipe"] });
   let wsUrl = "";

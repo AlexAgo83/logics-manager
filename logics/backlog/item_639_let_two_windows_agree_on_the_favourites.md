@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: A set, merged rather than overwritten
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-09 00:11:24
 
 # Problem
 - Favourites are a set, and today the whole list is written wholesale by whichever window wrote last. With two windows open, starring in one and starring in another loses one of the two.
@@ -57,3 +58,9 @@
 # Priority
 - Priority: High - the reported case is several windows open at once
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_312_orchestrate_moving_the_viewer_preferences_off_the_port`
+
+# Notes
+- Task `task_312_orchestrate_moving_the_viewer_preferences_off_the_port` was finished via `logics-manager flow finish task` on 2026-08-09.

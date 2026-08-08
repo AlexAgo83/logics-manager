@@ -1,10 +1,10 @@
 ## item_640_keep_a_paired_device_paired_across_a_restart - Keep a paired device paired across a restart
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Obsolete
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Pairing that survives
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -26,6 +26,9 @@
 - AC1: The withdrawal states what was claimed, what was measured, and what refutes it.
 - AC2: The residual case is named, so it can be raised on evidence rather than rediscovered by inference.
 
+# AC Traceability
+- request-AC5 -> This backlog slice. Proof: withdrawn after measurement; this document records what was claimed, what was measured, and what refutes it.
+
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
@@ -45,3 +48,9 @@
 # Priority
 - Priority: Medium - a real capability quietly lost to the same cause
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_312_orchestrate_moving_the_viewer_preferences_off_the_port`
+
+# Notes
+- Task `task_312_orchestrate_moving_the_viewer_preferences_off_the_port` was finished via `logics-manager flow finish task` on 2026-08-09.

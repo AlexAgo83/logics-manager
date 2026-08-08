@@ -1,7 +1,7 @@
 ## req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository - Persist viewer preferences where they belong: favourites for the user, the rest for the repository
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

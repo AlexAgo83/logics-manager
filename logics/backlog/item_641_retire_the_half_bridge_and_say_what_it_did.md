@@ -8,6 +8,7 @@
 > Complexity: Low
 > Theme: No second record
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-09 00:11:24
 
 # Problem
 - The extension carries two of the twelve preference fields across the iframe boundary by hand, keeping them in its global state and posting them back when the frame loads. Once the server is the record, that path is a second source of truth for a subset of the data.
@@ -53,3 +54,9 @@
 # Priority
 - Priority: Low - two of twelve fields, and a write nothing reads
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_312_orchestrate_moving_the_viewer_preferences_off_the_port`
+
+# Notes
+- Task `task_312_orchestrate_moving_the_viewer_preferences_off_the_port` was finished via `logics-manager flow finish task` on 2026-08-09.

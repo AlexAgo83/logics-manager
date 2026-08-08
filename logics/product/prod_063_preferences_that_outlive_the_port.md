@@ -1,8 +1,8 @@
 ## prod_063_preferences_that_outlive_the_port - Preferences that outlive the port
 > Date: 2026-08-08
-> Status: Proposed
+> Status: Settled
 > Related request: `req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository`
-> Related backlog: `item_638_give_the_viewer_a_preference_store_that_does_not_depend_on_the_port`, `item_639_let_two_windows_agree_on_the_favourites`, `item_640_keep_a_paired_device_paired_across_a_restart`, `item_641_retire_the_half_bridge_and_say_what_it_did`
+> Related backlog: `item_638_give_the_viewer_a_preference_store_that_does_not_depend_on_the_port`
 > Related task: `task_312_orchestrate_moving_the_viewer_preferences_off_the_port`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -46,5 +46,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository`
+- Product back-reference: `item_638_give_the_viewer_a_preference_store_that_does_not_depend_on_the_port`
 - Task back-reference: `task_312_orchestrate_moving_the_viewer_preferences_off_the_port`

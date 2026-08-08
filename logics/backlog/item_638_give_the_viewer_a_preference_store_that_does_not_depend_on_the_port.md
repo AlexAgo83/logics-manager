@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: One record, two scopes
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-08 23:11:54
+> Indicators reviewed: 2026-08-09 00:11:24
 
 # Problem
 - Every preference is in one browser storage entry, and browser storage is scoped to the origin, port included. The extension serves the viewer on an ephemeral port, so each session reads an empty store.
@@ -61,3 +61,9 @@
 # Priority
 - Priority: High - a changing origin is why nothing survives
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_312_orchestrate_moving_the_viewer_preferences_off_the_port`
+
+# Notes
+- Task `task_312_orchestrate_moving_the_viewer_preferences_off_the_port` was finished via `logics-manager flow finish task` on 2026-08-09.

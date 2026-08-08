@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 80%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -18,7 +18,7 @@
 - [x] 2. Recompute the count for the search box, and teach the campaign to type.
 - [x] 3. Report completion on every screen, clear a status that is over, let the PATH warning be dismissed for the session, and close the document panel on Escape.
 - [x] 4. Group the board by status when that mode is chosen, and drop Theme, which is implemented nowhere.
-- [ ] 5. Give every screen a heading structure, keeping the visual design as it is.
+- [x] 5. Give every screen a heading structure, keeping the visual design as it is.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.

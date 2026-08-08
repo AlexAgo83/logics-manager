@@ -11,6 +11,8 @@
 }
 
 .viewer-topbar__title {
+  /* h1 since req_314: the default heading margin would move the topbar, so it is reset. */
+  margin: 0;
   font-size: 14px;
   font-weight: 700;
   line-height: 1.25;
@@ -1214,7 +1216,8 @@
 }
 
 .viewer-document__title {
-  margin-top: 3px;
+  /* h2 since req_314; the explicit margin replaces the default heading one. */
+  margin: 3px 0 0;
   font-size: 15px;
   font-weight: 700;
   overflow-wrap: anywhere;

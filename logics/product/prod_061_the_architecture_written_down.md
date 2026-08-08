@@ -1,8 +1,8 @@
 ## prod_061_the_architecture_written_down - The architecture, written down
 > Date: 2026-08-08
-> Status: Proposed
+> Status: Settled
 > Related request: `req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens`
-> Related backlog: `item_630_name_the_viewer_s_shared_state`, `item_631_let_the_server_s_change_notice_invalidate_the_cache`, `item_632_let_a_screen_declare_itself`
+> Related backlog: `item_630_name_the_viewer_s_shared_state`
 > Related task: `task_310_orchestrate_naming_the_viewer_architecture`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -48,5 +48,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens`
+- Product back-reference: `item_630_name_the_viewer_s_shared_state`
 - Task back-reference: `task_310_orchestrate_naming_the_viewer_architecture`

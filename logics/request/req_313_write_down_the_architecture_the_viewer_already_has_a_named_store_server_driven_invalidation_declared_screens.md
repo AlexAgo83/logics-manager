@@ -1,7 +1,7 @@
 ## req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens - Write down the architecture the viewer already has: a named store, server-driven invalidation, declared screens
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High

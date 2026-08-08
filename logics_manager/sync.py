@@ -11,6 +11,7 @@ from pathlib import Path
 
 from .config import find_repo_root
 from .doc_parsing import age_in_days, extract_refs, git_changed_paths, git_last_change_times, indicator_value, last_change_time, priority_tier
+from .help_flags import flag_lines, subparser_for
 from .lint import REVIEWED_INDICATOR, expected_workflow_mermaid_signature
 from .statuses import canonical_status, transition_error
 from .path_utils import resolve_repo_output_path
@@ -1125,6 +1126,10 @@ def _build_help() -> str:
     )
 
 
+def _flag_lines(command: str) -> list[str]:
+    return flag_lines(subparser_for(build_parser(), [command]))
+
+
 def _build_subcommand_help(command: str) -> str:
     if command == "close-eligible-requests":
         return "\n".join(
@@ -1136,8 +1141,7 @@ def _build_subcommand_help(command: str) -> str:
                 "  logics-manager sync close-eligible-requests [args...]",
                 "",
                 "Flags:",
-                "  --format {text,json}",
-                "  --dry-run",
+                *_flag_lines(command),
                 "",
                 "Example:",
                 "  logics-manager sync close-eligible-requests --dry-run",
@@ -1153,9 +1157,7 @@ def _build_subcommand_help(command: str) -> str:
                 "  logics-manager sync refresh-mermaid-signatures [refs-or-paths...] [args...]",
                 "",
                 "Flags:",
-                "  --changed-only",
-                "  --format {text,json}",
-                "  --dry-run",
+                *_flag_lines(command),
             ]
         )
     if command == "schema-status":
@@ -1168,7 +1170,7 @@ def _build_subcommand_help(command: str) -> str:
                 "  logics-manager sync schema-status [sources...]",
                 "",
                 "Flags:",
-                "  --format {text,json}",
+                *_flag_lines(command),
                 "",
                 "Example:",
                 "  logics-manager sync schema-status logics/request",
@@ -1184,11 +1186,7 @@ def _build_subcommand_help(command: str) -> str:
                 "  logics-manager sync context-pack <refs...> [args...]",
                 "",
                 "Flags:",
-                "  --mode {summary-only,diff-first,full}",
-                "  --profile {tiny,normal,deep}",
-                "  --out",
-                "  --format {text,json}",
-                "  --dry-run",
+                *_flag_lines(command),
                 "",
                 "Example:",
                 "  logics-manager sync context-pack req_001_my_request task_002_fix_bug --out logics/context-pack.json",
@@ -1204,9 +1202,7 @@ def _build_subcommand_help(command: str) -> str:
                 "  logics-manager sync read-doc <source> [args...]",
                 "",
                 "Flags:",
-                "  --max-chars",
-                "  --section",
-                "  --format {text,json}",
+                *_flag_lines(command),
             ]
         )
     if command == "list-docs":
@@ -1219,14 +1215,7 @@ def _build_subcommand_help(command: str) -> str:
                 "  logics-manager sync list-docs [args...]",
                 "",
                 "Flags:",
-                "  --kind {all,request,backlog,task,product,roadmap,architecture,spec}",
-                "  --status",
-                "  --ref-prefix",
-                "  --limit",
-                "  --recent",
-                "  --open",
-                "  --changed",
-                "  --format {text,json}",
+                *_flag_lines(command),
                 "",
                 "Examples:",
                 "  logics-manager sync list-docs --open --recent --limit 10",
@@ -1243,11 +1232,7 @@ def _build_subcommand_help(command: str) -> str:
                 "  logics-manager sync search-docs <query> [args...]",
                 "",
                 "Flags:",
-                "  --kind {all,request,backlog,task,product,roadmap,architecture,spec}",
-                "  --status",
-                "  --limit",
-                "  --max-snippet-chars",
-                "  --format {text,json}",
+                *_flag_lines(command),
             ]
         )
     if command == "update-indicators":
@@ -1260,14 +1245,7 @@ def _build_subcommand_help(command: str) -> str:
                 "  logics-manager sync update-indicators <source> [args...]",
                 "",
                 "Flags:",
-                "  --status",
-                "  --progress",
-                "  --understanding",
-                "  --confidence",
-                "  --theme",
-                "  --complexity",
-                "  --format {text,json}",
-                "  --dry-run",
+                *_flag_lines(command),
                 "",
                 "Status values:",
                 "  request/backlog/task: Draft, Ready, In progress, Blocked, Done, Obsolete, Archived",
@@ -1289,10 +1267,7 @@ def _build_subcommand_help(command: str) -> str:
                 "  logics-manager sync append-note <source> --section <section> --text <text> [args...]",
                 "",
                 "Flags:",
-                "  --section {report,validation,decision}",
-                "  --text",
-                "  --format {text,json}",
-                "  --dry-run",
+                *_flag_lines(command),
             ]
         )
     if command == "export-graph":
@@ -1305,9 +1280,7 @@ def _build_subcommand_help(command: str) -> str:
                 "  logics-manager sync export-graph [args...]",
                 "",
                 "Flags:",
-                "  --out",
-                "  --format {text,json}",
-                "  --dry-run",
+                *_flag_lines(command),
                 "",
                 "Example:",
                 "  logics-manager sync export-graph --format json",

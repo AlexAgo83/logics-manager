@@ -20,6 +20,8 @@ import sys
 
 import pytest
 
+from logics_manager.help_flags import declared_flags, subparser_for
+
 from logics_manager.cli import ROOT_COMMANDS
 
 
@@ -115,3 +117,16 @@ def test_help_names_the_commands_own_flags() -> None:
     result = _run(["status", "--help"])
     assert "--limit" in result.stdout
     assert "--format" in result.stdout
+
+
+@pytest.mark.parametrize("path", _discover_subcommands(), ids=lambda path: " ".join(path))
+def test_help_lists_every_flag_the_command_declares(path: list[str]) -> None:
+    """The screens used to restate their flags by hand, and nine had drifted out of them."""
+    module_name = "viewer" if path[0] == "view" else path[0]
+    module = importlib.import_module(f"logics_manager.{module_name}")
+    parser = subparser_for(module.build_parser(), path[1:])
+
+    printed = _run([*path, "--help"]).stdout
+    missing = sorted(flag for flag in declared_flags(parser) if flag not in printed)
+
+    assert not missing, f"`logics-manager {' '.join(path)} --help` never names {missing}"

@@ -1,10 +1,10 @@
 ## item_612_make_the_indicator_update_help_list_the_flags_the_command_accepts - Make the indicator update help list the flags the command accepts
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Discoverable command contract
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -33,9 +33,8 @@
 - AC4: A test compares declared flags against the printed screen for every subcommand, and fails against the current code.
 
 # AC Traceability
-- request-AC4 -> This backlog slice. Proof: AC1: Every flag a command declares appears on that command's help screen, including the nine currently missing.
-- request-AC7 -> This backlog slice. Proof: AC4: A test compares declared flags against the printed screen for every subcommand, and fails against the current code.
-
+- request-AC4 -> This backlog slice. Proof: `test_help_lists_every_flag_the_command_declares` in `tests/python/test_cli_help_contract.py`, parametrized over every discovered subcommand; it reports 9 commands against the previous implementation.
+- request-AC7 -> This backlog slice. Proof: the same test, plus `logics_manager/help_flags.py` rendering each screen's flag section from the parser that declares it.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

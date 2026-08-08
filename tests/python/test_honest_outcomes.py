@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 
+from logics_manager.audit import audit_payload
 from logics_manager.cli import main
 from logics_manager.flow import closeout_payload
 from logics_manager.lint import lint_payload
@@ -281,3 +282,62 @@ def test_a_dry_run_closeout_reports_the_task_not_closed(
     assert payload["closed"] is False
     assert payload["post_close_validation_failed"] is False
     assert "> Status: Done" not in (root / "logics" / "tasks" / "task_001_demo_product.md").read_text(encoding="utf-8")
+
+
+# --- item_611: abandoned is not delivered ------------------------------------
+
+
+def _write_request(root: Path, ref: str, status: str) -> None:
+    directory = root / "logics" / "request"
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / f"{ref}.md").write_text(
+        "\n".join(
+            [
+                f"## {ref} - Probe",
+                "> From version: 2.20.0",
+                "> Schema version: 1.0",
+                f"> Status: {status}",
+                "> Understanding: 100%",
+                "> Confidence: 100%",
+                "> Complexity: Low",
+                "> Theme: Probe",
+                "> Reminder: Update.",
+                "",
+                "# Needs",
+                "- A need that was decided against.",
+                "",
+                "# Acceptance criteria",
+                "- AC1: Something that will never be built.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+
+def _audit_codes(root: Path, ref: str) -> set[str]:
+    payload = audit_payload(root)
+    return {
+        issue["code"]
+        for issue in payload["issues"]
+        if issue["path"].endswith(f"{ref}.md")
+    }
+
+
+def test_an_abandoned_request_is_not_asked_for_a_backlog(tmp_path: Path) -> None:
+    root = tmp_path / "logics-repo"
+    (root / "logics").mkdir(parents=True)
+
+    for status in ("Obsolete", "Archived", "Superseded"):
+        _write_request(root, "req_001_abandoned", status)
+        codes = _audit_codes(root, "req_001_abandoned")
+        assert "request_done_without_backlog" not in codes, status
+        assert "ac_no_linked_backlog" not in codes, status
+
+
+def test_a_delivered_request_still_requires_its_backlog(tmp_path: Path) -> None:
+    root = tmp_path / "logics-repo"
+    (root / "logics").mkdir(parents=True)
+    _write_request(root, "req_001_delivered", "Done")
+
+    assert "request_done_without_backlog" in _audit_codes(root, "req_001_delivered")

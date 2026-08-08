@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 40%
+> Progress: 60%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -14,7 +14,7 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Separate terminal from delivered in the audit, and stop asking abandoned requests for a backlog by either route.
+- [x] 1. Separate terminal from delivered in the audit, and stop asking abandoned requests for a backlog by either route.
 - [ ] 2. Derive each help screen's flag section from the declared flags, closing the nine missing flags at once, and pin it with a test covering every subcommand.
 - [x] 3. Report a closed task as closed, with the post-close check result carried alongside rather than folded into it.
 - [x] 4. Make a same-day second re-baseline clear the indicator gate, without weakening the gate.

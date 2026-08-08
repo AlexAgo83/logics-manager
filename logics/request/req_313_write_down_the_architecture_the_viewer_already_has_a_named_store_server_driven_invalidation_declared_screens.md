@@ -7,6 +7,7 @@
 > Complexity: High
 > Theme: An explicit architecture, assembled from what is already there
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 23:11:53
 
 # Needs
 - Reach the viewer's shared state through one named thing rather than three hand-built seams.
@@ -20,6 +21,7 @@
 - Beside that channel, the client keeps fourteen ad hoc caches and twenty-nine signature comparisons -- staleness detection written by hand, recomputing what the event just announced. Nothing here needs a new endpoint; what is missing is letting the notice drive the cache.
 - Screens are dispatched by title: `setDocument(title, html)` against fourteen navigation targets, with the routing spread across conditionals that test the title string.
 - One constraint bounds every option. The same source serves the standalone viewer and the extension webview, under a strict content policy with no external runtime and a bundle that must stay byte-stable. That rules out importing a framework, and it is why this request assembles what is present rather than replacing it.
+- This request meets `req_315` on one binding. Naming the in-memory owner of the shared state and deciding where a preference is persisted are different questions, and `req_315` answers the second. Whichever lands first, the other builds on it rather than beside it; the slices say so on both sides.
 - The rendering model -- HTML strings into innerHTML, event delegation -- is deliberately left alone. It works, and changing it would be a rewrite whose payoff is developer comfort, not correctness.
 
 # Acceptance criteria

@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: One named store
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 23:11:53
 
 # Problem
 - The host holds 41 mutable bindings and 30 constants in one closure. Three screens reach into it through accessors built by hand, one per lift, each solving the same problem in the same way without saying so.
@@ -18,6 +19,7 @@
   - Move the shared bindings into one module that owns them and exposes them uniformly.
   - Give each screen the store rather than a hand-picked set of accessors.
   - Keep each screen's private state private: the store carries what is shared, not everything.
+  - Own the bindings in memory only: where a value is persisted is `item_638`'s subject, and the two must not both decide it. If `item_638` has landed, read and write through what it established rather than adding a second path.
   - Keep the wiring order-independent, so a screen cannot read a binding before it exists.
   - Cover the store with a check that derives its list of bindings from the module.
 - Out:

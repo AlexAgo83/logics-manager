@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: A status line that keeps up
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-08 22:54:26
+> Indicators reviewed: 2026-08-08 23:11:53
 
 # Problem
 - Terminals and Commands leave the status bar reading Workshop / terminals, with no completion word, while the other twelve screens end on loaded. An operator cannot tell a finished screen from one still working.
@@ -21,6 +21,7 @@
   - Have every screen report completion, so the status bar reaches a terminal state after a navigation.
   - Clear a transient status once the action it describes has finished.
   - Make the PATH warning dismissible for the session, returning on the next session or sooner if the condition changes.
+  - Store the dismissal where `req_315` puts operator preferences. Until that lands, a dismissal kept in browser storage is lost whenever the extension restarts on a new port -- which reads as the warning returning mid-session rather than at the next one, so say which behaviour is being delivered.
   - Close the document panel on Escape, alongside its close button.
   - Have the campaign assert that the status bar reaches a terminal state after navigating, reading the screens from the interface rather than from a list.
 - Out:

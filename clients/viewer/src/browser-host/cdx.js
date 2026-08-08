@@ -988,7 +988,7 @@ export function createCdxScreen(host) {
   let cdxCloseTarget = null;
 
   function cdxColumnVisibilityPreference() {
-    const stored = host.viewerPreferences().cdxStatusColumns;
+    const stored = host.shared.viewerPreferences.cdxStatusColumns;
     const storedVisibility = stored && typeof stored === "object" ? stored.visibility : null;
     const visibility = {};
     cdxStatusColumns.forEach((column) => {
@@ -1013,7 +1013,7 @@ export function createCdxScreen(host) {
   }
 
   function cdxRunColumnVisibilityPreference() {
-    const stored = host.viewerPreferences().cdxRunColumns;
+    const stored = host.shared.viewerPreferences.cdxRunColumns;
     const storedVisibility = stored && typeof stored === "object" ? stored.visibility : null;
     const visibility = {};
     cdxRunColumns.forEach((column) => {
@@ -1038,7 +1038,7 @@ export function createCdxScreen(host) {
   }
 
   function cdxRunSessionFilterPreference() {
-    const stored = host.viewerPreferences().cdxRunSessions;
+    const stored = host.shared.viewerPreferences.cdxRunSessions;
     if (!stored || typeof stored !== "object" || stored.mode !== "subset") {
       return { mode: "all", selected: [] };
     }
@@ -1060,7 +1060,7 @@ export function createCdxScreen(host) {
   }
 
   function cdxHistoryColumnVisibilityPreference() {
-    const stored = host.viewerPreferences().cdxHistoryColumns;
+    const stored = host.shared.viewerPreferences.cdxHistoryColumns;
     const storedVisibility = stored && typeof stored === "object" ? stored.visibility : null;
     const visibility = {};
     cdxHistoryColumns.forEach((column) => {
@@ -1085,7 +1085,7 @@ export function createCdxScreen(host) {
   }
 
   function cdxHistorySessionFilterPreference() {
-    const stored = host.viewerPreferences().cdxHistorySessions;
+    const stored = host.shared.viewerPreferences.cdxHistorySessions;
     if (!stored || typeof stored !== "object" || stored.mode !== "subset") {
       return { mode: "all", selected: [] };
     }
@@ -1107,7 +1107,7 @@ export function createCdxScreen(host) {
   }
 
   function cdxProviderFilterPreference() {
-    const stored = host.viewerPreferences().cdxStatusProviders;
+    const stored = host.shared.viewerPreferences.cdxStatusProviders;
     if (!stored || typeof stored !== "object" || stored.mode !== "subset") {
       return { mode: "all", selected: [] };
     }

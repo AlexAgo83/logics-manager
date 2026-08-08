@@ -93,7 +93,7 @@ export function activityHistoryKey(entry) {
     ].map((part) => String(part || "")).join("|");
   }
 
-export function activityStateForRoot(state = readStoredState(), root = latestRepoRoot) {
+export function activityStateForRoot(state = readStoredState(), root = "") {
     const baseState = state && typeof state === "object" ? state : {};
     const byRoot = baseState.activityByRoot && typeof baseState.activityByRoot === "object" ? baseState.activityByRoot : {};
     const scoped = byRoot[activityRootKey(root)];

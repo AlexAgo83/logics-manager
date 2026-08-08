@@ -30,7 +30,8 @@ describe("the viewer preference bridge", () => {
   it("lets the record win where it disagrees with the cache", () => {
     // The hydrate spreads the server payload over the cached values, not the reverse.
     const hydrate = /async function hydrateViewerPreferencesFromServer\(\)[\s\S]*?\n  }/.exec(hostSource)![0];
-    const spread = /viewerPreferences = \{ \.\.\.viewerPreferences, \.\.\.data\.payload/.exec(hydrate);
+    // req_313 moved the binding into the shared store; the precedence is unchanged.
+    const spread = /viewerState\.viewerPreferences = \{ \.\.\.viewerState\.viewerPreferences, \.\.\.data\.payload/.exec(hydrate);
 
     expect(spread, hydrate).not.toBeNull();
   });

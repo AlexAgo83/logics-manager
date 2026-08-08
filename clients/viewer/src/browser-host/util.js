@@ -20,7 +20,7 @@ export function activityPanelIsOpen() {
     return panel instanceof HTMLElement && !panel.hidden;
   }
 
-export function activityRootKey(root = latestRepoRoot) {
+export function activityRootKey(root = "") {
     return String(root || "default").trim() || "default";
   }
 

@@ -1,10 +1,10 @@
 ## task_310_orchestrate_naming_the_viewer_architecture - Orchestrate naming the viewer architecture
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 33%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -13,7 +13,7 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Move the shared bindings into one named store, and retire the three hand-built accessors.
+- [x] 1. Move the shared bindings into one named store, and retire the three hand-built accessors.
 - [ ] 2. Key the cache on the server's component vocabulary and let the change notice invalidate it, keeping the polling fallback correct.
 - [ ] 3. Declare each screen once and route on the declaration instead of the title string.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.

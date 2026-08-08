@@ -7,6 +7,7 @@
 > Complexity: Medium
 > Theme: A preference that outlives the session that made it
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 23:11:53
 
 # Needs
 - Keep favourites across every window on the machine, and across restarts.
@@ -20,6 +21,7 @@
 - Two more things share that storage and are lost the same way: the bearer token of a paired network device, so a paired device loses its pairing on every restart, and the diagnostic breadcrumbs kept for crash analysis.
 - A bridge does exist for favourites. The frame posts them to the extension, which keeps them in its global state and posts them back when the frame loads. It carries two of the twelve preference fields -- the favourites and the last-used timestamps -- and the other ten have never left the iframe. That bridge also writes a webview state entry that nothing reads.
 - Twelve fields are stored today: favouriteProjects, projectLastUsedAt, workshopUseSystemTerminal, autoRefreshIntervalSeconds, workshopActiveTab, workshopTerminalOrderByRoot, cdxStatusColumns, cdxRunColumns, cdxHistoryColumns, cdxStatusProviders, cdxRunSessions and cdxHistorySessions. They divide cleanly: four describe the operator, eight describe a corpus.
+- This request meets `req_313` on one binding, and `req_314` on one behaviour. `req_313` names the in-memory owner of the shared state, which is a different question from where a preference is written; and `req_314` makes a start-up warning dismissible, which is an operator preference and belongs in the store this request defines. Whichever lands first, the others build on it.
 - The server is the one party that already knows both the repository and the machine, and it serves both hosts. It is the natural place for this to live; the browser store becomes a cache rather than the record.
 
 # Acceptance criteria

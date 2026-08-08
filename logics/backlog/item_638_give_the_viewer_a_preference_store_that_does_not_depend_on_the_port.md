@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: One record, two scopes
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 23:11:54
 
 # Problem
 - Every preference is in one browser storage entry, and browser storage is scoped to the origin, port included. The extension serves the viewer on an ephemeral port, so each session reads an empty store.
@@ -19,6 +20,7 @@
   - Persist operator preferences in a user-level file, and corpus preferences alongside the repository they describe.
   - Serve both through the viewer's API, so the standalone viewer and the extension read the same record.
   - Keep the browser store as a cache for first paint, not as the record.
+  - Meet `item_630` cleanly: that slice names the in-memory owner, this one names the record. If `item_630` has landed, persist through the store it established rather than beside it; if it has not, do not introduce a second in-memory owner that it would then have to unpick.
   - Carry over what an operator already has on first run, rather than starting them empty.
   - Cover the split with a test that reads the field list from the code rather than restating it.
 - Out:

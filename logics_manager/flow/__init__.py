@@ -12,6 +12,7 @@ from ..cli_output import print_payload
 from ..config import ConfigError, find_repo_root
 from ..doc_parsing import extract_refs, progress_value, section_lines
 from ..flow_evidence import has_ac_proof as _has_ac_proof
+from ..help_flags import flag_lines, subparser_for
 from ..flow_evidence import has_validation_evidence as _has_validation_evidence
 from ..flow_evidence import structured_validation_line as _structured_validation_line
 from ..index import index_payload
@@ -353,18 +354,23 @@ def _build_new_help() -> str:
     )
 
 
+def _flow_flag_lines(path: list[str]) -> list[str]:
+    return flag_lines(subparser_for(build_parser(), path))
+
+
+def _flow_flag_names(path: list[str]) -> list[str]:
+    return [line.strip() for line in _flow_flag_lines(path)]
+
+
 def _build_new_kind_help(kind: str) -> str:
     if kind == "request":
         kind_title = "Request"
-        flags = ["--title", "--slug", "--fixture", "--smoke-test", "--from-version", "--understanding", "--confidence", "--status", "--complexity", "--theme", "--format {text,json}", "--dry-run"]
         examples = ['  logics-manager flow new request --title "Capture migration risks"']
     elif kind == "backlog":
         kind_title = "Backlog"
-        flags = ["--title", "--slug", "--from-version", "--understanding", "--confidence", "--status", "--complexity", "--theme", "--progress", "--auto-create-product-brief", "--auto-create-adr", "--format {text,json}", "--dry-run"]
         examples = ['  logics-manager flow new backlog --title "Break work into slices"']
     else:
         kind_title = "Task"
-        flags = ["--title", "--slug", "--from-version", "--understanding", "--confidence", "--status", "--complexity", "--theme", "--progress", "--auto-create-product-brief", "--auto-create-adr", "--format {text,json}", "--dry-run"]
         examples = ['  logics-manager flow new task --title "Implement the parser"']
     return "\n".join(
         [
@@ -375,7 +381,7 @@ def _build_new_kind_help(kind: str) -> str:
             f"  logics-manager flow new {kind} [args...]",
             "",
             "Flags:",
-            f"  {_format_flag_list(flags)}",
+            f"  {_format_flag_list(_flow_flag_names(['new', kind]))}",
             "",
             "Examples:",
             *examples,
@@ -393,8 +399,7 @@ def _build_list_help() -> str:
             "  logics-manager flow list [args...]",
             "",
             "Flags:",
-            "  --kind {all,request,backlog,task}",
-            "  --format {text,json}",
+            *_flow_flag_lines(["list"]),
             "",
             "Examples:",
             "  logics-manager flow list",
@@ -413,9 +418,7 @@ def _build_show_help() -> str:
             "  logics-manager flow show <ref-or-path> [args...]",
             "",
             "Flags:",
-            "  --max-chars",
-            "  --section",
-            "  --format {text,json}",
+            *_flow_flag_lines(["show"]),
             "",
             "Examples:",
             "  logics-manager flow show req_001_my_request",
@@ -458,7 +461,7 @@ def _build_companion_kind_help(kind: str) -> str:
             f"  logics-manager flow companion {kind} [args...]",
             "",
             "Flags:",
-            "  --title, --source-ref, --request-ref, --backlog-ref, --task-ref, --format {text,json}, --dry-run",
+            *_flow_flag_lines(["companion", kind]),
             "",
             "Examples:",
             f'  logics-manager flow companion {kind} --title "{kind.title()} note"',
@@ -476,11 +479,7 @@ def _build_deliver_help() -> str:
             "  logics-manager flow deliver --from-product <source> [args...]",
             "",
             "Flags:",
-            "  --from-product <source>",
-            "  --title",
-            "  --finish",
-            "  --format {text,json}",
-            "  --dry-run",
+            *_flow_flag_lines(["deliver"]),
             "",
             "Examples:",
             "  logics-manager flow deliver --from-product prod_017_logics_delivery_loop_ergonomics",
@@ -499,7 +498,7 @@ def _build_validate_closeout_help() -> str:
             "  logics-manager flow validate-closeout <task> [args...]",
             "",
             "Flags:",
-            "  --format {text,json}",
+            *_flow_flag_lines(["validate-closeout"]),
             "",
             "Examples:",
             "  logics-manager flow validate-closeout task_164_implement_flow_deliver_from_product",
@@ -517,9 +516,7 @@ def _build_start_help() -> str:
             "  logics-manager flow start <ref-or-path> [args...]",
             "",
             "Flags:",
-            "  --owner <agent>",
-            "  --format {text,json}",
-            "  --dry-run",
+            *_flow_flag_lines(["start"]),
         ]
     )
 
@@ -566,8 +563,7 @@ def _build_repair_kind_help(kind: str) -> str:
             usage,
             "",
             "Flags:",
-            "  --format {text,json}",
-            "  --dry-run",
+            *_flow_flag_lines(["repair", kind]),
             "",
             "Example:",
             examples[kind],
@@ -585,12 +581,7 @@ def _build_closeout_help() -> str:
             "  logics-manager flow closeout <task> [args...]",
             "",
             "Flags:",
-            "  --validation",
-            "  --index",
-            "  --lint",
-            "  --audit",
-            "  --format {text,json}",
-            "  --dry-run",
+            *_flow_flag_lines(["closeout"]),
             "",
             "Example:",
             '  logics-manager flow closeout task_164 --validation "pytest passed" --index --lint --audit',
@@ -642,7 +633,7 @@ def _build_promote_variant_help(promotion: str) -> str:
             usage,
             "",
             "Flags:",
-            "  --from-version, --understanding, --confidence, --status, --complexity, --theme, --progress, --auto-create-product-brief, --auto-create-adr, --format {text,json}, --dry-run",
+            *_flow_flag_lines(["promote", promotion]),
             "",
             "Example:",
             example,
@@ -694,7 +685,7 @@ def _build_split_variant_help(split_kind: str) -> str:
             usage,
             "",
             "Flags:",
-            "  --title (repeatable), --from-version, --understanding, --confidence, --status, --complexity, --theme, --progress, --auto-create-product-brief, --auto-create-adr, --format {text,json}, --dry-run",
+            *_flow_flag_lines(["split", split_kind]),
             "",
             "Example:",
             example,
@@ -744,8 +735,7 @@ def _build_close_kind_help(kind: str) -> str:
             f"  logics-manager flow close {kind} <source> [args...]",
             "",
             "Flags:",
-            "  --format {text,json}",
-            "  --dry-run",
+            *_flow_flag_lines(["close", kind]),
             "",
             "Example:",
             example,
@@ -783,8 +773,7 @@ def _build_finish_kind_help(kind: str) -> str:
             f"  logics-manager flow finish {kind} <source> [args...]",
             "",
             "Flags:",
-            "  --format {text,json}",
-            "  --dry-run",
+            *_flow_flag_lines(["finish", kind]),
             "",
             "Example:",
             "  logics-manager flow finish task task_003_fix_docs",
@@ -822,9 +811,7 @@ def _build_progress_kind_help(kind: str) -> str:
             f"  logics-manager flow progress {kind} <source> --progress <n%> [args...]",
             "",
             "Flags:",
-            "  --progress",
-            "  --format {text,json}",
-            "  --dry-run",
+            *_flow_flag_lines(["progress", kind]),
             "",
             "Example:",
             "  logics-manager flow progress task task_003_fix_docs --progress 40%",

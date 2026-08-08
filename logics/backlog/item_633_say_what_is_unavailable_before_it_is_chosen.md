@@ -8,10 +8,12 @@
 > Complexity: Medium
 > Theme: Honest availability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 22:54:25
 
 # Problem
 - Choosing Translations or Theme leaves the document showing the Workshop explorer, title included. The only feedback is a status line most operators will not look at, so a working button reads as a broken one.
 - The server answers those two requests with HTTP 400 on a project that simply has no such convention. That is a client error status for a correct request, and it puts two red errors in the console of an ordinary project every time the entries are touched.
+- A screen whose endpoint fails behaves the same way: forcing the git status route to 500 put the error in the status bar and left the previous document's content on screen. The repro started from an open document and needs tightening, but the acceptance criterion below already covers it word for word.
 - The rule this repeats is already written down for filter options: an action that can return nothing says so before it is chosen, with the reason.
 
 # Scope
@@ -30,7 +32,8 @@
 - AC2: Choosing it never leaves another screen in place while claiming to have opened.
 - AC3: The server answers such a project as a normal result, and the console records no error.
 - AC4: A project that does have a convention still opens its screen.
-- AC5: Tests cover both cases and fail against the current implementation.
+- AC5: A screen whose endpoint fails reports the failure and does not leave another screen's content in place.
+- AC6: Tests cover the unavailable case, the available case, and the failing endpoint, and fail against the current implementation.
 
 # AC Traceability
 - request-AC1 -> This backlog slice. Proof: AC1: On a project with no convention, each entry states why it is unavailable before it is chosen.
@@ -57,3 +60,6 @@
 # Priority
 - Priority: High - two menu entries that look broken, and a normal project logged as a client error
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_311_orchestrate_the_attended_tour_findings`

@@ -8,6 +8,7 @@
 > Complexity: Low
 > Theme: One number, every filter
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 22:54:25
 
 # Problem
 - Typing a query narrowed the board to nine cards while the count kept reading 1337 of 1337 docs shown. The per-column counts were right; the global one was not recomputed at all.
@@ -54,3 +55,6 @@
 # Priority
 - Priority: High - the same defect as the filter panel, on the path nothing checked
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_311_orchestrate_the_attended_tour_findings`

@@ -98,7 +98,7 @@
 | [prod_059_sub_systems_beside_the_core_not_inside_it](product/prod_059_sub_systems_beside_the_core_not_inside_it.md) | Sub-systems beside the core, not inside it | Settled |  |  | product/prod_059_sub_systems_beside_the_core_not_inside_it.md |
 | [prod_060_the_browser_host_down_to_the_viewer](product/prod_060_the_browser_host_down_to_the_viewer.md) | The browser host, down to the viewer | Settled |  |  | product/prod_060_the_browser_host_down_to_the_viewer.md |
 | [prod_061_the_architecture_written_down](product/prod_061_the_architecture_written_down.md) | The architecture, written down | Proposed |  |  | product/prod_061_the_architecture_written_down.md |
-| [prod_062_say_what_just_happened](product/prod_062_say_what_just_happened.md) | Say what just happened | Proposed |  |  | product/prod_062_say_what_just_happened.md |
+| [prod_062_say_what_just_happened](product/prod_062_say_what_just_happened.md) | Say what just happened | Settled |  |  | product/prod_062_say_what_just_happened.md |
 
 ## Roadmaps
 
@@ -1061,6 +1061,8 @@ _None_
 | [item_633_say_what_is_unavailable_before_it_is_chosen](backlog/item_633_say_what_is_unavailable_before_it_is_chosen.md) | Say what is unavailable before it is chosen | Ready |  | 0% | backlog/item_633_say_what_is_unavailable_before_it_is_chosen.md |
 | [item_634_make_the_count_follow_the_search_box_too](backlog/item_634_make_the_count_follow_the_search_box_too.md) | Make the count follow the search box too | Ready |  | 0% | backlog/item_634_make_the_count_follow_the_search_box_too.md |
 | [item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over](backlog/item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over.md) | Report when a screen is done, and stop reporting what is over | Ready |  | 0% | backlog/item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over.md |
+| [item_636_make_group_by_do_what_it_offers_and_stop_offering_what_it_does_not](backlog/item_636_make_group_by_do_what_it_offers_and_stop_offering_what_it_does_not.md) | Make Group by do what it offers, and stop offering what it does not | Ready |  | 0 | backlog/item_636_make_group_by_do_what_it_offers_and_stop_offering_what_it_does_not.md |
+| [item_637_give_every_screen_a_heading_structure](backlog/item_637_give_every_screen_a_heading_structure.md) | Give every screen a heading structure | Ready |  | 0 | backlog/item_637_give_every_screen_a_heading_structure.md |
 
 ## Tasks
 

@@ -147,3 +147,83 @@ def test_the_legacy_allowance_is_named_not_reimplemented() -> None:
     scattered = "- request-AC1 -> This task.\n- request-AC2 -> This task. Proof: checked."
     assert has_ac_proof(scattered, "AC1") is False
     assert has_ac_proof(scattered, "AC1", legacy=True) is True
+
+
+# --- item_644: a gate with an honest exit ------------------------------------
+
+
+def _git(args: list[str], cwd: Path) -> None:
+    subprocess.run(["git", *args], cwd=cwd, check=True, timeout=60, capture_output=True)
+
+
+def _repo_with_task(tmp_path: Path) -> tuple[Path, Path]:
+    root = tmp_path / "repo"
+    (root / "logics" / "tasks").mkdir(parents=True)
+    _git(["init", "-q"], root)
+    _git(["config", "user.email", "t@example.invalid"], root)
+    _git(["config", "user.name", "T"], root)
+    path = root / "logics" / "tasks" / "task_001_probe.md"
+    path.write_text(
+        "\n".join([
+            "## task_001_probe - Probe", "> From version: 2.20.0", "> Schema version: 1.0",
+            "> Status: In progress", "> Understanding: 80%", "> Confidence: 80%", "> Progress: 50%",
+            "> Complexity: Low", "> Theme: Probe", "> Reminder: Update status.", "", "# Plan", "- [ ] first", "",
+        ]),
+        encoding="utf-8",
+    )
+    _git(["add", "-A"], root)
+    _git(["commit", "-q", "-m", "seed"], root)
+    return root, path
+
+
+def test_a_committed_document_is_not_flagged_by_the_working_tree_gate(tmp_path: Path) -> None:
+    """The gate used to re-read the last commit, which no command could then clear."""
+    from logics_manager.lint import lint_payload
+
+    root, path = _repo_with_task(tmp_path)
+    path.write_text(path.read_text(encoding="utf-8").replace("- [ ] first", "- [ ] second"), encoding="utf-8")
+    _git(["add", "-A"], root)
+    _git(["commit", "-q", "-m", "body edit with no indicator change"], root)
+
+    blocking = [
+        issue for issue in lint_payload(root, require_status=True)["issues"]
+        if "without updating indicators" in issue["message"]
+    ]
+
+    assert blocking == []
+
+
+def test_the_commit_check_still_catches_it(tmp_path: Path) -> None:
+    """What the removed fallback was for, asked where a commit is made."""
+    from logics_manager.lint import commit_indicator_findings
+
+    root, path = _repo_with_task(tmp_path)
+    path.write_text(path.read_text(encoding="utf-8").replace("- [ ] first", "- [ ] second"), encoding="utf-8")
+    _git(["add", "-A"], root)
+    _git(["commit", "-q", "-m", "body edit with no indicator change"], root)
+
+    findings = commit_indicator_findings(root, "HEAD")
+
+    assert [finding["path"] for finding in findings] == ["logics/tasks/task_001_probe.md"]
+    assert commit_indicator_findings(root, "HEAD~1") == []
+
+
+def test_the_finding_names_only_indicators_a_remediation_can_change(tmp_path: Path) -> None:
+    """`From version` was named on documents where it had never been touched, and where no
+    offered command would have changed it."""
+    from logics_manager.lint import lint_payload
+
+    root, path = _repo_with_task(tmp_path)
+    path.write_text(path.read_text(encoding="utf-8").replace("- [ ] first", "- [ ] second"), encoding="utf-8")
+
+    messages = [
+        issue["message"] for issue in lint_payload(root, require_status=True)["issues"]
+        if "without updating indicators" in issue["message"]
+    ]
+
+    assert messages, "an uncommitted body edit is still flagged"
+    named = messages[0].split("(fix:")[0]
+    assert "From version" not in named
+    assert "Schema version" not in named
+    for actionable in ("Progress", "Understanding", "Confidence"):
+        assert actionable in named

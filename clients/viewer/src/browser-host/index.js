@@ -53,6 +53,7 @@ import {
   releaseWorkshopTerminalObserver,
   renderCdxModeSwitcher,
   renderCiModeSwitcher,
+  dismissEnvironmentWarning,
   renderEnvironmentWarning,
   restoreDocumentViewState,
   setActiveGitFile,
@@ -584,6 +585,9 @@ import {
     return Number.isFinite(seconds) && seconds > 0 ? normalizeAutoRefreshIntervalSeconds(seconds) : null;
   }
 
+  let transientMetaText = "";
+  let latestEnvironmentWarning = null;
+
   function setPrimaryActionBusy(actionKey, label = "") {
     primaryActionBusyKey = actionKey || "";
     document.body?.classList.toggle("viewer-is-busy", Boolean(primaryActionBusyKey));
@@ -610,7 +614,16 @@ import {
       applyLocalViewerChrome();
     }
     if (primaryActionBusyKey && label) {
-      setMeta(`${label}...`);
+      transientMetaText = `${label}...`;
+      setMeta(transientMetaText);
+    } else if (!primaryActionBusyKey && transientMetaText) {
+      // The busy label used to survive the action that set it: the status bar still read
+      // "Closing preview..." long after the preview had closed. Only clear it if nothing
+      // else has spoken since, so a real message from the action is never overwritten.
+      if ((meta()?.textContent || "") === transientMetaText) {
+        setMeta("Ready.");
+      }
+      transientMetaText = "";
     }
   }
 
@@ -2257,7 +2270,8 @@ import {
     scheduleNextAutoRefresh();
     updateVersionLink(payload.updateInfo);
     renderUpdateNotice(payload.updateInfo, payload.cdxUpdateInfo);
-    renderEnvironmentWarning(payload.bootstrapWarning || payload.environmentWarning);
+    latestEnvironmentWarning = payload.bootstrapWarning || payload.environmentWarning || null;
+    renderEnvironmentWarning(latestEnvironmentWarning);
     refreshBadgeCounters();
     maybePromptBootstrapLogics();
     updateFilterSummary();
@@ -3362,6 +3376,22 @@ import {
       element.addEventListener("click", () => {
         applyViewerFilter(element.getAttribute("data-viewer-filter-group") || "", element.getAttribute("data-viewer-filter-value") || "");
       });
+    });
+    // A panel that covers the board should close on the key everyone tries first. The
+    // close button stays; this is the keyboard route to the same place.
+    document.getElementById("viewer-environment-warning-dismiss")?.addEventListener("click", () => {
+      if (latestEnvironmentWarning) dismissEnvironmentWarning(latestEnvironmentWarning);
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      const panel = documentPanel();
+      if (!panel || panel.hidden) return;
+      const target = event.target;
+      if (target instanceof HTMLElement && target.closest("[data-viewer-workshop-terminal-stage], input, textarea, select")) {
+        return;
+      }
+      event.preventDefault();
+      closeDocumentPanel();
     });
     document.getElementById("filter-reset")?.addEventListener("click", () => {
       clearLocalPreset();

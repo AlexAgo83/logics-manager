@@ -847,10 +847,33 @@ ${entry?.message || ""}`;
       </div>
     `;
   }
+  var ENVIRONMENT_WARNING_DISMISS_KEY = "logics.viewer.environmentWarningDismissed";
+  function environmentWarningSignature(warning) {
+    return `${warning.title || ""}::${warning.message || ""}`;
+  }
+  function dismissEnvironmentWarning(warning) {
+    try {
+      window.sessionStorage.setItem(ENVIRONMENT_WARNING_DISMISS_KEY, environmentWarningSignature(warning));
+    } catch {
+    }
+    const banner = document.getElementById("viewer-environment-warning");
+    if (banner instanceof HTMLElement) banner.hidden = true;
+  }
+  function environmentWarningIsDismissed(warning) {
+    try {
+      return window.sessionStorage.getItem(ENVIRONMENT_WARNING_DISMISS_KEY) === environmentWarningSignature(warning);
+    } catch {
+      return false;
+    }
+  }
   function renderEnvironmentWarning(warning) {
     const banner = document.getElementById("viewer-environment-warning");
     if (!(banner instanceof HTMLElement)) return;
     if (!warning || typeof warning !== "object" || !warning.message) {
+      banner.hidden = true;
+      return;
+    }
+    if (environmentWarningIsDismissed(warning)) {
       banner.hidden = true;
       return;
     }
@@ -6745,11 +6768,12 @@ ${line}` : line;
       const activeTab = options.tab && workshopTabs.some((tab) => tab.id === options.tab) ? options.tab : fallbackTab;
       setWorkshopActiveTab(activeTab);
       host.setDocument("Workshop", renderWorkshop(activeTab));
-      host.setMeta(`Workshop / ${activeTab}`);
+      host.setMeta(`Workshop / ${activeTab}: loading...`);
       if (activeTab === "explorer") {
         await loadWorkshopExplorer({ silent: Boolean(options.silent) });
       } else if (activeTab === "commands") {
         await loadWorkshopCommands();
+        host.setMeta(`Workshop / ${activeTab} loaded.`);
       } else if (activeTab === "terminals") {
         for (const entry of workshopTerminalState.sessions.values()) {
           releaseWorkshopTerminalObserver(entry);
@@ -6770,6 +6794,7 @@ ${line}` : line;
           renderWorkshopTerminalList();
           ensureWorkshopTerminalStage();
         }
+        host.setMeta(`Workshop / ${activeTab} loaded.`);
       }
     }
     const state = {};
@@ -8227,6 +8252,8 @@ ${line}` : line;
       const seconds = Number(viewerPreferences.autoRefreshIntervalSeconds);
       return Number.isFinite(seconds) && seconds > 0 ? normalizeAutoRefreshIntervalSeconds(seconds) : null;
     }
+    let transientMetaText = "";
+    let latestEnvironmentWarning = null;
     function setPrimaryActionBusy(actionKey, label = "") {
       primaryActionBusyKey = actionKey || "";
       document.body?.classList.toggle("viewer-is-busy", Boolean(primaryActionBusyKey));
@@ -8253,7 +8280,13 @@ ${line}` : line;
         applyLocalViewerChrome();
       }
       if (primaryActionBusyKey && label) {
-        setMeta(`${label}...`);
+        transientMetaText = `${label}...`;
+        setMeta(transientMetaText);
+      } else if (!primaryActionBusyKey && transientMetaText) {
+        if ((meta()?.textContent || "") === transientMetaText) {
+          setMeta("Ready.");
+        }
+        transientMetaText = "";
       }
     }
     function withPrimaryAction(actionKey, label, action) {
@@ -9710,7 +9743,8 @@ ${line}` : line;
       scheduleNextAutoRefresh();
       updateVersionLink(payload.updateInfo);
       renderUpdateNotice(payload.updateInfo, payload.cdxUpdateInfo);
-      renderEnvironmentWarning(payload.bootstrapWarning || payload.environmentWarning);
+      latestEnvironmentWarning = payload.bootstrapWarning || payload.environmentWarning || null;
+      renderEnvironmentWarning(latestEnvironmentWarning);
       refreshBadgeCounters();
       maybePromptBootstrapLogics();
       updateFilterSummary();
@@ -10608,6 +10642,20 @@ ${line}` : line;
         element.addEventListener("click", () => {
           applyViewerFilter(element.getAttribute("data-viewer-filter-group") || "", element.getAttribute("data-viewer-filter-value") || "");
         });
+      });
+      document.getElementById("viewer-environment-warning-dismiss")?.addEventListener("click", () => {
+        if (latestEnvironmentWarning) dismissEnvironmentWarning(latestEnvironmentWarning);
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") return;
+        const panel = documentPanel();
+        if (!panel || panel.hidden) return;
+        const target = event.target;
+        if (target instanceof HTMLElement && target.closest("[data-viewer-workshop-terminal-stage], input, textarea, select")) {
+          return;
+        }
+        event.preventDefault();
+        closeDocumentPanel();
       });
       document.getElementById("filter-reset")?.addEventListener("click", () => {
         clearLocalPreset();

@@ -1,0 +1,520 @@
+{
+  "budgets": {
+    "max_docs": 48,
+    "max_docs_per_ref": 8
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet item_623_lift_cdx_and_git_out_of_the_viewer_server item_624_lift_cdx_git_and_the_workshop_out_of_the_browser_host item_625_cut_the_flow_entry_module_by_verb item_626_make_the_size_ledger_a_ratchet task_308_orchestrate_lifting_the_sub_systems_out_of_the_core --mode full --profile deep --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_603_cache_the_project_switcher_s_per_project_scan"
+        ],
+        "prod": [
+          "prod_054_guardrails_proportionate_to_the_codebase"
+        ],
+        "req": [
+          "req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split"
+        ],
+        "task": [
+          "task_303_orchestrate_the_repository_review_remediation"
+        ]
+      },
+      "path": "logics/product/prod_054_guardrails_proportionate_to_the_codebase.md",
+      "ref": "prod_054_guardrails_proportionate_to_the_codebase",
+      "sections": {
+        "Goals": [
+          "- Report measurements that are true, or stop implying they are taken.",
+          "- Catch a regression in continuous integration rather than in a later review.",
+          "- Prefer a detector over a refactor where the risk is divergence, not incorrectness.",
+          "- Bring the largest module back to a reviewable size without changing behavior."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the repository's own quality signals trustworthy and automatic. Correct the measurements that report nothing or report something false, add the missing static guardrails, detect model divergence instead of merging models, and only then split the module that has grown past comfortable review.",
+          "```mermaid",
+          "flowchart LR",
+          "    Review[Repository review] --> Fix[Cached switcher scan]",
+          "    Review --> Truth[Honest coverage signals]",
+          "    Review --> Lint[Python linter and ceiling]"
+        ],
+        "References": [
+          "- Product back-reference: `item_603_cache_the_project_switcher_s_per_project_scan`",
+          "- Task back-reference: `task_303_orchestrate_the_repository_review_remediation`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Guardrails proportionate to the codebase"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_623_lift_cdx_and_git_out_of_the_viewer_server",
+          "item_624_lift_cdx_git_and_the_workshop_out_of_the_browser_host",
+          "item_625_cut_the_flow_entry_module_by_verb",
+          "item_626_make_the_size_ledger_a_ratchet"
+        ],
+        "prod": [
+          "prod_059_sub_systems_beside_the_core_not_inside_it"
+        ],
+        "req": [
+          "req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet"
+        ],
+        "task": [
+          "task_308_orchestrate_lifting_the_sub_systems_out_of_the_core"
+        ]
+      },
+      "path": "logics/product/prod_059_sub_systems_beside_the_core_not_inside_it.md",
+      "ref": "prod_059_sub_systems_beside_the_core_not_inside_it",
+      "sections": {
+        "Goals": [
+          "- Let a sub-system be read and changed on its own.",
+          "- Shrink the core to what is actually the viewer.",
+          "- Make each delivery lower the ledger instead of raising it.",
+          "- Prove every move is behavior-free, in a codebase where nothing else would."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Three sub-systems -- cdx, git, and the workshop -- account for most of the viewer's mass on both sides of the wire, written inside the viewer core rather than beside it. Lift them into their own modules without changing behavior, cut the flow entry module by verb, and make the size ledger a ratchet that only comes down."
+        ],
+        "References": [
+          "- Product back-reference: `req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet`",
+          "- Task back-reference: `task_308_orchestrate_lifting_the_sub_systems_out_of_the_core`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Sub-systems beside the core, not inside it"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, lift the viewer's sub-systems out of its core, and turn the size ledger into a ratchet, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Lift the viewer's sub-systems out of its core, and turn the size ledger into a ratchet",
+        "use when": "You need to implement or review the scaffolded workflow for Lift the viewer's sub-systems out of its core, and turn the size ledger into a ratchet."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_623_lift_cdx_and_git_out_of_the_viewer_server",
+          "item_624_lift_cdx_git_and_the_workshop_out_of_the_browser_host",
+          "item_625_cut_the_flow_entry_module_by_verb",
+          "item_626_make_the_size_ledger_a_ratchet"
+        ],
+        "prod": [
+          "prod_054_guardrails_proportionate_to_the_codebase",
+          "prod_059_sub_systems_beside_the_core_not_inside_it"
+        ],
+        "req": [
+          "req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet"
+        ]
+      },
+      "path": "logics/request/req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet.md",
+      "ref": "req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Each lifted sub-system lives in its own module, imported by the core rather than written inside it.",
+          "- AC2: No lift changes behavior: the full suite and the viewer campaign pass unchanged, and the bundled assets stay byte-identical where they are generated.",
+          "- AC3: Every lift lowers the moved file's entry in the size allowlist rather than raising it.",
+          "- AC4: The size guard refuses a raised ceiling unless the entry states what was tried and why it was kept.",
+          "- AC5: Shared state is not moved by this request; a lift that would require it stops and says so.",
+          "- AC6: The assistant adapter is left alone, and its recorded reason stays recorded."
+        ],
+        "Needs": [
+          "- Read and change one sub-system without opening the file that holds every other one.",
+          "- Let the size guard record progress instead of recording surrender.",
+          "- Keep every split provably behavior-free, on code with no type checker to catch a bad move."
+        ]
+      },
+      "status": "Draft",
+      "title": "Lift the viewer's sub-systems out of its core, and turn the size ledger into a ratchet"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, lift cdx and git out of the viewer server, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Lift cdx and git out of the viewer server",
+        "use when": "Implementing the scaffolded slice for Lift cdx and git out of the viewer server."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_623_lift_cdx_and_git_out_of_the_viewer_server"
+        ],
+        "prod": [
+          "prod_059_sub_systems_beside_the_core_not_inside_it"
+        ],
+        "req": [
+          "req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet"
+        ],
+        "task": [
+          "task_308_orchestrate_lifting_the_sub_systems_out_of_the_core"
+        ]
+      },
+      "path": "logics/backlog/item_623_lift_cdx_and_git_out_of_the_viewer_server.md",
+      "ref": "item_623_lift_cdx_and_git_out_of_the_viewer_server",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The cdx and git surfaces live in their own modules.",
+          "- AC2: Every route answers as it did before, shown by the existing tests passing unchanged.",
+          "- AC3: The server's allowlist entry is lowered to the reached value.",
+          "- AC4: A test covers each moved surface's reachability through the handler."
+        ],
+        "Problem": [
+          "- The viewer server is 5692 lines, of which roughly 1354 are cdx and 1010 are git. What remains is about 2931 lines that are actually the viewer.",
+          "- The seam already exists: route modules were extracted for some sub-systems, so this is following established practice in the same file rather than inventing a boundary."
+        ]
+      },
+      "status": "Ready",
+      "title": "Lift cdx and git out of the viewer server"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, lift cdx, git, and the workshop out of the browser host, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Lift cdx, git, and the workshop out of the browser host",
+        "use when": "Implementing the scaffolded slice for Lift cdx, git, and the workshop out of the browser host."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_624_lift_cdx_git_and_the_workshop_out_of_the_browser_host"
+        ],
+        "prod": [
+          "prod_059_sub_systems_beside_the_core_not_inside_it"
+        ],
+        "req": [
+          "req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet"
+        ],
+        "task": [
+          "task_308_orchestrate_lifting_the_sub_systems_out_of_the_core"
+        ]
+      },
+      "path": "logics/backlog/item_624_lift_cdx_git_and_the_workshop_out_of_the_browser_host.md",
+      "ref": "item_624_lift_cdx_git_and_the_workshop_out_of_the_browser_host",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The cdx, git and workshop surfaces live in their own modules.",
+          "- AC2: The full suite and the viewer campaign pass after each move, not only at the end.",
+          "- AC3: The browser host's allowlist entry is lowered to the reached value.",
+          "- AC4: A move blocked by shared state is stopped and recorded, rather than forced.",
+          "- AC5: Each moved sub-system keeps a check that it is still reachable from the interface."
+        ],
+        "Problem": [
+          "- The browser host is 7853 lines: about 1979 of cdx, 1595 of git and 1270 of the workshop, against 276 for the board filters. Reading the filter logic means opening a file that also holds three applications.",
+          "- A previous pass extracted the pure helpers and data and then stopped before the shared-state module, judging that move too risky. That judgement holds: the shared state is the hard part, and it is not what this slice moves."
+        ]
+      },
+      "status": "Ready",
+      "title": "Lift cdx, git, and the workshop out of the browser host"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, cut the flow entry module by verb, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Cut the flow entry module by verb",
+        "use when": "Implementing the scaffolded slice for Cut the flow entry module by verb."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_625_cut_the_flow_entry_module_by_verb"
+        ],
+        "prod": [
+          "prod_059_sub_systems_beside_the_core_not_inside_it"
+        ],
+        "req": [
+          "req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet"
+        ],
+        "task": [
+          "task_308_orchestrate_lifting_the_sub_systems_out_of_the_core"
+        ]
+      },
+      "path": "logics/backlog/item_625_cut_the_flow_entry_module_by_verb.md",
+      "ref": "item_625_cut_the_flow_entry_module_by_verb",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Each verb lives in its own module inside the package.",
+          "- AC2: The package's public surface is unchanged, shown by the existing tests importing exactly as before.",
+          "- AC3: Every help screen still resolves its flags from the parser.",
+          "- AC4: The module's allowlist entry is lowered to the reached value."
+        ],
+        "Problem": [
+          "- The flow entry module is 4725 lines and holds every verb: new, promote, split, close, finish, repair, closeout and scaffold. It is already a package, so the module boundary needs no new structure -- only the decision to use it.",
+          "- It is also the file this repository edits most often, so its size is paid repeatedly."
+        ]
+      },
+      "status": "Ready",
+      "title": "Cut the flow entry module by verb"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, make the size ledger a ratchet, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Make the size ledger a ratchet",
+        "use when": "Implementing the scaffolded slice for Make the size ledger a ratchet."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_626_make_the_size_ledger_a_ratchet"
+        ],
+        "prod": [
+          "prod_059_sub_systems_beside_the_core_not_inside_it"
+        ],
+        "req": [
+          "req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet"
+        ],
+        "task": [
+          "task_308_orchestrate_lifting_the_sub_systems_out_of_the_core"
+        ]
+      },
+      "path": "logics/backlog/item_626_make_the_size_ledger_a_ratchet.md",
+      "ref": "item_626_make_the_size_ledger_a_ratchet",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A file under its recorded ceiling is reported, and the ledger can be lowered without hand-editing.",
+          "- AC2: A raised ceiling without a stated reason is refused.",
+          "- AC3: The assistant adapter's recorded reason satisfies the rule and stays as it is.",
+          "- AC4: Tests cover a shrunk file and an unjustified growth, and fail against the current implementation."
+        ],
+        "Problem": [
+          "- The size guard's allowlist has only ever grown: each delivery that made a file longer raised its ceiling, with a comment recording what was added. Nothing asks whether the growth was necessary, and nothing lowers an entry when a file shrinks.",
+          "- The function-length guard next door already behaves better: it reports a file that has come back under its ceiling and offers to shrink the ledger. The size guard has no equivalent."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make the size ledger a ratchet"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_603_cache_the_project_switcher_s_per_project_scan"
+        ],
+        "prod": [
+          "prod_054_guardrails_proportionate_to_the_codebase"
+        ],
+        "req": [
+          "req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split"
+        ],
+        "task": [
+          "task_303_orchestrate_the_repository_review_remediation"
+        ]
+      },
+      "path": "logics/product/prod_054_guardrails_proportionate_to_the_codebase.md",
+      "ref": "prod_054_guardrails_proportionate_to_the_codebase",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Settled",
+      "title": "Guardrails proportionate to the codebase"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_623_lift_cdx_and_git_out_of_the_viewer_server",
+          "item_624_lift_cdx_git_and_the_workshop_out_of_the_browser_host",
+          "item_625_cut_the_flow_entry_module_by_verb",
+          "item_626_make_the_size_ledger_a_ratchet"
+        ],
+        "prod": [
+          "prod_059_sub_systems_beside_the_core_not_inside_it"
+        ],
+        "req": [
+          "req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet"
+        ],
+        "task": [
+          "task_308_orchestrate_lifting_the_sub_systems_out_of_the_core"
+        ]
+      },
+      "path": "logics/product/prod_059_sub_systems_beside_the_core_not_inside_it.md",
+      "ref": "prod_059_sub_systems_beside_the_core_not_inside_it",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Sub-systems beside the core, not inside it"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate lifting the sub-systems out of the core",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_623_lift_cdx_and_git_out_of_the_viewer_server",
+          "item_624_lift_cdx_git_and_the_workshop_out_of_the_browser_host",
+          "item_625_cut_the_flow_entry_module_by_verb",
+          "item_626_make_the_size_ledger_a_ratchet"
+        ],
+        "prod": [
+          "prod_059_sub_systems_beside_the_core_not_inside_it"
+        ],
+        "req": [
+          "req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet"
+        ],
+        "task": [
+          "task_308_orchestrate_lifting_the_sub_systems_out_of_the_core"
+        ]
+      },
+      "path": "logics/tasks/task_308_orchestrate_lifting_the_sub_systems_out_of_the_core.md",
+      "ref": "task_308_orchestrate_lifting_the_sub_systems_out_of_the_core",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate lifting the sub-systems out of the core"
+    }
+  ],
+  "estimates": {
+    "char_count": 15135,
+    "companion_doc_count": 2,
+    "doc_count": 8
+  },
+  "generated_at": "2026-08-08T15:22:00Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet",
+      "item_623_lift_cdx_and_git_out_of_the_viewer_server",
+      "item_624_lift_cdx_git_and_the_workshop_out_of_the_browser_host",
+      "item_625_cut_the_flow_entry_module_by_verb",
+      "item_626_make_the_size_ledger_a_ratchet",
+      "task_308_orchestrate_lifting_the_sub_systems_out_of_the_core"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "deep",
+  "ref": "req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet,item_623_lift_cdx_and_git_out_of_the_viewer_server,item_624_lift_cdx_git_and_the_workshop_out_of_the_browser_host,item_625_cut_the_flow_entry_module_by_verb,item_626_make_the_size_ledger_a_ratchet,task_308_orchestrate_lifting_the_sub_systems_out_of_the_core",
+  "refs": [
+    "req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet",
+    "item_623_lift_cdx_and_git_out_of_the_viewer_server",
+    "item_624_lift_cdx_git_and_the_workshop_out_of_the_browser_host",
+    "item_625_cut_the_flow_entry_module_by_verb",
+    "item_626_make_the_size_ledger_a_ratchet",
+    "task_308_orchestrate_lifting_the_sub_systems_out_of_the_core"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.20.0"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_308_orchestrate_lifting_the_sub_systems_out_of_the_core.md",
+      "ref": "task_308_orchestrate_lifting_the_sub_systems_out_of_the_core"
+    }
+  ]
+}

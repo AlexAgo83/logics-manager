@@ -1,0 +1,543 @@
+{
+  "budgets": {
+    "max_docs": 24,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_310_make_the_board_filters_answer_with_what_the_board_actually_shows item_619_give_the_viewer_one_filtering_authority item_620_make_the_count_above_the_board_describe_the_board item_621_say_what_a_status_option_selects_and_what_it_would_return item_622_let_the_campaign_catch_a_filter_that_lies task_307_orchestrate_the_board_filter_corrections --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_598_invalidate_the_document_age_cache_when_the_repository_moves"
+        ],
+        "prod": [
+          "prod_053_one_workflow_signal_every_logics_surface"
+        ],
+        "req": [
+          "req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports"
+        ],
+        "task": [
+          "task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals"
+        ]
+      },
+      "path": "logics/product/prod_053_one_workflow_signal_every_logics_surface.md",
+      "ref": "prod_053_one_workflow_signal_every_logics_surface",
+      "sections": {
+        "Goals": [
+          "- Report one age and one staleness verdict, whichever surface is asked.",
+          "- Give the viewer access to the workflow health report it currently cannot reach.",
+          "- Answer per-project state where a project is already being chosen.",
+          "- Leave exactly one implementation of each shared judgement behind."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the browser viewer and the embedded editor panel report the same document age, the same staleness verdict, and the same workflow health as the CLI, from one implementation rather than three. Fix the caching defect that would otherwise freeze those signals in any long-running surface before wiring them up.",
+          "```mermaid",
+          "flowchart LR",
+          "    Git[Commit history] --> Lookup[Batched age lookup]",
+          "    Lookup --> Health[Workflow health report]",
+          "    Lookup --> Items[Viewer document items]"
+        ],
+        "References": [
+          "- Product back-reference: `item_598_invalidate_the_document_age_cache_when_the_repository_moves`",
+          "- Task back-reference: `task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals`"
+        ]
+      },
+      "status": "Settled",
+      "title": "One workflow signal, every Logics surface"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value"
+        ],
+        "prod": [
+          "prod_057_a_viewer_campaign_that_reports_what_it_saw"
+        ],
+        "req": [
+          "req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured"
+        ],
+        "task": [
+          "task_306_orchestrate_the_viewer_ui_campaign"
+        ]
+      },
+      "path": "logics/product/prod_057_a_viewer_campaign_that_reports_what_it_saw.md",
+      "ref": "prod_057_a_viewer_campaign_that_reports_what_it_saw",
+      "sections": {
+        "Goals": [
+          "- Make a run readable after the fact, not only pass or fail.",
+          "- Catch the defects that only appear when the real interface is drawn at a real size.",
+          "- Keep the campaign honest about coverage by deriving its lists from the interface.",
+          "- Reuse the machinery that already exists rather than adding a browser-automation dependency."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Turn the existing viewer visual smoke into a campaign: it keeps gating a delivery, and it also becomes readable. Every check is named and reported with the value it measured, a failure no longer hides the checks behind it, and the assertions grow to cover the layout defects a green unit suite is blind to. One campaign, driven against the standalone viewer, covers the interface both the viewer and the extension render.",
+          "```mermaid",
+          "flowchart LR",
+          "    Viewer[Real viewer, three viewports] --> Checks[Named checks]",
+          "    Checks --> Report[Verdict + measured value]",
+          "    Checks --> Shots[Captures]"
+        ],
+        "References": [
+          "- Product back-reference: `item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value`",
+          "- Task back-reference: `task_306_orchestrate_the_viewer_ui_campaign`"
+        ]
+      },
+      "status": "Settled",
+      "title": "A viewer campaign that reports what it saw"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_619_give_the_viewer_one_filtering_authority",
+          "item_620_make_the_count_above_the_board_describe_the_board",
+          "item_621_say_what_a_status_option_selects_and_what_it_would_return",
+          "item_622_let_the_campaign_catch_a_filter_that_lies"
+        ],
+        "prod": [
+          "prod_058_a_filter_that_means_the_board"
+        ],
+        "req": [
+          "req_310_make_the_board_filters_answer_with_what_the_board_actually_shows"
+        ],
+        "task": [
+          "task_307_orchestrate_the_board_filter_corrections"
+        ]
+      },
+      "path": "logics/product/prod_058_a_filter_that_means_the_board.md",
+      "ref": "prod_058_a_filter_that_means_the_board",
+      "sections": {
+        "Goals": [
+          "- Make a filter selection the thing that decides what is shown.",
+          "- Make the number above the board describe the board.",
+          "- Make an option that can return nothing say so instead of looking broken.",
+          "- Leave the extension webview, which has no panel, filtering as it does today."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "The board applies two filtering systems in series and reports on only one of them, so on a finished corpus the count promises hundreds of documents above an empty board. Give the viewer one filtering authority, make the count ask the same question the board asks, and let the campaign fail when the two disagree."
+        ],
+        "References": [
+          "- Product back-reference: `req_310_make_the_board_filters_answer_with_what_the_board_actually_shows`",
+          "- Task back-reference: `task_307_orchestrate_the_board_filter_corrections`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "A filter that means the board"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, make the board filters answer with what the board actually shows, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Make the board filters answer with what the board actually shows",
+        "use when": "You need to implement or review the scaffolded workflow for Make the board filters answer with what the board actually shows."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_619_give_the_viewer_one_filtering_authority",
+          "item_620_make_the_count_above_the_board_describe_the_board",
+          "item_621_say_what_a_status_option_selects_and_what_it_would_return",
+          "item_622_let_the_campaign_catch_a_filter_that_lies"
+        ],
+        "prod": [
+          "prod_053_one_workflow_signal_every_logics_surface",
+          "prod_057_a_viewer_campaign_that_reports_what_it_saw",
+          "prod_058_a_filter_that_means_the_board"
+        ],
+        "req": [
+          "req_310_make_the_board_filters_answer_with_what_the_board_actually_shows"
+        ]
+      },
+      "path": "logics/request/req_310_make_the_board_filters_answer_with_what_the_board_actually_shows.md",
+      "ref": "req_310_make_the_board_filters_answer_with_what_the_board_actually_shows",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: One authority decides whether a document is shown; a panel selection is not undone by an inherited toggle.",
+          "- AC2: The count above the board is produced by the same predicate the board uses, and states the number of cards the board would render.",
+          "- AC3: On a corpus where every document is finished, a type or status selection returns the documents it names.",
+          "- AC4: The status option Done selects documents whose status is Done, distinctly from documents that are merely closed.",
+          "- AC5: A status option that can return nothing says so before it is chosen, rather than looking like a broken filter.",
+          "- AC6: The extension webview, which has no panel, keeps filtering exactly as it does today."
+        ],
+        "Needs": [
+          "- Let a filter return the documents it names, on a repository where the work is finished.",
+          "- Let the count above the board mean the board.",
+          "- Let a status option that can return nothing say so before it is chosen.",
+          "- Let the campaign catch a filter that lies, which it currently cannot."
+        ]
+      },
+      "status": "Draft",
+      "title": "Make the board filters answer with what the board actually shows"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, give the viewer one filtering authority, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Give the viewer one filtering authority",
+        "use when": "Implementing the scaffolded slice for Give the viewer one filtering authority."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_619_give_the_viewer_one_filtering_authority"
+        ],
+        "prod": [
+          "prod_058_a_filter_that_means_the_board"
+        ],
+        "req": [
+          "req_310_make_the_board_filters_answer_with_what_the_board_actually_shows"
+        ],
+        "task": [
+          "task_307_orchestrate_the_board_filter_corrections"
+        ]
+      },
+      "path": "logics/backlog/item_619_give_the_viewer_one_filtering_authority.md",
+      "ref": "item_619_give_the_viewer_one_filtering_authority",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A panel selection is not undone by an inherited toggle.",
+          "- AC2: On a corpus of finished documents, selecting a workflow type returns those documents.",
+          "- AC3: With no panel present, filtering behaves exactly as it does today, shown by the existing webview tests passing unchanged.",
+          "- AC4: A test builds a finished corpus and fails against the current implementation."
+        ],
+        "Problem": [
+          "- Applying a panel selection re-arms the five inherited checkboxes, and the visibility path then applies both systems in series. Hiding completed documents is among them, so on a corpus whose documents are all finished the board is emptied by the act of filtering it.",
+          "- The chrome already computes that the inherited toggles should be ignored when the local viewer's panel is present, but uses that answer only to decide whether the filter button looks active. The visibility path never received it, which is the whole defect."
+        ]
+      },
+      "status": "Ready",
+      "title": "Give the viewer one filtering authority"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, make the count above the board describe the board, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Make the count above the board describe the board",
+        "use when": "Implementing the scaffolded slice for Make the count above the board describe the board."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_620_make_the_count_above_the_board_describe_the_board"
+        ],
+        "prod": [
+          "prod_058_a_filter_that_means_the_board"
+        ],
+        "req": [
+          "req_310_make_the_board_filters_answer_with_what_the_board_actually_shows"
+        ],
+        "task": [
+          "task_307_orchestrate_the_board_filter_corrections"
+        ]
+      },
+      "path": "logics/backlog/item_620_make_the_count_above_the_board_describe_the_board.md",
+      "ref": "item_620_make_the_count_above_the_board_describe_the_board",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The count and the board are produced by one predicate.",
+          "- AC2: For every filter combination, the count equals the number of documents the board would render.",
+          "- AC3: The count remains distinguishable from the number of cards currently paged in.",
+          "- AC4: A test asserts the agreement across the filter combinations and fails against the current implementation."
+        ],
+        "Problem": [
+          "- The count filters the item list through the panel predicate alone, while the board filters through the panel predicate and then the inherited checkboxes. The two answers are computed in different modules from different inputs, so nothing forces them to agree.",
+          "- They do not: type workflow reports 1226 documents shown above a board rendering none, type request reports 308 with none, type backlog reports 618 with none. The number is the surface an operator trusts to know whether a filter worked."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make the count above the board describe the board"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, say what a status option selects, and what it would return, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Say what a status option selects, and what it would return",
+        "use when": "Implementing the scaffolded slice for Say what a status option selects, and what it would return."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_621_say_what_a_status_option_selects_and_what_it_would_return"
+        ],
+        "prod": [
+          "prod_058_a_filter_that_means_the_board"
+        ],
+        "req": [
+          "req_310_make_the_board_filters_answer_with_what_the_board_actually_shows"
+        ],
+        "task": [
+          "task_307_orchestrate_the_board_filter_corrections"
+        ]
+      },
+      "path": "logics/backlog/item_621_say_what_a_status_option_selects_and_what_it_would_return.md",
+      "ref": "item_621_say_what_a_status_option_selects_and_what_it_would_return",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Done selects documents whose status is Done, and not documents that are merely closed.",
+          "- AC2: Each status option states what it would return, or says why it is unavailable.",
+          "- AC3: Those numbers are derived from the loaded documents, shown by a test adding a status and seeing it covered without editing the control.",
+          "- AC4: A test pins the Done-versus-closed distinction and fails against the current implementation."
+        ],
+        "Problem": [
+          "- The status option Done asks whether a document is closed rather than whether its status is Done, so the 85 Settled documents answer yes and the option counts 1311 where 1226 are Done. Terminal is not the same as Done, which is the distinction the audit already had to learn.",
+          "- The status options that return nothing on this corpus return nothing because no document carries that status. That is correct, and from the operator's side it is indistinguishable from the broken filters sitting next to it."
+        ]
+      },
+      "status": "Ready",
+      "title": "Say what a status option selects, and what it would return"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate the board filter corrections",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_619_give_the_viewer_one_filtering_authority",
+          "item_620_make_the_count_above_the_board_describe_the_board",
+          "item_621_say_what_a_status_option_selects_and_what_it_would_return",
+          "item_622_let_the_campaign_catch_a_filter_that_lies"
+        ],
+        "prod": [
+          "prod_058_a_filter_that_means_the_board"
+        ],
+        "req": [
+          "req_310_make_the_board_filters_answer_with_what_the_board_actually_shows"
+        ],
+        "task": [
+          "task_307_orchestrate_the_board_filter_corrections"
+        ]
+      },
+      "path": "logics/tasks/task_307_orchestrate_the_board_filter_corrections.md",
+      "ref": "task_307_orchestrate_the_board_filter_corrections",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the board filter corrections"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_619_give_the_viewer_one_filtering_authority",
+          "item_620_make_the_count_above_the_board_describe_the_board",
+          "item_621_say_what_a_status_option_selects_and_what_it_would_return",
+          "item_622_let_the_campaign_catch_a_filter_that_lies"
+        ],
+        "prod": [
+          "prod_058_a_filter_that_means_the_board"
+        ],
+        "req": [
+          "req_310_make_the_board_filters_answer_with_what_the_board_actually_shows"
+        ],
+        "task": [
+          "task_307_orchestrate_the_board_filter_corrections"
+        ]
+      },
+      "path": "logics/product/prod_058_a_filter_that_means_the_board.md",
+      "ref": "prod_058_a_filter_that_means_the_board",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "A filter that means the board"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, let the campaign catch a filter that lies, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Let the campaign catch a filter that lies",
+        "use when": "Implementing the scaffolded slice for Let the campaign catch a filter that lies."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_622_let_the_campaign_catch_a_filter_that_lies"
+        ],
+        "prod": [
+          "prod_058_a_filter_that_means_the_board"
+        ],
+        "req": [
+          "req_310_make_the_board_filters_answer_with_what_the_board_actually_shows"
+        ],
+        "task": [
+          "task_307_orchestrate_the_board_filter_corrections"
+        ]
+      },
+      "path": "logics/backlog/item_622_let_the_campaign_catch_a_filter_that_lies.md",
+      "ref": "item_622_let_the_campaign_catch_a_filter_that_lies",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A campaign run asserts the count agrees with the board, per viewport.",
+          "- AC2: It walks the filter options read from the interface, not a hand-written list.",
+          "- AC3: A filter returning a document it did not name is reported with the measured value.",
+          "- AC4: The added checks fail against the current implementation and leave the run under its current duration.",
+          "- AC5: The new checks appear in the runbook's coverage table."
+        ],
+        "Problem": [
+          "- The campaign asserts that the board is not blank and that a document opens. It never asserts that a filter returns what it names, so it ran green through a board that renders nothing under four of its own type options.",
+          "- The disagreement between the count and the board is the sharpest probe available and costs one assertion, and the campaign is where it belongs: it is the only check that drives the real interface."
+        ]
+      },
+      "status": "Ready",
+      "title": "Let the campaign catch a filter that lies"
+    }
+  ],
+  "estimates": {
+    "char_count": 16957,
+    "companion_doc_count": 3,
+    "doc_count": 7
+  },
+  "generated_at": "2026-08-08T15:21:58Z",
+  "handoff": {
+    "companion_doc_count": 3,
+    "enabled": true,
+    "source_refs": [
+      "req_310_make_the_board_filters_answer_with_what_the_board_actually_shows",
+      "item_619_give_the_viewer_one_filtering_authority",
+      "item_620_make_the_count_above_the_board_describe_the_board",
+      "item_621_say_what_a_status_option_selects_and_what_it_would_return",
+      "item_622_let_the_campaign_catch_a_filter_that_lies",
+      "task_307_orchestrate_the_board_filter_corrections"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_310_make_the_board_filters_answer_with_what_the_board_actually_shows,item_619_give_the_viewer_one_filtering_authority,item_620_make_the_count_above_the_board_describe_the_board,item_621_say_what_a_status_option_selects_and_what_it_would_return,item_622_let_the_campaign_catch_a_filter_that_lies,task_307_orchestrate_the_board_filter_corrections",
+  "refs": [
+    "req_310_make_the_board_filters_answer_with_what_the_board_actually_shows",
+    "item_619_give_the_viewer_one_filtering_authority",
+    "item_620_make_the_count_above_the_board_describe_the_board",
+    "item_621_say_what_a_status_option_selects_and_what_it_would_return",
+    "item_622_let_the_campaign_catch_a_filter_that_lies",
+    "task_307_orchestrate_the_board_filter_corrections"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.20.0"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_307_orchestrate_the_board_filter_corrections.md",
+      "ref": "task_307_orchestrate_the_board_filter_corrections"
+    }
+  ]
+}

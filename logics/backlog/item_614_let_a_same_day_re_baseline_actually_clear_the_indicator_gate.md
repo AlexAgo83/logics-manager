@@ -1,10 +1,10 @@
 ## item_614_let_a_same_day_re_baseline_actually_clear_the_indicator_gate - Let a same-day re-baseline actually clear the indicator gate
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90
 > Confidence: 80
-> Progress: 0
+> Progress: 100
 > Complexity: Low
 > Theme: Truthful audit verdicts
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -33,8 +33,8 @@
 - AC4: A regression test performs two same-day edits with a re-baseline after each, and fails against the current implementation.
 
 # AC Traceability
-- request-AC8 -> This backlog slice. Proof: AC1: A second reviewed edit on the same day is re-baselined by the same command, and the gate clears.
-- request-AC7 -> This backlog slice. Proof: AC4: A regression test performs two same-day edits with a re-baseline after each, and fails against the current implementation.
+- request-AC8 -> This backlog slice. Proof: `test_a_second_reviewed_edit_on_the_same_day_clears_the_indicator_gate` in `tests/python/test_honest_outcomes.py`.
+- request-AC7 -> This backlog slice. Proof: `test_a_second_touch_on_the_same_day_still_moves_the_reviewed_line` and `test_an_edit_with_no_re_baseline_is_still_blocked` in `tests/python/test_honest_outcomes.py`.
 
 # Decision framing
 - Product framing: Not needed

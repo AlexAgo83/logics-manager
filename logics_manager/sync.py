@@ -6,7 +6,7 @@ import os
 import re
 from copy import deepcopy
 from dataclasses import dataclass
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from .config import find_repo_root
@@ -694,6 +694,10 @@ def _formatted_indicator_value(lines: list[str], key: str, value: str) -> str:
     return value
 
 
+def _review_stamp(moment: datetime) -> str:
+    return moment.isoformat(sep=" ", timespec="seconds")
+
+
 def _replace_indicator(lines: list[str], key: str, value: str) -> tuple[list[str], bool]:
     rendered = f"> {key}: {value}"
     for idx, line in enumerate(lines):
@@ -751,9 +755,20 @@ def update_workflow_indicators_payload(
         lines, key_changed = _replace_indicator(lines, key, _formatted_indicator_value(lines, key, cleaned[key]))
         changed = changed or key_changed
     if touch:
-        # Stamping the review date is a true statement, and it gives the indicator
+        # Stamping the review moment is a true statement, and it gives the indicator
         # gate a diff to see without inventing movement in the values themselves.
-        lines, _ = _replace_indicator(lines, REVIEWED_INDICATOR, date.today().isoformat())
+        # Second precision, and never the value already on the line: a day-precision
+        # stamp made the second reviewed edit of the same day write back what was
+        # already there, so the gate saw no change and the remediation the gate itself
+        # recommends could not clear it. One second is enough to separate two edits;
+        # the retry covers two re-baselines landing inside the same second.
+        moment = datetime.now().replace(microsecond=0)
+        for offset in range(2):
+            lines, stamped = _replace_indicator(
+                lines, REVIEWED_INDICATOR, _review_stamp(moment + timedelta(seconds=offset))
+            )
+            if stamped:
+                break
     write = changed or touch
     if write and not dry_run:
         path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")

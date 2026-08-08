@@ -1,10 +1,10 @@
 ## task_305_orchestrate_the_honest_outcome_corrections - Orchestrate the honest-outcome corrections
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 20%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -17,7 +17,7 @@
 - [ ] 1. Separate terminal from delivered in the audit, and stop asking abandoned requests for a backlog by either route.
 - [ ] 2. Derive each help screen's flag section from the declared flags, closing the nine missing flags at once, and pin it with a test covering every subcommand.
 - [ ] 3. Report a closed task as closed, with the post-close check result carried alongside rather than folded into it.
-- [ ] 4. Make a same-day second re-baseline clear the indicator gate, without weakening the gate.
+- [x] 4. Make a same-day second re-baseline clear the indicator gate, without weakening the gate.
 - [ ] 5. Derive the plugin's tested runtime bound from its own version, so a released pairing never warns.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.

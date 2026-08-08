@@ -1,7 +1,7 @@
 ## req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet - Lift the viewer's sub-systems out of its core, and turn the size ledger into a ratchet
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High

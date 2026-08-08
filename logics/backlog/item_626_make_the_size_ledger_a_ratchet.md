@@ -8,6 +8,7 @@
 > Complexity: Low
 > Theme: A guard that records progress
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 18:59:10
 
 # Problem
 - The size guard's allowlist has only ever grown: each delivery that made a file longer raised its ceiling, with a comment recording what was added. Nothing asks whether the growth was necessary, and nothing lowers an entry when a file shrinks.
@@ -35,6 +36,9 @@
 - request-AC4 -> This backlog slice. Proof: `does not raise a ceiling on its own when a file grows` and `still refuses a new oversized file with no entry at all` in the same file.
 - request-AC6 -> This backlog slice. Proof: `logics_manager/mcp.py` keeps its recorded reason and its 2054 ceiling; `leaves a file inside its ceiling alone` pins that an entry at its exact size is untouched.
 - request-AC7 -> This backlog slice. Proof: the five tests in `tests/lineBudgetLedger.test.ts`, each driving the real guard in a throwaway repository.
+- request-AC1 -> This backlog slice. Evidence needed: Each lifted sub-system lives in its own module, imported by the core rather than written inside it.
+- request-AC2 -> This backlog slice. Evidence needed: No lift changes behavior: the full suite and the viewer campaign pass unchanged, and the bundled assets stay byte-identical where they are generated.
+- request-AC5 -> This backlog slice. Evidence needed: Shared state is not moved by this request; a lift that would require it stops and says so.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
@@ -54,3 +58,9 @@
 # Priority
 - Priority: Medium - without it the next delivery raises a ceiling again
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_308_orchestrate_lifting_the_sub_systems_out_of_the_core`
+
+# Notes
+- Task `task_308_orchestrate_lifting_the_sub_systems_out_of_the_core` was finished via `logics-manager flow finish task` on 2026-08-08.

@@ -1,5 +1,8 @@
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const updateRequested = process.argv.includes("--update");
 
 const repoRoot = process.cwd();
 const defaultLimit = 1000;
@@ -30,15 +33,15 @@ const allowedOversizedFiles = new Map(
     // registry that lives here, so a separate module only bought an injection
     // dance and an import cycle for 133 of the 316 lines.
     "logics_manager/mcp.py": { maxLines: 2054, ref: "req_303" },
-    "logics_manager/sync.py": { maxLines: 1600, ref: "req_273" },
-    "logics_manager/audit.py": { maxLines: 1200, ref: "req_273" },
-    "logics_manager/release.py": { maxLines: 1200, ref: "req_273" },
-    "logics_manager/assist_support.py": { maxLines: 1600, ref: "req_273" },
+    "logics_manager/sync.py": { maxLines: 1524, ref: "req_273" },
+    "logics_manager/audit.py": { maxLines: 1107, ref: "req_273" },
+    "logics_manager/release.py": { maxLines: 1070, ref: "req_273" },
+    "logics_manager/assist_support.py": { maxLines: 1477, ref: "req_273" },
     // 5833: banked CDX reset endpoint (/api/cdx-reset); 5879: cdx disk payload/route;
     // 5927: release prep baseline; 5937: CDX memory read-only endpoint.
-    "logics_manager/viewer.py": { maxLines: 5937, ref: "req_273" },
+    "logics_manager/viewer.py": { maxLines: 5692, ref: "req_273" },
     // 4909: release prep baseline.
-    "logics_manager/flow/__init__.py": { maxLines: 4909, ref: "req_273" },
+    "logics_manager/flow/__init__.py": { maxLines: 4725, ref: "req_273" },
     // req_273: de-glued frontend sources. esbuild/concatenation now consume these directly
     // instead of a regex part-manifest + readFileSync.join, so the bundles stay byte-stable.
     // 7250: viewer screen minimization and workshop terminal follow-ups added here;
@@ -49,15 +52,15 @@ const allowedOversizedFiles = new Map(
     // reclaim via the paused state.js/git/workshop split.
     // 7853: req_305 added the workflow-health fetch and the on-demand
     // per-project switcher scan.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 7853, ref: "req_305" },
+    "clients/viewer/src/browser-host/index.js": { maxLines: 7789, ref: "req_305" },
     // De-monolith passes 1-3: pure helpers/data extracted out of index.js. May
     // be split by domain (cdx/git/dom) in later passes as they grow.
-    "clients/viewer/src/browser-host/util.js": { maxLines: 1200, ref: "browser-host-split" },
+    "clients/viewer/src/browser-host/util.js": { maxLines: 1122, ref: "browser-host-split" },
     // 2546: req_305 added the workflow-health sections (blocked docs, stale docs)
     // to the health screen, which previously showed lint and audit only.
     "clients/viewer/src/browser-host/render.js": { maxLines: 2546, ref: "req_305" },
-    "clients/shared-web/media/renderBoardApp.js": { maxLines: 1500, ref: "req_273" },
-    "clients/shared-web/media/mainApp.js": { maxLines: 1200, ref: "req_273" },
+    "clients/shared-web/media/renderBoardApp.js": { maxLines: 1325, ref: "req_273" },
+    "clients/shared-web/media/mainApp.js": { maxLines: 1040, ref: "req_273" },
   })
 );
 const generatedFiles = new Set([
@@ -94,10 +97,50 @@ if (violations.length) {
   for (const violation of violations) {
     console.error(`- ${violation.relPath}: ${violation.lineCount} lines > ${violation.limit} (${violation.ref})`);
   }
+  console.error("A raised ceiling needs a reason in the entry: what was tried, and why the size was kept.");
   process.exit(1);
 }
 
+// The ledger only ever went up: each delivery that made a file longer raised its ceiling,
+// and nothing lowered one when a file came back down. A ledger that cannot record progress
+// records only surrender, so a file now under its recorded ceiling is reported here and
+// `--update` writes the lower number back.
+const lowerable = [];
+for (const [relPath, allowance] of allowedOversizedFiles) {
+  const absolute = path.join(repoRoot, relPath);
+  if (!existsSync(absolute)) {
+    continue;
+  }
+  const lineCount = countLines(absolute);
+  if (lineCount < allowance.maxLines) {
+    lowerable.push({ relPath, lineCount, maxLines: allowance.maxLines });
+  }
+}
+
+if (lowerable.length) {
+  const verb = updateRequested ? "Lowered" : "Lowerable";
+  console.log(`[line-budget] ${verb} ${lowerable.length} ledger entr(y/ies):`);
+  for (const entry of lowerable) {
+    console.log(`- ${entry.relPath}: ${entry.lineCount} lines, ceiling ${entry.maxLines}`);
+  }
+  if (updateRequested) {
+    lowerLedger(lowerable);
+  } else {
+    console.log("Run `npm run check:line-budget -- --update` to write the lower numbers back.");
+  }
+}
+
 console.log("[line-budget] source line budget passed");
+
+function lowerLedger(entries) {
+  const selfPath = fileURLToPath(import.meta.url);
+  let source = readFileSync(selfPath, "utf8");
+  for (const entry of entries) {
+    const pattern = new RegExp(`("${entry.relPath.replace(/[.*+?^$()|[\]\\]/g, "\\$&")}":\\s*\\{\\s*maxLines:\\s*)\\d+`);
+    source = source.replace(pattern, `$1${entry.lineCount}`);
+  }
+  writeFileSync(selfPath, source);
+}
 
 function* walk(directory) {
   const stats = statSync(directory, { throwIfNoEntry: false });

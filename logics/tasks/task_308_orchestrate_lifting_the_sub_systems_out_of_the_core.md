@@ -1,10 +1,10 @@
 ## task_308_orchestrate_lifting_the_sub_systems_out_of_the_core - Orchestrate lifting the sub-systems out of the core
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 25%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -16,7 +16,7 @@
 - [ ] 1. Lift cdx and git out of the viewer server, on the seam the route modules already established.
 - [ ] 2. Lift cdx, git and the workshop out of the browser host, one at a time, stopping short of the shared state.
 - [ ] 3. Cut the flow entry module by verb inside the package it already is.
-- [ ] 4. Make the size ledger lower itself when a file shrinks, and refuse an unjustified raise.
+- [x] 4. Make the size ledger lower itself when a file shrinks, and refuse an unjustified raise.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.

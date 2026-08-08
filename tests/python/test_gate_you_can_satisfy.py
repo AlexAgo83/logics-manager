@@ -227,3 +227,72 @@ def test_the_finding_names_only_indicators_a_remediation_can_change(tmp_path: Pa
     assert "Schema version" not in named
     for actionable in ("Progress", "Understanding", "Confidence"):
         assert actionable in named
+
+
+# --- item_645: a repair that adds nothing twice ------------------------------
+
+
+def test_a_hand_written_proof_is_left_alone(tmp_path: Path) -> None:
+    """The repair used to append a placeholder beside an authored proof."""
+    from logics_manager.flow import repair_ac_traceability_payload
+
+    root = tmp_path / "repo"
+    for rel in ("request", "backlog", "tasks"):
+        (root / "logics" / rel).mkdir(parents=True)
+    (root / "logics" / "request" / "req_001_probe.md").write_text(
+        "\n".join([
+            "## req_001_probe - Probe", "> From version: 2.20.0", "> Status: Ready",
+            "", "# Acceptance criteria", "- AC1: First thing.", "- AC2: Second thing.", "",
+        ]),
+        encoding="utf-8",
+    )
+    item = root / "logics" / "backlog" / "item_001_probe.md"
+    item.write_text(
+        "\n".join([
+            "## item_001_probe - Probe", "> From version: 2.20.0", "> Status: Ready",
+            "", "# AC Traceability",
+            # authored by hand, in a shape the strict proof check does not read
+            "- request-AC1 -> `item_001_probe`. **tested.** `test_the_thing` covers it.",
+            "", "# Links", "- Request: `req_001_probe`", "",
+        ]),
+        encoding="utf-8",
+    )
+
+    payload = repair_ac_traceability_payload(root, "req_001_probe", dry_run=False)
+    after = item.read_text(encoding="utf-8")
+
+    assert after.count("- request-AC1") == 1, after
+    assert "**tested.**" in after
+    assert after.count("- request-AC2") == 1, "AC2 had no line and should have got one"
+    assert any("AC1 already has a traceability line" in note for note in payload["skipped"])
+
+
+def test_running_the_repair_twice_adds_nothing_the_second_time(tmp_path: Path) -> None:
+    from logics_manager.flow import repair_ac_traceability_payload
+
+    root = tmp_path / "repo"
+    for rel in ("request", "backlog", "tasks"):
+        (root / "logics" / rel).mkdir(parents=True)
+    (root / "logics" / "request" / "req_001_probe.md").write_text(
+        "\n".join([
+            "## req_001_probe - Probe", "> From version: 2.20.0", "> Status: Ready",
+            "", "# Acceptance criteria", "- AC1: First thing.", "",
+        ]),
+        encoding="utf-8",
+    )
+    item = root / "logics" / "backlog" / "item_001_probe.md"
+    item.write_text(
+        "\n".join([
+            "## item_001_probe - Probe", "> From version: 2.20.0", "> Status: Ready",
+            "", "# AC Traceability", "", "# Links", "- Request: `req_001_probe`", "",
+        ]),
+        encoding="utf-8",
+    )
+
+    repair_ac_traceability_payload(root, "req_001_probe", dry_run=False)
+    first = item.read_text(encoding="utf-8")
+    second_run = repair_ac_traceability_payload(root, "req_001_probe", dry_run=False)
+
+    assert item.read_text(encoding="utf-8") == first
+    assert second_run["changed_files"] == []
+    assert second_run["skipped"], "a run that changes nothing must say why"

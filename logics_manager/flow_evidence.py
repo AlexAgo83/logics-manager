@@ -91,6 +91,19 @@ def _ac_line(text: str, ac_id: str) -> str | None:
     return None
 
 
+def has_ac_traceability_line(text: str, ac_id: str) -> bool:
+    """Whether a traceability line for `ac_id` exists at all, in any shape.
+
+    Deliberately looser than `has_ac_proof`: a repair uses this to decide whether to leave
+    an entry alone. It used to ask whether the criterion was *proven*, so a proof written
+    by hand in a shape the strict check does not read got a placeholder appended beside it
+    and the operator deleted one of the two. Skipping never destroys authored content;
+    replacing can.
+    """
+    pattern = re.compile(rf"^\s*-\s*request-{re.escape(ac_id)}\b", re.IGNORECASE | re.MULTILINE)
+    return bool(pattern.search(text))
+
+
 def ac_proof_state(text: str, ac_id: str) -> str:
     """`proven`, `placeholder` when a repair prepared the line, or `missing`."""
     line = _ac_line(text, ac_id)

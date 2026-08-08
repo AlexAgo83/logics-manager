@@ -1,10 +1,10 @@
 ## item_645_repair_without_overwriting_what_was_written_by_hand - Repair without overwriting what was written by hand
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: A repair that adds nothing twice
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -31,12 +31,12 @@
 - AC4: A test covers a section with hand-written proofs and fails against the current implementation.
 
 # AC Traceability
-- request-AC7 -> This backlog slice. Proof: AC1: A criterion that already has a line is left alone, and no second line is added for it.
-- request-AC8 -> This backlog slice. Proof: AC2: A criterion with no line still gets its placeholder.
-
+- request-AC7 -> This backlog slice. Proof: `test_a_hand_written_proof_is_left_alone` in `tests/python/test_gate_you_can_satisfy.py`; a proof written in a shape the strict check does not read is no longer duplicated.
+- request-AC8 -> This backlog slice. Proof: `test_running_the_repair_twice_adds_nothing_the_second_time` in the same file; both fail against the previous implementation.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
+- The skip predicate is looser than the proof check on purpose. Asking whether a criterion was proven would still have appended beside a proof written by hand in a shape the strict check does not read, which is exactly the reported case. It now asks whether a traceability line exists at all, in any shape. Skipping never destroys authored content; replacing can.
 
 # Links
 - Product brief(s): `prod_064_a_gate_you_can_satisfy`

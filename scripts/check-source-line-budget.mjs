@@ -46,7 +46,10 @@ const allowedOversizedFiles = new Map(
     "logics_manager/viewer_cdx.py": { maxLines: 1523, ref: "req_311" },
     "logics_manager/viewer_git.py": { maxLines: 1064, ref: "req_311" },
     // 4909: release prep baseline.
-    "logics_manager/flow/__init__.py": { maxLines: 4725, ref: "req_273" },
+    // req_311 lifted the document vocabulary into flow/docs.py: 4725 -> 3627. What is left
+    // is the verbs and the CLI wiring, sitting on top of primitives that know nothing of them.
+    "logics_manager/flow/__init__.py": { maxLines: 3627, ref: "req_311" },
+    "logics_manager/flow/docs.py": { maxLines: 1368, ref: "req_311" },
     // req_273: de-glued frontend sources. esbuild/concatenation now consume these directly
     // instead of a regex part-manifest + readFileSync.join, so the bundles stay byte-stable.
     // 7250: viewer screen minimization and workshop terminal follow-ups added here;

@@ -1044,7 +1044,7 @@ _None_
 | [item_622_let_the_campaign_catch_a_filter_that_lies](backlog/item_622_let_the_campaign_catch_a_filter_that_lies.md) | Let the campaign catch a filter that lies | Done |  | 100% | backlog/item_622_let_the_campaign_catch_a_filter_that_lies.md |
 | [item_623_lift_cdx_and_git_out_of_the_viewer_server](backlog/item_623_lift_cdx_and_git_out_of_the_viewer_server.md) | Lift cdx and git out of the viewer server | Done |  | 100% | backlog/item_623_lift_cdx_and_git_out_of_the_viewer_server.md |
 | [item_624_lift_cdx_git_and_the_workshop_out_of_the_browser_host](backlog/item_624_lift_cdx_git_and_the_workshop_out_of_the_browser_host.md) | Lift cdx, git, and the workshop out of the browser host | Ready |  | 0% | backlog/item_624_lift_cdx_git_and_the_workshop_out_of_the_browser_host.md |
-| [item_625_cut_the_flow_entry_module_by_verb](backlog/item_625_cut_the_flow_entry_module_by_verb.md) | Cut the flow entry module by verb | Ready |  | 0% | backlog/item_625_cut_the_flow_entry_module_by_verb.md |
+| [item_625_cut_the_flow_entry_module_by_verb](backlog/item_625_cut_the_flow_entry_module_by_verb.md) | Cut the flow entry module by verb | Done |  | 100% | backlog/item_625_cut_the_flow_entry_module_by_verb.md |
 | [item_626_make_the_size_ledger_a_ratchet](backlog/item_626_make_the_size_ledger_a_ratchet.md) | Make the size ledger a ratchet | Done |  | 100% | backlog/item_626_make_the_size_ledger_a_ratchet.md |
 
 ## Tasks
@@ -1352,4 +1352,4 @@ _None_
 | [task_305_orchestrate_the_honest_outcome_corrections](tasks/task_305_orchestrate_the_honest_outcome_corrections.md) | Orchestrate the honest-outcome corrections | Done |  | 100% | tasks/task_305_orchestrate_the_honest_outcome_corrections.md |
 | [task_306_orchestrate_the_viewer_ui_campaign](tasks/task_306_orchestrate_the_viewer_ui_campaign.md) | Orchestrate the viewer UI campaign | Done |  | 100% | tasks/task_306_orchestrate_the_viewer_ui_campaign.md |
 | [task_307_orchestrate_the_board_filter_corrections](tasks/task_307_orchestrate_the_board_filter_corrections.md) | Orchestrate the board filter corrections | Done |  | 100% | tasks/task_307_orchestrate_the_board_filter_corrections.md |
-| [task_308_orchestrate_lifting_the_sub_systems_out_of_the_core](tasks/task_308_orchestrate_lifting_the_sub_systems_out_of_the_core.md) | Orchestrate lifting the sub-systems out of the core | In progress |  | 50% | tasks/task_308_orchestrate_lifting_the_sub_systems_out_of_the_core.md |
+| [task_308_orchestrate_lifting_the_sub_systems_out_of_the_core](tasks/task_308_orchestrate_lifting_the_sub_systems_out_of_the_core.md) | Orchestrate lifting the sub-systems out of the core | In progress |  | 75% | tasks/task_308_orchestrate_lifting_the_sub_systems_out_of_the_core.md |

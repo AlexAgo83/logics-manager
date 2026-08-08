@@ -8,13 +8,14 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-09 01:36:26
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
 - [x] 1. Move the shared bindings into one named store, and retire the three hand-built accessors.
-- [ ] 2. Key the cache on the server's component vocabulary and let the change notice invalidate it, keeping the polling fallback correct.
+- [x] 2. Key the cache on the server's component vocabulary: WITHDRAWN after measurement, recorded on `item_631`. The mapping is many-to-one, three matches are interface state, and every screen already refetches on open.
 - [ ] 3. Declare each screen once and route on the declaration instead of the title string.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.

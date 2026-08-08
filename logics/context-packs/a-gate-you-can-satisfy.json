@@ -1,0 +1,527 @@
+{
+  "budgets": {
+    "max_docs": 48,
+    "max_docs_per_ref": 8
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive item_642_say_what_a_proof_looks_like_and_produce_one_that_passes item_643_derive_the_proof_verdict_once item_644_let_the_indicator_gate_be_cleared_by_doing_what_it_says item_645_repair_without_overwriting_what_was_written_by_hand task_313_orchestrate_making_the_closeout_gate_satisfiable --mode full --profile deep --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_611_stop_asking_abandoned_requests_for_an_implementation_chain"
+        ],
+        "prod": [
+          "prod_056_say_what_actually_happened"
+        ],
+        "req": [
+          "req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout"
+        ],
+        "task": [
+          "task_305_orchestrate_the_honest_outcome_corrections"
+        ]
+      },
+      "path": "logics/product/prod_056_say_what_actually_happened.md",
+      "ref": "prod_056_say_what_actually_happened",
+      "sections": {
+        "Goals": [
+          "- Let a terminal status mean what it says, so abandoning work is a supported ending and not a permanent finding.",
+          "- Let a command's help be the answer to what that command accepts.",
+          "- Let a caller act on an outcome without reconstructing it from the rest of the payload.",
+          "- Leave every existing rule about delivered work exactly as strict as it is."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Three narrow corrections to surfaces that report something other than the truth: an audit that treats an abandoned request as an undelivered one, a help screen that omits a flag the tool recommends, and a closeout that reports failure after succeeding. None of them change what the tooling permits; each of them changes what it says.",
+          "```mermaid",
+          "flowchart LR",
+          "    Audit[Audit verdict] --> Terminal[Abandoned is not delivered]",
+          "    Help[Command help] --> Flags[Every accepted flag listed]",
+          "    Closeout[Closeout outcome] --> Closed[Closed reported apart from checks]"
+        ],
+        "References": [
+          "- Product back-reference: `item_611_stop_asking_abandoned_requests_for_an_implementation_chain`",
+          "- Task back-reference: `task_305_orchestrate_the_honest_outcome_corrections`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Say what actually happened"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_642_say_what_a_proof_looks_like_and_produce_one_that_passes",
+          "item_643_derive_the_proof_verdict_once",
+          "item_644_let_the_indicator_gate_be_cleared_by_doing_what_it_says",
+          "item_645_repair_without_overwriting_what_was_written_by_hand"
+        ],
+        "prod": [
+          "prod_064_a_gate_you_can_satisfy"
+        ],
+        "req": [
+          "req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive"
+        ],
+        "task": [
+          "task_313_orchestrate_making_the_closeout_gate_satisfiable"
+        ]
+      },
+      "path": "logics/product/prod_064_a_gate_you_can_satisfy.md",
+      "ref": "prod_064_a_gate_you_can_satisfy",
+      "sections": {
+        "Goals": [
+          "- Let the finding teach the format instead of the repair having to be reverse-engineered.",
+          "- Give one answer to whether a request can be closed.",
+          "- Make the recommended remediation actually remediate.",
+          "- Keep what an operator wrote."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "The closeout gate asks for something it never describes, answers the same question three ways, cannot be cleared on a committed document, and overwrites the answer an operator wrote by hand. Four field reports, one surface. Make it state its format, derive its verdict once, be clearable by following its own advice, and never destroy authored work."
+        ],
+        "References": [
+          "- Product back-reference: `req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive`",
+          "- Task back-reference: `task_313_orchestrate_making_the_closeout_gate_satisfiable`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "A gate you can satisfy"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, make the closeout gate teachable, self-consistent, and non-destructive, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Make the closeout gate teachable, self-consistent, and non-destructive",
+        "use when": "You need to implement or review the scaffolded workflow for Make the closeout gate teachable, self-consistent, and non-destructive."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_642_say_what_a_proof_looks_like_and_produce_one_that_passes",
+          "item_643_derive_the_proof_verdict_once",
+          "item_644_let_the_indicator_gate_be_cleared_by_doing_what_it_says",
+          "item_645_repair_without_overwriting_what_was_written_by_hand"
+        ],
+        "prod": [
+          "prod_056_say_what_actually_happened",
+          "prod_064_a_gate_you_can_satisfy"
+        ],
+        "req": [
+          "req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive"
+        ]
+      },
+      "path": "logics/request/req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive.md",
+      "ref": "req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A finding about a missing proof states the form a proof must take, well enough to write one without running anything else.",
+          "- AC2: Running the repair a finding recommends produces lines that satisfy that same finding.",
+          "- AC3: A corpus produced by the scaffold satisfies the closeout gate without being rewritten by hand.",
+          "- AC4: `validate`, `validate-closeout` and `closeout --dry-run` derive proof state from one implementation and agree on an unchanged corpus.",
+          "- AC5: An indicator finding can be cleared by following what the tool recommends, on a committed document as well as an uncommitted one.",
+          "- AC6: An indicator finding names only the indicators it is actually missing."
+        ],
+        "Needs": [
+          "- Learn what a proof must look like from the finding, not by running a repair to diff what it wrote.",
+          "- Get one answer to whether a request can be closed, not three.",
+          "- Clear an indicator finding by doing what the tool recommends.",
+          "- Keep a proof written by hand when the repair runs afterwards."
+        ]
+      },
+      "status": "Draft",
+      "title": "Make the closeout gate teachable, self-consistent, and non-destructive"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, say what a proof looks like, and produce one that passes, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Say what a proof looks like, and produce one that passes",
+        "use when": "Implementing the scaffolded slice for Say what a proof looks like, and produce one that passes."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_642_say_what_a_proof_looks_like_and_produce_one_that_passes"
+        ],
+        "prod": [
+          "prod_064_a_gate_you_can_satisfy"
+        ],
+        "req": [
+          "req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive"
+        ],
+        "task": [
+          "task_313_orchestrate_making_the_closeout_gate_satisfiable"
+        ]
+      },
+      "path": "logics/backlog/item_642_say_what_a_proof_looks_like_and_produce_one_that_passes.md",
+      "ref": "item_642_say_what_a_proof_looks_like_and_produce_one_that_passes",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The finding states the expected form, including the target, the keyword, and one line per criterion.",
+          "- AC2: Running the recommended repair clears the finding it was recommended by.",
+          "- AC3: A freshly scaffolded corpus satisfies the closeout gate with no hand editing.",
+          "- AC4: The placeholder is recognisable as unfilled without restating the criterion.",
+          "- AC5: A test walks finding, repair, and clearance, and fails against the current implementation."
+        ],
+        "Problem": [
+          "- The finding says a proof is missing and never says what a proof is. Three things are load-bearing and none is stated: the target must be `This task.`, the keyword must be `Proof:`, and there must be one line per criterion because a grouped line naming several counts for none.",
+          "- The repair the finding recommends writes `Evidence needed:` while the check looks for `Proof:`. Running the recommended remediation therefore produces lines the same finding still rejects.",
+          "- The scaffold generates grouped lines, so a corpus produced by the tool does not satisfy the gate the tool will apply to it at closeout. The reporter found the format by diffing what the repair wrote, which is discovery by archaeology."
+        ]
+      },
+      "status": "Ready",
+      "title": "Say what a proof looks like, and produce one that passes"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, derive the proof verdict once, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Derive the proof verdict once",
+        "use when": "Implementing the scaffolded slice for Derive the proof verdict once."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_643_derive_the_proof_verdict_once"
+        ],
+        "prod": [
+          "prod_064_a_gate_you_can_satisfy"
+        ],
+        "req": [
+          "req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive"
+        ],
+        "task": [
+          "task_313_orchestrate_making_the_closeout_gate_satisfiable"
+        ]
+      },
+      "path": "logics/backlog/item_643_derive_the_proof_verdict_once.md",
+      "ref": "item_643_derive_the_proof_verdict_once",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: One implementation answers whether a criterion has a proof, and the three commands call it.",
+          "- AC2: On an unchanged corpus the three report the same set of criteria without proof.",
+          "- AC3: A command that checks more says so in its help.",
+          "- AC4: A test compares all three on one corpus and fails against the current implementation."
+        ],
+        "Problem": [
+          "- On an unchanged corpus, `flow validate` reported only that the request was not closed, `flow validate-closeout` reported three criteria without proof, and `closeout --dry-run` reported all thirteen. Nothing says which is authoritative.",
+          "- Earlier in the same session the counts moved as documents were edited -- ten, then three -- while `flow validate` reported nothing throughout. The three commands clearly compute proof state separately.",
+          "- The practical cost is that `flow validate` returning clean is not a signal that closeout will work, so it cannot be used as the gate before committing."
+        ]
+      },
+      "status": "Ready",
+      "title": "Derive the proof verdict once"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, let the indicator gate be cleared by doing what it says, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Let the indicator gate be cleared by doing what it says",
+        "use when": "Implementing the scaffolded slice for Let the indicator gate be cleared by doing what it says."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_644_let_the_indicator_gate_be_cleared_by_doing_what_it_says"
+        ],
+        "prod": [
+          "prod_064_a_gate_you_can_satisfy"
+        ],
+        "req": [
+          "req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive"
+        ],
+        "task": [
+          "task_313_orchestrate_making_the_closeout_gate_satisfiable"
+        ]
+      },
+      "path": "logics/backlog/item_644_let_the_indicator_gate_be_cleared_by_doing_what_it_says.md",
+      "ref": "item_644_let_the_indicator_gate_be_cleared_by_doing_what_it_says",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A committed document flagged by the gate is cleared by following the remediation the gate prints.",
+          "- AC2: Re-baselining one document does not change whether another is flagged.",
+          "- AC3: The finding names only the indicators missing on that document.",
+          "- AC4: A commit made without updating indicators is still caught, by a stated mechanism.",
+          "- AC5: Tests cover the committed document and the commit-time case, and fail against the current implementation."
+        ],
+        "Problem": [
+          "- The gate compares the working tree and the index, and when both are clean it falls back to the last commit. So a document whose last commit carried a body change without an indicator change stays flagged, and no command clears it: re-baselining writes nothing the fallback can see.",
+          "- That fallback also explains an observation the reporter could not account for: which documents are flagged changes between runs, because the flagged set is whatever the last commit contained. Re-baselining one document appears to invalidate others.",
+          "- The finding also names every indicator the document kind requires rather than the ones missing, which is why `From version` is listed on a document where it was never edited. The message accuses fields the operator never touched.",
+          "- The fallback is not gratuitous: it is what catches a commit made without updating indicators. Removing it without a replacement reopens that hole, so this slice owes an answer for that case."
+        ]
+      },
+      "status": "Ready",
+      "title": "Let the indicator gate be cleared by doing what it says"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, repair without overwriting what was written by hand, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Repair without overwriting what was written by hand",
+        "use when": "Implementing the scaffolded slice for Repair without overwriting what was written by hand."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_645_repair_without_overwriting_what_was_written_by_hand"
+        ],
+        "prod": [
+          "prod_064_a_gate_you_can_satisfy"
+        ],
+        "req": [
+          "req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive"
+        ],
+        "task": [
+          "task_313_orchestrate_making_the_closeout_gate_satisfiable"
+        ]
+      },
+      "path": "logics/backlog/item_645_repair_without_overwriting_what_was_written_by_hand.md",
+      "ref": "item_645_repair_without_overwriting_what_was_written_by_hand",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A criterion that already has a line is left alone, and no second line is added for it.",
+          "- AC2: A criterion with no line still gets its placeholder.",
+          "- AC3: A run that adds nothing reports what it skipped and why.",
+          "- AC4: A test covers a section with hand-written proofs and fails against the current implementation."
+        ],
+        "Problem": [
+          "- The repair appends a placeholder for every criterion regardless of what is already there, so a section carrying hand-written proofs ends up holding both, and the operator deletes one set by hand.",
+          "- It compounds the format problem: because the repair is currently the only practical way to learn the format, an operator who writes proofs first and repairs second -- the natural order -- is exactly the one whose work is duplicated.",
+          "- Skipping a criterion that already has a line is safer than replacing it: replacing can destroy authored content, skipping never can."
+        ]
+      },
+      "status": "Ready",
+      "title": "Repair without overwriting what was written by hand"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_611_stop_asking_abandoned_requests_for_an_implementation_chain"
+        ],
+        "prod": [
+          "prod_056_say_what_actually_happened"
+        ],
+        "req": [
+          "req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout"
+        ],
+        "task": [
+          "task_305_orchestrate_the_honest_outcome_corrections"
+        ]
+      },
+      "path": "logics/product/prod_056_say_what_actually_happened.md",
+      "ref": "prod_056_say_what_actually_happened",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Settled",
+      "title": "Say what actually happened"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_642_say_what_a_proof_looks_like_and_produce_one_that_passes",
+          "item_643_derive_the_proof_verdict_once",
+          "item_644_let_the_indicator_gate_be_cleared_by_doing_what_it_says",
+          "item_645_repair_without_overwriting_what_was_written_by_hand"
+        ],
+        "prod": [
+          "prod_064_a_gate_you_can_satisfy"
+        ],
+        "req": [
+          "req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive"
+        ],
+        "task": [
+          "task_313_orchestrate_making_the_closeout_gate_satisfiable"
+        ]
+      },
+      "path": "logics/product/prod_064_a_gate_you_can_satisfy.md",
+      "ref": "prod_064_a_gate_you_can_satisfy",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "A gate you can satisfy"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate making the closeout gate satisfiable",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_642_say_what_a_proof_looks_like_and_produce_one_that_passes",
+          "item_643_derive_the_proof_verdict_once",
+          "item_644_let_the_indicator_gate_be_cleared_by_doing_what_it_says",
+          "item_645_repair_without_overwriting_what_was_written_by_hand"
+        ],
+        "prod": [
+          "prod_064_a_gate_you_can_satisfy"
+        ],
+        "req": [
+          "req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive"
+        ],
+        "task": [
+          "task_313_orchestrate_making_the_closeout_gate_satisfiable"
+        ]
+      },
+      "path": "logics/tasks/task_313_orchestrate_making_the_closeout_gate_satisfiable.md",
+      "ref": "task_313_orchestrate_making_the_closeout_gate_satisfiable",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate making the closeout gate satisfiable"
+    }
+  ],
+  "estimates": {
+    "char_count": 16572,
+    "companion_doc_count": 2,
+    "doc_count": 8
+  },
+  "generated_at": "2026-08-08T21:08:12Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive",
+      "item_642_say_what_a_proof_looks_like_and_produce_one_that_passes",
+      "item_643_derive_the_proof_verdict_once",
+      "item_644_let_the_indicator_gate_be_cleared_by_doing_what_it_says",
+      "item_645_repair_without_overwriting_what_was_written_by_hand",
+      "task_313_orchestrate_making_the_closeout_gate_satisfiable"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "deep",
+  "ref": "req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive,item_642_say_what_a_proof_looks_like_and_produce_one_that_passes,item_643_derive_the_proof_verdict_once,item_644_let_the_indicator_gate_be_cleared_by_doing_what_it_says,item_645_repair_without_overwriting_what_was_written_by_hand,task_313_orchestrate_making_the_closeout_gate_satisfiable",
+  "refs": [
+    "req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive",
+    "item_642_say_what_a_proof_looks_like_and_produce_one_that_passes",
+    "item_643_derive_the_proof_verdict_once",
+    "item_644_let_the_indicator_gate_be_cleared_by_doing_what_it_says",
+    "item_645_repair_without_overwriting_what_was_written_by_hand",
+    "task_313_orchestrate_making_the_closeout_gate_satisfiable"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.20.0"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_313_orchestrate_making_the_closeout_gate_satisfiable.md",
+      "ref": "task_313_orchestrate_making_the_closeout_gate_satisfiable"
+    }
+  ]
+}

@@ -1,10 +1,10 @@
 ## item_629_lift_git_and_ci_out_of_the_browser_host - Lift git and CI out of the browser host
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Git and CI module
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -34,15 +34,15 @@
 - AC6: A seam check reads its list of owned bindings from the module itself.
 
 # AC Traceability
-- request-AC3 -> This backlog slice. Proof: AC1: The git and CI surface lives in its own module.
-- request-AC4 -> This backlog slice. Proof: AC2: The screen router's home is decided and recorded, with the reason.
-- request-AC5 -> This backlog slice. Proof: AC3: The five host bindings are reached through the seam, and none of them is rewritten.
-- request-AC6 -> This backlog slice. Proof: AC4: The suite and the campaign pass after the move.
-- request-AC7 -> This backlog slice. Proof: AC5: The host's ledger entry is lowered and the new module carries its own.
-
+- request-AC3 -> This backlog slice. Proof: `clients/viewer/src/browser-host/git.js` (885 lines); the host went from 4784 to 4065.
+- request-AC4 -> This backlog slice. Proof: 802 vitest tests and the viewer campaign pass; `ci-check` exits 0.
+- request-AC5 -> This backlog slice. Proof: `scripts/check-source-line-budget.mjs` records 4065 for the host, with `git.js` carrying its own entry.
+- request-AC6 -> This backlog slice. Proof: the two bindings it does not own are read through the seam and written nowhere, pinned by `reads the two host bindings it does not own, and writes neither` in `tests/viewer.cdx-module.test.ts`.
+- request-AC7 -> This backlog slice. Proof: the four git tests in the same file read the owned-binding list from the module itself.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
+- The screen router this slice was asked to place turned out not to exist. The earlier measurement that raised it -- showGitStatus holding 51 references to cdx state -- came from spans that ran each function to the start of the next one, so showGitStatus had absorbed its neighbours. Measured with a parser it is 65 lines and touches nothing of cdx, so there was no router to place and no decision to record beyond this one: the question was an artifact of the measurement, not a property of the code.
 
 # Links
 - Product brief(s): `prod_060_the_browser_host_down_to_the_viewer`

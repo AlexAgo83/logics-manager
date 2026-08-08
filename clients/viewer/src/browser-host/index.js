@@ -73,6 +73,7 @@ import {
 import { createViewerDiagnostics } from "./diagnostics.js";
 import { createCdxScreen } from "./cdx.js";
 import { createWorkshopScreen } from "./workshop.js";
+import { createGitScreen } from "./git.js";
 import { focusFilterLabel, matchesFilterState, updateFilterOptionCounts } from "./filters.js";
 import {
   activityStateForRoot,
@@ -226,7 +227,49 @@ import {
   const filterCount = () => document.getElementById("viewer-filter-count");
   const repoPill = () => document.getElementById("viewer-repo-pill");
   const projectMenu = () => document.getElementById("viewer-project-menu");
-  const repoGithubLink = () => document.getElementById("viewer-repo-github");
+  const {
+    state: gitState,
+    ciActivityEvents,
+    fetchGitRemote,
+    gitBadgeHtml,
+    gitDiffLineKind,
+    isGitCiScreenOpen,
+    loadGitCommitDiff,
+    loadGitDiff,
+    loadGitFilePreview,
+    openGitCommitModal,
+    recordGitActivity,
+    refreshGitBadgeCounters,
+    refreshReleaseBadgeCounters,
+    renderGitDiffPreview,
+    renderGitStatus,
+    resetReleaseState,
+    setActiveGitCommit,
+    setGitActionsMenuOpen,
+    setGitBadgeCountsFromPayload,
+    showGitStatus,
+    showReleaseStatus,
+    syncGitCommitActivity,
+    updateMainGitBadges,
+    updateMainReleaseBadge,
+  } = createGitScreen({
+    beginView,
+    capability,
+    capabilityMessage,
+    dispatchViewerActivityUpdate,
+    documentPanel,
+    documentTitle,
+    isCapabilityAvailable,
+    isViewStale,
+    meta,
+    setDocument,
+    setDropdownOpen,
+    setMeta,
+    updateCapabilityControls,
+    latestRepoRoot: () => latestRepoRoot,
+    viewerFilterState: () => viewerFilterState,
+  });
+
   const repoFolderButton = () => document.getElementById("viewer-repo-folder");
   const {
     state: workshopState,
@@ -308,7 +351,6 @@ import {
     viewerPreferences: () => viewerPreferences,
   });
 
-  const ciButton = () => document.getElementById("viewer-ci");
   const autoRefreshControl = () => document.getElementById("viewer-auto-refresh");
   const refreshIntervalControl = () => document.getElementById("viewer-refresh-interval");
   const minimizedScreens = new Map();
@@ -343,10 +385,6 @@ import {
   let refreshAfterVisible = false;
   let mermaidInitialized = false;
   let focusApplied = false;
-  let latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
-  let latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
-  let latestReleaseRunsStatus = { visible: false, badgeState: "unknown", message: "" };
-  let latestReleaseRunsStatusSignature = "";
   let latestUpdateInfo = {};
   const {
     state: cdxState,
@@ -436,15 +474,12 @@ import {
   let connectionState = "connected";
   let lastSuccessfulSyncAt = 0;
   let latestViewerStateSignature = "";
-  let latestGitStatusSignature = "";
-  let latestGitStatusPayload = null;
   // Per-section badge counters. `missions` is a live gauge (number of mission
   // runs currently in progress) and carries no seen-tracking. `runs`/`history`
   // are deltas: `seen` is the set of identifiers the user has already looked at,
   // and `count` is how many current entries are not in that set. `seen: null`
   // means "not seeded yet" so the very first snapshot doesn't flag everything.
   let latestCiStatusSignature = "";
-  let latestCiScreenMode = "git";
   let currentDocumentItem = null;
   let primaryActionBusyKey = "";
   let primaryActionController = null;
@@ -600,35 +635,6 @@ import {
       }));
   }
 
-  function ciActivityEvents(ciStatus = latestCiStatus) {
-    // req_487: reuse the recentRuns the CI badge already fetched (/api/ci-status) as
-    // ci-kind activity events. No extra fetch; the shared feed + filter handle kind:"ci".
-    const runs = ciStatus && Array.isArray(ciStatus.recentRuns) ? ciStatus.recentRuns : [];
-    return runs
-      .filter((run) => run && typeof run === "object")
-      .map((run, index) => {
-        const workflow = String(run.workflowName || "CI");
-        const state = String(run.badgeState || "unknown");
-        return {
-          id: String(run.id ? `ci-${run.id}` : `ci-run-${index}`),
-          kind: "ci",
-          category: "ci",
-          stage: "ci",
-          marker: "C",
-          action: "CI run",
-          title: `${workflow} — ${state}`,
-          label: state,
-          meta: String(run.title || `${workflow} ${state}`),
-          // req_284/item_516+517: discrete fields for the coloured marker and the
-          // recomposed "workflow · outcome · time" meta line.
-          workflow,
-          outcome: state,
-          badgeState: state,
-          at: run.updatedAt || "",
-          updatedAt: run.updatedAt || ""
-        };
-      });
-  }
 
   function dispatchViewerActivityUpdate() {
     const storedState = readStoredState();
@@ -652,75 +658,7 @@ import {
     }
   }
 
-  function recordGitActivity(action, meta = "") {
-    const storedState = readStoredState();
-    const baseState = storedState && typeof storedState === "object" ? storedState : {};
-    const scopedState = activityStateForRoot(baseState, latestRepoRoot);
-    const history = Array.isArray(scopedState.activityHistory) ? [...scopedState.activityHistory] : [];
-    const now = new Date().toISOString();
-    const safeAction = String(action || "Git").trim() || "Git";
-    history.unshift({
-      id: `git-action-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
-      type: "git-action",
-      action: safeAction,
-      title: `Git ${safeAction}`,
-      label: safeAction,
-      meta: meta || `Git ${safeAction.toLowerCase()} started`,
-      at: now,
-      updatedAt: now
-    });
-    writeStoredState(writeActivityStateForRoot({
-      ...baseState,
-      viewerFilterState: { ...viewerFilterState }
-    }, latestRepoRoot, { activitySnapshot: scopedState.activitySnapshot || {}, activityHistory: history }));
-    dispatchViewerActivityUpdate();
-  }
 
-  function syncGitCommitActivity(payload) {
-    const commits = Array.isArray(payload?.recentCommits) ? payload.recentCommits : [];
-    if (!commits.length) {
-      return;
-    }
-    // req_284/item_517: the repo's current branch is the best per-commit context
-    // the git status payload carries; attach it (degrades to "" when absent).
-    const branch = String(payload?.branch || "").trim();
-    const storedState = readStoredState();
-    const baseState = storedState && typeof storedState === "object" ? storedState : {};
-    const scopedState = activityStateForRoot(baseState, latestRepoRoot);
-    const history = Array.isArray(scopedState.activityHistory) ? [...scopedState.activityHistory] : [];
-    const knownIds = new Set(history.map((entry) => String(entry?.id || "")));
-    const newEntries = commits
-      .filter((commit) => commit && typeof commit === "object" && commit.hash)
-      .map((commit) => {
-        const hash = String(commit.hash || "").trim();
-        const subject = String(commit.subject || "Untitled commit").trim() || "Untitled commit";
-        const author = String(commit.author || "").trim();
-        const date = String(commit.date || "").trim();
-        return {
-          id: `git-commit-${hash}`,
-          type: "git-commit",
-          action: "Commit",
-          title: subject,
-          label: "Commit",
-          meta: [hash, author, date].filter(Boolean).join(" · "),
-          sha: hash.slice(0, 7),
-          branch,
-          at: date,
-          updatedAt: date
-        };
-      })
-      .filter((entry) => entry.id && !knownIds.has(entry.id));
-    if (!newEntries.length) {
-      return;
-    }
-    writeStoredState(writeActivityStateForRoot({
-      ...baseState,
-      viewerFilterState: { ...viewerFilterState }
-    }, latestRepoRoot, { activitySnapshot: scopedState.activitySnapshot || {}, activityHistory: [...newEntries, ...history] }));
-    if (activityPanelIsOpen()) {
-      dispatchViewerActivityUpdate();
-    }
-  }
 
   function updateStoredActivity(nextItems, root = latestRepoRoot) {
     const storedState = readStoredState();
@@ -997,12 +935,12 @@ import {
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to switch project.");
     }
-    { const active = (Array.isArray(data.payload?.projects) ? data.payload.projects : []).find((project) => project?.active), projectId = projectPreferenceId(active), stored = viewerPreferences.projectLastUsedAt; if (projectId) updateViewerPreferences({ projectLastUsedAt: { ...(stored && typeof stored === "object" ? stored : {}), [projectId]: new Date().toISOString() } }); } latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
-    latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
-    latestReleaseRunsStatus = { visible: false, badgeState: "unknown", message: "" };
+    { const active = (Array.isArray(data.payload?.projects) ? data.payload.projects : []).find((project) => project?.active), projectId = projectPreferenceId(active), stored = viewerPreferences.projectLastUsedAt; if (projectId) updateViewerPreferences({ projectLastUsedAt: { ...(stored && typeof stored === "object" ? stored : {}), [projectId]: new Date().toISOString() } }); } gitState.latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
+    gitState.latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
+    gitState.latestReleaseRunsStatus = { visible: false, badgeState: "unknown", message: "" };
     updateMainGitBadges();
-    updateMainCiBadge(latestCiStatus);
-    updateMainReleaseBadge(latestReleaseRunsStatus);
+    updateMainCiBadge(gitState.latestCiStatus);
+    updateMainReleaseBadge(gitState.latestReleaseRunsStatus);
     updateMainCdxBadge(null);
     const panel = documentPanel();
     if (panel) {
@@ -1036,12 +974,12 @@ import {
 
   function applySelectedProjectPayload(payload, message) {
     returnToProjectSurface(); { const active = (Array.isArray(payload?.projects) ? payload.projects : []).find((project) => project?.active), projectId = projectPreferenceId(active), stored = viewerPreferences.projectLastUsedAt; if (projectId) updateViewerPreferences({ projectLastUsedAt: { ...(stored && typeof stored === "object" ? stored : {}), [projectId]: new Date().toISOString() } }); }
-    latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
-    latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
-    latestReleaseRunsStatus = { visible: false, badgeState: "unknown", message: "" };
+    gitState.latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
+    gitState.latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
+    gitState.latestReleaseRunsStatus = { visible: false, badgeState: "unknown", message: "" };
     updateMainGitBadges();
-    updateMainCiBadge(latestCiStatus);
-    updateMainReleaseBadge(latestReleaseRunsStatus);
+    updateMainCiBadge(gitState.latestCiStatus);
+    updateMainReleaseBadge(gitState.latestReleaseRunsStatus);
     updateMainCdxBadge(null);
     const panel = documentPanel();
     if (panel) {
@@ -1289,7 +1227,7 @@ import {
     // section of the merged screen, before CI runs and Release). The button
     // is reachable whenever either capability is available; the git counters
     // and the CI status badge are both rendered onto it.
-    const gitCi = ciButton();
+    const gitCi = gitState.ciButton();
     if (gitCi instanceof HTMLElement) {
       const gitAvailable = isCapabilityAvailable("git");
       const ciAvailable = isCapabilityAvailable("ci");
@@ -1312,7 +1250,7 @@ import {
   }
 
   function updateRepositoryShortcuts() {
-    const github = repoGithubLink();
+    const github = gitState.repoGithubLink();
     const folder = repoFolderButton();
     if (github instanceof HTMLAnchorElement) {
       if (latestRepository.webUrl) {
@@ -1366,51 +1304,14 @@ import {
     }
   }
 
-  function gitBadgeHtml(scope) {
-    const behindVisible = latestGitBadgeCounts.unpulledCommits > 0 && (
-      scope === "main" || scope === "history"
-    );
-    const commitsVisible = latestGitBadgeCounts.unpushedCommits > 0 && (
-      scope === "main" || scope === "history"
-    );
-    const filesVisible = latestGitBadgeCounts.uncommittedFiles > 0 && (
-      scope === "main" || scope === "changes"
-    );
-    const html = [
-      behindVisible ? renderGitBadge("commits-behind", latestGitBadgeCounts.unpulledCommits) : "",
-      commitsVisible ? renderGitBadge("commits", latestGitBadgeCounts.unpushedCommits) : "",
-      filesVisible ? renderGitBadge("files", latestGitBadgeCounts.uncommittedFiles) : ""
-    ].filter(Boolean).join("");
-    return html ? `<span class="viewer-git-badges" data-viewer-git-badges="${escapeHtml(scope)}">${html}</span>` : "";
-  }
 
 
 
 
-  function updateMainGitBadges() {
-    // Git shares the merged "Remote" button with CI; the git counters render
-    // alongside the CI status badge (each owns its own data-attr container).
-    const button = ciButton();
-    if (!(button instanceof HTMLElement)) {
-      return;
-    }
-    button.querySelector('[data-viewer-git-badges="main"]')?.remove();
-    const html = gitBadgeHtml("main");
-    if (html) {
-      // Insert git counters before the CI status badge so order stays stable.
-      const ciBadge = button.querySelector("[data-viewer-ci-badge]");
-      if (ciBadge) {
-        ciBadge.insertAdjacentHTML("beforebegin", html);
-      } else {
-        button.insertAdjacentHTML("beforeend", html);
-      }
-    }
-    setNavMenuBadges("remote:git", gitBadgeHtml("main"));
-  }
 
-  function updateMainCiBadge(payload = latestCiStatus) {
-    latestCiStatus = payload && typeof payload === "object" ? payload : { visible: false, badgeState: "unknown", message: "" };
-    const button = ciButton();
+  function updateMainCiBadge(payload = gitState.latestCiStatus) {
+    gitState.latestCiStatus = payload && typeof payload === "object" ? payload : { visible: false, badgeState: "unknown", message: "" };
+    const button = gitState.ciButton();
     if (!(button instanceof HTMLElement)) {
       return;
     }
@@ -1419,12 +1320,12 @@ import {
     // shared with Git and must stay visible when only git is available.
     button.querySelector("[data-viewer-ci-badge]")?.remove();
     clearNavMenuBadges(["remote:runs"]);
-    if (!latestCiStatus.visible) {
+    if (!gitState.latestCiStatus.visible) {
       return;
     }
     // Surface the latest CI message in the shared button tooltip when CI is live.
-    button.title = latestCiStatus.message || "Show Git status, CI runs, and release state";
-    const badge = renderCiButtonBadge(latestCiStatus);
+    button.title = gitState.latestCiStatus.message || "Show Git status, CI runs, and release state";
+    const badge = renderCiButtonBadge(gitState.latestCiStatus);
     button.insertAdjacentHTML("beforeend", badge);
     setNavMenuBadges("remote:runs", badge);
   }
@@ -1451,45 +1352,7 @@ import {
     }
   }
 
-  function updateMainReleaseBadge(payload = latestReleaseRunsStatus) {
-    latestReleaseRunsStatus = payload && typeof payload === "object" ? payload : { visible: false, badgeState: "unknown", message: "" };
-    const button = ciButton();
-    if (!(button instanceof HTMLElement)) {
-      return;
-    }
-    // Manage only the release status badge here; the shared "Remote" button
-    // visibility is owned by updateCapabilityControls. Order on the button is
-    // git counters -> CI badge -> release badge.
-    button.querySelector("[data-viewer-release-badge]")?.remove();
-    clearNavMenuBadges(["remote:release"]);
-    if (!latestReleaseRunsStatus.visible) {
-      return;
-    }
-    const badge = renderReleaseRunsButtonBadge(latestReleaseRunsStatus);
-    button.insertAdjacentHTML("beforeend", badge);
-    setNavMenuBadges("remote:release", badge);
-  }
 
-  async function refreshReleaseBadgeCounters() {
-    if (!isCapabilityAvailable("ci")) {
-      updateMainReleaseBadge({ visible: false, badgeState: "unknown", message: capabilityMessage("ci", "Release runs are not available for this project.") });
-      return;
-    }
-    try {
-      const response = await fetch("/api/release-runs");
-      if (response.status === 404) {
-        updateMainReleaseBadge({ visible: false, badgeState: "unknown", message: "Release runs endpoint unavailable." });
-        return;
-      }
-      const data = await response.json();
-      if (response.ok && data.ok) {
-        latestReleaseRunsStatusSignature = runtimeStatusSignature(data.payload);
-        updateMainReleaseBadge(data.payload);
-      }
-    } catch {
-      updateMainReleaseBadge({ visible: false, badgeState: "unknown", message: "Release runs unavailable." });
-    }
-  }
 
   // Shared rule: 0 hides the badge, 1 shows "!", and anything above shows the
   // number itself.
@@ -1500,33 +1363,7 @@ import {
   // pas de changement de valeur, pas la peine de le ré-afficher"). Reading the
   // current DOM also makes us resilient to other code that wipes the nav badges:
   // when the element is gone we always re-add it.
-  function setGitBadgeCountsFromPayload(payload, options = {}) {
-    latestGitBadgeCounts = normalizeGitBadgeCounts(payload);
-    if (options.updateMain !== false) {
-      updateMainGitBadges();
-    }
-  }
 
-  async function refreshGitBadgeCounters() {
-    if (!isCapabilityAvailable("git")) {
-      latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
-      updateMainGitBadges();
-      return;
-    }
-    try {
-      const response = await fetch("/api/git-status");
-      const data = await response.json();
-      if (response.ok && data.ok && data.payload?.state === "ok") {
-        latestGitStatusPayload = data.payload;
-        latestGitStatusSignature = gitStatusSignature(data.payload);
-        syncGitCommitActivity(data.payload);
-        setGitBadgeCountsFromPayload(data.payload);
-      }
-    } catch {
-      latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
-      updateMainGitBadges();
-    }
-  }
 
   // Update the CI, CDX and Git badges from a single consolidated /api/status
   // request instead of firing ci-status + cdx-status + cdx-runs (+ git-status)
@@ -1558,7 +1395,7 @@ import {
         refreshActivityFeedForCi();
       }
       if (payload.releaseRuns) {
-        latestReleaseRunsStatusSignature = runtimeStatusSignature(payload.releaseRuns);
+        gitState.latestReleaseRunsStatusSignature = runtimeStatusSignature(payload.releaseRuns);
         updateMainReleaseBadge(payload.releaseRuns);
       }
     } else {
@@ -1593,13 +1430,13 @@ import {
     }
     if (isCapabilityAvailable("git")) {
       if (payload.git && payload.git.state === "ok") {
-        latestGitStatusPayload = payload.git;
-        latestGitStatusSignature = gitStatusSignature(payload.git);
+        gitState.latestGitStatusPayload = payload.git;
+        gitState.latestGitStatusSignature = gitStatusSignature(payload.git);
         syncGitCommitActivity(payload.git);
         setGitBadgeCountsFromPayload(payload.git);
       }
     } else {
-      latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
+      gitState.latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
       updateMainGitBadges();
     }
   }
@@ -1628,11 +1465,11 @@ import {
       await showGitStatus({ silent: true, preserve: true });
       return;
     }
-    if (changed.has("ci") && activeDocumentTitle() === "Remote" && latestCiScreenMode === "runs") {
+    if (changed.has("ci") && activeDocumentTitle() === "Remote" && gitState.latestCiScreenMode === "runs") {
       await showCiStatus({ silent: true });
       return;
     }
-    if (changed.has("releaseRuns") && activeDocumentTitle() === "Remote" && latestCiScreenMode === "release") {
+    if (changed.has("releaseRuns") && activeDocumentTitle() === "Remote" && gitState.latestCiScreenMode === "release") {
       await showReleaseStatus({ silent: true });
       return;
     }
@@ -1963,8 +1800,8 @@ import {
   }
 
   function updateScreenActions(titleText) {
-    const isGit = titleText === "Remote" && latestCiScreenMode === "git";
-    const isRelease = titleText === "Remote" && latestCiScreenMode === "release";
+    const isGit = titleText === "Remote" && gitState.latestCiScreenMode === "git";
+    const isRelease = titleText === "Remote" && gitState.latestCiScreenMode === "release";
     const gitActions = document.getElementById("viewer-git-actions");
     const releaseReset = document.getElementById("viewer-release-reset");
     const status = documentStatusButton();
@@ -2460,12 +2297,7 @@ import {
   }
 
   // Git and CI render into a single merged screen titled "Remote"; the
-  // active section (git / runs / release) is tracked by latestCiScreenMode.
-  function isGitCiScreenOpen() {
-    const panel = documentPanel();
-    const title = documentTitle();
-    return Boolean(panel && !panel.hidden && title && title.textContent === "Remote");
-  }
+  // active section (git / runs / release) is tracked by gitState.latestCiScreenMode.
 
   function isWorkspaceOpen() {
     // Explorer is now a Workshop sub-tab; it's "open" when its panel is mounted.
@@ -2480,9 +2312,9 @@ import {
         await showWorkspace({ silent: Boolean(options.silent) });
       }
     } else if (isGitCiScreenOpen()) {
-      if (latestCiScreenMode === "release") {
+      if (gitState.latestCiScreenMode === "release") {
         await showReleaseStatus({ silent: Boolean(options.silent), force: Boolean(options.force) });
-      } else if (latestCiScreenMode === "runs") {
+      } else if (gitState.latestCiScreenMode === "runs") {
         await showCiStatus({ silent: Boolean(options.silent), skipUnchanged: !changed && !options.force, force: Boolean(options.force) });
       } else {
         await showGitStatus({ preserve: true, silent: Boolean(options.silent), skipUnchanged: !changed && !options.force, force: Boolean(options.force) });
@@ -2511,24 +2343,6 @@ import {
   // Manual GIT-screen refresh only: pull remote-tracking refs up to date so the
   // ahead/behind badges reflect the real remote. Best-effort — a failed fetch
   // (offline, auth-required remote) still falls through to a status refresh.
-  async function fetchGitRemote() {
-    try {
-      const response = await fetch("/api/git-fetch", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" }
-      });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok || !data.ok) {
-        setMeta(data.error || "Git fetch failed.");
-        return false;
-      }
-      recordGitActivity("Fetch", "Fetched remote-tracking refs");
-      return true;
-    } catch {
-      setMeta("Git fetch failed.");
-      return false;
-    }
-  }
 
   async function refreshCurrentScreen() {
     const panel = documentPanel();
@@ -2545,8 +2359,8 @@ import {
     if (screen === "CDX memory") return showCdxMemory(opts);
     if (screen === "CDX disk") return showCdxDisk(opts);
     if (screen === "Remote") {
-      if (latestCiScreenMode === "release") return showReleaseStatus(opts);
-      if (latestCiScreenMode === "runs") return showCiStatus(opts);
+      if (gitState.latestCiScreenMode === "release") return showReleaseStatus(opts);
+      if (gitState.latestCiScreenMode === "runs") return showCiStatus(opts);
       setMeta("Fetching from remote...");
       await fetchGitRemote();
       return showGitStatus({ preserve: true, ...opts });
@@ -2624,13 +2438,6 @@ import {
     setDropdownOpen(refreshMenuPanel(), refreshMenuButton(), open);
   }
 
-  function setGitActionsMenuOpen(open) {
-    setDropdownOpen(
-      document.getElementById("viewer-git-actions-menu"),
-      document.getElementById("viewer-git-actions-button"),
-      open,
-    );
-  }
 
   // Open/close a topbar sub-section menu. Opening one closes the others so at
   // most one nav menu is visible at a time.
@@ -3232,83 +3039,12 @@ import {
     setMeta(full ? `Loaded full preview of ${path}.` : `Previewing ${path || "workspace root"}.`);
   }
 
-  async function showReleaseStatus(options = {}) {
-    latestCiScreenMode = "release";
-    if (!options.silent) {
-      setMeta("Checking release workflow state...");
-    }
-    const view = options.view || beginView({ silent: Boolean(options.silent) });
-    let response;
-    let data = {};
-    let runsData = {};
-    try {
-      const [statusResponse, runsResponse] = await Promise.all([
-        fetch("/api/release-status", { signal: view.signal }),
-        fetch("/api/release-runs", { signal: view.signal }).catch(() => null),
-      ]);
-      response = statusResponse;
-      try {
-        data = await response.json();
-      } catch {
-        data = {};
-      }
-      if (runsResponse && runsResponse.ok) {
-        try {
-          runsData = await runsResponse.json();
-        } catch {
-          runsData = {};
-        }
-      }
-    } catch (error) {
-      if (isAbortError(error)) {
-        return;
-      }
-      throw error;
-    }
-    if (isViewStale(view)) {
-      return;
-    }
-    if (!response.ok || !data.ok) {
-      throw new Error(data.error || "Unable to load release workflow state.");
-    }
-    const runsPayload = runsData && runsData.ok ? runsData.payload : null;
-    if (runsPayload) {
-      latestReleaseRunsStatusSignature = runtimeStatusSignature(runsPayload);
-      updateMainReleaseBadge(runsPayload);
-    }
-    setDocument("Remote", renderReleaseStatus(data.payload, runsPayload));
-    const state = data.payload?.state || "unknown";
-    const button = ciButton();
-    if (button instanceof HTMLElement) {
-      button.title = data.payload?.next_action || "Show CI and release workflow state";
-    }
-    setMeta(options.silent ? "Release workflow refreshed." : `Release workflow state: ${state}.`);
-  }
 
   // Clear the recorded release gate evidence (server-side) so every gate
   // returns to pending, then reload the Release sub-screen.
-  async function resetReleaseState() {
-    setMeta("Resetting release evidence...");
-    let data = {};
-    try {
-      const response = await fetch("/api/release-reset", { method: "POST", headers: { "Content-Type": "application/json" } });
-      data = await response.json();
-      if (!response.ok || !data.ok) {
-        throw new Error(data.error || "Unable to reset release evidence.");
-      }
-    } catch (error) {
-      setMeta(`Release reset failed: ${error?.message || error}`);
-      return;
-    }
-    await showReleaseStatus({ force: true });
-    const cleared = Number(data.payload?.cleared || 0);
-    setMeta(cleared > 0
-      ? `Release evidence reset — cleared ${cleared} entr${cleared === 1 ? "y" : "ies"}; gates are pending.`
-      : "Release evidence already empty; gates are pending.");
-  }
 
   async function showCiStatus(options = {}) {
-    latestCiScreenMode = "runs";
+    gitState.latestCiScreenMode = "runs";
     if (!isCapabilityAvailable("ci")) {
       const message = capabilityMessage("ci", "CI is not available for this project.");
       setDocument("Remote", renderCiStatus({ visible: false, state: capability("ci").state, message }));
@@ -3365,469 +3101,14 @@ import {
     setMeta(options.silent ? "CI status refreshed." : "CI status loaded.");
   }
 
-  function renderGitStatus(payload) {
-    if (!payload || payload.state !== "ok") {
-      return `
-        <div class="viewer-git">
-          ${renderCiModeSwitcher("git")}
-          <div class="viewer-git__state">${escapeHtml(payload?.message || "Git status is unavailable.")}</div>
-        </div>
-      `;
-    }
-    const counts = payload.counts || {};
-    const stagedCount = Number(counts.staged || 0);
-    const modifiedCount = Number(counts.modified || 0);
-    const deletedCount = Number(counts.deleted || 0);
-    const renamedCount = Number(counts.renamed || 0);
-    const untrackedCount = Number(counts.untracked || 0);
-    const cards = [
-      renderGitSummaryCard("Branch", payload.branch || "HEAD"),
-      renderGitSummaryCard("Tracking", payload.tracking || "None"),
-      renderGitSummarySegments("Ahead / Behind", [
-        ["Ahead", payload.ahead || 0],
-        ["Behind", payload.behind || 0]
-      ]),
-      renderGitSummaryCard("State", payload.clean ? "Clean" : "Dirty"),
-      renderGitSummarySegments("Files", [
-        ["Staged", stagedCount],
-        ["Worktree", modifiedCount + deletedCount + renamedCount],
-        ["Untracked", untrackedCount]
-      ])
-    ].join("");
-    const groupDefs = [
-      ["staged", "Staged", "staged"],
-      ["modified", "Modified", "worktree"],
-      ["deleted", "Deleted", "worktree"],
-      ["renamed", "Renamed", "worktree"],
-      ["untracked", "Untracked", "untracked"]
-    ];
-    const domainDefs = [
-      ["changes", "Changes", stagedCount + modifiedCount + deletedCount + renamedCount + untrackedCount],
-      ["staged", "Staged", stagedCount],
-      ["worktree", "Worktree", modifiedCount + deletedCount + renamedCount],
-      ["untracked", "Untracked", untrackedCount],
-      ["history", "History", formatGitHistoryCount(payload)],
-      ["remote", "Remote", payload.tracking ? 1 : 0]
-    ];
-    const domains = domainDefs.map(([key, label, count], index) => `
-      <button class="viewer-git__domain${index === 0 ? " is-active" : ""}" type="button" data-viewer-git-domain="${escapeHtml(key)}" aria-pressed="${index === 0 ? "true" : "false"}">
-        <span class="viewer-git__domain-label">${escapeHtml(label)}${key === "changes" ? gitBadgeHtml("changes") : ""}${key === "history" ? gitBadgeHtml("history") : ""}</span><strong>${escapeHtml(count)}</strong>
-      </button>
-    `).join("");
-    const renderChangeStats = (entry) => {
-      const additions = Number(entry?.additions);
-      const deletions = Number(entry?.deletions);
-      if (!Number.isFinite(additions) || !Number.isFinite(deletions)) {
-        return "";
-      }
-      return `<span class="viewer-git__file-changes" title="Line changes"><span class="viewer-git__file-additions">+${escapeHtml(additions)}</span><span class="viewer-git__file-deletions">-${escapeHtml(deletions)}</span></span>`;
-    };
-    const renderFileSections = (allowedKeys) => groupDefs.filter(([key]) => allowedKeys.includes(key)).map(([key, label]) => {
-      const entries = Array.isArray(payload.groups?.[key]) ? payload.groups[key] : [];
-      if (!entries.length) {
-        return "";
-      }
-      return `
-        <section class="viewer-git__section">
-          <h2>${escapeHtml(label)}</h2>
-          <ul class="viewer-git__files">${entries.map((entry) => `
-            <li>
-              <button class="viewer-git__file" type="button" data-viewer-git-file="${escapeHtml(entry.path)}" data-viewer-git-cached="${key === "staged" ? "1" : "0"}">
-                <span class="viewer-git__file-path">${escapeHtml(entry.from ? `${entry.from} -> ${entry.path}` : entry.path)}</span>
-                ${renderChangeStats(entry)}
-                ${entry.logicsType ? `<span class="viewer-git__file-kind">${escapeHtml(entry.logicsType)}</span>` : ""}
-              </button>
-            </li>
-          `).join("")}</ul>
-        </section>
-      `;
-    }).join("");
-    const changesSections = renderFileSections(["staged", "modified", "deleted", "renamed", "untracked"]);
-    const stagedSections = renderFileSections(["staged"]);
-    const worktreeSections = renderFileSections(["modified", "deleted", "renamed"]);
-    const untrackedSections = renderFileSections(["untracked"]);
-    const clean = payload.clean ? '<p class="viewer-git__state">Working tree clean.</p>' : "";
-    const recentCommits = Array.isArray(payload.recentCommits) ? payload.recentCommits : [];
-    const historyCount = formatGitHistoryCount(payload);
-    const renderGitHistoryReveal = (hiddenCount) => {
-      if (hiddenCount <= 0) {
-        return "";
-      }
-      const nextCount = Math.min(gitHistoryPageSize, hiddenCount);
-      return `<li class="viewer-git__commit-row viewer-git__commit-row--reveal"><button class="viewer-git__reveal" type="button" data-viewer-git-history-reveal>Show ${escapeHtml(nextCount)} more</button></li>`;
-    };
-    const historyRows = recentCommits.length
-      ? recentCommits.map((commit, index) => `
-        <li class="viewer-git__commit-row" ${index >= gitHistoryPageSize ? "hidden data-viewer-git-history-hidden" : ""}>
-          <button class="viewer-git__commit" type="button" data-viewer-git-commit="${escapeHtml(commit.hash || "")}">
-            <span class="viewer-git__commit-main">
-              <code>${escapeHtml(commit.hash || "")}</code>
-              <strong>${escapeHtml(commit.subject || "Untitled commit")}</strong>
-            </span>
-            <span class="viewer-git__commit-meta">
-              <span>${escapeHtml([commit.author, commit.date].filter(Boolean).join(" · ") || "Unknown")}</span>
-              ${commit.refs ? `<span class="viewer-git__commit-refs">${escapeHtml(commit.refs)}</span>` : ""}
-            </span>
-          </button>
-        </li>
-      `).join("") + renderGitHistoryReveal(Math.max(0, recentCommits.length - gitHistoryPageSize))
-      : `<li class="viewer-git__commit-row">${escapeHtml(payload.latestCommit || "No commit history available.")}</li>`;
-    const history = `
-      <section class="viewer-git__section">
-        <h2>History</h2>
-        <ul class="viewer-git__commits">${historyRows}</ul>
-      </section>
-    `;
-    const remote = `
-      <section class="viewer-git__section">
-        <h2>Remote</h2>
-        <p class="viewer-git__state">${escapeHtml(payload.tracking ? `Tracking ${payload.tracking}` : "No upstream branch detected.")}</p>
-        <p class="viewer-git__state">${escapeHtml(`Ahead ${payload.ahead || 0}, behind ${payload.behind || 0}`)}</p>
-      </section>
-    `;
-    return `
-      <div class="viewer-git">
-        ${renderCiModeSwitcher("git")}
-        <div class="viewer-git__summary">${cards}</div>
-        <div class="viewer-git__workspace has-diff-detail">
-          <nav class="viewer-git__domains" aria-label="Git domains">${domains}</nav>
-          <div class="viewer-git__content" aria-label="Git domain content">
-            <section class="viewer-git__panel" data-viewer-git-panel="changes">
-              <header class="viewer-git__panel-header"><span>Changes</span><strong>${escapeHtml(stagedCount + modifiedCount + deletedCount + renamedCount + untrackedCount)} files</strong></header>
-              ${clean}
-              ${changesSections || '<p class="viewer-git__state">No file changes detected.</p>'}
-            </section>
-            <section class="viewer-git__panel" data-viewer-git-panel="staged" hidden>
-              <header class="viewer-git__panel-header"><span>Staged</span><strong>${escapeHtml(stagedCount)} files</strong></header>
-              ${stagedSections || '<p class="viewer-git__state">No staged files.</p>'}
-            </section>
-            <section class="viewer-git__panel" data-viewer-git-panel="worktree" hidden>
-              <header class="viewer-git__panel-header"><span>Worktree</span><strong>${escapeHtml(modifiedCount + deletedCount + renamedCount)} files</strong></header>
-              ${worktreeSections || '<p class="viewer-git__state">No modified, deleted, or renamed files.</p>'}
-            </section>
-            <section class="viewer-git__panel" data-viewer-git-panel="untracked" hidden>
-              <header class="viewer-git__panel-header"><span>Untracked</span><strong>${escapeHtml(untrackedCount)} files</strong></header>
-              ${untrackedSections || '<p class="viewer-git__state">No untracked files.</p>'}
-            </section>
-            <section class="viewer-git__panel" data-viewer-git-panel="history" hidden>
-              <header class="viewer-git__panel-header"><span>History</span><strong>${escapeHtml(historyCount)} commits</strong></header>
-              ${history}
-            </section>
-            <section class="viewer-git__panel" data-viewer-git-panel="remote" hidden>
-              <header class="viewer-git__panel-header"><span>Remote</span><strong>${escapeHtml(payload.tracking || "none")}</strong></header>
-              ${remote}
-            </section>
-          </div>
-          <section class="viewer-git__detail" aria-label="Git diff" data-viewer-git-detail>
-            <div class="viewer-git__detail-title">Diff preview</div>
-            <div class="viewer-git__diff" data-viewer-git-diff>Select a changed file or history commit to preview its diff.</div>
-          </section>
-        </div>
-      </div>
-    `;
-  }
 
-  function gitDiffLineKind(line) {
-    if (line.startsWith("+") && !line.startsWith("+++")) {
-      return "add";
-    }
-    if (line.startsWith("-") && !line.startsWith("---")) {
-      return "delete";
-    }
-    if (line.startsWith("@@")) {
-      return "hunk";
-    }
-    if (line.startsWith("diff --git") || line.startsWith("index ") || line.startsWith("+++") || line.startsWith("---")) {
-      return "meta";
-    }
-    return "context";
-  }
 
-  function renderGitDiffPreview(content) {
-    return renderCodeViewer(content, {
-      language: "diff",
-      lineClassName: (line) => `viewer-git__diff-line viewer-git__diff-line--${gitDiffLineKind(line)}`,
-      renderLineHtml: (line) => escapeHtml(line || " ")
-    });
-  }
 
-  function setActiveGitCommit(button) {
-    document.querySelectorAll("[data-viewer-git-commit]").forEach((node) => {
-      if (node instanceof HTMLElement) {
-        node.classList.toggle("is-active", node === button);
-      }
-    });
-    document.querySelectorAll("[data-viewer-git-file]").forEach((node) => {
-      if (node instanceof HTMLElement) {
-        node.classList.remove("is-active");
-      }
-    });
-  }
 
-  async function loadGitDiff(path, cached, button = null) {
-    const diffPanel = document.querySelector("[data-viewer-git-diff]");
-    const detailTitle = document.querySelector("[data-viewer-git-detail] .viewer-git__detail-title");
-    if (!(diffPanel instanceof HTMLElement) || !path) {
-      return;
-    }
-    if (button instanceof HTMLElement) {
-      setActiveGitFile(button);
-    }
-    if (detailTitle instanceof HTMLElement) {
-      detailTitle.textContent = "Diff preview";
-    }
-    diffPanel.textContent = "Loading diff...";
-    const params = new URLSearchParams({ path });
-    if (cached) {
-      params.set("cached", "1");
-    }
-    const response = await fetch(`/api/git-diff?${params.toString()}`);
-    const data = await response.json();
-    const payload = data.payload || {};
-    if (!response.ok || !data.ok || payload.state !== "ok") {
-      diffPanel.textContent = payload.message || data.error || "Unable to load diff.";
-      return;
-    }
-    const content = payload.diff || "";
-    if (!content.trim()) {
-      await loadGitFilePreview(path, diffPanel, detailTitle);
-      return;
-    }
-    diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.path || path)} · ${escapeHtml(payload.mode || "worktree")}${payload.truncated ? " · truncated" : ""}</div>${renderGitDiffPreview(content)}`;
-  }
 
-  async function loadGitCommitDiff(ref, button = null) {
-    const diffPanel = document.querySelector("[data-viewer-git-diff]");
-    const detailTitle = document.querySelector("[data-viewer-git-detail] .viewer-git__detail-title");
-    if (!(diffPanel instanceof HTMLElement) || !ref) {
-      return;
-    }
-    if (button instanceof HTMLElement) {
-      setActiveGitCommit(button);
-    }
-    if (detailTitle instanceof HTMLElement) {
-      detailTitle.textContent = "Commit diff";
-    }
-    diffPanel.textContent = "Loading commit diff...";
-    const response = await fetch(`/api/git-commit-diff?${new URLSearchParams({ ref }).toString()}`);
-    const data = await response.json();
-    const payload = data.payload || {};
-    if (!response.ok || !data.ok || payload.state !== "ok") {
-      diffPanel.textContent = payload.message || data.error || "Unable to load commit diff.";
-      return;
-    }
-    const content = payload.diff || "";
-    if (!content.trim()) {
-      diffPanel.textContent = payload.message || "No diff is available for this commit.";
-      return;
-    }
-    diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.ref || ref)} · commit${payload.truncated ? " · truncated" : ""}</div>${renderGitDiffPreview(content)}`;
-  }
 
-  async function loadGitFilePreview(path, diffPanel, detailTitle = null, options = {}) {
-    if (detailTitle instanceof HTMLElement) {
-      detailTitle.textContent = "File preview";
-    }
-    diffPanel.textContent = "Loading file preview...";
-    const params = new URLSearchParams({ path });
-    if (options.full) {
-      params.set("full", "1");
-    }
-    const response = await fetch(`/api/git-file-preview?${params.toString()}`);
-    const data = await response.json();
-    const payload = data.payload || {};
-    if (!response.ok || !data.ok) {
-      diffPanel.textContent = data.error || "Unable to load file preview.";
-      return;
-    }
-    if (payload.state !== "ok") {
-      diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.path || path)} · file preview unavailable</div><p class="viewer-git__state">${escapeHtml(payload.message || "File preview is unavailable.")}</p>`;
-      return;
-    }
-    const content = payload.content || "";
-    const previewPath = payload.path || path;
-    const forceButtonHtml = payload.canForce
-      ? `<button class="btn viewer-code__force" type="button" data-viewer-git-preview-full="${escapeHtml(previewPath)}">Load anyway</button>`
-      : "";
-    diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(previewPath)} · file preview${payload.truncated ? " · truncated" : ""}</div>${renderCodeViewer(content, {
-      language: detectHljsLanguage(previewPath),
-      lineCount: payload.lineCount,
-      truncated: Boolean(payload.truncated),
-      hardCapHit: Boolean(payload.hardCapHit),
-      forceButtonHtml
-    })}`;
-  }
 
-  async function openGitCommitModal() {
-    let payload = latestGitStatusPayload;
-    if (!payload || payload.state !== "ok") {
-      const response = await fetch("/api/git-status");
-      const data = await response.json();
-      if (!response.ok || !data.ok || data.payload?.state !== "ok") {
-        throw new Error(data.error || data.payload?.message || "Unable to load Git changes.");
-      }
-      payload = data.payload;
-      latestGitStatusPayload = payload;
-    }
-    const entries = gitCommitModalEntries(payload);
-    if (!entries.length) {
-      await showThemedMessageModal({ title: "Commit", message: "No changed files are available to commit." });
-      return;
-    }
 
-    const modal = createThemedModal({
-      title: "Commit",
-      message: "Select files, enter a message, then create the commit.",
-      submitLabel: "Commit"
-    });
-    const body = modal.querySelector(".viewer-themed-modal__body");
-    const submit = modal.querySelector(".viewer-themed-modal__submit");
-    const error = document.createElement("div");
-    error.className = "viewer-git-commit__error";
-    error.hidden = true;
-    const files = document.createElement("div");
-    files.className = "viewer-git-commit__files";
-    for (const entry of entries) {
-      const label = document.createElement("label");
-      label.className = "viewer-git-commit__file";
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.value = entry.path;
-      checkbox.checked = true;
-      const text = document.createElement("span");
-      text.textContent = `${entry.group}: ${entry.from ? `${entry.from} -> ${entry.path}` : entry.path}`;
-      label.append(checkbox, text);
-      files.appendChild(label);
-    }
-    const message = document.createElement("textarea");
-    message.className = "viewer-themed-modal__input viewer-git-commit__message";
-    message.placeholder = "Commit message";
-    message.rows = 3;
-    body?.append(files, message, error);
-
-    const selectedFiles = () => Array.from(files.querySelectorAll("input[type='checkbox']"))
-      .filter((node) => node instanceof HTMLInputElement && node.checked)
-      .map((node) => node.value);
-    const updateSubmit = () => {
-      if (submit instanceof HTMLButtonElement) {
-        submit.disabled = !selectedFiles().length || !message.value.trim();
-      }
-    };
-    const close = () => closeThemedModal(modal);
-    const fail = (text) => {
-      error.textContent = text;
-      error.hidden = false;
-    };
-    files.addEventListener("change", updateSubmit);
-    message.addEventListener("input", updateSubmit);
-    modal.querySelector(".viewer-themed-modal__cancel")?.addEventListener("click", close);
-    modal.querySelector(".viewer-themed-modal__close")?.addEventListener("click", close);
-    modal.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") close();
-      if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
-        event.preventDefault();
-        if (submit instanceof HTMLButtonElement && !submit.disabled) submit.click();
-      }
-    });
-    submit?.addEventListener("click", async () => {
-      const filesToCommit = selectedFiles();
-      const commitMessage = message.value.trim();
-      if (!filesToCommit.length || !commitMessage) {
-        updateSubmit();
-        return;
-      }
-      if (submit instanceof HTMLButtonElement) submit.disabled = true;
-      error.hidden = true;
-      try {
-        const response = await fetch("/api/git-commit", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ files: filesToCommit, message: commitMessage })
-        });
-        const data = await response.json();
-        if (!response.ok || !data.ok) {
-          throw new Error(data.error || data.payload?.message || "Git commit failed.");
-        }
-        close();
-        latestGitStatusPayload = null;
-        latestGitStatusSignature = "";
-        recordGitActivity("Commit", `Created commit ${data.payload?.shortHash || ""}`.trim());
-        await showGitStatus({ force: true });
-        setMeta(`Commit created${data.payload?.shortHash ? `: ${data.payload.shortHash}` : "."}`);
-      } catch (err) {
-        fail(err?.message || "Git commit failed.");
-        updateSubmit();
-      }
-    });
-    updateSubmit();
-    window.setTimeout(() => message.focus(), 0);
-  }
-
-  async function showGitStatus(options = {}) {
-    latestCiScreenMode = "git";
-    const previous = options.preserve ? currentGitViewState() : { domain: "changes", path: "", cached: false };
-    if (!isCapabilityAvailable("git")) {
-      const message = capabilityMessage("git", "Git is not available for this project.");
-      setDocument("Remote", renderGitStatus({ state: capability("git").state, message }));
-      setMeta(message);
-      return;
-    }
-    if (!options.silent) {
-      setMeta("Checking Git status...");
-    }
-    const view = options.view || beginView({ silent: Boolean(options.silent) });
-    let response;
-    let data = {};
-    try {
-      response = await fetch("/api/git-status", { signal: view.signal });
-      try {
-        data = await response.json();
-      } catch {
-        data = {};
-      }
-    } catch (error) {
-      if (isAbortError(error)) {
-        return;
-      }
-      throw error;
-    }
-    if (isViewStale(view)) {
-      return;
-    }
-    if (response.status === 404) {
-      setDocument("Remote", renderGitStatus({
-        state: "unavailable",
-        message: "Git status endpoint unavailable. Restart the local viewer so it loads the current logics-manager backend."
-      }));
-      setMeta("Restart the local viewer to enable Git status.");
-      return;
-    }
-    if (!response.ok || !data.ok) {
-      throw new Error(data.error || "Unable to load Git status.");
-    }
-    syncGitCommitActivity(data.payload);
-    const nextGitSignature = gitStatusSignature(data.payload);
-    if (options.skipUnchanged && !options.force && latestGitStatusSignature && nextGitSignature === latestGitStatusSignature) {
-      setGitBadgeCountsFromPayload(data.payload, { updateMain: false });
-      updateMainGitBadges();
-      if (!options.silent) {
-        setMeta(`Checked Git status just now · no changes (${new Date().toLocaleTimeString()})`);
-      }
-      return;
-    }
-    latestGitStatusSignature = nextGitSignature;
-    latestGitStatusPayload = data.payload;
-    setGitBadgeCountsFromPayload(data.payload, { updateMain: false });
-    updateMainGitBadges();
-    setDocument("Remote", renderGitStatus(data.payload));
-    applyGitDomain(previous.domain || "changes");
-    const restoredFile = previous.path ? findGitFileButton(previous.path, previous.cached) : null;
-    const firstFile = restoredFile || document.querySelector("[data-viewer-git-file]");
-    if (firstFile instanceof HTMLElement) {
-      await loadGitDiff(firstFile.getAttribute("data-viewer-git-file") || "", firstFile.getAttribute("data-viewer-git-cached") === "1", firstFile);
-    }
-    setMeta(options.silent ? "Git status refreshed." : "Git status loaded.");
-  }
 
   window.acquireVsCodeApi = function acquireVsCodeApi() {
     return {

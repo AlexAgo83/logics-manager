@@ -15,6 +15,7 @@ const renderSource = readFileSync("clients/viewer/src/browser-host/render.js", "
 const utilSource = readFileSync("clients/viewer/src/browser-host/util.js", "utf8");
 const filtersSource = readFileSync("clients/viewer/src/browser-host/filters.js", "utf8");
 const workshopSource = readFileSync("clients/viewer/src/browser-host/workshop.js", "utf8");
+const gitSource = readFileSync("clients/viewer/src/browser-host/git.js", "utf8");
 
 function withoutImports(source: string): string {
   return source.replace(/import\s*\{[^}]*\}\s*from\s*"[^"]+";/gs, "");
@@ -69,7 +70,7 @@ describe("the lifted cdx screen", () => {
     // req_312: 26 exports sat in the module every surface imports while serving one
     // caller. The list is derived, so a rendering function added later is covered.
     const exported = [...renderSource.matchAll(/^export function ([A-Za-z0-9_]+)/gm)].map((match) => match[1]);
-    const others = [hostSource, utilSource, filtersSource, workshopSource].map(withoutImports).join("\n");
+    const others = [hostSource, utilSource, filtersSource, workshopSource, gitSource].map(withoutImports).join("\n");
     const cdxBody = withoutImports(cdxSource);
 
     const cdxOnly = exported.filter((name) => {
@@ -114,5 +115,41 @@ describe("the lifted workshop screen", () => {
 
   it("does not import the host back", () => {
     expect(workshopSource).not.toContain('from "./index.js"');
+  });
+});
+
+describe("the lifted git and CI screen", () => {
+  it("returns every name the host destructures back into scope", () => {
+    const returned = /\n  return \{\n([^}]*?)\n  \};\n\}/.exec(gitSource)![1]
+      .split("\n").map((line) => line.trim().replace(/,$/, "")).filter(Boolean);
+    const missing = destructuredNames("createGitScreen")
+      .map((entry) => entry.replace(/^state: gitState$/, "state"))
+      .filter((name) => !returned.includes(name));
+
+    expect(missing).toEqual([]);
+  });
+
+  it("keeps its own state private, reachable only through the named seam", () => {
+    const owned = [...gitSource.matchAll(/^  (?:let|const) ([A-Za-z0-9_]+)/gm)]
+      .map((match) => match[1])
+      .filter((name) => name !== "state");
+    const leaked = owned.filter((name) => {
+      const bare = new RegExp(`(?<![A-Za-z0-9_.])${name}(?![A-Za-z0-9_])`);
+      return bare.test(hostSource) && !hostSource.includes(`gitState.${name}`);
+    });
+
+    expect(leaked).toEqual([]);
+  });
+
+  it("reads the two host bindings it does not own, and writes neither", () => {
+    // Twelve before the cdx screen moved; two after it, and both read-only.
+    for (const binding of ["latestRepoRoot", "viewerFilterState"]) {
+      expect(gitSource).toContain(`host.${binding}()`);
+      expect(gitSource).not.toMatch(new RegExp(`host\\.${binding}\\(\\)\\s*=[^=]`));
+    }
+  });
+
+  it("does not import the host back", () => {
+    expect(gitSource).not.toContain('from "./index.js"');
   });
 });

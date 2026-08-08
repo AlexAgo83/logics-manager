@@ -438,6 +438,41 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
 
+def _dispatch_lint(rest: list[str], command_parser) -> int:
+    parser = command_parser("logics-manager lint")
+    parser.add_argument("--require-status", action="store_true")
+    parser.add_argument(
+        "--commit",
+        metavar="REF",
+        help="Instead of linting the tree, report workflow docs that REF changed without updating an indicator.",
+    )
+    parser.add_argument("--format", choices=("text", "json"), default="text")
+    parsed = parser.parse_args(rest)
+    repo_root = find_repo_root(Path.cwd())
+    if parsed.commit:
+        return _render_commit_lint(repo_root, parsed.commit, parsed.format)
+    try:
+        payload = lint_payload(repo_root, require_status=parsed.require_status)
+        output = render_lint(repo_root, require_status=parsed.require_status, output_format=parsed.format)
+    except ConfigError as exc:
+        raise SystemExit(str(exc)) from exc
+    print(output)
+    return 0 if payload["ok"] else 1
+
+
+def _render_commit_lint(repo_root: Path, ref: str, output_format: str) -> int:
+    """`lint --commit REF`: what a commit changed without touching an indicator."""
+    findings = commit_indicator_findings(repo_root, ref)
+    if output_format == "json":
+        print(json.dumps({"commit": ref, "findings": findings}, indent=2, sort_keys=True))
+    else:
+        summary = "OK" if not findings else f"{len(findings)} doc(s) committed without indicator updates"
+        print(f"Logics lint {ref}: {summary}")
+        for finding in findings:
+            print(f"- {finding['path']}: {finding['message']}")
+    return 0 if not findings else 1
+
+
 def _dispatch(argv: list[str] | None = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
@@ -890,31 +925,5 @@ def _dispatch(argv: list[str] | None = None) -> int:
         print(render_product_consistency(repo_root, output_format=parsed.format, limit=parsed.limit))
         return 1 if parsed.strict and not payload["ok"] else 0
     if command == "lint":
-        parser = command_parser("logics-manager lint")
-        parser.add_argument("--require-status", action="store_true")
-        parser.add_argument(
-            "--commit",
-            metavar="REF",
-            help="Instead of linting the tree, report workflow docs that REF changed without updating an indicator.",
-        )
-        parser.add_argument("--format", choices=("text", "json"), default="text")
-        parsed = parser.parse_args(rest)
-        repo_root = find_repo_root(Path.cwd())
-        if parsed.commit:
-            findings = commit_indicator_findings(repo_root, parsed.commit)
-            if parsed.format == "json":
-                print(json.dumps({"commit": parsed.commit, "findings": findings}, indent=2, sort_keys=True))
-            else:
-                summary = "OK" if not findings else f"{len(findings)} doc(s) committed without indicator updates"
-                print(f"Logics lint {parsed.commit}: {summary}")
-                for finding in findings:
-                    print(f"- {finding['path']}: {finding['message']}")
-            return 0 if not findings else 1
-        try:
-            payload = lint_payload(repo_root, require_status=parsed.require_status)
-            output = render_lint(repo_root, require_status=parsed.require_status, output_format=parsed.format)
-        except ConfigError as exc:
-            raise SystemExit(str(exc)) from exc
-        print(output)
-        return 0 if payload["ok"] else 1
+        return _dispatch_lint(rest, command_parser)
     raise SystemExit(f"Unsupported command: {command}")

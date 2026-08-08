@@ -2396,40 +2396,59 @@ import {
   // ahead/behind badges reflect the real remote. Best-effort — a failed fetch
   // (offline, auth-required remote) still falls through to a status refresh.
 
+  // req_313: a screen is declared once, with its title and how it refreshes, instead of
+  // being recognised by a chain of comparisons against the title string. Adding a screen
+  // used to mean editing a router, a wiring block and a conditional chain, with nothing
+  // failing if one of the three was forgotten.
+  const screenRegistry = [
+    { title: "Getting Started", refresh: () => showGettingStarted() },
+    { title: "CDX status", refresh: (opts) => showCdxStatus(opts) },
+    { title: "CDX missions", refresh: (opts) => showCdxMissions(opts) },
+    { title: "CDX reports", refresh: (opts) => showCdxRuns(opts) },
+    { title: "CDX history", refresh: (opts) => showCdxHistory(opts) },
+    { title: "CDX memory", refresh: (opts) => showCdxMemory(opts) },
+    { title: "CDX disk", refresh: (opts) => showCdxDisk(opts) },
+    { title: "Corpus insights", refresh: () => showCorpusInsights() },
+    { title: "Validation health", refresh: () => showHealth() },
+    {
+      title: "Remote",
+      // Remote is three sub-screens behind one title; the mode decides which refreshes.
+      refresh: async (opts) => {
+        if (gitState.latestCiScreenMode === "release") return showReleaseStatus(opts);
+        if (gitState.latestCiScreenMode === "runs") return showCiStatus(opts);
+        setMeta("Fetching from remote...");
+        await fetchGitRemote();
+        return showGitStatus({ preserve: true, ...opts });
+      }
+    },
+    {
+      title: "Workshop",
+      refresh: (opts) => {
+        // For mounted terminals, Refresh should redraw in place (SIGWINCH nudge)
+        // rather than tear down and replay the whole server buffer.
+        if (preferredWorkshopTab() === "terminals" && hasMountedWorkshopTerminals()) {
+          const count = redrawWorkshopTerminals();
+          setMeta(count === 1 ? "Redrew 1 terminal." : `Redrew ${count} terminals.`);
+          return undefined;
+        }
+        return showWorkshop(opts);
+      }
+    }
+  ];
+
+  function screenFor(title) {
+    return screenRegistry.find((screen) => screen.title === title) || null;
+  }
+
   async function refreshCurrentScreen() {
     const panel = documentPanel();
     const title = documentTitle();
     if (!panel || panel.hidden || !title) return;
     const screen = title.textContent || "";
     viewerDiagnostics.breadcrumb(`refreshCurrentScreen ${screen}`);
-    const opts = { force: true };
-    if (screen === "Getting Started") return showGettingStarted();
-    if (screen === "CDX status") return showCdxStatus(opts);
-    if (screen === "CDX missions") return showCdxMissions(opts);
-    if (screen === "CDX reports") return showCdxRuns(opts);
-    if (screen === "CDX history") return showCdxHistory(opts);
-    if (screen === "CDX memory") return showCdxMemory(opts);
-    if (screen === "CDX disk") return showCdxDisk(opts);
-    if (screen === "Remote") {
-      if (gitState.latestCiScreenMode === "release") return showReleaseStatus(opts);
-      if (gitState.latestCiScreenMode === "runs") return showCiStatus(opts);
-      setMeta("Fetching from remote...");
-      await fetchGitRemote();
-      return showGitStatus({ preserve: true, ...opts });
-    }
-    if (screen === "Workshop") {
-      // For mounted terminals, Refresh should redraw in place (SIGWINCH nudge)
-      // rather than tear down and replay the whole server buffer.
-      if (preferredWorkshopTab() === "terminals" && hasMountedWorkshopTerminals()) {
-        const count = redrawWorkshopTerminals();
-        setMeta(count === 1 ? "Redrew 1 terminal." : `Redrew ${count} terminals.`);
-        return;
-      }
-      return showWorkshop(opts);
-    }
-    if (screen === "Corpus insights") return showCorpusInsights();
-    if (screen === "Validation health") return showHealth();
-    return showDocumentByPath(screen);
+    const declared = screenFor(screen);
+    // Anything not declared is a workflow document, addressed by its path.
+    return declared ? declared.refresh({ force: true }) : showDocumentByPath(screen);
   }
 
   function autoRefreshItems() {

@@ -1,10 +1,10 @@
 ## task_312_orchestrate_moving_the_viewer_preferences_off_the_port - Orchestrate moving the viewer preferences off the port
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 50%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -13,8 +13,8 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Give the viewer a preference store split between the operator and the corpus, served to both hosts.
-- [ ] 2. Merge favourite changes rather than overwriting the set, and let a window notice one starred elsewhere.
+- [x] 1. Give the viewer a preference store split between the operator and the corpus, served to both hosts.
+- [x] 2. Merge favourite changes rather than overwriting the set, and let a window notice one starred elsewhere.
 - [ ] 3. Keep a paired device's token across a restart, and say where it lives.
 - [ ] 4. Reduce the editor's global state to a first-paint cache and remove the write nothing reads.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.

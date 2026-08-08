@@ -1,10 +1,10 @@
 ## item_639_let_two_windows_agree_on_the_favourites - Let two windows agree on the favourites
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: A set, merged rather than overwritten
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -34,13 +34,13 @@
 - AC5: Tests cover two clients writing at once and fail against the current implementation.
 
 # AC Traceability
-- request-AC1 -> This backlog slice. Proof: AC1: Starring in one window and starring in another leaves both favourites present.
-- request-AC4 -> This backlog slice. Proof: AC2: Unstarring removes exactly one entry and leaves the rest.
-- request-AC8 -> This backlog slice. Proof: AC3: A write interrupted partway leaves the previous content readable, not a truncated file.
-
+- request-AC1 -> This backlog slice. Proof: `test_two_windows_starring_at_once_keep_both_favourites` in `tests/python/test_viewer_preferences.py`.
+- request-AC4 -> This backlog slice. Proof: the same test, plus `test_unstarring_removes_exactly_one_entry` and `test_a_scalar_preference_is_last_writer_wins`.
+- request-AC8 -> This backlog slice. Proof: `test_a_write_replaces_atomically`, which pins that no temporary file survives a replace.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
+- Un-starring cannot be expressed by a merge, and that is not an implementation detail: the point of merging is that an absent entry means the writer did not see it, not that it should be dropped. A removal is therefore stated explicitly, as a separate field of the same request. Scalar preferences stay last-writer-wins, which is a defensible answer for a single value; inventing a conflict rule for them would buy complexity for nothing.
 
 # Links
 - Product brief(s): `prod_063_preferences_that_outlive_the_port`

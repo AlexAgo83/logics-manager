@@ -8142,15 +8142,40 @@ ${line}` : line;
     let viewSeq = 0;
     let userViewSeq = 0;
     let activeUserViewController = null;
-    function writeViewerPreferences(nextPreferences) {
-      viewerPreferences = { ...nextPreferences, version: preferenceVersion };
+    async function hydrateViewerPreferencesFromServer() {
+      try {
+        const response = await fetch("/api/preferences");
+        const data = await response.json();
+        if (!response.ok || !data?.ok || !data.payload || typeof data.payload !== "object") return;
+        viewerPreferences = { ...viewerPreferences, ...data.payload, version: preferenceVersion };
+        cacheViewerPreferences();
+        renderProjectMenu();
+        syncWorkshopSystemTerminalControls();
+      } catch {
+      }
+    }
+    function persistViewerPreferencesToServer(patch, removed) {
+      if (!patch && !removed) return;
+      fetch("/api/preferences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ preferences: patch || {}, removed: removed || {} })
+      }).catch(() => {
+      });
+    }
+    function cacheViewerPreferences() {
       try {
         window.localStorage.setItem(preferenceKey, JSON.stringify(viewerPreferences));
       } catch {
       }
     }
-    function updateViewerPreferences(patch) {
+    function writeViewerPreferences(nextPreferences) {
+      viewerPreferences = { ...nextPreferences, version: preferenceVersion };
+      cacheViewerPreferences();
+    }
+    function updateViewerPreferences(patch, options = {}) {
       writeViewerPreferences({ ...viewerPreferences, ...patch });
+      persistViewerPreferencesToServer(patch, options.removed);
       if (patch.projectLastUsedAt && window.parent !== window) window.parent.postMessage({ type: "viewer-project-last-used", projectLastUsedAt: patch.projectLastUsedAt }, "*");
       if (patch.favoriteProjects && window.parent !== window) window.parent.postMessage({ type: "viewer-favorite-projects", favoriteProjects: patch.favoriteProjects }, "*");
       syncWorkshopSystemTerminalControls();
@@ -8193,7 +8218,10 @@ ${line}` : line;
       } else {
         favorites.delete(projectId);
       }
-      updateViewerPreferences({ favoriteProjects: Array.from(favorites).sort() });
+      updateViewerPreferences(
+        { favoriteProjects: Array.from(favorites).sort() },
+        favorite ? {} : { removed: { favoriteProjects: [projectId] } }
+      );
     }
     function preferredAutoRefreshIntervalSeconds() {
       const seconds = Number(viewerPreferences.autoRefreshIntervalSeconds);
@@ -10385,6 +10413,7 @@ ${line}` : line;
             return;
           }
           if (message.type === "ready") {
+            void hydrateViewerPreferencesFromServer();
             loadItems().then(() => startViewerEvents()).catch((error) => setMeta(error.message));
             return;
           }

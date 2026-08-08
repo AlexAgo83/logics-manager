@@ -1,10 +1,10 @@
 ## item_641_retire_the_half_bridge_and_say_what_it_did - Retire the half-bridge and say what it did
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: No second record
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -32,9 +32,8 @@
 - AC4: A test covers the disagreement and fails against the current implementation.
 
 # AC Traceability
-- request-AC6 -> This backlog slice. Proof: AC1: The server's record wins whenever it disagrees with the cache.
-- request-AC8 -> This backlog slice. Proof: AC2: The frame renders cached values before the server answers, and corrects itself once it does.
-
+- request-AC6 -> This backlog slice. Proof: `lets the record win where it disagrees with the cache` and `asks the server for the record as soon as the frame is ready` in `tests/viewerPreferenceBridge.test.ts`.
+- request-AC8 -> This backlog slice. Proof: the five tests in the same file, including `no longer writes a webview state entry nothing reads`.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

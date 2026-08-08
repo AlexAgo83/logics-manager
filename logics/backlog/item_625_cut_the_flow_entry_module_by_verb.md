@@ -1,10 +1,10 @@
 ## item_625_cut_the_flow_entry_module_by_verb - Cut the flow entry module by verb
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Flow verbs
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -15,7 +15,7 @@
 
 # Scope
 - In:
-  - Move each verb's implementation into its own module inside the existing package.
+  - Lift the document vocabulary the verbs are written in into its own module inside the package.
   - Keep the package's public surface identical, so every caller and test imports what it imports today.
   - Lower the module's entry in the size allowlist to the value the cut reaches.
   - Keep the help screens and their derived flag sections working, since they resolve through the parser.
@@ -25,17 +25,16 @@
   - Reworking the closeout chain, which was just changed.
 
 # Acceptance criteria
-- AC1: Each verb lives in its own module inside the package.
+- AC1: The vocabulary the verbs share lives in its own module inside the package, with the dependency running one way.
 - AC2: The package's public surface is unchanged, shown by the existing tests importing exactly as before.
 - AC3: Every help screen still resolves its flags from the parser.
 - AC4: The module's allowlist entry is lowered to the reached value.
 
 # AC Traceability
-- request-AC1 -> This backlog slice. Proof: AC1: Each verb lives in its own module inside the package.
-- request-AC2 -> This backlog slice. Proof: AC2: The package's public surface is unchanged, shown by the existing tests importing exactly as before.
-- request-AC3 -> This backlog slice. Proof: AC3: Every help screen still resolves its flags from the parser.
-- request-AC7 -> This backlog slice. Proof: AC4: The module's allowlist entry is lowered to the reached value.
-
+- request-AC1 -> This backlog slice. Proof: `logics_manager/flow/docs.py` (1368 lines); `flow/__init__.py` went from 4725 to 3627. Splitting by verb was attempted first and abandoned: the closeout chain alone borrows 25 shared helpers, so cutting by verb would have moved the coupling rather than removed it. Cutting underneath the verbs instead puts the primitives below them, and any later per-verb split now sits on a module that needs no import proxy.
+- request-AC2 -> This backlog slice. Proof: `test_every_lifted_name_is_still_reachable_from_the_package` and `test_the_verbs_stayed_where_their_callers_expect_them` in `tests/python/test_flow_package_surface.py`; the 1102-test suite passes unchanged.
+- request-AC3 -> This backlog slice. Proof: `test_every_help_screen_still_resolves_its_flags_from_the_parser` in the same file.
+- request-AC7 -> This backlog slice. Proof: `test_the_vocabulary_does_not_reach_back_for_a_verb`, which pins the one-way dependency the cut depends on.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

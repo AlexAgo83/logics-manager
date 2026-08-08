@@ -1,0 +1,431 @@
+{
+  "budgets": {
+    "max_docs": 16,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from item_647_compare_release_tree_evidence_against_the_tagged_commit item_648_say_which_gates_are_about_the_branch_and_which_about_the_release task_314_orchestrate_judging_evidence_against_the_release --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_642_say_what_a_proof_looks_like_and_produce_one_that_passes"
+        ],
+        "prod": [
+          "prod_064_a_gate_you_can_satisfy"
+        ],
+        "req": [
+          "req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive"
+        ],
+        "task": [
+          "task_313_orchestrate_making_the_closeout_gate_satisfiable"
+        ]
+      },
+      "path": "logics/product/prod_064_a_gate_you_can_satisfy.md",
+      "ref": "prod_064_a_gate_you_can_satisfy",
+      "sections": {
+        "Goals": [
+          "- Let the finding teach the format instead of the repair having to be reverse-engineered.",
+          "- Give one answer to whether a request can be closed.",
+          "- Make the recommended remediation actually remediate.",
+          "- Keep what an operator wrote."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "The closeout gate asks for something it never describes, answers the same question three ways, cannot be cleared on a committed document, and overwrites the answer an operator wrote by hand. Four field reports, one surface. Make it state its format, derive its verdict once, be clearable by following its own advice, and never destroy authored work.",
+          "```mermaid",
+          "flowchart LR",
+          "    Finding[Finding] -->|states the form| Operator",
+          "    Operator -->|writes a proof| Section[AC traceability]",
+          "    Repair[flow repair] -->|skips what exists| Section"
+        ],
+        "References": [
+          "- Product back-reference: `item_642_say_what_a_proof_looks_like_and_produce_one_that_passes`",
+          "- Task back-reference: `task_313_orchestrate_making_the_closeout_gate_satisfiable`"
+        ]
+      },
+      "status": "Settled",
+      "title": "A gate you can satisfy"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_647_compare_release_tree_evidence_against_the_tagged_commit",
+          "item_648_say_which_gates_are_about_the_branch_and_which_about_the_release"
+        ],
+        "prod": [
+          "prod_065_evidence_about_the_release"
+        ],
+        "req": [
+          "req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from"
+        ],
+        "task": [
+          "task_314_orchestrate_judging_evidence_against_the_release"
+        ]
+      },
+      "path": "logics/product/prod_065_evidence_about_the_release.md",
+      "ref": "prod_065_evidence_about_the_release",
+      "sections": {
+        "Goals": [
+          "- Make a green release a fact about what was published, not a snapshot of a moment.",
+          "- Let the publish-then-close sequence terminate.",
+          "- Keep a release in preparation, before any tag, working as it does today.",
+          "- Say which comparison each gate makes, rather than leaving it to be discovered."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Release evidence is pinned to a commit and compared against whatever `HEAD` happens to be, so the commits the release process itself creates invalidate the gates that release just passed. Compare against the commit the tag points at -- immutable, and the thing the artifacts were built from -- and say which gates, if any, are deliberately about the branch instead."
+        ],
+        "References": [
+          "- Product back-reference: `req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from`",
+          "- Task back-reference: `task_314_orchestrate_judging_evidence_against_the_release`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Evidence about the release"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, judge release evidence against the commit the release was cut from, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Judge release evidence against the commit the release was cut from",
+        "use when": "You need to implement or review the scaffolded workflow for Judge release evidence against the commit the release was cut from."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_647_compare_release_tree_evidence_against_the_tagged_commit",
+          "item_648_say_which_gates_are_about_the_branch_and_which_about_the_release"
+        ],
+        "prod": [
+          "prod_064_a_gate_you_can_satisfy",
+          "prod_065_evidence_about_the_release"
+        ],
+        "req": [
+          "req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from"
+        ]
+      },
+      "path": "logics/request/req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from.md",
+      "ref": "req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Evidence for a gate about the released tree is compared against the commit the release tag points at, not against current `HEAD`.",
+          "- AC2: A published release stays valid when unrelated commits land afterwards, including the ones the release process itself produces.",
+          "- AC3: A release being prepared, with no tag yet, still validates against the working commit.",
+          "- AC4: Any gate deliberately judged against the branch rather than the release is identified as such, and says so where an operator reads it.",
+          "- AC5: A gate whose evidence targets neither the release commit nor the branch it claims still fails, with a reason naming which comparison it failed.",
+          "- AC6: Each behavior leaves behind a test that fails against the current implementation."
+        ],
+        "Needs": [
+          "- Let a published release stay green while work continues on the branch.",
+          "- Let the sequence 'publish, then satisfy the gate' terminate.",
+          "- Tell apart a claim about the released tree from a claim about the branch."
+        ]
+      },
+      "status": "Draft",
+      "title": "Judge release evidence against the commit the release was cut from"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, compare release-tree evidence against the tagged commit, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Compare release-tree evidence against the tagged commit",
+        "use when": "Implementing the scaffolded slice for Compare release-tree evidence against the tagged commit."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_647_compare_release_tree_evidence_against_the_tagged_commit"
+        ],
+        "prod": [
+          "prod_065_evidence_about_the_release"
+        ],
+        "req": [
+          "req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from"
+        ],
+        "task": [
+          "task_314_orchestrate_judging_evidence_against_the_release"
+        ]
+      },
+      "path": "logics/backlog/item_647_compare_release_tree_evidence_against_the_tagged_commit.md",
+      "ref": "item_647_compare_release_tree_evidence_against_the_tagged_commit",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Evidence recorded at the tagged commit stays valid when later commits land.",
+          "- AC2: A release with no tag still validates against the working commit.",
+          "- AC3: Evidence targeting neither commit fails, and the reason names which comparison it failed.",
+          "- AC4: The publication gates are unchanged.",
+          "- AC5: A test lands commits after a tag and fails against the current implementation."
+        ],
+        "Problem": [
+          "- The comparison commit is `git rev-parse HEAD`, so every gate carrying command, file, git or ci evidence goes stale the moment anything lands after the release.",
+          "- The commits that land are the ones the release process itself produces: the checksum write-back on the release event, and the closeout the gate asks for. Satisfying the gate moves the comparison, so the sequence cannot terminate.",
+          "- The tag already resolves elsewhere in the same file: the publication gates match evidence against it, which is why those three alone survive."
+        ]
+      },
+      "status": "Ready",
+      "title": "Compare release-tree evidence against the tagged commit"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, say which gates are about the branch and which about the release, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Say which gates are about the branch and which about the release",
+        "use when": "Implementing the scaffolded slice for Say which gates are about the branch and which about the release."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_648_say_which_gates_are_about_the_branch_and_which_about_the_release"
+        ],
+        "prod": [
+          "prod_065_evidence_about_the_release"
+        ],
+        "req": [
+          "req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from"
+        ],
+        "task": [
+          "task_314_orchestrate_judging_evidence_against_the_release"
+        ]
+      },
+      "path": "logics/backlog/item_648_say_which_gates_are_about_the_branch_and_which_about_the_release.md",
+      "ref": "item_648_say_which_gates_are_about_the_branch_and_which_about_the_release",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A gate declares the comparison it makes, and defaults to the release tree.",
+          "- AC2: Every gate the contract ships with has its comparison recorded, with a reason for any judged against the branch.",
+          "- AC3: A gate's status states which comparison it makes.",
+          "- AC4: The release documentation explains the distinction.",
+          "- AC5: A test covers a branch-judged gate and a release-judged one, and fails against the current implementation."
+        ],
+        "Problem": [
+          "- Gates are grouped today by evidence kind: command, file, git and ci are compared against a commit, while the external kinds are compared against a tag. That grouping is about how the evidence was gathered, not about what the gate claims.",
+          "- A claim that the work was pushed is about a branch and moves with it. A claim about the changelog, the version metadata or a validation run is about the released tree and does not. Nothing states which is which, so an operator reading a stale gate cannot tell whether it is a real regression or a comparison that was never meant to hold.",
+          "- Choosing this per gate is a decision, not a default: it belongs in the contract, where the gates are already declared."
+        ]
+      },
+      "status": "Ready",
+      "title": "Say which gates are about the branch and which about the release"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_642_say_what_a_proof_looks_like_and_produce_one_that_passes"
+        ],
+        "prod": [
+          "prod_064_a_gate_you_can_satisfy"
+        ],
+        "req": [
+          "req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive"
+        ],
+        "task": [
+          "task_313_orchestrate_making_the_closeout_gate_satisfiable"
+        ]
+      },
+      "path": "logics/product/prod_064_a_gate_you_can_satisfy.md",
+      "ref": "prod_064_a_gate_you_can_satisfy",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Settled",
+      "title": "A gate you can satisfy"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate judging evidence against the release",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_647_compare_release_tree_evidence_against_the_tagged_commit",
+          "item_648_say_which_gates_are_about_the_branch_and_which_about_the_release"
+        ],
+        "prod": [
+          "prod_065_evidence_about_the_release"
+        ],
+        "req": [
+          "req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from"
+        ],
+        "task": [
+          "task_314_orchestrate_judging_evidence_against_the_release"
+        ]
+      },
+      "path": "logics/tasks/task_314_orchestrate_judging_evidence_against_the_release.md",
+      "ref": "task_314_orchestrate_judging_evidence_against_the_release",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate judging evidence against the release"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_647_compare_release_tree_evidence_against_the_tagged_commit",
+          "item_648_say_which_gates_are_about_the_branch_and_which_about_the_release"
+        ],
+        "prod": [
+          "prod_065_evidence_about_the_release"
+        ],
+        "req": [
+          "req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from"
+        ],
+        "task": [
+          "task_314_orchestrate_judging_evidence_against_the_release"
+        ]
+      },
+      "path": "logics/product/prod_065_evidence_about_the_release.md",
+      "ref": "prod_065_evidence_about_the_release",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Evidence about the release"
+    }
+  ],
+  "estimates": {
+    "char_count": 11934,
+    "companion_doc_count": 2,
+    "doc_count": 6
+  },
+  "generated_at": "2026-08-08T22:55:17Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from",
+      "item_647_compare_release_tree_evidence_against_the_tagged_commit",
+      "item_648_say_which_gates_are_about_the_branch_and_which_about_the_release",
+      "task_314_orchestrate_judging_evidence_against_the_release"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from,item_647_compare_release_tree_evidence_against_the_tagged_commit,item_648_say_which_gates_are_about_the_branch_and_which_about_the_release,task_314_orchestrate_judging_evidence_against_the_release",
+  "refs": [
+    "req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from",
+    "item_647_compare_release_tree_evidence_against_the_tagged_commit",
+    "item_648_say_which_gates_are_about_the_branch_and_which_about_the_release",
+    "task_314_orchestrate_judging_evidence_against_the_release"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.20.0"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_314_orchestrate_judging_evidence_against_the_release.md",
+      "ref": "task_314_orchestrate_judging_evidence_against_the_release"
+    }
+  ]
+}

@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Flow verbs
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 18:59:10
 
 # Problem
 - The flow entry module is 4725 lines and holds every verb: new, promote, split, close, finish, repair, closeout and scaffold. It is already a package, so the module boundary needs no new structure -- only the decision to use it.
@@ -35,6 +36,9 @@
 - request-AC2 -> This backlog slice. Proof: `test_every_lifted_name_is_still_reachable_from_the_package` and `test_the_verbs_stayed_where_their_callers_expect_them` in `tests/python/test_flow_package_surface.py`; the 1102-test suite passes unchanged.
 - request-AC3 -> This backlog slice. Proof: `test_every_help_screen_still_resolves_its_flags_from_the_parser` in the same file.
 - request-AC7 -> This backlog slice. Proof: `test_the_vocabulary_does_not_reach_back_for_a_verb`, which pins the one-way dependency the cut depends on.
+- request-AC4 -> This backlog slice. Evidence needed: The size guard refuses a raised ceiling unless the entry states what was tried and why it was kept.
+- request-AC5 -> This backlog slice. Evidence needed: Shared state is not moved by this request; a lift that would require it stops and says so.
+- request-AC6 -> This backlog slice. Evidence needed: The assistant adapter is left alone, and its recorded reason stays recorded.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
@@ -54,3 +58,9 @@
 # Priority
 - Priority: Medium - the cheapest structural cut, on an existing package
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_308_orchestrate_lifting_the_sub_systems_out_of_the_core`
+
+# Notes
+- Task `task_308_orchestrate_lifting_the_sub_systems_out_of_the_core` was finished via `logics-manager flow finish task` on 2026-08-08.

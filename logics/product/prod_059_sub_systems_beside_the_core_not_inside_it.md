@@ -1,8 +1,8 @@
 ## prod_059_sub_systems_beside_the_core_not_inside_it - Sub-systems beside the core, not inside it
 > Date: 2026-08-08
-> Status: Proposed
+> Status: Settled
 > Related request: `req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet`
-> Related backlog: `item_623_lift_cdx_and_git_out_of_the_viewer_server`, `item_624_lift_cdx_git_and_the_workshop_out_of_the_browser_host`, `item_625_cut_the_flow_entry_module_by_verb`, `item_626_make_the_size_ledger_a_ratchet`
+> Related backlog: `item_623_lift_cdx_and_git_out_of_the_viewer_server`
 > Related task: `task_308_orchestrate_lifting_the_sub_systems_out_of_the_core`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -46,5 +46,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet`
+- Product back-reference: `item_623_lift_cdx_and_git_out_of_the_viewer_server`
 - Task back-reference: `task_308_orchestrate_lifting_the_sub_systems_out_of_the_core`

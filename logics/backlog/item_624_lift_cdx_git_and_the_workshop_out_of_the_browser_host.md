@@ -8,6 +8,7 @@
 > Complexity: High
 > Theme: Browser-host sub-systems
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 18:59:10
 
 # Problem
 - The browser host is 7853 lines: about 1979 of cdx, 1595 of git and 1270 of the workshop, against 276 for the board filters. Reading the filter logic means opening a file that also holds three applications.
@@ -38,6 +39,8 @@
 - request-AC3 -> This backlog slice. Proof: `scripts/check-source-line-budget.mjs` records 5862 for the host, down from 7853, with `cdx.js` carrying its own entry.
 - request-AC5 -> This backlog slice. Proof: `tests/viewer.cdx-module.test.ts` pins the seam: every destructured name is returned, no owned binding leaks past `cdxState`, `viewerPreferences` is read and never written, and the module does not import the host back.
 - request-AC7 -> This backlog slice. Proof: the four tests in `tests/viewer.cdx-module.test.ts` read the owned-binding list from the module itself, so a binding added later is covered without editing the test.
+- request-AC4 -> This backlog slice. Evidence needed: The size guard refuses a raised ceiling unless the entry states what was tried and why it was kept.
+- request-AC6 -> This backlog slice. Evidence needed: The assistant adapter is left alone, and its recorded reason stays recorded.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
@@ -58,3 +61,9 @@
 # Priority
 - Priority: High - the largest file in the repository
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_308_orchestrate_lifting_the_sub_systems_out_of_the_core`
+
+# Notes
+- Task `task_308_orchestrate_lifting_the_sub_systems_out_of_the_core` was finished via `logics-manager flow finish task` on 2026-08-08.

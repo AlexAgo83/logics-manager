@@ -95,7 +95,7 @@
 | [prod_056_say_what_actually_happened](product/prod_056_say_what_actually_happened.md) | Say what actually happened | Settled |  |  | product/prod_056_say_what_actually_happened.md |
 | [prod_057_a_viewer_campaign_that_reports_what_it_saw](product/prod_057_a_viewer_campaign_that_reports_what_it_saw.md) | A viewer campaign that reports what it saw | Settled |  |  | product/prod_057_a_viewer_campaign_that_reports_what_it_saw.md |
 | [prod_058_a_filter_that_means_the_board](product/prod_058_a_filter_that_means_the_board.md) | A filter that means the board | Settled |  |  | product/prod_058_a_filter_that_means_the_board.md |
-| [prod_059_sub_systems_beside_the_core_not_inside_it](product/prod_059_sub_systems_beside_the_core_not_inside_it.md) | Sub-systems beside the core, not inside it | Proposed |  |  | product/prod_059_sub_systems_beside_the_core_not_inside_it.md |
+| [prod_059_sub_systems_beside_the_core_not_inside_it](product/prod_059_sub_systems_beside_the_core_not_inside_it.md) | Sub-systems beside the core, not inside it | Settled |  |  | product/prod_059_sub_systems_beside_the_core_not_inside_it.md |
 
 ## Roadmaps
 
@@ -414,7 +414,7 @@ _None_
 | [req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout](request/req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout.md) | Report workflow outcomes honestly across audit, help, and closeout | Done |  |  | request/req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout.md |
 | [req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured](request/req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured.md) | Turn the viewer visual smoke into a UI campaign that reports what it measured | Done |  |  | request/req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured.md |
 | [req_310_make_the_board_filters_answer_with_what_the_board_actually_shows](request/req_310_make_the_board_filters_answer_with_what_the_board_actually_shows.md) | Make the board filters answer with what the board actually shows | Done |  |  | request/req_310_make_the_board_filters_answer_with_what_the_board_actually_shows.md |
-| [req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet](request/req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet.md) | Lift the viewer's sub-systems out of its core, and turn the size ledger into a ratchet | Ready |  |  | request/req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet.md |
+| [req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet](request/req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet.md) | Lift the viewer's sub-systems out of its core, and turn the size ledger into a ratchet | Done |  |  | request/req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet.md |
 
 ## Backlog
 
@@ -1352,4 +1352,4 @@ _None_
 | [task_305_orchestrate_the_honest_outcome_corrections](tasks/task_305_orchestrate_the_honest_outcome_corrections.md) | Orchestrate the honest-outcome corrections | Done |  | 100% | tasks/task_305_orchestrate_the_honest_outcome_corrections.md |
 | [task_306_orchestrate_the_viewer_ui_campaign](tasks/task_306_orchestrate_the_viewer_ui_campaign.md) | Orchestrate the viewer UI campaign | Done |  | 100% | tasks/task_306_orchestrate_the_viewer_ui_campaign.md |
 | [task_307_orchestrate_the_board_filter_corrections](tasks/task_307_orchestrate_the_board_filter_corrections.md) | Orchestrate the board filter corrections | Done |  | 100% | tasks/task_307_orchestrate_the_board_filter_corrections.md |
-| [task_308_orchestrate_lifting_the_sub_systems_out_of_the_core](tasks/task_308_orchestrate_lifting_the_sub_systems_out_of_the_core.md) | Orchestrate lifting the sub-systems out of the core | In progress |  | 100% | tasks/task_308_orchestrate_lifting_the_sub_systems_out_of_the_core.md |
+| [task_308_orchestrate_lifting_the_sub_systems_out_of_the_core](tasks/task_308_orchestrate_lifting_the_sub_systems_out_of_the_core.md) | Orchestrate lifting the sub-systems out of the core | Done |  | 100% | tasks/task_308_orchestrate_lifting_the_sub_systems_out_of_the_core.md |

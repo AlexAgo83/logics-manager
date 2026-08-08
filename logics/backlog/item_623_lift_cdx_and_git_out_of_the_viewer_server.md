@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Server sub-systems
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 18:59:10
 
 # Problem
 - The viewer server is 5692 lines, of which roughly 1354 are cdx and 1010 are git. What remains is about 2931 lines that are actually the viewer.
@@ -36,6 +37,9 @@
 - request-AC2 -> This backlog slice. Proof: the 1091-test Python suite passes; the lift restored two definitions the extraction had swallowed, `_normalize_workspace_path` and `CI_RECENT_RUNS_LIMIT`, each caught by a failing test rather than by inspection.
 - request-AC3 -> This backlog slice. Proof: `scripts/check-source-line-budget.mjs` records 3332 for `viewer.py`, down from 5937, with the two lifted modules carrying their own entries.
 - request-AC7 -> This backlog slice. Proof: `tests/python/test_viewer_subsystem_modules.py` (18 cases), including `test_the_sub_systems_import_in_either_order`, which caught a circular import the lift had introduced and now pins the lazy viewer proxy that fixes it.
+- request-AC4 -> This backlog slice. Evidence needed: The size guard refuses a raised ceiling unless the entry states what was tried and why it was kept.
+- request-AC5 -> This backlog slice. Evidence needed: Shared state is not moved by this request; a lift that would require it stops and says so.
+- request-AC6 -> This backlog slice. Evidence needed: The assistant adapter is left alone, and its recorded reason stays recorded.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
@@ -55,3 +59,9 @@
 # Priority
 - Priority: High - the cheapest cut, on an established seam
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_308_orchestrate_lifting_the_sub_systems_out_of_the_core`
+
+# Notes
+- Task `task_308_orchestrate_lifting_the_sub_systems_out_of_the_core` was finished via `logics-manager flow finish task` on 2026-08-08.

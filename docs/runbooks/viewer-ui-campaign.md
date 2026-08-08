@@ -89,9 +89,16 @@ extension host boundary — `acquireVsCodeApi`, the message channel, the CSP non
 headless-DOM tests in `tests/webview.*.test.ts` and `tests/cspNonce.test.ts` cover instead.
 
 ```sh
-python3 -m logics_manager view          # the standalone viewer
+node scripts/dev/viewer-tour.mjs        # scripted walk of every screen, with captures
+python3 -m logics_manager view          # the standalone viewer, by hand
 code --extensionDevelopmentPath=.       # the same interface inside the extension host
 ```
+
+The tour asserts nothing. It walks all fourteen navigation targets, measures how long each
+screen takes to say it has loaded, records what it offers and what it leaves empty, captures
+each one, and reports every console and network problem it saw. Read
+`artifacts/viewer-tour/` afterwards: the captures are the point, and the numbers are there to
+tell you where to look first.
 
 Both surfaces render one source: `clients/viewer/` is the committed original,
 `scripts/build/build-assets.mjs` copies it into the package payload, and the extension

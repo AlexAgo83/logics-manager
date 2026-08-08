@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 66%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -15,7 +15,7 @@
 # Plan
 - [x] 1. Turn the visual smoke into a reporting campaign: named checks, measured values, no stop at the first defect, still gating.
 - [x] 2. Add the layout defect classes at each viewport, with every list derived from the interface.
-- [ ] 3. Write the runbook: how to run it, how to read it, what the attended pass covers, and where a finding goes.
+- [x] 3. Write the runbook: how to run it, how to read it, what the attended pass covers, and where a finding goes.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.

@@ -1,10 +1,10 @@
 ## item_623_lift_cdx_and_git_out_of_the_viewer_server - Lift cdx and git out of the viewer server
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Server sub-systems
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -32,11 +32,10 @@
 - AC4: A test covers each moved surface's reachability through the handler.
 
 # AC Traceability
-- request-AC1 -> This backlog slice. Proof: AC1: The cdx and git surfaces live in their own modules.
-- request-AC2 -> This backlog slice. Proof: AC2: Every route answers as it did before, shown by the existing tests passing unchanged.
-- request-AC3 -> This backlog slice. Proof: AC3: The server's allowlist entry is lowered to the reached value.
-- request-AC7 -> This backlog slice. Proof: AC4: A test covers each moved surface's reachability through the handler.
-
+- request-AC1 -> This backlog slice. Proof: `logics_manager/viewer_cdx.py` (1523 lines) and `logics_manager/viewer_git.py` (1064); `viewer.py` went from 5692 to 3332.
+- request-AC2 -> This backlog slice. Proof: the 1091-test Python suite passes; the lift restored two definitions the extraction had swallowed, `_normalize_workspace_path` and `CI_RECENT_RUNS_LIMIT`, each caught by a failing test rather than by inspection.
+- request-AC3 -> This backlog slice. Proof: `scripts/check-source-line-budget.mjs` records 3332 for `viewer.py`, down from 5937, with the two lifted modules carrying their own entries.
+- request-AC7 -> This backlog slice. Proof: `tests/python/test_viewer_subsystem_modules.py` (18 cases), including `test_the_sub_systems_import_in_either_order`, which caught a circular import the lift had introduced and now pins the lazy viewer proxy that fixes it.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

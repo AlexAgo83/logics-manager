@@ -4,6 +4,7 @@ import { isAbsolute, join } from "node:path";
 import { JSDOM, VirtualConsole } from "jsdom";
 import { WebSocket } from "ws";
 import { layoutChecks } from "./helpers/viewer-layout-checks.mjs";
+import { filterChecks } from "./helpers/viewer-filter-checks.mjs";
 
 const repoRoot = process.cwd();
 // Redirectable so the campaign's own regression test does not overwrite a real run's report.
@@ -406,6 +407,7 @@ function browserExerciseScript(name) {
       }
     };
     const LAYOUT_CHECKS = (${layoutChecks.toString()})(window);
+    const FILTER_CHECKS = (${filterChecks.toString()})(window);
     const checks = [];
     // A failing check no longer ends the run. Later checks may depend on it and fail in
     // turn -- that is reported too, and reads as one cause rather than one fact per run.
@@ -485,6 +487,9 @@ function browserExerciseScript(name) {
       });
       for (const layoutCheck of LAYOUT_CHECKS) {
         await check(layoutCheck.name, layoutCheck.run);
+      }
+      for (const filterCheck of FILTER_CHECKS) {
+        await check(filterCheck.name, filterCheck.run);
       }
       const failed = checks.some((entry) => entry.verdict === "failed");
       resolve({ checks, html: failed ? document.documentElement.outerHTML : "" });

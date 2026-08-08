@@ -40,14 +40,21 @@ What it covers, per viewport:
 | Regions | Topbar, repo pill, board and details are not blank |
 | Flows | A card opens its document; insights and health render; refresh states what it did; an activity entry opens its document |
 | Layout | No sibling controls drawn over each other, nothing clipped outside the viewport, no sideways page scroll, no unexplained empty surface, no silently disabled action |
+| Filters | The count above the board agrees with the board, and a type filter returns only what it names |
 | Console | No browser error or warning during the run |
 
 The layout checks read their lists **from the interface**, never from a hand-written
 enumeration: a surface or control added later is covered without editing a check. A
 hand-written list is how a whole workspace escaped a guard for an entire request in a
-sibling project. They live in `tests/helpers/viewer-layout-checks.mjs`, which the campaign
-serializes into the page and `tests/viewer.layout-checks.test.ts` imports directly, so the
-checks that pass in the test suite are the checks that run in the browser.
+sibling project. They live in `tests/helpers/viewer-layout-checks.mjs` and
+`tests/helpers/viewer-filter-checks.mjs`, which the campaign serializes into the page and
+`tests/viewer.layout-checks.test.ts` and `tests/viewer.filter-checks.test.ts` import
+directly, so the checks that pass in the test suite are the checks that run in the browser.
+
+The filter checks walk every option of every filter group from the controls themselves. They
+were added after the campaign ran green through a board that rendered nothing under four of
+its own type options: it asserted the board was not blank, never that a filter returned what
+it named.
 
 Useful knobs:
 
@@ -105,7 +112,7 @@ Carry the test name into the slice as acceptance proof, the way `req_308` and `r
 ## Verify
 
 ```sh
-npx vitest run tests/viewer.layout-checks.test.ts tests/viewer.campaign-report.test.ts
+npx vitest run tests/viewer.layout-checks.test.ts tests/viewer.filter-checks.test.ts tests/viewer.campaign-report.test.ts
 ```
 
 The layout checks and the campaign's reporting each have their own regression tests, so a

@@ -1,10 +1,10 @@
 ## item_622_let_the_campaign_catch_a_filter_that_lies - Let the campaign catch a filter that lies
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Campaign coverage
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -32,9 +32,8 @@
 - AC5: The new checks appear in the runbook's coverage table.
 
 # AC Traceability
-- request-AC7 -> This backlog slice. Proof: AC1: A campaign run asserts the count agrees with the board, per viewport.
-- request-AC8 -> This backlog slice. Proof: AC2: It walks the filter options read from the interface, not a hand-written list.
-
+- request-AC7 -> This backlog slice. Proof: `the count agrees with the board` and `a filter returns only what it names` in `tests/helpers/viewer-filter-checks.mjs`, run by the campaign at each viewport; against the pre-fix viewer the first reports `type=request announced 310 above an empty board` and the run exits non-zero.
+- request-AC8 -> This backlog slice. Proof: the five tests in `tests/viewer.filter-checks.test.ts`, including `walks the type options read from the control, not a list of its own`.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

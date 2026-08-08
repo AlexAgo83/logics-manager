@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 25%
+> Progress: 50%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -13,7 +13,7 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Lift cdx and git out of the viewer server, on the seam the route modules already established.
+- [x] 1. Lift cdx and git out of the viewer server, on the seam the route modules already established.
 - [ ] 2. Lift cdx, git and the workshop out of the browser host, one at a time, stopping short of the shared state.
 - [ ] 3. Cut the flow entry module by verb inside the package it already is.
 - [x] 4. Make the size ledger lower itself when a file shrinks, and refuse an unjustified raise.

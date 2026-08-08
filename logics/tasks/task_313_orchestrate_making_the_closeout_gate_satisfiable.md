@@ -1,10 +1,10 @@
 ## task_313_orchestrate_making_the_closeout_gate_satisfiable - Orchestrate making the closeout gate satisfiable
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 25%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -13,7 +13,7 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. State the proof format in the finding, make the repair produce a passing line, and make the scaffold's output satisfy the gate.
+- [x] 1. State the proof format in the finding, make the repair produce a passing line, and make the scaffold's output satisfy the gate.
 - [ ] 2. Derive the proof verdict once and have the three commands agree.
 - [ ] 3. Judge the working tree rather than the last commit, name only the missing indicators, and say what catches a commit made without them.
 - [ ] 4. Skip criteria that already carry a proof instead of appending a second one.

@@ -42,7 +42,10 @@ const allowedOversizedFiles = new Map(
     // req_311 lifted cdx and git out of viewer.py: 5692 -> 3330. Each sub-system now
     // carries its own ceiling, and its own reason for still being over the budget: they
     // are whole surfaces, split from the core rather than reduced by it.
-    "logics_manager/viewer.py": { maxLines: 3322, ref: "req_311" },
+    // 3348: req_315 added the preference routes and their handler. The POST branch was
+    // extracted to keep do_POST near its ceiling; the GET side is two lines and a table
+    // for it measured longer than the branch, so the branch was kept.
+    "logics_manager/viewer.py": { maxLines: 3348, ref: "req_315" },
     "logics_manager/viewer_cdx.py": { maxLines: 1523, ref: "req_311" },
     "logics_manager/viewer_git.py": { maxLines: 1064, ref: "req_311" },
     // 4909: release prep baseline.
@@ -67,7 +70,9 @@ const allowedOversizedFiles = new Map(
     // req_311 lifted the cdx screen into its own module: 7789 -> 5934. git was measured
     // and left: it touches 12 bindings it does not own, so a git module would carry most
     // of the viewer's state with it. That move waits for the shared state itself.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4065, ref: "req_312" },
+    // 4107: req_315 gave the host a record to read from and write to -- hydrate, persist,
+    // and cache -- which is the point of the request rather than something to extract.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4107, ref: "req_315" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

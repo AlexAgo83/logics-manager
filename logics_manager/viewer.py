@@ -2397,6 +2397,21 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
 
+    def _handle_preferences_post(self) -> None:
+        try:
+            body = self._read_json_body_strict()
+        except (OSError, ValueError) as exc:
+            self._send_error_json(HTTPStatus.BAD_REQUEST, f"Invalid preference payload: {exc}")
+            return
+        patch = body.get("preferences") if isinstance(body.get("preferences"), dict) else {}
+        removed = body.get("removed") if isinstance(body.get("removed"), dict) else {}
+        try:
+            payload = update_viewer_preferences(self.server.repo_root, patch, removed=removed)
+        except OSError as exc:
+            self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, f"Unable to store preferences: {exc}")
+            return
+        self._send_json({"ok": True, "payload": payload})
+
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
         if not self._origin_check_passes():
@@ -2429,19 +2444,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self._handle_device_revoke(parsed)
             return
         if parsed.path == "/api/preferences":
-            try:
-                body = self._read_json_body_strict()
-            except (OSError, ValueError) as exc:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, f"Invalid preference payload: {exc}")
-                return
-            patch = body.get("preferences") if isinstance(body.get("preferences"), dict) else {}
-            removed = body.get("removed") if isinstance(body.get("removed"), dict) else {}
-            try:
-                payload = update_viewer_preferences(self.server.repo_root, patch, removed=removed)
-            except OSError as exc:
-                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, f"Unable to store preferences: {exc}")
-                return
-            self._send_json({"ok": True, "payload": payload})
+            self._handle_preferences_post()
             return
         if parsed.path == "/api/refresh":
             self._send_json(

@@ -14,6 +14,7 @@ Detailed documentation for `logics-manager`, split by surface. The main
 | [GitHub Issues bridge](./github-issues.md) | Optional GitHub intake, agent provenance, and manual lifecycle feedback. |
 | [Onboarding Prompts](./onboarding.md) | Starting-point prompts for need, framing, orchestration, and execution. |
 | [Development & Validation](./development.md) | Requirements, runtime compatibility, validation commands, Windows validation, and accessibility baseline. |
+| [Viewer UI campaign](./runbooks/viewer-ui-campaign.md) | Running the viewer campaign, reading its report, the attended pass, and where a finding goes. |
 | [Deploy / Release (VSIX)](./release.md) | Versioning, changelog validation, packaging, and release steps. |
 
 See also [`SECURITY.md`](../SECURITY.md) and [`CONTRIBUTING.md`](../CONTRIBUTING.md).

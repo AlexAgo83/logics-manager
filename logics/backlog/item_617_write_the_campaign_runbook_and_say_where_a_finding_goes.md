@@ -1,10 +1,10 @@
 ## item_617_write_the_campaign_runbook_and_say_where_a_finding_goes - Write the campaign runbook and say where a finding goes
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Campaign practice
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -35,9 +35,8 @@
 - AC5: It states where captures live and why they stay there.
 
 # AC Traceability
-- request-AC7 -> This backlog slice. Proof: AC1: A runbook states how to run the campaign, what it covers, and where its output lands.
-- request-AC6 -> This backlog slice. Proof: AC2: It states how to read a failed check, and that a zero-finding run is not a pass on its own.
-
+- request-AC7 -> This backlog slice. Proof: `docs/runbooks/viewer-ui-campaign.md`, linked from `docs/README.md` and from the validation section of `docs/development.md`.
+- request-AC6 -> This backlog slice. Proof: the runbook states that the report and captures land together in `artifacts/local-viewer-smoke/`, outside version control, and why they stay there.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

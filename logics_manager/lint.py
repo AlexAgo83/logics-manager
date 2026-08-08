@@ -386,7 +386,9 @@ def _git_modified_paths(repo_root: Path) -> set[Path]:
             line = line.strip()
             if line:
                 paths.add(Path(line))
-    if not paths:
+    # No fallback to the last commit: a clean tree has nothing for this gate to judge.
+    # `commit_indicator_findings` answers the commit question, on demand and about one ref.
+    if False:  # pragma: no cover - retained to show what was removed and why
         for line in _run_git(repo_root, ["diff-tree", "--no-commit-id", "--name-only", "-r", "--diff-filter=ACMRT", "HEAD"]).splitlines():
             line = line.strip()
             if line:
@@ -404,13 +406,19 @@ def _git_untracked_paths(repo_root: Path) -> set[Path]:
 
 
 def _doc_diff(repo_root: Path, rel_path: Path) -> str:
+    """What changed in the working tree and the index -- and nothing else.
+
+    This used to fall back to the last commit when both were clean, which made the gate
+    unclearable: a document whose last commit carried a body edit without an indicator
+    change stayed flagged, and re-baselining wrote nothing that fallback could see. It
+    also meant the flagged set was whatever the last commit contained, so re-baselining
+    one document appeared to invalidate another. A commit made without updating
+    indicators is caught by `commit_indicator_findings`, at the moment a commit is made
+    rather than every time a clean tree is linted.
+    """
     diff = _run_git(repo_root, ["diff", "--unified=0", "--", str(rel_path)])
     diff += _run_git(repo_root, ["diff", "--cached", "--unified=0", "--", str(rel_path)])
-    if diff:
-        return diff
-    if rel_path in _git_modified_paths(repo_root):
-        return _run_git(repo_root, ["show", "--format=", "--unified=0", "HEAD", "--", str(rel_path)])
-    return ""
+    return diff
 
 
 REVIEWED_INDICATOR = "Indicators reviewed"
@@ -423,6 +431,21 @@ MUTABLE_INDICATOR_FLAGS = {
     "Theme": "theme",
     "Complexity": "complexity",
 }
+
+
+def _indicators_without_changes(repo_root: Path, rel_path: Path, indicators: set[str]) -> set[str]:
+    """The subset of `indicators` the diff does not touch."""
+    diff = _doc_diff(repo_root, rel_path)
+    if not diff:
+        return set(indicators)
+    touched = set()
+    for line in diff.splitlines():
+        if not line.startswith(("+", "-")) or line.startswith(("+++ ", "--- ")):
+            continue
+        for key in indicators:
+            if f"> {key}:" in line:
+                touched.add(key)
+    return set(indicators) - touched
 
 
 def _diff_has_indicator_changes(repo_root: Path, rel_path: Path, indicators: set[str]) -> bool:
@@ -585,7 +608,12 @@ def lint_payload(repo_root: Path, *, require_status: bool = False) -> dict[str, 
                     and not _diff_is_status_only_normalization(repo_root, rel_path)
                     and not _has_non_semantic_edit_marker(_read_lines(path))
                 ):
+                    # Name what a remediation can act on. Listing every indicator the kind
+                    # requires put `From version` and `Schema version` in front of
+                    # operators who had never touched them and whom no offered command
+                    # would have helped -- they went looking for a change they had not made.
                     mutable = [key for key in MUTABLE_INDICATOR_FLAGS if key in required]
+                    missing = set(mutable) | ({REVIEWED_INDICATOR} if not mutable else set())
                     flags = " ".join(
                         f"--{MUTABLE_INDICATOR_FLAGS[key]} {'<n>' if key in NUMERIC_INDICATORS else '<value>'}"
                         for key in mutable
@@ -593,7 +621,7 @@ def lint_payload(repo_root: Path, *, require_status: bool = False) -> dict[str, 
                     remedy = f"logics-manager sync update-indicators {path.stem} {flags}".strip()
                     issues.append(
                         "modified without updating indicators: "
-                        + ", ".join(sorted(required))
+                        + ", ".join(sorted(missing))
                         + (f" (fix: {remedy}; " if mutable else " (fix: ")
                         + f"or `logics-manager sync update-indicators {path.stem} --touch` "
                         + "if the values were reviewed and did not change; "
@@ -646,9 +674,50 @@ def render_lint(repo_root: Path, *, require_status: bool = False, output_format:
     return "\n".join(lines)
 
 
+def commit_indicator_findings(repo_root: Path, ref: str = "HEAD") -> list[dict[str, str]]:
+    """Workflow docs a commit changed without touching an indicator.
+
+    The working-tree gate cannot see a commit, and used to try by re-reading the last one
+    on every clean-tree lint -- which made the finding unclearable and its subject
+    unpredictable. This asks the question where it belongs: about one commit, on demand.
+    Wire it into a commit hook or a delivery check; it is not part of linting a tree.
+    """
+    findings: list[dict[str, str]] = []
+    listed = _run_git(repo_root, ["show", "--name-only", "--format=", ref]).splitlines()
+    for raw in listed:
+        rel = Path(raw.strip())
+        if not raw.strip() or rel.suffix != ".md":
+            continue
+        kind_name = next((name for name, kind in KINDS.items() if str(rel).startswith(kind.directory)), None)
+        if kind_name is None:
+            continue
+        diff = _run_git(repo_root, ["show", "--format=", "--unified=0", ref, "--", str(rel)])
+        if not diff:
+            continue
+        required = set(KINDS[kind_name].required_indicators) | {REVIEWED_INDICATOR}
+        touched = {
+            key
+            for line in diff.splitlines()
+            if line.startswith(("+", "-")) and not line.startswith(("+++ ", "--- "))
+            for key in required
+            if f"> {key}:" in line
+        }
+        if not touched and not _has_non_semantic_edit_marker(diff.splitlines()):
+            findings.append({
+                "path": rel.as_posix(),
+                "message": f"committed in {ref} without updating indicators or marking the edit non-semantic",
+            })
+    return findings
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="logics-manager lint", description="Lint Logics docs (filenames, headings, indicators).")
     parser.add_argument("--require-status", action="store_true", help="Require `Status` indicator in all supported Logics docs.")
+    parser.add_argument(
+        "--commit",
+        metavar="REF",
+        help="Instead of linting the tree, report workflow docs that REF changed without updating an indicator.",
+    )
     parser.add_argument("--format", choices=("text", "json"), default="text")
     return parser
 
@@ -656,6 +725,15 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str]) -> int:
     args = build_parser().parse_args(argv)
     repo_root = find_repo_root(Path.cwd())
+    if args.commit:
+        findings = commit_indicator_findings(repo_root, args.commit)
+        if args.format == "json":
+            print(json.dumps({"commit": args.commit, "findings": findings}, indent=2, sort_keys=True))
+        else:
+            print(f"Logics lint {args.commit}: {'OK' if not findings else str(len(findings)) + ' doc(s) committed without indicator updates'}")
+            for finding in findings:
+                print(f"- {finding['path']}: {finding['message']}")
+        return 0 if not findings else 1
     output = render_lint(repo_root, require_status=args.require_status, output_format=args.format)
     print(output)
     payload = lint_payload(repo_root, require_status=args.require_status)

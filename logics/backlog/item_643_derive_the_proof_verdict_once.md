@@ -8,6 +8,7 @@
 > Complexity: High
 > Theme: One implementation, one verdict
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 23:32:24
 
 # Problem
 - On an unchanged corpus, `flow validate` reported only that the request was not closed, `flow validate-closeout` reported three criteria without proof, and `closeout --dry-run` reported all thirteen. Nothing says which is authoritative.
@@ -37,7 +38,7 @@
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
-- Two divergences were found, and only one was a defect. The audit carried its own looser proof rule -- the criterion named anywhere and the keyword anywhere in the document -- while the closeout gate required both on one line; that duplication is gone, and the allowance is now a named argument of the single implementation. The second divergence is legitimate and was documented rather than removed: the audit defers an AC proof gap to a warning while no linked task is Done, because proof cannot exist before the work does, whereas the closeout preflight blocks on it whatever the lifecycle says. now states what each of the three commands checks, so the difference is predictable instead of surprising.
+- Two divergences were found, and only one was a defect. The audit carried its own looser proof rule -- the criterion named anywhere and the keyword anywhere in the document -- while the closeout gate required both on one line; that duplication is gone, and the allowance is now a named argument of the single implementation. The second divergence is legitimate and was documented rather than removed: the audit defers an AC proof gap to a warning while no linked task is Done, because proof cannot exist before the work does, whereas the closeout preflight blocks on it whatever the lifecycle says. `flow validate-closeout --help` now states what each of the three commands checks, so the difference is predictable instead of surprising.
 
 # Links
 - Product brief(s): `prod_064_a_gate_you_can_satisfy`

@@ -177,6 +177,28 @@ that fails to report is shown as unreadable while the others still render.
 Directories with no `logics/` are still listed — the switcher is also how a
 project gets bootstrapped — and are simply not scanned.
 
+## The indicator gate, and what checks a commit
+
+`logics-manager lint --require-status` flags a workflow document edited without updating an
+indicator. It judges the **working tree and the index** — what you have changed and not yet
+committed. A clean tree has nothing for it to judge, so a document you have already
+committed is never flagged by it.
+
+That is deliberate. It used to fall back to re-reading the last commit, which made the
+finding unclearable: re-baselining writes nothing a past commit can see, and the flagged set
+was whatever the last commit happened to contain, so re-baselining one document appeared to
+invalidate another.
+
+The commit question is asked separately, on demand, about one ref:
+
+```bash
+logics-manager lint --commit HEAD          # what this commit changed without an indicator
+logics-manager lint --commit HEAD~3 --format json
+```
+
+Wire that into a commit hook or a delivery check. It exits non-zero when a workflow document
+was committed without updating an indicator or marking the edit non-semantic.
+
 ## Discovering the command contract
 
 Every command and subcommand answers `--help` (and `-h`) with its own usage and

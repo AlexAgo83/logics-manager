@@ -1,10 +1,10 @@
 ## item_644_let_the_indicator_gate_be_cleared_by_doing_what_it_says - Let the indicator gate be cleared by doing what it says
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: A gate with an honest exit
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -34,10 +34,9 @@
 - AC5: Tests cover the committed document and the commit-time case, and fail against the current implementation.
 
 # AC Traceability
-- request-AC5 -> This backlog slice. Proof: AC1: A committed document flagged by the gate is cleared by following the remediation the gate prints.
-- request-AC6 -> This backlog slice. Proof: AC2: Re-baselining one document does not change whether another is flagged.
-- request-AC8 -> This backlog slice. Proof: AC3: The finding names only the indicators missing on that document.
-
+- request-AC5 -> This backlog slice. Proof: `test_a_committed_document_is_not_flagged_by_the_working_tree_gate` and `test_the_commit_check_still_catches_it` in `tests/python/test_gate_you_can_satisfy.py`.
+- request-AC6 -> This backlog slice. Proof: `test_the_finding_names_only_indicators_a_remediation_can_change` in the same file; `From version` and `Schema version` are no longer named.
+- request-AC8 -> This backlog slice. Proof: the three tests above, plus `logics-manager lint --commit <ref>` documented in `docs/cli.md`.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

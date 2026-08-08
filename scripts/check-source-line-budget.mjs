@@ -63,7 +63,10 @@ const allowedOversizedFiles = new Map(
     // req_311 lifted the cdx screen into its own module: 7789 -> 5934. git was measured
     // and left: it touches 12 bindings it does not own, so a git module would carry most
     // of the viewer's state with it. That move waits for the shared state itself.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4784, ref: "req_312" },
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4065, ref: "req_312" },
+    // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
+    // lift unblocked it -- twelve foreign bindings became two.
+    "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },
     // req_312: the workshop screen, on the same factory-and-accessor seam as cdx.
     "clients/viewer/src/browser-host/workshop.js": { maxLines: 1305, ref: "req_312" },
     "clients/viewer/src/browser-host/cdx.js": { maxLines: 3057, ref: "req_312" },

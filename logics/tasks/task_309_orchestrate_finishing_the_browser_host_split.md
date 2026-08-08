@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 66%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -15,7 +15,7 @@
 # Plan
 - [x] 1. Move the cdx rendering out of the shared render module and into the cdx screen.
 - [x] 2. Lift the workshop onto the factory-and-accessor seam, verifying with the campaign.
-- [ ] 3. Lift git and CI, deciding explicitly where the screen router belongs.
+- [x] 3. Lift git and CI, deciding explicitly where the screen router belongs.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.

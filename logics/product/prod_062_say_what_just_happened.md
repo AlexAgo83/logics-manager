@@ -1,8 +1,8 @@
 ## prod_062_say_what_just_happened - Say what just happened
 > Date: 2026-08-08
-> Status: Proposed
+> Status: Settled
 > Related request: `req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done`
-> Related backlog: `item_633_say_what_is_unavailable_before_it_is_chosen`, `item_634_make_the_count_follow_the_search_box_too`, `item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over`
+> Related backlog: `item_633_say_what_is_unavailable_before_it_is_chosen`
 > Related task: `task_311_orchestrate_the_attended_tour_findings`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -48,5 +48,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done`
+- Product back-reference: `item_633_say_what_is_unavailable_before_it_is_chosen`
 - Task back-reference: `task_311_orchestrate_the_attended_tour_findings`

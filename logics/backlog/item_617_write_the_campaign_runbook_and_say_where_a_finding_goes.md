@@ -8,6 +8,7 @@
 > Complexity: Low
 > Theme: Campaign practice
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 16:37:22
 
 # Problem
 - The campaign will produce a report and a set of captures that nothing explains: how to run it, what its two halves are, what a failed check means, and what to do with a defect it finds.
@@ -37,6 +38,13 @@
 # AC Traceability
 - request-AC7 -> This backlog slice. Proof: `docs/runbooks/viewer-ui-campaign.md`, linked from `docs/README.md` and from the validation section of `docs/development.md`.
 - request-AC6 -> This backlog slice. Proof: the runbook states that the report and captures land together in `artifacts/local-viewer-smoke/`, outside version control, and why they stay there.
+- request-AC1 -> This backlog slice. Evidence needed: A campaign run reports every check it performed, each with a verdict and the value it measured.
+- request-AC2 -> This backlog slice. Evidence needed: A failed check does not end the run; the remaining checks still run and still report.
+- request-AC3 -> This backlog slice. Evidence needed: The campaign still gates: a run with any failed check exits non-zero, and the repository check script still fails on it.
+- request-AC4 -> This backlog slice. Evidence needed: The campaign asserts the layout defect classes a passing unit suite does not see, at each viewport it sweeps.
+- request-AC5 -> This backlog slice. Evidence needed: Any check claiming to cover every screen or every control derives its list from the interface, so a surface added later is covered without editing the check.
+- request-AC8 -> This backlog slice. Evidence needed: The existing fallbacks keep working: no Chrome present, and the Windows CI server-only pass.
+- request-AC9 -> This backlog slice. Evidence needed: Each behavior above leaves behind a test that fails against the current implementation.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
@@ -56,3 +64,9 @@
 # Priority
 - Priority: Medium - without it the report is read once and the findings evaporate
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_306_orchestrate_the_viewer_ui_campaign`
+
+# Notes
+- Task `task_306_orchestrate_the_viewer_ui_campaign` was finished via `logics-manager flow finish task` on 2026-08-08.

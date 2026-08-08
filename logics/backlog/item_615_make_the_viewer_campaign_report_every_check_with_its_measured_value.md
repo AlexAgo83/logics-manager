@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Readable campaign output
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 16:37:22
 
 # Problem
 - The visual smoke raises on the first failed step, so one defect hides every check that would have run after it, and a reviewer learns one fact per run.
@@ -43,6 +44,9 @@
 - request-AC6 -> This backlog slice. Proof: `reports viewports it did not sweep rather than silently covering less` in the same file.
 - request-AC8 -> This backlog slice. Proof: the headless-DOM and server-only paths record their own checks and skips rather than raising.
 - request-AC9 -> This backlog slice. Proof: both tests in `tests/viewer.campaign-report.test.ts`.
+- request-AC4 -> This backlog slice. Evidence needed: The campaign asserts the layout defect classes a passing unit suite does not see, at each viewport it sweeps.
+- request-AC5 -> This backlog slice. Evidence needed: Any check claiming to cover every screen or every control derives its list from the interface, so a surface added later is covered without editing the check.
+- request-AC7 -> This backlog slice. Evidence needed: A runbook states how to run the campaign, how to read a failed check, and that a finding becomes a workflow slice.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
@@ -62,3 +66,9 @@
 # Priority
 - Priority: High - a run that stops at the first defect cannot be reviewed
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_306_orchestrate_the_viewer_ui_campaign`
+
+# Notes
+- Task `task_306_orchestrate_the_viewer_ui_campaign` was finished via `logics-manager flow finish task` on 2026-08-08.

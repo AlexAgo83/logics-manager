@@ -3557,6 +3557,8 @@ def closeout_payload(
         return {
             "command": "closeout",
             "ok": False,
+            "closed": False,
+            "post_close_validation_failed": False,
             "source": task_path.relative_to(repo_root).as_posix(),
             "changed_files": sorted(changed_files),
             "attempted_changed_files": attempted_changed_files,
@@ -3606,9 +3608,19 @@ def closeout_payload(
     if audit_result is not None and audit_result.get("issue_count", 0):
         ok = False
 
+    # The requested checks run repository-wide and after the task is already closed, so
+    # a blocker held by an unrelated corpus turns `ok` false on a closeout that fully
+    # happened. `ok` stays false -- a caller gating a commit on it is right to -- but it
+    # is no longer the only thing said: `closed` reports what became of the task, and a
+    # caller can tell this from a preflight rollback, where nothing was closed at all.
+    closed = not dry_run
+    post_close_validation_failed = closed and not ok
+
     return {
         "command": "closeout",
         "ok": ok,
+        "closed": closed,
+        "post_close_validation_failed": post_close_validation_failed,
         "source": task_path.relative_to(repo_root).as_posix(),
         "changed_files": sorted(changed_files),
         "preflight": preflight,
@@ -3639,7 +3651,14 @@ def cmd_closeout(args: argparse.Namespace) -> dict[str, object]:
     if args.format == "json":
         print_payload(payload, args.format)
     else:
-        status = "OK" if payload["ok"] else "FAILED"
+        if payload["ok"]:
+            status = "OK"
+        elif payload.get("post_close_validation_failed"):
+            # The task did reach Done and its changes are on disk; printing FAILED here
+            # sent an operator looking for a closeout that had in fact happened.
+            status = "CLOSED (post-close validation failed)"
+        else:
+            status = "FAILED"
         print(f"Closeout: {status} for {payload['source']}")
         print(f"- changed files: {len(payload['changed_files'])}")
         for rel_path in payload["changed_files"]:

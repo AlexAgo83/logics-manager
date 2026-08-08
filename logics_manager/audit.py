@@ -393,14 +393,14 @@ def _is_strict_scope(doc: DocMeta, cutoff: tuple[int, int, int] | None) -> bool:
     return doc.from_version >= cutoff
 
 
-def _has_legacy_ac_with_proof(text: str, ac_id: str) -> bool:
-    return (ac_id.upper() in text.upper()) and ("proof:" in text.lower())
-
-
 def _doc_has_ac_with_proof(doc: DocMeta, ac_id: str) -> bool:
-    if doc.from_version is not None and doc.from_version < STRICT_AC_PROOF_FROM_VERSION:
-        return _has_legacy_ac_with_proof(doc.text, ac_id)
-    return _has_ac_with_proof(doc.text, ac_id)
+    """One implementation, with the legacy allowance named rather than reimplemented.
+
+    The audit used to carry its own looser rule while the closeout gate used the strict
+    one, so the two disagreed about the same document and neither said which was right.
+    """
+    legacy = doc.from_version is not None and doc.from_version < STRICT_AC_PROOF_FROM_VERSION
+    return _has_ac_with_proof(doc.text, ac_id, legacy=legacy)
 
 
 def _ac_traceability_issue(code: str, request: DocMeta, ac_id: str, level: str, *, deferred: bool) -> AuditIssue:

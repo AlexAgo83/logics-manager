@@ -99,7 +99,17 @@ def ac_proof_state(text: str, ac_id: str) -> str:
     return "placeholder" if AC_PROOF_PLACEHOLDER.split(" --")[0] in line else "proven"
 
 
-def has_ac_proof(text: str, ac_id: str) -> bool:
+def has_ac_proof(text: str, ac_id: str, *, legacy: bool = False) -> bool:
+    """Whether `ac_id` is proven in `text`.
+
+    `legacy` is the looser rule kept for documents written before the per-line format
+    existed: the criterion named anywhere and the keyword present anywhere. It lived in
+    the audit while the closeout gate used the strict rule, which is why the two answered
+    the same question differently on the same document. One implementation now, with the
+    allowance named rather than duplicated.
+    """
+    if legacy:
+        return (ac_id.upper() in text.upper()) and ("proof:" in text.lower())
     return ac_proof_state(text, ac_id) == "proven"
 
 

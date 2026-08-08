@@ -107,3 +107,43 @@ def test_the_scaffold_emits_one_traceability_line_per_criterion(tmp_path: Path) 
     for ac_id in ("AC1", "AC2", "AC3"):
         matching = [line for line in lines if line.startswith(f"- request-{ac_id} ")]
         assert len(matching) == 1, f"{ac_id} is not on a line of its own: {section}"
+
+
+# --- item_643: one verdict, three commands ----------------------------------
+
+
+def _proof_state_sources() -> list[str]:
+    """Every module that answers "is this criterion proven"."""
+    import logics_manager.audit as audit
+    import logics_manager.flow as flow
+    import logics_manager.flow_evidence as evidence
+
+    return [audit.__file__, flow.__file__, evidence.__file__]
+
+
+def test_only_one_module_decides_what_counts_as_a_proof() -> None:
+    """The audit carried its own looser rule while the gate used the strict one."""
+    import logics_manager.audit as audit
+    import logics_manager.flow as flow
+
+    for module in (audit, flow):
+        source = Path(module.__file__).read_text(encoding="utf-8")
+        assert '"proof:" in' not in source.replace('"proof:" in line.lower()', ""), (
+            f"{module.__name__} decides what a proof is on its own"
+        )
+
+
+def test_the_legacy_allowance_is_named_not_reimplemented() -> None:
+    legacy = "- request-AC1 -> somewhere. Proof: it was checked."
+    strict_text = "- request-AC1 -> This task. Proof: it was checked."
+
+    # The loose rule accepts a line the strict one also accepts; what matters is that the
+    # loose rule is reached through the same entry point rather than a second copy.
+    assert has_ac_proof(strict_text, "AC1") is True
+    assert has_ac_proof(legacy, "AC1", legacy=True) is True
+    # The real difference: strict wants the criterion and the keyword on one line, legacy
+    # accepts them anywhere in the document. That is what made the audit and the gate
+    # disagree about the same file.
+    scattered = "- request-AC1 -> This task.\n- request-AC2 -> This task. Proof: checked."
+    assert has_ac_proof(scattered, "AC1") is False
+    assert has_ac_proof(scattered, "AC1", legacy=True) is True

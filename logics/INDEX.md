@@ -1074,7 +1074,7 @@ _None_
 | [item_642_say_what_a_proof_looks_like_and_produce_one_that_passes](backlog/item_642_say_what_a_proof_looks_like_and_produce_one_that_passes.md) | Say what a proof looks like, and produce one that passes | Done |  | 100% | backlog/item_642_say_what_a_proof_looks_like_and_produce_one_that_passes.md |
 | [item_643_derive_the_proof_verdict_once](backlog/item_643_derive_the_proof_verdict_once.md) | Derive the proof verdict once | Done |  | 100% | backlog/item_643_derive_the_proof_verdict_once.md |
 | [item_644_let_the_indicator_gate_be_cleared_by_doing_what_it_says](backlog/item_644_let_the_indicator_gate_be_cleared_by_doing_what_it_says.md) | Let the indicator gate be cleared by doing what it says | Done |  | 100% | backlog/item_644_let_the_indicator_gate_be_cleared_by_doing_what_it_says.md |
-| [item_645_repair_without_overwriting_what_was_written_by_hand](backlog/item_645_repair_without_overwriting_what_was_written_by_hand.md) | Repair without overwriting what was written by hand | Ready |  | 0% | backlog/item_645_repair_without_overwriting_what_was_written_by_hand.md |
+| [item_645_repair_without_overwriting_what_was_written_by_hand](backlog/item_645_repair_without_overwriting_what_was_written_by_hand.md) | Repair without overwriting what was written by hand | Done |  | 100% | backlog/item_645_repair_without_overwriting_what_was_written_by_hand.md |
 
 ## Tasks
 
@@ -1386,4 +1386,4 @@ _None_
 | [task_310_orchestrate_naming_the_viewer_architecture](tasks/task_310_orchestrate_naming_the_viewer_architecture.md) | Orchestrate naming the viewer architecture | Ready |  | 0% | tasks/task_310_orchestrate_naming_the_viewer_architecture.md |
 | [task_311_orchestrate_the_attended_tour_findings](tasks/task_311_orchestrate_the_attended_tour_findings.md) | Orchestrate the attended tour findings | Ready |  | 0% | tasks/task_311_orchestrate_the_attended_tour_findings.md |
 | [task_312_orchestrate_moving_the_viewer_preferences_off_the_port](tasks/task_312_orchestrate_moving_the_viewer_preferences_off_the_port.md) | Orchestrate moving the viewer preferences off the port | Ready |  | 0% | tasks/task_312_orchestrate_moving_the_viewer_preferences_off_the_port.md |
-| [task_313_orchestrate_making_the_closeout_gate_satisfiable](tasks/task_313_orchestrate_making_the_closeout_gate_satisfiable.md) | Orchestrate making the closeout gate satisfiable | In progress |  | 75% | tasks/task_313_orchestrate_making_the_closeout_gate_satisfiable.md |
+| [task_313_orchestrate_making_the_closeout_gate_satisfiable](tasks/task_313_orchestrate_making_the_closeout_gate_satisfiable.md) | Orchestrate making the closeout gate satisfiable | In progress |  | 100% | tasks/task_313_orchestrate_making_the_closeout_gate_satisfiable.md |

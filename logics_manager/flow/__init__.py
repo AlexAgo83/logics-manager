@@ -11,7 +11,12 @@ from ..audit import audit_payload
 from ..cli_output import print_payload
 from ..config import ConfigError, find_repo_root
 from ..doc_parsing import extract_refs, progress_value, section_lines
-from ..flow_evidence import ac_proof_expectation as _ac_proof_expectation, ac_proof_state as _ac_proof_state, has_ac_proof as _has_ac_proof
+from ..flow_evidence import (
+    ac_proof_expectation as _ac_proof_expectation,
+    ac_proof_state as _ac_proof_state,
+    has_ac_proof as _has_ac_proof,
+    has_ac_traceability_line as _has_ac_traceability_line,
+)
 from ..help_flags import flag_lines, subparser_for
 from ..flow_evidence import has_validation_evidence as _has_validation_evidence
 from ..flow_evidence import structured_validation_line as _structured_validation_line
@@ -1097,6 +1102,7 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
     request_ref = request_path.stem
     ac_entries = _request_ac_entries(request_path)
     changed_paths: set[Path] = set()
+    skipped: list[str] = []
     linked_items = _collect_docs_linking_ref(repo_root, DOC_KINDS["backlog"], request_ref)
     linked_task_paths = {
         path
@@ -1105,11 +1111,18 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
 
     for item_path in linked_items:
         item_before = item_path.read_text(encoding="utf-8")
+        # Skip a criterion that already has a line, whatever shape it is in: appending
+        # beside an authored proof made the operator delete one of the two by hand.
         item_missing = [
             _ac_traceability_entry(ac_id, "This backlog slice", text, proof, proof_source)
             for ac_id, text in ac_entries
-            if not _has_ac_proof(item_before, ac_id)
+            if not _has_ac_traceability_line(item_before, ac_id)
         ]
+        skipped.extend(
+            f"{item_path.relative_to(repo_root).as_posix()}: {ac_id} already has a traceability line"
+            for ac_id, _text in ac_entries
+            if _has_ac_traceability_line(item_before, ac_id)
+        )
         if _append_doc_section_bullets_changed(item_path, "AC Traceability", item_missing, dry_run=dry_run):
             changed_paths.add(item_path.relative_to(repo_root))
 
@@ -1125,8 +1138,13 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
         task_missing = [
             _ac_traceability_entry(ac_id, "This task", text, proof, proof_source)
             for ac_id, text in ac_entries
-            if not _has_ac_proof(task_before, ac_id)
+            if not _has_ac_traceability_line(task_before, ac_id)
         ]
+        skipped.extend(
+            f"{task_path.relative_to(repo_root).as_posix()}: {ac_id} already has a traceability line"
+            for ac_id, _text in ac_entries
+            if _has_ac_traceability_line(task_before, ac_id)
+        )
         if _append_doc_section_bullets_changed(task_path, "AC Traceability", task_missing, dry_run=dry_run):
             changed_paths.add(task_path.relative_to(repo_root))
 
@@ -1137,6 +1155,8 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
         "proof_recorded": bool(proof and proof.strip()),
         "proof_source": proof_source.strip() if proof_source and proof_source.strip() else None,
         "changed_files": sorted(path.as_posix() for path in changed_paths),
+        # A run that changes nothing has to say why, or it reads as a run that failed.
+        "skipped": sorted(skipped),
         "dry_run": dry_run,
     }
 
@@ -2345,6 +2365,8 @@ def _print_repair_payload(payload: dict[str, object], output_format: str) -> Non
     action = "would change" if payload.get("dry_run") else "changed"
     changed_files = payload.get("changed_files", [])
     print(f"Repair {payload['kind']}: {action} {len(changed_files)} file(s).")
+    for note in payload.get("skipped", []):
+        print(f"- skipped {note}")
     for rel_path in changed_files:
         print(f"- {rel_path}")
     # "0 files" is ambiguous between nothing to do and wrong input; naming what was

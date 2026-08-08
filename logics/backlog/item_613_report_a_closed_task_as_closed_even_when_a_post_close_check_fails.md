@@ -1,10 +1,10 @@
 ## item_613_report_a_closed_task_as_closed_even_when_a_post_close_check_fails - Report a closed task as closed even when a post-close check fails
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Unambiguous command outcomes
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -33,10 +33,9 @@
 - AC6: A regression test covers the otherwise-valid closeout with an unrelated audit blocker, and fails against the current code.
 
 # AC Traceability
-- request-AC5 -> This backlog slice. Proof: AC1: An otherwise-valid closeout with an unrelated repository audit blocker reports the task as closed and the post-close validation as failed.
-- request-AC6 -> This backlog slice. Proof: AC2: The overall outcome stays false in that case.
-- request-AC7 -> This backlog slice. Proof: AC3: A closeout rolled back by a failed preflight reports the task as not closed, distinctly from the case above.
-
+- request-AC5 -> This backlog slice. Proof: `test_a_closeout_blocked_only_by_an_unrelated_audit_finding_reports_the_task_closed` in `tests/python/test_honest_outcomes.py`.
+- request-AC6 -> This backlog slice. Proof: `test_the_printed_outcome_of_such_a_closeout_does_not_read_as_a_failure_to_close` in `tests/python/test_honest_outcomes.py`.
+- request-AC7 -> This backlog slice. Proof: `test_a_closeout_rolled_back_by_preflight_reports_the_task_not_closed` and `test_a_dry_run_closeout_reports_the_task_not_closed` in `tests/python/test_honest_outcomes.py`.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

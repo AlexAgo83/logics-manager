@@ -2991,6 +2991,12 @@ import {
   }
 
   function matchesViewerFilter(item) {
+    return matchesFilterState(item, viewerFilterState);
+  }
+
+  // Taking the state as an argument is what lets an option say what it would return:
+  // the count for `status: draft` is this same predicate asked about that state.
+  function matchesFilterState(item, viewerFilterState) {
     if (!item) {
       return false;
     }
@@ -3027,7 +3033,9 @@ import {
     if (viewerFilterState.status === "blocked" && !status.includes("blocked")) {
       return false;
     }
-    if (viewerFilterState.status === "done" && !isClosed(item)) {
+    // Done is a status, not a synonym for closed. Asking `isClosed` here made every
+    // terminal status answer yes, so the Done option counted the Settled documents too.
+    if (viewerFilterState.status === "done" && status !== "done") {
       return false;
     }
     if (!["any", "ready", "in-progress", "blocked", "done"].includes(viewerFilterState.status)) {
@@ -3136,6 +3144,31 @@ import {
     requestBoardRender();
   }
 
+  // An option that returns nothing is indistinguishable from a broken filter until it says
+  // so. Every group's options are walked from the control itself, so an option added to the
+  // markup later is covered without touching this.
+  function updateFilterOptionCounts() {
+    document.querySelectorAll("[data-viewer-filter-group]").forEach((control) => {
+      if (!(control instanceof HTMLSelectElement)) {
+        return;
+      }
+      const group = control.getAttribute("data-viewer-filter-group") || "";
+      Array.from(control.options).forEach((option) => {
+        if (!option.dataset.baseLabel) {
+          option.dataset.baseLabel = option.textContent || "";
+        }
+        const candidate = { ...viewerFilterState, [group]: option.value };
+        const count = latestItems.filter((item) => matchesFilterState(item, candidate)).length;
+        option.textContent = `${option.dataset.baseLabel} (${count})`;
+        // Never disable the option currently chosen: an operator has to be able to see
+        // what they picked, and to pick their way back out of it.
+        const selected = option.value === control.value;
+        option.disabled = count === 0 && !selected;
+        option.title = count === 0 ? "No document matches this here" : `${count} document(s)`;
+      });
+    });
+  }
+
   function requestBoardRender() {
     if (typeof window.__CDX_LOGICS_RENDER__ === "function") {
       window.__CDX_LOGICS_RENDER__();
@@ -3166,6 +3199,7 @@ import {
         control.setAttribute("aria-pressed", viewerFilterState[group] === value ? "true" : "false");
       }
     });
+    updateFilterOptionCounts();
     const count = filterCount();
     if (!count) {
       return;

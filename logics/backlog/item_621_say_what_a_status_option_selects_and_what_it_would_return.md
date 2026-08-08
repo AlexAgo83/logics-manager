@@ -1,10 +1,10 @@
 ## item_621_say_what_a_status_option_selects_and_what_it_would_return - Say what a status option selects, and what it would return
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Honest options
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -30,10 +30,9 @@
 - AC4: A test pins the Done-versus-closed distinction and fails against the current implementation.
 
 # AC Traceability
-- request-AC4 -> This backlog slice. Proof: AC1: Done selects documents whose status is Done, and not documents that are merely closed.
-- request-AC5 -> This backlog slice. Proof: AC2: Each status option states what it would return, or says why it is unavailable.
-- request-AC8 -> This backlog slice. Proof: AC3: Those numbers are derived from the loaded documents, shown by a test adding a status and seeing it covered without editing the control.
-
+- request-AC4 -> This backlog slice. Proof: `selects Done by status rather than by being closed` in `tests/viewer.browser-host.test.ts`; Settled and Archived no longer answer to Done.
+- request-AC5 -> This backlog slice. Proof: `says on each filter option what it would return` and `never disables the option currently chosen` in the same file.
+- request-AC8 -> This backlog slice. Proof: `counts an option added to the markup later without being edited`; all four tests fail against the previous implementation.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

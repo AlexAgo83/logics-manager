@@ -7272,6 +7272,81 @@ describe("local viewer browser host", () => {
     expect(matches({ stage: "request", indicators: { Status: "Ready" }, references: [], usedBy: [], isPromoted: true })).toBe(false);
   });
 
+  it("selects Done by status rather than by being closed", async () => {
+    // req_310: the Done option asked `isClosed`, so every terminal status answered yes and
+    // the option counted Settled documents as Done.
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    setViewerFilter(dom, "focus", "all");
+    const statusSelect = dom.window.document.querySelector('[data-viewer-filter-group="status"]') as HTMLSelectElement;
+    const done = dom.window.document.createElement("option");
+    done.value = "done";
+    done.textContent = "Done";
+    statusSelect.appendChild(done);
+    setViewerFilter(dom, "status", "done");
+    const matches = (item: Record<string, unknown>) => dom.window.__CDX_LOGICS_VIEWER_FILTER__(item);
+
+    expect(matches({ stage: "task", indicators: { Status: "Done" }, references: [], usedBy: [] })).toBe(true);
+    expect(matches({ stage: "product", indicators: { Status: "Settled" }, references: [], usedBy: [] })).toBe(false);
+    expect(matches({ stage: "task", indicators: { Status: "Archived" }, references: [], usedBy: [] })).toBe(false);
+  });
+
+  it("says on each filter option what it would return", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    setViewerFilter(dom, "focus", "all");
+    const typeSelect = dom.window.document.querySelector('[data-viewer-filter-group="type"]') as HTMLSelectElement;
+    const option = (value: string) => Array.from(typeSelect.options).find((entry) => entry.value === value)!;
+
+    // The seeded corpus holds one request and one task, and no companion document.
+    expect(option("all").textContent).toBe("All (2)");
+    expect(option("task").textContent).toBe("Tasks (1)");
+    expect(option("companion").textContent).toBe("Companions (0)");
+    expect(option("companion").disabled).toBe(true);
+    expect(option("companion").title).toBe("No document matches this here");
+    expect(option("task").disabled).toBe(false);
+    expect(option("task").title).toBe("1 document(s)");
+  });
+
+  it("never disables the option currently chosen", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    setViewerFilter(dom, "focus", "all");
+    setViewerFilter(dom, "type", "companion");
+    const typeSelect = dom.window.document.querySelector('[data-viewer-filter-group="type"]') as HTMLSelectElement;
+    const companion = Array.from(typeSelect.options).find((entry) => entry.value === "companion")!;
+
+    expect(companion.textContent).toBe("Companions (0)");
+    expect(companion.disabled).toBe(false);
+  });
+
+  it("counts an option added to the markup later without being edited", async () => {
+    // The counts walk the control, not a hand-written list of values.
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const statusSelect = dom.window.document.querySelector('[data-viewer-filter-group="status"]') as HTMLSelectElement;
+    const invented = dom.window.document.createElement("option");
+    invented.value = "blocked";
+    invented.textContent = "Invented later";
+    statusSelect.appendChild(invented);
+
+    setViewerFilter(dom, "focus", "all");
+
+    expect(invented.textContent).toBe("Invented later (1)");
+  });
+
   it("renders health as a summary with document links", async () => {
     const { dom, calls } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();

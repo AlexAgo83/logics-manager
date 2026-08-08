@@ -6313,62 +6313,65 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       }
     }
     function matchesViewerFilter(item) {
+      return matchesFilterState(item, viewerFilterState);
+    }
+    function matchesFilterState(item, viewerFilterState2) {
       if (!item) {
         return false;
       }
       const status = statusValue(item);
-      if (viewerFilterState.focus === "active" && isClosed(item)) {
+      if (viewerFilterState2.focus === "active" && isClosed(item)) {
         return false;
       }
-      if (viewerFilterState.focus === "blocked" && !status.includes("blocked")) {
+      if (viewerFilterState2.focus === "blocked" && !status.includes("blocked")) {
         return false;
       }
-      if (viewerFilterState.focus === "needs-promotion" && !needsPromotion(item)) {
+      if (viewerFilterState2.focus === "needs-promotion" && !needsPromotion(item)) {
         return false;
       }
-      if (viewerFilterState.focus === "recent" && !updatedWithin(item, 14)) {
+      if (viewerFilterState2.focus === "recent" && !updatedWithin(item, 14)) {
         return false;
       }
-      if (viewerFilterState.type === "workflow" && !["request", "backlog", "task"].includes(item.stage)) {
+      if (viewerFilterState2.type === "workflow" && !["request", "backlog", "task"].includes(item.stage)) {
         return false;
       }
-      if (viewerFilterState.type === "companion" && !["product", "roadmap", "architecture", "spec"].includes(item.stage)) {
+      if (viewerFilterState2.type === "companion" && !["product", "roadmap", "architecture", "spec"].includes(item.stage)) {
         return false;
       }
-      if (!["all", "workflow", "companion"].includes(viewerFilterState.type) && item.stage !== viewerFilterState.type) {
+      if (!["all", "workflow", "companion"].includes(viewerFilterState2.type) && item.stage !== viewerFilterState2.type) {
         return false;
       }
-      if (viewerFilterState.status === "ready" && !status.includes("ready")) {
+      if (viewerFilterState2.status === "ready" && !status.includes("ready")) {
         return false;
       }
-      if (viewerFilterState.status === "in-progress" && !status.includes("in progress")) {
+      if (viewerFilterState2.status === "in-progress" && !status.includes("in progress")) {
         return false;
       }
-      if (viewerFilterState.status === "blocked" && !status.includes("blocked")) {
+      if (viewerFilterState2.status === "blocked" && !status.includes("blocked")) {
         return false;
       }
-      if (viewerFilterState.status === "done" && !isClosed(item)) {
+      if (viewerFilterState2.status === "done" && status !== "done") {
         return false;
       }
-      if (!["any", "ready", "in-progress", "blocked", "done"].includes(viewerFilterState.status)) {
-        const expected = String(viewerFilterState.status || "").replace(/-/g, " ");
+      if (!["any", "ready", "in-progress", "blocked", "done"].includes(viewerFilterState2.status)) {
+        const expected = String(viewerFilterState2.status || "").replace(/-/g, " ");
         if (status !== expected) {
           return false;
         }
       }
-      if (viewerFilterState.relation === "unlinked" && hasLinks(item)) {
+      if (viewerFilterState2.relation === "unlinked" && hasLinks(item)) {
         return false;
       }
-      if (viewerFilterState.relation === "linked" && !hasLinks(item)) {
+      if (viewerFilterState2.relation === "linked" && !hasLinks(item)) {
         return false;
       }
-      if (viewerFilterState.relation === "needs-promotion" && !needsPromotion(item)) {
+      if (viewerFilterState2.relation === "needs-promotion" && !needsPromotion(item)) {
         return false;
       }
-      if (viewerFilterState.activity === "recent" && !updatedWithin(item, 14)) {
+      if (viewerFilterState2.activity === "recent" && !updatedWithin(item, 14)) {
         return false;
       }
-      if (viewerFilterState.activity === "stale" && !isStale(item)) {
+      if (viewerFilterState2.activity === "stale" && !isStale(item)) {
         return false;
       }
       return true;
@@ -6442,6 +6445,25 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       updateFilterSummary();
       requestBoardRender();
     }
+    function updateFilterOptionCounts() {
+      document.querySelectorAll("[data-viewer-filter-group]").forEach((control) => {
+        if (!(control instanceof HTMLSelectElement)) {
+          return;
+        }
+        const group = control.getAttribute("data-viewer-filter-group") || "";
+        Array.from(control.options).forEach((option) => {
+          if (!option.dataset.baseLabel) {
+            option.dataset.baseLabel = option.textContent || "";
+          }
+          const candidate = { ...viewerFilterState, [group]: option.value };
+          const count = latestItems.filter((item) => matchesFilterState(item, candidate)).length;
+          option.textContent = `${option.dataset.baseLabel} (${count})`;
+          const selected = option.value === control.value;
+          option.disabled = count === 0 && !selected;
+          option.title = count === 0 ? "No document matches this here" : `${count} document(s)`;
+        });
+      });
+    }
     function requestBoardRender() {
       if (typeof window.__CDX_LOGICS_RENDER__ === "function") {
         window.__CDX_LOGICS_RENDER__();
@@ -6469,6 +6491,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
           control.setAttribute("aria-pressed", viewerFilterState[group] === value ? "true" : "false");
         }
       });
+      updateFilterOptionCounts();
       const count = filterCount();
       if (!count) {
         return;

@@ -72,23 +72,30 @@ const allowedOversizedFiles = new Map(
     // of the viewer's state with it. That move waits for the shared state itself.
     // 4107: req_315 gave the host a record to read from and write to -- hydrate, persist,
     // and cache -- which is the point of the request rather than something to extract.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4107, ref: "req_315" },
+    // 4141: req_314 added the Escape route, the banner dismissal, the transient-status
+    // clearing and the after-render hook -- each a handler beside the state it reads.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4141, ref: "req_314" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },
     // req_312: the workshop screen, on the same factory-and-accessor seam as cdx.
-    "clients/viewer/src/browser-host/workshop.js": { maxLines: 1305, ref: "req_312" },
+    "clients/viewer/src/browser-host/workshop.js": { maxLines: 1310, ref: "req_314" },
     "clients/viewer/src/browser-host/cdx.js": { maxLines: 3057, ref: "req_312" },
     // De-monolith passes 1-3: pure helpers/data extracted out of index.js. May
     // be split by domain (cdx/git/dom) in later passes as they grow.
-    "clients/viewer/src/browser-host/util.js": { maxLines: 1122, ref: "browser-host-split" },
+    // 1151: req_314 put the environment warning's dismissal beside the renderer that reads
+    // it, which is the only other place that knows the warning's shape.
+    "clients/viewer/src/browser-host/util.js": { maxLines: 1151, ref: "req_314" },
     // 2546: req_305 added the workflow-health sections (blocked docs, stale docs)
     // to the health screen, which previously showed lint and audit only.
     // req_312 moved the rendering whose only consumer is the cdx screen into that screen:
     // 2546 -> 1732. Swept to a fixed point, since each move makes the next one's callers
     // single-consumer too.
     "clients/viewer/src/browser-host/render.js": { maxLines: 1732, ref: "req_312" },
-    "clients/shared-web/media/renderBoardApp.js": { maxLines: 1325, ref: "req_273" },
+    // 1353: req_314 taught the board to group by status, which is what its control always
+    // claimed to do. The grouping itself is eleven lines; the rest is the heading element
+    // the accessibility slice needed.
+    "clients/shared-web/media/renderBoardApp.js": { maxLines: 1353, ref: "req_314" },
     "clients/shared-web/media/mainApp.js": { maxLines: 1040, ref: "req_273" },
   })
 );

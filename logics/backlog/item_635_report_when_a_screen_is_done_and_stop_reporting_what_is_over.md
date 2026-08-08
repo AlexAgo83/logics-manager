@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: A status line that keeps up
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-08 23:11:53
+> Indicators reviewed: 2026-08-09 00:47:55
 
 # Problem
 - Terminals and Commands leave the status bar reading Workshop / terminals, with no completion word, while the other twelve screens end on loaded. An operator cannot tell a finished screen from one still working.
@@ -64,3 +64,6 @@
 
 # Tasks
 - `task_311_orchestrate_the_attended_tour_findings`
+
+# Notes
+- Task `task_311_orchestrate_the_attended_tour_findings` was finished via `logics-manager flow finish task` on 2026-08-09.

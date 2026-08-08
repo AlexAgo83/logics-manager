@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Controls that mean something
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-09 00:47:55
 
 # Problem
 - Group by offers Type, Status and Theme. On the board it does nothing at all: selecting Status or Theme leaves the same columns, headed Requests, Backlog, Tasks, Product briefs and Architecture decisions. The board renders one column per stage and never consults the mode.
@@ -59,6 +60,7 @@
 
 # Notes
 - Generated locally by logics-manager.
+- Task `task_311_orchestrate_the_attended_tour_findings` was finished via `logics-manager flow finish task` on 2026-08-09.
 
 # Tasks
 - `task_311_orchestrate_the_attended_tour_findings`

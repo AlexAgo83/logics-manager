@@ -1033,7 +1033,7 @@ _None_
 | [item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value](backlog/item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value.md) | Make the viewer campaign report every check with its measured value | Ready |  | 0% | backlog/item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value.md |
 | [item_616_assert_the_layout_defects_a_passing_unit_suite_cannot_see](backlog/item_616_assert_the_layout_defects_a_passing_unit_suite_cannot_see.md) | Assert the layout defects a passing unit suite cannot see | Ready |  | 0% | backlog/item_616_assert_the_layout_defects_a_passing_unit_suite_cannot_see.md |
 | [item_617_write_the_campaign_runbook_and_say_where_a_finding_goes](backlog/item_617_write_the_campaign_runbook_and_say_where_a_finding_goes.md) | Write the campaign runbook and say where a finding goes | Ready |  | 0% | backlog/item_617_write_the_campaign_runbook_and_say_where_a_finding_goes.md |
-| [item_618_derive_the_tested_runtime_bound_from_the_plugin_version](backlog/item_618_derive_the_tested_runtime_bound_from_the_plugin_version.md) | Derive the tested runtime bound from the plugin version | Ready |  | 0 | backlog/item_618_derive_the_tested_runtime_bound_from_the_plugin_version.md |
+| [item_618_derive_the_tested_runtime_bound_from_the_plugin_version](backlog/item_618_derive_the_tested_runtime_bound_from_the_plugin_version.md) | Derive the tested runtime bound from the plugin version | Done |  | 100 | backlog/item_618_derive_the_tested_runtime_bound_from_the_plugin_version.md |
 
 ## Tasks
 
@@ -1337,5 +1337,5 @@ _None_
 | [task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals](tasks/task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals.md) | Orchestrate viewer parity with the CLI workflow signals | Done |  | 100% | tasks/task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals.md |
 | [task_303_orchestrate_the_repository_review_remediation](tasks/task_303_orchestrate_the_repository_review_remediation.md) | Orchestrate the repository review remediation | Done |  | 100% | tasks/task_303_orchestrate_the_repository_review_remediation.md |
 | [task_304_orchestrate_the_second_review_remediation](tasks/task_304_orchestrate_the_second_review_remediation.md) | Orchestrate the second review remediation | Done |  | 100% | tasks/task_304_orchestrate_the_second_review_remediation.md |
-| [task_305_orchestrate_the_honest_outcome_corrections](tasks/task_305_orchestrate_the_honest_outcome_corrections.md) | Orchestrate the honest-outcome corrections | In progress |  | 80% | tasks/task_305_orchestrate_the_honest_outcome_corrections.md |
+| [task_305_orchestrate_the_honest_outcome_corrections](tasks/task_305_orchestrate_the_honest_outcome_corrections.md) | Orchestrate the honest-outcome corrections | In progress |  | 100% | tasks/task_305_orchestrate_the_honest_outcome_corrections.md |
 | [task_306_orchestrate_the_viewer_ui_campaign](tasks/task_306_orchestrate_the_viewer_ui_campaign.md) | Orchestrate the viewer UI campaign | Ready |  | 0% | tasks/task_306_orchestrate_the_viewer_ui_campaign.md |

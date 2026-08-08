@@ -215,16 +215,18 @@ const STATUS_OPTIONS_BY_STAGE = STATUS_STAGES as Record<LogicsStage, readonly st
       }
     };
   }
+  function extensionVersion(context: vscode.ExtensionContext): string | null {
+    return (context.extension?.packageJSON as { version?: string } | undefined)?.version ?? null;
+  }
   export function maybeShowOnboarding(this: LogicsViewProviderSupportHost, root: string): void {
-    const extensionVersion =
-      (this.context.extension?.packageJSON as { version?: string } | undefined)?.version ?? null;
+    const version = extensionVersion(this.context);
     const normalizedRoot = path.resolve(root);
     const workspaceKey = `${ONBOARDING_LAST_VERSION_KEY}:${normalizedRoot}`;
     const lastSeen = (this.context.workspaceState.get(workspaceKey) as string | undefined) ?? null;
-    if (lastSeen === extensionVersion) {
+    if (lastSeen === version) {
       return;
     }
-    void this.context.workspaceState.update(workspaceKey, extensionVersion);
+    void this.context.workspaceState.update(workspaceKey, version);
     this.openOnboardingPanel();
   }
   export function openOnboardingPanel(this: LogicsViewProviderSupportHost): void {
@@ -267,7 +269,7 @@ const STATUS_OPTIONS_BY_STAGE = STATUS_STAGES as Record<LogicsStage, readonly st
   export function buildRuntimeVersionQuickPickItem(this: LogicsViewProviderSupportHost,
     root: string
   ): (vscode.QuickPickItem & { action: () => Promise<void> }) | null {
-    const updateNeed = inspectKitUpdateNeed(root);
+    const updateNeed = inspectKitUpdateNeed(root, extensionVersion(this.context));
     if (!updateNeed) {
       return null;
     }
@@ -727,7 +729,7 @@ const STATUS_OPTIONS_BY_STAGE = STATUS_STAGES as Record<LogicsStage, readonly st
       await this.clearStartupKitUpdatePromptState(root);
       return false;
     }
-    const updateNeed = inspectKitUpdateNeed(root);
+    const updateNeed = inspectKitUpdateNeed(root, extensionVersion(this.context));
     if (!updateNeed) {
       await this.clearStartupKitUpdatePromptState(root);
       return false;

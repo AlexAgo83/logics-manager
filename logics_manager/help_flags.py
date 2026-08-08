@@ -25,6 +25,10 @@ def _render(action: argparse.Action) -> str:
     name = next(option for option in action.option_strings if option.startswith("--"))
     if action.choices:
         return f"{name} {{{','.join(str(choice) for choice in action.choices)}}}"
+    # Repeatability was part of what the hand-written screens said, and it is declared,
+    # so it survives derivation rather than being dropped as formatting.
+    if isinstance(action, argparse._AppendAction):  # noqa: SLF001
+        return f"{name} (repeatable)"
     return name
 
 

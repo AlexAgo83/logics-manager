@@ -1,0 +1,536 @@
+{
+  "budgets": {
+    "max_docs": 20,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout item_611_stop_asking_abandoned_requests_for_an_implementation_chain item_612_make_the_indicator_update_help_list_the_flags_the_command_accepts item_613_report_a_closed_task_as_closed_even_when_a_post_close_check_fails task_305_orchestrate_the_honest_outcome_corrections --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "prod": [
+          "prod_045_logics_operator_ergonomics",
+          "prod_048_agent_facing_correctness_of_generated_docs_and_cli_contracts"
+        ],
+        "req": [
+          "req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts"
+        ],
+        "task": [
+          "task_297_orchestrate_agent_facing_correctness_remediation"
+        ]
+      },
+      "path": "logics/product/prod_048_agent_facing_correctness_of_generated_docs_and_cli_contracts.md",
+      "ref": "prod_048_agent_facing_correctness_of_generated_docs_and_cli_contracts",
+      "sections": {
+        "Goals": [
+          "- Make every generated document true about the project it is generated into, or",
+          "  visibly empty, never confidently wrong.",
+          "- Make one reference form work across every command that accepts a reference.",
+          "- Make advertised repair commands either fix the finding they are advertised for",
+          "  or stop advertising themselves.",
+          "- Give the \"modified without updating indicators\" gate an honest exit for"
+        ],
+        "Overview": [
+          "Field report from a full working session on an external project (`cts`, recruiting",
+          "dashboard) using `logics-manager 2.19.5` end to end: scaffolding four request",
+          "chains, auditing them for handoff, closing a roadmap, opening another, and",
+          "delivering one chain through `flow start` -> `flow progress` -> `flow closeout`.",
+          "The workflow model held up well. What did not hold up is the **content the tool",
+          "generates** and the **consistency of its CLI contracts**. Two classes of problem"
+        ],
+        "References": [
+          "- Field answers to grooming questions, with verbatim invocations, outputs, and the",
+          "  generated/rewritten task pair: see the field-answers note dated 2026-08-01 under",
+          "  the corpus attachments directory (`external/`), kept local and unversioned.",
+          "- Session context: external project `cts` (recruiting dashboard), `logics-manager 2.19.5`,",
+          "  2026-08-01. Four request chains scaffolded and audited, one delivered end to end,",
+          "  one roadmap settled and one opened. Useful commits in that repository: scaffold"
+        ]
+      },
+      "status": "Settled",
+      "title": "Agent-facing correctness of generated docs and CLI contracts"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_573_make_dry_run_and_command_output_report_what_actually_happened"
+        ],
+        "prod": [
+          "prod_049_agent_facing_correctness_remediation"
+        ],
+        "req": [
+          "req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts"
+        ],
+        "task": [
+          "task_297_orchestrate_agent_facing_correctness_remediation"
+        ]
+      },
+      "path": "logics/product/prod_049_agent_facing_correctness_remediation.md",
+      "ref": "prod_049_agent_facing_correctness_remediation",
+      "sections": {
+        "Goals": [
+          "- Make every generated document true about the project it is generated into, or visibly empty.",
+          "- Make every command message an accurate report of what the command did.",
+          "- Make reference handling uniform across commands, with errors that name the real restriction.",
+          "- Give every gate an exit that is a true statement.",
+          "- Derive scaffolded traceability from data the input already carries, and surface the coverage holes that derivation exposes."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Correct the generated content and CLI contract defects recorded in prod_048, so that an agent that trusts logics-manager output produces correct work rather than confidently wrong work.",
+          "```mermaid",
+          "flowchart TD",
+          "    Field[Field report: 16 findings on 2.19.5] --> Silent[Silent risk, near-zero cost]",
+          "    Field --> Costly[Highest measured cost]",
+          "    Field --> Contracts[CLI contract consistency]"
+        ],
+        "References": [
+          "- Product back-reference: `item_573_make_dry_run_and_command_output_report_what_actually_happened`",
+          "- Task back-reference: `task_297_orchestrate_agent_facing_correctness_remediation`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Agent-facing correctness remediation"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_596_register_the_help_flag_at_the_shared_parser_construction_point"
+        ],
+        "prod": [
+          "prod_052_reliable_cli_help_and_command_contract_discovery"
+        ],
+        "req": [
+          "req_304_make_the_documented_per_command_help_contract_work_across_the_whole_cli_surface"
+        ],
+        "task": [
+          "task_301_restore_the_per_command_help_contract_across_the_cli_surface"
+        ]
+      },
+      "path": "logics/product/prod_052_reliable_cli_help_and_command_contract_discovery.md",
+      "ref": "prod_052_reliable_cli_help_and_command_contract_discovery",
+      "sections": {
+        "Goals": [
+          "- Make per-command help a dependable contract for operators and agents.",
+          "- Remove the class of defect rather than its current instances.",
+          "- Keep the command surface self-verifying as it grows."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Guarantee that the per-command help the generated instructions point to actually works, everywhere, and stays working as the command surface grows. Fix the defect where it is constructed rather than where it is observed, and enumerate the surface in a test so the next command cannot silently regress.",
+          "```mermaid",
+          "flowchart LR",
+          "    Bridge[LOGICS.md bridge] --> Help[Per-command help]",
+          "    Registration[CLI command registration] --> Constructor[Shared parser constructor]",
+          "    Constructor --> Help"
+        ],
+        "References": [
+          "- Product back-reference: `item_596_register_the_help_flag_at_the_shared_parser_construction_point`",
+          "- Task back-reference: `task_301_restore_the_per_command_help_contract_across_the_cli_surface`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Reliable CLI help and command contract discovery"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_611_stop_asking_abandoned_requests_for_an_implementation_chain",
+          "item_612_make_the_indicator_update_help_list_the_flags_the_command_accepts",
+          "item_613_report_a_closed_task_as_closed_even_when_a_post_close_check_fails"
+        ],
+        "prod": [
+          "prod_056_say_what_actually_happened"
+        ],
+        "req": [
+          "req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout"
+        ],
+        "task": [
+          "task_305_orchestrate_the_honest_outcome_corrections"
+        ]
+      },
+      "path": "logics/product/prod_056_say_what_actually_happened.md",
+      "ref": "prod_056_say_what_actually_happened",
+      "sections": {
+        "Goals": [
+          "- Let a terminal status mean what it says, so abandoning work is a supported ending and not a permanent finding.",
+          "- Let a command's help be the answer to what that command accepts.",
+          "- Let a caller act on an outcome without reconstructing it from the rest of the payload.",
+          "- Leave every existing rule about delivered work exactly as strict as it is."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Three narrow corrections to surfaces that report something other than the truth: an audit that treats an abandoned request as an undelivered one, a help screen that omits a flag the tool recommends, and a closeout that reports failure after succeeding. None of them change what the tooling permits; each of them changes what it says."
+        ],
+        "References": [
+          "- Product back-reference: `req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout`",
+          "- Task back-reference: `task_305_orchestrate_the_honest_outcome_corrections`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Say what actually happened"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, report workflow outcomes honestly across audit, help, and closeout, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Report workflow outcomes honestly across audit, help, and closeout",
+        "use when": "You need to implement or review the scaffolded workflow for Report workflow outcomes honestly across audit, help, and closeout."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_611_stop_asking_abandoned_requests_for_an_implementation_chain",
+          "item_612_make_the_indicator_update_help_list_the_flags_the_command_accepts",
+          "item_613_report_a_closed_task_as_closed_even_when_a_post_close_check_fails"
+        ],
+        "prod": [
+          "prod_048_agent_facing_correctness_of_generated_docs_and_cli_contracts",
+          "prod_049_agent_facing_correctness_remediation",
+          "prod_052_reliable_cli_help_and_command_contract_discovery",
+          "prod_056_say_what_actually_happened"
+        ],
+        "req": [
+          "req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout"
+        ]
+      },
+      "path": "logics/request/req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout.md",
+      "ref": "req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: An abandoned request is not asked for linked backlog items, under any audit code.",
+          "- AC2: A delivered request still requires linked backlog items and still reports incomplete ones.",
+          "- AC3: Chain propagation and active-work filtering keep treating every terminal status alike, as they do today.",
+          "- AC4: The help for the indicator update command lists every flag the command accepts, including the one lint recommends.",
+          "- AC5: A closeout that finishes the task reports that the task closed, distinctly from whether the post-close checks passed.",
+          "- AC6: The printed outcome of such a closeout does not read as a failure to close."
+        ],
+        "Needs": [
+          "- Let a request be abandoned without the audit demanding the implementation chain that was deliberately never built.",
+          "- Let an operator discover a flag the tool itself recommends, from that command's own help.",
+          "- Let a caller tell a closeout that failed from a closeout that succeeded while an unrelated check failed."
+        ]
+      },
+      "status": "Draft",
+      "title": "Report workflow outcomes honestly across audit, help, and closeout"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, stop asking abandoned requests for an implementation chain, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Stop asking abandoned requests for an implementation chain",
+        "use when": "Implementing the scaffolded slice for Stop asking abandoned requests for an implementation chain."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_611_stop_asking_abandoned_requests_for_an_implementation_chain"
+        ],
+        "prod": [
+          "prod_056_say_what_actually_happened"
+        ],
+        "req": [
+          "req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout"
+        ],
+        "task": [
+          "task_305_orchestrate_the_honest_outcome_corrections"
+        ]
+      },
+      "path": "logics/backlog/item_611_stop_asking_abandoned_requests_for_an_implementation_chain.md",
+      "ref": "item_611_stop_asking_abandoned_requests_for_an_implementation_chain",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: An abandoned request with acceptance criteria and no backlog produces no findings.",
+          "- AC2: A delivered request with no backlog still produces its finding, and one linked to an incomplete item still produces its own.",
+          "- AC3: Active-work filtering and chain propagation behave identically to before, shown by their existing tests still passing unchanged.",
+          "- AC4: A regression test covers the abandoned request with acceptance criteria and no backlog, and fails against the current code."
+        ],
+        "Problem": [
+          "- One done set serves every purpose in the audit, so obsolete, archived and superseded reach the delivered-request checks alongside done. An abandoned request with no backlog is reported as a delivered request missing its backlog.",
+          "- The acceptance-criteria traceability pass reaches the same request by a separate route, keyed on scope rather than on doneness, and reports the missing backlog under its own code. Fixing only the first route leaves the finding in place under the second."
+        ]
+      },
+      "status": "Ready",
+      "title": "Stop asking abandoned requests for an implementation chain"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, make the indicator update help list the flags the command accepts, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Make the indicator update help list the flags the command accepts",
+        "use when": "Implementing the scaffolded slice for Make the indicator update help list the flags the command accepts."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_612_make_the_indicator_update_help_list_the_flags_the_command_accepts"
+        ],
+        "prod": [
+          "prod_056_say_what_actually_happened"
+        ],
+        "req": [
+          "req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout"
+        ],
+        "task": [
+          "task_305_orchestrate_the_honest_outcome_corrections"
+        ]
+      },
+      "path": "logics/backlog/item_612_make_the_indicator_update_help_list_the_flags_the_command_accepts.md",
+      "ref": "item_612_make_the_indicator_update_help_list_the_flags_the_command_accepts",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The help screen for the indicator update command lists the re-baseline flag with its meaning.",
+          "- AC2: It lists the relation flags the command accepts.",
+          "- AC3: A test asserts the flag lint recommends appears in that command's help, and fails against the current code."
+        ],
+        "Problem": [
+          "- The help screen for the indicator update command is a hand-written list of flags, maintained separately from the flags the command actually declares. It has drifted: the re-baseline flag and the relation flags are declared, documented in their own help text, and absent from the screen an operator reads.",
+          "- Lint prints a remediation using the re-baseline flag, so an operator who checks the help before running it is told the flag does not exist."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make the indicator update help list the flags the command accepts"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, report a closed task as closed even when a post-close check fails, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Report a closed task as closed even when a post-close check fails",
+        "use when": "Implementing the scaffolded slice for Report a closed task as closed even when a post-close check fails."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_613_report_a_closed_task_as_closed_even_when_a_post_close_check_fails"
+        ],
+        "prod": [
+          "prod_056_say_what_actually_happened"
+        ],
+        "req": [
+          "req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout"
+        ],
+        "task": [
+          "task_305_orchestrate_the_honest_outcome_corrections"
+        ]
+      },
+      "path": "logics/backlog/item_613_report_a_closed_task_as_closed_even_when_a_post_close_check_fails.md",
+      "ref": "item_613_report_a_closed_task_as_closed_even_when_a_post_close_check_fails",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: An otherwise-valid closeout with an unrelated repository audit blocker reports the task as closed and the post-close validation as failed.",
+          "- AC2: The overall outcome stays false in that case.",
+          "- AC3: A closeout rolled back by a failed preflight reports the task as not closed, distinctly from the case above.",
+          "- AC4: A dry run reports the task as not closed, since it changed nothing.",
+          "- AC5: The printed outcome for a closed task with a failing post-close check does not read as a failure to close.",
+          "- AC6: A regression test covers the otherwise-valid closeout with an unrelated audit blocker, and fails against the current code."
+        ],
+        "Problem": [
+          "- Closeout runs the optional repository-wide audit after finishing the task and propagating the chain. Any blocking finding in the repository, including one belonging to an unrelated corpus, turns the returned outcome false while the task is closed and its changes are on disk.",
+          "- A caller reading only that outcome cannot tell this from a closeout that never happened, and the printed line reads FAILED for a task that reached done. The earlier failure mode, where preflight rolls the writes back, is genuinely a non-closure and must stay distinguishable from this one."
+        ]
+      },
+      "status": "Ready",
+      "title": "Report a closed task as closed even when a post-close check fails"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate the honest-outcome corrections",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_611_stop_asking_abandoned_requests_for_an_implementation_chain",
+          "item_612_make_the_indicator_update_help_list_the_flags_the_command_accepts",
+          "item_613_report_a_closed_task_as_closed_even_when_a_post_close_check_fails"
+        ],
+        "prod": [
+          "prod_056_say_what_actually_happened"
+        ],
+        "req": [
+          "req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout"
+        ],
+        "task": [
+          "task_305_orchestrate_the_honest_outcome_corrections"
+        ]
+      },
+      "path": "logics/tasks/task_305_orchestrate_the_honest_outcome_corrections.md",
+      "ref": "task_305_orchestrate_the_honest_outcome_corrections",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the honest-outcome corrections"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_611_stop_asking_abandoned_requests_for_an_implementation_chain",
+          "item_612_make_the_indicator_update_help_list_the_flags_the_command_accepts",
+          "item_613_report_a_closed_task_as_closed_even_when_a_post_close_check_fails"
+        ],
+        "prod": [
+          "prod_056_say_what_actually_happened"
+        ],
+        "req": [
+          "req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout"
+        ],
+        "task": [
+          "task_305_orchestrate_the_honest_outcome_corrections"
+        ]
+      },
+      "path": "logics/product/prod_056_say_what_actually_happened.md",
+      "ref": "prod_056_say_what_actually_happened",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Say what actually happened"
+    }
+  ],
+  "estimates": {
+    "char_count": 17695,
+    "companion_doc_count": 4,
+    "doc_count": 6
+  },
+  "generated_at": "2026-08-08T13:15:18Z",
+  "handoff": {
+    "companion_doc_count": 4,
+    "enabled": true,
+    "source_refs": [
+      "req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout",
+      "item_611_stop_asking_abandoned_requests_for_an_implementation_chain",
+      "item_612_make_the_indicator_update_help_list_the_flags_the_command_accepts",
+      "item_613_report_a_closed_task_as_closed_even_when_a_post_close_check_fails",
+      "task_305_orchestrate_the_honest_outcome_corrections"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout,item_611_stop_asking_abandoned_requests_for_an_implementation_chain,item_612_make_the_indicator_update_help_list_the_flags_the_command_accepts,item_613_report_a_closed_task_as_closed_even_when_a_post_close_check_fails,task_305_orchestrate_the_honest_outcome_corrections",
+  "refs": [
+    "req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout",
+    "item_611_stop_asking_abandoned_requests_for_an_implementation_chain",
+    "item_612_make_the_indicator_update_help_list_the_flags_the_command_accepts",
+    "item_613_report_a_closed_task_as_closed_even_when_a_post_close_check_fails",
+    "task_305_orchestrate_the_honest_outcome_corrections"
+  ],
+  "release": {
+    "blocking_reasons": [],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "Release evidence is complete.",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "ready",
+    "target_version": "2.20.0"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_305_orchestrate_the_honest_outcome_corrections.md",
+      "ref": "task_305_orchestrate_the_honest_outcome_corrections"
+    }
+  ]
+}

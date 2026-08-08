@@ -92,6 +92,7 @@
 | [prod_053_one_workflow_signal_every_logics_surface](product/prod_053_one_workflow_signal_every_logics_surface.md) | One workflow signal, every Logics surface | Settled |  |  | product/prod_053_one_workflow_signal_every_logics_surface.md |
 | [prod_054_guardrails_proportionate_to_the_codebase](product/prod_054_guardrails_proportionate_to_the_codebase.md) | Guardrails proportionate to the codebase | Settled |  |  | product/prod_054_guardrails_proportionate_to_the_codebase.md |
 | [prod_055_say_what_it_does_and_test_what_was_moved](product/prod_055_say_what_it_does_and_test_what_was_moved.md) | Say what it does, and test what was moved | Settled |  |  | product/prod_055_say_what_it_does_and_test_what_was_moved.md |
+| [prod_056_say_what_actually_happened](product/prod_056_say_what_actually_happened.md) | Say what actually happened | Settled |  |  | product/prod_056_say_what_actually_happened.md |
 
 ## Roadmaps
 
@@ -407,6 +408,7 @@ _None_
 | [req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports](request/req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports.md) | Give the viewer surfaces the same workflow signals the CLI reports | Done |  |  | request/req_305_give_the_viewer_surfaces_the_same_workflow_signals_the_cli_reports.md |
 | [req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split](request/req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split.md) | Act on the repository review: measurement honesty, guardrails, and the viewer module split | Done |  |  | request/req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split.md |
 | [req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches](request/req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches.md) | Close the gaps the second review found: stated risk, cache concurrency, and untested route branches | Done |  |  | request/req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches.md |
+| [req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout](request/req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout.md) | Report workflow outcomes honestly across audit, help, and closeout | Draft |  |  | request/req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout.md |
 
 ## Backlog
 
@@ -1022,6 +1024,11 @@ _None_
 | [item_608_state_that_network_writes_grant_command_execution](backlog/item_608_state_that_network_writes_grant_command_execution.md) | State that network writes grant command execution | Done |  | 100% | backlog/item_608_state_that_network_writes_grant_command_execution.md |
 | [item_609_make_the_document_age_lookup_safe_under_concurrency](backlog/item_609_make_the_document_age_lookup_safe_under_concurrency.md) | Make the document-age lookup safe under concurrency | Done |  | 100% | backlog/item_609_make_the_document_age_lookup_safe_under_concurrency.md |
 | [item_610_cover_the_extracted_route_branches_and_the_fleet_report](backlog/item_610_cover_the_extracted_route_branches_and_the_fleet_report.md) | Cover the extracted route branches and the fleet report | Done |  | 100% | backlog/item_610_cover_the_extracted_route_branches_and_the_fleet_report.md |
+| [item_611_stop_asking_abandoned_requests_for_an_implementation_chain](backlog/item_611_stop_asking_abandoned_requests_for_an_implementation_chain.md) | Stop asking abandoned requests for an implementation chain | Ready |  | 0% | backlog/item_611_stop_asking_abandoned_requests_for_an_implementation_chain.md |
+| [item_612_make_the_indicator_update_help_list_the_flags_the_command_accepts](backlog/item_612_make_the_indicator_update_help_list_the_flags_the_command_accepts.md) | Make the indicator update help list the flags the command accepts | Ready |  | 0% | backlog/item_612_make_the_indicator_update_help_list_the_flags_the_command_accepts.md |
+| [item_613_report_a_closed_task_as_closed_even_when_a_post_close_check_fails](backlog/item_613_report_a_closed_task_as_closed_even_when_a_post_close_check_fails.md) | Report a closed task as closed even when a post-close check fails | Ready |  | 0% | backlog/item_613_report_a_closed_task_as_closed_even_when_a_post_close_check_fails.md |
+| [item_614_let_a_same_day_re_baseline_actually_clear_the_indicator_gate](backlog/item_614_let_a_same_day_re_baseline_actually_clear_the_indicator_gate.md) | Let a same-day re-baseline actually clear the indicator gate | Ready |  | 0 | backlog/item_614_let_a_same_day_re_baseline_actually_clear_the_indicator_gate.md |
+| [item_618_derive_the_tested_runtime_bound_from_the_plugin_version](backlog/item_618_derive_the_tested_runtime_bound_from_the_plugin_version.md) | Derive the tested runtime bound from the plugin version | Ready |  | 0 | backlog/item_618_derive_the_tested_runtime_bound_from_the_plugin_version.md |
 
 ## Tasks
 
@@ -1325,3 +1332,4 @@ _None_
 | [task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals](tasks/task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals.md) | Orchestrate viewer parity with the CLI workflow signals | Done |  | 100% | tasks/task_302_orchestrate_viewer_parity_with_the_cli_workflow_signals.md |
 | [task_303_orchestrate_the_repository_review_remediation](tasks/task_303_orchestrate_the_repository_review_remediation.md) | Orchestrate the repository review remediation | Done |  | 100% | tasks/task_303_orchestrate_the_repository_review_remediation.md |
 | [task_304_orchestrate_the_second_review_remediation](tasks/task_304_orchestrate_the_second_review_remediation.md) | Orchestrate the second review remediation | Done |  | 100% | tasks/task_304_orchestrate_the_second_review_remediation.md |
+| [task_305_orchestrate_the_honest_outcome_corrections](tasks/task_305_orchestrate_the_honest_outcome_corrections.md) | Orchestrate the honest-outcome corrections | Ready |  | 0% | tasks/task_305_orchestrate_the_honest_outcome_corrections.md |

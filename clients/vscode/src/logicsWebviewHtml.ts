@@ -57,6 +57,8 @@ export function buildEmbeddedViewerHtml(webview: vscode.Webview, state: Embedded
     const vscode = acquireVsCodeApi();
     const frameOrigin = ${JSON.stringify(frameOrigin)};
     const frame = document.getElementById("viewer-frame");
+    // These seed the first paint only: the frame asks the server as soon as it is ready,
+    // and the server's answer wins wherever the two disagree.
     frame?.addEventListener("load", () => {
       frame.contentWindow?.postMessage({ type: "viewer-project-last-used", projectLastUsedAt: ${JSON.stringify(preferences.projectLastUsedAt || {})} }, frameOrigin);
       frame.contentWindow?.postMessage({ type: "viewer-favorite-projects", favoriteProjects: ${JSON.stringify(preferences.favoriteProjects || [])} }, frameOrigin);
@@ -65,10 +67,11 @@ export function buildEmbeddedViewerHtml(webview: vscode.Webview, state: Embedded
     window.addEventListener("message", (event) => {
       if (!frameOrigin || event.origin !== frameOrigin || !event.data) return;
       if (event.data.type === "viewer-project-last-used") {
-        vscode.setState({ ...(vscode.getState() || {}), projectLastUsedAt: event.data.projectLastUsedAt });
+        // req_315: the record is the server's. This keeps the extension's copy fresh so the
+        // next frame can paint before asking, and nothing reads a webview state entry, so
+        // one is no longer written.
         vscode.postMessage({ type: "viewer-project-preferences", projectLastUsedAt: event.data.projectLastUsedAt });
       } else if (event.data.type === "viewer-favorite-projects") {
-        vscode.setState({ ...(vscode.getState() || {}), favoriteProjects: event.data.favoriteProjects });
         vscode.postMessage({ type: "viewer-project-preferences", favoriteProjects: event.data.favoriteProjects });
       } else if (event.data.type === "launch-workshop-terminal" || event.data.type === "restart-viewer" || event.data.type === "open-external-viewer" || event.data.type === "open-external-link") {
         vscode.postMessage(event.data);

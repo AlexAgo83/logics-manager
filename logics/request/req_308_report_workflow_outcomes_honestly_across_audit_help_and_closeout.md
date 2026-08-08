@@ -1,7 +1,7 @@
 ## req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout - Report workflow outcomes honestly across audit, help, and closeout
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

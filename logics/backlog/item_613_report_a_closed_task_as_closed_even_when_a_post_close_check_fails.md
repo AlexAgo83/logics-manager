@@ -8,6 +8,7 @@
 > Complexity: Low
 > Theme: Unambiguous command outcomes
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 16:24:24
 
 # Problem
 - Closeout runs the optional repository-wide audit after finishing the task and propagating the chain. Any blocking finding in the repository, including one belonging to an unrelated corpus, turns the returned outcome false while the task is closed and its changes are on disk.
@@ -36,6 +37,12 @@
 - request-AC5 -> This backlog slice. Proof: `test_a_closeout_blocked_only_by_an_unrelated_audit_finding_reports_the_task_closed` in `tests/python/test_honest_outcomes.py`.
 - request-AC6 -> This backlog slice. Proof: `test_the_printed_outcome_of_such_a_closeout_does_not_read_as_a_failure_to_close` in `tests/python/test_honest_outcomes.py`.
 - request-AC7 -> This backlog slice. Proof: `test_a_closeout_rolled_back_by_preflight_reports_the_task_not_closed` and `test_a_dry_run_closeout_reports_the_task_not_closed` in `tests/python/test_honest_outcomes.py`.
+- request-AC1 -> This backlog slice. Evidence needed: An abandoned request is not asked for linked backlog items, under any audit code.
+- request-AC2 -> This backlog slice. Evidence needed: A delivered request still requires linked backlog items and still reports incomplete ones.
+- request-AC3 -> This backlog slice. Evidence needed: Chain propagation and active-work filtering keep treating every terminal status alike, as they do today.
+- request-AC4 -> This backlog slice. Evidence needed: Every flag a command declares appears on that command's help screen, derived from the declaration rather than restated beside it.
+- request-AC8 -> This backlog slice. Evidence needed: A reviewed edit can be re-baselined even when the document was already re-baselined earlier the same day.
+- request-AC9 -> This backlog slice. Evidence needed: A version bound that must track a released version is derived from it, not restated beside it.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
@@ -58,3 +65,6 @@
 
 # Tasks
 - `task_305_orchestrate_the_honest_outcome_corrections`
+
+# Notes
+- Task `task_305_orchestrate_the_honest_outcome_corrections` was finished via `logics-manager flow finish task` on 2026-08-08.

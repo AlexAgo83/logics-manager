@@ -8,6 +8,7 @@
 > Complexity: Low
 > Theme: Truthful audit verdicts
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 16:24:23
 
 # Problem
 - One done set serves every purpose in the audit, so obsolete, archived and superseded reach the delivered-request checks alongside done. An abandoned request with no backlog is reported as a delivered request missing its backlog.
@@ -34,6 +35,12 @@
 - request-AC1 -> This backlog slice. Proof: `test_an_abandoned_request_is_not_asked_for_a_backlog` in `tests/python/test_honest_outcomes.py`, covering Obsolete, Archived and Superseded under both codes.
 - request-AC2 -> This backlog slice. Proof: `test_a_delivered_request_still_requires_its_backlog` in `tests/python/test_honest_outcomes.py`.
 - request-AC3 -> This backlog slice. Proof: the existing suite passes unchanged; `_is_done` keeps serving chain propagation and the active-work filter.
+- request-AC4 -> This backlog slice. Evidence needed: Every flag a command declares appears on that command's help screen, derived from the declaration rather than restated beside it.
+- request-AC5 -> This backlog slice. Evidence needed: A closeout that finishes the task reports that the task closed, distinctly from whether the post-close checks passed.
+- request-AC6 -> This backlog slice. Evidence needed: The printed outcome of such a closeout does not read as a failure to close.
+- request-AC7 -> This backlog slice. Evidence needed: Each defect leaves behind a test that fails against the current code.
+- request-AC8 -> This backlog slice. Evidence needed: A reviewed edit can be re-baselined even when the document was already re-baselined earlier the same day.
+- request-AC9 -> This backlog slice. Evidence needed: A version bound that must track a released version is derived from it, not restated beside it.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
@@ -56,3 +63,6 @@
 
 # Tasks
 - `task_305_orchestrate_the_honest_outcome_corrections`
+
+# Notes
+- Task `task_305_orchestrate_the_honest_outcome_corrections` was finished via `logics-manager flow finish task` on 2026-08-08.

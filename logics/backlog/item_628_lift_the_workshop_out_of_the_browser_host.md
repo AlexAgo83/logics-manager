@@ -1,10 +1,10 @@
 ## item_628_lift_the_workshop_out_of_the_browser_host - Lift the workshop out of the browser host
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Workshop module
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -32,15 +32,15 @@
 - AC5: A seam check reads its list of owned bindings from the module itself.
 
 # AC Traceability
-- request-AC2 -> This backlog slice. Proof: AC1: The workshop surface lives in its own module.
-- request-AC4 -> This backlog slice. Proof: AC2: Its own state is private to that module, and the host reaches what it needs through one named seam.
-- request-AC5 -> This backlog slice. Proof: AC3: The suite and the campaign pass after the move.
-- request-AC6 -> This backlog slice. Proof: AC4: The host's ledger entry is lowered and the new module carries its own.
-- request-AC7 -> This backlog slice. Proof: AC5: A seam check reads its list of owned bindings from the module itself.
-
+- request-AC2 -> This backlog slice. Proof: `clients/viewer/src/browser-host/workshop.js` (1305 lines); the host went from 5829 to 4784.
+- request-AC4 -> This backlog slice. Proof: 802 vitest tests and the viewer campaign pass; `ci-check` exits 0.
+- request-AC5 -> This backlog slice. Proof: `scripts/check-source-line-budget.mjs` records 4784 for the host, down from 5829, with `workshop.js` carrying its own entry.
+- request-AC6 -> This backlog slice. Proof: the three bindings it does not own are read through the seam and never written, pinned by `reads the three host bindings it does not own, and writes none of them` in `tests/viewer.cdx-module.test.ts`.
+- request-AC7 -> This backlog slice. Proof: the four workshop tests in the same file read the owned-binding list from the module itself.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
+- Textual brace-counting was abandoned for a real parser: an acorn pass over the host's IIFE gave exact statement ranges, after brace counting put one function's end 2200 lines past its closing brace because template literals carry braces too. Three seam gaps the tests then found, each fixed rather than worked around: the diagnostics object is created 480 lines below the wiring so it is passed as thunks; three cdx functions the workshop calls are passed the same way, since the cdx screen is wired below it; and the import completion missed , which is what left the workspace explorer silently inert.
 
 # Links
 - Product brief(s): `prod_060_the_browser_host_down_to_the_viewer`

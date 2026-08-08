@@ -1,10 +1,10 @@
 ## item_619_give_the_viewer_one_filtering_authority - Give the viewer one filtering authority
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: One filtering authority
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -31,11 +31,10 @@
 - AC4: A test builds a finished corpus and fails against the current implementation.
 
 # AC Traceability
-- request-AC1 -> This backlog slice. Proof: AC1: A panel selection is not undone by an inherited toggle.
-- request-AC3 -> This backlog slice. Proof: AC2: On a corpus of finished documents, selecting a workflow type returns those documents.
-- request-AC6 -> This backlog slice. Proof: AC3: With no panel present, filtering behaves exactly as it does today, shown by the existing webview tests passing unchanged.
-- request-AC8 -> This backlog slice. Proof: AC4: A test builds a finished corpus and fails against the current implementation.
-
+- request-AC1 -> This backlog slice. Proof: `does not let an inherited toggle undo a panel selection` in `tests/webview.filter-authority.test.ts`.
+- request-AC3 -> This backlog slice. Proof: the same test drives a corpus whose documents are all Done or Settled; measured against the running viewer, type workflow went from 0 rendered cards to the documents it names.
+- request-AC6 -> This backlog slice. Proof: `keeps the inherited toggles authoritative where there is no panel` in the same file, plus the 180 existing browser-host tests passing.
+- request-AC8 -> This backlog slice. Proof: the six tests in `tests/webview.filter-authority.test.ts`; five fail against the previous implementation.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

@@ -931,6 +931,18 @@
     hydratePersistedState
   } = mainCore || {});
 
+  // The local viewer's filter panel lives in the browser host and has no other way to ask
+  // for a redraw. It used to get one as a side effect of re-arming the inherited hide
+  // toggles, whose change events reached a handler that rendered -- so the panel had no
+  // render path of its own, only a borrowed one. This is that path, named.
+  window.__CDX_LOGICS_RENDER__ = () => render();
+
+  // The count above the board used to be computed in the browser host from the panel
+  // predicate alone, while the board rendered through `isVisible`. Two answers to one
+  // question, and they disagreed: 1226 documents announced above a board showing none.
+  // The count now asks the board's own question, so the two cannot drift apart again.
+  window.__CDX_LOGICS_VISIBLE_COUNT__ = () => items.filter((item) => isVisible(item)).length;
+
   hydratePersistedState(previousState);
   if (!previousState || typeof previousState.detailsCollapsed !== "boolean") {
     uiState.detailsCollapsed = uiState.viewMode === "list" || compactListQuery.matches;

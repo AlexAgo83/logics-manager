@@ -1,10 +1,10 @@
 ## task_307_orchestrate_the_board_filter_corrections - Orchestrate the board filter corrections
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 50%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -13,8 +13,8 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Give the viewer one filtering authority, and stop re-arming the inherited toggles.
-- [ ] 2. Produce the count from the predicate the board uses.
+- [x] 1. Give the viewer one filtering authority, and stop re-arming the inherited toggles.
+- [x] 2. Produce the count from the predicate the board uses.
 - [ ] 3. Select Done by status, and say what each status option would return.
 - [ ] 4. Add the campaign checks that fail when a filter lies, and record them in the runbook.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.

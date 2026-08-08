@@ -1111,18 +1111,26 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
 
     for item_path in linked_items:
         item_before = item_path.read_text(encoding="utf-8")
-        # Skip a criterion that already has a line, whatever shape it is in: appending
-        # beside an authored proof made the operator delete one of the two by hand.
-        item_missing = [
-            _ac_traceability_entry(ac_id, "This backlog slice", text, proof, proof_source)
-            for ac_id, text in ac_entries
-            if not _has_ac_traceability_line(item_before, ac_id)
-        ]
-        skipped.extend(
-            f"{item_path.relative_to(repo_root).as_posix()}: {ac_id} already has a traceability line"
-            for ac_id, _text in ac_entries
-            if _has_ac_traceability_line(item_before, ac_id)
-        )
+        # A slice answers for the criteria it declares, not for every criterion of the
+        # request. Adding all of them put six placeholders on a slice that owns three, and
+        # a slice declares its own by carrying their lines. Skip a criterion that already
+        # has a line, in whatever shape: appending beside an authored proof made the
+        # operator delete one of the two by hand.
+        item_rel = item_path.relative_to(repo_root).as_posix()
+        # A slice declares the criteria it answers for by carrying their lines. Where it
+        # declares some, the rest are not its business: adding all of them put six
+        # placeholders on a slice that owns three. Where it declares none -- a chain just
+        # created by `flow deliver` -- there is no ownership to respect, so the full set is
+        # offered for the operator to prune.
+        declares = any(_has_ac_traceability_line(item_before, ac_id) for ac_id, _text in ac_entries)
+        item_missing = []
+        for ac_id, text in ac_entries:
+            if _has_ac_traceability_line(item_before, ac_id):
+                skipped.append(f"{item_rel}: {ac_id} already has a traceability line")
+            elif declares:
+                skipped.append(f"{item_rel}: {ac_id} is not declared by this slice")
+            else:
+                item_missing.append(_ac_traceability_entry(ac_id, "This backlog slice", text, proof, proof_source))
         if _append_doc_section_bullets_changed(item_path, "AC Traceability", item_missing, dry_run=dry_run):
             changed_paths.add(item_path.relative_to(repo_root))
 

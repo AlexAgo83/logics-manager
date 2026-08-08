@@ -8,7 +8,7 @@
 > Complexity: High
 > Theme: One implementation, one verdict
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-08 23:32:24
+> Indicators reviewed: 2026-08-08 23:40:07
 
 # Problem
 - On an unchanged corpus, `flow validate` reported only that the request was not closed, `flow validate-closeout` reported three criteria without proof, and `closeout --dry-run` reported all thirteen. Nothing says which is authoritative.
@@ -55,3 +55,9 @@
 # Priority
 - Priority: High - three commands, three answers, no stated authority
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_313_orchestrate_making_the_closeout_gate_satisfiable`
+
+# Notes
+- Task `task_313_orchestrate_making_the_closeout_gate_satisfiable` was finished via `logics-manager flow finish task` on 2026-08-08.

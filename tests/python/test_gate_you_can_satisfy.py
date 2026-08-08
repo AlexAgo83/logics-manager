@@ -263,8 +263,10 @@ def test_a_hand_written_proof_is_left_alone(tmp_path: Path) -> None:
 
     assert after.count("- request-AC1") == 1, after
     assert "**tested.**" in after
-    assert after.count("- request-AC2") == 1, "AC2 had no line and should have got one"
+    # item_646: AC2 is not declared by this slice, so it is not added to it.
+    assert "- request-AC2" not in after
     assert any("AC1 already has a traceability line" in note for note in payload["skipped"])
+    assert any("AC2 is not declared by this slice" in note for note in payload["skipped"])
 
 
 def test_running_the_repair_twice_adds_nothing_the_second_time(tmp_path: Path) -> None:
@@ -289,10 +291,51 @@ def test_running_the_repair_twice_adds_nothing_the_second_time(tmp_path: Path) -
         encoding="utf-8",
     )
 
-    repair_ac_traceability_payload(root, "req_001_probe", dry_run=False)
+    first_run = repair_ac_traceability_payload(root, "req_001_probe", dry_run=False)
     first = item.read_text(encoding="utf-8")
     second_run = repair_ac_traceability_payload(root, "req_001_probe", dry_run=False)
 
     assert item.read_text(encoding="utf-8") == first
     assert second_run["changed_files"] == []
     assert second_run["skipped"], "a run that changes nothing must say why"
+    # item_646: a slice that declares nothing has no ownership to respect, so the full set
+    # is offered on the first run and nothing is added on the second.
+    assert first_run["changed_files"], "a slice with no lines still gets the set to prune"
+
+
+def test_the_orchestration_task_still_answers_for_every_criterion(tmp_path: Path) -> None:
+    """A slice answers for what it declares; the task answers for the request."""
+    from logics_manager.flow import repair_ac_traceability_payload
+
+    root = tmp_path / "repo"
+    for rel in ("request", "backlog", "tasks"):
+        (root / "logics" / rel).mkdir(parents=True)
+    (root / "logics" / "request" / "req_001_probe.md").write_text(
+        "\n".join([
+            "## req_001_probe - Probe", "> From version: 2.20.0", "> Status: Ready",
+            "", "# Acceptance criteria", "- AC1: First.", "- AC2: Second.", "",
+        ]),
+        encoding="utf-8",
+    )
+    (root / "logics" / "backlog" / "item_001_probe.md").write_text(
+        "\n".join([
+            "## item_001_probe - Probe", "> From version: 2.20.0", "> Status: Ready",
+            "", "# AC Traceability", "- request-AC1 -> This backlog slice. Proof: checked.",
+            "", "# Links", "- Request: `req_001_probe`", "- Primary task(s): `task_001_probe`", "",
+        ]),
+        encoding="utf-8",
+    )
+    task = root / "logics" / "tasks" / "task_001_probe.md"
+    task.write_text(
+        "\n".join([
+            "## task_001_probe - Probe", "> From version: 2.20.0", "> Status: Ready",
+            "", "# AC Traceability", "", "# Links", "- Request: `req_001_probe`", "",
+        ]),
+        encoding="utf-8",
+    )
+
+    repair_ac_traceability_payload(root, "req_001_probe", dry_run=False)
+    task_after = task.read_text(encoding="utf-8")
+
+    assert "- request-AC1 -> This task." in task_after
+    assert "- request-AC2 -> This task." in task_after

@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: A finding that teaches
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 23:40:07
 
 # Problem
 - The finding says a proof is missing and never says what a proof is. Three things are load-bearing and none is stated: the target must be `This task.`, the keyword must be `Proof:`, and there must be one line per criterion because a grouped line naming several counts for none.
@@ -58,3 +59,9 @@
 # Priority
 - Priority: High - the reported cost is reverse-engineering the format from a repair
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_313_orchestrate_making_the_closeout_gate_satisfiable`
+
+# Notes
+- Task `task_313_orchestrate_making_the_closeout_gate_satisfiable` was finished via `logics-manager flow finish task` on 2026-08-08.

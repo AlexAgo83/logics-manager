@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: A gate with an honest exit
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 23:40:07
 
 # Problem
 - The gate compares the working tree and the index, and when both are clean it falls back to the last commit. So a document whose last commit carried a body change without an indicator change stays flagged, and no command clears it: re-baselining writes nothing the fallback can see.
@@ -56,3 +57,9 @@
 # Priority
 - Priority: High - no sequence of commands clears it on a committed document
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_313_orchestrate_making_the_closeout_gate_satisfiable`
+
+# Notes
+- Task `task_313_orchestrate_making_the_closeout_gate_satisfiable` was finished via `logics-manager flow finish task` on 2026-08-08.

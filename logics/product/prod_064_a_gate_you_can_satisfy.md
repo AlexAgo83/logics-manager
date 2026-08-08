@@ -1,8 +1,8 @@
 ## prod_064_a_gate_you_can_satisfy - A gate you can satisfy
 > Date: 2026-08-08
-> Status: Proposed
+> Status: Settled
 > Related request: `req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive`
-> Related backlog: `item_642_say_what_a_proof_looks_like_and_produce_one_that_passes`, `item_643_derive_the_proof_verdict_once`, `item_644_let_the_indicator_gate_be_cleared_by_doing_what_it_says`, `item_645_repair_without_overwriting_what_was_written_by_hand`
+> Related backlog: `item_642_say_what_a_proof_looks_like_and_produce_one_that_passes`
 > Related task: `task_313_orchestrate_making_the_closeout_gate_satisfiable`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -48,5 +48,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive`
+- Product back-reference: `item_642_say_what_a_proof_looks_like_and_produce_one_that_passes`
 - Task back-reference: `task_313_orchestrate_making_the_closeout_gate_satisfiable`

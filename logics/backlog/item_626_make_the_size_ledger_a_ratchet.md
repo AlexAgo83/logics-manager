@@ -1,10 +1,10 @@
 ## item_626_make_the_size_ledger_a_ratchet - Make the size ledger a ratchet
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: A guard that records progress
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -31,11 +31,10 @@
 - AC4: Tests cover a shrunk file and an unjustified growth, and fail against the current implementation.
 
 # AC Traceability
-- request-AC3 -> This backlog slice. Proof: AC1: A file under its recorded ceiling is reported, and the ledger can be lowered without hand-editing.
-- request-AC4 -> This backlog slice. Proof: AC2: A raised ceiling without a stated reason is refused.
-- request-AC6 -> This backlog slice. Proof: AC3: The assistant adapter's recorded reason satisfies the rule and stays as it is.
-- request-AC7 -> This backlog slice. Proof: AC4: Tests cover a shrunk file and an unjustified growth, and fail against the current implementation.
-
+- request-AC3 -> This backlog slice. Proof: `writes the lower number back when asked` in `tests/lineBudgetLedger.test.ts`; the first run lowered nine entries, including `viewer.py` 5937 to 5692 and `flow/__init__.py` 4909 to 4725.
+- request-AC4 -> This backlog slice. Proof: `does not raise a ceiling on its own when a file grows` and `still refuses a new oversized file with no entry at all` in the same file.
+- request-AC6 -> This backlog slice. Proof: `logics_manager/mcp.py` keeps its recorded reason and its 2054 ceiling; `leaves a file inside its ceiling alone` pins that an entry at its exact size is untouched.
+- request-AC7 -> This backlog slice. Proof: the five tests in `tests/lineBudgetLedger.test.ts`, each driving the real guard in a throwaway repository.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

@@ -1,0 +1,508 @@
+{
+  "budgets": {
+    "max_docs": 20,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value item_616_assert_the_layout_defects_a_passing_unit_suite_cannot_see item_617_write_the_campaign_runbook_and_say_where_a_finding_goes task_306_orchestrate_the_viewer_ui_campaign --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_533_restore_valid_vs_code_recovery_guidance_for_environment_checks",
+          "item_534_persist_viewer_project_last_used_order_outside_volatile_origins",
+          "item_535_make_split_cdx_usage_gauge_missing_data_semantics_symmetric",
+          "item_536_clean_up_embedded_viewer_server_processes_on_startup_timeout",
+          "item_537_harden_vs_code_terminal_bridge_command_handling"
+        ],
+        "prod": [
+          "prod_038_post_release_viewer_hardening"
+        ],
+        "req": [
+          "req_290_post_release_viewer_and_vs_code_hardening"
+        ],
+        "task": [
+          "task_287_orchestrate_post_release_viewer_hardening"
+        ]
+      },
+      "path": "logics/product/prod_038_post_release_viewer_hardening.md",
+      "ref": "prod_038_post_release_viewer_hardening",
+      "sections": {
+        "Goals": [
+          "- Keep VS Code recovery guidance accurate and actionable.",
+          "- Persist project recency in a place that is stable across embedded viewer server restarts.",
+          "- Render CDX usage data faithfully when partial usage windows are unavailable.",
+          "- Ensure embedded viewer server lifecycle failures do not leak child processes.",
+          "- Make terminal-launch behavior predictable across the supported VS Code environments."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the viewer and VS Code integration changes added since v2.15.7 ready for release by closing the review findings around command guidance, durable viewer state, usage telemetry display, process cleanup, and terminal command handling.",
+          "```mermaid",
+          "flowchart LR",
+          "    Review[Post-release review] --> Commands[VS Code guidance]",
+          "    Review --> Recency[Durable project recency]",
+          "    Review --> Usage[Split CDX missing data]"
+        ],
+        "References": [
+          "- Product back-reference: `req_290_post_release_viewer_and_vs_code_hardening`",
+          "- Task back-reference: `task_287_orchestrate_post_release_viewer_hardening`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Post-release viewer hardening"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_608_state_that_network_writes_grant_command_execution"
+        ],
+        "prod": [
+          "prod_055_say_what_it_does_and_test_what_was_moved"
+        ],
+        "req": [
+          "req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches"
+        ],
+        "task": [
+          "task_304_orchestrate_the_second_review_remediation"
+        ]
+      },
+      "path": "logics/product/prod_055_say_what_it_does_and_test_what_was_moved.md",
+      "ref": "prod_055_say_what_it_does_and_test_what_was_moved",
+      "sections": {
+        "Goals": [
+          "- Let an exposure decision be made against the real capability.",
+          "- Remove duplicated work when concurrent requests arrive together.",
+          "- Exercise the branches that only a live request reaches.",
+          "- Leave every authorization rule exactly as it is."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the viewer's documented risk match its real capability, make the shared age lookup safe in the threaded server it now runs inside, and cover the request branches a recent extraction exposed. Three narrow corrections behind one review pass, none of them changing what the software is allowed to do.",
+          "```mermaid",
+          "flowchart LR",
+          "    Review[Second review pass] --> Risk[Stated capability]",
+          "    Review --> Lock[Guarded age cache]",
+          "    Review --> Cover[Branch coverage]"
+        ],
+        "References": [
+          "- Product back-reference: `item_608_state_that_network_writes_grant_command_execution`",
+          "- Task back-reference: `task_304_orchestrate_the_second_review_remediation`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Say what it does, and test what was moved"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value",
+          "item_616_assert_the_layout_defects_a_passing_unit_suite_cannot_see",
+          "item_617_write_the_campaign_runbook_and_say_where_a_finding_goes"
+        ],
+        "prod": [
+          "prod_057_a_viewer_campaign_that_reports_what_it_saw"
+        ],
+        "req": [
+          "req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured"
+        ],
+        "task": [
+          "task_306_orchestrate_the_viewer_ui_campaign"
+        ]
+      },
+      "path": "logics/product/prod_057_a_viewer_campaign_that_reports_what_it_saw.md",
+      "ref": "prod_057_a_viewer_campaign_that_reports_what_it_saw",
+      "sections": {
+        "Goals": [
+          "- Make a run readable after the fact, not only pass or fail.",
+          "- Catch the defects that only appear when the real interface is drawn at a real size.",
+          "- Keep the campaign honest about coverage by deriving its lists from the interface.",
+          "- Reuse the machinery that already exists rather than adding a browser-automation dependency."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Turn the existing viewer visual smoke into a campaign: it keeps gating a delivery, and it also becomes readable. Every check is named and reported with the value it measured, a failure no longer hides the checks behind it, and the assertions grow to cover the layout defects a green unit suite is blind to. One campaign, driven against the standalone viewer, covers the interface both the viewer and the extension render."
+        ],
+        "References": [
+          "- Product back-reference: `req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured`",
+          "- Task back-reference: `task_306_orchestrate_the_viewer_ui_campaign`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "A viewer campaign that reports what it saw"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, turn the viewer visual smoke into a ui campaign that reports what it measured, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Turn the viewer visual smoke into a UI campaign that reports what it measured",
+        "use when": "You need to implement or review the scaffolded workflow for Turn the viewer visual smoke into a UI campaign that reports what it measured."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value",
+          "item_616_assert_the_layout_defects_a_passing_unit_suite_cannot_see",
+          "item_617_write_the_campaign_runbook_and_say_where_a_finding_goes"
+        ],
+        "prod": [
+          "prod_038_post_release_viewer_hardening",
+          "prod_055_say_what_it_does_and_test_what_was_moved",
+          "prod_057_a_viewer_campaign_that_reports_what_it_saw"
+        ],
+        "req": [
+          "req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured"
+        ]
+      },
+      "path": "logics/request/req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured.md",
+      "ref": "req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A campaign run reports every check it performed, each with a verdict and the value it measured.",
+          "- AC2: A failed check does not end the run; the remaining checks still run and still report.",
+          "- AC3: The campaign still gates: a run with any failed check exits non-zero, and the repository check script still fails on it.",
+          "- AC4: The campaign asserts the layout defect classes a passing unit suite does not see, at each viewport it sweeps.",
+          "- AC5: Any check claiming to cover every screen or every control derives its list from the interface, so a surface added later is covered without editing the check.",
+          "- AC6: The captures and the report land together in one place an operator can open after the run."
+        ],
+        "Needs": [
+          "- See the delivered viewer the way an operator meets it, across the sizes it is actually used at.",
+          "- Read what a campaign measured, not only whether it stopped.",
+          "- Catch the defect classes a passing unit suite is blind to: a screen that no longer fits, controls drawn over each other, a surface that is empty with no explanation.",
+          "- Cover both the standalone viewer and the extension webview without maintaining two campaigns."
+        ]
+      },
+      "status": "Draft",
+      "title": "Turn the viewer visual smoke into a UI campaign that reports what it measured"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, make the viewer campaign report every check with its measured value, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Make the viewer campaign report every check with its measured value",
+        "use when": "Implementing the scaffolded slice for Make the viewer campaign report every check with its measured value."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value"
+        ],
+        "prod": [
+          "prod_057_a_viewer_campaign_that_reports_what_it_saw"
+        ],
+        "req": [
+          "req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured"
+        ],
+        "task": [
+          "task_306_orchestrate_the_viewer_ui_campaign"
+        ]
+      },
+      "path": "logics/backlog/item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value.md",
+      "ref": "item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A run reports every check performed, each with a verdict and the value it measured.",
+          "- AC2: A failed check does not end the run; the checks after it still run and appear in the report.",
+          "- AC3: A run with any failed check exits non-zero and fails the repository check script, as the smoke does today.",
+          "- AC4: The report and the captures land in the same directory, written on both a passing and a failing run.",
+          "- AC5: A check that could not run is reported as such, distinctly from a check that failed.",
+          "- AC6: The headless-DOM fallback and the Windows CI server-only pass still produce a report."
+        ],
+        "Problem": [
+          "- The visual smoke raises on the first failed step, so one defect hides every check that would have run after it, and a reviewer learns one fact per run.",
+          "- Its steps are inline statements rather than named checks, so there is no list of what was verified and no measured value to read beside a verdict. A reviewer cannot tell a real defect from an expectation that has gone stale, which is the judgement a campaign exists to support."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make the viewer campaign report every check with its measured value"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, assert the layout defects a passing unit suite cannot see, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Assert the layout defects a passing unit suite cannot see",
+        "use when": "Implementing the scaffolded slice for Assert the layout defects a passing unit suite cannot see."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_616_assert_the_layout_defects_a_passing_unit_suite_cannot_see"
+        ],
+        "prod": [
+          "prod_057_a_viewer_campaign_that_reports_what_it_saw"
+        ],
+        "req": [
+          "req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured"
+        ],
+        "task": [
+          "task_306_orchestrate_the_viewer_ui_campaign"
+        ]
+      },
+      "path": "logics/backlog/item_616_assert_the_layout_defects_a_passing_unit_suite_cannot_see.md",
+      "ref": "item_616_assert_the_layout_defects_a_passing_unit_suite_cannot_see",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Overlapping interactive controls are detected and reported, at each swept viewport.",
+          "- AC2: Clipped controls and sideways page scroll are detected and reported.",
+          "- AC3: An empty surface with no explanation is reported.",
+          "- AC4: An action presented but unreachable, or unavailable without stating why, is reported.",
+          "- AC5: Each of these checks walks a list read from the interface, shown by a test that adds a surface and sees it covered without editing the check.",
+          "- AC6: A test introduces each defect class and asserts the matching check reports it."
+        ],
+        "Problem": [
+          "- The campaign asserts that a few regions are not empty and that one navigation path works. Nothing looks at whether controls are drawn over each other, whether anything is clipped or forces the page sideways at the narrow viewport, whether an empty surface explains itself, or whether an action the interface offers can be reached.",
+          "- A sibling project's campaign reported zero findings while a form drew four rows on top of each other, because no assertion looked at overlap. Assertions that are not written are the campaign's real blind spot, not the ones that fail.",
+          "- Its other lesson is that a guard claiming to cover every screen must read its list from the interface: a hand-written enumeration is how a whole workspace escaped a guard for an entire request."
+        ]
+      },
+      "status": "Ready",
+      "title": "Assert the layout defects a passing unit suite cannot see"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, write the campaign runbook and say where a finding goes, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Write the campaign runbook and say where a finding goes",
+        "use when": "Implementing the scaffolded slice for Write the campaign runbook and say where a finding goes."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_617_write_the_campaign_runbook_and_say_where_a_finding_goes"
+        ],
+        "prod": [
+          "prod_057_a_viewer_campaign_that_reports_what_it_saw"
+        ],
+        "req": [
+          "req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured"
+        ],
+        "task": [
+          "task_306_orchestrate_the_viewer_ui_campaign"
+        ]
+      },
+      "path": "logics/backlog/item_617_write_the_campaign_runbook_and_say_where_a_finding_goes.md",
+      "ref": "item_617_write_the_campaign_runbook_and_say_where_a_finding_goes",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A runbook states how to run the campaign, what it covers, and where its output lands.",
+          "- AC2: It states how to read a failed check, and that a zero-finding run is not a pass on its own.",
+          "- AC3: It describes the attended pass, including the extension webview.",
+          "- AC4: It states that a finding becomes a workflow slice, with the command.",
+          "- AC5: It states where captures live and why they stay there."
+        ],
+        "Problem": [
+          "- The campaign will produce a report and a set of captures that nothing explains: how to run it, what its two halves are, what a failed check means, and what to do with a defect it finds.",
+          "- Sibling projects answer this in a runbook, and the answer that matters is that a defect in already-delivered scope becomes a workflow slice rather than a note in a file. Without that, findings are read once and lost.",
+          "- The automated pass also cannot judge whether a screen reads well, so the runbook has to say what a human still has to look at, including the extension host, whose boundary the automated pass does not exercise."
+        ]
+      },
+      "status": "Ready",
+      "title": "Write the campaign runbook and say where a finding goes"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate the viewer UI campaign",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value",
+          "item_616_assert_the_layout_defects_a_passing_unit_suite_cannot_see",
+          "item_617_write_the_campaign_runbook_and_say_where_a_finding_goes"
+        ],
+        "prod": [
+          "prod_057_a_viewer_campaign_that_reports_what_it_saw"
+        ],
+        "req": [
+          "req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured"
+        ],
+        "task": [
+          "task_306_orchestrate_the_viewer_ui_campaign"
+        ]
+      },
+      "path": "logics/tasks/task_306_orchestrate_the_viewer_ui_campaign.md",
+      "ref": "task_306_orchestrate_the_viewer_ui_campaign",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the viewer UI campaign"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value",
+          "item_616_assert_the_layout_defects_a_passing_unit_suite_cannot_see",
+          "item_617_write_the_campaign_runbook_and_say_where_a_finding_goes"
+        ],
+        "prod": [
+          "prod_057_a_viewer_campaign_that_reports_what_it_saw"
+        ],
+        "req": [
+          "req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured"
+        ],
+        "task": [
+          "task_306_orchestrate_the_viewer_ui_campaign"
+        ]
+      },
+      "path": "logics/product/prod_057_a_viewer_campaign_that_reports_what_it_saw.md",
+      "ref": "prod_057_a_viewer_campaign_that_reports_what_it_saw",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "A viewer campaign that reports what it saw"
+    }
+  ],
+  "estimates": {
+    "char_count": 16605,
+    "companion_doc_count": 3,
+    "doc_count": 6
+  },
+  "generated_at": "2026-08-08T13:49:35Z",
+  "handoff": {
+    "companion_doc_count": 3,
+    "enabled": true,
+    "source_refs": [
+      "req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured",
+      "item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value",
+      "item_616_assert_the_layout_defects_a_passing_unit_suite_cannot_see",
+      "item_617_write_the_campaign_runbook_and_say_where_a_finding_goes",
+      "task_306_orchestrate_the_viewer_ui_campaign"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured,item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value,item_616_assert_the_layout_defects_a_passing_unit_suite_cannot_see,item_617_write_the_campaign_runbook_and_say_where_a_finding_goes,task_306_orchestrate_the_viewer_ui_campaign",
+  "refs": [
+    "req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured",
+    "item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value",
+    "item_616_assert_the_layout_defects_a_passing_unit_suite_cannot_see",
+    "item_617_write_the_campaign_runbook_and_say_where_a_finding_goes",
+    "task_306_orchestrate_the_viewer_ui_campaign"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.20.0"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_306_orchestrate_the_viewer_ui_campaign.md",
+      "ref": "task_306_orchestrate_the_viewer_ui_campaign"
+    }
+  ]
+}

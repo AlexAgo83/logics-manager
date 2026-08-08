@@ -74,7 +74,11 @@ const allowedOversizedFiles = new Map(
     // and cache -- which is the point of the request rather than something to extract.
     // 4141: req_314 added the Escape route, the banner dismissal, the transient-status
     // clearing and the after-render hook -- each a handler beside the state it reads.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4141, ref: "req_314" },
+    // 4158: req_313 replaced the title-comparison chain with a screen registry. The
+    // registry is longer than the chain it replaces because each screen now declares what
+    // it is; extracting it to its own module was not done, since every entry closes over
+    // a screen function the host already holds.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4158, ref: "req_313" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

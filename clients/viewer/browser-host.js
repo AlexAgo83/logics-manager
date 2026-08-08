@@ -9874,38 +9874,50 @@ ${line}` : line;
         setMeta(`Checked just now \xB7 no viewer changes (${(/* @__PURE__ */ new Date()).toLocaleTimeString()})`);
       }
     }
+    const screenRegistry = [
+      { title: "Getting Started", refresh: () => showGettingStarted() },
+      { title: "CDX status", refresh: (opts) => showCdxStatus(opts) },
+      { title: "CDX missions", refresh: (opts) => showCdxMissions(opts) },
+      { title: "CDX reports", refresh: (opts) => showCdxRuns(opts) },
+      { title: "CDX history", refresh: (opts) => showCdxHistory(opts) },
+      { title: "CDX memory", refresh: (opts) => showCdxMemory(opts) },
+      { title: "CDX disk", refresh: (opts) => showCdxDisk(opts) },
+      { title: "Corpus insights", refresh: () => showCorpusInsights() },
+      { title: "Validation health", refresh: () => showHealth() },
+      {
+        title: "Remote",
+        // Remote is three sub-screens behind one title; the mode decides which refreshes.
+        refresh: async (opts) => {
+          if (gitState.latestCiScreenMode === "release") return showReleaseStatus(opts);
+          if (gitState.latestCiScreenMode === "runs") return showCiStatus(opts);
+          setMeta("Fetching from remote...");
+          await fetchGitRemote();
+          return showGitStatus({ preserve: true, ...opts });
+        }
+      },
+      {
+        title: "Workshop",
+        refresh: (opts) => {
+          if (preferredWorkshopTab() === "terminals" && hasMountedWorkshopTerminals()) {
+            const count = redrawWorkshopTerminals();
+            setMeta(count === 1 ? "Redrew 1 terminal." : `Redrew ${count} terminals.`);
+            return void 0;
+          }
+          return showWorkshop(opts);
+        }
+      }
+    ];
+    function screenFor(title) {
+      return screenRegistry.find((screen) => screen.title === title) || null;
+    }
     async function refreshCurrentScreen() {
       const panel = documentPanel();
       const title = documentTitle();
       if (!panel || panel.hidden || !title) return;
       const screen = title.textContent || "";
       viewerDiagnostics.breadcrumb(`refreshCurrentScreen ${screen}`);
-      const opts = { force: true };
-      if (screen === "Getting Started") return showGettingStarted();
-      if (screen === "CDX status") return showCdxStatus(opts);
-      if (screen === "CDX missions") return showCdxMissions(opts);
-      if (screen === "CDX reports") return showCdxRuns(opts);
-      if (screen === "CDX history") return showCdxHistory(opts);
-      if (screen === "CDX memory") return showCdxMemory(opts);
-      if (screen === "CDX disk") return showCdxDisk(opts);
-      if (screen === "Remote") {
-        if (gitState.latestCiScreenMode === "release") return showReleaseStatus(opts);
-        if (gitState.latestCiScreenMode === "runs") return showCiStatus(opts);
-        setMeta("Fetching from remote...");
-        await fetchGitRemote();
-        return showGitStatus({ preserve: true, ...opts });
-      }
-      if (screen === "Workshop") {
-        if (preferredWorkshopTab() === "terminals" && hasMountedWorkshopTerminals()) {
-          const count = redrawWorkshopTerminals();
-          setMeta(count === 1 ? "Redrew 1 terminal." : `Redrew ${count} terminals.`);
-          return;
-        }
-        return showWorkshop(opts);
-      }
-      if (screen === "Corpus insights") return showCorpusInsights();
-      if (screen === "Validation health") return showHealth();
-      return showDocumentByPath(screen);
+      const declared = screenFor(screen);
+      return declared ? declared.refresh({ force: true }) : showDocumentByPath(screen);
     }
     function autoRefreshItems() {
       if (!autoRefreshEnabled) {

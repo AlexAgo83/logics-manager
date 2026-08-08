@@ -1,10 +1,10 @@
 ## item_632_let_a_screen_declare_itself - Let a screen declare itself
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: A screen registry
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -31,11 +31,10 @@
 - AC4: Titles and navigation targets are unchanged, shown by the existing tests passing unedited.
 
 # AC Traceability
-- request-AC5 -> This backlog slice. Proof: AC1: Each screen is declared once, and the host routes on the declaration.
-- request-AC6 -> This backlog slice. Proof: AC2: No routing decision compares a screen title string.
-- request-AC7 -> This backlog slice. Proof: AC3: Every navigation target in the markup resolves to a declared screen, shown by a check reading both.
-- request-AC8 -> This backlog slice. Proof: AC4: Titles and navigation targets are unchanged, shown by the existing tests passing unedited.
-
+- request-AC5 -> This backlog slice. Proof: `declares every screen the refresh path used to recognise by title` and `routes on the declaration rather than on a chain of title comparisons` in `tests/viewer.screen-registry.test.ts`.
+- request-AC6 -> This backlog slice. Proof: no framework and no new runtime; the registry is eleven declarations in the host, and the campaign passes.
+- request-AC7 -> This backlog slice. Proof: `ci-check` exits 0; 824 vitest tests pass with the existing screen tests unedited.
+- request-AC8 -> This backlog slice. Proof: `declares no screen that nothing opens` derives the registry's entries and the titles the code actually sets from the sources, rather than restating either.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

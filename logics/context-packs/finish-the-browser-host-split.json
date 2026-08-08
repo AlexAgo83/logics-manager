@@ -1,0 +1,477 @@
+{
+  "budgets": {
+    "max_docs": 40,
+    "max_docs_per_ref": 8
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved item_627_move_the_cdx_rendering_to_the_cdx_screen item_628_lift_the_workshop_out_of_the_browser_host item_629_lift_git_and_ci_out_of_the_browser_host task_309_orchestrate_finishing_the_browser_host_split --mode full --profile deep --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_623_lift_cdx_and_git_out_of_the_viewer_server"
+        ],
+        "prod": [
+          "prod_059_sub_systems_beside_the_core_not_inside_it"
+        ],
+        "req": [
+          "req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet"
+        ],
+        "task": [
+          "task_308_orchestrate_lifting_the_sub_systems_out_of_the_core"
+        ]
+      },
+      "path": "logics/product/prod_059_sub_systems_beside_the_core_not_inside_it.md",
+      "ref": "prod_059_sub_systems_beside_the_core_not_inside_it",
+      "sections": {
+        "Goals": [
+          "- Let a sub-system be read and changed on its own.",
+          "- Shrink the core to what is actually the viewer.",
+          "- Make each delivery lower the ledger instead of raising it.",
+          "- Prove every move is behavior-free, in a codebase where nothing else would."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Three sub-systems -- cdx, git, and the workshop -- account for most of the viewer's mass on both sides of the wire, written inside the viewer core rather than beside it. Lift them into their own modules without changing behavior, cut the flow entry module by verb, and make the size ledger a ratchet that only comes down.",
+          "```mermaid",
+          "flowchart LR",
+          "    Core[Viewer core] --> Cdx[cdx module]",
+          "    Core --> Git[git module]",
+          "    Core --> Workshop[workshop module]"
+        ],
+        "References": [
+          "- Product back-reference: `item_623_lift_cdx_and_git_out_of_the_viewer_server`",
+          "- Task back-reference: `task_308_orchestrate_lifting_the_sub_systems_out_of_the_core`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Sub-systems beside the core, not inside it"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_627_move_the_cdx_rendering_to_the_cdx_screen",
+          "item_628_lift_the_workshop_out_of_the_browser_host",
+          "item_629_lift_git_and_ci_out_of_the_browser_host"
+        ],
+        "prod": [
+          "prod_060_the_browser_host_down_to_the_viewer"
+        ],
+        "req": [
+          "req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved"
+        ],
+        "task": [
+          "task_309_orchestrate_finishing_the_browser_host_split"
+        ]
+      },
+      "path": "logics/product/prod_060_the_browser_host_down_to_the_viewer.md",
+      "ref": "prod_060_the_browser_host_down_to_the_viewer",
+      "sections": {
+        "Goals": [
+          "- Let a sub-system be read and changed on its own, rendering included.",
+          "- Bring the host down to what is actually the viewer.",
+          "- Keep every move provably behavior-free.",
+          "- Leave the shared state to a request that means to face it."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Three more lifts on the seam the cdx screen proved: its rendering follows it out of the shared render module, then the workshop, then git and CI. Each is measured before it is moved, each is verified by the campaign as well as the suite, and each lowers the ledger. The host's shared state stays where it is, and the accessor each lift pays for it is the honest price of leaving it there."
+        ],
+        "References": [
+          "- Product back-reference: `req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved`",
+          "- Task back-reference: `task_309_orchestrate_finishing_the_browser_host_split`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "The browser host, down to the viewer"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, finish lifting the browser host's sub-systems, on the seam cdx proved, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Finish lifting the browser host's sub-systems, on the seam cdx proved",
+        "use when": "You need to implement or review the scaffolded workflow for Finish lifting the browser host's sub-systems, on the seam cdx proved."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_627_move_the_cdx_rendering_to_the_cdx_screen",
+          "item_628_lift_the_workshop_out_of_the_browser_host",
+          "item_629_lift_git_and_ci_out_of_the_browser_host"
+        ],
+        "prod": [
+          "prod_059_sub_systems_beside_the_core_not_inside_it",
+          "prod_060_the_browser_host_down_to_the_viewer"
+        ],
+        "req": [
+          "req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved"
+        ]
+      },
+      "path": "logics/request/req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved.md",
+      "ref": "req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The cdx rendering lives with the cdx screen, and the shared render module no longer carries it.",
+          "- AC2: The workshop lives in its own module, reached through the same kind of seam the cdx screen uses.",
+          "- AC3: The git and CI surface lives in its own module, on that same seam.",
+          "- AC4: No lift changes behavior: the full suite and the viewer campaign pass after each one, not only at the end.",
+          "- AC5: Every lift lowers its file's entry in the size ledger rather than raising it.",
+          "- AC6: The host's shared state is not rewritten; a lift that would require it stops and says so."
+        ],
+        "Needs": [
+          "- Read and change the workshop, or git, without opening the file that holds the viewer.",
+          "- Keep a sub-system's rendering with the sub-system, rather than in a module shared with everything else.",
+          "- Bring the browser host down to what is actually the viewer."
+        ]
+      },
+      "status": "Draft",
+      "title": "Finish lifting the browser host's sub-systems, on the seam cdx proved"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, move the cdx rendering to the cdx screen, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Move the cdx rendering to the cdx screen",
+        "use when": "Implementing the scaffolded slice for Move the cdx rendering to the cdx screen."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_627_move_the_cdx_rendering_to_the_cdx_screen"
+        ],
+        "prod": [
+          "prod_060_the_browser_host_down_to_the_viewer"
+        ],
+        "req": [
+          "req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved"
+        ],
+        "task": [
+          "task_309_orchestrate_finishing_the_browser_host_split"
+        ]
+      },
+      "path": "logics/backlog/item_627_move_the_cdx_rendering_to_the_cdx_screen.md",
+      "ref": "item_627_move_the_cdx_rendering_to_the_cdx_screen",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The cdx rendering lives in the cdx module.",
+          "- AC2: The shared render module no longer exports rendering only the cdx screen uses.",
+          "- AC3: The suite and the campaign pass, and the bundle is regenerated from its sources.",
+          "- AC4: Both files' ledger entries are lowered to the values reached.",
+          "- AC5: A check asserts the render module exports nothing whose only consumer is the cdx screen, reading that list from the modules rather than from a written list."
+        ],
+        "Problem": [
+          "- Of the shared render module's exports, 56 are cdx and the cdx screen is their only consumer. They sit in a file everything imports while serving one caller, so reading the render module means reading someone else's screen.",
+          "- They hold no state, which is what makes this the cheapest move: nothing has to be threaded, only re-homed."
+        ]
+      },
+      "status": "Ready",
+      "title": "Move the cdx rendering to the cdx screen"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, lift the workshop out of the browser host, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Lift the workshop out of the browser host",
+        "use when": "Implementing the scaffolded slice for Lift the workshop out of the browser host."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_628_lift_the_workshop_out_of_the_browser_host"
+        ],
+        "prod": [
+          "prod_060_the_browser_host_down_to_the_viewer"
+        ],
+        "req": [
+          "req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved"
+        ],
+        "task": [
+          "task_309_orchestrate_finishing_the_browser_host_split"
+        ]
+      },
+      "path": "logics/backlog/item_628_lift_the_workshop_out_of_the_browser_host.md",
+      "ref": "item_628_lift_the_workshop_out_of_the_browser_host",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The workshop surface lives in its own module.",
+          "- AC2: Its own state is private to that module, and the host reaches what it needs through one named seam.",
+          "- AC3: The suite and the campaign pass after the move.",
+          "- AC4: The host's ledger entry is lowered and the new module carries its own.",
+          "- AC5: A seam check reads its list of owned bindings from the module itself."
+        ],
+        "Problem": [
+          "- The workshop accounts for about 1233 lines across 56 functions in the host, and touches three bindings it does not own: the repository root, the repository itself, and the viewer preferences. That is one more than the cdx screen needed, on a smaller surface.",
+          "- Its own state -- the terminal registry, the badge counts, the resize timer -- moves with it, the way the cdx screen's did."
+        ]
+      },
+      "status": "Ready",
+      "title": "Lift the workshop out of the browser host"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, lift git and ci out of the browser host, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Lift git and CI out of the browser host",
+        "use when": "Implementing the scaffolded slice for Lift git and CI out of the browser host."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_629_lift_git_and_ci_out_of_the_browser_host"
+        ],
+        "prod": [
+          "prod_060_the_browser_host_down_to_the_viewer"
+        ],
+        "req": [
+          "req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved"
+        ],
+        "task": [
+          "task_309_orchestrate_finishing_the_browser_host_split"
+        ]
+      },
+      "path": "logics/backlog/item_629_lift_git_and_ci_out_of_the_browser_host.md",
+      "ref": "item_629_lift_git_and_ci_out_of_the_browser_host",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The git and CI surface lives in its own module.",
+          "- AC2: The screen router's home is decided and recorded, with the reason.",
+          "- AC3: The five host bindings are reached through the seam, and none of them is rewritten.",
+          "- AC4: The suite and the campaign pass after the move.",
+          "- AC5: The host's ledger entry is lowered and the new module carries its own.",
+          "- AC6: A seam check reads its list of owned bindings from the module itself."
+        ],
+        "Problem": [
+          "- Git and CI account for about 1726 lines and touch five bindings they do not own: the item list, the filter state, the repository root, the share URL, and the workshop badge counts. Before the cdx lift the count was twelve, seven of which were cdx payloads now behind the cdx accessor.",
+          "- The coupling is concentrated rather than spread: the previous lift found one host function holding 51 of 59 references, a screen router named for git that is not only git. Whether that function belongs to this module or stays behind is the decision this slice has to make explicitly."
+        ]
+      },
+      "status": "Ready",
+      "title": "Lift git and CI out of the browser host"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_623_lift_cdx_and_git_out_of_the_viewer_server"
+        ],
+        "prod": [
+          "prod_059_sub_systems_beside_the_core_not_inside_it"
+        ],
+        "req": [
+          "req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet"
+        ],
+        "task": [
+          "task_308_orchestrate_lifting_the_sub_systems_out_of_the_core"
+        ]
+      },
+      "path": "logics/product/prod_059_sub_systems_beside_the_core_not_inside_it.md",
+      "ref": "prod_059_sub_systems_beside_the_core_not_inside_it",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Settled",
+      "title": "Sub-systems beside the core, not inside it"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_627_move_the_cdx_rendering_to_the_cdx_screen",
+          "item_628_lift_the_workshop_out_of_the_browser_host",
+          "item_629_lift_git_and_ci_out_of_the_browser_host"
+        ],
+        "prod": [
+          "prod_060_the_browser_host_down_to_the_viewer"
+        ],
+        "req": [
+          "req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved"
+        ],
+        "task": [
+          "task_309_orchestrate_finishing_the_browser_host_split"
+        ]
+      },
+      "path": "logics/product/prod_060_the_browser_host_down_to_the_viewer.md",
+      "ref": "prod_060_the_browser_host_down_to_the_viewer",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "The browser host, down to the viewer"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate finishing the browser host split",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_627_move_the_cdx_rendering_to_the_cdx_screen",
+          "item_628_lift_the_workshop_out_of_the_browser_host",
+          "item_629_lift_git_and_ci_out_of_the_browser_host"
+        ],
+        "prod": [
+          "prod_060_the_browser_host_down_to_the_viewer"
+        ],
+        "req": [
+          "req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved"
+        ],
+        "task": [
+          "task_309_orchestrate_finishing_the_browser_host_split"
+        ]
+      },
+      "path": "logics/tasks/task_309_orchestrate_finishing_the_browser_host_split.md",
+      "ref": "task_309_orchestrate_finishing_the_browser_host_split",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate finishing the browser host split"
+    }
+  ],
+  "estimates": {
+    "char_count": 13193,
+    "companion_doc_count": 2,
+    "doc_count": 7
+  },
+  "generated_at": "2026-08-08T17:06:45Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved",
+      "item_627_move_the_cdx_rendering_to_the_cdx_screen",
+      "item_628_lift_the_workshop_out_of_the_browser_host",
+      "item_629_lift_git_and_ci_out_of_the_browser_host",
+      "task_309_orchestrate_finishing_the_browser_host_split"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "deep",
+  "ref": "req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved,item_627_move_the_cdx_rendering_to_the_cdx_screen,item_628_lift_the_workshop_out_of_the_browser_host,item_629_lift_git_and_ci_out_of_the_browser_host,task_309_orchestrate_finishing_the_browser_host_split",
+  "refs": [
+    "req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved",
+    "item_627_move_the_cdx_rendering_to_the_cdx_screen",
+    "item_628_lift_the_workshop_out_of_the_browser_host",
+    "item_629_lift_git_and_ci_out_of_the_browser_host",
+    "task_309_orchestrate_finishing_the_browser_host_split"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.20.0"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_309_orchestrate_finishing_the_browser_host_split.md",
+      "ref": "task_309_orchestrate_finishing_the_browser_host_split"
+    }
+  ]
+}

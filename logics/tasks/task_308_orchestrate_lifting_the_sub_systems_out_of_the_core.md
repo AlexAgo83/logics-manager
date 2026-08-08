@@ -8,13 +8,14 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-08 18:19:26
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
 - [x] 1. Lift cdx and git out of the viewer server, on the seam the route modules already established.
-- [ ] 2. Lift cdx, git and the workshop out of the browser host, one at a time, stopping short of the shared state.
+- [ ] 2. Lift cdx, git and the workshop out of the browser host: STOPPED and recorded on `item_624`. Coupling measured — cdx touches 1 shared binding, the workshop 3, git 12 — so cdx is movable and git is blocked by the shared state this request does not move. The board filters were lifted as the proving cut.
 - [x] 3. Cut the flow entry module underneath the verbs: the shared vocabulary moved to `flow/docs.py`, since cutting by verb would have moved the coupling rather than removed it.
 - [x] 4. Make the size ledger lower itself when a file shrinks, and refuse an unjustified raise.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.

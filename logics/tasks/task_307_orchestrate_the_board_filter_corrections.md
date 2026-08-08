@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 75%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -16,7 +16,7 @@
 - [x] 1. Give the viewer one filtering authority, and stop re-arming the inherited toggles.
 - [x] 2. Produce the count from the predicate the board uses.
 - [x] 3. Select Done by status, and say what each status option would return.
-- [ ] 4. Add the campaign checks that fail when a filter lies, and record them in the runbook.
+- [x] 4. Add the campaign checks that fail when a filter lies, and record them in the runbook.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.

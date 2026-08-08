@@ -2,8 +2,8 @@
 > From version: 2.20.0
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 95%
+> Confidence: 70%
 > Progress: 0%
 > Complexity: High
 > Theme: Browser-host sub-systems
@@ -42,6 +42,7 @@
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
+- Stopped before moving, and recorded, as AC4 prescribes. Measured coupling to the shared state of the browser-host IIFE, counting only bindings the sub-system does not own: cdx touches 1 (viewerPreferences) across 1979 lines; the workshop touches 3 (latestRepoRoot, latestRepository, viewerPreferences) across 1233; git touches 12 (including latestItems, viewerFilterState, workshopBadgeCounts and seven latestCdx* payloads) across 1595, so a git module would carry most of the viewer's state with it. cdx is the movable one and the largest single win; git is blocked by the shared state this request does not move. The board filters were lifted first as the proving cut: 117 lines into clients/viewer/src/browser-host/filters.js, with the state passed as an argument rather than closed over, which is the shape the cdx lift should follow.
 
 # Links
 - Product brief(s): `prod_059_sub_systems_beside_the_core_not_inside_it`

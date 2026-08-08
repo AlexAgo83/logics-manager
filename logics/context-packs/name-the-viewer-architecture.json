@@ -1,0 +1,476 @@
+{
+  "budgets": {
+    "max_docs": 40,
+    "max_docs_per_ref": 8
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens item_630_name_the_viewer_s_shared_state item_631_let_the_server_s_change_notice_invalidate_the_cache item_632_let_a_screen_declare_itself task_310_orchestrate_naming_the_viewer_architecture --mode full --profile deep --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_627_move_the_cdx_rendering_to_the_cdx_screen"
+        ],
+        "prod": [
+          "prod_060_the_browser_host_down_to_the_viewer"
+        ],
+        "req": [
+          "req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved"
+        ],
+        "task": [
+          "task_309_orchestrate_finishing_the_browser_host_split"
+        ]
+      },
+      "path": "logics/product/prod_060_the_browser_host_down_to_the_viewer.md",
+      "ref": "prod_060_the_browser_host_down_to_the_viewer",
+      "sections": {
+        "Goals": [
+          "- Let a sub-system be read and changed on its own, rendering included.",
+          "- Bring the host down to what is actually the viewer.",
+          "- Keep every move provably behavior-free.",
+          "- Leave the shared state to a request that means to face it."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Three more lifts on the seam the cdx screen proved: its rendering follows it out of the shared render module, then the workshop, then git and CI. Each is measured before it is moved, each is verified by the campaign as well as the suite, and each lowers the ledger. The host's shared state stays where it is, and the accessor each lift pays for it is the honest price of leaving it there.",
+          "```mermaid",
+          "flowchart LR",
+          "    Host[Browser host] --> Cdx[cdx module]",
+          "    Host --> Workshop[workshop module]",
+          "    Host --> Git[git/ci module]"
+        ],
+        "References": [
+          "- Product back-reference: `item_627_move_the_cdx_rendering_to_the_cdx_screen`",
+          "- Task back-reference: `task_309_orchestrate_finishing_the_browser_host_split`"
+        ]
+      },
+      "status": "Settled",
+      "title": "The browser host, down to the viewer"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_630_name_the_viewer_s_shared_state",
+          "item_631_let_the_server_s_change_notice_invalidate_the_cache",
+          "item_632_let_a_screen_declare_itself"
+        ],
+        "prod": [
+          "prod_061_the_architecture_written_down"
+        ],
+        "req": [
+          "req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens"
+        ],
+        "task": [
+          "task_310_orchestrate_naming_the_viewer_architecture"
+        ]
+      },
+      "path": "logics/product/prod_061_the_architecture_written_down.md",
+      "ref": "prod_061_the_architecture_written_down",
+      "sections": {
+        "Goals": [
+          "- Make the structure the lifts revealed explicit, so the next screen costs one declaration.",
+          "- Let staleness be told rather than guessed.",
+          "- Keep every phase independently shippable and independently verified.",
+          "- Change nothing the extension webview depends on."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "The viewer already has an architecture: screens with private state over shared session state, invalidated by a change notice the server already streams. It is just implemented by hand, three times, and half-used. Name the store, let the server's notice drive the cache, and let screens declare themselves -- assembling what is present rather than importing something new."
+        ],
+        "References": [
+          "- Product back-reference: `req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens`",
+          "- Task back-reference: `task_310_orchestrate_naming_the_viewer_architecture`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "The architecture, written down"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, write down the architecture the viewer already has: a named store, server-driven invalidation, declared screens, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Write down the architecture the viewer already has: a named store, server-driven invalidation, declared screens",
+        "use when": "You need to implement or review the scaffolded workflow for Write down the architecture the viewer already has: a named store, server-driven invalidation, declared screens."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_630_name_the_viewer_s_shared_state",
+          "item_631_let_the_server_s_change_notice_invalidate_the_cache",
+          "item_632_let_a_screen_declare_itself"
+        ],
+        "prod": [
+          "prod_060_the_browser_host_down_to_the_viewer",
+          "prod_061_the_architecture_written_down"
+        ],
+        "req": [
+          "req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens"
+        ]
+      },
+      "path": "logics/request/req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens.md",
+      "ref": "req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The viewer's shared state lives in one named module, and each screen reaches what it does not own through it rather than through a hand-built accessor.",
+          "- AC2: A cached component is invalidated by the change notice the server already sends, keyed on the vocabulary the server already uses.",
+          "- AC3: Hand-written staleness comparisons are removed where the notice covers them, and any that remain state why they are still needed.",
+          "- AC4: The polling fallback keeps working when the stream is unavailable, and a run with no stream is still correct.",
+          "- AC5: A screen is added by declaring it, and the host routes without testing screen titles.",
+          "- AC6: No framework, no new runtime, and no new endpoint: the bundle keeps its current shape and the extension webview keeps working."
+        ],
+        "Needs": [
+          "- Reach the viewer's shared state through one named thing rather than three hand-built seams.",
+          "- Let the server's own change notice decide what is stale, instead of the client guessing.",
+          "- Add a screen by declaring it, rather than by threading it through a router and a wiring block."
+        ]
+      },
+      "status": "Draft",
+      "title": "Write down the architecture the viewer already has: a named store, server-driven invalidation, declared screens"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, name the viewer's shared state, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Name the viewer's shared state",
+        "use when": "Implementing the scaffolded slice for Name the viewer's shared state."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_630_name_the_viewer_s_shared_state"
+        ],
+        "prod": [
+          "prod_061_the_architecture_written_down"
+        ],
+        "req": [
+          "req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens"
+        ],
+        "task": [
+          "task_310_orchestrate_naming_the_viewer_architecture"
+        ]
+      },
+      "path": "logics/backlog/item_630_name_the_viewer_s_shared_state.md",
+      "ref": "item_630_name_the_viewer_s_shared_state",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The shared bindings live in one module, and the three per-screen accessors are gone.",
+          "- AC2: Each screen receives the store and reaches only what it does not own through it.",
+          "- AC3: Wiring is order-independent: a screen constructed before another still reads correctly.",
+          "- AC4: The suite, the campaign and the repository check pass.",
+          "- AC5: A check derives the store's bindings from the module, so one added later is covered without editing it."
+        ],
+        "Problem": [
+          "- The host holds 41 mutable bindings and 30 constants in one closure. Three screens reach into it through accessors built by hand, one per lift, each solving the same problem in the same way without saying so.",
+          "- That is why every lift cost a wiring block, and why the wiring failed four different ways while it was being written: a value read before it existed, a helper created below the call site, a function passed instead of a thunk, an object key rewritten as a call. None of those are hard problems; they are the cost of composing a seam by hand each time."
+        ]
+      },
+      "status": "Ready",
+      "title": "Name the viewer's shared state"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, let the server's change notice invalidate the cache, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Let the server's change notice invalidate the cache",
+        "use when": "Implementing the scaffolded slice for Let the server's change notice invalidate the cache."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_631_let_the_server_s_change_notice_invalidate_the_cache"
+        ],
+        "prod": [
+          "prod_061_the_architecture_written_down"
+        ],
+        "req": [
+          "req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens"
+        ],
+        "task": [
+          "task_310_orchestrate_naming_the_viewer_architecture"
+        ]
+      },
+      "path": "logics/backlog/item_631_let_the_server_s_change_notice_invalidate_the_cache.md",
+      "ref": "item_631_let_the_server_s_change_notice_invalidate_the_cache",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Each cached entry is keyed on a component name the server emits, and the mapping is one to one.",
+          "- AC2: A `changed` notice invalidates exactly the entries it names, shown by a test that sends one and observes what refetches.",
+          "- AC3: Every removed signature comparison is either covered by the notice or kept with a stated reason.",
+          "- AC4: With the stream unavailable, the viewer still refreshes correctly through polling, covered by a test.",
+          "- AC5: A check asserts the client's component keys are a subset of the server's vocabulary, read from both sides rather than restated."
+        ],
+        "Problem": [
+          "- The server streams a `changed` event carrying component names, and already speaks a vocabulary of nine: git, ci, release, releaseRuns, cdx, cdxRuns, cdxHistory, cdxDisk and cdxMemory. The client subscribes to it.",
+          "- Beside that, the client keeps fourteen `latest*` caches and twenty-nine signature comparisons, deciding by hand whether what it holds is still good. That is the same question the event answers, asked again in a second language.",
+          "- The hard part is not the wiring but the contract: each component name must correspond to exactly one cache entry. A vocabulary that half-matches would replace twenty-nine heuristics with twenty-nine special cases, which is worse than what is there now."
+        ]
+      },
+      "status": "Ready",
+      "title": "Let the server's change notice invalidate the cache"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, let a screen declare itself, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Let a screen declare itself",
+        "use when": "Implementing the scaffolded slice for Let a screen declare itself."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_632_let_a_screen_declare_itself"
+        ],
+        "prod": [
+          "prod_061_the_architecture_written_down"
+        ],
+        "req": [
+          "req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens"
+        ],
+        "task": [
+          "task_310_orchestrate_naming_the_viewer_architecture"
+        ]
+      },
+      "path": "logics/backlog/item_632_let_a_screen_declare_itself.md",
+      "ref": "item_632_let_a_screen_declare_itself",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Each screen is declared once, and the host routes on the declaration.",
+          "- AC2: No routing decision compares a screen title string.",
+          "- AC3: Every navigation target in the markup resolves to a declared screen, shown by a check reading both.",
+          "- AC4: Titles and navigation targets are unchanged, shown by the existing tests passing unedited."
+        ],
+        "Problem": [
+          "- A screen is dispatched by its title: `setDocument(title, html)`, with the routing spread across conditionals that compare that title string. There are fourteen navigation targets and no place that lists them.",
+          "- Adding a screen therefore means editing a router, a wiring block and a conditional chain, and nothing fails if one of the three is forgotten."
+        ]
+      },
+      "status": "Ready",
+      "title": "Let a screen declare itself"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_627_move_the_cdx_rendering_to_the_cdx_screen"
+        ],
+        "prod": [
+          "prod_060_the_browser_host_down_to_the_viewer"
+        ],
+        "req": [
+          "req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved"
+        ],
+        "task": [
+          "task_309_orchestrate_finishing_the_browser_host_split"
+        ]
+      },
+      "path": "logics/product/prod_060_the_browser_host_down_to_the_viewer.md",
+      "ref": "prod_060_the_browser_host_down_to_the_viewer",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Settled",
+      "title": "The browser host, down to the viewer"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_630_name_the_viewer_s_shared_state",
+          "item_631_let_the_server_s_change_notice_invalidate_the_cache",
+          "item_632_let_a_screen_declare_itself"
+        ],
+        "prod": [
+          "prod_061_the_architecture_written_down"
+        ],
+        "req": [
+          "req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens"
+        ],
+        "task": [
+          "task_310_orchestrate_naming_the_viewer_architecture"
+        ]
+      },
+      "path": "logics/product/prod_061_the_architecture_written_down.md",
+      "ref": "prod_061_the_architecture_written_down",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "The architecture, written down"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate naming the viewer architecture",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_630_name_the_viewer_s_shared_state",
+          "item_631_let_the_server_s_change_notice_invalidate_the_cache",
+          "item_632_let_a_screen_declare_itself"
+        ],
+        "prod": [
+          "prod_061_the_architecture_written_down"
+        ],
+        "req": [
+          "req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens"
+        ],
+        "task": [
+          "task_310_orchestrate_naming_the_viewer_architecture"
+        ]
+      },
+      "path": "logics/tasks/task_310_orchestrate_naming_the_viewer_architecture.md",
+      "ref": "task_310_orchestrate_naming_the_viewer_architecture",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate naming the viewer architecture"
+    }
+  ],
+  "estimates": {
+    "char_count": 14150,
+    "companion_doc_count": 2,
+    "doc_count": 7
+  },
+  "generated_at": "2026-08-08T20:30:26Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens",
+      "item_630_name_the_viewer_s_shared_state",
+      "item_631_let_the_server_s_change_notice_invalidate_the_cache",
+      "item_632_let_a_screen_declare_itself",
+      "task_310_orchestrate_naming_the_viewer_architecture"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "deep",
+  "ref": "req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens,item_630_name_the_viewer_s_shared_state,item_631_let_the_server_s_change_notice_invalidate_the_cache,item_632_let_a_screen_declare_itself,task_310_orchestrate_naming_the_viewer_architecture",
+  "refs": [
+    "req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens",
+    "item_630_name_the_viewer_s_shared_state",
+    "item_631_let_the_server_s_change_notice_invalidate_the_cache",
+    "item_632_let_a_screen_declare_itself",
+    "task_310_orchestrate_naming_the_viewer_architecture"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.20.0"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_310_orchestrate_naming_the_viewer_architecture.md",
+      "ref": "task_310_orchestrate_naming_the_viewer_architecture"
+    }
+  ]
+}

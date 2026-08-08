@@ -97,6 +97,7 @@
 | [prod_058_a_filter_that_means_the_board](product/prod_058_a_filter_that_means_the_board.md) | A filter that means the board | Settled |  |  | product/prod_058_a_filter_that_means_the_board.md |
 | [prod_059_sub_systems_beside_the_core_not_inside_it](product/prod_059_sub_systems_beside_the_core_not_inside_it.md) | Sub-systems beside the core, not inside it | Settled |  |  | product/prod_059_sub_systems_beside_the_core_not_inside_it.md |
 | [prod_060_the_browser_host_down_to_the_viewer](product/prod_060_the_browser_host_down_to_the_viewer.md) | The browser host, down to the viewer | Settled |  |  | product/prod_060_the_browser_host_down_to_the_viewer.md |
+| [prod_061_the_architecture_written_down](product/prod_061_the_architecture_written_down.md) | The architecture, written down | Proposed |  |  | product/prod_061_the_architecture_written_down.md |
 
 ## Roadmaps
 
@@ -417,6 +418,7 @@ _None_
 | [req_310_make_the_board_filters_answer_with_what_the_board_actually_shows](request/req_310_make_the_board_filters_answer_with_what_the_board_actually_shows.md) | Make the board filters answer with what the board actually shows | Done |  |  | request/req_310_make_the_board_filters_answer_with_what_the_board_actually_shows.md |
 | [req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet](request/req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet.md) | Lift the viewer's sub-systems out of its core, and turn the size ledger into a ratchet | Done |  |  | request/req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet.md |
 | [req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved](request/req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved.md) | Finish lifting the browser host's sub-systems, on the seam cdx proved | Done |  |  | request/req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved.md |
+| [req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens](request/req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens.md) | Write down the architecture the viewer already has: a named store, server-driven invalidation, declared screens | Ready |  |  | request/req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens.md |
 
 ## Backlog
 
@@ -1051,6 +1053,9 @@ _None_
 | [item_627_move_the_cdx_rendering_to_the_cdx_screen](backlog/item_627_move_the_cdx_rendering_to_the_cdx_screen.md) | Move the cdx rendering to the cdx screen | Done |  | 100% | backlog/item_627_move_the_cdx_rendering_to_the_cdx_screen.md |
 | [item_628_lift_the_workshop_out_of_the_browser_host](backlog/item_628_lift_the_workshop_out_of_the_browser_host.md) | Lift the workshop out of the browser host | Done |  | 100% | backlog/item_628_lift_the_workshop_out_of_the_browser_host.md |
 | [item_629_lift_git_and_ci_out_of_the_browser_host](backlog/item_629_lift_git_and_ci_out_of_the_browser_host.md) | Lift git and CI out of the browser host | Done |  | 100% | backlog/item_629_lift_git_and_ci_out_of_the_browser_host.md |
+| [item_630_name_the_viewer_s_shared_state](backlog/item_630_name_the_viewer_s_shared_state.md) | Name the viewer's shared state | Ready |  | 0% | backlog/item_630_name_the_viewer_s_shared_state.md |
+| [item_631_let_the_server_s_change_notice_invalidate_the_cache](backlog/item_631_let_the_server_s_change_notice_invalidate_the_cache.md) | Let the server's change notice invalidate the cache | Ready |  | 0% | backlog/item_631_let_the_server_s_change_notice_invalidate_the_cache.md |
+| [item_632_let_a_screen_declare_itself](backlog/item_632_let_a_screen_declare_itself.md) | Let a screen declare itself | Ready |  | 0% | backlog/item_632_let_a_screen_declare_itself.md |
 
 ## Tasks
 
@@ -1359,3 +1364,4 @@ _None_
 | [task_307_orchestrate_the_board_filter_corrections](tasks/task_307_orchestrate_the_board_filter_corrections.md) | Orchestrate the board filter corrections | Done |  | 100% | tasks/task_307_orchestrate_the_board_filter_corrections.md |
 | [task_308_orchestrate_lifting_the_sub_systems_out_of_the_core](tasks/task_308_orchestrate_lifting_the_sub_systems_out_of_the_core.md) | Orchestrate lifting the sub-systems out of the core | Done |  | 100% | tasks/task_308_orchestrate_lifting_the_sub_systems_out_of_the_core.md |
 | [task_309_orchestrate_finishing_the_browser_host_split](tasks/task_309_orchestrate_finishing_the_browser_host_split.md) | Orchestrate finishing the browser host split | Done |  | 100% | tasks/task_309_orchestrate_finishing_the_browser_host_split.md |
+| [task_310_orchestrate_naming_the_viewer_architecture](tasks/task_310_orchestrate_naming_the_viewer_architecture.md) | Orchestrate naming the viewer architecture | Ready |  | 0% | tasks/task_310_orchestrate_naming_the_viewer_architecture.md |

@@ -19,7 +19,7 @@
 
 # Context
 - An attended pass walked all fourteen navigation targets of the running viewer, measured how long each took to report itself loaded, captured every screen, and recorded console and network problems. The script is kept at `scripts/dev/viewer-tour.mjs` so the pass is repeatable.
-- Two menu entries do not open anything. Choosing Translations or Theme leaves the document on the Workshop explorer, with its title still reading Workshop; the only feedback is a line in the status bar saying no convention was detected. From the operator's side the button looks broken.
+- Two menu entries appeared not to open anything -- a claim later refuted; both are hidden on a project without the convention, and the tour had clicked hidden controls. What remains is the status code behind them. Choosing Translations or Theme leaves the document on the Workshop explorer, with its title still reading Workshop; the only feedback is a line in the status bar saying no convention was detected. From the operator's side the button looks broken.
 - Behind those two entries, the server answers HTTP 400 for a project that simply has no i18n or theme convention. A 400 says the request was malformed; the request is fine. The result is two red console errors on every visit to a perfectly ordinary project.
 - The count above the board stops following the filters as soon as the search box is used. Typing a query narrowed the board to nine cards, with per-column counts correct at two of two and four of four, while the count kept reading 1337 of 1337 docs shown. The same defect class was fixed for the filter panel; the search path recomputes nothing.
 - Two screens never report completion. Terminals and Commands leave the status bar reading Workshop / terminals, with no word of completion, while the twelve others end on loaded. Nothing distinguishes finished from still working. Separately, the status bar was still reading Closing preview after the preview had closed.
@@ -30,7 +30,7 @@
 - One tour finding was withdrawn rather than carried here: a report of thirty-five board columns came from a selector that counted each column's sub-elements as columns. The board renders one column per stage, as intended.
 
 # Acceptance criteria
-- AC1: A navigation entry that cannot open a screen states why before it is chosen, rather than leaving the previous screen in place.
+- AC1: WITHDRAWN. The entries were measured as hidden on a project without the convention, so nothing is offered that cannot open; the tour had dispatched clicks on hidden controls. Recorded on `item_633`.
 - AC2: A project with no i18n or theme convention is answered as a normal result, not as a client error, and the console stays clean on it.
 - AC3: The count above the board follows every filter, including the search box.
 - AC4: Every screen reports when it has finished, and no status line outlives what it describes.

@@ -159,3 +159,45 @@ def test_the_viewer_serves_and_accepts_preferences(home: Path, tmp_path: Path, m
     # Written where the scope says, not in one bucket.
     assert "favoriteProjects" in _json.loads(operator_preferences_path().read_text())["preferences"]
     assert "workshopActiveTab" in _json.loads(repo_preferences_path(repo).read_text())["preferences"]
+
+
+# --- item_633: an ordinary project is not a client error ---------------------
+
+
+def test_a_project_without_i18n_is_answered_normally(tmp_path: Path) -> None:
+    """It used to raise, which the route turned into HTTP 400 on an ordinary project."""
+    from logics_manager.viewer_project_tools import i18n_payload, theme_payload
+
+    repo = _repo(tmp_path, "plain")
+
+    i18n = i18n_payload(repo)
+    theme = theme_payload(repo)
+
+    assert i18n["state"] == "unavailable"
+    assert "convention" in i18n["message"]
+    assert theme["state"] == "unavailable"
+    assert "convention" in theme["message"]
+
+
+def test_the_route_reports_it_as_a_result_not_a_client_error(tmp_path: Path) -> None:
+    import json as _json
+    import threading
+    import urllib.request
+
+    from logics_manager.viewer import create_viewer_server
+
+    repo = _repo(tmp_path, "plain-served")
+    server = create_viewer_server(repo, host="127.0.0.1", port=0)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        base = f"http://127.0.0.1:{server.server_address[1]}"
+        with urllib.request.urlopen(f"{base}/api/project-i18n", timeout=10) as response:
+            status, body = response.status, _json.loads(response.read())
+    finally:
+        server.shutdown()
+        server.server_close()
+
+    assert status == 200
+    assert body["ok"] is True
+    assert body["payload"]["state"] == "unavailable"

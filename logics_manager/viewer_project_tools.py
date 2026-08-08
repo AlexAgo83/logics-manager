@@ -269,7 +269,10 @@ def _source_dictionary_payload(root: Path, capability: dict[str, Any]) -> dict[s
 def i18n_payload(root: Path) -> dict[str, Any]:
     capability = detect_project_tools(root)["i18n"]
     if not capability.get("available"):
-        raise ValueError(capability["message"])
+        # A project with no i18n convention is an ordinary project, not a malformed
+        # request. Answering 400 put a red error in the console of every such project and
+        # told the operator their client was at fault.
+        return {"state": "unavailable", "capability": capability, "message": capability["message"], "locales": [], "rows": []}
     detail = capability.get("detail", {})
     if detail.get("convention") == "source-dictionary":
         return _source_dictionary_payload(root, capability)
@@ -379,7 +382,7 @@ def _theme_group(name: str, value: str) -> str:
 def theme_payload(root: Path) -> dict[str, Any]:
     capability = detect_project_tools(root)["theme"]
     if not capability.get("available"):
-        raise ValueError(capability["message"])
+        return {"state": "unavailable", "capability": capability, "message": capability["message"], "selectors": []}
     detail = capability.get("detail", {})
     if detail.get("convention") != "css-custom-properties":
         return {"state": "read-only", "capability": capability, "selectors": []}

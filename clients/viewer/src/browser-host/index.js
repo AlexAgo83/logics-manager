@@ -489,8 +489,36 @@ import {
   let viewSeq = 0; // bumps on every view transition (operator or silent refresh)
   let userViewSeq = 0; // bumps only on operator-initiated transitions
   let activeUserViewController = null;
-  function writeViewerPreferences(nextPreferences) {
-    viewerPreferences = { ...nextPreferences, version: preferenceVersion };
+  // The browser store is a cache for the first paint: it is scoped to an origin, and the
+  // extension serves this page from a new port every session, so it cannot be the record.
+  // The server knows both the repository and the machine, and answers both hosts.
+  async function hydrateViewerPreferencesFromServer() {
+    try {
+      const response = await fetch("/api/preferences");
+      const data = await response.json();
+      if (!response.ok || !data?.ok || !data.payload || typeof data.payload !== "object") return;
+      // The record wins wherever the two disagree.
+      viewerPreferences = { ...viewerPreferences, ...data.payload, version: preferenceVersion };
+      cacheViewerPreferences();
+      renderProjectMenu();
+      syncWorkshopSystemTerminalControls();
+    } catch {
+      // Offline or an older server: the cached values stay usable for this session.
+    }
+  }
+
+  function persistViewerPreferencesToServer(patch, removed) {
+    if (!patch && !removed) return;
+    fetch("/api/preferences", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ preferences: patch || {}, removed: removed || {} }),
+    }).catch(() => {
+      // A failed write leaves the cache in place; the next change retries the whole patch.
+    });
+  }
+
+  function cacheViewerPreferences() {
     try {
       window.localStorage.setItem(preferenceKey, JSON.stringify(viewerPreferences));
     } catch {
@@ -498,8 +526,14 @@ import {
     }
   }
 
-  function updateViewerPreferences(patch) {
+  function writeViewerPreferences(nextPreferences) {
+    viewerPreferences = { ...nextPreferences, version: preferenceVersion };
+    cacheViewerPreferences();
+  }
+
+  function updateViewerPreferences(patch, options = {}) {
     writeViewerPreferences({ ...viewerPreferences, ...patch });
+    persistViewerPreferencesToServer(patch, options.removed);
     if (patch.projectLastUsedAt && window.parent !== window) window.parent.postMessage({ type: "viewer-project-last-used", projectLastUsedAt: patch.projectLastUsedAt }, "*");
     if (patch.favoriteProjects && window.parent !== window) window.parent.postMessage({ type: "viewer-favorite-projects", favoriteProjects: patch.favoriteProjects }, "*");
     syncWorkshopSystemTerminalControls();
@@ -536,7 +570,13 @@ import {
     } else {
       favorites.delete(projectId);
     }
-    updateViewerPreferences({ favoriteProjects: Array.from(favorites).sort() });
+    // Un-starring cannot be expressed by a merge: an absent entry means "I did not see
+    // it", not "drop it". Two windows starring at once must both keep their favourite,
+    // so a removal has to say so explicitly.
+    updateViewerPreferences(
+      { favoriteProjects: Array.from(favorites).sort() },
+      favorite ? {} : { removed: { favoriteProjects: [projectId] } }
+    );
   }
 
   function preferredAutoRefreshIntervalSeconds() {
@@ -3117,6 +3157,8 @@ import {
           return;
         }
         if (message.type === "ready") {
+          // The cached values have already painted; the record corrects them once it answers.
+          void hydrateViewerPreferencesFromServer();
           loadItems().then(() => startViewerEvents()).catch((error) => setMeta(error.message));
           return;
         }

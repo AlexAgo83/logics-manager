@@ -1,10 +1,10 @@
 ## item_638_give_the_viewer_a_preference_store_that_does_not_depend_on_the_port - Give the viewer a preference store that does not depend on the port
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: One record, two scopes
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -37,12 +37,11 @@
 - AC5: A test derives the operator-versus-corpus split from the code, so a field added later must be placed.
 
 # AC Traceability
-- request-AC2 -> This backlog slice. Proof: AC1: An operator preference set in one repository applies in another.
-- request-AC3 -> This backlog slice. Proof: AC2: A corpus preference set in one repository does not appear in another.
-- request-AC6 -> This backlog slice. Proof: AC3: The standalone viewer and the extension read the same values, whatever port either was served from.
-- request-AC7 -> This backlog slice. Proof: AC4: Preferences already stored in the browser are carried over on first run and not lost.
-- request-AC8 -> This backlog slice. Proof: AC5: A test derives the operator-versus-corpus split from the code, so a field added later must be placed.
-
+- request-AC2 -> This backlog slice. Proof: `test_a_corpus_preference_stays_with_its_corpus` in `tests/python/test_viewer_preferences.py`.
+- request-AC3 -> This backlog slice. Proof: `test_an_operator_preference_applies_in_every_repository` in the same file.
+- request-AC6 -> This backlog slice. Proof: `test_the_viewer_serves_and_accepts_preferences`, which drives a real server on an ephemeral port and reads the record back; and `test_neither_scope_depends_on_the_port_it_was_served_from`.
+- request-AC7 -> This backlog slice. Proof: the browser store is kept and merged into the hydrated record on boot, so an operator's existing values are carried rather than reset.
+- request-AC8 -> This backlog slice. Proof: the nine tests in `tests/python/test_viewer_preferences.py`.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

@@ -33,6 +33,10 @@ from .insights import health_payload, status_payload
 from .lint import lint_payload
 from .release import load_release_context, release_reset_payload, release_status_payload
 from .sync import update_workflow_indicators_payload
+from .viewer_preferences import (
+    read_preferences as read_viewer_preferences,
+    update_preferences as update_viewer_preferences,
+)
 from .update_check import current_version as package_current_version, get_update_info
 from .viewer_docs import (
     DOC_FAMILIES,
@@ -1502,6 +1506,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/stop-viewer",
         "/api/switch-project",
         "/api/select-project-root",
+        "/api/preferences",
         "/api/select-project-root-path",
         "/api/cdx-report-request",
         "/api/cdx-mission-run",
@@ -2307,6 +2312,9 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 return
             self._send_json({"ok": True, "payload": payload})
             return
+        if route == "/api/preferences":
+            self._send_json({"ok": True, "payload": read_viewer_preferences(self.server.repo_root)})
+            return
         if route == "/api/capabilities":
             self._send_json({"ok": True, "payload": viewer_project_capabilities(self.server.repo_root)})
             return
@@ -2419,6 +2427,21 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/lan/devices/revoke":
             self._handle_device_revoke(parsed)
+            return
+        if parsed.path == "/api/preferences":
+            try:
+                body = self._read_json_body_strict()
+            except (OSError, ValueError) as exc:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, f"Invalid preference payload: {exc}")
+                return
+            patch = body.get("preferences") if isinstance(body.get("preferences"), dict) else {}
+            removed = body.get("removed") if isinstance(body.get("removed"), dict) else {}
+            try:
+                payload = update_viewer_preferences(self.server.repo_root, patch, removed=removed)
+            except OSError as exc:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, f"Unable to store preferences: {exc}")
+                return
+            self._send_json({"ok": True, "payload": payload})
             return
         if parsed.path == "/api/refresh":
             self._send_json(

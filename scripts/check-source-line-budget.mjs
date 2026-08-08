@@ -48,8 +48,12 @@ const allowedOversizedFiles = new Map(
     // 4909: release prep baseline.
     // req_311 lifted the document vocabulary into flow/docs.py: 4725 -> 3627. What is left
     // is the verbs and the CLI wiring, sitting on top of primitives that know nothing of them.
-    "logics_manager/flow/__init__.py": { maxLines: 3626, ref: "req_311" },
-    "logics_manager/flow/docs.py": { maxLines: 1368, ref: "req_311" },
+    // 3679: req_316 added the proof-format expectation to two findings, the scope block to
+    // validate-closeout's help, and the ownership rule to the AC repair. Extraction was not
+    // attempted: each addition sits inside the function it explains, and the module's own
+    // split landed one request ago.
+    "logics_manager/flow/__init__.py": { maxLines: 3679, ref: "req_316" },
+    "logics_manager/flow/docs.py": { maxLines: 1372, ref: "req_316" },
     // req_273: de-glued frontend sources. esbuild/concatenation now consume these directly
     // instead of a regex part-manifest + readFileSync.join, so the bundles stay byte-stable.
     // 7250: viewer screen minimization and workshop terminal follow-ups added here;

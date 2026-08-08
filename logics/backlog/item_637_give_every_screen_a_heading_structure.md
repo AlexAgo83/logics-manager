@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Structure a screen reader can follow
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-09 00:47:55
 
 # Problem
 - The interface uses no heading element anywhere: an audit of the running viewer found zero `h1` through `h6` across every screen.
@@ -58,6 +59,7 @@
 
 # Notes
 - Generated locally by logics-manager.
+- Task `task_311_orchestrate_the_attended_tour_findings` was finished via `logics-manager flow finish task` on 2026-08-09.
 
 # Tasks
 - `task_311_orchestrate_the_attended_tour_findings`

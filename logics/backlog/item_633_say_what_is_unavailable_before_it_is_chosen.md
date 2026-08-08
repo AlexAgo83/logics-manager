@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Honest availability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-08 22:54:25
+> Indicators reviewed: 2026-08-09 00:47:55
 
 # Problem
 - PARTLY WITHDRAWN. The user-facing half of this slice was inferred from a probe that clicked hidden controls, and does not hold. The status-code half is real and was delivered.
@@ -30,6 +30,12 @@
 - AC2: The route returns 200 rather than 400 for that project, and the console records no error.
 - AC3: A project that does have a convention still returns its payload.
 - AC4: The withdrawal states what was claimed, what was measured, and what refutes it.
+
+# AC Traceability
+- request-AC1 -> This backlog slice. Proof: withdrawn after measurement -- both entries report `available: false` and are rendered `hidden`, so nothing is offered that cannot open; the attended tour had dispatched clicks on hidden controls.
+- request-AC2 -> This backlog slice. Proof: `test_a_project_without_i18n_is_answered_normally` and `test_the_route_reports_it_as_a_result_not_a_client_error` in `tests/python/test_viewer_preferences.py`.
+- request-AC6 -> This backlog slice. Proof: the campaign's console check is green on a project with no convention, which it was not while the route answered 400.
+- request-AC7 -> This backlog slice. Proof: the two tests above.
 
 # Decision framing
 - Product framing: Not needed
@@ -53,3 +59,6 @@
 
 # Tasks
 - `task_311_orchestrate_the_attended_tour_findings`
+
+# Notes
+- Task `task_311_orchestrate_the_attended_tour_findings` was finished via `logics-manager flow finish task` on 2026-08-09.

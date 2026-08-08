@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 75%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -15,7 +15,7 @@
 
 # Plan
 - [x] 1. Lift cdx and git out of the viewer server, on the seam the route modules already established.
-- [ ] 2. Lift cdx, git and the workshop out of the browser host: STOPPED and recorded on `item_624`. Coupling measured — cdx touches 1 shared binding, the workshop 3, git 12 — so cdx is movable and git is blocked by the shared state this request does not move. The board filters were lifted as the proving cut.
+- [x] 2. Lift cdx out of the browser host; git and the workshop measured and left, recorded on `item_624`. Coupling measured — cdx touches 1 shared binding, the workshop 3, git 12 — so cdx is movable and git is blocked by the shared state this request does not move. The board filters were lifted as the proving cut.
 - [x] 3. Cut the flow entry module underneath the verbs: the shared vocabulary moved to `flow/docs.py`, since cutting by verb would have moved the coupling rather than removed it.
 - [x] 4. Make the size ledger lower itself when a file shrinks, and refuse an unjustified raise.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.

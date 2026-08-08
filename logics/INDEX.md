@@ -93,7 +93,7 @@
 | [prod_054_guardrails_proportionate_to_the_codebase](product/prod_054_guardrails_proportionate_to_the_codebase.md) | Guardrails proportionate to the codebase | Settled |  |  | product/prod_054_guardrails_proportionate_to_the_codebase.md |
 | [prod_055_say_what_it_does_and_test_what_was_moved](product/prod_055_say_what_it_does_and_test_what_was_moved.md) | Say what it does, and test what was moved | Settled |  |  | product/prod_055_say_what_it_does_and_test_what_was_moved.md |
 | [prod_056_say_what_actually_happened](product/prod_056_say_what_actually_happened.md) | Say what actually happened | Settled |  |  | product/prod_056_say_what_actually_happened.md |
-| [prod_057_a_viewer_campaign_that_reports_what_it_saw](product/prod_057_a_viewer_campaign_that_reports_what_it_saw.md) | A viewer campaign that reports what it saw | Proposed |  |  | product/prod_057_a_viewer_campaign_that_reports_what_it_saw.md |
+| [prod_057_a_viewer_campaign_that_reports_what_it_saw](product/prod_057_a_viewer_campaign_that_reports_what_it_saw.md) | A viewer campaign that reports what it saw | Settled |  |  | product/prod_057_a_viewer_campaign_that_reports_what_it_saw.md |
 
 ## Roadmaps
 
@@ -410,7 +410,7 @@ _None_
 | [req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split](request/req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split.md) | Act on the repository review: measurement honesty, guardrails, and the viewer module split | Done |  |  | request/req_306_act_on_the_repository_review_measurement_honesty_guardrails_and_the_viewer_module_split.md |
 | [req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches](request/req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches.md) | Close the gaps the second review found: stated risk, cache concurrency, and untested route branches | Done |  |  | request/req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches.md |
 | [req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout](request/req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout.md) | Report workflow outcomes honestly across audit, help, and closeout | Done |  |  | request/req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout.md |
-| [req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured](request/req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured.md) | Turn the viewer visual smoke into a UI campaign that reports what it measured | Ready |  |  | request/req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured.md |
+| [req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured](request/req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured.md) | Turn the viewer visual smoke into a UI campaign that reports what it measured | Done |  |  | request/req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured.md |
 
 ## Backlog
 
@@ -1338,4 +1338,4 @@ _None_
 | [task_303_orchestrate_the_repository_review_remediation](tasks/task_303_orchestrate_the_repository_review_remediation.md) | Orchestrate the repository review remediation | Done |  | 100% | tasks/task_303_orchestrate_the_repository_review_remediation.md |
 | [task_304_orchestrate_the_second_review_remediation](tasks/task_304_orchestrate_the_second_review_remediation.md) | Orchestrate the second review remediation | Done |  | 100% | tasks/task_304_orchestrate_the_second_review_remediation.md |
 | [task_305_orchestrate_the_honest_outcome_corrections](tasks/task_305_orchestrate_the_honest_outcome_corrections.md) | Orchestrate the honest-outcome corrections | Done |  | 100% | tasks/task_305_orchestrate_the_honest_outcome_corrections.md |
-| [task_306_orchestrate_the_viewer_ui_campaign](tasks/task_306_orchestrate_the_viewer_ui_campaign.md) | Orchestrate the viewer UI campaign | In progress |  | 100% | tasks/task_306_orchestrate_the_viewer_ui_campaign.md |
+| [task_306_orchestrate_the_viewer_ui_campaign](tasks/task_306_orchestrate_the_viewer_ui_campaign.md) | Orchestrate the viewer UI campaign | Done |  | 100% | tasks/task_306_orchestrate_the_viewer_ui_campaign.md |

@@ -1,7 +1,7 @@
 ## req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured - Turn the viewer visual smoke into a UI campaign that reports what it measured
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

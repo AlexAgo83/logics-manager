@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Layout defect classes
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 16:37:22
 
 # Problem
 - The campaign asserts that a few regions are not empty and that one navigation path works. Nothing looks at whether controls are drawn over each other, whether anything is clipped or forces the page sideways at the narrow viewport, whether an empty surface explains itself, or whether an action the interface offers can be reached.
@@ -40,6 +41,12 @@
 - request-AC4 -> This backlog slice. Proof: the eight tests in `tests/viewer.layout-checks.test.ts`, one per defect class, each introducing the defect and asserting the check reports it.
 - request-AC5 -> This backlog slice. Proof: `walks the interface rather than a hand-written list of surfaces` in the same file: a control under a container the check never heard of is still covered.
 - request-AC9 -> This backlog slice. Proof: the same file; `tests/helpers/viewer-layout-checks.mjs` is the single source the campaign serializes into the page.
+- request-AC1 -> This backlog slice. Evidence needed: A campaign run reports every check it performed, each with a verdict and the value it measured.
+- request-AC2 -> This backlog slice. Evidence needed: A failed check does not end the run; the remaining checks still run and still report.
+- request-AC3 -> This backlog slice. Evidence needed: The campaign still gates: a run with any failed check exits non-zero, and the repository check script still fails on it.
+- request-AC6 -> This backlog slice. Evidence needed: The captures and the report land together in one place an operator can open after the run.
+- request-AC7 -> This backlog slice. Evidence needed: A runbook states how to run the campaign, how to read a failed check, and that a finding becomes a workflow slice.
+- request-AC8 -> This backlog slice. Evidence needed: The existing fallbacks keep working: no Chrome present, and the Windows CI server-only pass.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
@@ -59,3 +66,9 @@
 # Priority
 - Priority: High - the campaign's reason to exist beyond the unit suite
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_306_orchestrate_the_viewer_ui_campaign`
+
+# Notes
+- Task `task_306_orchestrate_the_viewer_ui_campaign` was finished via `logics-manager flow finish task` on 2026-08-08.

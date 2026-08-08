@@ -1,8 +1,8 @@
 ## prod_057_a_viewer_campaign_that_reports_what_it_saw - A viewer campaign that reports what it saw
 > Date: 2026-08-08
-> Status: Proposed
+> Status: Settled
 > Related request: `req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured`
-> Related backlog: `item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value`, `item_616_assert_the_layout_defects_a_passing_unit_suite_cannot_see`, `item_617_write_the_campaign_runbook_and_say_where_a_finding_goes`
+> Related backlog: `item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value`
 > Related task: `task_306_orchestrate_the_viewer_ui_campaign`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -47,5 +47,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured`
+- Product back-reference: `item_615_make_the_viewer_campaign_report_every_check_with_its_measured_value`
 - Task back-reference: `task_306_orchestrate_the_viewer_ui_campaign`

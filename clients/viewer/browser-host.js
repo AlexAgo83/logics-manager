@@ -6380,12 +6380,8 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       viewerFilterState = { ...viewerFilterState, [group]: value || defaultFilterState[group] };
       window.__CDX_LOGICS_VIEWER_FILTER__ = matchesViewerFilter;
       persistViewerFilterState();
-      setControlValue("hide-complete", true, "change");
-      setControlValue("hide-processed-requests", true, "change");
-      setControlValue("hide-spec", false, "change");
-      setControlValue("show-companion-docs", true, "change");
-      setControlValue("hide-empty-columns", true, "change");
       updateFilterSummary();
+      requestBoardRender();
     }
     function focusFilterLabel(value) {
       return {
@@ -6443,12 +6439,13 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       window.__CDX_LOGICS_VIEWER_FILTER__ = matchesViewerFilter;
       persistViewerFilterState();
       setControlValue("search-input", "", "input");
-      setControlValue("hide-complete", false, "change");
-      setControlValue("hide-processed-requests", false, "change");
-      setControlValue("hide-spec", false, "change");
-      setControlValue("show-companion-docs", true, "change");
-      setControlValue("hide-empty-columns", false, "change");
       updateFilterSummary();
+      requestBoardRender();
+    }
+    function requestBoardRender() {
+      if (typeof window.__CDX_LOGICS_RENDER__ === "function") {
+        window.__CDX_LOGICS_RENDER__();
+      }
     }
     function updateFilterSummary() {
       updateFocusMenuState();
@@ -6476,7 +6473,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       if (!count) {
         return;
       }
-      const visibleCount = latestItems.filter(matchesViewerFilter).length;
+      const visibleCount = typeof window.__CDX_LOGICS_VISIBLE_COUNT__ === "function" ? window.__CDX_LOGICS_VISIBLE_COUNT__() : latestItems.filter(matchesViewerFilter).length;
       const suffix = activeLabels.length > 0 ? ` \xB7 ${activeLabels.join(" \xB7 ")}` : " \xB7 All docs";
       count.textContent = `${visibleCount} of ${latestItems.length} docs shown${suffix}`;
     }

@@ -382,23 +382,33 @@
     }
 
     function isVisible(item) {
-      if (typeof window.__CDX_LOGICS_VIEWER_FILTER__ === "function" && !window.__CDX_LOGICS_VIEWER_FILTER__(item)) {
+      // The local viewer installs a filter panel and, with it, this hook. Where the hook
+      // exists it is the authority on type, status, relations and activity, and the
+      // inherited hide toggles are not consulted: applying both in series let a panel
+      // selection be undone by a toggle the operator never saw, and on a corpus whose
+      // documents are all finished that emptied the board every time it was filtered.
+      // The extension webview has no panel, so there the toggles remain the only
+      // filtering there is. Search and attention are orthogonal to both and always apply.
+      const panelIsAuthority = typeof window.__CDX_LOGICS_VIEWER_FILTER__ === "function";
+      if (panelIsAuthority && !window.__CDX_LOGICS_VIEWER_FILTER__(item)) {
         return false;
       }
       if (getAttentionOnly() && !needsAttention(item)) {
         return false;
       }
-      if (getHideCompleted() && (isComplete(item) || isClosedWorkflowStatus(getStatusValue(item)))) {
-        return false;
-      }
-      if (getHideProcessedRequests() && item.stage === "request" && isRequestProcessed(item)) {
-        return false;
-      }
-      if (getHideSpec() && item.stage === "spec") {
-        return false;
-      }
-      if (!getShowCompanionDocs() && isCompanionStage(item.stage)) {
-        return false;
+      if (!panelIsAuthority) {
+        if (getHideCompleted() && (isComplete(item) || isClosedWorkflowStatus(getStatusValue(item)))) {
+          return false;
+        }
+        if (getHideProcessedRequests() && item.stage === "request" && isRequestProcessed(item)) {
+          return false;
+        }
+        if (getHideSpec() && item.stage === "spec") {
+          return false;
+        }
+        if (!getShowCompanionDocs() && isCompanionStage(item.stage)) {
+          return false;
+        }
       }
       return matchesSearch(item);
     }

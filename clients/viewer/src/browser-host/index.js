@@ -3064,12 +3064,12 @@ import {
     viewerFilterState = { ...viewerFilterState, [group]: value || defaultFilterState[group] };
     window.__CDX_LOGICS_VIEWER_FILTER__ = matchesViewerFilter;
     persistViewerFilterState();
-    setControlValue("hide-complete", true, "change");
-    setControlValue("hide-processed-requests", true, "change");
-    setControlValue("hide-spec", false, "change");
-    setControlValue("show-companion-docs", true, "change");
-    setControlValue("hide-empty-columns", true, "change");
+    // The inherited hide toggles used to be re-armed here on every selection, which is
+    // how filtering the board was what emptied it. They are no longer consulted while
+    // this panel is installed, so setting them would only be theatre -- but their change
+    // events were also the only thing redrawing the board, so the redraw is asked for.
     updateFilterSummary();
+    requestBoardRender();
   }
 
   function focusFilterLabel(value) {
@@ -3132,12 +3132,14 @@ import {
     window.__CDX_LOGICS_VIEWER_FILTER__ = matchesViewerFilter;
     persistViewerFilterState();
     setControlValue("search-input", "", "input");
-    setControlValue("hide-complete", false, "change");
-    setControlValue("hide-processed-requests", false, "change");
-    setControlValue("hide-spec", false, "change");
-    setControlValue("show-companion-docs", true, "change");
-    setControlValue("hide-empty-columns", false, "change");
     updateFilterSummary();
+    requestBoardRender();
+  }
+
+  function requestBoardRender() {
+    if (typeof window.__CDX_LOGICS_RENDER__ === "function") {
+      window.__CDX_LOGICS_RENDER__();
+    }
   }
 
   function updateFilterSummary() {
@@ -3168,7 +3170,12 @@ import {
     if (!count) {
       return;
     }
-    const visibleCount = latestItems.filter(matchesViewerFilter).length;
+    // Ask the board's own predicate when it is available: the panel predicate alone was
+    // only half the filtering the board applied, which is how this number came to
+    // contradict the screen underneath it.
+    const visibleCount = typeof window.__CDX_LOGICS_VISIBLE_COUNT__ === "function"
+      ? window.__CDX_LOGICS_VISIBLE_COUNT__()
+      : latestItems.filter(matchesViewerFilter).length;
     const suffix = activeLabels.length > 0 ? ` · ${activeLabels.join(" · ")}` : " · All docs";
     count.textContent = `${visibleCount} of ${latestItems.length} docs shown${suffix}`;
   }

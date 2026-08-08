@@ -1,10 +1,10 @@
 ## item_620_make_the_count_above_the_board_describe_the_board - Make the count above the board describe the board
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: One number, one meaning
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -29,10 +29,9 @@
 - AC4: A test asserts the agreement across the filter combinations and fails against the current implementation.
 
 # AC Traceability
-- request-AC2 -> This backlog slice. Proof: AC1: The count and the board are produced by one predicate.
-- request-AC7 -> This backlog slice. Proof: AC2: For every filter combination, the count equals the number of documents the board would render.
-- request-AC8 -> This backlog slice. Proof: AC3: The count remains distinguishable from the number of cards currently paged in.
-
+- request-AC2 -> This backlog slice. Proof: `counts what the board renders, not what the panel alone would allow` and `agrees with the board for every panel selection, including one that allows nothing` in `tests/webview.filter-authority.test.ts`.
+- request-AC7 -> This backlog slice. Proof: the count is produced by `window.__CDX_LOGICS_VISIBLE_COUNT__`, which filters through the board's own `isVisible`; the campaign check lands with `item_622`.
+- request-AC8 -> This backlog slice. Proof: both tests fail against the previous implementation.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

@@ -7217,20 +7217,27 @@ describe("local viewer browser host", () => {
     expect(toggle?.classList.contains("toolbar__filter--active")).toBe(false);
   });
 
-  it("clears local viewer hide filters when filters are cleared", async () => {
+  it("returns the panel to its defaults when filters are cleared", async () => {
+    // req_310: clearing used to un-check the inherited hide toggles, which is what the
+    // assertion here pinned. Those toggles are no longer consulted while the panel is
+    // installed, so what has to be true after clearing is that the panel is back to its
+    // defaults -- the state that decides what the board shows.
     const { dom } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();
 
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect((dom.window.document.getElementById("hide-complete") as HTMLInputElement | null)?.checked).toBe(true);
-    expect((dom.window.document.getElementById("hide-processed-requests") as HTMLInputElement | null)?.checked).toBe(true);
+    const typeSelect = dom.window.document.querySelector('[data-viewer-filter-group="type"]') as HTMLSelectElement | null;
+    typeSelect!.value = "task";
+    typeSelect!.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    expect(typeSelect!.value).toBe("task");
 
     dom.window.document.getElementById("filter-reset")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
-    expect((dom.window.document.getElementById("hide-complete") as HTMLInputElement | null)?.checked).toBe(false);
-    expect((dom.window.document.getElementById("hide-processed-requests") as HTMLInputElement | null)?.checked).toBe(false);
+    expect(typeSelect!.value).toBe("all");
+    const statusSelect = dom.window.document.querySelector('[data-viewer-filter-group="status"]') as HTMLSelectElement | null;
+    expect(statusSelect!.value).toBe("any");
   });
 
   it("supports corpus-management filters for relationships, companion docs, stale work, and promotion gaps", async () => {

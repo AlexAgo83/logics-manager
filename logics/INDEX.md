@@ -94,6 +94,8 @@
 | [prod_055_say_what_it_does_and_test_what_was_moved](product/prod_055_say_what_it_does_and_test_what_was_moved.md) | Say what it does, and test what was moved | Settled |  |  | product/prod_055_say_what_it_does_and_test_what_was_moved.md |
 | [prod_056_say_what_actually_happened](product/prod_056_say_what_actually_happened.md) | Say what actually happened | Settled |  |  | product/prod_056_say_what_actually_happened.md |
 | [prod_057_a_viewer_campaign_that_reports_what_it_saw](product/prod_057_a_viewer_campaign_that_reports_what_it_saw.md) | A viewer campaign that reports what it saw | Settled |  |  | product/prod_057_a_viewer_campaign_that_reports_what_it_saw.md |
+| [prod_058_a_filter_that_means_the_board](product/prod_058_a_filter_that_means_the_board.md) | A filter that means the board | Proposed |  |  | product/prod_058_a_filter_that_means_the_board.md |
+| [prod_059_sub_systems_beside_the_core_not_inside_it](product/prod_059_sub_systems_beside_the_core_not_inside_it.md) | Sub-systems beside the core, not inside it | Proposed |  |  | product/prod_059_sub_systems_beside_the_core_not_inside_it.md |
 
 ## Roadmaps
 
@@ -411,6 +413,8 @@ _None_
 | [req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches](request/req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches.md) | Close the gaps the second review found: stated risk, cache concurrency, and untested route branches | Done |  |  | request/req_307_close_the_gaps_the_second_review_found_stated_risk_cache_concurrency_and_untested_route_branches.md |
 | [req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout](request/req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout.md) | Report workflow outcomes honestly across audit, help, and closeout | Done |  |  | request/req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout.md |
 | [req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured](request/req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured.md) | Turn the viewer visual smoke into a UI campaign that reports what it measured | Done |  |  | request/req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured.md |
+| [req_310_make_the_board_filters_answer_with_what_the_board_actually_shows](request/req_310_make_the_board_filters_answer_with_what_the_board_actually_shows.md) | Make the board filters answer with what the board actually shows | Ready |  |  | request/req_310_make_the_board_filters_answer_with_what_the_board_actually_shows.md |
+| [req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet](request/req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet.md) | Lift the viewer's sub-systems out of its core, and turn the size ledger into a ratchet | Ready |  |  | request/req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet.md |
 
 ## Backlog
 
@@ -1034,6 +1038,14 @@ _None_
 | [item_616_assert_the_layout_defects_a_passing_unit_suite_cannot_see](backlog/item_616_assert_the_layout_defects_a_passing_unit_suite_cannot_see.md) | Assert the layout defects a passing unit suite cannot see | Done |  | 100% | backlog/item_616_assert_the_layout_defects_a_passing_unit_suite_cannot_see.md |
 | [item_617_write_the_campaign_runbook_and_say_where_a_finding_goes](backlog/item_617_write_the_campaign_runbook_and_say_where_a_finding_goes.md) | Write the campaign runbook and say where a finding goes | Done |  | 100% | backlog/item_617_write_the_campaign_runbook_and_say_where_a_finding_goes.md |
 | [item_618_derive_the_tested_runtime_bound_from_the_plugin_version](backlog/item_618_derive_the_tested_runtime_bound_from_the_plugin_version.md) | Derive the tested runtime bound from the plugin version | Done |  | 100 | backlog/item_618_derive_the_tested_runtime_bound_from_the_plugin_version.md |
+| [item_619_give_the_viewer_one_filtering_authority](backlog/item_619_give_the_viewer_one_filtering_authority.md) | Give the viewer one filtering authority | Ready |  | 0% | backlog/item_619_give_the_viewer_one_filtering_authority.md |
+| [item_620_make_the_count_above_the_board_describe_the_board](backlog/item_620_make_the_count_above_the_board_describe_the_board.md) | Make the count above the board describe the board | Ready |  | 0% | backlog/item_620_make_the_count_above_the_board_describe_the_board.md |
+| [item_621_say_what_a_status_option_selects_and_what_it_would_return](backlog/item_621_say_what_a_status_option_selects_and_what_it_would_return.md) | Say what a status option selects, and what it would return | Ready |  | 0% | backlog/item_621_say_what_a_status_option_selects_and_what_it_would_return.md |
+| [item_622_let_the_campaign_catch_a_filter_that_lies](backlog/item_622_let_the_campaign_catch_a_filter_that_lies.md) | Let the campaign catch a filter that lies | Ready |  | 0% | backlog/item_622_let_the_campaign_catch_a_filter_that_lies.md |
+| [item_623_lift_cdx_and_git_out_of_the_viewer_server](backlog/item_623_lift_cdx_and_git_out_of_the_viewer_server.md) | Lift cdx and git out of the viewer server | Ready |  | 0% | backlog/item_623_lift_cdx_and_git_out_of_the_viewer_server.md |
+| [item_624_lift_cdx_git_and_the_workshop_out_of_the_browser_host](backlog/item_624_lift_cdx_git_and_the_workshop_out_of_the_browser_host.md) | Lift cdx, git, and the workshop out of the browser host | Ready |  | 0% | backlog/item_624_lift_cdx_git_and_the_workshop_out_of_the_browser_host.md |
+| [item_625_cut_the_flow_entry_module_by_verb](backlog/item_625_cut_the_flow_entry_module_by_verb.md) | Cut the flow entry module by verb | Ready |  | 0% | backlog/item_625_cut_the_flow_entry_module_by_verb.md |
+| [item_626_make_the_size_ledger_a_ratchet](backlog/item_626_make_the_size_ledger_a_ratchet.md) | Make the size ledger a ratchet | Ready |  | 0% | backlog/item_626_make_the_size_ledger_a_ratchet.md |
 
 ## Tasks
 
@@ -1339,3 +1351,5 @@ _None_
 | [task_304_orchestrate_the_second_review_remediation](tasks/task_304_orchestrate_the_second_review_remediation.md) | Orchestrate the second review remediation | Done |  | 100% | tasks/task_304_orchestrate_the_second_review_remediation.md |
 | [task_305_orchestrate_the_honest_outcome_corrections](tasks/task_305_orchestrate_the_honest_outcome_corrections.md) | Orchestrate the honest-outcome corrections | Done |  | 100% | tasks/task_305_orchestrate_the_honest_outcome_corrections.md |
 | [task_306_orchestrate_the_viewer_ui_campaign](tasks/task_306_orchestrate_the_viewer_ui_campaign.md) | Orchestrate the viewer UI campaign | Done |  | 100% | tasks/task_306_orchestrate_the_viewer_ui_campaign.md |
+| [task_307_orchestrate_the_board_filter_corrections](tasks/task_307_orchestrate_the_board_filter_corrections.md) | Orchestrate the board filter corrections | Ready |  | 0% | tasks/task_307_orchestrate_the_board_filter_corrections.md |
+| [task_308_orchestrate_lifting_the_sub_systems_out_of_the_core](tasks/task_308_orchestrate_lifting_the_sub_systems_out_of_the_core.md) | Orchestrate lifting the sub-systems out of the core | Ready |  | 0% | tasks/task_308_orchestrate_lifting_the_sub_systems_out_of_the_core.md |

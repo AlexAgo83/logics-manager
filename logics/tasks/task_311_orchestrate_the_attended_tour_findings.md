@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 40%
+> Progress: 60%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -14,7 +14,7 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Say what is unavailable before it is chosen, and stop answering an ordinary project with a client error.
+- [x] 1. Stop answering an ordinary project with a client error. The menu-entry half was withdrawn after measurement: both entries are hidden, and the tour had clicked hidden controls.
 - [x] 2. Recompute the count for the search box, and teach the campaign to type.
 - [ ] 3. Report completion on every screen, clear a status that is over, let the PATH warning be dismissed for the session, and close the document panel on Escape.
 - [x] 4. Group the board by status when that mode is chosen, and drop Theme, which is implemented nowhere.

@@ -9,11 +9,12 @@ import { describe, expect, it } from "vitest";
 // @ts-expect-error -- plain .mjs helper shared with the campaign script
 import { filterChecks } from "./helpers/viewer-filter-checks.mjs";
 
-function build(options: { count: string; cards: string[]; typeOptions?: string[] }) {
+function build(options: { count: string; cards: string[]; typeOptions?: string[]; searchable?: boolean }) {
   const typeOptions = options.typeOptions ?? ["all", "request", "task"];
   const dom = new JSDOM(
     `<!doctype html><body>
       <select data-viewer-filter-group="type">${typeOptions.map((value) => `<option value="${value}">${value}</option>`).join("")}</select>
+      ${options.searchable === false ? "" : '<input id="search-input" />'}
       <div id="viewer-filter-count">${options.count}</div>
       <div id="board">${options.cards.map((id) => `<div class="card" data-id="${id}"></div>`).join("")}</div>
     </body>`,
@@ -57,5 +58,18 @@ describe("viewer filter checks", () => {
     });
 
     await expect(added.run("only what it names")).rejects.toThrow(/type=roadmap rendered item/);
+  });
+
+  it("reports a count that ignores the search box", async () => {
+    // req_314: typing narrowed the board to nine cards under a count still reading 1337.
+    const frozen = build({ count: "1337 of 1337 docs shown · All docs", cards: ["req_001_demo"] });
+
+    await expect(frozen.run("follows the search box")).rejects.toThrow(/the count stayed at 1337/);
+  });
+
+  it("skips the search check when there is no search box", async () => {
+    const bare = build({ count: "1 of 1 docs shown", cards: ["req_001_demo"], searchable: false });
+
+    await expect(bare.run("follows the search box")).resolves.toContain("no search box");
   });
 });

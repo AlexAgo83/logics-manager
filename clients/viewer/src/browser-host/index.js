@@ -2571,6 +2571,10 @@ import {
     requestBoardRender();
   }
 
+  // Every render is a chance for the count to be wrong, so every render recomputes it --
+  // whatever moved the board: the panel, the search box, or a refresh.
+  window.__CDX_LOGICS_AFTER_RENDER__ = () => updateFilterSummary();
+
   function requestBoardRender() {
     if (typeof window.__CDX_LOGICS_RENDER__ === "function") {
       window.__CDX_LOGICS_RENDER__();

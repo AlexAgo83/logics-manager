@@ -1,10 +1,10 @@
 ## item_636_make_group_by_do_what_it_offers_and_stop_offering_what_it_does_not - Make Group by do what it offers, and stop offering what it does not
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95
 > Confidence: 85
-> Progress: 0
+> Progress: 100
 > Complexity: Medium
 > Theme: Controls that mean something
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -35,9 +35,8 @@
 - AC5: Tests cover both modes and fail against the current implementation.
 
 # AC Traceability
-- - request-AC8 -> This backlog slice. Proof deferred to slice closeout.
-- - request-AC6 -> This backlog slice. Proof deferred to slice closeout.
-
+- request-AC8 -> This backlog slice. Proof: `a control that regroups the board changes what it shows` in `tests/helpers/viewer-filter-checks.mjs`; against the previous implementation it reports `stage, status, theme leave the board grouped identically`.
+- request-AC6 -> This backlog slice. Proof: the same check walks the modes read from the control, so a mode added later must work rather than be added to a list here.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

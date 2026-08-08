@@ -357,6 +357,12 @@
       // Contain failures here and surface a recoverable error state instead.
       try {
         renderInternal();
+        // The local viewer prints how many documents the board is showing. It used to
+        // recompute that only when its own filter panel changed, so typing in the search
+        // box narrowed the board to nine cards under a count still reading 1337.
+        if (typeof window.__CDX_LOGICS_AFTER_RENDER__ === "function") {
+          window.__CDX_LOGICS_AFTER_RENDER__();
+        }
       } catch (error) {
         if (window.logicsViewer && typeof window.logicsViewer.recordError === "function") {
           window.logicsViewer.recordError(error, { kind: "board-render-error", screen: "Project" });

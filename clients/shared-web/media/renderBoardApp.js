@@ -292,7 +292,28 @@
       }
     }
 
+    function boardGroupMode() {
+      return typeof getGroupMode === "function" ? getGroupMode() : "stage";
+    }
+
+    function groupBoardItems(visibleItems) {
+      if (boardGroupMode() !== "status") {
+        return groupByStage(visibleItems);
+      }
+      return visibleItems.reduce((acc, item) => {
+        const status = (item && item.indicators && item.indicators.Status) || "No status";
+        const key = String(status);
+        acc[key] = acc[key] || [];
+        acc[key].push(item);
+        return acc;
+      }, {});
+    }
+
     function getVisibleBoardStages(grouped) {
+      if (boardGroupMode() === "status") {
+        // Status columns are whatever the corpus actually holds, in a stable order.
+        return Object.keys(grouped).sort();
+      }
       return getVisibleStages().filter((stage) => {
         if (!getHideEmptyColumns()) {
           return true;
@@ -1165,7 +1186,8 @@
         title.className = "column__title";
         const titleLabel = document.createElement("span");
         titleLabel.className = "column__title-label";
-        titleLabel.textContent = getStageHeading(stage);
+        // In status mode the key is the status itself, and there is no stage heading for it.
+        titleLabel.textContent = boardGroupMode() === "status" ? stage : getStageHeading(stage);
         title.appendChild(titleLabel);
 
         const titleCount = document.createElement("span");
@@ -1309,7 +1331,10 @@
         board.appendChild(empty);
         return;
       }
-      const grouped = groupByStage(visibleItems);
+      // The board used to group by stage whatever the control said, so choosing Status
+      // moved nothing while the paging reset made it look as if it had. The list view
+      // already knew how to group by status; the board simply never asked.
+      const grouped = groupBoardItems(visibleItems);
       if (isListMode()) {
         renderListView(typeof getListGroups === "function" ? getListGroups() : []);
       } else {

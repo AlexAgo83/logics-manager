@@ -9979,6 +9979,7 @@ ${line}` : line;
       updateFilterSummary();
       requestBoardRender();
     }
+    window.__CDX_LOGICS_AFTER_RENDER__ = () => updateFilterSummary();
     function requestBoardRender() {
       if (typeof window.__CDX_LOGICS_RENDER__ === "function") {
         window.__CDX_LOGICS_RENDER__();

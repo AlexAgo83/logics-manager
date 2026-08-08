@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Workshop module
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 22:18:51
 
 # Problem
 - The workshop accounts for about 1233 lines across 56 functions in the host, and touches three bindings it does not own: the repository root, the repository itself, and the viewer preferences. That is one more than the cdx screen needed, on a smaller surface.
@@ -37,6 +38,8 @@
 - request-AC5 -> This backlog slice. Proof: `scripts/check-source-line-budget.mjs` records 4784 for the host, down from 5829, with `workshop.js` carrying its own entry.
 - request-AC6 -> This backlog slice. Proof: the three bindings it does not own are read through the seam and never written, pinned by `reads the three host bindings it does not own, and writes none of them` in `tests/viewer.cdx-module.test.ts`.
 - request-AC7 -> This backlog slice. Proof: the four workshop tests in the same file read the owned-binding list from the module itself.
+- request-AC1 -> This backlog slice. Evidence needed: The cdx rendering lives with the cdx screen, and the shared render module no longer carries it.
+- request-AC3 -> This backlog slice. Evidence needed: The git and CI surface lives in its own module, on that same seam.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
@@ -57,3 +60,9 @@
 # Priority
 - Priority: High - the cleanest remaining sub-system
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_309_orchestrate_finishing_the_browser_host_split`
+
+# Notes
+- Task `task_309_orchestrate_finishing_the_browser_host_split` was finished via `logics-manager flow finish task` on 2026-08-08.

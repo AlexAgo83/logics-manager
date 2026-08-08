@@ -1,8 +1,8 @@
 ## prod_060_the_browser_host_down_to_the_viewer - The browser host, down to the viewer
 > Date: 2026-08-08
-> Status: Proposed
+> Status: Settled
 > Related request: `req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved`
-> Related backlog: `item_627_move_the_cdx_rendering_to_the_cdx_screen`, `item_628_lift_the_workshop_out_of_the_browser_host`, `item_629_lift_git_and_ci_out_of_the_browser_host`
+> Related backlog: `item_627_move_the_cdx_rendering_to_the_cdx_screen`
 > Related task: `task_309_orchestrate_finishing_the_browser_host_split`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -46,5 +46,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved`
+- Product back-reference: `item_627_move_the_cdx_rendering_to_the_cdx_screen`
 - Task back-reference: `task_309_orchestrate_finishing_the_browser_host_split`

@@ -1,7 +1,7 @@
 ## req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved - Finish lifting the browser host's sub-systems, on the seam cdx proved
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

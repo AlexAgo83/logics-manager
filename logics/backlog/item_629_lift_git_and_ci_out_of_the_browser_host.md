@@ -8,6 +8,7 @@
 > Complexity: High
 > Theme: Git and CI module
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 22:18:51
 
 # Problem
 - Git and CI account for about 1726 lines and touch five bindings they do not own: the item list, the filter state, the repository root, the share URL, and the workshop badge counts. Before the cdx lift the count was twelve, seven of which were cdx payloads now behind the cdx accessor.
@@ -39,6 +40,8 @@
 - request-AC5 -> This backlog slice. Proof: `scripts/check-source-line-budget.mjs` records 4065 for the host, with `git.js` carrying its own entry.
 - request-AC6 -> This backlog slice. Proof: the two bindings it does not own are read through the seam and written nowhere, pinned by `reads the two host bindings it does not own, and writes neither` in `tests/viewer.cdx-module.test.ts`.
 - request-AC7 -> This backlog slice. Proof: the four git tests in the same file read the owned-binding list from the module itself.
+- request-AC1 -> This backlog slice. Evidence needed: The cdx rendering lives with the cdx screen, and the shared render module no longer carries it.
+- request-AC2 -> This backlog slice. Evidence needed: The workshop lives in its own module, reached through the same kind of seam the cdx screen uses.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
@@ -59,3 +62,9 @@
 # Priority
 - Priority: Medium - the largest remaining surface, unblocked by the cdx lift
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_309_orchestrate_finishing_the_browser_host_split`
+
+# Notes
+- Task `task_309_orchestrate_finishing_the_browser_host_split` was finished via `logics-manager flow finish task` on 2026-08-08.

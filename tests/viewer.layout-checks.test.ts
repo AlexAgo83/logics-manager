@@ -132,3 +132,29 @@ describe("viewer layout checks", () => {
     expect(() => added.run("drawn over each other")).toThrow(/button#a over button#b/);
   });
 });
+
+describe("the heading structure check", () => {
+  it("reports a screen with no heading at all", () => {
+    const bare = build(`<div><button id="a">A</button></div>`, { a: { left: 0, top: 0, width: 60, height: 20 } });
+
+    expect(() => bare.run("heading structure")).toThrow(/no heading element anywhere/);
+  });
+
+  it("reports a screen whose headings skip a level", () => {
+    const skipped = build(
+      `<h1 id="h1">Page</h1><h3 id="h3">Section</h3>`,
+      { h1: { left: 0, top: 0, width: 100, height: 20 }, h3: { left: 0, top: 30, width: 100, height: 20 } }
+    );
+
+    expect(() => skipped.run("heading structure")).toThrow(/skip from h1 to h3/);
+  });
+
+  it("accepts a page named by a top-level heading with sections under it", () => {
+    const sound = build(
+      `<h1 id="h1">Page</h1><h2 id="h2">Section</h2>`,
+      { h1: { left: 0, top: 0, width: 100, height: 20 }, h2: { left: 0, top: 30, width: 100, height: 20 } }
+    );
+
+    expect(sound.run("heading structure")).toContain("h1, h2");
+  });
+});

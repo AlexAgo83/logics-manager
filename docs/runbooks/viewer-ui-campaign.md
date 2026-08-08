@@ -39,7 +39,7 @@ What it covers, per viewport:
 | Payload | The item payload arrives and the board renders cards |
 | Regions | Topbar, repo pill, board and details are not blank |
 | Flows | A card opens its document; insights and health render; refresh states what it did; an activity entry opens its document |
-| Layout | No sibling controls drawn over each other, nothing clipped outside the viewport, no sideways page scroll, no unexplained empty surface, no silently disabled action |
+| Layout | No sibling controls drawn over each other, nothing clipped outside the viewport, no sideways page scroll, no unexplained empty surface, no silently disabled action, a heading structure that does not skip a level |
 | Filters | The count agrees with the board and follows the search box; a control that regroups the board changes what it shows; a type filter returns only what it names |
 | Completion | Every navigation target reaches a terminal status, so a finished screen is distinguishable from one still working |
 | Console | No browser error or warning during the run |

@@ -1182,7 +1182,10 @@
         const header = document.createElement("div");
         header.className = "column__header";
 
-        const title = document.createElement("div");
+        // A heading element, not a styled div: the interface carried no h1-h6 at all, so a
+        // screen reader had regions to move between and nothing inside them. The class is
+        // unchanged, so nothing moves visually.
+        const title = document.createElement("h2");
         title.className = "column__title";
         const titleLabel = document.createElement("span");
         titleLabel.className = "column__title-label";

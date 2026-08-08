@@ -1,10 +1,10 @@
 ## item_637_give_every_screen_a_heading_structure - Give every screen a heading structure
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90
 > Confidence: 75
-> Progress: 0
+> Progress: 100
 > Complexity: Medium
 > Theme: Structure a screen reader can follow
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -34,9 +34,8 @@
 - AC5: A test covers the hierarchy and fails against the current implementation.
 
 # AC Traceability
-- - request-AC9 -> This backlog slice. Proof deferred to slice closeout.
-- - request-AC6 -> This backlog slice. Proof deferred to slice closeout.
-
+- request-AC9 -> This backlog slice. Proof: `the screen exposes a heading structure` in `tests/helpers/viewer-layout-checks.mjs`, which reports `8 heading(s), levels h1, h2` where the audit previously found none.
+- request-AC6 -> This backlog slice. Proof: the three tests in `tests/viewer.layout-checks.test.ts` covering no heading, a skipped level, and a sound structure.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

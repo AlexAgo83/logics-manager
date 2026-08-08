@@ -113,6 +113,24 @@ export function layoutChecks(window) {
       }
     },
     {
+      name: "the screen exposes a heading structure",
+      run: () => {
+        // The interface carried no h1-h6 at all: landmarks let a screen reader move between
+        // regions, and nothing let it move inside one.
+        const headings = Array.from(document.querySelectorAll("h1,h2,h3,h4,h5,h6")).filter(visible);
+        if (!headings.length) throw new Error("no heading element anywhere on this screen");
+        const levels = headings.map((node) => Number(node.tagName.slice(1)));
+        if (!levels.includes(1)) throw new Error("no top-level heading names the page");
+        const sorted = [...new Set(levels)].sort((a, b) => a - b);
+        for (let index = 1; index < sorted.length; index += 1) {
+          if (sorted[index] - sorted[index - 1] > 1) {
+            throw new Error(`heading levels skip from h${sorted[index - 1]} to h${sorted[index]}`);
+          }
+        }
+        return headings.length + " heading(s), levels " + sorted.map((level) => "h" + level).join(", ");
+      }
+    },
+    {
       name: "a disabled action says why",
       run: () => {
         const disabled = interactive().filter(

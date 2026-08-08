@@ -14,6 +14,7 @@ const hostSource = readFileSync("clients/viewer/src/browser-host/index.js", "utf
 const renderSource = readFileSync("clients/viewer/src/browser-host/render.js", "utf8");
 const utilSource = readFileSync("clients/viewer/src/browser-host/util.js", "utf8");
 const filtersSource = readFileSync("clients/viewer/src/browser-host/filters.js", "utf8");
+const workshopSource = readFileSync("clients/viewer/src/browser-host/workshop.js", "utf8");
 
 function withoutImports(source: string): string {
   return source.replace(/import\s*\{[^}]*\}\s*from\s*"[^"]+";/gs, "");
@@ -24,14 +25,16 @@ function returnedNames(): string[] {
   return block.split("\n").map((line) => line.trim().replace(/,$/, "")).filter(Boolean);
 }
 
-function destructuredNames(): string[] {
-  const block = /  const \{\n([\s\S]*?)\n  \} = createCdxScreen\(\{/.exec(hostSource)![1];
+function destructuredNames(factory: string): string[] {
+  // Anchored so a second screen's destructuring block cannot be swallowed: `[^}]*?`
+  // stops at the first closing brace, which is this block's own.
+  const block = new RegExp(`  const \\{\\n([^}]*?)\\n  \\} = ${factory}\\(\\{`).exec(hostSource)![1];
   return block.split("\n").map((line) => line.trim().replace(/,$/, "")).filter(Boolean);
 }
 
 describe("the lifted cdx screen", () => {
   it("returns every name the host destructures back into scope", () => {
-    const missing = destructuredNames()
+    const missing = destructuredNames("createCdxScreen")
       .map((entry) => entry.replace(/^state: cdxState$/, "state"))
       .filter((name) => !returnedNames().includes(name));
 
@@ -66,7 +69,7 @@ describe("the lifted cdx screen", () => {
     // req_312: 26 exports sat in the module every surface imports while serving one
     // caller. The list is derived, so a rendering function added later is covered.
     const exported = [...renderSource.matchAll(/^export function ([A-Za-z0-9_]+)/gm)].map((match) => match[1]);
-    const others = [hostSource, utilSource, filtersSource].map(withoutImports).join("\n");
+    const others = [hostSource, utilSource, filtersSource, workshopSource].map(withoutImports).join("\n");
     const cdxBody = withoutImports(cdxSource);
 
     const cdxOnly = exported.filter((name) => {
@@ -76,5 +79,40 @@ describe("the lifted cdx screen", () => {
     });
 
     expect(cdxOnly).toEqual([]);
+  });
+});
+
+describe("the lifted workshop screen", () => {
+  it("returns every name the host destructures back into scope", () => {
+    const returned = /\n  return \{\n([^}]*?)\n  \};\n\}/.exec(workshopSource)![1]
+      .split("\n").map((line) => line.trim().replace(/,$/, "")).filter(Boolean);
+    const missing = destructuredNames("createWorkshopScreen")
+      .map((entry) => entry.replace(/^state: workshopState$/, "state"))
+      .filter((name) => !returned.includes(name));
+
+    expect(missing).toEqual([]);
+  });
+
+  it("keeps its own state private, reachable only through the named seam", () => {
+    const owned = [...workshopSource.matchAll(/^  (?:let|const) ([A-Za-z0-9_]+)/gm)]
+      .map((match) => match[1])
+      .filter((name) => name !== "state");
+    const leaked = owned.filter((name) => {
+      const bare = new RegExp(`(?<![A-Za-z0-9_.])${name}(?![A-Za-z0-9_])`);
+      return bare.test(hostSource) && !hostSource.includes(`workshopState.${name}`);
+    });
+
+    expect(leaked).toEqual([]);
+  });
+
+  it("reads the three host bindings it does not own, and writes none of them", () => {
+    for (const binding of ["latestRepoRoot", "latestRepository", "viewerPreferences"]) {
+      expect(workshopSource).toContain(`host.${binding}()`);
+      expect(workshopSource).not.toMatch(new RegExp(`host\\.${binding}\\(\\)\\s*=[^=]`));
+    }
+  });
+
+  it("does not import the host back", () => {
+    expect(workshopSource).not.toContain('from "./index.js"');
   });
 });

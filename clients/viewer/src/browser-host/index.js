@@ -73,6 +73,7 @@ import {
 } from "./util.js";
 import { createViewerDiagnostics } from "./diagnostics.js";
 import { createCdxScreen } from "./cdx.js";
+import { createViewerState, readerFor } from "./state.js";
 import { createWorkshopScreen } from "./workshop.js";
 import { createGitScreen } from "./git.js";
 import { focusFilterLabel, matchesFilterState, updateFilterOptionCounts } from "./filters.js";
@@ -228,6 +229,10 @@ import {
   const filterCount = () => document.getElementById("viewer-filter-count");
   const repoPill = () => document.getElementById("viewer-repo-pill");
   const projectMenu = () => document.getElementById("viewer-project-menu");
+  // req_313: the state the core shares with its screens, named once instead of a set of
+  // thunks composed by hand at each lift.
+  const viewerState = createViewerState({ viewerPreferences: readViewerPreferences() });
+
   const {
     state: gitState,
     ciActivityEvents,
@@ -267,8 +272,7 @@ import {
     setDropdownOpen,
     setMeta,
     updateCapabilityControls,
-    latestRepoRoot: () => latestRepoRoot,
-    viewerFilterState: () => viewerFilterState,
+    shared: readerFor(viewerState),
   });
 
   const repoFolderButton = () => document.getElementById("viewer-repo-folder");
@@ -347,9 +351,7 @@ import {
     cdxSessionForTerminal: (...args) => cdxSessionForTerminal(...args),
     cdxSessionUsage: (...args) => cdxSessionUsage(...args),
     loadCdxSessionsForCustomTerminal: (...args) => loadCdxSessionsForCustomTerminal(...args),
-    latestRepoRoot: () => latestRepoRoot,
-    latestRepository: () => latestRepository,
-    viewerPreferences: () => viewerPreferences,
+    shared: readerFor(viewerState),
   });
 
   const autoRefreshControl = () => document.getElementById("viewer-auto-refresh");
@@ -361,10 +363,7 @@ import {
   const versionLink = () => document.getElementById("viewer-version-link");
   const bootstrapLogicsButton = () => document.getElementById("viewer-bootstrap-logics");
   const activityClearControl = () => document.getElementById("activity-clear");
-  let viewerFilterState = { ...defaultFilterState };
   let latestItems = [];
-  let latestRepoRoot = "";
-  let latestRepository = { root: "", githubUrl: "" };
   let latestCapabilities = {};
   let latestProjects = [];
   let latestCanBootstrapLogics = false;
@@ -469,7 +468,7 @@ import {
     updateViewerPreferences,
     documentPanel,
     documentTitle,
-    viewerPreferences: () => viewerPreferences,
+    shared: readerFor(viewerState),
   });
 
   let connectionState = "connected";
@@ -484,7 +483,6 @@ import {
   let currentDocumentItem = null;
   let primaryActionBusyKey = "";
   let primaryActionController = null;
-  let viewerPreferences = readViewerPreferences();
   let autoRefreshIntervalForcedByLaunch = false;
   let embeddedHost = "";
   let viewSeq = 0; // bumps on every view transition (operator or silent refresh)
@@ -499,7 +497,7 @@ import {
       const data = await response.json();
       if (!response.ok || !data?.ok || !data.payload || typeof data.payload !== "object") return;
       // The record wins wherever the two disagree.
-      viewerPreferences = { ...viewerPreferences, ...data.payload, version: preferenceVersion };
+      viewerState.viewerPreferences = { ...viewerState.viewerPreferences, ...data.payload, version: preferenceVersion };
       cacheViewerPreferences();
       renderProjectMenu();
       syncWorkshopSystemTerminalControls();
@@ -521,27 +519,27 @@ import {
 
   function cacheViewerPreferences() {
     try {
-      window.localStorage.setItem(preferenceKey, JSON.stringify(viewerPreferences));
+      window.localStorage.setItem(preferenceKey, JSON.stringify(viewerState.viewerPreferences));
     } catch {
       // Keep the in-memory preference for this session when browser storage is unavailable.
     }
   }
 
   function writeViewerPreferences(nextPreferences) {
-    viewerPreferences = { ...nextPreferences, version: preferenceVersion };
+    viewerState.viewerPreferences = { ...nextPreferences, version: preferenceVersion };
     cacheViewerPreferences();
   }
 
   function updateViewerPreferences(patch, options = {}) {
-    writeViewerPreferences({ ...viewerPreferences, ...patch });
+    writeViewerPreferences({ ...viewerState.viewerPreferences, ...patch });
     persistViewerPreferencesToServer(patch, options.removed);
     if (patch.projectLastUsedAt && window.parent !== window) window.parent.postMessage({ type: "viewer-project-last-used", projectLastUsedAt: patch.projectLastUsedAt }, "*");
     if (patch.favoriteProjects && window.parent !== window) window.parent.postMessage({ type: "viewer-favorite-projects", favoriteProjects: patch.favoriteProjects }, "*");
     syncWorkshopSystemTerminalControls();
   }
 
-  window.addEventListener("message", (event) => { const projectLastUsedAt = event.data?.type === "viewer-project-last-used" ? event.data.projectLastUsedAt : null; if (projectLastUsedAt && typeof projectLastUsedAt === "object" && !Array.isArray(projectLastUsedAt)) { writeViewerPreferences({ ...viewerPreferences, projectLastUsedAt }); renderProjectMenu(); } });
-  window.addEventListener("message", (event) => { const favoriteProjects = event.data?.type === "viewer-favorite-projects" ? event.data.favoriteProjects : null; if (Array.isArray(favoriteProjects)) { writeViewerPreferences({ ...viewerPreferences, favoriteProjects: favoriteProjects.map((value) => String(value)).filter(Boolean).sort() }); renderProjectMenu(); } });
+  window.addEventListener("message", (event) => { const projectLastUsedAt = event.data?.type === "viewer-project-last-used" ? event.data.projectLastUsedAt : null; if (projectLastUsedAt && typeof projectLastUsedAt === "object" && !Array.isArray(projectLastUsedAt)) { writeViewerPreferences({ ...viewerState.viewerPreferences, projectLastUsedAt }); renderProjectMenu(); } });
+  window.addEventListener("message", (event) => { const favoriteProjects = event.data?.type === "viewer-favorite-projects" ? event.data.favoriteProjects : null; if (Array.isArray(favoriteProjects)) { writeViewerPreferences({ ...viewerState.viewerPreferences, favoriteProjects: favoriteProjects.map((value) => String(value)).filter(Boolean).sort() }); renderProjectMenu(); } });
 
   window.addEventListener("message", (event) => {
     if (event.data?.type !== "viewer-embed-host" || event.data.host !== "vscode" || window.parent === window) return;
@@ -557,7 +555,7 @@ import {
 
 
   function favoriteProjectIds() {
-    const stored = Array.isArray(viewerPreferences.favoriteProjects) ? viewerPreferences.favoriteProjects : [];
+    const stored = Array.isArray(viewerState.viewerPreferences.favoriteProjects) ? viewerState.viewerPreferences.favoriteProjects : [];
     return new Set(stored.map((value) => String(value)).filter(Boolean));
   }
 
@@ -581,7 +579,7 @@ import {
   }
 
   function preferredAutoRefreshIntervalSeconds() {
-    const seconds = Number(viewerPreferences.autoRefreshIntervalSeconds);
+    const seconds = Number(viewerState.viewerPreferences.autoRefreshIntervalSeconds);
     return Number.isFinite(seconds) && seconds > 0 ? normalizeAutoRefreshIntervalSeconds(seconds) : null;
   }
 
@@ -657,16 +655,16 @@ import {
 
   function hydrateViewerFilterState() {
     const storedState = readStoredState();
-    viewerFilterState = sanitizeViewerFilterState(storedState?.viewerFilterState);
+    viewerState.viewerFilterState = sanitizeViewerFilterState(storedState?.viewerFilterState);
   }
 
   function persistViewerFilterState() {
     const storedState = readStoredState();
     const nextState = storedState && typeof storedState === "object" ? storedState : {};
-    writeStoredState({ ...nextState, viewerFilterState: { ...viewerFilterState } });
+    writeStoredState({ ...nextState, viewerFilterState: { ...viewerState.viewerFilterState } });
   }
 
-  function activityEventsFromStoredState(state = readStoredState(), root = latestRepoRoot) {
+  function activityEventsFromStoredState(state = readStoredState(), root = viewerState.latestRepoRoot) {
     const scopedState = activityStateForRoot(state, root);
     return (Array.isArray(scopedState.activityHistory) ? scopedState.activityHistory : [])
       .filter((entry) => entry && typeof entry === "object" && ["git-action", "git-commit"].includes(entry.type))
@@ -692,11 +690,11 @@ import {
   function dispatchViewerActivityUpdate() {
     const storedState = readStoredState();
     const payload = {
-      root: latestRepoRoot,
+      root: viewerState.latestRepoRoot,
       items: latestItems,
       selectedId: storedState?.selectedId || "",
       activityEvents: [
-        ...activityEventsFromStoredState(storedState, latestRepoRoot),
+        ...activityEventsFromStoredState(storedState, viewerState.latestRepoRoot),
         ...ciActivityEvents()
       ]
     };
@@ -713,7 +711,7 @@ import {
 
 
 
-  function updateStoredActivity(nextItems, root = latestRepoRoot) {
+  function updateStoredActivity(nextItems, root = viewerState.latestRepoRoot) {
     const storedState = readStoredState();
     const baseState = storedState && typeof storedState === "object" ? storedState : {};
     const scopedState = activityStateForRoot(baseState, root);
@@ -737,7 +735,7 @@ import {
     });
     writeStoredState(writeActivityStateForRoot({
       ...baseState,
-      viewerFilterState: { ...viewerFilterState }
+      viewerFilterState: { ...viewerState.viewerFilterState }
     }, root, { activitySnapshot: nextSnapshot, activityHistory: history }));
     return decorated;
   }
@@ -746,7 +744,7 @@ import {
     const storedState = readStoredState();
     const nextState = storedState && typeof storedState === "object" ? { ...storedState } : {};
     const byRoot = nextState.activityByRoot && typeof nextState.activityByRoot === "object" ? { ...nextState.activityByRoot } : {};
-    delete byRoot[activityRootKey(latestRepoRoot)];
+    delete byRoot[activityRootKey(viewerState.latestRepoRoot)];
     nextState.activityByRoot = byRoot;
     writeStoredState(nextState);
     latestItems = latestItems.map((item) => {
@@ -871,11 +869,11 @@ import {
   }
 
   function updateRepositoryIdentity(payload) {
-    latestRepoRoot = String(payload.root || latestRepoRoot || "");
+    viewerState.latestRepoRoot = String(payload.root || viewerState.latestRepoRoot || "");
     latestProjects = Array.isArray(payload.projects) ? payload.projects : latestProjects;
     const repository = payload.repository && typeof payload.repository === "object" ? payload.repository : {};
-    latestRepository = {
-      root: String(repository.root || latestRepoRoot || ""),
+    viewerState.latestRepository = {
+      root: String(repository.root || viewerState.latestRepoRoot || ""),
       provider: String(repository.provider || ""),
       webUrl: String(repository.webUrl || repository.githubUrl || repository.gitlabUrl || ""),
       githubUrl: String(repository.githubUrl || ""),
@@ -883,14 +881,14 @@ import {
     };
     const pill = repoPill();
     if (pill) {
-      const repoName = String(payload.repoName || latestRepoRoot.split(/[\\/]/).filter(Boolean).pop() || "repository");
+      const repoName = String(payload.repoName || viewerState.latestRepoRoot.split(/[\\/]/).filter(Boolean).pop() || "repository");
       const label = pill.querySelector("[data-viewer-project-label]");
       if (label) {
         label.textContent = repoName;
       } else {
         pill.textContent = repoName;
       }
-      pill.title = latestRepoRoot || repoName;
+      pill.title = viewerState.latestRepoRoot || repoName;
       if ("disabled" in pill) {
         pill.disabled = false;
       }
@@ -911,7 +909,7 @@ import {
     const favorites = favoriteProjectIds();
     const projects = latestProjects
       .filter((project) => project && typeof project === "object")
-      .map((project, index) => { const stored = viewerPreferences.projectLastUsedAt, value = stored && typeof stored === "object" ? stored[projectPreferenceId(project)] : "", time = Date.parse(String(value || "")); return { project, index, favorite: favorites.has(projectPreferenceId(project)), lastUsed: Number.isFinite(time) ? time : 0 }; })
+      .map((project, index) => { const stored = viewerState.viewerPreferences.projectLastUsedAt, value = stored && typeof stored === "object" ? stored[projectPreferenceId(project)] : "", time = Date.parse(String(value || "")); return { project, index, favorite: favorites.has(projectPreferenceId(project)), lastUsed: Number.isFinite(time) ? time : 0 }; })
       .sort((left, right) => Number(right.project.active) - Number(left.project.active) || Number(right.favorite) - Number(left.favorite) || (left.favorite && right.favorite ? right.lastUsed - left.lastUsed : 0) || left.index - right.index);
     const projectRows = projects.map(({ project, favorite }) => {
       const preferenceId = projectPreferenceId(project);
@@ -988,7 +986,7 @@ import {
     if (!response.ok || !data.ok) {
       throw new Error(data.error || "Unable to switch project.");
     }
-    { const active = (Array.isArray(data.payload?.projects) ? data.payload.projects : []).find((project) => project?.active), projectId = projectPreferenceId(active), stored = viewerPreferences.projectLastUsedAt; if (projectId) updateViewerPreferences({ projectLastUsedAt: { ...(stored && typeof stored === "object" ? stored : {}), [projectId]: new Date().toISOString() } }); } gitState.latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
+    { const active = (Array.isArray(data.payload?.projects) ? data.payload.projects : []).find((project) => project?.active), projectId = projectPreferenceId(active), stored = viewerState.viewerPreferences.projectLastUsedAt; if (projectId) updateViewerPreferences({ projectLastUsedAt: { ...(stored && typeof stored === "object" ? stored : {}), [projectId]: new Date().toISOString() } }); } gitState.latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
     gitState.latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
     gitState.latestReleaseRunsStatus = { visible: false, badgeState: "unknown", message: "" };
     updateMainGitBadges();
@@ -1026,7 +1024,7 @@ import {
   }
 
   function applySelectedProjectPayload(payload, message) {
-    returnToProjectSurface(); { const active = (Array.isArray(payload?.projects) ? payload.projects : []).find((project) => project?.active), projectId = projectPreferenceId(active), stored = viewerPreferences.projectLastUsedAt; if (projectId) updateViewerPreferences({ projectLastUsedAt: { ...(stored && typeof stored === "object" ? stored : {}), [projectId]: new Date().toISOString() } }); }
+    returnToProjectSurface(); { const active = (Array.isArray(payload?.projects) ? payload.projects : []).find((project) => project?.active), projectId = projectPreferenceId(active), stored = viewerState.viewerPreferences.projectLastUsedAt; if (projectId) updateViewerPreferences({ projectLastUsedAt: { ...(stored && typeof stored === "object" ? stored : {}), [projectId]: new Date().toISOString() } }); }
     gitState.latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
     gitState.latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
     gitState.latestReleaseRunsStatus = { visible: false, badgeState: "unknown", message: "" };
@@ -1197,13 +1195,13 @@ import {
   }
 
   function maybePromptBootstrapLogics() {
-    if (!latestCanBootstrapLogics || !latestShouldPromptBootstrapLogics || !latestRepoRoot || bootstrapPromptOpen) {
+    if (!latestCanBootstrapLogics || !latestShouldPromptBootstrapLogics || !viewerState.latestRepoRoot || bootstrapPromptOpen) {
       return;
     }
-    if (promptedBootstrapRoots.has(latestRepoRoot)) {
+    if (promptedBootstrapRoots.has(viewerState.latestRepoRoot)) {
       return;
     }
-    promptedBootstrapRoots.add(latestRepoRoot);
+    promptedBootstrapRoots.add(viewerState.latestRepoRoot);
     window.setTimeout(() => {
       confirmBootstrapLogics({ automatic: true }).catch((error) => setMeta(error?.message || "Unable to bootstrap Logics."));
     }, 0);
@@ -1306,15 +1304,15 @@ import {
     const github = gitState.repoGithubLink();
     const folder = repoFolderButton();
     if (github instanceof HTMLAnchorElement) {
-      if (latestRepository.webUrl) {
+      if (viewerState.latestRepository.webUrl) {
         github.hidden = false;
-        github.href = latestRepository.webUrl;
+        github.href = viewerState.latestRepository.webUrl;
         github.onclick = (event) => {
           if (embeddedHost !== "vscode" || window.parent === window) return;
           event.preventDefault();
-          window.parent.postMessage({ type: "open-external-link", target: latestRepository.webUrl }, "*");
+          window.parent.postMessage({ type: "open-external-link", target: viewerState.latestRepository.webUrl }, "*");
         };
-        const providerLabel = latestRepository.provider === "gitlab" ? "GitLab" : latestRepository.provider === "github" ? "GitHub" : "remote";
+        const providerLabel = viewerState.latestRepository.provider === "gitlab" ? "GitLab" : viewerState.latestRepository.provider === "github" ? "GitHub" : "remote";
         github.title = `Open ${providerLabel} repository`;
         github.setAttribute("aria-label", `Open ${providerLabel} repository`);
       } else {
@@ -1324,7 +1322,7 @@ import {
       }
     }
     if (folder instanceof HTMLButtonElement) {
-      folder.hidden = !latestRepository.root;
+      folder.hidden = !viewerState.latestRepository.root;
     }
   }
 
@@ -1341,7 +1339,7 @@ import {
   }
 
   async function openRepositoryFolder() {
-    if (!latestRepository.root) {
+    if (!viewerState.latestRepository.root) {
       setMeta("Repository folder is unavailable.");
       return;
     }
@@ -1598,7 +1596,7 @@ import {
   function persistSelectedItem(id) {
     const storedState = readStoredState();
     const nextState = storedState && typeof storedState === "object" ? { ...storedState } : {};
-    writeStoredState({ ...nextState, selectedId: id, viewerFilterState: { ...viewerFilterState } });
+    writeStoredState({ ...nextState, selectedId: id, viewerFilterState: { ...viewerState.viewerFilterState } });
   }
 
   function revealFocusedCard(item) {
@@ -1636,7 +1634,7 @@ import {
       persistSelectedItem(item.id);
       return nextPayload;
     }
-    viewerFilterState = { ...viewerFilterState, focus: "all", type: "all", status: "any", relation: "any", activity: "any" };
+    viewerState.viewerFilterState = { ...viewerState.viewerFilterState, focus: "all", type: "all", status: "any", relation: "any", activity: "any" };
     persistSelectedItem(item.id);
     focusApplied = true;
     window.setTimeout(() => {
@@ -2239,7 +2237,7 @@ import {
       return false;
     }
     latestViewerStateSignature = nextSignature;
-    const payloadRoot = String(payload?.root || latestRepoRoot || "");
+    const payloadRoot = String(payload?.root || viewerState.latestRepoRoot || "");
     latestItems = updateStoredActivity(Array.isArray(payload.items) ? payload.items : [], payloadRoot);
     if (!autoRefreshIntervalTouched) {
       const launchSeconds = Number(payload.autoRefreshIntervalSeconds);
@@ -2513,14 +2511,14 @@ import {
   }
 
   function matchesViewerFilter(item) {
-    return matchesFilterState(item, viewerFilterState);
+    return matchesFilterState(item, viewerState.viewerFilterState);
   }
 
   function applyViewerFilter(group, value) {
     if (!Object.prototype.hasOwnProperty.call(defaultFilterState, group)) {
       return;
     }
-    viewerFilterState = { ...viewerFilterState, [group]: value || defaultFilterState[group] };
+    viewerState.viewerFilterState = { ...viewerState.viewerFilterState, [group]: value || defaultFilterState[group] };
     window.__CDX_LOGICS_VIEWER_FILTER__ = matchesViewerFilter;
     persistViewerFilterState();
     // The inherited hide toggles used to be re-armed here on every selection, which is
@@ -2539,7 +2537,7 @@ import {
   }
 
   function updateFocusMenuState() {
-    const value = viewerFilterState.focus || defaultFilterState.focus;
+    const value = viewerState.viewerFilterState.focus || defaultFilterState.focus;
     const label = focusFilterLabel(value);
     const labelNode = document.getElementById("focus-menu-label");
     const button = document.getElementById("focus-menu-toggle");
@@ -2577,7 +2575,7 @@ import {
   }
 
   function clearLocalPreset() {
-    viewerFilterState = { ...defaultFilterState };
+    viewerState.viewerFilterState = { ...defaultFilterState };
     window.__CDX_LOGICS_VIEWER_FILTER__ = matchesViewerFilter;
     persistViewerFilterState();
     setControlValue("search-input", "", "input");
@@ -2597,7 +2595,7 @@ import {
 
   function updateFilterSummary() {
     updateFocusMenuState();
-    const activeLabels = Object.entries(viewerFilterState)
+    const activeLabels = Object.entries(viewerState.viewerFilterState)
       .filter(([key, value]) => value !== defaultFilterState[key])
       .map(([key, value]) => `${key}: ${String(value).replace("-", " ")}`);
     const hasActiveFilters = activeLabels.length > 0;
@@ -2610,16 +2608,16 @@ import {
     document.querySelectorAll("[data-viewer-filter-group]").forEach((control) => {
       if (control instanceof HTMLSelectElement) {
         const group = control.getAttribute("data-viewer-filter-group") || "";
-        control.value = viewerFilterState[group] || defaultFilterState[group] || "";
+        control.value = viewerState.viewerFilterState[group] || defaultFilterState[group] || "";
         return;
       }
       if (control instanceof HTMLElement) {
         const group = control.getAttribute("data-viewer-filter-group") || "";
         const value = control.getAttribute("data-viewer-filter-value") || "";
-        control.setAttribute("aria-pressed", viewerFilterState[group] === value ? "true" : "false");
+        control.setAttribute("aria-pressed", viewerState.viewerFilterState[group] === value ? "true" : "false");
       }
     });
-    updateFilterOptionCounts({ items: latestItems, filterState: viewerFilterState });
+    updateFilterOptionCounts({ items: latestItems, filterState: viewerState.viewerFilterState });
     const count = filterCount();
     if (!count) {
       return;
@@ -3207,7 +3205,7 @@ import {
       setState(value) {
         const nextState = value && typeof value === "object" ? { ...value } : null;
         if (nextState) {
-          nextState.viewerFilterState = sanitizeViewerFilterState(nextState.viewerFilterState || viewerFilterState);
+          nextState.viewerFilterState = sanitizeViewerFilterState(nextState.viewerFilterState || viewerState.viewerFilterState);
         }
         writeStoredState(nextState);
       }

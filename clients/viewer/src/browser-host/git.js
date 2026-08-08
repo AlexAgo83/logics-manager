@@ -99,7 +99,7 @@ export function createGitScreen(host) {
   function recordGitActivity(action, meta = "") {
     const storedState = readStoredState();
     const baseState = storedState && typeof storedState === "object" ? storedState : {};
-    const scopedState = activityStateForRoot(baseState, host.latestRepoRoot());
+    const scopedState = activityStateForRoot(baseState, host.shared.latestRepoRoot);
     const history = Array.isArray(scopedState.activityHistory) ? [...scopedState.activityHistory] : [];
     const now = new Date().toISOString();
     const safeAction = String(action || "Git").trim() || "Git";
@@ -115,8 +115,8 @@ export function createGitScreen(host) {
     });
     writeStoredState(writeActivityStateForRoot({
       ...baseState,
-      viewerFilterState: { ...host.viewerFilterState() }
-    }, host.latestRepoRoot(), { activitySnapshot: scopedState.activitySnapshot || {}, activityHistory: history }));
+      viewerFilterState: { ...host.shared.viewerFilterState }
+    }, host.shared.latestRepoRoot, { activitySnapshot: scopedState.activitySnapshot || {}, activityHistory: history }));
     host.dispatchViewerActivityUpdate();
   }
 
@@ -130,7 +130,7 @@ export function createGitScreen(host) {
     const branch = String(payload?.branch || "").trim();
     const storedState = readStoredState();
     const baseState = storedState && typeof storedState === "object" ? storedState : {};
-    const scopedState = activityStateForRoot(baseState, host.latestRepoRoot());
+    const scopedState = activityStateForRoot(baseState, host.shared.latestRepoRoot);
     const history = Array.isArray(scopedState.activityHistory) ? [...scopedState.activityHistory] : [];
     const knownIds = new Set(history.map((entry) => String(entry?.id || "")));
     const newEntries = commits
@@ -159,8 +159,8 @@ export function createGitScreen(host) {
     }
     writeStoredState(writeActivityStateForRoot({
       ...baseState,
-      viewerFilterState: { ...host.viewerFilterState() }
-    }, host.latestRepoRoot(), { activitySnapshot: scopedState.activitySnapshot || {}, activityHistory: [...newEntries, ...history] }));
+      viewerFilterState: { ...host.shared.viewerFilterState }
+    }, host.shared.latestRepoRoot, { activitySnapshot: scopedState.activitySnapshot || {}, activityHistory: [...newEntries, ...history] }));
     if (activityPanelIsOpen()) {
       host.dispatchViewerActivityUpdate();
     }

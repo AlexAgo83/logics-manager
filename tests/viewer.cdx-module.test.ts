@@ -58,8 +58,10 @@ describe("the lifted cdx screen", () => {
   });
 
   it("reads the one host binding it does not own, and never writes it", () => {
-    expect(cdxSource).toContain("host.viewerPreferences()");
-    expect(cdxSource).not.toMatch(/host\.viewerPreferences\(\)\s*=[^=]/);
+    // req_313 replaced the hand-picked thunk with the shared reader, which is frozen and
+    // has no setters -- so "never writes it" is now structural rather than a convention.
+    expect(cdxSource).toContain("host.shared.viewerPreferences");
+    expect(cdxSource).not.toMatch(/host\.shared\.viewerPreferences\s*=[^=]/);
   });
 
   it("does not import the host back", () => {
@@ -108,8 +110,8 @@ describe("the lifted workshop screen", () => {
 
   it("reads the three host bindings it does not own, and writes none of them", () => {
     for (const binding of ["latestRepoRoot", "latestRepository", "viewerPreferences"]) {
-      expect(workshopSource).toContain(`host.${binding}()`);
-      expect(workshopSource).not.toMatch(new RegExp(`host\\.${binding}\\(\\)\\s*=[^=]`));
+      expect(workshopSource).toContain(`host.shared.${binding}`);
+      expect(workshopSource).not.toMatch(new RegExp(`host\\.shared\\.${binding}\\s*=[^=]`));
     }
   });
 
@@ -144,8 +146,8 @@ describe("the lifted git and CI screen", () => {
   it("reads the two host bindings it does not own, and writes neither", () => {
     // Twelve before the cdx screen moved; two after it, and both read-only.
     for (const binding of ["latestRepoRoot", "viewerFilterState"]) {
-      expect(gitSource).toContain(`host.${binding}()`);
-      expect(gitSource).not.toMatch(new RegExp(`host\\.${binding}\\(\\)\\s*=[^=]`));
+      expect(gitSource).toContain(`host.shared.${binding}`);
+      expect(gitSource).not.toMatch(new RegExp(`host\\.shared\\.${binding}\\s*=[^=]`));
     }
   });
 

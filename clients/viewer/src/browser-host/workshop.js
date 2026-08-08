@@ -43,7 +43,7 @@ export function createWorkshopScreen(host) {
   const workshopButton = () => document.getElementById("viewer-workshop");
 
   function workshopUsesSystemTerminal() {
-    return host.viewerPreferences().workshopUseSystemTerminal === true || window.parent !== window;
+    return host.shared.viewerPreferences.workshopUseSystemTerminal === true || window.parent !== window;
   }
 
   function syncWorkshopSystemTerminalControls() {
@@ -134,13 +134,13 @@ export function createWorkshopScreen(host) {
   }
 
   function preferredWorkshopTab() {
-    const stored = String(host.viewerPreferences().workshopActiveTab || "");
+    const stored = String(host.shared.viewerPreferences.workshopActiveTab || "");
     return workshopTabs.some((tab) => tab.id === stored) ? stored : "terminals";
   }
 
   function setWorkshopActiveTab(tabId) {
     const next = workshopTabs.some((tab) => tab.id === tabId) ? tabId : "terminals";
-    if (next === host.viewerPreferences().workshopActiveTab) return;
+    if (next === host.shared.viewerPreferences.workshopActiveTab) return;
     host.updateViewerPreferences({ workshopActiveTab: next });
   }
 
@@ -389,11 +389,11 @@ export function createWorkshopScreen(host) {
   const workshopExternalLaunches = [];
 
   function workshopTerminalOrderRootKey() {
-    return host.latestRepoRoot() || host.latestRepository()?.root || "default";
+    return host.shared.latestRepoRoot || host.shared.latestRepository?.root || "default";
   }
 
   function storedWorkshopTerminalOrder() {
-    const byRoot = host.viewerPreferences().workshopTerminalOrderByRoot;
+    const byRoot = host.shared.viewerPreferences.workshopTerminalOrderByRoot;
     const rootKey = workshopTerminalOrderRootKey();
     const value = byRoot && typeof byRoot === "object" ? byRoot[rootKey] : null;
     return Array.isArray(value) ? value.map(String).filter(Boolean) : [];
@@ -401,8 +401,8 @@ export function createWorkshopScreen(host) {
 
   function persistWorkshopTerminalOrder() {
     const rootKey = workshopTerminalOrderRootKey();
-    const byRoot = host.viewerPreferences().workshopTerminalOrderByRoot && typeof host.viewerPreferences().workshopTerminalOrderByRoot === "object"
-      ? host.viewerPreferences().workshopTerminalOrderByRoot
+    const byRoot = host.shared.viewerPreferences.workshopTerminalOrderByRoot && typeof host.shared.viewerPreferences.workshopTerminalOrderByRoot === "object"
+      ? host.shared.viewerPreferences.workshopTerminalOrderByRoot
       : {};
     host.updateViewerPreferences({
       workshopTerminalOrderByRoot: {
@@ -986,7 +986,7 @@ export function createWorkshopScreen(host) {
 
   async function spawnSystemWorkshopTerminal(options = {}) {
     try {
-      if (window.parent !== window) { const id = `vscode-terminal-${Date.now()}-${workshopExternalLaunches.length + 1}`, command = Array.isArray(options.command) ? options.command.map(String) : [], label = String(options.label || "terminal"); window.parent.postMessage({ type: "launch-workshop-terminal", command, label, cwd: host.latestRepoRoot() || "" }, "*"); workshopExternalLaunches.push({ id, label, command, terminal: "VS Code", nativeRef: id }); renderWorkshopTerminalList(); await showWorkshop({ tab: "terminals" }); host.setMeta(`Opened VS Code terminal: ${label}.`); return id; }
+      if (window.parent !== window) { const id = `vscode-terminal-${Date.now()}-${workshopExternalLaunches.length + 1}`, command = Array.isArray(options.command) ? options.command.map(String) : [], label = String(options.label || "terminal"); window.parent.postMessage({ type: "launch-workshop-terminal", command, label, cwd: host.shared.latestRepoRoot || "" }, "*"); workshopExternalLaunches.push({ id, label, command, terminal: "VS Code", nativeRef: id }); renderWorkshopTerminalList(); await showWorkshop({ tab: "terminals" }); host.setMeta(`Opened VS Code terminal: ${label}.`); return id; }
       const body = {};
       if (Array.isArray(options.command) && options.command.length) body.command = options.command;
       if (options.label) body.label = String(options.label);

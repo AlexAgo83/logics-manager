@@ -14,7 +14,7 @@
     const panel = document.getElementById("activity-panel");
     return panel instanceof HTMLElement && !panel.hidden;
   }
-  function activityRootKey(root = latestRepoRoot) {
+  function activityRootKey(root = "") {
     return String(root || "default").trim() || "default";
   }
   function applyCdxBadge(host, selector, desiredLabel, makeHtml) {
@@ -1558,7 +1558,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       minute
     ].map((part) => String(part || "")).join("|");
   }
-  function activityStateForRoot(state = readStoredState(), root = latestRepoRoot) {
+  function activityStateForRoot(state = readStoredState(), root = "") {
     const baseState = state && typeof state === "object" ? state : {};
     const byRoot = baseState.activityByRoot && typeof baseState.activityByRoot === "object" ? baseState.activityByRoot : {};
     const scoped = byRoot[activityRootKey(root)];
@@ -3799,7 +3799,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     let cdxMissionBusyKey = "";
     let cdxCloseTarget = null;
     function cdxColumnVisibilityPreference() {
-      const stored = host.viewerPreferences().cdxStatusColumns;
+      const stored = host.shared.viewerPreferences.cdxStatusColumns;
       const storedVisibility = stored && typeof stored === "object" ? stored.visibility : null;
       const visibility = {};
       cdxStatusColumns.forEach((column) => {
@@ -3822,7 +3822,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       });
     }
     function cdxRunColumnVisibilityPreference() {
-      const stored = host.viewerPreferences().cdxRunColumns;
+      const stored = host.shared.viewerPreferences.cdxRunColumns;
       const storedVisibility = stored && typeof stored === "object" ? stored.visibility : null;
       const visibility = {};
       cdxRunColumns.forEach((column) => {
@@ -3845,7 +3845,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       });
     }
     function cdxRunSessionFilterPreference() {
-      const stored = host.viewerPreferences().cdxRunSessions;
+      const stored = host.shared.viewerPreferences.cdxRunSessions;
       if (!stored || typeof stored !== "object" || stored.mode !== "subset") {
         return { mode: "all", selected: [] };
       }
@@ -3859,7 +3859,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       });
     }
     function cdxHistoryColumnVisibilityPreference() {
-      const stored = host.viewerPreferences().cdxHistoryColumns;
+      const stored = host.shared.viewerPreferences.cdxHistoryColumns;
       const storedVisibility = stored && typeof stored === "object" ? stored.visibility : null;
       const visibility = {};
       cdxHistoryColumns.forEach((column) => {
@@ -3882,7 +3882,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       });
     }
     function cdxHistorySessionFilterPreference() {
-      const stored = host.viewerPreferences().cdxHistorySessions;
+      const stored = host.shared.viewerPreferences.cdxHistorySessions;
       if (!stored || typeof stored !== "object" || stored.mode !== "subset") {
         return { mode: "all", selected: [] };
       }
@@ -3896,7 +3896,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       });
     }
     function cdxProviderFilterPreference() {
-      const stored = host.viewerPreferences().cdxStatusProviders;
+      const stored = host.shared.viewerPreferences.cdxStatusProviders;
       if (!stored || typeof stored !== "object" || stored.mode !== "subset") {
         return { mode: "all", selected: [] };
       }
@@ -5701,11 +5701,42 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     };
   }
 
+  // clients/viewer/src/browser-host/state.js
+  function createViewerState(initial = {}) {
+    let viewerPreferences = initial.viewerPreferences ?? {};
+    let viewerFilterState = initial.viewerFilterState ?? {};
+    let latestRepoRoot = initial.latestRepoRoot ?? "";
+    let latestRepository = initial.latestRepository ?? null;
+    const state = {};
+    Object.defineProperties(state, {
+      viewerPreferences: { get: () => viewerPreferences, set: (value) => {
+        viewerPreferences = value;
+      }, enumerable: true },
+      viewerFilterState: { get: () => viewerFilterState, set: (value) => {
+        viewerFilterState = value;
+      }, enumerable: true },
+      latestRepoRoot: { get: () => latestRepoRoot, set: (value) => {
+        latestRepoRoot = value;
+      }, enumerable: true },
+      latestRepository: { get: () => latestRepository, set: (value) => {
+        latestRepository = value;
+      }, enumerable: true }
+    });
+    return state;
+  }
+  function readerFor(state) {
+    const reader = {};
+    for (const key of Object.keys(state)) {
+      Object.defineProperty(reader, key, { get: () => state[key], enumerable: true });
+    }
+    return Object.freeze(reader);
+  }
+
   // clients/viewer/src/browser-host/workshop.js
   function createWorkshopScreen(host) {
     const workshopButton = () => document.getElementById("viewer-workshop");
     function workshopUsesSystemTerminal() {
-      return host.viewerPreferences().workshopUseSystemTerminal === true || window.parent !== window;
+      return host.shared.viewerPreferences.workshopUseSystemTerminal === true || window.parent !== window;
     }
     function syncWorkshopSystemTerminalControls() {
       document.querySelectorAll("[data-viewer-workshop-system-terminal]").forEach((node) => {
@@ -5785,12 +5816,12 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       host.setMeta(options.silent ? "Explorer refreshed." : "Explorer loaded.");
     }
     function preferredWorkshopTab() {
-      const stored = String(host.viewerPreferences().workshopActiveTab || "");
+      const stored = String(host.shared.viewerPreferences.workshopActiveTab || "");
       return workshopTabs.some((tab) => tab.id === stored) ? stored : "terminals";
     }
     function setWorkshopActiveTab(tabId) {
       const next = workshopTabs.some((tab) => tab.id === tabId) ? tabId : "terminals";
-      if (next === host.viewerPreferences().workshopActiveTab) return;
+      if (next === host.shared.viewerPreferences.workshopActiveTab) return;
       host.updateViewerPreferences({ workshopActiveTab: next });
     }
     function renderWorkshopPanel(tabId) {
@@ -6026,17 +6057,17 @@ ${line}` : line;
     };
     const workshopExternalLaunches = [];
     function workshopTerminalOrderRootKey() {
-      return host.latestRepoRoot() || host.latestRepository()?.root || "default";
+      return host.shared.latestRepoRoot || host.shared.latestRepository?.root || "default";
     }
     function storedWorkshopTerminalOrder() {
-      const byRoot = host.viewerPreferences().workshopTerminalOrderByRoot;
+      const byRoot = host.shared.viewerPreferences.workshopTerminalOrderByRoot;
       const rootKey = workshopTerminalOrderRootKey();
       const value = byRoot && typeof byRoot === "object" ? byRoot[rootKey] : null;
       return Array.isArray(value) ? value.map(String).filter(Boolean) : [];
     }
     function persistWorkshopTerminalOrder() {
       const rootKey = workshopTerminalOrderRootKey();
-      const byRoot = host.viewerPreferences().workshopTerminalOrderByRoot && typeof host.viewerPreferences().workshopTerminalOrderByRoot === "object" ? host.viewerPreferences().workshopTerminalOrderByRoot : {};
+      const byRoot = host.shared.viewerPreferences.workshopTerminalOrderByRoot && typeof host.shared.viewerPreferences.workshopTerminalOrderByRoot === "object" ? host.shared.viewerPreferences.workshopTerminalOrderByRoot : {};
       host.updateViewerPreferences({
         workshopTerminalOrderByRoot: {
           ...byRoot,
@@ -6562,7 +6593,7 @@ ${line}` : line;
       try {
         if (window.parent !== window) {
           const id2 = `vscode-terminal-${Date.now()}-${workshopExternalLaunches.length + 1}`, command = Array.isArray(options.command) ? options.command.map(String) : [], label = String(options.label || "terminal");
-          window.parent.postMessage({ type: "launch-workshop-terminal", command, label, cwd: host.latestRepoRoot() || "" }, "*");
+          window.parent.postMessage({ type: "launch-workshop-terminal", command, label, cwd: host.shared.latestRepoRoot || "" }, "*");
           workshopExternalLaunches.push({ id: id2, label, command, terminal: "VS Code", nativeRef: id2 });
           renderWorkshopTerminalList();
           await showWorkshop({ tab: "terminals" });
@@ -6915,7 +6946,7 @@ ${line}` : line;
     function recordGitActivity(action, meta = "") {
       const storedState = readStoredState();
       const baseState = storedState && typeof storedState === "object" ? storedState : {};
-      const scopedState = activityStateForRoot(baseState, host.latestRepoRoot());
+      const scopedState = activityStateForRoot(baseState, host.shared.latestRepoRoot);
       const history = Array.isArray(scopedState.activityHistory) ? [...scopedState.activityHistory] : [];
       const now = (/* @__PURE__ */ new Date()).toISOString();
       const safeAction = String(action || "Git").trim() || "Git";
@@ -6931,8 +6962,8 @@ ${line}` : line;
       });
       writeStoredState(writeActivityStateForRoot({
         ...baseState,
-        viewerFilterState: { ...host.viewerFilterState() }
-      }, host.latestRepoRoot(), { activitySnapshot: scopedState.activitySnapshot || {}, activityHistory: history }));
+        viewerFilterState: { ...host.shared.viewerFilterState }
+      }, host.shared.latestRepoRoot, { activitySnapshot: scopedState.activitySnapshot || {}, activityHistory: history }));
       host.dispatchViewerActivityUpdate();
     }
     function syncGitCommitActivity(payload) {
@@ -6943,7 +6974,7 @@ ${line}` : line;
       const branch = String(payload?.branch || "").trim();
       const storedState = readStoredState();
       const baseState = storedState && typeof storedState === "object" ? storedState : {};
-      const scopedState = activityStateForRoot(baseState, host.latestRepoRoot());
+      const scopedState = activityStateForRoot(baseState, host.shared.latestRepoRoot);
       const history = Array.isArray(scopedState.activityHistory) ? [...scopedState.activityHistory] : [];
       const knownIds = new Set(history.map((entry) => String(entry?.id || "")));
       const newEntries = commits.filter((commit) => commit && typeof commit === "object" && commit.hash).map((commit) => {
@@ -6969,8 +7000,8 @@ ${line}` : line;
       }
       writeStoredState(writeActivityStateForRoot({
         ...baseState,
-        viewerFilterState: { ...host.viewerFilterState() }
-      }, host.latestRepoRoot(), { activitySnapshot: scopedState.activitySnapshot || {}, activityHistory: [...newEntries, ...history] }));
+        viewerFilterState: { ...host.shared.viewerFilterState }
+      }, host.shared.latestRepoRoot, { activitySnapshot: scopedState.activitySnapshot || {}, activityHistory: [...newEntries, ...history] }));
       if (activityPanelIsOpen()) {
         host.dispatchViewerActivityUpdate();
       }
@@ -7913,6 +7944,7 @@ ${line}` : line;
     const filterCount = () => document.getElementById("viewer-filter-count");
     const repoPill = () => document.getElementById("viewer-repo-pill");
     const projectMenu = () => document.getElementById("viewer-project-menu");
+    const viewerState = createViewerState({ viewerPreferences: readViewerPreferences() });
     const {
       state: gitState,
       ciActivityEvents,
@@ -7952,8 +7984,7 @@ ${line}` : line;
       setDropdownOpen,
       setMeta,
       updateCapabilityControls,
-      latestRepoRoot: () => latestRepoRoot2,
-      viewerFilterState: () => viewerFilterState
+      shared: readerFor(viewerState)
     });
     const repoFolderButton = () => document.getElementById("viewer-repo-folder");
     const {
@@ -8031,9 +8062,7 @@ ${line}` : line;
       cdxSessionForTerminal: (...args) => cdxSessionForTerminal(...args),
       cdxSessionUsage: (...args) => cdxSessionUsage(...args),
       loadCdxSessionsForCustomTerminal: (...args) => loadCdxSessionsForCustomTerminal(...args),
-      latestRepoRoot: () => latestRepoRoot2,
-      latestRepository: () => latestRepository,
-      viewerPreferences: () => viewerPreferences
+      shared: readerFor(viewerState)
     });
     const autoRefreshControl = () => document.getElementById("viewer-auto-refresh");
     const refreshIntervalControl = () => document.getElementById("viewer-refresh-interval");
@@ -8044,10 +8073,7 @@ ${line}` : line;
     const versionLink = () => document.getElementById("viewer-version-link");
     const bootstrapLogicsButton = () => document.getElementById("viewer-bootstrap-logics");
     const activityClearControl = () => document.getElementById("activity-clear");
-    let viewerFilterState = { ...defaultFilterState };
     let latestItems = [];
-    let latestRepoRoot2 = "";
-    let latestRepository = { root: "", githubUrl: "" };
     let latestCapabilities = {};
     let latestProjects = [];
     let latestCanBootstrapLogics = false;
@@ -8152,7 +8178,7 @@ ${line}` : line;
       updateViewerPreferences,
       documentPanel,
       documentTitle,
-      viewerPreferences: () => viewerPreferences
+      shared: readerFor(viewerState)
     });
     let connectionState = "connected";
     let lastSuccessfulSyncAt = 0;
@@ -8161,7 +8187,6 @@ ${line}` : line;
     let currentDocumentItem = null;
     let primaryActionBusyKey = "";
     let primaryActionController = null;
-    let viewerPreferences = readViewerPreferences();
     let autoRefreshIntervalForcedByLaunch = false;
     let embeddedHost = "";
     let viewSeq = 0;
@@ -8172,7 +8197,7 @@ ${line}` : line;
         const response = await fetch("/api/preferences");
         const data = await response.json();
         if (!response.ok || !data?.ok || !data.payload || typeof data.payload !== "object") return;
-        viewerPreferences = { ...viewerPreferences, ...data.payload, version: preferenceVersion };
+        viewerState.viewerPreferences = { ...viewerState.viewerPreferences, ...data.payload, version: preferenceVersion };
         cacheViewerPreferences();
         renderProjectMenu();
         syncWorkshopSystemTerminalControls();
@@ -8190,16 +8215,16 @@ ${line}` : line;
     }
     function cacheViewerPreferences() {
       try {
-        window.localStorage.setItem(preferenceKey, JSON.stringify(viewerPreferences));
+        window.localStorage.setItem(preferenceKey, JSON.stringify(viewerState.viewerPreferences));
       } catch {
       }
     }
     function writeViewerPreferences(nextPreferences) {
-      viewerPreferences = { ...nextPreferences, version: preferenceVersion };
+      viewerState.viewerPreferences = { ...nextPreferences, version: preferenceVersion };
       cacheViewerPreferences();
     }
     function updateViewerPreferences(patch, options = {}) {
-      writeViewerPreferences({ ...viewerPreferences, ...patch });
+      writeViewerPreferences({ ...viewerState.viewerPreferences, ...patch });
       persistViewerPreferencesToServer(patch, options.removed);
       if (patch.projectLastUsedAt && window.parent !== window) window.parent.postMessage({ type: "viewer-project-last-used", projectLastUsedAt: patch.projectLastUsedAt }, "*");
       if (patch.favoriteProjects && window.parent !== window) window.parent.postMessage({ type: "viewer-favorite-projects", favoriteProjects: patch.favoriteProjects }, "*");
@@ -8208,14 +8233,14 @@ ${line}` : line;
     window.addEventListener("message", (event) => {
       const projectLastUsedAt = event.data?.type === "viewer-project-last-used" ? event.data.projectLastUsedAt : null;
       if (projectLastUsedAt && typeof projectLastUsedAt === "object" && !Array.isArray(projectLastUsedAt)) {
-        writeViewerPreferences({ ...viewerPreferences, projectLastUsedAt });
+        writeViewerPreferences({ ...viewerState.viewerPreferences, projectLastUsedAt });
         renderProjectMenu();
       }
     });
     window.addEventListener("message", (event) => {
       const favoriteProjects = event.data?.type === "viewer-favorite-projects" ? event.data.favoriteProjects : null;
       if (Array.isArray(favoriteProjects)) {
-        writeViewerPreferences({ ...viewerPreferences, favoriteProjects: favoriteProjects.map((value) => String(value)).filter(Boolean).sort() });
+        writeViewerPreferences({ ...viewerState.viewerPreferences, favoriteProjects: favoriteProjects.map((value) => String(value)).filter(Boolean).sort() });
         renderProjectMenu();
       }
     });
@@ -8230,7 +8255,7 @@ ${line}` : line;
       document.getElementById("viewer-vscode-open-external")?.addEventListener("click", () => window.parent.postMessage({ type: "open-external-viewer" }, "*"));
     });
     function favoriteProjectIds() {
-      const stored = Array.isArray(viewerPreferences.favoriteProjects) ? viewerPreferences.favoriteProjects : [];
+      const stored = Array.isArray(viewerState.viewerPreferences.favoriteProjects) ? viewerState.viewerPreferences.favoriteProjects : [];
       return new Set(stored.map((value) => String(value)).filter(Boolean));
     }
     function persistFavoriteProject(projectId, favorite) {
@@ -8249,7 +8274,7 @@ ${line}` : line;
       );
     }
     function preferredAutoRefreshIntervalSeconds() {
-      const seconds = Number(viewerPreferences.autoRefreshIntervalSeconds);
+      const seconds = Number(viewerState.viewerPreferences.autoRefreshIntervalSeconds);
       return Number.isFinite(seconds) && seconds > 0 ? normalizeAutoRefreshIntervalSeconds(seconds) : null;
     }
     let transientMetaText = "";
@@ -8317,14 +8342,14 @@ ${line}` : line;
     }
     function hydrateViewerFilterState() {
       const storedState = readStoredState();
-      viewerFilterState = sanitizeViewerFilterState(storedState?.viewerFilterState);
+      viewerState.viewerFilterState = sanitizeViewerFilterState(storedState?.viewerFilterState);
     }
     function persistViewerFilterState() {
       const storedState = readStoredState();
       const nextState = storedState && typeof storedState === "object" ? storedState : {};
-      writeStoredState({ ...nextState, viewerFilterState: { ...viewerFilterState } });
+      writeStoredState({ ...nextState, viewerFilterState: { ...viewerState.viewerFilterState } });
     }
-    function activityEventsFromStoredState(state = readStoredState(), root = latestRepoRoot2) {
+    function activityEventsFromStoredState(state = readStoredState(), root = viewerState.latestRepoRoot) {
       const scopedState = activityStateForRoot(state, root);
       return (Array.isArray(scopedState.activityHistory) ? scopedState.activityHistory : []).filter((entry) => entry && typeof entry === "object" && ["git-action", "git-commit"].includes(entry.type)).map((entry, index) => ({
         id: String(entry.id || `git-action-${index}`),
@@ -8346,11 +8371,11 @@ ${line}` : line;
     function dispatchViewerActivityUpdate() {
       const storedState = readStoredState();
       const payload = {
-        root: latestRepoRoot2,
+        root: viewerState.latestRepoRoot,
         items: latestItems,
         selectedId: storedState?.selectedId || "",
         activityEvents: [
-          ...activityEventsFromStoredState(storedState, latestRepoRoot2),
+          ...activityEventsFromStoredState(storedState, viewerState.latestRepoRoot),
           ...ciActivityEvents()
         ]
       };
@@ -8362,7 +8387,7 @@ ${line}` : line;
         dispatchViewerActivityUpdate();
       }
     }
-    function updateStoredActivity(nextItems, root = latestRepoRoot2) {
+    function updateStoredActivity(nextItems, root = viewerState.latestRepoRoot) {
       const storedState = readStoredState();
       const baseState = storedState && typeof storedState === "object" ? storedState : {};
       const scopedState = activityStateForRoot(baseState, root);
@@ -8386,7 +8411,7 @@ ${line}` : line;
       });
       writeStoredState(writeActivityStateForRoot({
         ...baseState,
-        viewerFilterState: { ...viewerFilterState }
+        viewerFilterState: { ...viewerState.viewerFilterState }
       }, root, { activitySnapshot: nextSnapshot, activityHistory: history }));
       return decorated;
     }
@@ -8394,7 +8419,7 @@ ${line}` : line;
       const storedState = readStoredState();
       const nextState = storedState && typeof storedState === "object" ? { ...storedState } : {};
       const byRoot = nextState.activityByRoot && typeof nextState.activityByRoot === "object" ? { ...nextState.activityByRoot } : {};
-      delete byRoot[activityRootKey(latestRepoRoot2)];
+      delete byRoot[activityRootKey(viewerState.latestRepoRoot)];
       nextState.activityByRoot = byRoot;
       writeStoredState(nextState);
       latestItems = latestItems.map((item) => {
@@ -8507,11 +8532,11 @@ ${line}` : line;
       renderMeta();
     }
     function updateRepositoryIdentity(payload) {
-      latestRepoRoot2 = String(payload.root || latestRepoRoot2 || "");
+      viewerState.latestRepoRoot = String(payload.root || viewerState.latestRepoRoot || "");
       latestProjects = Array.isArray(payload.projects) ? payload.projects : latestProjects;
       const repository = payload.repository && typeof payload.repository === "object" ? payload.repository : {};
-      latestRepository = {
-        root: String(repository.root || latestRepoRoot2 || ""),
+      viewerState.latestRepository = {
+        root: String(repository.root || viewerState.latestRepoRoot || ""),
         provider: String(repository.provider || ""),
         webUrl: String(repository.webUrl || repository.githubUrl || repository.gitlabUrl || ""),
         githubUrl: String(repository.githubUrl || ""),
@@ -8519,14 +8544,14 @@ ${line}` : line;
       };
       const pill = repoPill();
       if (pill) {
-        const repoName = String(payload.repoName || latestRepoRoot2.split(/[\\/]/).filter(Boolean).pop() || "repository");
+        const repoName = String(payload.repoName || viewerState.latestRepoRoot.split(/[\\/]/).filter(Boolean).pop() || "repository");
         const label = pill.querySelector("[data-viewer-project-label]");
         if (label) {
           label.textContent = repoName;
         } else {
           pill.textContent = repoName;
         }
-        pill.title = latestRepoRoot2 || repoName;
+        pill.title = viewerState.latestRepoRoot || repoName;
         if ("disabled" in pill) {
           pill.disabled = false;
         }
@@ -8545,7 +8570,7 @@ ${line}` : line;
       }
       const favorites = favoriteProjectIds();
       const projects = latestProjects.filter((project) => project && typeof project === "object").map((project, index) => {
-        const stored = viewerPreferences.projectLastUsedAt, value = stored && typeof stored === "object" ? stored[projectPreferenceId(project)] : "", time = Date.parse(String(value || ""));
+        const stored = viewerState.viewerPreferences.projectLastUsedAt, value = stored && typeof stored === "object" ? stored[projectPreferenceId(project)] : "", time = Date.parse(String(value || ""));
         return { project, index, favorite: favorites.has(projectPreferenceId(project)), lastUsed: Number.isFinite(time) ? time : 0 };
       }).sort((left, right) => Number(right.project.active) - Number(left.project.active) || Number(right.favorite) - Number(left.favorite) || (left.favorite && right.favorite ? right.lastUsed - left.lastUsed : 0) || left.index - right.index);
       const projectRows = projects.map(({ project, favorite }) => {
@@ -8617,7 +8642,7 @@ ${line}` : line;
         throw new Error(data.error || "Unable to switch project.");
       }
       {
-        const active = (Array.isArray(data.payload?.projects) ? data.payload.projects : []).find((project) => project?.active), projectId2 = projectPreferenceId(active), stored = viewerPreferences.projectLastUsedAt;
+        const active = (Array.isArray(data.payload?.projects) ? data.payload.projects : []).find((project) => project?.active), projectId2 = projectPreferenceId(active), stored = viewerState.viewerPreferences.projectLastUsedAt;
         if (projectId2) updateViewerPreferences({ projectLastUsedAt: { ...stored && typeof stored === "object" ? stored : {}, [projectId2]: (/* @__PURE__ */ new Date()).toISOString() } });
       }
       gitState.latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
@@ -8658,7 +8683,7 @@ ${line}` : line;
     function applySelectedProjectPayload(payload, message) {
       returnToProjectSurface();
       {
-        const active = (Array.isArray(payload?.projects) ? payload.projects : []).find((project) => project?.active), projectId = projectPreferenceId(active), stored = viewerPreferences.projectLastUsedAt;
+        const active = (Array.isArray(payload?.projects) ? payload.projects : []).find((project) => project?.active), projectId = projectPreferenceId(active), stored = viewerState.viewerPreferences.projectLastUsedAt;
         if (projectId) updateViewerPreferences({ projectLastUsedAt: { ...stored && typeof stored === "object" ? stored : {}, [projectId]: (/* @__PURE__ */ new Date()).toISOString() } });
       }
       gitState.latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
@@ -8823,13 +8848,13 @@ ${line}` : line;
       }
     }
     function maybePromptBootstrapLogics() {
-      if (!latestCanBootstrapLogics || !latestShouldPromptBootstrapLogics || !latestRepoRoot2 || bootstrapPromptOpen) {
+      if (!latestCanBootstrapLogics || !latestShouldPromptBootstrapLogics || !viewerState.latestRepoRoot || bootstrapPromptOpen) {
         return;
       }
-      if (promptedBootstrapRoots.has(latestRepoRoot2)) {
+      if (promptedBootstrapRoots.has(viewerState.latestRepoRoot)) {
         return;
       }
-      promptedBootstrapRoots.add(latestRepoRoot2);
+      promptedBootstrapRoots.add(viewerState.latestRepoRoot);
       window.setTimeout(() => {
         confirmBootstrapLogics({ automatic: true }).catch((error) => setMeta(error?.message || "Unable to bootstrap Logics."));
       }, 0);
@@ -8913,15 +8938,15 @@ ${line}` : line;
       const github = gitState.repoGithubLink();
       const folder = repoFolderButton();
       if (github instanceof HTMLAnchorElement) {
-        if (latestRepository.webUrl) {
+        if (viewerState.latestRepository.webUrl) {
           github.hidden = false;
-          github.href = latestRepository.webUrl;
+          github.href = viewerState.latestRepository.webUrl;
           github.onclick = (event) => {
             if (embeddedHost !== "vscode" || window.parent === window) return;
             event.preventDefault();
-            window.parent.postMessage({ type: "open-external-link", target: latestRepository.webUrl }, "*");
+            window.parent.postMessage({ type: "open-external-link", target: viewerState.latestRepository.webUrl }, "*");
           };
-          const providerLabel = latestRepository.provider === "gitlab" ? "GitLab" : latestRepository.provider === "github" ? "GitHub" : "remote";
+          const providerLabel = viewerState.latestRepository.provider === "gitlab" ? "GitLab" : viewerState.latestRepository.provider === "github" ? "GitHub" : "remote";
           github.title = `Open ${providerLabel} repository`;
           github.setAttribute("aria-label", `Open ${providerLabel} repository`);
         } else {
@@ -8931,7 +8956,7 @@ ${line}` : line;
         }
       }
       if (folder instanceof HTMLButtonElement) {
-        folder.hidden = !latestRepository.root;
+        folder.hidden = !viewerState.latestRepository.root;
       }
     }
     function updateVersionLink(updateInfo = latestUpdateInfo) {
@@ -8946,7 +8971,7 @@ ${line}` : line;
       link.title = "Open Logics Manager on GitHub";
     }
     async function openRepositoryFolder() {
-      if (!latestRepository.root) {
+      if (!viewerState.latestRepository.root) {
         setMeta("Repository folder is unavailable.");
         return;
       }
@@ -9157,7 +9182,7 @@ ${line}` : line;
     function persistSelectedItem(id) {
       const storedState = readStoredState();
       const nextState = storedState && typeof storedState === "object" ? { ...storedState } : {};
-      writeStoredState({ ...nextState, selectedId: id, viewerFilterState: { ...viewerFilterState } });
+      writeStoredState({ ...nextState, selectedId: id, viewerFilterState: { ...viewerState.viewerFilterState } });
     }
     function revealFocusedCard(item) {
       window.setTimeout(() => {
@@ -9193,7 +9218,7 @@ ${line}` : line;
         persistSelectedItem(item.id);
         return nextPayload;
       }
-      viewerFilterState = { ...viewerFilterState, focus: "all", type: "all", status: "any", relation: "any", activity: "any" };
+      viewerState.viewerFilterState = { ...viewerState.viewerFilterState, focus: "all", type: "all", status: "any", relation: "any", activity: "any" };
       persistSelectedItem(item.id);
       focusApplied = true;
       window.setTimeout(() => {
@@ -9716,7 +9741,7 @@ ${line}` : line;
         return false;
       }
       latestViewerStateSignature = nextSignature;
-      const payloadRoot = String(payload?.root || latestRepoRoot2 || "");
+      const payloadRoot = String(payload?.root || viewerState.latestRepoRoot || "");
       latestItems = updateStoredActivity(Array.isArray(payload.items) ? payload.items : [], payloadRoot);
       if (!autoRefreshIntervalTouched) {
         const launchSeconds = Number(payload.autoRefreshIntervalSeconds);
@@ -9951,13 +9976,13 @@ ${line}` : line;
       }
     }
     function matchesViewerFilter(item) {
-      return matchesFilterState(item, viewerFilterState);
+      return matchesFilterState(item, viewerState.viewerFilterState);
     }
     function applyViewerFilter(group, value) {
       if (!Object.prototype.hasOwnProperty.call(defaultFilterState, group)) {
         return;
       }
-      viewerFilterState = { ...viewerFilterState, [group]: value || defaultFilterState[group] };
+      viewerState.viewerFilterState = { ...viewerState.viewerFilterState, [group]: value || defaultFilterState[group] };
       window.__CDX_LOGICS_VIEWER_FILTER__ = matchesViewerFilter;
       persistViewerFilterState();
       updateFilterSummary();
@@ -9970,7 +9995,7 @@ ${line}` : line;
       if (button) button.setAttribute("aria-expanded", open ? "true" : "false");
     }
     function updateFocusMenuState() {
-      const value = viewerFilterState.focus || defaultFilterState.focus;
+      const value = viewerState.viewerFilterState.focus || defaultFilterState.focus;
       const label = focusFilterLabel(value);
       const labelNode = document.getElementById("focus-menu-label");
       const button = document.getElementById("focus-menu-toggle");
@@ -10006,7 +10031,7 @@ ${line}` : line;
       });
     }
     function clearLocalPreset() {
-      viewerFilterState = { ...defaultFilterState };
+      viewerState.viewerFilterState = { ...defaultFilterState };
       window.__CDX_LOGICS_VIEWER_FILTER__ = matchesViewerFilter;
       persistViewerFilterState();
       setControlValue("search-input", "", "input");
@@ -10021,7 +10046,7 @@ ${line}` : line;
     }
     function updateFilterSummary() {
       updateFocusMenuState();
-      const activeLabels = Object.entries(viewerFilterState).filter(([key, value]) => value !== defaultFilterState[key]).map(([key, value]) => `${key}: ${String(value).replace("-", " ")}`);
+      const activeLabels = Object.entries(viewerState.viewerFilterState).filter(([key, value]) => value !== defaultFilterState[key]).map(([key, value]) => `${key}: ${String(value).replace("-", " ")}`);
       const hasActiveFilters = activeLabels.length > 0;
       const filterButton = document.getElementById("filter-toggle");
       if (filterButton instanceof HTMLElement) {
@@ -10032,16 +10057,16 @@ ${line}` : line;
       document.querySelectorAll("[data-viewer-filter-group]").forEach((control) => {
         if (control instanceof HTMLSelectElement) {
           const group = control.getAttribute("data-viewer-filter-group") || "";
-          control.value = viewerFilterState[group] || defaultFilterState[group] || "";
+          control.value = viewerState.viewerFilterState[group] || defaultFilterState[group] || "";
           return;
         }
         if (control instanceof HTMLElement) {
           const group = control.getAttribute("data-viewer-filter-group") || "";
           const value = control.getAttribute("data-viewer-filter-value") || "";
-          control.setAttribute("aria-pressed", viewerFilterState[group] === value ? "true" : "false");
+          control.setAttribute("aria-pressed", viewerState.viewerFilterState[group] === value ? "true" : "false");
         }
       });
-      updateFilterOptionCounts({ items: latestItems, filterState: viewerFilterState });
+      updateFilterOptionCounts({ items: latestItems, filterState: viewerState.viewerFilterState });
       const count = filterCount();
       if (!count) {
         return;
@@ -10479,7 +10504,7 @@ ${line}` : line;
         setState(value) {
           const nextState = value && typeof value === "object" ? { ...value } : null;
           if (nextState) {
-            nextState.viewerFilterState = sanitizeViewerFilterState(nextState.viewerFilterState || viewerFilterState);
+            nextState.viewerFilterState = sanitizeViewerFilterState(nextState.viewerFilterState || viewerState.viewerFilterState);
           }
           writeStoredState(nextState);
         }

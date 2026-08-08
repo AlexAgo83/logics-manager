@@ -1,10 +1,10 @@
 ## item_630_name_the_viewer_s_shared_state - Name the viewer's shared state
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: One named store
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -35,14 +35,14 @@
 - AC5: A check derives the store's bindings from the module, so one added later is covered without editing it.
 
 # AC Traceability
-- request-AC1 -> This backlog slice. Proof: AC1: The shared bindings live in one module, and the three per-screen accessors are gone.
-- request-AC6 -> This backlog slice. Proof: AC2: Each screen receives the store and reaches only what it does not own through it.
-- request-AC7 -> This backlog slice. Proof: AC3: Wiring is order-independent: a screen constructed before another still reads correctly.
-- request-AC8 -> This backlog slice. Proof: AC4: The suite, the campaign and the repository check pass.
-
+- request-AC1 -> This backlog slice. Proof: `clients/viewer/src/browser-host/state.js`; `hands every screen the same reader rather than a hand-picked set of thunks` in `tests/viewer.shared-state.test.ts` asserts the three per-screen accessor sets are gone.
+- request-AC6 -> This backlog slice. Proof: no framework and no new runtime; 816 vitest tests, 1127 Python tests and the viewer campaign pass, and the extension bundle is regenerated from its sources.
+- request-AC7 -> This backlog slice. Proof: `ci-check` exits 0 after the move.
+- request-AC8 -> This backlog slice. Proof: `carries what is shared, not everything the host holds` derives the store's contents from the module, so a binding added later is listed rather than assumed.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
+- The store carries four bindings, not forty-three. Measured rather than assumed: those are the ones the three screens actually read. A store holding every closure binding would be a second name for the closure rather than a boundary, and the slice's own scope says the store carries what is shared and not everything. Screens receive a frozen reader rather than the store, so 'a screen reads what it does not own and never writes it' -- a rule all three lifts followed by convention -- becomes structural.
 
 # Links
 - Product brief(s): `prod_061_the_architecture_written_down`

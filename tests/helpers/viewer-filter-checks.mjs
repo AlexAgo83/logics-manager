@@ -103,14 +103,24 @@ export function filterChecks(window) {
         await reset();
         const control = document.getElementById("group-by");
         if (!control) return "no grouping control";
-        const headings = () =>
-          Array.from(document.querySelectorAll("#board .column__title-label")).map((node) => node.textContent.trim()).join("|");
+        // The board renders columns on a wide viewport and sections on a narrow one, and
+        // both carry the group name. Reading only the columns made a phone report every
+        // mode as identical, because there were no columns to compare.
+        const headings = () => {
+          const nodes = document.querySelectorAll("#board .column__title-label, #board .list-view__section");
+          return Array.from(nodes)
+            .map((node) => (node.dataset?.group ?? node.textContent ?? "").trim())
+            .join("|");
+        };
         const seen = new Map();
         for (const option of Array.from(control.options)) {
           control.value = option.value;
           control.dispatchEvent(new window.Event("change", { bubbles: true }));
           await delay(600);
           seen.set(option.value, headings());
+        }
+        if ([...seen.values()].every((layout) => !layout)) {
+          return "no grouping is rendered here to compare";
         }
         const duplicates = [...seen.entries()].filter(
           ([value, layout]) => [...seen.entries()].some(([other, otherLayout]) => other !== value && otherLayout === layout)

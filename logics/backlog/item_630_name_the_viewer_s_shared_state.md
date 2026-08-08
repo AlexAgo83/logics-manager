@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: One named store
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-08 23:11:53
+> Indicators reviewed: 2026-08-09 01:49:49
 
 # Problem
 - The host holds 41 mutable bindings and 30 constants in one closure. Three screens reach into it through accessors built by hand, one per lift, each solving the same problem in the same way without saying so.
@@ -59,3 +59,9 @@
 # Priority
 - Priority: High - three hand-built seams doing the same undeclared thing
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_310_orchestrate_naming_the_viewer_architecture`
+
+# Notes
+- Task `task_310_orchestrate_naming_the_viewer_architecture` was finished via `logics-manager flow finish task` on 2026-08-09.

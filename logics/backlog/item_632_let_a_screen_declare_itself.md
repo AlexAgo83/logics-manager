@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: A screen registry
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-09 01:49:49
 
 # Problem
 - A screen is dispatched by its title: `setDocument(title, html)`, with the routing spread across conditionals that compare that title string. There are fourteen navigation targets and no place that lists them.
@@ -54,3 +55,9 @@
 # Priority
 - Priority: Medium - comfort, not correctness, and it depends on the store
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_310_orchestrate_naming_the_viewer_architecture`
+
+# Notes
+- Task `task_310_orchestrate_naming_the_viewer_architecture` was finished via `logics-manager flow finish task` on 2026-08-09.

@@ -1,0 +1,455 @@
+{
+  "budgets": {
+    "max_docs": 24,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository item_638_give_the_viewer_a_preference_store_that_does_not_depend_on_the_port item_639_let_two_windows_agree_on_the_favourites item_640_keep_a_paired_device_paired_across_a_restart item_641_retire_the_half_bridge_and_say_what_it_did task_312_orchestrate_moving_the_viewer_preferences_off_the_port --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_638_give_the_viewer_a_preference_store_that_does_not_depend_on_the_port",
+          "item_639_let_two_windows_agree_on_the_favourites",
+          "item_640_keep_a_paired_device_paired_across_a_restart",
+          "item_641_retire_the_half_bridge_and_say_what_it_did"
+        ],
+        "prod": [
+          "prod_063_preferences_that_outlive_the_port"
+        ],
+        "req": [
+          "req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository"
+        ],
+        "task": [
+          "task_312_orchestrate_moving_the_viewer_preferences_off_the_port"
+        ]
+      },
+      "path": "logics/product/prod_063_preferences_that_outlive_the_port.md",
+      "ref": "prod_063_preferences_that_outlive_the_port",
+      "sections": {
+        "Goals": [
+          "- Make a favourite outlive the window that starred it.",
+          "- Keep a corpus's settings with the corpus.",
+          "- Let two open windows agree rather than overwrite each other.",
+          "- Stop a changing port from deciding what an operator gets to keep."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Viewer preferences live in browser storage, which is scoped to an origin, and the extension serves the viewer from a new port every session. Nothing is broken; everything is filed under a name that changes. Move the record to the server, which already knows both the repository and the machine: favourites and operator settings for the user, corpus settings for the repository, with the browser store kept only as a cache."
+        ],
+        "References": [
+          "- Product back-reference: `req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository`",
+          "- Task back-reference: `task_312_orchestrate_moving_the_viewer_preferences_off_the_port`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Preferences that outlive the port"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, persist viewer preferences where they belong: favourites for the user, the rest for the repository, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Persist viewer preferences where they belong: favourites for the user, the rest for the repository",
+        "use when": "You need to implement or review the scaffolded workflow for Persist viewer preferences where they belong: favourites for the user, the rest for the repository."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_638_give_the_viewer_a_preference_store_that_does_not_depend_on_the_port",
+          "item_639_let_two_windows_agree_on_the_favourites",
+          "item_640_keep_a_paired_device_paired_across_a_restart",
+          "item_641_retire_the_half_bridge_and_say_what_it_did"
+        ],
+        "prod": [
+          "prod_063_preferences_that_outlive_the_port"
+        ],
+        "req": [
+          "req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository"
+        ]
+      },
+      "path": "logics/request/req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository.md",
+      "ref": "req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Favourites survive a restart, and are the same in every window open on the machine.",
+          "- AC2: A preference that describes a corpus is kept with that corpus, and does not follow the operator to another repository.",
+          "- AC3: A preference that describes the operator is kept for the operator, and applies in every repository.",
+          "- AC4: Two windows writing at once do not lose a favourite: a set is merged, never overwritten wholesale.",
+          "- AC5: A paired device keeps its token across a restart of the editor.",
+          "- AC6: The standalone viewer and the extension read and write the same preferences, and neither depends on the port it was served from."
+        ],
+        "Needs": [
+          "- Keep favourites across every window on the machine, and across restarts.",
+          "- Keep the settings that describe a corpus with that corpus, not with whoever opened it last.",
+          "- Stop losing a paired device's token every time the editor restarts."
+        ]
+      },
+      "status": "Draft",
+      "title": "Persist viewer preferences where they belong: favourites for the user, the rest for the repository"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, give the viewer a preference store that does not depend on the port, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Give the viewer a preference store that does not depend on the port",
+        "use when": "Implementing the scaffolded slice for Give the viewer a preference store that does not depend on the port."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_638_give_the_viewer_a_preference_store_that_does_not_depend_on_the_port"
+        ],
+        "prod": [
+          "prod_063_preferences_that_outlive_the_port"
+        ],
+        "req": [
+          "req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository"
+        ],
+        "task": [
+          "task_312_orchestrate_moving_the_viewer_preferences_off_the_port"
+        ]
+      },
+      "path": "logics/backlog/item_638_give_the_viewer_a_preference_store_that_does_not_depend_on_the_port.md",
+      "ref": "item_638_give_the_viewer_a_preference_store_that_does_not_depend_on_the_port",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: An operator preference set in one repository applies in another.",
+          "- AC2: A corpus preference set in one repository does not appear in another.",
+          "- AC3: The standalone viewer and the extension read the same values, whatever port either was served from.",
+          "- AC4: Preferences already stored in the browser are carried over on first run and not lost.",
+          "- AC5: A test derives the operator-versus-corpus split from the code, so a field added later must be placed."
+        ],
+        "Problem": [
+          "- Every preference is in one browser storage entry, and browser storage is scoped to the origin, port included. The extension serves the viewer on an ephemeral port, so each session reads an empty store.",
+          "- The twelve stored fields divide cleanly. Four describe the operator: the favourites, the last-used timestamps, whether the workshop uses the system terminal, and the auto-refresh interval. Eight describe a corpus: the workshop's active tab and terminal order, and the six cdx column and filter selections.",
+          "- The server already knows the repository it serves and the machine it runs on, and it serves both the standalone viewer and the extension. Nothing else in the system knows both."
+        ]
+      },
+      "status": "Ready",
+      "title": "Give the viewer a preference store that does not depend on the port"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, let two windows agree on the favourites, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Let two windows agree on the favourites",
+        "use when": "Implementing the scaffolded slice for Let two windows agree on the favourites."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_639_let_two_windows_agree_on_the_favourites"
+        ],
+        "prod": [
+          "prod_063_preferences_that_outlive_the_port"
+        ],
+        "req": [
+          "req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository"
+        ],
+        "task": [
+          "task_312_orchestrate_moving_the_viewer_preferences_off_the_port"
+        ]
+      },
+      "path": "logics/backlog/item_639_let_two_windows_agree_on_the_favourites.md",
+      "ref": "item_639_let_two_windows_agree_on_the_favourites",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Starring in one window and starring in another leaves both favourites present.",
+          "- AC2: Unstarring removes exactly one entry and leaves the rest.",
+          "- AC3: A write interrupted partway leaves the previous content readable, not a truncated file.",
+          "- AC4: A window shows a favourite starred elsewhere without being restarted.",
+          "- AC5: Tests cover two clients writing at once and fail against the current implementation."
+        ],
+        "Problem": [
+          "- Favourites are a set, and today the whole list is written wholesale by whichever window wrote last. With two windows open, starring in one and starring in another loses one of the two.",
+          "- The reported expectation is explicitly that favourites are global across windows, which makes the concurrent write the normal case rather than an edge one.",
+          "- Scalar preferences do not have this problem in the same way: the last writer winning is a defensible answer for a single value, and pretending otherwise would buy complexity for nothing."
+        ]
+      },
+      "status": "Ready",
+      "title": "Let two windows agree on the favourites"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, keep a paired device paired across a restart, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Keep a paired device paired across a restart",
+        "use when": "Implementing the scaffolded slice for Keep a paired device paired across a restart."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_640_keep_a_paired_device_paired_across_a_restart"
+        ],
+        "prod": [
+          "prod_063_preferences_that_outlive_the_port"
+        ],
+        "req": [
+          "req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository"
+        ],
+        "task": [
+          "task_312_orchestrate_moving_the_viewer_preferences_off_the_port"
+        ]
+      },
+      "path": "logics/backlog/item_640_keep_a_paired_device_paired_across_a_restart.md",
+      "ref": "item_640_keep_a_paired_device_paired_across_a_restart",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A device paired before a restart is still paired after one.",
+          "- AC2: The pairing flow, its PIN, and the server-side hashing are unchanged.",
+          "- AC3: An operator can clear a pairing deliberately, and it stays cleared.",
+          "- AC4: A test covers the restart and fails against the current implementation."
+        ],
+        "Problem": [
+          "- A paired network device's bearer token is kept in the same origin-scoped browser storage as the preferences. When the extension restarts on a new port, the token is gone and the device has to be paired again.",
+          "- This was never reported as a preference problem because it does not look like one, but it has exactly the same cause and disappears with the same fix.",
+          "- The token is a credential, so where it is kept and for how long is a decision to make deliberately rather than by moving it along with everything else."
+        ]
+      },
+      "status": "Ready",
+      "title": "Keep a paired device paired across a restart"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate moving the viewer preferences off the port",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_638_give_the_viewer_a_preference_store_that_does_not_depend_on_the_port",
+          "item_639_let_two_windows_agree_on_the_favourites",
+          "item_640_keep_a_paired_device_paired_across_a_restart",
+          "item_641_retire_the_half_bridge_and_say_what_it_did"
+        ],
+        "prod": [
+          "prod_063_preferences_that_outlive_the_port"
+        ],
+        "req": [
+          "req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository"
+        ],
+        "task": [
+          "task_312_orchestrate_moving_the_viewer_preferences_off_the_port"
+        ]
+      },
+      "path": "logics/tasks/task_312_orchestrate_moving_the_viewer_preferences_off_the_port.md",
+      "ref": "task_312_orchestrate_moving_the_viewer_preferences_off_the_port",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate moving the viewer preferences off the port"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_638_give_the_viewer_a_preference_store_that_does_not_depend_on_the_port",
+          "item_639_let_two_windows_agree_on_the_favourites",
+          "item_640_keep_a_paired_device_paired_across_a_restart",
+          "item_641_retire_the_half_bridge_and_say_what_it_did"
+        ],
+        "prod": [
+          "prod_063_preferences_that_outlive_the_port"
+        ],
+        "req": [
+          "req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository"
+        ],
+        "task": [
+          "task_312_orchestrate_moving_the_viewer_preferences_off_the_port"
+        ]
+      },
+      "path": "logics/product/prod_063_preferences_that_outlive_the_port.md",
+      "ref": "prod_063_preferences_that_outlive_the_port",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Preferences that outlive the port"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, retire the half-bridge and say what it did, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Retire the half-bridge and say what it did",
+        "use when": "Implementing the scaffolded slice for Retire the half-bridge and say what it did."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_641_retire_the_half_bridge_and_say_what_it_did"
+        ],
+        "prod": [
+          "prod_063_preferences_that_outlive_the_port"
+        ],
+        "req": [
+          "req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository"
+        ],
+        "task": [
+          "task_312_orchestrate_moving_the_viewer_preferences_off_the_port"
+        ]
+      },
+      "path": "logics/backlog/item_641_retire_the_half_bridge_and_say_what_it_did.md",
+      "ref": "item_641_retire_the_half_bridge_and_say_what_it_did",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The server's record wins whenever it disagrees with the cache.",
+          "- AC2: The frame renders cached values before the server answers, and corrects itself once it does.",
+          "- AC3: The webview state write that nothing reads is gone.",
+          "- AC4: A test covers the disagreement and fails against the current implementation."
+        ],
+        "Problem": [
+          "- The extension carries two of the twelve preference fields across the iframe boundary by hand, keeping them in its global state and posting them back when the frame loads. Once the server is the record, that path is a second source of truth for a subset of the data.",
+          "- The same bridge writes a webview state entry that nothing ever reads, which is dead weight that looks like persistence.",
+          "- The global state is still useful as a first-paint cache: it avoids a round trip before the frame has asked the server anything. What it must stop being is the answer."
+        ]
+      },
+      "status": "Ready",
+      "title": "Retire the half-bridge and say what it did"
+    }
+  ],
+  "estimates": {
+    "char_count": 14198,
+    "companion_doc_count": 1,
+    "doc_count": 7
+  },
+  "generated_at": "2026-08-08T21:02:31Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository",
+      "item_638_give_the_viewer_a_preference_store_that_does_not_depend_on_the_port",
+      "item_639_let_two_windows_agree_on_the_favourites",
+      "item_640_keep_a_paired_device_paired_across_a_restart",
+      "item_641_retire_the_half_bridge_and_say_what_it_did",
+      "task_312_orchestrate_moving_the_viewer_preferences_off_the_port"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository,item_638_give_the_viewer_a_preference_store_that_does_not_depend_on_the_port,item_639_let_two_windows_agree_on_the_favourites,item_640_keep_a_paired_device_paired_across_a_restart,item_641_retire_the_half_bridge_and_say_what_it_did,task_312_orchestrate_moving_the_viewer_preferences_off_the_port",
+  "refs": [
+    "req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository",
+    "item_638_give_the_viewer_a_preference_store_that_does_not_depend_on_the_port",
+    "item_639_let_two_windows_agree_on_the_favourites",
+    "item_640_keep_a_paired_device_paired_across_a_restart",
+    "item_641_retire_the_half_bridge_and_say_what_it_did",
+    "task_312_orchestrate_moving_the_viewer_preferences_off_the_port"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different commit",
+      "changelog: evidence targets a different commit",
+      "local_validation: evidence targets a different commit",
+      "git_push: evidence targets a different commit",
+      "ci: evidence targets a different commit"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different commit",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.20.0"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_312_orchestrate_moving_the_viewer_preferences_off_the_port.md",
+      "ref": "task_312_orchestrate_moving_the_viewer_preferences_off_the_port"
+    }
+  ]
+}

@@ -99,6 +99,7 @@
 | [prod_060_the_browser_host_down_to_the_viewer](product/prod_060_the_browser_host_down_to_the_viewer.md) | The browser host, down to the viewer | Settled |  |  | product/prod_060_the_browser_host_down_to_the_viewer.md |
 | [prod_061_the_architecture_written_down](product/prod_061_the_architecture_written_down.md) | The architecture, written down | Proposed |  |  | product/prod_061_the_architecture_written_down.md |
 | [prod_062_say_what_just_happened](product/prod_062_say_what_just_happened.md) | Say what just happened | Settled |  |  | product/prod_062_say_what_just_happened.md |
+| [prod_063_preferences_that_outlive_the_port](product/prod_063_preferences_that_outlive_the_port.md) | Preferences that outlive the port | Proposed |  |  | product/prod_063_preferences_that_outlive_the_port.md |
 
 ## Roadmaps
 
@@ -421,6 +422,7 @@ _None_
 | [req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved](request/req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved.md) | Finish lifting the browser host's sub-systems, on the seam cdx proved | Done |  |  | request/req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved.md |
 | [req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens](request/req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens.md) | Write down the architecture the viewer already has: a named store, server-driven invalidation, declared screens | Ready |  |  | request/req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens.md |
 | [req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done](request/req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done.md) | Close what the attended tour found: say what is unavailable, count what is shown, report when a screen is done | Ready |  |  | request/req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done.md |
+| [req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository](request/req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository.md) | Persist viewer preferences where they belong: favourites for the user, the rest for the repository | Ready |  |  | request/req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository.md |
 
 ## Backlog
 
@@ -1063,6 +1065,10 @@ _None_
 | [item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over](backlog/item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over.md) | Report when a screen is done, and stop reporting what is over | Ready |  | 0% | backlog/item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over.md |
 | [item_636_make_group_by_do_what_it_offers_and_stop_offering_what_it_does_not](backlog/item_636_make_group_by_do_what_it_offers_and_stop_offering_what_it_does_not.md) | Make Group by do what it offers, and stop offering what it does not | Ready |  | 0 | backlog/item_636_make_group_by_do_what_it_offers_and_stop_offering_what_it_does_not.md |
 | [item_637_give_every_screen_a_heading_structure](backlog/item_637_give_every_screen_a_heading_structure.md) | Give every screen a heading structure | Ready |  | 0 | backlog/item_637_give_every_screen_a_heading_structure.md |
+| [item_638_give_the_viewer_a_preference_store_that_does_not_depend_on_the_port](backlog/item_638_give_the_viewer_a_preference_store_that_does_not_depend_on_the_port.md) | Give the viewer a preference store that does not depend on the port | Ready |  | 0% | backlog/item_638_give_the_viewer_a_preference_store_that_does_not_depend_on_the_port.md |
+| [item_639_let_two_windows_agree_on_the_favourites](backlog/item_639_let_two_windows_agree_on_the_favourites.md) | Let two windows agree on the favourites | Ready |  | 0% | backlog/item_639_let_two_windows_agree_on_the_favourites.md |
+| [item_640_keep_a_paired_device_paired_across_a_restart](backlog/item_640_keep_a_paired_device_paired_across_a_restart.md) | Keep a paired device paired across a restart | Ready |  | 0% | backlog/item_640_keep_a_paired_device_paired_across_a_restart.md |
+| [item_641_retire_the_half_bridge_and_say_what_it_did](backlog/item_641_retire_the_half_bridge_and_say_what_it_did.md) | Retire the half-bridge and say what it did | Ready |  | 0% | backlog/item_641_retire_the_half_bridge_and_say_what_it_did.md |
 
 ## Tasks
 
@@ -1373,3 +1379,4 @@ _None_
 | [task_309_orchestrate_finishing_the_browser_host_split](tasks/task_309_orchestrate_finishing_the_browser_host_split.md) | Orchestrate finishing the browser host split | Done |  | 100% | tasks/task_309_orchestrate_finishing_the_browser_host_split.md |
 | [task_310_orchestrate_naming_the_viewer_architecture](tasks/task_310_orchestrate_naming_the_viewer_architecture.md) | Orchestrate naming the viewer architecture | Ready |  | 0% | tasks/task_310_orchestrate_naming_the_viewer_architecture.md |
 | [task_311_orchestrate_the_attended_tour_findings](tasks/task_311_orchestrate_the_attended_tour_findings.md) | Orchestrate the attended tour findings | Ready |  | 0% | tasks/task_311_orchestrate_the_attended_tour_findings.md |
+| [task_312_orchestrate_moving_the_viewer_preferences_off_the_port](tasks/task_312_orchestrate_moving_the_viewer_preferences_off_the_port.md) | Orchestrate moving the viewer preferences off the port | Ready |  | 0% | tasks/task_312_orchestrate_moving_the_viewer_preferences_off_the_port.md |

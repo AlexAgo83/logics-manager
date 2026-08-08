@@ -8,6 +8,7 @@
 > Complexity: Low
 > Theme: Discoverable command contract
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 16:24:24
 
 # Problem
 - The plugin warns that a repository's Logics runtime is newer than the version it was tested against. The bound it compares to is a hand-written constant, set once when the check was introduced and bumped by nothing in the release path. The runtime has since moved several minors ahead of it, so the warning fires on every start-up against a repository that is perfectly compatible.
@@ -36,6 +37,13 @@
 # AC Traceability
 - request-AC9 -> This backlog slice. Proof: `says nothing about a runtime released with this plugin` and `still warns about a runtime newer than the plugin` in `tests/logicsKitVersionSupport.test.ts`.
 - request-AC7 -> This backlog slice. Proof: the same file also pins the floor, the unknown-version case, and prompt stability across patch updates.
+- request-AC1 -> This backlog slice. Evidence needed: An abandoned request is not asked for linked backlog items, under any audit code.
+- request-AC2 -> This backlog slice. Evidence needed: A delivered request still requires linked backlog items and still reports incomplete ones.
+- request-AC3 -> This backlog slice. Evidence needed: Chain propagation and active-work filtering keep treating every terminal status alike, as they do today.
+- request-AC4 -> This backlog slice. Evidence needed: Every flag a command declares appears on that command's help screen, derived from the declaration rather than restated beside it.
+- request-AC5 -> This backlog slice. Evidence needed: A closeout that finishes the task reports that the task closed, distinctly from whether the post-close checks passed.
+- request-AC6 -> This backlog slice. Evidence needed: The printed outcome of such a closeout does not read as a failure to close.
+- request-AC8 -> This backlog slice. Evidence needed: A reviewed edit can be re-baselined even when the document was already re-baselined earlier the same day.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
@@ -58,6 +66,7 @@
 
 # Notes
 - Generated locally by logics-manager.
+- Task `task_305_orchestrate_the_honest_outcome_corrections` was finished via `logics-manager flow finish task` on 2026-08-08.
 
 # Tasks
 - `task_305_orchestrate_the_honest_outcome_corrections`

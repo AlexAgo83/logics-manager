@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: Truthful audit verdicts
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-08
+> Indicators reviewed: 2026-08-08 16:24:24
 
 # Problem
 - The re-baseline flag records that indicators were reviewed by writing a date, at day granularity. A second reviewed edit to the same document on the same day writes the same date, so the diff the gate inspects contains no indicator change and the blocking finding stays. Running the recommended remediation again cannot clear it, which leaves the operator with no honest exit: the remaining ones are to relabel a semantic edit as non-semantic, or to move an indicator value that did not actually move.
@@ -35,6 +35,13 @@
 # AC Traceability
 - request-AC8 -> This backlog slice. Proof: `test_a_second_reviewed_edit_on_the_same_day_clears_the_indicator_gate` in `tests/python/test_honest_outcomes.py`.
 - request-AC7 -> This backlog slice. Proof: `test_a_second_touch_on_the_same_day_still_moves_the_reviewed_line` and `test_an_edit_with_no_re_baseline_is_still_blocked` in `tests/python/test_honest_outcomes.py`.
+- request-AC1 -> This backlog slice. Evidence needed: An abandoned request is not asked for linked backlog items, under any audit code.
+- request-AC2 -> This backlog slice. Evidence needed: A delivered request still requires linked backlog items and still reports incomplete ones.
+- request-AC3 -> This backlog slice. Evidence needed: Chain propagation and active-work filtering keep treating every terminal status alike, as they do today.
+- request-AC4 -> This backlog slice. Evidence needed: Every flag a command declares appears on that command's help screen, derived from the declaration rather than restated beside it.
+- request-AC5 -> This backlog slice. Evidence needed: A closeout that finishes the task reports that the task closed, distinctly from whether the post-close checks passed.
+- request-AC6 -> This backlog slice. Evidence needed: The printed outcome of such a closeout does not read as a failure to close.
+- request-AC9 -> This backlog slice. Evidence needed: A version bound that must track a released version is derived from it, not restated beside it.
 
 # Decision framing
 - Product framing: Not needed
@@ -58,6 +65,7 @@
 
 # Notes
 - Generated locally by logics-manager.
+- Task `task_305_orchestrate_the_honest_outcome_corrections` was finished via `logics-manager flow finish task` on 2026-08-08.
 
 # Tasks
 - `task_305_orchestrate_the_honest_outcome_corrections`

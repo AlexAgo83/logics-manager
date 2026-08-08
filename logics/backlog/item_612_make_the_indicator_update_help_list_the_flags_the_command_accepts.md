@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: Discoverable command contract
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-08
+> Indicators reviewed: 2026-08-08 16:24:23
 
 # Problem
 - Every help screen is a hand-written list of flags, maintained separately from the flags the command actually declares, and the two have drifted apart. The reported instance is the indicator update command, whose re-baseline flag lint itself recommends: an operator who checks the help before following that remediation is told the flag does not exist.
@@ -35,6 +35,13 @@
 # AC Traceability
 - request-AC4 -> This backlog slice. Proof: `test_help_lists_every_flag_the_command_declares` in `tests/python/test_cli_help_contract.py`, parametrized over every discovered subcommand; it reports 9 commands against the previous implementation.
 - request-AC7 -> This backlog slice. Proof: the same test, plus `logics_manager/help_flags.py` rendering each screen's flag section from the parser that declares it.
+- request-AC1 -> This backlog slice. Evidence needed: An abandoned request is not asked for linked backlog items, under any audit code.
+- request-AC2 -> This backlog slice. Evidence needed: A delivered request still requires linked backlog items and still reports incomplete ones.
+- request-AC3 -> This backlog slice. Evidence needed: Chain propagation and active-work filtering keep treating every terminal status alike, as they do today.
+- request-AC5 -> This backlog slice. Evidence needed: A closeout that finishes the task reports that the task closed, distinctly from whether the post-close checks passed.
+- request-AC6 -> This backlog slice. Evidence needed: The printed outcome of such a closeout does not read as a failure to close.
+- request-AC8 -> This backlog slice. Evidence needed: A reviewed edit can be re-baselined even when the document was already re-baselined earlier the same day.
+- request-AC9 -> This backlog slice. Evidence needed: A version bound that must track a released version is derived from it, not restated beside it.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
@@ -57,3 +64,6 @@
 
 # Tasks
 - `task_305_orchestrate_the_honest_outcome_corrections`
+
+# Notes
+- Task `task_305_orchestrate_the_honest_outcome_corrections` was finished via `logics-manager flow finish task` on 2026-08-08.

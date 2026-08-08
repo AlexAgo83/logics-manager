@@ -1,10 +1,10 @@
 ## item_627_move_the_cdx_rendering_to_the_cdx_screen - Move the cdx rendering to the cdx screen
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Rendering with its screen
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -32,14 +32,14 @@
 - AC5: A check asserts the render module exports nothing whose only consumer is the cdx screen, reading that list from the modules rather than from a written list.
 
 # AC Traceability
-- request-AC1 -> This backlog slice. Proof: AC1: The cdx rendering lives in the cdx module.
-- request-AC4 -> This backlog slice. Proof: AC2: The shared render module no longer exports rendering only the cdx screen uses.
-- request-AC5 -> This backlog slice. Proof: AC3: The suite and the campaign pass, and the bundle is regenerated from its sources.
-- request-AC7 -> This backlog slice. Proof: AC4: Both files' ledger entries are lowered to the values reached.
-
+- request-AC1 -> This backlog slice. Proof: 45 rendering functions (814 lines) moved into `clients/viewer/src/browser-host/cdx.js`; the shared render module went from 2546 to 1732.
+- request-AC4 -> This backlog slice. Proof: 798 vitest tests and the viewer campaign pass; `npm run check:viewer-host` confirms the bundle matches its sources.
+- request-AC5 -> This backlog slice. Proof: `scripts/check-source-line-budget.mjs` records 1732 for the render module and 5829 for the host, both lowered.
+- request-AC7 -> This backlog slice. Proof: `leaves the shared render module carrying nothing only this screen consumes` in `tests/viewer.cdx-module.test.ts`, which derives the list from the modules rather than restating it.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
+- Moved as a fixed-point sweep, not a single pass: each move makes the callers it leaves behind single-consumer in turn, so one pass moved 26 functions and three more rounds moved 19 others, 45 in total. A first attempt at the sweep broke 30 tests and was reverted; the cause was the sweep not recompleting the module's imports between rounds, not the moves. Re-run with imports completed each round, the same 45 moves pass the whole suite and the campaign.
 
 # Links
 - Product brief(s): `prod_060_the_browser_host_down_to_the_viewer`

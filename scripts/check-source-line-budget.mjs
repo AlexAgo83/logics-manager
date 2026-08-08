@@ -63,14 +63,17 @@ const allowedOversizedFiles = new Map(
     // req_311 lifted the cdx screen into its own module: 7789 -> 5934. git was measured
     // and left: it touches 12 bindings it does not own, so a git module would carry most
     // of the viewer's state with it. That move waits for the shared state itself.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 5862, ref: "req_311" },
-    "clients/viewer/src/browser-host/cdx.js": { maxLines: 2212, ref: "req_311" },
+    "clients/viewer/src/browser-host/index.js": { maxLines: 5829, ref: "req_312" },
+    "clients/viewer/src/browser-host/cdx.js": { maxLines: 3057, ref: "req_312" },
     // De-monolith passes 1-3: pure helpers/data extracted out of index.js. May
     // be split by domain (cdx/git/dom) in later passes as they grow.
     "clients/viewer/src/browser-host/util.js": { maxLines: 1122, ref: "browser-host-split" },
     // 2546: req_305 added the workflow-health sections (blocked docs, stale docs)
     // to the health screen, which previously showed lint and audit only.
-    "clients/viewer/src/browser-host/render.js": { maxLines: 2546, ref: "req_305" },
+    // req_312 moved the rendering whose only consumer is the cdx screen into that screen:
+    // 2546 -> 1732. Swept to a fixed point, since each move makes the next one's callers
+    // single-consumer too.
+    "clients/viewer/src/browser-host/render.js": { maxLines: 1732, ref: "req_312" },
     "clients/shared-web/media/renderBoardApp.js": { maxLines: 1325, ref: "req_273" },
     "clients/shared-web/media/mainApp.js": { maxLines: 1040, ref: "req_273" },
   })

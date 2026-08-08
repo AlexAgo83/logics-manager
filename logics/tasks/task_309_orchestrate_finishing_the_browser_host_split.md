@@ -1,10 +1,10 @@
 ## task_309_orchestrate_finishing_the_browser_host_split - Orchestrate finishing the browser host split
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 33%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -13,7 +13,7 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Move the cdx rendering out of the shared render module and into the cdx screen.
+- [x] 1. Move the cdx rendering out of the shared render module and into the cdx screen.
 - [ ] 2. Lift the workshop onto the factory-and-accessor seam, verifying with the campaign.
 - [ ] 3. Lift git and CI, deciding explicitly where the screen router belongs.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.

@@ -8,6 +8,7 @@
 > Complexity: Low
 > Theme: A repair that adds nothing twice
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 23:40:08
 
 # Problem
 - The repair appends a placeholder for every criterion regardless of what is already there, so a section carrying hand-written proofs ends up holding both, and the operator deletes one set by hand.
@@ -53,3 +54,9 @@
 # Priority
 - Priority: Medium - small alone, compounding with the format problem
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_313_orchestrate_making_the_closeout_gate_satisfiable`
+
+# Notes
+- Task `task_313_orchestrate_making_the_closeout_gate_satisfiable` was finished via `logics-manager flow finish task` on 2026-08-08.

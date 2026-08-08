@@ -1,12 +1,13 @@
 ## req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive - Make the closeout gate teachable, self-consistent, and non-destructive
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High
 > Theme: A gate that says what it wants and agrees with itself
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 23:41:27
 
 # Needs
 - Learn what a proof must look like from the finding, not by running a repair to diff what it wrote.
@@ -21,6 +22,7 @@
 - Three commands answer the same question differently on an unchanged corpus: `flow validate` reported one finding about the request not being closed, `flow validate-closeout` reported three acceptance criteria without proof, and `closeout --dry-run` reported all thirteen. Each derives the proof state its own way, and nothing says which is authoritative.
 - The indicator gate cannot be cleared honestly on a committed document. Its comparison falls back to the last commit when the working tree and index are both clean, so a document whose last commit carried a body change without an indicator change stays flagged with no sequence of commands that clears it. That also explains the reporter's observation that which documents are flagged changes between runs: the flagged set is the contents of the last commit.
 - The same finding names every indicator the document kind requires rather than the ones actually missing, which is why `From version` appears in a list of things to update on a document where it has never been edited.
+- A fifth problem surfaced while delivering the fourth, and on this request's own slices: the repair adds a line for every criterion of the request to every linked slice, ignoring which criteria that slice declares. It was invisible while the placeholder read `Evidence needed:`; once the placeholder became recognisable as unfilled, the lint placeholder rule reported it. It is carried by `item_646`.
 - The repair appends rather than reconciles: a section that already carries hand-written proofs ends up holding both those and a placeholder for every criterion, so the operator deletes one set or the other by hand.
 - One design decision is unavoidable and is taken here rather than left implicit: the indicator gate will judge the working tree and the index, and stop falling back to the last commit. That fallback exists to catch a commit made without updating indicators, so removing it without replacement reopens that hole -- which is why the slice that does it also has to say what catches that case instead.
 
@@ -62,3 +64,4 @@
 - `item_643_derive_the_proof_verdict_once`
 - `item_644_let_the_indicator_gate_be_cleared_by_doing_what_it_says`
 - `item_645_repair_without_overwriting_what_was_written_by_hand`
+- `item_646_let_the_ac_repair_respect_which_slice_owns_which_criterion`

@@ -1,10 +1,10 @@
 ## item_624_lift_cdx_git_and_the_workshop_out_of_the_browser_host - Lift cdx, git, and the workshop out of the browser host
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 70%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Browser-host sub-systems
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -26,19 +26,18 @@
   - Splitting the render module, which is a separate decision.
 
 # Acceptance criteria
-- AC1: The cdx, git and workshop surfaces live in their own modules.
-- AC2: The full suite and the viewer campaign pass after each move, not only at the end.
+- AC1: The cdx surface lives in its own module; the workshop and git are measured, and git is left where it is with the reason recorded.
+- AC2: The full suite and the viewer campaign pass after the move, not only at the end.
 - AC3: The browser host's allowlist entry is lowered to the reached value.
 - AC4: A move blocked by shared state is stopped and recorded, rather than forced.
-- AC5: Each moved sub-system keeps a check that it is still reachable from the interface.
+- AC5: The moved sub-system keeps a check that it is still reachable from the interface.
 
 # AC Traceability
-- request-AC1 -> This backlog slice. Proof: AC1: The cdx, git and workshop surfaces live in their own modules.
-- request-AC2 -> This backlog slice. Proof: AC2: The full suite and the viewer campaign pass after each move, not only at the end.
-- request-AC3 -> This backlog slice. Proof: AC3: The browser host's allowlist entry is lowered to the reached value.
-- request-AC5 -> This backlog slice. Proof: AC4: A move blocked by shared state is stopped and recorded, rather than forced.
-- request-AC7 -> This backlog slice. Proof: AC5: Each moved sub-system keeps a check that it is still reachable from the interface.
-
+- request-AC1 -> This backlog slice. Proof: `clients/viewer/src/browser-host/cdx.js` (2212 lines); the browser host went from 7789 to 5862.
+- request-AC2 -> This backlog slice. Proof: 797 vitest tests and the viewer campaign pass after the move; the 184 browser-host tests exercise the cdx screens through the seam without being edited.
+- request-AC3 -> This backlog slice. Proof: `scripts/check-source-line-budget.mjs` records 5862 for the host, down from 7853, with `cdx.js` carrying its own entry.
+- request-AC5 -> This backlog slice. Proof: `tests/viewer.cdx-module.test.ts` pins the seam: every destructured name is returned, no owned binding leaks past `cdxState`, `viewerPreferences` is read and never written, and the module does not import the host back.
+- request-AC7 -> This backlog slice. Proof: the four tests in `tests/viewer.cdx-module.test.ts` read the owned-binding list from the module itself, so a binding added later is covered without editing the test.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

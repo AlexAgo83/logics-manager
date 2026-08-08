@@ -60,7 +60,11 @@ const allowedOversizedFiles = new Map(
     // reclaim via the paused state.js/git/workshop split.
     // 7853: req_305 added the workflow-health fetch and the on-demand
     // per-project switcher scan.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 7789, ref: "req_305" },
+    // req_311 lifted the cdx screen into its own module: 7789 -> 5934. git was measured
+    // and left: it touches 12 bindings it does not own, so a git module would carry most
+    // of the viewer's state with it. That move waits for the shared state itself.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 5862, ref: "req_311" },
+    "clients/viewer/src/browser-host/cdx.js": { maxLines: 2212, ref: "req_311" },
     // De-monolith passes 1-3: pure helpers/data extracted out of index.js. May
     // be split by domain (cdx/git/dom) in later passes as they grow.
     "clients/viewer/src/browser-host/util.js": { maxLines: 1122, ref: "browser-host-split" },

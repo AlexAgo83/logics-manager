@@ -8,6 +8,7 @@
 > Complexity: Low
 > Theme: Rendering with its screen
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-08 22:18:51
 
 # Problem
 - Of the shared render module's exports, 56 are cdx and the cdx screen is their only consumer. They sit in a file everything imports while serving one caller, so reading the render module means reading someone else's screen.
@@ -36,6 +37,9 @@
 - request-AC4 -> This backlog slice. Proof: 798 vitest tests and the viewer campaign pass; `npm run check:viewer-host` confirms the bundle matches its sources.
 - request-AC5 -> This backlog slice. Proof: `scripts/check-source-line-budget.mjs` records 1732 for the render module and 5829 for the host, both lowered.
 - request-AC7 -> This backlog slice. Proof: `leaves the shared render module carrying nothing only this screen consumes` in `tests/viewer.cdx-module.test.ts`, which derives the list from the modules rather than restating it.
+- request-AC2 -> This backlog slice. Evidence needed: The workshop lives in its own module, reached through the same kind of seam the cdx screen uses.
+- request-AC3 -> This backlog slice. Evidence needed: The git and CI surface lives in its own module, on that same seam.
+- request-AC6 -> This backlog slice. Evidence needed: The host's shared state is not rewritten; a lift that would require it stops and says so.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed
@@ -56,3 +60,9 @@
 # Priority
 - Priority: High - the cheapest of the three, and it has no state at all
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_309_orchestrate_finishing_the_browser_host_split`
+
+# Notes
+- Task `task_309_orchestrate_finishing_the_browser_host_split` was finished via `logics-manager flow finish task` on 2026-08-08.

@@ -1,10 +1,10 @@
 ## item_611_stop_asking_abandoned_requests_for_an_implementation_chain - Stop asking abandoned requests for an implementation chain
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Truthful audit verdicts
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -31,11 +31,9 @@
 - AC4: A regression test covers the abandoned request with acceptance criteria and no backlog, and fails against the current code.
 
 # AC Traceability
-- request-AC1 -> This backlog slice. Proof: AC1: An abandoned request with acceptance criteria and no backlog produces no findings.
-- request-AC2 -> This backlog slice. Proof: AC2: A delivered request with no backlog still produces its finding, and one linked to an incomplete item still produces its own.
-- request-AC3 -> This backlog slice. Proof: AC3: Active-work filtering and chain propagation behave identically to before, shown by their existing tests still passing unchanged.
-- request-AC7 -> This backlog slice. Proof: AC4: A regression test covers the abandoned request with acceptance criteria and no backlog, and fails against the current code.
-
+- request-AC1 -> This backlog slice. Proof: `test_an_abandoned_request_is_not_asked_for_a_backlog` in `tests/python/test_honest_outcomes.py`, covering Obsolete, Archived and Superseded under both codes.
+- request-AC2 -> This backlog slice. Proof: `test_a_delivered_request_still_requires_its_backlog` in `tests/python/test_honest_outcomes.py`.
+- request-AC3 -> This backlog slice. Proof: the existing suite passes unchanged; `_is_done` keeps serving chain propagation and the active-work filter.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

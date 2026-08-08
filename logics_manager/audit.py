@@ -29,6 +29,10 @@ DOC_KINDS = {
 REF_PREFIXES = ("req", "item", "task", "prod", "road", "adr", "spec")
 STATUS_IN_PROGRESS = {"draft", "ready", "in progress", "blocked"}
 STATUS_DONE = {"done", "archived", "obsolete", "validated", "settled", "superseded"}
+# Terminal, but abandoned rather than delivered. Chain propagation and the active-work
+# filter are right to treat these like any other ending; the delivered-request checks
+# are not, because there is no implementation chain to demand from work decided against.
+STATUS_ABANDONED = {"archived", "obsolete", "superseded"}
 
 COMPANION_PLACEHOLDERS: dict[str, tuple[str, ...]] = {
     "product": (
@@ -260,6 +264,14 @@ def _is_done(doc: DocMeta) -> bool:
     if doc.kind.has_progress and doc.progress == 100:
         return True
     return False
+
+
+def _is_abandoned(doc: DocMeta) -> bool:
+    return doc.status is not None and doc.status in STATUS_ABANDONED
+
+
+def _is_delivered(doc: DocMeta) -> bool:
+    return _is_done(doc) and not _is_abandoned(doc)
 
 
 def _find_repo_root_from(start: Path) -> Path:
@@ -740,7 +752,7 @@ def audit_payload(
                 )
 
     for doc in docs.values():
-        if doc.kind.kind != "request" or _is_done(doc) is False:
+        if doc.kind.kind != "request" or _is_delivered(doc) is False:
             continue
         request_items = _linked_items_for_request(doc, all_docs)
         if not request_items:
@@ -772,7 +784,9 @@ def audit_payload(
 
     if not skip_ac_traceability:
         for request in [doc for doc in docs.values() if doc.kind.kind == "request"]:
-            if not _is_strict_scope(request, cutoff):
+            # Abandoned work has no chain to trace, and reaching it here would report
+            # the same missing backlog the delivered-request check just stopped asking for.
+            if not _is_strict_scope(request, cutoff) or _is_abandoned(request):
                 continue
             ac_ids = _extract_request_ac_ids(request)
             if not ac_ids:

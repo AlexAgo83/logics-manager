@@ -878,16 +878,6 @@ def _classify_porcelain_entry(line: str) -> tuple[str, dict[str, str]] | None:
     return None
 
 
-    normalized = normalized.lstrip("/")
-    if normalized in {"", "."}:
-        return ""
-    if normalized.startswith("~") or re.match(r"^[A-Za-z]:", normalized):
-        raise ValueError("Unsafe workspace path.")
-    parts = [part for part in normalized.split("/") if part not in {"", "."}]
-    if any(part == ".." for part in parts):
-        raise ValueError("Workspace path escapes root.")
-    return "/".join(parts)
-
 
 def _resolve_workspace_path(repo_root: Path, rel_path: str) -> tuple[str, Path]:
     normalized = _normalize_workspace_path(rel_path)

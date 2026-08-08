@@ -1,10 +1,10 @@
 ## task_306_orchestrate_the_viewer_ui_campaign - Orchestrate the viewer UI campaign
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 66%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -13,8 +13,8 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Turn the visual smoke into a reporting campaign: named checks, measured values, no stop at the first defect, still gating.
-- [ ] 2. Add the layout defect classes at each viewport, with every list derived from the interface.
+- [x] 1. Turn the visual smoke into a reporting campaign: named checks, measured values, no stop at the first defect, still gating.
+- [x] 2. Add the layout defect classes at each viewport, with every list derived from the interface.
 - [ ] 3. Write the runbook: how to run it, how to read it, what the attended pass covers, and where a finding goes.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.

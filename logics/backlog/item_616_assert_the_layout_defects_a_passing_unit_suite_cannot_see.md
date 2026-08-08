@@ -1,10 +1,10 @@
 ## item_616_assert_the_layout_defects_a_passing_unit_suite_cannot_see - Assert the layout defects a passing unit suite cannot see
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Layout defect classes
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -37,10 +37,9 @@
 - AC6: A test introduces each defect class and asserts the matching check reports it.
 
 # AC Traceability
-- request-AC4 -> This backlog slice. Proof: AC1: Overlapping interactive controls are detected and reported, at each swept viewport.
-- request-AC5 -> This backlog slice. Proof: AC2: Clipped controls and sideways page scroll are detected and reported.
-- request-AC9 -> This backlog slice. Proof: AC3: An empty surface with no explanation is reported.
-
+- request-AC4 -> This backlog slice. Proof: the eight tests in `tests/viewer.layout-checks.test.ts`, one per defect class, each introducing the defect and asserting the check reports it.
+- request-AC5 -> This backlog slice. Proof: `walks the interface rather than a hand-written list of surfaces` in the same file: a control under a container the check never heard of is still covered.
+- request-AC9 -> This backlog slice. Proof: the same file; `tests/helpers/viewer-layout-checks.mjs` is the single source the campaign serializes into the page.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

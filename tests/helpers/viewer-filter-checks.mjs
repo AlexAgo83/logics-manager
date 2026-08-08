@@ -46,6 +46,39 @@ export function filterChecks(window) {
 
   return [
     {
+      name: "every screen reports when it is done",
+      run: async () => {
+        // Two screens of fourteen never reached a terminal state, so nothing distinguished
+        // finished from still working. The list is read from the interface.
+        const targets = Array.from(document.querySelectorAll("[data-viewer-nav-target]"))
+          .map((node) => node.getAttribute("data-viewer-nav-target"))
+          .filter(Boolean);
+        if (!targets.length) return "no navigation targets to walk";
+        const stuck = [];
+        for (const target of targets) {
+          const node = document.querySelector(`[data-viewer-nav-target="${target}"]`);
+          if (!node || node.hidden) continue;
+          // Blank the status first: without this the check reads the previous screen's
+          // "loaded" and passes for a screen that never says anything at all.
+          const metaNode = document.getElementById("viewer-meta");
+          if (metaNode) metaNode.textContent = "";
+          node.dispatchEvent(new window.MouseEvent("click", { bubbles: true, view: window }));
+          const started = Date.now();
+          let settled = false;
+          while (Date.now() - started < 6000) {
+            if (/loaded|refreshed|ready|unavailable|detected|state:|no /i.test(document.getElementById("viewer-meta")?.textContent || "")) {
+              settled = true;
+              break;
+            }
+            await delay(60);
+          }
+          if (!settled) stuck.push(`${target}: "${(document.getElementById("viewer-meta")?.textContent || "").trim()}"`);
+        }
+        if (stuck.length) throw new Error(stuck.join("; "));
+        return targets.length + " screen(s) reached a terminal state";
+      }
+    },
+    {
       name: "the count agrees with the board",
       run: async () => {
         await reset();

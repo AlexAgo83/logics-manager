@@ -40,7 +40,8 @@ What it covers, per viewport:
 | Regions | Topbar, repo pill, board and details are not blank |
 | Flows | A card opens its document; insights and health render; refresh states what it did; an activity entry opens its document |
 | Layout | No sibling controls drawn over each other, nothing clipped outside the viewport, no sideways page scroll, no unexplained empty surface, no silently disabled action |
-| Filters | The count above the board agrees with the board, and a type filter returns only what it names |
+| Filters | The count agrees with the board and follows the search box; a control that regroups the board changes what it shows; a type filter returns only what it names |
+| Completion | Every navigation target reaches a terminal status, so a finished screen is distinguishable from one still working |
 | Console | No browser error or warning during the run |
 
 The layout checks read their lists **from the interface**, never from a hand-written

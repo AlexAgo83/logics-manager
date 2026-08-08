@@ -931,10 +931,39 @@ export function renderCiModeSwitcher(active) {
     `;
   }
 
+//: A dismissal lasts a session, and is keyed on what the warning says. Session storage is
+//: exactly that lifetime, and keying on the message means a warning about something new
+//: comes back immediately rather than hiding behind a decision made about something else.
+const ENVIRONMENT_WARNING_DISMISS_KEY = "logics.viewer.environmentWarningDismissed";
+
+function environmentWarningSignature(warning) {
+    return `${warning.title || ""}::${warning.message || ""}`;
+  }
+
+export function dismissEnvironmentWarning(warning) {
+    try {
+      window.sessionStorage.setItem(ENVIRONMENT_WARNING_DISMISS_KEY, environmentWarningSignature(warning));
+    } catch { /* the banner simply reappears on the next render */ }
+    const banner = document.getElementById("viewer-environment-warning");
+    if (banner instanceof HTMLElement) banner.hidden = true;
+  }
+
+export function environmentWarningIsDismissed(warning) {
+    try {
+      return window.sessionStorage.getItem(ENVIRONMENT_WARNING_DISMISS_KEY) === environmentWarningSignature(warning);
+    } catch {
+      return false;
+    }
+  }
+
 export function renderEnvironmentWarning(warning) {
     const banner = document.getElementById("viewer-environment-warning");
     if (!(banner instanceof HTMLElement)) return;
     if (!warning || typeof warning !== "object" || !warning.message) {
+      banner.hidden = true;
+      return;
+    }
+    if (environmentWarningIsDismissed(warning)) {
       banner.hidden = true;
       return;
     }

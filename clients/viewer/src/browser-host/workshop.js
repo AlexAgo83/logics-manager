@@ -1195,11 +1195,15 @@ export function createWorkshopScreen(host) {
       : fallbackTab;
     setWorkshopActiveTab(activeTab);
     host.setDocument("Workshop", renderWorkshop(activeTab));
-    host.setMeta(`Workshop / ${activeTab}`);
+    // Naming the tab is not a completion signal: these two screens were the only ones of
+    // fourteen that never reached a terminal state, so nothing distinguished finished from
+    // still working. The explorer already reports its own, below.
+    host.setMeta(`Workshop / ${activeTab}: loading...`);
     if (activeTab === "explorer") {
       await loadWorkshopExplorer({ silent: Boolean(options.silent) });
     } else if (activeTab === "commands") {
       await loadWorkshopCommands();
+      host.setMeta(`Workshop / ${activeTab} loaded.`);
     } else if (activeTab === "terminals") {
       // The Workshop DOM was just re-rendered, so every prior xterm host /
       // EventSource is gone. Drop them from the in-memory state too so the
@@ -1227,6 +1231,7 @@ export function createWorkshopScreen(host) {
         renderWorkshopTerminalList();
         ensureWorkshopTerminalStage();
       }
+      host.setMeta(`Workshop / ${activeTab} loaded.`);
     }
   }
 

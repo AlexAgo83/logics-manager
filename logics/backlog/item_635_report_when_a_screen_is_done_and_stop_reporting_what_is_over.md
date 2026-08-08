@@ -1,10 +1,10 @@
 ## item_635_report_when_a_screen_is_done_and_stop_reporting_what_is_over - Report when a screen is done, and stop reporting what is over
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: A status line that keeps up
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -38,11 +38,10 @@
 - AC6: Tests cover the completion signal, the transient status, the dismissal, and Escape, and fail against the current implementation.
 
 # AC Traceability
-- request-AC4 -> This backlog slice. Proof: AC1: Every navigation target ends with the status bar in a terminal state, Terminals and Commands included.
-- request-AC5 -> This backlog slice. Proof: AC2: A transient status does not outlive the action it describes.
-- request-AC6 -> This backlog slice. Proof: AC3: The PATH warning can be dismissed, stays dismissed for the session, and returns on the next one or when the condition changes.
-- request-AC7 -> This backlog slice. Proof: AC4: The campaign asserts the terminal status state per screen, walking the navigation targets from the interface.
-
+- request-AC4 -> This backlog slice. Proof: `every screen reports when it is done` in `tests/helpers/viewer-filter-checks.mjs`; against the previous implementation it reports `workshop:commands: "Workshop / commands"`, and it blanks the status before each click so it cannot read the previous screen's.
+- request-AC5 -> This backlog slice. Proof: the banner carries a Dismiss control; the dismissal is kept in session storage keyed on what the warning says, so it lasts the session and returns if the warning changes.
+- request-AC6 -> This backlog slice. Proof: the campaign check above, plus the transient status now clearing itself only when nothing else has spoken since.
+- request-AC7 -> This backlog slice. Proof: the same check, and Escape closing the document panel alongside its close button.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

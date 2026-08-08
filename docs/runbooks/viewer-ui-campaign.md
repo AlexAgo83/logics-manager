@@ -22,6 +22,12 @@ protocol — no browser-automation dependency — sweeps three viewports, writes
 viewport plus `report.txt` and `summary.json`, and **exits non-zero when a check fails**, so
 it can gate a delivery.
 
+On macOS the campaign launches Chrome with `--use-mock-keychain`, so a headless run cannot
+raise a Keychain authorization dialog and cannot reach real saved passwords. It always runs
+in a throwaway profile under the artifacts directory, which it removes afterwards: your own
+Chrome profile is never involved. If a Keychain dialog ever appears during a run, that is the
+defect — never a reason to reset or edit Keychain entries.
+
 Output lands in `artifacts/local-viewer-smoke/`, which is outside version control. Captures
 show your own workflow documents: they are a local review artifact, not something to attach
 to a commit.

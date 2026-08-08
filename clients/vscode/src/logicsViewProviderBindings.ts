@@ -24,7 +24,8 @@ export function installLogicsViewProviderBindings(provider: any): void {
     getStartupKitUpdatePromptStateKey: (root: string) =>
       viewProviderSupport.getStartupKitUpdatePromptStateKey.call(provider, root),
     getValidStatusesForItem: (item: any) => viewProviderSupport.getValidStatusesForItem.call(provider, item),
-    inspectKitUpdateNeed: (root: string) => inspectKitUpdateNeed(root),
+    inspectKitUpdateNeed: (root: string) =>
+      inspectKitUpdateNeed(root, (provider.context?.extension?.packageJSON as { version?: string } | undefined)?.version ?? null),
     injectPromptIntoCodexChat: (prompt: string, options?: { preferNewThread?: boolean }) =>
       viewProviderSupport.injectPromptIntoCodexChat.call(provider, prompt, options),
     injectAgentPromptIntoCodexChat: (agent: any) =>

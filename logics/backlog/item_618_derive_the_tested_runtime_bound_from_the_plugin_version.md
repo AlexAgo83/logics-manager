@@ -1,10 +1,10 @@
 ## item_618_derive_the_tested_runtime_bound_from_the_plugin_version - Derive the tested runtime bound from the plugin version
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90
 > Confidence: 85
-> Progress: 0
+> Progress: 100
 > Complexity: Low
 > Theme: Discoverable command contract
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -34,9 +34,8 @@
 - AC5: Regression tests cover the released pairing and the genuinely-newer runtime, and the first fails against the current implementation.
 
 # AC Traceability
-- request-AC4 -> This backlog slice. Proof: AC4: Releasing a new version needs no edit to keep the bound correct.
-- request-AC7 -> This backlog slice. Proof: AC5: Regression tests cover the released pairing and the genuinely-newer runtime, and the first fails against the current implementation.
-
+- request-AC9 -> This backlog slice. Proof: `says nothing about a runtime released with this plugin` and `still warns about a runtime newer than the plugin` in `tests/logicsKitVersionSupport.test.ts`.
+- request-AC7 -> This backlog slice. Proof: the same file also pins the floor, the unknown-version case, and prompt stability across patch updates.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

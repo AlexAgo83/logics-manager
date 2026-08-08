@@ -7,6 +7,13 @@ import { inspectKitUpdateNeed } from "../clients/vscode/src/logicsKitVersionSupp
 describe("inspectKitUpdateNeed", () => {
   const roots: string[] = [];
 
+  function repoWithRuntime(version: string): string {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-version-"));
+    roots.push(root);
+    fs.writeFileSync(path.join(root, "VERSION"), `${version}\n`, "utf8");
+    return root;
+  }
+
   afterEach(() => {
     for (const root of roots.splice(0)) {
       fs.rmSync(root, { recursive: true, force: true });
@@ -17,55 +24,52 @@ describe("inspectKitUpdateNeed", () => {
     const missingRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-version-missing-"));
     roots.push(missingRoot);
 
-    expect(inspectKitUpdateNeed(missingRoot)).toBeNull();
+    expect(inspectKitUpdateNeed(missingRoot, "2.20.0")).toBeNull();
 
-    const malformedRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-version-malformed-"));
-    roots.push(malformedRoot);
-    fs.writeFileSync(path.join(malformedRoot, "VERSION"), "not-a-version\n", "utf8");
+    const malformedRoot = repoWithRuntime("not-a-version");
 
-    expect(inspectKitUpdateNeed(malformedRoot)).toBeNull();
+    expect(inspectKitUpdateNeed(malformedRoot, "2.20.0")).toBeNull();
   });
 
-  it("flags versions below the minimum and above the maximum", () => {
-    const oldRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-version-old-"));
-    roots.push(oldRoot);
-    fs.writeFileSync(path.join(oldRoot, "VERSION"), "1.6.9\n", "utf8");
+  it("says nothing about a runtime released with this plugin", () => {
+    // The defect: a hand-maintained bound went stale, so the plugin warned about the
+    // very pairing its own release had produced.
+    expect(inspectKitUpdateNeed(repoWithRuntime("2.20.0"), "2.20.0")).toBeNull();
+    expect(inspectKitUpdateNeed(repoWithRuntime("2.20.7"), "2.20.0")).toBeNull();
+    expect(inspectKitUpdateNeed(repoWithRuntime("2.15.0"), "2.20.0")).toBeNull();
+  });
 
-    expect(inspectKitUpdateNeed(oldRoot)).toEqual({
+  it("still warns about a runtime newer than the plugin, naming the plugin's own version", () => {
+    expect(inspectKitUpdateNeed(repoWithRuntime("2.21.0"), "2.20.0")).toEqual({
+      currentVersion: "2.21.0",
+      minimumVersion: "1.7.x",
+      maximumVersion: "2.20.x",
+      kind: "too-new",
+      signature: "kit-too-new:2.21.x->2.20.x"
+    });
+  });
+
+  it("still flags a runtime below the floor, which is a real bound and stays a constant", () => {
+    expect(inspectKitUpdateNeed(repoWithRuntime("1.6.9"), "2.20.0")).toEqual({
       currentVersion: "1.6.9",
       minimumVersion: "1.7.x",
-      maximumVersion: "2.15.x",
+      maximumVersion: "2.20.x",
       kind: "too-old",
       signature: "kit-too-old:1.6.9->1.7.x"
     });
+  });
 
-    const newRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-version-new-"));
-    roots.push(newRoot);
-    fs.writeFileSync(path.join(newRoot, "VERSION"), "2.16.0\n", "utf8");
-
-    expect(inspectKitUpdateNeed(newRoot)).toEqual({
-      currentVersion: "2.16.0",
-      minimumVersion: "1.7.x",
-      maximumVersion: "2.15.x",
-      kind: "too-new",
-      signature: "kit-too-new:2.16.x->2.15.x"
-    });
-
-    const supportedRoot = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-version-supported-"));
-    roots.push(supportedRoot);
-    fs.writeFileSync(path.join(supportedRoot, "VERSION"), "2.15.7\n", "utf8");
-
-    expect(inspectKitUpdateNeed(supportedRoot)).toBeNull();
+  it("reports nothing as too new when the plugin version is unknown", () => {
+    // No plugin version means no honest upper bound; a guess is what produced the defect.
+    expect(inspectKitUpdateNeed(repoWithRuntime("9.9.9"), null)).toBeNull();
+    expect(inspectKitUpdateNeed(repoWithRuntime("1.6.9"), null)?.kind).toBe("too-old");
   });
 
   it("keeps too-new prompts stable across patch updates", () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "logics-kit-version-new-patch-"));
-    roots.push(root);
+    const root = repoWithRuntime("2.21.3");
+    const first = inspectKitUpdateNeed(root, "2.20.0")?.signature;
 
-    fs.writeFileSync(path.join(root, "VERSION"), "2.16.3\n", "utf8");
-    const first = inspectKitUpdateNeed(root)?.signature;
-
-    fs.writeFileSync(path.join(root, "VERSION"), "2.16.4\n", "utf8");
-    expect(inspectKitUpdateNeed(root)?.signature).toBe(first);
+    fs.writeFileSync(path.join(root, "VERSION"), "2.21.4\n", "utf8");
+    expect(inspectKitUpdateNeed(root, "2.20.0")?.signature).toBe(first);
   });
 });

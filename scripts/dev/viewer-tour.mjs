@@ -68,7 +68,7 @@ for (const target of TARGETS) {
     const started = Date.now();
     const meta = () => document.getElementById("viewer-meta")?.textContent || "";
     while (Date.now() - started < 8000) {
-      if (/loaded|refreshed|detected|state:/i.test(meta())) return Date.now() - started;
+      if (/loaded|refreshed|ready|available|detected|state:|no /i.test(meta())) return Date.now() - started;
       await new Promise((r) => setTimeout(r, 40));
     }
     return -1;

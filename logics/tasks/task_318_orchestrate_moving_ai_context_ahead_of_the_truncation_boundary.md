@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-09 13:53:32
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
@@ -17,7 +18,8 @@
 - [ ] 2. Extend `_autofix_structure()` to reposition an existing doc's AI Context section, reusing its existing section-bounds primitives.
 - [ ] 3. Prove idempotency and the motivating truncation case with tests.
 - [ ] 4. Confirm both existing surfaces (`flow validate --apply-fixes`, `audit --autofix-structure`) reach the new repair without any new command.
-- [ ] 5. Validate and index. Leave running the repair across the existing corpus as an operator-triggered, on-demand action - not part of this delivery.
+- [ ] 5. Add the viewer's `/api/apply-fixes` route and health-screen button, calling the same underlying command; verify VS Code parity comes free via the shared viewer architecture (`prod_036`), with no VS Code-specific code.
+- [ ] 6. Validate and index. Leave running the repair across the existing corpus as an operator-triggered, on-demand action - not part of this delivery.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.
@@ -25,6 +27,7 @@
 # Backlog
 - `item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates`
 - `item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs`
+- `item_664_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs`
 
 # Definition of Done (DoD)
 - [ ] Generated request, product, backlog, and task docs are present.
@@ -38,6 +41,7 @@
 - request-AC3 -> `item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs`. Proof deferred to slice closeout.
 - request-AC4 -> `item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs`. Proof deferred to slice closeout.
 - request-AC5 -> `item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs`. Proof deferred to slice closeout.
+- request-AC6 -> `item_664_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs`. Proof deferred to slice closeout.
 
 # Validation
 - (no validation recorded yet)

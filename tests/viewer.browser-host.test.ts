@@ -76,6 +76,7 @@ function createViewerDom(options: {
   refreshResponse?: { ok: boolean; status?: number; body?: unknown };
   refreshItemUpdatedAt?: string;
   releaseResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
+  shadowingExecutables?: string[];
   releaseRunsResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   updateStatusResponse?: { ok: boolean; status?: number; body?: unknown };
   terminalCommands?: Array<{ command: string[]; label: string }>;
@@ -93,7 +94,7 @@ function createViewerDom(options: {
     <div id="viewer-project-menu" hidden></div>
     <a id="viewer-repo-github" href="#" hidden>GitHub</a>
     <button id="viewer-repo-folder" type="button" hidden>Folder</button>
-    <div id="viewer-update" hidden><span id="viewer-update-copy"></span><code id="viewer-update-command"></code></div>
+    <div id="viewer-update" hidden><span id="viewer-update-copy"></span><code id="viewer-update-command"></code><button type="button" id="viewer-update-dismiss">Dismiss</button></div>
     <div id="viewer-environment-warning" hidden>
       <strong id="viewer-environment-warning-title"></strong>
       <span id="viewer-environment-warning-copy"></span>
@@ -370,13 +371,15 @@ function createViewerDom(options: {
                 },
                 { id: "task_001_blocked", title: "Blocked", stage: "task", relPath: "logics/tasks/task_001_blocked.md", references: [], usedBy: [], indicators: { Status: "Blocked" }, isPromoted: false, updatedAt: "2026-06-02T10:00:00" }
               ],
-              updateInfo: {
-                currentVersion: "2.2.0",
-                latestVersion: "2.3.0",
-                updateAvailable: true,
-                updateCommand: "logics-manager self-update"
-              },
-              cdxUpdateInfo: {
+              updateInfo: options.shadowingExecutables
+                ? { shadowingExecutables: options.shadowingExecutables, executablePath: "/usr/local/bin/logics-manager", manager: "npm" }
+                : {
+                  currentVersion: "2.2.0",
+                  latestVersion: "2.3.0",
+                  updateAvailable: true,
+                  updateCommand: "logics-manager self-update"
+                },
+              cdxUpdateInfo: options.shadowingExecutables ? {} : {
                 currentVersion: "0.9.13",
                 latestVersion: "0.9.14",
                 updateAvailable: true,
@@ -3946,6 +3949,27 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-update-copy")?.textContent).toContain("2.3.0");
     expect(dom.window.document.getElementById("viewer-update-copy")?.textContent).toContain("0.9.14");
     expect(dom.window.document.getElementById("viewer-update-command")?.textContent).toBe("logics-manager self-update && cdx update");
+  });
+
+  it("dismisses the duplicate-executable warning for the session", async () => {
+    const { dom } = createViewerDom({ shadowingExecutables: ["/opt/homebrew/bin/logics-manager"] });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const banner = dom.window.document.getElementById("viewer-update");
+    expect(banner?.hidden).toBe(false);
+    expect(dom.window.document.getElementById("viewer-update-copy")?.textContent).toContain("other logics-manager executable");
+
+    dom.window.document.getElementById("viewer-update-dismiss")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(banner?.hidden).toBe(true);
+
+    // A second render of the same duplicates (e.g. the next refresh tick) stays hidden;
+    // it did not just get overwritten back to visible on the next paint.
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(banner?.hidden).toBe(true);
   });
 
   it("renders repository shortcuts and opens the local folder action", async () => {

@@ -54,6 +54,8 @@ import {
   renderCdxModeSwitcher,
   renderCiModeSwitcher,
   dismissEnvironmentWarning,
+  dismissUpdateWarning,
+  updateWarningIsDismissed,
   renderEnvironmentWarning,
   restoreDocumentViewState,
   setActiveGitFile,
@@ -2298,6 +2300,13 @@ import {
       banner.hidden = true;
       return;
     }
+    // A real update notice stays regardless of dismissal -- it is actionable and
+    // time-sensitive. Dismissing only ever hides the duplicate-executable-only case,
+    // which has no action to take beyond what the message already said once.
+    if (notices.length === 0 && updateWarningIsDismissed(duplicates)) {
+      banner.hidden = true;
+      return;
+    }
     const copy = updateCopy();
     const command = updateCommand();
     if (copy) {
@@ -3398,6 +3407,9 @@ import {
     // close button stays; this is the keyboard route to the same place.
     document.getElementById("viewer-environment-warning-dismiss")?.addEventListener("click", () => {
       if (latestEnvironmentWarning) dismissEnvironmentWarning(latestEnvironmentWarning);
+    });
+    document.getElementById("viewer-update-dismiss")?.addEventListener("click", () => {
+      dismissUpdateWarning(latestUpdateInfo?.shadowingExecutables);
     });
     document.addEventListener("keydown", (event) => {
       if (event.key !== "Escape") return;

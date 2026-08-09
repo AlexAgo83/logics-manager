@@ -956,6 +956,31 @@ export function environmentWarningIsDismissed(warning) {
     }
   }
 
+//: Same lifetime and same reasoning as the environment warning's dismissal, keyed on the
+//: duplicate executables named rather than the whole rendered message: a different set of
+//: duplicates is a different warning and should not hide behind an old decision.
+const UPDATE_WARNING_DISMISS_KEY = "logics.viewer.updateWarningDismissed";
+
+function updateWarningSignature(duplicates) {
+    return (duplicates || []).join(",");
+  }
+
+export function dismissUpdateWarning(duplicates) {
+    try {
+      window.sessionStorage.setItem(UPDATE_WARNING_DISMISS_KEY, updateWarningSignature(duplicates));
+    } catch { /* the banner simply reappears on the next render */ }
+    const banner = document.getElementById("viewer-update");
+    if (banner instanceof HTMLElement) banner.hidden = true;
+  }
+
+export function updateWarningIsDismissed(duplicates) {
+    try {
+      return window.sessionStorage.getItem(UPDATE_WARNING_DISMISS_KEY) === updateWarningSignature(duplicates);
+    } catch {
+      return false;
+    }
+  }
+
 export function renderEnvironmentWarning(warning) {
     const banner = document.getElementById("viewer-environment-warning");
     if (!(banner instanceof HTMLElement)) return;

@@ -134,7 +134,9 @@ The two distribution package names are `@grifhinz/logics-manager` on npm and
 The viewer reports the same install details in its update banner — the resolved
 manager, the running executable's path, and any duplicate executables on PATH —
 so a shadowing install is visible without opening a terminal. The banner appears
-for a duplicate even when nothing needs updating.
+for a duplicate even when nothing needs updating, and can be dismissed for the
+session; it returns on the next one, or sooner if the duplicates on PATH change.
+An actual update notice is never suppressed by that dismissal.
 
 ## Targeting a repository explicitly
 

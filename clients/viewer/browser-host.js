@@ -866,6 +866,25 @@ ${entry?.message || ""}`;
       return false;
     }
   }
+  var UPDATE_WARNING_DISMISS_KEY = "logics.viewer.updateWarningDismissed";
+  function updateWarningSignature(duplicates) {
+    return (duplicates || []).join(",");
+  }
+  function dismissUpdateWarning(duplicates) {
+    try {
+      window.sessionStorage.setItem(UPDATE_WARNING_DISMISS_KEY, updateWarningSignature(duplicates));
+    } catch {
+    }
+    const banner = document.getElementById("viewer-update");
+    if (banner instanceof HTMLElement) banner.hidden = true;
+  }
+  function updateWarningIsDismissed(duplicates) {
+    try {
+      return window.sessionStorage.getItem(UPDATE_WARNING_DISMISS_KEY) === updateWarningSignature(duplicates);
+    } catch {
+      return false;
+    }
+  }
   function renderEnvironmentWarning(warning) {
     const banner = document.getElementById("viewer-environment-warning");
     if (!(banner instanceof HTMLElement)) return;
@@ -9797,6 +9816,10 @@ ${line}` : line;
         banner.hidden = true;
         return;
       }
+      if (notices.length === 0 && updateWarningIsDismissed(duplicates)) {
+        banner.hidden = true;
+        return;
+      }
       const copy = updateCopy();
       const command = updateCommand();
       if (copy) {
@@ -10684,6 +10707,9 @@ ${line}` : line;
       });
       document.getElementById("viewer-environment-warning-dismiss")?.addEventListener("click", () => {
         if (latestEnvironmentWarning) dismissEnvironmentWarning(latestEnvironmentWarning);
+      });
+      document.getElementById("viewer-update-dismiss")?.addEventListener("click", () => {
+        dismissUpdateWarning(latestUpdateInfo?.shadowingExecutables);
       });
       document.addEventListener("keydown", (event) => {
         if (event.key !== "Escape") return;

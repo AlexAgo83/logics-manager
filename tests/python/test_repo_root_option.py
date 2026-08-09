@@ -9,6 +9,7 @@ strings, which breaks on paths containing spaces.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -18,6 +19,24 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
+def _sanitized_subprocess_env() -> dict[str, str]:
+    """A minimal env proving `--repo-root` doesn't rely on `cwd` - but still
+    a real one. The POSIX PATH this used to hardcode unconditionally left
+    Windows with no way to resolve `Path.home()` at all: `skills.py` reads it
+    at import time, and Windows has no `pwd`-module fallback the way POSIX
+    does, so `logics_manager` itself failed to import there with
+    `RuntimeError: Could not determine home directory` - confirmed for real
+    on a GitHub Actions windows-latest runner.
+    """
+    if sys.platform == "win32":
+        env = {"PYTHONPATH": str(REPO_ROOT), "SystemRoot": os.environ.get("SystemRoot", r"C:\Windows")}
+        for key in ("PATH", "USERPROFILE", "HOMEDRIVE", "HOMEPATH", "APPDATA", "LOCALAPPDATA"):
+            if key in os.environ:
+                env[key] = os.environ[key]
+        return env
+    return {"PYTHONPATH": str(REPO_ROOT), "PATH": "/usr/bin:/bin:/usr/sbin:/sbin"}
+
+
 def _run(args: list[str], cwd: Path) -> subprocess.CompletedProcess:
     return subprocess.run(
         [sys.executable, "-m", "logics_manager", *args],
@@ -25,7 +44,7 @@ def _run(args: list[str], cwd: Path) -> subprocess.CompletedProcess:
         capture_output=True,
         text=True,
         timeout=120,
-        env={"PYTHONPATH": str(REPO_ROOT), "PATH": "/usr/bin:/bin:/usr/sbin:/sbin"},
+        env=_sanitized_subprocess_env(),
     )
 
 

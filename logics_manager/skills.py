@@ -10,7 +10,14 @@ from .cli_output import print_payload
 from .update_check import current_version
 
 SKILL_ASSETS_ROOT = Path(__file__).parent / "skill_assets"
-DEFAULT_TARGET_DIR = Path.home() / ".claude" / "skills"
+
+
+def _default_target_dir() -> Path:
+    # Lazy on purpose: this used to run Path.home() at import time, so any
+    # environment without a resolvable home directory (no HOME/USERPROFILE,
+    # e.g. a deliberately sanitized subprocess env) failed to import
+    # logics_manager at all, crashing every command, not just skills install.
+    return Path.home() / ".claude" / "skills"
 
 # req_318/item_656 AC13: verified against a real Antigravity install.
 # Unlike Claude Code/Codex/Hermes's flat skills/ directories, Antigravity only
@@ -242,7 +249,7 @@ def main(argv: list[str]) -> int:
     if parsed.all_profiles:
         targets = discover_skill_dirs()
     else:
-        targets = [Path(parsed.target_dir).expanduser() if parsed.target_dir else DEFAULT_TARGET_DIR]
+        targets = [Path(parsed.target_dir).expanduser() if parsed.target_dir else _default_target_dir()]
     results = []
     for target_dir in targets:
         target_dir.mkdir(parents=True, exist_ok=True)

@@ -1,10 +1,10 @@
 ## item_667_harden_vs_code_deactivation_and_reconcile_prod_020_s_port_selection_claim - Harden VS Code deactivation and reconcile prod_020's port-selection claim
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 33%
+> Progress: 100%
 > Complexity: Low
 > Theme: Cleanup and documentation accuracy
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -48,3 +48,9 @@
 # Priority
 - Priority: Medium - closes a stated-but-unmet AC (item_527) and a doc/behavior mismatch, neither urgent alone
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle`
+
+# Notes
+- Task `task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle` was finished via `logics-manager flow finish task` on 2026-08-09.

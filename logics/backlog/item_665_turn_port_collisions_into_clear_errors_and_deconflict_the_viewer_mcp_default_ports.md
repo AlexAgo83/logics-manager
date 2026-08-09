@@ -8,6 +8,7 @@
 > Complexity: Low
 > Theme: Collision handling
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-09 15:17:57
 
 # Problem
 - A bind collision on the viewer's or MCP's default port today raises an uncaught OSError with a raw traceback - `LogicsViewerServer.__init__` (viewer.py:1591) and `serve_http()`'s server construction (mcp.py:1736) sit outside any try/except that would produce a clean message.
@@ -49,3 +50,9 @@
 # Priority
 - Priority: High - a shipped defect (raw traceback on collision) affecting anyone who runs the viewer and MCP together today
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle`
+
+# Notes
+- Task `task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle` was finished via `logics-manager flow finish task` on 2026-08-09.

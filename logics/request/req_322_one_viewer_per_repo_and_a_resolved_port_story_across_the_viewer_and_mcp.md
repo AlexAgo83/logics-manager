@@ -1,7 +1,7 @@
 ## req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp - One viewer per repo, and a resolved port story across the viewer and MCP
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High

@@ -30,7 +30,8 @@ const provider = {
   assessDiffRiskFromCommand: vi.fn(),
   buildValidationChecklistFromCommand: vi.fn(),
   reviewDocConsistencyFromCommand: vi.fn(),
-  getWatcherRoot: vi.fn(() => "/workspace")
+  getWatcherRoot: vi.fn(() => "/workspace"),
+  stopViewerServers: vi.fn()
 };
 
 const watchers: Array<{
@@ -108,6 +109,7 @@ describe("extension.activate", () => {
     provider.reviewDocConsistencyFromCommand.mockReset();
     provider.getWatcherRoot.mockReset();
     provider.getWatcherRoot.mockReturnValue("/workspace");
+    provider.stopViewerServers.mockReset();
     watchers.splice(0);
     commandHandlers.clear();
     workspaceFoldersChanged = undefined;
@@ -263,5 +265,15 @@ describe("extension.activate", () => {
     vi.advanceTimersByTime(300);
 
     expect(provider.refresh).toHaveBeenCalledTimes(2);
+  });
+
+  it("deactivate stops tracked viewer servers even without a subscription-disposal pass", async () => {
+    const { activate, deactivate } = await import("../clients/vscode/src/extension");
+    const context = { subscriptions: [] } as never;
+
+    activate(context);
+    deactivate();
+
+    expect(provider.stopViewerServers).toHaveBeenCalledTimes(1);
   });
 });

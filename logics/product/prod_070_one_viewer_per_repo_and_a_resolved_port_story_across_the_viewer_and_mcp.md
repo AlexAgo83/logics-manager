@@ -1,14 +1,26 @@
 ## prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp - One viewer per repo, and a resolved port story across the viewer and MCP
 > Date: 2026-08-09
-> Status: Proposed
+> Status: Settled
 > Related request: `req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp`
-> Related backlog: `item_665_turn_port_collisions_into_clear_errors_and_deconflict_the_viewer_mcp_default_ports`, `item_666_add_a_per_repo_viewer_registry_so_any_surface_reuses_a_live_instance`, `item_667_harden_vs_code_deactivation_and_reconcile_prod_020_s_port_selection_claim`
+> Related backlog: `item_665_turn_port_collisions_into_clear_errors_and_deconflict_the_viewer_mcp_default_ports`
 > Related task: `task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-09 15:18:22
 
 # Overview
 Replace three independent, uncoordinated server lifecycles - the CLI viewer, one viewer per VS Code window, and the MCP HTTP server - none of which detect an existing instance and two of which share a default port by accident - with a per-repo registry the CLI and every VS Code window consult before spawning, and a port assignment that no longer collides across tool families by default.
+
+```mermaid
+flowchart LR
+    CLI[logics-manager view] --> Claim[claim_or_reuse]
+    VSCode[VS Code window] --> Spawn[spawn logics-manager view]
+    Spawn --> Claim
+    Claim -->|live entry found| Reuse[Print existing URL, exit]
+    Claim -->|no live entry, flock held| Bind[Bind server, register port]
+    Bind --> Registry[(~/.cache/logics-manager/viewers.json)]
+    Registry --> Claim
+```
 
 # Goals
 - One live viewer per repo root, reused across CLI invocations and VS Code windows, not duplicated.
@@ -36,5 +48,5 @@ Replace three independent, uncoordinated server lifecycles - the CLI viewer, one
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp`
+- Product back-reference: `item_665_turn_port_collisions_into_clear_errors_and_deconflict_the_viewer_mcp_default_ports`
 - Task back-reference: `task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle`

@@ -109,6 +109,9 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
     });
     this.viewerServerManager = new ViewerServerManager({ extensionRoot: this.context.extensionUri.fsPath });
     this.context.subscriptions?.push(new vscode.Disposable(() => this.viewerServerManager.stopAll()));
+    // req_322/item_667: `deactivate()` used to be empty, relying solely on this
+    // subscription disposal - which never fires on a force-quit or extension-host
+    // crash. `stopViewerServers()` gives `deactivate()` an explicit, redundant path.
     this.documentController = new LogicsViewDocumentController({
       context: this.context,
       agentsOutput: this.agentsOutput,
@@ -316,6 +319,12 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
 
   getWatcherRoot(): string | null {
     return viewProviderSupport.resolveProjectRoot.call(this).root;
+  }
+
+  /** req_322/item_667: explicit stop path for `deactivate()`, redundant with
+   * (not a replacement for) the subscription-disposal path above. */
+  stopViewerServers(): void {
+    this.viewerServerManager.stopAll();
   }
 
   async refresh(selectedId?: string): Promise<void> {

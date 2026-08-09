@@ -6,6 +6,7 @@
 > Related task: `task_166_add_a_local_web_viewer_for_cli_driven_logics_work`
 > Related architecture: (none yet; browser host adapter ADR likely)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc. Concrete viewer experience refined on 2026-06-07.
+> Indicators reviewed: 2026-08-09 15:17:15
 
 # Overview
 Logics has become usable from the CLI, but the operator still loses the visual scanability that makes the VS Code webview useful.
@@ -124,7 +125,7 @@ It should provide equivalent read-only capabilities for loading state, refreshin
 - In: a local HTTP server, static asset serving, browser-compatible host API, read-only corpus browsing, document detail rendering, markdown preview, search, filters, and status/audit summaries.
 - In: reuse or adaptation of `media/*.js`, existing CSS, webview selectors, rendering logic, and tested webview harness patterns.
 - In: endpoints that read from the repository and call existing Logics runtime commands for validation summaries.
-- In: a clear shutdown and port-selection story, including the ability to print the URL and optionally open the browser.
+- In: a clear shutdown and port story - a same-repo relaunch reuses the existing viewer instead of colliding with it (req_322's per-repo registry), a genuine port conflict fails with a clear message naming the port, and the URL is printed with an option to open the browser.
 - Out: public HTTPS tunnels as the default viewer mode.
 - Out: broad workflow mutations from the browser in the first release.
 - Out: extension-host-only assumptions such as direct reliance on `acquireVsCodeApi`.
@@ -144,8 +145,8 @@ It should provide equivalent read-only capabilities for loading state, refreshin
 
 # Candidate user flow
 1. The operator runs `logics-manager view`.
-2. The CLI starts a local server on an available localhost port.
-3. The CLI prints the URL and optionally opens the browser.
+2. The CLI checks whether a viewer is already running for this exact repo root (req_322's per-repo registry) and reuses it if so; otherwise it binds a local server on its default localhost port, or an OS-assigned one if `--port 0` was passed, and a same-repo/same-default collision produces a clear error naming the conflicting port rather than a raw traceback.
+3. The CLI prints the URL (the existing server's, if reused) and optionally opens the browser.
 4. The browser loads the Logics board and detail pane from the current repo.
 5. The operator searches, filters, opens related docs, and reads markdown previews.
 6. The operator returns to the terminal to run the next command, or later uses bounded viewer actions once they exist.

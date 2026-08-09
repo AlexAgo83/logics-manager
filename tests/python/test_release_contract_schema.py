@@ -673,3 +673,22 @@ def test_bounded_repo_path_rejects_escapes(tmp_path: Path) -> None:
     assert _bounded_repo_path(tmp_path, "logics/release/evidence.jsonl") == inside.resolve()
     assert _bounded_repo_path(tmp_path, "../../etc/passwd") is None
     assert _bounded_repo_path(tmp_path, "/etc/passwd") is None
+
+
+def test_release_discover_picks_up_the_claude_plugin_manifest_as_a_version_source(tmp_path: Path) -> None:
+    """req_318/item_654: plugin.json's version must be verified against VERSION
+    by the same release-gate machinery that already checks package.json and
+    pyproject.toml, rather than drifting unnoticed as a second hardcoded copy."""
+    repo_root = tmp_path / "repo"
+    (repo_root / "logics" / "release").mkdir(parents=True)
+    (repo_root / "pyproject.toml").write_text('[project]\nname = "demo-py"\nversion = "0.1.0"\n', encoding="utf-8")
+    (repo_root / ".claude-plugin").mkdir()
+    (repo_root / ".claude-plugin" / "plugin.json").write_text(
+        json.dumps({"name": "demo-py", "version": "0.1.0"}), encoding="utf-8",
+    )
+
+    payload = release_discover_payload(repo_root, write=True)
+    draft_path = repo_root / "logics" / "release" / "contract.draft.json"
+    draft = json.loads(draft_path.read_text(encoding="utf-8"))
+
+    assert {"path": ".claude-plugin/plugin.json", "format": "json", "selector": "version", "required": True} in draft["version_sources"]

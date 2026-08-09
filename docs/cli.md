@@ -327,6 +327,17 @@ and `logics-manager update` (or the deprecated `self-update` alias) re-runs
 this sync across every detected harness automatically after a successful
 update - no separate `--force` step needed for the common case.
 
+### Installing as a Claude Code plugin
+
+This repository also ships a `.claude-plugin/plugin.json` manifest, so Claude
+Code can install it as a plugin instead of (not in place of) running `skills
+install` by hand: the manifest declares the same `logics_manager/skill_assets`
+directory as its skills path, and an `mcpServers` entry that launches
+`logics-manager mcp serve` via the bundled `scripts/npm/logics-manager.mjs`
+launcher. `.claude-plugin/marketplace.json` self-references it for a
+marketplace-style install. Codex and Hermes have no equivalent plugin-manifest
+mechanism, so `skills install --all-profiles` remains the way to reach them.
+
 ## Obsidian projection
 
 The default Logics corpus stays plain canonical Markdown. No frontmatter is

@@ -1,0 +1,13 @@
+{
+  "name": "logics-manager-marketplace",
+  "owner": {
+    "name": "cdx-logics"
+  },
+  "description": "Marketplace listing for the logics-manager Claude Code plugin.",
+  "plugins": [
+    {
+      "name": "logics-manager",
+      "source": "."
+    }
+  ]
+}

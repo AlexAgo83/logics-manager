@@ -28,6 +28,12 @@
       "format": "plain_text",
       "selector": "badge.version",
       "required": true
+    },
+    {
+      "path": ".claude-plugin/plugin.json",
+      "format": "json",
+      "selector": "version",
+      "required": true
     }
   ],
   "changelog": {

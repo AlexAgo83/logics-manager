@@ -730,6 +730,8 @@ def _discover_version_sources(repo_root: Path) -> list[dict[str, Any]]:
         sources.append({"path": "package.json", "format": "json", "selector": "version", "required": True})
     if (repo_root / "pyproject.toml").is_file():
         sources.append({"path": "pyproject.toml", "format": "toml", "selector": "project.version", "required": True})
+    if (repo_root / ".claude-plugin" / "plugin.json").is_file():
+        sources.append({"path": ".claude-plugin/plugin.json", "format": "json", "selector": "version", "required": True})
     readme = repo_root / "README.md"
     if readme.is_file() and "img.shields.io/badge/version-v" in _read_text_file(readme):
         sources.append({"path": "README.md", "format": "plain_text", "selector": "badge.version", "required": False})

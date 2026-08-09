@@ -1,14 +1,29 @@
 ## prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin - Full-lifecycle skill coverage, packaged as a Claude Code plugin
 > Date: 2026-08-09
-> Status: Proposed
+> Status: Settled
 > Related request: `req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`
-> Related backlog: `item_649_add_the_lifecycle_ops_skill`, `item_650_add_the_roadmap_deliver_skill`, `item_651_add_the_closeout_repair_skill`, `item_652_add_the_project_health_skill`, `item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite`, `item_654_add_a_claude_plugin_manifest`
+> Related backlog: `item_649_add_the_lifecycle_ops_skill`
 > Related task: `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-09 17:20:38
 
 # Overview
 Extend logics-manager's bundled agent skills from the current create -> build -> review happy path to the full CLI lifecycle (lifecycle edge operations, roadmap-to-delivery, closeout troubleshooting, read-only diagnostics), and package the result as an installable Claude Code plugin so the existing skills and MCP server are discoverable through the standard plugin flow rather than only through the skills-install CLI command.
+
+```mermaid
+flowchart LR
+    Skills[8 bundled SKILL.md files] -->|install_skills, drift-aware| Claude[~/.claude/skills]
+    Skills --> Codex[~/.codex/skills]
+    Skills --> Hermes[~/.hermes/skills]
+    Skills -->|+ plugin.json manifest| Antigravity[~/.gemini/config/plugins/logics-manager/skills]
+    Skills -->|.claude-plugin/plugin.json| ClaudePlugin[Claude Code plugin install]
+    MCP[logics-manager mcp serve] --> Claude
+    MCP --> Codex
+    MCP --> Hermes
+    MCP --> Antigravity
+    MCP --> ClaudePlugin
+```
 
 # Goals
 - One skill per remaining lifecycle surface, matching the depth and format of the four existing skills.
@@ -35,5 +50,5 @@ Extend logics-manager's bundled agent skills from the current create -> build ->
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`
+- Product back-reference: `item_649_add_the_lifecycle_ops_skill`
 - Task back-reference: `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging`

@@ -1,7 +1,7 @@
 ## req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin - Cover the remaining Logics lifecycle in bundled skills and package as a Claude Code plugin
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

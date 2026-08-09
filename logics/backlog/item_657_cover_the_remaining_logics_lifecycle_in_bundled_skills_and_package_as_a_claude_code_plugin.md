@@ -8,7 +8,7 @@
 > Complexity: High
 > Theme: Zero-to-ready onboarding
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-09 13:14:32
+> Indicators reviewed: 2026-08-09 17:20:07
 
 # Problem
 - Nothing wires up automatically today, at any point in the lifecycle: `package.json`/`pyproject.toml` have no postinstall hook, there is no `mcp install`/`mcp register` command anywhere in the codebase, and `bootstrap` — the closest existing analog, which already scaffolds project-level agent-runtime files and removes legacy runtime paths — does not touch skills installation or any MCP config.
@@ -50,8 +50,8 @@
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md`
-- Primary task(s): (none yet)
+- Request: `req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`
+- Primary task(s): `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging`
 
 # AI Context
 - Summary: Wire bootstrap to leave every detected harness ready to use
@@ -68,3 +68,7 @@
 - Source file: `logics/request/req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md`.
 - Generated locally by logics-manager.
 - Deviation from AC14's literal wording (2026-08-09): harness sync is opt-in via `logics-manager bootstrap --sync-harnesses`, not `bootstrap`'s unconditional default. Discovered mid-build: `bootstrap_payload()` is called as a plain repo-scaffolding fixture by roughly a dozen test files (and the viewer's onboarding flow), none of which should mutate the real machine's `~/.claude`, `~/.codex`, `~/.hermes`, or `~/.gemini` as a side effect of setting up a throwaway test repo. Verified live against this machine's real Codex/`.mcp.json` config with `--sync-harnesses` - both wired correctly, `corpus` everywhere correctly left alone as possibly-hand-modified (no `.bundled-hash` sidecar predates this feature). Flagged to the operator: that run modified this machine's real `~/.codex/config.toml`.
+- Task `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging` was finished via `logics-manager flow finish task` on 2026-08-09.
+
+# Tasks
+- `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging`

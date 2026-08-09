@@ -2,13 +2,25 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import shutil
 from pathlib import Path
 
 from .cli_output import print_payload
+from .update_check import current_version
 
 SKILL_ASSETS_ROOT = Path(__file__).parent / "skill_assets"
 DEFAULT_TARGET_DIR = Path.home() / ".claude" / "skills"
+
+# req_318/item_656 AC13: verified against a real Antigravity install.
+# Unlike Claude Code/Codex/Hermes's flat skills/ directories, Antigravity only
+# discovers skills inside a registered plugin - confirmed by inspecting an
+# installed plugin (chrome-devtools-plugin) on a real machine: it ships a
+# sibling plugin.json manifest next to its skills/ folder, and no top-level
+# ~/.gemini/config/skills, ~/.gemini/skills, or <project>/.agents/skills
+# existed at all. Dropping SKILL.md files into skills/ alone is not enough;
+# the manifest is what makes Antigravity treat the directory as a plugin.
+_ANTIGRAVITY_PLUGIN_NAME = "logics-manager"
 
 # req_318/item_656: this sidecar is what tells drift detection "stale" from
 # "hand-modified" apart. It records the hash of the bundled skill *as of the
@@ -36,13 +48,10 @@ def _real_home() -> Path:
 
 
 def discover_skill_dirs(home: Path | None = None) -> list[Path]:
-    """Find every harness skills directory on this machine (Claude Code, Codex, and
-    Hermes share the skills/<name>/SKILL.md format under the agentskills.io convention).
-
-    Antigravity is not included here yet: its own docs and third-party field reports
-    disagree on which of ~/.gemini/config/skills, <project>/.agents/skills, or plain
-    ~/.gemini/skills actually loads skills, and this needs verifying against a real
-    install rather than guessed - see req_318/item_656.
+    """Find every harness skills directory on this machine (Claude Code, Codex,
+    and Hermes share the skills/<name>/SKILL.md format under the agentskills.io
+    convention; Antigravity's equivalent is one level deeper, inside its own
+    plugin - see `_ANTIGRAVITY_PLUGIN_NAME` above).
     """
     home = home or _real_home()
     targets = [home / ".claude" / "skills"]
@@ -50,6 +59,8 @@ def discover_skill_dirs(home: Path | None = None) -> list[Path]:
         targets.append(home / ".codex" / "skills")
     if (home / ".hermes").is_dir():
         targets.append(home / ".hermes" / "skills")
+    if (home / ".gemini").is_dir():
+        targets.append(home / ".gemini" / "config" / "plugins" / _ANTIGRAVITY_PLUGIN_NAME / "skills")
     profiles = home / ".cdx" / "profiles"
     if profiles.is_dir():
         for profile in sorted(profiles.iterdir()):
@@ -72,7 +83,42 @@ def available_skills() -> list[dict[str, str]]:
     return skills
 
 
+def _is_antigravity_plugin_skills_dir(target_dir: Path) -> bool:
+    parts = target_dir.parts
+    return (
+        target_dir.name == "skills"
+        and target_dir.parent.name == _ANTIGRAVITY_PLUGIN_NAME
+        and len(parts) >= 2
+        and parts[-3] == "plugins"
+    )
+
+
+def _ensure_antigravity_plugin_manifest(plugin_dir: Path) -> None:
+    manifest = plugin_dir / "plugin.json"
+    if manifest.is_file():
+        return
+    plugin_dir.mkdir(parents=True, exist_ok=True)
+    manifest.write_text(
+        json.dumps(
+            {
+                "name": _ANTIGRAVITY_PLUGIN_NAME,
+                "version": current_version(),
+                "description": "Logics workflow skills and MCP server for logics-manager.",
+                "author": {"name": "cdx-logics"},
+                "repository": "https://github.com/AlexAgo83/logics-manager.git",
+                "license": "MIT",
+                "keywords": ["logics", "workflow", "orchestration", "mcp", "skills"],
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
 def install_skills(names: list[str], target_dir: Path, *, force: bool) -> dict[str, object]:
+    if _is_antigravity_plugin_skills_dir(target_dir):
+        _ensure_antigravity_plugin_manifest(target_dir.parent)
     known = {skill["name"] for skill in available_skills()}
     selected = names or sorted(known)
     unknown = [name for name in selected if name not in known]

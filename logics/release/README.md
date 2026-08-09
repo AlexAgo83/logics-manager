@@ -48,6 +48,23 @@ Required gates should include evidence with the target version, commit, and
 timestamp whenever that information exists. Evidence that omits those fields
 cannot prove final readiness for gates that depend on source state.
 
+Each gate also declares a `comparison`: `release` (the default) or `branch`.
+This says which commit the gate's source evidence (`command`, `file`, `git`,
+`ci`) is judged against:
+
+- `release` - the tagged commit for the target version, falling back to the
+  working commit while no tag exists yet. A claim about the changelog, the
+  version metadata, a validation run, or CI is about the released tree and
+  should not go stale just because later commits land on the branch.
+- `branch` - the current working commit, which moves as the branch advances.
+  A claim that the work was pushed (`git_push`) is about the branch, so it is
+  judged this way; record a `comparison_reason` for any gate that opts into
+  `branch` so a reader knows why it isn't judged against the release tree.
+
+`logics-manager release status` reports each gate's comparison, and a stale
+commit's `blocking_reason` names which comparison it failed (e.g. "evidence
+targets a different commit (release)").
+
 ## Evidence
 
 Evidence entries are normalized records for commands, files, git state, CI

@@ -40,6 +40,8 @@ GATE_STATUSES = {"pending", "passed", "failed", "stale", "skipped", "not_configu
 SOURCE_EVIDENCE_KINDS = {"command", "file", "git", "ci"}
 PUBLICATION_EVIDENCE_KINDS = {"github_release", "external"}
 EVIDENCE_KINDS = {"command", "file", "git", "ci", "github_release", "external"}
+GATE_COMPARISONS = {"branch", "release"}
+DEFAULT_GATE_COMPARISON = "release"
 
 
 def release_evidence_add_example(gate_id: str = "<gate>") -> str:
@@ -223,6 +225,19 @@ def _git_output(repo_root: Path, args: list[str]) -> str | None:
 
 def _current_commit(repo_root: Path) -> str | None:
     return _git_output(repo_root, ["rev-parse", "HEAD"])
+
+
+def _commit_for_tag(repo_root: Path, tag: str) -> str | None:
+    """Resolve a tag to the commit it points at, peeling annotated tags. None if the tag doesn't exist."""
+    return _git_output(repo_root, ["rev-parse", f"{tag}^{{commit}}"])
+
+
+def _release_commit(repo_root: Path, contract: dict[str, Any], target_version: str | None, branch_commit: str | None) -> str | None:
+    """The commit the release was cut from: the tagged commit, or the working commit while no tag exists yet."""
+    expected_tag = _expected_tag(contract, target_version)
+    if not expected_tag:
+        return branch_commit
+    return _commit_for_tag(repo_root, expected_tag) or branch_commit
 
 
 def _worktree_clean(repo_root: Path) -> bool | None:
@@ -427,7 +442,14 @@ def _gate_evidence(gate_id: str, evidence: list[dict[str, Any]]) -> dict[str, An
     return matches[-1]
 
 
-def _evidence_is_stale(entry: dict[str, Any], gate: dict[str, Any], target_version: str | None, commit: str | None, contract: dict[str, Any]) -> str | None:
+def _evidence_is_stale(
+    entry: dict[str, Any],
+    gate: dict[str, Any],
+    target_version: str | None,
+    branch_commit: str | None,
+    release_commit: str | None,
+    contract: dict[str, Any],
+) -> str | None:
     freshness = (contract.get("evidence") or {}).get("freshness") if isinstance(contract.get("evidence"), dict) else {}
     if not isinstance(freshness, dict):
         freshness = {}
@@ -437,13 +459,15 @@ def _evidence_is_stale(entry: dict[str, Any], gate: dict[str, Any], target_versi
             return "evidence target version is missing"
         if evidence_version != target_version:
             return "evidence targets a different version"
+    comparison = gate.get("comparison") if gate.get("comparison") in GATE_COMPARISONS else DEFAULT_GATE_COMPARISON
+    commit = branch_commit if comparison == "branch" else release_commit
     evidence_kinds = set(gate.get("evidence_kinds") or [])
     if freshness.get("match_commit_for_source_gates", True) and commit and evidence_kinds & SOURCE_EVIDENCE_KINDS:
         evidence_commit = entry.get("commit")
         if evidence_commit is None:
-            return "evidence commit is missing"
+            return f"evidence commit is missing ({comparison})"
         if evidence_commit != commit:
-            return "evidence targets a different commit"
+            return f"evidence targets a different commit ({comparison})"
     tag_policy = (contract.get("git") or {}).get("tag_policy") if isinstance(contract.get("git"), dict) else {}
     expected_tag = None
     if isinstance(tag_policy, dict) and target_version:
@@ -459,10 +483,18 @@ def _evidence_is_stale(entry: dict[str, Any], gate: dict[str, Any], target_versi
     return None
 
 
-def _gate_payload(gate: dict[str, Any], evidence: list[dict[str, Any]], target_version: str | None, commit: str | None, contract: dict[str, Any]) -> dict[str, Any]:
+def _gate_payload(
+    gate: dict[str, Any],
+    evidence: list[dict[str, Any]],
+    target_version: str | None,
+    branch_commit: str | None,
+    release_commit: str | None,
+    contract: dict[str, Any],
+) -> dict[str, Any]:
     gate_id = gate.get("id")
     if not isinstance(gate_id, str):
         gate_id = "unknown"
+    comparison = gate.get("comparison") if gate.get("comparison") in GATE_COMPARISONS else DEFAULT_GATE_COMPARISON
     entry = _gate_evidence(gate_id, evidence)
     evidence_ref = None
     blocking_reason = None
@@ -481,7 +513,7 @@ def _gate_payload(gate: dict[str, Any], evidence: list[dict[str, Any]], target_v
         }
         raw_status = entry.get("status")
         status = raw_status if isinstance(raw_status, str) and raw_status in GATE_STATUSES else "failed"
-        stale_reason = _evidence_is_stale(entry, gate, target_version, commit, contract)
+        stale_reason = _evidence_is_stale(entry, gate, target_version, branch_commit, release_commit, contract)
         if stale_reason:
             status = "stale"
             blocking_reason = stale_reason
@@ -494,6 +526,7 @@ def _gate_payload(gate: dict[str, Any], evidence: list[dict[str, Any]], target_v
         "state": gate.get("state"),
         "required": bool(gate.get("required", True)),
         "status": status,
+        "comparison": comparison,
         "blocking_reason": blocking_reason,
         "evidence": evidence_ref,
     }
@@ -518,9 +551,10 @@ def release_status_payload(repo_root: Path) -> dict[str, Any]:
     contract = context.contract
     target_version, version_sources = _current_version(repo_root, contract)
     commit = _current_commit(repo_root)
+    release_commit = _release_commit(repo_root, contract, target_version, commit)
     evidence = _load_evidence(repo_root, contract)
     raw_gates = contract.get("gates") if isinstance(contract.get("gates"), list) else []
-    gates = [_gate_payload(gate, evidence, target_version, commit, contract) for gate in raw_gates if isinstance(gate, dict)]
+    gates = [_gate_payload(gate, evidence, target_version, commit, release_commit, contract) for gate in raw_gates if isinstance(gate, dict)]
     version_blocking_reasons = _version_source_blocking_reasons(version_sources)
     state = "blocked" if version_blocking_reasons else _state_from_gates(gates)
     blocking_reasons = [
@@ -534,6 +568,7 @@ def release_status_payload(repo_root: Path) -> dict[str, Any]:
         "state": state,
         "target_version": target_version,
         "commit": commit,
+        "release_commit": release_commit,
         "contract_path": CONTRACT_PATH.as_posix(),
         "version_sources": version_sources,
         "gates": gates,
@@ -786,12 +821,19 @@ def release_discover_payload(repo_root: Path, *, write: bool = False, force: boo
         },
         "state_machine": DEFAULT_STATE_MACHINE,
         "gates": [
-            {"id": "version_metadata", "state": "preparing", "required": True, "evidence_kinds": ["file"]},
-            {"id": "changelog", "state": "preparing", "required": True, "evidence_kinds": ["file"]},
-            {"id": "local_validation", "state": "local_validation", "required": True, "evidence_kinds": ["command"]},
-            {"id": "git_push", "state": "pushed", "required": True, "evidence_kinds": ["git"]},
-            {"id": "ci", "state": "ci_verification", "required": True, "evidence_kinds": ["ci"]},
-            {"id": "github_release", "state": "github_release", "required": github_release_required, "evidence_kinds": ["github_release"]},
+            {"id": "version_metadata", "state": "preparing", "required": True, "evidence_kinds": ["file"], "comparison": "release"},
+            {"id": "changelog", "state": "preparing", "required": True, "evidence_kinds": ["file"], "comparison": "release"},
+            {"id": "local_validation", "state": "local_validation", "required": True, "evidence_kinds": ["command"], "comparison": "release"},
+            {
+                "id": "git_push",
+                "state": "pushed",
+                "required": True,
+                "evidence_kinds": ["git"],
+                "comparison": "branch",
+                "comparison_reason": "A push claim describes this branch's HEAD, not the tagged release commit.",
+            },
+            {"id": "ci", "state": "ci_verification", "required": True, "evidence_kinds": ["ci"], "comparison": "release"},
+            {"id": "github_release", "state": "github_release", "required": github_release_required, "evidence_kinds": ["github_release"], "comparison": "release"},
         ],
         "evidence": {
             "store": {"path": "logics/release/evidence.jsonl", "format": "jsonl", "required": True},
@@ -825,7 +867,7 @@ def release_discover_payload(repo_root: Path, *, write: bool = False, force: boo
     if external_publication:
         draft["external_publication"] = external_publication
         draft["gates"].extend(
-            {"id": check["id"], "state": "external_publication", "required": bool(check.get("required")), "evidence_kinds": ["external"]}
+            {"id": check["id"], "state": "external_publication", "required": bool(check.get("required")), "evidence_kinds": ["external"], "comparison": "release"}
             for check in external_publication
         )
 
@@ -896,7 +938,10 @@ def render_release_status(payload: dict[str, Any]) -> str:
     if gates:
         lines.append("Gates:")
         for gate in gates:
-            lines.append(f"- {gate['id']}: {gate['status']}" + (f" ({gate['blocking_reason']})" if gate.get("blocking_reason") else ""))
+            lines.append(
+                f"- {gate['id']} [{gate.get('comparison', DEFAULT_GATE_COMPARISON)}]: {gate['status']}"
+                + (f" ({gate['blocking_reason']})" if gate.get("blocking_reason") else "")
+            )
     return "\n".join(lines)
 
 

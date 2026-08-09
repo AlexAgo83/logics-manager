@@ -1,8 +1,8 @@
 ## prod_065_evidence_about_the_release - Evidence about the release
 > Date: 2026-08-09
-> Status: Proposed
+> Status: Settled
 > Related request: `req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from`
-> Related backlog: `item_647_compare_release_tree_evidence_against_the_tagged_commit`, `item_648_say_which_gates_are_about_the_branch_and_which_about_the_release`
+> Related backlog: `item_647_compare_release_tree_evidence_against_the_tagged_commit`
 > Related task: `task_314_orchestrate_judging_evidence_against_the_release`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -45,5 +45,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from`
+- Product back-reference: `item_647_compare_release_tree_evidence_against_the_tagged_commit`
 - Task back-reference: `task_314_orchestrate_judging_evidence_against_the_release`

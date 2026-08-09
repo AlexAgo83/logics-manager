@@ -233,6 +233,14 @@
           "type": "array",
           "minItems": 1,
           "items": { "$ref": "#/$defs/evidence_kind" }
+        },
+        "comparison": {
+          "enum": ["branch", "release"],
+          "description": "Which commit source evidence for this gate is judged against. release (default) is the tagged commit, falling back to the working commit while no tag exists. branch is the current working commit and moves as the branch advances."
+        },
+        "comparison_reason": {
+          "type": "string",
+          "description": "Why this gate is judged against the branch instead of the release tree. Required in practice for comparison: branch."
         }
       }
     },

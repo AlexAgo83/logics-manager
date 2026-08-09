@@ -336,16 +336,21 @@ logics-manager obsidian clean
 `obsidian sync` writes deterministic YAML frontmatter above supported Logics
 docs with `type`, `ref`, `status`, `understanding`, `confidence`, optional
 `progress` / `theme`, a title alias, and tags derived from type, status, and
-theme. Re-running the command is idempotent.
+theme. It also rewrites a backtick-quoted ref that resolves to a real doc in
+the corpus (e.g. `` `req_318_x` ``) into an Obsidian `[[wikilink]]`, so the
+graph view actually draws an edge for it — a ref that only appears in prose
+and does not resolve to a doc is left untouched, never linked. Re-running the
+command is idempotent.
 
-`obsidian sync --check` reports projection drift for CI without writing files.
-`obsidian clean` removes only the managed `logics_projection: obsidian`
-frontmatter block and restores the canonical Markdown body byte-for-byte.
-Logics Manager parsing, linting, audit, flow transitions, and index generation
-continue to treat the blockquote indicators as authoritative; frontmatter is
-never required to parse a document. The normal linter reports a blocking issue
-when committed Obsidian frontmatter drifts from canonical type/ref/status/title
-metadata.
+`obsidian sync --check` reports projection drift for CI without writing files,
+covering both stale frontmatter and stale/missing wikilinks. `obsidian clean`
+removes the managed `logics_projection: obsidian` frontmatter block, reverses
+every wikilink it added back to its original backtick form, and restores the
+canonical Markdown body byte-for-byte. Logics Manager parsing, linting, audit,
+flow transitions, and index generation continue to treat the blockquote
+indicators as authoritative; frontmatter and wikilinks are never required to
+parse a document. The normal linter reports a blocking issue when committed
+Obsidian frontmatter drifts from canonical type/ref/status/title metadata.
 
 ## Local Browser Viewer
 

@@ -437,6 +437,7 @@ _None_
 | [req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer](request/req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer.md) | Render a bounded chain graph view in the browser viewer | Done |  |  | request/req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer.md |
 | [req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs](request/req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs.md) | Move AI Context ahead of the truncation boundary, with a repair path for existing docs | Done |  |  | request/req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs.md |
 | [req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp](request/req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp.md) | One viewer per repo, and a resolved port story across the viewer and MCP | Done |  |  | request/req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp.md |
+| [req_323_review_findings_security_tests_structure_dependencies](request/req_323_review_findings_security_tests_structure_dependencies.md) | Review findings: security, tests, structure, dependencies | Draft |  |  | request/req_323_review_findings_security_tests_structure_dependencies.md |
 
 ## Backlog
 

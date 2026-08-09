@@ -1,0 +1,447 @@
+{
+  "budgets": {
+    "max_docs": 16,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface item_658_generate_reversible_wikilinks_in_the_obsidian_projection item_659_test_and_document_obsidian_as_a_supported_visualization_surface task_316_orchestrate_the_obsidian_graph_navigable_projection --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_658_generate_reversible_wikilinks_in_the_obsidian_projection",
+          "item_659_test_and_document_obsidian_as_a_supported_visualization_surface"
+        ],
+        "prod": [
+          "prod_067_obsidian_as_a_supported_graph_navigable_visualization_surface_for_logics_corpora"
+        ],
+        "req": [
+          "req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface"
+        ],
+        "task": [
+          "task_316_orchestrate_the_obsidian_graph_navigable_projection"
+        ]
+      },
+      "path": "logics/product/prod_067_obsidian_as_a_supported_graph_navigable_visualization_surface_for_logics_corpora.md",
+      "ref": "prod_067_obsidian_as_a_supported_graph_navigable_visualization_surface_for_logics_corpora",
+      "sections": {
+        "Goals": [
+          "- Cross-doc refs projected as Obsidian wikilinks, so the graph view reflects actual corpus structure (request -> product -> backlog -> task).",
+          "- Round-trip safety: sync then clean is a no-op on the canonical body.",
+          "- Drift detection covers wikilinks, not just frontmatter.",
+          "- Direct test coverage for the projection logic, which has none today.",
+          "- Docs describe Obsidian as a supported visualization option, not a speculative one."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Turn the existing opt-in Obsidian projection from frontmatter-only metadata into a real graph-navigable view of a Logics corpus, by generating deterministic, reversible wikilinks between cross-referencing docs, and documenting it as a first-class optional visualization surface alongside the CLI and the browser viewer."
+        ],
+        "References": [
+          "- Product back-reference: `req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface`",
+          "- Task back-reference: `task_316_orchestrate_the_obsidian_graph_navigable_projection`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Obsidian as a supported graph-navigable visualization surface for Logics corpora"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_649_add_the_lifecycle_ops_skill",
+          "item_650_add_the_roadmap_deliver_skill",
+          "item_651_add_the_closeout_repair_skill",
+          "item_652_add_the_project_health_skill",
+          "item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite",
+          "item_654_add_a_claude_plugin_manifest"
+        ],
+        "prod": [
+          "prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin"
+        ],
+        "req": [
+          "req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin"
+        ],
+        "task": [
+          "task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging"
+        ]
+      },
+      "path": "logics/product/prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin.md",
+      "ref": "prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin",
+      "sections": {
+        "Goals": [
+          "- One skill per remaining lifecycle surface, matching the depth and format of the four existing skills.",
+          "- A clear, non-overlapping boundary between the new project-health skill and review-project.",
+          "- A working .claude-plugin manifest that exposes the bundled skills and the MCP server.",
+          "- Zero changes to the behavior of the four existing skills."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Extend logics-manager's bundled agent skills from the current create -> build -> review happy path to the full CLI lifecycle (lifecycle edge operations, roadmap-to-delivery, closeout troubleshooting, read-only diagnostics), and package the result as an installable Claude Code plugin so the existing skills and MCP server are discoverable through the standard plugin flow rather than only through the skills-install CLI command."
+        ],
+        "References": [
+          "- Product back-reference: `req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`",
+          "- Task back-reference: `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Full-lifecycle skill coverage, packaged as a Claude Code plugin"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, standardize the obsidian projection into a graph-navigable visualization surface, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Standardize the Obsidian projection into a graph-navigable visualization surface",
+        "use when": "You need to implement or review the scaffolded workflow for Standardize the Obsidian projection into a graph-navigable visualization surface."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_649_add_the_lifecycle_ops_skill",
+          "item_658_generate_reversible_wikilinks_in_the_obsidian_projection",
+          "item_659_test_and_document_obsidian_as_a_supported_visualization_surface"
+        ],
+        "prod": [
+          "prod_067_obsidian_as_a_supported_graph_navigable_visualization_surface_for_logics_corpora"
+        ],
+        "req": [
+          "req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface"
+        ]
+      },
+      "path": "logics/request/req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface.md",
+      "ref": "req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Obsidian sync rewrites recognized cross-doc refs (backtick-quoted req_/item_/task_/prod_/road_/adr_/spec_ refs) in the projected body into [[ref]] wikilinks, only for refs that resolve to a doc actually present in the corpus.",
+          "- AC2: `obsidian clean` reverses the wikilink transform exactly; running sync then clean restores the canonical body byte-for-byte identical to its pre-sync state.",
+          "- AC3: `obsidian sync --check` reports wikilink drift the same way it already reports frontmatter drift.",
+          "- AC4: A dedicated test module exercises ref detection, the wikilink round-trip, and drift detection for the Obsidian projection.",
+          "- AC5: README.md and docs/cli.md describe Obsidian sync as a supported, working graph-navigation surface, replacing the current speculative \"may be added later\" wording."
+        ],
+        "Needs": [
+          "- Make the Obsidian graph view actually reflect the corpus's request/product/backlog/task structure, instead of showing every synced doc as an isolated node.",
+          "- Keep `obsidian clean` an exact, byte-for-byte round trip once wikilinks are added, so the opt-in projection stays provably non-destructive.",
+          "- Extend `obsidian sync --check` drift detection to cover the new wikilink transform, not just frontmatter.",
+          "- Add direct test coverage for the Obsidian projection logic, which today has none.",
+          "- Document Obsidian sync as a supported, working visualization surface, replacing the README's current \"wikilinks may be added later\" placeholder language."
+        ]
+      },
+      "status": "Draft",
+      "title": "Standardize the Obsidian projection into a graph-navigable visualization surface"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add the lifecycle-ops skill, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add the lifecycle-ops skill",
+        "use when": "Implementing the scaffolded slice for Add the lifecycle-ops skill."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_649_add_the_lifecycle_ops_skill"
+        ],
+        "prod": [
+          "prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin"
+        ],
+        "req": [
+          "req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin"
+        ],
+        "task": [
+          "task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging"
+        ]
+      },
+      "path": "logics/backlog/item_649_add_the_lifecycle_ops_skill.md",
+      "ref": "item_649_add_the_lifecycle_ops_skill",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The skill's frontmatter description matches the SKILL.md convention and names concrete trigger phrases.",
+          "- AC2: The recipe covers split, promote, withdraw, close, finish task, and progress task with at least one worked example each.",
+          "- AC3: Gotchas cover at least one propagation behavior (e.g. what closing a parent/child does to the other).",
+          "- AC4: `logics-manager skills install` discovers and installs the new skill without code changes.",
+          "- AC5: The four existing skills are unchanged.",
+          "- AC6: An automated test asserts this skill's frontmatter is valid and that it is listed by available_skills()."
+        ],
+        "Problem": [
+          "- split, promote, withdraw, close, finish task, and progress task have no skill: an agent asked to re-scope, retire, or manually close a doc has to read --help or docs/cli.md cold, with no worked recipe or gotchas.",
+          "- These are also the commands most likely to be run on a doc that already has history (linked children, progress recorded), so the wrong sequence is easy to get into without a documented recipe."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add the lifecycle-ops skill"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, generate reversible wikilinks in the obsidian projection, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Generate reversible wikilinks in the Obsidian projection",
+        "use when": "Implementing the scaffolded slice for Generate reversible wikilinks in the Obsidian projection."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_658_generate_reversible_wikilinks_in_the_obsidian_projection"
+        ],
+        "prod": [
+          "prod_067_obsidian_as_a_supported_graph_navigable_visualization_surface_for_logics_corpora"
+        ],
+        "req": [
+          "req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface"
+        ],
+        "task": [
+          "task_316_orchestrate_the_obsidian_graph_navigable_projection"
+        ]
+      },
+      "path": "logics/backlog/item_658_generate_reversible_wikilinks_in_the_obsidian_projection.md",
+      "ref": "item_658_generate_reversible_wikilinks_in_the_obsidian_projection",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Obsidian sync rewrites recognized cross-doc refs (backtick-quoted req_/item_/task_/prod_/road_/adr_/spec_ refs) in the projected body into [[ref]] wikilinks, only for refs that resolve to a doc actually present in the corpus.",
+          "- AC2: `obsidian clean` reverses the wikilink transform exactly; running sync then clean restores the canonical body byte-for-byte identical to its pre-sync state.",
+          "- AC3: `obsidian sync --check` reports wikilink drift the same way it already reports frontmatter drift."
+        ],
+        "Problem": [
+          "- The Obsidian projection copies each doc's body verbatim below its generated frontmatter, so plain backtick-quoted refs to other docs never become graph edges - the graph view shows every synced doc as an isolated node.",
+          "- `obsidian clean` today restores the canonical body byte-for-byte only because the body was never modified by sync; any wikilink transform has to be exactly reversible or that non-destructive guarantee quietly breaks."
+        ]
+      },
+      "status": "Ready",
+      "title": "Generate reversible wikilinks in the Obsidian projection"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, test and document obsidian as a supported visualization surface, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Test and document Obsidian as a supported visualization surface",
+        "use when": "Implementing the scaffolded slice for Test and document Obsidian as a supported visualization surface."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_659_test_and_document_obsidian_as_a_supported_visualization_surface"
+        ],
+        "prod": [
+          "prod_067_obsidian_as_a_supported_graph_navigable_visualization_surface_for_logics_corpora"
+        ],
+        "req": [
+          "req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface"
+        ],
+        "task": [
+          "task_316_orchestrate_the_obsidian_graph_navigable_projection"
+        ]
+      },
+      "path": "logics/backlog/item_659_test_and_document_obsidian_as_a_supported_visualization_surface.md",
+      "ref": "item_659_test_and_document_obsidian_as_a_supported_visualization_surface",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC4: A dedicated test module exercises ref detection, the wikilink round-trip, and drift detection for the Obsidian projection.",
+          "- AC5: README.md and docs/cli.md describe Obsidian sync as a supported, working graph-navigation surface, replacing the current speculative \"may be added later\" wording."
+        ],
+        "Problem": [
+          "- No test file exercises the Obsidian projection's actual behavior today; a regression in frontmatter rendering, and now in the wikilink transform, would only surface as a manual observation in someone's vault.",
+          "- README.md still says wikilinks \"may be added later\" even once they exist, and docs/cli.md's Obsidian section does not mention graph navigation as a reason to enable the projection."
+        ]
+      },
+      "status": "Ready",
+      "title": "Test and document Obsidian as a supported visualization surface"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate the Obsidian graph-navigable projection",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_658_generate_reversible_wikilinks_in_the_obsidian_projection",
+          "item_659_test_and_document_obsidian_as_a_supported_visualization_surface"
+        ],
+        "prod": [
+          "prod_067_obsidian_as_a_supported_graph_navigable_visualization_surface_for_logics_corpora"
+        ],
+        "req": [
+          "req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface"
+        ],
+        "task": [
+          "task_316_orchestrate_the_obsidian_graph_navigable_projection"
+        ]
+      },
+      "path": "logics/tasks/task_316_orchestrate_the_obsidian_graph_navigable_projection.md",
+      "ref": "task_316_orchestrate_the_obsidian_graph_navigable_projection",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the Obsidian graph-navigable projection"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_658_generate_reversible_wikilinks_in_the_obsidian_projection",
+          "item_659_test_and_document_obsidian_as_a_supported_visualization_surface"
+        ],
+        "prod": [
+          "prod_067_obsidian_as_a_supported_graph_navigable_visualization_surface_for_logics_corpora"
+        ],
+        "req": [
+          "req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface"
+        ],
+        "task": [
+          "task_316_orchestrate_the_obsidian_graph_navigable_projection"
+        ]
+      },
+      "path": "logics/product/prod_067_obsidian_as_a_supported_graph_navigable_visualization_surface_for_logics_corpora.md",
+      "ref": "prod_067_obsidian_as_a_supported_graph_navigable_visualization_surface_for_logics_corpora",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Obsidian as a supported graph-navigable visualization surface for Logics corpora"
+    }
+  ],
+  "estimates": {
+    "char_count": 14842,
+    "companion_doc_count": 2,
+    "doc_count": 6
+  },
+  "generated_at": "2026-08-09T11:21:36Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface",
+      "item_658_generate_reversible_wikilinks_in_the_obsidian_projection",
+      "item_659_test_and_document_obsidian_as_a_supported_visualization_surface",
+      "task_316_orchestrate_the_obsidian_graph_navigable_projection"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface,item_658_generate_reversible_wikilinks_in_the_obsidian_projection,item_659_test_and_document_obsidian_as_a_supported_visualization_surface,task_316_orchestrate_the_obsidian_graph_navigable_projection",
+  "refs": [
+    "req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface",
+    "item_658_generate_reversible_wikilinks_in_the_obsidian_projection",
+    "item_659_test_and_document_obsidian_as_a_supported_visualization_surface",
+    "task_316_orchestrate_the_obsidian_graph_navigable_projection"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.1"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_316_orchestrate_the_obsidian_graph_navigable_projection.md",
+      "ref": "task_316_orchestrate_the_obsidian_graph_navigable_projection"
+    }
+  ]
+}

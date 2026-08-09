@@ -6,7 +6,7 @@
     "logics_manager/assist_support.py::_build_hybrid_roi_report": 240,
     "logics_manager/audit.py::audit_payload": 372,
     "logics_manager/bootstrap.py::bootstrap_payload": 146,
-    "logics_manager/cli.py::_dispatch": 472,
+    "logics_manager/cli.py::_dispatch": 475,
     "logics_manager/flow/__init__.py::build_parser": 231,
     "logics_manager/flow/__init__.py::cmd_split_request": 147,
     "logics_manager/flow/__init__.py::scaffold_request_chain_payload": 132,

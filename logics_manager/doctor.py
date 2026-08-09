@@ -229,7 +229,16 @@ def doctor_packaging_payload(repo_root: Path, *, clean_install: bool = True) -> 
 
 
 def render_doctor(repo_root: Path, *, output_format: str = "text") -> str:
-    payload = doctor_payload(repo_root)
+    return render_doctor_payload(doctor_payload(repo_root), output_format=output_format)
+
+
+def render_doctor_payload(payload: dict[str, Any], *, output_format: str = "text") -> str:
+    """Render a payload the caller already has.
+
+    req_326: the CLI needs the `ok` field to pick its exit status, and computing the
+    payload twice would walk the whole corpus twice. `doctor packaging` was already
+    written this way; this is the same shape for the plain doctor.
+    """
     if output_format == "json":
         return json.dumps(payload, indent=2, sort_keys=True)
 

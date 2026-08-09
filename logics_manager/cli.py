@@ -21,7 +21,7 @@ from .insights import followups_payload, health_payload, render_followups, rende
 from .insights import product_consistency_payload, render_product_consistency
 from .lint import commit_indicator_findings, lint_payload, render_lint
 from .sync import search_logics_docs_payload
-from .doctor import doctor_packaging_payload, render_doctor
+from .doctor import doctor_packaging_payload, doctor_payload, render_doctor, render_doctor_payload
 from .termstyle import colorize_help
 from .skills import resync_all_harnesses
 from .update_check import current_version as package_current_version, get_update_info, get_update_notice
@@ -338,17 +338,36 @@ def detect_running_manager(
     return "pip", executable
 
 
+def _install_root(path: Path) -> Path:
+    """The directory an install owns, from any of the entry points inside it.
+
+    item_674: an npm install has two entry points -- `scripts/npm/logics-manager.mjs`,
+    the Node wrapper on PATH, and `scripts/logics-manager.py`, the Python entry it
+    spawns. Comparing the files reported the one install as a shadow of itself on every
+    npm machine. Comparing what contains them does not, while two installs from two
+    package managers still land under different roots.
+    """
+    for parent in path.parents:
+        if parent.name == "node_modules":
+            return path
+        # `.../node_modules/@grifhinz/logics-manager/...` -> the package directory.
+        if parent.parent.name == "node_modules" or parent.parent.parent.name == "node_modules":
+            return parent
+    return path
+
+
 def shadowing_executables(executable: Path | None, command: str = "logics-manager") -> list[str]:
     """Other executables of the same name on PATH, excluding the running one."""
     if executable is None:
         return []
+    running_root = _install_root(executable)
     others = []
     for candidate in _find_executable_paths(command):
         try:
             resolved = Path(candidate).resolve()
         except OSError:
             resolved = Path(candidate)
-        if resolved != executable:
+        if resolved != executable and _install_root(resolved) != running_root:
             others.append(candidate)
     return others
 
@@ -581,11 +600,14 @@ def _dispatch(argv: list[str] | None = None) -> int:
         parsed = parser.parse_args(doctor_args)
         repo_root = find_repo_root(Path.cwd())
         try:
-            output = render_doctor(repo_root, output_format=parsed.format)
+            doctor_result = doctor_payload(repo_root)
         except ConfigError as exc:
             raise SystemExit(str(exc)) from exc
-        print(output)
-        return 0
+        print(render_doctor_payload(doctor_result, output_format=parsed.format))
+        # req_326: this used to `return 0` while printing FAILED, so a pipeline reading the
+        # exit status was told the opposite of the output. Its `doctor packaging` sibling
+        # fifteen lines above already did this; v2.20.0 did it for `health`.
+        return 0 if doctor_result["ok"] else 1
     if command == "release":
         from .release import main as release_main
 

@@ -1,13 +1,14 @@
 ## task_322_orchestrate_the_diagnostics_and_release_surface_cleanup - Orchestrate the diagnostics and release-surface cleanup
 > From version: 2.21.2
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 55%
 > Complexity: Medium
 > Theme: Diagnostics, CI coverage, and release surface
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-10 01:00:42
 
 # AI Context
 - Summary: Implement orchestrate the diagnostics and release-surface cleanup.
@@ -20,13 +21,13 @@
 - Ordering constraint: `item_676` depends on `item_675`. The other three are independent and can land in any order.
 
 # Plan
-- [ ] 1. `item_674`: compare install roots so the npm wrapper and the Python entry it spawns count as one install.
+- [x] 1. `item_674`: compare install roots so the npm wrapper and the Python entry it spawns count as one install.
 - [ ] 2. `item_675`: add a repeatable backfill command and run it over the 308 pre-schema docs.
 - [ ] 3. `item_676`: add the full `doctor` to CI — only after `item_675`, or the build goes red.
 - [ ] 4. `item_677`: suppress or dismiss the nine reviewed code scanning alerts, each with its reason.
-- [ ] 5. `item_678`: publish `CHANGELOG.md` from the existing release notes and ship it in the package.
-- [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
-- [ ] Keep commit creation under operator control; do not force one commit per micro-step.
+- [x] 5. `item_678`: publish `CHANGELOG.md` from the existing release notes and ship it in the package.
+- [x] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
+- [x] Keep commit creation under operator control; do not force one commit per micro-step.
 - [ ] GATE: do not close until lint, audit, doctor, and the full test suite pass.
 
 # Backlog
@@ -51,7 +52,10 @@
 - request-AC6 -> `item_678_publish_a_changelog_built_from_the_existing_release_notes`. Proof: see that item's AC Traceability.
 
 # Validation
-- (no validation recorded yet)
+- Delivered: `item_674` (install-root comparison, 4 tests), `item_678` (CHANGELOG.md generated from `changelogs/`, shipped in the npm package, checked in CI, runbook updated).
+- Partial: `item_677` -- the three JS/TS alerts removed by code change; the six Python alerts need a GitHub dismissal, an outward action left to the repository owner.
+- Blocked: `item_675` and `item_676`. The backfill command is delivered and tested, but applying it to the 308 documents surfaced 53 pre-existing placeholder violations (41 unfilled proof placeholders, 12 unmapped ACs) in `Done` docs. Reverted rather than fabricate proofs; see `item_675` Notes for the three ways out.
+- ci:check green on 2026-08-10: 1266 pytest, 834 vitest, tsc, eslint, line budget, changelog check.
 
 # Report
 - Not started.

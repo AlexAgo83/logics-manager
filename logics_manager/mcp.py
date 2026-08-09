@@ -1527,11 +1527,19 @@ def make_http_handler(repo_root: Path, *, bearer_token: str | None = None) -> ty
     return LogicsMcpHttpHandler
 
 
+class _McpHttpServer(ThreadingHTTPServer):
+    # See LogicsViewerServer's identical override in viewer.py: HTTPServer's
+    # default allow_reuse_address = 1 lets Windows silently bind a second
+    # listener onto a port that already has one, so a real collision never
+    # raises EADDRINUSE there at all.
+    allow_reuse_address = False
+
+
 def serve_http(*, repo_root: Path | None = None, host: str = "127.0.0.1", port: int = 8766, bearer_token: str | None = None) -> int:
     root = _repo_root(repo_root)
     token = bearer_token or os.environ.get(AUTH_ENV_VAR)
     try:
-        server = ThreadingHTTPServer((host, port), make_http_handler(root, bearer_token=token))
+        server = _McpHttpServer((host, port), make_http_handler(root, bearer_token=token))
     except OSError as exc:
         if exc.errno == errno.EADDRINUSE:
             raise SystemExit(

@@ -5,6 +5,8 @@ import shutil
 from pathlib import Path
 
 from .assist import _build_claude_instructions
+from .harness_mcp import wire_harness_mcp_configs
+from .skills import resync_all_harnesses
 
 
 WORKFLOW_DIRS: tuple[str, ...] = ("request", "backlog", "tasks", "specs", "product", "roadmap", "architecture", "external", ".cache")
@@ -124,7 +126,7 @@ def _ensure_line(text: str, line: str) -> str:
     return prefix + line + "\n"
 
 
-def bootstrap_payload(repo_root: Path, *, check: bool) -> dict[str, object]:
+def bootstrap_payload(repo_root: Path, *, check: bool, sync_harnesses: bool = False) -> dict[str, object]:
     logics_root = repo_root / "logics"
     instructions_manifest = _build_claude_instructions(repo_root)
     directory_actions: list[dict[str, object]] = []
@@ -237,6 +239,24 @@ def bootstrap_payload(repo_root: Path, *, check: bool) -> dict[str, object]:
             gitignore_path.write_text(gitignore_next, encoding="utf-8")
             (created_paths if gitignore_missing else updated_paths).append(".gitignore")
 
+    # req_318/item_657: leave every detected harness ready to use, not just
+    # this repo's own logics/ scaffolding - reuses the same drift-aware skill
+    # install (item_656) and the safe per-format MCP wiring (harness_mcp.py)
+    # rather than requiring a separate `skills install`/hand-edited MCP config.
+    #
+    # ponytail: gated behind `sync_harnesses` (default off), not folded into
+    # the unconditional `not check` path above - `bootstrap_payload()` is
+    # called as a plain repo-scaffolding fixture by ~10 test files and by
+    # the viewer/CLI onboarding flow, none of which should touch the real
+    # machine's ~/.claude, ~/.codex, ~/.hermes, or ~/.gemini as a side effect
+    # of setting up a throwaway test repo. Only the `bootstrap` CLI command
+    # itself opts in.
+    skill_sync: dict[str, object] = {}
+    mcp_wiring: list[dict[str, object]] = []
+    if not check and sync_harnesses:
+        skill_sync = resync_all_harnesses(create_missing=True)
+        mcp_wiring = wire_harness_mcp_configs(repo_root)
+
     ok = not missing_paths if check else True
     return {
         "command": "bootstrap",
@@ -249,6 +269,8 @@ def bootstrap_payload(repo_root: Path, *, check: bool) -> dict[str, object]:
         "removed_paths": removed_paths,
         "directory_actions": directory_actions,
         "claude_instruction_line_count": instructions_manifest["line_count"],
+        "skill_sync": skill_sync,
+        "mcp_wiring": mcp_wiring,
     }
 
 
@@ -277,4 +299,33 @@ def render_bootstrap(payload: dict[str, object], *, output_format: str) -> str:
             lines.append(f"  - {path}")
     if not payload["created_paths"] and not payload.get("updated_paths"):
         lines.append("- nothing to create")
+
+    skill_sync = payload.get("skill_sync") or {}
+    for target_result in skill_sync.get("targets", []):
+        target_dir = target_result.get("target_dir", "?")
+        installed = target_result.get("installed", [])
+        refreshed = target_result.get("refreshed", [])
+        hand_modified = target_result.get("hand_modified", [])
+        if not (installed or refreshed or hand_modified):
+            continue
+        lines.append(f"- skills in {target_dir}:")
+        if installed:
+            lines.append(f"  added: {', '.join(sorted(installed))}")
+        if refreshed:
+            lines.append(f"  refreshed: {', '.join(sorted(refreshed))}")
+        if hand_modified:
+            lines.append(f"  left alone (hand-modified): {', '.join(sorted(hand_modified))}")
+
+    for result in payload.get("mcp_wiring", []):
+        harness = result.get("harness", "?")
+        action = result.get("action")
+        if action == "wired":
+            lines.append(f"- MCP wired for {harness}: {result.get('path')}")
+        elif action == "left-alone":
+            lines.append(f"- MCP left alone for {harness} ({result.get('reason')}): {result.get('path')}")
+        elif action == "print-snippet":
+            lines.append(f"- MCP not auto-wired for {harness} - paste this into {result.get('path')}:")
+            for snippet_line in str(result.get("snippet", "")).splitlines():
+                lines.append(f"    {snippet_line}")
+        # "already-wired" and "unreadable" are not worth a line every run.
     return "\n".join(lines)

@@ -134,6 +134,28 @@ def install_skills(names: list[str], target_dir: Path, *, force: bool) -> dict[s
     }
 
 
+def resync_all_harnesses(*, create_missing: bool = False) -> dict[str, object]:
+    """req_318: shared by `update`/`self-update` (cli.py) and `bootstrap`
+    (bootstrap.py) so both re-sync skills into every detected harness
+    directory through the one drift-aware `install_skills()` path, instead
+    of two call sites duplicating the same loop.
+
+    `create_missing=False` (the `update` default) never invents a fresh
+    install for a harness directory that doesn't exist yet - `update` is
+    about refreshing what's already there, not onboarding a new machine.
+    `bootstrap --sync-harnesses` passes `create_missing=True`: that command
+    is exactly the "get this machine set up from scratch" moment.
+    """
+    results = []
+    for target_dir in discover_skill_dirs():
+        if not target_dir.is_dir():
+            if not create_missing:
+                continue
+            target_dir.mkdir(parents=True, exist_ok=True)
+        results.append(install_skills([], target_dir, force=False))
+    return {"targets": results}
+
+
 def _render_install(payload: dict[str, object]) -> str:
     lines = []
     for name in payload["installed"]:

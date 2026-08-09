@@ -7,7 +7,7 @@
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-09 17:42:50
+> Indicators reviewed: 2026-08-09 18:02:57
 
 # AI Context
 - Summary: Capture, not scope, a set of evidence-backed findings from a whole-repo review (security, test coverage, code structure, dependency/packaging health). No fix has been applied; no backlog item exists yet for any of these.
@@ -59,4 +59,8 @@
 - `tests/python/test_logics_manager_cli.py`
 
 # Backlog
-- none
+- `item_668_consolidate_the_repo_root_path_escape_guards_onto_path_utils`
+- `item_669_extract_mcp_py_tool_definitions_and_flow_help_text_builders_into_their_own_modules`
+- `item_670_turn_the_python_coverage_floor_into_a_ratchet_like_the_line_budget_guard`
+- `item_671_regenerate_package_lock_json_and_prevent_version_drift_from_recurring`
+- `item_672_add_direct_test_coverage_for_assist_workflow_py`

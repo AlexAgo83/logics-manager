@@ -1103,6 +1103,7 @@ _None_
 | [item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open](backlog/item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open.md) | Render the chain as a Mermaid flowchart with click-to-open | Ready |  | 0% | backlog/item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open.md |
 | [item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates](backlog/item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates.md) | Move AI Context ahead of the truncation boundary in doc templates | Ready |  | 0% | backlog/item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates.md |
 | [item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs](backlog/item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs.md) | Extend autofix-structure to reposition AI Context in existing docs | Ready |  | 0% | backlog/item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs.md |
+| [item_664_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs](backlog/item_664_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs.md) | Expose the autofix repair in the viewer, with VS Code parity for free | Ready |  | 0% | backlog/item_664_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs.md |
 
 ## Tasks
 

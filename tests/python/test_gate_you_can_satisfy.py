@@ -269,6 +269,27 @@ def test_a_hand_written_proof_is_left_alone(tmp_path: Path) -> None:
     assert any("AC2 is not declared by this slice" in note for note in payload["skipped"])
 
 
+def test_print_repair_payload_handles_string_and_dict_skipped_entries(capsys) -> None:
+    """A duplicate loop assumed every `skipped` entry was a {ref, reason} dict (mermaid's
+    shape) and crashed on ac-traceability's plain-string notes with
+    `TypeError: string indices must be integers, not 'str'`."""
+    from logics_manager.flow import _print_repair_payload
+
+    _print_repair_payload(
+        {"kind": "ac-traceability", "dry_run": False, "changed_files": [], "skipped": ["item_001: AC1 already has a traceability line"]},
+        "text",
+    )
+    out = capsys.readouterr().out
+    assert "skipped item_001: AC1 already has a traceability line" in out
+
+    _print_repair_payload(
+        {"kind": "mermaid", "dry_run": False, "changed_files": [], "skipped": [{"ref": "task_001", "kind": "task", "reason": "document has no Mermaid block to refresh"}]},
+        "text",
+    )
+    out = capsys.readouterr().out
+    assert "skipped `task_001`: document has no Mermaid block to refresh" in out
+
+
 def test_running_the_repair_twice_adds_nothing_the_second_time(tmp_path: Path) -> None:
     from logics_manager.flow import repair_ac_traceability_payload
 

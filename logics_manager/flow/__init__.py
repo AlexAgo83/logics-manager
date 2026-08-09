@@ -2373,14 +2373,17 @@ def _print_repair_payload(payload: dict[str, object], output_format: str) -> Non
     action = "would change" if payload.get("dry_run") else "changed"
     changed_files = payload.get("changed_files", [])
     print(f"Repair {payload['kind']}: {action} {len(changed_files)} file(s).")
-    for note in payload.get("skipped", []):
-        print(f"- skipped {note}")
+    # "0 files" is ambiguous between nothing to do and wrong input; naming what was
+    # skipped, and why, removes the ambiguity the field report flagged. Different repair
+    # kinds shape a skipped entry differently -- ac-traceability writes a ready-made note,
+    # mermaid writes a {ref, kind, reason} record -- so both are handled here.
+    for entry in payload.get("skipped", []):
+        if isinstance(entry, dict):
+            print(f"- skipped `{entry['ref']}`: {entry['reason']}")
+        else:
+            print(f"- skipped {entry}")
     for rel_path in changed_files:
         print(f"- {rel_path}")
-    # "0 files" is ambiguous between nothing to do and wrong input; naming what was
-    # skipped, and why, removes the ambiguity the field report flagged.
-    for entry in payload.get("skipped", []):
-        print(f"- skipped `{entry['ref']}`: {entry['reason']}")
 
 
 REPAIR_VERIFY_CODES = {

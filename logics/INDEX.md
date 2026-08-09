@@ -104,6 +104,7 @@
 | [prod_065_evidence_about_the_release](product/prod_065_evidence_about_the_release.md) | Evidence about the release | Settled |  |  | product/prod_065_evidence_about_the_release.md |
 | [prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin](product/prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin.md) | Full-lifecycle skill coverage, packaged as a Claude Code plugin | Proposed |  |  | product/prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin.md |
 | [prod_067_obsidian_as_a_supported_graph_navigable_visualization_surface_for_logics_corpora](product/prod_067_obsidian_as_a_supported_graph_navigable_visualization_surface_for_logics_corpora.md) | Obsidian as a supported graph-navigable visualization surface for Logics corpora | Proposed |  |  | product/prod_067_obsidian_as_a_supported_graph_navigable_visualization_surface_for_logics_corpora.md |
+| [prod_068_a_bounded_chain_graph_inside_the_viewer_without_a_new_dependency](product/prod_068_a_bounded_chain_graph_inside_the_viewer_without_a_new_dependency.md) | A bounded chain graph inside the viewer, without a new dependency | Proposed |  |  | product/prod_068_a_bounded_chain_graph_inside_the_viewer_without_a_new_dependency.md |
 
 ## Roadmaps
 
@@ -431,6 +432,7 @@ _None_
 | [req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from](request/req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from.md) | Judge release evidence against the commit the release was cut from | Done |  |  | request/req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from.md |
 | [req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin](request/req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md) | Cover the remaining Logics lifecycle in bundled skills and package as a Claude Code plugin | Draft |  |  | request/req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md |
 | [req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface](request/req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface.md) | Standardize the Obsidian projection into a graph-navigable visualization surface | Draft |  |  | request/req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface.md |
+| [req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer](request/req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer.md) | Render a bounded chain graph view in the browser viewer | Draft |  |  | request/req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer.md |
 
 ## Backlog
 
@@ -1095,6 +1097,8 @@ _None_
 | [item_657_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin](backlog/item_657_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md) | Wire bootstrap to leave every detected harness ready to use | Ready |  | 0% | backlog/item_657_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md |
 | [item_658_generate_reversible_wikilinks_in_the_obsidian_projection](backlog/item_658_generate_reversible_wikilinks_in_the_obsidian_projection.md) | Generate reversible wikilinks in the Obsidian projection | Ready |  | 0% | backlog/item_658_generate_reversible_wikilinks_in_the_obsidian_projection.md |
 | [item_659_test_and_document_obsidian_as_a_supported_visualization_surface](backlog/item_659_test_and_document_obsidian_as_a_supported_visualization_surface.md) | Test and document Obsidian as a supported visualization surface | Ready |  | 0% | backlog/item_659_test_and_document_obsidian_as_a_supported_visualization_surface.md |
+| [item_660_resolve_one_request_s_chain_from_structural_link_sections](backlog/item_660_resolve_one_request_s_chain_from_structural_link_sections.md) | Resolve one request's chain from structural link sections | Ready |  | 0% | backlog/item_660_resolve_one_request_s_chain_from_structural_link_sections.md |
+| [item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open](backlog/item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open.md) | Render the chain as a Mermaid flowchart with click-to-open | Ready |  | 0% | backlog/item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open.md |
 
 ## Tasks
 
@@ -1410,3 +1414,4 @@ _None_
 | [task_314_orchestrate_judging_evidence_against_the_release](tasks/task_314_orchestrate_judging_evidence_against_the_release.md) | Orchestrate judging evidence against the release | Done |  | 100% | tasks/task_314_orchestrate_judging_evidence_against_the_release.md |
 | [task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging](tasks/task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging.md) | Orchestrate skill coverage expansion and Claude Code plugin packaging | Ready |  | 0% | tasks/task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging.md |
 | [task_316_orchestrate_the_obsidian_graph_navigable_projection](tasks/task_316_orchestrate_the_obsidian_graph_navigable_projection.md) | Orchestrate the Obsidian graph-navigable projection | Ready |  | 0% | tasks/task_316_orchestrate_the_obsidian_graph_navigable_projection.md |
+| [task_317_orchestrate_the_bounded_chain_graph_view](tasks/task_317_orchestrate_the_bounded_chain_graph_view.md) | Orchestrate the bounded chain graph view | Ready |  | 0% | tasks/task_317_orchestrate_the_bounded_chain_graph_view.md |

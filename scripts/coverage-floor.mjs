@@ -6,7 +6,14 @@
 // The recorded floor lives here, not duplicated in each caller
 // (ci-check.mjs's local run, check-python-coverage-floor.mjs's split-CI
 // job) - `node scripts/ci-check.mjs --update` writes a raise back here.
-export const PYTHON_COVERAGE_FLOOR = 77;
+//
+// This one floor is shared across the platform matrix, and platforms
+// legitimately measure differently: POSIX exercises fcntl.flock's branches
+// that Windows structurally never reaches (and vice versa for the
+// msvcrt.locking side). 76% (Windows) vs 77% (Ubuntu/macOS), confirmed on a
+// real CI run - the floor must be the lower of the two, not whichever one
+// was measured first.
+export const PYTHON_COVERAGE_FLOOR = 76;
 
 export function evaluateCoverageFloor(measured, floor) {
   if (measured < floor) {

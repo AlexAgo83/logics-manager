@@ -3,9 +3,7 @@
 // check it right after the pytest run that wrote the coverage data, without
 // pulling in ci-check.mjs's whole serial step list.
 import { spawnSync } from "node:child_process";
-import { evaluateCoverageFloor } from "./coverage-floor.mjs";
-
-const PYTHON_COVERAGE_FLOOR = 77;
+import { PYTHON_COVERAGE_FLOOR, evaluateCoverageFloor } from "./coverage-floor.mjs";
 
 const result = spawnSync("node", ["scripts/run-python.mjs", "-m", "coverage", "report", "--format=total"], {
   cwd: process.cwd(),

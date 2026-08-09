@@ -1,9 +1,20 @@
 import { spawn, spawnSync } from "node:child_process";
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
+import { evaluateCoverageFloor } from "./coverage-floor.mjs";
 
 const repoRoot = process.cwd();
 const pythonInvocation = resolvePythonInvocation();
+const updateRequested = process.argv.includes("--update");
+
+// req_323/item_670: this used to be a hardcoded --fail-under=75 with a comment
+// admitting the floor sat below the measured value "so the build does not
+// start red" - a check that could never catch a coverage regression. Modeled
+// on the line-budget ledger's own ratchet (item_626): a run below the floor
+// fails; a run strictly above it reports the floor as raisable, and
+// `--update` writes the new number back into this file.
+const PYTHON_COVERAGE_FLOOR = 77;
 
 const steps = [
   {
@@ -36,7 +47,7 @@ const steps = [
   {
     // Coverage tooling was installed in CI under a step named for it, then never
     // invoked: no Python coverage existed while the step name claimed otherwise.
-    // The floor sits below the measured value so the build does not start red.
+    // `checkPythonCoverageFloor()` reads the data this run writes, below.
     label: "Logics manager CLI tests",
     command: pythonInvocation.command,
     args: [
@@ -98,11 +109,7 @@ if (backgroundStep) {
   }
   // Only meaningful once the suite above has finished writing coverage data,
   // which is why it lives here and not in the step list.
-  runStep(
-    "Python coverage floor",
-    pythonInvocation.command,
-    [...pythonInvocation.argsPrefix, "-m", "coverage", "report", "--fail-under=75"]
-  );
+  checkPythonCoverageFloor();
 }
 
 function npmCommand() {
@@ -175,6 +182,48 @@ function runStep(label, command, args) {
     }
     process.exit(result.status ?? 1);
   }
+}
+
+function checkPythonCoverageFloor() {
+  console.log("\n==> Python coverage floor");
+  const result = spawnSync(
+    pythonInvocation.command,
+    [...pythonInvocation.argsPrefix, "-m", "coverage", "report", "--format=total"],
+    { cwd: repoRoot, encoding: "utf8" }
+  );
+  if (result.status !== 0) {
+    console.error(result.stdout);
+    console.error(result.stderr);
+    process.exit(result.status ?? 1);
+  }
+  const measured = Number.parseInt(result.stdout.trim(), 10);
+  if (Number.isNaN(measured)) {
+    console.error(`[coverage-floor] could not parse a percentage from: ${result.stdout.trim()}`);
+    process.exit(1);
+  }
+  const evaluation = evaluateCoverageFloor(measured, PYTHON_COVERAGE_FLOOR);
+  if (evaluation.status === "fail") {
+    console.error(`[coverage-floor] ${evaluation.message}`);
+    process.exit(1);
+  }
+  if (evaluation.status === "raisable") {
+    const verb = updateRequested ? "Raised" : "Raisable";
+    console.log(`[coverage-floor] ${verb}: ${evaluation.message}`);
+    if (updateRequested) {
+      raiseCoverageFloor(measured);
+    } else {
+      console.log("Run `node scripts/ci-check.mjs --update` to write the higher floor back.");
+    }
+    return;
+  }
+  console.log(`[coverage-floor] ${evaluation.message}`);
+}
+
+function raiseCoverageFloor(measured) {
+  const selfPath = fileURLToPath(import.meta.url);
+  let source = readFileSync(selfPath, "utf8");
+  source = source.replace(/const PYTHON_COVERAGE_FLOOR = \d+;/, `const PYTHON_COVERAGE_FLOOR = ${measured};`);
+  writeFileSync(selfPath, source);
 }
 
 function captureRequestSnapshot() {

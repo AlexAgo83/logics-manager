@@ -34,6 +34,12 @@
       "format": "json",
       "selector": "version",
       "required": true
+    },
+    {
+      "path": "package-lock.json",
+      "format": "json",
+      "selector": "version",
+      "required": true
     }
   ],
   "changelog": {

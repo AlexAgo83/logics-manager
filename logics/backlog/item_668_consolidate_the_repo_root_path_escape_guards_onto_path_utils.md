@@ -1,14 +1,14 @@
 ## item_668_consolidate_the_repo_root_path_escape_guards_onto_path_utils - Consolidate the repo-root path-escape guards onto path_utils
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-09 18:02:57
+> Indicators reviewed: 2026-08-09 18:45:49
 
 # AI Context
 - Summary: Consolidate the repo-root path-escape guards onto path_utils
@@ -32,7 +32,7 @@ Four repo-root path-escape guards were implemented independently, at four differ
 - AC1: The four repo-root path-escape guards are consolidated onto `path_utils.ensure_relative_to()`, used by `mcp.py`, `viewer.py`, `viewer_git.py`, and `viewer_project_tools.py`, with a test proving the strictest existing behavior (symlink walk, `..` rejection, final containment check) applies uniformly everywhere.
 
 # AC Traceability
-- request-AC1 -> This backlog slice. Proof: AC1: The four repo-root path-escape guards are consolidated onto `path_utils.ensure_relative_to()`, with a test proving the strictest existing behavior applies uniformly everywhere.
+- request-AC1 -> This backlog slice. Proof: `path_utils.py` gained `relative_to_root()` (the containment check, raising the catchable `PathEscapesRoot` rather than `ensure_relative_to()`'s `SystemExit` - unsafe to raise from a long-running MCP/viewer process) and `has_symlink_segment()` (the symlink walk). All four call sites (`mcp.py:_relative_path`, `viewer.py:_resolve_repo_doc_path`, `viewer_git.py:_normalize_git_file_path`, `viewer_project_tools.py:_inside_file`) now route through both, each converting `PathEscapesRoot` into its own existing error shape (unchanged per scope). `tests/python/test_path_utils.py`'s 9 tests passed, including one per call site reproducing the exact case only the strictest of the four previously caught (a symlink pointing back inside the repo). Full suite green (1239 pytest, 834 vitest, tsc, line-budget).
 
 # Decision framing
 - Product framing: Not needed
@@ -45,7 +45,7 @@ Four repo-root path-escape guards were implemented independently, at four differ
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_323_review_findings_security_tests_structure_dependencies.md`
+- Request: `req_323_review_findings_security_tests_structure_dependencies`
 - Primary task(s): `task_320_orchestrate_the_review_findings_cleanup`
 
 # Priority
@@ -56,3 +56,7 @@ Four repo-root path-escape guards were implemented independently, at four differ
 - Hybrid rationale: Derived from request `req_323_review_findings_security_tests_structure_dependencies` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_323_review_findings_security_tests_structure_dependencies.md`.
 - Generated locally by logics-manager.
+- Task `task_320_orchestrate_the_review_findings_cleanup` was finished via `logics-manager flow finish task` on 2026-08-09.
+
+# Tasks
+- `task_320_orchestrate_the_review_findings_cleanup`

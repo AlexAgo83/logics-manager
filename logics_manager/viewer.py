@@ -33,6 +33,7 @@ from .chain_graph import resolve_request_chain
 from .config import ConfigError, find_repo_root, holds_corpus
 from .insights import health_payload, status_payload
 from .lint import lint_payload
+from .path_utils import PathEscapesRoot, has_symlink_segment, relative_to_root
 from .release import load_release_context, release_reset_payload, release_status_payload
 from .sync import update_workflow_indicators_payload
 from .viewer_preferences import (
@@ -491,9 +492,13 @@ def read_doc_payload(repo_root: Path, rel_path: str) -> dict[str, Any]:
 
 def _resolve_repo_doc_path(repo_root: Path, rel_path: str) -> tuple[str, Path]:
     normalized = unquote(rel_path).replace("\\", "/").lstrip("/")
-    absolute = (repo_root / normalized).resolve()
     root = repo_root.resolve()
-    if root != absolute and root not in absolute.parents:
+    absolute = (repo_root / normalized).resolve()
+    try:
+        relative_to_root(absolute, root)
+    except PathEscapesRoot as exc:
+        raise ValueError("Document path escapes repository root.") from exc
+    if has_symlink_segment(root, Path(normalized)):
         raise ValueError("Document path escapes repository root.")
     if not absolute.is_file():
         raise FileNotFoundError(normalized)

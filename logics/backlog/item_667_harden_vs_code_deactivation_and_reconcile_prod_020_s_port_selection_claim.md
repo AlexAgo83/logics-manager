@@ -1,10 +1,10 @@
 ## item_667_harden_vs_code_deactivation_and_reconcile_prod_020_s_port_selection_claim - Harden VS Code deactivation and reconcile prod_020's port-selection claim
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 33%
 > Complexity: Low
 > Theme: Cleanup and documentation accuracy
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

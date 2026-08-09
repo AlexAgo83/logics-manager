@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import errno
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import io
 import json
@@ -1731,10 +1732,19 @@ def make_http_handler(repo_root: Path, *, bearer_token: str | None = None) -> ty
     return LogicsMcpHttpHandler
 
 
-def serve_http(*, repo_root: Path | None = None, host: str = "127.0.0.1", port: int = 8765, bearer_token: str | None = None) -> int:
+def serve_http(*, repo_root: Path | None = None, host: str = "127.0.0.1", port: int = 8766, bearer_token: str | None = None) -> int:
     root = _repo_root(repo_root)
     token = bearer_token or os.environ.get(AUTH_ENV_VAR)
-    server = ThreadingHTTPServer((host, port), make_http_handler(root, bearer_token=token))
+    try:
+        server = ThreadingHTTPServer((host, port), make_http_handler(root, bearer_token=token))
+    except OSError as exc:
+        if exc.errno == errno.EADDRINUSE:
+            raise SystemExit(
+                f"Port {port} on {host} is already in use — another logics-manager MCP server "
+                f"(or the viewer, on its own default port) is likely already running. Pass "
+                f"--port <n> for a different one."
+            ) from exc
+        raise
     _print_surface_banner()
     print(f"Logics MCP HTTP listening on http://{host}:{server.server_port}/mcp", file=sys.stderr)
     if token:
@@ -1937,7 +1947,7 @@ def main(argv: list[str] | None = None) -> int:
     serve_http_parser = sub.add_parser("serve-http", help="Serve MCP JSON-RPC over local HTTP for tunnel testing.")
     serve_http_parser.add_argument("--repo-root", default=None)
     serve_http_parser.add_argument("--host", default="127.0.0.1")
-    serve_http_parser.add_argument("--port", type=int, default=8765)
+    serve_http_parser.add_argument("--port", type=int, default=8766)
     serve_http_parser.add_argument("--bearer-token", default=None, help=f"Require this OAuth-style bearer token for POST /mcp. Defaults to ${AUTH_ENV_VAR} when set.")
     tools = sub.add_parser("tools", help="Print the exposed MCP tool definitions.")
     tools.add_argument("--format", choices=("json",), default="json")
@@ -1959,7 +1969,7 @@ def main(argv: list[str] | None = None) -> int:
     connect = sub.add_parser("connect", help="Print local HTTP connector setup for ChatGPT developer mode.")
     connect.add_argument("--repo-root", default=None)
     connect.add_argument("--host", default="127.0.0.1")
-    connect.add_argument("--port", type=int, default=8765)
+    connect.add_argument("--port", type=int, default=8766)
     connect.add_argument("--bearer-token", default=None)
     connect.add_argument("--no-bearer", action="store_true", help="Print a no-auth connector plan for short-lived local debugging.")
     connect.add_argument("--public-url", default=None, help="Optional HTTPS tunnel URL used for copyable ChatGPT setup and smoke checks.")
@@ -1968,7 +1978,7 @@ def main(argv: list[str] | None = None) -> int:
     tunnel = sub.add_parser("tunnel", help="Start the local MCP HTTP server plus an HTTPS localtunnel session.")
     tunnel.add_argument("--repo-root", default=None)
     tunnel.add_argument("--host", default="127.0.0.1")
-    tunnel.add_argument("--port", type=int, default=8765)
+    tunnel.add_argument("--port", type=int, default=8766)
     tunnel.add_argument("--bearer-token", default=None)
     tunnel.add_argument("--no-bearer", action="store_true", help="Run without bearer auth for short-lived local debugging.")
     for surface in (serve, serve_http_parser, tools, call):

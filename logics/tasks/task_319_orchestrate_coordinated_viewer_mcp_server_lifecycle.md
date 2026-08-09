@@ -1,20 +1,21 @@
 ## task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle - Orchestrate coordinated viewer/MCP server lifecycle
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 33%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 > Indicators reviewed: 2026-08-09 14:26:23
+> Owner: claude
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Fix collision handling and deconflict default ports first - a shipped-defect-tier fix, and the registry work in the next slice needs a clean collision story to build on.
+- [x] 1. Fix collision handling and deconflict default ports first - a shipped-defect-tier fix, and the registry work in the next slice needs a clean collision story to build on.
 - [ ] 2. Add the per-repo registry, claimed atomically via `fcntl.flock` (reusing release.py's existing lock primitive, not a new one) to close the two-simultaneous-starts race, and wire both the CLI viewer and VS Code's ViewerServerManager to consult it before spawning.
 - [ ] 3. Harden VS Code's deactivate() and reconcile prod_020's wording with the now-actual behavior.
 - [ ] 4. Validate and index.

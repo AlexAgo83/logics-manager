@@ -1,10 +1,10 @@
 ## item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates - Move AI Context ahead of the truncation boundary in doc templates
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Doc generation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

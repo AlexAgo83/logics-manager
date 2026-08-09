@@ -1,10 +1,10 @@
 ## item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs - Extend autofix-structure to reposition AI Context in existing docs
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Structural repair
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

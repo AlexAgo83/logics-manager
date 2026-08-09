@@ -241,6 +241,13 @@ export function createViewerDiagnostics(options) {
       boardCheckScheduled = true;
       queueMicrotask(() => {
         boardCheckScheduled = false;
+        // The board keeps rendering behind whatever document panel is on top of it (a CDX
+        // screen, Workshop, ...), and a resize can empty it mid-reflow while it does. That
+        // is not a defect the operator is looking at: only report it when the board is
+        // actually the visible screen, or its stale error outlives the screen it was never
+        // about.
+        const panel = getPanel();
+        if (panel instanceof HTMLElement && !panel.hidden) return;
         const board = getBoard();
         if (!(board instanceof HTMLElement) || board.childNodes.length > 0) return;
         recordError(new Error("Viewer board became empty unexpectedly"), { kind: "blank-board", screen: "Project" });

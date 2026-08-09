@@ -1963,6 +1963,25 @@ describe("local viewer browser host", () => {
     });
   });
 
+  it("does not report a blank board while a document screen covers it", async () => {
+    const { dom } = createViewerDom();
+    dom.window.document.getElementById("viewer-getting-started")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    const errorsBefore = (dom.window as any).logicsViewer.lastErrors().length;
+
+    const board = dom.window.document.getElementById("board") as HTMLElement | null;
+    const card = dom.window.document.createElement("article");
+    board?.appendChild(card);
+    await flushViewerAsync();
+    board?.replaceChildren();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    // A resize can empty the board behind whatever screen is actually open; that is not
+    // a defect the operator is looking at, and should not stomp its status line.
+    expect((dom.window as any).logicsViewer.lastErrors().length).toBe(errorsBefore);
+  });
+
   it("forwards contained board render failures to viewer diagnostics", () => {
     const dom = new JSDOM("<!doctype html><html><body><main id=\"board\"></main></body></html>", { runScripts: "outside-only" });
     const recordError = vi.fn();

@@ -1265,6 +1265,8 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       boardCheckScheduled = true;
       queueMicrotask(() => {
         boardCheckScheduled = false;
+        const panel = getPanel();
+        if (panel instanceof HTMLElement && !panel.hidden) return;
         const board = getBoard();
         if (!(board instanceof HTMLElement) || board.childNodes.length > 0) return;
         recordError(new Error("Viewer board became empty unexpectedly"), { kind: "blank-board", screen: "Project" });

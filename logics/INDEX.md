@@ -105,6 +105,7 @@
 | [prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin](product/prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin.md) | Full-lifecycle skill coverage, packaged as a Claude Code plugin | Proposed |  |  | product/prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin.md |
 | [prod_067_obsidian_as_a_supported_graph_navigable_visualization_surface_for_logics_corpora](product/prod_067_obsidian_as_a_supported_graph_navigable_visualization_surface_for_logics_corpora.md) | Obsidian as a supported graph-navigable visualization surface for Logics corpora | Proposed |  |  | product/prod_067_obsidian_as_a_supported_graph_navigable_visualization_surface_for_logics_corpora.md |
 | [prod_068_a_bounded_chain_graph_inside_the_viewer_without_a_new_dependency](product/prod_068_a_bounded_chain_graph_inside_the_viewer_without_a_new_dependency.md) | A bounded chain graph inside the viewer, without a new dependency | Proposed |  |  | product/prod_068_a_bounded_chain_graph_inside_the_viewer_without_a_new_dependency.md |
+| [prod_069_ai_context_that_a_bounded_read_actually_reaches](product/prod_069_ai_context_that_a_bounded_read_actually_reaches.md) | AI Context that a bounded read actually reaches | Proposed |  |  | product/prod_069_ai_context_that_a_bounded_read_actually_reaches.md |
 
 ## Roadmaps
 
@@ -433,6 +434,7 @@ _None_
 | [req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin](request/req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md) | Cover the remaining Logics lifecycle in bundled skills and package as a Claude Code plugin | Draft |  |  | request/req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md |
 | [req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface](request/req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface.md) | Standardize the Obsidian projection into a graph-navigable visualization surface | Draft |  |  | request/req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface.md |
 | [req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer](request/req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer.md) | Render a bounded chain graph view in the browser viewer | Draft |  |  | request/req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer.md |
+| [req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs](request/req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs.md) | Move AI Context ahead of the truncation boundary, with a repair path for existing docs | Draft |  |  | request/req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs.md |
 
 ## Backlog
 
@@ -1099,6 +1101,8 @@ _None_
 | [item_659_test_and_document_obsidian_as_a_supported_visualization_surface](backlog/item_659_test_and_document_obsidian_as_a_supported_visualization_surface.md) | Test and document Obsidian as a supported visualization surface | Ready |  | 0% | backlog/item_659_test_and_document_obsidian_as_a_supported_visualization_surface.md |
 | [item_660_resolve_one_request_s_chain_from_structural_link_sections](backlog/item_660_resolve_one_request_s_chain_from_structural_link_sections.md) | Resolve one request's chain from structural link sections | Ready |  | 0% | backlog/item_660_resolve_one_request_s_chain_from_structural_link_sections.md |
 | [item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open](backlog/item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open.md) | Render the chain as a Mermaid flowchart with click-to-open | Ready |  | 0% | backlog/item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open.md |
+| [item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates](backlog/item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates.md) | Move AI Context ahead of the truncation boundary in doc templates | Ready |  | 0% | backlog/item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates.md |
+| [item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs](backlog/item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs.md) | Extend autofix-structure to reposition AI Context in existing docs | Ready |  | 0% | backlog/item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs.md |
 
 ## Tasks
 
@@ -1415,3 +1419,4 @@ _None_
 | [task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging](tasks/task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging.md) | Orchestrate skill coverage expansion and Claude Code plugin packaging | Ready |  | 0% | tasks/task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging.md |
 | [task_316_orchestrate_the_obsidian_graph_navigable_projection](tasks/task_316_orchestrate_the_obsidian_graph_navigable_projection.md) | Orchestrate the Obsidian graph-navigable projection | Ready |  | 0% | tasks/task_316_orchestrate_the_obsidian_graph_navigable_projection.md |
 | [task_317_orchestrate_the_bounded_chain_graph_view](tasks/task_317_orchestrate_the_bounded_chain_graph_view.md) | Orchestrate the bounded chain graph view | Ready |  | 0% | tasks/task_317_orchestrate_the_bounded_chain_graph_view.md |
+| [task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary](tasks/task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary.md) | Orchestrate moving AI Context ahead of the truncation boundary | Ready |  | 0% | tasks/task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary.md |

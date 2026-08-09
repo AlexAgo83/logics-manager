@@ -1,0 +1,355 @@
+{
+  "budgets": {
+    "max_docs": 16,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates",
+          "item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs"
+        ],
+        "prod": [
+          "prod_069_ai_context_that_a_bounded_read_actually_reaches"
+        ],
+        "req": [
+          "req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs"
+        ],
+        "task": [
+          "task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary"
+        ]
+      },
+      "path": "logics/product/prod_069_ai_context_that_a_bounded_read_actually_reaches.md",
+      "ref": "prod_069_ai_context_that_a_bounded_read_actually_reaches",
+      "sections": {
+        "Goals": [
+          "- AI Context survives a default-budget bounded read on any doc, regardless of the doc's total length.",
+          "- New docs get this right from generation, not just from a follow-up repair.",
+          "- Existing docs get a deterministic, idempotent, on-demand repair - no new command, reuse of the existing autofix-structure path.",
+          "- No other section's content or order is disturbed by the repair."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Fix a self-defeating design detail: the one section written specifically to help an agent decide fast whether a doc is relevant (`# AI Context`) is placed near the end of every doc template, exactly where the tool's own default bounded reads (`flow show`, `read_logics_doc`) are least likely to reach. Move it ahead of the truncation boundary for new docs, and give existing docs a deterministic repair path via the autofix-structure mechanism that already exists."
+        ],
+        "References": [
+          "- Product back-reference: `req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs`",
+          "- Task back-reference: `task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "AI Context that a bounded read actually reaches"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, move ai context ahead of the truncation boundary, with a repair path for existing docs, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Move AI Context ahead of the truncation boundary, with a repair path for existing docs",
+        "use when": "You need to implement or review the scaffolded workflow for Move AI Context ahead of the truncation boundary, with a repair path for existing docs."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates",
+          "item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs"
+        ],
+        "prod": [
+          "prod_069_ai_context_that_a_bounded_read_actually_reaches"
+        ],
+        "req": [
+          "req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs"
+        ]
+      },
+      "path": "logics/request/req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs.md",
+      "ref": "req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Every doc template (request, backlog, task, and any other kind that writes an AI Context section) places `# AI Context` immediately after the indicator block, before any other body section, for newly created docs.",
+          "- AC2: `_autofix_structure()` repositions an existing doc's `# AI Context` section to immediately after its indicator block when found elsewhere, leaving every other section's content and order unchanged.",
+          "- AC3: The repair is reachable both per-ref (`flow validate <ref> --apply-fixes`) and corpus-wide (`audit --autofix-structure`), matching the existing autofix UX, with no new command surface.",
+          "- AC4: The repair is idempotent - running it twice on an already-repaired doc makes no further change.",
+          "- AC5: A test proves the concrete case that motivated this: a doc whose full content exceeds the default 4000-char `--max-chars` budget has its AI Context section included in a default-budget `flow show`/`read_logics_doc` read after the fix, where it was excluded before."
+        ],
+        "Needs": [
+          "- Position `# AI Context` right after the indicator block in every doc template, so it is not dropped by the default head-truncated reads (`flow show`, `read_logics_doc`) that many docs already exceed today.",
+          "- Give existing docs a deterministic, on-demand repair path to the same position, reusing the existing autofix-structure mechanism rather than a new command.",
+          "- Prove the fix against a concrete case: a doc read with the default 4000-char budget must include AI Context after the fix, where it demonstrably does not today."
+        ]
+      },
+      "status": "Draft",
+      "title": "Move AI Context ahead of the truncation boundary, with a repair path for existing docs"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, move ai context ahead of the truncation boundary in doc templates, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Move AI Context ahead of the truncation boundary in doc templates",
+        "use when": "Implementing the scaffolded slice for Move AI Context ahead of the truncation boundary in doc templates."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates"
+        ],
+        "prod": [
+          "prod_069_ai_context_that_a_bounded_read_actually_reaches"
+        ],
+        "req": [
+          "req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs"
+        ],
+        "task": [
+          "task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary"
+        ]
+      },
+      "path": "logics/backlog/item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates.md",
+      "ref": "item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Every doc template (request, backlog, task, and any other kind that writes an AI Context section) places `# AI Context` immediately after the indicator block, before any other body section, for newly created docs."
+        ],
+        "Problem": [
+          "- Every doc template writes `# AI Context` near the end of the body, after sections a bounded read frequently never reaches. A newly created doc inherits this today regardless of any repair applied to existing ones."
+        ]
+      },
+      "status": "Ready",
+      "title": "Move AI Context ahead of the truncation boundary in doc templates"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, extend autofix-structure to reposition ai context in existing docs, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Extend autofix-structure to reposition AI Context in existing docs",
+        "use when": "Implementing the scaffolded slice for Extend autofix-structure to reposition AI Context in existing docs."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs"
+        ],
+        "prod": [
+          "prod_069_ai_context_that_a_bounded_read_actually_reaches"
+        ],
+        "req": [
+          "req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs"
+        ],
+        "task": [
+          "task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary"
+        ]
+      },
+      "path": "logics/backlog/item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs.md",
+      "ref": "item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC2: `_autofix_structure()` repositions an existing doc's `# AI Context` section to immediately after its indicator block when found elsewhere, leaving every other section's content and order unchanged.",
+          "- AC3: The repair is reachable both per-ref (`flow validate <ref> --apply-fixes`) and corpus-wide (`audit --autofix-structure`), matching the existing autofix UX, with no new command surface.",
+          "- AC4: The repair is idempotent - running it twice on an already-repaired doc makes no further change.",
+          "- AC5: A test proves the concrete case that motivated this: a doc whose full content exceeds the default 4000-char `--max-chars` budget has its AI Context section included in a default-budget `flow show`/`read_logics_doc` read after the fix, where it was excluded before."
+        ],
+        "Problem": [
+          "- Existing docs - potentially the whole corpus - already have `# AI Context` in the wrong place, and there is no deterministic way to fix that in bulk or per-ref today.",
+          "- `_autofix_structure()` already normalizes other structural details (Status/Schema version indicators, missing DoR/DoD checklists) through an established, already-wired command surface; AI Context repositioning belongs there rather than in a new command."
+        ]
+      },
+      "status": "Ready",
+      "title": "Extend autofix-structure to reposition AI Context in existing docs"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates",
+          "item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs"
+        ],
+        "prod": [
+          "prod_069_ai_context_that_a_bounded_read_actually_reaches"
+        ],
+        "req": [
+          "req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs"
+        ],
+        "task": [
+          "task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary"
+        ]
+      },
+      "path": "logics/product/prod_069_ai_context_that_a_bounded_read_actually_reaches.md",
+      "ref": "prod_069_ai_context_that_a_bounded_read_actually_reaches",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "AI Context that a bounded read actually reaches"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate moving AI Context ahead of the truncation boundary",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates",
+          "item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs"
+        ],
+        "prod": [
+          "prod_069_ai_context_that_a_bounded_read_actually_reaches"
+        ],
+        "req": [
+          "req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs"
+        ],
+        "task": [
+          "task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary"
+        ]
+      },
+      "path": "logics/tasks/task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary.md",
+      "ref": "task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate moving AI Context ahead of the truncation boundary"
+    }
+  ],
+  "estimates": {
+    "char_count": 10772,
+    "companion_doc_count": 1,
+    "doc_count": 5
+  },
+  "generated_at": "2026-08-09T11:47:07Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs",
+      "item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates",
+      "item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs",
+      "task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs,item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates,item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs,task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary",
+  "refs": [
+    "req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs",
+    "item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates",
+    "item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs",
+    "task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.1"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary.md",
+      "ref": "task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary"
+    }
+  ]
+}

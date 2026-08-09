@@ -16,7 +16,7 @@ function cleanupRoots() {
   while (roots.length > 0) {
     const root = roots.pop();
     if (root && fs.existsSync(root)) {
-      fs.rmSync(root, { recursive: true, force: true });
+      fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
     }
   }
 }

@@ -405,7 +405,7 @@ describe("LogicsViewProvider", () => {
     } else {
       delete process.env.LOGICS_CLAUDE_GLOBAL_HOME;
     }
-    fs.rmSync(root, { recursive: true, force: true });
+    fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
   });
 
   it("offers a startup notification to update the kit when overlays are unsupported by the current submodule", async () => {

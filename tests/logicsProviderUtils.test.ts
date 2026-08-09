@@ -196,7 +196,7 @@ describe("inspectLogicsRuntimeSource", () => {
 
   afterEach(() => {
     for (const root of roots.splice(0)) {
-      fs.rmSync(root, { recursive: true, force: true });
+      fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
     }
   });
 
@@ -234,7 +234,7 @@ describe("bootstrap state helpers", () => {
 
   afterEach(() => {
     for (const root of roots.splice(0)) {
-      fs.rmSync(root, { recursive: true, force: true });
+      fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
     }
   });
 
@@ -317,7 +317,7 @@ describe("catalog helpers", () => {
 
   afterEach(() => {
     for (const root of roots.splice(0)) {
-      fs.rmSync(root, { recursive: true, force: true });
+      fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
     }
   });
 
@@ -395,7 +395,7 @@ describe("detectDangerousGitignorePatterns", () => {
 
   afterEach(() => {
     for (const root of roots.splice(0)) {
-      fs.rmSync(root, { recursive: true, force: true });
+      fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
     }
   });
 
@@ -438,7 +438,7 @@ describe("detectRuntimeInstallType", () => {
 
   afterEach(() => {
     for (const root of roots.splice(0)) {
-      fs.rmSync(root, { recursive: true, force: true });
+      fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
     }
   });
 

@@ -452,7 +452,7 @@ describe("LogicsViewProvider", () => {
     } else {
       delete process.env.LOGICS_CLAUDE_GLOBAL_HOME;
     }
-    fs.rmSync(root, { recursive: true, force: true });
+    fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
   });
 
   it("can publish the global runtime directly from environment diagnostics", async () => {

@@ -33,7 +33,7 @@ describe("inspectCodexWorkspaceOverlay", () => {
     process.env.LOGICS_CODEX_WORKSPACES_HOME = originalWorkspaces;
     vi.restoreAllMocks();
     for (const root of roots.splice(0)) {
-      fs.rmSync(root, { recursive: true, force: true });
+      fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
     }
   });
 
@@ -245,7 +245,7 @@ describe("inspectCodexWorkspaceOverlay", () => {
     expect(fs.existsSync(path.join(globalHome, "skills", "core-skill"))).toBe(true);
     expect(fs.existsSync(path.join(globalHome, "skills", "optional-skill"))).toBe(true);
 
-    fs.rmSync(optionalSkillDir, { recursive: true, force: true });
+    fs.rmSync(optionalSkillDir, { recursive: true, force: true, maxRetries: 3 });
     const republished = publishCodexWorkspaceOverlay(root);
 
     expect(republished.publishedSkillNames).toEqual(["core-skill"]);

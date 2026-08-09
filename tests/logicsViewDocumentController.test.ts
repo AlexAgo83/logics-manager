@@ -74,7 +74,7 @@ describe("LogicsViewDocumentController", () => {
   });
 
   afterEach(() => {
-    fs.rmSync(root, { recursive: true, force: true });
+    fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
   });
 
   it("uses the bundled CLI when the runtime entrypoint is present", async () => {
@@ -266,7 +266,7 @@ describe("LogicsViewDocumentController", () => {
       getReadPreviewPanel: vi.fn()
     });
 
-    fs.rmSync(path.join(root, "logics"), { recursive: true, force: true });
+    fs.rmSync(path.join(root, "logics"), { recursive: true, force: true, maxRetries: 3 });
     await controller.startGuidedRequestFromTools();
     expect(maybeOfferBootstrap).toHaveBeenCalledWith(root);
     expect(mocks.showErrorMessage.mock.calls.at(-1)?.[0]).toContain("No logics/ folder found in");

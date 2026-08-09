@@ -403,7 +403,7 @@ describe("LogicsViewProvider", () => {
     } else {
       delete process.env.LOGICS_CLAUDE_GLOBAL_HOME;
     }
-    fs.rmSync(root, { recursive: true, force: true });
+    fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
   });
 
   it("shows an action-specific error when a hybrid assist command returns invalid JSON", async () => {

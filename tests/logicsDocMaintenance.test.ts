@@ -22,7 +22,7 @@ afterEach(() => {
   while (tempRoots.length > 0) {
     const root = tempRoots.pop();
     if (root && fs.existsSync(root)) {
-      fs.rmSync(root, { recursive: true, force: true });
+      fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
     }
   }
 });

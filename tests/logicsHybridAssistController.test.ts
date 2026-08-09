@@ -93,7 +93,7 @@ describe("LogicsHybridAssistController — provider remediation", () => {
   });
 
   afterEach(() => {
-    fs.rmSync(root, { recursive: true, force: true });
+    fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
   });
 
   function writeYaml(content: string) {

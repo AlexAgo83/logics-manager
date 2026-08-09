@@ -417,7 +417,7 @@ describe("LogicsViewProvider", () => {
     } else {
       delete process.env.LOGICS_CLAUDE_GLOBAL_HOME;
     }
-    fs.rmSync(root, { recursive: true, force: true });
+    fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
   });
 
   it("re-publishes the global Codex runtime when the current repo is newer than a warning-state publication", async () => {
@@ -739,7 +739,7 @@ describe("LogicsViewProvider", () => {
       mocks.showInformationMessage.mock.calls.some((call) => call.includes("Publish Global Codex Runtime"))
     ).toBe(false);
     expect(mocks.publishCodexWorkspaceOverlay).not.toHaveBeenCalled();
-    fs.rmSync(bootstrapRoot, { recursive: true, force: true });
+    fs.rmSync(bootstrapRoot, { recursive: true, force: true, maxRetries: 3 });
   });
 
   it("selects an agent, copies its prompt, and does not trigger Codex handoff", async () => {

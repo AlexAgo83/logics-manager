@@ -7,7 +7,7 @@
 > Complexity: Medium
 > Theme: Agent-facing skill coverage and plugin packaging
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-09 12:59:06
+> Indicators reviewed: 2026-08-09 13:03:49
 
 # Needs
 - Give agents a skill recipe for the lifecycle operations that fall outside scoping and dev: splitting, promoting, withdrawing, closing, finishing, and progressing a doc.
@@ -19,6 +19,7 @@
 - Give an MCP-only agent the same lifecycle, roadmap, closeout-repair, and health capability the CLI already has, instead of a narrower subset with no tool for several of those commands.
 - Keep installed skills in sync with the bundled package automatically when logics-manager updates itself, instead of relying on a separate manual `skills install` invocation that silently no-ops on drift.
 - Detect and document Hermes (NousResearch) as a third supported harness, since it already reads the same `SKILL.md` format and speaks MCP natively — no new packaging format needed, only discovery and a documentation update.
+- Detect and document Antigravity (Google's Gemini-based agentic IDE/CLI) as a fourth supported harness, on the same basis: same `SKILL.md` filename, standard MCP client, only its skills directory differs from Claude Code/Codex/Hermes.
 
 # Context
 - Four skills already ship in logics_manager/skill_assets/: corpus (scope), groom-issues (scope from a tracker), implement-task (build), review-project (capture findings). Together they cover only the create -> build -> review happy path.
@@ -32,6 +33,8 @@
 - The MCP surface (logics_manager/mcp.py) does not mirror the CLI 1:1. It covers promote, split, close, finish, ac-traceability, and mermaid, but has no tool for withdraw, progress, roadmap show/validate, deliver, validate-closeout, gates, links, doctor, or insights. This is a different, and in places wider, gap than the skill-documentation gap this request otherwise addresses — an agent working over MCP cannot do several of these regardless of any skill written for them.
 - `install_skills()` (logics_manager/skills.py) only checks whether a skill's destination directory already exists; it never compares installed content against the bundled package. A machine that ran `skills install` once, before this request's four new skills existed, now has only the original set installed and silently stays that way forever — the exact drift observed on this machine (only `corpus` present under `~/.claude/skills`). Nothing currently re-triggers install after a version bump, either.
 - Hermes (NousResearch's `hermes-agent`) reads `SKILL.md` skills from `~/.hermes/skills/` under the same open `agentskills.io` convention Claude Code and Codex use, and its MCP client (`~/.hermes/config.yaml`, `mcp_servers:`) can point at `logics-manager mcp serve` like any other MCP client. `discover_skill_dirs()` (logics_manager/skills.py) checks `~/.claude/skills` and `~/.codex/skills` but not `~/.hermes/skills`, and nothing in the docs states Hermes is a supported harness at all.
+- Ollama was considered and rejected as a fifth harness: it is a model-serving runtime, not an agent framework. It has no SKILL.md convention and no MCP client or server role of its own (only unofficial third-party wrapper packages bridge it to MCP); the only native surface is raw tool-calling in its `/api/chat` endpoint, which requires a separate agent loop to be useful at all. There is no skills directory or MCP config to add Ollama to — supporting it is out of scope for this request, not a gap in it.
+- Antigravity (Google's Gemini-based agentic IDE/CLI, launched November 2025) reads the same `SKILL.md` filename and speaks standard MCP (`~/.gemini/config/mcp_config.json`, `mcpServers:`), so MCP support is already covered for free. Its skills directory is unsettled between sources: Google's own codelab names `~/.gemini/config/skills/` (global) or `<project-root>/.agents/skills/` (project-scoped), while a third-party report says the documented `~/.gemini/antigravity/skills/` path does not work in practice and `~/.gemini/skills/` is what actually loads. The correct path needs verifying against a real Antigravity install before `discover_skill_dirs()` is changed, rather than picked from conflicting docs.
 
 # Acceptance criteria
 - AC1: A `lifecycle-ops` skill documents split, promote, withdraw, close, finish task, and progress task with a recipe and gotchas, following the existing SKILL.md conventions.
@@ -46,6 +49,7 @@
 - AC10: The MCP surface gains tools for withdraw, progress, roadmap show/validate, deliver, validate-closeout, gates repair, links repair, doctor, and insights — the CLI commands with no MCP equivalent today — each with test coverage matching the style of the existing MCP tool tests.
 - AC11: `install_skills()` detects drift between an installed skill's content and the bundled package, instead of only checking whether the destination directory exists, and `self-update`/`update` re-syncs every detected harness's skills directory after a successful CLI update, without overwriting a directory whose content was hand-modified away from any bundled version.
 - AC12: `discover_skill_dirs()` also detects `~/.hermes/skills`, and the README and `docs/cli.md` state that the bundled skills and MCP server are compatible with Hermes, alongside Claude Code and Codex, with the `mcp_servers` config snippet needed to wire it up.
+- AC13: `discover_skill_dirs()` detects Antigravity's actual skills directory, verified against a real install rather than assumed from conflicting docs, and the README and `docs/cli.md` state Antigravity as a supported harness with its MCP config snippet. Ollama is explicitly documented as out of scope, with the reason (no skills or MCP surface of its own), so the question does not resurface as an apparent gap.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

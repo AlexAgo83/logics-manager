@@ -41,6 +41,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build:assets
+      - run: npm run check:changelog
       - run: node scripts/run-python.mjs -m logics_manager lint --require-status
       - run: node scripts/run-python.mjs -m logics_manager doctor packaging --metadata-only
       - name: Logics flow sync close-eligible requests (must be a no-op)

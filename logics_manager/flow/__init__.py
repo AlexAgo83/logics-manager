@@ -3193,8 +3193,10 @@ def main(argv: list[str]) -> int:
     if args.command not in valid_commands:
         raise SystemExit("Unsupported flow subcommand for the native CLI slice.")
     payload = args.func(args)
-    if args.command == "validate-closeout" and isinstance(payload, dict) and not payload.get("ok", False):
+    # req_326: derive the status from the payload rather than naming which subcommands are
+    # allowed to fail. `closeout` and `validate-closeout` used to be the only two listed, so
+    # `flow validate` reported blocking findings and `flow roadmap validate` printed FAILED,
+    # both exiting 0. A validator added here is now honest without anyone remembering a list.
+    if not isinstance(payload, dict):
         return 1
-    if args.command == "closeout" and isinstance(payload, dict) and not payload.get("ok", False):
-        return 1
-    return 0 if isinstance(payload, dict) else 1
+    return 0 if payload.get("ok", True) else 1

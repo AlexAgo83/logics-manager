@@ -26,9 +26,12 @@ export function createViewerDiagnostics(options) {
   let boardCheckScheduled = false;
   const recentFailures = new Map();
   let openCircuitFingerprint = "";
+  // item_677: no Math.random() fallback. This id only labels a breadcrumb trail, but a
+  // weak-randomness alert on a permanently non-empty list is noise nobody reads, and
+  // getRandomValues is present wherever randomUUID is missing.
   const sessionId = typeof window.crypto?.randomUUID === "function"
     ? window.crypto.randomUUID()
-    : `viewer-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    : `viewer-${Date.now()}-${Array.from(window.crypto.getRandomValues(new Uint8Array(8)), (b) => b.toString(16).padStart(2, "0")).join("")}`;
   let heartbeatTimer = 0;
 
   // Synchronous breadcrumb trail persisted to localStorage so it survives a

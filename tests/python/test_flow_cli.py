@@ -409,7 +409,9 @@ def test_flow_validate_refuses_ambiguous_ac_traceability_fix(
     exit_code = main(["flow", "validate", "req_001_demo", "--apply-fixes", "--format", "json"])
     payload = json.loads(capsys.readouterr().out)
 
-    assert exit_code == 0
+    # req_326: this asserted exit 0 alongside `ok: False`. The dispatcher now derives the
+    # status from the payload, so a refused repair on a blocking finding exits non-zero.
+    assert exit_code == 1
     assert payload["ok"] is False
     assert payload["refused_repairs"] == [
         {"repair_kind": "ac-traceability", "reason": "explicit --proof is required before applying AC traceability repairs"}

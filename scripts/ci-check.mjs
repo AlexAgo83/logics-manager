@@ -61,6 +61,9 @@ const steps = [
 // viewer_assets is generated, not committed (req_285): regenerate it from the
 // canonical sources before any asset/lint gate so a fresh CI checkout has it.
 runStep("Generate viewer assets", npmCommand(), ["run", "build:assets"]);
+// item_678: the aggregated CHANGELOG.md is generated from changelogs/, so it can go stale
+// exactly one release after it was written. This is the step that notices.
+runStep("Changelog is current", npmCommand(), ["run", "check:changelog"]);
 
 runStep("Logics docs lint (strict status)", steps[0].command, steps[0].args);
 runStep(
@@ -68,6 +71,7 @@ runStep(
   pythonInvocation.command,
   [...pythonInvocation.argsPrefix, "-m", "logics_manager", "doctor", "packaging", "--metadata-only"]
 );
+
 
 const requestSnapshot = captureRequestSnapshot();
 runStep(

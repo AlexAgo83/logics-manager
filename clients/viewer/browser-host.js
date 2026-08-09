@@ -1083,7 +1083,7 @@ ${entry?.message || ""}`;
     let boardCheckScheduled = false;
     const recentFailures = /* @__PURE__ */ new Map();
     let openCircuitFingerprint = "";
-    const sessionId = typeof window.crypto?.randomUUID === "function" ? window.crypto.randomUUID() : `viewer-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const sessionId = typeof window.crypto?.randomUUID === "function" ? window.crypto.randomUUID() : `viewer-${Date.now()}-${Array.from(window.crypto.getRandomValues(new Uint8Array(8)), (b) => b.toString(16).padStart(2, "0")).join("")}`;
     let heartbeatTimer = 0;
     const breadcrumbKey = `${breadcrumbKeyPrefix}.${sessionId}`;
     const breadcrumbs = [];

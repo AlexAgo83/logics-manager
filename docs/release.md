@@ -17,7 +17,9 @@ logics-manager release discover --write
 ```
 
 1. Bump the version in `package.json`, `pyproject.toml`, and root `VERSION` when preparing a release manually.
-2. Curate the matching changelog entry in `changelogs/CHANGELOGS_X_Y_Z.md`.
+2. Curate the matching changelog entry in `changelogs/CHANGELOGS_X_Y_Z.md`, then run
+   `npm run build:changelog` to fold it into the published `CHANGELOG.md`. CI fails on a
+   stale aggregate (`npm run check:changelog`), and `CHANGELOG.md` ships in the npm package.
 3. Validate that the changelog matches the current package version:
 
 ```bash

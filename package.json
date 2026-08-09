@@ -24,6 +24,7 @@
   },
   "files": [
     "README.md",
+    "CHANGELOG.md",
     "LICENSE",
     "VERSION",
     "pyproject.toml",
@@ -94,6 +95,8 @@
     "bundle:viewer-host": "node scripts/build/build-viewer-browser-host.mjs",
     "check:viewer-host": "node scripts/build/build-viewer-browser-host.mjs --check",
     "build:assets": "node scripts/build/build-assets.mjs",
+    "build:changelog": "node scripts/build/build-changelog.mjs",
+    "check:changelog": "node scripts/build/build-changelog.mjs --check",
     "check:line-budget": "node scripts/check-source-line-budget.mjs",
     "generate:status-constants": "node scripts/build/generate-status-constants.mjs",
     "check:status-constants": "node scripts/build/generate-status-constants.mjs --check",

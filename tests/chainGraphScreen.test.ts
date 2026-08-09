@@ -18,7 +18,7 @@ describe("buildChainFlowchartSource", () => {
     });
     expect(source).toContain("flowchart TD");
     expect(source).toContain('req_001_demo["Demo');
-    expect(source).not.toMatch(/-->/);
+    expect(source.includes("-->")).toBe(false);
   });
 
   it("renders every edge and a click callback per node", () => {

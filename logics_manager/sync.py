@@ -501,6 +501,35 @@ def _schema_status(repo_root: Path, targets: list[str]) -> dict[str, object]:
     }
 
 
+def backfill_schema_versions(repo_root: Path, targets: list[str], *, dry_run: bool = False) -> list[str]:
+    """Write `> Schema version: 1.0` into workflow docs that predate the indicator.
+
+    item_675: 23% of this corpus was written before schema versioning existed, so
+    `doctor` failed on the project's own documents. Every one of them is at 1.0 by
+    definition -- the indicator records which parser shape the doc follows, and there
+    has only ever been one. This lives beside `schema-status` because the command that
+    reports the gap is the one an operator reaches for to close it, and any repository
+    adopting Logics after the fact meets the same gap on day one.
+
+    The indicator goes directly under `> Status:` when there is one, so backfilled docs
+    read like generated ones; otherwise it goes after the heading.
+    """
+    written: list[str] = []
+    for _kind, path in _resolve_target_docs(repo_root, targets):
+        lines = path.read_text(encoding="utf-8").splitlines()
+        if any(line.strip().startswith("> Schema version:") for line in lines):
+            continue
+        insert_at = next(
+            (index + 1 for index, line in enumerate(lines) if line.strip().startswith("> Status:")),
+            next((index + 1 for index, line in enumerate(lines) if line.startswith("## ")), 0),
+        )
+        if not dry_run:
+            lines.insert(insert_at, "> Schema version: 1.0")
+            path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        written.append(path.relative_to(repo_root).as_posix())
+    return written
+
+
 def build_context_pack_payload(repo_root: Path, ref: str, *, mode: str = "summary-only", profile: str = "normal", config: dict[str, object] | None = None, handoff: bool = False) -> dict[str, object]:
     return _build_context_pack(repo_root, ref, mode=mode, profile=profile, config=config, handoff=handoff)
 
@@ -988,6 +1017,8 @@ def build_parser() -> argparse.ArgumentParser:
     schema_status = sub.add_parser("schema-status", help="Report schema-version coverage for workflow docs.")
     schema_status.add_argument("sources", nargs="*", help="Optional workflow refs or paths to scope the scan.")
     schema_status.add_argument("--format", choices=("text", "json"), default="text")
+    schema_status.add_argument("--apply", action="store_true", help="Write the missing `> Schema version: 1.0` indicator into the docs that lack it.")
+    schema_status.add_argument("--dry-run", action="store_true", help="With --apply, list what would be written without writing it.")
     schema_status.set_defaults(func=cmd_schema_status)
 
     read_doc = sub.add_parser("read-doc", help="Read a bounded workflow document payload by ref or path.")
@@ -1350,13 +1381,22 @@ def cmd_refresh_mermaid_signatures(args: argparse.Namespace) -> dict[str, object
 
 def cmd_schema_status(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
+    dry_run = bool(getattr(args, "dry_run", False))
+    backfilled: list[str] = []
+    if getattr(args, "apply", False):
+        backfilled = backfill_schema_versions(repo_root, args.sources, dry_run=dry_run)
     payload = _schema_status(repo_root, args.sources)
+    payload["backfilled"] = backfilled
+    payload["dry_run"] = dry_run
     if args.format == "json":
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:
         print(f"Schema status: {payload['doc_count']} workflow doc(s) scanned.")
         for version, count in payload["counts"].items():
             print(f"- {version}: {count}")
+        if getattr(args, "apply", False):
+            verb = "Would backfill" if dry_run else "Backfilled"
+            print(f"{verb} `> Schema version: 1.0` in {len(backfilled)} doc(s).")
     return {"command": "sync", "kind": "schema-status", "repo_root": repo_root.as_posix(), **payload}
 
 

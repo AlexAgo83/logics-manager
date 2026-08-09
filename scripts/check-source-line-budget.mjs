@@ -45,7 +45,11 @@ const allowedOversizedFiles = new Map(
     // Windows' permissive SO_REUSEADDR let a real port collision bind silently
     // there, confirmed on a real Windows machine (test_server_port_collisions.py).
     "logics_manager/mcp.py": { maxLines: 1867, ref: "req_323" },
-    "logics_manager/sync.py": { maxLines: 1524, ref: "req_273" },
+    // 1564: item_675 added `backfill_schema_versions` and the --apply/--dry-run wiring on
+    // schema-status. It sits beside `_schema_status`, whose scan it repairs, and reuses the
+    // same `_resolve_target_docs` targeting; a separate module would import both and gain
+    // nothing but an indirection.
+    "logics_manager/sync.py": { maxLines: 1564, ref: "req_325" },
     // 1145: req_321 added `_reposition_ai_context()`, sitting beside the other
     // deterministic `_autofix_structure()` repairs (Status/Schema version) it extends.
     "logics_manager/audit.py": { maxLines: 1145, ref: "req_321" },
@@ -106,7 +110,11 @@ const allowedOversizedFiles = new Map(
     // refs a roadmap is being built from; pushing them down into flow/docs.py would put
     // the roadmap's argument shape in the vocabulary module, which is the split this
     // ledger's entry above exists to protect.
-    "logics_manager/flow/__init__.py": { maxLines: 3200, ref: "req_324" },
+    // 3202: req_326 replaced the two-command allow-list at the end of `main` with a
+    // read of `payload["ok"]`, and the comment saying why is longer than the branch it
+    // replaced. Nothing to extract: this is two lines of dispatch policy at the one
+    // place every flow subcommand returns through.
+    "logics_manager/flow/__init__.py": { maxLines: 3202, ref: "req_326" },
     // 1429: req_324 added resolve_ref_slug/resolve_ref_slugs (the short-ref expansion the
     // generators needed and _resolve_doc_path already did privately, per kind) plus the
     // rejoin loop in _bullet_values. Both are document vocabulary, so this is where they

@@ -2,7 +2,7 @@
   "name": "logics-manager",
   "displayName": "Logics Orchestrator",
   "description": "Scope, build, review, and repair Logics workflow docs (request -> product brief -> backlog -> task) with bundled skills, plus the bounded MCP tools behind them.",
-  "version": "2.21.1",
+  "version": "2.21.2",
   "author": {
     "name": "cdx-logics"
   },

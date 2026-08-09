@@ -1,0 +1,446 @@
+{
+  "budgets": {
+    "max_docs": 16,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer item_660_resolve_one_request_s_chain_from_structural_link_sections item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open task_317_orchestrate_the_bounded_chain_graph_view --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_660_resolve_one_request_s_chain_from_structural_link_sections",
+          "item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open"
+        ],
+        "prod": [
+          "prod_068_a_bounded_chain_graph_inside_the_viewer_without_a_new_dependency"
+        ],
+        "req": [
+          "req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer"
+        ],
+        "task": [
+          "task_317_orchestrate_the_bounded_chain_graph_view"
+        ]
+      },
+      "path": "logics/product/prod_068_a_bounded_chain_graph_inside_the_viewer_without_a_new_dependency.md",
+      "ref": "prod_068_a_bounded_chain_graph_inside_the_viewer_without_a_new_dependency",
+      "sections": {
+        "Goals": [
+          "- A visual, clickable chain view for one request at a time.",
+          "- Zero new frontend dependencies.",
+          "- Correct edges only from structural sections, proven against the exact false-edge case found while scoping this request.",
+          "- Consistent with the viewer's existing screen architecture."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Let an operator see one request's chain visually inside the existing browser viewer, reusing the Mermaid runtime already loaded for embedded doc diagrams and the existing per-screen factory architecture, resolved from each doc's own structural link sections rather than a broader full-text ref scan that can produce false edges from prose mentions."
+        ],
+        "References": [
+          "- Product back-reference: `req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer`",
+          "- Task back-reference: `task_317_orchestrate_the_bounded_chain_graph_view`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "A bounded chain graph inside the viewer, without a new dependency"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_649_add_the_lifecycle_ops_skill",
+          "item_650_add_the_roadmap_deliver_skill",
+          "item_651_add_the_closeout_repair_skill",
+          "item_652_add_the_project_health_skill",
+          "item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite",
+          "item_654_add_a_claude_plugin_manifest"
+        ],
+        "prod": [
+          "prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin"
+        ],
+        "req": [
+          "req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin"
+        ],
+        "task": [
+          "task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging"
+        ]
+      },
+      "path": "logics/product/prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin.md",
+      "ref": "prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin",
+      "sections": {
+        "Goals": [
+          "- One skill per remaining lifecycle surface, matching the depth and format of the four existing skills.",
+          "- A clear, non-overlapping boundary between the new project-health skill and review-project.",
+          "- A working .claude-plugin manifest that exposes the bundled skills and the MCP server.",
+          "- Zero changes to the behavior of the four existing skills."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Extend logics-manager's bundled agent skills from the current create -> build -> review happy path to the full CLI lifecycle (lifecycle edge operations, roadmap-to-delivery, closeout troubleshooting, read-only diagnostics), and package the result as an installable Claude Code plugin so the existing skills and MCP server are discoverable through the standard plugin flow rather than only through the skills-install CLI command."
+        ],
+        "References": [
+          "- Product back-reference: `req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`",
+          "- Task back-reference: `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Full-lifecycle skill coverage, packaged as a Claude Code plugin"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, render a bounded chain graph view in the browser viewer, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Render a bounded chain graph view in the browser viewer",
+        "use when": "You need to implement or review the scaffolded workflow for Render a bounded chain graph view in the browser viewer."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_649_add_the_lifecycle_ops_skill",
+          "item_660_resolve_one_request_s_chain_from_structural_link_sections",
+          "item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open"
+        ],
+        "prod": [
+          "prod_068_a_bounded_chain_graph_inside_the_viewer_without_a_new_dependency"
+        ],
+        "req": [
+          "req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer"
+        ]
+      },
+      "path": "logics/request/req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer.md",
+      "ref": "req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A resolver reads one request's chain - the request, its product brief, its backlog items, and each item's task - purely from each doc's own structural link sections, and returns a deterministic node list (ref, kind, title, status) and edge list (parent -> child).",
+          "- AC2: A ref mentioned only in prose, not inside a structural Backlog/Links section, never produces a node or edge - covered by a test using the exact req_319/item_649 case observed while scoping this request.",
+          "- AC3: A new \"Graph\" view in the browser viewer renders that chain as a Mermaid flowchart, reusing the already-loaded Mermaid runtime; no new frontend dependency is added.",
+          "- AC4: Clicking a node in the rendered graph opens that doc in the viewer, consistent with existing doc-opening behavior elsewhere in the UI.",
+          "- AC5: The graph view is added as its own screen module (`createGraphScreen`), following the existing `createCdxScreen`/`createWorkshopScreen`/`createGitScreen` factory pattern.",
+          "- AC6: Rendering a chain with zero, one, and many backlog items each produces a correct, readable diagram."
+        ],
+        "Needs": [
+          "- Let an operator see one request's chain (request, product brief, backlog items, tasks) as an actual navigable diagram inside the viewer, instead of reading nested lists across separate screens.",
+          "- Resolve that chain's nodes and edges from each doc's own structural link sections (Backlog/Links), not a full-text ref scan, so a ref mentioned only as a prose example never produces a false edge.",
+          "- Reuse the Mermaid runtime already loaded in the viewer for embedded doc diagrams, instead of adding a graph-visualization dependency.",
+          "- Let clicking a node open that doc in the viewer, consistent with how existing doc lists already behave."
+        ]
+      },
+      "status": "Draft",
+      "title": "Render a bounded chain graph view in the browser viewer"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add the lifecycle-ops skill, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add the lifecycle-ops skill",
+        "use when": "Implementing the scaffolded slice for Add the lifecycle-ops skill."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_649_add_the_lifecycle_ops_skill"
+        ],
+        "prod": [
+          "prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin"
+        ],
+        "req": [
+          "req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin"
+        ],
+        "task": [
+          "task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging"
+        ]
+      },
+      "path": "logics/backlog/item_649_add_the_lifecycle_ops_skill.md",
+      "ref": "item_649_add_the_lifecycle_ops_skill",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The skill's frontmatter description matches the SKILL.md convention and names concrete trigger phrases.",
+          "- AC2: The recipe covers split, promote, withdraw, close, finish task, and progress task with at least one worked example each.",
+          "- AC3: Gotchas cover at least one propagation behavior (e.g. what closing a parent/child does to the other).",
+          "- AC4: `logics-manager skills install` discovers and installs the new skill without code changes.",
+          "- AC5: The four existing skills are unchanged.",
+          "- AC6: An automated test asserts this skill's frontmatter is valid and that it is listed by available_skills()."
+        ],
+        "Problem": [
+          "- split, promote, withdraw, close, finish task, and progress task have no skill: an agent asked to re-scope, retire, or manually close a doc has to read --help or docs/cli.md cold, with no worked recipe or gotchas.",
+          "- These are also the commands most likely to be run on a doc that already has history (linked children, progress recorded), so the wrong sequence is easy to get into without a documented recipe."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add the lifecycle-ops skill"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, resolve one request's chain from structural link sections, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Resolve one request's chain from structural link sections",
+        "use when": "Implementing the scaffolded slice for Resolve one request's chain from structural link sections."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_660_resolve_one_request_s_chain_from_structural_link_sections"
+        ],
+        "prod": [
+          "prod_068_a_bounded_chain_graph_inside_the_viewer_without_a_new_dependency"
+        ],
+        "req": [
+          "req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer"
+        ],
+        "task": [
+          "task_317_orchestrate_the_bounded_chain_graph_view"
+        ]
+      },
+      "path": "logics/backlog/item_660_resolve_one_request_s_chain_from_structural_link_sections.md",
+      "ref": "item_660_resolve_one_request_s_chain_from_structural_link_sections",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A resolver reads one request's chain - the request, its product brief, its backlog items, and each item's task - purely from each doc's own structural link sections, and returns a deterministic node list (ref, kind, title, status) and edge list (parent -> child).",
+          "- AC2: A ref mentioned only in prose, not inside a structural Backlog/Links section, never produces a node or edge - covered by a test using the exact req_319/item_649 case observed while scoping this request."
+        ],
+        "Problem": [
+          "- No existing endpoint returns a clean node/edge list for one request's chain built only from structural sections. `context-pack`'s `linked_refs` is the closest existing thing, but its full-text scan can produce a false edge from a ref mentioned only as a prose example - observed directly while scoping this request (item_649, cited in req_319's Context section purely as an illustration, came back as a linked ref of req_319)."
+        ]
+      },
+      "status": "Ready",
+      "title": "Resolve one request's chain from structural link sections"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, render the chain as a mermaid flowchart with click-to-open, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Render the chain as a Mermaid flowchart with click-to-open",
+        "use when": "Implementing the scaffolded slice for Render the chain as a Mermaid flowchart with click-to-open."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open"
+        ],
+        "prod": [
+          "prod_068_a_bounded_chain_graph_inside_the_viewer_without_a_new_dependency"
+        ],
+        "req": [
+          "req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer"
+        ],
+        "task": [
+          "task_317_orchestrate_the_bounded_chain_graph_view"
+        ]
+      },
+      "path": "logics/backlog/item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open.md",
+      "ref": "item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC3: A new \"Graph\" view in the browser viewer renders that chain as a Mermaid flowchart, reusing the already-loaded Mermaid runtime; no new frontend dependency is added.",
+          "- AC4: Clicking a node in the rendered graph opens that doc in the viewer, consistent with existing doc-opening behavior elsewhere in the UI.",
+          "- AC5: The graph view is added as its own screen module (`createGraphScreen`), following the existing `createCdxScreen`/`createWorkshopScreen`/`createGitScreen` factory pattern.",
+          "- AC6: Rendering a chain with zero, one, and many backlog items each produces a correct, readable diagram."
+        ],
+        "Problem": [
+          "- The viewer has no graph screen. Its Mermaid runtime today only renders diagrams already written into a doc's content, never a diagram generated dynamically from resolved data.",
+          "- Every other viewer feature of this shape (CDX, Workshop, Git) is its own screen module following one factory pattern; a graph view should not invent a second pattern."
+        ]
+      },
+      "status": "Ready",
+      "title": "Render the chain as a Mermaid flowchart with click-to-open"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate the bounded chain graph view",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_660_resolve_one_request_s_chain_from_structural_link_sections",
+          "item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open"
+        ],
+        "prod": [
+          "prod_068_a_bounded_chain_graph_inside_the_viewer_without_a_new_dependency"
+        ],
+        "req": [
+          "req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer"
+        ],
+        "task": [
+          "task_317_orchestrate_the_bounded_chain_graph_view"
+        ]
+      },
+      "path": "logics/tasks/task_317_orchestrate_the_bounded_chain_graph_view.md",
+      "ref": "task_317_orchestrate_the_bounded_chain_graph_view",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the bounded chain graph view"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_660_resolve_one_request_s_chain_from_structural_link_sections",
+          "item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open"
+        ],
+        "prod": [
+          "prod_068_a_bounded_chain_graph_inside_the_viewer_without_a_new_dependency"
+        ],
+        "req": [
+          "req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer"
+        ],
+        "task": [
+          "task_317_orchestrate_the_bounded_chain_graph_view"
+        ]
+      },
+      "path": "logics/product/prod_068_a_bounded_chain_graph_inside_the_viewer_without_a_new_dependency.md",
+      "ref": "prod_068_a_bounded_chain_graph_inside_the_viewer_without_a_new_dependency",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "A bounded chain graph inside the viewer, without a new dependency"
+    }
+  ],
+  "estimates": {
+    "char_count": 14532,
+    "companion_doc_count": 2,
+    "doc_count": 6
+  },
+  "generated_at": "2026-08-09T11:34:54Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer",
+      "item_660_resolve_one_request_s_chain_from_structural_link_sections",
+      "item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open",
+      "task_317_orchestrate_the_bounded_chain_graph_view"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer,item_660_resolve_one_request_s_chain_from_structural_link_sections,item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open,task_317_orchestrate_the_bounded_chain_graph_view",
+  "refs": [
+    "req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer",
+    "item_660_resolve_one_request_s_chain_from_structural_link_sections",
+    "item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open",
+    "task_317_orchestrate_the_bounded_chain_graph_view"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.1"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_317_orchestrate_the_bounded_chain_graph_view.md",
+      "ref": "task_317_orchestrate_the_bounded_chain_graph_view"
+    }
+  ]
+}

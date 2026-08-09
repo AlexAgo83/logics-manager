@@ -448,6 +448,7 @@
 | [req_323_review_findings_security_tests_structure_dependencies](request/req_323_review_findings_security_tests_structure_dependencies.md) | Review findings: security, tests, structure, dependencies | Done |  |  | request/req_323_review_findings_security_tests_structure_dependencies.md |
 | [req_324_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for](request/req_324_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for.md) | Make generated roadmap docs pass the audit they are generated for | Draft |  |  | request/req_324_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for.md |
 | [req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose](request/req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose.md) | Review findings: diagnostics that disagree with the repository they diagnose | Draft |  |  | request/req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose.md |
+| [req_326_review_findings_commands_that_report_failure_and_exit_zero](request/req_326_review_findings_commands_that_report_failure_and_exit_zero.md) | Review findings: commands that report failure and exit zero | Draft |  |  | request/req_326_review_findings_commands_that_report_failure_and_exit_zero.md |
 
 ## Backlog
 
@@ -1131,6 +1132,8 @@
 | [item_676_run_the_full_logics_manager_doctor_in_ci](backlog/item_676_run_the_full_logics_manager_doctor_in_ci.md) | Run the full logics-manager doctor in CI | Ready |  | 0% | backlog/item_676_run_the_full_logics_manager_doctor_in_ci.md |
 | [item_677_resolve_the_standing_code_scanning_alerts_so_a_non_empty_list_means_something](backlog/item_677_resolve_the_standing_code_scanning_alerts_so_a_non_empty_list_means_something.md) | Resolve the standing code scanning alerts so a non-empty list means something | Ready |  | 0% | backlog/item_677_resolve_the_standing_code_scanning_alerts_so_a_non_empty_list_means_something.md |
 | [item_678_publish_a_changelog_built_from_the_existing_release_notes](backlog/item_678_publish_a_changelog_built_from_the_existing_release_notes.md) | Publish a CHANGELOG built from the existing release notes | Ready |  | 0% | backlog/item_678_publish_a_changelog_built_from_the_existing_release_notes.md |
+| [item_679_make_doctor_exit_non_zero_when_it_reports_failed](backlog/item_679_make_doctor_exit_non_zero_when_it_reports_failed.md) | Make doctor exit non-zero when it reports FAILED | Ready |  | 0% | backlog/item_679_make_doctor_exit_non_zero_when_it_reports_failed.md |
+| [item_680_derive_flow_exit_statuses_from_the_payload_instead_of_an_allow_list](backlog/item_680_derive_flow_exit_statuses_from_the_payload_instead_of_an_allow_list.md) | Derive flow exit statuses from the payload instead of an allow-list | Ready |  | 0% | backlog/item_680_derive_flow_exit_statuses_from_the_payload_instead_of_an_allow_list.md |
 
 ## Tasks
 
@@ -1452,3 +1455,4 @@
 | [task_320_orchestrate_the_review_findings_cleanup](tasks/task_320_orchestrate_the_review_findings_cleanup.md) | Orchestrate the review-findings cleanup | Done | claude | 100% | tasks/task_320_orchestrate_the_review_findings_cleanup.md |
 | [task_321_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for](tasks/task_321_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for.md) | Make generated roadmap docs pass the audit they are generated for | Ready |  | 0% | tasks/task_321_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for.md |
 | [task_322_orchestrate_the_diagnostics_and_release_surface_cleanup](tasks/task_322_orchestrate_the_diagnostics_and_release_surface_cleanup.md) | Orchestrate the diagnostics and release-surface cleanup | Ready |  | 0% | tasks/task_322_orchestrate_the_diagnostics_and_release_surface_cleanup.md |
+| [task_323_orchestrate_the_exit_code_honesty_corrections](tasks/task_323_orchestrate_the_exit_code_honesty_corrections.md) | Orchestrate the exit-code honesty corrections | Ready |  | 0% | tasks/task_323_orchestrate_the_exit_code_honesty_corrections.md |

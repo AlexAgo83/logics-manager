@@ -19,6 +19,8 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import quote, unquote
 
+from . import path_utils as _path_utils
+
 class _ViewerProxy:
     """Reaches the viewer at call time, not at import time.
 
@@ -397,7 +399,7 @@ def git_commit_payload(
     normalized_files: list[str] = []
     seen: set[str] = set()
     for rel_path in files:
-        normalized = _normalize_git_file_path(str(rel_path or ""))
+        normalized = _normalize_git_file_path(repo_root, str(rel_path or ""))
         if not normalized:
             return {"state": "error", "message": "Unsafe Git path."}
         if normalized not in seen:
@@ -429,7 +431,7 @@ def git_commit_payload(
         if entry is None:
             return {"state": "error", "message": f"No pending Git change found for {rel_path}."}
         for candidate in (str(entry.get("from") or ""), rel_path):
-            normalized = _normalize_git_file_path(candidate)
+            normalized = _normalize_git_file_path(repo_root, candidate)
             if normalized and normalized not in expanded_seen:
                 expanded_seen.add(normalized)
                 expanded_files.append(normalized)
@@ -466,9 +468,16 @@ def git_commit_payload(
     }
 
 
-def _normalize_git_file_path(rel_path: str) -> str | None:
+def _normalize_git_file_path(repo_root: Path, rel_path: str) -> str | None:
     normalized = unquote(rel_path).replace("\\", "/").lstrip("/")
     if not normalized or normalized.startswith("~") or normalized.startswith("/") or ".." in normalized.split("/"):
+        return None
+    root = repo_root.resolve()
+    if _path_utils.has_symlink_segment(root, Path(normalized)):
+        return None
+    try:
+        _path_utils.relative_to_root(root / normalized, root)
+    except _path_utils.PathEscapesRoot:
         return None
     return normalized
 
@@ -485,7 +494,7 @@ def git_diff_payload(
     git_which = which or shutil.which
     if not git_which("git"):
         return {"state": "unavailable", "message": "Git is not available on PATH."}
-    normalized = _normalize_git_file_path(rel_path)
+    normalized = _normalize_git_file_path(repo_root, rel_path)
     if not normalized:
         return {"state": "error", "message": "Unsafe Git path."}
     try:
@@ -576,14 +585,10 @@ def git_file_preview_payload(
     if full:
         max_bytes = _viewer.PREVIEW_FORCE_MAX_BYTES
         max_chars = _viewer.PREVIEW_FORCE_MAX_CHARS
-    normalized = _normalize_git_file_path(rel_path)
+    normalized = _normalize_git_file_path(repo_root, rel_path)
     if not normalized:
         return {"state": "error", "message": "Unsafe Git path."}
     target = (repo_root / normalized).resolve()
-    try:
-        target.relative_to(repo_root.resolve())
-    except ValueError:
-        return {"state": "error", "message": "Unsafe Git path."}
     if not target.exists() or not target.is_file():
         return {
             "state": "missing",

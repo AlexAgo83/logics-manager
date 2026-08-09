@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from .i18n import CONTRACT_PATH, i18n_validate_payload
+from .path_utils import PathEscapesRoot, has_symlink_segment, relative_to_root
 
 
 CONFIG_FILE = ".logics-viewer.json"
@@ -36,9 +37,13 @@ def _capability(state: str, available: bool, message: str, **detail: Any) -> dic
 
 def _inside_file(root: Path, rel_path: str) -> Path:
     normalized = str(rel_path or "").replace("\\", "/").lstrip("/")
-    target = (root / normalized).resolve()
     resolved_root = root.resolve()
-    if resolved_root not in target.parents:
+    target = (root / normalized).resolve()
+    try:
+        relative_to_root(target, resolved_root)
+    except PathEscapesRoot as exc:
+        raise ValueError("Project tool source escapes repository root.") from exc
+    if has_symlink_segment(resolved_root, Path(normalized)):
         raise ValueError("Project tool source escapes repository root.")
     if not target.is_file():
         raise FileNotFoundError(normalized)

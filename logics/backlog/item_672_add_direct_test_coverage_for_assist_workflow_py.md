@@ -1,14 +1,14 @@
 ## item_672_add_direct_test_coverage_for_assist_workflow_py - Add direct test coverage for assist_workflow.py
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-09 18:02:57
+> Indicators reviewed: 2026-08-09 18:45:50
 
 # AI Context
 - Summary: Add direct test coverage for assist_workflow.py
@@ -32,7 +32,7 @@
 - AC6: `assist_workflow.py` gains a dedicated test file exercising its own exported functions directly, not only transitively through CLI-level tests.
 
 # AC Traceability
-- request-AC6 -> This backlog slice. Proof: AC6: `assist_workflow.py` gains a dedicated test file exercising its own exported functions directly.
+- request-AC6 -> This backlog slice. Proof: `tests/python/test_assist_workflow.py` created, calling `cmd_request_draft` directly with a constructed `argparse.Namespace`: dry-run (writes nothing), execute (writes the file), suggestion-only (writes nothing), and the error path (a generated path escaping the repo raises `SystemExit` before anything is written). 4 tests passed. `test_assist_cli.py`/`test_cli_main.py`'s existing CLI-level tests kept as-is, per scope.
 
 # Decision framing
 - Product framing: Not needed
@@ -45,7 +45,7 @@
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_323_review_findings_security_tests_structure_dependencies.md`
+- Request: `req_323_review_findings_security_tests_structure_dependencies`
 - Primary task(s): `task_320_orchestrate_the_review_findings_cleanup`
 
 # Priority
@@ -56,3 +56,7 @@
 - Hybrid rationale: Derived from request `req_323_review_findings_security_tests_structure_dependencies` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_323_review_findings_security_tests_structure_dependencies.md`.
 - Generated locally by logics-manager.
+- Task `task_320_orchestrate_the_review_findings_cleanup` was finished via `logics-manager flow finish task` on 2026-08-09.
+
+# Tasks
+- `task_320_orchestrate_the_review_findings_cleanup`

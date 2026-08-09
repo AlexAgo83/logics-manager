@@ -38,7 +38,10 @@ const allowedOversizedFiles = new Map(
     // tool here already uses; a separate module would need to import the same
     // _run_command/_ensure_no_dirty_conflict/_workflow_write_result helpers this
     // file owns, same tradeoff req_303 already weighed and backed out of.
-    "logics_manager/mcp.py": { maxLines: 2232, ref: "req_318" },
+    // 1859: req_323 lifted TOOL_DEFINITIONS (a pure JSON-schema data literal, no
+    // coupling to the dispatcher req_303's extraction attempt was about) out to
+    // mcp_tool_definitions.py: 2246 -> 1859.
+    "logics_manager/mcp.py": { maxLines: 1859, ref: "req_318" },
     "logics_manager/sync.py": { maxLines: 1524, ref: "req_273" },
     // 1145: req_321 added `_reposition_ai_context()`, sitting beside the other
     // deterministic `_autofix_structure()` repairs (Status/Schema version) it extends.
@@ -50,7 +53,9 @@ const allowedOversizedFiles = new Map(
     // would only split one cohesive comparison concept across two files.
     // 1119: req_318 added `.claude-plugin/plugin.json` as one more version source,
     // beside the two lines each existing source already takes in this same list.
-    "logics_manager/release.py": { maxLines: 1119, ref: "req_318" },
+    // 1121: req_323 added `package-lock.json` as one more version source, the same
+    // shape as every entry already in this same list.
+    "logics_manager/release.py": { maxLines: 1121, ref: "req_323" },
     "logics_manager/assist_support.py": { maxLines: 1477, ref: "req_273" },
     // 5833: banked CDX reset endpoint (/api/cdx-reset); 5879: cdx disk payload/route;
     // 5927: release prep baseline; 5937: CDX memory read-only endpoint.
@@ -67,9 +72,15 @@ const allowedOversizedFiles = new Map(
     // growth here is the wiring, not new repair or reuse logic to extract further.
     // 3396: req_320 added the /api/chain-graph route, a thin wire to the new
     // logics_manager/chain_graph.py resolver - no repair/render logic lives here.
-    "logics_manager/viewer.py": { maxLines: 3396, ref: "req_320" },
+    // 3401: req_323 routed _resolve_repo_doc_path's containment check through the
+    // shared path_utils primitives instead of its own inline check - a net add of
+    // a few lines for a net removal of a duplicated implementation.
+    "logics_manager/viewer.py": { maxLines: 3401, ref: "req_323" },
     "logics_manager/viewer_cdx.py": { maxLines: 1523, ref: "req_311" },
-    "logics_manager/viewer_git.py": { maxLines: 1064, ref: "req_311" },
+    // 1069: req_323 threaded repo_root through _normalize_git_file_path so it
+    // could route through the shared path_utils containment check, and removed
+    // git_file_preview_payload's own now-redundant duplicate of the same check.
+    "logics_manager/viewer_git.py": { maxLines: 1069, ref: "req_323" },
     // 4909: release prep baseline.
     // req_311 lifted the document vocabulary into flow/docs.py: 4725 -> 3627. What is left
     // is the verbs and the CLI wiring, sitting on top of primitives that know nothing of them.
@@ -80,7 +91,11 @@ const allowedOversizedFiles = new Map(
     // 3682: _print_repair_payload's two skipped-list loops, written for two different
     // repair kinds' shapes, merged into one that branches on the entry's type instead of
     // assuming one shape and crashing on the other.
-    "logics_manager/flow/__init__.py": { maxLines: 3682, ref: "req_316" },
+    // 3193: req_323 lifted the --help text builders (_build_new_help through
+    // _build_progress_kind_help, pure string generation with no CLI-running logic
+    // of their own) out to flow/help_text.py, the same vocabulary-vs-verbs split
+    // already used for flow/docs.py: 3682 -> 3193.
+    "logics_manager/flow/__init__.py": { maxLines: 3193, ref: "req_316" },
     "logics_manager/flow/docs.py": { maxLines: 1372, ref: "req_316" },
     // req_273: de-glued frontend sources. esbuild/concatenation now consume these directly
     // instead of a regex part-manifest + readFileSync.join, so the bundles stay byte-stable.

@@ -1,7 +1,7 @@
 ## req_323_review_findings_security_tests_structure_dependencies - Review findings: security, tests, structure, dependencies
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

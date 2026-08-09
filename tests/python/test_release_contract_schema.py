@@ -8,6 +8,7 @@ import pytest
 
 from logics_manager.cli import main
 from logics_manager.release import (
+    load_release_context,
     release_add_evidence_payload,
     release_context_pack_payload,
     release_discover_payload,
@@ -16,6 +17,7 @@ from logics_manager.release import (
     release_status_payload,
     release_validate_payload,
 )
+from logics_manager.release import _current_version, _version_source_blocking_reasons
 from logics_manager.sync import build_context_pack_payload
 
 
@@ -692,3 +694,47 @@ def test_release_discover_picks_up_the_claude_plugin_manifest_as_a_version_sourc
     draft = json.loads(draft_path.read_text(encoding="utf-8"))
 
     assert {"path": ".claude-plugin/plugin.json", "format": "json", "selector": "version", "required": True} in draft["version_sources"]
+
+
+def test_real_contract_declares_package_lock_as_a_version_source() -> None:
+    """req_323/item_671: package-lock.json's version fell one patch behind
+    package.json's after a release and nothing noticed. It is now one more
+    required version source in the same cross-check every other version
+    file already goes through."""
+    contract = _load_json(RELEASE_ROOT / "contract.json")
+    assert {"path": "package-lock.json", "format": "json", "selector": "version", "required": True} in contract["version_sources"]
+
+
+def test_real_repo_version_sources_are_currently_consistent() -> None:
+    """The real repo's version metadata (VERSION, pyproject.toml, package.json,
+    package-lock.json, README badge, plugin.json) must all agree right now -
+    this is the state the drift check exists to keep true."""
+    context = load_release_context(REPO_ROOT)
+    assert context.contract is not None
+    target_version, version_sources = _current_version(REPO_ROOT, context.contract)
+    assert target_version is not None, f"version sources disagree or are unreadable: {version_sources}"
+
+
+def test_a_stale_package_lock_version_is_caught_as_a_blocking_disagreement(tmp_path: Path) -> None:
+    """Reproduces the exact drift found in req_323's review: proves the
+    mechanism would have caught it, not just that a source is configured."""
+    repo_root = tmp_path / "repo"
+    (repo_root / "logics" / "release").mkdir(parents=True)
+    (repo_root / "VERSION").write_text("1.0.0\n", encoding="utf-8")
+    (repo_root / "package.json").write_text(json.dumps({"version": "1.0.0"}), encoding="utf-8")
+    (repo_root / "package-lock.json").write_text(json.dumps({"version": "0.9.0"}), encoding="utf-8")
+    contract = {
+        "version_sources": [
+            {"path": "VERSION", "format": "plain_text", "required": True},
+            {"path": "package.json", "format": "json", "selector": "version", "required": True},
+            {"path": "package-lock.json", "format": "json", "selector": "version", "required": True},
+        ]
+    }
+    (repo_root / "logics" / "release" / "contract.json").write_text(json.dumps(contract), encoding="utf-8")
+
+    context = load_release_context(repo_root)
+    target_version, version_sources = _current_version(repo_root, context.contract)
+
+    assert target_version is None
+    blocking_reasons = _version_source_blocking_reasons(version_sources)
+    assert any("disagree" in reason for reason in blocking_reasons)

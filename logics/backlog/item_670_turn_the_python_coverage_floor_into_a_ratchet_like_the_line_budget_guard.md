@@ -1,14 +1,14 @@
 ## item_670_turn_the_python_coverage_floor_into_a_ratchet_like_the_line_budget_guard - Turn the Python coverage floor into a ratchet like the line-budget guard
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-09 18:02:57
+> Indicators reviewed: 2026-08-09 18:45:49
 
 # AI Context
 - Summary: Turn the Python coverage floor into a ratchet like the line-budget guard
@@ -33,7 +33,7 @@
 - AC4: The Python coverage floor in `scripts/ci-check.mjs` either states the real current measured percentage as its floor, or is replaced with a ratchet mechanism consistent with the line-budget ledger's own pattern (item_626).
 
 # AC Traceability
-- request-AC4 -> This backlog slice. Proof: AC4: The Python coverage floor states the real measured percentage, or is replaced with a ratchet mechanism consistent with item_626's pattern.
+- request-AC4 -> This backlog slice. Proof: `scripts/coverage-floor.mjs`'s `evaluateCoverageFloor()` (pure comparison, unit-tested in `tests/coverageFloor.test.ts` - fails below the floor, reports "raisable" rather than silently passing above it, matching item_626's own fail-below/report-above pattern) is now called from `ci-check.mjs`'s `checkPythonCoverageFloor()`, replacing the hardcoded `--fail-under=75`. `PYTHON_COVERAGE_FLOOR` set to 77 (the real measured value via `coverage report --format=total`, confirmed locally), with `--update` support to write a future raise back. 3 new vitest tests passed.
 
 # Decision framing
 - Product framing: Not needed
@@ -46,7 +46,7 @@
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_323_review_findings_security_tests_structure_dependencies.md`
+- Request: `req_323_review_findings_security_tests_structure_dependencies`
 - Primary task(s): `task_320_orchestrate_the_review_findings_cleanup`
 
 # Priority
@@ -57,3 +57,7 @@
 - Hybrid rationale: Derived from request `req_323_review_findings_security_tests_structure_dependencies` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_323_review_findings_security_tests_structure_dependencies.md`.
 - Generated locally by logics-manager.
+- Task `task_320_orchestrate_the_review_findings_cleanup` was finished via `logics-manager flow finish task` on 2026-08-09.
+
+# Tasks
+- `task_320_orchestrate_the_review_findings_cleanup`

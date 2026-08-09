@@ -728,6 +728,8 @@ def _discover_version_sources(repo_root: Path) -> list[dict[str, Any]]:
         sources.append({"path": "VERSION", "format": "plain_text", "required": True})
     if (repo_root / "package.json").is_file():
         sources.append({"path": "package.json", "format": "json", "selector": "version", "required": True})
+    if (repo_root / "package-lock.json").is_file():
+        sources.append({"path": "package-lock.json", "format": "json", "selector": "version", "required": True})
     if (repo_root / "pyproject.toml").is_file():
         sources.append({"path": "pyproject.toml", "format": "toml", "selector": "project.version", "required": True})
     if (repo_root / ".claude-plugin" / "plugin.json").is_file():

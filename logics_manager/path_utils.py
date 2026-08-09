@@ -3,10 +3,47 @@ from __future__ import annotations
 from pathlib import Path
 
 
-def ensure_relative_to(path: Path, root: Path, *, label: str = "path") -> Path:
+class PathEscapesRoot(ValueError):
+    """A path resolves outside its expected root.
+
+    req_323/item_668: the containment check every repo-root-scoped path guard
+    in this project should share, instead of each reimplementing its own. A
+    plain `ValueError` subclass rather than `SystemExit` so it is safe to
+    raise from a long-running process (an MCP tool handler, a viewer route) -
+    `SystemExit` there would kill the whole server, not just reject one path.
+    Each caller catches this and converts it into whatever error shape it
+    already uses (a tool error, `None`, `SystemExit` for a CLI helper, ...).
+    """
+
+
+def relative_to_root(path: Path, root: Path) -> Path:
+    """Resolve `path` and return it relative to `root`, or raise `PathEscapesRoot`."""
     try:
         return path.resolve().relative_to(root.resolve())
     except ValueError as exc:
+        raise PathEscapesRoot(f"`{path}` is outside `{root}`.") from exc
+
+
+def has_symlink_segment(root: Path, relative: Path) -> bool:
+    """Whether resolving `relative` from `root` one segment at a time passes
+    through an existing symlink - even one that points back inside `root`.
+
+    Stricter than a single final `.resolve()`, which silently follows such a
+    symlink and never reports it: no indirection is trusted here, not only
+    no escape.
+    """
+    current = root
+    for part in relative.parts:
+        current = current / part
+        if current.exists() and current.is_symlink():
+            return True
+    return False
+
+
+def ensure_relative_to(path: Path, root: Path, *, label: str = "path") -> Path:
+    try:
+        return relative_to_root(path, root)
+    except PathEscapesRoot as exc:
         raise SystemExit(f"Unsupported {label}: `{path}` is outside the repository.") from exc
 
 

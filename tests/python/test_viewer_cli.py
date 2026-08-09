@@ -3867,3 +3867,49 @@ def test_viewer_apply_fixes_endpoint_reuses_the_same_repair_as_cli_and_mcp(tmp_p
         server.shutdown()
         server.server_close()
         thread.join(timeout=5)
+
+
+def test_viewer_chain_graph_endpoint_resolves_structural_links_only(tmp_path: Path) -> None:
+    request_path = tmp_path / "logics" / "request" / "req_001_demo.md"
+    request_path.parent.mkdir(parents=True)
+    request_path.write_text(
+        "\n".join(
+            [
+                "## req_001_demo - Demo request",
+                "> Status: Doing",
+                "",
+                "# Context",
+                "- Mentioned only in prose, not a real link: item_999_prose_only.",
+                "",
+                "# Backlog",
+                "- `item_001_slice`",
+                "",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    backlog_path = tmp_path / "logics" / "backlog" / "item_001_slice.md"
+    backlog_path.parent.mkdir(parents=True)
+    backlog_path.write_text(
+        "\n".join(["## item_001_slice - Slice", "> Status: Ready", "", "# Links", "- Request: `req_001_demo`", ""]) + "\n",
+        encoding="utf-8",
+    )
+
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("GET", "/api/chain-graph?ref=req_001_demo")
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+        assert response.status == 200
+        assert payload["ok"] is True
+        node_refs = {node["ref"] for node in payload["payload"]["nodes"]}
+        assert node_refs == {"req_001_demo", "item_001_slice"}
+        assert "item_999_prose_only" not in node_refs
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)

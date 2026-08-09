@@ -10,13 +10,14 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
-import time
 import urllib.error
 import urllib.request
 from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+
+from process_fixtures import read_subprocess_line
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -53,15 +54,10 @@ def viewer(corpus: Path):
          "--port", "0", "--no-open"],
         cwd=REPO_ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
     )
-    base = None
-    deadline = time.time() + 30
-    while time.time() < deadline:
-        line = process.stdout.readline()
-        if not line:
-            break
-        if "http://127.0.0.1" in line:
-            base = line.split()[-1].strip()
-            break
+    # A plain `while time.time() < deadline: readline()` loop does not
+    # enforce that deadline - see process_fixtures.read_subprocess_line.
+    line = read_subprocess_line(process, lambda candidate: "http://127.0.0.1" in candidate, timeout=30.0)
+    base = line.split()[-1].strip() if line is not None else None
     if base is None:
         process.terminate()
         pytest.skip("viewer did not report a listening address")

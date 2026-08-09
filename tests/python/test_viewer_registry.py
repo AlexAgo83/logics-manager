@@ -9,12 +9,10 @@ entry (nothing answering its port) must never block a fresh start.
 from __future__ import annotations
 
 import os
-import queue
 import re
 import subprocess
 import sys
 import threading
-import time
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
@@ -23,6 +21,7 @@ import pytest
 
 from logics_manager import viewer_registry
 from logics_manager.viewer_registry import claim_or_reuse
+from process_fixtures import read_subprocess_line
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 _URL_PATTERN = re.compile(r"https?://(?:127\.0\.0\.1|localhost):(\d+)")
@@ -178,47 +177,14 @@ def test_concurrent_claims_for_the_same_repo_only_one_binds(tmp_path: Path) -> N
 
 
 def _wait_for_port(process: subprocess.Popen[str], *, timeout: float = 30.0) -> int:
-    """Read `process.stdout` for the viewer's printed URL, with a real timeout.
-
-    `stdout.readline()` is a blocking call with no OS-level deadline: if the
-    subprocess hangs without printing or closing its pipe, a `while
-    time.monotonic() < deadline: line = process.stdout.readline()` loop never
-    gets to re-check the deadline, because the blocked `readline()` call
-    itself never returns. Observed for real on a Windows CI runner (a ~27
-    minute hang with no timeout ever firing). Reading on a daemon thread and
-    joining with a real timeout enforces the deadline regardless of what the
-    subprocess does.
-    """
-    assert process.stdout is not None
-    lines: queue.Queue[str | None] = queue.Queue()
-
-    def _pump() -> None:
-        try:
-            for line in process.stdout:
-                lines.put(line)
-        finally:
-            lines.put(None)
-
-    reader = threading.Thread(target=_pump, daemon=True)
-    reader.start()
-
-    deadline = time.monotonic() + timeout
-    buffer = ""
-    while True:
-        remaining = deadline - time.monotonic()
-        if remaining <= 0:
-            break
-        try:
-            line = lines.get(timeout=remaining)
-        except queue.Empty:
-            break
-        if line is None:
-            break
-        buffer += line
-        match = _URL_PATTERN.search(buffer)
-        if match:
-            return int(match.group(1))
-    raise AssertionError(f"no viewer URL printed within {timeout}s; output so far:\n{buffer}")
+    """Read `process.stdout` for the viewer's printed URL, with a real,
+    enforceable timeout - see `process_fixtures.read_subprocess_line`."""
+    line = read_subprocess_line(process, lambda candidate: _URL_PATTERN.search(candidate) is not None, timeout=timeout)
+    if line is None:
+        raise AssertionError(f"no viewer URL printed within {timeout}s")
+    match = _URL_PATTERN.search(line)
+    assert match is not None
+    return int(match.group(1))
 
 
 def test_two_real_cli_processes_for_the_same_repo_share_one_server(tmp_path: Path) -> None:

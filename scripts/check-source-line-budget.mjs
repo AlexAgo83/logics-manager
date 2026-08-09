@@ -60,7 +60,10 @@ const allowedOversizedFiles = new Map(
     // validate-closeout's help, and the ownership rule to the AC repair. Extraction was not
     // attempted: each addition sits inside the function it explains, and the module's own
     // split landed one request ago.
-    "logics_manager/flow/__init__.py": { maxLines: 3679, ref: "req_316" },
+    // 3682: _print_repair_payload's two skipped-list loops, written for two different
+    // repair kinds' shapes, merged into one that branches on the entry's type instead of
+    // assuming one shape and crashing on the other.
+    "logics_manager/flow/__init__.py": { maxLines: 3682, ref: "req_316" },
     "logics_manager/flow/docs.py": { maxLines: 1372, ref: "req_316" },
     // req_273: de-glued frontend sources. esbuild/concatenation now consume these directly
     // instead of a regex part-manifest + readFileSync.join, so the bundles stay byte-stable.

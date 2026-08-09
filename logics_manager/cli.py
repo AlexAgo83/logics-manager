@@ -372,7 +372,16 @@ def _find_executable_paths(command: str) -> list[str]:
                 resolved = str(candidate)
             if resolved in seen:
                 continue
-            if candidate.exists() and os.access(candidate, os.X_OK):
+            try:
+                is_executable = candidate.exists() and os.access(candidate, os.X_OK)
+            except OSError:
+                # A PATH entry can point at something the OS refuses to stat
+                # at all - observed for real on Windows with an nvm-managed
+                # Node shim directory mounted as an "untrusted mount point"
+                # (WinError 448). Not executable as far as this check is
+                # concerned, not a crash.
+                is_executable = False
+            if is_executable:
                 seen.add(resolved)
                 paths.append(str(candidate))
     return paths

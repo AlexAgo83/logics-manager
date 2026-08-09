@@ -2,19 +2,11 @@ import { spawn, spawnSync } from "node:child_process";
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
-import { evaluateCoverageFloor } from "./coverage-floor.mjs";
+import { PYTHON_COVERAGE_FLOOR, evaluateCoverageFloor } from "./coverage-floor.mjs";
 
 const repoRoot = process.cwd();
 const pythonInvocation = resolvePythonInvocation();
 const updateRequested = process.argv.includes("--update");
-
-// req_323/item_670: this used to be a hardcoded --fail-under=75 with a comment
-// admitting the floor sat below the measured value "so the build does not
-// start red" - a check that could never catch a coverage regression. Modeled
-// on the line-budget ledger's own ratchet (item_626): a run below the floor
-// fails; a run strictly above it reports the floor as raisable, and
-// `--update` writes the new number back into this file.
-const PYTHON_COVERAGE_FLOOR = 77;
 
 const steps = [
   {
@@ -220,10 +212,10 @@ function checkPythonCoverageFloor() {
 }
 
 function raiseCoverageFloor(measured) {
-  const selfPath = fileURLToPath(import.meta.url);
-  let source = readFileSync(selfPath, "utf8");
-  source = source.replace(/const PYTHON_COVERAGE_FLOOR = \d+;/, `const PYTHON_COVERAGE_FLOOR = ${measured};`);
-  writeFileSync(selfPath, source);
+  const coverageFloorPath = fileURLToPath(new URL("./coverage-floor.mjs", import.meta.url));
+  let source = readFileSync(coverageFloorPath, "utf8");
+  source = source.replace(/export const PYTHON_COVERAGE_FLOOR = \d+;/, `export const PYTHON_COVERAGE_FLOOR = ${measured};`);
+  writeFileSync(coverageFloorPath, source);
 }
 
 function captureRequestSnapshot() {

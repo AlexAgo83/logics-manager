@@ -1,20 +1,21 @@
 ## task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging - Orchestrate skill coverage expansion and Claude Code plugin packaging
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 11%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 > Indicators reviewed: 2026-08-09 13:14:33
+> Owner: claude
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Close the test gap first: fold corpus into the skill test suite and generalize it so every skill directory is covered, before adding any new, also-untested skill on top of the existing gap.
+- [x] 1. Close the test gap first: fold corpus into the skill test suite and generalize it so every skill directory is covered, before adding any new, also-untested skill on top of the existing gap.
 - [ ] 2. Write lifecycle-ops, roadmap-deliver, closeout-repair, and project-health as independent skills; they do not depend on each other and can be built in any order, each extending the now-generalized test suite as it lands.
 - [ ] 3. Cross-link the corpus skill's --apply-fixes gotcha to closeout-repair once it exists.
 - [ ] 4. Add the MCP tools for withdraw, progress, roadmap show/validate, deliver, validate-closeout, gates, links, doctor, and insights, independently of the skill docs; each new skill's recipe should call these once they exist rather than shell out to the CLI where an MCP tool is available.

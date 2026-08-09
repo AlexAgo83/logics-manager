@@ -1,10 +1,10 @@
 ## item_649_add_the_lifecycle_ops_skill - Add the lifecycle-ops skill
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 11%
 > Complexity: Medium
 > Theme: Skill coverage
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

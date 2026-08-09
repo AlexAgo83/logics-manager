@@ -447,6 +447,7 @@
 | [req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp](request/req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp.md) | One viewer per repo, and a resolved port story across the viewer and MCP | Done |  |  | request/req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp.md |
 | [req_323_review_findings_security_tests_structure_dependencies](request/req_323_review_findings_security_tests_structure_dependencies.md) | Review findings: security, tests, structure, dependencies | Done |  |  | request/req_323_review_findings_security_tests_structure_dependencies.md |
 | [req_324_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for](request/req_324_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for.md) | Make generated roadmap docs pass the audit they are generated for | Draft |  |  | request/req_324_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for.md |
+| [req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose](request/req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose.md) | Review findings: diagnostics that disagree with the repository they diagnose | Draft |  |  | request/req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose.md |
 
 ## Backlog
 

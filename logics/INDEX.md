@@ -1088,6 +1088,7 @@ _None_
 | [item_652_add_the_project_health_skill](backlog/item_652_add_the_project_health_skill.md) | Add the project-health skill | Ready |  | 0% | backlog/item_652_add_the_project_health_skill.md |
 | [item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite](backlog/item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite.md) | Close the test gap on existing skills and generalize the skill test suite | Ready |  | 0% | backlog/item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite.md |
 | [item_654_add_a_claude_plugin_manifest](backlog/item_654_add_a_claude_plugin_manifest.md) | Add a .claude-plugin manifest | Ready |  | 0% | backlog/item_654_add_a_claude_plugin_manifest.md |
+| [item_655_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin](backlog/item_655_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md) | Close the MCP tool parity gap for lifecycle, roadmap, closeout-repair, and health commands | Ready |  | 0% | backlog/item_655_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md |
 
 ## Tasks
 

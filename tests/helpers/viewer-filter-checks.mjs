@@ -66,7 +66,7 @@ export function filterChecks(window) {
           const started = Date.now();
           let settled = false;
           while (Date.now() - started < 6000) {
-            if (/loaded|refreshed|ready|unavailable|detected|state:|no /i.test(document.getElementById("viewer-meta")?.textContent || "")) {
+            if (/loaded|refreshed|ready|available|detected|state:|no /i.test(document.getElementById("viewer-meta")?.textContent || "")) {
               settled = true;
               break;
             }

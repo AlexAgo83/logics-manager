@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-10 00:17:16
 
 # AI Context
 - Summary: Implement make generated roadmap docs pass the audit they are generated for.
@@ -34,8 +35,21 @@
 - AC7: Promoting a request whose ACs wrap across several lines carries each AC into the backlog item and task in full, not truncated at its first physical line.
 
 # Plan
-- [ ] Use `python3 -m logics_manager flow progress task task_321_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for.md --progress <n>%` during multi-wave work.
-- [ ] Run `python3 -m logics_manager flow finish task task_321_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for.md` after implementation.
+- [ ] 1. Resolve short refs in `flow roadmap propose` (`flow/docs.py:808`) for all four ref flags, in the indicator line and `# References`; fail loudly on an unresolvable ref.
+- [ ] 2. Read the document heading only in `index.py:44-52` (`break`, not `continue`), then regenerate `INDEX.md` and review the diff across every doc kind.
+- [ ] 3. Carry full wrapped ACs through `flow promote`, and the `# Problem` section it builds from `# Needs`.
+- [ ] 4. Regression tests: a generated roadmap with short refs and several milestones (audit result + index row), and a promote with multi-line ACs.
+- [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
+- [ ] GATE: do not close until lint, audit, and the full test suite pass.
+
+# AC Traceability
+- request-AC1 -> `item_673_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for`. Proof: see that item's AC Traceability.
+- request-AC2 -> `item_673_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for`. Proof: see that item's AC Traceability.
+- request-AC3 -> `item_673_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for`. Proof: see that item's AC Traceability.
+- request-AC4 -> `item_673_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for`. Proof: see that item's AC Traceability.
+- request-AC5 -> `item_673_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for`. Proof: see that item's AC Traceability.
+- request-AC6 -> `item_673_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for`. Proof: see that item's AC Traceability.
+- request-AC7 -> `item_673_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for`. Proof: see that item's AC Traceability.
 
 # Validation
 - (no validation recorded yet)

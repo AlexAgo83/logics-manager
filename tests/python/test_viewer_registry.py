@@ -9,6 +9,7 @@ entry (nothing answering its port) must never block a fresh start.
 from __future__ import annotations
 
 import os
+import queue
 import re
 import subprocess
 import sys
@@ -169,15 +170,42 @@ def test_concurrent_claims_for_the_same_repo_only_one_binds(tmp_path: Path) -> N
 
 
 def _wait_for_port(process: subprocess.Popen[str], *, timeout: float = 30.0) -> int:
+    """Read `process.stdout` for the viewer's printed URL, with a real timeout.
+
+    `stdout.readline()` is a blocking call with no OS-level deadline: if the
+    subprocess hangs without printing or closing its pipe, a `while
+    time.monotonic() < deadline: line = process.stdout.readline()` loop never
+    gets to re-check the deadline, because the blocked `readline()` call
+    itself never returns. Observed for real on a Windows CI runner (a ~27
+    minute hang with no timeout ever firing). Reading on a daemon thread and
+    joining with a real timeout enforces the deadline regardless of what the
+    subprocess does.
+    """
+    assert process.stdout is not None
+    lines: queue.Queue[str | None] = queue.Queue()
+
+    def _pump() -> None:
+        try:
+            for line in process.stdout:
+                lines.put(line)
+        finally:
+            lines.put(None)
+
+    reader = threading.Thread(target=_pump, daemon=True)
+    reader.start()
+
     deadline = time.monotonic() + timeout
     buffer = ""
-    assert process.stdout is not None
-    while time.monotonic() < deadline:
-        line = process.stdout.readline()
-        if not line:
-            if process.poll() is not None:
-                break
-            continue
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
+        try:
+            line = lines.get(timeout=remaining)
+        except queue.Empty:
+            break
+        if line is None:
+            break
         buffer += line
         match = _URL_PATTERN.search(buffer)
         if match:

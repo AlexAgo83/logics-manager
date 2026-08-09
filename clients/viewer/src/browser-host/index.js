@@ -2872,6 +2872,10 @@ import {
         badgeStage: item.stage,
         eyebrow: docPath
       });
+      // Every other screen says "<X> loaded." once it renders; this was the one path
+      // that left whatever the status line said before -- an unrelated screen's error
+      // or refresh message -- displayed under a document it no longer describes.
+      setMeta("Document loaded.");
     } catch (error) {
       if (isAbortError(error)) {
         return;

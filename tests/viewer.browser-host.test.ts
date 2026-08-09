@@ -2069,6 +2069,9 @@ describe("local viewer browser host", () => {
     expect(content?.querySelector("table")).not.toBeNull();
     expect(content?.querySelector("pre.mermaid")?.textContent).toContain("flowchart TD");
     expect(dom.window.__mermaidRuns).toEqual([1]);
+    // Every other screen says "<X> loaded." once it renders; opening a document from
+    // the board was the one path that left an unrelated, stale status message in place.
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Document loaded.");
   });
 
   it("changes status from the opened document header and refreshes the preview", async () => {

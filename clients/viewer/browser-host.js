@@ -10306,6 +10306,7 @@ ${line}` : line;
           badgeStage: item.stage,
           eyebrow: docPath
         });
+        setMeta("Document loaded.");
       } catch (error) {
         if (isAbortError(error)) {
           return;

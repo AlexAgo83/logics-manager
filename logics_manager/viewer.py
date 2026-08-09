@@ -56,6 +56,7 @@ from .viewer_lan import (
     LanDeviceRegistry,
     LanPairingBroker,
 )
+from .viewer_registry import claim_or_reuse
 from . import viewer_project_tools
 from .viewer_workshop import (
     _WORKSHOP_SESSION_BUFFER_MAX,
@@ -3160,16 +3161,27 @@ def main(argv: list[str]) -> int:
                 san_candidates.append(lan_ip)
             cert_path, key_path = _ensure_tls_material(san_candidates)
         tls_context = _build_tls_context(cert_path, key_path)
-    server = create_viewer_server(
+    claim = claim_or_reuse(
         repo_root,
-        host=bind_host,
-        port=args.port,
-        auto_refresh_interval_seconds=refresh_interval,
-        auto_refresh_interval_forced=refresh_interval_forced,
-        lan_mode=lan_enabled,
-        lan_rw_mode=bool(args.lan_rw),
-        tls_context=tls_context,
+        bind_host,
+        bind=lambda: create_viewer_server(
+            repo_root,
+            host=bind_host,
+            port=args.port,
+            auto_refresh_interval_seconds=refresh_interval,
+            auto_refresh_interval_forced=refresh_interval_forced,
+            lan_mode=lan_enabled,
+            lan_rw_mode=bool(args.lan_rw),
+            tls_context=tls_context,
+        ),
     )
+    if claim.reused:
+        reused_url = build_viewer_url(bind_host, claim.port, focus=focus, read=bool(args.read), scheme=claim.scheme)
+        print(f"Reusing the viewer already running for {repo_root} at {reused_url}", flush=True)
+        if args.open and not args.no_open:
+            webbrowser.open(reused_url)
+        return 0
+    server = claim.server
     host, port = server.server_address[:2]
     scheme = server.url_scheme
     url = build_viewer_url(str(host), int(port), focus=focus, read=bool(args.read), scheme=scheme)

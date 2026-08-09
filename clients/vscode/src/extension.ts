@@ -2,6 +2,10 @@ import * as vscode from "vscode";
 import { configureGitPathSettingReader } from "./gitRuntime";
 import { LogicsViewProvider } from "./logicsViewProvider";
 
+// req_322/item_667: module-level so `deactivate()` can reach it - `provider`
+// itself stays a local in `activate()`, this is only the handle deactivate needs.
+let activeProvider: LogicsViewProvider | undefined;
+
 export function activate(context: vscode.ExtensionContext): void {
   configureGitPathSettingReader(() => {
     const value = vscode.workspace.getConfiguration("git").get("path");
@@ -68,6 +72,7 @@ export function activate(context: vscode.ExtensionContext): void {
   };
 
   provider = new LogicsViewProvider(context, setupWatcher, agentsOutput, environmentOutput);
+  activeProvider = provider;
 
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(LogicsViewProvider.viewType, provider, {
@@ -92,4 +97,10 @@ export function activate(context: vscode.ExtensionContext): void {
   }));
 }
 
-export function deactivate(): void {}
+export function deactivate(): void {
+  // req_322/item_667: explicit, redundant stop path - the subscription
+  // disposal in LogicsViewProvider's constructor covers a graceful
+  // extension-host shutdown; this covers deactivate() being called directly.
+  activeProvider?.stopViewerServers();
+  activeProvider = undefined;
+}

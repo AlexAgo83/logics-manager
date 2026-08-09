@@ -1,10 +1,10 @@
 ## item_666_add_a_per_repo_viewer_registry_so_any_surface_reuses_a_live_instance - Add a per-repo viewer registry so any surface reuses a live instance
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 33%
+> Progress: 100%
 > Complexity: High
 > Theme: Cross-process reuse
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -59,3 +59,9 @@
 # Priority
 - Priority: High - this is the actual fix for "several VS Code windows, several servers"
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle`
+
+# Notes
+- Task `task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle` was finished via `logics-manager flow finish task` on 2026-08-09.

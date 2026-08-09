@@ -58,7 +58,7 @@
     },
     {
       "utterance": "publish release",
-      "boundary": "Create or verify the release tag, publish the GitHub release, and verify required downstream registry or deployment evidence before calling the release complete.",
+      "boundary": "Create or verify the release tag, publish the GitHub release, close any GitHub issues resolved by this release, and verify required downstream registry or deployment evidence before calling the release complete.",
       "publication_action": true
     }
   ],
@@ -171,6 +171,15 @@
       "required": true,
       "evidence_kinds": [
         "github_release"
+      ],
+      "comparison": "release"
+    },
+    {
+      "id": "issue_closure",
+      "state": "github_release",
+      "required": true,
+      "evidence_kinds": [
+        "external"
       ],
       "comparison": "release"
     },

@@ -42,6 +42,39 @@ PUBLICATION_EVIDENCE_KINDS = {"github_release", "external"}
 EVIDENCE_KINDS = {"command", "file", "git", "ci", "github_release", "external"}
 GATE_COMPARISONS = {"branch", "release"}
 DEFAULT_GATE_COMPARISON = "release"
+DISCOVERY_OPERATOR_INTENTS = [
+    {
+        "utterance": "prepare release",
+        "boundary": "Prepare metadata, changelog, and validation evidence only. Do not tag, push, publish, upload assets, or create a GitHub release unless explicitly requested.",
+        "publication_action": False,
+    },
+    {
+        "utterance": "commit and push, fix if CI is not green",
+        "boundary": "Push first, then inspect the real remote CI run for the exact pushed commit before making fixes.",
+        "publication_action": False,
+    },
+    {
+        "utterance": "publish release",
+        "boundary": "Publish only after required local and remote gates are green, then verify downstream publication or deployment evidence.",
+        "publication_action": True,
+    },
+]
+DISCOVERY_MISSING_CONTRACT = {
+    "draft_path": {"path": DISCOVERY_DRAFT_PATH.as_posix(), "format": "json", "required": False},
+    "local_first": True,
+    "neighbor_projects_allowed": True,
+    "local_sources": [
+        {"path": "LOGICS.md", "required": False},
+        {"path": "README.md", "required": False},
+        {"path": "package.json", "required": False},
+        {"path": "pyproject.toml", "required": False},
+        {"path": ".github/workflows/", "required": False},
+        {"path": "changelogs/", "required": False},
+        {"path": "VERSION", "required": False},
+        {"path": "checksums/", "required": False},
+    ],
+    "assistant_rule": "Infer this draft from local repository signals first. Use neighboring projects only as comparison evidence after local surfaces have been inspected.",
+}
 
 
 def release_evidence_add_example(gate_id: str = "<gate>") -> str:
@@ -786,39 +819,8 @@ def release_discover_payload(repo_root: Path, *, write: bool = False, force: boo
         "project": {**identity, "release_profile": "discovered-local"},
         "version_sources": _discover_version_sources(repo_root),
         "changelog": _discover_changelog(repo_root),
-        "operator_intents": [
-            {
-                "utterance": "prepare release",
-                "boundary": "Prepare metadata, changelog, and validation evidence only. Do not tag, push, publish, upload assets, or create a GitHub release unless explicitly requested.",
-                "publication_action": False,
-            },
-            {
-                "utterance": "commit and push, fix if CI is not green",
-                "boundary": "Push first, then inspect the real remote CI run for the exact pushed commit before making fixes.",
-                "publication_action": False,
-            },
-            {
-                "utterance": "publish release",
-                "boundary": "Publish only after required local and remote gates are green, then verify downstream publication or deployment evidence.",
-                "publication_action": True,
-            },
-        ],
-        "missing_contract_discovery": {
-            "draft_path": {"path": DISCOVERY_DRAFT_PATH.as_posix(), "format": "json", "required": False},
-            "local_first": True,
-            "neighbor_projects_allowed": True,
-            "local_sources": [
-                {"path": "LOGICS.md", "required": False},
-                {"path": "README.md", "required": False},
-                {"path": "package.json", "required": False},
-                {"path": "pyproject.toml", "required": False},
-                {"path": ".github/workflows/", "required": False},
-                {"path": "changelogs/", "required": False},
-                {"path": "VERSION", "required": False},
-                {"path": "checksums/", "required": False},
-            ],
-            "assistant_rule": "Infer this draft from local repository signals first. Use neighboring projects only as comparison evidence after local surfaces have been inspected.",
-        },
+        "operator_intents": DISCOVERY_OPERATOR_INTENTS,
+        "missing_contract_discovery": DISCOVERY_MISSING_CONTRACT,
         "state_machine": DEFAULT_STATE_MACHINE,
         "gates": [
             {"id": "version_metadata", "state": "preparing", "required": True, "evidence_kinds": ["file"], "comparison": "release"},

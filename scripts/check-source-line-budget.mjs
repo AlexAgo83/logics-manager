@@ -35,7 +35,12 @@ const allowedOversizedFiles = new Map(
     "logics_manager/mcp.py": { maxLines: 2054, ref: "req_303" },
     "logics_manager/sync.py": { maxLines: 1524, ref: "req_273" },
     "logics_manager/audit.py": { maxLines: 1107, ref: "req_273" },
-    "logics_manager/release.py": { maxLines: 1070, ref: "req_273" },
+    // 1117: req_317 added the per-gate release/branch comparison (resolving the
+    // tagged commit, choosing which commit each gate is judged against, and
+    // naming the comparison in stale reasons and status output). The new logic
+    // lives beside the gate/staleness functions it extends; a separate module
+    // would only split one cohesive comparison concept across two files.
+    "logics_manager/release.py": { maxLines: 1117, ref: "req_317" },
     "logics_manager/assist_support.py": { maxLines: 1477, ref: "req_273" },
     // 5833: banked CDX reset endpoint (/api/cdx-reset); 5879: cdx disk payload/route;
     // 5927: release prep baseline; 5937: CDX memory read-only endpoint.

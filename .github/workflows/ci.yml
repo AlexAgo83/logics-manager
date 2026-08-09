@@ -96,6 +96,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build:assets
+      - run: npm run compile
       - run: npm run test:coverage
       - run: npm run test:viewer-smoke
       - run: npm run test:smoke
@@ -111,4 +112,5 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build:assets
+      - run: npm run compile
       - run: npm run package:ci

@@ -1,0 +1,589 @@
+{
+  "budgets": {
+    "max_docs": 56,
+    "max_docs_per_ref": 8
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose item_674_stop_doctor_reporting_a_single_npm_install_as_a_duplicate_of_itself item_675_backfill_schema_version_on_the_pre_schema_workflow_docs item_676_run_the_full_logics_manager_doctor_in_ci item_677_resolve_the_standing_code_scanning_alerts_so_a_non_empty_list_means_something item_678_publish_a_changelog_built_from_the_existing_release_notes task_322_orchestrate_the_diagnostics_and_release_surface_cleanup --mode full --profile deep --handoff",
+  "companion_docs": [
+    {
+      "kind": "roadmap",
+      "linked_refs": {
+        "req": [
+          "req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events",
+          "req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors",
+          "req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting"
+        ],
+        "road": [
+          "road_001_2_15_keeping_the_viewer_alive"
+        ],
+        "task": [
+          "task_281_orchestrate_the_recent_activity_feed_legibility_polish",
+          "task_282_orchestrate_single_sourcing_of_shared_web_assets",
+          "task_283_orchestrate_scaffold_robustness_hardening"
+        ]
+      },
+      "path": "logics/roadmap/road_001_2_15_keeping_the_viewer_alive.md",
+      "ref": "road_001_2_15_keeping_the_viewer_alive",
+      "sections": {
+        "References": [
+          "- Product brief(s): (none yet)",
+          "- Request(s): `req_284_make_the_recent_activity_feed_legible_for_git_and_ci_events`, `req_285_single_source_the_shared_web_assets_and_stop_committing_build_mirrors`, `req_286_make_flow_scaffold_request_chain_fail_fast_atomic_and_self_documenting`",
+          "- Backlog item(s): (none yet)",
+          "- Task(s): `task_281_orchestrate_the_recent_activity_feed_legibility_polish`, `task_282_orchestrate_single_sourcing_of_shared_web_assets`, `task_283_orchestrate_scaffold_robustness_hardening`",
+          "- Releases: v2.15.0 \u2026 v2.15.7 (2026-06-27 \u2192 2026-07-04)"
+        ]
+      },
+      "status": "Settled",
+      "title": "2.15: keeping the viewer alive"
+    },
+    {
+      "kind": "roadmap",
+      "linked_refs": {
+        "req": [
+          "req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout",
+          "req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured",
+          "req_310_make_the_board_filters_answer_with_what_the_board_actually_shows",
+          "req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet",
+          "req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved",
+          "req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens",
+          "req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done",
+          "req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository",
+          "req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive",
+          "req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from",
+          "req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin",
+          "req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface",
+          "req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer",
+          "req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs",
+          "req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp",
+          "req_323_review_findings_security_tests_structure_dependencies"
+        ],
+        "road": [
+          "road_007_2_21_evidence_over_assertion"
+        ],
+        "task": [
+          "task_305_orchestrate_the_honest_outcome_corrections",
+          "task_306_orchestrate_the_viewer_ui_campaign",
+          "task_307_orchestrate_the_board_filter_corrections",
+          "task_308_orchestrate_lifting_the_sub_systems_out_of_the_core",
+          "task_309_orchestrate_finishing_the_browser_host_split",
+          "task_310_orchestrate_naming_the_viewer_architecture",
+          "task_311_orchestrate_the_attended_tour_findings",
+          "task_312_orchestrate_moving_the_viewer_preferences_off_the_port",
+          "task_313_orchestrate_making_the_closeout_gate_satisfiable",
+          "task_314_orchestrate_judging_evidence_against_the_release",
+          "task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging",
+          "task_316_orchestrate_the_obsidian_graph_navigable_projection",
+          "task_317_orchestrate_the_bounded_chain_graph_view",
+          "task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary",
+          "task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle",
+          "task_320_orchestrate_the_review_findings_cleanup"
+        ]
+      },
+      "path": "logics/roadmap/road_007_2_21_evidence_over_assertion.md",
+      "ref": "road_007_2_21_evidence_over_assertion",
+      "sections": {
+        "References": [
+          "- Product brief(s): (none yet)",
+          "- Request(s): `req_308_report_workflow_outcomes_honestly_across_audit_help_and_closeout`, `req_309_turn_the_viewer_visual_smoke_into_a_ui_campaign_that_reports_what_it_measured`, `req_310_make_the_board_filters_answer_with_what_the_board_actually_shows`, `req_311_lift_the_viewer_s_sub_systems_out_of_its_core_and_turn_the_size_ledger_into_a_ratchet`, `req_312_finish_lifting_the_browser_host_s_sub_systems_on_the_seam_cdx_proved`, `req_313_write_down_the_architecture_the_viewer_already_has_a_named_store_server_driven_invalidation_declared_screens`, `req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done`, `req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository`, `req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive`, `req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from`, `req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`, `req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface`, `req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer`, `req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs`, `req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp`, `req_323_review_findings_security_tests_structure_dependencies`",
+          "- Backlog item(s): (none yet)",
+          "- Task(s): `task_305_orchestrate_the_honest_outcome_corrections`, `task_306_orchestrate_the_viewer_ui_campaign`, `task_307_orchestrate_the_board_filter_corrections`, `task_308_orchestrate_lifting_the_sub_systems_out_of_the_core`, `task_309_orchestrate_finishing_the_browser_host_split`, `task_310_orchestrate_naming_the_viewer_architecture`, `task_311_orchestrate_the_attended_tour_findings`, `task_312_orchestrate_moving_the_viewer_preferences_off_the_port`, `task_313_orchestrate_making_the_closeout_gate_satisfiable`, `task_314_orchestrate_judging_evidence_against_the_release`, `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging`, `task_316_orchestrate_the_obsidian_graph_navigable_projection`, `task_317_orchestrate_the_bounded_chain_graph_view`, `task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary`, `task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle`, `task_320_orchestrate_the_review_findings_cleanup`",
+          "- Releases: v2.21.0, v2.21.1, v2.21.2 (all 2026-08-09)"
+        ]
+      },
+      "status": "Settled",
+      "title": "2.21: evidence over assertion"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "review, doctor, schema version, CI coverage, CodeQL, changelog, duplicate executables, environment_warnings",
+        "skip when": "You need the roadmap generation defects \u2014 those are `req_324`.",
+        "summary": "Review of the repository on 2026-08-09. Four findings, all about diagnostics or published surfaces that report something other than the truth of this repository. Candidates only; none is committed work.",
+        "use when": "Deciding what to fix next in the diagnostics, CI, or release surface."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_674_stop_doctor_reporting_a_single_npm_install_as_a_duplicate_of_itself",
+          "item_675_backfill_schema_version_on_the_pre_schema_workflow_docs",
+          "item_676_run_the_full_logics_manager_doctor_in_ci",
+          "item_677_resolve_the_standing_code_scanning_alerts_so_a_non_empty_list_means_something",
+          "item_678_publish_a_changelog_built_from_the_existing_release_notes"
+        ],
+        "req": [
+          "req_324_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for",
+          "req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose"
+        ]
+      },
+      "path": "logics/request/req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose.md",
+      "ref": "req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: On a machine with exactly one npm install of `logics-manager`, `doctor` reports no `duplicate_executables` warning, and a regression test covers the npm-wrapper case where `sys.argv[0]` is the spawned Python entry point.",
+          "- AC2: With two genuine installs present, `doctor` still reports the duplicate \u2014 the fix narrows the check without disabling it.",
+          "- AC3: `logics-manager doctor` exits zero on this repository, either because the 308 pre-schema docs carry a schema version or because a documented exemption covers them.",
+          "- AC4: CI runs the full `logics-manager doctor`, so its verdict cannot silently diverge from the pipeline's again.",
+          "- AC5: The nine open code scanning alerts are each dismissed with a written reason or suppressed at their source, leaving an alert list whose non-emptiness is informative.",
+          "- AC6: A `CHANGELOG.md` exists, is listed in `package.json` `files`, and carries the notes for at least the 2.15 through 2.21 releases."
+        ],
+        "Needs": [
+          "- F1: `doctor` must stop reporting a single npm install as a duplicate.",
+          "- F2: `doctor` must either pass on this repository or run in CI so its failure is a decision rather than a surprise.",
+          "- F3: The code scanning alert list must reflect real risk, so that a non-empty list means something.",
+          "- F4: The published packages should carry the release notes that already exist."
+        ]
+      },
+      "status": "Draft",
+      "title": "Review findings: diagnostics that disagree with the repository they diagnose"
+    },
+    {
+      "ai_context": {
+        "keywords": "roadmap, propose, audit, extract_refs, INDEX, doc_ref, companion_doc_missing_primary_link",
+        "skip when": "You need the content of the 2.15\u20132.21 roadmap docs themselves.",
+        "summary": "Three generation defects found by authoring the first seven real roadmap docs \u2014 `flow roadmap propose` writes refs the audit rejects, `logics index` titles a roadmap with its last milestone, and promotion truncates a wrapped acceptance criterion.",
+        "use when": "Working on roadmap document generation, ref resolution, or the corpus index renderer."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_673_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for"
+        ],
+        "req": [
+          "req_324_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for"
+        ],
+        "road": [
+          "road_001_2_15_keeping_the_viewer_alive",
+          "road_007_2_21_evidence_over_assertion"
+        ]
+      },
+      "path": "logics/request/req_324_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for.md",
+      "ref": "req_324_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `flow roadmap propose --request-ref req_296` resolves the short form to the full slug on write, or fails with an error naming the unresolvable ref; it never writes a ref the audit will reject.",
+          "- AC2: The same resolution applies to `--backlog-ref`, `--task-ref`, and `--product-ref`, and to both the indicator line and the `# References` section.",
+          "- AC3: A roadmap document produced by `flow roadmap propose` with resolvable refs passes `logics-manager audit` with zero blocking issues, without hand editing.",
+          "- AC4: `logics index` derives `doc_ref` and `title` from the document heading only, and ignores later `## ` headings in the body.",
+          "- AC5: `INDEX.md` lists each of `road_001` through `road_007` with its document title (for example \"2.15: keeping the viewer alive\"), not with a milestone label.",
+          "- AC6: A regression test covers a generated roadmap with short refs and more than one milestone, asserting both the audit result and the rendered index row."
+        ],
+        "Needs": [
+          "- `flow roadmap propose` must produce a document that passes `logics-manager audit`. Today it",
+          "  accepts `--request-ref req_296`, writes `` `req_296` `` verbatim, and that form does not match",
+          "  the ref pattern the audit uses, so every generated roadmap is BLOCKING on arrival.",
+          "- `logics index` must title a roadmap with its own title, not with whichever `## ` heading it",
+          "  read last.",
+          "- `flow promote` must carry a full acceptance criterion into the derived doc, whatever its line"
+        ]
+      },
+      "status": "Draft",
+      "title": "Make generated roadmap docs pass the audit they are generated for"
+    },
+    {
+      "ai_context": {
+        "keywords": "backlog-groom, request, stop doctor reporting a single npm install as a duplicate of itself, bounded slice",
+        "skip when": "Skip when the change is unrelated to this delivery slice or its linked request.",
+        "summary": "Stop doctor reporting a single npm install as a duplicate of itself",
+        "use when": "Use when implementing or reviewing the delivery slice for Stop doctor reporting a single npm install as a duplicate of itself."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_674_stop_doctor_reporting_a_single_npm_install_as_a_duplicate_of_itself"
+        ],
+        "req": [
+          "req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose"
+        ],
+        "task": [
+          "task_322_orchestrate_the_diagnostics_and_release_surface_cleanup"
+        ]
+      },
+      "path": "logics/backlog/item_674_stop_doctor_reporting_a_single_npm_install_as_a_duplicate_of_itself.md",
+      "ref": "item_674_stop_doctor_reporting_a_single_npm_install_as_a_duplicate_of_itself",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: On a machine with exactly one npm install, `doctor` emits no `duplicate_executables` warning, and a regression test covers the case where `sys.argv[0]` is the spawned Python entry point of the same install whose Node bin is on PATH.",
+          "- AC2: With two genuine installs present, `doctor` still reports the duplicate \u2014 the fix narrows the check without disabling it."
+        ],
+        "Problem": [
+          "`logics-manager doctor` reports the one and only npm install as a duplicate of itself, on every npm install, permanently. `running_executable_path()` (`logics_manager/cli.py:269`) reads `sys.argv[0]`, which inside the process the npm wrapper spawns is `scripts/logics-manager.py`. The PATH entry for the same install resolves to `scripts/npm/logics-manager.mjs`, the Node wrapper that did the spawning. `shadowing_executables()` (`logics_manager/cli.py:341`) compares the two resolved paths, finds them different, and classifies the install as a shadow of itself. Observed on 2.21.2: `doctor --format json` -> `environment_warnings[0].message` names `~/.local/npm-global/bin/logics-manager` while `path` is that install's own `scripts/logics-manager.py`, with `type -a logics-manager` listing exactly one distinct file. The warning is not merely noise: its remediation text advises `npm uninstall -g @grifhinz/logics-manager`, which on a correct single-install machine removes the user's only install."
+        ]
+      },
+      "status": "Ready",
+      "title": "Stop doctor reporting a single npm install as a duplicate of itself"
+    },
+    {
+      "ai_context": {
+        "keywords": "backlog-groom, request, backfill schema version on the pre-schema workflow docs, bounded slice",
+        "skip when": "Skip when the change is unrelated to this delivery slice or its linked request.",
+        "summary": "Backfill schema version on the pre-schema workflow docs",
+        "use when": "Use when implementing or reviewing the delivery slice for Backfill schema version on the pre-schema workflow docs."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_675_backfill_schema_version_on_the_pre_schema_workflow_docs"
+        ],
+        "req": [
+          "req_000_kickoff",
+          "req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose"
+        ],
+        "task": [
+          "task_322_orchestrate_the_diagnostics_and_release_surface_cleanup"
+        ]
+      },
+      "path": "logics/backlog/item_675_backfill_schema_version_on_the_pre_schema_workflow_docs.md",
+      "ref": "item_675_backfill_schema_version_on_the_pre_schema_workflow_docs",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC3: `logics-manager doctor` exits zero on this repository, with `sync schema-status` reporting zero missing, and the backfill is performed by a command that can be re-run on another corpus rather than by a one-off edit."
+        ],
+        "Problem": [
+          "`logics-manager sync schema-status` reports `1311 workflow doc(s) scanned. (missing): 308, 1.0: 1003` \u2014 23% of the corpus carries no `> Schema version:` indicator, so `logics-manager doctor` exits FAILED on this repository. The affected documents are the oldest, written before schema versioning existed (`item_123`), starting at `req_000_kickoff` and running through the early `req_0xx` range. Two outcomes are defensible: backfill the indicator, or declare pre-schema docs exempt. This slice takes the backfill, because an exemption creates a permanent blind spot over the oldest quarter of the corpus, while the indicator itself is a single line whose correct value for every one of these docs is already known to be `1.0`. There is no command to do it today: `sync schema-status` is read-only."
+        ]
+      },
+      "status": "Ready",
+      "title": "Backfill schema version on the pre-schema workflow docs"
+    },
+    {
+      "ai_context": {
+        "keywords": "backlog-groom, request, run the full logics-manager doctor in ci, bounded slice",
+        "skip when": "Skip when the change is unrelated to this delivery slice or its linked request.",
+        "summary": "Run the full logics-manager doctor in CI",
+        "use when": "Use when implementing or reviewing the delivery slice for Run the full logics-manager doctor in CI."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_676_run_the_full_logics_manager_doctor_in_ci"
+        ],
+        "req": [
+          "req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose"
+        ],
+        "task": [
+          "task_322_orchestrate_the_diagnostics_and_release_surface_cleanup"
+        ]
+      },
+      "path": "logics/backlog/item_676_run_the_full_logics_manager_doctor_in_ci.md",
+      "ref": "item_676_run_the_full_logics_manager_doctor_in_ci",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC4: `npm run ci:check` and the GitHub CI workflow both run the full `logics-manager doctor`, and a corpus that fails it fails the build."
+        ],
+        "Problem": [
+          "CI runs `doctor packaging --metadata-only` and nothing else (`.github/workflows/ci.yml:45`, `scripts/ci-check.mjs:69`). The full `logics-manager doctor` has been exiting FAILED on this repository while `npm run ci:check` reports green. A diagnostic the project ships as a headline capability is the one check its own pipeline does not run, so its verdict drifted from the pipeline's without anyone being told."
+        ]
+      },
+      "status": "Ready",
+      "title": "Run the full logics-manager doctor in CI"
+    },
+    {
+      "ai_context": {
+        "keywords": "backlog-groom, request, resolve the standing code scanning alerts so a non-empty list means something, bounded slice",
+        "skip when": "Skip when the change is unrelated to this delivery slice or its linked request.",
+        "summary": "Resolve the standing code scanning alerts so a non-empty list means something",
+        "use when": "Use when implementing or reviewing the delivery slice for Resolve the standing code scanning alerts so a non-empty list means something."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_677_resolve_the_standing_code_scanning_alerts_so_a_non_empty_list_means_something"
+        ],
+        "req": [
+          "req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose"
+        ],
+        "task": [
+          "task_322_orchestrate_the_diagnostics_and_release_surface_cleanup"
+        ]
+      },
+      "path": "logics/backlog/item_677_resolve_the_standing_code_scanning_alerts_so_a_non_empty_list_means_something.md",
+      "ref": "item_677_resolve_the_standing_code_scanning_alerts_so_a_non_empty_list_means_something",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC5: The nine alerts are each suppressed at source or dismissed with a written reason naming the guard that makes the site safe, and the open alert list is empty so that a future non-empty list is informative."
+        ],
+        "Problem": [
+          "Nine code scanning alerts are open, zero Dependabot, zero secret scanning. All nine were reviewed on 2026-08-09 and none is exploitable: three `py/command-line-injection` (`viewer.py:628`, `viewer.py:691`, `viewer_cdx.py:1263`) pass list-form `argv` with no `shell=True`; three `py/path-injection` (`viewer_docs.py:155`, `viewer_docs.py:167`, `viewer_cdx.py:166`) validate against `realpath`, a repo-root containment check, a family allow-list and a `.md` suffix; two `js/insecure-randomness` are a `Math.random()` fallback for a diagnostics breadcrumb session id (`browser-host.js:1086`, `diagnostics.js:29`); one `js/bad-tag-filter` is a regex inside `tests/chainGraphScreen.test.ts:21`. No code needs changing. The defect is the standing list: an alert surface that is never empty is a surface nobody reads, so the next real alert lands where everyone has learned to look away."
+        ]
+      },
+      "status": "Ready",
+      "title": "Resolve the standing code scanning alerts so a non-empty list means something"
+    },
+    {
+      "ai_context": {
+        "keywords": "backlog-groom, request, publish a changelog built from the existing release notes, bounded slice",
+        "skip when": "Skip when the change is unrelated to this delivery slice or its linked request.",
+        "summary": "Publish a CHANGELOG built from the existing release notes",
+        "use when": "Use when implementing or reviewing the delivery slice for Publish a CHANGELOG built from the existing release notes."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_678_publish_a_changelog_built_from_the_existing_release_notes"
+        ],
+        "req": [
+          "req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose"
+        ],
+        "task": [
+          "task_322_orchestrate_the_diagnostics_and_release_surface_cleanup"
+        ]
+      },
+      "path": "logics/backlog/item_678_publish_a_changelog_built_from_the_existing_release_notes.md",
+      "ref": "item_678_publish_a_changelog_built_from_the_existing_release_notes",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC6: `CHANGELOG.md` exists, covers 2.15 through 2.21, is listed in `package.json` `files`, and the release runbook names the step that keeps it current."
+        ],
+        "Problem": [
+          "Fifteen releases carry detailed, well-written notes on GitHub, including breaking-change callouts such as v2.20.0's `health` exit-code change. None of it reaches an npm or PyPI reader: there is no `CHANGELOG.md` in the repository and `package.json:25` `files` ships none. A package consumer sees a version number and no history, and cannot discover a breaking change without leaving the registry. The material already exists; only the publishing path is missing."
+        ]
+      },
+      "status": "Ready",
+      "title": "Publish a CHANGELOG built from the existing release notes"
+    },
+    {
+      "ai_context": {
+        "keywords": "review, exit code, doctor, flow validate, roadmap validate, dispatcher, ci",
+        "skip when": "You need the diagnostics and release-surface findings \u2014 those are `req_325`.",
+        "summary": "Second review pass, 2026-08-10. Three commands print a failure verdict and exit zero, so a pipeline that trusts the exit status is told the opposite of what the output says. The 2.20.0 fix for `health` was never generalised.",
+        "use when": "Working on CLI exit statuses, or before relying on any command's status in a pipeline."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_676_run_the_full_logics_manager_doctor_in_ci",
+          "item_679_make_doctor_exit_non_zero_when_it_reports_failed",
+          "item_680_derive_flow_exit_statuses_from_the_payload_instead_of_an_allow_list"
+        ],
+        "req": [
+          "req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose",
+          "req_326_review_findings_commands_that_report_failure_and_exit_zero"
+        ]
+      },
+      "path": "logics/request/req_326_review_findings_commands_that_report_failure_and_exit_zero.md",
+      "ref": "req_326_review_findings_commands_that_report_failure_and_exit_zero",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `logics-manager doctor` exits non-zero whenever it prints `FAILED` or reports `\"ok\": false`, in both text and json formats, with a regression test.",
+          "- AC2: `flow validate` exits non-zero when it reports at least one blocking finding, and stays zero for deferred or warning-level findings only.",
+          "- AC3: `flow roadmap validate` exits non-zero when it prints `FAILED`.",
+          "- AC4: The `flow` dispatcher derives the exit status from `payload[\"ok\"]` for every subcommand that publishes one, instead of naming individual subcommands, so a new validator is honest by default.",
+          "- AC5: A test asserts the general rule \u2014 for each `flow` subcommand that publishes `ok`, a payload with `ok: false` produces a non-zero exit \u2014 rather than testing the two or three commands fixed here.",
+          "- AC6: `logics-manager health`, `lint`, and `audit` keep their current exit behaviour, proven by the same test."
+        ],
+        "Needs": [
+          "- `logics-manager doctor` must exit non-zero when it prints `FAILED`.",
+          "- `flow validate` must exit non-zero when it reports blocking findings.",
+          "- `flow roadmap validate` must exit non-zero when it prints `FAILED`.",
+          "- The `flow` dispatcher should derive the exit status from the payload it already has, instead of naming which two subcommands are allowed to fail."
+        ]
+      },
+      "status": "Draft",
+      "title": "Review findings: commands that report failure and exit zero"
+    },
+    {
+      "ai_context": {
+        "keywords": "task, implementation, backlog, runtime, python",
+        "skip when": "The work is still at the request or backlog shaping stage.",
+        "summary": "Implement orchestrate the diagnostics and release-surface cleanup.",
+        "use when": "You need a bounded implementation task for a backlog item."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_674_stop_doctor_reporting_a_single_npm_install_as_a_duplicate_of_itself",
+          "item_675_backfill_schema_version_on_the_pre_schema_workflow_docs",
+          "item_676_run_the_full_logics_manager_doctor_in_ci",
+          "item_677_resolve_the_standing_code_scanning_alerts_so_a_non_empty_list_means_something",
+          "item_678_publish_a_changelog_built_from_the_existing_release_notes"
+        ],
+        "task": [
+          "task_322_orchestrate_the_diagnostics_and_release_surface_cleanup"
+        ]
+      },
+      "path": "logics/tasks/task_322_orchestrate_the_diagnostics_and_release_surface_cleanup.md",
+      "ref": "task_322_orchestrate_the_diagnostics_and_release_surface_cleanup",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the five delivery slices captured by req_325's review findings and keep them linked.",
+          "- Ordering constraint: `item_676` depends on `item_675`. The other three are independent and can land in any order."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the diagnostics and release-surface cleanup"
+    },
+    {
+      "ai_context": {},
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_000_kickoff"
+        ],
+        "req": [
+          "req_000_kickoff"
+        ]
+      },
+      "path": "logics/request/req_000_kickoff.md",
+      "ref": "req_000_kickoff",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [],
+        "Needs": [
+          "- Build a VS Code extension that provides a visual workspace to orchestrate everything in `logics` (requests, backlog, tasks, specs, etc.)."
+        ]
+      },
+      "status": "Done",
+      "title": "Kickoff"
+    }
+  ],
+  "estimates": {
+    "char_count": 26589,
+    "companion_doc_count": 2,
+    "doc_count": 10
+  },
+  "generated_at": "2026-08-09T22:17:39Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose",
+      "item_674_stop_doctor_reporting_a_single_npm_install_as_a_duplicate_of_itself",
+      "item_675_backfill_schema_version_on_the_pre_schema_workflow_docs",
+      "item_676_run_the_full_logics_manager_doctor_in_ci",
+      "item_677_resolve_the_standing_code_scanning_alerts_so_a_non_empty_list_means_something",
+      "item_678_publish_a_changelog_built_from_the_existing_release_notes",
+      "task_322_orchestrate_the_diagnostics_and_release_surface_cleanup"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "deep",
+  "ref": "req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose,item_674_stop_doctor_reporting_a_single_npm_install_as_a_duplicate_of_itself,item_675_backfill_schema_version_on_the_pre_schema_workflow_docs,item_676_run_the_full_logics_manager_doctor_in_ci,item_677_resolve_the_standing_code_scanning_alerts_so_a_non_empty_list_means_something,item_678_publish_a_changelog_built_from_the_existing_release_notes,task_322_orchestrate_the_diagnostics_and_release_surface_cleanup",
+  "refs": [
+    "req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose",
+    "item_674_stop_doctor_reporting_a_single_npm_install_as_a_duplicate_of_itself",
+    "item_675_backfill_schema_version_on_the_pre_schema_workflow_docs",
+    "item_676_run_the_full_logics_manager_doctor_in_ci",
+    "item_677_resolve_the_standing_code_scanning_alerts_so_a_non_empty_list_means_something",
+    "item_678_publish_a_changelog_built_from_the_existing_release_notes",
+    "task_322_orchestrate_the_diagnostics_and_release_surface_cleanup"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different version",
+      "changelog: evidence targets a different version",
+      "local_validation: evidence targets a different version",
+      "git_push: evidence targets a different version",
+      "ci: evidence targets a different version",
+      "github_release: evidence targets a different version",
+      "issue_closure: evidence targets a different version"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different version",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "stale"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.2"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_322_orchestrate_the_diagnostics_and_release_surface_cleanup.md",
+      "ref": "task_322_orchestrate_the_diagnostics_and_release_surface_cleanup"
+    }
+  ]
+}

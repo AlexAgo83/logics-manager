@@ -1,0 +1,360 @@
+{
+  "budgets": {
+    "max_docs": 32,
+    "max_docs_per_ref": 8
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_326_review_findings_commands_that_report_failure_and_exit_zero item_679_make_doctor_exit_non_zero_when_it_reports_failed item_680_derive_flow_exit_statuses_from_the_payload_instead_of_an_allow_list task_323_orchestrate_the_exit_code_honesty_corrections --mode full --profile deep --handoff",
+  "companion_docs": [],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "review, exit code, doctor, flow validate, roadmap validate, dispatcher, ci",
+        "skip when": "You need the diagnostics and release-surface findings \u2014 those are `req_325`.",
+        "summary": "Second review pass, 2026-08-10. Three commands print a failure verdict and exit zero, so a pipeline that trusts the exit status is told the opposite of what the output says. The 2.20.0 fix for `health` was never generalised.",
+        "use when": "Working on CLI exit statuses, or before relying on any command's status in a pipeline."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_676_run_the_full_logics_manager_doctor_in_ci",
+          "item_679_make_doctor_exit_non_zero_when_it_reports_failed",
+          "item_680_derive_flow_exit_statuses_from_the_payload_instead_of_an_allow_list"
+        ],
+        "req": [
+          "req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose",
+          "req_326_review_findings_commands_that_report_failure_and_exit_zero"
+        ]
+      },
+      "path": "logics/request/req_326_review_findings_commands_that_report_failure_and_exit_zero.md",
+      "ref": "req_326_review_findings_commands_that_report_failure_and_exit_zero",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `logics-manager doctor` exits non-zero whenever it prints `FAILED` or reports `\"ok\": false`, in both text and json formats, with a regression test.",
+          "- AC2: `flow validate` exits non-zero when it reports at least one blocking finding, and stays zero for deferred or warning-level findings only.",
+          "- AC3: `flow roadmap validate` exits non-zero when it prints `FAILED`.",
+          "- AC4: The `flow` dispatcher derives the exit status from `payload[\"ok\"]` for every subcommand that publishes one, instead of naming individual subcommands, so a new validator is honest by default.",
+          "- AC5: A test asserts the general rule \u2014 for each `flow` subcommand that publishes `ok`, a payload with `ok: false` produces a non-zero exit \u2014 rather than testing the two or three commands fixed here.",
+          "- AC6: `logics-manager health`, `lint`, and `audit` keep their current exit behaviour, proven by the same test."
+        ],
+        "Needs": [
+          "- `logics-manager doctor` must exit non-zero when it prints `FAILED`.",
+          "- `flow validate` must exit non-zero when it reports blocking findings.",
+          "- `flow roadmap validate` must exit non-zero when it prints `FAILED`.",
+          "- The `flow` dispatcher should derive the exit status from the payload it already has, instead of naming which two subcommands are allowed to fail."
+        ]
+      },
+      "status": "Draft",
+      "title": "Review findings: commands that report failure and exit zero"
+    },
+    {
+      "ai_context": {
+        "keywords": "review, doctor, schema version, CI coverage, CodeQL, changelog, duplicate executables, environment_warnings",
+        "skip when": "You need the roadmap generation defects \u2014 those are `req_324`.",
+        "summary": "Review of the repository on 2026-08-09. Four findings, all about diagnostics or published surfaces that report something other than the truth of this repository. Candidates only; none is committed work.",
+        "use when": "Deciding what to fix next in the diagnostics, CI, or release surface."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_674_stop_doctor_reporting_a_single_npm_install_as_a_duplicate_of_itself",
+          "item_675_backfill_schema_version_on_the_pre_schema_workflow_docs",
+          "item_676_run_the_full_logics_manager_doctor_in_ci",
+          "item_677_resolve_the_standing_code_scanning_alerts_so_a_non_empty_list_means_something",
+          "item_678_publish_a_changelog_built_from_the_existing_release_notes"
+        ],
+        "req": [
+          "req_324_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for",
+          "req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose"
+        ]
+      },
+      "path": "logics/request/req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose.md",
+      "ref": "req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: On a machine with exactly one npm install of `logics-manager`, `doctor` reports no `duplicate_executables` warning, and a regression test covers the npm-wrapper case where `sys.argv[0]` is the spawned Python entry point.",
+          "- AC2: With two genuine installs present, `doctor` still reports the duplicate \u2014 the fix narrows the check without disabling it.",
+          "- AC3: `logics-manager doctor` exits zero on this repository, either because the 308 pre-schema docs carry a schema version or because a documented exemption covers them.",
+          "- AC4: CI runs the full `logics-manager doctor`, so its verdict cannot silently diverge from the pipeline's again.",
+          "- AC5: The nine open code scanning alerts are each dismissed with a written reason or suppressed at their source, leaving an alert list whose non-emptiness is informative.",
+          "- AC6: A `CHANGELOG.md` exists, is listed in `package.json` `files`, and carries the notes for at least the 2.15 through 2.21 releases."
+        ],
+        "Needs": [
+          "- F1: `doctor` must stop reporting a single npm install as a duplicate.",
+          "- F2: `doctor` must either pass on this repository or run in CI so its failure is a decision rather than a surprise.",
+          "- F3: The code scanning alert list must reflect real risk, so that a non-empty list means something.",
+          "- F4: The published packages should carry the release notes that already exist."
+        ]
+      },
+      "status": "Draft",
+      "title": "Review findings: diagnostics that disagree with the repository they diagnose"
+    },
+    {
+      "ai_context": {
+        "keywords": "backlog-groom, request, run the full logics-manager doctor in ci, bounded slice",
+        "skip when": "Skip when the change is unrelated to this delivery slice or its linked request.",
+        "summary": "Run the full logics-manager doctor in CI",
+        "use when": "Use when implementing or reviewing the delivery slice for Run the full logics-manager doctor in CI."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_676_run_the_full_logics_manager_doctor_in_ci"
+        ],
+        "req": [
+          "req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose"
+        ],
+        "task": [
+          "task_322_orchestrate_the_diagnostics_and_release_surface_cleanup"
+        ]
+      },
+      "path": "logics/backlog/item_676_run_the_full_logics_manager_doctor_in_ci.md",
+      "ref": "item_676_run_the_full_logics_manager_doctor_in_ci",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC4: `npm run ci:check` and the GitHub CI workflow both run the full `logics-manager doctor`, and a corpus that fails it fails the build."
+        ],
+        "Problem": [
+          "CI runs `doctor packaging --metadata-only` and nothing else (`.github/workflows/ci.yml:45`, `scripts/ci-check.mjs:69`). The full `logics-manager doctor` has been exiting FAILED on this repository while `npm run ci:check` reports green. A diagnostic the project ships as a headline capability is the one check its own pipeline does not run, so its verdict drifted from the pipeline's without anyone being told."
+        ]
+      },
+      "status": "Ready",
+      "title": "Run the full logics-manager doctor in CI"
+    },
+    {
+      "ai_context": {
+        "keywords": "backlog-groom, request, make doctor exit non-zero when it reports failed, bounded slice",
+        "skip when": "Skip when the change is unrelated to this delivery slice or its linked request.",
+        "summary": "Make doctor exit non-zero when it reports FAILED",
+        "use when": "Use when implementing or reviewing the delivery slice for Make doctor exit non-zero when it reports FAILED."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_679_make_doctor_exit_non_zero_when_it_reports_failed"
+        ],
+        "req": [
+          "req_326_review_findings_commands_that_report_failure_and_exit_zero"
+        ],
+        "task": [
+          "task_323_orchestrate_the_exit_code_honesty_corrections"
+        ]
+      },
+      "path": "logics/backlog/item_679_make_doctor_exit_non_zero_when_it_reports_failed.md",
+      "ref": "item_679_make_doctor_exit_non_zero_when_it_reports_failed",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `logics-manager doctor` exits non-zero whenever it prints `FAILED` or reports `\"ok\": false`, in both text and json formats, with a regression test."
+        ],
+        "Problem": [
+          "`logics-manager doctor` prints `Logics doctor: FAILED` with 308 issues and exits 0; `doctor --format json` reports `\"ok\": false` and exits 0. The cause is two sibling branches of the same function: `logics_manager/cli.py:575` (the `doctor packaging` branch) ends `return 0 if payload[\"ok\"] else 1`, while `logics_manager/cli.py:585` (the plain `doctor` branch) ends with a bare `return 0`. v2.20.0 made this exact correction for `health` (the comment recording it is still at `logics_manager/cli.py:901`) and its release note claimed the new behaviour was \"what every other command already did\" \u2014 `doctor` is the counter-example."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make doctor exit non-zero when it reports FAILED"
+    },
+    {
+      "ai_context": {
+        "keywords": "backlog-groom, request, derive flow exit statuses from the payload instead of an allow-list, bounded slice",
+        "skip when": "Skip when the change is unrelated to this delivery slice or its linked request.",
+        "summary": "Derive flow exit statuses from the payload instead of an allow-list",
+        "use when": "Use when implementing or reviewing the delivery slice for Derive flow exit statuses from the payload instead of an allow-list."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_680_derive_flow_exit_statuses_from_the_payload_instead_of_an_allow_list"
+        ],
+        "req": [
+          "req_326_review_findings_commands_that_report_failure_and_exit_zero"
+        ],
+        "task": [
+          "task_323_orchestrate_the_exit_code_honesty_corrections"
+        ]
+      },
+      "path": "logics/backlog/item_680_derive_flow_exit_statuses_from_the_payload_instead_of_an_allow_list.md",
+      "ref": "item_680_derive_flow_exit_statuses_from_the_payload_instead_of_an_allow_list",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC2: `flow validate` exits non-zero when it reports at least one blocking finding, and stays zero when only deferred or warning-level findings are present.",
+          "- AC3: `flow roadmap validate` exits non-zero when it prints `FAILED`.",
+          "- AC4: The `flow` dispatcher derives the exit status from `payload[\"ok\"]` for every subcommand that publishes one, so a newly added validator is honest by default.",
+          "- AC5: A test asserts the general rule across `flow` subcommands rather than the individual commands fixed here.",
+          "- AC6: `health`, `lint`, and `audit` keep their current exit behaviour, proven by the same test."
+        ],
+        "Problem": [
+          "`logics_manager/flow/__init__.py:3188-3193` is the entire exit-status policy for every `flow` subcommand: it returns 1 only when the command is literally `closeout` or `validate-closeout` and its payload is not ok, and returns 0 for everything else that returned a dict. Eight payload sites in that module set `\"ok\"` from a real condition (`:554`, `:942`, `:1835`, `:2120` among them); six can never influence the exit code. Observed consequences: `flow validate` reports two findings prefixed `blocking:` and exits 0 (reproduced by removing `req_324`'s backlog link, then restoring it); `flow roadmap validate` prints `Roadmap validation: FAILED` with six issues and exits 0. Any validator added to `flow` inherits \"always succeeds\" unless someone remembers to extend the allow-list."
+        ]
+      },
+      "status": "Ready",
+      "title": "Derive flow exit statuses from the payload instead of an allow-list"
+    },
+    {
+      "ai_context": {
+        "keywords": "task, implementation, backlog, runtime, python",
+        "skip when": "The work is still at the request or backlog shaping stage.",
+        "summary": "Implement orchestrate the exit-code honesty corrections.",
+        "use when": "You need a bounded implementation task for a backlog item."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_679_make_doctor_exit_non_zero_when_it_reports_failed",
+          "item_680_derive_flow_exit_statuses_from_the_payload_instead_of_an_allow_list"
+        ],
+        "task": [
+          "task_323_orchestrate_the_exit_code_honesty_corrections"
+        ]
+      },
+      "path": "logics/tasks/task_323_orchestrate_the_exit_code_honesty_corrections.md",
+      "ref": "task_323_orchestrate_the_exit_code_honesty_corrections",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the two delivery slices captured by req_326's review findings.",
+          "- Cross-request ordering: `item_679` must land before `item_676` (under req_325), which adds the full `doctor` to CI. Until doctor exits non-zero, that CI step can never fail."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the exit-code honesty corrections"
+    }
+  ],
+  "estimates": {
+    "char_count": 12339,
+    "companion_doc_count": 0,
+    "doc_count": 6
+  },
+  "generated_at": "2026-08-09T22:17:41Z",
+  "handoff": {
+    "companion_doc_count": 0,
+    "enabled": true,
+    "source_refs": [
+      "req_326_review_findings_commands_that_report_failure_and_exit_zero",
+      "item_679_make_doctor_exit_non_zero_when_it_reports_failed",
+      "item_680_derive_flow_exit_statuses_from_the_payload_instead_of_an_allow_list",
+      "task_323_orchestrate_the_exit_code_honesty_corrections"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "deep",
+  "ref": "req_326_review_findings_commands_that_report_failure_and_exit_zero,item_679_make_doctor_exit_non_zero_when_it_reports_failed,item_680_derive_flow_exit_statuses_from_the_payload_instead_of_an_allow_list,task_323_orchestrate_the_exit_code_honesty_corrections",
+  "refs": [
+    "req_326_review_findings_commands_that_report_failure_and_exit_zero",
+    "item_679_make_doctor_exit_non_zero_when_it_reports_failed",
+    "item_680_derive_flow_exit_statuses_from_the_payload_instead_of_an_allow_list",
+    "task_323_orchestrate_the_exit_code_honesty_corrections"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different version",
+      "changelog: evidence targets a different version",
+      "local_validation: evidence targets a different version",
+      "git_push: evidence targets a different version",
+      "ci: evidence targets a different version",
+      "github_release: evidence targets a different version",
+      "issue_closure: evidence targets a different version"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different version",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "stale"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.2"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_323_orchestrate_the_exit_code_honesty_corrections.md",
+      "ref": "task_323_orchestrate_the_exit_code_honesty_corrections"
+    }
+  ]
+}

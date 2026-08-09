@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 78%
+> Progress: 89%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -20,9 +20,9 @@
 - [x] 3. Cross-link the corpus skill's --apply-fixes gotcha to closeout-repair once it exists.
 - [x] 4. Add the MCP tools for withdraw, progress, roadmap show/validate, deliver, validate-closeout, gates, links, doctor, and insights, independently of the skill docs; each new skill's recipe should call these once they exist rather than shell out to the CLI where an MCP tool is available.
 - [x] 5. Add the .claude-plugin/plugin.json manifest last, once every skill and MCP tool it needs to declare exists, and verify the install check.
-- [ ] 6. Run `logics-manager skills install --all-profiles` and confirm all eight skills (four existing, four new) are discovered.
-- [ ] 7. Add drift detection to `install_skills()`, hook a re-sync into `update` (`self-update` is a deprecated alias), add `~/.hermes/skills` and Antigravity's verified skills directory to `discover_skill_dirs()`, and document both as supported harnesses alongside Claude Code and Codex (with Ollama documented as explicitly out of scope).
-- [ ] 8. Extend `bootstrap` to install skills into every detected harness and wire each harness's MCP config: merge JSON (Claude Code, Antigravity), append-as-text TOML (Codex), print-only for YAML (Hermes). Do this last, once every skill (steps 1-2), MCP tool (step 4), and harness directory (step 7) it needs to reference actually exists.
+- [x] 6. Run `logics-manager skills install --all-profiles` and confirm all eight skills (four existing, four new) are discovered. (Exercised live via `bootstrap --sync-harnesses` on this machine, which routes through the same discovery+install path: all 8 skills present in every detected harness dir; pre-existing `corpus` correctly left alone as possibly-hand-modified since it predates the drift sidecar.)
+- [ ] 7. Add drift detection to `install_skills()`, hook a re-sync into `update` (`self-update` is a deprecated alias), add `~/.hermes/skills` and Antigravity's verified skills directory to `discover_skill_dirs()`, and document both as supported harnesses alongside Claude Code and Codex (with Ollama documented as explicitly out of scope). PARTIAL: everything done except Antigravity's directory (its own docs and a field report disagree, and this explicitly needs verifying against a real install rather than guessed - not done).
+- [x] 8. Extend `bootstrap` to install skills into every detected harness and wire each harness's MCP config: merge JSON (Claude Code, Antigravity), append-as-text TOML (Codex), print-only for YAML (Hermes). Do this last, once every skill (steps 1-2), MCP tool (step 4), and harness directory (step 7) it needs to reference actually exists. Shipped as opt-in (`--sync-harnesses`), not unconditional - see item_657's Notes for why.
 - [ ] 9. Validate and index the corpus.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.

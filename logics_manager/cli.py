@@ -23,7 +23,7 @@ from .lint import commit_indicator_findings, lint_payload, render_lint
 from .sync import search_logics_docs_payload
 from .doctor import doctor_packaging_payload, render_doctor
 from .termstyle import colorize_help
-from .skills import discover_skill_dirs, install_skills
+from .skills import resync_all_harnesses
 from .update_check import current_version as package_current_version, get_update_info, get_update_notice
 
 
@@ -221,20 +221,6 @@ def _is_running_from_npm_package() -> bool:
 def latest_available_version() -> str | None:
     """Published version, or None when the registry is unreachable."""
     return get_update_info(get_cli_version()).latest_version
-
-
-def _resync_skills_after_update() -> dict[str, object]:
-    """req_318/item_656: nothing used to re-trigger a skill install after a
-    version bump, so a machine that ran `skills install` once before a new
-    skill shipped stayed on the original set forever. `update`/`self-update`
-    now re-syncs every detected harness directory, refreshing a stale skill
-    and adding a new one, without ever overwriting a hand-modified one."""
-    results = []
-    for target_dir in discover_skill_dirs():
-        if not target_dir.is_dir():
-            continue
-        results.append(install_skills([], target_dir, force=False))
-    return {"targets": results}
 
 
 def _print_skill_sync_summary(skill_sync: dict[str, object]) -> None:
@@ -614,13 +600,23 @@ def _dispatch(argv: list[str] | None = None) -> int:
     if command == "bootstrap":
         parser = command_parser("logics-manager bootstrap")
         parser.add_argument("--check", action="store_true")
+        parser.add_argument(
+            "--sync-harnesses",
+            action="store_true",
+            help=(
+                "Also install bundled skills into every detected harness directory "
+                "(Claude Code, Codex, Hermes) and wire (or print the snippet for) each "
+                "harness's MCP config. Opt-in: this touches files outside the repo "
+                "(~/.claude, ~/.codex, ~/.hermes, ~/.gemini), unlike the rest of bootstrap."
+            ),
+        )
         parser.add_argument("--format", choices=("text", "json"), default="text")
         parsed = parser.parse_args(rest)
         try:
             repo_root = find_repo_root(Path.cwd())
         except ConfigError:
             repo_root = Path.cwd().resolve()
-        payload = bootstrap_payload(repo_root, check=parsed.check)
+        payload = bootstrap_payload(repo_root, check=parsed.check, sync_harnesses=parsed.sync_harnesses)
         print(render_bootstrap(payload, output_format=parsed.format))
         return 0 if payload["ok"] else 1
     if command in {"self-update", "update"}:
@@ -758,7 +754,7 @@ def _dispatch(argv: list[str] | None = None) -> int:
             if manager == "pipx":
                 target = parsed.python_package
             state["package"] = target
-            skill_sync = _resync_skills_after_update()
+            skill_sync = resync_all_harnesses()
             state["skill_sync"] = skill_sync
             if parsed.format == "json":
                 state["latest_version"] = latest_available_version()

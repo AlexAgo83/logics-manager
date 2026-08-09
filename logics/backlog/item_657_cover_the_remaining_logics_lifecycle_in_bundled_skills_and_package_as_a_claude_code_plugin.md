@@ -1,10 +1,10 @@
 ## item_657_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin - Wire bootstrap to leave every detected harness ready to use
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 78%
+> Progress: 100%
 > Complexity: High
 > Theme: Zero-to-ready onboarding
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -67,3 +67,4 @@
 - Hybrid rationale: Derived from request `req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md`.
 - Generated locally by logics-manager.
+- Deviation from AC14's literal wording (2026-08-09): harness sync is opt-in via `logics-manager bootstrap --sync-harnesses`, not `bootstrap`'s unconditional default. Discovered mid-build: `bootstrap_payload()` is called as a plain repo-scaffolding fixture by roughly a dozen test files (and the viewer's onboarding flow), none of which should mutate the real machine's `~/.claude`, `~/.codex`, `~/.hermes`, or `~/.gemini` as a side effect of setting up a throwaway test repo. Verified live against this machine's real Codex/`.mcp.json` config with `--sync-harnesses` - both wired correctly, `corpus` everywhere correctly left alone as possibly-hand-modified (no `.bundled-hash` sidecar predates this feature). Flagged to the operator: that run modified this machine's real `~/.codex/config.toml`.

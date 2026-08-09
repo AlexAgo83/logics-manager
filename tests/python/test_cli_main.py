@@ -3763,8 +3763,7 @@ def test_self_update_check_skips_the_notice_under_json_format(
 
 
 def test_resync_skills_after_update_refreshes_stale_and_adds_new(tmp_path: Path) -> None:
-    from logics_manager.cli import _resync_skills_after_update
-    from logics_manager.skills import install_skills
+    from logics_manager.skills import install_skills, resync_all_harnesses
 
     target = tmp_path / "claude-skills"
     target.mkdir()
@@ -3772,8 +3771,8 @@ def test_resync_skills_after_update_refreshes_stale_and_adds_new(tmp_path: Path)
     install_skills(["corpus"], target, force=False)
 
     with pytest.MonkeyPatch.context() as mp:
-        mp.setattr("logics_manager.cli.discover_skill_dirs", lambda: [target])
-        result = _resync_skills_after_update()
+        mp.setattr("logics_manager.skills.discover_skill_dirs", lambda: [target])
+        result = resync_all_harnesses()
 
     installed = {name for r in result["targets"] for name in r["installed"]}
     assert "groom-issues" in installed or "review-project" in installed
@@ -3781,8 +3780,7 @@ def test_resync_skills_after_update_refreshes_stale_and_adds_new(tmp_path: Path)
 
 
 def test_resync_skills_leaves_a_hand_modified_skill_alone(tmp_path: Path) -> None:
-    from logics_manager.cli import _resync_skills_after_update
-    from logics_manager.skills import install_skills
+    from logics_manager.skills import install_skills, resync_all_harnesses
 
     target = tmp_path / "claude-skills"
     target.mkdir()
@@ -3790,9 +3788,41 @@ def test_resync_skills_leaves_a_hand_modified_skill_alone(tmp_path: Path) -> Non
     (target / "corpus" / "SKILL.md").write_text("hand-edited content", encoding="utf-8")
 
     with pytest.MonkeyPatch.context() as mp:
-        mp.setattr("logics_manager.cli.discover_skill_dirs", lambda: [target])
-        result = _resync_skills_after_update()
+        mp.setattr("logics_manager.skills.discover_skill_dirs", lambda: [target])
+        result = resync_all_harnesses()
 
     hand_modified = {name for r in result["targets"] for name in r["hand_modified"]}
     assert "corpus" in hand_modified
     assert (target / "corpus" / "SKILL.md").read_text(encoding="utf-8") == "hand-edited content"
+
+
+def test_bootstrap_sync_harnesses_is_opt_in_and_touches_only_the_fake_home(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """req_318/item_657: `--sync-harnesses` is opt-in precisely because it
+    touches files outside the repo - this proves both halves: omitting the
+    flag changes nothing outside the repo, and passing it only ever touches
+    the fake home this test points it at, never the real machine's."""
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    monkeypatch.chdir(repo_root)
+    (repo_root / ".mcp.json").write_text('{"mcpServers": {}}', encoding="utf-8")
+
+    fake_home = tmp_path / "fake-home"
+    fake_home.mkdir()
+    monkeypatch.setattr("logics_manager.skills._real_home", lambda: fake_home)
+    monkeypatch.setattr("logics_manager.harness_mcp._real_home", lambda: fake_home)
+
+    # Without the flag: bootstrap runs, nothing under fake_home is touched.
+    exit_code = main(["bootstrap"])
+    assert exit_code == 0
+    assert not any(fake_home.iterdir())
+
+    # With the flag: skills land under fake_home, never the real machine's.
+    exit_code = main(["bootstrap", "--sync-harnesses"])
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert (fake_home / ".claude" / "skills" / "corpus" / "SKILL.md").is_file()
+    assert "skills in" in captured.out

@@ -1,7 +1,7 @@
 ## req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from - Judge release evidence against the commit the release was cut from
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

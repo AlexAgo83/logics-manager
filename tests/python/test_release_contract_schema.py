@@ -93,7 +93,13 @@ def test_release_fixture_profiles_match_contract_invariants() -> None:
             assert command["evidence_kind"] == "command"
 
 
-def _write_release_repo(tmp_path: Path, evidence: list[dict[str, object]], *, version: str = "1.2.3") -> Path:
+def _write_release_repo(
+    tmp_path: Path,
+    evidence: list[dict[str, object]],
+    *,
+    version: str = "1.2.3",
+    gates: list[dict[str, object]] | None = None,
+) -> Path:
     repo_root = tmp_path / "repo"
     release_dir = repo_root / "logics" / "release"
     release_dir.mkdir(parents=True)
@@ -109,7 +115,9 @@ def _write_release_repo(tmp_path: Path, evidence: list[dict[str, object]], *, ve
         ],
         "changelog": {"required": True, "paths": [{"path": "CHANGELOG.md", "format": "markdown", "required": True}]},
         "state_machine": EXPECTED_STATES,
-        "gates": [
+        "gates": gates
+        if gates is not None
+        else [
             {"id": "version_metadata", "state": "preparing", "required": True, "evidence_kinds": ["file"]},
             {"id": "local_validation", "state": "local_validation", "required": True, "evidence_kinds": ["command"]},
             {"id": "github_release", "state": "github_release", "required": True, "evidence_kinds": ["github_release"]},
@@ -389,7 +397,7 @@ def test_release_status_blocks_missing_evidence_provenance(tmp_path: Path) -> No
     assert gates["version_metadata"]["status"] == "stale"
     assert gates["version_metadata"]["blocking_reason"] == "evidence target version is missing"
     assert gates["local_validation"]["status"] == "stale"
-    assert gates["local_validation"]["blocking_reason"] == "evidence commit is missing"
+    assert gates["local_validation"]["blocking_reason"] == "evidence commit is missing (release)"
     assert gates["github_release"]["status"] == "stale"
     assert gates["github_release"]["blocking_reason"] == "evidence tag is missing"
 
@@ -432,7 +440,141 @@ def test_release_status_blocks_ci_evidence_from_wrong_commit(tmp_path: Path) -> 
     ci_gate = next(gate for gate in status["gates"] if gate["id"] == "ci")
 
     assert ci_gate["status"] == "stale"
-    assert ci_gate["blocking_reason"] == "evidence targets a different commit"
+    assert ci_gate["comparison"] == "release"
+    assert ci_gate["blocking_reason"] == "evidence targets a different commit (release)"
+
+
+_COMPARISON_GATES = [
+    {"id": "ci", "state": "ci_verification", "required": True, "evidence_kinds": ["ci"]},
+    {
+        "id": "git_push",
+        "state": "pushed",
+        "required": True,
+        "evidence_kinds": ["git"],
+        "comparison": "branch",
+        "comparison_reason": "A push claim describes this branch's HEAD, not the tagged release commit.",
+    },
+]
+
+
+def test_release_status_stays_valid_at_tagged_commit_after_later_commits_land(tmp_path: Path) -> None:
+    """item_647 AC1/AC2/AC5: a release-judged gate's evidence, recorded at the tag, survives commits that land after it."""
+    repo_root = _write_release_repo(tmp_path, [], gates=_COMPARISON_GATES)
+    tagged_commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo_root, check=True, stdout=subprocess.PIPE, text=True).stdout.strip()
+    subprocess.run(["git", "tag", "v1.2.3"], cwd=repo_root, check=True)
+
+    evidence_path = repo_root / "logics" / "release" / "evidence.jsonl"
+    evidence_path.write_text(
+        json.dumps(
+            {
+                "gate_id": "ci",
+                "kind": "ci",
+                "status": "passed",
+                "observed_at": "2026-06-18T10:03:00Z",
+                "target_version": "1.2.3",
+                "commit": tagged_commit,
+                "summary": "CI passed for the tagged commit",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    # AC2: no later commits yet, no tag drift - still resolves via the tag and passes.
+    status = release_status_payload(repo_root)
+    ci_gate = next(gate for gate in status["gates"] if gate["id"] == "ci")
+    assert ci_gate["comparison"] == "release"
+    assert ci_gate["status"] == "passed"
+    assert status["release_commit"] == tagged_commit
+
+    # AC1/AC5: a checksum write-back or closeout commit lands on the branch after the tag.
+    (repo_root / "post-release.txt").write_text("closeout\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo_root, check=True)
+    subprocess.run(["git", "commit", "-m", "post-release closeout"], cwd=repo_root, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+    status = release_status_payload(repo_root)
+    ci_gate = next(gate for gate in status["gates"] if gate["id"] == "ci")
+    assert ci_gate["status"] == "passed", "release-judged evidence must not go stale when later commits land"
+    assert status["release_commit"] == tagged_commit
+    assert status["commit"] != tagged_commit
+
+
+def test_release_status_no_tag_falls_back_to_working_commit(tmp_path: Path) -> None:
+    """item_647 AC2: a release in preparation with no tag yet validates against the working commit."""
+    repo_root = _write_release_repo(tmp_path, [], gates=_COMPARISON_GATES)
+    commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo_root, check=True, stdout=subprocess.PIPE, text=True).stdout.strip()
+
+    evidence_path = repo_root / "logics" / "release" / "evidence.jsonl"
+    evidence_path.write_text(
+        json.dumps(
+            {
+                "gate_id": "ci",
+                "kind": "ci",
+                "status": "passed",
+                "observed_at": "2026-06-18T10:03:00Z",
+                "target_version": "1.2.3",
+                "commit": commit,
+                "summary": "CI passed",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    status = release_status_payload(repo_root)
+
+    assert status["release_commit"] == commit
+    assert next(gate for gate in status["gates"] if gate["id"] == "ci")["status"] == "passed"
+
+
+def test_release_status_reports_comparison_and_names_it_in_branch_judged_gate(tmp_path: Path) -> None:
+    """item_648 AC1/AC2/AC3/AC5: gates declare their comparison, and a branch-judged gate goes stale as the branch advances even though a release-judged gate stays put."""
+    repo_root = _write_release_repo(tmp_path, [], gates=_COMPARISON_GATES)
+    pushed_commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo_root, check=True, stdout=subprocess.PIPE, text=True).stdout.strip()
+    subprocess.run(["git", "tag", "v1.2.3"], cwd=repo_root, check=True)
+
+    evidence_path = repo_root / "logics" / "release" / "evidence.jsonl"
+    evidence_path.write_text(
+        "\n".join(
+            json.dumps(entry)
+            for entry in [
+                {
+                    "gate_id": "ci",
+                    "kind": "ci",
+                    "status": "passed",
+                    "observed_at": "2026-06-18T10:03:00Z",
+                    "target_version": "1.2.3",
+                    "commit": pushed_commit,
+                    "summary": "CI passed",
+                },
+                {
+                    "gate_id": "git_push",
+                    "kind": "git",
+                    "status": "passed",
+                    "observed_at": "2026-06-18T10:04:00Z",
+                    "target_version": "1.2.3",
+                    "commit": pushed_commit,
+                    "summary": "pushed to main",
+                },
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    # A further commit lands on the branch (e.g. release closeout) without re-recording git_push evidence.
+    (repo_root / "post-release.txt").write_text("closeout\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo_root, check=True)
+    subprocess.run(["git", "commit", "-m", "post-release closeout"], cwd=repo_root, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+    status = release_status_payload(repo_root)
+    gates = {gate["id"]: gate for gate in status["gates"]}
+
+    assert gates["ci"]["comparison"] == "release"
+    assert gates["ci"]["status"] == "passed"
+    assert gates["git_push"]["comparison"] == "branch"
+    assert gates["git_push"]["status"] == "stale"
+    assert gates["git_push"]["blocking_reason"] == "evidence targets a different commit (branch)"
 
 
 def test_release_cli_status_returns_stable_json(

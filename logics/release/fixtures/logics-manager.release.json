@@ -6,16 +6,39 @@
     "release_profile": "python-npm-vscode"
   },
   "version_sources": [
-    { "path": "VERSION", "format": "plain_text", "required": true },
-    { "path": "pyproject.toml", "format": "toml", "selector": "project.version", "required": true },
-    { "path": "package.json", "format": "json", "selector": "version", "required": true },
-    { "path": "README.md", "format": "plain_text", "selector": "badge.version", "required": true }
+    {
+      "path": "VERSION",
+      "format": "plain_text",
+      "required": true
+    },
+    {
+      "path": "pyproject.toml",
+      "format": "toml",
+      "selector": "project.version",
+      "required": true
+    },
+    {
+      "path": "package.json",
+      "format": "json",
+      "selector": "version",
+      "required": true
+    },
+    {
+      "path": "README.md",
+      "format": "plain_text",
+      "selector": "badge.version",
+      "required": true
+    }
   ],
   "changelog": {
     "required": true,
     "version_heading_required": true,
     "paths": [
-      { "path": "changelogs/CHANGELOGS_{version_underscore}.md", "format": "markdown", "required": true }
+      {
+        "path": "changelogs/CHANGELOGS_{version_underscore}.md",
+        "format": "markdown",
+        "required": true
+      }
     ]
   },
   "release_notes": {
@@ -35,30 +58,111 @@
     "blocked"
   ],
   "gates": [
-    { "id": "version_metadata", "state": "preparing", "required": true, "evidence_kinds": ["file"] },
-    { "id": "changelog", "state": "preparing", "required": true, "evidence_kinds": ["file"] },
-    { "id": "local_validation", "state": "local_validation", "required": true, "evidence_kinds": ["command"] },
-    { "id": "git_push", "state": "pushed", "required": true, "evidence_kinds": ["git"] },
-    { "id": "ci", "state": "ci_verification", "required": true, "evidence_kinds": ["ci"] },
-    { "id": "github_release", "state": "github_release", "required": true, "evidence_kinds": ["github_release"] },
-    { "id": "npm_publication", "state": "external_publication", "required": false, "evidence_kinds": ["external"] }
+    {
+      "id": "version_metadata",
+      "state": "preparing",
+      "required": true,
+      "evidence_kinds": [
+        "file"
+      ],
+      "comparison": "release"
+    },
+    {
+      "id": "changelog",
+      "state": "preparing",
+      "required": true,
+      "evidence_kinds": [
+        "file"
+      ],
+      "comparison": "release"
+    },
+    {
+      "id": "local_validation",
+      "state": "local_validation",
+      "required": true,
+      "evidence_kinds": [
+        "command"
+      ],
+      "comparison": "release"
+    },
+    {
+      "id": "git_push",
+      "state": "pushed",
+      "required": true,
+      "evidence_kinds": [
+        "git"
+      ],
+      "comparison": "branch",
+      "comparison_reason": "A push claim describes this branch's HEAD, not the tagged release commit."
+    },
+    {
+      "id": "ci",
+      "state": "ci_verification",
+      "required": true,
+      "evidence_kinds": [
+        "ci"
+      ],
+      "comparison": "release"
+    },
+    {
+      "id": "github_release",
+      "state": "github_release",
+      "required": true,
+      "evidence_kinds": [
+        "github_release"
+      ],
+      "comparison": "release"
+    },
+    {
+      "id": "npm_publication",
+      "state": "external_publication",
+      "required": false,
+      "evidence_kinds": [
+        "external"
+      ],
+      "comparison": "release"
+    }
   ],
   "evidence": {
-    "store": { "path": "logics/release/evidence.jsonl", "format": "jsonl", "required": true },
+    "store": {
+      "path": "logics/release/evidence.jsonl",
+      "format": "jsonl",
+      "required": true
+    },
     "freshness": {
       "match_target_version": true,
       "match_commit_for_source_gates": true,
       "match_tag_for_publication_gates": true
     },
-    "required_fields": ["kind", "status", "observed_at", "target_version", "commit", "summary"]
+    "required_fields": [
+      "kind",
+      "status",
+      "observed_at",
+      "target_version",
+      "commit",
+      "summary"
+    ]
   },
   "validation_commands": [
-    { "id": "ci_check", "command": ["node", "scripts/ci-check.mjs"], "required": true, "evidence_kind": "command" }
+    {
+      "id": "ci_check",
+      "command": [
+        "node",
+        "scripts/ci-check.mjs"
+      ],
+      "required": true,
+      "evidence_kind": "command"
+    }
   ],
   "git": {
     "release_branch_policy": "main_only",
-    "allowed_branches": ["main"],
-    "tag_policy": { "required": true, "pattern": "v{version}" },
+    "allowed_branches": [
+      "main"
+    ],
+    "tag_policy": {
+      "required": true,
+      "pattern": "v{version}"
+    },
     "require_clean_worktree": true,
     "require_pushed_commit": true
   },
@@ -69,7 +173,12 @@
     "asset_paths": []
   },
   "external_publication": [
-    { "id": "npm_package", "kind": "package_registry", "required": false, "url_template": "https://www.npmjs.com/package/logics-manager/v/{version}" }
+    {
+      "id": "npm_package",
+      "kind": "package_registry",
+      "required": false,
+      "url_template": "https://www.npmjs.com/package/logics-manager/v/{version}"
+    }
   ],
   "assistant_readiness": {
     "must_inspect_status_before_claiming_ready": true,

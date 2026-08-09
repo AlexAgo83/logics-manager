@@ -1,10 +1,10 @@
 ## item_647_compare_release_tree_evidence_against_the_tagged_commit - Compare release-tree evidence against the tagged commit
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: The commit the evidence describes
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -58,3 +58,9 @@
 # Priority
 - Priority: High - the release process invalidates its own gates
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_314_orchestrate_judging_evidence_against_the_release`
+
+# Notes
+- Task `task_314_orchestrate_judging_evidence_against_the_release` was finished via `logics-manager flow finish task` on 2026-08-09.

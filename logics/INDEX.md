@@ -101,7 +101,7 @@
 | [prod_062_say_what_just_happened](product/prod_062_say_what_just_happened.md) | Say what just happened | Settled |  |  | product/prod_062_say_what_just_happened.md |
 | [prod_063_preferences_that_outlive_the_port](product/prod_063_preferences_that_outlive_the_port.md) | Preferences that outlive the port | Settled |  |  | product/prod_063_preferences_that_outlive_the_port.md |
 | [prod_064_a_gate_you_can_satisfy](product/prod_064_a_gate_you_can_satisfy.md) | A gate you can satisfy | Settled |  |  | product/prod_064_a_gate_you_can_satisfy.md |
-| [prod_065_evidence_about_the_release](product/prod_065_evidence_about_the_release.md) | Evidence about the release | Proposed |  |  | product/prod_065_evidence_about_the_release.md |
+| [prod_065_evidence_about_the_release](product/prod_065_evidence_about_the_release.md) | Evidence about the release | Settled |  |  | product/prod_065_evidence_about_the_release.md |
 
 ## Roadmaps
 
@@ -426,7 +426,7 @@ _None_
 | [req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done](request/req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done.md) | Close what the attended tour found: say what is unavailable, count what is shown, report when a screen is done | Done |  |  | request/req_314_close_what_the_attended_tour_found_say_what_is_unavailable_count_what_is_shown_report_when_a_screen_is_done.md |
 | [req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository](request/req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository.md) | Persist viewer preferences where they belong: favourites for the user, the rest for the repository | Done |  |  | request/req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository.md |
 | [req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive](request/req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive.md) | Make the closeout gate teachable, self-consistent, and non-destructive | Done |  |  | request/req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive.md |
-| [req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from](request/req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from.md) | Judge release evidence against the commit the release was cut from | Ready |  |  | request/req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from.md |
+| [req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from](request/req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from.md) | Judge release evidence against the commit the release was cut from | Done |  |  | request/req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from.md |
 
 ## Backlog
 
@@ -1078,8 +1078,8 @@ _None_
 | [item_644_let_the_indicator_gate_be_cleared_by_doing_what_it_says](backlog/item_644_let_the_indicator_gate_be_cleared_by_doing_what_it_says.md) | Let the indicator gate be cleared by doing what it says | Done |  | 100% | backlog/item_644_let_the_indicator_gate_be_cleared_by_doing_what_it_says.md |
 | [item_645_repair_without_overwriting_what_was_written_by_hand](backlog/item_645_repair_without_overwriting_what_was_written_by_hand.md) | Repair without overwriting what was written by hand | Done |  | 100% | backlog/item_645_repair_without_overwriting_what_was_written_by_hand.md |
 | [item_646_let_the_ac_repair_respect_which_slice_owns_which_criterion](backlog/item_646_let_the_ac_repair_respect_which_slice_owns_which_criterion.md) | Let the AC repair respect which slice owns which criterion | Done |  | 100 | backlog/item_646_let_the_ac_repair_respect_which_slice_owns_which_criterion.md |
-| [item_647_compare_release_tree_evidence_against_the_tagged_commit](backlog/item_647_compare_release_tree_evidence_against_the_tagged_commit.md) | Compare release-tree evidence against the tagged commit | Ready |  | 0% | backlog/item_647_compare_release_tree_evidence_against_the_tagged_commit.md |
-| [item_648_say_which_gates_are_about_the_branch_and_which_about_the_release](backlog/item_648_say_which_gates_are_about_the_branch_and_which_about_the_release.md) | Say which gates are about the branch and which about the release | Ready |  | 0% | backlog/item_648_say_which_gates_are_about_the_branch_and_which_about_the_release.md |
+| [item_647_compare_release_tree_evidence_against_the_tagged_commit](backlog/item_647_compare_release_tree_evidence_against_the_tagged_commit.md) | Compare release-tree evidence against the tagged commit | Done |  | 100% | backlog/item_647_compare_release_tree_evidence_against_the_tagged_commit.md |
+| [item_648_say_which_gates_are_about_the_branch_and_which_about_the_release](backlog/item_648_say_which_gates_are_about_the_branch_and_which_about_the_release.md) | Say which gates are about the branch and which about the release | Done |  | 100% | backlog/item_648_say_which_gates_are_about_the_branch_and_which_about_the_release.md |
 
 ## Tasks
 
@@ -1392,4 +1392,4 @@ _None_
 | [task_311_orchestrate_the_attended_tour_findings](tasks/task_311_orchestrate_the_attended_tour_findings.md) | Orchestrate the attended tour findings | Done |  | 100% | tasks/task_311_orchestrate_the_attended_tour_findings.md |
 | [task_312_orchestrate_moving_the_viewer_preferences_off_the_port](tasks/task_312_orchestrate_moving_the_viewer_preferences_off_the_port.md) | Orchestrate moving the viewer preferences off the port | Done |  | 100% | tasks/task_312_orchestrate_moving_the_viewer_preferences_off_the_port.md |
 | [task_313_orchestrate_making_the_closeout_gate_satisfiable](tasks/task_313_orchestrate_making_the_closeout_gate_satisfiable.md) | Orchestrate making the closeout gate satisfiable | Done |  | 100% | tasks/task_313_orchestrate_making_the_closeout_gate_satisfiable.md |
-| [task_314_orchestrate_judging_evidence_against_the_release](tasks/task_314_orchestrate_judging_evidence_against_the_release.md) | Orchestrate judging evidence against the release | Ready |  | 0% | tasks/task_314_orchestrate_judging_evidence_against_the_release.md |
+| [task_314_orchestrate_judging_evidence_against_the_release](tasks/task_314_orchestrate_judging_evidence_against_the_release.md) | Orchestrate judging evidence against the release | Done |  | 100% | tasks/task_314_orchestrate_judging_evidence_against_the_release.md |

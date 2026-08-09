@@ -1,10 +1,10 @@
 ## item_648_say_which_gates_are_about_the_branch_and_which_about_the_release - Say which gates are about the branch and which about the release
 > From version: 2.20.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: A stated comparison
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -56,3 +56,9 @@
 # Priority
 - Priority: Medium - the distinction decides what each gate means
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_314_orchestrate_judging_evidence_against_the_release`
+
+# Notes
+- Task `task_314_orchestrate_judging_evidence_against_the_release` was finished via `logics-manager flow finish task` on 2026-08-09.

@@ -8,13 +8,14 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-09 14:26:23
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
 - [ ] 1. Fix collision handling and deconflict default ports first - a shipped-defect-tier fix, and the registry work in the next slice needs a clean collision story to build on.
-- [ ] 2. Add the per-repo registry and wire both the CLI viewer and VS Code's ViewerServerManager to consult it before spawning.
+- [ ] 2. Add the per-repo registry, claimed atomically via `fcntl.flock` (reusing release.py's existing lock primitive, not a new one) to close the two-simultaneous-starts race, and wire both the CLI viewer and VS Code's ViewerServerManager to consult it before spawning.
 - [ ] 3. Harden VS Code's deactivate() and reconcile prod_020's wording with the now-actual behavior.
 - [ ] 4. Validate and index.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
@@ -38,6 +39,7 @@
 - request-AC3 -> `item_666_add_a_per_repo_viewer_registry_so_any_surface_reuses_a_live_instance`. Proof deferred to slice closeout.
 - request-AC4 -> `item_666_add_a_per_repo_viewer_registry_so_any_surface_reuses_a_live_instance`. Proof deferred to slice closeout.
 - request-AC5 -> `item_666_add_a_per_repo_viewer_registry_so_any_surface_reuses_a_live_instance`. Proof deferred to slice closeout.
+- request-AC5b -> `item_666_add_a_per_repo_viewer_registry_so_any_surface_reuses_a_live_instance`. Proof deferred to slice closeout.
 - request-AC6 -> `item_667_harden_vs_code_deactivation_and_reconcile_prod_020_s_port_selection_claim`. Proof deferred to slice closeout.
 - request-AC7 -> `item_667_harden_vs_code_deactivation_and_reconcile_prod_020_s_port_selection_claim`. Proof deferred to slice closeout.
 

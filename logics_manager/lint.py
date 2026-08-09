@@ -688,10 +688,10 @@ def commit_indicator_findings(repo_root: Path, ref: str = "HEAD") -> list[dict[s
         rel = Path(raw.strip())
         if not raw.strip() or rel.suffix != ".md":
             continue
-        kind_name = next((name for name, kind in KINDS.items() if str(rel).startswith(kind.directory)), None)
+        kind_name = next((name for name, kind in KINDS.items() if rel.as_posix().startswith(kind.directory)), None)
         if kind_name is None:
             continue
-        diff = _run_git(repo_root, ["show", "--format=", "--unified=0", ref, "--", str(rel)])
+        diff = _run_git(repo_root, ["show", "--format=", "--unified=0", ref, "--", rel.as_posix()])
         if not diff:
             continue
         required = set(KINDS[kind_name].required_indicators) | {REVIEWED_INDICATOR}

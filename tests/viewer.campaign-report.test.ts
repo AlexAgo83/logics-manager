@@ -29,8 +29,10 @@ describe("viewer campaign", { timeout: 200_000 }, () => {
   it("keeps running after a failed check, reports every check, and still gates", () => {
     const { result, summary, report } = runCampaign({ VIEWER_CAMPAIGN_INJECT_FAILURE: "1" });
 
-    if (summary.mode === "none") {
-      // No viewer could start here; the run still owes a report, and that is all it can owe.
+    if (summary.mode === "none" || summary.mode === "server") {
+      // No viewer could start, or (Windows CI) no browser is available to drive the
+      // injected failure through -- server mode only fetches the shell and payload, by
+      // design. Either way the run still owes a report, and that is all it can owe.
       expect(report).toContain("Viewer UI campaign");
       return;
     }

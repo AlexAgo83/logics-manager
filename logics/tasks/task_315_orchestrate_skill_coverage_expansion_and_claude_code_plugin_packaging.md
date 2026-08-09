@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 67%
+> Progress: 78%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -19,7 +19,7 @@
 - [x] 2. Write lifecycle-ops, roadmap-deliver, closeout-repair, and project-health as independent skills; they do not depend on each other and can be built in any order, each extending the now-generalized test suite as it lands.
 - [x] 3. Cross-link the corpus skill's --apply-fixes gotcha to closeout-repair once it exists.
 - [x] 4. Add the MCP tools for withdraw, progress, roadmap show/validate, deliver, validate-closeout, gates, links, doctor, and insights, independently of the skill docs; each new skill's recipe should call these once they exist rather than shell out to the CLI where an MCP tool is available.
-- [ ] 5. Add the .claude-plugin/plugin.json manifest last, once every skill and MCP tool it needs to declare exists, and verify the install check.
+- [x] 5. Add the .claude-plugin/plugin.json manifest last, once every skill and MCP tool it needs to declare exists, and verify the install check.
 - [ ] 6. Run `logics-manager skills install --all-profiles` and confirm all eight skills (four existing, four new) are discovered.
 - [ ] 7. Add drift detection to `install_skills()`, hook a re-sync into `update` (`self-update` is a deprecated alias), add `~/.hermes/skills` and Antigravity's verified skills directory to `discover_skill_dirs()`, and document both as supported harnesses alongside Claude Code and Codex (with Ollama documented as explicitly out of scope).
 - [ ] 8. Extend `bootstrap` to install skills into every detected harness and wire each harness's MCP config: merge JSON (Claude Code, Antigravity), append-as-text TOML (Codex), print-only for YAML (Hermes). Do this last, once every skill (steps 1-2), MCP tool (step 4), and harness directory (step 7) it needs to reference actually exists.

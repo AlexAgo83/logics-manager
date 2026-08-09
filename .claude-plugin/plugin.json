@@ -1,0 +1,20 @@
+{
+  "name": "logics-manager",
+  "displayName": "Logics Orchestrator",
+  "description": "Scope, build, review, and repair Logics workflow docs (request -> product brief -> backlog -> task) with bundled skills, plus the bounded MCP tools behind them.",
+  "version": "2.21.1",
+  "author": {
+    "name": "cdx-logics"
+  },
+  "repository": "https://github.com/AlexAgo83/logics-manager.git",
+  "license": "MIT",
+  "keywords": ["logics", "workflow", "orchestration", "mcp", "skills"],
+  "skills": ["logics_manager/skill_assets"],
+  "mcpServers": {
+    "logics-manager": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/npm/logics-manager.mjs", "mcp", "serve"]
+    }
+  }
+}

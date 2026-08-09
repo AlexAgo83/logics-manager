@@ -1,10 +1,10 @@
 ## item_658_generate_reversible_wikilinks_in_the_obsidian_projection - Generate reversible wikilinks in the Obsidian projection
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Projection engine
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -54,3 +54,9 @@
 # Priority
 - Priority: High - this is the actual graph-view fix; nothing else in this request matters without it
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_316_orchestrate_the_obsidian_graph_navigable_projection`
+
+# Notes
+- Task `task_316_orchestrate_the_obsidian_graph_navigable_projection` was finished via `logics-manager flow finish task` on 2026-08-09.

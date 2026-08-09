@@ -24,6 +24,23 @@ DOC_TYPES = {
 }
 INDICATORS = ("Status", "Owner", "Understanding", "Confidence", "Progress", "Theme")
 
+# req_319: Obsidian's graph view only draws edges from `[[wikilink]]` syntax; a
+# plain backtick-quoted ref like `req_318_x` produces zero edges after sync,
+# so every projected doc lands as an isolated node. These convert between the
+# two forms, only for a ref that resolves to a real doc in this projection -
+# never linking a typo or a ref mentioned only as a prose example.
+_REF_PREFIX_PATTERN = "|".join(prefix for _dir, prefix in DOC_TYPES.values())
+_BACKTICK_REF = re.compile(rf"`((?:{_REF_PREFIX_PATTERN})_\d+_[a-z0-9_]+)`")
+_WIKILINK_REF = re.compile(rf"\[\[((?:{_REF_PREFIX_PATTERN})_\d+_[a-z0-9_]+)\]\]")
+
+
+def _wikilinkify(text: str, known_refs: frozenset[str]) -> str:
+    return _BACKTICK_REF.sub(lambda m: f"[[{m.group(1)}]]" if m.group(1) in known_refs else m.group(0), text)
+
+
+def _de_wikilinkify(text: str, known_refs: frozenset[str]) -> str:
+    return _WIKILINK_REF.sub(lambda m: f"`{m.group(1)}`" if m.group(1) in known_refs else m.group(0), text)
+
 
 @dataclass(frozen=True)
 class ProjectionDoc:
@@ -266,15 +283,19 @@ def obsidian_payload(repo_root: Path, *, action: str, check: bool = False, dry_r
             "skipped_reason": skipped_reason,
         }
 
+    known_refs = frozenset(doc.ref for doc in docs)
+
     for doc in docs:
         canonical, existing_frontmatter, managed = _strip_managed_frontmatter(doc.content)
         if action == "clean":
             if managed:
+                restored = _de_wikilinkify(canonical, known_refs)
                 changed.append(doc.rel_path)
                 if not check and not dry_run:
-                    doc.path.write_text(canonical, encoding="utf-8")
+                    doc.path.write_text(restored, encoding="utf-8")
             continue
 
+        linked_canonical = _wikilinkify(canonical, known_refs)
         fresh_doc = ProjectionDoc(
             path=doc.path,
             rel_path=doc.rel_path,
@@ -282,9 +303,9 @@ def obsidian_payload(repo_root: Path, *, action: str, check: bool = False, dry_r
             ref=doc.ref,
             title=doc.title,
             indicators=doc.indicators,
-            content=canonical,
+            content=linked_canonical,
         )
-        next_content = _render_frontmatter(_frontmatter_for(fresh_doc)) + canonical
+        next_content = _render_frontmatter(_frontmatter_for(fresh_doc)) + linked_canonical
         if next_content != doc.content:
             changed.append(doc.rel_path)
         if existing_frontmatter is not None:

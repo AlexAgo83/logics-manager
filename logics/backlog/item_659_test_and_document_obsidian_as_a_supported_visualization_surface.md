@@ -1,10 +1,10 @@
 ## item_659_test_and_document_obsidian_as_a_supported_visualization_surface - Test and document Obsidian as a supported visualization surface
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Test coverage and documentation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -49,3 +49,9 @@
 # Priority
 - Priority: Medium - closes an existing test gap and stops the docs from undercounting a feature that now exists
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_316_orchestrate_the_obsidian_graph_navigable_projection`
+
+# Notes
+- Task `task_316_orchestrate_the_obsidian_graph_navigable_projection` was finished via `logics-manager flow finish task` on 2026-08-09.

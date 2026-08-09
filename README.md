@@ -152,12 +152,13 @@ Safe editing rules:
 - Do not hand-edit Logics indicators such as `Status`, `Progress`,
   `Understanding`, `Confidence`, lineage links, Mermaid signatures, or generated
   done/closeout evidence.
-- Keep canonical Logics references as repo-relative paths or refs. Obsidian
-  wikilinks may be added later only as supplemental navigation hints; Logics
-  Manager parsing must not require them.
-- Frontmatter, tags, or aliases are not required today. If a future
-  Obsidian-friendly mode generates them, they must be deterministic,
-  non-destructive, and validated against the canonical Logics doc type, ref,
+- Keep canonical Logics references as repo-relative paths or refs. `obsidian
+  sync` adds `[[wikilink]]` navigation hints as a derived, opt-in projection —
+  Logics Manager parsing never requires them, and canonical files under
+  `logics/` are never rewritten by hand from this.
+- Frontmatter, tags, and aliases are not written to canonical files; they only
+  ever exist in the opt-in projection, generated deterministically and
+  non-destructively, and validated against the canonical Logics doc type, ref,
   status, and title.
 
 After editing workflow docs in Obsidian, validate from the repository root:

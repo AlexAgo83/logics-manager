@@ -392,6 +392,54 @@ ALL_DOC_DIRECTORIES = {
 }
 
 
+_ANY_REF_RE = re.compile(r"^([a-z]+)_(\d+)(?:_[a-z0-9_]+)?$")
+
+ALL_DOC_PREFIXES = {
+    "req": "logics/request",
+    "item": "logics/backlog",
+    "task": "logics/tasks",
+    "prod": "logics/product",
+    "road": "logics/roadmap",
+    "adr": "logics/architecture",
+    "spec": "logics/specs",
+}
+
+
+def resolve_ref_slug(repo_root: Path, ref: str) -> str:
+    """Expand a short ref (``req_296``) into the full slug its documents carry.
+
+    req_324: generators used to write whatever ref the operator typed. Only the full
+    slug matches the pattern in ``doc_parsing.extract_refs``, so a short ref produced a
+    document the audit rejected as unlinked. Resolving here means a ref reaches the page
+    in the one form the rest of the runtime can read, and an unresolvable ref fails
+    before anything is written rather than after.
+    """
+    ref = ref.strip().strip("`")
+    match = _ANY_REF_RE.match(ref)
+    if not match:
+        raise SystemExit(f"Unrecognized doc ref `{ref}`: expected a form like `req_296` or `req_296_<slug>`.")
+    prefix, number = match.group(1), int(match.group(2))
+    directory = repo_root / ALL_DOC_PREFIXES.get(prefix, "")
+    if prefix not in ALL_DOC_PREFIXES or not directory.is_dir():
+        raise SystemExit(f"Unknown doc ref prefix in `{ref}`: no document family owns `{prefix}_`.")
+    if (directory / f"{ref}.md").is_file():
+        return ref
+    matches = sorted(
+        path.stem
+        for path in directory.glob(f"{prefix}_*.md")
+        if (parts := path.stem.split("_", 2)) and len(parts) >= 2 and parts[1].isdigit() and int(parts[1]) == number
+    )
+    if len(matches) == 1:
+        return matches[0]
+    if not matches:
+        raise SystemExit(f"Could not resolve doc ref `{ref}`: no document in {ALL_DOC_PREFIXES[prefix]} matches it.")
+    raise SystemExit(f"Ambiguous doc ref `{ref}`: {', '.join(matches)}.")
+
+
+def resolve_ref_slugs(repo_root: Path, refs: list[str] | None) -> list[str]:
+    return [resolve_ref_slug(repo_root, ref) for ref in refs or []]
+
+
 def _locate_doc_anywhere(repo_root: Path, ref: str) -> tuple[Path, str] | None:
     """Find a document by bare ref across every kind, for honest error messages."""
     for kind_name, directory in ALL_DOC_DIRECTORIES.items():
@@ -570,8 +618,9 @@ def _changed_rel(repo_root: Path, changed_paths: set[Path], path: Path, before: 
 
 def _request_ac_entries(request_path: Path) -> list[tuple[str, str]]:
     entries: list[tuple[str, str]] = []
-    for line in _section_lines(request_path.read_text(encoding="utf-8").splitlines(), "Acceptance criteria"):
-        match = re.search(r"\bAC(\d+)\s*:\s*(.+)", line, flags=re.IGNORECASE)
+    # req_324: read rejoined bullets, not raw lines, so a wrapped AC keeps its whole text.
+    for value in _bullet_values(_section_lines(request_path.read_text(encoding="utf-8").splitlines(), "Acceptance criteria")):
+        match = re.search(r"\bAC(\d+)\s*:\s*(.+)", value, flags=re.IGNORECASE)
         if match:
             entries.append((f"AC{int(match.group(1))}", match.group(2).strip()))
     return entries
@@ -880,6 +929,12 @@ def _extract_doc_title(path: Path) -> str:
 
 
 def _bullet_values(lines: list[str]) -> list[str]:
+    """Bullet values from a section, with wrapped bullets rejoined.
+
+    req_324: this used to keep only the first physical line of each bullet, so promoting a
+    request whose acceptance criteria wrap produced a derived doc asserting half a sentence.
+    A line that is not itself a bullet and is not blank continues the bullet above it.
+    """
     values: list[str] = []
     for line in lines:
         stripped = line.strip()
@@ -887,6 +942,8 @@ def _bullet_values(lines: list[str]) -> list[str]:
             value = stripped[2:].strip()
             if value:
                 values.append(value)
+        elif stripped and values:
+            values[-1] = f"{values[-1]} {stripped}"
     return values
 
 

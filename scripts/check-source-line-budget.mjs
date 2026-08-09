@@ -101,8 +101,17 @@ const allowedOversizedFiles = new Map(
     // _build_progress_kind_help, pure string generation with no CLI-running logic
     // of their own) out to flow/help_text.py, the same vocabulary-vs-verbs split
     // already used for flow/docs.py: 3682 -> 3193.
-    "logics_manager/flow/__init__.py": { maxLines: 3193, ref: "req_316" },
-    "logics_manager/flow/docs.py": { maxLines: 1372, ref: "req_316" },
+    // 3200: req_324 resolves roadmap refs to full slugs before writing them, in
+    // _build_native_roadmap. Seven lines, all of them at the one place that knows which
+    // refs a roadmap is being built from; pushing them down into flow/docs.py would put
+    // the roadmap's argument shape in the vocabulary module, which is the split this
+    // ledger's entry above exists to protect.
+    "logics_manager/flow/__init__.py": { maxLines: 3200, ref: "req_324" },
+    // 1429: req_324 added resolve_ref_slug/resolve_ref_slugs (the short-ref expansion the
+    // generators needed and _resolve_doc_path already did privately, per kind) plus the
+    // rejoin loop in _bullet_values. Both are document vocabulary, so this is where they
+    // belong; nothing was extracted because nothing here has grown a second concern.
+    "logics_manager/flow/docs.py": { maxLines: 1429, ref: "req_324" },
     // req_273: de-glued frontend sources. esbuild/concatenation now consume these directly
     // instead of a regex part-manifest + readFileSync.join, so the bundles stay byte-stable.
     // 7250: viewer screen minimization and workshop terminal follow-ups added here;

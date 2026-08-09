@@ -141,6 +141,10 @@ from .docs import (  # noqa: E402,F401  (re-exported: callers import these from 
     _section_has_unchecked_checkbox,
     _section_text,
     _short_ref_matches,
+    ALL_DOC_PREFIXES,
+    _ANY_REF_RE,
+    resolve_ref_slug,
+    resolve_ref_slugs,
     _snapshot_existing_files,
     _strip_mermaid_blocks,
     _update_request_product_link,
@@ -846,9 +850,12 @@ def _build_native_roadmap(
 ) -> tuple[str, str]:
     ref = _next_roadmap_ref(repo_root, title)
     parsed_milestones = _split_milestones(milestones or [])
-    request_refs = request_refs or []
-    backlog_refs = backlog_refs or []
-    task_refs = task_refs or []
+    # req_324: resolve before writing. A short ref on the page never matches the full-slug
+    # pattern `extract_refs` uses, so the audit reads the roadmap as linked to nothing.
+    request_refs = resolve_ref_slugs(repo_root, request_refs)
+    backlog_refs = resolve_ref_slugs(repo_root, backlog_refs)
+    task_refs = resolve_ref_slugs(repo_root, task_refs)
+    product_ref = resolve_ref_slug(repo_root, product_ref) if product_ref else None
     content = [
         f"## {ref} - {title}",
         f"> Date: {date.today().isoformat()}",

@@ -1,14 +1,14 @@
 ## task_321_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for - Make generated roadmap docs pass the audit they are generated for
 > From version: 2.21.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-10 00:17:16
+> Indicators reviewed: 2026-08-10 00:32:14
 
 # AI Context
 - Summary: Implement make generated roadmap docs pass the audit they are generated for.
@@ -17,10 +17,10 @@
 - Skip when: The work is still at the request or backlog shaping stage.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
-- [ ] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
+- [x] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
 
 # Backlog
 - `item_673_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for`
@@ -35,12 +35,12 @@
 - AC7: Promoting a request whose ACs wrap across several lines carries each AC into the backlog item and task in full, not truncated at its first physical line.
 
 # Plan
-- [ ] 1. Resolve short refs in `flow roadmap propose` (`flow/docs.py:808`) for all four ref flags, in the indicator line and `# References`; fail loudly on an unresolvable ref.
-- [ ] 2. Read the document heading only in `index.py:44-52` (`break`, not `continue`), then regenerate `INDEX.md` and review the diff across every doc kind.
-- [ ] 3. Carry full wrapped ACs through `flow promote`, and the `# Problem` section it builds from `# Needs`.
-- [ ] 4. Regression tests: a generated roadmap with short refs and several milestones (audit result + index row), and a promote with multi-line ACs.
-- [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
-- [ ] GATE: do not close until lint, audit, and the full test suite pass.
+- [x] 1. Resolve short refs in `flow roadmap propose` (`flow/docs.py:808`) for all four ref flags, in the indicator line and `# References`; fail loudly on an unresolvable ref.
+- [x] 2. Read the document heading only in `index.py:44-52` (`break`, not `continue`), then regenerate `INDEX.md` and review the diff across every doc kind.
+- [x] 3. Carry full wrapped ACs through `flow promote`, and the `# Problem` section it builds from `# Needs`.
+- [x] 4. Regression tests: a generated roadmap with short refs and several milestones (audit result + index row), and a promote with multi-line ACs.
+- [x] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
+- [x] GATE: do not close until lint, audit, and the full test suite pass.
 
 # AC Traceability
 - request-AC1 -> `item_673_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for`. Proof: see that item's AC Traceability.
@@ -52,7 +52,9 @@
 - request-AC7 -> `item_673_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for`. Proof: see that item's AC Traceability.
 
 # Validation
-- (no validation recorded yet)
+- pytest full suite: 1247 passed (7 new in tests/python/test_generated_doc_refs_and_index.py) on 2026-08-10.
+- ruff, check_function_length.py, check-source-line-budget.mjs, lint --require-status, audit --group-by-doc: all clean.
+- `logics/INDEX.md` regenerated; 35 rows corrected, reviewed in the diff.
 
 # Report
 - Not started.

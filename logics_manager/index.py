@@ -41,8 +41,15 @@ def _parse_doc(path: Path) -> Entry:
     owner: str | None = None
     progress: str | None = None
 
+    seen_heading = False
     for line in lines:
         if line.startswith("## "):
+            # req_324: only the first `## ` line is the document heading. A roadmap writes
+            # its milestones as `## 2.15.7 - crash post-mortems`, the same `<ref> - <title>`
+            # shape, and reading every heading indexed the doc under its last milestone.
+            if seen_heading:
+                continue
+            seen_heading = True
             payload = line.removeprefix("## ").strip()
             if " - " in payload:
                 maybe_ref, maybe_title = payload.split(" - ", 1)

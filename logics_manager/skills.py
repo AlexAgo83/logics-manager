@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import shutil
 from pathlib import Path
 
@@ -8,6 +9,21 @@ from .cli_output import print_payload
 
 SKILL_ASSETS_ROOT = Path(__file__).parent / "skill_assets"
 DEFAULT_TARGET_DIR = Path.home() / ".claude" / "skills"
+
+# req_318/item_656: this sidecar is what tells drift detection "stale" from
+# "hand-modified" apart. It records the hash of the bundled skill *as of the
+# install that wrote it* - if a later bundled version differs, the installed
+# copy is stale and safe to refresh; if the installed copy no longer matches
+# what this sidecar recorded, a human changed it since, and it is left alone.
+_BUNDLED_HASH_SIDECAR = ".bundled-hash"
+
+
+def _dir_hash(path: Path) -> str:
+    hasher = hashlib.sha256()
+    for file in sorted(p for p in path.rglob("*") if p.is_file() and p.name != _BUNDLED_HASH_SIDECAR):
+        hasher.update(file.relative_to(path).as_posix().encode("utf-8"))
+        hasher.update(file.read_bytes())
+    return hasher.hexdigest()
 
 
 def _real_home() -> Path:
@@ -20,11 +36,20 @@ def _real_home() -> Path:
 
 
 def discover_skill_dirs(home: Path | None = None) -> list[Path]:
-    """Find every harness skills directory on this machine (Claude Code and Codex share the skills/<name>/SKILL.md format)."""
+    """Find every harness skills directory on this machine (Claude Code, Codex, and
+    Hermes share the skills/<name>/SKILL.md format under the agentskills.io convention).
+
+    Antigravity is not included here yet: its own docs and third-party field reports
+    disagree on which of ~/.gemini/config/skills, <project>/.agents/skills, or plain
+    ~/.gemini/skills actually loads skills, and this needs verifying against a real
+    install rather than guessed - see req_318/item_656.
+    """
     home = home or _real_home()
     targets = [home / ".claude" / "skills"]
     if (home / ".codex").is_dir():
         targets.append(home / ".codex" / "skills")
+    if (home / ".hermes").is_dir():
+        targets.append(home / ".hermes" / "skills")
     profiles = home / ".cdx" / "profiles"
     if profiles.is_dir():
         for profile in sorted(profiles.iterdir()):
@@ -54,22 +79,57 @@ def install_skills(names: list[str], target_dir: Path, *, force: bool) -> dict[s
     if unknown:
         raise SystemExit(f"Unknown skill(s): {', '.join(unknown)}. Run: logics-manager skills list")
     installed: list[str] = []
+    refreshed: list[str] = []
     skipped: list[str] = []
+    hand_modified: list[str] = []
     for name in selected:
         destination = target_dir / name
-        if destination.exists():
-            if not force:
-                skipped.append(name)
-                continue
+        bundled_hash = _dir_hash(SKILL_ASSETS_ROOT / name)
+
+        if not destination.exists():
+            shutil.copytree(SKILL_ASSETS_ROOT / name, destination)
+            (destination / _BUNDLED_HASH_SIDECAR).write_text(bundled_hash, encoding="utf-8")
+            installed.append(name)
+            continue
+
+        if force:
+            # --force means "reinstall, full stop" - the original, unconditional
+            # semantic. Not routed through drift detection: it doesn't matter here
+            # whether the content is stale or hand-modified.
             shutil.rmtree(destination)
+            shutil.copytree(SKILL_ASSETS_ROOT / name, destination)
+            (destination / _BUNDLED_HASH_SIDECAR).write_text(bundled_hash, encoding="utf-8")
+            installed.append(name)
+            continue
+
+        current_hash = _dir_hash(destination)
+        if current_hash == bundled_hash:
+            skipped.append(name)
+            continue
+
+        recorded_hash = None
+        sidecar = destination / _BUNDLED_HASH_SIDECAR
+        if sidecar.is_file():
+            recorded_hash = sidecar.read_text(encoding="utf-8").strip()
+        is_stale = recorded_hash is not None and recorded_hash == current_hash
+        if not is_stale:
+            # Installed content differs from the current bundle, and does not
+            # match what we last wrote here - a human changed it since. Leave
+            # it alone rather than silently discarding an intentional edit.
+            hand_modified.append(name)
+            continue
+        shutil.rmtree(destination)
         shutil.copytree(SKILL_ASSETS_ROOT / name, destination)
-        installed.append(name)
+        (destination / _BUNDLED_HASH_SIDECAR).write_text(bundled_hash, encoding="utf-8")
+        refreshed.append(name)
     return {
         "command": "skills",
         "kind": "install",
         "target_dir": target_dir.as_posix(),
         "installed": installed,
+        "refreshed": refreshed,
         "skipped": skipped,
+        "hand_modified": hand_modified,
         "ok": True,
     }
 
@@ -78,8 +138,12 @@ def _render_install(payload: dict[str, object]) -> str:
     lines = []
     for name in payload["installed"]:
         lines.append(f"Installed skill '{name}' to {payload['target_dir']}/{name}")
+    for name in payload.get("refreshed", []):
+        lines.append(f"Refreshed stale skill '{name}' in {payload['target_dir']}")
     for name in payload["skipped"]:
-        lines.append(f"Skipped '{name}' in {payload['target_dir']}: already installed (use --force to overwrite)")
+        lines.append(f"Skipped '{name}' in {payload['target_dir']}: already up to date")
+    for name in payload.get("hand_modified", []):
+        lines.append(f"Left '{name}' in {payload['target_dir']} alone: its content was hand-modified (use --force to overwrite)")
     return "\n".join(lines) or "Nothing to install."
 
 

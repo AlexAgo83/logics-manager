@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 11%
+> Progress: 67%
 > Complexity: High
 > Theme: Zero-to-ready onboarding
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

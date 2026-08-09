@@ -1546,6 +1546,16 @@ VIEWER_MUTATING_ROUTES = frozenset(
 class LogicsViewerServer(ThreadingHTTPServer):
     daemon_threads = True
     block_on_close = False
+    # http.server.HTTPServer sets allow_reuse_address = 1 unconditionally.
+    # On POSIX, SO_REUSEADDR only helps rebind a port stuck in TIME_WAIT; a
+    # port with a live listener still correctly fails. On Windows, Winsock's
+    # SO_REUSEADDR is permissive enough to let a second bind onto a port with
+    # an active listener succeed silently - confirmed for real on a Windows
+    # machine: test_server_port_collisions.py's collision test never raised
+    # at all there, so the EADDRINUSE handling below never ran. Disabling it
+    # trades away instant-restart-after-crash convenience for the one-viewer-
+    # per-port guarantee actually holding on every platform.
+    allow_reuse_address = False
 
     def __init__(
         self,

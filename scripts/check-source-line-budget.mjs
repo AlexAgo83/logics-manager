@@ -41,7 +41,10 @@ const allowedOversizedFiles = new Map(
     // 1859: req_323 lifted TOOL_DEFINITIONS (a pure JSON-schema data literal, no
     // coupling to the dispatcher req_303's extraction attempt was about) out to
     // mcp_tool_definitions.py: 2246 -> 1859.
-    "logics_manager/mcp.py": { maxLines: 1859, ref: "req_318" },
+    // 1867: req_323 disabled allow_reuse_address on the MCP HTTP server's class -
+    // Windows' permissive SO_REUSEADDR let a real port collision bind silently
+    // there, confirmed on a real Windows machine (test_server_port_collisions.py).
+    "logics_manager/mcp.py": { maxLines: 1867, ref: "req_323" },
     "logics_manager/sync.py": { maxLines: 1524, ref: "req_273" },
     // 1145: req_321 added `_reposition_ai_context()`, sitting beside the other
     // deterministic `_autofix_structure()` repairs (Status/Schema version) it extends.
@@ -75,7 +78,10 @@ const allowedOversizedFiles = new Map(
     // 3401: req_323 routed _resolve_repo_doc_path's containment check through the
     // shared path_utils primitives instead of its own inline check - a net add of
     // a few lines for a net removal of a duplicated implementation.
-    "logics_manager/viewer.py": { maxLines: 3401, ref: "req_323" },
+    // 3411: req_323 disabled allow_reuse_address on LogicsViewerServer - Windows'
+    // permissive SO_REUSEADDR let a real port collision bind silently there,
+    // confirmed on a real Windows machine (test_server_port_collisions.py).
+    "logics_manager/viewer.py": { maxLines: 3411, ref: "req_323" },
     "logics_manager/viewer_cdx.py": { maxLines: 1523, ref: "req_311" },
     // 1069: req_323 threaded repo_root through _normalize_git_file_path so it
     // could route through the shared path_utils containment check, and removed

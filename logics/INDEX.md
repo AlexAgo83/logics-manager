@@ -110,7 +110,15 @@
 
 ## Roadmaps
 
-_None_
+| Doc | Title | Status | Owner | Progress | Path |
+|---|---|---|---|---|---|
+| [2.15.7](roadmap/road_001_2_15_keeping_the_viewer_alive.md) | crash post-mortems | Settled |  |  | roadmap/road_001_2_15_keeping_the_viewer_alive.md |
+| [2.16.3](roadmap/road_002_2_16_one_viewer_two_hosts.md) | publishing the thing automatically | Settled |  |  | roadmap/road_002_2_16_one_viewer_two_hosts.md |
+| [2.17.1](roadmap/road_003_2_17_reading_the_work_in_place.md) | progress that syncs while the task runs | Settled |  |  | roadmap/road_003_2_17_reading_the_work_in_place.md |
+| [2.18.0](roadmap/road_004_2_18_the_project_speaks_its_own_language.md) | project tools and a shared i18n contract | Settled |  |  | roadmap/road_004_2_18_the_project_speaks_its_own_language.md |
+| [2.19.7](roadmap/road_005_2_19_the_operator_surface.md) | intake from outside the repo | Settled |  |  | roadmap/road_005_2_19_the_operator_surface.md |
+| [2.20.0](roadmap/road_006_2_20_any_repo_any_agent.md) | the runtime leaves its own repository | Settled |  |  | roadmap/road_006_2_20_any_repo_any_agent.md |
+| [2.21.2](roadmap/road_007_2_21_evidence_over_assertion.md) | the corpus becomes navigable from outside | Settled |  |  | roadmap/road_007_2_21_evidence_over_assertion.md |
 
 ## Requests
 

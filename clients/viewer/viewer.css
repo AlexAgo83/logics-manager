@@ -996,53 +996,6 @@
   display: none !important;
 }
 
-/* Mobile + landscape phone: the document overlay should consume the whole
- * visible viewport. The header keeps the Close button so navigation back
- * to the topbar is one tap away. Document chrome is compressed so the
- * embedded screen (Workshop terminal, Explorer preview, etc.) gets every
- * pixel back. */
-@media (max-width: 900px) {
-  .viewer-document {
-    inset: 0;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    padding-left: env(safe-area-inset-left, 0px);
-    padding-right: env(safe-area-inset-right, 0px);
-  }
-
-  .viewer-document__header {
-    padding: 6px 10px;
-  }
-
-  .viewer-document__title {
-    font-size: 13px;
-    line-height: 1.2;
-  }
-
-  .viewer-document__eyebrow {
-    font-size: 10px;
-  }
-
-  .viewer-document__content {
-    padding: 6px;
-  }
-
-  .viewer-document__header {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .viewer-document__nav,
-  .viewer-document__nav .viewer-cdx__modes,
-  .viewer-document__nav .viewer-workshop__tabs {
-    grid-column: 1 / -1;
-    grid-row: auto;
-    justify-content: center;
-  }
-}
-
 .viewer-document__actions {
   grid-column: 3;
   grid-row: 1;
@@ -1195,6 +1148,53 @@
   line-height: 1.2;
 }
 
+/* Mobile + landscape phone: the document overlay should consume the whole
+ * visible viewport. The header keeps the Close button so navigation back
+ * to the topbar is one tap away. Document chrome is compressed so the
+ * embedded screen (Workshop terminal, Explorer preview, etc.) gets every
+ * pixel back. */
+@media (max-width: 900px) {
+  .viewer-document {
+    inset: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  .viewer-document__header {
+    padding: 6px 10px;
+  }
+
+  .viewer-document__title {
+    font-size: 13px;
+    line-height: 1.2;
+  }
+
+  .viewer-document__eyebrow {
+    font-size: 10px;
+  }
+
+  .viewer-document__content {
+    padding: 6px;
+  }
+
+  .viewer-document__header {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .viewer-document__nav,
+  .viewer-document__nav .viewer-cdx__modes,
+  .viewer-document__nav .viewer-workshop__tabs {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    justify-content: center;
+  }
+}
+
 .viewer-document__eyebrow {
   display: block;
   font-size: 11px;
@@ -1220,7 +1220,10 @@
   margin: 3px 0 0;
   font-size: 15px;
   font-weight: 700;
-  overflow-wrap: anywhere;
+  /* anywhere broke a short multi-word title (e.g. "CDX disk") one letter per line
+     the moment the header's title column got squeezed on mobile. break-word still
+     wraps at spaces first, and only splits a single word if it alone overflows. */
+  overflow-wrap: break-word;
 }
 
 .viewer-document-meta {
@@ -1298,23 +1301,18 @@
 .viewer-document__badge[data-stage="spec"] { background: #15803d; }
 
 @media (max-width: 900px) {
+  /* Title, then actions (refresh/minimize/close) on the same row; nav (Sessions,
+     Missions, ... tabs) already drops to its own full-width row below via the
+     .viewer-document__nav rule above -- this block used to put nav back in a
+     corner column of this same row, squeezing the title into the single- or
+     zero-character-per-line width a short two-word title like "CDX disk" could
+     not survive. */
   .viewer-document__header {
     grid-template-columns: minmax(0, 1fr) auto auto;
   }
 
   .viewer-document__actions {
     grid-column: 3;
-  }
-
-  .viewer-document__nav {
-    grid-column: 2;
-    grid-row: 1;
-    justify-content: flex-end;
-  }
-
-  .viewer-document__nav .viewer-cdx__modes,
-  .viewer-document__nav .viewer-workshop__tabs {
-    justify-content: flex-end;
   }
 }
 

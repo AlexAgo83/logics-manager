@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-09 12:39:39
+> Indicators reviewed: 2026-08-09 12:46:48
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
@@ -20,7 +20,8 @@
 - [ ] 4. Add the MCP tools for withdraw, progress, roadmap show/validate, deliver, validate-closeout, gates, links, doctor, and insights, independently of the skill docs; each new skill's recipe should call these once they exist rather than shell out to the CLI where an MCP tool is available.
 - [ ] 5. Add the .claude-plugin/plugin.json manifest last, once every skill and MCP tool it needs to declare exists, and verify the install check.
 - [ ] 6. Run `logics-manager skills install --all-profiles` and confirm all eight skills (four existing, four new) are discovered.
-- [ ] 7. Validate and index the corpus.
+- [ ] 7. Add drift detection to `install_skills()` and hook a re-sync into `self-update`/`update`, so future skill additions do not repeat the drift found while scoping this request.
+- [ ] 8. Validate and index the corpus.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.
@@ -33,6 +34,7 @@
 - `item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite`
 - `item_654_add_a_claude_plugin_manifest`
 - `item_655_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`
+- `item_656_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`
 
 # Definition of Done (DoD)
 - [ ] Generated request, product, backlog, and task docs are present.
@@ -58,6 +60,7 @@
 - request-AC7 -> `item_654_add_a_claude_plugin_manifest`. Proof deferred to slice closeout.
 - request-AC8 -> `item_654_add_a_claude_plugin_manifest`. Proof deferred to slice closeout.
 - request-AC10 -> `item_655_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`. Proof deferred to slice closeout.
+- request-AC11 -> `item_656_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`. Proof deferred to slice closeout.
 
 # Validation
 - (no validation recorded yet)

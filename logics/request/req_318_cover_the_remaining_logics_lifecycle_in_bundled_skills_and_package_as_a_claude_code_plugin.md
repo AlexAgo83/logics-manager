@@ -7,7 +7,7 @@
 > Complexity: Medium
 > Theme: Agent-facing skill coverage and plugin packaging
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-09 12:39:39
+> Indicators reviewed: 2026-08-09 12:46:48
 
 # Needs
 - Give agents a skill recipe for the lifecycle operations that fall outside scoping and dev: splitting, promoting, withdrawing, closing, finishing, and progressing a doc.
@@ -17,6 +17,7 @@
 - Let the repository install as a first-class Claude Code plugin, since it already bundles skills and an MCP server but has no plugin manifest.
 - Cover every bundled skill with an automated test — the four new ones and the four that already ship today — so no skill's frontmatter or discoverability depends on manual checking.
 - Give an MCP-only agent the same lifecycle, roadmap, closeout-repair, and health capability the CLI already has, instead of a narrower subset with no tool for several of those commands.
+- Keep installed skills in sync with the bundled package automatically when logics-manager updates itself, instead of relying on a separate manual `skills install` invocation that silently no-ops on drift.
 
 # Context
 - Four skills already ship in logics_manager/skill_assets/: corpus (scope), groom-issues (scope from a tracker), implement-task (build), review-project (capture findings). Together they cover only the create -> build -> review happy path.
@@ -28,6 +29,7 @@
 - The repository has no .claude-plugin/ directory: no plugin.json declaring the bundled skills and the MCP server (`logics-manager mcp serve`), and no marketplace.json for distribution. Without it the repo cannot be installed as a Claude Code plugin through the normal marketplace flow, even though every piece a plugin needs already exists.
 - tests/python/test_bundled_delegation_skills.py already parametrizes frontmatter/listing/provider-neutrality checks over a DELEGATION_SKILLS set of three skills (implement-task, review-project, groom-issues). corpus is not in that set, so one of the four skills shipping today has no automated coverage at all.
 - The MCP surface (logics_manager/mcp.py) does not mirror the CLI 1:1. It covers promote, split, close, finish, ac-traceability, and mermaid, but has no tool for withdraw, progress, roadmap show/validate, deliver, validate-closeout, gates, links, doctor, or insights. This is a different, and in places wider, gap than the skill-documentation gap this request otherwise addresses — an agent working over MCP cannot do several of these regardless of any skill written for them.
+- `install_skills()` (logics_manager/skills.py) only checks whether a skill's destination directory already exists; it never compares installed content against the bundled package. A machine that ran `skills install` once, before this request's four new skills existed, now has only the original set installed and silently stays that way forever — the exact drift observed on this machine (only `corpus` present under `~/.claude/skills`). Nothing currently re-triggers install after a version bump, either.
 
 # Acceptance criteria
 - AC1: A `lifecycle-ops` skill documents split, promote, withdraw, close, finish task, and progress task with a recipe and gotchas, following the existing SKILL.md conventions.
@@ -40,6 +42,7 @@
 - AC8: No existing skill's behavior, filename, or installed location changes.
 - AC9: An automated test suite covers frontmatter validity and discoverability for all eight bundled skills — the four new ones and all four that ship today, including corpus, which has no automated coverage before this request.
 - AC10: The MCP surface gains tools for withdraw, progress, roadmap show/validate, deliver, validate-closeout, gates repair, links repair, doctor, and insights — the CLI commands with no MCP equivalent today — each with test coverage matching the style of the existing MCP tool tests.
+- AC11: `install_skills()` detects drift between an installed skill's content and the bundled package, instead of only checking whether the destination directory exists, and `self-update`/`update` re-syncs every detected harness's skills directory after a successful CLI update, without overwriting a directory whose content was hand-modified away from any bundled version.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.
@@ -67,3 +70,4 @@
 - `item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite`
 - `item_654_add_a_claude_plugin_manifest`
 - `item_655_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`
+- `item_656_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`

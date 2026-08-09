@@ -14,7 +14,7 @@ function withTempRepo(run: (repoRoot: string) => void) {
   try {
     run(repoRoot);
   } finally {
-    fs.rmSync(repoRoot, { recursive: true, force: true });
+    fs.rmSync(repoRoot, { recursive: true, force: true, maxRetries: 3 });
   }
 }
 

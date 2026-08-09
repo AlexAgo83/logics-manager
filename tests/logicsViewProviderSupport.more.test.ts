@@ -456,7 +456,7 @@ describe("logicsViewProviderSupport more coverage", () => {
     expect(vi.mocked(vscode.window.showErrorMessage)).toHaveBeenCalledWith(
       expect.stringContaining(`No logics/ folder found in: ${rootWithoutLogics}.`)
     );
-    fs.rmSync(rootWithoutLogics, { recursive: true, force: true });
+    fs.rmSync(rootWithoutLogics, { recursive: true, force: true, maxRetries: 3 });
   });
 
   it("returns undefined when pickItem receives no items", async () => {
@@ -535,7 +535,7 @@ describe("logicsViewProviderSupport more coverage", () => {
       expect(getRepositoryEnvFiles.call({}, path.join(brokenEnvRoot, "logics"))).toEqual([]);
     } finally {
       for (const root of roots.reverse()) {
-        fs.rmSync(root, { recursive: true, force: true });
+        fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
       }
     }
   });
@@ -583,7 +583,7 @@ describe("logicsViewProviderSupport more coverage", () => {
         ".gitignore already contains these entries."
       );
     } finally {
-      fs.rmSync(repoRoot, { recursive: true, force: true });
+      fs.rmSync(repoRoot, { recursive: true, force: true, maxRetries: 3 });
     }
   });
 });

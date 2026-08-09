@@ -12,7 +12,7 @@ describe("release branch fast-forward consent", () => {
 
   afterEach(() => {
     while (roots.length > 0) {
-      fs.rmSync(roots.pop()!, { recursive: true, force: true });
+      fs.rmSync(roots.pop()!, { recursive: true, force: true, maxRetries: 3 });
     }
   });
 

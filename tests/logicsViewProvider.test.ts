@@ -428,7 +428,7 @@ describe("LogicsViewProvider", () => {
     } else {
       delete process.env.LOGICS_CLAUDE_GLOBAL_HOME;
     }
-    fs.rmSync(root, { recursive: true, force: true });
+    fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
   });
 
   it("uses a repair-oriented bootstrap prompt when logics exists but skills are missing", async () => {

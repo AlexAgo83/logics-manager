@@ -12,7 +12,7 @@ import { afterAll, describe, expect, it } from "vitest";
 
 const out = mkdtempSync(join(tmpdir(), "viewer-campaign-"));
 
-afterAll(() => rmSync(out, { recursive: true, force: true }));
+afterAll(() => rmSync(out, { recursive: true, force: true, maxRetries: 3 }));
 
 function runCampaign(env: Record<string, string>) {
   const result = spawnSync(process.execPath, ["tests/run_local_viewer_visual_smoke.mjs"], {

@@ -27,7 +27,7 @@ function packPackage() {
     filename: string;
     files: Array<{ path: string }>;
   }>;
-  fs.rmSync(cacheDir, { recursive: true, force: true });
+  fs.rmSync(cacheDir, { recursive: true, force: true, maxRetries: 3 });
   return { ...payload[0], packageDir };
 }
 
@@ -66,7 +66,7 @@ describe("npm package surface", () => {
       expect(filePaths).not.toContain("logics/request/req_201_add_a_local_web_viewer_for_cli_driven_logics_work.md");
       expect(filePaths).not.toContain("tests/logicsManagerNpmWrapper.test.ts");
     } finally {
-      fs.rmSync(packed.packageDir, { recursive: true, force: true });
+      fs.rmSync(packed.packageDir, { recursive: true, force: true, maxRetries: 3 });
     }
   }, PACK_TIMEOUT_MS);
 
@@ -100,9 +100,9 @@ describe("npm package surface", () => {
         encoding: "utf8",
       });
     } finally {
-      fs.rmSync(tempRoot, { recursive: true, force: true });
-      fs.rmSync(cacheDir, { recursive: true, force: true });
-      fs.rmSync(packed.packageDir, { recursive: true, force: true });
+      fs.rmSync(tempRoot, { recursive: true, force: true, maxRetries: 3 });
+      fs.rmSync(cacheDir, { recursive: true, force: true, maxRetries: 3 });
+      fs.rmSync(packed.packageDir, { recursive: true, force: true, maxRetries: 3 });
     }
   }, PACK_TIMEOUT_MS);
 });

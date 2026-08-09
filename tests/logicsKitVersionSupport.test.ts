@@ -16,7 +16,7 @@ describe("inspectKitUpdateNeed", () => {
 
   afterEach(() => {
     for (const root of roots.splice(0)) {
-      fs.rmSync(root, { recursive: true, force: true });
+      fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
     }
   });
 

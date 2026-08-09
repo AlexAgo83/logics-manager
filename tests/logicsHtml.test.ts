@@ -736,7 +736,7 @@ describe("logics HTML builders", () => {
     expect(html).toMatchSnapshot();
     expect(html).toContain("File: <code>logics/tasks/task_110.md</code>");
     expect(html).not.toContain("task_110 •");
-    fs.rmSync(extensionPath, { recursive: true, force: true });
+    fs.rmSync(extensionPath, { recursive: true, force: true, maxRetries: 3 });
   });
 
   it("removes the document heading and indicator block from the read preview body", () => {
@@ -771,7 +771,7 @@ describe("logics HTML builders", () => {
     expect(html).not.toContain("From version: 1.0.0");
     expect(html).toContain('class="markdown-preview__task-checkbox"');
     expect(html).toContain('checked');
-    fs.rmSync(extensionPath, { recursive: true, force: true });
+    fs.rmSync(extensionPath, { recursive: true, force: true, maxRetries: 3 });
   });
 
   it("renders markdown tables inside the read preview surface", () => {
@@ -799,7 +799,7 @@ describe("logics HTML builders", () => {
     expect(html).toContain("<table>");
     expect(html).toContain("DeepVault - Navy");
     expect(html).toContain("Internal operator tool for content inspection and ingestion debugging");
-    fs.rmSync(extensionPath, { recursive: true, force: true });
+    fs.rmSync(extensionPath, { recursive: true, force: true, maxRetries: 3 });
   });
 
   it("sorts recent hybrid runs newest first and formats recent timestamps relatively", () => {

@@ -202,7 +202,7 @@ describe("branch-state transitions", () => {
     expect(beforeSwitch.capabilities.readOnly.status).toBe("available");
 
     // Simulate branch switch: remove logics/ (as git checkout would on a branch without it)
-    fs.rmSync(path.join(root, "logics"), { recursive: true, force: true });
+    fs.rmSync(path.join(root, "logics"), { recursive: true, force: true, maxRetries: 3 });
 
     const afterSwitch = await inspectLogicsEnvironment(root, undefined, stubbedOptions);
     expect(afterSwitch.repositoryState).toBe("missing-logics");
@@ -217,7 +217,7 @@ describe("branch-state transitions", () => {
     expect(beforeSwitch.repositoryState).toBe("ready");
 
     // Simulate branch switch: remove one workflow directory
-    fs.rmSync(path.join(root, "logics", "tasks"), { recursive: true, force: true });
+    fs.rmSync(path.join(root, "logics", "tasks"), { recursive: true, force: true, maxRetries: 3 });
 
     const afterSwitch = await inspectLogicsEnvironment(root, undefined, stubbedOptions);
     expect(afterSwitch.repositoryState).toBe("partial-bootstrap");

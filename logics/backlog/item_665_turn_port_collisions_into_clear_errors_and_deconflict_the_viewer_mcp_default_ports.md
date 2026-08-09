@@ -1,10 +1,10 @@
 ## item_665_turn_port_collisions_into_clear_errors_and_deconflict_the_viewer_mcp_default_ports - Turn port collisions into clear errors, and deconflict the viewer/MCP default ports
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Collision handling
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

@@ -1,10 +1,10 @@
 ## item_666_add_a_per_repo_viewer_registry_so_any_surface_reuses_a_live_instance - Add a per-repo viewer registry so any surface reuses a live instance
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 33%
 > Complexity: High
 > Theme: Cross-process reuse
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

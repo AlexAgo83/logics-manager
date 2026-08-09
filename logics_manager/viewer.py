@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import errno
 import functools
 import hashlib
 import hmac
@@ -2641,15 +2642,24 @@ def create_viewer_server(
     lan_rw_mode: bool = False,
     tls_context: ssl.SSLContext | None = None,
 ) -> LogicsViewerServer:
-    return LogicsViewerServer(
-        (host, port),
-        repo_root,
-        auto_refresh_interval_seconds=auto_refresh_interval_seconds,
-        auto_refresh_interval_forced=auto_refresh_interval_forced,
-        lan_mode=lan_mode,
-        lan_rw_mode=lan_rw_mode,
-        tls_context=tls_context,
-    )
+    try:
+        return LogicsViewerServer(
+            (host, port),
+            repo_root,
+            auto_refresh_interval_seconds=auto_refresh_interval_seconds,
+            auto_refresh_interval_forced=auto_refresh_interval_forced,
+            lan_mode=lan_mode,
+            lan_rw_mode=lan_rw_mode,
+            tls_context=tls_context,
+        )
+    except OSError as exc:
+        if exc.errno == errno.EADDRINUSE:
+            raise SystemExit(
+                f"Port {port} on {host} is already in use — another logics-manager viewer or "
+                f"MCP server is likely running against this (or another) repo. Pass --port 0 to "
+                f"pick a free port automatically, or --port <n> for a specific one."
+            ) from exc
+        raise
 
 
 def select_project_root_with_native_dialog(initial_dir: Path) -> Path | None:

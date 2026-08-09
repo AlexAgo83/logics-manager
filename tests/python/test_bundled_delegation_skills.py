@@ -24,7 +24,13 @@ DELEGATION_SKILLS = {"implement-task", "review-project", "groom-issues"}
 # test_every_skill_asset_directory_is_covered fails loudly if one is added
 # without being added here too — a skill silently shipping with no coverage
 # is exactly the gap corpus (this project's own primary skill) had before.
-ALL_BUNDLED_SKILLS = DELEGATION_SKILLS | {"corpus"}
+ALL_BUNDLED_SKILLS = DELEGATION_SKILLS | {
+    "corpus",
+    "lifecycle-ops",
+    "roadmap-deliver",
+    "closeout-repair",
+    "project-health",
+}
 
 
 def _skill_text(name: str) -> str:

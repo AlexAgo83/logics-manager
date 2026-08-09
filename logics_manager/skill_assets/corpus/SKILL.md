@@ -40,3 +40,4 @@ Turn a feature need into a full ready-to-dev Logics corpus in one pass with
 - `flow validate` and `audit` want the FULL ref (`req_285_full_slug`), not the short `req_285`.
 - Editing a doc after scaffold trips a blocking "modified without updating indicators" gate — fix with `logics-manager sync update-indicators`.
 - Reuse one product brief across requests in the same product area via `--source-ref`/companion instead of auto-creating a new brief per request.
+- `--apply-fixes` covers the same four repair kinds (gates/ac-traceability/links/mermaid) as `flow repair`, applied in one pass. If you need to understand *why* a specific finding is blocking rather than just clear it, use `/closeout-repair`'s per-finding table instead of guessing.

@@ -1,10 +1,10 @@
 ## item_664_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs - Expose the autofix repair in the viewer, with VS Code parity for free
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 50%
 > Complexity: Medium
 > Theme: Cross-surface repair exposure
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

@@ -458,6 +458,41 @@ def _insert_section(lines: list[str], heading: str, body: list[str]) -> None:
     lines.extend([f"# {heading}", *body])
 
 
+def _reposition_ai_context(lines: list[str]) -> bool:
+    """req_321: `# AI Context` is the one section written for an agent's fast
+
+    relevance triage, but every generator used to place it near the end of the
+    doc — exactly where a default-budget `flow show`/`read_logics_doc` read
+    (a plain `content[:max_chars]` slice) is least likely to reach it. Move an
+    existing AI Context section to immediately after the indicator block, the
+    same place `item_662` now writes it for newly generated docs. No-ops (and
+    returns False) when it is already there, so this stays idempotent.
+    """
+    bounds = _extract_section_bounds(lines, "AI Context")
+    if bounds is None:
+        return False
+    start_idx, end_idx = bounds
+
+    heading_idx = next((idx for idx, line in enumerate(lines) if line.startswith("## ")), None)
+    if heading_idx is None:
+        return False
+    insert_at = heading_idx + 1
+    while insert_at < len(lines) and lines[insert_at].lstrip().startswith(">"):
+        insert_at += 1
+    if insert_at < len(lines) and lines[insert_at] == "":
+        insert_at += 1
+
+    if start_idx == insert_at:
+        return False
+
+    block = lines[start_idx:end_idx]
+    del lines[start_idx:end_idx]
+    if start_idx < insert_at:
+        insert_at -= len(block)
+    lines[insert_at:insert_at] = block
+    return True
+
+
 def _autofix_structure(path: Path, doc_kind: str) -> bool:
     original = path.read_text(encoding="utf-8")
     lines = original.splitlines()
@@ -472,6 +507,9 @@ def _autofix_structure(path: Path, doc_kind: str) -> bool:
     schema_value = _indicator_value(lines, "Schema version")
     if schema_value != CURRENT_WORKFLOW_SCHEMA_VERSION:
         _upsert_indicator(lines, "Schema version", CURRENT_WORKFLOW_SCHEMA_VERSION)
+        modified = True
+
+    if _reposition_ai_context(lines):
         modified = True
 
     text = "\n".join(lines).rstrip() + "\n"

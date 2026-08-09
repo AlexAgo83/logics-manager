@@ -83,7 +83,10 @@ const allowedOversizedFiles = new Map(
     // registry is longer than the chain it replaces because each screen now declares what
     // it is; extracting it to its own module was not done, since every entry closes over
     // a screen function the host already holds.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4158, ref: "req_313" },
+    // 4170: the duplicate-executable warning's dismissal (import, one guard clause, one
+    // click handler) beside the notice renderer and the click-binding block it already has
+    // three siblings in.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4170, ref: "req_313" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },
@@ -94,7 +97,9 @@ const allowedOversizedFiles = new Map(
     // be split by domain (cdx/git/dom) in later passes as they grow.
     // 1151: req_314 put the environment warning's dismissal beside the renderer that reads
     // it, which is the only other place that knows the warning's shape.
-    "clients/viewer/src/browser-host/util.js": { maxLines: 1151, ref: "req_314" },
+    // 1176: the duplicate-executable warning's dismissal, on the same signature-in-session-
+    // storage shape one function above it, so the two dismissible banners stay consistent.
+    "clients/viewer/src/browser-host/util.js": { maxLines: 1176, ref: "req_314" },
     // 2546: req_305 added the workflow-health sections (blocked docs, stale docs)
     // to the health screen, which previously showed lint and audit only.
     // req_312 moved the rendering whose only consumer is the cdx screen into that screen:

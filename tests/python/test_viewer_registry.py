@@ -136,9 +136,17 @@ def test_different_repo_roots_each_get_their_own_claim(tmp_path: Path) -> None:
 
 def test_concurrent_claims_for_the_same_repo_only_one_binds(tmp_path: Path) -> None:
     """Two near-simultaneous starts for the same repo root - the race
-    `item_666` closes with an atomic (`fcntl.flock`) claim. Whichever thread
-    wins binds a real, live server; the loser's liveness check against it
-    must succeed, so it reuses instead of binding its own."""
+    `item_666` closes with an atomic claim (`fcntl.flock` on POSIX,
+    `msvcrt.locking` on Windows - verified for real on a Windows machine that
+    the `fcntl is None` no-op previously in place there let both threads
+    bind: bind_count came back 2, not 1). Whichever thread wins binds a
+    real, live server; the loser's liveness check against it must succeed,
+    so it reuses instead of binding its own.
+
+    ponytail: generous join timeout - two threads each opening/locking the
+    registry file and one of them binding a real socket is measurably
+    slower and noisier under a full parallel test-suite run than in
+    isolation."""
     real_server, thread = _start_real_status_server()
     try:
         port = real_server.server_address[1]
@@ -159,7 +167,7 @@ def test_concurrent_claims_for_the_same_repo_only_one_binds(tmp_path: Path) -> N
         for t in runners:
             t.start()
         for t in runners:
-            t.join(timeout=5)
+            t.join(timeout=15)
 
         assert bind_count == 1, "bind() must only run once across two concurrent claims for the same repo root"
         assert len(results) == 2
@@ -250,3 +258,24 @@ def test_two_real_cli_processes_for_the_same_repo_share_one_server(tmp_path: Pat
             first.wait(timeout=5)
         except subprocess.TimeoutExpired:
             first.kill()
+
+
+def test_lock_and_unlock_round_trip_leaves_the_file_usable(tmp_path: Path) -> None:
+    """The platform lock helpers (`fcntl.flock` on POSIX, `msvcrt.locking` on
+    Windows) must leave the file readable/writable by the same handle after
+    an unlock - a lock that outlives its critical section would deadlock
+    every later claim for the same repo, on either platform."""
+    path = tmp_path / "registry.json"
+    path.write_text("{}", encoding="utf-8")
+
+    with path.open("r+", encoding="utf-8") as handle:
+        viewer_registry._lock_exclusive(handle)
+        handle.seek(0)
+        assert handle.read() == "{}"
+        viewer_registry._unlock(handle)
+
+    # A second, independent open+lock+unlock must still succeed - proves the
+    # first unlock actually released the region rather than leaving it held.
+    with path.open("r+", encoding="utf-8") as handle:
+        viewer_registry._lock_exclusive(handle)
+        viewer_registry._unlock(handle)

@@ -34,8 +34,37 @@ from urllib.request import urlopen
 
 try:
     import fcntl
-except ImportError:  # pragma: no cover - platform fallback (e.g. Windows)
+except ImportError:  # pragma: no cover - platform fallback (Windows)
     fcntl = None  # type: ignore[assignment]
+
+try:
+    import msvcrt
+except ImportError:  # pragma: no cover - platform fallback (POSIX)
+    msvcrt = None  # type: ignore[assignment]
+
+# msvcrt.locking() locks a byte-region starting at the file's current
+# position, not the whole file - the exact size doesn't matter, only that
+# the same region is locked and unlocked. Verified on a real Windows
+# machine that a bare `fcntl is None` no-op (the prior behavior) lets two
+# concurrent claims for the same repo both bind: bind_count came back 2,
+# not 1, in test_concurrent_claims_for_the_same_repo_only_one_binds.
+_LOCK_REGION_BYTES = 1
+
+
+def _lock_exclusive(handle: Any) -> None:
+    if fcntl is not None:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+    elif msvcrt is not None:
+        handle.seek(0)
+        msvcrt.locking(handle.fileno(), msvcrt.LK_LOCK, _LOCK_REGION_BYTES)
+
+
+def _unlock(handle: Any) -> None:
+    if fcntl is not None:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+    elif msvcrt is not None:
+        handle.seek(0)
+        msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, _LOCK_REGION_BYTES)
 
 
 def _registry_path() -> Path:
@@ -81,8 +110,7 @@ def claim_or_reuse(repo_root: Path, host: str, *, bind: Callable[[], Any]) -> Re
     key = str(Path(repo_root).resolve())
 
     with path.open("r+", encoding="utf-8") as handle:
-        if fcntl is not None:
-            fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        _lock_exclusive(handle)
         try:
             raw = handle.read().strip()
             try:
@@ -104,5 +132,4 @@ def claim_or_reuse(repo_root: Path, host: str, *, bind: Callable[[], Any]) -> Re
             handle.flush()
             return RegistryClaim(reused=False, port=int(port), scheme=scheme, server=server)
         finally:
-            if fcntl is not None:
-                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            _unlock(handle)

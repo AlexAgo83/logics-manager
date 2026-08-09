@@ -689,7 +689,7 @@ def test_release_discover_picks_up_the_claude_plugin_manifest_as_a_version_sourc
         json.dumps({"name": "demo-py", "version": "0.1.0"}), encoding="utf-8",
     )
 
-    payload = release_discover_payload(repo_root, write=True)
+    release_discover_payload(repo_root, write=True)
     draft_path = repo_root / "logics" / "release" / "contract.draft.json"
     draft = json.loads(draft_path.read_text(encoding="utf-8"))
 

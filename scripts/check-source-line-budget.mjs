@@ -86,7 +86,9 @@ const allowedOversizedFiles = new Map(
     // 4170: the duplicate-executable warning's dismissal (import, one guard clause, one
     // click handler) beside the notice renderer and the click-binding block it already has
     // three siblings in.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4170, ref: "req_313" },
+    // 4174: showDocument's missing setMeta call, the one screen-opening path that never
+    // said it had rendered.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4174, ref: "req_313" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

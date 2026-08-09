@@ -23,6 +23,20 @@ Everything else in this repository is a client around that runtime:
 
 The source of truth stays in your repository. Logics documents are plain Markdown, versioned with git, readable in reviews, and reusable by humans or AI assistants across sessions.
 
+## The Viewer
+
+A local, read-only board over your `logics/*` documents — requests, backlog items, tasks,
+product briefs, and architecture decisions as columns, filterable, searchable, grouped by
+whatever you're deciding. It runs standalone (`logics-manager view`) or embedded in the VS
+Code extension.
+
+![Board view: requests, backlog, tasks, product briefs, and architecture decisions as columns of cards](docs/media/viewer-board.png)
+
+Opening a card reads the document in place — indicators, acceptance criteria, and all —
+without leaving the board.
+
+![Document view: a request's needs, context, and acceptance criteria rendered from its Markdown](docs/media/viewer-document.png)
+
 ## What It Solves
 
 AI-heavy projects often lose context between chats, agents, and implementation passes. Logics turns that context into durable project artifacts:

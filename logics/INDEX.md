@@ -446,6 +446,7 @@
 | [req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs](request/req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs.md) | Move AI Context ahead of the truncation boundary, with a repair path for existing docs | Done |  |  | request/req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs.md |
 | [req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp](request/req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp.md) | One viewer per repo, and a resolved port story across the viewer and MCP | Done |  |  | request/req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp.md |
 | [req_323_review_findings_security_tests_structure_dependencies](request/req_323_review_findings_security_tests_structure_dependencies.md) | Review findings: security, tests, structure, dependencies | Done |  |  | request/req_323_review_findings_security_tests_structure_dependencies.md |
+| [req_324_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for](request/req_324_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for.md) | Make generated roadmap docs pass the audit they are generated for | Draft |  |  | request/req_324_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for.md |
 
 ## Backlog
 
@@ -1123,6 +1124,7 @@
 | [item_670_turn_the_python_coverage_floor_into_a_ratchet_like_the_line_budget_guard](backlog/item_670_turn_the_python_coverage_floor_into_a_ratchet_like_the_line_budget_guard.md) | Turn the Python coverage floor into a ratchet like the line-budget guard | Done |  | 100% | backlog/item_670_turn_the_python_coverage_floor_into_a_ratchet_like_the_line_budget_guard.md |
 | [item_671_regenerate_package_lock_json_and_prevent_version_drift_from_recurring](backlog/item_671_regenerate_package_lock_json_and_prevent_version_drift_from_recurring.md) | Regenerate package-lock.json and prevent version drift from recurring | Done |  | 100% | backlog/item_671_regenerate_package_lock_json_and_prevent_version_drift_from_recurring.md |
 | [item_672_add_direct_test_coverage_for_assist_workflow_py](backlog/item_672_add_direct_test_coverage_for_assist_workflow_py.md) | Add direct test coverage for assist_workflow.py | Done |  | 100% | backlog/item_672_add_direct_test_coverage_for_assist_workflow_py.md |
+| [item_673_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for](backlog/item_673_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for.md) | Make generated roadmap docs pass the audit they are generated for | Ready |  | 0% | backlog/item_673_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for.md |
 
 ## Tasks
 
@@ -1442,3 +1444,4 @@
 | [task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary](tasks/task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary.md) | Orchestrate moving AI Context ahead of the truncation boundary | Done | claude | 100% | tasks/task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary.md |
 | [task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle](tasks/task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle.md) | Orchestrate coordinated viewer/MCP server lifecycle | Done | claude | 100% | tasks/task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle.md |
 | [task_320_orchestrate_the_review_findings_cleanup](tasks/task_320_orchestrate_the_review_findings_cleanup.md) | Orchestrate the review-findings cleanup | Done | claude | 100% | tasks/task_320_orchestrate_the_review_findings_cleanup.md |
+| [task_321_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for](tasks/task_321_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for.md) | Make generated roadmap docs pass the audit they are generated for | Ready |  | 0% | tasks/task_321_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for.md |

@@ -103,6 +103,7 @@
 | [prod_064_a_gate_you_can_satisfy](product/prod_064_a_gate_you_can_satisfy.md) | A gate you can satisfy | Settled |  |  | product/prod_064_a_gate_you_can_satisfy.md |
 | [prod_065_evidence_about_the_release](product/prod_065_evidence_about_the_release.md) | Evidence about the release | Settled |  |  | product/prod_065_evidence_about_the_release.md |
 | [prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin](product/prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin.md) | Full-lifecycle skill coverage, packaged as a Claude Code plugin | Proposed |  |  | product/prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin.md |
+| [prod_067_obsidian_as_a_supported_graph_navigable_visualization_surface_for_logics_corpora](product/prod_067_obsidian_as_a_supported_graph_navigable_visualization_surface_for_logics_corpora.md) | Obsidian as a supported graph-navigable visualization surface for Logics corpora | Proposed |  |  | product/prod_067_obsidian_as_a_supported_graph_navigable_visualization_surface_for_logics_corpora.md |
 
 ## Roadmaps
 
@@ -429,6 +430,7 @@ _None_
 | [req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive](request/req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive.md) | Make the closeout gate teachable, self-consistent, and non-destructive | Done |  |  | request/req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive.md |
 | [req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from](request/req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from.md) | Judge release evidence against the commit the release was cut from | Done |  |  | request/req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from.md |
 | [req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin](request/req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md) | Cover the remaining Logics lifecycle in bundled skills and package as a Claude Code plugin | Draft |  |  | request/req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md |
+| [req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface](request/req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface.md) | Standardize the Obsidian projection into a graph-navigable visualization surface | Draft |  |  | request/req_319_standardize_the_obsidian_projection_into_a_graph_navigable_visualization_surface.md |
 
 ## Backlog
 
@@ -1091,6 +1093,8 @@ _None_
 | [item_655_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin](backlog/item_655_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md) | Close the MCP tool parity gap for lifecycle, roadmap, closeout-repair, and health commands | Ready |  | 0% | backlog/item_655_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md |
 | [item_656_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin](backlog/item_656_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md) | Re-sync installed skills on update, and detect Hermes and Antigravity as additional harnesses | Ready |  | 0% | backlog/item_656_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md |
 | [item_657_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin](backlog/item_657_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md) | Wire bootstrap to leave every detected harness ready to use | Ready |  | 0% | backlog/item_657_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md |
+| [item_658_generate_reversible_wikilinks_in_the_obsidian_projection](backlog/item_658_generate_reversible_wikilinks_in_the_obsidian_projection.md) | Generate reversible wikilinks in the Obsidian projection | Ready |  | 0% | backlog/item_658_generate_reversible_wikilinks_in_the_obsidian_projection.md |
+| [item_659_test_and_document_obsidian_as_a_supported_visualization_surface](backlog/item_659_test_and_document_obsidian_as_a_supported_visualization_surface.md) | Test and document Obsidian as a supported visualization surface | Ready |  | 0% | backlog/item_659_test_and_document_obsidian_as_a_supported_visualization_surface.md |
 
 ## Tasks
 
@@ -1405,3 +1409,4 @@ _None_
 | [task_313_orchestrate_making_the_closeout_gate_satisfiable](tasks/task_313_orchestrate_making_the_closeout_gate_satisfiable.md) | Orchestrate making the closeout gate satisfiable | Done |  | 100% | tasks/task_313_orchestrate_making_the_closeout_gate_satisfiable.md |
 | [task_314_orchestrate_judging_evidence_against_the_release](tasks/task_314_orchestrate_judging_evidence_against_the_release.md) | Orchestrate judging evidence against the release | Done |  | 100% | tasks/task_314_orchestrate_judging_evidence_against_the_release.md |
 | [task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging](tasks/task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging.md) | Orchestrate skill coverage expansion and Claude Code plugin packaging | Ready |  | 0% | tasks/task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging.md |
+| [task_316_orchestrate_the_obsidian_graph_navigable_projection](tasks/task_316_orchestrate_the_obsidian_graph_navigable_projection.md) | Orchestrate the Obsidian graph-navigable projection | Ready |  | 0% | tasks/task_316_orchestrate_the_obsidian_graph_navigable_projection.md |

@@ -1,0 +1,463 @@
+{
+  "budgets": {
+    "max_docs": 20,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp item_665_turn_port_collisions_into_clear_errors_and_deconflict_the_viewer_mcp_default_ports item_666_add_a_per_repo_viewer_registry_so_any_surface_reuses_a_live_instance item_667_harden_vs_code_deactivation_and_reconcile_prod_020_s_port_selection_claim task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_365_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "prod": [
+          "prod_005_logics_corpus_navigation_views",
+          "prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api",
+          "prod_015_cli_product_maturity_roadmap",
+          "prod_020_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "req": [
+          "req_201_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "task": [
+          "task_166_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ]
+      },
+      "path": "logics/product/prod_020_local_web_viewer_for_cli_driven_logics_work.md",
+      "ref": "prod_020_local_web_viewer_for_cli_driven_logics_work",
+      "sections": {
+        "Goals": [
+          "- Add a CLI-launched local viewer command, for example `logics-manager view` or `logics-manager serve-view`.",
+          "- Open a browser page that shows the Logics board, document details, relationships, status indicators, and markdown content.",
+          "- Reuse the existing webview assets and behavior where practical instead of creating a separate UI model.",
+          "- Introduce a clean host adapter boundary so the same UI can run under VS Code or under a local browser server.",
+          "- Keep the first version read-only by default so the feature is useful without creating mutation risk.",
+          "- Expose simple local API endpoints for corpus data, document reads, lint/audit summaries, and refresh signals."
+        ],
+        "Key product decisions": [
+          "- Treat the viewer as a visual companion to the CLI, not a replacement for either CLI or VS Code.",
+          "- Start read-only, then add bounded actions only after the host adapter and API boundary are stable.",
+          "- Keep dangerous or mutating work in the terminal for the first version.",
+          "- Prefer a browser local server over a rich terminal TUI because document navigation, board scanning, and markdown reading benefit from real layout, links, and persistent UI state.",
+          "- Reuse the existing webview implementation through a browser host adapter instead of maintaining a parallel UI.",
+          "- Keep the local API intentionally small: corpus data, document content, validation summaries, and refresh."
+        ],
+        "Overview": [
+          "Logics has become usable from the CLI, but the operator still loses the visual scanability that makes the VS Code webview useful.",
+          "The product opportunity is a local browser viewer launched from the CLI: a lightweight, local-only web surface that lets an operator inspect the Logics corpus, board, details, links, audits, and document content without opening VS Code.",
+          "The direction is not to recreate VS Code in the browser.",
+          "It is to make the existing webview experience portable through a small host adapter and a local server.",
+          "The CLI remains the canonical command surface, while the browser viewer becomes a visual companion for reading, scanning, and eventually triggering bounded actions.",
+          "The intended product feeling is: the operator keeps using the CLI, but can open a local visual cockpit when the workflow becomes too document-heavy for terminal output alone."
+        ],
+        "References": [
+          "- `logics/request/req_201_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/backlog/item_365_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/tasks/task_166_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/product/prod_005_logics_corpus_navigation_views.md`",
+          "- `logics/product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md`",
+          "- `logics/product/prod_015_cli_product_maturity_roadmap.md`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Local web viewer for CLI-driven Logics work"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_665_turn_port_collisions_into_clear_errors_and_deconflict_the_viewer_mcp_default_ports",
+          "item_666_add_a_per_repo_viewer_registry_so_any_surface_reuses_a_live_instance",
+          "item_667_harden_vs_code_deactivation_and_reconcile_prod_020_s_port_selection_claim"
+        ],
+        "prod": [
+          "prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp"
+        ],
+        "req": [
+          "req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp"
+        ],
+        "task": [
+          "task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle"
+        ]
+      },
+      "path": "logics/product/prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp.md",
+      "ref": "prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp",
+      "sections": {
+        "Goals": [
+          "- One live viewer per repo root, reused across CLI invocations and VS Code windows, not duplicated.",
+          "- A stale or dead registry entry never blocks a fresh start.",
+          "- A port collision produces a clear, actionable message, never a raw traceback.",
+          "- The viewer and the MCP HTTP server never collide on a shared default port.",
+          "- Product docs describe what the code actually does, not an aspirational port-selection story that was never implemented."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Replace three independent, uncoordinated server lifecycles - the CLI viewer, one viewer per VS Code window, and the MCP HTTP server - none of which detect an existing instance and two of which share a default port by accident - with a per-repo registry the CLI and every VS Code window consult before spawning, and a port assignment that no longer collides across tool families by default."
+        ],
+        "References": [
+          "- Product back-reference: `req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp`",
+          "- Task back-reference: `task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "One viewer per repo, and a resolved port story across the viewer and MCP"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, one viewer per repo, and a resolved port story across the viewer and mcp, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "One viewer per repo, and a resolved port story across the viewer and MCP",
+        "use when": "You need to implement or review the scaffolded workflow for One viewer per repo, and a resolved port story across the viewer and MCP."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_665_turn_port_collisions_into_clear_errors_and_deconflict_the_viewer_mcp_default_ports",
+          "item_666_add_a_per_repo_viewer_registry_so_any_surface_reuses_a_live_instance",
+          "item_667_harden_vs_code_deactivation_and_reconcile_prod_020_s_port_selection_claim"
+        ],
+        "prod": [
+          "prod_020_local_web_viewer_for_cli_driven_logics_work",
+          "prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp"
+        ],
+        "req": [
+          "req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp"
+        ]
+      },
+      "path": "logics/request/req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp.md",
+      "ref": "req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A bind collision on the viewer's or MCP serve-http's default port produces a clear, actionable error identifying which default port conflicted and how to resolve it, instead of a raw Python traceback.",
+          "- AC2: The viewer and `mcp serve-http`/`mcp tunnel`/`mcp connect` no longer share the same default port; each family has its own default, so both can run concurrently against the same repo without a naming collision.",
+          "- AC3: A per-repo registry lets any invocation - CLI `logics-manager view`, or a VS Code window's `ViewerServerManager.getOrStart()` - detect a live viewer already serving that exact repo root and reuse it (return its existing URL) instead of spawning a duplicate.",
+          "- AC4: A registry entry whose recorded server no longer responds to a liveness check is treated as stale and replaced, rather than blocking a fresh start or being trusted blindly.",
+          "- AC5: Opening the same repo from two independent VS Code windows results in one shared viewer server, not two - verified by a test that starts the manager twice against the same root (simulating two windows) and gets back the same port both times.",
+          "- AC6: `deactivate()` in the VS Code extension explicitly stops every tracked viewer server, not only via subscription disposal - matching the intent already stated in `item_527`."
+        ],
+        "Needs": [
+          "- Detect a viewer already running for a given repo root - from any surface (CLI, or any VS Code window) - and reuse it instead of spawning a duplicate.",
+          "- Turn a port-bind collision into a clear, actionable error, instead of a raw Python traceback.",
+          "- Stop the viewer and MCP's HTTP server from sharing the same default port by accident, so both can run concurrently against the same repo.",
+          "- Reconcile `prod_020`'s existing \"available localhost port\" and \"clear shutdown and port-selection story\" language with what the code actually does today.",
+          "- Make VS Code's extension deactivation explicitly stop tracked viewer servers, not rely solely on subscription disposal."
+        ]
+      },
+      "status": "Draft",
+      "title": "One viewer per repo, and a resolved port story across the viewer and MCP"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, turn port collisions into clear errors, and deconflict the viewer/mcp default ports, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Turn port collisions into clear errors, and deconflict the viewer/MCP default ports",
+        "use when": "Implementing the scaffolded slice for Turn port collisions into clear errors, and deconflict the viewer/MCP default ports."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_665_turn_port_collisions_into_clear_errors_and_deconflict_the_viewer_mcp_default_ports"
+        ],
+        "prod": [
+          "prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp"
+        ],
+        "req": [
+          "req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp"
+        ],
+        "task": [
+          "task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle"
+        ]
+      },
+      "path": "logics/backlog/item_665_turn_port_collisions_into_clear_errors_and_deconflict_the_viewer_mcp_default_ports.md",
+      "ref": "item_665_turn_port_collisions_into_clear_errors_and_deconflict_the_viewer_mcp_default_ports",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A bind collision on the viewer's or MCP serve-http's default port produces a clear, actionable error identifying which default port conflicted and how to resolve it, instead of a raw Python traceback.",
+          "- AC2: The viewer and `mcp serve-http`/`mcp tunnel`/`mcp connect` no longer share the same default port; each family has its own default, so both can run concurrently against the same repo without a naming collision."
+        ],
+        "Problem": [
+          "- A bind collision on the viewer's or MCP's default port today raises an uncaught OSError with a raw traceback - `LogicsViewerServer.__init__` (viewer.py:1591) and `serve_http()`'s server construction (mcp.py:1736) sit outside any try/except that would produce a clean message.",
+          "- The viewer and MCP serve-http/tunnel/connect all default to the same port, 8765, chosen independently for two unrelated tools - running both against the same repo with default flags collides by accident, not by any deliberate shared-port design."
+        ]
+      },
+      "status": "Ready",
+      "title": "Turn port collisions into clear errors, and deconflict the viewer/MCP default ports"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add a per-repo viewer registry so any surface reuses a live instance, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add a per-repo viewer registry so any surface reuses a live instance",
+        "use when": "Implementing the scaffolded slice for Add a per-repo viewer registry so any surface reuses a live instance."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_666_add_a_per_repo_viewer_registry_so_any_surface_reuses_a_live_instance"
+        ],
+        "prod": [
+          "prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp"
+        ],
+        "req": [
+          "req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp"
+        ],
+        "task": [
+          "task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle"
+        ]
+      },
+      "path": "logics/backlog/item_666_add_a_per_repo_viewer_registry_so_any_surface_reuses_a_live_instance.md",
+      "ref": "item_666_add_a_per_repo_viewer_registry_so_any_surface_reuses_a_live_instance",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC3: A per-repo registry lets any invocation - CLI `logics-manager view`, or a VS Code window's `ViewerServerManager.getOrStart()` - detect a live viewer already serving that exact repo root and reuse it (return its existing URL) instead of spawning a duplicate.",
+          "- AC4: A registry entry whose recorded server no longer responds to a liveness check is treated as stale and replaced, rather than blocking a fresh start or being trusted blindly.",
+          "- AC5: Opening the same repo from two independent VS Code windows results in one shared viewer server, not two - verified by a test that starts the manager twice against the same root (simulating two windows) and gets back the same port both times."
+        ],
+        "Problem": [
+          "- No process family detects whether a viewer is already serving a given repo root. Two VS Code windows on the same repo spawn two independent processes (each on its own OS-assigned port, since `--port 0` is used per window, viewerServerManager.ts:58-60); a manual `logics-manager view` from a terminal is equally blind to either.",
+          "- There is no shared registry, lock file, or pidfile anywhere in the codebase for this purpose - the only existing lock (release.py:335) guards an unrelated file."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add a per-repo viewer registry so any surface reuses a live instance"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, harden vs code deactivation and reconcile prod_020's port-selection claim, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Harden VS Code deactivation and reconcile prod_020's port-selection claim",
+        "use when": "Implementing the scaffolded slice for Harden VS Code deactivation and reconcile prod_020's port-selection claim."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_667_harden_vs_code_deactivation_and_reconcile_prod_020_s_port_selection_claim"
+        ],
+        "prod": [
+          "prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp"
+        ],
+        "req": [
+          "req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp"
+        ],
+        "task": [
+          "task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle"
+        ]
+      },
+      "path": "logics/backlog/item_667_harden_vs_code_deactivation_and_reconcile_prod_020_s_port_selection_claim.md",
+      "ref": "item_667_harden_vs_code_deactivation_and_reconcile_prod_020_s_port_selection_claim",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC6: `deactivate()` in the VS Code extension explicitly stops every tracked viewer server, not only via subscription disposal - matching the intent already stated in `item_527`.",
+          "- AC7: `prod_020`'s \"available localhost port\" and \"port-selection story\" language is reconciled with the actual behavior after this request - either the doc is corrected to describe the real default-plus-fallback behavior, or the behavior is changed to match what was already promised; whichever direction, the two stop contradicting each other."
+        ],
+        "Problem": [
+          "- `deactivate()` in extension.ts (line 95) is empty; tracked viewer servers are only stopped via a `context.subscriptions` disposable (logicsViewProvider.ts:111), which does not fire on a force-quit or extension-host crash - `item_527`'s stated AC (\"Clean up the child process on extension deactivate\") is not literally met.",
+          "- `prod_020` states the CLI \"starts a local server on an available localhost port\" and lists a \"port-selection story\" as in-scope, but the actual default is a fixed port with a manual --port 0 workaround and a traceback on collision (addressed in the sibling slice of this request) - the doc currently over-promises relative to the delivered behavior."
+        ]
+      },
+      "status": "Ready",
+      "title": "Harden VS Code deactivation and reconcile prod_020's port-selection claim"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate coordinated viewer/MCP server lifecycle",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_665_turn_port_collisions_into_clear_errors_and_deconflict_the_viewer_mcp_default_ports",
+          "item_666_add_a_per_repo_viewer_registry_so_any_surface_reuses_a_live_instance",
+          "item_667_harden_vs_code_deactivation_and_reconcile_prod_020_s_port_selection_claim"
+        ],
+        "prod": [
+          "prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp"
+        ],
+        "req": [
+          "req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp"
+        ],
+        "task": [
+          "task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle"
+        ]
+      },
+      "path": "logics/tasks/task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle.md",
+      "ref": "task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate coordinated viewer/MCP server lifecycle"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_665_turn_port_collisions_into_clear_errors_and_deconflict_the_viewer_mcp_default_ports",
+          "item_666_add_a_per_repo_viewer_registry_so_any_surface_reuses_a_live_instance",
+          "item_667_harden_vs_code_deactivation_and_reconcile_prod_020_s_port_selection_claim"
+        ],
+        "prod": [
+          "prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp"
+        ],
+        "req": [
+          "req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp"
+        ],
+        "task": [
+          "task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle"
+        ]
+      },
+      "path": "logics/product/prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp.md",
+      "ref": "prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "One viewer per repo, and a resolved port story across the viewer and MCP"
+    }
+  ],
+  "estimates": {
+    "char_count": 18292,
+    "companion_doc_count": 2,
+    "doc_count": 6
+  },
+  "generated_at": "2026-08-09T12:17:49Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp",
+      "item_665_turn_port_collisions_into_clear_errors_and_deconflict_the_viewer_mcp_default_ports",
+      "item_666_add_a_per_repo_viewer_registry_so_any_surface_reuses_a_live_instance",
+      "item_667_harden_vs_code_deactivation_and_reconcile_prod_020_s_port_selection_claim",
+      "task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp,item_665_turn_port_collisions_into_clear_errors_and_deconflict_the_viewer_mcp_default_ports,item_666_add_a_per_repo_viewer_registry_so_any_surface_reuses_a_live_instance,item_667_harden_vs_code_deactivation_and_reconcile_prod_020_s_port_selection_claim,task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle",
+  "refs": [
+    "req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp",
+    "item_665_turn_port_collisions_into_clear_errors_and_deconflict_the_viewer_mcp_default_ports",
+    "item_666_add_a_per_repo_viewer_registry_so_any_surface_reuses_a_live_instance",
+    "item_667_harden_vs_code_deactivation_and_reconcile_prod_020_s_port_selection_claim",
+    "task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.1"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle.md",
+      "ref": "task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle"
+    }
+  ]
+}

@@ -1,0 +1,552 @@
+{
+  "budgets": {
+    "max_docs": 32,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin item_649_add_the_lifecycle_ops_skill item_650_add_the_roadmap_deliver_skill item_651_add_the_closeout_repair_skill item_652_add_the_project_health_skill item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite item_654_add_a_claude_plugin_manifest task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_649_add_the_lifecycle_ops_skill",
+          "item_650_add_the_roadmap_deliver_skill",
+          "item_651_add_the_closeout_repair_skill",
+          "item_652_add_the_project_health_skill",
+          "item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite",
+          "item_654_add_a_claude_plugin_manifest"
+        ],
+        "prod": [
+          "prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin"
+        ],
+        "req": [
+          "req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin"
+        ],
+        "task": [
+          "task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging"
+        ]
+      },
+      "path": "logics/product/prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin.md",
+      "ref": "prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin",
+      "sections": {
+        "Goals": [
+          "- One skill per remaining lifecycle surface, matching the depth and format of the four existing skills.",
+          "- A clear, non-overlapping boundary between the new project-health skill and review-project.",
+          "- A working .claude-plugin manifest that exposes the bundled skills and the MCP server.",
+          "- Zero changes to the behavior of the four existing skills."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Extend logics-manager's bundled agent skills from the current create -> build -> review happy path to the full CLI lifecycle (lifecycle edge operations, roadmap-to-delivery, closeout troubleshooting, read-only diagnostics), and package the result as an installable Claude Code plugin so the existing skills and MCP server are discoverable through the standard plugin flow rather than only through the skills-install CLI command."
+        ],
+        "References": [
+          "- Product back-reference: `req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`",
+          "- Task back-reference: `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Full-lifecycle skill coverage, packaged as a Claude Code plugin"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, cover the remaining logics lifecycle in bundled skills and package as a claude code plugin, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Cover the remaining Logics lifecycle in bundled skills and package as a Claude Code plugin",
+        "use when": "You need to implement or review the scaffolded workflow for Cover the remaining Logics lifecycle in bundled skills and package as a Claude Code plugin."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_649_add_the_lifecycle_ops_skill",
+          "item_650_add_the_roadmap_deliver_skill",
+          "item_651_add_the_closeout_repair_skill",
+          "item_652_add_the_project_health_skill",
+          "item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite",
+          "item_654_add_a_claude_plugin_manifest"
+        ],
+        "prod": [
+          "prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin"
+        ],
+        "req": [
+          "req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin"
+        ]
+      },
+      "path": "logics/request/req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md",
+      "ref": "req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A `lifecycle-ops` skill documents split, promote, withdraw, close, finish task, and progress task with a recipe and gotchas, following the existing SKILL.md conventions.",
+          "- AC2: A `roadmap-deliver` skill documents roadmap propose/show/validate and deliver with a recipe and gotchas.",
+          "- AC3: A `closeout-repair` skill documents validate-closeout, repair, gates, ac-traceability, links, and mermaid as a troubleshooting decision path.",
+          "- AC4: A `project-health` skill documents doctor, health, audit, and insights as a read-only diagnostic recipe, with an explicit hard rule against duplicating review-project's capture step.",
+          "- AC5: Each new skill is discovered and installable by the existing `logics-manager skills install` mechanism without code changes to the installer.",
+          "- AC6: A `.claude-plugin/plugin.json` manifest declares the bundled skills and the MCP server entry point."
+        ],
+        "Needs": [
+          "- Give agents a skill recipe for the lifecycle operations that fall outside scoping and dev: splitting, promoting, withdrawing, closing, finishing, and progressing a doc.",
+          "- Give agents a skill recipe for the roadmap-to-delivery chain, which currently has no skill at all.",
+          "- Give agents a skill recipe for closeout troubleshooting, so repairing a stuck task does not require guessing which of six sub-commands applies.",
+          "- Give agents a read-only skill for project health diagnostics, scoped so it does not duplicate review-project's capture step.",
+          "- Let the repository install as a first-class Claude Code plugin, since it already bundles skills and an MCP server but has no plugin manifest.",
+          "- Cover every bundled skill with an automated test \u2014 the four new ones and the four that already ship today \u2014 so no skill's frontmatter or discoverability depends on manual checking."
+        ]
+      },
+      "status": "Draft",
+      "title": "Cover the remaining Logics lifecycle in bundled skills and package as a Claude Code plugin"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add the lifecycle-ops skill, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add the lifecycle-ops skill",
+        "use when": "Implementing the scaffolded slice for Add the lifecycle-ops skill."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_649_add_the_lifecycle_ops_skill"
+        ],
+        "prod": [
+          "prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin"
+        ],
+        "req": [
+          "req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin"
+        ],
+        "task": [
+          "task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging"
+        ]
+      },
+      "path": "logics/backlog/item_649_add_the_lifecycle_ops_skill.md",
+      "ref": "item_649_add_the_lifecycle_ops_skill",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The skill's frontmatter description matches the SKILL.md convention and names concrete trigger phrases.",
+          "- AC2: The recipe covers split, promote, withdraw, close, finish task, and progress task with at least one worked example each.",
+          "- AC3: Gotchas cover at least one propagation behavior (e.g. what closing a parent/child does to the other).",
+          "- AC4: `logics-manager skills install` discovers and installs the new skill without code changes.",
+          "- AC5: The four existing skills are unchanged.",
+          "- AC6: An automated test asserts this skill's frontmatter is valid and that it is listed by available_skills()."
+        ],
+        "Problem": [
+          "- split, promote, withdraw, close, finish task, and progress task have no skill: an agent asked to re-scope, retire, or manually close a doc has to read --help or docs/cli.md cold, with no worked recipe or gotchas.",
+          "- These are also the commands most likely to be run on a doc that already has history (linked children, progress recorded), so the wrong sequence is easy to get into without a documented recipe."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add the lifecycle-ops skill"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add the roadmap-deliver skill, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add the roadmap-deliver skill",
+        "use when": "Implementing the scaffolded slice for Add the roadmap-deliver skill."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_650_add_the_roadmap_deliver_skill"
+        ],
+        "prod": [
+          "prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin"
+        ],
+        "req": [
+          "req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin"
+        ],
+        "task": [
+          "task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging"
+        ]
+      },
+      "path": "logics/backlog/item_650_add_the_roadmap_deliver_skill.md",
+      "ref": "item_650_add_the_roadmap_deliver_skill",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The skill's frontmatter names concrete trigger phrases for roadmap and delivery work.",
+          "- AC2: The recipe covers propose, show, validate, and deliver with at least one worked example each.",
+          "- AC3: Gotchas explain what roadmap validate's contract actually enforces.",
+          "- AC4: `logics-manager skills install` discovers and installs the new skill without code changes.",
+          "- AC5: An automated test asserts this skill's frontmatter is valid and that it is listed by available_skills()."
+        ],
+        "Problem": [
+          "- roadmap propose/show/validate and deliver form the product-level chain above requests, and no skill documents any of it.",
+          "- roadmap validate enforces a document contract that is not obvious from the command name alone."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add the roadmap-deliver skill"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add the closeout-repair skill, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add the closeout-repair skill",
+        "use when": "Implementing the scaffolded slice for Add the closeout-repair skill."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_651_add_the_closeout_repair_skill"
+        ],
+        "prod": [
+          "prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin"
+        ],
+        "req": [
+          "req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin"
+        ],
+        "task": [
+          "task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging"
+        ]
+      },
+      "path": "logics/backlog/item_651_add_the_closeout_repair_skill.md",
+      "ref": "item_651_add_the_closeout_repair_skill",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The skill's frontmatter names concrete trigger phrases for a stuck or failing closeout.",
+          "- AC2: The recipe maps at least one concrete validate-closeout failure to each of the six repair sub-commands.",
+          "- AC3: The corpus skill's existing --apply-fixes gotcha links to this skill instead of duplicating its content.",
+          "- AC4: `logics-manager skills install` discovers and installs the new skill without code changes.",
+          "- AC5: An automated test asserts this skill's frontmatter is valid and that it is listed by available_skills()."
+        ],
+        "Problem": [
+          "- validate-closeout, repair, gates, ac-traceability, links, and mermaid are six distinct repair sub-commands with overlapping purposes; today only --apply-fixes is mentioned, in passing, inside the corpus skill's gotchas.",
+          "- An agent facing a blocked closeout has no documented decision path for which of the six commands to reach for."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add the closeout-repair skill"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Orchestrate skill coverage expansion and Claude Code plugin packaging",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_649_add_the_lifecycle_ops_skill",
+          "item_650_add_the_roadmap_deliver_skill",
+          "item_651_add_the_closeout_repair_skill",
+          "item_652_add_the_project_health_skill",
+          "item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite",
+          "item_654_add_a_claude_plugin_manifest"
+        ],
+        "prod": [
+          "prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin"
+        ],
+        "req": [
+          "req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin"
+        ],
+        "task": [
+          "task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging"
+        ]
+      },
+      "path": "logics/tasks/task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging.md",
+      "ref": "task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate skill coverage expansion and Claude Code plugin packaging"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_649_add_the_lifecycle_ops_skill",
+          "item_650_add_the_roadmap_deliver_skill",
+          "item_651_add_the_closeout_repair_skill",
+          "item_652_add_the_project_health_skill",
+          "item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite",
+          "item_654_add_a_claude_plugin_manifest"
+        ],
+        "prod": [
+          "prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin"
+        ],
+        "req": [
+          "req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin"
+        ],
+        "task": [
+          "task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging"
+        ]
+      },
+      "path": "logics/product/prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin.md",
+      "ref": "prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Full-lifecycle skill coverage, packaged as a Claude Code plugin"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add the project-health skill, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add the project-health skill",
+        "use when": "Implementing the scaffolded slice for Add the project-health skill."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_652_add_the_project_health_skill"
+        ],
+        "prod": [
+          "prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin"
+        ],
+        "req": [
+          "req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin"
+        ],
+        "task": [
+          "task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging"
+        ]
+      },
+      "path": "logics/backlog/item_652_add_the_project_health_skill.md",
+      "ref": "item_652_add_the_project_health_skill",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The skill's frontmatter names concrete trigger phrases distinct from review-project's ('is the project healthy', 'run diagnostics'; not 'review this codebase').",
+          "- AC2: A hard rule states the skill produces no document and defers capture to review-project.",
+          "- AC3: The recipe covers doctor, health, audit, and insights with guidance on reading their combined output.",
+          "- AC4: review-project is unchanged.",
+          "- AC5: `logics-manager skills install` discovers and installs the new skill without code changes.",
+          "- AC6: An automated test asserts this skill's frontmatter is valid and that it is listed by available_skills()."
+        ],
+        "Problem": [
+          "- doctor, health, audit, and insights have no dedicated skill, but review-project already opens with health/audit/search-docs as its first step, so a new skill risks duplicating that boundary rather than filling a gap.",
+          "- There is no skill for running these checks as a stand-alone diagnostic pass, outside the context of writing up a review request."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add the project-health skill"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, close the test gap on existing skills and generalize the skill test suite, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Close the test gap on existing skills and generalize the skill test suite",
+        "use when": "Implementing the scaffolded slice for Close the test gap on existing skills and generalize the skill test suite."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite"
+        ],
+        "prod": [
+          "prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin"
+        ],
+        "req": [
+          "req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin"
+        ],
+        "task": [
+          "task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging"
+        ]
+      },
+      "path": "logics/backlog/item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite.md",
+      "ref": "item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: corpus is covered by the same frontmatter/listing/provider-neutrality tests as the three existing delegation skills.",
+          "- AC2: All eight bundled skills (corpus, implement-task, review-project, groom-issues, lifecycle-ops, roadmap-deliver, closeout-repair, project-health) are covered by parametrized tests.",
+          "- AC3: A test fails if any directory under logics_manager/skill_assets/ is absent from the covered-skill set, catching a future untested addition.",
+          "- AC4: The existing three delegation-skill tests' behavior and assertions are unchanged, only their coverage set grows."
+        ],
+        "Problem": [
+          "- tests/python/test_bundled_delegation_skills.py parametrizes its checks over a DELEGATION_SKILLS set of three skills (implement-task, review-project, groom-issues). corpus is not in that set, so the skill most agents reach for first has never been asserted to have valid frontmatter or to be listed by available_skills().",
+          "- Adding four more skills without first fixing this would leave nine skills total with only eight covered, repeating the same gap at larger scale."
+        ]
+      },
+      "status": "Ready",
+      "title": "Close the test gap on existing skills and generalize the skill test suite"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add a .claude-plugin manifest, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add a .claude-plugin manifest",
+        "use when": "Implementing the scaffolded slice for Add a .claude-plugin manifest."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_654_add_a_claude_plugin_manifest"
+        ],
+        "prod": [
+          "prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin"
+        ],
+        "req": [
+          "req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin"
+        ],
+        "task": [
+          "task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging"
+        ]
+      },
+      "path": "logics/backlog/item_654_add_a_claude_plugin_manifest.md",
+      "ref": "item_654_add_a_claude_plugin_manifest",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: .claude-plugin/plugin.json exists, is valid JSON, and declares all bundled skills including the four new ones from this request.",
+          "- AC2: The manifest declares the MCP server entry point (`logics-manager mcp serve`).",
+          "- AC3: A documented install check confirms the plugin loads with all skills and the MCP server available in a Claude Code session.",
+          "- AC4: The existing `skills install --all-profiles` CLI path is unchanged and still documented for Codex.",
+          "- AC5: The plugin version is sourced from VERSION rather than hardcoded a second time."
+        ],
+        "Problem": [
+          "- The repository already bundles skills (skill_assets/) and an MCP server (`logics-manager mcp serve`), but has no .claude-plugin/plugin.json, so it cannot be installed as a Claude Code plugin through the standard marketplace/plugin flow.",
+          "- Without a manifest, the only install path is the bespoke `skills install --all-profiles` CLI command, which a plugin manifest would make redundant for Claude Code users specifically."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add a .claude-plugin manifest"
+    }
+  ],
+  "estimates": {
+    "char_count": 19314,
+    "companion_doc_count": 1,
+    "doc_count": 9
+  },
+  "generated_at": "2026-08-09T10:35:05Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin",
+      "item_649_add_the_lifecycle_ops_skill",
+      "item_650_add_the_roadmap_deliver_skill",
+      "item_651_add_the_closeout_repair_skill",
+      "item_652_add_the_project_health_skill",
+      "item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite",
+      "item_654_add_a_claude_plugin_manifest",
+      "task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin,item_649_add_the_lifecycle_ops_skill,item_650_add_the_roadmap_deliver_skill,item_651_add_the_closeout_repair_skill,item_652_add_the_project_health_skill,item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite,item_654_add_a_claude_plugin_manifest,task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging",
+  "refs": [
+    "req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin",
+    "item_649_add_the_lifecycle_ops_skill",
+    "item_650_add_the_roadmap_deliver_skill",
+    "item_651_add_the_closeout_repair_skill",
+    "item_652_add_the_project_health_skill",
+    "item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite",
+    "item_654_add_a_claude_plugin_manifest",
+    "task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging"
+  ],
+  "release": {
+    "blocking_reasons": [],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "Release evidence is complete.",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "ready",
+    "target_version": "2.21.1"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging.md",
+      "ref": "task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging"
+    }
+  ]
+}

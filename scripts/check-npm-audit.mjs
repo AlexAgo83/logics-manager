@@ -47,10 +47,6 @@ const allowedPackages = new Map([
     "Temporary exception: bundled preview asset; tracked until the Mermaid dependency chain can be refreshed."
   ],
   [
-    "dompurify",
-    "Temporary exception: only reachable through the bundled Mermaid preview asset chain."
-  ],
-  [
     "postcss",
     "Temporary exception: only reachable through the Vitest/Vite toolchain, which is dev-only."
   ],

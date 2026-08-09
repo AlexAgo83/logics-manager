@@ -7,7 +7,7 @@
 > Complexity: Medium
 > Theme: Agent-facing skill coverage and plugin packaging
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-09 13:03:49
+> Indicators reviewed: 2026-08-09 13:08:21
 
 # Needs
 - Give agents a skill recipe for the lifecycle operations that fall outside scoping and dev: splitting, promoting, withdrawing, closing, finishing, and progressing a doc.
@@ -20,6 +20,7 @@
 - Keep installed skills in sync with the bundled package automatically when logics-manager updates itself, instead of relying on a separate manual `skills install` invocation that silently no-ops on drift.
 - Detect and document Hermes (NousResearch) as a third supported harness, since it already reads the same `SKILL.md` format and speaks MCP natively — no new packaging format needed, only discovery and a documentation update.
 - Detect and document Antigravity (Google's Gemini-based agentic IDE/CLI) as a fourth supported harness, on the same basis: same `SKILL.md` filename, standard MCP client, only its skills directory differs from Claude Code/Codex/Hermes.
+- Leave every detected harness ready to use logics-manager's skills and MCP server after `bootstrap`, instead of requiring the operator to separately run `skills install` and hand-edit each harness's MCP config.
 
 # Context
 - Four skills already ship in logics_manager/skill_assets/: corpus (scope), groom-issues (scope from a tracker), implement-task (build), review-project (capture findings). Together they cover only the create -> build -> review happy path.
@@ -35,6 +36,7 @@
 - Hermes (NousResearch's `hermes-agent`) reads `SKILL.md` skills from `~/.hermes/skills/` under the same open `agentskills.io` convention Claude Code and Codex use, and its MCP client (`~/.hermes/config.yaml`, `mcp_servers:`) can point at `logics-manager mcp serve` like any other MCP client. `discover_skill_dirs()` (logics_manager/skills.py) checks `~/.claude/skills` and `~/.codex/skills` but not `~/.hermes/skills`, and nothing in the docs states Hermes is a supported harness at all.
 - Ollama was considered and rejected as a fifth harness: it is a model-serving runtime, not an agent framework. It has no SKILL.md convention and no MCP client or server role of its own (only unofficial third-party wrapper packages bridge it to MCP); the only native surface is raw tool-calling in its `/api/chat` endpoint, which requires a separate agent loop to be useful at all. There is no skills directory or MCP config to add Ollama to — supporting it is out of scope for this request, not a gap in it.
 - Antigravity (Google's Gemini-based agentic IDE/CLI, launched November 2025) reads the same `SKILL.md` filename and speaks standard MCP (`~/.gemini/config/mcp_config.json`, `mcpServers:`), so MCP support is already covered for free. Its skills directory is unsettled between sources: Google's own codelab names `~/.gemini/config/skills/` (global) or `<project-root>/.agents/skills/` (project-scoped), while a third-party report says the documented `~/.gemini/antigravity/skills/` path does not work in practice and `~/.gemini/skills/` is what actually loads. The correct path needs verifying against a real Antigravity install before `discover_skill_dirs()` is changed, rather than picked from conflicting docs.
+- Neither a fresh install nor `bootstrap` wires anything up today: `package.json` and `pyproject.toml` have no postinstall hook, and there is no `mcp install`/`mcp register` command anywhere in the codebase (verified by grep). Even once every skill and MCP tool in this request exists, a new user still has to run `skills install --all-profiles` by hand and hand-edit each harness's MCP config file. `bootstrap` (logics_manager/bootstrap.py) is the closest existing analog — it already scaffolds project-level agent-runtime files (`AGENTS.md`, `LOGICS.md`, `.gitignore` entries) and already removes legacy `.claude`/`logics/skills` paths — but does not touch skills installation or any MCP config. Each harness's MCP config uses a different file format: Claude Code project scope (`.mcp.json`) and Antigravity (`~/.gemini/config/mcp_config.json`) are both JSON, safe to merge programmatically; Codex (`~/.codex/config.toml`) is TOML and Hermes (`~/.hermes/config.yaml`) is YAML, both of which lose comments/formatting on a naive round-trip without a dedicated formatting-preserving library this project does not carry.
 
 # Acceptance criteria
 - AC1: A `lifecycle-ops` skill documents split, promote, withdraw, close, finish task, and progress task with a recipe and gotchas, following the existing SKILL.md conventions.
@@ -50,6 +52,7 @@
 - AC11: `install_skills()` detects drift between an installed skill's content and the bundled package, instead of only checking whether the destination directory exists, and `self-update`/`update` re-syncs every detected harness's skills directory after a successful CLI update, without overwriting a directory whose content was hand-modified away from any bundled version.
 - AC12: `discover_skill_dirs()` also detects `~/.hermes/skills`, and the README and `docs/cli.md` state that the bundled skills and MCP server are compatible with Hermes, alongside Claude Code and Codex, with the `mcp_servers` config snippet needed to wire it up.
 - AC13: `discover_skill_dirs()` detects Antigravity's actual skills directory, verified against a real install rather than assumed from conflicting docs, and the README and `docs/cli.md` state Antigravity as a supported harness with its MCP config snippet. Ollama is explicitly documented as out of scope, with the reason (no skills or MCP surface of its own), so the question does not resurface as an apparent gap.
+- AC14: `logics-manager bootstrap` installs bundled skills into every detected harness directory (reusing the drift-aware install from AC11-AC13) and, per detected harness, either merges a `logics-manager` MCP entry into an existing JSON MCP config file (Claude Code project scope, Antigravity) without ever overwriting a differing existing entry, or prints the exact ready-to-paste config snippet and file path for a harness whose config is TOML/YAML or does not exist yet (Codex, Hermes). Running `bootstrap` twice produces no duplicate entries and no changed output on the second run.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.
@@ -78,3 +81,4 @@
 - `item_654_add_a_claude_plugin_manifest`
 - `item_655_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`
 - `item_656_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`
+- `item_657_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`

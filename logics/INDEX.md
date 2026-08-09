@@ -1090,6 +1090,7 @@ _None_
 | [item_654_add_a_claude_plugin_manifest](backlog/item_654_add_a_claude_plugin_manifest.md) | Add a .claude-plugin manifest | Ready |  | 0% | backlog/item_654_add_a_claude_plugin_manifest.md |
 | [item_655_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin](backlog/item_655_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md) | Close the MCP tool parity gap for lifecycle, roadmap, closeout-repair, and health commands | Ready |  | 0% | backlog/item_655_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md |
 | [item_656_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin](backlog/item_656_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md) | Re-sync installed skills on self-update, and detect Hermes and Antigravity as additional harnesses | Ready |  | 0% | backlog/item_656_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md |
+| [item_657_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin](backlog/item_657_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md) | Wire bootstrap to leave every detected harness ready to use | Ready |  | 0% | backlog/item_657_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md |
 
 ## Tasks
 

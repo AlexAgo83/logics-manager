@@ -1,10 +1,10 @@
 ## item_651_add_the_closeout_repair_skill - Add the closeout-repair skill
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 11%
 > Complexity: Low
 > Theme: Skill coverage
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

@@ -1,10 +1,10 @@
 ## item_657_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin - Wire bootstrap to leave every detected harness ready to use
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 11%
 > Complexity: High
 > Theme: Zero-to-ready onboarding
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

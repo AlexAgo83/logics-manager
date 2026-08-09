@@ -1,10 +1,10 @@
 ## item_652_add_the_project_health_skill - Add the project-health skill
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 11%
 > Complexity: Low
 > Theme: Skill coverage
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

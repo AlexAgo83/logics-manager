@@ -1,13 +1,14 @@
 ## item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite - Close the test gap on existing skills and generalize the skill test suite
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Test coverage
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Owner: claude
 
 # Problem
 - tests/python/test_bundled_delegation_skills.py parametrizes its checks over a DELEGATION_SKILLS set of three skills (implement-task, review-project, groom-issues). corpus is not in that set, so the skill most agents reach for first has never been asserted to have valid frontmatter or to be listed by available_skills().

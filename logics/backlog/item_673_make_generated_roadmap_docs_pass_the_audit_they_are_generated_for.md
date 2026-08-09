@@ -1,14 +1,14 @@
 ## item_673_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for - Make generated roadmap docs pass the audit they are generated for
 > From version: 2.21.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-10 00:17:16
+> Indicators reviewed: 2026-08-10 00:32:13
 
 # AI Context
 - Summary: Make generated roadmap docs pass the audit they are generated for
@@ -47,13 +47,13 @@ Kept as one slice rather than three: each fix is a few lines, they share one reg
 - AC7: Promoting a request whose ACs wrap across several lines carries each AC into the backlog item and task in full, not truncated at its first physical line.
 
 # AC Traceability
-- request-AC1 -> This backlog slice. Proof: deferred to task closeout.
-- request-AC2 -> This backlog slice. Proof: deferred to task closeout.
-- request-AC3 -> This backlog slice. Proof: deferred to task closeout.
-- request-AC4 -> This backlog slice. Proof: deferred to task closeout.
-- request-AC5 -> This backlog slice. Proof: deferred to task closeout.
-- request-AC6 -> This backlog slice. Proof: deferred to task closeout.
-- request-AC7 -> This backlog slice. Proof: deferred to task closeout.
+- request-AC1 -> This backlog slice. Proof: `resolve_ref_slug` (`flow/docs.py`) expands a short ref to the full slug and raises SystemExit naming the ref when it cannot; `_build_native_roadmap` calls it before writing. `test_roadmap_propose_resolves_a_short_ref_to_its_full_slug` and `test_roadmap_propose_refuses_an_unresolvable_ref_before_writing` (the latter asserts nothing was written).
+- request-AC2 -> This backlog slice. Proof: `resolve_ref_slugs` is applied to request, backlog and task refs and `resolve_ref_slug` to the product ref, in `_build_native_roadmap`, which feeds both the indicator line and `# References` from the same resolved lists.
+- request-AC3 -> This backlog slice. Proof: `test_a_generated_roadmap_with_short_refs_passes_the_audit` builds a two-milestone roadmap from `--request-ref req_296` and asserts zero blocking audit issues against it.
+- request-AC4 -> This backlog slice. Proof: `index.py` now returns after the first `## ` line (`seen_heading`). `test_index_titles_a_doc_by_its_heading_not_its_last_section`.
+- request-AC5 -> This backlog slice. Proof: `logics/INDEX.md` regenerated: the seven roadmaps carry their document titles. The same fix corrected ADRs previously titled `10. Responsive fallback`, `` `show_git_diff` `` and `Phase 2.1 (shipped under task_222...)`, and `prod_048`, for 35 changed rows in total.
+- request-AC6 -> This backlog slice. Proof: `tests/python/test_generated_doc_refs_and_index.py`, 7 tests covering all three defects.
+- request-AC7 -> This backlog slice. Proof: `_bullet_values` rejoins a non-bullet, non-blank line onto the bullet above it, and `_request_ac_entries` reads rejoined bullets. `test_bullet_values_rejoins_a_wrapped_bullet` and `test_promote_carries_a_wrapped_acceptance_criterion_in_full`.
 
 # Decision framing
 - Product framing: Not needed

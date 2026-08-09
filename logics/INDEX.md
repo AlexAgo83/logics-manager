@@ -102,6 +102,7 @@
 | [prod_063_preferences_that_outlive_the_port](product/prod_063_preferences_that_outlive_the_port.md) | Preferences that outlive the port | Settled |  |  | product/prod_063_preferences_that_outlive_the_port.md |
 | [prod_064_a_gate_you_can_satisfy](product/prod_064_a_gate_you_can_satisfy.md) | A gate you can satisfy | Settled |  |  | product/prod_064_a_gate_you_can_satisfy.md |
 | [prod_065_evidence_about_the_release](product/prod_065_evidence_about_the_release.md) | Evidence about the release | Settled |  |  | product/prod_065_evidence_about_the_release.md |
+| [prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin](product/prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin.md) | Full-lifecycle skill coverage, packaged as a Claude Code plugin | Proposed |  |  | product/prod_066_full_lifecycle_skill_coverage_packaged_as_a_claude_code_plugin.md |
 
 ## Roadmaps
 
@@ -427,6 +428,7 @@ _None_
 | [req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository](request/req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository.md) | Persist viewer preferences where they belong: favourites for the user, the rest for the repository | Done |  |  | request/req_315_persist_viewer_preferences_where_they_belong_favourites_for_the_user_the_rest_for_the_repository.md |
 | [req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive](request/req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive.md) | Make the closeout gate teachable, self-consistent, and non-destructive | Done |  |  | request/req_316_make_the_closeout_gate_teachable_self_consistent_and_non_destructive.md |
 | [req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from](request/req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from.md) | Judge release evidence against the commit the release was cut from | Done |  |  | request/req_317_judge_release_evidence_against_the_commit_the_release_was_cut_from.md |
+| [req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin](request/req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md) | Cover the remaining Logics lifecycle in bundled skills and package as a Claude Code plugin | Draft |  |  | request/req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md |
 
 ## Backlog
 
@@ -1080,6 +1082,12 @@ _None_
 | [item_646_let_the_ac_repair_respect_which_slice_owns_which_criterion](backlog/item_646_let_the_ac_repair_respect_which_slice_owns_which_criterion.md) | Let the AC repair respect which slice owns which criterion | Done |  | 100 | backlog/item_646_let_the_ac_repair_respect_which_slice_owns_which_criterion.md |
 | [item_647_compare_release_tree_evidence_against_the_tagged_commit](backlog/item_647_compare_release_tree_evidence_against_the_tagged_commit.md) | Compare release-tree evidence against the tagged commit | Done |  | 100% | backlog/item_647_compare_release_tree_evidence_against_the_tagged_commit.md |
 | [item_648_say_which_gates_are_about_the_branch_and_which_about_the_release](backlog/item_648_say_which_gates_are_about_the_branch_and_which_about_the_release.md) | Say which gates are about the branch and which about the release | Done |  | 100% | backlog/item_648_say_which_gates_are_about_the_branch_and_which_about_the_release.md |
+| [item_649_add_the_lifecycle_ops_skill](backlog/item_649_add_the_lifecycle_ops_skill.md) | Add the lifecycle-ops skill | Ready |  | 0% | backlog/item_649_add_the_lifecycle_ops_skill.md |
+| [item_650_add_the_roadmap_deliver_skill](backlog/item_650_add_the_roadmap_deliver_skill.md) | Add the roadmap-deliver skill | Ready |  | 0% | backlog/item_650_add_the_roadmap_deliver_skill.md |
+| [item_651_add_the_closeout_repair_skill](backlog/item_651_add_the_closeout_repair_skill.md) | Add the closeout-repair skill | Ready |  | 0% | backlog/item_651_add_the_closeout_repair_skill.md |
+| [item_652_add_the_project_health_skill](backlog/item_652_add_the_project_health_skill.md) | Add the project-health skill | Ready |  | 0% | backlog/item_652_add_the_project_health_skill.md |
+| [item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite](backlog/item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite.md) | Close the test gap on existing skills and generalize the skill test suite | Ready |  | 0% | backlog/item_653_close_the_test_gap_on_existing_skills_and_generalize_the_skill_test_suite.md |
+| [item_654_add_a_claude_plugin_manifest](backlog/item_654_add_a_claude_plugin_manifest.md) | Add a .claude-plugin manifest | Ready |  | 0% | backlog/item_654_add_a_claude_plugin_manifest.md |
 
 ## Tasks
 
@@ -1393,3 +1401,4 @@ _None_
 | [task_312_orchestrate_moving_the_viewer_preferences_off_the_port](tasks/task_312_orchestrate_moving_the_viewer_preferences_off_the_port.md) | Orchestrate moving the viewer preferences off the port | Done |  | 100% | tasks/task_312_orchestrate_moving_the_viewer_preferences_off_the_port.md |
 | [task_313_orchestrate_making_the_closeout_gate_satisfiable](tasks/task_313_orchestrate_making_the_closeout_gate_satisfiable.md) | Orchestrate making the closeout gate satisfiable | Done |  | 100% | tasks/task_313_orchestrate_making_the_closeout_gate_satisfiable.md |
 | [task_314_orchestrate_judging_evidence_against_the_release](tasks/task_314_orchestrate_judging_evidence_against_the_release.md) | Orchestrate judging evidence against the release | Done |  | 100% | tasks/task_314_orchestrate_judging_evidence_against_the_release.md |
+| [task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging](tasks/task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging.md) | Orchestrate skill coverage expansion and Claude Code plugin packaging | Ready |  | 0% | tasks/task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging.md |

@@ -1,5 +1,5 @@
 ## req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose - Review findings: diagnostics that disagree with the repository they diagnose
-> Indicators reviewed: 2026-08-09 23:56:12
+> Indicators reviewed: 2026-08-10 00:00:29
 
 > From version: 2.21.2
 > Schema version: 1.0
@@ -134,5 +134,10 @@ Observed but not proposed as work:
 - Related: `req_324_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for`
 
 # Backlog
+- `item_674_stop_doctor_reporting_a_single_npm_install_as_a_duplicate_of_itself`
+- `item_675_backfill_schema_version_on_the_pre_schema_workflow_docs`
+- `item_676_run_the_full_logics_manager_doctor_in_ci`
+- `item_677_resolve_the_standing_code_scanning_alerts_so_a_non_empty_list_means_something`
+- `item_678_publish_a_changelog_built_from_the_existing_release_notes`
 
 - none

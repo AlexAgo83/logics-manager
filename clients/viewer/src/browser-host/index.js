@@ -78,6 +78,7 @@ import { createCdxScreen } from "./cdx.js";
 import { createViewerState, readerFor } from "./state.js";
 import { createWorkshopScreen } from "./workshop.js";
 import { createGitScreen } from "./git.js";
+import { createGraphScreen } from "./graph.js";
 import { focusFilterLabel, matchesFilterState, updateFilterOptionCounts } from "./filters.js";
 import {
   activityStateForRoot,
@@ -219,6 +220,7 @@ import {
   const documentTitle = () => document.getElementById("viewer-document-title");
   const documentContent = () => document.getElementById("viewer-document-content");
   const documentStatusButton = () => document.getElementById("viewer-document-status");
+  const documentGraphButton = () => document.getElementById("viewer-document-graph");
   const documentMinimizeButton = () => document.getElementById("viewer-document-minimize");
   const minimizedDock = () => document.getElementById("viewer-minimized-dock");
   const editDocumentButton = () => document.querySelector('[data-viewer-action="edit-document"]');
@@ -275,6 +277,15 @@ import {
     setMeta,
     updateCapabilityControls,
     shared: readerFor(viewerState),
+  });
+
+  const { showChainGraph } = createGraphScreen({
+    beginView,
+    isViewStale,
+    setDocument,
+    setMeta,
+    renderMermaidDiagrams,
+    openDoc: (ref) => showDocumentByPath(ref),
   });
 
   const repoFolderButton = () => document.getElementById("viewer-repo-folder");
@@ -1872,6 +1883,13 @@ import {
       status.hidden = !(currentDocumentItem && currentDocumentItem.relPath && options.length);
       status.disabled = status.hidden;
       status.title = currentStatus ? `Change status from ${currentStatus}` : "Change status";
+    }
+    const graph = documentGraphButton();
+    if (graph instanceof HTMLButtonElement) {
+      // req_320: the graph resolves a whole request chain, so it only makes
+      // sense to offer it from the docs that are actually part of one.
+      graph.hidden = !(currentDocumentItem && ["request", "backlog", "task"].includes(currentDocumentItem.stage));
+      graph.disabled = graph.hidden;
     }
   }
 
@@ -4165,6 +4183,11 @@ import {
     });
     documentStatusButton()?.addEventListener("click", () => {
       withPrimaryAction("change-document-status", "Updating status", changeCurrentDocumentStatus);
+    });
+    documentGraphButton()?.addEventListener("click", () => {
+      const ref = currentDocumentItem?.id;
+      if (!ref) return;
+      withPrimaryAction("chain-graph", "Resolving chain graph", () => showChainGraph(ref));
     });
     document.getElementById("viewer-git-actions-button")?.addEventListener("click", (event) => {
       event.stopPropagation();

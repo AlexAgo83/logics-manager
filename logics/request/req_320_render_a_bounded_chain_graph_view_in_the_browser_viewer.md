@@ -1,13 +1,13 @@
 ## req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer - Render a bounded chain graph view in the browser viewer
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium
 > Theme: Viewer visualization
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-09 13:38:12
+> Indicators reviewed: 2026-08-09 16:54:08
 
 # Needs
 - Let an operator see one request's chain (request, product brief, backlog items, tasks) as an actual navigable diagram inside the viewer, instead of reading nested lists across separate screens.
@@ -22,7 +22,7 @@
 - `logics-manager sync context-pack <ref> --format json` resolves a neighborhood via `linked_refs`, but its ref-extraction is a full-text scan over doc bodies. While scoping this very corpus, a ref mentioned only as a prose example inside req_319's own Context section (`item_649_add_the_lifecycle_ops_skill`, cited there purely to illustrate the ref-quoting format) was returned by `context-pack` as a linked ref of req_319, even though the two are unrelated - req_319 is about the Obsidian projection, item_649 belongs to req_318's lifecycle-ops skill. This is expected behavior for a full-text scanner, not a bug to fix in context-pack, but it means a graph feature must not treat `linked_refs` as ground truth for edges.
 - Each doc already carries its real structural links in dedicated sections instead: a request's own `# Backlog` list, a backlog item's own `# Links` section (Product brief(s)/Request/Primary task(s)), and a task's own `# Backlog` and `# Links`. These are the same sections `flow` commands already write and keep current. Reading them directly, rather than through context-pack's broader neighborhood resolution, is both simpler and avoids the false-edge risk just observed.
 - This is deliberately scoped to one request's chain at a time. The corpus this repository is already managing itself runs over a thousand docs (audit reports 1282); a single diagram covering the whole corpus is a different tool with different requirements (pan/zoom/force layout, likely a new dependency like cytoscape.js), considered and set aside as a separate, larger, not-yet-scoped effort. When that effort is scoped, its intended entry point is inside the Workshop screen, alongside the Explorer sub-tab (`// req_313` in index.js already moved Explorer there) - noted here so the placement decision isn't re-derived later, without committing to the feature itself yet.
-- Each document card already carries a per-document context menu (`.column__menu-item`, clients/viewer/src/browser-host/index.js) with actions like \"Open\", \"Promote\", and \"Read document\". Since this graph view is bounded to one request's chain, its natural entry point is an action on that same menu, on request/backlog/task cards, rather than a persistent top-level nav tab like Workshop/Git/CDX - those are cross-cutting tools with no single document to scope to, this feature always has one.
+- Correction found during implementation: `.column__menu-item` (a per-card "Open"/"Read"/"Promote" menu) turned out to belong to the VS Code extension's separate Kanban webview (`clients/shared-web/media/{mainApp,mainCore}.js`), not to the browser viewer this request scopes - the browser viewer has no per-card menu at all; `logics/request/req_320`'s markup at `.details__actions` in `index.html` is unused dead markup. The browser viewer's real per-document entry point is the open document panel's own action toolbar (`#viewer-document-status`'s "Change status" button and its siblings, `clients/viewer/src/browser-host/index.js`), shown only while a matching doc is open. AC7 targets that toolbar instead.
 
 # Acceptance criteria
 - AC1: A resolver reads one request's chain - the request, its product brief, its backlog items, and each item's task - purely from each doc's own structural link sections, and returns a deterministic node list (ref, kind, title, status) and edge list (parent -> child).
@@ -31,7 +31,7 @@
 - AC4: Clicking a node in the rendered graph opens that doc in the viewer, consistent with existing doc-opening behavior elsewhere in the UI.
 - AC5: The graph view is added as its own screen module (`createGraphScreen`), following the existing `createCdxScreen`/`createWorkshopScreen`/`createGitScreen` factory pattern.
 - AC6: Rendering a chain with zero, one, and many backlog items each produces a correct, readable diagram.
-- AC7: A "Graph" action is added to the existing per-document context menu (`.column__menu-item`, alongside "Open"/"Promote"/"Read document") on request, backlog, and task doc cards; selecting it opens the Graph screen scoped to that document's chain.
+- AC7: A "Graph" action is added to the open document panel's own action toolbar (alongside "Change status", following the same show/hide-by-stage pattern) whenever the open doc is a request, backlog item, or task; selecting it opens the Graph screen scoped to that document's chain.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

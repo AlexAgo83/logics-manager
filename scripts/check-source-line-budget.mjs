@@ -65,7 +65,9 @@ const allowedOversizedFiles = new Map(
     // beside the /api/bootstrap-logics handler it mirrors. Both are new callers of
     // logic that already lives elsewhere (viewer_registry.py, audit_payload) - the
     // growth here is the wiring, not new repair or reuse logic to extract further.
-    "logics_manager/viewer.py": { maxLines: 3388, ref: "req_321" },
+    // 3396: req_320 added the /api/chain-graph route, a thin wire to the new
+    // logics_manager/chain_graph.py resolver - no repair/render logic lives here.
+    "logics_manager/viewer.py": { maxLines: 3396, ref: "req_320" },
     "logics_manager/viewer_cdx.py": { maxLines: 1523, ref: "req_311" },
     "logics_manager/viewer_git.py": { maxLines: 1064, ref: "req_311" },
     // 4909: release prep baseline.
@@ -108,7 +110,10 @@ const allowedOversizedFiles = new Map(
     // said it had rendered.
     // 4196: req_321 added applyFixes() and its click delegation, beside the
     // onboarding-action delegation it follows the same shape as.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4196, ref: "req_321" },
+    // 4219: req_320 wired the new Graph screen - a button getter, the
+    // show/hide clause beside Status's identical one, and its click handler
+    // beside Status's, following createGraphScreen's own factory pattern.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4219, ref: "req_320" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

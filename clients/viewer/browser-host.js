@@ -7719,6 +7719,74 @@ ${line}` : line;
     };
   }
 
+  // clients/viewer/src/browser-host/graph.js
+  function _escapeMermaidLabel(text) {
+    return String(text || "").replace(/"/g, "'").replace(/[\r\n]+/g, " ");
+  }
+  function buildChainFlowchartSource(payload) {
+    const nodes = Array.isArray(payload?.nodes) ? payload.nodes : [];
+    const edges = Array.isArray(payload?.edges) ? payload.edges : [];
+    if (nodes.length === 0) {
+      return null;
+    }
+    const lines = ["flowchart TD"];
+    for (const node of nodes) {
+      const label = _escapeMermaidLabel(`${node.title || node.ref}
+${node.kind} \xB7 ${node.status || "unknown"}`);
+      lines.push(`  ${node.ref}["${label}"]`);
+    }
+    for (const edge of edges) {
+      lines.push(`  ${edge.from} --> ${edge.to}`);
+    }
+    for (const node of nodes) {
+      lines.push(`  click ${node.ref} call __logicsGraphNodeClick("${node.ref}")`);
+    }
+    return lines.join("\n");
+  }
+  function renderChainGraph(payload) {
+    const source = buildChainFlowchartSource(payload);
+    const dangling = Array.isArray(payload?.dangling) ? payload.dangling : [];
+    const notes = dangling.length ? `<p class="viewer-graph__dangling">Not resolved (no doc on disk): ${dangling.map(_escapeMermaidLabel).join(", ")}</p>` : "";
+    if (!source) {
+      return `<div class="viewer-graph"><p>No chain resolved.</p>${notes}</div>`;
+    }
+    return `<div class="viewer-graph"><pre class="mermaid">${source}</pre>${notes}</div>`;
+  }
+  function createGraphScreen(host) {
+    async function showChainGraph(ref, options = {}) {
+      host.setMeta("Resolving chain graph...");
+      const view = options.view || host.beginView({ silent: Boolean(options.silent) });
+      let response;
+      let data = {};
+      try {
+        response = await fetch(`/api/chain-graph?ref=${encodeURIComponent(ref)}`, { signal: view.signal });
+        try {
+          data = await response.json();
+        } catch {
+          data = {};
+        }
+      } catch (error) {
+        if (host.isAbortError && host.isAbortError(error)) {
+          return;
+        }
+        throw error;
+      }
+      if (host.isViewStale(view)) {
+        return;
+      }
+      if (!response.ok || !data.ok) {
+        host.setDocument("Graph", `<p>Unable to resolve chain graph: ${_escapeMermaidLabel(data.error || response.statusText)}</p>`);
+        host.setMeta("Chain graph failed to load.");
+        return;
+      }
+      window.__logicsGraphNodeClick = (nodeRef) => host.openDoc(nodeRef);
+      host.setDocument("Graph", renderChainGraph(data.payload));
+      host.renderMermaidDiagrams();
+      host.setMeta("Chain graph loaded.");
+    }
+    return { showChainGraph };
+  }
+
   // clients/viewer/src/browser-host/filters.js
   function matchesFilterState(item, viewerFilterState) {
     if (!item) {
@@ -7956,6 +8024,7 @@ ${line}` : line;
     const documentTitle = () => document.getElementById("viewer-document-title");
     const documentContent = () => document.getElementById("viewer-document-content");
     const documentStatusButton = () => document.getElementById("viewer-document-status");
+    const documentGraphButton = () => document.getElementById("viewer-document-graph");
     const documentMinimizeButton = () => document.getElementById("viewer-document-minimize");
     const minimizedDock = () => document.getElementById("viewer-minimized-dock");
     const editDocumentButton = () => document.querySelector('[data-viewer-action="edit-document"]');
@@ -8009,6 +8078,14 @@ ${line}` : line;
       setMeta,
       updateCapabilityControls,
       shared: readerFor(viewerState)
+    });
+    const { showChainGraph } = createGraphScreen({
+      beginView,
+      isViewStale,
+      setDocument,
+      setMeta,
+      renderMermaidDiagrams,
+      openDoc: (ref) => showDocumentByPath(ref)
     });
     const repoFolderButton = () => document.getElementById("viewer-repo-folder");
     const {
@@ -9453,6 +9530,11 @@ ${line}` : line;
         status.hidden = !(currentDocumentItem && currentDocumentItem.relPath && options.length);
         status.disabled = status.hidden;
         status.title = currentStatus ? `Change status from ${currentStatus}` : "Change status";
+      }
+      const graph = documentGraphButton();
+      if (graph instanceof HTMLButtonElement) {
+        graph.hidden = !(currentDocumentItem && ["request", "backlog", "task"].includes(currentDocumentItem.stage));
+        graph.disabled = graph.hidden;
       }
     }
     function renderDocumentMeta(item) {
@@ -11457,6 +11539,11 @@ ${line}` : line;
       });
       documentStatusButton()?.addEventListener("click", () => {
         withPrimaryAction("change-document-status", "Updating status", changeCurrentDocumentStatus);
+      });
+      documentGraphButton()?.addEventListener("click", () => {
+        const ref = currentDocumentItem?.id;
+        if (!ref) return;
+        withPrimaryAction("chain-graph", "Resolving chain graph", () => showChainGraph(ref));
       });
       document.getElementById("viewer-git-actions-button")?.addEventListener("click", (event) => {
         event.stopPropagation();

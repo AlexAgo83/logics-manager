@@ -29,6 +29,7 @@ from .audit import audit_payload
 from . import viewer_cdx_routes, viewer_diagnostics, viewer_workshop_routes
 from .bootstrap import bootstrap_payload
 from .cdx_memory import cdx_memory_payload
+from .chain_graph import resolve_request_chain
 from .config import ConfigError, find_repo_root, holds_corpus
 from .insights import health_payload, status_payload
 from .lint import lint_payload
@@ -2359,6 +2360,13 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             rel_path = params.get("path", [""])[0]
             full = params.get("full", [""])[0].lower() in {"1", "true", "yes"}
             self._send_json({"ok": True, "payload": git_file_preview_payload(self.server.repo_root, rel_path, full=full)})
+            return
+        if route == "/api/chain-graph":
+            ref = parse_qs(parsed.query).get("ref", [""])[0]
+            if not ref:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Missing required 'ref' query parameter.")
+                return
+            self._send_json({"ok": True, "payload": resolve_request_chain(self.server.repo_root, ref)})
             return
         if route == "/api/workspace-tree":
             rel_path = parse_qs(parsed.query).get("path", [""])[0]

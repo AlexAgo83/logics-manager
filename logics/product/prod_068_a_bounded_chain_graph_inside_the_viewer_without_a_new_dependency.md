@@ -1,14 +1,27 @@
 ## prod_068_a_bounded_chain_graph_inside_the_viewer_without_a_new_dependency - A bounded chain graph inside the viewer, without a new dependency
 > Date: 2026-08-09
-> Status: Proposed
+> Status: Settled
 > Related request: `req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer`
-> Related backlog: `item_660_resolve_one_request_s_chain_from_structural_link_sections`, `item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open`
+> Related backlog: `item_660_resolve_one_request_s_chain_from_structural_link_sections`
 > Related task: `task_317_orchestrate_the_bounded_chain_graph_view`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-09 16:54:39
 
 # Overview
 Let an operator see one request's chain visually inside the existing browser viewer, reusing the Mermaid runtime already loaded for embedded doc diagrams and the existing per-screen factory architecture, resolved from each doc's own structural link sections rather than a broader full-text ref scan that can produce false edges from prose mentions.
+
+```mermaid
+flowchart LR
+    Request[Request # Backlog] -->|structural refs only| Resolver[chain_graph.resolve_request_chain]
+    Resolver --> Nodes[node list: ref, kind, title, status]
+    Resolver --> Edges[edge list: parent -> child]
+    Nodes --> ApiRoute[/api/chain-graph]
+    Edges --> ApiRoute
+    ApiRoute --> GraphScreen[createGraphScreen]
+    GraphScreen -->|window.mermaid.run| Diagram[Rendered flowchart]
+    Diagram -->|click node| OpenDoc[showDocumentByPath]
+```
 
 # Goals
 - A visual, clickable chain view for one request at a time.
@@ -35,5 +48,5 @@ Let an operator see one request's chain visually inside the existing browser vie
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_320_render_a_bounded_chain_graph_view_in_the_browser_viewer`
+- Product back-reference: `item_660_resolve_one_request_s_chain_from_structural_link_sections`
 - Task back-reference: `task_317_orchestrate_the_bounded_chain_graph_view`

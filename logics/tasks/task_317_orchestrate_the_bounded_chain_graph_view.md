@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-09 13:37:34
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
@@ -15,7 +16,7 @@
 # Plan
 - [ ] 1. Build the structural-link chain resolver, with the prose-vs-structural test reproducing the req_319/item_649 case found while scoping this request.
 - [ ] 2. Build createGraphScreen consuming the resolver's output, reusing the existing Mermaid runtime and the existing screen factory pattern.
-- [ ] 3. Wire click-to-open using the viewer's existing doc-open action.
+- [ ] 3. Wire click-to-open using the viewer's existing doc-open action, and add the "Graph" entry point to the per-document context menu (request/backlog/task cards).
 - [ ] 4. Verify a 0-item, 1-item, and many-item chain each render correctly.
 - [ ] 5. Validate and index.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
@@ -39,6 +40,7 @@
 - request-AC4 -> `item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open`. Proof deferred to slice closeout.
 - request-AC5 -> `item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open`. Proof deferred to slice closeout.
 - request-AC6 -> `item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open`. Proof deferred to slice closeout.
+- request-AC7 -> `item_661_render_the_chain_as_a_mermaid_flowchart_with_click_to_open`. Proof deferred to slice closeout.
 
 # Validation
 - (no validation recorded yet)

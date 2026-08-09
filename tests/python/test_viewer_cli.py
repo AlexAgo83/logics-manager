@@ -3842,3 +3842,28 @@ def test_subprocess_runners_never_inherit_the_terminal(tmp_path: Path) -> None:
     assert len(captured) == 8
     for kwargs in captured:
         assert kwargs.get("stdin") is subprocess.DEVNULL
+
+
+def test_viewer_apply_fixes_endpoint_reuses_the_same_repair_as_cli_and_mcp(tmp_path: Path) -> None:
+    """req_321/item_664: no new repair logic - this proves the route produces
+    the same on-disk result as `audit --autofix-structure` already does."""
+    (tmp_path / "logics" / "request").mkdir(parents=True)
+    request_path = tmp_path / "logics" / "request" / "req_001_demo.md"
+    _write_minimal_workflow_doc(request_path, title="Demo request", kind="request", status="Ready", links=[])
+    assert "# Definition of Ready (DoR)" not in request_path.read_text(encoding="utf-8")
+
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("POST", "/api/apply-fixes", body="{}", headers={"Content-Type": "application/json"})
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+        assert response.status == 200
+        assert payload["ok"] is True
+        assert "# Definition of Ready (DoR)" in request_path.read_text(encoding="utf-8")
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)

@@ -8,6 +8,7 @@
 > Complexity: Low
 > Theme: Doc generation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-09 16:13:39
 
 # Problem
 - Every doc template writes `# AI Context` near the end of the body, after sections a bounded read frequently never reaches. A newly created doc inherits this today regardless of any repair applied to existing ones.
@@ -46,3 +47,9 @@
 # Priority
 - Priority: High - without this, every newly generated doc keeps reintroducing the problem the repair fixes on old ones
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary`
+
+# Notes
+- Task `task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary` was finished via `logics-manager flow finish task` on 2026-08-09.

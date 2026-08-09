@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Structural repair
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-09 16:13:40
 
 # Problem
 - Existing docs - potentially the whole corpus - already have `# AI Context` in the wrong place, and there is no deterministic way to fix that in bulk or per-ref today.
@@ -54,3 +55,9 @@
 # Priority
 - Priority: High - this is the actual on-demand repair path for the corpus that already exists
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary`
+
+# Notes
+- Task `task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary` was finished via `logics-manager flow finish task` on 2026-08-09.

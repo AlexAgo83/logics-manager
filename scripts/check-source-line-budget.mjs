@@ -32,15 +32,25 @@ const allowedOversizedFiles = new Map(
     // Extraction was attempted and backed out: the selection needs the tool
     // registry that lives here, so a separate module only bought an injection
     // dance and an import cycle for 133 of the 316 lines.
-    "logics_manager/mcp.py": { maxLines: 2054, ref: "req_303" },
+    // 2232: req_318 added nine MCP tools (withdraw/progress/roadmap show+validate/
+    // deliver/validate-closeout/repair gates+links/doctor) with no CLI equivalent
+    // before. Each follows the same shell-out-or-direct-payload shape every existing
+    // tool here already uses; a separate module would need to import the same
+    // _run_command/_ensure_no_dirty_conflict/_workflow_write_result helpers this
+    // file owns, same tradeoff req_303 already weighed and backed out of.
+    "logics_manager/mcp.py": { maxLines: 2232, ref: "req_318" },
     "logics_manager/sync.py": { maxLines: 1524, ref: "req_273" },
-    "logics_manager/audit.py": { maxLines: 1107, ref: "req_273" },
+    // 1145: req_321 added `_reposition_ai_context()`, sitting beside the other
+    // deterministic `_autofix_structure()` repairs (Status/Schema version) it extends.
+    "logics_manager/audit.py": { maxLines: 1145, ref: "req_321" },
     // 1117: req_317 added the per-gate release/branch comparison (resolving the
     // tagged commit, choosing which commit each gate is judged against, and
     // naming the comparison in stale reasons and status output). The new logic
     // lives beside the gate/staleness functions it extends; a separate module
     // would only split one cohesive comparison concept across two files.
-    "logics_manager/release.py": { maxLines: 1117, ref: "req_317" },
+    // 1119: req_318 added `.claude-plugin/plugin.json` as one more version source,
+    // beside the two lines each existing source already takes in this same list.
+    "logics_manager/release.py": { maxLines: 1119, ref: "req_318" },
     "logics_manager/assist_support.py": { maxLines: 1477, ref: "req_273" },
     // 5833: banked CDX reset endpoint (/api/cdx-reset); 5879: cdx disk payload/route;
     // 5927: release prep baseline; 5937: CDX memory read-only endpoint.
@@ -50,7 +60,12 @@ const allowedOversizedFiles = new Map(
     // 3348: req_315 added the preference routes and their handler. The POST branch was
     // extracted to keep do_POST near its ceiling; the GET side is two lines and a table
     // for it measured longer than the branch, so the branch was kept.
-    "logics_manager/viewer.py": { maxLines: 3348, ref: "req_315" },
+    // 3388: req_322 added the per-repo registry claim call and the reused-server
+    // early-return path in main(), and req_321 added the /api/apply-fixes route
+    // beside the /api/bootstrap-logics handler it mirrors. Both are new callers of
+    // logic that already lives elsewhere (viewer_registry.py, audit_payload) - the
+    // growth here is the wiring, not new repair or reuse logic to extract further.
+    "logics_manager/viewer.py": { maxLines: 3388, ref: "req_321" },
     "logics_manager/viewer_cdx.py": { maxLines: 1523, ref: "req_311" },
     "logics_manager/viewer_git.py": { maxLines: 1064, ref: "req_311" },
     // 4909: release prep baseline.
@@ -91,7 +106,9 @@ const allowedOversizedFiles = new Map(
     // three siblings in.
     // 4174: showDocument's missing setMeta call, the one screen-opening path that never
     // said it had rendered.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4174, ref: "req_313" },
+    // 4196: req_321 added applyFixes() and its click delegation, beside the
+    // onboarding-action delegation it follows the same shape as.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4196, ref: "req_321" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },
@@ -110,12 +127,18 @@ const allowedOversizedFiles = new Map(
     // req_312 moved the rendering whose only consumer is the cdx screen into that screen:
     // 2546 -> 1732. Swept to a fixed point, since each move makes the next one's callers
     // single-consumer too.
-    "clients/viewer/src/browser-host/render.js": { maxLines: 1732, ref: "req_312" },
+    // 1735: req_321 added the "Apply fixes" button and its section header, beside
+    // the findings list it acts on.
+    "clients/viewer/src/browser-host/render.js": { maxLines: 1735, ref: "req_321" },
     // 1353: req_314 taught the board to group by status, which is what its control always
     // claimed to do. The grouping itself is eleven lines; the rest is the heading element
     // the accessibility slice needed.
     "clients/shared-web/media/renderBoardApp.js": { maxLines: 1353, ref: "req_314" },
     "clients/shared-web/media/mainApp.js": { maxLines: 1040, ref: "req_273" },
+    // 1009: req_322 added stopViewerServers(), the explicit deactivate() path
+    // redundant with (not a replacement for) the subscription-disposal path
+    // the constructor already registers.
+    "clients/vscode/src/logicsViewProvider.ts": { maxLines: 1009, ref: "req_322" },
   })
 );
 const generatedFiles = new Set([

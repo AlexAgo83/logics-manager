@@ -2981,6 +2981,22 @@ import {
     }
   }
 
+  // req_321/item_664: same repair CLI/MCP already expose (audit
+  // --autofix-structure --autofix-ac-traceability) via a new caller, not new
+  // repair logic - then re-loads the health screen so the findings list
+  // reflects what actually got fixed.
+  async function applyFixes() {
+    setMeta("Applying fixes...");
+    const response = await fetch("/api/apply-fixes", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+    const payload = await response.json().catch(() => ({ ok: false }));
+    if (!response.ok || !payload.ok) {
+      setMeta(payload?.error || "Unable to apply fixes.");
+      return;
+    }
+    setMeta("Fixes applied.");
+    await showHealth();
+  }
+
   // Map a file path to a highlight.js language name for the main languages.
   // Highlight code to HTML when highlight.js and the language are available,
   // otherwise fall back to escaped plain text. Never throws.
@@ -3653,6 +3669,12 @@ import {
       if (onboardingActionTarget instanceof HTMLElement) {
         event.preventDefault();
         runOnboardingAction(onboardingActionTarget.getAttribute("data-viewer-onboarding-action") || "");
+        return;
+      }
+      const applyFixesTarget = event.target instanceof Element ? event.target.closest("[data-viewer-apply-fixes]") : null;
+      if (applyFixesTarget instanceof HTMLElement) {
+        event.preventDefault();
+        withPrimaryAction("apply-fixes", "Applying fixes", applyFixes);
         return;
       }
       if (navTarget instanceof HTMLElement) {

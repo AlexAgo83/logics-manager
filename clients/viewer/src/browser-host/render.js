@@ -770,7 +770,10 @@ export function renderHealthSummary(lintData, auditData, healthData = null) {
       <div class="viewer-health">
         <div class="viewer-health__summary">${cards}</div>
         <section class="viewer-health__section">
-          <h2 class="viewer-health__heading">Validation findings</h2>
+          <div class="viewer-health__section-header">
+            <h2 class="viewer-health__heading">Validation findings</h2>
+            <button class="viewer-health__apply-fixes" type="button" data-viewer-apply-fixes>Apply fixes</button>
+          </div>
           <ul class="viewer-health__list">${list}</ul>
         </section>
         ${workflowGroups}

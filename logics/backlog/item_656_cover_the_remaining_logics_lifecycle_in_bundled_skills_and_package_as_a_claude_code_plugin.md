@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 11%
+> Progress: 67%
 > Complexity: Medium
 > Theme: Skill install drift
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -77,3 +77,4 @@
 - Hybrid rationale: Derived from request `req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md`.
 - Generated locally by logics-manager.
+- Progress (2026-08-09): AC11 (drift detection + `update`/`self-update` resync), AC12 (Hermes detection + docs), and AC15 (`self-update` deprecation notice) are implemented and tested (`tests/python/test_cli_main.py`, `test_bundled_delegation_skills.py`, `test_skills_cli.py`). AC13's Antigravity half is deliberately NOT done: its own docs and a third-party field report disagree on the real skills directory, and this item's own scope explicitly requires verifying against a real install rather than guessing - the Ollama-out-of-scope half of AC13 is documented (`discover_skill_dirs()` docstring). Left open, not closed as done.

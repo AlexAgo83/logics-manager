@@ -3719,3 +3719,80 @@ def test_index_rejects_outside_output_before_writing(tmp_path: Path, monkeypatch
         main(["index", "--out", "../outside.md"])
 
     assert not outside.exists()
+
+
+def test_self_update_prints_deprecation_notice_pointing_to_update(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """req_318/item_656: `self-update` stays fully functional, just steered."""
+    monkeypatch.setattr("logics_manager.cli.latest_available_version", lambda: None)
+
+    exit_code = main(["self-update", "--check"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "deprecated alias" in captured.err
+    assert "use `update` instead" in captured.err
+
+
+def test_update_does_not_print_the_deprecation_notice(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.setattr("logics_manager.cli.latest_available_version", lambda: None)
+
+    exit_code = main(["update", "--check"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "deprecated alias" not in captured.err
+
+
+def test_self_update_check_skips_the_notice_under_json_format(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.setattr("logics_manager.cli.latest_available_version", lambda: None)
+
+    exit_code = main(["self-update", "--check", "--format", "json"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "deprecated alias" not in captured.err
+
+
+def test_resync_skills_after_update_refreshes_stale_and_adds_new(tmp_path: Path) -> None:
+    from logics_manager.cli import _resync_skills_after_update
+    from logics_manager.skills import install_skills
+
+    target = tmp_path / "claude-skills"
+    target.mkdir()
+    # Simulate a machine that installed only one skill before another shipped.
+    install_skills(["corpus"], target, force=False)
+
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr("logics_manager.cli.discover_skill_dirs", lambda: [target])
+        result = _resync_skills_after_update()
+
+    installed = {name for r in result["targets"] for name in r["installed"]}
+    assert "groom-issues" in installed or "review-project" in installed
+    assert (target / "corpus").is_dir()
+
+
+def test_resync_skills_leaves_a_hand_modified_skill_alone(tmp_path: Path) -> None:
+    from logics_manager.cli import _resync_skills_after_update
+    from logics_manager.skills import install_skills
+
+    target = tmp_path / "claude-skills"
+    target.mkdir()
+    install_skills(["corpus"], target, force=False)
+    (target / "corpus" / "SKILL.md").write_text("hand-edited content", encoding="utf-8")
+
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr("logics_manager.cli.discover_skill_dirs", lambda: [target])
+        result = _resync_skills_after_update()
+
+    hand_modified = {name for r in result["targets"] for name in r["hand_modified"]}
+    assert "corpus" in hand_modified
+    assert (target / "corpus" / "SKILL.md").read_text(encoding="utf-8") == "hand-edited content"

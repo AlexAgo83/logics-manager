@@ -23,6 +23,7 @@ from .lint import commit_indicator_findings, lint_payload, render_lint
 from .sync import search_logics_docs_payload
 from .doctor import doctor_packaging_payload, render_doctor
 from .termstyle import colorize_help
+from .skills import discover_skill_dirs, install_skills
 from .update_check import current_version as package_current_version, get_update_info, get_update_notice
 
 
@@ -220,6 +221,38 @@ def _is_running_from_npm_package() -> bool:
 def latest_available_version() -> str | None:
     """Published version, or None when the registry is unreachable."""
     return get_update_info(get_cli_version()).latest_version
+
+
+def _resync_skills_after_update() -> dict[str, object]:
+    """req_318/item_656: nothing used to re-trigger a skill install after a
+    version bump, so a machine that ran `skills install` once before a new
+    skill shipped stayed on the original set forever. `update`/`self-update`
+    now re-syncs every detected harness directory, refreshing a stale skill
+    and adding a new one, without ever overwriting a hand-modified one."""
+    results = []
+    for target_dir in discover_skill_dirs():
+        if not target_dir.is_dir():
+            continue
+        results.append(install_skills([], target_dir, force=False))
+    return {"targets": results}
+
+
+def _print_skill_sync_summary(skill_sync: dict[str, object]) -> None:
+    targets = skill_sync.get("targets") if isinstance(skill_sync, dict) else None
+    if not targets:
+        return
+    refreshed = [name for result in targets for name in result.get("refreshed", [])]
+    installed = [name for result in targets for name in result.get("installed", [])]
+    hand_modified = [name for result in targets for name in result.get("hand_modified", [])]
+    if not (refreshed or installed or hand_modified):
+        return
+    print("Skills re-synced across detected harnesses:")
+    if installed:
+        print(f"  added: {', '.join(sorted(set(installed)))}")
+    if refreshed:
+        print(f"  refreshed: {', '.join(sorted(set(refreshed)))}")
+    if hand_modified:
+        print(f"  left alone (hand-modified): {', '.join(sorted(set(hand_modified)))}")
 
 
 def _print_update_state(state: dict[str, object], output_format: str) -> None:
@@ -605,6 +638,11 @@ def _dispatch(argv: list[str] | None = None) -> int:
             help="Install even though another logics-manager executable is on PATH.",
         )
         parsed = parser.parse_args(rest)
+        if command == "self-update" and parsed.format != "json":
+            # req_318/item_656: `self-update` and `update` are the same command;
+            # `update` is the name to use going forward. Kept fully functional,
+            # just steered.
+            print("Note: `self-update` is a deprecated alias; use `update` instead.", file=sys.stderr)
 
         detected_manager, executable = detect_running_manager(parsed.python_package)
         shadows = shadowing_executables(executable)
@@ -720,11 +758,14 @@ def _dispatch(argv: list[str] | None = None) -> int:
             if manager == "pipx":
                 target = parsed.python_package
             state["package"] = target
+            skill_sync = _resync_skills_after_update()
+            state["skill_sync"] = skill_sync
             if parsed.format == "json":
                 state["latest_version"] = latest_available_version()
                 _print_update_state(state, "json")
             else:
                 print(f"Updated {target} via {manager}.")
+                _print_skill_sync_summary(skill_sync)
                 if manager == "npm":
                     _print_path_conflict_guidance(_find_executable_paths("logics-manager"))
         elif parsed.format == "json":

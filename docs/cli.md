@@ -286,8 +286,9 @@ the command skips Mermaid-free workflow docs. For end-of-delivery cleanup, use
 
 ## Bundled agent skills
 
-`logics-manager` ships reusable agent skills (Claude Code and Codex share the
-`skills/<name>/SKILL.md` format), covering the workflow end to end:
+`logics-manager` ships reusable agent skills under the open `skills/<name>/SKILL.md`
+convention (agentskills.io) that Claude Code, Codex, and Hermes all share,
+covering the workflow end to end:
 
 | Skill | Stage |
 | --- | --- |
@@ -295,6 +296,10 @@ the command skips Mermaid-free workflow docs. For end-of-delivery cleanup, use
 | `/groom-issues` | Turn external tracker issues into a scoped corpus, keeping provenance. |
 | `/implement-task` | Build one scaffolded task, validate it, record it, close it out. |
 | `/review-project` | Read a codebase and capture the findings as one lightweight request. |
+| `/lifecycle-ops` | Split, promote, withdraw, close, finish, or progress a doc that already exists. |
+| `/roadmap-deliver` | Propose/show/validate a roadmap, or deliver a chain straight from a product brief. |
+| `/closeout-repair` | Diagnose a blocked closeout and run the specific repair command that fixes it. |
+| `/project-health` | Run the read-only diagnostics (doctor/health/status/followups/product-consistency/audit) as a pre-flight check. |
 
 They depend only on this project's own command surface — no specific
 orchestrator, agent runtime, or model provider — so they update with the
@@ -307,11 +312,20 @@ logics-manager skills install --target-dir ~/.codex/skills
 logics-manager skills install --all-profiles  # every detected harness dir
 ```
 
-`--all-profiles` detects `~/.claude/skills`, `~/.codex/skills`, and every cdx
-profile home (Claude Code profiles via `claude-home/`, Codex profiles via
-`config.toml`). Skills are install-once per harness home, independent of
-projects and Python environments. After updating the package, re-run with
-`--force` to refresh installed copies.
+`--all-profiles` detects `~/.claude/skills`, `~/.codex/skills`, `~/.hermes/skills`,
+and every cdx profile home (Claude Code profiles via `claude-home/`, Codex
+profiles via `config.toml`). Antigravity is not auto-detected yet - its own
+docs and third-party field reports disagree on which of
+`~/.gemini/config/skills`, `<project>/.agents/skills`, or plain `~/.gemini/skills`
+actually loads skills, and that needs verifying against a real install rather
+than guessed.
+
+Re-running `install` detects drift by content, not just by whether the
+destination exists: a skill whose bundled content changed since the last
+install is refreshed, a skill you hand-modified is left alone and reported,
+and `logics-manager update` (or the deprecated `self-update` alias) re-runs
+this sync across every detected harness automatically after a successful
+update - no separate `--force` step needed for the common case.
 
 ## Obsidian projection
 

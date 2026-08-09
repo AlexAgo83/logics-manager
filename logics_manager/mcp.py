@@ -22,7 +22,8 @@ from urllib.request import Request, urlopen
 
 from .audit import audit_payload
 from .config import ConfigError, find_repo_root, holds_corpus
-from .flow import flow_list_payload
+from .doctor import doctor_payload
+from .flow import flow_list_payload, roadmap_validate_payload, validate_closeout_payload
 from .insights import followups_payload, health_payload, product_consistency_payload, status_payload
 from .lint import expected_workflow_mermaid_signature, lint_payload
 from .mcp_request import update_created_request
@@ -370,6 +371,65 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
             ["input"],
         ),
     },
+    {
+        "name": "withdraw_workflow_doc",
+        "description": "Mark a request, backlog item, or task Obsolete and record its replacement.",
+        "inputSchema": _tool_schema(
+            {"source_path": {"type": "string"}, "superseded_by": {"type": "string"}, "dry_run": {"type": "boolean"}},
+            ["source_path", "superseded_by"],
+        ),
+    },
+    {
+        "name": "progress_task",
+        "description": "Update a task's progress percentage and recalculate its linked backlog item's progress.",
+        "inputSchema": _tool_schema(
+            {"task_path": {"type": "string"}, "progress": {"type": "integer"}, "dry_run": {"type": "boolean"}},
+            ["task_path", "progress"],
+        ),
+    },
+    {
+        "name": "roadmap_show",
+        "description": "Show a bounded view of a roadmap document.",
+        "inputSchema": _tool_schema({"source": {"type": "string"}, "max_chars": {"type": "integer"}}, ["source"]),
+    },
+    {
+        "name": "roadmap_validate",
+        "description": "Validate a roadmap document's contract: heading, required indicators, and at least one versioned milestone.",
+        "inputSchema": _tool_schema({"source": {"type": "string"}}, ["source"]),
+    },
+    {
+        "name": "deliver_from_product",
+        "description": "Create a linked request, backlog item, and task directly from a settled product brief.",
+        "inputSchema": _tool_schema(
+            {
+                "product_path": {"type": "string"},
+                "title": {"type": "string"},
+                "finish": {"type": "boolean"},
+                "dry_run": {"type": "boolean"},
+            },
+            ["product_path"],
+        ),
+    },
+    {
+        "name": "validate_closeout",
+        "description": "Preflight whether a task can be safely closed, naming the exact repair command for each finding.",
+        "inputSchema": _tool_schema({"source": {"type": "string"}}, ["source"]),
+    },
+    {
+        "name": "repair_gates",
+        "description": "Check off deterministic task/DoD gate checkboxes that a closeout would otherwise block on.",
+        "inputSchema": _tool_schema({"task_path": {"type": "string"}, "dry_run": {"type": "boolean"}}, ["task_path"]),
+    },
+    {
+        "name": "repair_links",
+        "description": "Repair a linked backlog item's back-reference to a task, when validate-closeout reports it missing.",
+        "inputSchema": _tool_schema({"task_path": {"type": "string"}, "dry_run": {"type": "boolean"}}, ["task_path"]),
+    },
+    {
+        "name": "get_logics_doctor",
+        "description": "Check required workflow directories and schema metadata.",
+        "inputSchema": _tool_schema({}),
+    },
 ]
 READ_ONLY = "read-only"
 MUTATING = "mutating"
@@ -396,6 +456,10 @@ TOOL_CAPABILITIES: dict[str, str] = {
     "run_logics_lint": READ_ONLY,
     "run_logics_audit": READ_ONLY,
     "show_git_diff": READ_ONLY,
+    "roadmap_show": READ_ONLY,
+    "roadmap_validate": READ_ONLY,
+    "validate_closeout": READ_ONLY,
+    "get_logics_doctor": READ_ONLY,
     # mutating: creates or edits documents, never removes or restructures them
     "create_request": MUTATING,
     "promote_request_to_backlog": MUTATING,
@@ -414,6 +478,11 @@ TOOL_CAPABILITIES: dict[str, str] = {
     "append_decision_note": MUTATING,
     "autofix_ac_traceability": MUTATING,
     "autofix_structure": MUTATING,
+    "withdraw_workflow_doc": MUTATING,
+    "progress_task": MUTATING,
+    "deliver_from_product": MUTATING,
+    "repair_gates": MUTATING,
+    "repair_links": MUTATING,
     # destructive: removes a document, or restructures the corpus around it
     "delete_logics_file": DESTRUCTIVE,
     "rename_logics_file": DESTRUCTIVE,
@@ -1205,6 +1274,96 @@ def _tool_show_git_diff(root: Path, args: dict[str, Any], name: str) -> dict[str
     paths = [str(path) for path in raw_paths] if isinstance(raw_paths, list) else None
     return _show_git_diff(root, paths)
 
+# req_318/item_655: the MCP surface used to have no tool for these nine CLI
+# commands at all - an MCP-only agent was capped below what the CLI could do,
+# regardless of any skill written for them. Each one follows the same shape
+# as its neighbors above: shell out to the equivalent `flow`/CLI command for
+# a mutating action (so it goes through the same code path a human typing the
+# command would), or return an existing standalone payload function directly
+# for a read-only one.
+
+def _tool_withdraw_workflow_doc(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    rel_path = _relative_path(root, str(args.get("source_path") or ""), ("logics/request", "logics/backlog", "logics/tasks"))
+    superseded_by = str(args.get("superseded_by") or "")
+    if not superseded_by:
+        raise McpToolError("invalid_argument_value", "superseded_by is required.", details={"arguments": ["superseded_by"]})
+    dry_run = bool(args.get("dry_run", False))
+    if not dry_run:
+        _ensure_no_dirty_conflict(root, [rel_path.as_posix()])
+    command = ["flow", "withdraw", rel_path.as_posix(), "--superseded-by", superseded_by, "--format", "json"]
+    if dry_run:
+        command.append("--dry-run")
+    payload = _json_from_stdout(_run_command(root, command).stdout)
+    return _workflow_write_result(root, payload, paths=[rel_path.as_posix()])
+
+def _tool_progress_task(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    rel_path = _relative_path(root, str(args.get("task_path") or ""), ("logics/tasks",))
+    progress = args.get("progress")
+    if not isinstance(progress, int) or not (0 <= progress <= 100):
+        raise McpToolError("invalid_argument_value", "progress must be an integer between 0 and 100.", details={"arguments": ["progress"]})
+    dry_run = bool(args.get("dry_run", False))
+    if not dry_run:
+        _ensure_no_dirty_conflict(root, ["logics"])
+    command = ["flow", "progress", "task", rel_path.as_posix(), "--progress", str(progress), "--format", "json"]
+    if dry_run:
+        command.append("--dry-run")
+    payload = _json_from_stdout(_run_command(root, command).stdout)
+    return _workflow_write_result(root, payload, paths=[rel_path.as_posix()])
+
+def _tool_roadmap_show(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    source = str(args.get("source") or "")
+    max_chars = _bounded_int(args.get("max_chars"), default=4000, maximum=12000)
+    command = ["flow", "roadmap", "show", source, "--max-chars", str(max_chars), "--format", "json"]
+    return _json_from_stdout(_run_command(root, command).stdout)
+
+def _tool_roadmap_validate(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    return roadmap_validate_payload(root, str(args.get("source") or ""))
+
+def _tool_deliver_from_product(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    rel_path = _relative_path(root, str(args.get("product_path") or ""), ("logics/product",))
+    dry_run = bool(args.get("dry_run", False))
+    if not dry_run:
+        _ensure_no_dirty_conflict(root, ["logics"])
+    command = ["flow", "deliver", "--from-product", rel_path.as_posix(), "--format", "json"]
+    title = args.get("title")
+    if title:
+        command.extend(["--title", str(title)])
+    if bool(args.get("finish", False)):
+        command.append("--finish")
+    if dry_run:
+        command.append("--dry-run")
+    payload = _json_from_stdout(_run_command(root, command).stdout)
+    created_paths = [str(payload[key]) for key in ("created_request_path", "created_backlog_path", "created_task_path") if payload.get(key)]
+    return _workflow_write_result(root, payload, paths=created_paths or [rel_path.as_posix()])
+
+def _tool_validate_closeout(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    return validate_closeout_payload(root, str(args.get("source") or ""))
+
+def _tool_repair_gates(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    rel_path = _relative_path(root, str(args.get("task_path") or ""), ("logics/tasks",))
+    dry_run = bool(args.get("dry_run", False))
+    if not dry_run:
+        _ensure_no_dirty_conflict(root, ["logics"])
+    command = ["flow", "repair", "gates", rel_path.as_posix(), "--format", "json"]
+    if dry_run:
+        command.append("--dry-run")
+    payload = _json_from_stdout(_run_command(root, command).stdout)
+    return _workflow_write_result(root, payload, paths=[rel_path.as_posix()])
+
+def _tool_repair_links(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    rel_path = _relative_path(root, str(args.get("task_path") or ""), ("logics/tasks",))
+    dry_run = bool(args.get("dry_run", False))
+    if not dry_run:
+        _ensure_no_dirty_conflict(root, ["logics"])
+    command = ["flow", "repair", "links", rel_path.as_posix(), "--format", "json"]
+    if dry_run:
+        command.append("--dry-run")
+    payload = _json_from_stdout(_run_command(root, command).stdout)
+    return _workflow_write_result(root, payload, paths=[rel_path.as_posix()])
+
+def _tool_get_logics_doctor(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    return doctor_payload(root)
+
 def _tool_delete_logics_file(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     rel_path, target = _resolved_markdown_file_path(root, str(args.get("path") or ""))
     dry_run = bool(args.get("dry_run", False))
@@ -1498,6 +1657,15 @@ _TOOL_HANDLERS: dict[str, Any] = {
     "delete_logics_file": _tool_delete_logics_file,
     "rename_logics_file": _tool_rename_logics_file,
     "scaffold_request_chain": _tool_scaffold_request_chain,
+    "withdraw_workflow_doc": _tool_withdraw_workflow_doc,
+    "progress_task": _tool_progress_task,
+    "roadmap_show": _tool_roadmap_show,
+    "roadmap_validate": _tool_roadmap_validate,
+    "deliver_from_product": _tool_deliver_from_product,
+    "validate_closeout": _tool_validate_closeout,
+    "repair_gates": _tool_repair_gates,
+    "repair_links": _tool_repair_links,
+    "get_logics_doctor": _tool_get_logics_doctor,
     "create_request": _tool_create_request,
     "promote_request_to_backlog": _tool_promote_request_to_backlog,
     "promote_backlog_to_task": _tool_promote_backlog_to_task,

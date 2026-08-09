@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-09 13:08:21
+> Indicators reviewed: 2026-08-09 13:14:33
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
@@ -20,8 +20,8 @@
 - [ ] 4. Add the MCP tools for withdraw, progress, roadmap show/validate, deliver, validate-closeout, gates, links, doctor, and insights, independently of the skill docs; each new skill's recipe should call these once they exist rather than shell out to the CLI where an MCP tool is available.
 - [ ] 5. Add the .claude-plugin/plugin.json manifest last, once every skill and MCP tool it needs to declare exists, and verify the install check.
 - [ ] 6. Run `logics-manager skills install --all-profiles` and confirm all eight skills (four existing, four new) are discovered.
-- [ ] 7. Add drift detection to `install_skills()`, hook a re-sync into `self-update`/`update`, add `~/.hermes/skills` and Antigravity's verified skills directory to `discover_skill_dirs()`, and document both as supported harnesses alongside Claude Code and Codex (with Ollama documented as explicitly out of scope).
-- [ ] 8. Extend `bootstrap` to install skills into every detected harness and wire (or print the snippet for) each harness's MCP config, so a fresh checkout ends ready to use rather than requiring hand-run `skills install` and hand-edited MCP config. Do this last, once every skill (steps 1-2), MCP tool (step 4), and harness directory (step 7) it needs to reference actually exists.
+- [ ] 7. Add drift detection to `install_skills()`, hook a re-sync into `update` (`self-update` is a deprecated alias), add `~/.hermes/skills` and Antigravity's verified skills directory to `discover_skill_dirs()`, and document both as supported harnesses alongside Claude Code and Codex (with Ollama documented as explicitly out of scope).
+- [ ] 8. Extend `bootstrap` to install skills into every detected harness and wire each harness's MCP config: merge JSON (Claude Code, Antigravity), append-as-text TOML (Codex), print-only for YAML (Hermes). Do this last, once every skill (steps 1-2), MCP tool (step 4), and harness directory (step 7) it needs to reference actually exists.
 - [ ] 9. Validate and index the corpus.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
@@ -65,6 +65,7 @@
 - request-AC11 -> `item_656_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`. Proof deferred to slice closeout.
 - request-AC12 -> `item_656_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`. Proof deferred to slice closeout.
 - request-AC13 -> `item_656_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`. Proof deferred to slice closeout.
+- request-AC15 -> `item_656_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`. Proof deferred to slice closeout.
 - request-AC14 -> `item_657_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`. Proof deferred to slice closeout.
 
 # Validation

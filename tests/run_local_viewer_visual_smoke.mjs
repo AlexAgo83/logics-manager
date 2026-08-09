@@ -70,6 +70,11 @@ writeReport({ url: viewer.url ?? null, mode, checks });
 const failed = checks.filter((check) => check.verdict === "failed");
 if (failed.length) {
   console.error(`Viewer campaign: ${failed.length} check(s) failed. See ${join(artifactsDir, "report.txt")}`);
+  // The report file is not an artifact CI uploads, so a failure would otherwise leave
+  // nothing to diagnose from the log itself.
+  for (const check of failed) {
+    console.error(`- ${check.name}: ${check.detail ?? check.measured ?? "no detail"}`);
+  }
   process.exitCode = 1;
 }
 

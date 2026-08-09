@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-09 13:03:49
+> Indicators reviewed: 2026-08-09 13:08:21
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
@@ -21,7 +21,8 @@
 - [ ] 5. Add the .claude-plugin/plugin.json manifest last, once every skill and MCP tool it needs to declare exists, and verify the install check.
 - [ ] 6. Run `logics-manager skills install --all-profiles` and confirm all eight skills (four existing, four new) are discovered.
 - [ ] 7. Add drift detection to `install_skills()`, hook a re-sync into `self-update`/`update`, add `~/.hermes/skills` and Antigravity's verified skills directory to `discover_skill_dirs()`, and document both as supported harnesses alongside Claude Code and Codex (with Ollama documented as explicitly out of scope).
-- [ ] 8. Validate and index the corpus.
+- [ ] 8. Extend `bootstrap` to install skills into every detected harness and wire (or print the snippet for) each harness's MCP config, so a fresh checkout ends ready to use rather than requiring hand-run `skills install` and hand-edited MCP config. Do this last, once every skill (steps 1-2), MCP tool (step 4), and harness directory (step 7) it needs to reference actually exists.
+- [ ] 9. Validate and index the corpus.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.
@@ -35,6 +36,7 @@
 - `item_654_add_a_claude_plugin_manifest`
 - `item_655_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`
 - `item_656_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`
+- `item_657_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`
 
 # Definition of Done (DoD)
 - [ ] Generated request, product, backlog, and task docs are present.
@@ -63,6 +65,7 @@
 - request-AC11 -> `item_656_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`. Proof deferred to slice closeout.
 - request-AC12 -> `item_656_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`. Proof deferred to slice closeout.
 - request-AC13 -> `item_656_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`. Proof deferred to slice closeout.
+- request-AC14 -> `item_657_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`. Proof deferred to slice closeout.
 
 # Validation
 - (no validation recorded yet)

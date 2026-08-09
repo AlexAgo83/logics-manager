@@ -1,14 +1,25 @@
 ## prod_069_ai_context_that_a_bounded_read_actually_reaches - AI Context that a bounded read actually reaches
 > Date: 2026-08-09
-> Status: Proposed
+> Status: Settled
 > Related request: `req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs`
-> Related backlog: `item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates`, `item_663_extend_autofix_structure_to_reposition_ai_context_in_existing_docs`
+> Related backlog: `item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates`
 > Related task: `task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-09 16:13:58
 
 # Overview
 Fix a self-defeating design detail: the one section written specifically to help an agent decide fast whether a doc is relevant (`# AI Context`) is placed near the end of every doc template, exactly where the tool's own default bounded reads (`flow show`, `read_logics_doc`) are least likely to reach. Move it ahead of the truncation boundary for new docs, and give existing docs a deterministic repair path via the autofix-structure mechanism that already exists.
+
+```mermaid
+flowchart LR
+    Template[Doc template] -->|now writes AI Context first| Indicators[Indicator block]
+    Existing[Existing doc, AI Context near the end] -->|_reposition_ai_context| Autofix[_autofix_structure]
+    Autofix --> Repositioned[AI Context moved to right after indicators]
+    Repositioned --> BoundedRead[flow show / read_logics_doc default budget]
+    BoundedRead --> Reached[AI Context included, not truncated away]
+    Repositioned --> ViewerButton[Viewer Apply fixes button / api/apply-fixes]
+```
 
 # Goals
 - AI Context survives a default-budget bounded read on any doc, regardless of the doc's total length.
@@ -35,5 +46,5 @@ Fix a self-defeating design detail: the one section written specifically to help
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs`
+- Product back-reference: `item_662_move_ai_context_ahead_of_the_truncation_boundary_in_doc_templates`
 - Task back-reference: `task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary`

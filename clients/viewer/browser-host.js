@@ -2118,7 +2118,10 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       <div class="viewer-health">
         <div class="viewer-health__summary">${cards}</div>
         <section class="viewer-health__section">
-          <h2 class="viewer-health__heading">Validation findings</h2>
+          <div class="viewer-health__section-header">
+            <h2 class="viewer-health__heading">Validation findings</h2>
+            <button class="viewer-health__apply-fixes" type="button" data-viewer-apply-fixes>Apply fixes</button>
+          </div>
           <ul class="viewer-health__list">${list}</ul>
         </section>
         ${workflowGroups}
@@ -10403,6 +10406,17 @@ ${line}` : line;
         throw error;
       }
     }
+    async function applyFixes() {
+      setMeta("Applying fixes...");
+      const response = await fetch("/api/apply-fixes", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+      const payload = await response.json().catch(() => ({ ok: false }));
+      if (!response.ok || !payload.ok) {
+        setMeta(payload?.error || "Unable to apply fixes.");
+        return;
+      }
+      setMeta("Fixes applied.");
+      await showHealth();
+    }
     async function showWorkspace(options = {}) {
       if (!document.querySelector("[data-viewer-workshop-explorer]")) {
         return showWorkshop({ tab: "explorer", silent: Boolean(options.silent) });
@@ -10942,6 +10956,12 @@ ${line}` : line;
         if (onboardingActionTarget instanceof HTMLElement) {
           event.preventDefault();
           runOnboardingAction(onboardingActionTarget.getAttribute("data-viewer-onboarding-action") || "");
+          return;
+        }
+        const applyFixesTarget = event.target instanceof Element ? event.target.closest("[data-viewer-apply-fixes]") : null;
+        if (applyFixesTarget instanceof HTMLElement) {
+          event.preventDefault();
+          withPrimaryAction("apply-fixes", "Applying fixes", applyFixes);
           return;
         }
         if (navTarget instanceof HTMLElement) {

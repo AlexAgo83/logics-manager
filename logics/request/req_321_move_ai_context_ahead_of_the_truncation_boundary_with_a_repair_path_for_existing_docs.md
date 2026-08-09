@@ -1,7 +1,7 @@
 ## req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs - Move AI Context ahead of the truncation boundary, with a repair path for existing docs
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

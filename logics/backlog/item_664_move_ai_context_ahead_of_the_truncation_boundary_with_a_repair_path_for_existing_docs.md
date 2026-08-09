@@ -1,10 +1,10 @@
 ## item_664_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs - Expose the autofix repair in the viewer, with VS Code parity for free
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 50%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Cross-surface repair exposure
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -42,8 +42,8 @@
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs.md`
-- Primary task(s): (none yet)
+- Request: `req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs`
+- Primary task(s): `task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary`
 
 # AI Context
 - Summary: Expose the autofix repair in the viewer, with VS Code parity for free
@@ -59,3 +59,7 @@
 - Hybrid rationale: Derived from request `req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_321_move_ai_context_ahead_of_the_truncation_boundary_with_a_repair_path_for_existing_docs.md`.
 - Generated locally by logics-manager.
+- Task `task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary` was finished via `logics-manager flow finish task` on 2026-08-09.
+
+# Tasks
+- `task_318_orchestrate_moving_ai_context_ahead_of_the_truncation_boundary`

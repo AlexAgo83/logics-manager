@@ -1530,6 +1530,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/cdx-reset",
         "/api/release-reset",
         "/api/update-status",
+        "/api/apply-fixes",
         *viewer_project_tools.MUTATING_ROUTES,
         "/api/lan/devices/revoke",
     }
@@ -2540,6 +2541,23 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"ok": True, "payload": self.server.viewer_payload(), "bootstrap": bootstrap})
             except SystemExit as exc:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, str(exc))
+            except OSError as exc:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+            return
+        if parsed.path == "/api/apply-fixes":
+            # req_321/item_664: reuses the exact same repair logic CLI
+            # (`audit --autofix-structure --autofix-ac-traceability`) and MCP
+            # (`autofix_structure`/`autofix_ac_traceability` tools) already
+            # call - this route is a new caller, not new repair logic. VS
+            # Code gets this for free (prod_036: one canonical viewer UI/API).
+            try:
+                result = audit_payload(
+                    self.server.repo_root,
+                    autofix_structure=True,
+                    autofix_ac_traceability=True,
+                    group_by_doc=True,
+                )
+                self._send_json({"ok": True, "payload": self.server.viewer_payload(), "audit": result})
             except OSError as exc:
                 self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
             return

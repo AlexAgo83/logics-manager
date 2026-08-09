@@ -313,12 +313,18 @@ logics-manager skills install --all-profiles  # every detected harness dir
 ```
 
 `--all-profiles` detects `~/.claude/skills`, `~/.codex/skills`, `~/.hermes/skills`,
-and every cdx profile home (Claude Code profiles via `claude-home/`, Codex
-profiles via `config.toml`). Antigravity is not auto-detected yet - its own
-docs and third-party field reports disagree on which of
-`~/.gemini/config/skills`, `<project>/.agents/skills`, or plain `~/.gemini/skills`
-actually loads skills, and that needs verifying against a real install rather
-than guessed.
+`~/.gemini/config/plugins/logics-manager/skills` (Antigravity), and every cdx
+profile home (Claude Code profiles via `claude-home/`, Codex profiles via
+`config.toml`).
+
+Antigravity's skills directory is one level deeper than the others: it only
+discovers skills inside a registered plugin, not from a flat shared folder -
+verified against a real install (its own docs and a third-party field report
+disagreed on `~/.gemini/config/skills`, `<project>/.agents/skills`, and plain
+`~/.gemini/skills`, none of which actually exist on a real machine; an
+installed plugin's own `skills/` folder, sitting next to its `plugin.json`
+manifest, does). `install`/`--all-profiles` writes that manifest automatically
+the first time it installs there - no separate setup step.
 
 Re-running `install` detects drift by content, not just by whether the
 destination exists: a skill whose bundled content changed since the last

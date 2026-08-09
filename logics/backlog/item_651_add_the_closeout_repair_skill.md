@@ -8,6 +8,7 @@
 > Complexity: Low
 > Theme: Skill coverage
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-09 17:20:06
 
 # Problem
 - validate-closeout, repair, gates, ac-traceability, links, and mermaid are six distinct repair sub-commands with overlapping purposes; today only --apply-fixes is mentioned, in passing, inside the corpus skill's gotchas.
@@ -54,3 +55,9 @@
 # Priority
 - Priority: Medium - a real but narrower gap; already half-mentioned inside /corpus
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging`
+
+# Notes
+- Task `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging` was finished via `logics-manager flow finish task` on 2026-08-09.

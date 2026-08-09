@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Skill coverage
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-09 17:20:06
 
 # Problem
 - split, promote, withdraw, close, finish task, and progress task have no skill: an agent asked to re-scope, retire, or manually close a doc has to read --help or docs/cli.md cold, with no worked recipe or gotchas.
@@ -57,3 +58,9 @@
 # Priority
 - Priority: High - the largest gap; these commands have no documentation for agents today
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging`
+
+# Notes
+- Task `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging` was finished via `logics-manager flow finish task` on 2026-08-09.

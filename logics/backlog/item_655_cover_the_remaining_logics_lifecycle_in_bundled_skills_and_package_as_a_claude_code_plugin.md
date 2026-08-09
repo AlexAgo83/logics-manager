@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: MCP tool parity
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-09 17:20:07
 
 # Problem
 - The MCP surface (logics_manager/mcp.py) does not mirror the CLI. It has tools for promote, split, close, finish, ac-traceability, and mermaid, but none for withdraw, progress, roadmap show/validate, deliver, validate-closeout, gates, links, doctor, or insights.
@@ -40,8 +41,8 @@
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md`
-- Primary task(s): (none yet)
+- Request: `req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`
+- Primary task(s): `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging`
 
 # AI Context
 - Summary: Close the MCP tool parity gap for lifecycle, roadmap, closeout-repair, and health commands
@@ -57,3 +58,7 @@
 - Hybrid rationale: Derived from request `req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md`.
 - Generated locally by logics-manager.
+- Task `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging` was finished via `logics-manager flow finish task` on 2026-08-09.
+
+# Tasks
+- `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging`

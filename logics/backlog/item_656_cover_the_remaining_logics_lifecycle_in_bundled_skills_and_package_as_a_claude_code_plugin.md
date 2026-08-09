@@ -1,21 +1,21 @@
 ## item_656_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin - Re-sync installed skills on update, and detect Hermes and Antigravity as additional harnesses
 > From version: 2.21.1
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 89%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Skill install drift
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-09 13:14:32
+> Indicators reviewed: 2026-08-09 17:20:07
 
 # Problem
 - `install_skills()` (logics_manager/skills.py) only checks whether a skill's destination directory already exists; it never compares installed content against the bundled package. A machine that ran `skills install` once, before this request's four new skills existed, now has only the original set and stays that way forever.
 - This is the exact drift observed on the machine this request was scoped on: only `corpus` present under `~/.claude/skills`, three shipped skills missing, and nothing to prompt a reinstall.
 - Nothing today re-triggers a skill install after `update` (`self-update` is a deprecated alias), so even an operator who diligently updates the CLI never gets their skills refreshed unless they separately remember `skills install --all-profiles`.
 - Hermes (NousResearch's `hermes-agent`) reads `SKILL.md` skills from `~/.hermes/skills/` under the same open `agentskills.io` convention as Claude Code and Codex, and its MCP client can point at `logics-manager mcp serve` from `~/.hermes/config.yaml`. No new packaging format is needed for it — but `discover_skill_dirs()` does not look for `~/.hermes/skills`, so `skills install --all-profiles` (and the auto-resync this item adds) silently skips it, and nothing in the docs says Hermes is supported at all.
-- Antigravity (Google's Gemini-based agentic IDE/CLI) also reads `SKILL.md` and speaks standard MCP, but its skills directory is unsettled between sources: Google's codelab says `~/.gemini/config/skills/` or `<project-root>/.agents/skills/`; a third-party report says the documented `~/.gemini/antigravity/skills/` path does not actually work and `~/.gemini/skills/` is what loads in practice. The correct path needs confirming against a real install before it is added to `discover_skill_dirs()`.
+- Antigravity (Google's Gemini-based agentic IDE/CLI) also reads `SKILL.md` and speaks standard MCP, but its skills directory was unsettled between sources: Google's codelab said `~/.gemini/config/skills/` or `<project-root>/.agents/skills/`; a third-party report said the documented `~/.gemini/antigravity/skills/` path does not actually work and `~/.gemini/skills/` is what loads in practice. Verified against a real install: none of the three exist. Antigravity discovers skills only inside a registered plugin - `~/.gemini/config/plugins/<name>/skills/<skill>/SKILL.md`, sitting next to that plugin's own `plugin.json` manifest (confirmed from its bundled `chrome-devtools-plugin`, the only plugin already installed there).
 - Ollama has no skills directory and no MCP client/server role of its own (it is a model-serving runtime; only unofficial third-party wrappers bridge it to MCP). It is explicitly out of scope for this item, not an oversight.
 - `self-update` and `update` are today plain aliases with identical behavior; `update` is the name to use going forward, and `self-update` should read as deprecated rather than as an equally valid choice.
 
@@ -26,7 +26,7 @@
   - After a successful `update` (`self-update` is a deprecated alias), automatically run the equivalent of `skills install --all-profiles` across every detected harness directory (`discover_skill_dirs()`), refreshing drifted skills and adding new ones.
   - Cover both outcomes with a test: a stale skill gets refreshed, a hand-modified one is left alone and reported, not silently skipped without explanation.
   - Add `~/.hermes/skills` to `discover_skill_dirs()`, the same way `~/.codex/skills` is already detected.
-  - Verify Antigravity's actual skills directory against a real install (docs disagree between `~/.gemini/config/skills/`, `<project-root>/.agents/skills/`, and plain `~/.gemini/skills/`), then add whichever one actually loads skills to `discover_skill_dirs()`.
+  - Verify Antigravity's actual skills directory against a real install (docs disagree between `~/.gemini/config/skills/`, `<project-root>/.agents/skills/`, and plain `~/.gemini/skills/`), then add whichever one actually loads skills to `discover_skill_dirs()`. Verified: none of the three - it's `~/.gemini/config/plugins/<plugin>/skills/`, one level deeper, inside a plugin; `install_skills()` writes the plugin's `plugin.json` manifest automatically the first time it installs there, and never overwrites one a human already wrote.
   - Update the README and `docs/cli.md` to state that the bundled skills and MCP server are compatible with Hermes and Antigravity, alongside Claude Code and Codex, including the `mcp_servers`/`mcp_config.json` snippets each needs.
   - Add one line noting Ollama was evaluated and is out of scope (model-serving runtime, no skills or MCP surface of its own), so this doesn't get re-litigated as an apparent gap later.
   - Make `self-update` print a one-line deprecation notice pointing to `update`, and keep it fully functional as an alias — no removal, no breaking change, just steering.
@@ -46,7 +46,7 @@
 # AC Traceability
 - request-AC11 -> This backlog slice. Proof: AC11: `install_skills()` detects drift between an installed skill's content and the bundled package, instead of only checking whether the destination directory exists, and `update` (`self-update` is a deprecated alias) re-syncs every detected harness's skills directory after a successful CLI update, without overwriting a directory whose content was hand-modified away from any bundled version.
 - request-AC12 -> This backlog slice. Proof: AC12: `discover_skill_dirs()` also detects `~/.hermes/skills`, and the README and `docs/cli.md` state that the bundled skills and MCP server are compatible with Hermes, alongside Claude Code and Codex, with the `mcp_servers` config snippet needed to wire it up.
-- request-AC13 -> This backlog slice. Proof: AC13: `discover_skill_dirs()` detects Antigravity's actual skills directory, verified against a real install rather than assumed from conflicting docs, and the README and `docs/cli.md` state Antigravity as a supported harness with its MCP config snippet. Ollama is explicitly documented as out of scope, with the reason, so the question does not resurface as an apparent gap.
+- request-AC13 -> This backlog slice. Proof: `discover_skill_dirs()` adds `~/.gemini/config/plugins/logics-manager/skills` when `~/.gemini` exists; `install_skills()` writes a sibling `plugin.json` the first time (never overwriting a hand-written one) - `test_installing_into_the_antigravity_plugin_dir_writes_a_manifest`/`test_installing_into_an_unrelated_skills_dir_writes_no_manifest`/`test_discover_skill_dirs` passed (tests/python/test_skills_cli.py). Verified live on the real machine this was scoped on: `skills install --target-dir ~/.gemini/config/plugins/logics-manager/skills` installed all 8 skills and wrote a real `plugin.json`, matching the structure of the real, already-installed `chrome-devtools-plugin`. README and docs/cli.md updated; Ollama's out-of-scope note (docstring on `discover_skill_dirs()`, unaffected by this fix) already existed.
 - request-AC15 -> This backlog slice. Proof: AC15: Invoking `self-update` prints a deprecation notice pointing to `update`, remains fully functional, and every doc this request produces refers to `update` as the canonical name.
 
 # Decision framing
@@ -60,8 +60,8 @@
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md`
-- Primary task(s): (none yet)
+- Request: `req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin`
+- Primary task(s): `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging`
 
 # AI Context
 - Summary: Re-sync installed skills on update, and detect Hermes and Antigravity as additional harnesses
@@ -77,4 +77,9 @@
 - Hybrid rationale: Derived from request `req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_318_cover_the_remaining_logics_lifecycle_in_bundled_skills_and_package_as_a_claude_code_plugin.md`.
 - Generated locally by logics-manager.
-- Progress (2026-08-09): AC11 (drift detection + `update`/`self-update` resync), AC12 (Hermes detection + docs), and AC15 (`self-update` deprecation notice) are implemented and tested (`tests/python/test_cli_main.py`, `test_bundled_delegation_skills.py`, `test_skills_cli.py`). AC13's Antigravity half is deliberately NOT done: its own docs and a third-party field report disagree on the real skills directory, and this item's own scope explicitly requires verifying against a real install rather than guessing - the Ollama-out-of-scope half of AC13 is documented (`discover_skill_dirs()` docstring). Left open, not closed as done.
+- Progress (2026-08-09): AC11 (drift detection + `update`/`self-update` resync), AC12 (Hermes detection + docs), and AC15 (`self-update` deprecation notice) are implemented and tested (`tests/python/test_cli_main.py`, `test_bundled_delegation_skills.py`, `test_skills_cli.py`).
+- Completed (2026-08-09): AC13's Antigravity half, previously left open pending a real install, is now verified and done - see AC Traceability above.
+- Task `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging` was finished via `logics-manager flow finish task` on 2026-08-09.
+
+# Tasks
+- `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging`

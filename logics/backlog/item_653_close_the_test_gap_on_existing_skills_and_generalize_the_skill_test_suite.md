@@ -9,6 +9,7 @@
 > Theme: Test coverage
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
 > Owner: claude
+> Indicators reviewed: 2026-08-09 17:20:06
 
 # Problem
 - tests/python/test_bundled_delegation_skills.py parametrizes its checks over a DELEGATION_SKILLS set of three skills (implement-task, review-project, groom-issues). corpus is not in that set, so the skill most agents reach for first has never been asserted to have valid frontmatter or to be listed by available_skills().
@@ -51,3 +52,9 @@
 # Priority
 - Priority: High - corpus ships today with zero automated coverage; fold it in before adding four more untested skills
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging`
+
+# Notes
+- Task `task_315_orchestrate_skill_coverage_expansion_and_claude_code_plugin_packaging` was finished via `logics-manager flow finish task` on 2026-08-09.

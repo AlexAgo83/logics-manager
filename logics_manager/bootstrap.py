@@ -126,8 +126,35 @@ def _ensure_line(text: str, line: str) -> str:
     return prefix + line + "\n"
 
 
-def bootstrap_payload(repo_root: Path, *, check: bool, sync_harnesses: bool = False) -> dict[str, object]:
+def bootstrap_payload(
+    repo_root: Path, *, check: bool, sync_harnesses: bool = False, refresh_managed: bool = False
+) -> dict[str, object]:
     logics_root = repo_root / "logics"
+
+    # req_331/item_691: a silent refresh (triggered after the VS Code extension's
+    # resolved CLI changes, with no user interaction) must never be the thing
+    # that creates a brand-new corpus - that stays an explicit "Initialize
+    # Logics" action. Bail before any write, including the legacy-path cleanup
+    # below, so "no corpus" is unambiguous in the payload rather than mixed in
+    # with an empty missing_paths list.
+    if refresh_managed and not (logics_root.exists() and logics_root.is_dir()):
+        return {
+            "command": "bootstrap",
+            "repo_root": repo_root.as_posix(),
+            "check": check,
+            "refresh_managed": True,
+            "ok": False,
+            "reason": "no_corpus",
+            "missing_paths": [],
+            "created_paths": [],
+            "updated_paths": [],
+            "removed_paths": [],
+            "directory_actions": [],
+            "claude_instruction_line_count": 0,
+            "skill_sync": {},
+            "mcp_wiring": [],
+        }
+
     instructions_manifest = _build_claude_instructions(repo_root)
     directory_actions: list[dict[str, object]] = []
     created_paths: list[str] = []
@@ -142,7 +169,7 @@ def bootstrap_payload(repo_root: Path, *, check: bool, sync_harnesses: bool = Fa
     elif not logics_root.is_dir():
         raise SystemExit(f"`{logics_root}` exists but is not a directory.")
 
-    if not check and not logics_root.exists():
+    if not check and not refresh_managed and not logics_root.exists():
         logics_root.mkdir(parents=True, exist_ok=True)
         created_paths.append("logics/")
 
@@ -262,6 +289,7 @@ def bootstrap_payload(repo_root: Path, *, check: bool, sync_harnesses: bool = Fa
         "command": "bootstrap",
         "repo_root": repo_root.as_posix(),
         "check": check,
+        "refresh_managed": refresh_managed,
         "ok": ok,
         "missing_paths": missing_paths,
         "created_paths": created_paths,
@@ -277,6 +305,8 @@ def bootstrap_payload(repo_root: Path, *, check: bool, sync_harnesses: bool = Fa
 def render_bootstrap(payload: dict[str, object], *, output_format: str) -> str:
     if output_format == "json":
         return json.dumps(payload, indent=2, sort_keys=True)
+    if payload.get("reason") == "no_corpus":
+        return "Bootstrap --refresh-managed: no logics/ corpus here. Run `logics-manager bootstrap` to initialize one."
     if payload["check"]:
         if payload["ok"]:
             return "Bootstrap check: OK"

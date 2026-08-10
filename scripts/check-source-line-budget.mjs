@@ -53,7 +53,9 @@ const allowedOversizedFiles = new Map(
     // running_executable_path/shadowing_executables, the only callers and the only other
     // code in the file that reasons about where this process came from; a module for
     // three short functions used in one place next door would be indirection, not a split.
-    "logics_manager/cli.py": { maxLines: 1029, ref: "req_325" },
+    // 1045: req_331 added the `--refresh-managed` flag and its help text to
+    // `bootstrap`, the same pattern as `--sync-harnesses` beside it.
+    "logics_manager/cli.py": { maxLines: 1045, ref: "req_331" },
     // 1564: item_675 added `backfill_schema_versions` and the --apply/--dry-run wiring on
     // schema-status. It sits beside `_schema_status`, whose scan it repairs, and reuses the
     // same `_resolve_target_docs` targeting; a separate module would import both and gain

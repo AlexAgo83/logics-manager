@@ -664,6 +664,17 @@ def _dispatch(argv: list[str] | None = None) -> int:
         parser = command_parser("logics-manager bootstrap")
         parser.add_argument("--check", action="store_true")
         parser.add_argument(
+            "--refresh-managed",
+            action="store_true",
+            help=(
+                "req_331: refresh only generated files and marked managed regions "
+                "(logics/instructions.md, LOGICS.md's managed block, AGENTS.md/"
+                ".gitignore idempotent lines, workflow directory scaffolding) for an "
+                "EXISTING corpus. Never creates a new logics/ corpus -- combine with "
+                "--check to preview, without it to apply. Safe to call unattended."
+            ),
+        )
+        parser.add_argument(
             "--sync-harnesses",
             action="store_true",
             help=(
@@ -679,7 +690,12 @@ def _dispatch(argv: list[str] | None = None) -> int:
             repo_root = find_repo_root(Path.cwd())
         except ConfigError:
             repo_root = Path.cwd().resolve()
-        payload = bootstrap_payload(repo_root, check=parsed.check, sync_harnesses=parsed.sync_harnesses)
+        payload = bootstrap_payload(
+            repo_root,
+            check=parsed.check,
+            sync_harnesses=parsed.sync_harnesses,
+            refresh_managed=parsed.refresh_managed,
+        )
         print(render_bootstrap(payload, output_format=parsed.format))
         return 0 if payload["ok"] else 1
     if command in {"self-update", "update"}:

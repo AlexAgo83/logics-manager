@@ -107,6 +107,7 @@
 | [prod_068_a_bounded_chain_graph_inside_the_viewer_without_a_new_dependency](product/prod_068_a_bounded_chain_graph_inside_the_viewer_without_a_new_dependency.md) | A bounded chain graph inside the viewer, without a new dependency | Settled |  |  | product/prod_068_a_bounded_chain_graph_inside_the_viewer_without_a_new_dependency.md |
 | [prod_069_ai_context_that_a_bounded_read_actually_reaches](product/prod_069_ai_context_that_a_bounded_read_actually_reaches.md) | AI Context that a bounded read actually reaches | Settled |  |  | product/prod_069_ai_context_that_a_bounded_read_actually_reaches.md |
 | [prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp](product/prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp.md) | One viewer per repo, and a resolved port story across the viewer and MCP | Settled |  |  | product/prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp.md |
+| [prod_071_direct_viewer_operations_for_workflow_chains_and_chatgpt_mcp](product/prod_071_direct_viewer_operations_for_workflow_chains_and_chatgpt_mcp.md) | Direct viewer operations for workflow chains and ChatGPT MCP | Proposed |  |  | product/prod_071_direct_viewer_operations_for_workflow_chains_and_chatgpt_mcp.md |
 
 ## Roadmaps
 
@@ -449,6 +450,7 @@
 | [req_324_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for](request/req_324_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for.md) | Make generated roadmap docs pass the audit they are generated for | Done |  |  | request/req_324_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for.md |
 | [req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose](request/req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose.md) | Review findings: diagnostics that disagree with the repository they diagnose | Done |  |  | request/req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose.md |
 | [req_326_review_findings_commands_that_report_failure_and_exit_zero](request/req_326_review_findings_commands_that_report_failure_and_exit_zero.md) | Review findings: commands that report failure and exit zero | Done |  |  | request/req_326_review_findings_commands_that_report_failure_and_exit_zero.md |
+| [req_327_make_viewer_navigation_and_chatgpt_mcp_developer_controls_direct](request/req_327_make_viewer_navigation_and_chatgpt_mcp_developer_controls_direct.md) | Make viewer navigation and ChatGPT MCP developer controls direct | Draft |  |  | request/req_327_make_viewer_navigation_and_chatgpt_mcp_developer_controls_direct.md |
 
 ## Backlog
 
@@ -1134,6 +1136,9 @@
 | [item_678_publish_a_changelog_built_from_the_existing_release_notes](backlog/item_678_publish_a_changelog_built_from_the_existing_release_notes.md) | Publish a CHANGELOG built from the existing release notes | Done |  | 100% | backlog/item_678_publish_a_changelog_built_from_the_existing_release_notes.md |
 | [item_679_make_doctor_exit_non_zero_when_it_reports_failed](backlog/item_679_make_doctor_exit_non_zero_when_it_reports_failed.md) | Make doctor exit non-zero when it reports FAILED | Done |  | 100% | backlog/item_679_make_doctor_exit_non_zero_when_it_reports_failed.md |
 | [item_680_derive_flow_exit_statuses_from_the_payload_instead_of_an_allow_list](backlog/item_680_derive_flow_exit_statuses_from_the_payload_instead_of_an_allow_list.md) | Derive flow exit statuses from the payload instead of an allow-list | Done |  | 100% | backlog/item_680_derive_flow_exit_statuses_from_the_payload_instead_of_an_allow_list.md |
+| [item_681_embed_the_bounded_workflow_chain_in_document_detail](backlog/item_681_embed_the_bounded_workflow_chain_in_document_detail.md) | Embed the bounded workflow chain in document detail | Ready |  | 0% | backlog/item_681_embed_the_bounded_workflow_chain_in_document_detail.md |
+| [item_682_promote_viewer_settings_into_a_dedicated_screen](backlog/item_682_promote_viewer_settings_into_a_dedicated_screen.md) | Promote viewer settings into a dedicated screen | Ready |  | 0% | backlog/item_682_promote_viewer_settings_into_a_dedicated_screen.md |
+| [item_683_add_per_project_chatgpt_mcp_controls_to_the_viewer](backlog/item_683_add_per_project_chatgpt_mcp_controls_to_the_viewer.md) | Add per-project ChatGPT MCP controls to the viewer | Ready |  | 0% | backlog/item_683_add_per_project_chatgpt_mcp_controls_to_the_viewer.md |
 
 ## Tasks
 
@@ -1456,3 +1461,4 @@
 | [task_321_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for](tasks/task_321_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for.md) | Make generated roadmap docs pass the audit they are generated for | Done |  | 100% | tasks/task_321_make_generated_roadmap_docs_pass_the_audit_they_are_generated_for.md |
 | [task_322_orchestrate_the_diagnostics_and_release_surface_cleanup](tasks/task_322_orchestrate_the_diagnostics_and_release_surface_cleanup.md) | Orchestrate the diagnostics and release-surface cleanup | Done |  | 100% | tasks/task_322_orchestrate_the_diagnostics_and_release_surface_cleanup.md |
 | [task_323_orchestrate_the_exit_code_honesty_corrections](tasks/task_323_orchestrate_the_exit_code_honesty_corrections.md) | Orchestrate the exit-code honesty corrections | Done |  | 100% | tasks/task_323_orchestrate_the_exit_code_honesty_corrections.md |
+| [task_324_deliver_direct_viewer_chain_settings_and_chatgpt_mcp_controls](tasks/task_324_deliver_direct_viewer_chain_settings_and_chatgpt_mcp_controls.md) | Deliver direct viewer chain, settings, and ChatGPT MCP controls | Ready |  | 0% | tasks/task_324_deliver_direct_viewer_chain_settings_and_chatgpt_mcp_controls.md |

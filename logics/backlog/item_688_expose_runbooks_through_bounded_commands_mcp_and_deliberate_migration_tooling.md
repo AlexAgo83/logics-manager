@@ -8,7 +8,7 @@
 > Complexity: High
 > Theme: Runbook command and integration parity
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-10 23:23:12
+> Indicators reviewed: 2026-08-10 23:30:31
 
 # AI Context
 - Summary: Expose runbooks through bounded commands, MCP, and deliberate migration tooling
@@ -24,6 +24,7 @@
 - In:
 - Add runbooks to supported list, read, search, context-pack, lint, audit, and MCP document operations.
 - Provide a bounded match operation that ranks Active runbooks against a concise intent, failure symptom, affected path, or task context and includes relevant matches in agent-facing context.
+- Rank exact path, service, command, category, and symptom matches before text matches; return no more than three concise Active results.
 - Provide a minimal create command and a discover/import flow that previews candidates and imports a selected local source with provenance, category, and review state.
 - Provide an explicit capture flow from current task learning to a Draft runbook; it records source evidence and never promotes the result automatically.
   - Keep import opt-in and repository-bounded; dry-run explains every file that would change.
@@ -39,6 +40,7 @@
 - AC2: MCP exposes runbooks through its documented read/list/search paths and rejects unsupported mutation fields safely.
 - AC3: Lint and audit inspect runbooks as companions without counting them as open workflow work.
 - AC4: A bounded match command returns relevant Active runbooks from intent, symptom, path, or task context, and context-pack or handoff can carry those matches without a full-corpus read.
+- AC4a: Match results are capped at three, rank deterministic operational metadata before text similarity, and show trigger, action, verification, and freshness.
 - AC5: A discovery command reports local legacy candidates without writing them.
 - AC6: Import requires an explicit candidate and metadata, records the source, and has a dry-run that makes no changes; capture creates only a Draft runbook with its task evidence.
 - AC7: Tests cover each public surface and prove another repository is not modified or an unverified learning silently promoted.

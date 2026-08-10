@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-10 23:23:35
+> Indicators reviewed: 2026-08-10 23:30:31
 
 # AI Context
 - Summary: Orchestrate the discoverable runbook library delivery
@@ -21,8 +21,8 @@
 
 # Plan
 - [ ] 1. Add the smallest companion-document contract and make generated instructions plus the index teach agents where to find, use, and selectively capture runbooks.
-- [ ] 2. Carry the one kind through bounded commands, matching/context, validation, MCP, and explicit local-only discovery/import/capture tooling.
-- [ ] 3. Add the viewer filter, metadata, and runbook-book graph while preserving the delivery chain graph.
+- [ ] 2. Carry the one kind through bounded commands, capped deterministic matching/context, validation, MCP, and explicit local-only discovery/import/capture tooling.
+- [ ] 3. Add Workshop Runbooks between Commands and Explorer: matching, metadata, verified state transitions, and a secondary runbook-book graph while preserving the delivery chain graph.
 - [ ] 4. Validate the full request chain and leave legacy migration to each repository owner.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.

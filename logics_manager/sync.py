@@ -178,7 +178,7 @@ def parse_workflow_doc(path: Path, *, repo_root: Path | None = None) -> Workflow
     text = _read_text(repo_root or path.parent.parent.parent, path)
     lines = text.splitlines()
     sections = _extract_sections(text)
-    indicators = {key: value for key in ("From version", "Schema version", "Status", "Understanding", "Confidence", "Progress", "Complexity", "Theme", "Date", "Drivers", "Related request", "Related backlog", "Related task", "Reminder") if (value := _indicator_value(lines, key)) is not None}
+    indicators = {key: value for key in ("From version", "Schema version", "Status", "Understanding", "Confidence", "Progress", "Complexity", "Theme", "Date", "Drivers", "Related request", "Related backlog", "Related task", "Reminder", "Category", "Verified") if (value := _indicator_value(lines, key)) is not None}
     indicators["Priority"] = priority_tier(lines)
     return WorkflowDocModel(
         kind=_detect_workflow_kind(path),
@@ -705,6 +705,72 @@ def search_logics_docs_payload(
     }
 
 
+RUNBOOK_MATCH_LIMIT = 3
+
+
+def match_runbooks_payload(repo_root: Path, query: str, *, limit: int = RUNBOOK_MATCH_LIMIT) -> dict[str, object]:
+    """Bounded, explainable runbook lookup (req_330/item_688).
+
+    A thin wrapper over the same doc-loading `search_logics_docs_payload` uses:
+    only Active runbooks are eligible, an exact match on the Category field or
+    the Trigger section ranks above a path/ref match, which ranks above a
+    plain text match anywhere in the doc. No bespoke scoring engine -- ranking
+    is four fixed tiers, each carrying a human-readable reason.
+    """
+    normalized = " ".join(query.strip().lower().split())
+    if not normalized:
+        raise SystemExit("Match query is required.")
+    docs_payload = list_logics_docs_payload(repo_root, kind="runbook", status="Active", limit=10000)
+    docs_by_ref = _load_workflow_docs(repo_root)
+    scored: list[tuple[int, str, dict[str, object]]] = []
+    for item in docs_payload["items"]:
+        ref = str(item["ref"])
+        doc = docs_by_ref.get(ref)
+        if doc is None:
+            continue
+        category = (doc.indicators.get("Category") or "").strip().lower()
+        trigger_lines = [line.strip("- ").lower() for line in doc.sections.get("Trigger", [])]
+        text = _strip_mermaid_blocks(_read_text(repo_root, repo_root / doc.path)).lower()
+
+        tier: int | None = None
+        reason = ""
+        if category and (normalized == category or normalized in category):
+            tier, reason = 0, f"category matches `{category}`"
+        elif normalized in ref.lower() or normalized in doc.path.lower():
+            tier, reason = 1, "matches the runbook's ref or path"
+        elif any(normalized in line for line in trigger_lines):
+            tier, reason = 2, "matches this runbook's Trigger"
+        elif normalized in text:
+            tier, reason = 3, "matches the runbook's text"
+
+        if tier is not None:
+            scored.append(
+                (
+                    tier,
+                    ref,
+                    {
+                        "ref": ref,
+                        "kind": "runbook",
+                        "path": doc.path,
+                        "title": doc.title,
+                        "category": doc.indicators.get("Category", ""),
+                        "verified": doc.indicators.get("Verified", ""),
+                        "reason": reason,
+                    },
+                )
+            )
+
+    scored.sort(key=lambda entry: (entry[0], entry[1]))
+    matches = [entry[2] for entry in scored[:limit]]
+    return {
+        "query": query,
+        "matches": matches,
+        "returned_count": len(matches),
+        "no_match": not matches,
+        "limit": limit,
+    }
+
+
 def _clean_mutation_text(text: str, *, field: str) -> str:
     cleaned = " ".join(text.split())
     if not cleaned:
@@ -1052,6 +1118,14 @@ def build_parser() -> argparse.ArgumentParser:
     search_docs.add_argument("--format", choices=("text", "json"), default="text")
     search_docs.set_defaults(func=cmd_search_docs)
 
+    match_runbooks = sub.add_parser(
+        "match-runbooks", help="Find at most 3 relevant Active runbooks for an intent, symptom, path, or task context."
+    )
+    match_runbooks.add_argument("query")
+    match_runbooks.add_argument("--limit", type=int, default=RUNBOOK_MATCH_LIMIT)
+    match_runbooks.add_argument("--format", choices=("text", "json"), default="text")
+    match_runbooks.set_defaults(func=cmd_match_runbooks)
+
     update_indicators = sub.add_parser("update-indicators", help="Update approved indicators on one workflow doc.")
     update_indicators.add_argument("source", help="Workflow ref or repo-relative path.")
     update_indicators.add_argument("--status")
@@ -1141,6 +1215,10 @@ def _build_help() -> str:
             "  search-docs <query>",
             "    Search approved workflow docs with bounded snippets.",
             "    Flags: --kind {all,request,backlog,task,product,roadmap,architecture,spec,runbook}, --status, --limit, --max-snippet-chars, --format {text,json}",
+            "",
+            "  match-runbooks <query>",
+            "    Find at most 3 relevant Active runbooks for an intent, symptom, path, or task context.",
+            "    Flags: --limit, --format {text,json}",
             "",
             "  update-indicators <source>",
             "    Update approved indicators on one workflow doc.",
@@ -1467,6 +1545,24 @@ def cmd_search_docs(args: argparse.Namespace) -> dict[str, object]:
     return {"command": "sync", "kind": "search-docs", "repo_root": repo_root.as_posix(), **payload}
 
 
+def cmd_match_runbooks(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    payload = match_runbooks_payload(
+        repo_root,
+        args.query,
+        limit=_bounded_positive(args.limit, default=RUNBOOK_MATCH_LIMIT, maximum=RUNBOOK_MATCH_LIMIT),
+    )
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    elif payload["no_match"]:
+        print(f"No Active runbook matched `{payload['query']}`.")
+    else:
+        print(f"Match `{payload['query']}`: {payload['returned_count']} runbook(s)")
+        for match in payload["matches"]:
+            print(f"- {match['ref']} [{match['category']}] {match['title']} -- {match['reason']}")
+    return {"command": "sync", "kind": "match-runbooks", "repo_root": repo_root.as_posix(), **payload}
+
+
 def cmd_update_indicators(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
     indicators = {
@@ -1563,7 +1659,7 @@ def main(argv: list[str]) -> int:
     if not argv or argv[0] in ("-h", "--help"):
         _print_help(_build_help())
         return 0
-    if argv[0] in {"close-eligible-requests", "refresh-mermaid-signatures", "schema-status", "read-doc", "list-docs", "search-docs", "update-indicators", "append-note", "context-pack", "export-graph"} and len(argv) > 1 and argv[1] in ("-h", "--help"):
+    if argv[0] in {"close-eligible-requests", "refresh-mermaid-signatures", "schema-status", "read-doc", "list-docs", "search-docs", "match-runbooks", "update-indicators", "append-note", "context-pack", "export-graph"} and len(argv) > 1 and argv[1] in ("-h", "--help"):
         _print_help(_build_subcommand_help(argv[0]))
         return 0
     parser = build_parser()

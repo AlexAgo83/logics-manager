@@ -1,9 +1,10 @@
-"""Contract tests for req_330/item_687: the runbook companion document kind.
+"""Contract tests for req_330/item_687+item_688: the runbook companion kind.
 
 Pins the pieces of the contract that have no other test coverage once the
 generic companion machinery (lint/audit/sync/mcp/index) is extended for
 `runbook`: the controlled category vocabulary, the Active-requires-Verified
-rule, the index rendering, and the agent-facing discovery wording.
+rule, the index rendering, the agent-facing discovery wording, and the
+bounded `match-runbooks` lookup (item_688).
 """
 
 from __future__ import annotations
@@ -126,3 +127,116 @@ def test_runbook_with_no_delivery_link_is_not_flagged_by_audit(tmp_path: Path) -
     codes = {issue["code"] for issue in payload["issues"]}
     assert "companion_doc_missing_primary_link" not in codes
     assert "companion_doc_missing_mermaid" not in codes
+
+
+# --- item_688: bounded, explainable match-runbooks lookup -------------------
+
+
+def test_match_runbooks_ranks_category_match_above_text_match(tmp_path: Path) -> None:
+    from logics_manager.sync import match_runbooks_payload
+
+    repo_root = _repo(tmp_path, "runbook")
+    _write_runbook(repo_root, status="Active", category="release", verified="2026-08-11, verified")
+
+    payload = match_runbooks_payload(repo_root, "release")
+    assert payload["returned_count"] == 1
+    assert payload["no_match"] is False
+    match = payload["matches"][0]
+    assert match["ref"] == "run_001_probe"
+    assert "category matches" in match["reason"]
+
+
+def test_match_runbooks_finds_trigger_text(tmp_path: Path) -> None:
+    from logics_manager.sync import match_runbooks_payload
+
+    repo_root = _repo(tmp_path, "runbook")
+    _write_runbook(repo_root, status="Active", category="release", verified="2026-08-11, verified")
+
+    payload = match_runbooks_payload(repo_root, "when the probe fires")
+    assert payload["returned_count"] == 1
+    assert "Trigger" in payload["matches"][0]["reason"]
+
+
+def test_match_runbooks_ignores_draft_and_archived(tmp_path: Path) -> None:
+    from logics_manager.sync import match_runbooks_payload
+
+    repo_root = _repo(tmp_path, "runbook")
+    _write_runbook(repo_root, status="Draft", category="release", verified="(not yet verified)")
+
+    payload = match_runbooks_payload(repo_root, "release")
+    assert payload["returned_count"] == 0
+    assert payload["no_match"] is True
+
+
+def test_match_runbooks_no_match_is_not_an_error(tmp_path: Path) -> None:
+    from logics_manager.sync import match_runbooks_payload
+
+    repo_root = _repo(tmp_path, "runbook")
+    _write_runbook(repo_root, status="Active", category="release", verified="2026-08-11, verified")
+
+    payload = match_runbooks_payload(repo_root, "totally unrelated banana")
+    assert payload["no_match"] is True
+    assert payload["matches"] == []
+
+
+def test_match_runbooks_caps_results_at_three(tmp_path: Path) -> None:
+    from logics_manager.sync import match_runbooks_payload
+
+    repo_root = _repo(tmp_path, "runbook")
+    for n in range(1, 6):
+        path = repo_root / "logics" / "runbook" / f"run_{n:03d}_probe.md"
+        path.write_text(
+            "\n".join(
+                [
+                    f"## run_{n:03d}_probe - Probe {n}",
+                    "> Status: Active",
+                    "> Category: release",
+                    "> Verified: 2026-08-11, verified",
+                    "> Related request: (none yet)",
+                    "> Related backlog: (none yet)",
+                    "> Related task: (none yet)",
+                    "> Reminder: Update status, category, verification, and linked refs when you edit this doc.",
+                    "",
+                    "# Trigger",
+                    "- probe fires",
+                    "",
+                ]
+            ),
+            encoding="utf-8",
+        )
+
+    payload = match_runbooks_payload(repo_root, "release")
+    assert payload["returned_count"] == 3
+    assert payload["limit"] == 3
+
+
+def test_mcp_match_runbooks_tool_returns_bounded_ranked_matches(tmp_path: Path) -> None:
+    from logics_manager.bootstrap import bootstrap_payload
+    from logics_manager.mcp import call_tool
+
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    bootstrap_payload(repo_root, check=False)
+    _write_runbook(repo_root, status="Active", category="release", verified="2026-08-11, verified")
+
+    result = call_tool("match_runbooks", {"query": "release"}, repo_root=repo_root)
+    assert result["ok"] is True
+    assert result["returned_count"] == 1
+    assert result["matches"][0]["ref"] == "run_001_probe"
+
+    empty = call_tool("match_runbooks", {"query": "totally unrelated banana"}, repo_root=repo_root)
+    assert empty["ok"] is True
+    assert empty["no_match"] is True
+
+
+def test_cli_match_runbooks_reports_no_match_without_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    repo_root = _repo(tmp_path, "runbook")
+    monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["sync", "match-runbooks", "totally unrelated banana"])
+    out = capsys.readouterr().out
+
+    assert exit_code == 0
+    assert "No Active runbook matched" in out

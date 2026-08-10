@@ -179,6 +179,17 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
         ),
     },
     {
+        "name": "match_runbooks",
+        "description": "Find at most 3 relevant Active runbooks for an intent, failure symptom, affected path, or task context, each with its matching reason. No-match is a normal, non-error result.",
+        "inputSchema": _tool_schema(
+            {
+                "query": {"type": "string"},
+                "limit": {"type": "integer"},
+            },
+            ["query"],
+        ),
+    },
+    {
         "name": "get_logics_status",
         "description": "Summarize open Logics workflow docs and next actions.",
         "inputSchema": _tool_schema({"limit": {"type": "integer"}}),

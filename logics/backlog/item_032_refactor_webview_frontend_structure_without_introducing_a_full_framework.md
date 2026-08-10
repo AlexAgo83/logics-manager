@@ -1,12 +1,14 @@
 ## item_032_refactor_webview_frontend_structure_without_introducing_a_full_framework - Refactor webview frontend structure without introducing a full framework
 > From version: 1.9.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% ((closed); refreshed)
 > Confidence: 100% (validated)
 > Progress: 100% ((audit-aligned); refreshed)
 > Complexity: High
 > Theme: Webview frontend architecture and maintainability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:12
 
 # Problem
 - The webview frontend has grown beyond the point where [`media/main.js`](/Users/alexandreagostini/Documents/cdx-logics-vscode/media/main.js) and [`media/main.css`](/Users/alexandreagostini/Documents/cdx-logics-vscode/media/main.css) remain easy to evolve safely as monolithic files.

@@ -1,12 +1,14 @@
 ## item_010_stacked_layout_disable_splitter_and_compact_details_when_collapsed - Stacked layout: disable splitter and compact details when collapsed
 > From version: 1.1.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 97%
 > Progress: 100%
 > Complexity: Medium
 > Theme: UX Behavior and Interaction Guardrails
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:11
 
 # Problem
 In stacked (vertical split) layout, collapsing Details still leaves splitter interactions active. This creates an inconsistent UX: details content is hidden but resize mechanics remain available.
@@ -28,11 +30,11 @@ In stacked (vertical split) layout, collapsing Details still leaves splitter int
 - Non-stacked behavior is unchanged.
 
 # AC Traceability
-- AC1 -> Splitter guard logic in `media/main.js` for collapsed stacked mode. Proof: TODO.
-- AC2 -> Compact collapsed layout rules in `media/main.css`. Proof: TODO.
-- AC3 -> Validation evidence from harness + VS Code runtime smoke checks. Proof: TODO.
-- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC1 -> Splitter guard logic in `media/main.js` for collapsed stacked mode. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC2 -> Compact collapsed layout rules in `media/main.css`. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC3 -> Validation evidence from harness + VS Code runtime smoke checks. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC4 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC5 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Priority
 - Impact:

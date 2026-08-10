@@ -1,11 +1,13 @@
 ## req_075_strengthen_logics_task_waves_with_commit_and_documentation_update_checkpoints - Strengthen Logics task waves with commit and documentation update checkpoints
 > From version: 1.10.8
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 97%
 > Complexity: Medium
 > Theme: Task execution hygiene and delivery checkpoints
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:27
 
 # Needs
 - Make Logics tasks encourage coherent implementation waves that leave the repository in a checkpointed and documented state as work progresses.

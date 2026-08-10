@@ -1,11 +1,13 @@
 ## req_050_split_oversized_source_files_into_coherent_modules - Split oversized source files into coherent modules
 > From version: 1.10.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (refreshed)
 > Confidence: 100%
 > Complexity: High
 > Theme: Codebase modularity and maintainability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:25
 
 ```mermaid
 %% logics-kind: request

@@ -1,11 +1,13 @@
 ## req_013_accessibility_hardening_improve_discoverability_and_descriptions_for_controls - Accessibility hardening: improve discoverability and descriptions for controls
 > From version: 1.2.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
 > Complexity: Medium
 > Theme: Accessibility and UX
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:21
 
 ```mermaid
 %% logics-kind: request

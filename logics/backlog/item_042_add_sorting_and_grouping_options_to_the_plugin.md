@@ -1,12 +1,14 @@
 ## item_042_add_sorting_and_grouping_options_to_the_plugin - Add sorting and grouping options to the plugin
 > From version: 1.9.3
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 97%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Information ordering and workspace navigation
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:13
 
 # Problem
 The plugin currently presents items mainly through the workflow-stage structure. That is useful as a default, but it is not flexible enough for review workflows where users need alternative lenses such as recency, priority, or progress.

@@ -1,12 +1,14 @@
 ## task_059_keep_detail_panel_actions_fixed_at_the_bottom_while_content_scrolls - Keep detail panel actions fixed at the bottom while content scrolls
 > From version: 1.10.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
 > Progress: 100%
 > Complexity: Medium
 > Theme: Detail panel scrolling and action anchoring
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:33
 
 ```mermaid
 %% logics-kind: task

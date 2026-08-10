@@ -1,12 +1,14 @@
 ## task_046_extend_plugin_rename_and_reference_maintenance_to_companion_docs - Extend plugin rename and reference maintenance to companion docs
 > From version: 1.9.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Plugin maintenance and reference coherence
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:32
 
 ```mermaid
 %% logics-kind: task

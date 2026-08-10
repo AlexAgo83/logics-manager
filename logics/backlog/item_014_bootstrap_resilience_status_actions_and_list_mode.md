@@ -1,12 +1,14 @@
 ## item_014_bootstrap_resilience_status_actions_and_list_mode - Bootstrap resilience, status actions, and compact list mode
 > From version: 1.3.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 96%
 > Progress: 100%
 > Complexity: High
 > Theme: UX and workflow resilience
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:11
 
 # Problem
 The current orchestrator UX still has workflow gaps around bootstrap recovery, item lifecycle actions, and dense board navigation. Users need a more resilient setup flow and a compact display alternative without losing current board capabilities.
@@ -35,14 +37,14 @@ The current orchestrator UX still has workflow gaps around bootstrap recovery, i
 - Harness and VS Code runtime behaviors remain context-appropriate without regressions.
 
 # AC Traceability
-- AC1 -> Bootstrap preflight in extension host (`git init` proposal + retry path). Proof: TODO.
-- AC2 -> Tools menu additions + command wiring for bootstrap rerun and about action. Proof: TODO.
-- AC3 -> Double-click open behavior in board/list item surfaces. Proof: TODO.
-- AC4 -> Details status actions + markdown updates for done/obsolete semantics. Proof: TODO.
-- AC5 -> Root control state logic and disabled UI affordance. Proof: TODO.
-- AC6 -> Board/List renderer toggle and compact list separators. Proof: TODO.
-- AC7 -> Persisted view mode in webview state with filter/details compatibility. Proof: TODO.
-- AC8 -> Tests/manual validation in both harness and VS Code contexts. Proof: TODO.
+- AC1 -> Bootstrap preflight in extension host (`git init` proposal + retry path). Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC2 -> Tools menu additions + command wiring for bootstrap rerun and about action. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC3 -> Double-click open behavior in board/list item surfaces. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC4 -> Details status actions + markdown updates for done/obsolete semantics. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC5 -> Root control state logic and disabled UI affordance. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC6 -> Board/List renderer toggle and compact list separators. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC7 -> Persisted view mode in webview state with filter/details compatibility. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC8 -> Tests/manual validation in both harness and VS Code contexts. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Priority
 - Impact:

@@ -1,12 +1,14 @@
 ## task_018_orchestration_delivery_for_req_017_hide_spec_filter_default - Orchestration delivery for req_017 Hide SPEC filter default
 > From version: 1.6.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (refreshed)
 > Confidence: 99%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Filter behavior delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:30
 
 ```mermaid
 %% logics-kind: task

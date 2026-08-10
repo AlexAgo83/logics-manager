@@ -1,12 +1,14 @@
 ## item_097_define_workspace_identity_and_overlay_lifecycle_for_moved_or_renamed_repositories - Define workspace identity and overlay lifecycle for moved or renamed repositories
 > From version: 1.10.8 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 96%
 > Confidence: 92%
 > Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Workspace identity, overlay lifecycle, and repository movement
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:18
 
 # Problem
 - Define how workspace overlays are identified and how they should behave when repositories move, are renamed, are recloned, or become obsolete.

@@ -1,12 +1,14 @@
 ## task_023_refine_plugin_detail_panel_identity_and_action_hierarchy - Refine plugin detail panel identity and action hierarchy
 > From version: 1.9.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% ((closed); refreshed)
 > Confidence: 100% ((validated); refreshed)
 > Progress: 100%
 > Complexity: Medium
 > Theme: VS Code plugin detail panel UX and action hierarchy
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:30
 
 # Context
 Derived from `logics/backlog/item_029_refine_plugin_detail_panel_identity_and_action_hierarchy.md`.

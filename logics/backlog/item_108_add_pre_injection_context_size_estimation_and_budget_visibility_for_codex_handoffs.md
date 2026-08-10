@@ -1,12 +1,14 @@
 ## item_108_add_pre_injection_context_size_estimation_and_budget_visibility_for_codex_handoffs - Add pre-injection context size estimation and budget visibility for Codex handoffs
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 96%
 > Progress: 100%
 > Complexity: Medium
 > Theme: AI workflow observability and prompt efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:19
 
 # Problem
 - Codex handoffs still hide their approximate cost until after content is already injected or copied into a session.
@@ -42,9 +44,9 @@ flowchart LR
 - AC4: Documentation explains how the estimate should influence pack selection or escalation decisions.
 
 # AC Traceability
-- req081-AC1 -> Scope: Show deterministic size signals before injection or launch, such as selected docs, line counts, character counts, and an approximate token estimate.. Proof: TODO.
-- req081-AC1 -> Scope: Explain when the estimate is directional rather than exact.. Proof: TODO.
-- req081-AC1 -> Scope: Surface the estimate in at least one operator-facing handoff path where it can influence the decision to inject, preview, or choose a smaller mode.. Proof: TODO.
+- req081-AC1 -> Scope: Show deterministic size signals before injection or launch, such as selected docs, line counts, character counts, and an approximate token estimate.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- req081-AC1 -> Scope: Explain when the estimate is directional rather than exact.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- req081-AC1 -> Scope: Surface the estimate in at least one operator-facing handoff path where it can influence the decision to inject, preview, or choose a smaller mode.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Decision framing
 - Product framing: Not needed

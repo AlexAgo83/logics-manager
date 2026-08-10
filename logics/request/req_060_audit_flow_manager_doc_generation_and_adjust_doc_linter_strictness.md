@@ -1,11 +1,13 @@
 ## req_060_audit_flow_manager_doc_generation_and_adjust_doc_linter_strictness - Audit flow manager doc generation and adjust doc linter strictness
 > From version: 1.10.5
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 94%
 > Complexity: Medium
 > Theme: Logics kit generation quality and governance calibration
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:26
 
 # Needs
 - Verify whether the current flow manager generates Logics docs that are naturally consistent with the doc linter expectations.

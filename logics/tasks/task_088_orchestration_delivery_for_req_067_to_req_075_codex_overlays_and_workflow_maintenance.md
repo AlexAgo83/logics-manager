@@ -1,12 +1,14 @@
 ## task_088_orchestration_delivery_for_req_067_to_req_075_codex_overlays_and_workflow_maintenance - Orchestration delivery for req_067 to req_075 Codex overlays and workflow maintenance
 > From version: 1.10.8 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 96%
 > Confidence: 93%
 > Progress: 100%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:35
 
 # Context
 Derived from:

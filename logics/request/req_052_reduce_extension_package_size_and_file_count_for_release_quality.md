@@ -1,11 +1,13 @@
 ## req_052_reduce_extension_package_size_and_file_count_for_release_quality - Reduce extension package size and file count for release quality
 > From version: 1.10.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (refreshed)
 > Confidence: 100%
 > Complexity: Medium
 > Theme: Extension packaging hygiene and runtime performance
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:25
 
 ```mermaid
 %% logics-kind: request

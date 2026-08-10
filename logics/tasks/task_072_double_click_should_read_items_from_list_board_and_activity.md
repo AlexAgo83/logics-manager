@@ -1,12 +1,14 @@
 ## task_072_double_click_should_read_items_from_list_board_and_activity - Double click should read items from list board and activity
 > From version: 1.10.5 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: UX workflow
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:34
 
 # Context
 Derived from `logics/backlog/item_070_double_click_should_read_items_from_list_board_and_activity.md`.

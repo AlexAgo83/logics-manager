@@ -1,12 +1,14 @@
 ## item_111_exclude_or_deprioritize_stale_completed_and_weakly_linked_context_by_default - Exclude or deprioritize stale completed and weakly linked context by default
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 96%
 > Progress: 100%
 > Complexity: Medium
 > Theme: AI workflow observability and prompt efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:19
 
 # Problem
 - Old, completed, or weakly linked context can keep inflating new Codex sessions even after it stops being genuinely useful.
@@ -40,9 +42,9 @@ flowchart LR
 - AC4: Documentation explains the safety tradeoff between keeping context lean and preserving access to historical decisions.
 
 # AC Traceability
-- req081-AC4 -> Scope: Define which stale, completed, or weakly linked context should be excluded or deprioritized by default.. Proof: TODO.
-- req081-AC4 -> Scope: Define the signals used for exclusion or deprioritization, such as status, age, or graph strength.. Proof: TODO.
-- req081-AC4 -> Scope: Define the override path so historically important context can still be included deliberately.. Proof: TODO.
+- req081-AC4 -> Scope: Define which stale, completed, or weakly linked context should be excluded or deprioritized by default.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- req081-AC4 -> Scope: Define the signals used for exclusion or deprioritization, such as status, age, or graph strength.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- req081-AC4 -> Scope: Define the override path so historically important context can still be included deliberately.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Decision framing
 - Product framing: Not needed

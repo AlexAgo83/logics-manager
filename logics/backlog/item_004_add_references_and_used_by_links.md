@@ -1,9 +1,11 @@
 ## item_004_add_references_and_used_by_links - Add references and used-by links on request/backlog/task entries
 > From version: 1.0.3
 > Status: Done
+> Schema version: 1.0
 > Understanding: 85%
 > Confidence: 85%
 > Progress: 100%
+> Indicators reviewed: 2026-08-10 09:06:10
 
 # Problem
 Allow users to add and edit `References` and/or `Used by` links directly on Logics entries across Request, Backlog, and Task stages.

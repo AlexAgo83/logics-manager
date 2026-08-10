@@ -1,12 +1,14 @@
 ## item_044_improve_ui_state_persistence_in_the_plugin - Improve UI state persistence in the plugin
 > From version: 1.9.3
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: UI continuity and workflow stability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:13
 
 # Problem
 The plugin already persists some UI state, but it still loses too much working context across refreshes and view changes. That forces users to reconstruct their view repeatedly.

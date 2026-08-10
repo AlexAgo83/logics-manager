@@ -1,12 +1,14 @@
 ## item_104_add_ai_facing_summaries_and_compact_metadata_to_managed_logics_docs - Add AI-facing summaries and compact metadata to managed Logics docs
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 96%
 > Progress: 100%
 > Complexity: High
 > Theme: AI workflow and token efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:18
 
 # Problem
 - The current Logics corpus stores durable project knowledge, but it still often requires large document bodies to recover the useful signal for Codex.
@@ -43,9 +45,9 @@ flowchart LR
 - AC5: Operator-facing documentation explains how to maintain these fields so they reduce token usage in practice.
 
 # AC Traceability
-- req080-AC2 -> Scope: Define compact AI-facing summary or metadata fields for the managed Logics doc families that participate in Codex context building.. Proof: TODO.
-- req080-AC2 -> Scope: Define how context-pack flows prefer summaries first and fall back to larger content only when needed.. Proof: TODO.
-- req080-AC6 -> Scope: Add maintenance guidance so summary fields stay useful instead of becoming stale boilerplate.. Proof: TODO.
+- req080-AC2 -> Scope: Define compact AI-facing summary or metadata fields for the managed Logics doc families that participate in Codex context building.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- req080-AC2 -> Scope: Define how context-pack flows prefer summaries first and fall back to larger content only when needed.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- req080-AC6 -> Scope: Add maintenance guidance so summary fields stay useful instead of becoming stale boilerplate.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Decision framing
 - Product framing: Not needed

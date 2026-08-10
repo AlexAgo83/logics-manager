@@ -1,12 +1,14 @@
 ## item_109_add_a_summary_only_first_pass_mode_for_codex_context_injection - Add a summary-only first-pass mode for Codex context injection
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 96%
 > Progress: 100%
 > Complexity: Medium
 > Theme: AI workflow observability and prompt efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:19
 
 # Problem
 - Many Codex tasks do not need a full context pack on the first turn, but the workflow does not yet make a tiny first-pass mode the obvious default.
@@ -41,9 +43,9 @@ flowchart LR
 - AC4: Guidance explains when summary-only should be the preferred default and when it should be bypassed.
 
 # AC Traceability
-- req081-AC2 -> Scope: Define a `summary-only` or equivalent ultra-compact handoff mode for Codex context injection.. Proof: TODO.
-- req081-AC2 -> Scope: Define the minimum content that must appear in this mode, such as identity, current need, acceptance criteria, key files, risks, or recent change pointers.. Proof: TODO.
-- req081-AC2 -> Scope: Define the escalation path from `summary-only` to larger modes so operators are not trapped in an under-contextualized flow.. Proof: TODO.
+- req081-AC2 -> Scope: Define a `summary-only` or equivalent ultra-compact handoff mode for Codex context injection.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- req081-AC2 -> Scope: Define the minimum content that must appear in this mode, such as identity, current need, acceptance criteria, key files, risks, or recent change pointers.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- req081-AC2 -> Scope: Define the escalation path from `summary-only` to larger modes so operators are not trapped in an under-contextualized flow.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Decision framing
 - Product framing: Not needed

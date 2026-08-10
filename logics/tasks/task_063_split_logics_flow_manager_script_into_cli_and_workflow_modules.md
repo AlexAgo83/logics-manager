@@ -1,12 +1,14 @@
 ## task_063_split_logics_flow_manager_script_into_cli_and_workflow_modules - Split logics flow manager script into CLI and workflow modules
 > From version: 1.10.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 96%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Skill script modularity and workflow orchestration clarity
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:33
 
 ```mermaid
 %% logics-kind: task

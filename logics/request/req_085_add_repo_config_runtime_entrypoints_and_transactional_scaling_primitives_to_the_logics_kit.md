@@ -1,11 +1,13 @@
 ## req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit - Add repo config, runtime entrypoints, and transactional scaling primitives to the Logics kit
 > From version: 1.12.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 98%
 > Complexity: High
 > Theme: Kit runtime ergonomics and scale
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:28
 
 # Needs
 - Make the Logics kit easier to adopt, configure, automate, and scale across repositories without relying on hard-coded conventions or script-specific entrypoints.

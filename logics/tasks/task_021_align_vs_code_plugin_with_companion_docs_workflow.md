@@ -1,12 +1,14 @@
 ## task_021_align_vs_code_plugin_with_companion_docs_workflow - Align VS Code plugin with companion docs workflow
 > From version: 1.8.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 99%
 > Progress: 100%
 > Complexity: High
 > Theme: Companion docs workflow orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:30
 
 # Context
 Derived from `logics/backlog/item_022_align_vs_code_plugin_with_companion_docs_workflow.md`.

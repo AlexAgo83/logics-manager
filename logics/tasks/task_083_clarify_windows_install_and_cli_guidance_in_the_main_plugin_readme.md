@@ -1,12 +1,14 @@
 ## task_083_clarify_windows_install_and_cli_guidance_in_the_main_plugin_readme - Clarify Windows install and CLI guidance in the main plugin README
 > From version: 1.10.7 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 96%
 > Confidence: 93%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Documentation quality, operator ergonomics, and platform clarity
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:35
 
 # Context
 Derived from `logics/backlog/item_078_clarify_windows_install_and_cli_guidance_in_the_main_plugin_readme.md`.

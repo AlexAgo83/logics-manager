@@ -1,12 +1,14 @@
 ## task_039_add_attention_required_view_to_the_plugin - Add an attention-required view to the plugin
 > From version: 1.9.3 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 99%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Operational focus and workflow triage
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:31
 
 ```mermaid
 %% logics-kind: task

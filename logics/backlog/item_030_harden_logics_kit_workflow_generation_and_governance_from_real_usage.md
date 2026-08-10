@@ -1,12 +1,14 @@
 ## item_030_harden_logics_kit_workflow_generation_and_governance_from_real_usage - Harden Logics kit workflow generation and governance from real usage
 > From version: 1.9.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (closed)
 > Confidence: 99% (validated)
 > Progress: 100% ((audit-aligned); refreshed)
 > Complexity: High
 > Theme: Shared Logics kit workflow hardening
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:12
 
 # Problem
 Real usage of the shared `logics/skills` submodule still exposes several friction points:

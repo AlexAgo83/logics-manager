@@ -1,12 +1,14 @@
 ## item_045_add_attention_required_view_to_the_plugin - Add an attention-required view to the plugin
 > From version: 1.9.3
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 97%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Operational focus and workflow triage
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:13
 
 # Problem
 The plugin shows the current state of work well, but it is weaker at surfacing what likely needs intervention right now. Users still have to infer too much by manually scanning the current views.

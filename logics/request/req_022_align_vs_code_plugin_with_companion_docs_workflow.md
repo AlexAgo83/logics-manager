@@ -1,11 +1,13 @@
 ## req_022_align_vs_code_plugin_with_companion_docs_workflow - Align VS Code plugin with companion docs workflow
 > From version: 1.8.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 99%
 > Complexity: High
 > Theme: VS Code orchestration, companion docs, and workflow coherence
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:22
 
 # Needs
 - Adapt the VS Code plugin so it fully supports the Logics companion-doc model introduced in the kit for `product` and `architecture`.

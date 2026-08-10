@@ -1,12 +1,14 @@
 ## item_052_prevent_disposed_file_watchers_from_accumulating_in_extension_subscriptions - Prevent disposed file watchers from accumulating in extension subscriptions
 > From version: 1.10.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 96%
 > Confidence: 94%
 > Progress: 100%
 > Complexity: Low
 > Theme: Extension runtime lifecycle hygiene
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:14
 
 # Problem
 The extension recreates its filesystem watcher when the watcher root changes, but disposed watcher instances can still accumulate in `context.subscriptions`.

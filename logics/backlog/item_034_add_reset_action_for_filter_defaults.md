@@ -1,12 +1,14 @@
 ## item_034_add_reset_action_for_filter_defaults - Add reset action to restore default filter options
 > From version: 1.9.2
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 97%
 > Progress: 100%
 > Complexity: Low
 > Theme: Filter ergonomics and recoverability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:12
 
 # Problem
 The filter panel now has a meaningful default configuration, but users currently have no one-click way to restore it after exploring different combinations. That forces manual re-selection of every checkbox and makes the panel unnecessarily cumbersome to recover.

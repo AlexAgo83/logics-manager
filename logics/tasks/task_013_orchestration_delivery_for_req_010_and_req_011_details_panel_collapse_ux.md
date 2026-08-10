@@ -1,12 +1,14 @@
 ## task_013_orchestration_delivery_for_req_010_and_req_011_details_panel_collapse_ux - Orchestration delivery for req_010 and req_011 details panel collapse UX
 > From version: 1.1.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 97%
 > Progress: 100%
 > Complexity: Medium-High
 > Theme: Split Layout Interaction Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:29
 
 ```mermaid
 %% logics-kind: task

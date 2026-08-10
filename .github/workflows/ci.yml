@@ -44,6 +44,7 @@ jobs:
       - run: npm run check:changelog
       - run: node scripts/run-python.mjs -m logics_manager lint --require-status
       - run: node scripts/run-python.mjs -m logics_manager doctor packaging --metadata-only
+      - run: node scripts/run-python.mjs -m logics_manager doctor
       - name: Logics flow sync close-eligible requests (must be a no-op)
         run: |
           git diff --exit-code -- logics/request || { echo "unexpected pre-existing diff under logics/request" >&2; exit 1; }

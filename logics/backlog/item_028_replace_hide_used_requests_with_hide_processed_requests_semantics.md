@@ -1,12 +1,14 @@
 ## item_028_replace_hide_used_requests_with_hide_processed_requests_semantics - Replace hide used requests with hide processed requests semantics
 > From version: 1.9.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (closed)
 > Confidence: 99% (validated)
 > Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: General
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:12
 
 # Problem
 - The plugin used a technical `Hide used requests` label that did not match the workflow intent operators actually care about.

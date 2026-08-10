@@ -1,12 +1,14 @@
 ## item_068_create_an_internal_ui_steering_skill_corpus_and_reference_pack - Create an internal UI steering skill corpus and reference pack
 > From version: 1.10.4
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 96%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Internal skill design and frontend guardrails
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:15
 
 # Problem
 The repository needs a dedicated internal skill that constrains frontend generation away from repetitive AI-looking UI patterns and toward stricter, product-native interfaces.

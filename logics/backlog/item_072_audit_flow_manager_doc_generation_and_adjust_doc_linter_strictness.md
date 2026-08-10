@@ -1,12 +1,14 @@
 ## item_072_audit_flow_manager_doc_generation_and_adjust_doc_linter_strictness - Audit flow manager doc generation and adjust doc linter strictness
 > From version: 1.10.5 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 96%
 > Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Logics kit generation quality and governance calibration
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:15
 
 # Problem
 The flow manager and the doc linter should express one coherent contract, but current usage still produces recurring friction: normal generation or promotion can leave docs that look valid yet still trigger lint in predictable ways. This points to a mismatch between what the kit emits and what the kit expects.

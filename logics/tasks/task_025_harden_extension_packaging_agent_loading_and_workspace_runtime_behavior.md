@@ -1,12 +1,14 @@
 ## task_025_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior - Harden extension packaging, agent loading, and workspace runtime behavior
 > From version: 1.9.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% ((closed); refreshed)
 > Confidence: 100% (validated)
 > Progress: 100%
 > Complexity: High
 > Theme: Extension hardening orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:30
 
 # Context
 Derived from `logics/backlog/item_031_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior.md`.

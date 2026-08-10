@@ -1,12 +1,14 @@
 ## item_047_add_suggested_action_badges_to_the_plugin - Add suggested-action badges to the plugin
 > From version: 1.9.3
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 97%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Workflow guidance and proactive orchestration
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:13
 
 # Problem
 The plugin still expects users to infer too much about what to do next. That slows down triage and reduces the product’s value as an orchestration cockpit.

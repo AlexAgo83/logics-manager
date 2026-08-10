@@ -1,12 +1,14 @@
 ## item_128_add_skill_fixtures_benchmarks_and_extension_contracts_for_kit_regression_coverage - Add skill fixtures benchmarks and extension contracts for kit regression coverage
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 96%
 > Confidence: 94%
 > Progress: 100%
 > Complexity: High
 > Theme: Kit runtime and operator tooling
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:20
 
 # Problem
 - The kit still lacks a standard regression surface for skills beyond ad hoc tests and repo-specific examples.

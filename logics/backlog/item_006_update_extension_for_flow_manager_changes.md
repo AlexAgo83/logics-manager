@@ -1,12 +1,14 @@
 ## item_006_update_extension_for_flow_manager_changes - Update extension for flow manager changes
 > From version: 1.0.5
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 95%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Workflow
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc. When you update backlog indicators, review and update any linked tasks as well.
+> Indicators reviewed: 2026-08-10 09:06:10
 
 # Problem
 The extension can break or mis-handle Logics request creation and promotion if the updated flow manager scripts, CLI flags, or templates changed their behavior or required inputs.

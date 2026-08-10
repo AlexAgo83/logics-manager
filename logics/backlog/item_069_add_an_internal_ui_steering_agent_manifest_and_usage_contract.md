@@ -1,12 +1,14 @@
 ## item_069_add_an_internal_ui_steering_agent_manifest_and_usage_contract - Add an internal UI steering agent manifest and usage contract
 > From version: 1.10.4
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 96%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Agent manifest design and frontend invocation UX
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:15
 
 # Problem
 Creating the internal UI steering skill corpus is not sufficient on its own. The capability also needs a clean agent surface so users can invoke it consistently through the existing Logics agent-selection flow instead of manually remembering prompt phrasing.

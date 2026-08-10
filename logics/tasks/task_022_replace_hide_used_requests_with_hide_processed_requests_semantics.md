@@ -1,12 +1,14 @@
 ## task_022_replace_hide_used_requests_with_hide_processed_requests_semantics - Replace hide used requests with hide processed requests semantics
 > From version: 1.9.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% ((closed); refreshed)
 > Confidence: 100% ((validated); refreshed)
 > Progress: 100%
 > Complexity: Medium
 > Theme: VS Code plugin filter semantics and workflow clarity
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:30
 
 # Context
 Derived from `logics/backlog/item_028_replace_hide_used_requests_with_hide_processed_requests_semantics.md`.

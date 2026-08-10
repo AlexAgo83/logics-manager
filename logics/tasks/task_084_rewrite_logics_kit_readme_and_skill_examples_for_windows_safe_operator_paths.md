@@ -1,12 +1,14 @@
 ## task_084_rewrite_logics_kit_readme_and_skill_examples_for_windows_safe_operator_paths - Rewrite Logics kit README and skill examples for Windows-safe operator paths
 > From version: 1.10.7 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 96%
 > Confidence: 93%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Documentation quality, operator ergonomics, and platform clarity
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:35
 
 # Context
 Derived from `logics/backlog/item_079_rewrite_logics_kit_readme_and_skill_examples_for_windows_safe_operator_paths.md`.

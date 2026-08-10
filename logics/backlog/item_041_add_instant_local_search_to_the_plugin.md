@@ -1,12 +1,14 @@
 ## item_041_add_instant_local_search_to_the_plugin - Add instant local search to the plugin
 > From version: 1.9.3
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Navigation speed and findability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:13
 
 # Problem
 The current plugin relies mainly on structural navigation and visual scanning. As the workspace grows, that becomes too slow for finding a specific item quickly.

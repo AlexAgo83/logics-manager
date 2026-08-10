@@ -1,11 +1,13 @@
 ## req_065_harden_partial_logics_bootstrap_recovery_when_workflow_directories_are_missing - Harden partial Logics bootstrap recovery when workflow directories are missing
 > From version: 1.10.7
 > Status: Done
+> Schema version: 1.0
 > Understanding: 96%
 > Confidence: 94%
 > Complexity: Medium
 > Theme: Bootstrap resilience and workflow directory recovery
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:26
 
 # Needs
 - Guarantee that Logics workflow creation remains recoverable when the kit is present but one or more workflow directories such as `logics/request`, `logics/backlog`, or `logics/tasks` are missing.

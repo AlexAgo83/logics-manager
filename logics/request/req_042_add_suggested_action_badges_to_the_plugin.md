@@ -1,11 +1,13 @@
 ## req_042_add_suggested_action_badges_to_the_plugin - Add suggested-action badges to the plugin
 > From version: 1.9.3 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (refreshed)
 > Confidence: 100%
 > Complexity: Medium
 > Theme: Workflow guidance and proactive orchestration
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:24
 
 ```mermaid
 %% logics-kind: request

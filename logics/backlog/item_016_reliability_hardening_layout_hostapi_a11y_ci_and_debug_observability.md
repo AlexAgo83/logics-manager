@@ -1,12 +1,14 @@
 ## item_016_reliability_hardening_layout_hostapi_a11y_ci_and_debug_observability - Reliability hardening: layout state, host API abstraction, a11y, CI, and debug observability
 > From version: 1.4.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 96%
 > Progress: 100%
 > Complexity: High
 > Theme: Reliability and maintainability hardening
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:11
 
 # Problem
 The extension still has fragile paths across layout/splitter state transitions, mixed runtime behavior between VS Code and web-debug, uneven accessibility baseline, and CI/test coverage gaps on critical UI flows.
@@ -37,16 +39,16 @@ The extension still has fragile paths across layout/splitter state transitions, 
 - Debug logs are available behind a flag and disabled by default.
 
 # AC Traceability
-- AC1 -> explicit UI state model and deterministic layout rendering. Proof: TODO.
-- AC2 -> mode guards and splitter drag reset logic. Proof: TODO.
-- AC3 -> extended regression tests and assertions. Proof: TODO.
-- AC4 -> host API abstraction boundaries and runtime adapters. Proof: TODO.
-- AC5 -> accessibility attributes and keyboard/focus validations. Proof: TODO.
-- AC6 -> CI workflow and local validation alignment. Proof: TODO.
-- AC7 -> bootstrap fallback flow and tools action availability. Proof: TODO.
-- AC8 -> persisted display mode + active state UX checks. Proof: TODO.
-- AC9 -> debug-flagged observability hooks. Proof: TODO.
-- AC10 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC1 -> explicit UI state model and deterministic layout rendering. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC2 -> mode guards and splitter drag reset logic. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC3 -> extended regression tests and assertions. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC4 -> host API abstraction boundaries and runtime adapters. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC5 -> accessibility attributes and keyboard/focus validations. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC6 -> CI workflow and local validation alignment. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC7 -> bootstrap fallback flow and tools action availability. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC8 -> persisted display mode + active state UX checks. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC9 -> debug-flagged observability hooks. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC10 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Priority
 - Impact:

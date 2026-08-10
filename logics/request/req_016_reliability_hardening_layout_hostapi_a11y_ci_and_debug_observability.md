@@ -1,11 +1,13 @@
 ## req_016_reliability_hardening_layout_hostapi_a11y_ci_and_debug_observability - Reliability hardening for layout state, host API abstraction, accessibility, CI, and debug observability
 > From version: 1.4.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
 > Complexity: High
 > Theme: Reliability and maintainability hardening
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:22
 
 ```mermaid
 %% logics-kind: request

@@ -1,12 +1,14 @@
 ## task_035_add_instant_local_search_to_the_plugin - Add instant local search to the plugin
 > From version: 1.9.3 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 100%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Navigation speed and findability
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:31
 
 ```mermaid
 %% logics-kind: task

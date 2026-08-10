@@ -1,12 +1,14 @@
 ## item_060_move_refresh_from_the_toolbar_to_the_tools_menu - Move Refresh from the toolbar to the Tools menu
 > From version: 1.10.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 97%
 > Progress: 100%
 > Complexity: Low
 > Theme: Toolbar prioritization and tools-menu cleanup
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:14
 
 # Problem
 `Refresh` still occupies permanent space in the primary toolbar even though it behaves more like a workspace utility action than a top-level browsing control.

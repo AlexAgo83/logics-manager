@@ -71,6 +71,13 @@ runStep(
   pythonInvocation.command,
   [...pythonInvocation.argsPrefix, "-m", "logics_manager", "doctor", "packaging", "--metadata-only"]
 );
+// item_676: the full doctor, not only its packaging slice. It had been failing on this
+// repository's own corpus while this pipeline stayed green, because nothing here ran it.
+runStep(
+  "Logics doctor (corpus)",
+  pythonInvocation.command,
+  [...pythonInvocation.argsPrefix, "-m", "logics_manager", "doctor"]
+);
 
 
 const requestSnapshot = captureRequestSnapshot();

@@ -1,12 +1,14 @@
 ## item_037_enable_horizontal_scrolling_for_board_columns - Enable horizontal scrolling for board columns
 > From version: 1.10.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 99%
 > Progress: 100%
 > Complexity: Low
 > Theme: Board navigation and overflow ergonomics
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:13
 
 # Problem
 When several board columns are present at once, the total width can exceed the available plugin viewport. Without reliable horizontal scrolling, users lose access to off-screen columns or the board is forced into an overly compressed layout.

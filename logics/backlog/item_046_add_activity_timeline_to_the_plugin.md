@@ -1,12 +1,14 @@
 ## item_046_add_activity_timeline_to_the_plugin - Add an activity timeline to the plugin
 > From version: 1.9.3
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 97%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Change visibility and workflow awareness
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:13
 
 # Problem
 The plugin is good at showing the current state of items, but it is weaker at showing recent movement in the workspace. Users cannot quickly answer “what changed recently?” without re-scanning many parts of the UI.

@@ -1,12 +1,14 @@
 ## task_075_orchestration_delivery_for_req_060_flow_manager_generation_and_doc_linter_calibration - Orchestration delivery for req_060 flow manager generation and doc linter calibration
 > From version: 1.10.5 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 96%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Logics kit generation quality and governance calibration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:34
 
 # Context
 - Derived from backlog item `item_072_audit_flow_manager_doc_generation_and_adjust_doc_linter_strictness`.

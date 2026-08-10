@@ -1,11 +1,13 @@
 ## req_031_remove_column_eye_toggle_from_board - Remove the eye toggle from board columns
 > From version: 1.9.3
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
 > Complexity: Low
 > Theme: Board UI simplification and control hygiene
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:23
 
 ```mermaid
 %% logics-kind: request

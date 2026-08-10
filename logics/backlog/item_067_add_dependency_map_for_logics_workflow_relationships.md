@@ -1,12 +1,14 @@
 ## item_067_add_dependency_map_for_logics_workflow_relationships - Add dependency map for Logics workflow relationships
 > From version: 1.10.5
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 95%
 > Progress: 100%
 > Complexity: Medium
 > Theme: AI workflow context and dependency visibility
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:15
 
 # Problem
 The extension already computes a useful relationship graph across requests, backlog items, tasks, specs, product briefs, and architecture docs, but that graph is only exposed indirectly through board cards and detail sections.

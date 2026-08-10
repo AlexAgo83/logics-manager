@@ -1,12 +1,14 @@
 ## item_118_export_workflow_graphs_and_validate_structured_skill_package_contracts - Export workflow graphs and validate structured skill package contracts
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 95%
 > Progress: 100%
 > Complexity: High
 > Theme: Kit governance and automation
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:19
 
 # Problem
 - Give the Logics kit stronger internal automation contracts so maintainers and downstream tooling can evolve docs, skills, and workflow state predictably without relying on fragile text parsing.
@@ -36,11 +38,11 @@ flowchart LR
 - AC5: The kit defines stronger internal governance primitives such as configurable strictness modes, a more reusable section-rendering or document-assembly API, and a consolidated generated index of kit capabilities.
 
 # AC Traceability
-- AC1 -> Scope: Core flow-manager commands such as `new`, `promote`, `close`, `finish`, or `sync` can expose machine-readable outputs, for example JSON, so downstream tools can consume stable results without scraping terminal prose.. Proof: TODO.
-- AC2 -> Scope: Managed workflow docs have an explicit schema-versioning and migration story, including a way to detect older schemas and run named migrations rather than relying only on implicit template drift.. Proof: TODO.
-- AC3 -> Scope: The workflow audit and related repair tooling can autofix or guide more structural issues than today, such as missing sections, stale placeholders, inconsistent indicators, or malformed references, while remaining deterministic.. Proof: TODO.
-- AC4 -> Scope: The kit can export a reusable machine-readable representation of workflow relationships or graph structure, and skills themselves can be validated against a structured contract that covers metadata, agent config, assets, and scripts.. Proof: TODO.
-- AC5 -> Scope: The kit defines stronger internal governance primitives such as configurable strictness modes, a more reusable section-rendering or document-assembly API, and a consolidated generated index of kit capabilities.. Proof: TODO.
+- AC1 -> Scope: Core flow-manager commands such as `new`, `promote`, `close`, `finish`, or `sync` can expose machine-readable outputs, for example JSON, so downstream tools can consume stable results without scraping terminal prose.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC2 -> Scope: Managed workflow docs have an explicit schema-versioning and migration story, including a way to detect older schemas and run named migrations rather than relying only on implicit template drift.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC3 -> Scope: The workflow audit and related repair tooling can autofix or guide more structural issues than today, such as missing sections, stale placeholders, inconsistent indicators, or malformed references, while remaining deterministic.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC4 -> Scope: The kit can export a reusable machine-readable representation of workflow relationships or graph structure, and skills themselves can be validated against a structured contract that covers metadata, agent config, assets, and scripts.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC5 -> Scope: The kit defines stronger internal governance primitives such as configurable strictness modes, a more reusable section-rendering or document-assembly API, and a consolidated generated index of kit capabilities.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Decision framing
 - Product framing: Not needed

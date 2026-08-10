@@ -1,12 +1,14 @@
 ## task_026_refactor_webview_frontend_structure_without_introducing_a_full_framework - Refactor webview frontend structure without introducing a full framework
 > From version: 1.9.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 99%
 > Progress: 100%
 > Complexity: High
 > Theme: Webview frontend refactor orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:30
 
 # Context
 Derived from `logics/backlog/item_032_refactor_webview_frontend_structure_without_introducing_a_full_framework.md`.

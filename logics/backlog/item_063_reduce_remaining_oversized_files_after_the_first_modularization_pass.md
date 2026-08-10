@@ -1,12 +1,14 @@
 ## item_063_reduce_remaining_oversized_files_after_the_first_modularization_pass - Reduce remaining oversized files after the first modularization pass
 > From version: 1.10.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 95%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Second-pass modularity and ownership clarity
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:15
 
 # Problem
 The first modularization pass removed the worst monoliths, but a few remaining source files still sit above the intended comfort zone and continue to aggregate multiple responsibilities:

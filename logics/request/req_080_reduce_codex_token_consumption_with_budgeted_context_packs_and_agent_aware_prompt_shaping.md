@@ -1,11 +1,13 @@
 ## req_080_reduce_codex_token_consumption_with_budgeted_context_packs_and_agent_aware_prompt_shaping - Reduce Codex token consumption with budgeted context packs and agent-aware prompt shaping
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 96%
 > Complexity: High
 > Theme: AI workflow and token efficiency
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:27
 
 # Needs
 - Reduce unnecessary Codex token consumption caused by broad prompt injection, redundant Logics context, and agent handoffs that do not enforce a strict context budget.

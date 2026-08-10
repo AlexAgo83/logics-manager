@@ -1,12 +1,14 @@
 ## item_038_allow_collapsing_and_expanding_groups_in_list_mode - Allow collapsing and expanding groups in list mode
 > From version: 1.9.3
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: List-mode navigation and density control
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:13
 
 # Problem
 List mode keeps the grouped structure of the workflow, but once several groups are populated it can become vertically dense and harder to scan. Users need a way to temporarily collapse groups they do not need while staying in list mode.

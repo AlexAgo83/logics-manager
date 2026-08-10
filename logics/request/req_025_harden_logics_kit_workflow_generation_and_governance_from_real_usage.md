@@ -1,11 +1,13 @@
 ## req_025_harden_logics_kit_workflow_generation_and_governance_from_real_usage - Harden Logics kit workflow generation and governance from real usage
 > From version: 1.9.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% ((closed); refreshed)
 > Confidence: 100% ((validated); refreshed)
 > Complexity: High
 > Theme: Logics kit workflow quality, generation, and governance hardening
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:22
 
 # Needs
 - Improve the Logics kit so real workflow usage produces richer and safer docs by default, with less manual cleanup after promotion.

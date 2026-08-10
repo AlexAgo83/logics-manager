@@ -1,12 +1,14 @@
 ## item_061_reduce_extension_package_size_and_file_count_for_release_quality - Reduce extension package size and file count for release quality
 > From version: 1.10.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Extension packaging hygiene and runtime performance
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:15
 
 # Problem
 The extension currently packages successfully, but `vsce` warns that too many JavaScript files are being shipped and recommends bundling and/or a stricter `.vscodeignore`.
@@ -45,8 +47,8 @@ That makes the release artifact noisier and heavier than it should be, even if t
 - `logics/tasks/task_066_reduce_extension_package_size_and_file_count_for_release_quality.md`
 
 # AC Traceability
-- AC1 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC2 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC3 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC1 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC2 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC3 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC4 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC5 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.

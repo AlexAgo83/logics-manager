@@ -1,9 +1,11 @@
 ## task_003_build_flow_board_ui_and_details_panel - Build Flow Board UI and details panel
 > From version: 1.9.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 85% (audit-aligned)
 > Confidence: 80% (governed)
 > Progress: 100%
+> Indicators reviewed: 2026-08-10 09:06:28
 
 # Context
 Derived from `logics/backlog/item_000_kickoff.md`.

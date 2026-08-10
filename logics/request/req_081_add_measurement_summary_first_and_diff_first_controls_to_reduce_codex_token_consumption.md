@@ -1,11 +1,13 @@
 ## req_081_add_measurement_summary_first_and_diff_first_controls_to_reduce_codex_token_consumption - Add measurement, summary-first, and diff-first controls to reduce Codex token consumption
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 96%
 > Complexity: Medium
 > Theme: AI workflow observability and prompt efficiency
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:28
 
 # Needs
 - Add operator-facing measurement and lightweight-default handoff controls so Codex sessions start from the smallest useful context instead of from broad packs or long-running chat history.

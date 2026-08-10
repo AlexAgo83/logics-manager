@@ -1,12 +1,14 @@
 ## item_036_remove_column_eye_toggle_from_board - Remove the eye toggle from board columns
 > From version: 1.9.3
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 98%
 > Progress: 100%
 > Complexity: Low
 > Theme: Board UI simplification and control hygiene
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:13
 
 # Problem
 The board column headers currently include an eye toggle that adds visual noise and keeps alive a per-column hide/show interaction that is no longer desirable in the product direction.

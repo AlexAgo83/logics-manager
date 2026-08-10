@@ -1,9 +1,11 @@
 ## item_002_add_read_button - Add Read button for rendered Markdown
 > From version: 0.0.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 90%
 > Confidence: 90%
 > Progress: 100%
+> Indicators reviewed: 2026-08-10 09:06:10
 
 # Problem
 Provide a read-only, rendered Markdown view for the selected Logics item directly from the details panel.

@@ -1,12 +1,14 @@
 ## item_092_add_an_operator_facing_logics_codex_workspace_manager_cli - Add an operator-facing Logics Codex workspace manager CLI
 > From version: 1.10.8 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 96%
 > Confidence: 94%
 > Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Codex operator workflow and workspace tooling
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:17
 
 # Problem
 - Provide a small operator-facing command surface for managing Codex workspace overlays for Logics-enabled repositories.

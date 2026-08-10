@@ -1,12 +1,14 @@
 ## task_066_reduce_extension_package_size_and_file_count_for_release_quality - Reduce extension package size and file count for release quality
 > From version: 1.10.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 99%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Extension packaging hygiene and runtime performance
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:33
 
 ```mermaid
 %% logics-kind: task

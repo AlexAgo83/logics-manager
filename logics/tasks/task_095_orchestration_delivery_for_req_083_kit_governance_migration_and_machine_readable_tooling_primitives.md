@@ -1,12 +1,14 @@
 ## task_095_orchestration_delivery_for_req_083_kit_governance_migration_and_machine_readable_tooling_primitives - Orchestration delivery for req_083 kit governance migration and machine-readable tooling primitives
 > From version: 1.11.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 96%
 > Progress: 100%
 > Complexity: High
 > Theme: Cross-item delivery orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:36
 
 # Context
 Derived from:

@@ -1,12 +1,14 @@
 ## item_040_add_full_keyboard_navigation_to_the_plugin - Add full keyboard navigation to the plugin
 > From version: 1.9.3
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Accessibility and operator productivity
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:13
 
 # Problem
 The plugin is still largely mouse-first. That creates unnecessary friction for power users and leaves accessibility value on the table, especially when navigating many items, controls, and detail actions repeatedly.

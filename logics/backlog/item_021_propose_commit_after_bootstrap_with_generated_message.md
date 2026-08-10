@@ -1,12 +1,14 @@
 ## item_021_propose_commit_after_bootstrap_with_generated_message - Propose commit after bootstrap with generated message
 > From version: 1.7.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 98%
 > Progress: 100% complete
 > Complexity: Medium
 > Theme: Bootstrap workflow and git ergonomics
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:11
 
 # Problem
 Bootstrap currently gets the repository into a usable Logics state, but it stops before offering a clean git checkpoint. Users are left with a standard set of setup changes to review and commit manually, which adds friction and increases the chance that bootstrap work remains uncommitted or is committed later with an unhelpful message.

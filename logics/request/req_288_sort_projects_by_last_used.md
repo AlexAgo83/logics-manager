@@ -1,10 +1,12 @@
 ## req_288_sort_projects_by_last_used - Sort projects by last used
 > From version: 2.15.7
 > Status: Done
+> Schema version: 1.0
 > Understanding: 75
 > Confidence: 70
 > Complexity: Medium
 > Theme: Viewer request
+> Indicators reviewed: 2026-08-10 09:06:28
 
 # Needs
 - In the project list of the viewer, the favorited Logics projects should be sorted by their last usage date, with the most recently used projects displayed first.

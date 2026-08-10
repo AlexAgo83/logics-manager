@@ -34,7 +34,7 @@
           "- The visible Logics Viewer text is replaced by the packaged Logics icon before the project selector.",
           "- The logo is discreet, preserves the existing topbar height, and does not cause layout overflow at compact widths.",
           "- The identity remains accessible through suitable semantic text or an aria-label and a viewer test covers the new header markup.",
-          "- The rendered viewer header is captured and visually inspected after the change; the reference capture is updated when it no longer matches."
+          "- The rendered viewer header is visually inspected after the change, and the published README/documentation screenshots are regenerated or explicitly confirmed unchanged when the header is visible."
         ],
         "Needs": [
           "- Replace the visible Logics Viewer title before the project selector with the Logics logo.",
@@ -74,7 +74,7 @@
           "- The icon appears before the project selector and the title is not visibly rendered.",
           "- The topbar height remains unchanged in the normal viewer layout.",
           "- Screen readers retain a meaningful viewer identity label.",
-          "- A current rendered viewer capture proves the icon remains discreet and the topbar height is unchanged."
+          "- Current README and documentation screenshots prove the icon remains discreet and the topbar height is unchanged where the header is visible."
         ],
         "Problem": [
           "- The written viewer title uses space in the compact topbar even though a recognizable packaged icon is available."
@@ -145,11 +145,11 @@
     }
   ],
   "estimates": {
-    "char_count": 4532,
+    "char_count": 4626,
     "companion_doc_count": 0,
     "doc_count": 4
   },
-  "generated_at": "2026-08-10T10:48:10Z",
+  "generated_at": "2026-08-10T10:48:48Z",
   "handoff": {
     "companion_doc_count": 0,
     "enabled": false,

@@ -7,6 +7,7 @@
 > Complexity: Low
 > Theme: Viewer visual identity
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 12:48:08
 
 # AI Context
 - Summary: Replace the viewer title with a compact Logics logo
@@ -26,6 +27,7 @@
 - The visible Logics Viewer text is replaced by the packaged Logics icon before the project selector.
 - The logo is discreet, preserves the existing topbar height, and does not cause layout overflow at compact widths.
 - The identity remains accessible through suitable semantic text or an aria-label and a viewer test covers the new header markup.
+- The rendered viewer header is captured and visually inspected after the change; the reference capture is updated when it no longer matches.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

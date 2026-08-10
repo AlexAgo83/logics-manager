@@ -4,48 +4,8 @@
     "max_docs_per_ref": 4
   },
   "changed_paths": [],
-  "command": "logics-manager sync context-pack req_328_replace_the_viewer_title_with_a_compact_logics_logo item_684_use_the_logics_icon_as_the_viewer_topbar_identity task_325_deliver_compact_viewer_logo_identity --mode full --profile normal --handoff",
-  "companion_docs": [
-    {
-      "kind": "product",
-      "linked_refs": {
-        "item": [
-          "item_684_use_the_logics_icon_as_the_viewer_topbar_identity"
-        ],
-        "prod": [
-          "prod_072_compact_logics_viewer_identity"
-        ],
-        "req": [
-          "req_328_replace_the_viewer_title_with_a_compact_logics_logo"
-        ],
-        "task": [
-          "task_325_deliver_compact_viewer_logo_identity"
-        ]
-      },
-      "path": "logics/product/prod_072_compact_logics_viewer_identity.md",
-      "ref": "prod_072_compact_logics_viewer_identity",
-      "sections": {
-        "Goals": [
-          "- Make the topbar identity more discreet.",
-          "- Reuse the packaged icon rather than add a new asset.",
-          "- Keep layout and accessibility stable."
-        ],
-        "Key product decisions": [
-          "- Use structured input as the source of truth for generated docs.",
-          "- Keep generated write paths local and repo-bounded."
-        ],
-        "Overview": [
-          "Use the existing Logics icon as the viewer identity in the topbar, reducing visual noise while preserving accessible navigation and the existing layout rhythm."
-        ],
-        "References": [
-          "- Product back-reference: `req_328_replace_the_viewer_title_with_a_compact_logics_logo`",
-          "- Task back-reference: `task_325_deliver_compact_viewer_logo_identity`"
-        ]
-      },
-      "status": "Proposed",
-      "title": "Compact Logics viewer identity"
-    }
-  ],
+  "command": "logics-manager sync context-pack req_328_replace_the_viewer_title_with_a_compact_logics_logo item_684_use_the_logics_icon_as_the_viewer_topbar_identity task_325_deliver_compact_viewer_logo_identity --mode full --profile normal",
+  "companion_docs": [],
   "docs": [
     {
       "ai_context": {
@@ -73,7 +33,8 @@
         "Acceptance criteria": [
           "- The visible Logics Viewer text is replaced by the packaged Logics icon before the project selector.",
           "- The logo is discreet, preserves the existing topbar height, and does not cause layout overflow at compact widths.",
-          "- The identity remains accessible through suitable semantic text or an aria-label and a viewer test covers the new header markup."
+          "- The identity remains accessible through suitable semantic text or an aria-label and a viewer test covers the new header markup.",
+          "- The rendered viewer header is captured and visually inspected after the change; the reference capture is updated when it no longer matches."
         ],
         "Needs": [
           "- Replace the visible Logics Viewer title before the project selector with the Logics logo.",
@@ -112,7 +73,8 @@
         "Acceptance criteria": [
           "- The icon appears before the project selector and the title is not visibly rendered.",
           "- The topbar height remains unchanged in the normal viewer layout.",
-          "- Screen readers retain a meaningful viewer identity label."
+          "- Screen readers retain a meaningful viewer identity label.",
+          "- A current rendered viewer capture proves the icon remains discreet and the topbar height is unchanged."
         ],
         "Problem": [
           "- The written viewer title uses space in the compact topbar even though a recognizable packaged icon is available."
@@ -183,20 +145,20 @@
     }
   ],
   "estimates": {
-    "char_count": 5436,
-    "companion_doc_count": 1,
+    "char_count": 4532,
+    "companion_doc_count": 0,
     "doc_count": 4
   },
-  "generated_at": "2026-08-10T10:44:10Z",
+  "generated_at": "2026-08-10T10:48:10Z",
   "handoff": {
-    "companion_doc_count": 1,
-    "enabled": true,
+    "companion_doc_count": 0,
+    "enabled": false,
     "source_refs": [
       "req_328_replace_the_viewer_title_with_a_compact_logics_logo",
       "item_684_use_the_logics_icon_as_the_viewer_topbar_identity",
       "task_325_deliver_compact_viewer_logo_identity"
     ],
-    "validation_summary_count": 1
+    "validation_summary_count": 0
   },
   "i18n": {
     "actions": [
@@ -301,13 +263,5 @@
     "state": "blocked",
     "target_version": "2.21.3"
   },
-  "validation_summary": [
-    {
-      "items": [
-        "- (no validation recorded yet)"
-      ],
-      "path": "logics/tasks/task_325_deliver_compact_viewer_logo_identity.md",
-      "ref": "task_325_deliver_compact_viewer_logo_identity"
-    }
-  ]
+  "validation_summary": []
 }

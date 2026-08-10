@@ -1,6 +1,6 @@
 ## prod_073_visible_viewer_operational_health - Visible viewer operational health
 > Date: 2026-08-10
-> Status: Proposed
+> Status: Settled
 > Related request: `req_329_polish_viewer_health_actions_and_document_operational_views`
 > Related backlog: `item_685_style_the_viewer_health_apply_fixes_action`, `item_686_add_health_and_insights_screenshots_to_the_readme`
 > Related task: `task_326_deliver_health_action_polish_and_operational_viewer_documentation`

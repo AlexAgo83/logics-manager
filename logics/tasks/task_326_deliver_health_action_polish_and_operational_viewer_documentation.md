@@ -1,7 +1,7 @@
 ## task_326_deliver_health_action_polish_and_operational_viewer_documentation - Deliver Health action polish and operational viewer documentation
 > From version: 2.21.3
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 100%
@@ -9,6 +9,7 @@
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 > Owner: codex
+> Indicators reviewed: 2026-08-10 14:05:45
 
 # AI Context
 - Summary: Deliver Health action polish and operational viewer documentation
@@ -20,22 +21,22 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Style and test Apply fixes using existing viewer button conventions.
-- [ ] 2. Generate Health and Insights captures from a safe fixture, crop and inspect them.
-- [ ] 3. Update README, run viewer checks and Logics validation, then record visual evidence at closeout.
-- [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
-- [ ] Keep commit creation under operator control; do not force one commit per micro-step.
-- [ ] GATE: do not close until lint, audit, and scaffold validation pass.
+- [x] 1. Style and test Apply fixes using existing viewer button conventions.
+- [x] 2. Generate Health and Insights captures from a safe fixture, crop and inspect them.
+- [x] 3. Update README, run viewer checks and Logics validation, then record visual evidence at closeout.
+- [x] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
+- [x] Keep commit creation under operator control; do not force one commit per micro-step.
+- [x] GATE: do not close until lint, audit, and scaffold validation pass.
 
 # Backlog
 - `item_685_style_the_viewer_health_apply_fixes_action`
 - `item_686_add_health_and_insights_screenshots_to_the_readme`
 
 # Definition of Done (DoD)
-- [ ] Generated request, product, backlog, and task docs are present.
-- [ ] Context-pack handoff is available when requested.
-- [ ] Validation passes.
-- [ ] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
+- [x] Generated request, product, backlog, and task docs are present.
+- [x] Context-pack handoff is available when requested.
+- [x] Validation passes.
+- [x] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
 
 # AC Traceability
 - request-Apply fixes is visibly styled as a viewer action in normal, hover, focus, disabled, and busy states without reducing accessibility. -> `item_685_style_the_viewer_health_apply_fixes_action`. Proof deferred to slice closeout.
@@ -46,9 +47,15 @@
 
 # Validation
 - (no validation recorded yet)
+- command: `npm run test:viewer-smoke; npm exec vitest run tests/viewer.browser-host.test.ts tests/chainGraphScreen.test.ts; npm run lint:ts; python3.11 -m pytest tests/python/test_viewer_cli.py::test_viewer_mcp_connector_captures_url_and_token tests/python/test_viewer_cli.py::test_viewer_project_switch_endpoint_uses_known_project_allowlist tests/python/test_viewer_cli.py::test_viewer_chain_graph_endpoint_resolves_structural_links_only -q` | result: passed | date: 2026-08-10
+- Finish workflow executed on 2026-08-10.
+- Linked backlog/request close verification passed.
 
 # Report
 - Not started.
+- Finished on 2026-08-10.
+- Linked backlog item(s): `item_685_style_the_viewer_health_apply_fixes_action`, `item_686_add_health_and_insights_screenshots_to_the_readme`
+- Related request(s): `req_329_polish_viewer_health_actions_and_document_operational_views`
 
 # Links
 - Request: `req_329_polish_viewer_health_actions_and_document_operational_views`

@@ -1,7 +1,7 @@
 ## req_329_polish_viewer_health_actions_and_document_operational_views - Polish viewer health actions and document operational views
 > From version: 2.21.3
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

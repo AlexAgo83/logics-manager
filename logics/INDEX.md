@@ -110,6 +110,7 @@
 | [prod_071_direct_viewer_operations_for_workflow_chains_and_chatgpt_mcp](product/prod_071_direct_viewer_operations_for_workflow_chains_and_chatgpt_mcp.md) | Direct viewer operations for workflow chains and ChatGPT MCP | Settled |  |  | product/prod_071_direct_viewer_operations_for_workflow_chains_and_chatgpt_mcp.md |
 | [prod_072_compact_logics_viewer_identity](product/prod_072_compact_logics_viewer_identity.md) | Compact Logics viewer identity | Settled |  |  | product/prod_072_compact_logics_viewer_identity.md |
 | [prod_073_visible_viewer_operational_health](product/prod_073_visible_viewer_operational_health.md) | Visible viewer operational health | Settled |  |  | product/prod_073_visible_viewer_operational_health.md |
+| [prod_074_a_discoverable_library_of_operational_runbooks](product/prod_074_a_discoverable_library_of_operational_runbooks.md) | A discoverable library of operational runbooks | Proposed |  |  | product/prod_074_a_discoverable_library_of_operational_runbooks.md |
 
 ## Roadmaps
 
@@ -455,6 +456,7 @@
 | [req_327_make_viewer_navigation_and_chatgpt_mcp_developer_controls_direct](request/req_327_make_viewer_navigation_and_chatgpt_mcp_developer_controls_direct.md) | Make viewer navigation and ChatGPT MCP developer controls direct | Done |  |  | request/req_327_make_viewer_navigation_and_chatgpt_mcp_developer_controls_direct.md |
 | [req_328_replace_the_viewer_title_with_a_compact_logics_logo](request/req_328_replace_the_viewer_title_with_a_compact_logics_logo.md) | Replace the viewer title with a compact Logics logo | Done |  |  | request/req_328_replace_the_viewer_title_with_a_compact_logics_logo.md |
 | [req_329_polish_viewer_health_actions_and_document_operational_views](request/req_329_polish_viewer_health_actions_and_document_operational_views.md) | Polish viewer health actions and document operational views | Done |  |  | request/req_329_polish_viewer_health_actions_and_document_operational_views.md |
+| [req_330_make_operational_runbooks_a_discoverable_logics_companion_document](request/req_330_make_operational_runbooks_a_discoverable_logics_companion_document.md) | Make operational runbooks a discoverable Logics companion document | Draft |  |  | request/req_330_make_operational_runbooks_a_discoverable_logics_companion_document.md |
 
 ## Backlog
 
@@ -1146,6 +1148,9 @@
 | [item_684_use_the_logics_icon_as_the_viewer_topbar_identity](backlog/item_684_use_the_logics_icon_as_the_viewer_topbar_identity.md) | Use the Logics icon as the viewer topbar identity | Done |  | 100% | backlog/item_684_use_the_logics_icon_as_the_viewer_topbar_identity.md |
 | [item_685_style_the_viewer_health_apply_fixes_action](backlog/item_685_style_the_viewer_health_apply_fixes_action.md) | Style the viewer Health Apply fixes action | Done |  | 100% | backlog/item_685_style_the_viewer_health_apply_fixes_action.md |
 | [item_686_add_health_and_insights_screenshots_to_the_readme](backlog/item_686_add_health_and_insights_screenshots_to_the_readme.md) | Add Health and Insights screenshots to the README | Done |  | 100% | backlog/item_686_add_health_and_insights_screenshots_to_the_readme.md |
+| [item_687_define_the_runbook_companion_contract_and_agent_discovery_path](backlog/item_687_define_the_runbook_companion_contract_and_agent_discovery_path.md) | Define the runbook companion contract and agent discovery path | Ready |  | 0% | backlog/item_687_define_the_runbook_companion_contract_and_agent_discovery_path.md |
+| [item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling](backlog/item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling.md) | Expose runbooks through bounded commands, MCP, and deliberate migration tooling | Ready |  | 0% | backlog/item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling.md |
+| [item_689_make_the_runbook_library_navigable_in_the_viewer](backlog/item_689_make_the_runbook_library_navigable_in_the_viewer.md) | Make the runbook library navigable in the viewer | Ready |  | 0% | backlog/item_689_make_the_runbook_library_navigable_in_the_viewer.md |
 
 ## Tasks
 
@@ -1471,3 +1476,4 @@
 | [task_324_deliver_direct_viewer_chain_settings_and_chatgpt_mcp_controls](tasks/task_324_deliver_direct_viewer_chain_settings_and_chatgpt_mcp_controls.md) | Deliver direct viewer chain, settings, and ChatGPT MCP controls | Done | codex | 100% | tasks/task_324_deliver_direct_viewer_chain_settings_and_chatgpt_mcp_controls.md |
 | [task_325_deliver_compact_viewer_logo_identity](tasks/task_325_deliver_compact_viewer_logo_identity.md) | Deliver compact viewer logo identity | Done | codex | 100% | tasks/task_325_deliver_compact_viewer_logo_identity.md |
 | [task_326_deliver_health_action_polish_and_operational_viewer_documentation](tasks/task_326_deliver_health_action_polish_and_operational_viewer_documentation.md) | Deliver Health action polish and operational viewer documentation | Done | codex | 100% | tasks/task_326_deliver_health_action_polish_and_operational_viewer_documentation.md |
+| [task_327_orchestrate_the_discoverable_runbook_library_delivery](tasks/task_327_orchestrate_the_discoverable_runbook_library_delivery.md) | Orchestrate the discoverable runbook library delivery | Ready |  | 0% | tasks/task_327_orchestrate_the_discoverable_runbook_library_delivery.md |

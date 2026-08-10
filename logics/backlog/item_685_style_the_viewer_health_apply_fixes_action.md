@@ -1,10 +1,10 @@
 ## item_685_style_the_viewer_health_apply_fixes_action - Style the viewer Health Apply fixes action
 > From version: 2.21.3
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Viewer health UX
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

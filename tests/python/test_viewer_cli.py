@@ -3124,6 +3124,43 @@ def test_viewer_project_switch_endpoint_uses_known_project_allowlist(tmp_path: P
         thread.join(timeout=5)
 
 
+def test_viewer_mcp_connector_captures_url_and_token(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    class FakeProcess:
+        stdout = [
+            "ChatGPT developer-mode MCP URL: https://example.ngrok-free.app/mcp\n",
+            "Authorization header: Bearer test-token\n",
+        ]
+        returncode = None
+        terminated = False
+
+        def poll(self) -> None:
+            return None
+
+        def terminate(self) -> None:
+            self.terminated = True
+
+    process = FakeProcess()
+    monkeypatch.setattr(viewer_module.subprocess, "Popen", lambda *_args, **_kwargs: process)
+
+    server = create_viewer_server_or_skip(tmp_path)
+    try:
+        server.start_mcp_connector()
+        for _ in range(50):
+            payload = server.mcp_connector_payload()
+            if payload["url"] and payload["token"]:
+                break
+            time.sleep(0.02)
+
+        assert payload["url"] == "https://example.ngrok-free.app/mcp"
+        assert payload["token"] == "test-token"
+
+        server.stop_mcp_connector()
+        assert server.mcp_connector_payload()["token"] == ""
+        assert process.terminated is True
+    finally:
+        server.server_close()
+
+
 def test_viewer_server_switch_project_root_adds_selected_project(tmp_path: Path) -> None:
     active = tmp_path / "logics-manager"
     selected = tmp_path / "selected-project"

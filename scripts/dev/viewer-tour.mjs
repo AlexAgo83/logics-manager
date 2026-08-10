@@ -127,6 +127,27 @@ note("open a document (ms)", openMs);
 await shot("11-document");
 note("document actions offered", await evaluate(cdp, `document.querySelectorAll("#viewer-document [data-action], #viewer-document button").length`));
 
+const demoSwitch = await evaluate(cdp, `(async () => {
+  document.getElementById("viewer-repo-pill")?.click();
+  await new Promise(r=>setTimeout(r,500));
+  const demo = Array.from(document.querySelectorAll("[data-viewer-project-id]"))
+    .find((node) => /Demo board/.test(node.textContent || ""));
+  if (!demo) return { switched: false };
+  demo.dispatchEvent(new MouseEvent("click", { bubbles: true, view: window }));
+  await new Promise(r=>setTimeout(r,1500));
+  return { switched: true, label: document.querySelector("[data-viewer-project-label]")?.textContent || "" };
+})()`);
+note("docs captures project", JSON.stringify(demoSwitch));
+
+await evaluate(cdp, `document.getElementById("viewer-health")?.click()`);
+await evaluate(cdp, "new Promise(r=>setTimeout(r,5000))");
+await shot("health");
+await evaluate(cdp, `document.getElementById("viewer-refresh-menu-button")?.click()`);
+await evaluate(cdp, "new Promise(r=>setTimeout(r,300))");
+await evaluate(cdp, `document.querySelector('[data-viewer-settings-action="insights"]')?.click()`);
+await evaluate(cdp, "new Promise(r=>setTimeout(r,5000))");
+await shot("insights");
+
 await evaluate(cdp, `(() => { const i = document.getElementById("viewer-document-close"); if (i) i.click(); })()`);
 await evaluate(cdp, "new Promise(r=>setTimeout(r,400))");
 const searchMs = await evaluate(cdp, `(async () => {

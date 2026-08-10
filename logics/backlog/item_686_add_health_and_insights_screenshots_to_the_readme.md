@@ -1,10 +1,10 @@
 ## item_686_add_health_and_insights_screenshots_to_the_readme - Add Health and Insights screenshots to the README
 > From version: 2.21.3
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Viewer documentation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

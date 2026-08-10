@@ -18,6 +18,16 @@
   line-height: 1.25;
 }
 
+.viewer-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 .viewer-topbar__logo {
   width: 18px;
   height: 18px;
@@ -1645,6 +1655,21 @@
   display: grid;
   gap: 14px;
 }
+
+.viewer-health__apply-fixes {
+  justify-self: start;
+  border: 1px solid color-mix(in srgb, var(--vscode-button-background, #0e639c) 70%, #fff);
+  border-radius: 5px;
+  padding: 7px 11px;
+  background: var(--vscode-button-background, #0e639c);
+  color: var(--vscode-button-foreground, #fff);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.viewer-health__apply-fixes:hover { background: var(--vscode-button-hoverBackground, #1177bb); }
+.viewer-health__apply-fixes:focus-visible { outline: 2px solid var(--vscode-focusBorder, #007fd4); outline-offset: 2px; }
+.viewer-health__apply-fixes:disabled { cursor: default; opacity: .55; }
 
 .viewer-cdx__modes,
 .viewer-cdx__panel-switch {

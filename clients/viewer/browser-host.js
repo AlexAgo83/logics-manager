@@ -5538,7 +5538,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         return;
       }
       if (!options.silent) {
-        host.setMeta("Scanning CDX disk usage...");
+        host.setMeta("CDX disk usage state: scanning...");
         host.setDocument("CDX disk", `
         <div class="viewer-cdx">
           ${renderCdxModeSwitcher("disk")}
@@ -6823,6 +6823,7 @@ ${line}` : line;
         await loadWorkshopCommands();
         host.setMeta(`Workshop / ${activeTab} loaded.`);
       } else if (activeTab === "terminals") {
+        host.setMeta("Workshop / terminals ready.");
         for (const entry of workshopTerminalState.sessions.values()) {
           releaseWorkshopTerminalObserver(entry);
           if (entry.terminal) {
@@ -8409,6 +8410,7 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
     }
     function withPrimaryAction(actionKey, label, action) {
       if (primaryActionBusyKey) {
+        setMeta("Action unavailable while another viewer action is running.");
         return Promise.resolve(false);
       }
       if (primaryActionController) {
@@ -10080,7 +10082,8 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
       const data = await response.json().catch(() => ({}));
       const state = data.payload || {};
       const ready = state.running && state.url;
-      setDocument("ChatGPT Developer Mode", `<div class="viewer-settings-screen"><section class="viewer-settings-screen__hero"><p class="viewer-settings-screen__eyebrow">Per-project MCP connector</p><h2>${state.running ? "Connector ON" : "Connector OFF"}</h2><p>${ready ? "Copy the HTTPS /mcp URL into ChatGPT developer mode. Stop it when you are done." : state.running ? "Starting the secure tunnel\u2026 the URL will appear here shortly." : "Nothing is exposed until you turn this connector on."}</p></section><section class="viewer-settings-card"><h3>ChatGPT connection</h3>${ready ? `<code class="viewer-mcp-url">${escapeHtml(state.url)}</code><button class="btn" type="button" data-viewer-mcp-copy="${escapeHtml(state.url)}">Copy URL</button>` : ""}${state.error ? `<p>${escapeHtml(state.error)}</p>` : ""}<button class="btn" type="button" data-viewer-mcp-action="${state.running ? "stop" : "start"}">${state.running ? "OFF \u2014 stop connector" : "ON \u2014 start connector"}</button>${state.running && !ready ? '<button class="btn" type="button" data-viewer-mcp-action="refresh">Refresh status</button>' : ""}</section></div>`, { eyebrow: "Settings / ChatGPT Developer Mode" });
+      const token = String(state.token || "");
+      setDocument("ChatGPT Developer Mode", `<div class="viewer-settings-screen"><section class="viewer-settings-screen__hero"><p class="viewer-settings-screen__eyebrow">Per-project MCP connector</p><h2>${state.running ? "Connector ON" : "Connector OFF"}</h2><p>${ready ? "Copy the HTTPS /mcp URL and bearer token into ChatGPT developer mode. Stop it when you are done." : state.running ? "Starting the secure tunnel\u2026 the URL will appear here shortly." : "Nothing is exposed until you turn this connector on."}</p></section><section class="viewer-settings-card"><h3>ChatGPT connection</h3>${ready ? `<code class="viewer-mcp-url">${escapeHtml(state.url)}</code><button class="btn" type="button" data-viewer-mcp-copy="${escapeHtml(state.url)}">Copy URL</button>${token ? `<button class="btn" type="button" data-viewer-mcp-copy="${escapeHtml(token)}" data-viewer-mcp-copy-kind="token">Copy token</button>` : ""}` : ""}${state.error ? `<p>${escapeHtml(state.error)}</p>` : ""}<button class="btn" type="button" data-viewer-mcp-action="${state.running ? "stop" : "start"}">${state.running ? "OFF \u2014 stop connector" : "ON \u2014 start connector"}</button>${state.running && !ready ? '<button class="btn" type="button" data-viewer-mcp-action="refresh">Refresh status</button>' : ""}</section></div>`, { eyebrow: "Settings / ChatGPT Developer Mode" });
       setMeta(ready ? "MCP connector ready." : state.running ? "MCP connector starting." : "MCP connector is off.");
     }
     function bindRefreshMenuControls() {
@@ -10785,7 +10788,7 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
       });
       document.addEventListener("click", (event) => {
         const copy = event.target instanceof Element ? event.target.closest("[data-viewer-mcp-copy]") : null;
-        if (copy instanceof HTMLElement) copyTextToClipboard(copy.dataset.viewerMcpCopy || "").then((ok) => setMeta(ok ? "MCP URL copied." : "Clipboard access was refused."));
+        if (copy instanceof HTMLElement) copyTextToClipboard(copy.dataset.viewerMcpCopy || "").then((ok) => setMeta(ok ? `MCP ${copy.dataset.viewerMcpCopyKind === "token" ? "token" : "URL"} copied.` : "Clipboard access was refused."));
         const action = event.target instanceof Element ? event.target.closest("[data-viewer-mcp-action]") : null;
         if (!(action instanceof HTMLElement)) return;
         const value = action.dataset.viewerMcpAction;

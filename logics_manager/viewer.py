@@ -1597,6 +1597,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
         self.restart_requested = False
         self.mcp_connector: subprocess.Popen[str] | None = None
         self.mcp_connector_url = ""
+        self.mcp_connector_token = ""
         self.mcp_connector_error = ""
         self.mcp_connector_lock = threading.RLock()
         # Cache of (monotonic_ts, etag, body_bytes) keyed by "<route>::<repo_root>".
@@ -1629,13 +1630,14 @@ class LogicsViewerServer(ThreadingHTTPServer):
     def mcp_connector_payload(self) -> dict[str, Any]:
         with self.mcp_connector_lock:
             running = self.mcp_connector is not None and self.mcp_connector.poll() is None
-            return {"running": running, "url": self.mcp_connector_url if running else "", "error": self.mcp_connector_error if not running else ""}
+            return {"running": running, "url": self.mcp_connector_url if running else "", "token": self.mcp_connector_token if running else "", "error": self.mcp_connector_error if not running else ""}
 
     def start_mcp_connector(self) -> dict[str, Any]:
         with self.mcp_connector_lock:
             if self.mcp_connector is not None and self.mcp_connector.poll() is None:
                 return self.mcp_connector_payload()
             self.mcp_connector_url = ""
+            self.mcp_connector_token = ""
             self.mcp_connector_error = ""
             command = [sys.executable, "-m", "logics_manager", "mcp", "tunnel", "--repo-root", self.repo_root.as_posix()]
             self.mcp_connector = subprocess.Popen(command, cwd=self.repo_root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
@@ -1646,6 +1648,9 @@ class LogicsViewerServer(ThreadingHTTPServer):
                 match = re.search(r"ChatGPT developer-mode MCP URL:\s*(https://\S+)", line)
                 if match:
                     with self.mcp_connector_lock: self.mcp_connector_url = match.group(1)
+                token_match = re.search(r"Authorization header:\s*Bearer\s+(\S+)", line)
+                if token_match:
+                    with self.mcp_connector_lock: self.mcp_connector_token = token_match.group(1)
             with self.mcp_connector_lock:
                 if not self.mcp_connector_url and process.returncode:
                     self.mcp_connector_error = "MCP connector stopped before publishing an HTTPS URL."
@@ -1657,6 +1662,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
             process = self.mcp_connector
             self.mcp_connector = None
             self.mcp_connector_url = ""
+            self.mcp_connector_token = ""
             self.mcp_connector_error = ""
         if process is not None and process.poll() is None:
             process.terminate()

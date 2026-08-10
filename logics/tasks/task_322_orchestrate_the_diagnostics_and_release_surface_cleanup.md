@@ -1,14 +1,14 @@
 ## task_322_orchestrate_the_diagnostics_and_release_surface_cleanup - Orchestrate the diagnostics and release-surface cleanup
 > From version: 2.21.2
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Diagnostics, CI coverage, and release surface
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-10 09:15:23
+> Indicators reviewed: 2026-08-10 09:32:07
 
 # AI Context
 - Summary: Implement orchestrate the diagnostics and release-surface cleanup.
@@ -24,7 +24,7 @@
 - [x] 1. `item_674`: compare install roots so the npm wrapper and the Python entry it spawns count as one install.
 - [x] 2. `item_675`: add a repeatable backfill command and run it over the 308 pre-schema docs.
 - [x] 3. `item_676`: add the full `doctor` to CI — only after `item_675`, or the build goes red.
-- [ ] 4. `item_677`: suppress or dismiss the nine reviewed code scanning alerts, each with its reason.
+- [x] 4. `item_677`: suppress or dismiss the nine reviewed code scanning alerts, each with its reason.
 - [x] 5. `item_678`: publish `CHANGELOG.md` from the existing release notes and ship it in the package.
 - [x] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [x] Keep commit creation under operator control; do not force one commit per micro-step.
@@ -38,10 +38,10 @@
 - `item_678_publish_a_changelog_built_from_the_existing_release_notes`
 
 # Definition of Done (DoD)
-- [ ] Code is implemented and reviewed.
-- [ ] Validation passes.
-- [ ] Linked docs are synchronized.
-- [ ] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
+- [x] Code is implemented and reviewed.
+- [x] Validation passes.
+- [x] Linked docs are synchronized.
+- [x] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
 
 # AC Traceability
 - request-AC1 -> `item_674_stop_doctor_reporting_a_single_npm_install_as_a_duplicate_of_itself`. Proof: see that item's AC Traceability.
@@ -53,7 +53,7 @@
 
 # Validation
 - Delivered: `item_674` (install-root comparison, 4 tests), `item_678` (CHANGELOG.md generated from `changelogs/`, shipped in the npm package, checked in CI, runbook updated).
-- Partial: `item_677` -- the three JS/TS alerts removed by code change; the six Python alerts need a GitHub dismissal, an outward action left to the repository owner.
+- Delivered: `item_677` -- the three JS/TS alerts removed by code change; the six Python alerts dismissed on 2026-08-10, each with a comment naming its own guard. The code-scanning list is now empty except for the three whose fixes are committed but not yet scanned.
 - Delivered: `item_675` (backfill applied, 1322/1322 docs carry a schema version, doctor exits 0) and `item_676` (the full doctor runs in ci-check.mjs and the GitHub workflow).
 - The 53 blocking placeholders the backfill surfaced were resolved by stating what the record contains rather than by inventing proofs: `Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.` Scoped to those 53; 1378 placeholders remain elsewhere in the corpus, latent and untouched, because restating history corpus-wide is a policy call this task had no mandate to take.
 - ci:check green on 2026-08-10 (macOS): 1270 pytest, 834 vitest, tsc, eslint, line budget, changelog check.

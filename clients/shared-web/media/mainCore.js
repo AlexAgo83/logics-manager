@@ -442,9 +442,17 @@
           if (options.harnessApi && typeof options.harnessApi.setCurrentRoot === "function") {
             options.harnessApi.setCurrentRoot(payload.root);
           }
+          // req_332: this ran on every "data" message (every watcher-debounced
+          // refresh, not just a real workspace switch) because
+          // persistedWorkspaceRoot was only ever set once, at hydration, and
+          // nothing updated it afterward -- a one-time root mismatch (case,
+          // path form, stale snapshot) re-triggered the Activity-view reset on
+          // every subsequent refresh forever. Updating it here makes the
+          // comparison a true one-shot per actual root change.
           if (state.persistedWorkspaceRoot && !areSameWorkspacePath(state.persistedWorkspaceRoot, payload.root)) {
             resetPersistedUiState();
           }
+          state.persistedWorkspaceRoot = payload.root;
         }
         if (payload && typeof payload.canResetProjectRoot === "boolean") {
           state.canResetProjectRoot = payload.canResetProjectRoot;

@@ -31,7 +31,7 @@
 | [adr_024_lan_viewer_auth_model_read_only_contract_and_qr_library_choice](architecture/adr_024_lan_viewer_auth_model_read_only_contract_and_qr_library_choice.md) | LAN viewer auth model, read-only contract, and QR library choice | Settled |  |  | architecture/adr_024_lan_viewer_auth_model_read_only_contract_and_qr_library_choice.md |
 | [adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync](architecture/adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync.md) | Bound viewer CDX modularization around payload state and asset sync | Settled |  |  | architecture/adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync.md |
 | [adr_026_embed_the_canonical_local_viewer_in_the_vs_code_panel](architecture/adr_026_embed_the_canonical_local_viewer_in_the_vs_code_panel.md) | Embed the canonical local viewer in the VS Code panel | Settled |  |  | architecture/adr_026_embed_the_canonical_local_viewer_in_the_vs_code_panel.md |
-| [adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime](architecture/adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime.md) | Use the installed CLI as the only VS Code Logics runtime | Proposed |  |  | architecture/adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime.md |
+| [adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime](architecture/adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime.md) | Use the installed CLI as the only VS Code Logics runtime | Settled |  |  | architecture/adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime.md |
 
 ## Product briefs
 
@@ -112,7 +112,7 @@
 | [prod_072_compact_logics_viewer_identity](product/prod_072_compact_logics_viewer_identity.md) | Compact Logics viewer identity | Settled |  |  | product/prod_072_compact_logics_viewer_identity.md |
 | [prod_073_visible_viewer_operational_health](product/prod_073_visible_viewer_operational_health.md) | Visible viewer operational health | Settled |  |  | product/prod_073_visible_viewer_operational_health.md |
 | [prod_074_a_discoverable_library_of_operational_runbooks](product/prod_074_a_discoverable_library_of_operational_runbooks.md) | A discoverable library of operational runbooks | Settled |  |  | product/prod_074_a_discoverable_library_of_operational_runbooks.md |
-| [prod_075_one_logics_runtime_no_setup_noise](product/prod_075_one_logics_runtime_no_setup_noise.md) | One Logics runtime, no setup noise | Proposed |  |  | product/prod_075_one_logics_runtime_no_setup_noise.md |
+| [prod_075_one_logics_runtime_no_setup_noise](product/prod_075_one_logics_runtime_no_setup_noise.md) | One Logics runtime, no setup noise | Settled |  |  | product/prod_075_one_logics_runtime_no_setup_noise.md |
 
 ## Roadmaps
 
@@ -459,7 +459,8 @@
 | [req_328_replace_the_viewer_title_with_a_compact_logics_logo](request/req_328_replace_the_viewer_title_with_a_compact_logics_logo.md) | Replace the viewer title with a compact Logics logo | Done |  |  | request/req_328_replace_the_viewer_title_with_a_compact_logics_logo.md |
 | [req_329_polish_viewer_health_actions_and_document_operational_views](request/req_329_polish_viewer_health_actions_and_document_operational_views.md) | Polish viewer health actions and document operational views | Done |  |  | request/req_329_polish_viewer_health_actions_and_document_operational_views.md |
 | [req_330_make_operational_runbooks_a_discoverable_logics_companion_document](request/req_330_make_operational_runbooks_a_discoverable_logics_companion_document.md) | Make operational runbooks a discoverable Logics companion document | Done |  |  | request/req_330_make_operational_runbooks_a_discoverable_logics_companion_document.md |
-| [req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap](request/req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap.md) | Use one resolved Logics Manager runtime and silently refresh existing project bootstrap | Draft |  |  | request/req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap.md |
+| [req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap](request/req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap.md) | Use one resolved Logics Manager runtime and silently refresh existing project bootstrap | Done |  |  | request/req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap.md |
+| [req_332_stop_the_webview_activity_view_from_resetting_on_every_refresh](request/req_332_stop_the_webview_activity_view_from_resetting_on_every_refresh.md) | Stop the webview Activity view from resetting on every refresh | Draft |  |  | request/req_332_stop_the_webview_activity_view_from_resetting_on_every_refresh.md |
 
 ## Backlog
 
@@ -1155,8 +1156,9 @@
 | [item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling](backlog/item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling.md) | Expose runbooks through bounded commands, MCP, and deliberate migration tooling | Done |  | 100% | backlog/item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling.md |
 | [item_689_make_the_runbook_library_navigable_in_the_viewer](backlog/item_689_make_the_runbook_library_navigable_in_the_viewer.md) | Make the runbook library navigable in the viewer | Done |  | 100% | backlog/item_689_make_the_runbook_library_navigable_in_the_viewer.md |
 | [item_690_resolve_and_enforce_one_compatible_installed_logics_manager_runtime](backlog/item_690_resolve_and_enforce_one_compatible_installed_logics_manager_runtime.md) | Resolve and enforce one compatible installed Logics Manager runtime | Done |  | 100% | backlog/item_690_resolve_and_enforce_one_compatible_installed_logics_manager_runtime.md |
-| [item_691_make_existing_project_bootstrap_refresh_silent_and_managed_only](backlog/item_691_make_existing_project_bootstrap_refresh_silent_and_managed_only.md) | Make existing-project bootstrap refresh silent and managed-only | In progress |  | 10% | backlog/item_691_make_existing_project_bootstrap_refresh_silent_and_managed_only.md |
-| [item_692_remove_global_assistant_publication_and_prompt_cascades_from_normal_vs_code_startup](backlog/item_692_remove_global_assistant_publication_and_prompt_cascades_from_normal_vs_code_startup.md) | Remove global assistant publication and prompt cascades from normal VS Code startup | In progress |  | 10% | backlog/item_692_remove_global_assistant_publication_and_prompt_cascades_from_normal_vs_code_startup.md |
+| [item_691_make_existing_project_bootstrap_refresh_silent_and_managed_only](backlog/item_691_make_existing_project_bootstrap_refresh_silent_and_managed_only.md) | Make existing-project bootstrap refresh silent and managed-only | Done |  | 100% | backlog/item_691_make_existing_project_bootstrap_refresh_silent_and_managed_only.md |
+| [item_692_remove_global_assistant_publication_and_prompt_cascades_from_normal_vs_code_startup](backlog/item_692_remove_global_assistant_publication_and_prompt_cascades_from_normal_vs_code_startup.md) | Remove global assistant publication and prompt cascades from normal VS Code startup | Done |  | 100% | backlog/item_692_remove_global_assistant_publication_and_prompt_cascades_from_normal_vs_code_startup.md |
+| [item_693_stop_the_webview_activity_view_from_resetting_on_every_refresh](backlog/item_693_stop_the_webview_activity_view_from_resetting_on_every_refresh.md) | Stop the webview Activity view from resetting on every refresh | In progress |  | 10% | backlog/item_693_stop_the_webview_activity_view_from_resetting_on_every_refresh.md |
 
 ## Tasks
 
@@ -1483,7 +1485,8 @@
 | [task_325_deliver_compact_viewer_logo_identity](tasks/task_325_deliver_compact_viewer_logo_identity.md) | Deliver compact viewer logo identity | Done | codex | 100% | tasks/task_325_deliver_compact_viewer_logo_identity.md |
 | [task_326_deliver_health_action_polish_and_operational_viewer_documentation](tasks/task_326_deliver_health_action_polish_and_operational_viewer_documentation.md) | Deliver Health action polish and operational viewer documentation | Done | codex | 100% | tasks/task_326_deliver_health_action_polish_and_operational_viewer_documentation.md |
 | [task_327_orchestrate_the_discoverable_runbook_library_delivery](tasks/task_327_orchestrate_the_discoverable_runbook_library_delivery.md) | Orchestrate the discoverable runbook library delivery | Done | claude | 100% | tasks/task_327_orchestrate_the_discoverable_runbook_library_delivery.md |
-| [task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification](tasks/task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification.md) | Deliver the single-runtime and silent-bootstrap simplification | In progress | claude | 25% | tasks/task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification.md |
+| [task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification](tasks/task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification.md) | Deliver the single-runtime and silent-bootstrap simplification | Done | claude | 100% | tasks/task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification.md |
+| [task_329_stop_the_webview_activity_view_from_resetting_on_every_refresh](tasks/task_329_stop_the_webview_activity_view_from_resetting_on_every_refresh.md) | Stop the webview Activity view from resetting on every refresh | In progress | claude | 100% | tasks/task_329_stop_the_webview_activity_view_from_resetting_on_every_refresh.md |
 
 ## Runbooks
 

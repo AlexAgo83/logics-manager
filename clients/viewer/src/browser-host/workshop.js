@@ -14,6 +14,7 @@ import {
   WORKSHOP_TERMINAL_MIN_ROWS,
   workshopTabs,
 } from "./constants.js";
+import { renderChainGraph } from "./graph.js";
 import {
   clearNavMenuBadges,
   ensureWorkshopTerminalHostFor,
@@ -165,6 +166,23 @@ export function createWorkshopScreen(host) {
         </div>
       `;
     }
+    if (tabId === "runbooks") {
+      return `
+        <div class="viewer-workshop__panel viewer-workshop__panel--runbooks" role="tabpanel" data-viewer-workshop-panel="runbooks">
+          <div class="viewer-workshop__runbook-search">
+            <input type="search" placeholder="Search by intent, symptom, path, or category..." data-viewer-workshop-runbook-query aria-label="Search runbooks" />
+            <button class="btn" type="button" data-viewer-workshop-runbook-search>Search</button>
+            <button class="btn" type="button" data-viewer-workshop-runbook-graph>View graph</button>
+          </div>
+          <div data-viewer-workshop-runbooks>
+            <div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty">
+              <span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span>
+              <span>Loading runbooks...</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
     const terminalsAvailable = Boolean(host.capability("workshop").detail?.terminalsAvailable);
     if (!terminalsAvailable) {
       return `
@@ -287,6 +305,68 @@ export function createWorkshopScreen(host) {
       workshopCommandState.catalog = { state: "unavailable", commands: [], message: String(error?.message || error) };
     }
     renderWorkshopCommands();
+  }
+
+  // req_330/item_689: search results and the "recent" landing list share this
+  // card shape ({ref, category, verified, reason, title}), so one render path
+  // covers both instead of a separate empty-query branch.
+  const workshopRunbookState = { payload: null, showingGraph: false };
+
+  function renderWorkshopRunbookCards(payload) {
+    if (!payload || payload.no_match) {
+      return `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>${payload?.query ? `No Active runbook matched "${escapeHtml(payload.query)}".` : "No Active runbooks yet."}</span></div>`;
+    }
+    const cards = payload.matches.map((entry) => `
+      <li>
+        <a class="viewer-workshop__runbook-card" href="#" data-viewer-workshop-runbook-open="${escapeHtml(entry.path)}">
+          <div class="viewer-workshop__runbook-title"><strong>${escapeHtml(entry.title || entry.ref)}</strong> <span class="viewer-workshop__runbook-category">${escapeHtml(entry.category || "uncategorized")}</span></div>
+          <div class="viewer-workshop__runbook-meta">${escapeHtml(entry.reason || "")}${entry.verified ? ` · verified ${escapeHtml(entry.verified)}` : ""}</div>
+        </a>
+      </li>
+    `).join("");
+    return `<ul class="viewer-workshop__runbook-list">${cards}</ul>`;
+  }
+
+  function renderWorkshopRunbooks() {
+    const container = document.querySelector("[data-viewer-workshop-runbooks]");
+    if (!(container instanceof HTMLElement)) return;
+    container.innerHTML = renderWorkshopRunbookCards(workshopRunbookState.payload);
+  }
+
+  async function loadWorkshopRunbooks(query = "") {
+    try {
+      const response = await fetch(`/api/runbooks${query ? `?q=${encodeURIComponent(query)}` : ""}`);
+      const data = await response.json();
+      workshopRunbookState.payload = data?.payload || null;
+    } catch (error) {
+      workshopRunbookState.payload = { matches: [], no_match: true, query };
+    }
+    workshopRunbookState.showingGraph = false;
+    renderWorkshopRunbooks();
+  }
+
+  async function showWorkshopRunbookGraph() {
+    const container = document.querySelector("[data-viewer-workshop-runbooks]");
+    if (!(container instanceof HTMLElement)) return;
+    container.innerHTML = `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span>Loading graph...</span></div>`;
+    try {
+      const response = await fetch("/api/runbook-graph");
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        container.innerHTML = `<p>Unable to load the runbook graph.</p>`;
+        return;
+      }
+      window.__logicsGraphNodeClick = (nodeRef) => {
+        if (!String(nodeRef).startsWith("category_")) {
+          host.openDoc(nodeRef);
+        }
+      };
+      container.innerHTML = renderChainGraph(data.payload, { inline: true });
+      host.renderMermaidDiagrams();
+      workshopRunbookState.showingGraph = true;
+    } catch {
+      container.innerHTML = `<p>Unable to load the runbook graph.</p>`;
+    }
   }
 
   function updateWorkshopCommandSession(commandId, patch) {
@@ -1204,6 +1284,9 @@ export function createWorkshopScreen(host) {
     } else if (activeTab === "commands") {
       await loadWorkshopCommands();
       host.setMeta(`Workshop / ${activeTab} loaded.`);
+    } else if (activeTab === "runbooks") {
+      await loadWorkshopRunbooks();
+      host.setMeta(`Workshop / ${activeTab} loaded.`);
     } else if (activeTab === "terminals") {
       host.setMeta("Workshop / terminals ready.");
       // The Workshop DOM was just re-rendered, so every prior xterm host /
@@ -1264,6 +1347,7 @@ export function createWorkshopScreen(host) {
     hydrateWorkshopTerminals,
     loadWorkshopCommands,
     loadWorkshopExplorer,
+    loadWorkshopRunbooks,
     measureWorkshopTerminalGrid,
     mountWorkshopTerminalEmulator,
     moveWorkshopTerminalBefore,
@@ -1284,6 +1368,7 @@ export function createWorkshopScreen(host) {
     renderWorkshopCommandRunMenu,
     renderWorkshopCommands,
     renderWorkshopPanel,
+    renderWorkshopRunbooks,
     renderWorkshopTerminalList,
     reopenWorkshopTerminalStreamSoon,
     repaintAllWorkshopTerminals,
@@ -1293,6 +1378,7 @@ export function createWorkshopScreen(host) {
     setWorkshopActiveTab,
     showCustomTerminalModal,
     showWorkshop,
+    showWorkshopRunbookGraph,
     spawnCustomWorkshopTerminal,
     spawnSystemWorkshopTerminal,
     spawnWorkshopTerminal,

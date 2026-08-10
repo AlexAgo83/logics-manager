@@ -44,7 +44,10 @@ const allowedOversizedFiles = new Map(
     // 1867: req_323 disabled allow_reuse_address on the MCP HTTP server's class -
     // Windows' permissive SO_REUSEADDR let a real port collision bind silently
     // there, confirmed on a real Windows machine (test_server_port_collisions.py).
-    "logics_manager/mcp.py": { maxLines: 1867, ref: "req_323" },
+    // 1896: req_330 added the match_runbooks MCP tool and its ALLOWED_WRITE_DIRS/
+    // companion-doc entries, following the exact shape search_logics_docs and the
+    // other companion kinds already use in this file.
+    "logics_manager/mcp.py": { maxLines: 1896, ref: "req_330" },
     // 1029: item_674 added the install-identity helpers (_install_root, _shim_target,
     // _executable_identity) that let doctor tell one install from two. They sit beside
     // running_executable_path/shadowing_executables, the only callers and the only other
@@ -55,10 +58,17 @@ const allowedOversizedFiles = new Map(
     // schema-status. It sits beside `_schema_status`, whose scan it repairs, and reuses the
     // same `_resolve_target_docs` targeting; a separate module would import both and gain
     // nothing but an indirection.
-    "logics_manager/sync.py": { maxLines: 1564, ref: "req_325" },
+    // 1697: req_330 added match_runbooks_payload/list_active_runbooks_payload (the
+    // runbook match/recent-list lookups) beside search_logics_docs_payload/
+    // list_logics_docs_payload, the doc-loading primitives they're thin wrappers over.
+    "logics_manager/sync.py": { maxLines: 1697, ref: "req_330" },
     // 1145: req_321 added `_reposition_ai_context()`, sitting beside the other
     // deterministic `_autofix_structure()` repairs (Status/Schema version) it extends.
-    "logics_manager/audit.py": { maxLines: 1145, ref: "req_321" },
+    // 1169: req_330 added the runbook companion-kind entries (DOC_KINDS/REF_PREFIXES/
+    // COMPANION_PLACEHOLDERS) and its own small placeholder-check loop, kept separate
+    // from the product/roadmap/architecture loop since runbooks skip the primary-link
+    // and mermaid requirements those three still enforce.
+    "logics_manager/audit.py": { maxLines: 1169, ref: "req_330" },
     // 1117: req_317 added the per-gate release/branch comparison (resolving the
     // tagged commit, choosing which commit each gate is judged against, and
     // naming the comparison in stale reasons and status output). The new logic
@@ -69,7 +79,9 @@ const allowedOversizedFiles = new Map(
     // 1121: req_323 added `package-lock.json` as one more version source, the same
     // shape as every entry already in this same list.
     "logics_manager/release.py": { maxLines: 1121, ref: "req_323" },
-    "logics_manager/assist_support.py": { maxLines: 1477, ref: "req_273" },
+    // 1482: req_330 added the runbook discovery paragraph to the generated Claude
+    // instructions, beside the other CLI-command bullets it follows the shape of.
+    "logics_manager/assist_support.py": { maxLines: 1482, ref: "req_330" },
     // 5833: banked CDX reset endpoint (/api/cdx-reset); 5879: cdx disk payload/route;
     // 5927: release prep baseline; 5937: CDX memory read-only endpoint.
     // req_311 lifted cdx and git out of viewer.py: 5692 -> 3330. Each sub-system now
@@ -95,7 +107,11 @@ const allowedOversizedFiles = new Map(
     // The new apply-fixes, chain-graph, and MCP branches were extracted into
     // helpers to keep do_GET/do_POST under their function-length ceilings; what
     // remains here is route wiring around existing domain logic.
-    "logics_manager/viewer.py": { maxLines: 3481, ref: "req_329" },
+    // 3504: req_330 added the /api/runbooks and /api/runbook-graph routes, thin
+    // wires to match_runbooks_payload/list_active_runbooks_payload/
+    // resolve_runbook_library_graph - no repair/render logic lives here, same
+    // shape as the /api/chain-graph route beside it.
+    "logics_manager/viewer.py": { maxLines: 3504, ref: "req_330" },
     "logics_manager/viewer_cdx.py": { maxLines: 1523, ref: "req_311" },
     // 1069: req_323 threaded repo_root through _normalize_git_file_path so it
     // could route through the shared path_utils containment check, and removed
@@ -124,12 +140,17 @@ const allowedOversizedFiles = new Map(
     // read of `payload["ok"]`, and the comment saying why is longer than the branch it
     // replaced. Nothing to extract: this is two lines of dispatch policy at the one
     // place every flow subcommand returns through.
-    "logics_manager/flow/__init__.py": { maxLines: 3202, ref: "req_326" },
+    // 3213: req_330 added the "runbook" branch to cmd_companion and the companion
+    // subparser loop, the same shape as the existing product/architecture branches.
+    "logics_manager/flow/__init__.py": { maxLines: 3213, ref: "req_330" },
     // 1429: req_324 added resolve_ref_slug/resolve_ref_slugs (the short-ref expansion the
     // generators needed and _resolve_doc_path already did privately, per kind) plus the
     // rejoin loop in _bullet_values. Both are document vocabulary, so this is where they
     // belong; nothing was extracted because nothing here has grown a second concern.
-    "logics_manager/flow/docs.py": { maxLines: 1429, ref: "req_324" },
+    // 1492: req_330 added _next_runbook_ref/_build_native_runbook, document
+    // vocabulary sitting beside the near-identical _next_adr_ref/_build_native_adr
+    // pair they mirror.
+    "logics_manager/flow/docs.py": { maxLines: 1492, ref: "req_330" },
     // req_273: de-glued frontend sources. esbuild/concatenation now consume these directly
     // instead of a regex part-manifest + readFileSync.join, so the bundles stay byte-stable.
     // 7250: viewer screen minimization and workshop terminal follow-ups added here;
@@ -165,14 +186,20 @@ const allowedOversizedFiles = new Map(
     // exposes ChatGPT MCP URL/token copy controls, and reports ignored busy
     // actions. Extraction was limited because each handler closes over host
     // state already owned by this coordinator.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4260, ref: "req_329" },
+    // 4285: req_330 wired the Runbooks Workshop tab's click delegation (open,
+    // search, graph) and passed renderMermaidDiagrams/openDoc into
+    // createWorkshopScreen, the same wiring shape createGraphScreen already uses.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4285, ref: "req_330" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },
     // req_312: the workshop screen, on the same factory-and-accessor seam as cdx.
     // 1311: 2.21.4 adds the terminal tab's explicit ready meta so the visual
     // smoke can distinguish a settled tab from a silent busy state.
-    "clients/viewer/src/browser-host/workshop.js": { maxLines: 1311, ref: "req_329" },
+    // 1395: req_330 added the Runbooks tab panel, its search/graph rendering, and
+    // the runbook-graph fetch, reusing renderChainGraph from graph.js rather than
+    // a new renderer.
+    "clients/viewer/src/browser-host/workshop.js": { maxLines: 1395, ref: "req_330" },
     "clients/viewer/src/browser-host/cdx.js": { maxLines: 3057, ref: "req_312" },
     // De-monolith passes 1-3: pure helpers/data extracted out of index.js. May
     // be split by domain (cdx/git/dom) in later passes as they grow.

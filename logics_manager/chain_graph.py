@@ -14,6 +14,7 @@ so a ref mentioned only in prose never produces a node or edge.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, asdict
 from pathlib import Path
 
@@ -146,6 +147,59 @@ def resolve_request_chain(repo_root: Path, ref: str) -> dict[str, object]:
     return {
         "root": request_ref,
         "nodes": [asdict(node) for node in nodes.values()],
+        "edges": [{"from": source, "to": target} for source, target in edges],
+        "dangling": dangling,
+    }
+
+
+def resolve_runbook_library_graph(repo_root: Path) -> dict[str, object]:
+    """Category -> runbook -> optional linked Logics document (req_330/item_689).
+
+    Independent of `resolve_request_chain`: this answers "what's in the
+    runbook library", not "what chain does one request own", so it walks
+    `logics/runbook/` directly instead of a request's structural sections. A
+    runbook with no `Related request/backlog/task` still gets a node and a
+    category edge -- a standalone runbook is a normal library entry.
+    """
+    directory = repo_root / "logics" / "runbook"
+    nodes: dict[str, dict[str, object]] = {}
+    edges: list[tuple[str, str]] = []
+    dangling: list[str] = []
+    if not directory.is_dir():
+        return {"nodes": [], "edges": [], "dangling": dangling}
+
+    for path in sorted(directory.glob("run_*.md")):
+        lines = path.read_text(encoding="utf-8").splitlines()
+        title, status = _title_and_status(lines)
+        ref = path.stem
+
+        category = ""
+        related_lines: list[str] = []
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith("> Category:"):
+                category = stripped.split(":", 1)[1].strip()
+            elif stripped.startswith(("> Related request:", "> Related backlog:", "> Related task:")):
+                related_lines.append(stripped.split(":", 1)[1])
+        category = category or "other"
+        category_ref = "category_" + re.sub(r"[^a-z0-9]+", "_", category.lower()).strip("_")
+
+        nodes.setdefault(category_ref, {"ref": category_ref, "kind": "category", "title": category.title(), "status": ""})
+        nodes[ref] = {"ref": ref, "kind": "runbook", "title": title, "status": status}
+        edges.append((category_ref, ref))
+
+        related_blob = "\n".join(related_lines)
+        for prefix in ("req", "item", "task"):
+            for linked_ref in extract_refs(related_blob, prefix):
+                result = _load_node(repo_root, linked_ref)
+                if result is None:
+                    dangling.append(linked_ref)
+                    continue
+                nodes.setdefault(linked_ref, asdict(result[0]))
+                edges.append((ref, linked_ref))
+
+    return {
+        "nodes": list(nodes.values()),
         "edges": [{"from": source, "to": target} for source, target in edges],
         "dangling": dangling,
     }

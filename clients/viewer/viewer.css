@@ -3005,6 +3005,64 @@
   font-family: var(--vscode-editor-font-family, monospace);
 }
 
+/* req_330: Runbooks tab -- search bar and result cards, styled after the
+   commands list above rather than a new component vocabulary. */
+.viewer-workshop__runbook-search {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.viewer-workshop__runbook-search input {
+  flex: 1;
+  min-width: 0;
+}
+
+.viewer-workshop__runbook-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.viewer-workshop__runbook-card {
+  display: block;
+  min-width: 0;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 4px;
+  background: var(--vscode-textCodeBlock-background, #161616);
+  padding: 6px 8px;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.viewer-workshop__runbook-card:hover,
+.viewer-workshop__runbook-card:focus {
+  border-color: var(--vscode-focusBorder, #007fd4);
+}
+
+.viewer-workshop__runbook-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.viewer-workshop__runbook-category {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--vscode-descriptionForeground, #888888);
+}
+
+.viewer-workshop__runbook-meta {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+}
+
 .viewer-workshop__state {
   font-size: 10px;
   text-transform: uppercase;

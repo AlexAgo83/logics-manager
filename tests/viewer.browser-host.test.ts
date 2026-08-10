@@ -1260,6 +1260,50 @@ function createViewerDom(options: {
           })
         };
       }
+      if (url.startsWith("/api/runbooks")) {
+        const isSearch = url.includes("?q=");
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: isSearch
+              ? { query: "release", matches: [], returned_count: 0, no_match: true, limit: 3 }
+              : {
+                  query: "",
+                  matches: [
+                    {
+                      ref: "run_001_probe",
+                      kind: "runbook",
+                      path: "logics/runbook/run_001_probe.md",
+                      title: "Restart the ingest worker",
+                      category: "infrastructure",
+                      verified: "2026-08-11, verified",
+                      reason: "recent"
+                    }
+                  ],
+                  returned_count: 1,
+                  no_match: false,
+                  limit: 10
+                }
+          })
+        };
+      }
+      if (url === "/api/runbook-graph") {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: {
+              nodes: [
+                { ref: "category_infrastructure", kind: "category", title: "Infrastructure", status: "" },
+                { ref: "run_001_probe", kind: "runbook", title: "Restart the ingest worker", status: "Active" }
+              ],
+              edges: [{ from: "category_infrastructure", to: "run_001_probe" }],
+              dangling: []
+            }
+          })
+        };
+      }
       if (url === "/api/workshop-command-start") {
         return {
           ok: true,
@@ -2924,6 +2968,51 @@ describe("local viewer browser host", () => {
     dom.window.document.querySelector('[data-viewer-workshop-command-stop="npm-test"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(calls).toContain("/api/workshop-command-stop");
+  });
+
+  it("shows the Runbooks Workshop tab between Commands and Explorer, searches, and renders the graph", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const tabIds = [...dom.window.document.querySelectorAll("[data-viewer-workshop-tab]")].map((node) => node.getAttribute("data-viewer-workshop-tab"));
+    expect(tabIds).toEqual(["terminals", "commands", "runbooks", "explorer"]);
+
+    dom.window.document.querySelector('[data-viewer-workshop-tab="runbooks"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/runbooks");
+    const runbooksPanel = dom.window.document.querySelector("[data-viewer-workshop-runbooks]");
+    expect(runbooksPanel?.textContent).toContain("Restart the ingest worker");
+    expect(runbooksPanel?.textContent).toContain("infrastructure");
+    expect(runbooksPanel?.textContent).toContain("recent");
+
+    // Search with a query that matches nothing renders the empty state, not an error.
+    const queryInput = dom.window.document.querySelector("[data-viewer-workshop-runbook-query]") as HTMLInputElement | null;
+    if (queryInput) queryInput.value = "release";
+    dom.window.document.querySelector("[data-viewer-workshop-runbook-search]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/runbooks?q=release");
+    expect(dom.window.document.querySelector("[data-viewer-workshop-runbooks]")?.textContent).toContain("No Active runbook matched");
+
+    // The graph reuses the chain-graph Mermaid renderer -- category and runbook nodes appear.
+    dom.window.document.querySelector("[data-viewer-workshop-runbook-graph]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(calls).toContain("/api/runbook-graph");
+    const graphSource = dom.window.document.querySelector("[data-viewer-workshop-runbooks] pre.mermaid")?.textContent || "";
+    expect(graphSource).toContain("category_infrastructure");
+    expect(graphSource).toContain("run_001_probe");
   });
 
   it("captures a LAN token from the URL, scrubs it, and attaches it to outbound fetches", async () => {

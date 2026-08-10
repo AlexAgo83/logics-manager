@@ -3906,6 +3906,122 @@ def test_viewer_apply_fixes_endpoint_reuses_the_same_repair_as_cli_and_mcp(tmp_p
         thread.join(timeout=5)
 
 
+def _write_runbook_fixture(tmp_path: Path) -> None:
+    runbook_path = tmp_path / "logics" / "runbook" / "run_001_probe.md"
+    runbook_path.parent.mkdir(parents=True, exist_ok=True)
+    runbook_path.write_text(
+        "\n".join(
+            [
+                "## run_001_probe - Probe",
+                "> Status: Active",
+                "> Category: release",
+                "> Verified: 2026-08-11, verified",
+                "> Related request: (none yet)",
+                "> Related backlog: (none yet)",
+                "> Related task: (none yet)",
+                "> Reminder: x",
+                "",
+                "# Trigger",
+                "- when the probe fires",
+                "",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
+def test_viewer_runbooks_endpoint_lists_recent_when_no_query(tmp_path: Path) -> None:
+    _write_runbook_fixture(tmp_path)
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("GET", "/api/runbooks")
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+        assert response.status == 200
+        assert payload["payload"]["matches"][0]["ref"] == "run_001_probe"
+        assert payload["payload"]["matches"][0]["reason"] == "recent"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
+def test_viewer_runbooks_endpoint_matches_by_query(tmp_path: Path) -> None:
+    _write_runbook_fixture(tmp_path)
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("GET", "/api/runbooks?q=release")
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+        assert response.status == 200
+        assert payload["payload"]["matches"][0]["ref"] == "run_001_probe"
+        assert "category matches" in payload["payload"]["matches"][0]["reason"]
+
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("GET", "/api/runbooks?q=totally+unrelated+banana")
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+        assert response.status == 200
+        assert payload["payload"]["no_match"] is True
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
+def test_viewer_runbook_graph_endpoint_shows_standalone_runbook_in_its_category(tmp_path: Path) -> None:
+    _write_runbook_fixture(tmp_path)
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("GET", "/api/runbook-graph")
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+        assert response.status == 200
+        node_refs = {node["ref"] for node in payload["payload"]["nodes"]}
+        assert {"category_release", "run_001_probe"} <= node_refs
+        edges = {(edge["from"], edge["to"]) for edge in payload["payload"]["edges"]}
+        assert ("category_release", "run_001_probe") in edges
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
+def test_viewer_runbook_status_transition_uses_the_generic_update_status_route(tmp_path: Path) -> None:
+    _write_runbook_fixture(tmp_path)
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request(
+            "POST",
+            "/api/update-status",
+            body=json.dumps({"path": "logics/runbook/run_001_probe.md", "status": "Archived"}),
+            headers={"Content-Type": "application/json"},
+        )
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+        assert response.status == 200
+        assert payload["ok"] is True
+        text = (tmp_path / "logics" / "runbook" / "run_001_probe.md").read_text(encoding="utf-8")
+        assert "> Status: Archived" in text
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
 def test_viewer_chain_graph_endpoint_resolves_structural_links_only(tmp_path: Path) -> None:
     request_path = tmp_path / "logics" / "request" / "req_001_demo.md"
     request_path.parent.mkdir(parents=True)

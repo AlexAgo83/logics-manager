@@ -296,6 +296,7 @@ import {
     hydrateWorkshopTerminals,
     loadWorkshopCommands,
     loadWorkshopExplorer,
+    loadWorkshopRunbooks,
     measureWorkshopTerminalGrid,
     mountWorkshopTerminalEmulator,
     moveWorkshopTerminalBefore,
@@ -325,6 +326,7 @@ import {
     setWorkshopActiveTab,
     showCustomTerminalModal,
     showWorkshop,
+    showWorkshopRunbookGraph,
     spawnCustomWorkshopTerminal,
     spawnSystemWorkshopTerminal,
     spawnWorkshopTerminal,
@@ -349,6 +351,8 @@ import {
     setMeta,
     updateViewerPreferences,
     meta,
+    renderMermaidDiagrams,
+    openDoc: (ref) => showDocumentByPath(ref),
     viewerDiagnostics: {
       breadcrumb: (...args) => viewerDiagnostics.breadcrumb(...args),
       record: (...args) => viewerDiagnostics.record(...args),
@@ -3694,6 +3698,9 @@ import {
       const workspacePreviewFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview-full]") : null;
       const workshopTabTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-tab]") : null;
       const workshopRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run]") : null;
+      const workshopRunbookOpenTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-open]") : null;
+      const workshopRunbookGraphTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-graph]") : null;
+      const workshopRunbookSearchTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-search]") : null;
       const workshopRunTerminalTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run-terminal]") : null;
       const workshopStopTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-stop]") : null;
       const workshopTerminalNewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-new]") : null;
@@ -3992,6 +3999,24 @@ import {
         event.preventDefault();
         const tab = workshopTabTarget.getAttribute("data-viewer-workshop-tab") || "terminals";
         withPrimaryAction("workshop-tab", `Switching to ${tab}`, () => showWorkshop({ tab }));
+        return;
+      }
+      if (workshopRunbookOpenTarget instanceof HTMLElement) {
+        event.preventDefault();
+        const path = workshopRunbookOpenTarget.getAttribute("data-viewer-workshop-runbook-open") || "";
+        if (path) withPrimaryAction("runbook-open", "Loading runbook", () => showDocumentByPath(path));
+        return;
+      }
+      if (workshopRunbookGraphTarget instanceof HTMLElement) {
+        event.preventDefault();
+        withPrimaryAction("runbook-graph", "Loading runbook graph", showWorkshopRunbookGraph);
+        return;
+      }
+      if (workshopRunbookSearchTarget instanceof HTMLElement) {
+        event.preventDefault();
+        const input = workshopRunbookSearchTarget.parentElement?.querySelector("[data-viewer-workshop-runbook-query]");
+        const query = input instanceof HTMLInputElement ? input.value.trim() : "";
+        withPrimaryAction("runbook-search", "Searching runbooks", () => loadWorkshopRunbooks(query));
         return;
       }
       if (workshopTerminalCloseTarget instanceof HTMLElement) {

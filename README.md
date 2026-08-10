@@ -37,6 +37,14 @@ without leaving the board.
 
 ![Document view: a request's needs, context, and acceptance criteria rendered from its Markdown](docs/media/viewer-document.png)
 
+Health surfaces lint, audit, and workflow findings from the real viewer, with a styled repair action when automated fixes are available.
+
+![Health view: validation findings from the demo corpus with the styled Apply fixes action](docs/media/viewer-health.png)
+
+Insights summarizes the workflow shape and attention signals without leaving the viewer.
+
+![Insights view: corpus shape, operator actions, and workflow health signals from the demo corpus](docs/media/viewer-insights.png)
+
 ## What It Solves
 
 AI-heavy projects often lose context between chats, agents, and implementation passes. Logics turns that context into durable project artifacts:

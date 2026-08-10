@@ -2885,7 +2885,7 @@ export function createCdxScreen(host) {
       return;
     }
     if (!options.silent) {
-      host.setMeta("Scanning CDX disk usage...");
+      host.setMeta("CDX disk usage state: scanning...");
       // First scan (or forced rescan) can take a minute on large installs;
       // show a placeholder instead of leaving the previous screen up.
       host.setDocument("CDX disk", `

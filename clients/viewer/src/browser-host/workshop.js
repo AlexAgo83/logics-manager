@@ -1205,6 +1205,7 @@ export function createWorkshopScreen(host) {
       await loadWorkshopCommands();
       host.setMeta(`Workshop / ${activeTab} loaded.`);
     } else if (activeTab === "terminals") {
+      host.setMeta("Workshop / terminals ready.");
       // The Workshop DOM was just re-rendered, so every prior xterm host /
       // EventSource is gone. Drop them from the in-memory state too so the
       // remount path recreates fresh ones and the SSE stream replays the

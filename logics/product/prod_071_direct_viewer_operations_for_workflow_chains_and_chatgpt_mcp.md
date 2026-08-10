@@ -1,8 +1,8 @@
 ## prod_071_direct_viewer_operations_for_workflow_chains_and_chatgpt_mcp - Direct viewer operations for workflow chains and ChatGPT MCP
 > Date: 2026-08-10
-> Status: Proposed
+> Status: Settled
 > Related request: `req_327_make_viewer_navigation_and_chatgpt_mcp_developer_controls_direct`
-> Related backlog: `item_681_embed_the_bounded_workflow_chain_in_document_detail`, `item_682_promote_viewer_settings_into_a_dedicated_screen`, `item_683_add_per_project_chatgpt_mcp_controls_to_the_viewer`
+> Related backlog: `item_681_embed_the_bounded_workflow_chain_in_document_detail`
 > Related task: `task_324_deliver_direct_viewer_chain_settings_and_chatgpt_mcp_controls`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -46,5 +46,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_327_make_viewer_navigation_and_chatgpt_mcp_developer_controls_direct`
+- Product back-reference: `item_681_embed_the_bounded_workflow_chain_in_document_detail`
 - Task back-reference: `task_324_deliver_direct_viewer_chain_settings_and_chatgpt_mcp_controls`

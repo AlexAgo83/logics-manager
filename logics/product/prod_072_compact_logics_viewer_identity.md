@@ -1,6 +1,6 @@
 ## prod_072_compact_logics_viewer_identity - Compact Logics viewer identity
 > Date: 2026-08-10
-> Status: Proposed
+> Status: Settled
 > Related request: `req_328_replace_the_viewer_title_with_a_compact_logics_logo`
 > Related backlog: `item_684_use_the_logics_icon_as_the_viewer_topbar_identity`
 > Related task: `task_325_deliver_compact_viewer_logo_identity`
@@ -39,5 +39,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_328_replace_the_viewer_title_with_a_compact_logics_logo`
+- Product back-reference: `item_684_use_the_logics_icon_as_the_viewer_topbar_identity`
 - Task back-reference: `task_325_deliver_compact_viewer_logo_identity`

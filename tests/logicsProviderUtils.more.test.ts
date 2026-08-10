@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   getManagedDocDirectories: vi.fn(),
   runGitCommand: vi.fn(),
-  runPythonCommand: vi.fn(),
+  runResolvedLogicsManagerCommand: vi.fn(),
   openTextDocument: vi.fn(),
   showTextDocument: vi.fn()
 }));
@@ -29,8 +29,8 @@ vi.mock("../clients/vscode/src/gitRuntime", () => ({
   runGitCommand: mocks.runGitCommand
 }));
 
-vi.mock("../clients/vscode/src/pythonRuntime", () => ({
-  runPythonCommand: mocks.runPythonCommand
+vi.mock("../clients/vscode/src/logicsRuntimeResolver", () => ({
+  runResolvedLogicsManagerCommand: mocks.runResolvedLogicsManagerCommand
 }));
 
 vi.mock("../clients/vscode/src/logicsDocMaintenance", async () => {
@@ -62,7 +62,7 @@ describe("logicsProviderUtils extra coverage", () => {
   beforeEach(() => {
     mocks.getManagedDocDirectories.mockReset();
     mocks.runGitCommand.mockReset();
-    mocks.runPythonCommand.mockReset();
+    mocks.runResolvedLogicsManagerCommand.mockReset();
     mocks.openTextDocument.mockReset();
     mocks.showTextDocument.mockReset();
     workspace.workspaceFolders = [];
@@ -172,7 +172,7 @@ describe("logicsProviderUtils extra coverage", () => {
     expect(fs.readFileSync(referencesDoc, "utf8")).toContain("`logics/request/req_001.md`");
 
     mocks.runGitCommand.mockResolvedValue({ stdout: "git ok", stderr: "" });
-    mocks.runPythonCommand.mockResolvedValue({ stdout: "python ok", stderr: "" });
+    mocks.runResolvedLogicsManagerCommand.mockResolvedValue({ stdout: "python ok", stderr: "" });
     await expect(runGitWithOutput(root, ["status"])).resolves.toEqual({ stdout: "git ok", stderr: "" });
     await expect(runPythonWithOutput(root, "script.py", ["--help"])).resolves.toEqual({
       stdout: "python ok",

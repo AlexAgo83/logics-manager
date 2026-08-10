@@ -1,10 +1,10 @@
 ## item_692_remove_global_assistant_publication_and_prompt_cascades_from_normal_vs_code_startup - Remove global assistant publication and prompt cascades from normal VS Code startup
 > From version: 2.21.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Medium
 > Theme: Quiet onboarding
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

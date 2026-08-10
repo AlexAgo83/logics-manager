@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 import { addLinkToSection, replaceManagedReferenceTokens } from "./logicsDocMaintenance";
 import { getManagedDocDirectories, LogicsItem } from "./logicsIndexer";
 import { runGitCommand } from "./gitRuntime";
-import { runPythonCommand } from "./pythonRuntime";
+import { runResolvedLogicsManagerCommand } from "./logicsRuntimeResolver";
 
 export function getWorkspaceRoots(): string[] {
   const folders = vscode.workspace.workspaceFolders;
@@ -497,12 +497,22 @@ export async function openCreatedDocFromOutput(stdout: string): Promise<void> {
   await vscode.window.showTextDocument(document, { preview: false });
 }
 
+/**
+ * req_331/item_690: routes every normal CLI-backed operation through the one
+ * resolved, exact-version-matched installed `logics-manager`, never a bundled
+ * Python fallback. `scriptPath` is unused now -- kept so the ~9 existing call
+ * sites across the extension (each computing it via
+ * getBundledLogicsManagerScriptPath/getCanonicalLogicsManagerScriptPath)
+ * don't all need a signature-change diff for what is an internal routing
+ * change; it can be dropped in a later pass once those callers are touched
+ * for other reasons.
+ */
 export async function runPythonWithOutput(
   cwd: string,
-  scriptPath: string,
+  _scriptPath: string,
   args: string[]
 ): Promise<{ stdout: string; stderr: string; error?: Error }> {
-  return runPythonCommand(cwd, scriptPath, args);
+  return runResolvedLogicsManagerCommand(cwd, args);
 }
 
 export async function runGitWithOutput(

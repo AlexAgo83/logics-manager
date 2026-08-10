@@ -1,12 +1,16 @@
 import * as vscode from "vscode";
 import { configureGitPathSettingReader } from "./gitRuntime";
 import { LogicsViewProvider } from "./logicsViewProvider";
+import { setExtensionVersionForRuntimeResolution } from "./logicsRuntimeResolver";
 
 // req_322/item_667: module-level so `deactivate()` can reach it - `provider`
 // itself stays a local in `activate()`, this is only the handle deactivate needs.
 let activeProvider: LogicsViewProvider | undefined;
 
 export function activate(context: vscode.ExtensionContext): void {
+  setExtensionVersionForRuntimeResolution(
+    (context.extension?.packageJSON as { version?: string } | undefined)?.version ?? null
+  );
   configureGitPathSettingReader(() => {
     const value = vscode.workspace.getConfiguration("git").get("path");
     if (typeof value === "string") {

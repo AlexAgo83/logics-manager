@@ -196,10 +196,12 @@ const allowedOversizedFiles = new Map(
     // req_312: the workshop screen, on the same factory-and-accessor seam as cdx.
     // 1311: 2.21.4 adds the terminal tab's explicit ready meta so the visual
     // smoke can distinguish a settled tab from a silent busy state.
-    // 1395: req_330 added the Runbooks tab panel, its search/graph rendering, and
+    // 1397: req_330 added the Runbooks tab panel, its search/graph rendering, and
     // the runbook-graph fetch, reusing renderChainGraph from graph.js rather than
-    // a new renderer.
-    "clients/viewer/src/browser-host/workshop.js": { maxLines: 1395, ref: "req_330" },
+    // a new renderer. The runbook card became a real `<a>` (not `<li>` +
+    // role=link) for free keyboard activation, two lines over the estimate
+    // made before that accessibility fix.
+    "clients/viewer/src/browser-host/workshop.js": { maxLines: 1397, ref: "req_330" },
     "clients/viewer/src/browser-host/cdx.js": { maxLines: 3057, ref: "req_312" },
     // De-monolith passes 1-3: pure helpers/data extracted out of index.js. May
     // be split by domain (cdx/git/dom) in later passes as they grow.

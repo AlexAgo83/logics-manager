@@ -109,6 +109,7 @@
 | [prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp](product/prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp.md) | One viewer per repo, and a resolved port story across the viewer and MCP | Settled |  |  | product/prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp.md |
 | [prod_071_direct_viewer_operations_for_workflow_chains_and_chatgpt_mcp](product/prod_071_direct_viewer_operations_for_workflow_chains_and_chatgpt_mcp.md) | Direct viewer operations for workflow chains and ChatGPT MCP | Proposed |  |  | product/prod_071_direct_viewer_operations_for_workflow_chains_and_chatgpt_mcp.md |
 | [prod_072_compact_logics_viewer_identity](product/prod_072_compact_logics_viewer_identity.md) | Compact Logics viewer identity | Proposed |  |  | product/prod_072_compact_logics_viewer_identity.md |
+| [prod_073_visible_viewer_operational_health](product/prod_073_visible_viewer_operational_health.md) | Visible viewer operational health | Proposed |  |  | product/prod_073_visible_viewer_operational_health.md |
 
 ## Roadmaps
 
@@ -453,6 +454,7 @@
 | [req_326_review_findings_commands_that_report_failure_and_exit_zero](request/req_326_review_findings_commands_that_report_failure_and_exit_zero.md) | Review findings: commands that report failure and exit zero | Done |  |  | request/req_326_review_findings_commands_that_report_failure_and_exit_zero.md |
 | [req_327_make_viewer_navigation_and_chatgpt_mcp_developer_controls_direct](request/req_327_make_viewer_navigation_and_chatgpt_mcp_developer_controls_direct.md) | Make viewer navigation and ChatGPT MCP developer controls direct | Draft |  |  | request/req_327_make_viewer_navigation_and_chatgpt_mcp_developer_controls_direct.md |
 | [req_328_replace_the_viewer_title_with_a_compact_logics_logo](request/req_328_replace_the_viewer_title_with_a_compact_logics_logo.md) | Replace the viewer title with a compact Logics logo | Draft |  |  | request/req_328_replace_the_viewer_title_with_a_compact_logics_logo.md |
+| [req_329_polish_viewer_health_actions_and_document_operational_views](request/req_329_polish_viewer_health_actions_and_document_operational_views.md) | Polish viewer health actions and document operational views | Draft |  |  | request/req_329_polish_viewer_health_actions_and_document_operational_views.md |
 
 ## Backlog
 
@@ -1142,6 +1144,8 @@
 | [item_682_promote_viewer_settings_into_a_dedicated_screen](backlog/item_682_promote_viewer_settings_into_a_dedicated_screen.md) | Promote viewer settings into a dedicated screen | Ready |  | 0% | backlog/item_682_promote_viewer_settings_into_a_dedicated_screen.md |
 | [item_683_add_per_project_chatgpt_mcp_controls_to_the_viewer](backlog/item_683_add_per_project_chatgpt_mcp_controls_to_the_viewer.md) | Add per-project ChatGPT MCP controls to the viewer | Ready |  | 0% | backlog/item_683_add_per_project_chatgpt_mcp_controls_to_the_viewer.md |
 | [item_684_use_the_logics_icon_as_the_viewer_topbar_identity](backlog/item_684_use_the_logics_icon_as_the_viewer_topbar_identity.md) | Use the Logics icon as the viewer topbar identity | Ready |  | 0% | backlog/item_684_use_the_logics_icon_as_the_viewer_topbar_identity.md |
+| [item_685_style_the_viewer_health_apply_fixes_action](backlog/item_685_style_the_viewer_health_apply_fixes_action.md) | Style the viewer Health Apply fixes action | Ready |  | 0% | backlog/item_685_style_the_viewer_health_apply_fixes_action.md |
+| [item_686_add_health_and_insights_screenshots_to_the_readme](backlog/item_686_add_health_and_insights_screenshots_to_the_readme.md) | Add Health and Insights screenshots to the README | Ready |  | 0% | backlog/item_686_add_health_and_insights_screenshots_to_the_readme.md |
 
 ## Tasks
 
@@ -1466,3 +1470,4 @@
 | [task_323_orchestrate_the_exit_code_honesty_corrections](tasks/task_323_orchestrate_the_exit_code_honesty_corrections.md) | Orchestrate the exit-code honesty corrections | Done |  | 100% | tasks/task_323_orchestrate_the_exit_code_honesty_corrections.md |
 | [task_324_deliver_direct_viewer_chain_settings_and_chatgpt_mcp_controls](tasks/task_324_deliver_direct_viewer_chain_settings_and_chatgpt_mcp_controls.md) | Deliver direct viewer chain, settings, and ChatGPT MCP controls | Ready |  | 0% | tasks/task_324_deliver_direct_viewer_chain_settings_and_chatgpt_mcp_controls.md |
 | [task_325_deliver_compact_viewer_logo_identity](tasks/task_325_deliver_compact_viewer_logo_identity.md) | Deliver compact viewer logo identity | Ready |  | 0% | tasks/task_325_deliver_compact_viewer_logo_identity.md |
+| [task_326_deliver_health_action_polish_and_operational_viewer_documentation](tasks/task_326_deliver_health_action_polish_and_operational_viewer_documentation.md) | Deliver Health action polish and operational viewer documentation | Ready |  | 0% | tasks/task_326_deliver_health_action_polish_and_operational_viewer_documentation.md |

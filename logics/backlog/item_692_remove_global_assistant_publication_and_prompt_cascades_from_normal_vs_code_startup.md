@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Quiet onboarding
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-11 00:53:06
 
 # AI Context
 - Summary: Remove global assistant publication and prompt cascades from normal VS Code startup
@@ -21,18 +22,18 @@
 # Scope
 - In:
   - Remove automatic startup calls that offer global Codex/Claude publication, launch handoff, command copying, and commit creation.
-  - Retain explicit advanced commands for global publication only if they have a supported user need; otherwise delete the unreachable UI and remediation code.
+  - Remove plugin-owned global publication, launch handoff, command-copy, and related remediation code; direct users to the explicit CLI `logics-manager skills install` flow for global skills.
   - Consolidate normal startup feedback into a passive status and Check Environment actions.
   - Rename runtime-update wording so it describes repository bootstrap refresh rather than package installation.
 - Out:
-  - Removing intentional user-invoked launch commands without replacement.
+  - Changing the CLI-owned `skills install` behavior.
   - Changing Codex or Claude installation behavior outside this extension.
 
 # Acceptance criteria
 - AC1: Opening a healthy project produces no action popup from the Logics extension.
 - AC2: Opening a project that needs attention presents one passive status path to Check Environment rather than a chained popup flow.
 - AC3: Normal bootstrap and runtime refresh do not publish or launch Codex/Claude and do not offer commit/copy-command prompts.
-- AC4: The explicit advanced publication path, if retained, is documented and covered by focused tests.
+- AC4: Plugin-owned global publication and launch controls are removed, and documentation directs global skill installation to `logics-manager skills install`.
 
 # AC Traceability
 - request-AC7 -> This backlog slice. Proof: AC1: Opening a healthy project produces no action popup from the Logics extension.

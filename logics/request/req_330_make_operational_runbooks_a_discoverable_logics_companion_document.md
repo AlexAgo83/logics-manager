@@ -7,7 +7,7 @@
 > Complexity: High
 > Theme: Discoverable operational knowledge
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-10 23:30:31
+> Indicators reviewed: 2026-08-10 23:35:34
 
 # AI Context
 - Summary: Make operational runbooks a discoverable Logics companion document
@@ -28,6 +28,7 @@
 - The current kind registries are intentionally bounded but duplicated across linting, audit, sync, MCP, and the viewer. The delivery must add one runbook kind consistently to every supported surface rather than creating a one-off folder the tools cannot see.
 - Agents receive repository instructions before they inspect the tree. Discovery must therefore be explicit in generated Logics instructions and the generated index, with one stable directory and one bounded list/search command. A convention known only by humans is not enough.
 - The memory loop must be selective: an agent captures a runbook when it finds a non-obvious, repeatable operating fact, a failure mode and recovery, or a verified solution useful outside the current delivery. It must not create durable documentation for every local code edit. Captured knowledge starts as Draft until verified or reviewed; matching runbooks are proposed before comparable operational work begins and included in bounded agent context when relevant.
+- Runbook help cannot become a delivery obstacle. Suggestions and capture are advisory, explainable, and immediately skippable; no result, ignored suggestion, or skipped capture can block work or task closeout.
 - Migration is deliberately out of scope for this repository. When an operator works in a project that owns legacy docs, that project may discover candidates and import one with source provenance; no cross-repository copying or rewriting happens here.
 
 # Acceptance criteria
@@ -39,6 +40,7 @@
 - AC6: The graph remains useful when a runbook has no delivery link and does not replace the existing request-chain graph.
 - AC7: A project operator can discover legacy runbook candidates and import one deliberately with provenance, category, and review state; an agent can deliberately capture a new reusable learning from its current task. Neither flow modifies any unrelated repository or promotes unverified knowledge automatically.
 - AC8: Validation covers the new document contract and every affected public surface, including agent-facing discovery/capture text, matching behavior, and the viewer graph/filter behavior.
+- AC9: Matching and capture remain low-friction: suggestions are non-blocking and explain why they appeared, no-match is a normal outcome, and capture is offered once with an explicit skip path.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

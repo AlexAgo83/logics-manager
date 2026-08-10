@@ -21,6 +21,11 @@ _WORKFLOW_MUTABLE = ("Status", "Progress", "Understanding", "Confidence", "Theme
 _PRODUCT_MUTABLE = ("Status", "Related request", "Related backlog", "Related task", "Related architecture")
 _ROADMAP_MUTABLE = ("Status", "Related request", "Related product")
 _ADR_MUTABLE = ("Status", "Related request", "Related backlog", "Related task")
+_RUNBOOK_MUTABLE = ("Status", "Category", "Verified", "Related request", "Related backlog", "Related task")
+
+# Small controlled vocabulary (req_330): free-text categories would make matching
+# and browsing unbounded, defeating the point of a "small controlled vocabulary".
+RUNBOOK_CATEGORIES = ("release", "security", "restore", "support", "infrastructure", "validation", "assets", "other")
 
 
 @dataclass(frozen=True)
@@ -45,6 +50,7 @@ KINDS = {
     "roadmap": Kind("logics/roadmap", ("road",), False, ("Date", "Status", "Related product", "Related request", "Reminder"), stage_statuses("roadmap"), _ROADMAP_MUTABLE),
     "architecture": Kind("logics/architecture", ("adr",), False, ("Date", "Status", "Drivers", "Related request", "Related backlog", "Related task", "Reminder"), stage_statuses("architecture"), _ADR_MUTABLE),
     "spec": Kind("logics/specs", ("spec", "req"), False, ("From version", "Status", "Understanding", "Confidence"), stage_statuses("spec")),
+    "runbook": Kind("logics/runbook", ("run",), False, ("Status", "Category", "Verified", "Reminder"), stage_statuses("runbook"), _RUNBOOK_MUTABLE),
 }
 
 WORKFLOW_KINDS = {"request", "backlog", "task"}
@@ -552,6 +558,14 @@ def _lint_file(path: Path, kind_name: str, kind: Kind, require_status: bool, che
             issues.append("missing indicator: Status")
     elif " ".join(status_value.split()).lower() not in {status.lower() for status in kind.allowed_statuses}:
         issues.append("invalid Status value: " + status_value + " (allowed: " + " | ".join(kind.allowed_statuses) + ")")
+
+    if kind_name == "runbook":
+        category_value = _indicator_value(lines, "Category")
+        if category_value and category_value.strip().lower() not in RUNBOOK_CATEGORIES:
+            issues.append("invalid Category value: " + category_value + " (allowed: " + " | ".join(RUNBOOK_CATEGORIES) + ")")
+        verified_value = _indicator_value(lines, "Verified")
+        if status_value and status_value.strip().lower() == "active" and verified_value in (None, "(not yet verified)"):
+            issues.append("Active runbook requires a Verified date and proof, not a placeholder")
 
     if check_changed_doc_rules and kind_name in WORKFLOW_KINDS:
         for key, disallowed_values in CRITICAL_INDICATOR_PLACEHOLDERS.items():

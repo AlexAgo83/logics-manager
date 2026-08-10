@@ -32,6 +32,7 @@ DOC_FAMILIES = (
     ViewerDocFamily("roadmap", "logics/roadmap", ("road_",)),
     ViewerDocFamily("architecture", "logics/architecture", ("adr_",)),
     ViewerDocFamily("spec", "logics/specs", ("spec_", "req_")),
+    ViewerDocFamily("runbook", "logics/runbook", ("run_",)),
 )
 
 STAGE_ORDER = {family.stage: index for index, family in enumerate(DOC_FAMILIES)}

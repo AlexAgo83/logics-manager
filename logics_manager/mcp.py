@@ -40,6 +40,7 @@ ALLOWED_WRITE_DIRS = (
     "logics/product",
     "logics/roadmap",
     "logics/architecture",
+    "logics/runbook",
 )
 MAX_RAW_DIFF_CHARS = 12000
 MAX_ERROR_OUTPUT_CHARS = 2000
@@ -558,7 +559,7 @@ def _companion_doc_entry(repo_root: Path, rel_path: Path, kind: str) -> dict[str
         "roadmap": _parse_companion_refs(_indicator_from_lines(lines, "Related roadmap")),
         "architecture": _parse_companion_refs(_indicator_from_lines(lines, "Related architecture")),
     }
-    return {
+    entry = {
         "kind": kind,
         "ref": rel_path.stem,
         "path": rel_path.as_posix(),
@@ -566,10 +567,14 @@ def _companion_doc_entry(repo_root: Path, rel_path: Path, kind: str) -> dict[str
         "status": _indicator_from_lines(lines, "Status") or "Unknown",
         "related": {key: refs for key, refs in related.items() if refs},
     }
+    if kind == "runbook":
+        entry["category"] = _indicator_from_lines(lines, "Category") or ""
+        entry["verified"] = _indicator_from_lines(lines, "Verified") or ""
+    return entry
 
 
 def _list_companion_docs(repo_root: Path, *, kind: str = "all", limit: int = 50) -> dict[str, Any]:
-    allowed = {"all", "product", "roadmap", "architecture"}
+    allowed = {"all", "product", "roadmap", "architecture", "runbook"}
     if kind not in allowed:
         raise McpToolError("invalid_argument_value", "Unsupported companion document kind.", details={"kind": kind, "allowed": sorted(allowed)})
     targets = []
@@ -579,6 +584,8 @@ def _list_companion_docs(repo_root: Path, *, kind: str = "all", limit: int = 50)
         targets.append(("roadmap", Path("logics/roadmap"), "road_*.md"))
     if kind in {"all", "architecture"}:
         targets.append(("architecture", Path("logics/architecture"), "adr_*.md"))
+    if kind in {"all", "runbook"}:
+        targets.append(("runbook", Path("logics/runbook"), "run_*.md"))
     items: list[dict[str, Any]] = []
     for doc_kind, directory, pattern in targets:
         root = repo_root / directory

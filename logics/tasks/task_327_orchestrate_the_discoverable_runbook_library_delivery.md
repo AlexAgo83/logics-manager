@@ -1,14 +1,15 @@
 ## task_327_orchestrate_the_discoverable_runbook_library_delivery - Orchestrate the discoverable runbook library delivery
 > From version: 2.21.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 25%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-10 23:54:13
+> Indicators reviewed: 2026-08-11 00:12:44
+> Owner: claude
 
 # AI Context
 - Summary: Orchestrate the discoverable runbook library delivery
@@ -20,7 +21,7 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Add the smallest companion-document contract (item_687): new `run_` kind on the existing `Kind`/`stage_statuses`/`flow companion` machinery, bootstrap instructions, and index entry.
+- [x] 1. Add the smallest companion-document contract (item_687): new `run_` kind on the existing `Kind`/`stage_statuses`/`flow companion` machinery, bootstrap instructions, and index entry.
 - [ ] 2. Carry the one kind through bounded read/list/search/context-pack/lint/audit/MCP surfaces, and add a `match` command as a thin ranked wrapper over existing document search (item_688); keep no-match non-blocking.
 - [ ] 3. Add Workshop Runbooks between Commands and Explorer: search, metadata, verified state transitions, and a runbook-book graph reusing the existing chain-graph renderer with a new resolver (item_689).
 - [ ] 4. Validate the full request chain. Cross-repository migration and automated capture-from-task tooling are explicitly out of scope for this delivery.
@@ -51,10 +52,12 @@
 - request-AC9 -> `item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling` and `item_689_make_the_runbook_library_navigable_in_the_viewer`. Proof deferred to slice closeout.
 
 # Validation
-- (no validation recorded yet)
+- `python3 -m pytest tests/python -q` (1282 passed) after item_687.
+- `python3 -m logics_manager lint` / `audit` clean after item_687.
 
 # Report
-- Not started.
+- item_687 done: `run_` kind added to `lint.py`/`audit.py`/`sync.py`/`mcp.py`/`mcp_tool_definitions.py`/`viewer_docs.py`/`flow/docs.py`/`bootstrap.py`/`index.py`/`statuses.json`; `flow companion runbook` creates a Draft template; bootstrap instructions and `logics-manager index` mention runbooks; contract tests in `tests/python/test_runbook_contract.py`.
+- item_688 and item_689 not started.
 
 # Links
 - Request: `req_330_make_operational_runbooks_a_discoverable_logics_companion_document`

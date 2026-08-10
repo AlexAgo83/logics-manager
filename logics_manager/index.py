@@ -19,6 +19,8 @@ class Entry:
     status: str | None
     owner: str | None
     progress: str | None
+    category: str | None = None
+    verified: str | None = None
 
 
 SECTION_DEFINITIONS = (
@@ -40,6 +42,8 @@ def _parse_doc(path: Path) -> Entry:
     status: str | None = None
     owner: str | None = None
     progress: str | None = None
+    category: str | None = None
+    verified: str | None = None
 
     seen_heading = False
     for line in lines:
@@ -66,9 +70,24 @@ def _parse_doc(path: Path) -> Entry:
             continue
         if line.startswith("> Progress:"):
             progress = line.split(":", 1)[1].strip()
+            continue
+        if line.startswith("> Category:"):
+            category = line.split(":", 1)[1].strip()
+            continue
+        if line.startswith("> Verified:"):
+            verified = line.split(":", 1)[1].strip()
     if not title:
         title = "(missing title)"
-    return Entry(path=path, doc_ref=doc_ref, title=title, status=status, owner=owner, progress=progress)
+    return Entry(
+        path=path,
+        doc_ref=doc_ref,
+        title=title,
+        status=status,
+        owner=owner,
+        progress=progress,
+        category=category,
+        verified=verified,
+    )
 
 
 def _collect_paths(repo_root: Path, rel_dir: str) -> list[Path]:
@@ -101,11 +120,34 @@ def _render_section(title: str, entries: list[Entry], show_progress: bool, out_d
     return "\n".join(lines)
 
 
+def _render_runbook_section(entries: list[Entry], out_dir: Path) -> str:
+    # req_330: runbooks have no owner/progress (companion knowledge, not delivery
+    # work), so this gets its own small table instead of stretching the generic
+    # one with columns that would be blank for every other kind.
+    lines: list[str] = ["## Runbooks", ""]
+    if not entries:
+        lines.append("_None_")
+        lines.append("")
+        return "\n".join(lines)
+
+    lines.extend(["| Doc | Title | Status | Category | Verified | Path |", "|---|---|---|---|---|---|"])
+    for entry in entries:
+        rel = os_path.relpath(entry.path, start=out_dir).replace(os.sep, "/")
+        doc_link = f"[{entry.doc_ref}]({rel})"
+        lines.append(
+            f"| {doc_link} | {entry.title} | {entry.status or ''} | {entry.category or ''} | {entry.verified or ''} | {rel} |"
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
 def index_payload(repo_root: Path, *, out: str = "logics/INDEX.md") -> dict[str, object]:
     repo_root = repo_root.resolve()
     sections: list[tuple[str, list[Entry], bool]] = []
     for title, rel_dir, show_progress in SECTION_DEFINITIONS:
         sections.append((title, _collect_entries(repo_root, rel_dir), show_progress))
+
+    runbook_entries = _collect_entries(repo_root, "logics/runbook")
 
     out_path, output_path = resolve_repo_output_path(repo_root, out)
     out_dir = out_path.parent
@@ -114,6 +156,7 @@ def index_payload(repo_root: Path, *, out: str = "logics/INDEX.md") -> dict[str,
             "# Logics Index",
             "",
             *[_render_section(title, entries, show_progress, out_dir) for title, entries, show_progress in sections],
+            _render_runbook_section(runbook_entries, out_dir),
         ]
     ).rstrip() + "\n"
 
@@ -124,6 +167,7 @@ def index_payload(repo_root: Path, *, out: str = "logics/INDEX.md") -> dict[str,
         out_path.write_text(content, encoding="utf-8")
 
     counts = {key: len(entries) for key, (_, entries, _) in zip(SECTION_COUNT_KEYS, sections)}
+    counts["runbook"] = len(runbook_entries)
     return {
         "ok": True,
         "output_path": output_path,

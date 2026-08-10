@@ -1250,7 +1250,7 @@ def test_main_dispatches_to_expected_underlying_script(
     if argv[:2] == ["bootstrap", "--check"]:
         repo_root = Path(tempfile.mkdtemp(prefix="logics-bootstrap-dispatch-"))
         (repo_root / "logics").mkdir()
-        for directory in ("request", "backlog", "tasks", "specs", "product", "architecture", "external", ".cache"):
+        for directory in ("request", "backlog", "tasks", "specs", "product", "architecture", "runbook", "external", ".cache"):
             (repo_root / "logics" / directory).mkdir(parents=True, exist_ok=True)
             (repo_root / "logics" / directory / ".gitkeep").write_text("", encoding="utf-8")
         bootstrap_payload(repo_root, check=False)
@@ -3429,7 +3429,7 @@ def test_main_runs_native_bootstrap_creates_scaffold(
     assert (repo_root / "logics" / "instructions.md").is_file()
     assert not (repo_root / ".claude").exists()
     assert not (repo_root / "logics" / "skills").exists()
-    for directory in ("request", "backlog", "tasks", "specs", "product", "architecture", "external", ".cache"):
+    for directory in ("request", "backlog", "tasks", "specs", "product", "architecture", "runbook", "external", ".cache"):
         assert (repo_root / "logics" / directory).is_dir()
         assert (repo_root / "logics" / directory / ".gitkeep").is_file()
 

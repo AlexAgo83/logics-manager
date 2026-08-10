@@ -9,7 +9,7 @@ from .harness_mcp import wire_harness_mcp_configs
 from .skills import resync_all_harnesses
 
 
-WORKFLOW_DIRS: tuple[str, ...] = ("request", "backlog", "tasks", "specs", "product", "roadmap", "architecture", "external", ".cache")
+WORKFLOW_DIRS: tuple[str, ...] = ("request", "backlog", "tasks", "specs", "product", "roadmap", "architecture", "runbook", "external", ".cache")
 MANAGED_LOGICS_START = "<!-- logics-manager:managed:start -->"
 MANAGED_LOGICS_END = "<!-- logics-manager:managed:end -->"
 AGENTS_LOGICS_REFERENCE = "@LOGICS.md"

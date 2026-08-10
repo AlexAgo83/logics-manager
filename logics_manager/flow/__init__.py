@@ -102,6 +102,7 @@ from .docs import (  # noqa: E402,F401  (re-exported: callers import these from 
     _build_native_backlog_from_request,
     _build_native_product_brief,
     _build_native_request_doc,
+    _build_native_runbook,
     _build_native_task_doc,
     _build_native_task_from_backlog,
     _bullet_values,
@@ -119,6 +120,7 @@ from .docs import (  # noqa: E402,F401  (re-exported: callers import these from 
     _mark_section_checkboxes_done,
     _next_adr_ref,
     _next_backlog_ref,
+    _next_runbook_ref,
     _next_task_ref,
     _normalize_status,
     _parse_flow_doc,
@@ -1098,7 +1100,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     companion_parser = sub.add_parser("companion", help="Create a companion doc from the integrated runtime.")
     companion_sub = companion_parser.add_subparsers(dest="kind", required=True)
-    for kind in ("product", "architecture"):
+    for kind in ("product", "architecture", "runbook"):
         kind_parser = companion_sub.add_parser(kind, help=f"Create a {kind} companion doc.")
         kind_parser.add_argument("--title", required=True)
         kind_parser.add_argument("--source-ref")
@@ -1472,6 +1474,15 @@ def cmd_companion(args: argparse.Namespace) -> dict[str, object]:
             task_ref=task_ref,
         )
         planned_path = repo_root / "logics" / "architecture" / f"{ref}.md"
+    elif args.kind == "runbook":
+        ref, content = _build_native_runbook(
+            repo_root,
+            args.title,
+            request_ref=request_ref,
+            backlog_ref=backlog_ref,
+            task_ref=task_ref,
+        )
+        planned_path = repo_root / "logics" / "runbook" / f"{ref}.md"
     else:
         raise SystemExit(f"Unsupported companion kind `{args.kind}`.")
 
@@ -3133,7 +3144,7 @@ def main(argv: list[str]) -> int:
     if argv[0] == "companion" and _help_requested(argv, 1):
         _print_help(_build_companion_help())
         return 0
-    if argv[0] == "companion" and len(argv) > 1 and argv[1] in {"product", "architecture"} and _help_requested(argv, 2):
+    if argv[0] == "companion" and len(argv) > 1 and argv[1] in {"product", "architecture", "runbook"} and _help_requested(argv, 2):
         _print_help(_build_companion_kind_help(argv[1]))
         return 0
     if argv[0] == "deliver" and _help_requested(argv, 1):

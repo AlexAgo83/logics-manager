@@ -1,10 +1,10 @@
 ## item_689_make_the_runbook_library_navigable_in_the_viewer - Make the runbook library navigable in the viewer
 > From version: 2.21.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Medium
 > Theme: Runbook book viewer
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

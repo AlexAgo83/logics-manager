@@ -583,13 +583,18 @@ def test_a_companion_reference_resolves_instead_of_reporting_not_found(tmp_path:
 # --- item_580 / item_581: templates and discoverability --------------------
 
 
-@pytest.mark.parametrize("kind", ["architecture", "product"])
+_COMPANION_DIRS = {"architecture": "architecture", "product": "product", "runbook": "runbook"}
+
+
+@pytest.mark.parametrize("kind", ["architecture", "product", "runbook"])
 def test_generated_companion_passes_lint_immediately(
     kind: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     from logics_manager.lint import lint_payload
 
-    repo_root = _repo(tmp_path, "request", "backlog", "tasks", "product", "architecture", "roadmap", "specs")
+    repo_root = _repo(
+        tmp_path, "request", "backlog", "tasks", "product", "architecture", "roadmap", "specs", "runbook"
+    )
     monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
 
     main(["flow", "companion", kind, "--title", "Pipeline triage model for the New stage"])
@@ -599,17 +604,17 @@ def test_generated_companion_passes_lint_immediately(
     assert payload["issues"] == [], payload["issues"]
 
 
-@pytest.mark.parametrize("kind", ["architecture", "product"])
+@pytest.mark.parametrize("kind", ["architecture", "product", "runbook"])
 def test_generated_companion_body_carries_no_foreign_product_content(
     kind: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    repo_root = _repo(tmp_path, "product", "architecture")
+    repo_root = _repo(tmp_path, "product", "architecture", "runbook")
     monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
 
     main(["flow", "companion", kind, "--title", "Candidate dashboard"])
     capsys.readouterr()
 
-    directory = "architecture" if kind == "architecture" else "product"
+    directory = _COMPANION_DIRS[kind]
     text = next((repo_root / "logics" / directory).glob("*.md")).read_text(encoding="utf-8")
     # Verbatim leaks observed in the field, all about this tool rather than the target.
     for leak in (
@@ -622,17 +627,17 @@ def test_generated_companion_body_carries_no_foreign_product_content(
         assert leak not in text, f"foreign content leaked: {leak}"
 
 
-@pytest.mark.parametrize("kind", ["architecture", "product"])
+@pytest.mark.parametrize("kind", ["architecture", "product", "runbook"])
 def test_every_generated_placeholder_is_recognisable_as_one(
     kind: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    repo_root = _repo(tmp_path, "product", "architecture")
+    repo_root = _repo(tmp_path, "product", "architecture", "runbook")
     monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
 
     main(["flow", "companion", kind, "--title", "Candidate dashboard"])
     capsys.readouterr()
 
-    directory = "architecture" if kind == "architecture" else "product"
+    directory = _COMPANION_DIRS[kind]
     text = next((repo_root / "logics" / directory).glob("*.md")).read_text(encoding="utf-8")
     body_bullets = [
         line.strip()

@@ -7,7 +7,8 @@
   "product": ["Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
   "roadmap": ["Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
   "architecture": ["Draft", "Proposed", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
-    "spec": ["Draft", "Ready", "In progress", "Done", "Validated", "Settled", "Archived"]
+    "spec": ["Draft", "Ready", "In progress", "Done", "Validated", "Settled", "Archived"],
+    "runbook": ["Draft", "Active", "Archived"]
   },
   "open": ["Draft", "Ready", "In progress", "Blocked"],
   "closed": ["Done", "Obsolete", "Archived", "Settled"],

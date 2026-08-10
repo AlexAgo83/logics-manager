@@ -129,7 +129,7 @@ def _build_companion_help() -> str:
             "Create a companion doc from the integrated runtime.",
             "",
             "Usage:",
-            "  logics-manager flow companion <product|architecture> [args...]",
+            "  logics-manager flow companion <product|architecture|runbook> [args...]",
             "",
             "Kinds:",
             "  product",
@@ -138,10 +138,14 @@ def _build_companion_help() -> str:
             "  architecture",
             "    Create an architecture companion doc.",
             "    Flags: --title, --source-ref, --request-ref, --backlog-ref, --task-ref, --format {text,json}, --dry-run",
+            "  runbook",
+            "    Create an operational runbook companion doc (Draft until verified).",
+            "    Flags: --title, --source-ref, --request-ref, --backlog-ref, --task-ref, --format {text,json}, --dry-run",
             "",
             "Examples:",
             '  logics-manager flow companion product --title "Product note"',
             '  logics-manager flow companion architecture --title "Architecture note"',
+            '  logics-manager flow companion runbook --title "Restart the ingest worker"',
         ]
     )
 

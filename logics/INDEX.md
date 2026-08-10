@@ -108,6 +108,7 @@
 | [prod_069_ai_context_that_a_bounded_read_actually_reaches](product/prod_069_ai_context_that_a_bounded_read_actually_reaches.md) | AI Context that a bounded read actually reaches | Settled |  |  | product/prod_069_ai_context_that_a_bounded_read_actually_reaches.md |
 | [prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp](product/prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp.md) | One viewer per repo, and a resolved port story across the viewer and MCP | Settled |  |  | product/prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp.md |
 | [prod_071_direct_viewer_operations_for_workflow_chains_and_chatgpt_mcp](product/prod_071_direct_viewer_operations_for_workflow_chains_and_chatgpt_mcp.md) | Direct viewer operations for workflow chains and ChatGPT MCP | Proposed |  |  | product/prod_071_direct_viewer_operations_for_workflow_chains_and_chatgpt_mcp.md |
+| [prod_072_compact_logics_viewer_identity](product/prod_072_compact_logics_viewer_identity.md) | Compact Logics viewer identity | Proposed |  |  | product/prod_072_compact_logics_viewer_identity.md |
 
 ## Roadmaps
 
@@ -451,6 +452,7 @@
 | [req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose](request/req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose.md) | Review findings: diagnostics that disagree with the repository they diagnose | Done |  |  | request/req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose.md |
 | [req_326_review_findings_commands_that_report_failure_and_exit_zero](request/req_326_review_findings_commands_that_report_failure_and_exit_zero.md) | Review findings: commands that report failure and exit zero | Done |  |  | request/req_326_review_findings_commands_that_report_failure_and_exit_zero.md |
 | [req_327_make_viewer_navigation_and_chatgpt_mcp_developer_controls_direct](request/req_327_make_viewer_navigation_and_chatgpt_mcp_developer_controls_direct.md) | Make viewer navigation and ChatGPT MCP developer controls direct | Draft |  |  | request/req_327_make_viewer_navigation_and_chatgpt_mcp_developer_controls_direct.md |
+| [req_328_replace_the_viewer_title_with_a_compact_logics_logo](request/req_328_replace_the_viewer_title_with_a_compact_logics_logo.md) | Replace the viewer title with a compact Logics logo | Draft |  |  | request/req_328_replace_the_viewer_title_with_a_compact_logics_logo.md |
 
 ## Backlog
 
@@ -1139,6 +1141,7 @@
 | [item_681_embed_the_bounded_workflow_chain_in_document_detail](backlog/item_681_embed_the_bounded_workflow_chain_in_document_detail.md) | Embed the bounded workflow chain in document detail | Ready |  | 0% | backlog/item_681_embed_the_bounded_workflow_chain_in_document_detail.md |
 | [item_682_promote_viewer_settings_into_a_dedicated_screen](backlog/item_682_promote_viewer_settings_into_a_dedicated_screen.md) | Promote viewer settings into a dedicated screen | Ready |  | 0% | backlog/item_682_promote_viewer_settings_into_a_dedicated_screen.md |
 | [item_683_add_per_project_chatgpt_mcp_controls_to_the_viewer](backlog/item_683_add_per_project_chatgpt_mcp_controls_to_the_viewer.md) | Add per-project ChatGPT MCP controls to the viewer | Ready |  | 0% | backlog/item_683_add_per_project_chatgpt_mcp_controls_to_the_viewer.md |
+| [item_684_use_the_logics_icon_as_the_viewer_topbar_identity](backlog/item_684_use_the_logics_icon_as_the_viewer_topbar_identity.md) | Use the Logics icon as the viewer topbar identity | Ready |  | 0% | backlog/item_684_use_the_logics_icon_as_the_viewer_topbar_identity.md |
 
 ## Tasks
 
@@ -1462,3 +1465,4 @@
 | [task_322_orchestrate_the_diagnostics_and_release_surface_cleanup](tasks/task_322_orchestrate_the_diagnostics_and_release_surface_cleanup.md) | Orchestrate the diagnostics and release-surface cleanup | Done |  | 100% | tasks/task_322_orchestrate_the_diagnostics_and_release_surface_cleanup.md |
 | [task_323_orchestrate_the_exit_code_honesty_corrections](tasks/task_323_orchestrate_the_exit_code_honesty_corrections.md) | Orchestrate the exit-code honesty corrections | Done |  | 100% | tasks/task_323_orchestrate_the_exit_code_honesty_corrections.md |
 | [task_324_deliver_direct_viewer_chain_settings_and_chatgpt_mcp_controls](tasks/task_324_deliver_direct_viewer_chain_settings_and_chatgpt_mcp_controls.md) | Deliver direct viewer chain, settings, and ChatGPT MCP controls | Ready |  | 0% | tasks/task_324_deliver_direct_viewer_chain_settings_and_chatgpt_mcp_controls.md |
+| [task_325_deliver_compact_viewer_logo_identity](tasks/task_325_deliver_compact_viewer_logo_identity.md) | Deliver compact viewer logo identity | Ready |  | 0% | tasks/task_325_deliver_compact_viewer_logo_identity.md |

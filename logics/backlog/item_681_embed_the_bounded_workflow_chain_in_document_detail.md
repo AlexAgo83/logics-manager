@@ -1,10 +1,10 @@
 ## item_681_embed_the_bounded_workflow_chain_in_document_detail - Embed the bounded workflow chain in document detail
 > From version: 2.21.3
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 85%
 > Complexity: Medium
 > Theme: Viewer document navigation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

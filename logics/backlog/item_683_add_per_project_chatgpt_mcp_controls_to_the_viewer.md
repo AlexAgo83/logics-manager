@@ -1,10 +1,10 @@
 ## item_683_add_per_project_chatgpt_mcp_controls_to_the_viewer - Add per-project ChatGPT MCP controls to the viewer
 > From version: 2.21.3
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 85%
 > Complexity: High
 > Theme: ChatGPT developer-mode MCP operations
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

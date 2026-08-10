@@ -1,6 +1,6 @@
 ## adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime - Use the installed CLI as the only VS Code Logics runtime
 > Date: 2026-08-11
-> Status: Proposed
+> Status: Settled
 > Related request: req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap
 > Related backlog: item_690_resolve_and_enforce_one_compatible_installed_logics_manager_runtime, item_691_make_existing_project_bootstrap_refresh_silent_and_managed_only, item_692_remove_global_assistant_publication_and_prompt_cascades_from_normal_vs_code_startup
 > Related task: task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification

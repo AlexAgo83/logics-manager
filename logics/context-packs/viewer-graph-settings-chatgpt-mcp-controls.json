@@ -200,7 +200,7 @@
       "schema_version": "1.0",
       "sections": {
         "Acceptance criteria": [
-          "- Opening a request, backlog item, or task shows its bounded linked chain in a visible, compact frame at the top of the detail page; graph nodes open their referenced document and documents without a chain remain readable.",
+          "- Opening a request, backlog item, or task shows its bounded linked chain in a visible, compact, viewer-styled Mermaid frame at the top of the detail page; graph nodes open their referenced document and documents without a chain remain readable.",
           "- The former Graph action is removed once the inline chain is available, and the viewer never performs a full-corpus graph scan to render it.",
           "- Settings opens a dedicated card-based viewer screen with all existing controls grouped into understandable sections and no control is lost for browser or embedded VS Code users.",
           "- Settings provides an explicit per-project ChatGPT Developer Mode ON action, an OFF action, visible running state, and a one-click copy action for the HTTPS /mcp URL when a tunnel is ready.",
@@ -323,7 +323,7 @@
       "schema_version": "1.0",
       "sections": {
         "Acceptance criteria": [
-          "- A linked workflow document displays a visible-by-default, compact, clickable, height-limited chain before its Markdown body.",
+          "- A linked workflow document displays a visible-by-default, compact, clickable, height-limited chain before its Markdown body, with themed nodes, links, and active-state treatment rather than raw Mermaid defaults.",
           "- A document without a resolved chain remains readable without a blank or failing graph frame.",
           "- The detail action bar no longer contains the separate Graph button."
         ],
@@ -517,11 +517,11 @@
     }
   ],
   "estimates": {
-    "char_count": 23253,
+    "char_count": 23363,
     "companion_doc_count": 3,
     "doc_count": 9
   },
-  "generated_at": "2026-08-10T10:30:10Z",
+  "generated_at": "2026-08-10T10:53:22Z",
   "handoff": {
     "companion_doc_count": 3,
     "enabled": true,

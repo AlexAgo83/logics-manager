@@ -7,7 +7,7 @@
 > Complexity: High
 > Theme: Viewer navigation and local ChatGPT MCP workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-10 12:29:03
+> Indicators reviewed: 2026-08-10 12:53:20
 
 # AI Context
 - Summary: Make viewer navigation and ChatGPT MCP developer controls direct
@@ -32,7 +32,7 @@
 - ChatGPT developer-mode controls live in Settings, immediately after Server; ON is explicit, OFF cleans up, and connection secrets stay masked.
 
 # Acceptance criteria
-- Opening a request, backlog item, or task shows its bounded linked chain in a visible, compact frame at the top of the detail page; graph nodes open their referenced document and documents without a chain remain readable.
+- Opening a request, backlog item, or task shows its bounded linked chain in a visible, compact, viewer-styled Mermaid frame at the top of the detail page; graph nodes open their referenced document and documents without a chain remain readable.
 - The former Graph action is removed once the inline chain is available, and the viewer never performs a full-corpus graph scan to render it.
 - Settings opens a dedicated card-based viewer screen with all existing controls grouped into understandable sections and no control is lost for browser or embedded VS Code users.
 - Settings provides an explicit per-project ChatGPT Developer Mode ON action, an OFF action, visible running state, and a one-click copy action for the HTTPS /mcp URL when a tunnel is ready.

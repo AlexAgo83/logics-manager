@@ -1434,7 +1434,8 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     product: ["Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
     roadmap: ["Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
     architecture: ["Draft", "Proposed", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
-    spec: ["Draft", "Ready", "In progress", "Done", "Validated", "Settled", "Archived"]
+    spec: ["Draft", "Ready", "In progress", "Done", "Validated", "Settled", "Archived"],
+    runbook: ["Draft", "Active", "Archived"]
   };
   var onboardingStages = [
     {
@@ -1500,7 +1501,8 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     product: "Product",
     roadmap: "Roadmap",
     architecture: "Architecture",
-    spec: "Spec"
+    spec: "Spec",
+    runbook: "Runbook"
   };
   var HLJS_EXT_LANGUAGE = {
     js: "javascript",
@@ -1551,6 +1553,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
   var workshopTabs = [
     { id: "terminals", label: "Terminals", title: "In-app PTY terminals" },
     { id: "commands", label: "Commands", title: "Discovered package and project scripts" },
+    { id: "runbooks", label: "Runbooks", title: "Operational runbooks: search, browse by category, verify" },
     { id: "explorer", label: "Explorer", title: "Browse repository files" }
   ];
   var WORKSHOP_TERMINAL_MIN_COLS = 80;
@@ -5749,6 +5752,84 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     return Object.freeze(reader);
   }
 
+  // clients/viewer/src/browser-host/graph.js
+  function _escapeMermaidLabel(text) {
+    return String(text || "").replace(/"/g, "'").replace(/[\r\n]+/g, " ");
+  }
+  function buildChainFlowchartSource(payload) {
+    const nodes = Array.isArray(payload?.nodes) ? payload.nodes : [];
+    const edges = Array.isArray(payload?.edges) ? payload.edges : [];
+    if (nodes.length === 0) {
+      return null;
+    }
+    const lines = ["flowchart TD"];
+    for (const node of nodes) {
+      const label = _escapeMermaidLabel(`${node.title || node.ref}
+${node.kind} \xB7 ${node.status || "unknown"}`);
+      lines.push(`  ${node.ref}["${label}"]`);
+    }
+    for (const edge of edges) {
+      lines.push(`  ${edge.from} --> ${edge.to}`);
+    }
+    for (const node of nodes) {
+      lines.push(`  click ${node.ref} call __logicsGraphNodeClick("${node.ref}")`);
+    }
+    lines.push("  classDef request fill:#2d5b97,stroke:#79b8ff,color:#fff,stroke-width:1.5px");
+    lines.push("  classDef product fill:#6b4ea0,stroke:#c4b5fd,color:#fff,stroke-width:1.5px");
+    lines.push("  classDef backlog fill:#176b63,stroke:#5eead4,color:#fff,stroke-width:1.5px");
+    lines.push("  classDef task fill:#8a4b18,stroke:#fbbf24,color:#fff,stroke-width:1.5px");
+    lines.push("  classDef runbook fill:#7a1f3d,stroke:#f472b6,color:#fff,stroke-width:1.5px");
+    lines.push("  classDef category fill:#3f3f46,stroke:#a1a1aa,color:#fff,stroke-width:1.5px");
+    for (const node of nodes) {
+      lines.push(`  class ${node.ref} ${NODE_CLASS_BY_KIND[node.kind] || "request"}`);
+    }
+    return lines.join("\n");
+  }
+  var NODE_CLASS_BY_KIND = { backlog: "backlog", product: "product", task: "task", runbook: "runbook", category: "category" };
+  function renderChainGraph(payload, { inline = false } = {}) {
+    const source = buildChainFlowchartSource(payload);
+    const dangling = Array.isArray(payload?.dangling) ? payload.dangling : [];
+    const notes = dangling.length ? `<p class="viewer-graph__dangling">Not resolved (no doc on disk): ${dangling.map(_escapeMermaidLabel).join(", ")}</p>` : "";
+    if (!source) {
+      return `<section class="viewer-graph${inline ? " viewer-graph--inline" : ""}"><p>No chain resolved.</p>${notes}</section>`;
+    }
+    return `<section class="viewer-graph${inline ? " viewer-graph--inline" : ""}" aria-label="Linked workflow chain"><div class="viewer-graph__label">Linked workflow</div><pre class="mermaid">${source}</pre>${notes}</section>`;
+  }
+  function createGraphScreen(host) {
+    async function showChainGraph(ref, options = {}) {
+      host.setMeta("Resolving chain graph...");
+      const view = options.view || host.beginView({ silent: Boolean(options.silent) });
+      let response;
+      let data = {};
+      try {
+        response = await fetch(`/api/chain-graph?ref=${encodeURIComponent(ref)}`, { signal: view.signal });
+        try {
+          data = await response.json();
+        } catch {
+          data = {};
+        }
+      } catch (error) {
+        if (host.isAbortError && host.isAbortError(error)) {
+          return;
+        }
+        throw error;
+      }
+      if (host.isViewStale(view)) {
+        return;
+      }
+      if (!response.ok || !data.ok) {
+        host.setDocument("Graph", `<p>Unable to resolve chain graph: ${_escapeMermaidLabel(data.error || response.statusText)}</p>`);
+        host.setMeta("Chain graph failed to load.");
+        return;
+      }
+      window.__logicsGraphNodeClick = (nodeRef) => host.openDoc(nodeRef);
+      host.setDocument("Graph", renderChainGraph(data.payload));
+      host.renderMermaidDiagrams();
+      host.setMeta("Chain graph loaded.");
+    }
+    return { showChainGraph };
+  }
+
   // clients/viewer/src/browser-host/workshop.js
   function createWorkshopScreen(host) {
     const workshopButton = () => document.getElementById("viewer-workshop");
@@ -5858,6 +5939,23 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
           <div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty">
             <span class="viewer-workspace__placeholder-icon" aria-hidden="true">\xB7</span>
             <span>Discovering commands...</span>
+          </div>
+        </div>
+      `;
+      }
+      if (tabId === "runbooks") {
+        return `
+        <div class="viewer-workshop__panel viewer-workshop__panel--runbooks" role="tabpanel" data-viewer-workshop-panel="runbooks">
+          <div class="viewer-workshop__runbook-search">
+            <input type="search" placeholder="Search by intent, symptom, path, or category..." data-viewer-workshop-runbook-query aria-label="Search runbooks" />
+            <button class="btn" type="button" data-viewer-workshop-runbook-search>Search</button>
+            <button class="btn" type="button" data-viewer-workshop-runbook-graph>View graph</button>
+          </div>
+          <div data-viewer-workshop-runbooks>
+            <div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty">
+              <span class="viewer-workspace__placeholder-icon" aria-hidden="true">\xB7</span>
+              <span>Loading runbooks...</span>
+            </div>
           </div>
         </div>
       `;
@@ -5974,6 +6072,60 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         workshopCommandState.catalog = { state: "unavailable", commands: [], message: String(error?.message || error) };
       }
       renderWorkshopCommands();
+    }
+    const workshopRunbookState = { payload: null, showingGraph: false };
+    function renderWorkshopRunbookCards(payload) {
+      if (!payload || payload.no_match) {
+        return `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">\xB7</span><span>${payload?.query ? `No Active runbook matched "${escapeHtml(payload.query)}".` : "No Active runbooks yet."}</span></div>`;
+      }
+      const cards = payload.matches.map((entry) => `
+      <li>
+        <a class="viewer-workshop__runbook-card" href="#" data-viewer-workshop-runbook-open="${escapeHtml(entry.path)}">
+          <div class="viewer-workshop__runbook-title"><strong>${escapeHtml(entry.title || entry.ref)}</strong> <span class="viewer-workshop__runbook-category">${escapeHtml(entry.category || "uncategorized")}</span></div>
+          <div class="viewer-workshop__runbook-meta">${escapeHtml(entry.reason || "")}${entry.verified ? ` \xB7 verified ${escapeHtml(entry.verified)}` : ""}</div>
+        </a>
+      </li>
+    `).join("");
+      return `<ul class="viewer-workshop__runbook-list">${cards}</ul>`;
+    }
+    function renderWorkshopRunbooks() {
+      const container = document.querySelector("[data-viewer-workshop-runbooks]");
+      if (!(container instanceof HTMLElement)) return;
+      container.innerHTML = renderWorkshopRunbookCards(workshopRunbookState.payload);
+    }
+    async function loadWorkshopRunbooks(query = "") {
+      try {
+        const response = await fetch(`/api/runbooks${query ? `?q=${encodeURIComponent(query)}` : ""}`);
+        const data = await response.json();
+        workshopRunbookState.payload = data?.payload || null;
+      } catch (error) {
+        workshopRunbookState.payload = { matches: [], no_match: true, query };
+      }
+      workshopRunbookState.showingGraph = false;
+      renderWorkshopRunbooks();
+    }
+    async function showWorkshopRunbookGraph() {
+      const container = document.querySelector("[data-viewer-workshop-runbooks]");
+      if (!(container instanceof HTMLElement)) return;
+      container.innerHTML = `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span>Loading graph...</span></div>`;
+      try {
+        const response = await fetch("/api/runbook-graph");
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+          container.innerHTML = `<p>Unable to load the runbook graph.</p>`;
+          return;
+        }
+        window.__logicsGraphNodeClick = (nodeRef) => {
+          if (!String(nodeRef).startsWith("category_")) {
+            host.openDoc(nodeRef);
+          }
+        };
+        container.innerHTML = renderChainGraph(data.payload, { inline: true });
+        host.renderMermaidDiagrams();
+        workshopRunbookState.showingGraph = true;
+      } catch {
+        container.innerHTML = `<p>Unable to load the runbook graph.</p>`;
+      }
     }
     function updateWorkshopCommandSession(commandId, patch) {
       const previous = workshopCommandState.sessions.get(commandId) || { logText: "" };
@@ -6822,6 +6974,9 @@ ${line}` : line;
       } else if (activeTab === "commands") {
         await loadWorkshopCommands();
         host.setMeta(`Workshop / ${activeTab} loaded.`);
+      } else if (activeTab === "runbooks") {
+        await loadWorkshopRunbooks();
+        host.setMeta(`Workshop / ${activeTab} loaded.`);
       } else if (activeTab === "terminals") {
         host.setMeta("Workshop / terminals ready.");
         for (const entry of workshopTerminalState.sessions.values()) {
@@ -6879,6 +7034,7 @@ ${line}` : line;
       hydrateWorkshopTerminals,
       loadWorkshopCommands,
       loadWorkshopExplorer,
+      loadWorkshopRunbooks,
       measureWorkshopTerminalGrid,
       mountWorkshopTerminalEmulator,
       moveWorkshopTerminalBefore,
@@ -6899,6 +7055,7 @@ ${line}` : line;
       renderWorkshopCommandRunMenu,
       renderWorkshopCommands,
       renderWorkshopPanel,
+      renderWorkshopRunbooks,
       renderWorkshopTerminalList,
       reopenWorkshopTerminalStreamSoon,
       repaintAllWorkshopTerminals,
@@ -6908,6 +7065,7 @@ ${line}` : line;
       setWorkshopActiveTab,
       showCustomTerminalModal,
       showWorkshop,
+      showWorkshopRunbookGraph,
       spawnCustomWorkshopTerminal,
       spawnSystemWorkshopTerminal,
       spawnWorkshopTerminal,
@@ -7713,81 +7871,6 @@ ${line}` : line;
     };
   }
 
-  // clients/viewer/src/browser-host/graph.js
-  function _escapeMermaidLabel(text) {
-    return String(text || "").replace(/"/g, "'").replace(/[\r\n]+/g, " ");
-  }
-  function buildChainFlowchartSource(payload) {
-    const nodes = Array.isArray(payload?.nodes) ? payload.nodes : [];
-    const edges = Array.isArray(payload?.edges) ? payload.edges : [];
-    if (nodes.length === 0) {
-      return null;
-    }
-    const lines = ["flowchart TD"];
-    for (const node of nodes) {
-      const label = _escapeMermaidLabel(`${node.title || node.ref}
-${node.kind} \xB7 ${node.status || "unknown"}`);
-      lines.push(`  ${node.ref}["${label}"]`);
-    }
-    for (const edge of edges) {
-      lines.push(`  ${edge.from} --> ${edge.to}`);
-    }
-    for (const node of nodes) {
-      lines.push(`  click ${node.ref} call __logicsGraphNodeClick("${node.ref}")`);
-    }
-    lines.push("  classDef request fill:#2d5b97,stroke:#79b8ff,color:#fff,stroke-width:1.5px");
-    lines.push("  classDef product fill:#6b4ea0,stroke:#c4b5fd,color:#fff,stroke-width:1.5px");
-    lines.push("  classDef backlog fill:#176b63,stroke:#5eead4,color:#fff,stroke-width:1.5px");
-    lines.push("  classDef task fill:#8a4b18,stroke:#fbbf24,color:#fff,stroke-width:1.5px");
-    for (const node of nodes) {
-      lines.push(`  class ${node.ref} ${node.kind === "backlog" ? "backlog" : node.kind === "product" ? "product" : node.kind === "task" ? "task" : "request"}`);
-    }
-    return lines.join("\n");
-  }
-  function renderChainGraph(payload, { inline = false } = {}) {
-    const source = buildChainFlowchartSource(payload);
-    const dangling = Array.isArray(payload?.dangling) ? payload.dangling : [];
-    const notes = dangling.length ? `<p class="viewer-graph__dangling">Not resolved (no doc on disk): ${dangling.map(_escapeMermaidLabel).join(", ")}</p>` : "";
-    if (!source) {
-      return `<section class="viewer-graph${inline ? " viewer-graph--inline" : ""}"><p>No chain resolved.</p>${notes}</section>`;
-    }
-    return `<section class="viewer-graph${inline ? " viewer-graph--inline" : ""}" aria-label="Linked workflow chain"><div class="viewer-graph__label">Linked workflow</div><pre class="mermaid">${source}</pre>${notes}</section>`;
-  }
-  function createGraphScreen(host) {
-    async function showChainGraph(ref, options = {}) {
-      host.setMeta("Resolving chain graph...");
-      const view = options.view || host.beginView({ silent: Boolean(options.silent) });
-      let response;
-      let data = {};
-      try {
-        response = await fetch(`/api/chain-graph?ref=${encodeURIComponent(ref)}`, { signal: view.signal });
-        try {
-          data = await response.json();
-        } catch {
-          data = {};
-        }
-      } catch (error) {
-        if (host.isAbortError && host.isAbortError(error)) {
-          return;
-        }
-        throw error;
-      }
-      if (host.isViewStale(view)) {
-        return;
-      }
-      if (!response.ok || !data.ok) {
-        host.setDocument("Graph", `<p>Unable to resolve chain graph: ${_escapeMermaidLabel(data.error || response.statusText)}</p>`);
-        host.setMeta("Chain graph failed to load.");
-        return;
-      }
-      window.__logicsGraphNodeClick = (nodeRef) => host.openDoc(nodeRef);
-      host.setDocument("Graph", renderChainGraph(data.payload));
-      host.renderMermaidDiagrams();
-      host.setMeta("Chain graph loaded.");
-    }
-    return { showChainGraph };
-  }
-
   // clients/viewer/src/browser-host/filters.js
   function matchesFilterState(item, viewerFilterState) {
     if (!item) {
@@ -8096,6 +8179,7 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
       hydrateWorkshopTerminals,
       loadWorkshopCommands,
       loadWorkshopExplorer,
+      loadWorkshopRunbooks,
       measureWorkshopTerminalGrid,
       mountWorkshopTerminalEmulator,
       moveWorkshopTerminalBefore,
@@ -8125,6 +8209,7 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
       setWorkshopActiveTab,
       showCustomTerminalModal,
       showWorkshop,
+      showWorkshopRunbookGraph,
       spawnCustomWorkshopTerminal,
       spawnSystemWorkshopTerminal,
       spawnWorkshopTerminal,
@@ -8149,6 +8234,8 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
       setMeta,
       updateViewerPreferences,
       meta,
+      renderMermaidDiagrams,
+      openDoc: (ref) => showDocumentByPath(ref),
       viewerDiagnostics: {
         breadcrumb: (...args) => viewerDiagnostics.breadcrumb(...args),
         record: (...args) => viewerDiagnostics.record(...args)
@@ -11050,6 +11137,9 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
         const workspacePreviewFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview-full]") : null;
         const workshopTabTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-tab]") : null;
         const workshopRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run]") : null;
+        const workshopRunbookOpenTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-open]") : null;
+        const workshopRunbookGraphTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-graph]") : null;
+        const workshopRunbookSearchTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-search]") : null;
         const workshopRunTerminalTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run-terminal]") : null;
         const workshopStopTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-stop]") : null;
         const workshopTerminalNewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-new]") : null;
@@ -11352,6 +11442,24 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
           event.preventDefault();
           const tab = workshopTabTarget.getAttribute("data-viewer-workshop-tab") || "terminals";
           withPrimaryAction("workshop-tab", `Switching to ${tab}`, () => showWorkshop({ tab }));
+          return;
+        }
+        if (workshopRunbookOpenTarget instanceof HTMLElement) {
+          event.preventDefault();
+          const path2 = workshopRunbookOpenTarget.getAttribute("data-viewer-workshop-runbook-open") || "";
+          if (path2) withPrimaryAction("runbook-open", "Loading runbook", () => showDocumentByPath(path2));
+          return;
+        }
+        if (workshopRunbookGraphTarget instanceof HTMLElement) {
+          event.preventDefault();
+          withPrimaryAction("runbook-graph", "Loading runbook graph", showWorkshopRunbookGraph);
+          return;
+        }
+        if (workshopRunbookSearchTarget instanceof HTMLElement) {
+          event.preventDefault();
+          const input = workshopRunbookSearchTarget.parentElement?.querySelector("[data-viewer-workshop-runbook-query]");
+          const query = input instanceof HTMLInputElement ? input.value.trim() : "";
+          withPrimaryAction("runbook-search", "Searching runbooks", () => loadWorkshopRunbooks(query));
           return;
         }
         if (workshopTerminalCloseTarget instanceof HTMLElement) {

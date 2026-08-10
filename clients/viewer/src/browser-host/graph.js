@@ -29,11 +29,15 @@ export function buildChainFlowchartSource(payload) {
   lines.push("  classDef product fill:#6b4ea0,stroke:#c4b5fd,color:#fff,stroke-width:1.5px");
   lines.push("  classDef backlog fill:#176b63,stroke:#5eead4,color:#fff,stroke-width:1.5px");
   lines.push("  classDef task fill:#8a4b18,stroke:#fbbf24,color:#fff,stroke-width:1.5px");
+  lines.push("  classDef runbook fill:#7a1f3d,stroke:#f472b6,color:#fff,stroke-width:1.5px");
+  lines.push("  classDef category fill:#3f3f46,stroke:#a1a1aa,color:#fff,stroke-width:1.5px");
   for (const node of nodes) {
-    lines.push(`  class ${node.ref} ${node.kind === "backlog" ? "backlog" : node.kind === "product" ? "product" : node.kind === "task" ? "task" : "request"}`);
+    lines.push(`  class ${node.ref} ${NODE_CLASS_BY_KIND[node.kind] || "request"}`);
   }
   return lines.join("\n");
 }
+
+const NODE_CLASS_BY_KIND = { backlog: "backlog", product: "product", task: "task", runbook: "runbook", category: "category" };
 
 export function renderChainGraph(payload, { inline = false } = {}) {
   const source = buildChainFlowchartSource(payload);

@@ -77,7 +77,8 @@ export const statusOptionsByStage = {
     product: ["Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
     roadmap: ["Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
     architecture: ["Draft", "Proposed", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"],
-    spec: ["Draft", "Ready", "In progress", "Done", "Validated", "Settled", "Archived"]
+    spec: ["Draft", "Ready", "In progress", "Done", "Validated", "Settled", "Archived"],
+    runbook: ["Draft", "Active", "Archived"]
   };
 
 export const onboardingStages = [
@@ -146,7 +147,8 @@ export const stageBadgeLabels = {
     product: "Product",
     roadmap: "Roadmap",
     architecture: "Architecture",
-    spec: "Spec"
+    spec: "Spec",
+    runbook: "Runbook"
   };
 
 export const HLJS_EXT_LANGUAGE = {
@@ -167,6 +169,7 @@ export const HLJS_EXT_LANGUAGE = {
 export const workshopTabs = [
     { id: "terminals", label: "Terminals", title: "In-app PTY terminals" },
     { id: "commands", label: "Commands", title: "Discovered package and project scripts" },
+    { id: "runbooks", label: "Runbooks", title: "Operational runbooks: search, browse by category, verify" },
     { id: "explorer", label: "Explorer", title: "Browse repository files" },
   ];
 

@@ -771,6 +771,35 @@ def match_runbooks_payload(repo_root: Path, query: str, *, limit: int = RUNBOOK_
     }
 
 
+def list_active_runbooks_payload(repo_root: Path, *, limit: int = 10) -> dict[str, object]:
+    """Recent Active runbooks for the viewer's landing view (req_330/item_689).
+
+    Same category/verified shape as `match_runbooks_payload`'s results, so the
+    client renders both lists with one card component. Not itself a match --
+    `reason` is always "recent"; the empty case is a normal empty library, not
+    a no-match search result.
+    """
+    listed = list_logics_docs_payload(repo_root, kind="runbook", status="Active", limit=10000, recent=True)
+    docs_by_ref = _load_workflow_docs(repo_root)
+    items: list[dict[str, object]] = []
+    for item in listed["items"][:limit]:
+        doc = docs_by_ref.get(str(item["ref"]))
+        if doc is None:
+            continue
+        items.append(
+            {
+                "ref": doc.ref,
+                "kind": "runbook",
+                "path": doc.path,
+                "title": doc.title,
+                "category": doc.indicators.get("Category", ""),
+                "verified": doc.indicators.get("Verified", ""),
+                "reason": "recent",
+            }
+        )
+    return {"query": "", "matches": items, "returned_count": len(items), "no_match": not items, "limit": limit}
+
+
 def _clean_mutation_text(text: str, *, field: str) -> str:
     cleaned = " ".join(text.split())
     if not cleaned:

@@ -29,13 +29,13 @@ from .audit import audit_payload
 from . import viewer_cdx_routes, viewer_diagnostics, viewer_workshop_routes
 from .bootstrap import bootstrap_payload
 from .cdx_memory import cdx_memory_payload
-from .chain_graph import resolve_request_chain
+from .chain_graph import resolve_request_chain, resolve_runbook_library_graph
 from .config import ConfigError, find_repo_root, holds_corpus
 from .insights import health_payload, status_payload
 from .lint import lint_payload
 from .path_utils import PathEscapesRoot, has_symlink_segment, relative_to_root
 from .release import load_release_context, release_reset_payload, release_status_payload
-from .sync import update_workflow_indicators_payload
+from .sync import RUNBOOK_MATCH_LIMIT, list_active_runbooks_payload, match_runbooks_payload, update_workflow_indicators_payload
 from .viewer_preferences import (
     read_preferences as read_viewer_preferences,
     update_preferences as update_viewer_preferences,
@@ -87,6 +87,7 @@ VIEWER_STATUS_OPTIONS_BY_STAGE = {
     "roadmap": ("Draft", "Proposed", "Active", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"),
     "architecture": ("Draft", "Proposed", "Accepted", "Validated", "Rejected", "Superseded", "Settled", "Archived"),
     "spec": ("Draft", "Ready", "In progress", "Done", "Validated", "Settled", "Archived"),
+    "runbook": ("Draft", "Active", "Archived"),
 }
 FILE_PREVIEW_MAX_BYTES = 300000
 FILE_PREVIEW_MAX_CHARS = 200000
@@ -2304,6 +2305,24 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         self._send_json({"ok": True, "payload": resolve_request_chain(self.server.repo_root, ref)})
         return True
 
+    def _handle_runbook_graph_get(self, parsed: Any) -> bool:
+        if parsed.path != "/api/runbook-graph":
+            return False
+        self._send_json({"ok": True, "payload": resolve_runbook_library_graph(self.server.repo_root)})
+        return True
+
+    def _handle_runbooks_get(self, parsed: Any) -> bool:
+        if parsed.path != "/api/runbooks":
+            return False
+        query = parse_qs(parsed.query).get("q", [""])[0].strip()
+        payload = (
+            match_runbooks_payload(self.server.repo_root, query, limit=RUNBOOK_MATCH_LIMIT)
+            if query
+            else list_active_runbooks_payload(self.server.repo_root, limit=10)
+        )
+        self._send_json({"ok": True, "payload": payload})
+        return True
+
     def _handle_mcp_connector_post(self, parsed: Any) -> bool:
         if parsed.path != "/api/mcp-connector":
             return False
@@ -2462,6 +2481,10 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self._send_json({"ok": True, "payload": git_file_preview_payload(self.server.repo_root, rel_path, full=full)})
             return
         if self._handle_chain_graph_get(parsed):
+            return
+        if self._handle_runbook_graph_get(parsed):
+            return
+        if self._handle_runbooks_get(parsed):
             return
         if route == "/api/mcp-connector":
             self._send_json({"ok": True, "payload": self.server.mcp_connector_payload()})

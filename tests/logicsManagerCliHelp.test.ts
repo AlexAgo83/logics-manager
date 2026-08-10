@@ -79,7 +79,7 @@ describe("logics-manager CLI help", () => {
     expect(status).toBe(0);
     expect(output).toContain("Logics Flow CLI");
     expect(output).toContain("new <request|backlog|task>");
-    expect(output).toContain("companion <product|architecture>");
+    expect(output).toContain("companion <product|architecture|runbook>");
     expect(output).toContain("list");
     expect(output).toContain("split request <source>");
     expect(output).toContain("finish task <source>");

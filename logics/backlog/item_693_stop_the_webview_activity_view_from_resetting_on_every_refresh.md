@@ -1,10 +1,10 @@
 ## item_693_stop_the_webview_activity_view_from_resetting_on_every_refresh - Stop the webview Activity view from resetting on every refresh
 > From version: 2.21.4
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 95%
-> Progress: 10%
+> Progress: 100%
 > Complexity: Low
 > Theme: Webview state persistence
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -46,8 +46,8 @@ Opening the Project view in the shared webview (VS Code extension and standalone
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_332_stop_the_webview_activity_view_from_resetting_on_every_refresh.md`
-- Primary task(s): (none yet)
+- Request: `req_332_stop_the_webview_activity_view_from_resetting_on_every_refresh`
+- Primary task(s): `task_329_stop_the_webview_activity_view_from_resetting_on_every_refresh`
 
 # Priority
 - Priority: Medium
@@ -57,6 +57,7 @@ Opening the Project view in the shared webview (VS Code extension and standalone
 - Hybrid rationale: Derived from request `req_332_stop_the_webview_activity_view_from_resetting_on_every_refresh` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_332_stop_the_webview_activity_view_from_resetting_on_every_refresh.md`.
 - Generated locally by logics-manager.
+- Task `task_329_stop_the_webview_activity_view_from_resetting_on_every_refresh` was finished via `logics-manager flow finish task` on 2026-08-11.
 
 # Tasks
 - `task_329_stop_the_webview_activity_view_from_resetting_on_every_refresh`

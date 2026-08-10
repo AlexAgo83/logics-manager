@@ -1,7 +1,7 @@
 ## task_329_stop_the_webview_activity_view_from_resetting_on_every_refresh - Stop the webview Activity view from resetting on every refresh
 > From version: 2.21.4
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 95%
 > Progress: 100%
@@ -9,6 +9,7 @@
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 > Owner: claude
+> Indicators reviewed: 2026-08-11 01:58:28
 
 # AI Context
 - Summary: Implement stop the webview activity view from resetting on every refresh.
@@ -39,11 +40,22 @@
 - `npx vitest run` (845 passed), including the new regression test.
 - Confirmed the new test fails on the pre-fix code (reverted via `git stash`) and passes on the fix.
 - `npm run lint` (tsc/eslint/line-budget/status-constants) clean.
+- command: `npx vitest run` | result: passed | date: 2026-08-11
+- Finish workflow executed on 2026-08-11.
+- Linked backlog/request close verification passed.
 
 # Report
 - Fixed: `handleHostMessage` in `clients/shared-web/media/mainCore.js` now sets `state.persistedWorkspaceRoot = payload.root` after each comparison, so a genuine workspace-root change resets Activity exactly once instead of on every subsequent "data" message (every debounced file-watcher/git-event refresh) that carries the same, already-observed root. Fixes both the VS Code extension's Board webview and the standalone browser viewer, since both load the same `clients/shared-web/media` source.
+- Finished on 2026-08-11.
+- Linked backlog item(s): `item_693_stop_the_webview_activity_view_from_resetting_on_every_refresh`
+- Related request(s): `req_332_stop_the_webview_activity_view_from_resetting_on_every_refresh`
 
 # Links
 - Request: `req_332_stop_the_webview_activity_view_from_resetting_on_every_refresh`
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
+
+# AC Traceability
+- request-AC1 -> This task. Proof: Implemented in 6f4b3dfe: handleHostMessage now updates persistedWorkspaceRoot after each comparison; validated by the new regression test in tests/webview.chrome.test.ts (confirmed failing pre-fix via git stash, passing post-fix). Source: `6f4b3dfe`
+- request-AC2 -> This task. Proof: Implemented in 6f4b3dfe: handleHostMessage now updates persistedWorkspaceRoot after each comparison; validated by the new regression test in tests/webview.chrome.test.ts (confirmed failing pre-fix via git stash, passing post-fix). Source: `6f4b3dfe`
+- request-AC3 -> This task. Proof: Implemented in 6f4b3dfe: handleHostMessage now updates persistedWorkspaceRoot after each comparison; validated by the new regression test in tests/webview.chrome.test.ts (confirmed failing pre-fix via git stash, passing post-fix). Source: `6f4b3dfe`

@@ -6,10 +6,17 @@
 > Related task: task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification
 > Drivers: One version per VS Code session, no hidden fallback, and no startup setup noise.
 > Reminder: Update status, linked refs, decision rationale, consequences, and follow-up work when you edit this doc.
-> Indicators reviewed: 2026-08-11 00:52:34
+> Indicators reviewed: 2026-08-11 01:58:48
 
 # Overview
 - VS Code invokes one installed `logics-manager` CLI with the exact extension version; bootstrap refresh is silent only for managed artifacts in an existing corpus.
+
+```mermaid
+flowchart LR
+  Resolve[Resolve installed logics-manager] -->|version matches| Route[Route CLI-backed operations]
+  Resolve -->|missing or mismatched| ReadOnly[Read-only + Check Environment]
+  Route --> Refresh[Silent bootstrap --refresh-managed]
+```
 
 # Context
 - The extension currently invokes its bundled `scripts/logics-manager.py` directly even when the canonical CLI is installed through npm or Python.

@@ -1,7 +1,7 @@
 ## req_332_stop_the_webview_activity_view_from_resetting_on_every_refresh - Stop the webview Activity view from resetting on every refresh
 > From version: 2.21.4
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 95%
 > Complexity: Low

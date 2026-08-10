@@ -1,12 +1,14 @@
 ## item_017_hide_spec_stage_by_default_filter_option - Add Hide SPEC filter option with default hidden behavior
 > From version: 1.6.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Filtering and board/list density control
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:11
 
 # Problem
 SPEC entries are useful but can add noise to daily execution views. Users need a direct filter to fully hide SPEC in both board and list modes, with hidden-by-default behavior for focus.
@@ -32,9 +34,9 @@ SPEC entries are useful but can add noise to daily execution views. Users need a
 - Filter state persistence includes this option.
 
 # AC Traceability
-- AC1/AC2 -> `media/main.js` filter state (`hideSpec`) + `src/extension.ts` / `debug/webview/index.html` checkbox markup. Proof: TODO.
-- AC3/AC4/AC5 -> `media/main.js` `isVisible()` and visible-stage rendering (`renderBoardColumns` / `renderListView`). Proof: TODO.
-- AC6 -> `persistState()` + previous-state restore in `media/main.js`. Proof: TODO.
+- AC1/AC2 -> `media/main.js` filter state (`hideSpec`) + `src/extension.ts` / `debug/webview/index.html` checkbox markup. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC3/AC4/AC5 -> `media/main.js` `isVisible()` and visible-stage rendering (`renderBoardColumns` / `renderListView`). Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC6 -> `persistState()` + previous-state restore in `media/main.js`. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Priority
 - Impact:

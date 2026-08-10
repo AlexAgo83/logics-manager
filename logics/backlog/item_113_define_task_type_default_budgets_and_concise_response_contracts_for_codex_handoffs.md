@@ -1,12 +1,14 @@
 ## item_113_define_task_type_default_budgets_and_concise_response_contracts_for_codex_handoffs - Define task-type default budgets and concise response contracts for Codex handoffs
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 96%
 > Progress: 100%
 > Complexity: Medium
 > Theme: AI workflow observability and prompt efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:19
 
 # Problem
 - Different task classes do not need the same context volume, and reducing input size loses some value if prompts still ask for long, verbose output by default.
@@ -39,9 +41,9 @@ flowchart LR
 - AC4: Documentation explains the intended defaults for the common task classes in scope.
 
 # AC Traceability
-- req081-AC6 -> Scope: Define task-type default context budgets or routing guidance for common task classes such as review, bugfix, implementation, and spec authoring.. Proof: TODO.
-- req081-AC7 -> Scope: Define concise response contracts or prompt defaults that keep Codex outputs brief unless deeper explanation is explicitly needed.. Proof: TODO.
-- req081-AC6/req081-AC7 -> Scope: Define how operators can override these defaults when a task genuinely needs more context or a longer answer.. Proof: TODO.
+- req081-AC6 -> Scope: Define task-type default context budgets or routing guidance for common task classes such as review, bugfix, implementation, and spec authoring.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- req081-AC7 -> Scope: Define concise response contracts or prompt defaults that keep Codex outputs brief unless deeper explanation is explicitly needed.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- req081-AC6/req081-AC7 -> Scope: Define how operators can override these defaults when a task genuinely needs more context or a longer answer.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Decision framing
 - Product framing: Not needed

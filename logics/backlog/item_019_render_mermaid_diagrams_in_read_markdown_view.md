@@ -1,12 +1,14 @@
 ## item_019_render_mermaid_diagrams_in_read_markdown_view - Render Mermaid diagrams in Read markdown view
 > From version: 1.7.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Markdown preview and Mermaid rendering
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:11
 
 # Problem
 The extension already exposes a `Read` action, but the rendered preview does not yet guarantee visual Mermaid rendering for Logics documents. Since Flow Manager templates now include Mermaid blocks by default, the current experience is incomplete: users can read the markdown, but they do not necessarily see the graph that carries the workflow meaning.

@@ -1,12 +1,14 @@
 ## task_082_guard_bootstrap_and_workflow_actions_with_prerequisite_aware_recovery_messaging - Guard bootstrap and workflow actions with prerequisite-aware recovery messaging
 > From version: 1.10.8 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 96%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Environment detection, onboarding, and guarded recovery UX
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:35
 
 # Context
 Derived from `logics/backlog/item_088_guard_bootstrap_and_workflow_actions_with_prerequisite_aware_recovery_messaging.md`.

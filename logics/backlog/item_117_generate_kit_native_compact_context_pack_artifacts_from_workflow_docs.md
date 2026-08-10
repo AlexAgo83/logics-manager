@@ -1,12 +1,14 @@
 ## item_117_generate_kit_native_compact_context_pack_artifacts_from_workflow_docs - Generate kit-native compact context-pack artifacts from workflow docs
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 95%
 > Progress: 100%
 > Complexity: High
 > Theme: AI workflow and kit maintenance
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:19
 
 # Problem
 - Reduce token waste at the source by making the Logics kit itself produce compact, reusable AI-facing context instead of relying mainly on plugin-side filtering.
@@ -36,11 +38,11 @@ flowchart LR
 - AC5: Generated assets and skill-level metadata are audited or normalized so outdated workflow templates and missing capability descriptors do not silently reintroduce token-heavy or stale behavior.
 
 # AC Traceability
-- AC1 -> Scope: The Logics kit can backfill, repair, or refresh `# AI Context` sections for existing managed workflow docs so compact handoff metadata is not limited to newly generated files.. Proof: TODO.
-- AC2 -> Scope: Connector or importer scripts that generate Logics workflow docs can rely on shared flow-manager helpers for compact AI context fields and template-value assembly instead of duplicating that logic per connector.. Proof: TODO.
-- AC3 -> Scope: The kit can generate a reusable `context-pack` or equivalent serialized compact handoff artifact for a selected request/backlog/task using modes such as `summary-only`, `diff-first`, or profile-driven output, so plugin or agent surfaces can consume a kit-native primitive.. Proof: TODO.
-- AC4 -> Scope: The kit provides at least one maintenance flow for compacting or flagging stale, redundant, or oversized workflow docs, with token-hygiene guidance that operators can run outside the plugin.. Proof: TODO.
-- AC5 -> Scope: Generated assets and skill-level metadata are audited or normalized so outdated workflow templates and missing capability descriptors do not silently reintroduce token-heavy or stale behavior.. Proof: TODO.
+- AC1 -> Scope: The Logics kit can backfill, repair, or refresh `# AI Context` sections for existing managed workflow docs so compact handoff metadata is not limited to newly generated files.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC2 -> Scope: Connector or importer scripts that generate Logics workflow docs can rely on shared flow-manager helpers for compact AI context fields and template-value assembly instead of duplicating that logic per connector.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC3 -> Scope: The kit can generate a reusable `context-pack` or equivalent serialized compact handoff artifact for a selected request/backlog/task using modes such as `summary-only`, `diff-first`, or profile-driven output, so plugin or agent surfaces can consume a kit-native primitive.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC4 -> Scope: The kit provides at least one maintenance flow for compacting or flagging stale, redundant, or oversized workflow docs, with token-hygiene guidance that operators can run outside the plugin.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC5 -> Scope: Generated assets and skill-level metadata are audited or normalized so outdated workflow templates and missing capability descriptors do not silently reintroduce token-heavy or stale behavior.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Decision framing
 - Product framing: Not needed

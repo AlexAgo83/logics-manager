@@ -1,12 +1,14 @@
 ## item_035_add_confirmation_for_done_and_obsolete_actions - Add confirmation before Done and Obsolete lifecycle actions
 > From version: 1.9.2
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 98%
 > Progress: 100%
 > Complexity: Low
 > Theme: Lifecycle safety and action confirmation
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:12
 
 # Problem
 The plugin detail panel currently lets users trigger `Done` and `Obsolete` immediately on click. These actions mutate persisted lifecycle metadata, but there is no confirmation before the write happens.

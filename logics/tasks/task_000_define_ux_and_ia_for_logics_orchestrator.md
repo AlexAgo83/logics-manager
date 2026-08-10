@@ -1,9 +1,11 @@
 ## task_000_define_ux_and_ia_for_logics_orchestrator - Define UX and IA for Logics Orchestrator
 > From version: 1.9.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 91% (audit-aligned)
 > Confidence: 86% (governed)
 > Progress: 100%
+> Indicators reviewed: 2026-08-10 09:06:28
 
 ```mermaid
 %% logics-kind: task

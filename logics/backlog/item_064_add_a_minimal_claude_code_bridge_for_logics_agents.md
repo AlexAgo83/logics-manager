@@ -1,12 +1,14 @@
 ## item_064_add_a_minimal_claude_code_bridge_for_logics_agents - Add a minimal Claude Code bridge for Logics agents
 > From version: 1.10.3
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 94%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Agent orchestration and Claude Code compatibility
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:15
 
 # Problem
 The Logics kit is already usable by Claude Code at the document and script level, but it still lacks a native project-level bridge for Claude-specific agent and command entrypoints.

@@ -1,11 +1,13 @@
 ## req_054_reduce_remaining_oversized_files_after_the_first_modularization_pass - Reduce remaining oversized files after the first modularization pass
 > From version: 1.10.2 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (refreshed)
 > Confidence: 99%
 > Complexity: Medium
 > Theme: Codebase modularity and maintainability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:25
 
 ```mermaid
 %% logics-kind: request

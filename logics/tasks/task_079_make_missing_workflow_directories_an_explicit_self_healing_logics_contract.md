@@ -1,12 +1,14 @@
 ## task_079_make_missing_workflow_directories_an_explicit_self_healing_logics_contract - Make missing workflow directories an explicit self-healing Logics contract
 > From version: 1.10.8 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 95%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Bootstrap resilience and workflow directory recovery
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:34
 
 # Context
 Derived from `logics/backlog/item_085_make_missing_workflow_directories_an_explicit_self_healing_logics_contract.md`.

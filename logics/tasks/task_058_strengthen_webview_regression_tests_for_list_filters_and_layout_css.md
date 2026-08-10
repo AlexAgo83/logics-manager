@@ -1,12 +1,14 @@
 ## task_058_strengthen_webview_regression_tests_for_list_filters_and_layout_css - Strengthen webview regression tests for list filters and layout CSS
 > From version: 1.10.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 99%
 > Progress: 100%
 > Complexity: Medium
 > Theme: UI regression coverage and test trustworthiness
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:32
 
 ```mermaid
 %% logics-kind: task

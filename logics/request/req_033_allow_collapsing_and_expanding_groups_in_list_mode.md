@@ -1,11 +1,13 @@
 ## req_033_allow_collapsing_and_expanding_groups_in_list_mode - Allow collapsing and expanding groups in list mode
 > From version: 1.9.3 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
 > Complexity: Medium
 > Theme: List-mode navigation and density control
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:23
 
 ```mermaid
 %% logics-kind: request

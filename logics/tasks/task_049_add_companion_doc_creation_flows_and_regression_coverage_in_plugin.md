@@ -1,12 +1,14 @@
 ## task_049_add_companion_doc_creation_flows_and_regression_coverage_in_plugin - Add companion doc creation flows and regression coverage in plugin
 > From version: 1.9.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 97%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Companion-doc creation and regression safety
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:32
 
 ```mermaid
 %% logics-kind: task

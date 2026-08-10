@@ -1,12 +1,14 @@
 ## task_061_split_webview_entrypoint_into_state_selector_and_orchestration_modules - Split webview entrypoint into state, selector, and orchestration modules
 > From version: 1.10.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 99%
 > Progress: 100%
 > Complexity: High
 > Theme: Webview modularity and UI-state architecture
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:33
 
 ```mermaid
 %% logics-kind: task

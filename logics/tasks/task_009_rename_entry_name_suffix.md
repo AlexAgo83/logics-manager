@@ -1,9 +1,11 @@
 ## task_009_rename_entry_name_suffix - Allow renaming request/backlog/task entry names
 > From version: 1.9.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 91% (audit-aligned)
 > Confidence: 86% (governed)
 > Progress: 100%
+> Indicators reviewed: 2026-08-10 09:06:29
 
 ```mermaid
 %% logics-kind: task

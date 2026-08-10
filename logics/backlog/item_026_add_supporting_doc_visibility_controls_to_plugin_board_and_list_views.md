@@ -1,12 +1,14 @@
 ## item_026_add_supporting_doc_visibility_controls_to_plugin_board_and_list_views - Add supporting doc visibility controls to plugin board and list views
 > From version: 1.9.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 96%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Board/list visibility control model
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:12
 
 # Problem
 Supporting docs needed to be discoverable globally without taking over the board by default.

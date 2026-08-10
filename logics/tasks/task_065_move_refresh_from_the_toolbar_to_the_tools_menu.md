@@ -1,12 +1,14 @@
 ## task_065_move_refresh_from_the_toolbar_to_the_tools_menu - Move Refresh from the toolbar to the Tools menu
 > From version: 1.10.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 99%
 > Progress: 100%
 > Complexity: Low
 > Theme: Toolbar prioritization and tools-menu cleanup
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:33
 
 ```mermaid
 %% logics-kind: task

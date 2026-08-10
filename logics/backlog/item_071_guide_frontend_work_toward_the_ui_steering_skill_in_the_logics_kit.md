@@ -1,12 +1,14 @@
 ## item_071_guide_frontend_work_toward_the_ui_steering_skill_in_the_logics_kit - Guide frontend work toward the UI steering skill in the Logics kit
 > From version: 1.10.5 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 96%
 > Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Logics kit skill orchestration and frontend guidance
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:15
 
 # Problem
 The Logics kit already contains `logics-ui-steering`, but frontend-oriented workflow docs still do too little to surface it at the right time. When a request clearly targets UI, frontend, React, webview, or interface implementation work, the specialized internal guidance should be discoverable from the normal Logics flow instead of depending on memory.

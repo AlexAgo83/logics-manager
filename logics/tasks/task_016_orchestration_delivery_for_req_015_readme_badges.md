@@ -1,12 +1,14 @@
 ## task_016_orchestration_delivery_for_req_015_readme_badges - Orchestration delivery for req_015 README badges
 > From version: 1.4.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 97%
 > Progress: 100%
 > Complexity: Low-Medium
 > Theme: README metadata polish
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:30
 
 ```mermaid
 %% logics-kind: task

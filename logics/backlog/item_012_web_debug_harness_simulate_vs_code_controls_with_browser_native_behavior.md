@@ -1,12 +1,14 @@
 ## item_012_web_debug_harness_simulate_vs_code_controls_with_browser_native_behavior - Web debug harness: simulate VS Code controls with browser-native behavior
 > From version: 1.2.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Debug Harness UX Parity
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:11
 
 # Problem
 In web debug mode, many controls currently post VS Code messages without meaningful browser fallback, so actions look clickable but do nothing useful.
@@ -29,11 +31,11 @@ In web debug mode, many controls currently post VS Code messages without meaning
 - Unsupported capabilities show clear user feedback and fallback guidance.
 
 # AC Traceability
-- AC1 -> Runtime-detection and action routing in `media/main.js` and harness scripts. Proof: TODO.
-- AC2 -> Root selection fallback flow implemented in harness context. Proof: TODO.
-- AC3 -> Open/Edit fallback tab behavior implemented and validated. Proof: TODO.
-- AC4 -> Tests/manual checks capture both harness and VS Code contexts. Proof: TODO.
-- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC1 -> Runtime-detection and action routing in `media/main.js` and harness scripts. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC2 -> Root selection fallback flow implemented in harness context. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC3 -> Open/Edit fallback tab behavior implemented and validated. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC4 -> Tests/manual checks capture both harness and VS Code contexts. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC5 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Priority
 - Impact:

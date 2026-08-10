@@ -1,11 +1,13 @@
 ## req_082_strengthen_logics_kit_primitives_for_compact_ai_context_and_reusable_handoff_generation - Strengthen Logics kit primitives for compact AI context and reusable handoff generation
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 95%
 > Complexity: High
 > Theme: AI workflow and kit maintenance
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:28
 
 # Needs
 - Reduce token waste at the source by making the Logics kit itself produce compact, reusable AI-facing context instead of relying mainly on plugin-side filtering.

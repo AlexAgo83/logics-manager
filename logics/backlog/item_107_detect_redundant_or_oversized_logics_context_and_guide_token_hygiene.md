@@ -1,12 +1,14 @@
 ## item_107_detect_redundant_or_oversized_logics_context_and_guide_token_hygiene - Detect redundant or oversized Logics context and guide token hygiene
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 96%
 > Progress: 100%
 > Complexity: High
 > Theme: AI workflow and token efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:18
 
 # Problem
 - Even with better profiles and summaries, the Logics corpus can still waste tokens if it accumulates duplicated prose, oversized stale docs, or obsolete references that keep showing up in context packs.
@@ -42,9 +44,9 @@ flowchart LR
 - AC4: README or operator guidance explains how token hygiene interacts with context profiles, summaries, and delta packs so the full reduced-token workflow is understandable end to end.
 
 # AC Traceability
-- req080-AC5 -> Scope: Define token-hygiene checks for duplicated prose, oversized stale context, or obsolete linked material that should not be part of default Codex packs.. Proof: TODO.
-- req080-AC5 -> Scope: Provide actionable remediation guidance so operators know what to trim, archive, summarize, or unlink.. Proof: TODO.
-- req080-AC6 -> Scope: Update operator guidance so token hygiene becomes part of normal Logics maintenance instead of an afterthought.. Proof: TODO.
+- req080-AC5 -> Scope: Define token-hygiene checks for duplicated prose, oversized stale context, or obsolete linked material that should not be part of default Codex packs.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- req080-AC5 -> Scope: Provide actionable remediation guidance so operators know what to trim, archive, summarize, or unlink.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- req080-AC6 -> Scope: Update operator guidance so token hygiene becomes part of normal Logics maintenance instead of an afterthought.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Decision framing
 - Product framing: Not needed

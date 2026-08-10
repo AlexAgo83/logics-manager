@@ -1,11 +1,13 @@
 ## req_076_adapt_the_vs_code_logics_plugin_to_codex_workspace_overlays - Adapt the VS Code Logics plugin to Codex workspace overlays
 > From version: 1.10.8
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 95%
 > Complexity: Medium
 > Theme: VS Code plugin integration and Codex overlay awareness
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:27
 
 # Needs
 - Adapt the VS Code Logics plugin so it understands and supports the future Codex workspace-overlay model instead of assuming only the current global Codex behavior.

@@ -1,9 +1,11 @@
 ## task_007_filter_panel_options - Regroup options into filter panel
 > From version: 1.9.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 91% (audit-aligned)
 > Confidence: 91% (governed)
 > Progress: 100%
+> Indicators reviewed: 2026-08-10 09:06:29
 
 ```mermaid
 %% logics-kind: task

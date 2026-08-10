@@ -1,11 +1,13 @@
 ## req_056_add_codex_context_pack_attention_explain_and_dependency_map - Add codex context pack, attention explain, and dependency map
 > From version: 1.10.6 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 97%
 > Complexity: Medium
 > Theme: AI workflow context and dependency visibility
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:25
 
 # Needs
 - Help users start Codex work with the right project context already assembled from Logics docs instead of forcing them to manually gather the current item, its upstream rationale, and related delivery documents.

@@ -1,11 +1,13 @@
 ## req_026_refactor_webview_frontend_structure_without_introducing_a_full_framework - Refactor webview frontend structure without introducing a full framework
 > From version: 1.9.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% ((closed); refreshed)
 > Confidence: 100% ((validated); refreshed)
 > Complexity: High
 > Theme: VS Code webview frontend architecture and maintainability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:23
 
 # Needs
 - Refactor the plugin webview frontend so it is easier to maintain and evolve than the current single-file `main.js` and `main.css` structure.

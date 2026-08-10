@@ -1,11 +1,13 @@
 ## req_062_harden_windows_compatibility_across_the_vs_code_plugin_and_logics_kit - Harden Windows compatibility across the VS Code plugin and Logics kit
 > From version: 1.10.7
 > Status: Done
+> Schema version: 1.0
 > Understanding: 96%
 > Confidence: 93%
 > Complexity: High
 > Theme: Cross-platform runtime, tooling, and release reliability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:26
 
 # Needs
 - Make the VS Code extension genuinely usable on Windows across the full supported workflow, not only in the narrow happy path where the UI can already find a Python interpreter.

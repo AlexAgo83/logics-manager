@@ -1,11 +1,13 @@
 ## req_041_add_activity_timeline_to_the_plugin - Add an activity timeline to the plugin
 > From version: 1.9.3 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (refreshed)
 > Confidence: 100%
 > Complexity: Medium
 > Theme: Change visibility and workflow awareness
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:24
 
 ```mermaid
 %% logics-kind: request

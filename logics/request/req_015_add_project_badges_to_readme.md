@@ -1,11 +1,13 @@
 ## req_015_add_project_badges_to_readme - Add project badges to README
 > From version: 1.4.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
 > Complexity: Low-Medium
 > Theme: Repository metadata and discoverability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:22
 
 ```mermaid
 %% logics-kind: request

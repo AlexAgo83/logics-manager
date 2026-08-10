@@ -1,12 +1,14 @@
 ## item_101_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays - Add plugin actions to update the Logics kit and sync Codex overlays
 > From version: 1.10.8 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 95%
 > Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: VS Code operator remediation and kit lifecycle
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:18
 
 # Problem
 - The plugin can now diagnose stale-kit and missing-overlay states, but it still leaves the operator on a manual shell path for the standard remediation flow.

@@ -1,12 +1,14 @@
 ## task_056_apply_hide_empty_columns_consistently_in_list_mode - Apply hide empty columns consistently in list mode
 > From version: 1.10.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 100%
 > Progress: 100%
 > Complexity: Low
 > Theme: Filter consistency across board and list views
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:32
 
 ```mermaid
 %% logics-kind: task

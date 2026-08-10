@@ -1,12 +1,14 @@
 ## item_011_horizontal_layout_keep_details_action_buttons_pinned_to_bottom_when_collapsed - Horizontal layout: keep details action buttons pinned to bottom when collapsed
 > From version: 1.1.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 97%
 > Progress: 100%
 > Complexity: Medium
 > Theme: UX Layout Consistency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:11
 
 # Problem
 In horizontal split layout, collapsing Details can visually shift action buttons upward. This reduces consistency and makes quick actions less predictable.
@@ -28,11 +30,11 @@ In horizontal split layout, collapsing Details can visually shift action buttons
 - Keyboard navigation for actions remains intact.
 
 # AC Traceability
-- AC1 -> Details collapsed/horizontal CSS rules in `media/main.css`. Proof: TODO.
-- AC2 -> Collapse toggle and rendering behavior in `media/main.js`. Proof: TODO.
-- AC3 -> Manual validation evidence in harness and VS Code runtime. Proof: TODO.
-- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC1 -> Details collapsed/horizontal CSS rules in `media/main.css`. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC2 -> Collapse toggle and rendering behavior in `media/main.js`. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC3 -> Manual validation evidence in harness and VS Code runtime. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC4 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC5 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Priority
 - Impact:

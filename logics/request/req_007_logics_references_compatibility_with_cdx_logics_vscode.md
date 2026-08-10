@@ -1,11 +1,13 @@
 ## req_007_logics_references_compatibility_with_cdx_logics_vscode - Logics References Compatibility with cdx-logics-vscode
 > From version: 1.9.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% ((audit-aligned); refreshed)
 > Confidence: 100% (governed)
 > Complexity: Medium-High
 > Theme: Logics Workflow Indexing
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:21
 
 ```mermaid
 %% logics-kind: request

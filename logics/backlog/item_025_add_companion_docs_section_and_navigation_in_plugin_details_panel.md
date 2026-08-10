@@ -1,12 +1,14 @@
 ## item_025_add_companion_docs_section_and_navigation_in_plugin_details_panel - Add companion docs section and navigation in plugin details panel
 > From version: 1.9.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 97%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Plugin details-panel UX and navigation
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:12
 
 # Problem
 Even after indexing companion docs, users still needed a clear place in the plugin to discover and navigate them from primary workflow items.

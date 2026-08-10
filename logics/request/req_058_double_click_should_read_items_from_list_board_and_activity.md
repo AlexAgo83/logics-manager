@@ -1,11 +1,13 @@
 ## req_058_double_click_should_read_items_from_list_board_and_activity - Double click should read items from list board and activity
 > From version: 1.10.5
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 98%
 > Complexity: Medium
 > Theme: UX workflow
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:26
 
 # Needs
 - Align the primary double-click gesture on Logics items with the `Read` action instead of `Open/Edit`.

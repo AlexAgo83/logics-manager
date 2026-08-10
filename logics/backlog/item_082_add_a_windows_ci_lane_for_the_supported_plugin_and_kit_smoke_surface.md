@@ -1,12 +1,14 @@
 ## item_082_add_a_windows_ci_lane_for_the_supported_plugin_and_kit_smoke_surface - Add a Windows CI lane for the supported plugin and kit smoke surface
 > From version: 1.10.8
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 95%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Cross-platform validation strategy and test environment realism
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:16
 
 # Problem
 - Define a practical way for a maintainer working on macOS to validate Windows behavior for the VS Code plugin and the Logics kit without relying on false confidence from incomplete local simulation.
@@ -52,25 +54,25 @@ flowchart LR
 - AC8: The validation strategy is aligned with the broader Windows hardening work and does not pretend to solve compatibility through documentation alone.
 
 # AC Traceability
-- AC1 -> Scope: The request defines a two-layer Windows validation strategy that explicitly distinguishes:. Proof: TODO.
-- AC2 -> Scope: automated validation suitable for CI;. Proof: TODO.
-- AC3 -> Scope: and manual or semi-manual smoke validation that requires a real Windows environment.. Proof: TODO.
-- AC2 -> Scope: The request makes clear that macOS-only local simulation is insufficient for certain Windows-specific behaviors and must not be treated as a complete validation substitute.. Proof: TODO.
-- AC3 -> Scope: The strategy includes an automated Windows lane capable of exercising the supported workflow surface that is most likely to regress, such as build, tests, packaging, and selected script-backed flows.. Proof: TODO.
-- AC4 -> Scope: The strategy includes a real-Windows smoke path, such as a VM-based workflow, for operator paths that cannot be trusted through indirect simulation alone.. Proof: TODO.
-- AC5 -> Scope: The request identifies which classes of problems should be validated only in real Windows, including at least:. Proof: TODO.
-- AC6 -> Scope: shell and CLI behavior;. Proof: TODO.
-- AC7 -> Scope: Python launcher behavior;. Proof: TODO.
-- AC8 -> Scope: VS Code extension-host runtime behavior;. Proof: TODO.
-- AC9 -> Scope: filesystem permission or symlink restrictions;. Proof: TODO.
-- AC10 -> Scope: case-insensitive path assumptions where relevant.. Proof: TODO.
-- AC6 -> Scope: The resulting workflow is pragmatic enough for a maintainer using macOS to run regularly during release preparation and targeted debugging.. Proof: TODO.
-- AC7 -> Scope: The request is specific enough that future backlog work can split the implementation into:. Proof: TODO.
-- AC11 -> Scope: Windows CI setup;. Proof: TODO.
-- AC12 -> Scope: Windows smoke-check definition;. Proof: TODO.
-- AC13 -> Scope: VM or local real-Windows workflow guidance;. Proof: TODO.
-- AC14 -> Scope: release-process integration.. Proof: TODO.
-- AC8 -> Scope: The validation strategy is aligned with the broader Windows hardening work and does not pretend to solve compatibility through documentation alone.. Proof: TODO.
+- AC1 -> Scope: The request defines a two-layer Windows validation strategy that explicitly distinguishes:. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC2 -> Scope: automated validation suitable for CI;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC3 -> Scope: and manual or semi-manual smoke validation that requires a real Windows environment.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC2 -> Scope: The request makes clear that macOS-only local simulation is insufficient for certain Windows-specific behaviors and must not be treated as a complete validation substitute.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC3 -> Scope: The strategy includes an automated Windows lane capable of exercising the supported workflow surface that is most likely to regress, such as build, tests, packaging, and selected script-backed flows.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC4 -> Scope: The strategy includes a real-Windows smoke path, such as a VM-based workflow, for operator paths that cannot be trusted through indirect simulation alone.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC5 -> Scope: The request identifies which classes of problems should be validated only in real Windows, including at least:. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC6 -> Scope: shell and CLI behavior;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC7 -> Scope: Python launcher behavior;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC8 -> Scope: VS Code extension-host runtime behavior;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC9 -> Scope: filesystem permission or symlink restrictions;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC10 -> Scope: case-insensitive path assumptions where relevant.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC6 -> Scope: The resulting workflow is pragmatic enough for a maintainer using macOS to run regularly during release preparation and targeted debugging.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC7 -> Scope: The request is specific enough that future backlog work can split the implementation into:. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC11 -> Scope: Windows CI setup;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC12 -> Scope: Windows smoke-check definition;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC13 -> Scope: VM or local real-Windows workflow guidance;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC14 -> Scope: release-process integration.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC8 -> Scope: The validation strategy is aligned with the broader Windows hardening work and does not pretend to solve compatibility through documentation alone.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Decision framing
 - Product framing: Not needed

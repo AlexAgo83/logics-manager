@@ -1,11 +1,13 @@
 ## req_057_add_an_internal_ui_steering_skill_and_agent_for_grounded_interface_generation - Add an internal UI steering skill and agent for grounded interface generation
 > From version: 1.10.4
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 99%
 > Complexity: Medium
 > Theme: Internal skill design and agent UX steering
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:26
 
 # Needs
 - Add a dedicated internal Logics skill that steers UI generation away from generic AI-looking interfaces and toward grounded, product-native layouts.

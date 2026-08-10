@@ -1,12 +1,14 @@
 ## item_058_split_logics_flow_manager_script_into_cli_and_workflow_modules - Split logics flow manager script into CLI and workflow modules
 > From version: 1.10.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 95%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Skill script modularity and workflow orchestration clarity
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:14
 
 # Problem
 [logics_flow.py](/Users/alexandreagostini/Documents/cdx-logics-vscode/logics/skills/logics-flow-manager/scripts/logics_flow.py) is large enough that CLI parsing, workflow orchestration, filesystem operations, and reporting/output concerns are at risk of blending together.

@@ -1,12 +1,14 @@
 ## item_055_split_extension_host_entrypoint_into_focused_modules - Split extension host entrypoint into focused modules
 > From version: 1.10.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 98%
 > Progress: 100%
 > Complexity: High
 > Theme: Extension host modularity and ownership boundaries
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:14
 
 # Problem
 [extension.ts](/Users/alexandreagostini/Documents/cdx-logics-vscode/src/extension.ts) has grown into a multi-responsibility host entrypoint.
@@ -50,9 +52,9 @@ That makes host-side changes harder to review and increases the chance that unre
 - `logics/tasks/task_060_split_extension_host_entrypoint_into_focused_modules.md`
 
 # AC Traceability
-- AC1 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC2 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC3 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC1 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC2 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC3 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC4 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC5 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC6 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.

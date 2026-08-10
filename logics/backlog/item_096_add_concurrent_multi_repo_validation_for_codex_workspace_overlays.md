@@ -1,12 +1,14 @@
 ## item_096_add_concurrent_multi_repo_validation_for_codex_workspace_overlays - Add concurrent multi-repo validation for Codex workspace overlays
 > From version: 1.10.8 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 96%
 > Confidence: 93%
 > Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Overlay validation and concurrent repository isolation
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:17
 
 # Problem
 - Validate the overlay architecture under the actual concurrency condition it is meant to solve: several repositories active at the same time.

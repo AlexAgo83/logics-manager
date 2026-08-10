@@ -1,12 +1,14 @@
 ## item_033_default_collapsed_secondary_sections_in_detail_panel - Default secondary detail sections to collapsed in the plugin detail panel
 > From version: 1.9.2
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 98%
 > Progress: 100%
 > Complexity: Low
 > Theme: Detail panel scanability and progressive disclosure
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:12
 
 # Problem
 The plugin detail panel currently exposes too much expanded content by default. When `Companion docs`, `Specs`, `References`, and `Used by` all render open at once, the sidebar becomes visually dense and the most important information loses emphasis.

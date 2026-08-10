@@ -1,12 +1,14 @@
 ## item_078_clarify_windows_install_and_cli_guidance_in_the_main_plugin_readme - Clarify Windows install and CLI guidance in the main plugin README
 > From version: 1.10.7
 > Status: Done
+> Schema version: 1.0
 > Understanding: 95%
 > Confidence: 92%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Documentation quality, operator ergonomics, and platform clarity
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:16
 
 # Problem
 - Clarify the documented Windows operator path for the VS Code plugin and the Logics kit so users are not left guessing which commands are actually supported on Windows.
@@ -58,31 +60,31 @@ flowchart LR
 - Unix temp-path examples such as `/tmp` in maintainer flows.
 
 # AC Traceability
-- AC1 -> Scope: The request explicitly covers documentation and examples for both:. Proof: TODO.
-- AC2 -> Scope: the main VS Code plugin repository;. Proof: TODO.
-- AC3 -> Scope: the imported or bundled Logics kit documentation surface.. Proof: TODO.
-- AC2 -> Scope: Installation and operator guidance for Windows users is explicit where the current wording is macOS/Linux-centric or ambiguous.. Proof: TODO.
-- AC3 -> Scope: General-purpose command examples that are meant to be copy-pasteable by users or maintainers are rewritten to avoid avoidable POSIX-only syntax, or are paired with a Windows-compatible variant.. Proof: TODO.
-- AC4 -> Scope: Maintainer and release guidance no longer presents Unix-only temp paths or shell idioms as the default generic workflow when a cross-platform alternative is expected.. Proof: TODO.
-- AC4B -> Scope: Documentation cleanup explicitly covers Windows friction points that are easy to miss in code review, including:. Proof: TODO.
-- AC5 -> Scope: shell quoting differences for `code` CLI or MCP-related commands;. Proof: TODO.
-- AC6 -> Scope: `CRLF` versus `LF` expectations where contributors edit repo-managed text files on Windows;. Proof: TODO.
-- AC7 -> Scope: submodule installation guidance that should prefer the least-friction Windows-compatible operator path when no SSH-specific requirement exists.. Proof: TODO.
-- AC5 -> Scope: Platform-specific helper scripts remain allowed, but their documentation clearly labels them as platform-scoped instead of implying that they are general workflow entrypoints.. Proof: TODO.
-- AC6 -> Scope: The resulting docs distinguish clearly between:. Proof: TODO.
-- AC8 -> Scope: supported cross-platform workflows;. Proof: TODO.
-- AC9 -> Scope: supported Windows alternatives;. Proof: TODO.
-- AC10 -> Scope: and intentionally OS-specific helpers.. Proof: TODO.
-- AC7 -> Scope: The documentation cleanup remains aligned with the actual code and script behavior rather than promising unsupported execution paths.. Proof: TODO.
-- AC8 -> Scope: The request is specific enough that a future backlog item can split the work into:. Proof: TODO.
-- AC11 -> Scope: plugin install and usage docs;. Proof: TODO.
-- AC12 -> Scope: kit README and `SKILL.md` example cleanup;. Proof: TODO.
-- AC13 -> Scope: contributor and release guidance cleanup;. Proof: TODO.
-- AC14 -> Scope: helper labeling and platform notes.. Proof: TODO.
-- AC9 -> Scope: The highest-traffic Windows friction points are addressed explicitly, including:. Proof: TODO.
-- AC15 -> Scope: `code` CLI expectations for plugin install and dev workflows;. Proof: TODO.
-- AC16 -> Scope: POSIX-only shell examples such as `mkdir -p` and trailing `\` continuations;. Proof: TODO.
-- AC17 -> Scope: Unix temp-path examples such as `/tmp` in maintainer flows.. Proof: TODO.
+- AC1 -> Scope: The request explicitly covers documentation and examples for both:. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC2 -> Scope: the main VS Code plugin repository;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC3 -> Scope: the imported or bundled Logics kit documentation surface.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC2 -> Scope: Installation and operator guidance for Windows users is explicit where the current wording is macOS/Linux-centric or ambiguous.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC3 -> Scope: General-purpose command examples that are meant to be copy-pasteable by users or maintainers are rewritten to avoid avoidable POSIX-only syntax, or are paired with a Windows-compatible variant.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC4 -> Scope: Maintainer and release guidance no longer presents Unix-only temp paths or shell idioms as the default generic workflow when a cross-platform alternative is expected.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC4B -> Scope: Documentation cleanup explicitly covers Windows friction points that are easy to miss in code review, including:. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC5 -> Scope: shell quoting differences for `code` CLI or MCP-related commands;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC6 -> Scope: `CRLF` versus `LF` expectations where contributors edit repo-managed text files on Windows;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC7 -> Scope: submodule installation guidance that should prefer the least-friction Windows-compatible operator path when no SSH-specific requirement exists.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC5 -> Scope: Platform-specific helper scripts remain allowed, but their documentation clearly labels them as platform-scoped instead of implying that they are general workflow entrypoints.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC6 -> Scope: The resulting docs distinguish clearly between:. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC8 -> Scope: supported cross-platform workflows;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC9 -> Scope: supported Windows alternatives;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC10 -> Scope: and intentionally OS-specific helpers.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC7 -> Scope: The documentation cleanup remains aligned with the actual code and script behavior rather than promising unsupported execution paths.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC8 -> Scope: The request is specific enough that a future backlog item can split the work into:. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC11 -> Scope: plugin install and usage docs;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC12 -> Scope: kit README and `SKILL.md` example cleanup;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC13 -> Scope: contributor and release guidance cleanup;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC14 -> Scope: helper labeling and platform notes.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC9 -> Scope: The highest-traffic Windows friction points are addressed explicitly, including:. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC15 -> Scope: `code` CLI expectations for plugin install and dev workflows;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC16 -> Scope: POSIX-only shell examples such as `mkdir -p` and trailing `\` continuations;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC17 -> Scope: Unix temp-path examples such as `/tmp` in maintainer flows.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Decision framing
 - Product framing: Not needed

@@ -1,12 +1,14 @@
 ## task_010_update_extension_for_flow_manager_changes - Update extension for flow manager changes
 > From version: 1.9.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (audit-aligned)
 > Confidence: 97% (governed)
 > Progress: 100%
 > Complexity: Medium
 > Theme: Workflow
 > Reminder: Update Understanding/Confidence/Progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:29
 
 ```mermaid
 %% logics-kind: task

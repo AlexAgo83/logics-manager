@@ -1,12 +1,14 @@
 ## item_048_improve_plugin_onboarding_and_empty_states - Improve plugin onboarding and empty states
 > From version: 1.9.3
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 97%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Discoverability and first-use clarity
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:13
 
 # Problem
 The plugin has become richer, but it is still too easy for new or occasional users to hit under-explained states. Empty states often describe absence without helping users understand what to do next.

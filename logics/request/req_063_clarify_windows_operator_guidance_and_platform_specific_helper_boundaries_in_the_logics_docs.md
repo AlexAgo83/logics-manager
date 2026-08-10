@@ -1,11 +1,13 @@
 ## req_063_clarify_windows_operator_guidance_and_platform_specific_helper_boundaries_in_the_logics_docs - Clarify Windows operator guidance and platform-specific helper boundaries in the Logics docs
 > From version: 1.10.7
 > Status: Done
+> Schema version: 1.0
 > Understanding: 95%
 > Confidence: 92%
 > Complexity: Medium
 > Theme: Documentation quality, operator ergonomics, and platform clarity
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:26
 
 # Needs
 - Clarify the documented Windows operator path for the VS Code plugin and the Logics kit so users are not left guessing which commands are actually supported on Windows.

@@ -1,11 +1,13 @@
 ## req_017_filter_option_hide_spec_stage_by_default - Add filter option to hide SPEC stage by default
 > From version: 1.5.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
 > Complexity: Medium
 > Theme: Filtering and view ergonomics
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:22
 
 ```mermaid
 %% logics-kind: request

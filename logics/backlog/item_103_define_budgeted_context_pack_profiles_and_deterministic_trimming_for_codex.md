@@ -1,12 +1,14 @@
 ## item_103_define_budgeted_context_pack_profiles_and_deterministic_trimming_for_codex - Define budgeted context pack profiles and deterministic trimming for Codex
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 96%
 > Progress: 100%
 > Complexity: High
 > Theme: AI workflow and token efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:18
 
 # Problem
 - The current Logics context-pack flow focuses on relevance, but it does not yet enforce strict, predictable size ceilings.
@@ -42,9 +44,9 @@ flowchart LR
 - AC4: README or equivalent operator guidance explains when to choose each profile and why the default should favor smaller packs.
 
 # AC Traceability
-- req080-AC1 -> Scope: Define the supported Codex context-pack profiles and the intent of each profile.. Proof: TODO.
-- req080-AC1 -> Scope: Define deterministic inclusion order and trimming rules across selected items, linked docs, summaries, and larger body excerpts.. Proof: TODO.
-- req080-AC6 -> Scope: Update operator guidance so profile selection becomes a first-class workflow choice.. Proof: TODO.
+- req080-AC1 -> Scope: Define the supported Codex context-pack profiles and the intent of each profile.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- req080-AC1 -> Scope: Define deterministic inclusion order and trimming rules across selected items, linked docs, summaries, and larger body excerpts.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- req080-AC6 -> Scope: Update operator guidance so profile selection becomes a first-class workflow choice.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Decision framing
 - Product framing: Not needed

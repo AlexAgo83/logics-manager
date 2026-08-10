@@ -1,12 +1,14 @@
 ## item_023_align_plugin_indexer_and_managed_doc_model_for_companion_docs - Align plugin indexer and managed doc model for companion docs
 > From version: 1.9.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Plugin managed-doc model and indexing
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:12
 
 # Problem
 The plugin originally treated only `request`, `backlog`, `task`, and `spec` as managed Logics docs.

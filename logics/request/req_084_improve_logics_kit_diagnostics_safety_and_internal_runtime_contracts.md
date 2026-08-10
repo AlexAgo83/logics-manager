@@ -1,11 +1,13 @@
 ## req_084_improve_logics_kit_diagnostics_safety_and_internal_runtime_contracts - Improve Logics kit diagnostics safety and internal runtime contracts
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 95%
 > Complexity: High
 > Theme: Kit runtime and operator tooling
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:28
 
 # Needs
 - Make the Logics kit easier to operate, debug, and extend without relying on scattered heuristics or risky bulk writes.

@@ -1,14 +1,14 @@
 ## item_676_run_the_full_logics_manager_doctor_in_ci - Run the full logics-manager doctor in CI
 > From version: 2.21.2
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 40%
+> Progress: 100%
 > Complexity: Low
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-10 01:00:22
+> Indicators reviewed: 2026-08-10 09:15:23
 
 # AI Context
 - Summary: Run the full logics-manager doctor in CI
@@ -31,7 +31,7 @@ CI runs `doctor packaging --metadata-only` and nothing else (`.github/workflows/
 - AC4: `npm run ci:check` and the GitHub CI workflow both run the full `logics-manager doctor`, and a corpus that fails it fails the build.
 
 # AC Traceability
-- request-AC4 -> This backlog slice. Proof: BLOCKED behind `item_675`. The step was added to `ci-check.mjs` and `.github/workflows/ci.yml`, and proven to bite -- with the backfill applied, `doctor` exits 0; removing one `> Schema version:` line makes it exit 1. It was then removed again, because with the backfill reverted the step would land CI permanently red. Re-add it in the same wave that resolves `item_675`.
+- request-AC4 -> This backlog slice. Proof: `logics-manager doctor` runs in `scripts/ci-check.mjs` (step `Logics doctor (corpus)`) and in `.github/workflows/ci.yml`, after the packaging check. The gate bites: removing a single `> Schema version:` line makes `doctor` exit 1, and it exits 0 on the corpus as it stands. `npm run ci:check` is green with the step in place.
 
 # Decision framing
 - Product framing: Not needed

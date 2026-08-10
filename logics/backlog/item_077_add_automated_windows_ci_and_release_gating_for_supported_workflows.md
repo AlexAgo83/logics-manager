@@ -1,12 +1,14 @@
 ## item_077_add_automated_windows_ci_and_release_gating_for_supported_workflows - Add automated Windows CI and release gating for supported workflows
 > From version: 1.10.8
 > Status: Done
+> Schema version: 1.0
 > Understanding: 96%
 > Confidence: 93%
 > Progress: 100%
 > Complexity: High
 > Theme: Cross-platform runtime, tooling, and release reliability
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:16
 
 # Problem
 - Make the VS Code extension genuinely usable on Windows across the full supported workflow, not only in the narrow happy path where the UI can already find a Python interpreter.
@@ -67,39 +69,39 @@ flowchart LR
 - line-ending behavior for generated or maintained text artifacts.
 
 # AC Traceability
-- AC1 -> Scope: The request explicitly covers both scopes:. Proof: TODO.
-- AC2 -> Scope: the VS Code extension repository;. Proof: TODO.
-- AC3 -> Scope: the bundled or imported Logics kit workflows that users are expected to run directly.. Proof: TODO.
-- AC2 -> Scope: The supported Windows contract is clarified for extension-driven Logics actions such as create, promote, bootstrap, fix, and related script-backed flows.. Proof: TODO.
-- AC3 -> Scope: Main project npm scripts that are part of normal development, smoke, packaging, installation, or release validation no longer rely on avoidable Unix-only constructs such as:. Proof: TODO.
-- AC4 -> Scope: hardcoded `python3` where a Windows-compatible launcher path is required;. Proof: TODO.
-- AC5 -> Scope: `/tmp` output paths;. Proof: TODO.
-- AC6 -> Scope: shell command substitution patterns such as `$(...)`.. Proof: TODO.
-- AC4 -> Scope: The repository documentation is updated so Windows users are not told to run commands that fail under the default Windows environment when an officially supported alternative exists.. Proof: TODO.
-- AC5 -> Scope: The Logics kit documentation and skill examples are calibrated so the documented operator path is Windows-compatible, or clearly marked as Unix-specific when a script is intentionally platform-scoped.. Proof: TODO.
-- AC5B -> Scope: Windows-oriented hardening explicitly covers command-surface issues that are common in this repository, including:. Proof: TODO.
-- AC7 -> Scope: quoting differences between POSIX shells, `cmd`, and PowerShell for supported CLI examples;. Proof: TODO.
-- AC8 -> Scope: line-ending normalization expectations for text assets edited on Windows;. Proof: TODO.
-- AC9 -> Scope: path-handling assumptions that can break under Windows path semantics.. Proof: TODO.
-- AC6 -> Scope: Windows support is validated through at least one meaningful automated path beyond unit-level string or candidate-list assertions.. Proof: TODO.
-- AC7 -> Scope: CI gains an explicit Windows validation lane for the supported workflow surface, or an equivalent automated Windows check with comparable confidence.. Proof: TODO.
-- AC8 -> Scope: Release preparation no longer depends solely on Ubuntu-only validation for workflows that are claimed to support Windows users or maintainers.. Proof: TODO.
-- AC9 -> Scope: The implementation distinguishes between:. Proof: TODO.
-- AC10 -> Scope: intentional platform-specific helpers;. Proof: TODO.
-- AC11 -> Scope: and unintended cross-platform breakpoints in supported workflows.. Proof: TODO.
-- AC10 -> Scope: Linux and macOS behavior remain supported, with changes designed as cross-platform hardening rather than Windows-only special cases where a generic solution is possible.. Proof: TODO.
-- AC11 -> Scope: The resulting guidance is concrete enough that a backlog item can split the work into:. Proof: TODO.
-- AC12 -> Scope: extension runtime and command surface hardening;. Proof: TODO.
-- AC13 -> Scope: npm script and packaging normalization;. Proof: TODO.
-- AC14 -> Scope: kit README and skill documentation cleanup;. Proof: TODO.
-- AC15 -> Scope: Windows CI or smoke validation;. Proof: TODO.
-- AC16 -> Scope: release-process alignment.. Proof: TODO.
-- AC12 -> Scope: Windows validation explicitly exercises or accounts for edge cases already known to be relevant in this repository, including:. Proof: TODO.
-- AC17 -> Scope: VSIX smoke packaging paths and Windows command resolution;. Proof: TODO.
-- AC18 -> Scope: environments where directory symlinks are unavailable and copy fallbacks are required;. Proof: TODO.
-- AC19 -> Scope: case-insensitive path handling expectations in the extension runtime;. Proof: TODO.
-- AC20 -> Scope: shell quoting behavior for supported CLI install or MCP-registration flows;. Proof: TODO.
-- AC21 -> Scope: line-ending behavior for generated or maintained text artifacts.. Proof: TODO.
+- AC1 -> Scope: The request explicitly covers both scopes:. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC2 -> Scope: the VS Code extension repository;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC3 -> Scope: the bundled or imported Logics kit workflows that users are expected to run directly.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC2 -> Scope: The supported Windows contract is clarified for extension-driven Logics actions such as create, promote, bootstrap, fix, and related script-backed flows.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC3 -> Scope: Main project npm scripts that are part of normal development, smoke, packaging, installation, or release validation no longer rely on avoidable Unix-only constructs such as:. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC4 -> Scope: hardcoded `python3` where a Windows-compatible launcher path is required;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC5 -> Scope: `/tmp` output paths;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC6 -> Scope: shell command substitution patterns such as `$(...)`.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC4 -> Scope: The repository documentation is updated so Windows users are not told to run commands that fail under the default Windows environment when an officially supported alternative exists.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC5 -> Scope: The Logics kit documentation and skill examples are calibrated so the documented operator path is Windows-compatible, or clearly marked as Unix-specific when a script is intentionally platform-scoped.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC5B -> Scope: Windows-oriented hardening explicitly covers command-surface issues that are common in this repository, including:. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC7 -> Scope: quoting differences between POSIX shells, `cmd`, and PowerShell for supported CLI examples;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC8 -> Scope: line-ending normalization expectations for text assets edited on Windows;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC9 -> Scope: path-handling assumptions that can break under Windows path semantics.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC6 -> Scope: Windows support is validated through at least one meaningful automated path beyond unit-level string or candidate-list assertions.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC7 -> Scope: CI gains an explicit Windows validation lane for the supported workflow surface, or an equivalent automated Windows check with comparable confidence.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC8 -> Scope: Release preparation no longer depends solely on Ubuntu-only validation for workflows that are claimed to support Windows users or maintainers.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC9 -> Scope: The implementation distinguishes between:. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC10 -> Scope: intentional platform-specific helpers;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC11 -> Scope: and unintended cross-platform breakpoints in supported workflows.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC10 -> Scope: Linux and macOS behavior remain supported, with changes designed as cross-platform hardening rather than Windows-only special cases where a generic solution is possible.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC11 -> Scope: The resulting guidance is concrete enough that a backlog item can split the work into:. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC12 -> Scope: extension runtime and command surface hardening;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC13 -> Scope: npm script and packaging normalization;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC14 -> Scope: kit README and skill documentation cleanup;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC15 -> Scope: Windows CI or smoke validation;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC16 -> Scope: release-process alignment.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC12 -> Scope: Windows validation explicitly exercises or accounts for edge cases already known to be relevant in this repository, including:. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC17 -> Scope: VSIX smoke packaging paths and Windows command resolution;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC18 -> Scope: environments where directory symlinks are unavailable and copy fallbacks are required;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC19 -> Scope: case-insensitive path handling expectations in the extension runtime;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC20 -> Scope: shell quoting behavior for supported CLI install or MCP-registration flows;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC21 -> Scope: line-ending behavior for generated or maintained text artifacts.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Decision framing
 - Product framing: Not needed

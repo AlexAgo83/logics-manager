@@ -1,12 +1,14 @@
 ## task_062_split_monolithic_webview_harness_tests_by_behavior_domain - Split monolithic webview harness tests by behavior domain
 > From version: 1.10.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Test modularity and suite maintainability
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:33
 
 ```mermaid
 %% logics-kind: task

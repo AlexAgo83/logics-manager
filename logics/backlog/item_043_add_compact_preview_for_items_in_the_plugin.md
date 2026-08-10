@@ -1,12 +1,14 @@
 ## item_043_add_compact_preview_for_items_in_the_plugin - Add compact preview for items in the plugin
 > From version: 1.9.3
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 97%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Information preview and navigation efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:13
 
 # Problem
 Opening or reading an item can feel too heavy when users only want a quick confirmation that they are looking at the right thing. The current flow jumps from visible item surfaces to full details or read/open behavior without a lighter inspection layer.

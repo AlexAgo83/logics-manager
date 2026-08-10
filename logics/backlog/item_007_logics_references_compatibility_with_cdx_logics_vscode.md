@@ -1,12 +1,14 @@
 ## item_007_logics_references_compatibility_with_cdx_logics_vscode - Logics References Compatibility with cdx-logics-vscode
 > From version: 1.9.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 96% (audit-aligned)
 > Confidence: 91% (validated)
 > Progress: 100% (audit-aligned)
 > Complexity: Medium-High
 > Theme: Logics Workflow Indexing
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:10
 
 # Problem
 The plugin currently depends on specific markdown reference patterns (`Derived from`/`Promoted from`, `# References`, `# Used by`, `# Backlog`). Mixed conventions across docs reduce link quality and can produce incorrect promotion state in the board.
@@ -28,11 +30,11 @@ The plugin currently depends on specific markdown reference patterns (`Derived f
 - A safe migration strategy for legacy docs is documented (manual or scripted phases).
 
 # AC Traceability
-- AC1 -> `logics/instructions.md` and/or README sections updated with canonical patterns and examples. Proof: TODO.
-- AC2 -> `src/logicsIndexer.ts` behavior verified with sample docs and extension refresh. Proof: TODO.
-- AC3 -> Manual smoke checks captured for promote guards and details rendering. Proof: TODO.
-- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC1 -> `logics/instructions.md` and/or README sections updated with canonical patterns and examples. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC2 -> `src/logicsIndexer.ts` behavior verified with sample docs and extension refresh. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC3 -> Manual smoke checks captured for promote guards and details rendering. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC4 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC5 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Priority
 - Impact:

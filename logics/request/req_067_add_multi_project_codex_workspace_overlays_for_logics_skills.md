@@ -1,11 +1,13 @@
 ## req_067_add_multi_project_codex_workspace_overlays_for_logics_skills - Add multi-project Codex workspace overlays for Logics skills
 > From version: 1.10.8
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 96%
 > Complexity: High
 > Theme: Agent orchestration and Codex workspace isolation
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:26
 
 # Needs
 - Make Logics skills usable from Codex without moving or duplicating the canonical skill sources out of `logics/skills/`.

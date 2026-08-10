@@ -1,11 +1,13 @@
 ## req_027_harden_extension_packaging_agent_loading_and_workspace_runtime_behavior - Harden extension packaging, agent loading, and workspace runtime behavior
 > From version: 1.9.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% ((closed); refreshed)
 > Confidence: 100% ((validated); refreshed)
 > Complexity: High
 > Theme: Extension runtime robustness, packaging hygiene, and integration safety
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:23
 
 # Needs
 - Harden the main VS Code extension project in the areas that surfaced during the project audit: packaging hygiene, agent definition loading, chat prompt injection robustness, multi-root workspace behavior, and integration-level safety checks.

@@ -1,12 +1,14 @@
 ## item_125_add_canonical_parse_and_normalize_models_for_workflow_docs_and_skill_metadata - Add canonical parse and normalize models for workflow docs and skill metadata
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 96%
 > Confidence: 94%
 > Progress: 100%
 > Complexity: High
 > Theme: Kit runtime and operator tooling
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:20
 
 # Problem
 - Workflow-doc parsing, section extraction, and skill metadata handling are still too dispersed across helper functions and command-specific code paths.

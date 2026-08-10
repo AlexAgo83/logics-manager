@@ -1,12 +1,14 @@
 ## task_031_enable_horizontal_scrolling_for_board_columns - Enable horizontal scrolling for board columns
 > From version: 1.10.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (refreshed)
 > Confidence: 100% (refreshed)
 > Progress: 100%
 > Complexity: Low
 > Theme: Board navigation and overflow ergonomics
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:31
 
 # Context
 Derived from `logics/backlog/item_037_enable_horizontal_scrolling_for_board_columns.md`.

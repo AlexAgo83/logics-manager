@@ -1,11 +1,13 @@
 ## req_055_add_a_minimal_claude_code_bridge_for_logics_agents - Add a minimal Claude Code bridge for Logics agents
 > From version: 1.10.3
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (refreshed)
 > Confidence: 98%
 > Complexity: Medium
 > Theme: Agent orchestration and Claude Code compatibility
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:25
 
 # Needs
 - Make Logics more natively usable from Claude Code without turning `.claude/` into a second source of truth.

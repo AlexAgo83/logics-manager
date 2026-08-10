@@ -1,12 +1,14 @@
 ## item_018_support_vscode_agent_selection_from_skills_openai_yaml - Support VS Code agent selection from skills openai.yaml
 > From version: 1.6.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 99%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Agent discovery and Codex chat integration
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:11
 
 # Problem
 Agent metadata exists in `logics/skills/*/agents/openai.yaml`, but the extension does not expose a native selection UX and does not route selected context into the Codex chat input. This forces manual `$logics-...` entry and creates inconsistency when agent definitions evolve.
@@ -40,11 +42,11 @@ Agent metadata exists in `logics/skills/*/agents/openai.yaml`, but the extension
 - AC10: Validation outputs are available in Output Channel plus summary notification.
 
 # AC Traceability
-- AC1/AC8/AC9/AC10 -> Agent registry loader, validator, and refresh command. Proof: TODO.
-- AC2/AC3 -> Quick Pick item mapping and rendering. Proof: TODO.
-- AC4 -> Active-agent state persistence/update logic. Proof: TODO.
-- AC5/AC6 -> Codex chat prefill merge rules and guard clauses. Proof: TODO.
-- AC7 -> Per-message routing/override resolution. Proof: TODO.
+- AC1/AC8/AC9/AC10 -> Agent registry loader, validator, and refresh command. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC2/AC3 -> Quick Pick item mapping and rendering. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC4 -> Active-agent state persistence/update logic. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC5/AC6 -> Codex chat prefill merge rules and guard clauses. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC7 -> Per-message routing/override resolution. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Priority
 - Impact:

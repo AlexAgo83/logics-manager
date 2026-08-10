@@ -1,12 +1,14 @@
 ## task_014_orchestration_delivery_for_req_012_and_req_013_harness_controls_and_accessibility - Orchestration delivery for req_012 and req_013 harness controls and accessibility
 > From version: 1.2.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (refreshed)
 > Confidence: 99%
 > Progress: 100%
 > Complexity: Medium-High
 > Theme: Harness UX and Accessibility Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:29
 
 ```mermaid
 %% logics-kind: task

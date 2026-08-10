@@ -1,12 +1,14 @@
 ## item_020_add_tools_new_request_action_for_codex_prompt_bootstrap - Add Tools New Request action for Codex prompt bootstrap
 > From version: 1.7.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 98%
 > Progress: 100% complete
 > Complexity: Medium
 > Theme: Agent orchestration and request drafting
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:11
 
 # Problem
 The extension supports agent selection and Codex prompt bootstrapping, but starting a new request-drafting conversation still requires several manual steps. Users who want help formulating a new Logics request must select the right agent themselves, open Codex, and reconstruct a suitable prompt before they can even describe the need.

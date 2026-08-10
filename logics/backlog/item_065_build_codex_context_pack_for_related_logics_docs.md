@@ -1,12 +1,14 @@
 ## item_065_build_codex_context_pack_for_related_logics_docs - Build Codex context pack for related Logics docs
 > From version: 1.10.5
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 95%
 > Progress: 100%
 > Complexity: Medium
 > Theme: AI workflow context and dependency visibility
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:15
 
 # Problem
 The plugin can already inject an agent prompt into Codex, but it still leaves users to reconstruct the working context manually.

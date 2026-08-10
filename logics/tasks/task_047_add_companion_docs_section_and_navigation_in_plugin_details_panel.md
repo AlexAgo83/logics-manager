@@ -1,12 +1,14 @@
 ## task_047_add_companion_docs_section_and_navigation_in_plugin_details_panel - Add companion docs section and navigation in plugin details panel
 > From version: 1.9.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 98%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Plugin details-panel UX and navigation
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:32
 
 ```mermaid
 %% logics-kind: task

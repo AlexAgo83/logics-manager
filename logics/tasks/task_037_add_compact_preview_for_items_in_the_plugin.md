@@ -1,12 +1,14 @@
 ## task_037_add_compact_preview_for_items_in_the_plugin - Add compact preview for items in the plugin
 > From version: 1.9.3 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 99%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Information preview and navigation efficiency
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:31
 
 ```mermaid
 %% logics-kind: task

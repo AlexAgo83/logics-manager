@@ -1,11 +1,13 @@
 ## req_009_add_automated_tests_and_github_ci_workflow_script - Add automated tests and GitHub CI workflow script
 > From version: 1.9.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% ((audit-aligned); refreshed)
 > Confidence: 100% (governed)
 > Complexity: Medium
 > Theme: Quality and CI
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:21
 
 ```mermaid
 %% logics-kind: request

@@ -1,9 +1,11 @@
 ## item_003_filter_panel_options - Regroup options into filter panel
 > From version: 0.0.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 85%
 > Confidence: 85%
 > Progress: 100%
+> Indicators reviewed: 2026-08-10 09:06:10
 
 # Problem
 Move toolbar options into a dedicated panel opened by a filter-like icon to reduce header clutter.

@@ -1,12 +1,14 @@
 ## task_012_orchestration_delivery_for_req_009_tests_and_github_ci - Orchestration delivery for req_009 tests and GitHub CI
 > From version: 1.9.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99% (closed)
 > Confidence: 96% (validated)
 > Progress: 100%
 > Complexity: Medium-High
 > Theme: CI and Test Baseline Orchestration
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:29
 
 ```mermaid
 %% logics-kind: task

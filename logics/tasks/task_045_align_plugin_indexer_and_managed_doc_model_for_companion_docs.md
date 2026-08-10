@@ -1,12 +1,14 @@
 ## task_045_align_plugin_indexer_and_managed_doc_model_for_companion_docs - Align plugin indexer and managed doc model for companion docs
 > From version: 1.9.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 99%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Plugin managed-doc model and indexing
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:32
 
 ```mermaid
 %% logics-kind: task

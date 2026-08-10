@@ -1,12 +1,14 @@
 ## task_086_label_platform_specific_helpers_and_shell_specific_command_variants_explicitly - Label platform-specific helpers and shell-specific command variants explicitly
 > From version: 1.10.7 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 96%
 > Confidence: 93%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Documentation quality, operator ergonomics, and platform clarity
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:35
 
 # Context
 Derived from `logics/backlog/item_081_label_platform_specific_helpers_and_shell_specific_command_variants_explicitly.md`.

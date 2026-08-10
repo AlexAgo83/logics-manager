@@ -1,9 +1,11 @@
 ## task_001_implement_logics_indexer_and_data_model - Implement Logics indexer and data model
 > From version: 1.9.1 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 86% (audit-aligned)
 > Confidence: 81% (governed)
 > Progress: 100%
+> Indicators reviewed: 2026-08-10 09:06:28
 
 ```mermaid
 %% logics-kind: task

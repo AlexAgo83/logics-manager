@@ -1,12 +1,14 @@
 ## item_110_add_diff_first_codex_context_flows_for_implementation_and_review_work - Add diff-first Codex context flows for implementation and review work
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 96%
 > Progress: 100%
 > Complexity: Medium
 > Theme: AI workflow observability and prompt efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:19
 
 # Problem
 - Implementation and review work often need changed files, diffs, and touched paths more than long prose context.
@@ -39,9 +41,9 @@ flowchart LR
 - AC4: Guidance explains when diff-first should be preferred over summary-only or broader narrative context.
 
 # AC Traceability
-- req081-AC3 -> Scope: Define a `diff-first` context mode for implementation and review-oriented flows.. Proof: TODO.
-- req081-AC3 -> Scope: Define which code-change signals can seed that mode, such as diffs, touched files, or recent commits, and what fallback should occur when those signals are unavailable.. Proof: TODO.
-- req081-AC3 -> Scope: Define how `diff-first` should coexist with summary-only and broader context-pack modes.. Proof: TODO.
+- req081-AC3 -> Scope: Define a `diff-first` context mode for implementation and review-oriented flows.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- req081-AC3 -> Scope: Define which code-change signals can seed that mode, such as diffs, touched files, or recent commits, and what fallback should occur when those signals are unavailable.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- req081-AC3 -> Scope: Define how `diff-first` should coexist with summary-only and broader context-pack modes.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Decision framing
 - Product framing: Not needed

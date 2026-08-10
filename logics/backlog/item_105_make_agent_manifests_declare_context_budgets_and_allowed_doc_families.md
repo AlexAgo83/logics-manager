@@ -1,12 +1,14 @@
 ## item_105_make_agent_manifests_declare_context_budgets_and_allowed_doc_families - Make agent manifests declare context budgets and allowed doc families
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 96%
 > Progress: 100%
 > Complexity: High
 > Theme: AI workflow and token efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:18
 
 # Problem
 - The repository already has agent manifests and Codex handoff flows, but those manifests only describe prompts, not the context budget or the document families an agent should use.
@@ -43,9 +45,9 @@ flowchart LR
 - AC5: Agent authoring guidance explains when to choose a smaller or larger profile and when to narrow or widen allowed doc families.
 
 # AC Traceability
-- req080-AC3 -> Scope: Extend the agent-manifest or handoff contract so an agent can declare a preferred context profile and allowed or disallowed Logics doc families.. Proof: TODO.
-- req080-AC3 -> Scope: Define how handoff logic resolves agent-specific routing with explicit operator overrides.. Proof: TODO.
-- req080-AC6 -> Scope: Update guidance or examples for agents that should opt into the new routing fields.. Proof: TODO.
+- req080-AC3 -> Scope: Extend the agent-manifest or handoff contract so an agent can declare a preferred context profile and allowed or disallowed Logics doc families.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- req080-AC3 -> Scope: Define how handoff logic resolves agent-specific routing with explicit operator overrides.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- req080-AC6 -> Scope: Update guidance or examples for agents that should opt into the new routing fields.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Decision framing
 - Product framing: Not needed

@@ -1,9 +1,11 @@
 ## item_000_kickoff - Kickoff
 > From version: 0.0.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 85%
 > Confidence: 80%
 > Progress: 100%
+> Indicators reviewed: 2026-08-10 09:06:10
 
 # Problem
 Create a VS Code extension that provides a visual workspace to orchestrate the Logics flow

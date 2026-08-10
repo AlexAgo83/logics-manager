@@ -1,12 +1,14 @@
 ## item_073_generate_context_aware_mermaid_diagrams_and_keep_them_updated_in_logics_docs - Generate context aware Mermaid diagrams and keep them updated in Logics docs
 > From version: 1.10.5 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 95%
 > Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Logics doc quality and Mermaid relevance
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:16
 
 # Problem
 Mermaid is already part of the Logics workflow, but it still drifts too easily into generic filler or stale summary. A doc can evolve meaningfully while its diagram stays behind, which weakens the value of the visual layer.

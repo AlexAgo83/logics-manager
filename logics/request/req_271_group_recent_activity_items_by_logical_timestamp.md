@@ -1,10 +1,12 @@
 ## req_271_group_recent_activity_items_by_logical_timestamp - Group Recent Activity items by logical timestamp
 > Status: Done
+> Schema version: 1.0
 > From version: 2.12.7
 > Understanding: 90
 > Confidence: 85
 > Complexity: Medium
 > Theme: Viewer request
+> Indicators reviewed: 2026-08-10 09:06:28
 
 # Needs
 - Update the Recent Activity view so activity cells are grouped by logical timestamp.

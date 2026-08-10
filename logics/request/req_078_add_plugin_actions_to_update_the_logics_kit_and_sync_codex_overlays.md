@@ -1,11 +1,13 @@
 ## req_078_add_plugin_actions_to_update_the_logics_kit_and_sync_codex_overlays - Add plugin actions to update the Logics kit and sync Codex overlays
 > From version: 1.10.8
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 98%
 > Complexity: Medium
 > Theme: VS Code operator remediation and kit lifecycle
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:27
 
 # Needs
 - Add explicit plugin actions to remediate the most common overlay rollout gaps without forcing the operator to leave VS Code and manually reconstruct the right shell commands.

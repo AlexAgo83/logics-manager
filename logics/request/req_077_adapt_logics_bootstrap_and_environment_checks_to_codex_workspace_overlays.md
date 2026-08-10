@@ -1,11 +1,13 @@
 ## req_077_adapt_logics_bootstrap_and_environment_checks_to_codex_workspace_overlays - Adapt Logics bootstrap and environment checks to Codex workspace overlays
 > From version: 1.10.8
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 96%
 > Complexity: Medium
 > Theme: VS Code bootstrap and environment diagnostics
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:27
 
 # Needs
 - Adapt the plugin bootstrap and environment-check model so it stays accurate once Codex workspace overlays become part of the supported runtime path.

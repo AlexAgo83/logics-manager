@@ -1,11 +1,13 @@
 ## req_064_add_a_practical_windows_validation_strategy_from_macos_for_the_vs_code_plugin_and_logics_kit - Add a practical Windows validation strategy from macOS for the VS Code plugin and Logics kit
 > From version: 1.10.7
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 95%
 > Complexity: Medium
 > Theme: Cross-platform validation strategy and test environment realism
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:26
 
 # Needs
 - Define a practical way for a maintainer working on macOS to validate Windows behavior for the VS Code plugin and the Logics kit without relying on false confidence from incomplete local simulation.

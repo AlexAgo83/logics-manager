@@ -1,12 +1,14 @@
 ## item_126_centralize_logics_kit_conventions_capability_registry_and_machine_readable_release_metadata - Centralize Logics kit conventions capability registry and machine-readable release metadata
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 96%
 > Confidence: 94%
 > Progress: 100%
 > Complexity: High
 > Theme: Kit runtime and operator tooling
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:20
 
 # Problem
 - The kit still spreads conventions, supported features, and release-evolution hints across docs, code, and implied behavior.

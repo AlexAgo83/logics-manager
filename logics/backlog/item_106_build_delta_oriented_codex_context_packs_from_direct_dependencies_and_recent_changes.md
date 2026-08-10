@@ -1,12 +1,14 @@
 ## item_106_build_delta_oriented_codex_context_packs_from_direct_dependencies_and_recent_changes - Build delta-oriented Codex context packs from direct dependencies and recent changes
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 96%
 > Progress: 100%
 > Complexity: High
 > Theme: AI workflow and token efficiency
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:18
 
 # Problem
 - Current context packs are still biased toward the full related-document graph, which can carry more history than the active task actually needs.
@@ -42,9 +44,9 @@ flowchart LR
 - AC4: Documentation explains when delta packs should be preferred and when a broader context profile is still warranted.
 
 # AC Traceability
-- req080-AC4 -> Scope: Define how a Codex context pack can be built from the selected item, its direct dependencies, and a bounded recent-change surface.. Proof: TODO.
-- req080-AC4 -> Scope: Define the supported recent-change signals, such as workflow-state changes or repository diffs, and the fallback behavior when those signals are unavailable.. Proof: TODO.
-- req080-AC6 -> Scope: Update guidance so operators understand when delta packs should be preferred over broader graph-based packs.. Proof: TODO.
+- req080-AC4 -> Scope: Define how a Codex context pack can be built from the selected item, its direct dependencies, and a bounded recent-change surface.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- req080-AC4 -> Scope: Define the supported recent-change signals, such as workflow-state changes or repository diffs, and the fallback behavior when those signals are unavailable.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- req080-AC6 -> Scope: Update guidance so operators understand when delta packs should be preferred over broader graph-based packs.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Decision framing
 - Product framing: Not needed

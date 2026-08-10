@@ -1,12 +1,14 @@
 ## task_030_remove_column_eye_toggle_from_board - Remove the eye toggle from board columns
 > From version: 1.9.3 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 100%
 > Progress: 100%
 > Complexity: Low
 > Theme: Board UI simplification and control hygiene
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:31
 
 # Context
 Derived from `logics/backlog/item_036_remove_column_eye_toggle_from_board.md`.

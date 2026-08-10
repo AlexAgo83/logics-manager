@@ -1,12 +1,14 @@
 ## item_124_add_a_logics_kit_doctor_command_and_explainable_diagnostics - Add a Logics kit doctor command and explainable diagnostics
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 95%
 > Progress: 100%
 > Complexity: High
 > Theme: Kit runtime and operator tooling
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:20
 
 # Problem
 - The kit lacks a single operator-facing diagnostic entrypoint for broken setup, missing dependencies, unsupported runtime situations, or malformed workflow state.

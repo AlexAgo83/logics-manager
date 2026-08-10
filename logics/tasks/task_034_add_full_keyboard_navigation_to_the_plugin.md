@@ -1,12 +1,14 @@
 ## task_034_add_full_keyboard_navigation_to_the_plugin - Add full keyboard navigation to the plugin
 > From version: 1.9.3 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100%
 > Confidence: 100%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Accessibility and operator productivity
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:31
 
 ```mermaid
 %% logics-kind: task

@@ -1,12 +1,14 @@
 ## item_093_define_workspace_overlay_precedence_and_coexistence_with_global_codex_skills - Define workspace overlay precedence and coexistence with global Codex skills
 > From version: 1.10.8 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 96%
 > Confidence: 93%
 > Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Skill resolution policy and overlay coexistence
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:17
 
 # Problem
 - Define how workspace overlays coexist with global Codex state so skill resolution is deterministic instead of accidental.

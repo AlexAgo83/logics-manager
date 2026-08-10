@@ -1,11 +1,13 @@
 ## req_010_stacked_layout_disable_splitter_and_compact_details_when_collapsed - Stacked layout: disable splitter and compact details when collapsed
 > From version: 1.1.0 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (refreshed)
 > Confidence: 100%
 > Complexity: Medium
 > Theme: UX Behavior and Interaction Guardrails
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:21
 
 ```mermaid
 %% logics-kind: request

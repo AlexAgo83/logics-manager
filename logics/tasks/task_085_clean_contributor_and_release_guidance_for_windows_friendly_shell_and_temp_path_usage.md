@@ -1,12 +1,14 @@
 ## task_085_clean_contributor_and_release_guidance_for_windows_friendly_shell_and_temp_path_usage - Clean contributor and release guidance for Windows-friendly shell and temp-path usage
 > From version: 1.10.7 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 96%
 > Confidence: 93%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Documentation quality, operator ergonomics, and platform clarity
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:35
 
 # Context
 Derived from `logics/backlog/item_080_clean_contributor_and_release_guidance_for_windows_friendly_shell_and_temp_path_usage.md`.

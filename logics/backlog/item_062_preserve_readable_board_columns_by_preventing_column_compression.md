@@ -1,12 +1,14 @@
 ## item_062_preserve_readable_board_columns_by_preventing_column_compression - Preserve readable board columns by preventing column compression
 > From version: 1.10.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 99%
 > Confidence: 99%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Board readability and width budgeting
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:15
 
 # Problem
 Board mode can remain technically scrollable while still becoming visually broken.
@@ -49,9 +51,9 @@ Board mode should keep columns readable and overflow horizontally instead of sol
 - `logics/tasks/task_067_preserve_readable_board_columns_by_preventing_column_compression.md`
 
 # AC Traceability
-- AC1 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC2 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC3 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC4 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC5 -> TODO: map this acceptance criterion to scope. Proof: TODO.
-- AC6 -> TODO: map this acceptance criterion to scope. Proof: TODO.
+- AC1 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC2 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC3 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC4 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC5 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC6 -> Scope mapping not recorded. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.

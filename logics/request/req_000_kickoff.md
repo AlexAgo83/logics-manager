@@ -3,6 +3,8 @@
 > Understanding: 93% (audit-aligned)
 > Confidence: 88% (governed)
 > Status: Done
+> Schema version: 1.0
+> Indicators reviewed: 2026-08-10 09:06:20
 
 ```mermaid
 %% logics-kind: request

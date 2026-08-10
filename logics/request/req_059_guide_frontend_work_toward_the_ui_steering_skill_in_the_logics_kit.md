@@ -1,11 +1,13 @@
 ## req_059_guide_frontend_work_toward_the_ui_steering_skill_in_the_logics_kit - Guide frontend work toward the UI steering skill in the Logics kit
 > From version: 1.10.5
 > Status: Done
+> Schema version: 1.0
 > Understanding: 96%
 > Confidence: 94%
 > Complexity: Medium
 > Theme: Logics kit skill orchestration and frontend guidance
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:26
 
 # Needs
 - Make the Logics kit steer frontend and graphical-interface work toward the dedicated `ui steering` skill instead of relying on generic manual reminders.

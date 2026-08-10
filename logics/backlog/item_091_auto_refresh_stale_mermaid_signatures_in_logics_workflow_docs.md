@@ -1,12 +1,14 @@
 ## item_091_auto_refresh_stale_mermaid_signatures_in_logics_workflow_docs - Auto-refresh stale Mermaid signatures in Logics workflow docs
 > From version: 1.10.8 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 95%
 > Progress: 100% (refreshed)
 > Complexity: Medium
 > Theme: Logics doc maintenance and Mermaid signature integrity
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:17
 
 # Problem
 - Reduce friction when workflow docs are edited manually after generation and only the Mermaid signature becomes stale.

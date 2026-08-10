@@ -1,11 +1,13 @@
 ## req_028_add_reset_action_for_filter_defaults - Add reset action to restore default filter options
 > From version: 1.9.2 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 100% (refreshed)
 > Confidence: 100%
 > Complexity: Low
 > Theme: Filter ergonomics and recoverability
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:23
 
 ```mermaid
 %% logics-kind: request

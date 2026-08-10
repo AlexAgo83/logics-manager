@@ -1,12 +1,14 @@
 ## task_074_orchestration_delivery_for_req_061_context_aware_mermaid_in_logics_docs - Orchestration delivery for req_061 context aware Mermaid in Logics docs
 > From version: 1.10.5 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 95%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Logics doc quality and Mermaid relevance
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:34
 
 # Context
 - Derived from backlog item `item_073_generate_context_aware_mermaid_diagrams_and_keep_them_updated_in_logics_docs`.

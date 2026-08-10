@@ -1,11 +1,13 @@
 ## req_066_add_guarded_environment_preflight_and_onboarding_for_logics_bootstrap_and_workflow_actions - Add guarded environment preflight and onboarding for Logics bootstrap and workflow actions
 > From version: 1.10.7
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 95%
 > Complexity: Medium
 > Theme: Environment detection, onboarding, and guarded recovery UX
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:26
 
 # Needs
 - Add an explicit environment preflight so users can understand which prerequisites are needed for read-only usage, workflow actions, and bootstrap before they hit opaque failures.

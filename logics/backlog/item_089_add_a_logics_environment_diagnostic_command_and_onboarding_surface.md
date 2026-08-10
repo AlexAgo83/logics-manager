@@ -1,12 +1,14 @@
 ## item_089_add_a_logics_environment_diagnostic_command_and_onboarding_surface - Add a Logics environment diagnostic command and onboarding surface
 > From version: 1.10.8
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 95%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Environment detection, onboarding, and guarded recovery UX
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:17
 
 # Problem
 - Add an explicit environment preflight so users can understand which prerequisites are needed for read-only usage, workflow actions, and bootstrap before they hit opaque failures.
@@ -55,28 +57,28 @@ flowchart LR
 - optional diagnostic command or status surface.
 
 # AC Traceability
-- AC1 -> Scope: The request defines an explicit environment capability model that distinguishes at least:. Proof: TODO.
-- AC2 -> Scope: read-only browsing capabilities;. Proof: TODO.
-- AC3 -> Scope: workflow mutation capabilities such as create, promote, and fix;. Proof: TODO.
-- AC4 -> Scope: bootstrap or repair capabilities.. Proof: TODO.
-- AC2 -> Scope: Missing prerequisites for supported flows are detected before or at action entry with actionable feedback rather than only after deep execution failure.. Proof: TODO.
-- AC3 -> Scope: The request explicitly covers machine prerequisites relevant to the current plugin behavior, including:. Proof: TODO.
-- AC5 -> Scope: `git` for bootstrap and submodule-related flows;. Proof: TODO.
-- AC6 -> Scope: `python` for script-backed workflow actions;. Proof: TODO.
-- AC7 -> Scope: optional tooling such as the `code` CLI only where relevant to install or developer workflows.. Proof: TODO.
-- AC4 -> Scope: The plugin remains usable in read-only mode when repository mutation prerequisites are missing, instead of treating the entire environment as unusable.. Proof: TODO.
-- AC5 -> Scope: The onboarding and recovery UX makes clear that the extension can recover repository state but does not promise to install system-level tools automatically.. Proof: TODO.
-- AC6 -> Scope: The request allows a dedicated environment check or diagnostic entrypoint, such as a command or panel action, that summarizes prerequisite status and explains impact.. Proof: TODO.
-- AC7 -> Scope: The resulting UX distinguishes clearly between:. Proof: TODO.
-- AC8 -> Scope: missing kit state;. Proof: TODO.
-- AC9 -> Scope: missing scripts;. Proof: TODO.
-- AC10 -> Scope: missing machine prerequisites;. Proof: TODO.
-- AC11 -> Scope: and partial repository bootstrap states.. Proof: TODO.
-- AC8 -> Scope: The request is specific enough that a backlog item can split the work into:. Proof: TODO.
-- AC12 -> Scope: capability model and prerequisite detection;. Proof: TODO.
-- AC13 -> Scope: guarded action gating;. Proof: TODO.
-- AC14 -> Scope: onboarding and recovery messaging;. Proof: TODO.
-- AC15 -> Scope: optional diagnostic command or status surface.. Proof: TODO.
+- AC1 -> Scope: The request defines an explicit environment capability model that distinguishes at least:. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC2 -> Scope: read-only browsing capabilities;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC3 -> Scope: workflow mutation capabilities such as create, promote, and fix;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC4 -> Scope: bootstrap or repair capabilities.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC2 -> Scope: Missing prerequisites for supported flows are detected before or at action entry with actionable feedback rather than only after deep execution failure.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC3 -> Scope: The request explicitly covers machine prerequisites relevant to the current plugin behavior, including:. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC5 -> Scope: `git` for bootstrap and submodule-related flows;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC6 -> Scope: `python` for script-backed workflow actions;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC7 -> Scope: optional tooling such as the `code` CLI only where relevant to install or developer workflows.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC4 -> Scope: The plugin remains usable in read-only mode when repository mutation prerequisites are missing, instead of treating the entire environment as unusable.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC5 -> Scope: The onboarding and recovery UX makes clear that the extension can recover repository state but does not promise to install system-level tools automatically.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC6 -> Scope: The request allows a dedicated environment check or diagnostic entrypoint, such as a command or panel action, that summarizes prerequisite status and explains impact.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC7 -> Scope: The resulting UX distinguishes clearly between:. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC8 -> Scope: missing kit state;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC9 -> Scope: missing scripts;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC10 -> Scope: missing machine prerequisites;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC11 -> Scope: and partial repository bootstrap states.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC8 -> Scope: The request is specific enough that a backlog item can split the work into:. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC12 -> Scope: capability model and prerequisite detection;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC13 -> Scope: guarded action gating;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC14 -> Scope: onboarding and recovery messaging;. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
+- AC15 -> Scope: optional diagnostic command or status surface.. Proof: not recorded; this slice closed before the closeout proof requirement landed in the 2.19 line.
 
 # Decision framing
 - Product framing: Consider

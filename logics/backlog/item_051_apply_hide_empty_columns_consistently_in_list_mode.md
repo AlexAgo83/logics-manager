@@ -1,12 +1,14 @@
 ## item_051_apply_hide_empty_columns_consistently_in_list_mode - Apply hide empty columns consistently in list mode
 > From version: 1.10.0
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 98%
 > Progress: 100%
 > Complexity: Low
 > Theme: Filter consistency across board and list views
 > Reminder: Update status/understanding/confidence/progress and linked task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:14
 
 # Problem
 `Hide empty columns` currently behaves predictably in board mode, but not in list mode.

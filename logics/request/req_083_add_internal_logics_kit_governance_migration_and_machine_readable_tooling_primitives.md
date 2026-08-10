@@ -1,11 +1,13 @@
 ## req_083_add_internal_logics_kit_governance_migration_and_machine_readable_tooling_primitives - Add internal Logics kit governance, migration, and machine-readable tooling primitives
 > From version: 1.11.1
 > Status: Done
+> Schema version: 1.0
 > Understanding: 97%
 > Confidence: 95%
 > Complexity: High
 > Theme: Kit governance and automation
 > Reminder: Update status/understanding/confidence and references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:28
 
 # Needs
 - Give the Logics kit stronger internal automation contracts so maintainers and downstream tooling can evolve docs, skills, and workflow state predictably without relying on fragile text parsing.

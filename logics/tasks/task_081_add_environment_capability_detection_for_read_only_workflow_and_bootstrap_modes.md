@@ -1,12 +1,14 @@
 ## task_081_add_environment_capability_detection_for_read_only_workflow_and_bootstrap_modes - Add environment capability detection for read-only workflow and bootstrap modes
 > From version: 1.10.8 (refreshed)
 > Status: Done
+> Schema version: 1.0
 > Understanding: 98%
 > Confidence: 96%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Environment detection, onboarding, and guarded recovery UX
 > Reminder: Update status/understanding/confidence/progress and dependencies/references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:06:34
 
 # Context
 Derived from `logics/backlog/item_087_add_environment_capability_detection_for_read_only_workflow_and_bootstrap_modes.md`.

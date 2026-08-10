@@ -1,13 +1,14 @@
 ## item_679_make_doctor_exit_non_zero_when_it_reports_failed - Make doctor exit non-zero when it reports FAILED
 > From version: 2.21.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:24:11
 
 # AI Context
 - Summary: Make doctor exit non-zero when it reports FAILED
@@ -30,7 +31,7 @@
 - AC1: `logics-manager doctor` exits non-zero whenever it prints `FAILED` or reports `"ok": false`, in both text and json formats, with a regression test.
 
 # AC Traceability
-- request-AC1 -> This backlog slice. Proof: deferred to task closeout.
+- request-AC1 -> This backlog slice. Proof: `cli.py`'s doctor branch builds the payload, renders it through the new `render_doctor_payload`, and returns `0 if doctor_result["ok"] else 1` -- the shape its `doctor packaging` sibling already used, computing the payload once rather than twice. `test_doctor_exits_non_zero_when_it_reports_a_problem` and `test_doctor_exits_zero_on_a_clean_corpus`, both parametrized over text and json.
 
 # Decision framing
 - Product framing: Not needed

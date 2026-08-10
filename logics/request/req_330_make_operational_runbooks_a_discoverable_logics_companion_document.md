@@ -7,6 +7,7 @@
 > Complexity: High
 > Theme: Discoverable operational knowledge
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 23:30:31
 
 # AI Context
 - Summary: Make operational runbooks a discoverable Logics companion document
@@ -34,7 +35,7 @@
 - AC2: A generated repository instruction tells an agent where project runbooks live, how to find matching runbooks, to consult relevant runbooks before operational work, and to capture a reusable discovery after it is verified; the generated Logics index exposes the same collection.
 - AC3: The supported CLI, bounded sync reads/searches/context, lint/audit, and MCP surfaces accept and return runbooks consistently without treating them as active delivery work.
 - AC4: Matching runbooks can be found from a concise operational intent, failure symptom, affected path, or task context, and relevant results are available to an agent without a full-corpus read.
-- AC5: The viewer can filter and search runbooks, show their category and verification metadata, and render a runbook-book graph from category to runbook to linked Logics documents.
+- AC5: Workshop places Runbooks between Commands and Explorer; it can filter and search runbooks, show their category and verification metadata, transition their status through the supported mutation path, and render a runbook-book graph from category to runbook to linked Logics documents.
 - AC6: The graph remains useful when a runbook has no delivery link and does not replace the existing request-chain graph.
 - AC7: A project operator can discover legacy runbook candidates and import one deliberately with provenance, category, and review state; an agent can deliberately capture a new reusable learning from its current task. Neither flow modifies any unrelated repository or promotes unverified knowledge automatically.
 - AC8: Validation covers the new document contract and every affected public surface, including agent-facing discovery/capture text, matching behavior, and the viewer graph/filter behavior.

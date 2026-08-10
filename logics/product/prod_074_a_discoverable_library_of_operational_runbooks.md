@@ -6,10 +6,10 @@
 > Related task: `task_327_orchestrate_the_discoverable_runbook_library_delivery`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
-> Indicators reviewed: 2026-08-10 23:22:22
+> Indicators reviewed: 2026-08-10 23:30:30
 
 # Overview
-Give Logics a companion runbook document: a small, durable operational library with stable locations, categories, verification dates, and links to the delivery work that created or changed it. An agent learns the location from generated repository instructions, an operator discovers it through the index or bounded commands, and the viewer renders the library as a category-to-runbook graph without confusing it with the delivery chain.
+Give Logics a companion runbook document: a small, durable operational library with stable locations, categories, verification dates, and links to the delivery work that created or changed it. An agent receives a short, relevant answer before it repeats an investigation, then deliberately captures reusable learning after a verified resolution. The viewer puts the library in Workshop, between Commands and Explorer, where an operator can consult a procedure and promote its verified Draft to Active.
 
 # Goals
 - Make runbooks discoverable to people and agents before operational work begins.
@@ -30,13 +30,28 @@ Give Logics a companion runbook document: a small, durable operational library w
 - Out: unrelated workflow docs and implementation of generated tasks.
 
 # Key product decisions
-- Use structured input as the source of truth for generated docs.
-- Keep generated write paths local and repo-bounded.
+- Runbooks are companion knowledge, never delivery work: no progress, promotion, owner, or closeout state.
+- A runbook has three trust states: Draft is captured but unverified, Active is safe to propose for normal matching, and Archived remains searchable only on request.
+- Matching is bounded and deterministic: exact applicable path, service, command, category, or failure symptom ranks before text similarity. Return at most three Active runbooks; each result states trigger, action, verification, and freshness.
+- The agent preflight is generated repository guidance and bounded task context, not a convention remembered from a chat. A matching runbook is read before comparable operational work begins.
+- Capture is selective. It is offered for a repeatable non-obvious operating fact, failure/recovery path, or verified solution; it first deduplicates against existing runbooks and creates only a Draft with source task evidence.
+- Workshop is the runbook home. Its tabs are Terminals, Commands, Runbooks, and Explorer. Runbooks opens to relevant/recent matches, supports category browsing and search, and keeps the category-to-runbook graph as a secondary navigation view.
+- The Runbook detail supports one narrow write operation: state transition. Draft to Active requires a verification date and short proof; archive requires explicit confirmation. The mutation uses the supported Logics indicator path, refreshes matches, and does not expose a general Markdown editor.
+- Legacy discovery, import, and capture only operate in the current repository. No bulk migration or cross-repository copying occurs.
 
 # Success signals
+- An agent begins an operational task with no more than three relevant, Active procedures or an explicit no-match result.
+- A runbook Draft is never silently recommended as trusted guidance or promoted without verification.
+- A verified solution can be found again from its symptom, path, or task context without reading the full corpus.
 - Generated docs pass lint and audit without broad manual rewrites.
-- Context-pack output can be handed to an implementation agent directly.
 
 # References
 - Product back-reference: `req_330_make_operational_runbooks_a_discoverable_logics_companion_document`
 - Task back-reference: `task_327_orchestrate_the_discoverable_runbook_library_delivery`
+
+# Interaction design
+- Workshop tab order: Terminals, Commands, Runbooks, Explorer.
+- Runbooks landing view: intent search, relevant/recent Active cards, category chips, and a freshness filter. Each card shows `When`, `Do`, `Verify`, and `Last verified` before the full document is opened.
+- Runbook detail: category, status, verification evidence, source task, structural links, concise procedure, and state controls. The graph is available as a book view rather than occupying the default screen.
+- Task detail: a `Relevant runbooks` block links to Workshop Runbooks with the task's matching context prefilled.
+- Empty state: say that no Active runbook matched and offer the capture path only after a reusable solution is verified.

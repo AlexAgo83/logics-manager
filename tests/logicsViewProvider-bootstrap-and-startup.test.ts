@@ -420,7 +420,7 @@ describe("LogicsViewProvider", () => {
     fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
   });
 
-  it("re-publishes the global Codex runtime when the current repo is newer than a warning-state publication", async () => {
+  it("does not publish the global Codex runtime during startup remediation", async () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "canonical",
@@ -508,9 +508,9 @@ describe("LogicsViewProvider", () => {
         }
       } as never);
 
-    await (provider as any).codexWorkflowController.ensureGlobalCodexKit(root);
+    await (provider as any).codexWorkflowController.maybeOfferCodexStartupRemediation(root);
 
-    expect(mocks.publishCodexWorkspaceOverlay).toHaveBeenCalledWith(root);
+    expect(mocks.publishCodexWorkspaceOverlay).not.toHaveBeenCalled();
   });
 
   it("skips startup auto-publish and remediation while bootstrap is already running", async () => {

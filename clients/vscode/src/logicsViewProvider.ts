@@ -464,7 +464,6 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       if (bootstrapTriggered || this.codexWorkflowController.isBootstrapInProgress(root)) {
         return;
       }
-      await this.codexWorkflowController.ensureGlobalCodexKit(root);
       await viewProviderSupport.maybeOfferCodexStartupRemediation.call(this, root);
     }
   }

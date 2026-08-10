@@ -3954,7 +3954,7 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-update-command")?.textContent).toBe("logics-manager self-update && cdx update");
   });
 
-  it("dismisses the duplicate-executable warning for the session", async () => {
+  it("does not render duplicate executable details", async () => {
     const { dom } = createViewerDom({ shadowingExecutables: ["/opt/homebrew/bin/logics-manager"] });
     const api = dom.window.acquireVsCodeApi();
 
@@ -3962,16 +3962,6 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const banner = dom.window.document.getElementById("viewer-update");
-    expect(banner?.hidden).toBe(false);
-    expect(dom.window.document.getElementById("viewer-update-copy")?.textContent).toContain("other logics-manager executable");
-
-    dom.window.document.getElementById("viewer-update-dismiss")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    expect(banner?.hidden).toBe(true);
-
-    // A second render of the same duplicates (e.g. the next refresh tick) stays hidden;
-    // it did not just get overwritten back to visible on the next paint.
-    api.postMessage({ type: "ready" });
-    await new Promise((resolve) => setTimeout(resolve, 0));
     expect(banner?.hidden).toBe(true);
   });
 

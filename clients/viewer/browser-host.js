@@ -878,13 +878,6 @@ ${entry?.message || ""}`;
     const banner = document.getElementById("viewer-update");
     if (banner instanceof HTMLElement) banner.hidden = true;
   }
-  function updateWarningIsDismissed(duplicates) {
-    try {
-      return window.sessionStorage.getItem(UPDATE_WARNING_DISMISS_KEY) === updateWarningSignature(duplicates);
-    } catch {
-      return false;
-    }
-  }
   function renderEnvironmentWarning(warning) {
     const banner = document.getElementById("viewer-environment-warning");
     if (!(banner instanceof HTMLElement)) return;
@@ -9896,12 +9889,7 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
         { name: "logics-manager", fallbackCommand: "logics-manager self-update", info: updateInfo },
         { name: "cdx", fallbackCommand: "cdx update", info: cdxUpdateInfo }
       ].filter(({ info }) => info && info.updateAvailable === true && info.latestVersion);
-      const duplicates = Array.isArray(updateInfo?.shadowingExecutables) ? updateInfo.shadowingExecutables : [];
-      if (notices.length === 0 && duplicates.length === 0) {
-        banner.hidden = true;
-        return;
-      }
-      if (notices.length === 0 && updateWarningIsDismissed(duplicates)) {
+      if (notices.length === 0) {
         banner.hidden = true;
         return;
       }
@@ -9909,17 +9897,10 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
       const command = updateCommand();
       if (copy) {
         const messages = notices.map(({ name, info }) => `${name} ${info.latestVersion} is available. Current version: ${info.currentVersion || "unknown"}.`);
-        if (duplicates.length > 0) {
-          const running = updateInfo?.executablePath ? ` Running: ${updateInfo.executablePath}.` : "";
-          const manager = updateInfo?.manager ? ` Resolved manager: ${updateInfo.manager}.` : "";
-          messages.push(
-            `Warning: ${duplicates.length} other logics-manager executable${duplicates.length === 1 ? "" : "s"} on PATH (${duplicates.join(", ")}).${running}${manager} Updating may act on a copy you are not running.`
-          );
-        }
         copy.textContent = messages.join(" ");
       }
       if (command) {
-        command.textContent = notices.length ? notices.map(({ fallbackCommand, info }) => info.updateCommand || fallbackCommand).join(" && ") : "logics-manager doctor";
+        command.textContent = notices.length ? notices.map(({ fallbackCommand, info }) => info.updateCommand || fallbackCommand).join(" && ") : "";
       }
       banner.hidden = false;
     }

@@ -218,7 +218,7 @@ describe("LogicsCodexWorkflowController", () => {
     expect(mocks.clipboardWriteText).toHaveBeenCalledWith("python3 -m logics_manager bootstrap");
   });
 
-  it("republishes the global kit when startup remediation can recover a missing overlay", async () => {
+  it("does not publish the global kit during startup remediation", async () => {
     const root = makeRoot();
     mocks.inspectLogicsEnvironment
       .mockResolvedValueOnce({
@@ -233,8 +233,8 @@ describe("LogicsCodexWorkflowController", () => {
 
     await controller.maybeOfferCodexStartupRemediation(root);
 
-    expect(mocks.publishCodexWorkspaceOverlay).toHaveBeenCalledWith(root);
-    expect(refresh).toHaveBeenCalledTimes(1);
+    expect(mocks.publishCodexWorkspaceOverlay).not.toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
     expect(mocks.showWarningMessage).not.toHaveBeenCalled();
   });
 

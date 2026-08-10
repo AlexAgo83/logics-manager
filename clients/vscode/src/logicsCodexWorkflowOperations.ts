@@ -71,12 +71,7 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
     }
 
     if (overlay.status === "missing-overlay" || overlay.status === "stale" || needsRepublish) {
-      const published = await this.ensureGlobalCodexKit(root);
-      if (published) {
-        this.clearCodexRemediationPromptState(root);
-        return;
-      }
-      void vscode.window.showWarningMessage(`Global Codex runtime still needs attention. ${overlay.summary}`);
+      this.clearCodexRemediationPromptState(root);
       return;
     }
 
@@ -471,30 +466,6 @@ export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapS
       return this.syncCodexOverlay(root, "manual repair", { forceRepublish: true });
     }
     return this.syncClaudeGlobalKit(root, "manual repair", { forceRepublish: true });
-  }
-
-  async ensureGlobalCodexKit(root: string): Promise<boolean> {
-    const snapshot = await inspectLogicsEnvironment(root);
-    const needsRepublish = this.codexKitNeedsRepublish(root, snapshot.codexOverlay);
-    if ((snapshot.codexOverlay.status === "healthy" || snapshot.codexOverlay.status === "warning") && !needsRepublish) {
-      return true;
-    }
-    if (!needsRepublish) {
-      return false;
-    }
-    try {
-      publishCodexWorkspaceOverlay(root);
-      await this.options.refresh();
-      return true;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      const key = `${path.resolve(root)}::global-kit-autopublish-failed`;
-      if (!this.codexRemediationPromptedKeys.has(key)) {
-        this.codexRemediationPromptedKeys.add(key);
-        void vscode.window.showWarningMessage(`Automatic global Codex runtime publish failed: ${message}`);
-      }
-      return false;
-    }
   }
 
 }

@@ -2311,17 +2311,7 @@ import {
       { name: "logics-manager", fallbackCommand: "logics-manager self-update", info: updateInfo },
       { name: "cdx", fallbackCommand: "cdx update", info: cdxUpdateInfo }
     ].filter(({ info }) => info && info.updateAvailable === true && info.latestVersion);
-    // A second executable on PATH shadows the first, and has broken updates
-    // twice in the field. Worth saying even when nothing needs updating.
-    const duplicates = Array.isArray(updateInfo?.shadowingExecutables) ? updateInfo.shadowingExecutables : [];
-    if (notices.length === 0 && duplicates.length === 0) {
-      banner.hidden = true;
-      return;
-    }
-    // A real update notice stays regardless of dismissal -- it is actionable and
-    // time-sensitive. Dismissing only ever hides the duplicate-executable-only case,
-    // which has no action to take beyond what the message already said once.
-    if (notices.length === 0 && updateWarningIsDismissed(duplicates)) {
+    if (notices.length === 0) {
       banner.hidden = true;
       return;
     }
@@ -2330,20 +2320,12 @@ import {
     if (copy) {
       const messages = notices
         .map(({ name, info }) => `${name} ${info.latestVersion} is available. Current version: ${info.currentVersion || "unknown"}.`);
-      if (duplicates.length > 0) {
-        const running = updateInfo?.executablePath ? ` Running: ${updateInfo.executablePath}.` : "";
-        const manager = updateInfo?.manager ? ` Resolved manager: ${updateInfo.manager}.` : "";
-        messages.push(
-          `Warning: ${duplicates.length} other logics-manager executable${duplicates.length === 1 ? "" : "s"} on PATH `
-          + `(${duplicates.join(", ")}).${running}${manager} Updating may act on a copy you are not running.`
-        );
-      }
       copy.textContent = messages.join(" ");
     }
     if (command) {
       command.textContent = notices.length
         ? notices.map(({ fallbackCommand, info }) => info.updateCommand || fallbackCommand).join(" && ")
-        : "logics-manager doctor";
+        : "";
     }
     banner.hidden = false;
   }

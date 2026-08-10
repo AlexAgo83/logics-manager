@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: Viewer visual identity
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-10 12:48:08
+> Indicators reviewed: 2026-08-10 12:48:46
 
 # AI Context
 - Summary: Use the Logics icon as the viewer topbar identity
@@ -24,7 +24,7 @@
   - Replace the visible title with the existing viewer icon.
   - Use CSS sizing that preserves the current topbar height and compact layout.
   - Provide accessible naming without duplicate visible copy and add focused coverage.
-  - Capture and inspect the rendered viewer header after implementation, updating the reference capture if needed.
+  - Capture and inspect the rendered viewer header after implementation, then regenerate or confirm the affected README and documentation screenshots.
 - Out:
   - Changing navigation, project selection, or other topbar controls.
   - Creating, regenerating, or modifying icon assets.
@@ -33,7 +33,7 @@
 - The icon appears before the project selector and the title is not visibly rendered.
 - The topbar height remains unchanged in the normal viewer layout.
 - Screen readers retain a meaningful viewer identity label.
-- A current rendered viewer capture proves the icon remains discreet and the topbar height is unchanged.
+- Current README and documentation screenshots prove the icon remains discreet and the topbar height is unchanged where the header is visible.
 
 # AC Traceability
 - request-The visible Logics Viewer text is replaced by the packaged Logics icon before the project selector. -> This backlog slice. Proof: The icon appears before the project selector and the title is not visibly rendered.

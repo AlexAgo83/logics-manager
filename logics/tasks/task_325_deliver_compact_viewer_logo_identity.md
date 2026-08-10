@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-10 12:48:08
+> Indicators reviewed: 2026-08-10 12:48:46
 
 # AI Context
 - Summary: Deliver compact viewer logo identity
@@ -22,7 +22,7 @@
 # Plan
 - [ ] 1. Inspect the existing identity row and reuse the packaged viewer icon.
 - [ ] 2. Replace the visible title with an accessible logo and preserve compact-height styling.
-- [ ] 3. Run focused viewer tests, capture and inspect the rendered header, update the reference capture if needed, then run lint, audit, and closeout validation.
+- [ ] 3. Run focused viewer tests, capture and inspect the rendered header, regenerate or confirm the affected README and documentation screenshots, then run lint, audit, and closeout validation.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.

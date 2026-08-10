@@ -7,7 +7,7 @@
 > Complexity: Low
 > Theme: Viewer visual identity
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-10 12:48:08
+> Indicators reviewed: 2026-08-10 12:48:46
 
 # AI Context
 - Summary: Replace the viewer title with a compact Logics logo
@@ -27,7 +27,7 @@
 - The visible Logics Viewer text is replaced by the packaged Logics icon before the project selector.
 - The logo is discreet, preserves the existing topbar height, and does not cause layout overflow at compact widths.
 - The identity remains accessible through suitable semantic text or an aria-label and a viewer test covers the new header markup.
-- The rendered viewer header is captured and visually inspected after the change; the reference capture is updated when it no longer matches.
+- The rendered viewer header is visually inspected after the change, and the published README/documentation screenshots are regenerated or explicitly confirmed unchanged when the header is visible.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.
@@ -44,6 +44,9 @@
 - clients/viewer/viewer.css
 - clients/shared-web/media/viewer-icon.png
 - tests/viewer.browser-host.test.ts
+- README.md
+- docs/media/viewer-board.png
+- docs/media/viewer-document.png
 
 # Backlog
 - `item_684_use_the_logics_icon_as_the_viewer_topbar_identity`

@@ -3636,7 +3636,7 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-environment-warning-copy")?.textContent).toContain("logics-manager bootstrap");
   });
 
-  it("opens refresh options and configures the interval from the payload", async () => {
+  it("opens the Settings screen and configures the interval from the payload", async () => {
     const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
     const dom = new JSDOM(html, { runScripts: "outside-only", url: "http://127.0.0.1:8765/" });
     Object.defineProperty(dom.window, "fetch", {
@@ -3664,14 +3664,11 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const menuButton = dom.window.document.getElementById("viewer-refresh-menu-button") as HTMLButtonElement | null;
-    const menu = dom.window.document.getElementById("viewer-refresh-menu") as HTMLElement | null;
-    const interval = dom.window.document.getElementById("viewer-refresh-interval") as HTMLSelectElement | null;
-    expect(menu?.hidden).toBe(true);
-
     menuButton?.click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(menu?.hidden).toBe(false);
-    expect(menuButton?.getAttribute("aria-expanded")).toBe("true");
+    const interval = dom.window.document.querySelector("[data-viewer-settings-interval]") as HTMLSelectElement | null;
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Settings");
     expect(interval?.value).toBe("15");
   });
 

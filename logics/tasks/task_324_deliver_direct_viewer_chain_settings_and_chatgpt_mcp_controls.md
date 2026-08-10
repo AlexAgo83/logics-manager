@@ -1,14 +1,15 @@
 ## task_324_deliver_direct_viewer_chain_settings_and_chatgpt_mcp_controls - Deliver direct viewer chain, settings, and ChatGPT MCP controls
 > From version: 2.21.3
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 85%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 > Indicators reviewed: 2026-08-10 12:53:21
+> Owner: codex
 
 # AI Context
 - Summary: Deliver direct viewer chain, settings, and ChatGPT MCP controls

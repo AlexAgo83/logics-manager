@@ -78,7 +78,7 @@ import { createCdxScreen } from "./cdx.js";
 import { createViewerState, readerFor } from "./state.js";
 import { createWorkshopScreen } from "./workshop.js";
 import { createGitScreen } from "./git.js";
-import { createGraphScreen } from "./graph.js";
+import { createGraphScreen, renderChainGraph } from "./graph.js";
 import { focusFilterLabel, matchesFilterState, updateFilterOptionCounts } from "./filters.js";
 import {
   activityStateForRoot,
@@ -220,7 +220,6 @@ import {
   const documentTitle = () => document.getElementById("viewer-document-title");
   const documentContent = () => document.getElementById("viewer-document-content");
   const documentStatusButton = () => document.getElementById("viewer-document-status");
-  const documentGraphButton = () => document.getElementById("viewer-document-graph");
   const documentMinimizeButton = () => document.getElementById("viewer-document-minimize");
   const minimizedDock = () => document.getElementById("viewer-minimized-dock");
   const editDocumentButton = () => document.querySelector('[data-viewer-action="edit-document"]');
@@ -279,14 +278,7 @@ import {
     shared: readerFor(viewerState),
   });
 
-  const { showChainGraph } = createGraphScreen({
-    beginView,
-    isViewStale,
-    setDocument,
-    setMeta,
-    renderMermaidDiagrams,
-    openDoc: (ref) => showDocumentByPath(ref),
-  });
+  createGraphScreen({ beginView, isViewStale, setDocument, setMeta, renderMermaidDiagrams, openDoc: (ref) => showDocumentByPath(ref) });
 
   const repoFolderButton = () => document.getElementById("viewer-repo-folder");
   const {
@@ -1884,13 +1876,6 @@ import {
       status.disabled = status.hidden;
       status.title = currentStatus ? `Change status from ${currentStatus}` : "Change status";
     }
-    const graph = documentGraphButton();
-    if (graph instanceof HTMLButtonElement) {
-      // req_320: the graph resolves a whole request chain, so it only makes
-      // sense to offer it from the docs that are actually part of one.
-      graph.hidden = !(currentDocumentItem && ["request", "backlog", "task"].includes(currentDocumentItem.stage));
-      graph.disabled = graph.hidden;
-    }
   }
 
   function renderDocumentMeta(item) {
@@ -2518,6 +2503,36 @@ import {
     setDropdownOpen(refreshMenuPanel(), refreshMenuButton(), open);
   }
 
+  function renderSettingsScreen() {
+    const vscode = Boolean(document.getElementById("viewer-vscode-section") && !document.getElementById("viewer-vscode-section").hidden);
+    return `<div class="viewer-settings-screen">
+      <section class="viewer-settings-screen__hero"><p class="viewer-settings-screen__eyebrow">Viewer controls</p><h2>Settings</h2><p>Controls are scoped to this viewer and project.</p></section>
+      <div class="viewer-settings-screen__grid">
+        <section class="viewer-settings-card"><h3>Refresh</h3><label class="viewer-auto-refresh"><input type="checkbox" data-viewer-settings-auto-refresh ${autoRefreshEnabled ? "checked" : ""} /><span>Automatic refresh</span></label><label class="viewer-refresh-menu__interval"><span>Interval</span><select data-viewer-settings-interval aria-label="Automatic refresh interval"><option value="5">5 sec</option><option value="10">10 sec</option><option value="15">15 sec</option><option value="30">30 sec</option><option value="60">60 sec</option></select></label><button class="btn" type="button" data-viewer-settings-action="refresh">Refresh now</button></section>
+        <section class="viewer-settings-card"><h3>Corpus</h3><button class="btn" type="button" data-viewer-settings-action="insights">Insights</button><button class="btn" type="button" data-viewer-settings-action="health">Health</button><button class="btn" type="button" data-viewer-settings-action="getting-started">Getting Started</button></section>
+        <section class="viewer-settings-card"><h3>ChatGPT Developer Mode</h3><p>Start a temporary HTTPS MCP connector only when you choose ON.</p><button class="btn" type="button" data-viewer-settings-action="mcp">Open MCP controls</button></section>
+        <section class="viewer-settings-card"><h3>Server</h3><button class="btn" type="button" data-viewer-settings-action="copy-diagnostics">Copy diagnostics</button><button class="btn" type="button" data-viewer-settings-action="restart">Restart viewer</button><button class="btn" type="button" data-viewer-settings-action="stop">Stop viewer</button></section>
+        ${vscode ? '<section class="viewer-settings-card"><h3>VS Code panel</h3><button class="btn" type="button" data-viewer-settings-action="vscode-reload">Reload</button><button class="btn" type="button" data-viewer-settings-action="vscode-restart">Restart panel</button><button class="btn" type="button" data-viewer-settings-action="vscode-external">Open externally</button></section>' : ""}
+      </div>
+    </div>`;
+  }
+
+  function showSettings() {
+    setDocument("Settings", renderSettingsScreen(), { eyebrow: "Viewer controls" });
+    const interval = document.querySelector("[data-viewer-settings-interval]");
+    if (interval instanceof HTMLSelectElement) interval.value = String(Math.round(autoRefreshIntervalMs / 1000));
+    setMeta("Settings loaded.");
+  }
+
+  async function showChatgptMcp() {
+    const response = await fetch("/api/mcp-connector");
+    const data = await response.json().catch(() => ({}));
+    const state = data.payload || {};
+    const ready = state.running && state.url;
+    setDocument("ChatGPT Developer Mode", `<div class="viewer-settings-screen"><section class="viewer-settings-screen__hero"><p class="viewer-settings-screen__eyebrow">Per-project MCP connector</p><h2>${state.running ? "Connector ON" : "Connector OFF"}</h2><p>${ready ? "Copy the HTTPS /mcp URL into ChatGPT developer mode. Stop it when you are done." : state.running ? "Starting the secure tunnel… the URL will appear here shortly." : "Nothing is exposed until you turn this connector on."}</p></section><section class="viewer-settings-card"><h3>ChatGPT connection</h3>${ready ? `<code class="viewer-mcp-url">${escapeHtml(state.url)}</code><button class="btn" type="button" data-viewer-mcp-copy="${escapeHtml(state.url)}">Copy URL</button>` : ""}${state.error ? `<p>${escapeHtml(state.error)}</p>` : ""}<button class="btn" type="button" data-viewer-mcp-action="${state.running ? "stop" : "start"}">${state.running ? "OFF — stop connector" : "ON — start connector"}</button>${state.running && !ready ? '<button class="btn" type="button" data-viewer-mcp-action="refresh">Refresh status</button>' : ""}</section></div>`, { eyebrow: "Settings / ChatGPT Developer Mode" });
+    setMeta(ready ? "MCP connector ready." : state.running ? "MCP connector starting." : "MCP connector is off.");
+  }
+
 
   // Open/close a topbar sub-section menu. Opening one closes the others so at
   // most one nav menu is visible at a time.
@@ -2526,8 +2541,7 @@ import {
     if (button) {
       button.onclick = (event) => {
         event.stopPropagation();
-        const panel = refreshMenuPanel();
-        setRefreshMenuOpen(Boolean(panel?.hidden));
+        withPrimaryAction("settings", "Opening settings", showSettings);
       };
     }
     const panel = refreshMenuPanel();
@@ -2864,7 +2878,20 @@ import {
         ? api.renderMarkdownToHtml(markdown)
         : `<pre>${escapeHtml(markdown)}</pre>`;
       const roadmapHtml = item.stage === "roadmap" ? renderRoadmapMilestones(markdown) : "";
-      const html = `${renderDocumentMeta(documentItem)}${roadmapHtml}${bodyHtml}`;
+      let chainHtml = "";
+      if (["request", "backlog", "task"].includes(item.stage)) {
+        try {
+          const graphResponse = await fetch(`/api/chain-graph?ref=${encodeURIComponent(item.id || item.relPath)}`, { signal: tracked.signal });
+          const graphData = await graphResponse?.json?.().catch(() => ({}));
+          if (!isViewStale(tracked) && graphResponse?.ok && graphData?.ok) {
+            window.__logicsGraphNodeClick = (nodeRef) => showDocumentByPath(nodeRef);
+            chainHtml = renderChainGraph(graphData.payload, { inline: true });
+          }
+        } catch {
+          // A document stays readable when an older viewer backend has no graph route.
+        }
+      }
+      const html = `${renderDocumentMeta(documentItem)}${chainHtml}${roadmapHtml}${bodyHtml}`;
       // Header reads as: [type pill] Object name, with the file path as subtitle.
       const objectName = String(item.title || "").trim() || docPath;
       setDocument(objectName, html, {
@@ -3359,6 +3386,41 @@ import {
     document.getElementById("viewer-health")?.addEventListener("click", () => {
       setRefreshMenuOpen(false);
       withPrimaryAction("health", "Checking health", showHealth);
+    });
+    document.addEventListener("change", (event) => {
+      const target = event.target;
+      if (target instanceof HTMLInputElement && target.matches("[data-viewer-settings-auto-refresh]")) {
+        setAutoRefreshEnabled(target.checked);
+      }
+      if (target instanceof HTMLSelectElement && target.matches("[data-viewer-settings-interval]")) {
+        setAutoRefreshIntervalSeconds(target.value, { user: true });
+      }
+    });
+    document.addEventListener("click", (event) => {
+      const target = event.target instanceof Element ? event.target.closest("[data-viewer-settings-action]") : null;
+      if (!(target instanceof HTMLElement)) return;
+      event.preventDefault();
+      const action = target.dataset.viewerSettingsAction;
+      if (action === "refresh") withPrimaryAction("settings-refresh", "Refreshing", () => refreshViewer("POST", { force: true }));
+      if (action === "insights") withPrimaryAction("settings-insights", "Loading insights", showCorpusInsights);
+      if (action === "health") withPrimaryAction("settings-health", "Checking health", showHealth);
+      if (action === "getting-started") showGettingStarted();
+      if (action === "mcp") withPrimaryAction("settings-mcp", "Loading MCP controls", showChatgptMcp);
+      if (action === "copy-diagnostics") withPrimaryAction("settings-diagnostics", "Copying diagnostics", copyViewerDiagnostics);
+      if (action === "restart") withPrimaryAction("settings-restart", "Restarting server", restartViewerServer);
+      if (action === "stop") withPrimaryAction("settings-stop", "Stopping server", stopViewerServer);
+      if (action === "vscode-reload") document.getElementById("viewer-vscode-reload")?.click();
+      if (action === "vscode-restart") document.getElementById("viewer-vscode-restart")?.click();
+      if (action === "vscode-external") document.getElementById("viewer-vscode-open-external")?.click();
+    });
+    document.addEventListener("click", (event) => {
+      const copy = event.target instanceof Element ? event.target.closest("[data-viewer-mcp-copy]") : null;
+      if (copy instanceof HTMLElement) copyTextToClipboard(copy.dataset.viewerMcpCopy || "").then((ok) => setMeta(ok ? "MCP URL copied." : "Clipboard access was refused."));
+      const action = event.target instanceof Element ? event.target.closest("[data-viewer-mcp-action]") : null;
+      if (!(action instanceof HTMLElement)) return;
+      const value = action.dataset.viewerMcpAction;
+      if (value === "refresh") return void showChatgptMcp();
+      fetch("/api/mcp-connector", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: value }) }).then(() => showChatgptMcp()).catch((error) => setMeta(error.message));
     });
     document.addEventListener("toggle", (event) => {
       const current = event.target instanceof Element ? event.target.closest("#viewer-refresh-menu details.viewer-settings-menu__section") : null;
@@ -4165,11 +4227,6 @@ import {
     });
     documentStatusButton()?.addEventListener("click", () => {
       withPrimaryAction("change-document-status", "Updating status", changeCurrentDocumentStatus);
-    });
-    documentGraphButton()?.addEventListener("click", () => {
-      const ref = currentDocumentItem?.id;
-      if (!ref) return;
-      withPrimaryAction("chain-graph", "Resolving chain graph", () => showChainGraph(ref));
     });
     document.getElementById("viewer-git-actions-button")?.addEventListener("click", (event) => {
       event.stopPropagation();

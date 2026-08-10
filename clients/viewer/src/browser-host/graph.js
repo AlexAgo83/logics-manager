@@ -25,19 +25,26 @@ export function buildChainFlowchartSource(payload) {
   for (const node of nodes) {
     lines.push(`  click ${node.ref} call __logicsGraphNodeClick("${node.ref}")`);
   }
+  lines.push("  classDef request fill:#2d5b97,stroke:#79b8ff,color:#fff,stroke-width:1.5px");
+  lines.push("  classDef product fill:#6b4ea0,stroke:#c4b5fd,color:#fff,stroke-width:1.5px");
+  lines.push("  classDef backlog fill:#176b63,stroke:#5eead4,color:#fff,stroke-width:1.5px");
+  lines.push("  classDef task fill:#8a4b18,stroke:#fbbf24,color:#fff,stroke-width:1.5px");
+  for (const node of nodes) {
+    lines.push(`  class ${node.ref} ${node.kind === "backlog" ? "backlog" : node.kind === "product" ? "product" : node.kind === "task" ? "task" : "request"}`);
+  }
   return lines.join("\n");
 }
 
-function renderChainGraph(payload) {
+export function renderChainGraph(payload, { inline = false } = {}) {
   const source = buildChainFlowchartSource(payload);
   const dangling = Array.isArray(payload?.dangling) ? payload.dangling : [];
   const notes = dangling.length
     ? `<p class="viewer-graph__dangling">Not resolved (no doc on disk): ${dangling.map(_escapeMermaidLabel).join(", ")}</p>`
     : "";
   if (!source) {
-    return `<div class="viewer-graph"><p>No chain resolved.</p>${notes}</div>`;
+    return `<section class="viewer-graph${inline ? " viewer-graph--inline" : ""}"><p>No chain resolved.</p>${notes}</section>`;
   }
-  return `<div class="viewer-graph"><pre class="mermaid">${source}</pre>${notes}</div>`;
+  return `<section class="viewer-graph${inline ? " viewer-graph--inline" : ""}" aria-label="Linked workflow chain"><div class="viewer-graph__label">Linked workflow</div><pre class="mermaid">${source}</pre>${notes}</section>`;
 }
 
 export function createGraphScreen(host) {

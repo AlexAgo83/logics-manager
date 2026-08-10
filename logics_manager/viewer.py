@@ -1537,6 +1537,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/release-reset",
         "/api/update-status",
         "/api/apply-fixes",
+        "/api/mcp-connector",
         *viewer_project_tools.MUTATING_ROUTES,
         "/api/lan/devices/revoke",
     }
@@ -1594,6 +1595,10 @@ class LogicsViewerServer(ThreadingHTTPServer):
         self.workshop_sessions = WorkshopSessionRegistry()
         self.workshop_terminals = WorkshopTerminalRegistry()
         self.restart_requested = False
+        self.mcp_connector: subprocess.Popen[str] | None = None
+        self.mcp_connector_url = ""
+        self.mcp_connector_error = ""
+        self.mcp_connector_lock = threading.RLock()
         # Cache of (monotonic_ts, etag, body_bytes) keyed by "<route>::<repo_root>".
         self.status_cache: dict[str, tuple[float, str, bytes]] = {}
         # Cache of (monotonic_ts, payload) keyed by "<component>::<repo_root>",
@@ -1613,12 +1618,48 @@ class LogicsViewerServer(ThreadingHTTPServer):
 
     def server_close(self) -> None:
         try:
+            self.stop_mcp_connector()
             self.workshop_sessions.shutdown()
         finally:
             try:
                 self.workshop_terminals.shutdown()
             finally:
                 super().server_close()
+
+    def mcp_connector_payload(self) -> dict[str, Any]:
+        with self.mcp_connector_lock:
+            running = self.mcp_connector is not None and self.mcp_connector.poll() is None
+            return {"running": running, "url": self.mcp_connector_url if running else "", "error": self.mcp_connector_error if not running else ""}
+
+    def start_mcp_connector(self) -> dict[str, Any]:
+        with self.mcp_connector_lock:
+            if self.mcp_connector is not None and self.mcp_connector.poll() is None:
+                return self.mcp_connector_payload()
+            self.mcp_connector_url = ""
+            self.mcp_connector_error = ""
+            command = [sys.executable, "-m", "logics_manager", "mcp", "tunnel", "--repo-root", self.repo_root.as_posix()]
+            self.mcp_connector = subprocess.Popen(command, cwd=self.repo_root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            process = self.mcp_connector
+        def capture() -> None:
+            assert process.stdout is not None
+            for line in process.stdout:
+                match = re.search(r"ChatGPT developer-mode MCP URL:\s*(https://\S+)", line)
+                if match:
+                    with self.mcp_connector_lock: self.mcp_connector_url = match.group(1)
+            with self.mcp_connector_lock:
+                if not self.mcp_connector_url and process.returncode:
+                    self.mcp_connector_error = "MCP connector stopped before publishing an HTTPS URL."
+        threading.Thread(target=capture, daemon=True).start()
+        return self.mcp_connector_payload()
+
+    def stop_mcp_connector(self) -> None:
+        with self.mcp_connector_lock:
+            process = self.mcp_connector
+            self.mcp_connector = None
+            self.mcp_connector_url = ""
+            self.mcp_connector_error = ""
+        if process is not None and process.poll() is None:
+            process.terminate()
 
     def project_registry_payload(self) -> list[dict[str, Any]]:
         registry = viewer_project_registry(self.repo_root, project_roots=self.project_roots)
@@ -2383,6 +2424,9 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 return
             self._send_json({"ok": True, "payload": resolve_request_chain(self.server.repo_root, ref)})
             return
+        if route == "/api/mcp-connector":
+            self._send_json({"ok": True, "payload": self.server.mcp_connector_payload()})
+            return
         if route == "/api/workspace-tree":
             rel_path = parse_qs(parsed.query).get("path", [""])[0]
             try:
@@ -2583,6 +2627,15 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"ok": True, "payload": self.server.viewer_payload(), "audit": result})
             except OSError as exc:
                 self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+            return
+        if parsed.path == "/api/mcp-connector":
+            try:
+                body = self._read_json_body_strict()
+                action = str(body.get("action") or "")
+                payload = self.server.start_mcp_connector() if action == "start" else self.server.stop_mcp_connector() or self.server.mcp_connector_payload()
+                self._send_json({"ok": True, "payload": payload})
+            except (ValueError, OSError) as exc:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, str(exc))
             return
         if parsed.path == "/api/new-request":
             try:

@@ -4287,6 +4287,59 @@
   margin: 0;
 }
 
+.viewer-graph--inline {
+  display: grid;
+  gap: 6px;
+  max-height: 260px;
+  margin: 0 0 18px;
+  padding: 12px;
+  overflow: auto;
+  border: 1px solid color-mix(in srgb, var(--vscode-textLink-foreground, #4ea1ff) 45%, var(--vscode-panel-border, #333333));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--vscode-editor-background, #1e1e1e) 90%, var(--vscode-textLink-foreground, #4ea1ff));
+}
+
+.viewer-graph--inline .viewer-graph__label {
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.viewer-graph--inline .mermaid {
+  min-width: max-content;
+  margin: 0;
+}
+
+.viewer-graph--inline .mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.viewer-settings-screen {
+  display: grid;
+  gap: 16px;
+  max-width: 980px;
+}
+
+.viewer-settings-screen__hero,
+.viewer-settings-card {
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 8px;
+  background: var(--vscode-editorWidget-background, #202020);
+}
+
+.viewer-settings-screen__hero { padding: 18px; }
+.viewer-settings-screen__hero h2 { margin: 2px 0 6px; }
+.viewer-settings-screen__hero p { margin: 0; color: var(--vscode-descriptionForeground, #9da5b4); }
+.viewer-settings-screen__eyebrow { color: var(--vscode-textLink-foreground, #4ea1ff) !important; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.viewer-settings-screen__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.viewer-settings-card { display: grid; align-content: start; gap: 9px; padding: 14px; }
+.viewer-settings-card h3 { margin: 0; font-size: 13px; }
+.viewer-settings-card p { margin: 0; color: var(--vscode-descriptionForeground, #9da5b4); font-size: 12px; line-height: 1.45; }
+.viewer-mcp-url { overflow-wrap: anywhere; padding: 8px; border-radius: 4px; background: var(--vscode-textCodeBlock-background, #181818); color: var(--vscode-textLink-foreground, #4ea1ff); }
+
 .viewer-document__content .markdown-preview__mermaid-fallback {
   padding: 10px 12px;
   border: 1px solid rgba(248, 113, 113, 0.35);

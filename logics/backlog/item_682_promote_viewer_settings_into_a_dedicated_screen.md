@@ -1,10 +1,10 @@
 ## item_682_promote_viewer_settings_into_a_dedicated_screen - Promote viewer settings into a dedicated screen
 > From version: 2.21.3
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 85%
 > Complexity: Medium
 > Theme: Viewer settings UX
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

@@ -1,13 +1,14 @@
 ## item_685_style_the_viewer_health_apply_fixes_action - Style the viewer Health Apply fixes action
 > From version: 2.21.3
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 100%
 > Complexity: Low
 > Theme: Viewer health UX
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 14:05:45
 
 # AI Context
 - Summary: Style the viewer Health Apply fixes action
@@ -47,3 +48,9 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_326_deliver_health_action_polish_and_operational_viewer_documentation`
+
+# Notes
+- Task `task_326_deliver_health_action_polish_and_operational_viewer_documentation` was finished via `logics-manager flow finish task` on 2026-08-10.

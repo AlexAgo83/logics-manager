@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from logics_manager.cli import _install_root, shadowing_executables
+from logics_manager.cli import _executable_identity, _install_root, _shim_target, shadowing_executables
 from logics_manager.sync import backfill_schema_versions
 
 
@@ -115,3 +115,51 @@ def test_backfill_falls_back_to_the_heading_when_there_is_no_status(tmp_path: Pa
         "## req_001_probe - Probe",
         "> Schema version: 1.0",
     ]
+
+
+# --- item_674 on Windows: the PATH entry is a launcher, not a symlink -------
+
+
+def _npm_install(root: Path) -> tuple[Path, Path]:
+    """A Windows-shaped npm install: a .cmd launcher beside its node_modules tree."""
+    package = root / "node_modules" / "@grifhinz" / "logics-manager"
+    (package / "scripts" / "npm").mkdir(parents=True)
+    (package / "scripts" / "logics-manager.py").write_text("# python entry", encoding="utf-8")
+    (package / "scripts" / "npm" / "logics-manager.mjs").write_text("// node wrapper", encoding="utf-8")
+    shim = root / "logics-manager.cmd"
+    shim.write_text(
+        '@ECHO off\r\n"%~dp0\\node.exe"  '
+        '"%~dp0\\node_modules\\@grifhinz\\logics-manager\\scripts\\npm\\logics-manager.mjs" %*\r\n',
+        encoding="utf-8",
+    )
+    return shim, package / "scripts" / "logics-manager.py"
+
+
+def test_a_windows_shim_resolves_to_the_package_it_launches(tmp_path: Path) -> None:
+    shim, spawned = _npm_install(tmp_path / "npm")
+
+    assert _executable_identity(shim) == _executable_identity(spawned)
+
+
+def test_no_duplicate_reported_for_a_windows_style_install(tmp_path: Path, monkeypatch) -> None:
+    shim, spawned = _npm_install(tmp_path / "npm")
+    monkeypatch.setattr("logics_manager.cli._find_executable_paths", lambda _command: [str(shim)])
+
+    assert shadowing_executables(spawned.resolve()) == []
+
+
+def test_a_second_windows_install_is_still_reported(tmp_path: Path, monkeypatch) -> None:
+    shim, spawned = _npm_install(tmp_path / "npm")
+    other_shim, _ = _npm_install(tmp_path / "other-npm")
+    monkeypatch.setattr(
+        "logics_manager.cli._find_executable_paths", lambda _command: [str(shim), str(other_shim)]
+    )
+
+    assert shadowing_executables(spawned.resolve()) == [str(other_shim)]
+
+
+def test_a_non_shim_path_is_left_alone(tmp_path: Path) -> None:
+    plain = tmp_path / "logics-manager"
+    plain.write_text("#!/bin/sh\n", encoding="utf-8")
+
+    assert _shim_target(plain) is None

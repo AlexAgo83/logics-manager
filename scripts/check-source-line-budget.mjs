@@ -45,6 +45,12 @@ const allowedOversizedFiles = new Map(
     // Windows' permissive SO_REUSEADDR let a real port collision bind silently
     // there, confirmed on a real Windows machine (test_server_port_collisions.py).
     "logics_manager/mcp.py": { maxLines: 1867, ref: "req_323" },
+    // 1029: item_674 added the install-identity helpers (_install_root, _shim_target,
+    // _executable_identity) that let doctor tell one install from two. They sit beside
+    // running_executable_path/shadowing_executables, the only callers and the only other
+    // code in the file that reasons about where this process came from; a module for
+    // three short functions used in one place next door would be indirection, not a split.
+    "logics_manager/cli.py": { maxLines: 1029, ref: "req_325" },
     // 1564: item_675 added `backfill_schema_versions` and the --apply/--dry-run wiring on
     // schema-status. It sits beside `_schema_status`, whose scan it repairs, and reuses the
     // same `_resolve_target_docs` targeting; a separate module would import both and gain

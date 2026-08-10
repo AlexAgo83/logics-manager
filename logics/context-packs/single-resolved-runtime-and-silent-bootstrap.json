@@ -1,54 +1,11 @@
 {
   "budgets": {
-    "max_docs": 40,
+    "max_docs": 16,
     "max_docs_per_ref": 8
   },
   "changed_paths": [],
-  "command": "logics-manager sync context-pack req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap item_690_resolve_and_enforce_one_compatible_installed_logics_manager_runtime item_691_make_existing_project_bootstrap_refresh_silent_and_managed_only item_692_remove_global_assistant_publication_and_prompt_cascades_from_normal_vs_code_startup task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification --mode full --profile deep --handoff",
-  "companion_docs": [
-    {
-      "kind": "product",
-      "linked_refs": {
-        "item": [
-          "item_690_resolve_and_enforce_one_compatible_installed_logics_manager_runtime",
-          "item_691_make_existing_project_bootstrap_refresh_silent_and_managed_only",
-          "item_692_remove_global_assistant_publication_and_prompt_cascades_from_normal_vs_code_startup"
-        ],
-        "prod": [
-          "prod_075_one_logics_runtime_no_setup_noise"
-        ],
-        "req": [
-          "req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap"
-        ],
-        "task": [
-          "task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification"
-        ]
-      },
-      "path": "logics/product/prod_075_one_logics_runtime_no_setup_noise.md",
-      "ref": "prod_075_one_logics_runtime_no_setup_noise",
-      "sections": {
-        "Goals": [
-          "- One predictable CLI version per project session.",
-          "- No startup popup cascade for healthy or recoverable projects.",
-          "- Silent, bounded maintenance of generated Logics bootstrap content.",
-          "- A clear separation between CLI installation, repository initialization, and optional assistant integration."
-        ],
-        "Key product decisions": [
-          "- Use structured input as the source of truth for generated docs.",
-          "- Keep generated write paths local and repo-bounded."
-        ],
-        "Overview": [
-          "Make the installed Logics Manager CLI the single runtime used by VS Code, quietly keep existing project bootstrap artifacts current, and reserve setup or global assistant changes for deliberate actions."
-        ],
-        "References": [
-          "- Product back-reference: `req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap`",
-          "- Task back-reference: `task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification`"
-        ]
-      },
-      "status": "Proposed",
-      "title": "One Logics runtime, no setup noise"
-    }
-  ],
+  "command": "logics-manager sync context-pack req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification --mode full --profile deep",
+  "companion_docs": [],
   "docs": [
     {
       "ai_context": {
@@ -59,6 +16,9 @@
       },
       "kind": "request",
       "linked_refs": {
+        "adr": [
+          "adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime"
+        ],
         "item": [
           "item_690_resolve_and_enforce_one_compatible_installed_logics_manager_runtime",
           "item_691_make_existing_project_bootstrap_refresh_silent_and_managed_only",
@@ -76,18 +36,18 @@
       "schema_version": "1.0",
       "sections": {
         "Acceptance criteria": [
-          "- AC1: The VS Code extension resolves a single `logics-manager` executable/runtime identity for the selected project, including executable path, version, and compatibility state, and reuses it for normal CLI-backed operations.",
-          "- AC2: When an installed CLI is compatible, the extension does not invoke its bundled `scripts/logics-manager.py` for normal workflow operations.",
-          "- AC3: When no compatible CLI is available, the extension clearly reports the required install/update action and remains read-only; it does not silently fall back between different runtime versions.",
-          "- AC4: After a compatible runtime version changes, opening an already initialized project silently runs an idempotent bootstrap refresh limited to managed Logics artifacts and reports only a non-blocking status when files changed.",
+          "- AC1: The VS Code extension resolves one `logics-manager` executable from PATH per selected project root, records its path and version, and reuses it for normal CLI-backed operations.",
+          "- AC2: The extension invokes normal workflow operations only when the installed CLI version exactly matches the extension version; it never invokes bundled `scripts/logics-manager.py` as a hidden fallback.",
+          "- AC3: When the CLI is missing or mismatched, the extension clearly reports one install/update action and remains read-only.",
+          "- AC4: After the resolved CLI changes, opening an already initialized project silently runs an idempotent `bootstrap --refresh-managed` apply path limited to generated files and marked managed regions, reporting only a non-blocking status when files changed.",
           "- AC5: Silent refresh never initializes Git, creates commits, publishes global Codex/Claude skills or bridges, overwrites user-owned text outside managed regions, or creates a new `logics/` corpus.",
           "- AC6: Initializing Logics in a project without a corpus remains an explicit user action with a clear description of files that will be created."
         ],
         "Needs": [
-          "- The VS Code extension must resolve one compatible installed `logics-manager` CLI per project and use that same executable for all normal Logics operations.",
+          "- The VS Code extension must resolve one installed `logics-manager` CLI per project and use it for all normal Logics operations only when its version exactly matches the extension version.",
           "- A project that already has a Logics corpus must silently refresh only managed bootstrap artifacts after its resolved CLI changes, without interrupting the user.",
           "- First-time project initialization and other material side effects must remain explicit user actions.",
-          "- Global Codex/Claude skill publication must be treated as an optional advanced integration, not as a prerequisite for normal Logics workflow use."
+          "- Global Codex/Claude skill publication must leave the VS Code plugin and remain the explicit CLI `skills install` integration, not a prerequisite for normal Logics workflow use."
         ]
       },
       "status": "Draft",
@@ -120,8 +80,8 @@
       "schema_version": "1.0",
       "sections": {
         "Acceptance criteria": [
-          "- AC1: A compatible installed CLI is selected once per project and every covered command uses its resolved executable path.",
-          "- AC2: Missing and incompatible CLI states are deterministic, actionable, and do not trigger a hidden bundled-runtime fallback.",
+          "- AC1: An exact-version installed CLI is selected once per project and every covered command uses its resolved executable path.",
+          "- AC2: Missing and mismatched CLI states are deterministic, actionable, read-only, and do not trigger a hidden bundled-runtime fallback.",
           "- AC3: Resolver tests cover npm/Python launch forms, Windows-safe command execution, version compatibility, cache invalidation, and command routing."
         ],
         "Problem": [
@@ -158,7 +118,7 @@
       "schema_version": "1.0",
       "sections": {
         "Acceptance criteria": [
-          "- AC1: Existing valid corpora refresh managed bootstrap output without a popup and without changing user-owned content.",
+          "- AC1: Existing valid corpora refresh managed bootstrap output through the CLI-managed refresh path without a popup and without changing user-owned content.",
           "- AC2: A project with no `logics/` corpus receives no automatic writes and offers an explicit Initialize Logics action.",
           "- AC3: Tests prove that silent refresh cannot invoke Git initialization, commit, global publication, or unbounded document writes."
         ],
@@ -199,7 +159,7 @@
           "- AC1: Opening a healthy project produces no action popup from the Logics extension.",
           "- AC2: Opening a project that needs attention presents one passive status path to Check Environment rather than a chained popup flow.",
           "- AC3: Normal bootstrap and runtime refresh do not publish or launch Codex/Claude and do not offer commit/copy-command prompts.",
-          "- AC4: The explicit advanced publication path, if retained, is documented and covered by focused tests."
+          "- AC4: Plugin-owned global publication and launch controls are removed, and documentation directs global skill installation to `logics-manager skills install`."
         ],
         "Problem": [
           "- Startup currently chains prompts for runtime versions, bootstrap, repair, global assistant publication, launch, command copying, and commits. Global skill publication is optional and should not block normal Logics use."
@@ -212,6 +172,9 @@
       "ai_context": {},
       "kind": "product",
       "linked_refs": {
+        "adr": [
+          "adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime"
+        ],
         "item": [
           "item_690_resolve_and_enforce_one_compatible_installed_logics_manager_runtime",
           "item_691_make_existing_project_bootstrap_refresh_silent_and_managed_only",
@@ -233,6 +196,32 @@
       "sections": {},
       "status": "Proposed",
       "title": "One Logics runtime, no setup noise"
+    },
+    {
+      "ai_context": {},
+      "kind": "architecture",
+      "linked_refs": {
+        "adr": [
+          "adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime"
+        ],
+        "item": [
+          "item_690_resolve_and_enforce_one_compatible_installed_logics_manager_runtime",
+          "item_691_make_existing_project_bootstrap_refresh_silent_and_managed_only",
+          "item_692_remove_global_assistant_publication_and_prompt_cascades_from_normal_vs_code_startup"
+        ],
+        "req": [
+          "req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap"
+        ],
+        "task": [
+          "task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification"
+        ]
+      },
+      "path": "logics/architecture/adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime.md",
+      "ref": "adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Use the installed CLI as the only VS Code Logics runtime"
     },
     {
       "ai_context": {
@@ -274,22 +263,19 @@
     }
   ],
   "estimates": {
-    "char_count": 12326,
-    "companion_doc_count": 1,
-    "doc_count": 6
+    "char_count": 11831,
+    "companion_doc_count": 0,
+    "doc_count": 7
   },
-  "generated_at": "2026-08-10T22:44:00Z",
+  "generated_at": "2026-08-10T22:53:20Z",
   "handoff": {
-    "companion_doc_count": 1,
-    "enabled": true,
+    "companion_doc_count": 0,
+    "enabled": false,
     "source_refs": [
       "req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap",
-      "item_690_resolve_and_enforce_one_compatible_installed_logics_manager_runtime",
-      "item_691_make_existing_project_bootstrap_refresh_silent_and_managed_only",
-      "item_692_remove_global_assistant_publication_and_prompt_cascades_from_normal_vs_code_startup",
       "task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification"
     ],
-    "validation_summary_count": 1
+    "validation_summary_count": 0
   },
   "i18n": {
     "actions": [
@@ -307,12 +293,9 @@
   },
   "mode": "full",
   "profile": "deep",
-  "ref": "req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap,item_690_resolve_and_enforce_one_compatible_installed_logics_manager_runtime,item_691_make_existing_project_bootstrap_refresh_silent_and_managed_only,item_692_remove_global_assistant_publication_and_prompt_cascades_from_normal_vs_code_startup,task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification",
+  "ref": "req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap,task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification",
   "refs": [
     "req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap",
-    "item_690_resolve_and_enforce_one_compatible_installed_logics_manager_runtime",
-    "item_691_make_existing_project_bootstrap_refresh_silent_and_managed_only",
-    "item_692_remove_global_assistant_publication_and_prompt_cascades_from_normal_vs_code_startup",
     "task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification"
   ],
   "release": {
@@ -390,13 +373,5 @@
     "state": "blocked",
     "target_version": "2.21.4"
   },
-  "validation_summary": [
-    {
-      "items": [
-        "- (no validation recorded yet)"
-      ],
-      "path": "logics/tasks/task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification.md",
-      "ref": "task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification"
-    }
-  ]
+  "validation_summary": []
 }

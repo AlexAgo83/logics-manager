@@ -2,12 +2,13 @@
 > From version: 2.21.4
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 95%
+> Confidence: 90%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-11 00:53:17
 
 # AI Context
 - Summary: Deliver the single-runtime and silent-bootstrap simplification
@@ -19,11 +20,11 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Establish the installed CLI identity/version probe and compatibility contract before changing command routing.
+- [ ] 1. Add the PATH-resolved CLI identity/version probe and require an exact match with the extension version before changing command routing.
 - [ ] 2. Route VS Code CLI-backed operations through the resolved runtime and prove unavailable/incompatible behavior remains read-only.
-- [ ] 3. Split bootstrap check from managed-only refresh; make refresh silent only for existing valid corpora and add preservation tests.
+- [ ] 3. Add the managed-only `bootstrap --refresh-managed` check/apply path; run it silently only for existing valid corpora and add preservation tests.
 - [ ] 4. Remove startup remediation/prompt chaining and move deliberate repairs to Check Environment and Tools.
-- [ ] 5. Decide whether global assistant publication has a remaining explicit use case; delete it if not, otherwise retain it as a clearly advanced command.
+- [ ] 5. Remove plugin-owned global assistant publication and launch paths; retain global skills only through the explicit CLI `logics-manager skills install` flow.
 - [ ] 6. Validate focused VS Code tests, TypeScript lint, Logics lint/audit, and the generated context pack before closeout.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.

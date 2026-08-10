@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Bootstrap maintenance
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-11 00:53:06
 
 # AI Context
 - Summary: Make existing-project bootstrap refresh silent and managed-only
@@ -20,7 +21,7 @@
 
 # Scope
 - In:
-  - Define a check/apply bootstrap refresh contract that identifies whether managed artifacts need updating before writing.
+  - Define `bootstrap --refresh-managed --check` and apply behavior that identifies whether generated files or marked managed regions need updating before writing.
   - Run the apply path silently only for an existing valid corpus after a resolved-runtime version change or a detected managed-artifact drift.
   - Preserve user-owned text and unmanaged files; surface a compact status only when managed files changed or refresh failed.
   - Keep first-time initialization explicit and retain explicit commands for manual repair.
@@ -30,7 +31,7 @@
   - Broad document fixing outside bootstrap-managed artifacts.
 
 # Acceptance criteria
-- AC1: Existing valid corpora refresh managed bootstrap output without a popup and without changing user-owned content.
+- AC1: Existing valid corpora refresh managed bootstrap output through the CLI-managed refresh path without a popup and without changing user-owned content.
 - AC2: A project with no `logics/` corpus receives no automatic writes and offers an explicit Initialize Logics action.
 - AC3: Tests prove that silent refresh cannot invoke Git initialization, commit, global publication, or unbounded document writes.
 

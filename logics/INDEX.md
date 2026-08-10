@@ -31,6 +31,7 @@
 | [adr_024_lan_viewer_auth_model_read_only_contract_and_qr_library_choice](architecture/adr_024_lan_viewer_auth_model_read_only_contract_and_qr_library_choice.md) | LAN viewer auth model, read-only contract, and QR library choice | Settled |  |  | architecture/adr_024_lan_viewer_auth_model_read_only_contract_and_qr_library_choice.md |
 | [adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync](architecture/adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync.md) | Bound viewer CDX modularization around payload state and asset sync | Settled |  |  | architecture/adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync.md |
 | [adr_026_embed_the_canonical_local_viewer_in_the_vs_code_panel](architecture/adr_026_embed_the_canonical_local_viewer_in_the_vs_code_panel.md) | Embed the canonical local viewer in the VS Code panel | Settled |  |  | architecture/adr_026_embed_the_canonical_local_viewer_in_the_vs_code_panel.md |
+| [adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime](architecture/adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime.md) | Use the installed CLI as the only VS Code Logics runtime | Proposed |  |  | architecture/adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime.md |
 
 ## Product briefs
 

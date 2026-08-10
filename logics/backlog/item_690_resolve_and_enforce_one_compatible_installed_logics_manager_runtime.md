@@ -8,6 +8,7 @@
 > Complexity: High
 > Theme: Runtime resolution
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-11 00:53:06
 
 # AI Context
 - Summary: Resolve and enforce one compatible installed Logics Manager runtime
@@ -20,18 +21,18 @@
 
 # Scope
 - In:
-  - Add a small runtime resolver that locates `logics-manager`, probes its identity/version using a machine-readable command contract, and evaluates extension compatibility.
+  - Add a small runtime resolver that locates `logics-manager` on PATH, probes its identity/version using a machine-readable command contract, and accepts only an exact match with the extension version.
   - Cache the resolved runtime per selected project root and route normal VS Code CLI operations through it.
   - Expose a concise unavailable/incompatible state to Check Environment and disable write operations that require the CLI.
-  - Use the extension-bundled runtime only in an explicit standalone mode if that mode is intentionally retained and visibly identified.
+  - Keep unavailable or mismatched runtime states read-only with one Check Environment install/update action; do not retain a bundled-runtime fallback.
 - Out:
   - Automatic package installation or self-update.
   - Changing unrelated viewer server lifecycle behavior.
   - Global Codex or Claude skill publication.
 
 # Acceptance criteria
-- AC1: A compatible installed CLI is selected once per project and every covered command uses its resolved executable path.
-- AC2: Missing and incompatible CLI states are deterministic, actionable, and do not trigger a hidden bundled-runtime fallback.
+- AC1: An exact-version installed CLI is selected once per project and every covered command uses its resolved executable path.
+- AC2: Missing and mismatched CLI states are deterministic, actionable, read-only, and do not trigger a hidden bundled-runtime fallback.
 - AC3: Resolver tests cover npm/Python launch forms, Windows-safe command execution, version compatibility, cache invalidation, and command routing.
 
 # AC Traceability

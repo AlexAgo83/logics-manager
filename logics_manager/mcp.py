@@ -30,7 +30,16 @@ from .mcp_request import update_created_request
 from .mcp_tool_definitions import TOOL_DEFINITIONS
 from .path_utils import PathEscapesRoot, has_symlink_segment, relative_to_root
 from .release import release_plan_payload, release_status_payload
-from .sync import append_workflow_note_payload, build_context_pack_payload, list_logics_docs_payload, read_logics_doc_payload, search_logics_docs_payload, update_workflow_indicators_payload
+from .sync import (
+    RUNBOOK_MATCH_LIMIT,
+    append_workflow_note_payload,
+    build_context_pack_payload,
+    list_logics_docs_payload,
+    match_runbooks_payload,
+    read_logics_doc_payload,
+    search_logics_docs_payload,
+    update_workflow_indicators_payload,
+)
 
 
 ALLOWED_WRITE_DIRS = (
@@ -81,6 +90,7 @@ TOOL_CAPABILITIES: dict[str, str] = {
     "get_release_plan": READ_ONLY,
     "list_logics_docs": READ_ONLY,
     "search_logics_docs": READ_ONLY,
+    "match_runbooks": READ_ONLY,
     "get_logics_status": READ_ONLY,
     "get_logics_health": READ_ONLY,
     "list_logics_followups": READ_ONLY,
@@ -730,6 +740,17 @@ def _tool_search_logics_docs(root: Path, args: dict[str, Any], name: str) -> dic
         raise _mcp_read_error(exc) from exc
     return {"ok": True, **payload}
 
+def _tool_match_runbooks(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    try:
+        payload = match_runbooks_payload(
+            root,
+            str(args.get("query") or ""),
+            limit=_bounded_int(args.get("limit"), default=RUNBOOK_MATCH_LIMIT, maximum=RUNBOOK_MATCH_LIMIT),
+        )
+    except SystemExit as exc:
+        raise _mcp_read_error(exc) from exc
+    return {"ok": True, **payload}
+
 def _tool_get_logics_status(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     return status_payload(root, limit=_bounded_int(args.get("limit"), default=10, maximum=100))
 
@@ -1271,6 +1292,7 @@ _TOOL_HANDLERS: dict[str, Any] = {
     "get_release_plan": _tool_get_release_plan,
     "list_logics_docs": _tool_list_logics_docs,
     "search_logics_docs": _tool_search_logics_docs,
+    "match_runbooks": _tool_match_runbooks,
     "get_logics_status": _tool_get_logics_status,
     "get_logics_health": _tool_get_logics_health,
     "list_logics_followups": _tool_list_logics_followups,

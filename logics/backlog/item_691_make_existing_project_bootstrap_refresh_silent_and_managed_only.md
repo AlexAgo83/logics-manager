@@ -1,10 +1,10 @@
 ## item_691_make_existing_project_bootstrap_refresh_silent_and_managed_only - Make existing-project bootstrap refresh silent and managed-only
 > From version: 2.21.4
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 10%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Bootstrap maintenance
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

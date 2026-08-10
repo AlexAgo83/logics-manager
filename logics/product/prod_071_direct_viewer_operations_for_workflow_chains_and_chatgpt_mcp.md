@@ -6,6 +6,7 @@
 > Related task: `task_324_deliver_direct_viewer_chain_settings_and_chatgpt_mcp_controls`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-10 12:29:03
 
 # Overview
 Make the viewer the compact operational surface for understanding a workflow chain, configuring viewer behavior, and deliberately connecting a project to ChatGPT developer mode through the existing local-first MCP tooling.
@@ -36,6 +37,9 @@ flowchart LR
 # Key product decisions
 - Use structured input as the source of truth for generated docs.
 - Keep generated write paths local and repo-bounded.
+- Keep the bounded chain visible by default in a compact, height-limited document frame.
+- Present Settings as a dedicated card-based screen; keep the topbar button as its entry point.
+- Place explicit ChatGPT Developer Mode controls immediately after Server in Settings, and never display connection secrets by default.
 
 # Success signals
 - Generated docs pass lint and audit without broad manual rewrites.

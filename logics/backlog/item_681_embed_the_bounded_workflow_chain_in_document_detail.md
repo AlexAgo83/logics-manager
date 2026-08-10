@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Viewer document navigation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 12:29:03
 
 # AI Context
 - Summary: Embed the bounded workflow chain in document detail
@@ -21,14 +22,14 @@
 # Scope
 - In:
   - Reuse /api/chain-graph and the current Mermaid rendering path in the document detail layout.
-  - Render only request, backlog, and task detail chains and preserve clickable node navigation.
+  - Render only request, backlog, and task detail chains in a visible, compact, height-limited frame and preserve clickable node navigation.
   - Remove the superseded document Graph action and cover loading, empty-chain, and click behavior.
 - Out:
   - Full-corpus dependency exploration.
   - Changing chain graph API semantics beyond what inline rendering needs.
 
 # Acceptance criteria
-- A linked workflow document displays a compact, clickable chain before its Markdown body.
+- A linked workflow document displays a visible-by-default, compact, clickable, height-limited chain before its Markdown body.
 - A document without a resolved chain remains readable without a blank or failing graph frame.
 - The detail action bar no longer contains the separate Graph button.
 

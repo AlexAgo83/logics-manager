@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-10 23:38:01
+> Indicators reviewed: 2026-08-10 23:54:13
 
 # AI Context
 - Summary: Orchestrate the discoverable runbook library delivery
@@ -20,10 +20,10 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Add the smallest companion-document contract and make generated instructions plus the index teach agents where to find, use, and selectively capture runbooks.
-- [ ] 2. Carry the one kind through bounded commands, capped deterministic and explainable matching/context, validation, MCP, and explicit local-only discovery/import/capture tooling; keep no-match and skip non-blocking.
-- [ ] 3. Add Workshop Runbooks between Commands and Explorer: matching, metadata, verified state transitions, and a secondary runbook-book graph while preserving the delivery chain graph.
-- [ ] 4. Validate the full request chain and leave legacy migration to each repository owner.
+- [ ] 1. Add the smallest companion-document contract (item_687): new `run_` kind on the existing `Kind`/`stage_statuses`/`flow companion` machinery, bootstrap instructions, and index entry.
+- [ ] 2. Carry the one kind through bounded read/list/search/context-pack/lint/audit/MCP surfaces, and add a `match` command as a thin ranked wrapper over existing document search (item_688); keep no-match non-blocking.
+- [ ] 3. Add Workshop Runbooks between Commands and Explorer: search, metadata, verified state transitions, and a runbook-book graph reusing the existing chain-graph renderer with a new resolver (item_689).
+- [ ] 4. Validate the full request chain. Cross-repository migration and automated capture-from-task tooling are explicitly out of scope for this delivery.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.
@@ -47,7 +47,6 @@
 - request-AC4 -> `item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling`. Proof deferred to slice closeout.
 - request-AC5 -> `item_689_make_the_runbook_library_navigable_in_the_viewer`. Proof deferred to slice closeout.
 - request-AC6 -> `item_689_make_the_runbook_library_navigable_in_the_viewer`. Proof deferred to slice closeout.
-- request-AC7 -> `item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling`. Proof deferred to slice closeout.
 - request-AC8 -> `item_687_define_the_runbook_companion_contract_and_agent_discovery_path`, `item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling`, and `item_689_make_the_runbook_library_navigable_in_the_viewer`. Proof deferred to slice closeout.
 - request-AC9 -> `item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling` and `item_689_make_the_runbook_library_navigable_in_the_viewer`. Proof deferred to slice closeout.
 

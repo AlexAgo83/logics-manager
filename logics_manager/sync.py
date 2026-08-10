@@ -42,6 +42,7 @@ COMPANION_KINDS = {
     "prod": {"directory": "logics/product", "kind": "product"},
     "road": {"directory": "logics/roadmap", "kind": "roadmap"},
     "adr": {"directory": "logics/architecture", "kind": "architecture"},
+    "run": {"directory": "logics/runbook", "kind": "runbook"},
 }
 INDICATOR_TARGET_KINDS = {
     **DOC_KINDS,
@@ -49,15 +50,16 @@ INDICATOR_TARGET_KINDS = {
     "roadmap": {"directory": "logics/roadmap", "prefix": "road"},
     "architecture": {"directory": "logics/architecture", "prefix": "adr"},
     "spec": {"directory": "logics/specs", "prefix": ("spec", "req")},
+    "runbook": {"directory": "logics/runbook", "prefix": "run"},
 }
 
 _find_repo_root = find_repo_root
 
-REF_PREFIXES = ("req", "item", "task", "prod", "road", "adr", "spec")
+REF_PREFIXES = ("req", "item", "task", "prod", "road", "adr", "spec", "run")
 _CONTEXT_PACK_CACHE: dict[str, dict[str, object]] = {}
 MERMAID_BLOCK_PATTERN = re.compile(r"```mermaid\s*\n(.*?)\n```", re.DOTALL)
 MERMAID_SIGNATURE_PATTERN = re.compile(r"^\s*%%\s*logics-signature:\s*(.+?)\s*$", re.MULTILINE)
-APPROVED_WORKFLOW_INDICATORS = ("Status", "Progress", "Understanding", "Confidence", "Theme", "Complexity")
+APPROVED_WORKFLOW_INDICATORS = ("Status", "Progress", "Understanding", "Confidence", "Theme", "Complexity", "Category", "Verified")
 # Link indicators are mutable too: without them, attaching an existing document to a
 # chain has no supported path and `companion_doc_missing_primary_link` has no remedy.
 RELATED_WORKFLOW_INDICATORS = ("Related request", "Related backlog", "Related task", "Related product", "Related architecture")
@@ -256,6 +258,7 @@ def _context_pack_doc_entry(doc: WorkflowDocModel, mode: str) -> dict[str, objec
         "backlog": ["Problem", "Acceptance criteria"],
         "task": ["Context", "Validation"],
         "roadmap": ["Summary", "Milestones", "Sequencing", "Risks"],
+        "runbook": ["Trigger", "Prerequisites", "Procedure", "Verification"],
     }.get(doc.kind, [])
     entry["sections"] = {heading: [line for line in doc.sections.get(heading, []) if line.strip()][:6] for heading in section_names}
     return entry
@@ -540,6 +543,7 @@ def _default_section_names(kind: str) -> list[str]:
         "backlog": ["Problem", "Scope", "Acceptance criteria", "AC Traceability", "Tasks", "AI Context"],
         "task": ["Definition of Done (DoD)", "Backlog", "Acceptance criteria", "Validation", "Report", "AI Context"],
         "roadmap": ["Summary", "Milestones", "Sequencing", "Risks", "References", "AI Context"],
+        "runbook": ["Trigger", "Prerequisites", "Procedure", "Verification", "Rollback", "References"],
     }.get(kind, ["AI Context"])
 
 
@@ -1029,7 +1033,7 @@ def build_parser() -> argparse.ArgumentParser:
     read_doc.set_defaults(func=cmd_read_doc)
 
     list_docs = sub.add_parser("list-docs", help="List workflow docs by bounded criteria.")
-    list_docs.add_argument("--kind", choices=("all", "request", "backlog", "task", "product", "roadmap", "architecture", "spec"), default="all")
+    list_docs.add_argument("--kind", choices=("all", "request", "backlog", "task", "product", "roadmap", "architecture", "spec", "runbook"), default="all")
     list_docs.add_argument("--status", default=None)
     list_docs.add_argument("--ref-prefix", default=None)
     list_docs.add_argument("--limit", type=int, default=50)
@@ -1041,7 +1045,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     search_docs = sub.add_parser("search-docs", help="Search approved workflow docs with bounded snippets.")
     search_docs.add_argument("query")
-    search_docs.add_argument("--kind", choices=("all", "request", "backlog", "task", "product", "roadmap", "architecture", "spec"), default="all")
+    search_docs.add_argument("--kind", choices=("all", "request", "backlog", "task", "product", "roadmap", "architecture", "spec", "runbook"), default="all")
     search_docs.add_argument("--status", default=None)
     search_docs.add_argument("--limit", type=int, default=20)
     search_docs.add_argument("--max-snippet-chars", type=int, default=240)
@@ -1061,6 +1065,8 @@ def build_parser() -> argparse.ArgumentParser:
     update_indicators.add_argument("--related-task")
     update_indicators.add_argument("--related-product")
     update_indicators.add_argument("--related-architecture")
+    update_indicators.add_argument("--category")
+    update_indicators.add_argument("--verified")
     update_indicators.add_argument(
         "--touch",
         action="store_true",
@@ -1130,11 +1136,11 @@ def _build_help() -> str:
             "",
             "  list-docs",
             "    List workflow docs by bounded criteria.",
-            "    Flags: --kind {all,request,backlog,task,product,roadmap,architecture,spec}, --status, --ref-prefix, --limit, --recent, --open, --changed, --format {text,json}",
+            "    Flags: --kind {all,request,backlog,task,product,roadmap,architecture,spec,runbook}, --status, --ref-prefix, --limit, --recent, --open, --changed, --format {text,json}",
             "",
             "  search-docs <query>",
             "    Search approved workflow docs with bounded snippets.",
-            "    Flags: --kind {all,request,backlog,task,product,roadmap,architecture,spec}, --status, --limit, --max-snippet-chars, --format {text,json}",
+            "    Flags: --kind {all,request,backlog,task,product,roadmap,architecture,spec,runbook}, --status, --limit, --max-snippet-chars, --format {text,json}",
             "",
             "  update-indicators <source>",
             "    Update approved indicators on one workflow doc.",
@@ -1475,6 +1481,8 @@ def cmd_update_indicators(args: argparse.Namespace) -> dict[str, object]:
         "Related task": args.related_task,
         "Related product": args.related_product,
         "Related architecture": args.related_architecture,
+        "Category": args.category,
+        "Verified": args.verified,
     }
     payload = update_workflow_indicators_payload(
         repo_root,

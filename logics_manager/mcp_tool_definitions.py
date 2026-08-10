@@ -105,10 +105,10 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
     },
     {
         "name": "list_companion_docs",
-        "description": "List Logics companion documents such as product briefs, roadmaps, and architecture decisions.",
+        "description": "List Logics companion documents such as product briefs, roadmaps, architecture decisions, and runbooks.",
         "inputSchema": _tool_schema(
             {
-                "kind": {"type": "string", "enum": ["all", "product", "roadmap", "architecture"]},
+                "kind": {"type": "string", "enum": ["all", "product", "roadmap", "architecture", "runbook"]},
                 "limit": {"type": "integer"},
             }
         ),
@@ -157,7 +157,7 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
         "description": "List Logics workflow documents by bounded criteria.",
         "inputSchema": _tool_schema(
             {
-                "kind": {"type": "string", "enum": ["all", "request", "backlog", "task", "product", "roadmap", "architecture", "spec"]},
+                "kind": {"type": "string", "enum": ["all", "request", "backlog", "task", "product", "roadmap", "architecture", "spec", "runbook"]},
                 "status": {"type": "string"},
                 "ref_prefix": {"type": "string"},
                 "limit": {"type": "integer"},
@@ -170,7 +170,7 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
         "inputSchema": _tool_schema(
             {
                 "query": {"type": "string"},
-                "kind": {"type": "string", "enum": ["all", "request", "backlog", "task", "product", "roadmap", "architecture", "spec"]},
+                "kind": {"type": "string", "enum": ["all", "request", "backlog", "task", "product", "roadmap", "architecture", "spec", "runbook"]},
                 "status": {"type": "string"},
                 "limit": {"type": "integer"},
                 "max_snippet_chars": {"type": "integer"},
@@ -193,7 +193,7 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
         "description": "List actionable Logics follow-up areas with request creation commands.",
         "inputSchema": _tool_schema(
             {
-                "source_kind": {"type": "string", "enum": ["all", "request", "backlog", "task", "product", "roadmap", "architecture"]},
+                "source_kind": {"type": "string", "enum": ["all", "request", "backlog", "task", "product", "roadmap", "architecture", "runbook"]},
                 "include_closed": {"type": "boolean"},
                 "closed_only": {"type": "boolean"},
                 "limit": {"type": "integer"},

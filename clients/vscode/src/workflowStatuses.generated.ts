@@ -7,7 +7,8 @@ export const STATUS_STAGES: Record<string, readonly string[]> = {
   "product": ["Draft","Proposed","Active","Accepted","Validated","Rejected","Superseded","Settled","Archived"],
   "roadmap": ["Draft","Proposed","Active","Accepted","Validated","Rejected","Superseded","Settled","Archived"],
   "architecture": ["Draft","Proposed","Accepted","Validated","Rejected","Superseded","Settled","Archived"],
-  "spec": ["Draft","Ready","In progress","Done","Validated","Settled","Archived"]
+  "spec": ["Draft","Ready","In progress","Done","Validated","Settled","Archived"],
+  "runbook": ["Draft","Active","Archived"]
 };
 
 export const OPEN_STATUSES = new Set<string>(["Draft","Ready","In progress","Blocked"]);

@@ -24,9 +24,10 @@ DOC_KINDS = {
     "product": ("logics/product", "prod", False),
     "roadmap": ("logics/roadmap", "road", False),
     "architecture": ("logics/architecture", "adr", False),
+    "runbook": ("logics/runbook", "run", False),
 }
 
-REF_PREFIXES = ("req", "item", "task", "prod", "road", "adr", "spec")
+REF_PREFIXES = ("req", "item", "task", "prod", "road", "adr", "spec", "run")
 STATUS_IN_PROGRESS = {"draft", "ready", "in progress", "blocked"}
 STATUS_DONE = {"done", "archived", "obsolete", "validated", "settled", "superseded"}
 # Terminal, but abandoned rather than delivered. Chain propagation and the active-work
@@ -51,6 +52,12 @@ COMPANION_PLACEHOLDERS: dict[str, tuple[str, ...]] = {
         "Describe the problem, constraints, and drivers.",
         "State the chosen option and rationale.",
         "Describe the rollout or migration step.",
+    ),
+    "runbook": (
+        "(describe when this runbook applies)",
+        "(list what must be true or available before running this)",
+        "(list the steps to follow)",
+        "(describe how to confirm the procedure worked)",
     ),
 }
 TOKEN_HYGIENE_PLACEHOLDERS = (
@@ -789,6 +796,23 @@ def audit_payload(
                         message=f"companion doc references missing target `{ref}`",
                     )
                 )
+
+    for doc in docs.values():
+        # Runbooks are companion knowledge with no delivery-chain requirement (req_330):
+        # a standalone runbook is a normal library entry, so it skips the primary-link
+        # and mermaid checks above. It still gets the placeholder-survived check every
+        # companion kind gets.
+        if doc.kind.kind != "runbook":
+            continue
+        placeholders = COMPANION_PLACEHOLDERS.get("runbook", ())
+        if any(snippet in doc.text for snippet in placeholders):
+            issues.append(
+                AuditIssue(
+                    code="companion_doc_contains_placeholders",
+                    path=doc.path,
+                    message="companion doc still contains generator placeholder content",
+                )
+            )
 
     for doc in docs.values():
         if doc.kind.kind != "request" or _is_delivered(doc) is False:

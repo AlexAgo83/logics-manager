@@ -161,7 +161,7 @@ def _build_help() -> str:
             "    Show a bounded workflow document view.",
             "    Flags: --max-chars, --section, --format {text,json}",
             "",
-            "  companion <product|architecture>",
+            "  companion <product|architecture|runbook>",
             "    Create a companion doc from the integrated runtime.",
             "    Flags: --title, --source-ref, --request-ref, --backlog-ref, --task-ref, --format {text,json}, --dry-run",
             "",
@@ -389,6 +389,7 @@ ALL_DOC_DIRECTORIES = {
     "roadmap": "logics/roadmap",
     "architecture": "logics/architecture",
     "spec": "logics/specs",
+    "runbook": "logics/runbook",
 }
 
 
@@ -402,6 +403,7 @@ ALL_DOC_PREFIXES = {
     "road": "logics/roadmap",
     "adr": "logics/architecture",
     "spec": "logics/specs",
+    "run": "logics/runbook",
 }
 
 
@@ -1189,6 +1191,67 @@ def _build_native_adr(
             "",
             "# Consequences",
             "- (consequence to document)",
+            "",
+            "# References",
+            f"- Related request: {related_request}",
+            f"- Related backlog: {related_backlog}",
+            f"- Related task: {related_task}",
+            "",
+        ]
+    ).rstrip() + "\n"
+    return ref, content
+
+
+def _next_runbook_ref(repo_root: Path, title: str) -> str:
+    directory = repo_root / "logics" / "runbook"
+    highest = 0
+    if directory.is_dir():
+        for path in directory.glob("run_*.md"):
+            stem = path.stem
+            if stem.startswith("run_"):
+                parts = stem.split("_", 2)
+                if len(parts) >= 2 and parts[1].isdigit():
+                    highest = max(highest, int(parts[1]))
+    return f"run_{highest + 1:03d}_{_slugify(title)}"
+
+
+def _build_native_runbook(
+    repo_root: Path,
+    title: str,
+    *,
+    request_ref: str | None = None,
+    backlog_ref: str | None = None,
+    task_ref: str | None = None,
+) -> tuple[str, str]:
+    ref = _next_runbook_ref(repo_root, title)
+    related_request = f"`{request_ref}`" if request_ref else "(none yet)"
+    related_backlog = f"`{backlog_ref}`" if backlog_ref else "(none yet)"
+    related_task = f"`{task_ref}`" if task_ref else "(none yet)"
+    content = "\n".join(
+        [
+            f"## {ref} - {title}",
+            "> Status: Draft",
+            "> Category: other",
+            "> Verified: (not yet verified)",
+            f"> Related request: {related_request}",
+            f"> Related backlog: {related_backlog}",
+            f"> Related task: {related_task}",
+            "> Reminder: Update status, category, verification, and linked refs when you edit this doc.",
+            "",
+            "# Trigger",
+            "- (describe when this runbook applies)",
+            "",
+            "# Prerequisites",
+            "- (list what must be true or available before running this)",
+            "",
+            "# Procedure",
+            "- (list the steps to follow)",
+            "",
+            "# Verification",
+            "- (describe how to confirm the procedure worked)",
+            "",
+            "# Rollback",
+            "- (optional: describe how to undo this procedure)",
             "",
             "# References",
             f"- Related request: {related_request}",

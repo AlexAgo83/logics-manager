@@ -1,10 +1,10 @@
 ## item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling - Expose runbooks through bounded commands, MCP, and deliberate migration tooling
 > From version: 2.21.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 10%
 > Complexity: High
 > Theme: Runbook command and integration parity
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

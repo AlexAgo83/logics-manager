@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-10 23:35:35
+> Indicators reviewed: 2026-08-10 23:38:01
 
 # AI Context
 - Summary: Orchestrate the discoverable runbook library delivery
@@ -44,11 +44,10 @@
 - request-AC2 -> `item_687_define_the_runbook_companion_contract_and_agent_discovery_path`. Proof deferred to slice closeout.
 - request-AC7 -> `item_687_define_the_runbook_companion_contract_and_agent_discovery_path`. Proof deferred to slice closeout.
 - request-AC3 -> `item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling`. Proof deferred to slice closeout.
-- request-AC6 -> `item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling`. Proof deferred to slice closeout.
-- request-AC7 -> `item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling`. Proof deferred to slice closeout.
-- request-AC4 -> `item_689_make_the_runbook_library_navigable_in_the_viewer`. Proof deferred to slice closeout.
+- request-AC4 -> `item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling`. Proof deferred to slice closeout.
 - request-AC5 -> `item_689_make_the_runbook_library_navigable_in_the_viewer`. Proof deferred to slice closeout.
-- request-AC7 -> `item_689_make_the_runbook_library_navigable_in_the_viewer`. Proof deferred to slice closeout.
+- request-AC6 -> `item_689_make_the_runbook_library_navigable_in_the_viewer`. Proof deferred to slice closeout.
+- request-AC7 -> `item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling`. Proof deferred to slice closeout.
 - request-AC8 -> `item_687_define_the_runbook_companion_contract_and_agent_discovery_path`, `item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling`, and `item_689_make_the_runbook_library_navigable_in_the_viewer`. Proof deferred to slice closeout.
 - request-AC9 -> `item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling` and `item_689_make_the_runbook_library_navigable_in_the_viewer`. Proof deferred to slice closeout.
 

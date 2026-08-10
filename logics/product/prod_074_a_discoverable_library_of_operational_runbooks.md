@@ -1,6 +1,6 @@
 ## prod_074_a_discoverable_library_of_operational_runbooks - A discoverable library of operational runbooks
 > Date: 2026-08-10
-> Status: Proposed
+> Status: Active
 > Related request: `req_330_make_operational_runbooks_a_discoverable_logics_companion_document`
 > Related backlog: `item_687_define_the_runbook_companion_contract_and_agent_discovery_path`, `item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling`, `item_689_make_the_runbook_library_navigable_in_the_viewer`
 > Related task: `task_327_orchestrate_the_discoverable_runbook_library_delivery`
@@ -10,6 +10,16 @@
 
 # Overview
 Give Logics a companion runbook document: a small, durable operational library with stable locations, categories, verification dates, and links to the delivery work that created or changed it. An agent receives a short, relevant answer before it repeats an investigation, then deliberately captures reusable learning after a verified resolution. The viewer puts the library in Workshop, between Commands and Explorer, where an operator can consult a procedure and promote its verified Draft to Active.
+
+```mermaid
+flowchart LR
+  Work[Operational work] --> Match[Match Active runbooks]
+  Match --> Apply[Apply or continue]
+  Apply --> Capture[Capture reusable learning]
+  Capture --> Draft[Draft runbook]
+  Draft --> Verify[Verify]
+  Verify --> Active[Active runbook]
+```
 
 # Goals
 - Make runbooks discoverable to people and agents before operational work begins.

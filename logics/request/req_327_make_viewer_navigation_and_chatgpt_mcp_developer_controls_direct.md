@@ -1,7 +1,7 @@
 ## req_327_make_viewer_navigation_and_chatgpt_mcp_developer_controls_direct - Make viewer navigation and ChatGPT MCP developer controls direct
 > From version: 2.21.3
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High

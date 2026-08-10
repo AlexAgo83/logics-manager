@@ -1,7 +1,7 @@
 ## req_328_replace_the_viewer_title_with_a_compact_logics_logo - Replace the viewer title with a compact Logics logo
 > From version: 2.21.3
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Low

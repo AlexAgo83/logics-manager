@@ -1,10 +1,10 @@
 ## item_682_promote_viewer_settings_into_a_dedicated_screen - Promote viewer settings into a dedicated screen
 > From version: 2.21.3
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 85%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer settings UX
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -50,3 +50,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_324_deliver_direct_viewer_chain_settings_and_chatgpt_mcp_controls`
+
+# Notes
+- Task `task_324_deliver_direct_viewer_chain_settings_and_chatgpt_mcp_controls` was finished via `logics-manager flow finish task` on 2026-08-10.

@@ -1,10 +1,10 @@
 ## item_683_add_per_project_chatgpt_mcp_controls_to_the_viewer - Add per-project ChatGPT MCP controls to the viewer
 > From version: 2.21.3
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 85%
+> Progress: 100%
 > Complexity: High
 > Theme: ChatGPT developer-mode MCP operations
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -53,3 +53,9 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_324_deliver_direct_viewer_chain_settings_and_chatgpt_mcp_controls`
+
+# Notes
+- Task `task_324_deliver_direct_viewer_chain_settings_and_chatgpt_mcp_controls` was finished via `logics-manager flow finish task` on 2026-08-10.

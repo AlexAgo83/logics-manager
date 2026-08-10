@@ -1,10 +1,10 @@
 ## item_684_use_the_logics_icon_as_the_viewer_topbar_identity - Use the Logics icon as the viewer topbar identity
 > From version: 2.21.3
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 85%
+> Progress: 100%
 > Complexity: Low
 > Theme: Viewer visual identity
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -53,3 +53,9 @@
 # Priority
 - Priority: Low
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_325_deliver_compact_viewer_logo_identity`
+
+# Notes
+- Task `task_325_deliver_compact_viewer_logo_identity` was finished via `logics-manager flow finish task` on 2026-08-10.

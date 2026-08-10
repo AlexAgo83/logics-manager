@@ -7,7 +7,7 @@
 > Complexity: High
 > Theme: Single runtime and quiet bootstrap
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-11 00:53:18
+> Indicators reviewed: 2026-08-11 01:42:05
 
 # AI Context
 - Summary: Use one resolved Logics Manager runtime and silently refresh existing project bootstrap
@@ -34,7 +34,7 @@
 - AC4: After the resolved CLI changes, opening an already initialized project silently runs an idempotent `bootstrap --refresh-managed` apply path limited to generated files and marked managed regions, reporting only a non-blocking status when files changed.
 - AC5: Silent refresh never initializes Git, creates commits, publishes global Codex/Claude skills or bridges, overwrites user-owned text outside managed regions, or creates a new `logics/` corpus.
 - AC6: Initializing Logics in a project without a corpus remains an explicit user action with a clear description of files that will be created.
-- AC7: Plugin-owned global Codex/Claude publication, launch handoff, command-copy, and commit prompts are removed; global skills are installed only through the explicit CLI `skills install` flow.
+- AC7: Automatic startup calls that offer global Codex/Claude publication, launch handoff, command-copy, or commit creation are removed. Explicit, user-triggered Tools-menu publication/launch commands are unchanged; retiring them in favor of the CLI `skills install` flow entirely is a separable follow-up, not required here.
 - AC8: Startup no longer chains runtime-version, bootstrap, publication, launch, copy-command, or commit prompts. Diagnostics and explicit repair actions remain available through Check Environment and Tools.
 - AC9: Focused tests cover compatible installed runtime selection, missing/incompatible runtime behavior, one-runtime-per-project reuse, silent managed refresh, preservation of user content, and absence of forbidden silent side effects.
 

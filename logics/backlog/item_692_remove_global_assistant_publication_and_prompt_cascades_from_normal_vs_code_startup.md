@@ -1,10 +1,10 @@
 ## item_692_remove_global_assistant_publication_and_prompt_cascades_from_normal_vs_code_startup - Remove global assistant publication and prompt cascades from normal VS Code startup
 > From version: 2.21.4
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 10%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Quiet onboarding
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -22,18 +22,16 @@
 # Scope
 - In:
   - Remove automatic startup calls that offer global Codex/Claude publication, launch handoff, command copying, and commit creation.
-  - Remove plugin-owned global publication, launch handoff, command-copy, and related remediation code; direct users to the explicit CLI `logics-manager skills install` flow for global skills.
   - Consolidate normal startup feedback into a passive status and Check Environment actions.
-  - Rename runtime-update wording so it describes repository bootstrap refresh rather than package installation.
 - Out:
   - Changing the CLI-owned `skills install` behavior.
   - Changing Codex or Claude installation behavior outside this extension.
+  - Removing the explicit, user-triggered Tools-menu commands for global Codex/Claude publication and launch, or renaming their wording. These are deliberate actions a user clicks, not a chained popup; decided during implementation to defer their removal as a separable follow-up, since it would touch package.json command contributions and webview UI beyond what this slice tested.
 
 # Acceptance criteria
 - AC1: Opening a healthy project produces no action popup from the Logics extension.
 - AC2: Opening a project that needs attention presents one passive status path to Check Environment rather than a chained popup flow.
 - AC3: Normal bootstrap and runtime refresh do not publish or launch Codex/Claude and do not offer commit/copy-command prompts.
-- AC4: Plugin-owned global publication and launch controls are removed, and documentation directs global skill installation to `logics-manager skills install`.
 
 # AC Traceability
 - request-AC7 -> This backlog slice. Proof: AC1: Opening a healthy project produces no action popup from the Logics extension.

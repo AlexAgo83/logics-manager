@@ -51,7 +51,6 @@ import {
   triageWorkflowDocFromTools,
   updateLogicsKitFromTools,
   canResetProjectRoot,
-  getStartupKitUpdatePromptStateKey,
   buildMissingEnvLocalQuickPickItem,
   ensureLogicsCacheDir,
   getRepositoryEnvFiles
@@ -259,7 +258,6 @@ describe("logicsViewProviderSupport more coverage", () => {
 
     expect(resolveProjectRoot.call({ projectRootOverride: null })).toEqual({ root: "/workspace" });
     expect(canResetProjectRoot.call({ projectRootOverride: "/workspace" })).toBe(false);
-    expect(getStartupKitUpdatePromptStateKey.call({}, "/workspace")).toContain(path.resolve("/workspace"));
   });
 
   it("covers invalid override notices and data posting", () => {
@@ -331,7 +329,6 @@ describe("logicsViewProviderSupport more coverage", () => {
         syncCodexOverlay: vi.fn().mockResolvedValue(undefined),
         repairLogicsKit: vi.fn().mockResolvedValue(undefined),
         maybeOfferBootstrap: vi.fn().mockResolvedValue(undefined),
-        maybeOfferCodexStartupRemediation: vi.fn().mockResolvedValue(undefined),
         maybeShowCodexOverlayHandoff: vi.fn().mockResolvedValue(undefined),
         bootstrapLogics: vi.fn().mockResolvedValue(undefined),
         notifyBootstrapCompletion: vi.fn().mockResolvedValue(undefined)

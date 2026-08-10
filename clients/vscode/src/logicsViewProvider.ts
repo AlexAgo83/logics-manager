@@ -40,7 +40,6 @@ import {
   MIN_LOGICS_KIT_MINOR,
   ROOT_OVERRIDE_STATE_KEY
 } from "./logicsViewProviderConstants";
-import { inspectKitUpdateNeed } from "./logicsKitVersionSupport";
 import { installLogicsViewProviderBindings } from "./logicsViewProviderBindings";
 import * as viewProviderSupport from "./logicsViewProviderSupport";
 import { installEmbeddedViewerBindings } from "./logicsEmbeddedViewerSupport";
@@ -458,13 +457,16 @@ export class LogicsViewProvider implements vscode.WebviewViewProvider {
       activeAgent: viewProviderSupport.getActiveAgentPayload.call(this),
       changedPaths
     });
-    const startupKitPromptShown = await viewProviderSupport.maybeOfferStartupKitUpdate.call(this, root, bootstrapState);
-    if (!startupKitPromptShown) {
-      const bootstrapTriggered = await viewProviderSupport.maybeOfferBootstrap.call(this, root);
-      if (bootstrapTriggered || this.codexWorkflowController.isBootstrapInProgress(root)) {
-        return;
-      }
-      await viewProviderSupport.maybeOfferCodexStartupRemediation.call(this, root);
+    const bootstrapTriggered = await viewProviderSupport.maybeOfferBootstrap.call(this, root);
+    if (bootstrapTriggered || this.codexWorkflowController.isBootstrapInProgress(root)) {
+      return;
+    }
+    // req_331/item_692: a healthy project produces no popup on open. An
+    // existing corpus gets a silent, managed-only bootstrap refresh (item_691);
+    // anything needing a decision is `shouldRecommendCheckEnvironment`, already
+    // sent above as a passive status, not a chained dialog.
+    if (bootstrapState?.status === "canonical") {
+      void viewProviderSupport.maybeSilentlyRefreshManagedBootstrap.call(this, root);
     }
   }
 

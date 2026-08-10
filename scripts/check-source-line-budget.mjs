@@ -228,7 +228,10 @@ const allowedOversizedFiles = new Map(
     // 1009: req_322 added stopViewerServers(), the explicit deactivate() path
     // redundant with (not a replacement for) the subscription-disposal path
     // the constructor already registers.
-    "clients/vscode/src/logicsViewProvider.ts": { maxLines: 1009, ref: "req_322" },
+    // 1010: req_331 replaced the three-call startup popup chain
+    // (maybeOfferStartupKitUpdate/maybeOfferCodexStartupRemediation, deleted)
+    // with one silent managed-refresh call plus an explanatory comment.
+    "clients/vscode/src/logicsViewProvider.ts": { maxLines: 1010, ref: "req_331" },
   })
 );
 const generatedFiles = new Set([

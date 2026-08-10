@@ -1,15 +1,23 @@
 ## prod_075_one_logics_runtime_no_setup_noise - One Logics runtime, no setup noise
 > Date: 2026-08-11
-> Status: Proposed
-> Related request: req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap
-> Related backlog: item_690_resolve_and_enforce_one_compatible_installed_logics_manager_runtime, item_691_make_existing_project_bootstrap_refresh_silent_and_managed_only, item_692_remove_global_assistant_publication_and_prompt_cascades_from_normal_vs_code_startup
-> Related task: task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification
+> Status: Settled
+> Related request: `req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap`
+> Related backlog: `item_690_resolve_and_enforce_one_compatible_installed_logics_manager_runtime`
+> Related task: `task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification`
 > Related architecture: adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
-> Indicators reviewed: 2026-08-11 00:52:35
+> Indicators reviewed: 2026-08-11 01:46:58
 
 # Overview
 Make the installed Logics Manager CLI the single runtime used by VS Code, quietly keep existing project bootstrap artifacts current, and reserve setup or global assistant changes for deliberate actions.
+
+```mermaid
+flowchart LR
+  Open[Open project] --> Resolve[Resolve installed logics-manager]
+  Resolve -->|compatible + existing corpus| Refresh[Silent bootstrap --refresh-managed]
+  Resolve -->|missing or mismatched| ReadOnly[Read-only + Check Environment]
+  Init[Explicit Initialize Logics] --> Corpus[New logics/ corpus]
+```
 
 # Goals
 - One predictable CLI version per project session.
@@ -38,5 +46,5 @@ Make the installed Logics Manager CLI the single runtime used by VS Code, quietl
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap`
+- Product back-reference: `item_690_resolve_and_enforce_one_compatible_installed_logics_manager_runtime`
 - Task back-reference: `task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification`

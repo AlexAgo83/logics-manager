@@ -2,7 +2,7 @@
 > Date: 2026-08-01
 > Status: Settled
 > Related request: `req_300_agent_facing_correctness_of_generated_docs_and_cli_contracts`
-> Related backlog: (none yet)
+> Related backlog: item_573_make_dry_run_and_command_output_report_what_actually_happened
 > Related task: `task_297_orchestrate_agent_facing_correctness_remediation`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.

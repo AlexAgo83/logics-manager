@@ -403,6 +403,40 @@ describe("webview chrome toolbar and filter behavior", () => {
     expect(dom.window.document.getElementById("activity-toggle")?.getAttribute("aria-pressed")).toBe("false");
   });
 
+  it("req_332: does not repeatedly reset to Activity on every refresh after one real workspace-root mismatch", () => {
+    // Simulates a stale persisted session (root recorded before a rename, a
+    // different path form, etc.): the very first refresh's root legitimately
+    // differs from what was persisted, so one reset to Activity is expected.
+    const { dom } = bootstrapWebview({
+      initialState: {
+        workspaceRoot: "/workspace/old-session",
+        activityPanelOpen: false
+      }
+    });
+
+    pushData(dom, { root: "/workspace/mock", items: [baseItem] });
+
+    const activityPanel = dom.window.document.getElementById("activity-panel");
+    const activityToggle = dom.window.document.getElementById("activity-toggle");
+    expect(activityPanel?.hidden).toBe(false);
+
+    // The user navigates back to Project.
+    activityToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(activityPanel?.hidden).toBe(true);
+
+    // A later refresh with the SAME root (a watcher-debounced update, a save,
+    // a git event) must not re-trigger the reset. Before the fix,
+    // persistedWorkspaceRoot was never updated after the initial mismatch, so
+    // this identical root kept comparing unequal forever and flipped back to
+    // Activity on every single refresh.
+    pushData(dom, { root: "/workspace/mock", items: [baseItem] });
+    expect(activityPanel?.hidden).toBe(true);
+    expect(activityToggle?.getAttribute("aria-pressed")).toBe("false");
+
+    pushData(dom, { root: "/workspace/mock", items: [baseItem] });
+    expect(activityPanel?.hidden).toBe(true);
+  });
+
   it("preserves the activity feed scroll position across re-renders", () => {
     const { dom } = bootstrapWebview();
 

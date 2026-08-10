@@ -1,7 +1,7 @@
 ## req_330_make_operational_runbooks_a_discoverable_logics_companion_document - Make operational runbooks a discoverable Logics companion document
 > From version: 2.21.4
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Complexity: High

@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Runbook contract and discovery
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-10 23:54:13
+> Indicators reviewed: 2026-08-11 00:58:35
 
 # AI Context
 - Summary: Define the runbook companion contract and agent discovery path
@@ -59,3 +59,9 @@
 # Priority
 - Priority: High - every later surface needs one stable document model and location
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_327_orchestrate_the_discoverable_runbook_library_delivery`
+
+# Notes
+- Task `task_327_orchestrate_the_discoverable_runbook_library_delivery` was finished via `logics-manager flow finish task` on 2026-08-11.

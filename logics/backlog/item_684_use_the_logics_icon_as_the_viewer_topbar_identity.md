@@ -1,10 +1,10 @@
 ## item_684_use_the_logics_icon_as_the_viewer_topbar_identity - Use the Logics icon as the viewer topbar identity
 > From version: 2.21.3
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 85%
 > Complexity: Low
 > Theme: Viewer visual identity
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

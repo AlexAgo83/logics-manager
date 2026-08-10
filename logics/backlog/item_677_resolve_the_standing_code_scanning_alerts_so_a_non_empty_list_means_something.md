@@ -1,14 +1,14 @@
 ## item_677_resolve_the_standing_code_scanning_alerts_so_a_non_empty_list_means_something - Resolve the standing code scanning alerts so a non-empty list means something
 > From version: 2.21.2
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 60%
+> Progress: 100%
 > Complexity: Low
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-10 01:00:22
+> Indicators reviewed: 2026-08-10 09:31:41
 
 # AI Context
 - Summary: Resolve the standing code scanning alerts so a non-empty list means something
@@ -31,7 +31,7 @@ Nine code scanning alerts are open, zero Dependabot, zero secret scanning. All n
 - AC5: The nine alerts are each suppressed at source or dismissed with a written reason naming the guard that makes the site safe, and the open alert list is empty so that a future non-empty list is informative.
 
 # AC Traceability
-- request-AC5 -> This backlog slice. Proof: PARTIAL. The three JavaScript/TypeScript alerts were removed by changing the code rather than suppressing it: `diagnostics.js` drops the `Math.random()` fallback for `crypto.getRandomValues` (browser-host bundle rebuilt, `js/insecure-randomness` x2), and `tests/chainGraphScreen.test.ts` asserts `source.includes("-->")` instead of matching `/-->/` (`js/bad-tag-filter`). The six Python alerts are NOT resolved: they need a dismissal on the GitHub security surface, which is an outward action on the owner's repository and was left to them. See the Notes section.
+- request-AC5 -> This backlog slice. Proof: The three JavaScript/TypeScript alerts were removed by changing the code rather than suppressing it: `diagnostics.js` drops the `Math.random()` fallback for `crypto.getRandomValues` (browser-host bundle rebuilt, `js/insecure-randomness` x2), and `tests/chainGraphScreen.test.ts` asserts `source.includes("-->")` instead of matching `/-->/` (`js/bad-tag-filter`). The six Python alerts (40, 45, 46, 50, 51, 52) were dismissed on 2026-08-10 as `won't fix`, each with a comment naming the specific guard that makes its site safe rather than a blanket reason. Alerts 48, 49 and 53 stay listed until the fixes are pushed and CodeQL rescans; nothing further is needed for them.
 
 # Decision framing
 - Product framing: Not needed
@@ -52,9 +52,9 @@ Nine code scanning alerts are open, zero Dependabot, zero secret scanning. All n
 - Rationale: Set while scoping req_325's review findings.
 
 # Notes
-- Six Python alerts remain open and deliberately un-actioned by this slice: `py/command-line-injection` at `viewer.py:628`, `viewer.py:691`, `viewer_cdx.py:1263` (list-form argv, no `shell=True`) and `py/path-injection` at `viewer_docs.py:155`, `viewer_docs.py:167`, `viewer_cdx.py:166` (realpath plus repo-root containment plus a family allow-list plus a `.md` suffix). No code change is warranted. Closing them means dismissing them on GitHub, with a per-alert reason:
-  `gh api -X PATCH repos/AlexAgo83/logics-manager/code-scanning/alerts/<n> -f state=dismissed -f dismissed_reason="won't fix" -f dismissed_comment="<the guard that makes this site safe>"`.
-  Inline `# codeql[...]` suppression was considered and rejected: this repository uses CodeQL default setup, so whether the comments are honoured cannot be verified without pushing and re-running the scan. Adding nine comments that may do nothing is worse than adding none.
+- The six Python alerts were reviewed individually before dismissal: `py/command-line-injection` at `viewer.py:628`, `viewer.py:691`, `viewer_cdx.py:1263` (argv lists, no `shell=True`) and `py/path-injection` at `viewer_docs.py:155`, `viewer_docs.py:167`, `viewer_cdx.py:166` (realpath plus repo-root containment plus a family allow-list plus a `.md` suffix). No code change was warranted, so each carries its own dismissal comment naming its guard; a future reader gets the reasoning, not a shrug.
+- Inline `# codeql[...]` suppression was considered and rejected: this repository uses CodeQL default setup, so whether the comments are honoured cannot be verified without pushing and re-running the scan. Adding nine comments that may do nothing is worse than adding none.
+
 - Hybrid rationale: Derived from request `req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_325_review_findings_diagnostics_that_disagree_with_the_repository_they_diagnose.md`.
 - Generated locally by logics-manager.

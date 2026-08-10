@@ -19,9 +19,9 @@
 }
 
 .viewer-topbar__logo {
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
 }
 
 .viewer-topbar__identity {

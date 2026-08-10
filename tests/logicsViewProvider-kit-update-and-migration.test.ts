@@ -582,9 +582,9 @@ describe("LogicsViewProvider", () => {
           codexRuntime: { status: "unavailable", summary: "Global runtime missing." }
         },
         codexOverlay: {
-          status: "missing-overlay",
-          summary: "No global Codex runtime is published yet. Opening this repository can publish it automatically.",
-          issues: ["Global Logics runtime manifest is missing."],
+          status: "repair-needed",
+          summary: "Global Codex runtime manifest needs repair before launch.",
+          issues: ["Global Logics runtime manifest needs repair."],
           warnings: [],
           runCommand: "codex"
         }
@@ -592,9 +592,11 @@ describe("LogicsViewProvider", () => {
     await provider.refresh();
     await provider.refresh();
 
-    expect(mocks.showWarningMessage).toHaveBeenCalledTimes(1);
-    expect(mocks.showWarningMessage).toHaveBeenCalledWith(
-      "Global Codex runtime still needs attention. No global Codex runtime is published yet. Opening this repository can publish it automatically."
+    expect(mocks.showInformationMessage).toHaveBeenCalledTimes(1);
+    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
+      "Global Codex runtime needs attention for this repository. Global Codex runtime manifest needs repair before launch.",
+      "Update Logics Runtime",
+      "Copy Update Command"
     );
   });
 

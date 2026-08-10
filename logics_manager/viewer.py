@@ -2294,6 +2294,44 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError):
             return
 
+    def _handle_chain_graph_get(self, parsed: Any) -> bool:
+        if parsed.path != "/api/chain-graph":
+            return False
+        ref = parse_qs(parsed.query).get("ref", [""])[0]
+        if not ref:
+            self._send_error_json(HTTPStatus.BAD_REQUEST, "Missing required 'ref' query parameter.")
+            return True
+        self._send_json({"ok": True, "payload": resolve_request_chain(self.server.repo_root, ref)})
+        return True
+
+    def _handle_mcp_connector_post(self, parsed: Any) -> bool:
+        if parsed.path != "/api/mcp-connector":
+            return False
+        try:
+            body = self._read_json_body_strict()
+            action = str(body.get("action") or "")
+            payload = self.server.start_mcp_connector() if action == "start" else self.server.stop_mcp_connector() or self.server.mcp_connector_payload()
+            self._send_json({"ok": True, "payload": payload})
+        except (ValueError, OSError) as exc:
+            self._send_error_json(HTTPStatus.BAD_REQUEST, str(exc))
+        return True
+
+    def _handle_apply_fixes_post(self, parsed: Any) -> bool:
+        if parsed.path != "/api/apply-fixes":
+            return False
+        # req_321/item_664: reuses the exact same repair logic CLI and MCP already call.
+        try:
+            result = audit_payload(
+                self.server.repo_root,
+                autofix_structure=True,
+                autofix_ac_traceability=True,
+                group_by_doc=True,
+            )
+            self._send_json({"ok": True, "payload": self.server.viewer_payload(), "audit": result})
+        except OSError as exc:
+            self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+        return True
+
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
         if not self._lan_auth_passes(parsed, method="GET"):
@@ -2349,11 +2387,11 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         if route == "/api/projects-state":
             # Loaded on demand, when the switcher opens: the switcher listed
             # projects with no state at all, so finding where work was blocked
-            # meant switching into each one in turn. Scanning at viewer startup
-            # instead would pay for every listed project before the first
-            # screen renders.
+            # meant switching into each one in turn.
             self._send_json({"ok": True, "payload": self.server.project_state_payload()})
             return
+        if route == "/api/live":
+            return self._send_json({"ok": True})
         if route == "/api/doc":
             rel_path = parse_qs(parsed.query).get("path", [""])[0]
             try:
@@ -2423,12 +2461,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             full = params.get("full", [""])[0].lower() in {"1", "true", "yes"}
             self._send_json({"ok": True, "payload": git_file_preview_payload(self.server.repo_root, rel_path, full=full)})
             return
-        if route == "/api/chain-graph":
-            ref = parse_qs(parsed.query).get("ref", [""])[0]
-            if not ref:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Missing required 'ref' query parameter.")
-                return
-            self._send_json({"ok": True, "payload": resolve_request_chain(self.server.repo_root, ref)})
+        if self._handle_chain_graph_get(parsed):
             return
         if route == "/api/mcp-connector":
             self._send_json({"ok": True, "payload": self.server.mcp_connector_payload()})
@@ -2617,31 +2650,9 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             except OSError as exc:
                 self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
             return
-        if parsed.path == "/api/apply-fixes":
-            # req_321/item_664: reuses the exact same repair logic CLI
-            # (`audit --autofix-structure --autofix-ac-traceability`) and MCP
-            # (`autofix_structure`/`autofix_ac_traceability` tools) already
-            # call - this route is a new caller, not new repair logic. VS
-            # Code gets this for free (prod_036: one canonical viewer UI/API).
-            try:
-                result = audit_payload(
-                    self.server.repo_root,
-                    autofix_structure=True,
-                    autofix_ac_traceability=True,
-                    group_by_doc=True,
-                )
-                self._send_json({"ok": True, "payload": self.server.viewer_payload(), "audit": result})
-            except OSError as exc:
-                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+        if self._handle_apply_fixes_post(parsed):
             return
-        if parsed.path == "/api/mcp-connector":
-            try:
-                body = self._read_json_body_strict()
-                action = str(body.get("action") or "")
-                payload = self.server.start_mcp_connector() if action == "start" else self.server.stop_mcp_connector() or self.server.mcp_connector_payload()
-                self._send_json({"ok": True, "payload": payload})
-            except (ValueError, OSError) as exc:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, str(exc))
+        if self._handle_mcp_connector_post(parsed):
             return
         if parsed.path == "/api/new-request":
             try:

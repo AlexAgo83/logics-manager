@@ -91,7 +91,11 @@ const allowedOversizedFiles = new Map(
     // 3411: req_323 disabled allow_reuse_address on LogicsViewerServer - Windows'
     // permissive SO_REUSEADDR let a real port collision bind silently there,
     // confirmed on a real Windows machine (test_server_port_collisions.py).
-    "logics_manager/viewer.py": { maxLines: 3411, ref: "req_323" },
+    // 3481: 2.21.4 wires direct chain-graph and ChatGPT MCP connector routes.
+    // The new apply-fixes, chain-graph, and MCP branches were extracted into
+    // helpers to keep do_GET/do_POST under their function-length ceilings; what
+    // remains here is route wiring around existing domain logic.
+    "logics_manager/viewer.py": { maxLines: 3481, ref: "req_329" },
     "logics_manager/viewer_cdx.py": { maxLines: 1523, ref: "req_311" },
     // 1069: req_323 threaded repo_root through _normalize_git_file_path so it
     // could route through the shared path_utils containment check, and removed
@@ -157,12 +161,18 @@ const allowedOversizedFiles = new Map(
     // 4219: req_320 wired the new Graph screen - a button getter, the
     // show/hide clause beside Status's identical one, and its click handler
     // beside Status's, following createGraphScreen's own factory pattern.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4219, ref: "req_320" },
+    // 4260: 2.21.4 turns Settings into a document screen, embeds chain graphs,
+    // exposes ChatGPT MCP URL/token copy controls, and reports ignored busy
+    // actions. Extraction was limited because each handler closes over host
+    // state already owned by this coordinator.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4260, ref: "req_329" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },
     // req_312: the workshop screen, on the same factory-and-accessor seam as cdx.
-    "clients/viewer/src/browser-host/workshop.js": { maxLines: 1310, ref: "req_314" },
+    // 1311: 2.21.4 adds the terminal tab's explicit ready meta so the visual
+    // smoke can distinguish a settled tab from a silent busy state.
+    "clients/viewer/src/browser-host/workshop.js": { maxLines: 1311, ref: "req_329" },
     "clients/viewer/src/browser-host/cdx.js": { maxLines: 3057, ref: "req_312" },
     // De-monolith passes 1-3: pure helpers/data extracted out of index.js. May
     // be split by domain (cdx/git/dom) in later passes as they grow.

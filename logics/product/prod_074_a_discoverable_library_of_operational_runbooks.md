@@ -1,8 +1,8 @@
 ## prod_074_a_discoverable_library_of_operational_runbooks - A discoverable library of operational runbooks
 > Date: 2026-08-10
-> Status: Active
+> Status: Settled
 > Related request: `req_330_make_operational_runbooks_a_discoverable_logics_companion_document`
-> Related backlog: `item_687_define_the_runbook_companion_contract_and_agent_discovery_path`, `item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling`, `item_689_make_the_runbook_library_navigable_in_the_viewer`
+> Related backlog: `item_687_define_the_runbook_companion_contract_and_agent_discovery_path`
 > Related task: `task_327_orchestrate_the_discoverable_runbook_library_delivery`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -56,7 +56,7 @@ flowchart LR
 - Generated docs pass lint and audit without broad manual rewrites.
 
 # References
-- Product back-reference: `req_330_make_operational_runbooks_a_discoverable_logics_companion_document`
+- Product back-reference: `item_687_define_the_runbook_companion_contract_and_agent_discovery_path`
 - Task back-reference: `task_327_orchestrate_the_discoverable_runbook_library_delivery`
 
 # Interaction design

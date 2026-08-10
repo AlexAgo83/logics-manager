@@ -29,7 +29,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 
 try:
@@ -49,6 +49,7 @@ except ImportError:  # pragma: no cover - platform fallback (POSIX)
 # concurrent claims for the same repo both bind: bind_count came back 2,
 # not 1, in test_concurrent_claims_for_the_same_repo_only_one_binds.
 _LOCK_REGION_BYTES = 1
+_STARTUP_GRACE_SECONDS = 2.0
 
 
 def _lock_exclusive(handle: Any) -> None:
@@ -77,14 +78,42 @@ def _registry_path() -> Path:
     return Path.home() / ".cache" / "logics-manager" / "viewers.json"
 
 
+def _probe(url: str, *, timeout: float) -> bool | None:
+    try:
+        with urlopen(url, timeout=timeout) as response:
+            return response.status == 200
+    except HTTPError as exc:
+        if exc.code == 404:
+            return None
+        return False
+    except (OSError, URLError, ValueError):
+        return False
+
+
 def _is_alive(host: str, port: object, scheme: str, *, timeout: float = 1.0) -> bool:
     if not isinstance(port, int):
         return False
-    try:
-        with urlopen(f"{scheme}://{host}:{port}/api/status", timeout=timeout) as response:
-            return response.status == 200
-    except (OSError, URLError, ValueError):
-        return False
+    base_url = f"{scheme}://{host}:{port}"
+    fast_probe = _probe(f"{base_url}/api/live", timeout=timeout)
+    if fast_probe is not None:
+        return fast_probe
+    return bool(_probe(f"{base_url}/api/status", timeout=timeout))
+
+
+def _is_recently_claimed(existing: dict[str, Any]) -> bool:
+    claimed_at = existing.get("claimed_at")
+    return isinstance(claimed_at, (int, float)) and time.time() - claimed_at < _STARTUP_GRACE_SECONDS
+
+
+def _is_alive_or_starting(host: str, existing: dict[str, Any]) -> bool:
+    if _is_alive(host, existing.get("port"), str(existing.get("scheme", "http"))):
+        return True
+    deadline = time.time() + _STARTUP_GRACE_SECONDS
+    while _is_recently_claimed(existing) and time.time() < deadline:
+        time.sleep(0.05)
+        if _is_alive(host, existing.get("port"), str(existing.get("scheme", "http")), timeout=0.2):
+            return True
+    return False
 
 
 @dataclass(frozen=True)
@@ -119,7 +148,7 @@ def claim_or_reuse(repo_root: Path, host: str, *, bind: Callable[[], Any]) -> Re
                 registry = {}
 
             existing = registry.get(key)
-            if isinstance(existing, dict) and _is_alive(host, existing.get("port"), str(existing.get("scheme", "http"))):
+            if isinstance(existing, dict) and _is_alive_or_starting(host, existing):
                 return RegistryClaim(reused=True, port=int(existing["port"]), scheme=str(existing.get("scheme", "http")), server=None)
 
             server = bind()

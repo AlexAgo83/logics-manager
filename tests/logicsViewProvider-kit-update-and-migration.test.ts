@@ -29,6 +29,7 @@ const mocks = vi.hoisted(() => ({
   getBundledLogicsManagerScriptPath: vi.fn(),
   runGitWithOutput: vi.fn(),
   runPythonWithOutput: vi.fn(),
+  refreshManagedBootstrap: vi.fn(async () => ({ status: "unchanged" })),
   indexLogics: vi.fn(),
   createEmptyAgentRegistry: vi.fn(),
   loadAgentRegistry: vi.fn(),
@@ -99,6 +100,10 @@ vi.mock("../clients/vscode/src/logicsProviderUtils", () => ({
   runGitWithOutput: mocks.runGitWithOutput,
   runPythonWithOutput: mocks.runPythonWithOutput,
   updateIndicatorsOnDisk: vi.fn()
+}));
+
+vi.mock("../clients/vscode/src/logicsSilentBootstrapRefresh", () => ({
+  refreshManagedBootstrap: mocks.refreshManagedBootstrap
 }));
 
 vi.mock("../clients/vscode/src/logicsIndexer", () => ({
@@ -408,7 +413,7 @@ describe("LogicsViewProvider", () => {
     fs.rmSync(root, { recursive: true, force: true, maxRetries: 3 });
   });
 
-  it("offers a startup notification to update the kit when overlays are unsupported by the current submodule", async () => {
+  it("req_331/item_692: shows no startup popup even when the overlay is unsupported by the current submodule", async () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "canonical",
@@ -448,13 +453,7 @@ describe("LogicsViewProvider", () => {
     await provider.refresh();
     await provider.refresh();
 
-    expect(mocks.showInformationMessage).toHaveBeenCalledTimes(1);
-    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
-      "This repository already has Logics, but it cannot act as a healthy global Codex runtime source yet. This repository does not expose a compatible repo-local Logics runtime source for global publication.",
-      "Update Logics Runtime",
-      "Copy Update Command",
-      "Not now"
-    );
+    expect(mocks.showInformationMessage).not.toHaveBeenCalled();
   });
 
   it("prompts for bootstrap once per distinct bootstrap state, not once per root", async () => {
@@ -554,7 +553,7 @@ describe("LogicsViewProvider", () => {
     );
   });
 
-  it("offers a startup notification to publish the global kit only once per unresolved state", async () => {
+  it("req_331/item_692: opening a canonical project shows no startup popup, even when the overlay needs repair", async () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "canonical",
@@ -592,15 +591,10 @@ describe("LogicsViewProvider", () => {
     await provider.refresh();
     await provider.refresh();
 
-    expect(mocks.showInformationMessage).toHaveBeenCalledTimes(1);
-    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
-      "Global Codex runtime needs attention for this repository. Global Codex runtime manifest needs repair before launch.",
-      "Update Logics Runtime",
-      "Copy Update Command"
-    );
+    expect(mocks.showInformationMessage).not.toHaveBeenCalled();
   });
 
-  it("proactively offers Logics runtime update on refresh when the canonical repo kit is below the minimum version", async () => {
+  it("req_331/item_692: opening a canonical project below the minimum version shows no runtime-update popup", async () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
     fs.writeFileSync(path.join(root, "VERSION"), "1.5.0\n", "utf8");
     mocks.inspectLogicsBootstrapState.mockReturnValue({
@@ -612,38 +606,29 @@ describe("LogicsViewProvider", () => {
       missingPaths: ["logics.yaml"],
       convergenceNeeded: true
     });
-    mocks.showInformationMessage.mockResolvedValue("Not now");
 
     await provider.refresh();
     await provider.refresh();
 
-    expect(mocks.showInformationMessage).toHaveBeenCalledTimes(1);
-    expect(mocks.showInformationMessage).toHaveBeenCalledWith(
-      "Older Logics runtime detected in this repository (v1.5.0). Update now to restore migration, repair, and environment convergence support.",
-      "Update Logics Runtime",
-      "Check Environment",
-      "Not now"
-    );
+    expect(mocks.showInformationMessage).not.toHaveBeenCalled();
+    expect(mocks.showWarningMessage).not.toHaveBeenCalled();
   });
 
-  it("runs Update Logics Runtime directly from the startup remediation prompt", async () => {
+  it("req_331/item_692: silently refreshes managed bootstrap for a canonical project instead of prompting", async () => {
     fs.mkdirSync(path.join(root, "logics"), { recursive: true });
-    fs.writeFileSync(path.join(root, "VERSION"), "1.5.0\n", "utf8");
     mocks.inspectLogicsBootstrapState.mockReturnValue({
       status: "canonical",
       canBootstrap: true,
-      actionTitle: "Reconcile Logics bootstrap on this branch",
-      promptMessage: "Canonical runtime needs repo-local convergence.",
-      reason: "Repo-local Logics bootstrap is missing or stale: logics.yaml.",
-      missingPaths: ["logics.yaml"],
-      convergenceNeeded: true
+      actionTitle: "Bootstrap already completed",
+      reason: "Repo-local Logics runtime source detected."
     });
-    mocks.showInformationMessage.mockResolvedValue("Update Logics Runtime");
-    const updateSpy = vi.spyOn((provider as any).codexWorkflowController, "updateLogicsKit").mockResolvedValue(true);
+    mocks.refreshManagedBootstrap.mockResolvedValue({ status: "refreshed", updatedPaths: ["logics/instructions.md"] });
 
     await provider.refresh();
+    await vi.waitFor(() => expect(mocks.refreshManagedBootstrap).toHaveBeenCalledWith(root));
 
-    expect(updateSpy).toHaveBeenCalledWith(root, "startup runtime remediation");
+    expect(mocks.showInformationMessage).not.toHaveBeenCalled();
+    expect(mocks.showWarningMessage).not.toHaveBeenCalled();
   });
 
 });

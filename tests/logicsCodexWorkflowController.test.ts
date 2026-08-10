@@ -181,63 +181,6 @@ describe("LogicsCodexWorkflowController", () => {
     };
   }
 
-  it("skips startup remediation when the codex overlay is already healthy", async () => {
-    const root = makeRoot();
-    mocks.inspectLogicsEnvironment.mockResolvedValue(healthySnapshot());
-
-    await controller.maybeOfferCodexStartupRemediation(root);
-
-    expect(mocks.showInformationMessage).not.toHaveBeenCalled();
-    expect(mocks.showWarningMessage).not.toHaveBeenCalled();
-    expect(mocks.clipboardWriteText).not.toHaveBeenCalled();
-  });
-
-  it("offers to copy the runtime update command when startup remediation is blocked by a missing manager", async () => {
-    const root = makeRoot();
-    mocks.inspectLogicsEnvironment.mockResolvedValue({
-      ...healthySnapshot(),
-      codexOverlay: { status: "missing-manager", summary: "missing manager", runCommand: null }
-    });
-    mocks.inspectLogicsBootstrapState.mockReturnValue({
-      status: "canonical",
-      canBootstrap: true,
-      actionTitle: "Reconcile Logics bootstrap on this branch",
-      reason: "Repo-local Logics bootstrap is missing or stale: logics.yaml.",
-      missingPaths: ["logics.yaml"],
-      convergenceNeeded: true
-    });
-    mocks.inspectLogicsKitSubmodule.mockReturnValue({
-      exists: true,
-      isCanonical: true,
-      reason: "canonical"
-    });
-    mocks.showInformationMessage.mockResolvedValue("Copy Update Command");
-
-    await controller.maybeOfferCodexStartupRemediation(root);
-
-    expect(mocks.clipboardWriteText).toHaveBeenCalledWith("python3 -m logics_manager bootstrap");
-  });
-
-  it("does not publish the global kit during startup remediation", async () => {
-    const root = makeRoot();
-    mocks.inspectLogicsEnvironment
-      .mockResolvedValueOnce({
-        ...healthySnapshot(),
-        codexOverlay: { status: "missing-overlay", summary: "missing overlay", runCommand: "codex" }
-      })
-      .mockResolvedValueOnce({
-        ...healthySnapshot(),
-        codexOverlay: { status: "healthy", summary: "ready", runCommand: "codex" }
-      });
-    mocks.shouldPublishRepoKit.mockReturnValue(true);
-
-    await controller.maybeOfferCodexStartupRemediation(root);
-
-    expect(mocks.publishCodexWorkspaceOverlay).not.toHaveBeenCalled();
-    expect(refresh).not.toHaveBeenCalled();
-    expect(mocks.showWarningMessage).not.toHaveBeenCalled();
-  });
-
   it("falls back to a copy command when automatic kit updates are blocked by a plain copy install", async () => {
     const root = makeRoot();
     mocks.runGitWithOutput.mockImplementation(async (_root: string, args: string[]) => {

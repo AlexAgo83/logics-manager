@@ -21,10 +21,10 @@ import { LogicsEnvironmentSnapshot } from "./logicsEnvironment";
 import {
   ACTIVE_AGENT_STATE_KEY,
   ONBOARDING_LAST_VERSION_KEY,
-  ROOT_OVERRIDE_STATE_KEY,
-  STARTUP_KIT_UPDATE_PROMPT_STATE_PREFIX
+  ROOT_OVERRIDE_STATE_KEY
 } from "./logicsViewProviderConstants";
 import { inspectKitUpdateNeed } from "./logicsKitVersionSupport";
+import { refreshManagedBootstrap } from "./logicsSilentBootstrapRefresh";
 import { STATUS_STAGES, statusTransitionError } from "./workflowStatuses.generated";
 export {
   ensureLogicsCacheDir,
@@ -721,55 +721,33 @@ const STATUS_OPTIONS_BY_STAGE = STATUS_STAGES as Record<LogicsStage, readonly st
   export async function maybeOfferBootstrap(this: LogicsViewProviderSupportHost, root: string): Promise<boolean> {
     return this.codexWorkflowController.maybeOfferBootstrap(root);
   }
-  export async function maybeOfferStartupKitUpdate(this: LogicsViewProviderSupportHost,
-    root: string,
-    bootstrapState: ReturnType<typeof inspectLogicsBootstrapState> | null
-  ): Promise<boolean> {
-    if (bootstrapState?.status !== "canonical") {
-      await this.clearStartupKitUpdatePromptState(root);
-      return false;
-    }
-    const updateNeed = inspectKitUpdateNeed(root, extensionVersion(this.context));
-    if (!updateNeed) {
-      await this.clearStartupKitUpdatePromptState(root);
-      return false;
-    }
-    const promptKey = this.getStartupKitUpdatePromptStateKey(root);
-    const lastPromptSignature = (this.context.globalState.get(promptKey) as string | undefined) ?? null;
-    if (lastPromptSignature === updateNeed.signature) {
-      return false;
-    }
-    await this.context.globalState.update(promptKey, updateNeed.signature);
-    if (updateNeed.kind === "too-new") {
-      const choice = await vscode.window.showWarningMessage(
-        `Newer Logics runtime detected in this repository (v${updateNeed.currentVersion}). The plugin has only been tested up to v${updateNeed.maximumVersion}. Check compatibility before proceeding.`,
-        "Check Environment",
-        "Not now"
-      );
-      if (choice === "Check Environment") {
-        await this.checkEnvironmentFromCommand();
-        return true;
+  // req_331/item_692: replaces maybeOfferStartupKitUpdate/maybeOfferCodexStartupRemediation
+  // (deleted) -- opening a healthy project used to chain a runtime-version popup,
+  // then a Codex-publication remediation popup. This runs `bootstrap
+  // --refresh-managed` (item_691) instead: no popup, ever. A refresh only ever
+  // touches generated files/managed regions, so silently applying it is safe;
+  // the result is logged to the existing Environment output channel without
+  // calling `.show()`, so it's genuinely passive -- visible only if the user
+  // already has that panel open or opens it themselves.
+  export async function maybeSilentlyRefreshManagedBootstrap(this: LogicsViewProviderSupportHost, root: string): Promise<void> {
+    // This is a fire-and-forget background refresh (the caller uses `void`),
+    // so a rejection here would surface only as an unhandled promise
+    // rejection, not a popup -- swallow and log instead of throwing.
+    try {
+      const result = await refreshManagedBootstrap(root);
+      if (result.status === "refreshed") {
+        this.environmentOutput.appendLine(
+          `[${new Date().toISOString()}] Logics bootstrap refreshed managed files in ${root}: ${result.updatedPaths.join(", ")}`
+        );
+      } else if (result.status === "failed") {
+        this.environmentOutput.appendLine(`[${new Date().toISOString()}] Logics bootstrap managed refresh failed in ${root}: ${result.message}`);
       }
-      return true;
+      // "no-corpus" and "unchanged" are both normal, silent outcomes.
+    } catch (error) {
+      this.environmentOutput.appendLine(
+        `[${new Date().toISOString()}] Logics bootstrap managed refresh failed in ${root}: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
-    const choice = await vscode.window.showInformationMessage(
-      `Older Logics runtime detected in this repository (v${updateNeed.currentVersion}). Update now to restore migration, repair, and environment convergence support.`,
-      "Update Logics Runtime",
-      "Check Environment",
-      "Not now"
-    );
-    if (choice === "Update Logics Runtime") {
-      await this.codexWorkflowController.updateLogicsKit(root, "startup runtime remediation");
-      return true;
-    }
-    if (choice === "Check Environment") {
-      await this.checkEnvironmentFromCommand();
-      return true;
-    }
-    return true;
-  }
-  export async function maybeOfferCodexStartupRemediation(this: LogicsViewProviderSupportHost, root: string): Promise<void> {
-    await this.codexWorkflowController.maybeOfferCodexStartupRemediation(root);
   }
   export async function maybeShowCodexOverlayHandoff(this: LogicsViewProviderSupportHost, root: string, trigger: string): Promise<void> {
     await this.codexWorkflowController.maybeShowCodexOverlayHandoff(root, trigger);
@@ -838,12 +816,6 @@ const STATUS_OPTIONS_BY_STAGE = STATUS_STAGES as Record<LogicsStage, readonly st
       type: "data",
       payload
     });
-  }
-  export function getStartupKitUpdatePromptStateKey(this: LogicsViewProviderSupportHost, root: string): string {
-    return `${STARTUP_KIT_UPDATE_PROMPT_STATE_PREFIX}:${path.resolve(root)}`;
-  }
-  export async function clearStartupKitUpdatePromptState(this: LogicsViewProviderSupportHost, root: string): Promise<void> {
-    await this.context.globalState.update(this.getStartupKitUpdatePromptStateKey(root), undefined);
   }
   export async function openItem(this: LogicsViewProviderSupportHost, id: string): Promise<void> {
     await this.documentController.openItem(id);

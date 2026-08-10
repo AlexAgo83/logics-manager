@@ -13,16 +13,12 @@ export function installLogicsViewProviderBindings(provider: any): void {
     canResetProjectRoot: () => viewProviderSupport.canResetProjectRoot.call(provider),
     checkHybridRuntimeFromTools: () => viewProviderSupport.checkHybridRuntimeFromTools.call(provider),
     clearAgentRegistry: () => viewProviderSupport.clearAgentRegistry.call(provider),
-    clearStartupKitUpdatePromptState: (root: string) =>
-      viewProviderSupport.clearStartupKitUpdatePromptState.call(provider, root),
     commitAllChangesFromTools: () => viewProviderSupport.commitAllChangesFromTools.call(provider),
     bootstrapLogics: (root: string) => viewProviderSupport.bootstrapLogics.call(provider, root),
     changeItemStatus: (id: string) => viewProviderSupport.changeItemStatus.call(provider, id),
     getActionRoot: () => viewProviderSupport.getActionRoot.call(provider),
     getActiveAgentPayload: () => viewProviderSupport.getActiveAgentPayload.call(provider),
     getRepositoryEnvFiles: (root: string) => viewProviderSupport.getRepositoryEnvFiles.call(provider, root),
-    getStartupKitUpdatePromptStateKey: (root: string) =>
-      viewProviderSupport.getStartupKitUpdatePromptStateKey.call(provider, root),
     getValidStatusesForItem: (item: any) => viewProviderSupport.getValidStatusesForItem.call(provider, item),
     inspectKitUpdateNeed: (root: string) =>
       inspectKitUpdateNeed(root, (provider.context?.extension?.packageJSON as { version?: string } | undefined)?.version ?? null),
@@ -31,10 +27,8 @@ export function installLogicsViewProviderBindings(provider: any): void {
     injectAgentPromptIntoCodexChat: (agent: any) =>
       viewProviderSupport.injectAgentPromptIntoCodexChat.call(provider, agent),
     maybeOfferBootstrap: (root: string) => viewProviderSupport.maybeOfferBootstrap.call(provider, root),
-    maybeOfferCodexStartupRemediation: (root: string) =>
-      viewProviderSupport.maybeOfferCodexStartupRemediation.call(provider, root),
-    maybeOfferStartupKitUpdate: (root: string, bootstrapState: any) =>
-      viewProviderSupport.maybeOfferStartupKitUpdate.call(provider, root, bootstrapState),
+    maybeSilentlyRefreshManagedBootstrap: (root: string) =>
+      viewProviderSupport.maybeSilentlyRefreshManagedBootstrap.call(provider, root),
     maybeShowOnboarding: (root: string) => viewProviderSupport.maybeShowOnboarding.call(provider, root),
     maybeShowCodexOverlayHandoff: (root: string, trigger: string) =>
       viewProviderSupport.maybeShowCodexOverlayHandoff.call(provider, root, trigger),

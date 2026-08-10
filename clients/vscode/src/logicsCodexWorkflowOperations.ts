@@ -18,79 +18,8 @@ import { parseGitStatusEntries } from "./workflowSupport";
 export type LogicsCodexWorkflowOperationsOptions = LogicsCodexWorkflowBootstrapOptions;
 
 export class LogicsCodexWorkflowOperations extends LogicsCodexWorkflowBootstrapSupport {
-  private readonly codexRemediationPromptedKeys = new Set<string>();
-
   constructor(protected readonly options: LogicsCodexWorkflowOperationsOptions) {
     super(options);
-  }
-
-  clearCodexRemediationPromptState(root: string): void {
-    const normalized = path.resolve(root);
-    this.codexRemediationPromptedKeys.forEach((key) => {
-      if (key === normalized || key.startsWith(`${normalized}::`)) {
-        this.codexRemediationPromptedKeys.delete(key);
-      }
-    });
-  }
-
-  async maybeOfferCodexStartupRemediation(root: string): Promise<void> {
-    const snapshot = await inspectLogicsEnvironment(root);
-    this.maybeShowDangerousGitignoreWarning(root);
-    const overlay = snapshot.codexOverlay;
-    const needsRepublish = this.codexKitNeedsRepublish(root, overlay);
-    if ((overlay.status === "healthy" || overlay.status === "warning") && !needsRepublish || overlay.status === "unavailable") {
-      this.clearCodexRemediationPromptState(root);
-      return;
-    }
-
-    const key = `${path.resolve(root)}::${overlay.status}`;
-    if (this.codexRemediationPromptedKeys.has(key)) {
-      return;
-    }
-    this.codexRemediationPromptedKeys.add(key);
-
-    const actions: string[] = [];
-    if (overlay.status === "missing-manager") {
-      if (snapshot.hasBootstrapScript && inspectLogicsBootstrapState(root).canBootstrap) {
-        actions.push("Update Logics Runtime");
-      }
-      actions.push("Copy Update Command", "Not now");
-      const choice = await vscode.window.showInformationMessage(
-        `This repository already has Logics, but it cannot act as a healthy global Codex runtime source yet. ${overlay.summary}`,
-        ...actions
-      );
-      if (choice === "Update Logics Runtime") {
-        await this.updateLogicsKit(root, "startup remediation");
-        return;
-      }
-      if (choice === "Copy Update Command") {
-        await vscode.env.clipboard.writeText(buildLogicsRuntimeUpdateCommand());
-        void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
-      }
-      return;
-    }
-
-    if (overlay.status === "missing-overlay" || overlay.status === "stale" || needsRepublish) {
-      this.clearCodexRemediationPromptState(root);
-      return;
-    }
-
-    if (inspectLogicsBootstrapState(root).canBootstrap) {
-      actions.push("Update Logics Runtime");
-    }
-    actions.push("Copy Update Command");
-    const choice = await vscode.window.showInformationMessage(
-      `Global Codex runtime needs attention for this repository. ${overlay.summary}`,
-      ...actions
-    );
-    if (choice === "Update Logics Runtime") {
-      await this.updateLogicsKit(root, "startup remediation");
-      return;
-    }
-    if (choice === "Copy Update Command") {
-      await vscode.env.clipboard.writeText(buildLogicsRuntimeUpdateCommand());
-      void vscode.window.showInformationMessage("Logics runtime update command copied to clipboard.");
-    }
   }
 
   async maybeShowCodexOverlayHandoff(root: string, trigger: string): Promise<void> {

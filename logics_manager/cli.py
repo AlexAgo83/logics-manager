@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 from importlib import metadata
 import subprocess
 import sys
@@ -356,18 +357,49 @@ def _install_root(path: Path) -> Path:
     return path
 
 
+_SHIM_SUFFIXES = {".cmd", ".bat", ".ps1"}
+
+
+def _shim_target(path: Path) -> Path | None:
+    """The package entry a Windows npm shim launches, or None.
+
+    item_674: on POSIX the PATH entry is a symlink into `node_modules`, so resolving it
+    lands inside the install. On Windows npm writes `%APPDATA%\\npm\\logics-manager.cmd`,
+    a launcher that lives nowhere near the package, so path shape alone cannot tell the
+    one install from a second one. The shim names the entry it runs; read it.
+    """
+    if path.suffix.lower() not in _SHIM_SUFFIXES:
+        return None
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return None
+    for token in re.split(r'[\s"\']+', text.replace("%~dp0", str(path.parent) + "\\")):
+        if "node_modules" in token:
+            candidate = Path(token.replace("\\", "/"))
+            if not candidate.is_absolute():
+                candidate = path.parent / candidate
+            return candidate
+    return None
+
+
+def _executable_identity(path: Path) -> Path:
+    """What install a PATH entry belongs to, following a Windows shim first."""
+    return _install_root(_shim_target(path) or path)
+
+
 def shadowing_executables(executable: Path | None, command: str = "logics-manager") -> list[str]:
     """Other executables of the same name on PATH, excluding the running one."""
     if executable is None:
         return []
-    running_root = _install_root(executable)
+    running_root = _executable_identity(executable)
     others = []
     for candidate in _find_executable_paths(command):
         try:
             resolved = Path(candidate).resolve()
         except OSError:
             resolved = Path(candidate)
-        if resolved != executable and _install_root(resolved) != running_root:
+        if resolved != executable and _executable_identity(resolved) != running_root:
             others.append(candidate)
     return others
 

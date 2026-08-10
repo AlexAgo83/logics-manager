@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-10 01:00:22
+> Indicators reviewed: 2026-08-10 08:26:42
 
 # AI Context
 - Summary: Stop doctor reporting a single npm install as a duplicate of itself
@@ -34,8 +34,8 @@
 - AC2: With two genuine installs present, `doctor` still reports the duplicate — the fix narrows the check without disabling it.
 
 # AC Traceability
-- request-AC1 -> This backlog slice. Proof: `_install_root` (`cli.py`) maps any entry point to the package directory that owns it, and `shadowing_executables` compares roots instead of files. Verified against the real install: from `.../npm-global/lib/node_modules/@grifhinz/logics-manager/scripts/logics-manager.py`, `shadowing_executables` returns `[]` where it previously named the install's own bin. `test_the_wrapper_and_the_python_entry_it_spawns_are_one_install` and `test_no_duplicate_reported_when_path_holds_only_this_installs_wrapper`.
-- request-AC2 -> This backlog slice. Proof: `test_two_installs_under_different_prefixes_stay_distinct` (npm vs npm, npm vs pipx) and `test_a_second_install_is_still_reported`.
+- request-AC1 -> This backlog slice. Proof: `_install_root` (`cli.py`) maps any entry point to the package directory that owns it, and `shadowing_executables` compares roots instead of files. Verified against the real install: from `.../npm-global/lib/node_modules/@grifhinz/logics-manager/scripts/logics-manager.py`, `shadowing_executables` returns `[]` where it previously named the install's own bin. `test_the_wrapper_and_the_python_entry_it_spawns_are_one_install` and `test_no_duplicate_reported_when_path_holds_only_this_installs_wrapper`. The POSIX fix alone did not hold on Windows, where the PATH entry is a `%APPDATA%\npm\logics-manager.cmd` launcher that lives nowhere near `node_modules`, so path shape could never match: `_shim_target` reads the launcher and follows it to the entry it runs. `test_a_windows_shim_resolves_to_the_package_it_launches` and `test_no_duplicate_reported_for_a_windows_style_install` build a real Windows-shaped install on disk.
+- request-AC2 -> This backlog slice. Proof: `test_two_installs_under_different_prefixes_stay_distinct` (npm vs npm, npm vs pipx), `test_a_second_install_is_still_reported`, and `test_a_second_windows_install_is_still_reported` with two full shim-based installs.
 
 # Decision framing
 - Product framing: Not needed

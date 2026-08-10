@@ -18,6 +18,12 @@
   line-height: 1.25;
 }
 
+.viewer-topbar__logo {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+}
+
 .viewer-topbar__identity {
   display: flex;
   align-items: center;

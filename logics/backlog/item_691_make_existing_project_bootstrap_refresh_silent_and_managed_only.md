@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Bootstrap maintenance
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-11 00:53:06
+> Indicators reviewed: 2026-08-11 01:46:59
 
 # AI Context
 - Summary: Make existing-project bootstrap refresh silent and managed-only
@@ -54,3 +54,9 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification`
+
+# Notes
+- Task `task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification` was finished via `logics-manager flow finish task` on 2026-08-11.

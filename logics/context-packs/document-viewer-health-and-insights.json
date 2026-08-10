@@ -1,0 +1,356 @@
+{
+  "budgets": {
+    "max_docs": 16,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_329_polish_viewer_health_actions_and_document_operational_views item_685_style_the_viewer_health_apply_fixes_action item_686_add_health_and_insights_screenshots_to_the_readme task_326_deliver_health_action_polish_and_operational_viewer_documentation --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_685_style_the_viewer_health_apply_fixes_action",
+          "item_686_add_health_and_insights_screenshots_to_the_readme"
+        ],
+        "prod": [
+          "prod_073_visible_viewer_operational_health"
+        ],
+        "req": [
+          "req_329_polish_viewer_health_actions_and_document_operational_views"
+        ],
+        "task": [
+          "task_326_deliver_health_action_polish_and_operational_viewer_documentation"
+        ]
+      },
+      "path": "logics/product/prod_073_visible_viewer_operational_health.md",
+      "ref": "prod_073_visible_viewer_operational_health",
+      "sections": {
+        "Goals": [
+          "- Give the repair action a clear, consistent visual affordance.",
+          "- Show Health and Insights in concise, publishable screenshots.",
+          "- Keep example imagery anonymized and readable."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the Health action feel deliberate and make the README show that the viewer helps operators understand and repair workflow state, not merely browse Markdown."
+        ],
+        "References": [
+          "- Product back-reference: `req_329_polish_viewer_health_actions_and_document_operational_views`",
+          "- Task back-reference: `task_326_deliver_health_action_polish_and_operational_viewer_documentation`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Visible viewer operational health"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, polish viewer health actions and document operational views, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Polish viewer health actions and document operational views",
+        "use when": "You need to implement or review the scaffolded workflow for Polish viewer health actions and document operational views."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_685_style_the_viewer_health_apply_fixes_action",
+          "item_686_add_health_and_insights_screenshots_to_the_readme"
+        ],
+        "prod": [
+          "prod_073_visible_viewer_operational_health"
+        ],
+        "req": [
+          "req_329_polish_viewer_health_actions_and_document_operational_views"
+        ]
+      },
+      "path": "logics/request/req_329_polish_viewer_health_actions_and_document_operational_views.md",
+      "ref": "req_329_polish_viewer_health_actions_and_document_operational_views",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- Apply fixes is visibly styled as a viewer action in normal, hover, focus, disabled, and busy states without reducing accessibility.",
+          "- The README includes a cropped Health screenshot that demonstrates findings and the repair action without exposing private project content.",
+          "- The README includes a cropped Insights screenshot that demonstrates workflow shape and attention signals without duplicating the board or document screenshots.",
+          "- The published images are generated from the real viewer, visually inspected, and their README alt text explains the capability shown."
+        ],
+        "Needs": [
+          "- Make the Health screen's Apply fixes action visually consistent with the rest of the viewer.",
+          "- Add focused Health and Insights screenshots to the README so the operational value of the viewer is visible before installation."
+        ]
+      },
+      "status": "Draft",
+      "title": "Polish viewer health actions and document operational views"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, style the viewer health apply fixes action, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Style the viewer Health Apply fixes action",
+        "use when": "Implementing the scaffolded slice for Style the viewer Health Apply fixes action."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_685_style_the_viewer_health_apply_fixes_action"
+        ],
+        "prod": [
+          "prod_073_visible_viewer_operational_health"
+        ],
+        "req": [
+          "req_329_polish_viewer_health_actions_and_document_operational_views"
+        ],
+        "task": [
+          "task_326_deliver_health_action_polish_and_operational_viewer_documentation"
+        ]
+      },
+      "path": "logics/backlog/item_685_style_the_viewer_health_apply_fixes_action.md",
+      "ref": "item_685_style_the_viewer_health_apply_fixes_action",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- Apply fixes has a clear action style and accessible focus state.",
+          "- Busy and unavailable states remain honest and legible."
+        ],
+        "Problem": [
+          "- The Health screen renders Apply fixes without a dedicated visual treatment, unlike the viewer's established action controls."
+        ]
+      },
+      "status": "Ready",
+      "title": "Style the viewer Health Apply fixes action"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, add health and insights screenshots to the readme, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Add Health and Insights screenshots to the README",
+        "use when": "Implementing the scaffolded slice for Add Health and Insights screenshots to the README."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_686_add_health_and_insights_screenshots_to_the_readme"
+        ],
+        "prod": [
+          "prod_073_visible_viewer_operational_health"
+        ],
+        "req": [
+          "req_329_polish_viewer_health_actions_and_document_operational_views"
+        ],
+        "task": [
+          "task_326_deliver_health_action_polish_and_operational_viewer_documentation"
+        ]
+      },
+      "path": "logics/backlog/item_686_add_health_and_insights_screenshots_to_the_readme.md",
+      "ref": "item_686_add_health_and_insights_screenshots_to_the_readme",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- Health and Insights each have one focused README image.",
+          "- Each image is cropped to the relevant panel and checked at README display width."
+        ],
+        "Problem": [
+          "- The README does not yet show the viewer's operational health and corpus-insight capabilities."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add Health and Insights screenshots to the README"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_685_style_the_viewer_health_apply_fixes_action",
+          "item_686_add_health_and_insights_screenshots_to_the_readme"
+        ],
+        "prod": [
+          "prod_073_visible_viewer_operational_health"
+        ],
+        "req": [
+          "req_329_polish_viewer_health_actions_and_document_operational_views"
+        ],
+        "task": [
+          "task_326_deliver_health_action_polish_and_operational_viewer_documentation"
+        ]
+      },
+      "path": "logics/product/prod_073_visible_viewer_operational_health.md",
+      "ref": "prod_073_visible_viewer_operational_health",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Visible viewer operational health"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Deliver Health action polish and operational viewer documentation",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_685_style_the_viewer_health_apply_fixes_action",
+          "item_686_add_health_and_insights_screenshots_to_the_readme"
+        ],
+        "prod": [
+          "prod_073_visible_viewer_operational_health"
+        ],
+        "req": [
+          "req_329_polish_viewer_health_actions_and_document_operational_views"
+        ],
+        "task": [
+          "task_326_deliver_health_action_polish_and_operational_viewer_documentation"
+        ]
+      },
+      "path": "logics/tasks/task_326_deliver_health_action_polish_and_operational_viewer_documentation.md",
+      "ref": "task_326_deliver_health_action_polish_and_operational_viewer_documentation",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Deliver Health action polish and operational viewer documentation"
+    }
+  ],
+  "estimates": {
+    "char_count": 7466,
+    "companion_doc_count": 1,
+    "doc_count": 5
+  },
+  "generated_at": "2026-08-10T10:51:40Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_329_polish_viewer_health_actions_and_document_operational_views",
+      "item_685_style_the_viewer_health_apply_fixes_action",
+      "item_686_add_health_and_insights_screenshots_to_the_readme",
+      "task_326_deliver_health_action_polish_and_operational_viewer_documentation"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_329_polish_viewer_health_actions_and_document_operational_views,item_685_style_the_viewer_health_apply_fixes_action,item_686_add_health_and_insights_screenshots_to_the_readme,task_326_deliver_health_action_polish_and_operational_viewer_documentation",
+  "refs": [
+    "req_329_polish_viewer_health_actions_and_document_operational_views",
+    "item_685_style_the_viewer_health_apply_fixes_action",
+    "item_686_add_health_and_insights_screenshots_to_the_readme",
+    "task_326_deliver_health_action_polish_and_operational_viewer_documentation"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different version",
+      "changelog: evidence targets a different version",
+      "local_validation: evidence targets a different version",
+      "git_push: evidence targets a different version",
+      "ci: evidence targets a different version",
+      "github_release: evidence targets a different version",
+      "issue_closure: evidence targets a different version"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different version",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "stale"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.3"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_326_deliver_health_action_polish_and_operational_viewer_documentation.md",
+      "ref": "task_326_deliver_health_action_polish_and_operational_viewer_documentation"
+    }
+  ]
+}

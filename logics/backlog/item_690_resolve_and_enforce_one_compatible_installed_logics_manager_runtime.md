@@ -1,10 +1,10 @@
 ## item_690_resolve_and_enforce_one_compatible_installed_logics_manager_runtime - Resolve and enforce one compatible installed Logics Manager runtime
 > From version: 2.21.4
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Runtime resolution
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

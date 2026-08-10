@@ -5,6 +5,14 @@ import { afterEach, describe, expect, it } from "vitest";
 import { detectClaudeBridgeStatus, inspectLogicsEnvironment } from "../clients/vscode/src/logicsEnvironment";
 import { createTempRootTracker } from "./helpers/tempRootTracker";
 
+// req_331/item_690: every test stubs the resolved runtime -- without this, a
+// call site that omits `detectLogicsRuntime` falls through to the real
+// resolver, which would execFile a real `logics-manager` on PATH during tests.
+const compatibleRuntime = async () =>
+  ({ status: "compatible" as const, runtime: { command: "logics-manager", version: "0.0.0" } });
+const missingRuntime = async () =>
+  ({ status: "missing" as const, reason: "No `logics-manager` executable was found on PATH for this project." });
+
 describe("inspectLogicsEnvironment", () => {
   const tracker = createTempRootTracker("logics-env-");
   const originalClaudeHome = process.env.LOGICS_CLAUDE_GLOBAL_HOME;
@@ -27,6 +35,7 @@ describe("inspectLogicsEnvironment", () => {
     const snapshot = await inspectLogicsEnvironment(root, undefined, {
       detectGit: async () => true,
       detectPython: async () => ({ command: "python", argsPrefix: [], displayLabel: "python" }),
+      detectLogicsRuntime: compatibleRuntime,
       inspectOverlay: () => ({
         status: "missing-overlay",
         summary: "Overlay missing.",
@@ -44,7 +53,7 @@ describe("inspectLogicsEnvironment", () => {
     expect(snapshot.capabilities.codexRuntime.status).toBe("unavailable");
   });
 
-  it("marks workflow mutation unavailable when python is missing even if the kit is present", async () => {
+  it("marks workflow mutation unavailable when no compatible logics-manager is resolved, even if the kit is present", async () => {
     const root = tracker.makeRoot();
     fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
     fs.mkdirSync(path.join(root, "logics", "request"), { recursive: true });
@@ -55,6 +64,7 @@ describe("inspectLogicsEnvironment", () => {
     const snapshot = await inspectLogicsEnvironment(root, undefined, {
       detectGit: async () => true,
       detectPython: async () => null,
+      detectLogicsRuntime: missingRuntime,
       inspectOverlay: () => ({
         status: "healthy",
         summary: "Overlay ready.",
@@ -68,7 +78,7 @@ describe("inspectLogicsEnvironment", () => {
 
     expect(snapshot.repositoryState).toBe("ready");
     expect(snapshot.capabilities.workflowMutation.status).toBe("unavailable");
-    expect(snapshot.capabilities.workflowMutation.summary).toContain("Python 3");
+    expect(snapshot.capabilities.workflowMutation.summary).toContain("logics-manager");
     expect(snapshot.capabilities.codexRuntime.status).toBe("available");
   });
 
@@ -84,6 +94,7 @@ describe("inspectLogicsEnvironment", () => {
     const snapshot = await inspectLogicsEnvironment(root, undefined, {
       detectGit: async () => true,
       detectPython: async () => ({ command: "python", argsPrefix: [], displayLabel: "python" }),
+      detectLogicsRuntime: compatibleRuntime,
       inspectOverlay: () => ({
         status: "healthy",
         summary: "Overlay ready.",
@@ -139,6 +150,7 @@ describe("inspectLogicsEnvironment", () => {
     const snapshot = await inspectLogicsEnvironment(root, undefined, {
       detectGit: async () => true,
       detectPython: async () => ({ command: "python", argsPrefix: [], displayLabel: "python" }),
+      detectLogicsRuntime: compatibleRuntime,
       inspectOverlay: () => ({
         status: "healthy",
         summary: "Overlay ready.",
@@ -183,6 +195,7 @@ describe("branch-state transitions", () => {
     detectGit: async () => true,
     detectPython: async (): Promise<import("../clients/vscode/src/pythonRuntime").PythonCommand | null> =>
       ({ command: "python", argsPrefix: [], displayLabel: "python" }),
+    detectLogicsRuntime: compatibleRuntime,
     inspectOverlay: () =>
       ({
         status: "missing-overlay" as const,
@@ -238,7 +251,8 @@ describe("branch-state transitions", () => {
     try {
       const noRoot = await inspectLogicsEnvironment(null, undefined, {
         detectGit: async () => false,
-        detectPython: async () => null
+        detectPython: async () => null,
+        detectLogicsRuntime: missingRuntime
       });
       expect(noRoot.repositoryState).toBe("no-root");
       expect(noRoot.capabilities.readOnly.status).toBe("unavailable");
@@ -249,7 +263,8 @@ describe("branch-state transitions", () => {
       const missingLogicsRoot = tracker.makeRoot();
       const missingLogics = await inspectLogicsEnvironment(missingLogicsRoot, undefined, {
         detectGit: async () => true,
-        detectPython: async () => ({ command: "python", argsPrefix: [], displayLabel: "python" })
+        detectPython: async () => ({ command: "python", argsPrefix: [], displayLabel: "python" }),
+        detectLogicsRuntime: compatibleRuntime
       });
       expect(missingLogics.repositoryState).toBe("missing-logics");
       expect(missingLogics.capabilities.bootstrapRepair.status).toBe("available");
@@ -261,7 +276,8 @@ describe("branch-state transitions", () => {
       fs.mkdirSync(path.join(missingFlowManagerRoot, "logics", "skills"), { recursive: true });
       const missingFlowManager = await inspectLogicsEnvironment(missingFlowManagerRoot, undefined, {
         detectGit: async () => true,
-        detectPython: async () => ({ command: "python", argsPrefix: [], displayLabel: "python" })
+        detectPython: async () => ({ command: "python", argsPrefix: [], displayLabel: "python" }),
+        detectLogicsRuntime: compatibleRuntime
       });
       expect(missingFlowManager.repositoryState).toBe("partial-bootstrap");
       expect(missingFlowManager.capabilities.workflowMutation.status).toBe("available");
@@ -275,14 +291,16 @@ describe("branch-state transitions", () => {
 
       const bootstrapUnavailable = await inspectLogicsEnvironment(bootstrapRoot, undefined, {
         detectGit: async () => true,
-        detectPython: async () => null
+        detectPython: async () => null,
+        detectLogicsRuntime: missingRuntime
       });
       expect(bootstrapUnavailable.capabilities.bootstrapRepair.status).toBe("unavailable");
       expect(bootstrapUnavailable.capabilities.bootstrapRepair.summary).toContain("Python 3");
 
       const gitUnavailable = await inspectLogicsEnvironment(bootstrapRoot, undefined, {
         detectGit: async () => false,
-        detectPython: async () => ({ command: "python", argsPrefix: [], displayLabel: "python" })
+        detectPython: async () => ({ command: "python", argsPrefix: [], displayLabel: "python" }),
+        detectLogicsRuntime: compatibleRuntime
       });
       expect(gitUnavailable.capabilities.bootstrapRepair.status).toBe("unavailable");
       expect(gitUnavailable.capabilities.bootstrapRepair.summary).toContain("Git on PATH");

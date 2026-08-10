@@ -6,6 +6,7 @@ import { getGlobalClaudeHome } from "./claudeBridgeSupport";
 import { ClaudeKitSnapshot, inspectClaudeGlobalKit } from "./logicsClaudeGlobalKit";
 import { CodexOverlaySnapshot, inspectCodexWorkspaceOverlay } from "./logicsCodexWorkspace";
 import { detectPythonRuntime, PythonCommand, runPythonCommand } from "./pythonRuntime";
+import { LogicsRuntimeResolution, resolveLogicsRuntime } from "./logicsRuntimeResolver";
 
 export type CapabilityStatus = "available" | "unavailable";
 export type RepositoryState = "no-root" | "missing-logics" | "partial-bootstrap" | "ready";
@@ -84,6 +85,7 @@ export type LogicsEnvironmentSnapshot = {
   codexOverlay: CodexOverlaySnapshot;
   claudeGlobalKit?: ClaudeKitSnapshot;
   hybridRuntime?: HybridRuntimeSnapshot;
+  logicsRuntime?: LogicsRuntimeResolution;
   capabilities: {
     readOnly: Capability;
     workflowMutation: Capability;
@@ -94,9 +96,12 @@ export type LogicsEnvironmentSnapshot = {
   };
 };
 
+type DetectRuntimeFn = (root: string) => Promise<LogicsRuntimeResolution>;
+
 type DetectorOptions = {
   detectGit?: () => Promise<boolean>;
   detectPython?: () => Promise<PythonCommand | null>;
+  detectLogicsRuntime?: DetectRuntimeFn;
   inspectOverlay?: (root: string | null, pythonCommand?: PythonCommand | null) => CodexOverlaySnapshot;
   inspectHybridRuntime?: (root: string | null, pythonCommand?: PythonCommand | null) => Promise<HybridRuntimeSnapshot>;
 };
@@ -108,6 +113,7 @@ export async function inspectLogicsEnvironment(
 ): Promise<LogicsEnvironmentSnapshot> {
   const detectGit = options.detectGit ?? detectGitCommand;
   const detectPython = options.detectPython ?? detectPythonRuntime;
+  const detectLogicsRuntime = options.detectLogicsRuntime ?? resolveLogicsRuntime;
   const inspectOverlay = options.inspectOverlay ?? inspectCodexWorkspaceOverlay;
   const inspectHybridRuntime = options.inspectHybridRuntime ?? inspectHybridAssistRuntime;
   const projectRoot = root ?? "";
@@ -115,8 +121,13 @@ export async function inspectLogicsEnvironment(
   const hasBundledManagerScript = Boolean(root) && fs.existsSync(path.join(projectRoot, "scripts", "logics-manager.py"));
   const hasBootstrapScript = hasBundledManagerScript;
   const missingWorkflowDirs = root ? getMissingWorkflowDirs(root) : [];
-  const [gitAvailable, pythonCommand] = await Promise.all([detectGit(), detectPython()]);
+  const [gitAvailable, pythonCommand, logicsRuntime] = await Promise.all([
+    detectGit(),
+    detectPython(),
+    root ? detectLogicsRuntime(root) : Promise.resolve(undefined)
+  ]);
   const pythonAvailable = Boolean(pythonCommand);
+  const logicsRuntimeCompatible = logicsRuntime?.status === "compatible";
   const codexOverlay = inspectOverlay(root, pythonCommand);
   const claudeGlobalKit = inspectClaudeGlobalKit(root);
   const codexRuntimeSnapshot =
@@ -159,9 +170,10 @@ export async function inspectLogicsEnvironment(
     codexOverlay: codexRuntimeSnapshot,
     claudeGlobalKit: claudeRuntimeSnapshot,
     hybridRuntime,
+    logicsRuntime,
     capabilities: {
       readOnly: buildReadOnlyCapability(repositoryState, root, invalidOverridePath),
-      workflowMutation: buildWorkflowMutationCapability(hasLogicsDir, pythonAvailable),
+      workflowMutation: buildWorkflowMutationCapability(hasLogicsDir, logicsRuntimeCompatible, logicsRuntime),
       bootstrapRepair: buildBootstrapCapability(root, gitAvailable, pythonAvailable, hasBootstrapScript),
       codexRuntime: buildCodexRuntimeCapability(root, codexOverlay),
       hybridAssist: buildHybridAssistCapability(root, hybridRuntime),
@@ -262,7 +274,8 @@ function buildReadOnlyCapability(
 
 function buildWorkflowMutationCapability(
   hasLogicsDir: boolean,
-  pythonAvailable: boolean
+  logicsRuntimeCompatible: boolean,
+  logicsRuntime?: LogicsRuntimeResolution
 ): Capability {
   if (!hasLogicsDir) {
     return {
@@ -270,15 +283,21 @@ function buildWorkflowMutationCapability(
       summary: "Requires a logics/ folder in the selected project root."
     };
   }
-  if (!pythonAvailable) {
+  if (!logicsRuntimeCompatible) {
+    if (logicsRuntime?.status === "mismatched") {
+      return {
+        status: "unavailable",
+        summary: `Requires a logics-manager install matching this extension. Installed: ${logicsRuntime.installedVersion}. Update it, then retry.`
+      };
+    }
     return {
       status: "unavailable",
-      summary: "Requires Python 3 on PATH for create, promote, and fix actions."
+      summary: "Requires an installed `logics-manager` on PATH matching this extension's version for create, promote, and fix actions."
     };
   }
   return {
     status: "available",
-    summary: "Create, promote, fix, and related script-backed actions are available."
+    summary: "Create, promote, fix, and related CLI-backed actions are available."
   };
 }
 

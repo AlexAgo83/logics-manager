@@ -1,13 +1,14 @@
 ## item_680_derive_flow_exit_statuses_from_the_payload_instead_of_an_allow_list - Derive flow exit statuses from the payload instead of an allow-list
 > From version: 2.21.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 09:24:11
 
 # AI Context
 - Summary: Derive flow exit statuses from the payload instead of an allow-list
@@ -36,11 +37,11 @@
 - AC6: `health`, `lint`, and `audit` keep their current exit behaviour, proven by the same test.
 
 # AC Traceability
-- request-AC2 -> This backlog slice. Proof: deferred to task closeout.
-- request-AC3 -> This backlog slice. Proof: deferred to task closeout.
-- request-AC4 -> This backlog slice. Proof: deferred to task closeout.
-- request-AC5 -> This backlog slice. Proof: deferred to task closeout.
-- request-AC6 -> This backlog slice. Proof: deferred to task closeout.
+- request-AC2 -> This backlog slice. Proof: The dispatcher reads `payload["ok"]`. Verified against a real blocking finding: removing req_324's backlog link made `flow validate` report findings prefixed `blocking:` and exit 1; restored, it exits 0. `test_flow_validate_refuses_ambiguous_ac_traceability_fix` asserted exit 0 alongside `ok: False` and now asserts 1.
+- request-AC3 -> This backlog slice. Proof: `test_flow_roadmap_validate_exits_non_zero_on_a_broken_roadmap` and `test_flow_roadmap_validate_exits_zero_on_a_valid_roadmap`.
+- request-AC4 -> This backlog slice. Proof: `flow/__init__.py` main() ends `return 0 if payload.get("ok", True) else 1`, with a non-dict payload returning 1. The `closeout`/`validate-closeout` special cases are gone.
+- request-AC5 -> This backlog slice. Proof: `test_flow_exit_status_follows_the_payload_verdict` drives the dispatcher with a stub handler over four payload shapes (ok False, ok True, no verdict, non-dict), asserting the rule rather than today's command list.
+- request-AC6 -> This backlog slice. Proof: `test_health_lint_and_audit_keep_their_exit_behaviour` runs all three against a clean corpus and asserts 0.
 
 # Decision framing
 - Product framing: Not needed

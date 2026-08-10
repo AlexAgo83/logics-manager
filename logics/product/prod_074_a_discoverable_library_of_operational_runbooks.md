@@ -6,7 +6,7 @@
 > Related task: `task_327_orchestrate_the_discoverable_runbook_library_delivery`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
-> Indicators reviewed: 2026-08-10 23:30:30
+> Indicators reviewed: 2026-08-10 23:35:34
 
 # Overview
 Give Logics a companion runbook document: a small, durable operational library with stable locations, categories, verification dates, and links to the delivery work that created or changed it. An agent receives a short, relevant answer before it repeats an investigation, then deliberately captures reusable learning after a verified resolution. The viewer puts the library in Workshop, between Commands and Explorer, where an operator can consult a procedure and promote its verified Draft to Active.
@@ -35,6 +35,9 @@ Give Logics a companion runbook document: a small, durable operational library w
 - Matching is bounded and deterministic: exact applicable path, service, command, category, or failure symptom ranks before text similarity. Return at most three Active runbooks; each result states trigger, action, verification, and freshness.
 - The agent preflight is generated repository guidance and bounded task context, not a convention remembered from a chat. A matching runbook is read before comparable operational work begins.
 - Capture is selective. It is offered for a repeatable non-obvious operating fact, failure/recovery path, or verified solution; it first deduplicates against existing runbooks and creates only a Draft with source task evidence.
+- Runbook assistance is advisory, never a delivery gate. A preflight may return no match; an agent or operator can ignore a suggestion and continue without a modal, acknowledgement, or status change.
+- Capture is offered once at closeout with an explicit `Skip — not reusable` path. It is never required to finish a task and never creates a runbook without deliberate confirmation.
+- Matching is explainable. Every result names the path, service, command, category, symptom, or task fact that matched; opaque recommendations are rejected.
 - Workshop is the runbook home. Its tabs are Terminals, Commands, Runbooks, and Explorer. Runbooks opens to relevant/recent matches, supports category browsing and search, and keeps the category-to-runbook graph as a secondary navigation view.
 - The Runbook detail supports one narrow write operation: state transition. Draft to Active requires a verification date and short proof; archive requires explicit confirmation. The mutation uses the supported Logics indicator path, refreshes matches, and does not expose a general Markdown editor.
 - Legacy discovery, import, and capture only operate in the current repository. No bulk migration or cross-repository copying occurs.
@@ -43,6 +46,7 @@ Give Logics a companion runbook document: a small, durable operational library w
 - An agent begins an operational task with no more than three relevant, Active procedures or an explicit no-match result.
 - A runbook Draft is never silently recommended as trusted guidance or promoted without verification.
 - A verified solution can be found again from its symptom, path, or task context without reading the full corpus.
+- Ignoring a match, accepting no match, or skipping capture takes one interaction and never prevents ordinary delivery work.
 - Generated docs pass lint and audit without broad manual rewrites.
 
 # References
@@ -51,7 +55,7 @@ Give Logics a companion runbook document: a small, durable operational library w
 
 # Interaction design
 - Workshop tab order: Terminals, Commands, Runbooks, Explorer.
-- Runbooks landing view: intent search, relevant/recent Active cards, category chips, and a freshness filter. Each card shows `When`, `Do`, `Verify`, and `Last verified` before the full document is opened.
+- Runbooks landing view: intent search, relevant/recent Active cards, category chips, and a freshness filter. Each card shows `When`, `Do`, `Verify`, `Last verified`, and why it matched before the full document is opened.
 - Runbook detail: category, status, verification evidence, source task, structural links, concise procedure, and state controls. The graph is available as a book view rather than occupying the default screen.
 - Task detail: a `Relevant runbooks` block links to Workshop Runbooks with the task's matching context prefilled.
-- Empty state: say that no Active runbook matched and offer the capture path only after a reusable solution is verified.
+- Empty state: say that no Active runbook matched and let the user continue immediately. Offer the capture path only after a reusable solution is verified, with an explicit skip.

@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-10 12:29:03
 
 # AI Context
 - Summary: Deliver direct viewer chain, settings, and ChatGPT MCP controls
@@ -19,9 +20,9 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Map the existing graph rendering and document-detail lifecycle, then embed the bounded chain and remove the separate action.
-- [ ] 2. Promote the existing Settings controls into a dedicated screen without changing their ownership or embedded-viewer guards.
-- [ ] 3. Expose the existing MCP lifecycle through a deliberate per-project ON/OFF viewer API and UI, keeping public exposure and secrets explicit.
+- [ ] 1. Map the existing graph rendering and document-detail lifecycle, then embed the bounded chain in a visible, compact, height-limited frame and remove the separate action.
+- [ ] 2. Promote the existing Settings controls into a dedicated card-based screen without changing their ownership or embedded-viewer guards.
+- [ ] 3. Expose the existing MCP lifecycle through Settings > ChatGPT Developer Mode with deliberate per-project ON/OFF, keeping public exposure and secrets explicit.
 - [ ] 4. Run focused browser-host, MCP, and viewer API checks; validate the request chain and record closeout evidence.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.

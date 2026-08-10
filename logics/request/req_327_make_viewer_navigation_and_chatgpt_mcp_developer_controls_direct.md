@@ -7,6 +7,7 @@
 > Complexity: High
 > Theme: Viewer navigation and local ChatGPT MCP workflow
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 12:29:03
 
 # AI Context
 - Summary: Make viewer navigation and ChatGPT MCP developer controls direct
@@ -25,11 +26,16 @@
 - The MCP CLI already provides local HTTP serving, tunnel setup, bearer-token handling, health checks, and copyable ChatGPT developer-mode connection details. The missing work is a truthful per-project viewer control surface.
 - Earlier ChatGPT MCP launcher and quick-command work is complete. This request must reuse that server and tunnel lifecycle rather than add a second transport or publish anything automatically.
 
+# UX decisions
+- The bounded chain is visible by default in a compact, height-limited frame at the top of eligible document pages.
+- Settings is a dedicated card-based screen, entered through the existing topbar button.
+- ChatGPT developer-mode controls live in Settings, immediately after Server; ON is explicit, OFF cleans up, and connection secrets stay masked.
+
 # Acceptance criteria
-- Opening a request, backlog item, or task shows its bounded linked chain at the top of the detail page; graph nodes open their referenced document and documents without a chain remain readable.
+- Opening a request, backlog item, or task shows its bounded linked chain in a visible, compact frame at the top of the detail page; graph nodes open their referenced document and documents without a chain remain readable.
 - The former Graph action is removed once the inline chain is available, and the viewer never performs a full-corpus graph scan to render it.
-- Settings opens a dedicated viewer screen with all existing controls grouped into understandable sections and no control is lost for browser or embedded VS Code users.
-- The viewer provides an explicit per-project ChatGPT MCP ON action, an OFF action, visible running state, and a one-click copy action for the HTTPS /mcp URL when a tunnel is ready.
+- Settings opens a dedicated card-based viewer screen with all existing controls grouped into understandable sections and no control is lost for browser or embedded VS Code users.
+- Settings provides an explicit per-project ChatGPT Developer Mode ON action, an OFF action, visible running state, and a one-click copy action for the HTTPS /mcp URL when a tunnel is ready.
 - Starting MCP does not expose a service until the operator explicitly chooses ON; stopping it terminates the viewer-owned local server and tunnel and clears transient connection secrets from the displayed state.
 - Focused browser-host, MCP lifecycle, and viewer API tests cover the three surfaces, including failed startup and unavailable public URL behavior.
 

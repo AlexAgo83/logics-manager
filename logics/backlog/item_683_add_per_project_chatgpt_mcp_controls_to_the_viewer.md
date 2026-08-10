@@ -8,6 +8,7 @@
 > Complexity: High
 > Theme: ChatGPT developer-mode MCP operations
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 12:29:03
 
 # AI Context
 - Summary: Add per-project ChatGPT MCP controls to the viewer
@@ -20,7 +21,7 @@
 
 # Scope
 - In:
-  - Add viewer API and UI controls backed by the existing MCP server, tunnel, health-check, and per-project lifecycle primitives.
+  - Add viewer API and UI controls in Settings immediately after Server, backed by the existing MCP server, tunnel, health-check, and per-project lifecycle primitives.
   - Show local and public readiness separately and copy only a usable HTTPS /mcp URL for ChatGPT.
   - Require an explicit ON action, provide deterministic OFF cleanup, and avoid persisting bearer tokens in viewer preferences or logs.
   - Cover lifecycle reuse, startup failure, no-public-URL, URL copy, and shutdown with focused tests.
@@ -30,7 +31,7 @@
   - Changing MCP tool authorization beyond the existing server contract.
 
 # Acceptance criteria
-- ON starts or reuses exactly one MCP connection for the selected project and reports local, tunnel, and public URL state honestly.
+- Settings > ChatGPT Developer Mode ON starts or reuses exactly one MCP connection for the selected project and reports local, tunnel, and public URL state honestly.
 - Copy URL is available only when the public HTTPS MCP endpoint is ready.
 - OFF stops viewer-owned processes and the viewer no longer displays a token or active URL afterward.
 

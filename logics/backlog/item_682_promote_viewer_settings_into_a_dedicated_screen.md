@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Viewer settings UX
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-10 12:29:03
 
 # AI Context
 - Summary: Promote viewer settings into a dedicated screen
@@ -20,7 +21,7 @@
 
 # Scope
 - In:
-  - Turn Settings into a viewer screen with refresh, workspace and corpus, terminal, server, VS Code, and about groups.
+  - Turn Settings into a dedicated card-based viewer screen with refresh, workspace and corpus, terminal, server, ChatGPT Developer Mode, VS Code, and about groups.
   - Preserve all existing actions and embedded VS Code visibility boundaries.
   - Keep the topbar Settings button as the single entry point.
 - Out:
@@ -28,7 +29,7 @@
   - Moving Workshop, Remote, or CDX content into Settings.
 
 # Acceptance criteria
-- Settings opens a full viewer screen rather than an accordion popover.
+- Settings opens a full card-based viewer screen rather than an accordion popover.
 - Every existing settings action remains available in a labelled group.
 - The embedded viewer exposes only the controls it can execute.
 

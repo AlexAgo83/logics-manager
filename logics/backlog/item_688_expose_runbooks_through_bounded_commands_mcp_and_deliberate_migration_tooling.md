@@ -8,7 +8,7 @@
 > Complexity: High
 > Theme: Runbook command and integration parity
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-10 23:35:34
+> Indicators reviewed: 2026-08-10 23:38:00
 
 # AI Context
 - Summary: Expose runbooks through bounded commands, MCP, and deliberate migration tooling
@@ -22,19 +22,19 @@
 
 # Scope
 - In:
-- Add runbooks to supported list, read, search, context-pack, lint, audit, and MCP document operations.
-- Provide a bounded match operation that ranks Active runbooks against a concise intent, failure symptom, affected path, or task context and includes relevant matches in agent-facing context.
-- Rank exact path, service, command, category, and symptom matches before text matches; return no more than three concise Active results.
-- Return the matching reason with every result. No-match is successful output; matching and capture never become a gate for a task or closeout.
-- Provide a minimal create command and a discover/import flow that previews candidates and imports a selected local source with provenance, category, and review state.
-- Provide an explicit capture flow from current task learning to a Draft runbook; it records source evidence and never promotes the result automatically.
+  - Add runbooks to supported list, read, search, context-pack, lint, audit, and MCP document operations.
+  - Provide a bounded match operation that ranks Active runbooks against a concise intent, failure symptom, affected path, or task context and includes relevant matches in agent-facing context.
+  - Rank exact path, service, command, category, and symptom matches before text matches; return no more than three concise Active results.
+  - Return the matching reason with every result. No-match is successful output; matching and capture never become a gate for a task or closeout.
+  - Provide a minimal create command and a discover/import flow that previews candidates and imports a selected local source with provenance, category, and review state.
+  - Provide an explicit capture flow from current task learning to a Draft runbook; it records source evidence and never promotes the result automatically.
   - Keep import opt-in and repository-bounded; dry-run explains every file that would change.
   - Test CLI and MCP success and rejection paths for runbooks.
 - Out:
   - Automatic bulk migration.
   - Reading or writing another repository from the current repository's command invocation.
-- A separate runbook lifecycle command family.
-- Automatic documentation of every code change or promotion of an unverified learning.
+  - A separate runbook lifecycle command family.
+  - Automatic documentation of every code change or promotion of an unverified learning.
 
 # Acceptance criteria
 - AC1: `sync read-doc`, `list-docs`, `search-docs`, and context-pack resolve runbooks by ref and kind with bounded output.

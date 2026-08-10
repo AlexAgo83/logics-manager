@@ -1,10 +1,10 @@
 {
   "budgets": {
-    "max_docs": 20,
-    "max_docs_per_ref": 4
+    "max_docs": 16,
+    "max_docs_per_ref": 8
   },
   "changed_paths": [],
-  "command": "logics-manager sync context-pack req_330_make_operational_runbooks_a_discoverable_logics_companion_document item_687_define_the_runbook_companion_contract_and_agent_discovery_path item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling item_689_make_the_runbook_library_navigable_in_the_viewer task_327_orchestrate_the_discoverable_runbook_library_delivery --mode full --profile normal --handoff",
+  "command": "logics-manager sync context-pack req_330_make_operational_runbooks_a_discoverable_logics_companion_document task_327_orchestrate_the_discoverable_runbook_library_delivery --mode full --profile deep --handoff",
   "companion_docs": [
     {
       "kind": "product",
@@ -31,21 +31,31 @@
           "- Make runbooks discoverable to people and agents before operational work begins.",
           "- Preserve the simple Markdown runbook form while adding only the metadata needed for discovery and freshness.",
           "- Expose one consistent runbook type across CLI, MCP, validation, and viewer surfaces.",
-          "- Support deliberate migration in the repository that owns each legacy runbook."
+          "- Support deliberate migration in the repository that owns each legacy runbook.",
+          "- Make a verified operational discovery reusable: agents find it before repeating the investigation and capture it after solving a genuinely repeatable problem."
         ],
         "Key product decisions": [
-          "- Use structured input as the source of truth for generated docs.",
-          "- Keep generated write paths local and repo-bounded."
+          "- Runbooks are companion knowledge, never delivery work: no progress, promotion, owner, or closeout state.",
+          "- A runbook has three trust states: Draft is captured but unverified, Active is safe to propose for normal matching, and Archived remains searchable only on request.",
+          "- Matching is bounded and deterministic: exact applicable path, service, command, category, or failure symptom ranks before text similarity. Return at most three Active runbooks; each result states trigger, action, verification, and freshness.",
+          "- The agent preflight is generated repository guidance and bounded task context, not a convention remembered from a chat. A matching runbook is read before comparable operational work begins.",
+          "- Capture is selective. It is offered for a repeatable non-obvious operating fact, failure/recovery path, or verified solution; it first deduplicates against existing runbooks and creates only a Draft with source task evidence.",
+          "- Runbook assistance is advisory, never a delivery gate. A preflight may return no match; an agent or operator can ignore a suggestion and continue without a modal, acknowledgement, or status change."
         ],
         "Overview": [
-          "Give Logics a companion runbook document: a small, durable operational library with stable locations, categories, verification dates, and links to the delivery work that created or changed it. An agent learns the location from generated repository instructions, an operator discovers it through the index or bounded commands, and the viewer renders the library as a category-to-runbook graph without confusing it with the delivery chain."
+          "Give Logics a companion runbook document: a small, durable operational library with stable locations, categories, verification dates, and links to the delivery work that created or changed it. An agent receives a short, relevant answer before it repeats an investigation, then deliberately captures reusable learning after a verified resolution. The viewer puts the library in Workshop, between Commands and Explorer, where an operator can consult a procedure and promote its verified Draft to Active.",
+          "```mermaid",
+          "flowchart LR",
+          "  Work[Operational work] --> Match[Match Active runbooks]",
+          "  Match --> Apply[Apply or continue]",
+          "  Apply --> Capture[Capture reusable learning]"
         ],
         "References": [
           "- Product back-reference: `req_330_make_operational_runbooks_a_discoverable_logics_companion_document`",
           "- Task back-reference: `task_327_orchestrate_the_discoverable_runbook_library_delivery`"
         ]
       },
-      "status": "Proposed",
+      "status": "Active",
       "title": "A discoverable library of operational runbooks"
     }
   ],
@@ -76,21 +86,22 @@
       "schema_version": "1.0",
       "sections": {
         "Acceptance criteria": [
-          "- AC1: Logics recognizes a runbook as a companion document stored under `logics/runbook/` with a `run_` reference, an Active or Archived status, category metadata, verification metadata, and normal structural links.",
-          "- AC2: A generated repository instruction tells an agent where project runbooks live, how to list/search them, and to consult relevant runbooks before operational work; the generated Logics index exposes the same collection.",
+          "- AC1: Logics recognizes a runbook as a companion document stored under `logics/runbook/` with a `run_` reference, Draft, Active, or Archived status, category metadata, verification metadata, reusable-problem/solution content, and normal structural links.",
+          "- AC2: A generated repository instruction tells an agent where project runbooks live, how to find matching runbooks, to consult relevant runbooks before operational work, and to capture a reusable discovery after it is verified; the generated Logics index exposes the same collection.",
           "- AC3: The supported CLI, bounded sync reads/searches/context, lint/audit, and MCP surfaces accept and return runbooks consistently without treating them as active delivery work.",
-          "- AC4: The viewer can filter and search runbooks, show their category and verification metadata, and render a runbook-book graph from category to runbook to linked Logics documents.",
-          "- AC5: The graph remains useful when a runbook has no delivery link and does not replace the existing request-chain graph.",
-          "- AC6: A project operator can discover legacy runbook candidates and import one deliberately with provenance, category, and review state; discovery and import do not modify any unrelated repository."
+          "- AC4: Matching runbooks can be found from a concise operational intent, failure symptom, affected path, or task context, and relevant results are available to an agent without a full-corpus read.",
+          "- AC5: Workshop places Runbooks between Commands and Explorer; it can filter and search runbooks, show their category and verification metadata, transition their status through the supported mutation path, and render a runbook-book graph from category to runbook to linked Logics documents.",
+          "- AC6: The graph remains useful when a runbook has no delivery link and does not replace the existing request-chain graph."
         ],
         "Needs": [
           "- Keep operational procedures as first-class Logics documents without forcing them into the request-to-task delivery lifecycle.",
           "- Let an agent identify a project's runbooks immediately, before it invents or repeats an operational procedure.",
+          "- Turn reusable operational discoveries, failures, and verified solutions into a maintained project memory instead of leaving them in one task report or one agent conversation.",
           "- Browse and search runbooks by a small controlled category vocabulary, then see how each one relates to delivery work.",
           "- Prepare a safe, operator-led migration path for existing project runbooks without changing sibling repositories from this delivery."
         ]
       },
-      "status": "Draft",
+      "status": "Ready",
       "title": "Make operational runbooks a discoverable Logics companion document"
     },
     {
@@ -121,8 +132,8 @@
       "sections": {
         "Acceptance criteria": [
           "- AC1: A runbook document has a stable `run_` ref, lives in `logics/runbook/`, and validates as a companion document with category and verification metadata.",
-          "- AC2: Runbook statuses are limited to Active and Archived, with no progress, promotion, owner, or closeout requirement.",
-          "- AC3: Bootstrap output tells an agent the runbook location, the list/search commands, and to consult applicable runbooks before operational changes.",
+          "- AC2: Runbook statuses are limited to Draft, Active, and Archived, with no progress, promotion, owner, or closeout requirement; only Active runbooks are normal match results.",
+          "- AC3: Bootstrap output tells an agent the runbook location, the match/list/search commands, and to consult applicable runbooks before operational changes and capture verified reusable learning afterwards.",
           "- AC4: `logics-manager index` renders a runbook section with category and verification information.",
           "- AC5: Tests fail if the runbook contract or agent discovery wording disappears."
         ],
@@ -164,9 +175,9 @@
           "- AC1: `sync read-doc`, `list-docs`, `search-docs`, and context-pack resolve runbooks by ref and kind with bounded output.",
           "- AC2: MCP exposes runbooks through its documented read/list/search paths and rejects unsupported mutation fields safely.",
           "- AC3: Lint and audit inspect runbooks as companions without counting them as open workflow work.",
-          "- AC4: A discovery command reports local legacy candidates without writing them.",
-          "- AC5: Import requires an explicit candidate and metadata, records the source, and has a dry-run that makes no changes.",
-          "- AC6: Tests cover each public surface and prove another repository is not modified."
+          "- AC4: A bounded match command returns relevant Active runbooks from intent, symptom, path, or task context, and context-pack or handoff can carry those matches without a full-corpus read.",
+          "- AC4a: Match results are capped at three, rank deterministic operational metadata before text similarity, and show trigger, action, verification, and freshness.",
+          "- AC4b: Every match carries its reason, no-match is non-error output, and the capture flow can be skipped without changing task state."
         ],
         "Problem": [
           "- The current CLI, sync, and MCP surfaces enumerate document kinds independently. A runbook that only one surface understands would be invisible to the tools an agent normally uses for bounded context.",
@@ -203,8 +214,9 @@
       "schema_version": "1.0",
       "sections": {
         "Acceptance criteria": [
-          "- AC1: A viewer user can select Runbook and see only runbook documents, including category and verification metadata.",
-          "- AC2: Search returns runbooks with the same bounded, navigable result behavior as other document kinds.",
+          "- AC1: Workshop presents Runbooks between Commands and Explorer; a user can select it and see relevant/recent Active runbooks, category and verification metadata, and an accessible no-match state.",
+          "- AC2: Intent search returns at most three relevant Active runbooks with trigger, action, verification, and freshness; category browsing and explicit search retain bounded, navigable behavior.",
+          "- AC2a: Each suggested runbook states why it matched; no-match and ignore are normal one-interaction exits without a blocking modal.",
           "- AC3: The runbook-book graph shows category to runbook edges and optional structural links to Logics documents.",
           "- AC4: A runbook with no structural link still appears in its category and opens from the graph.",
           "- AC5: The request-chain graph remains unchanged and tests cover the two graph contracts separately."
@@ -216,6 +228,32 @@
       },
       "status": "Ready",
       "title": "Make the runbook library navigable in the viewer"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_687_define_the_runbook_companion_contract_and_agent_discovery_path",
+          "item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling",
+          "item_689_make_the_runbook_library_navigable_in_the_viewer"
+        ],
+        "prod": [
+          "prod_074_a_discoverable_library_of_operational_runbooks"
+        ],
+        "req": [
+          "req_330_make_operational_runbooks_a_discoverable_logics_companion_document"
+        ],
+        "task": [
+          "task_327_orchestrate_the_discoverable_runbook_library_delivery"
+        ]
+      },
+      "path": "logics/product/prod_074_a_discoverable_library_of_operational_runbooks.md",
+      "ref": "prod_074_a_discoverable_library_of_operational_runbooks",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Active",
+      "title": "A discoverable library of operational runbooks"
     },
     {
       "ai_context": {
@@ -254,48 +292,19 @@
       },
       "status": "Ready",
       "title": "Orchestrate the discoverable runbook library delivery"
-    },
-    {
-      "ai_context": {},
-      "kind": "product",
-      "linked_refs": {
-        "item": [
-          "item_687_define_the_runbook_companion_contract_and_agent_discovery_path",
-          "item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling",
-          "item_689_make_the_runbook_library_navigable_in_the_viewer"
-        ],
-        "prod": [
-          "prod_074_a_discoverable_library_of_operational_runbooks"
-        ],
-        "req": [
-          "req_330_make_operational_runbooks_a_discoverable_logics_companion_document"
-        ],
-        "task": [
-          "task_327_orchestrate_the_discoverable_runbook_library_delivery"
-        ]
-      },
-      "path": "logics/product/prod_074_a_discoverable_library_of_operational_runbooks.md",
-      "ref": "prod_074_a_discoverable_library_of_operational_runbooks",
-      "schema_version": "1.0",
-      "sections": {},
-      "status": "Proposed",
-      "title": "A discoverable library of operational runbooks"
     }
   ],
   "estimates": {
-    "char_count": 13139,
+    "char_count": 15575,
     "companion_doc_count": 1,
     "doc_count": 6
   },
-  "generated_at": "2026-08-10T21:20:34Z",
+  "generated_at": "2026-08-10T21:38:02Z",
   "handoff": {
     "companion_doc_count": 1,
     "enabled": true,
     "source_refs": [
       "req_330_make_operational_runbooks_a_discoverable_logics_companion_document",
-      "item_687_define_the_runbook_companion_contract_and_agent_discovery_path",
-      "item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling",
-      "item_689_make_the_runbook_library_navigable_in_the_viewer",
       "task_327_orchestrate_the_discoverable_runbook_library_delivery"
     ],
     "validation_summary_count": 1
@@ -315,17 +324,16 @@
     "state": "absent"
   },
   "mode": "full",
-  "profile": "normal",
-  "ref": "req_330_make_operational_runbooks_a_discoverable_logics_companion_document,item_687_define_the_runbook_companion_contract_and_agent_discovery_path,item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling,item_689_make_the_runbook_library_navigable_in_the_viewer,task_327_orchestrate_the_discoverable_runbook_library_delivery",
+  "profile": "deep",
+  "ref": "req_330_make_operational_runbooks_a_discoverable_logics_companion_document,task_327_orchestrate_the_discoverable_runbook_library_delivery",
   "refs": [
     "req_330_make_operational_runbooks_a_discoverable_logics_companion_document",
-    "item_687_define_the_runbook_companion_contract_and_agent_discovery_path",
-    "item_688_expose_runbooks_through_bounded_commands_mcp_and_deliberate_migration_tooling",
-    "item_689_make_the_runbook_library_navigable_in_the_viewer",
     "task_327_orchestrate_the_discoverable_runbook_library_delivery"
   ],
   "release": {
-    "blocking_reasons": [],
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
     "configured": true,
     "contract_path": "logics/release/contract.json",
     "guidance": [
@@ -333,7 +341,7 @@
       "Use release status or validate before preparing or claiming release readiness.",
       "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
     ],
-    "next_action": "Release evidence is complete.",
+    "next_action": "git_push: evidence targets a different commit (branch)",
     "publication_actions": [
       "GitHub release publication",
       "external publication"
@@ -361,11 +369,11 @@
         "status": "passed"
       },
       {
-        "blocking_reason": null,
+        "blocking_reason": "evidence targets a different commit (branch)",
         "id": "git_push",
         "required": true,
         "state": "pushed",
-        "status": "passed"
+        "status": "stale"
       },
       {
         "blocking_reason": null,
@@ -394,7 +402,7 @@
       "logics-manager release plan <version>",
       "logics-manager release validate <version>"
     ],
-    "state": "ready",
+    "state": "blocked",
     "target_version": "2.21.4"
   },
   "validation_summary": [

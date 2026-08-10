@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Runbook book viewer
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-10 23:35:35
+> Indicators reviewed: 2026-08-10 23:38:01
 
 # AI Context
 - Summary: Make the runbook library navigable in the viewer
@@ -24,11 +24,11 @@
 - In:
   - Add Runbooks as the Workshop tab between Commands and Explorer, rather than as a new top-level destination.
   - Add Runbook to viewer type filtering, search results, document metadata, and accessible labels.
-- Start the tab with relevant/recent Active runbooks and a bounded intent search; open the graph as a secondary book view.
+  - Start the tab with relevant/recent Active runbooks and a bounded intent search; open the graph as a secondary book view.
   - Render a runbook-book graph with category nodes, runbook nodes, and optional links to related Logics documents.
   - Keep the existing request-chain graph unchanged and make standalone runbooks visible in the library graph.
-- Add a narrow status control: Draft to Active requires a verification date and proof, archive requires confirmation, and every transition uses the supported Logics mutation path then refreshes results.
-- Make suggestions and capture advisory: show why a runbook matched, make no-match a useful empty state, and leave every suggestion or capture path in one interaction.
+  - Add a narrow status control: Draft to Active requires a verification date and proof, archive requires confirmation, and every transition uses the supported Logics mutation path then refreshes results.
+  - Make suggestions and capture advisory: show why a runbook matched, make no-match a useful empty state, and leave every suggestion or capture path in one interaction.
   - Add focused viewer tests for filters, graph source, Workshop navigation, status transitions, and empty states.
 - Out:
   - A cross-repository viewer database.

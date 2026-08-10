@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Runbook contract and discovery
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-10 23:23:12
+> Indicators reviewed: 2026-08-10 23:38:00
 
 # AI Context
 - Summary: Define the runbook companion contract and agent discovery path
@@ -22,9 +22,9 @@
 
 # Scope
 - In:
-- Define the `run_` companion kind, canonical directory, minimal template, Draft/Active/Archived statuses, category vocabulary, verification field, reusable-problem/solution fields, and structural link rules.
+  - Define the `run_` companion kind, canonical directory, minimal template, Draft/Active/Archived statuses, category vocabulary, verification field, reusable-problem/solution fields, and structural link rules.
   - Add runbook recognition to the shared validation and document parsing contracts without lifecycle progress or promotion semantics.
-- Make bootstrap-generated repository instructions name the canonical runbook directory and bounded match/list/search commands, including the instruction to consult relevant runbooks before operational work and capture verified reusable learning afterwards.
+  - Make bootstrap-generated repository instructions name the canonical runbook directory and bounded match/list/search commands, including the instruction to consult relevant runbooks before operational work and capture verified reusable learning afterwards.
   - Add a runbook collection to the generated Logics index.
   - Add small contract tests for the template, validation, generated instructions, and index.
 - Out:
@@ -41,8 +41,8 @@
 
 # AC Traceability
 - request-AC1 -> This backlog slice. Proof: AC1: A runbook document has a stable `run_` ref, lives in `logics/runbook/`, and validates as a companion document with category and verification metadata.
-- request-AC2 -> This backlog slice. Proof: AC2: Runbook statuses are limited to Active and Archived, with no progress, promotion, owner, or closeout requirement.
-- request-AC7 -> This backlog slice. Proof: AC3: Bootstrap output tells an agent the runbook location, the list/search commands, and to consult applicable runbooks before operational changes.
+- request-AC2 -> This backlog slice. Proof: AC2: Runbook statuses are limited to Draft, Active, and Archived, with no progress, promotion, owner, or closeout requirement; only Active runbooks are normal match results.
+- request-AC7 -> This backlog slice. Proof: AC3: Bootstrap output tells an agent the runbook location, the match/list/search commands, and to consult applicable runbooks before operational changes and capture verified reusable learning afterwards.
 - request-AC8 -> This backlog slice. Proof: AC5: Tests fail if the runbook contract or agent discovery wording disappears.
 
 # Decision framing

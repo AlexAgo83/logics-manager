@@ -1,0 +1,313 @@
+{
+  "budgets": {
+    "max_docs": 12,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_328_replace_the_viewer_title_with_a_compact_logics_logo item_684_use_the_logics_icon_as_the_viewer_topbar_identity task_325_deliver_compact_viewer_logo_identity --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_684_use_the_logics_icon_as_the_viewer_topbar_identity"
+        ],
+        "prod": [
+          "prod_072_compact_logics_viewer_identity"
+        ],
+        "req": [
+          "req_328_replace_the_viewer_title_with_a_compact_logics_logo"
+        ],
+        "task": [
+          "task_325_deliver_compact_viewer_logo_identity"
+        ]
+      },
+      "path": "logics/product/prod_072_compact_logics_viewer_identity.md",
+      "ref": "prod_072_compact_logics_viewer_identity",
+      "sections": {
+        "Goals": [
+          "- Make the topbar identity more discreet.",
+          "- Reuse the packaged icon rather than add a new asset.",
+          "- Keep layout and accessibility stable."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Use the existing Logics icon as the viewer identity in the topbar, reducing visual noise while preserving accessible navigation and the existing layout rhythm."
+        ],
+        "References": [
+          "- Product back-reference: `req_328_replace_the_viewer_title_with_a_compact_logics_logo`",
+          "- Task back-reference: `task_325_deliver_compact_viewer_logo_identity`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Compact Logics viewer identity"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, replace the viewer title with a compact logics logo, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "Replace the viewer title with a compact Logics logo",
+        "use when": "You need to implement or review the scaffolded workflow for Replace the viewer title with a compact Logics logo."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_684_use_the_logics_icon_as_the_viewer_topbar_identity"
+        ],
+        "prod": [
+          "prod_072_compact_logics_viewer_identity"
+        ],
+        "req": [
+          "req_328_replace_the_viewer_title_with_a_compact_logics_logo"
+        ]
+      },
+      "path": "logics/request/req_328_replace_the_viewer_title_with_a_compact_logics_logo.md",
+      "ref": "req_328_replace_the_viewer_title_with_a_compact_logics_logo",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- The visible Logics Viewer text is replaced by the packaged Logics icon before the project selector.",
+          "- The logo is discreet, preserves the existing topbar height, and does not cause layout overflow at compact widths.",
+          "- The identity remains accessible through suitable semantic text or an aria-label and a viewer test covers the new header markup."
+        ],
+        "Needs": [
+          "- Replace the visible Logics Viewer title before the project selector with the Logics logo.",
+          "- Keep the viewer topbar at its current height and retain accessible identification of the viewer."
+        ]
+      },
+      "status": "Draft",
+      "title": "Replace the viewer title with a compact Logics logo"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-backlog, use the logics icon as the viewer topbar identity, implementation-ready",
+        "skip when": "The change belongs to another backlog slice.",
+        "summary": "Use the Logics icon as the viewer topbar identity",
+        "use when": "Implementing the scaffolded slice for Use the Logics icon as the viewer topbar identity."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_684_use_the_logics_icon_as_the_viewer_topbar_identity"
+        ],
+        "prod": [
+          "prod_072_compact_logics_viewer_identity"
+        ],
+        "req": [
+          "req_328_replace_the_viewer_title_with_a_compact_logics_logo"
+        ],
+        "task": [
+          "task_325_deliver_compact_viewer_logo_identity"
+        ]
+      },
+      "path": "logics/backlog/item_684_use_the_logics_icon_as_the_viewer_topbar_identity.md",
+      "ref": "item_684_use_the_logics_icon_as_the_viewer_topbar_identity",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- The icon appears before the project selector and the title is not visibly rendered.",
+          "- The topbar height remains unchanged in the normal viewer layout.",
+          "- Screen readers retain a meaningful viewer identity label."
+        ],
+        "Problem": [
+          "- The written viewer title uses space in the compact topbar even though a recognizable packaged icon is available."
+        ]
+      },
+      "status": "Ready",
+      "title": "Use the Logics icon as the viewer topbar identity"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_684_use_the_logics_icon_as_the_viewer_topbar_identity"
+        ],
+        "prod": [
+          "prod_072_compact_logics_viewer_identity"
+        ],
+        "req": [
+          "req_328_replace_the_viewer_title_with_a_compact_logics_logo"
+        ],
+        "task": [
+          "task_325_deliver_compact_viewer_logo_identity"
+        ]
+      },
+      "path": "logics/product/prod_072_compact_logics_viewer_identity.md",
+      "ref": "prod_072_compact_logics_viewer_identity",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Compact Logics viewer identity"
+    },
+    {
+      "ai_context": {
+        "keywords": "scaffolded-task, request-chain-scaffold, orchestration",
+        "skip when": "Working on one isolated sibling slice.",
+        "summary": "Deliver compact viewer logo identity",
+        "use when": "Coordinating implementation of a scaffolded request chain."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_684_use_the_logics_icon_as_the_viewer_topbar_identity"
+        ],
+        "prod": [
+          "prod_072_compact_logics_viewer_identity"
+        ],
+        "req": [
+          "req_328_replace_the_viewer_title_with_a_compact_logics_logo"
+        ],
+        "task": [
+          "task_325_deliver_compact_viewer_logo_identity"
+        ]
+      },
+      "path": "logics/tasks/task_325_deliver_compact_viewer_logo_identity.md",
+      "ref": "task_325_deliver_compact_viewer_logo_identity",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Deliver compact viewer logo identity"
+    }
+  ],
+  "estimates": {
+    "char_count": 5436,
+    "companion_doc_count": 1,
+    "doc_count": 4
+  },
+  "generated_at": "2026-08-10T10:44:10Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_328_replace_the_viewer_title_with_a_compact_logics_logo",
+      "item_684_use_the_logics_icon_as_the_viewer_topbar_identity",
+      "task_325_deliver_compact_viewer_logo_identity"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_328_replace_the_viewer_title_with_a_compact_logics_logo,item_684_use_the_logics_icon_as_the_viewer_topbar_identity,task_325_deliver_compact_viewer_logo_identity",
+  "refs": [
+    "req_328_replace_the_viewer_title_with_a_compact_logics_logo",
+    "item_684_use_the_logics_icon_as_the_viewer_topbar_identity",
+    "task_325_deliver_compact_viewer_logo_identity"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different version",
+      "changelog: evidence targets a different version",
+      "local_validation: evidence targets a different version",
+      "git_push: evidence targets a different version",
+      "ci: evidence targets a different version",
+      "github_release: evidence targets a different version",
+      "issue_closure: evidence targets a different version"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different version",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "stale"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.3"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_325_deliver_compact_viewer_logo_identity.md",
+      "ref": "task_325_deliver_compact_viewer_logo_identity"
+    }
+  ]
+}

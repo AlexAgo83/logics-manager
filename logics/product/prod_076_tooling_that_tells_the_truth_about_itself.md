@@ -1,11 +1,12 @@
 ## prod_076_tooling_that_tells_the_truth_about_itself - Tooling that tells the truth about itself
 > Date: 2026-08-11
-> Status: Proposed
+> Status: Settled
 > Related request: `req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed`
 > Related backlog: `item_701_report_a_runtime_that_disagrees_with_the_repository_it_audits`, `item_702_make_every_guard_reachable_before_the_push`, `item_703_report_a_request_criterion_no_linked_document_accounts_for`
 > Related task: `task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-11 11:00:10
 
 # Overview
 The corpus is only as trustworthy as the tool reporting on it. When the tool is silently a different version, or a guard exists only where the operator is not, the report becomes confident and wrong.

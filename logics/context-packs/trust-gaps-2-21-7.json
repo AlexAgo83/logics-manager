@@ -1,0 +1,325 @@
+{
+  "budgets": {
+    "max_docs": 20,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed item_701_report_a_runtime_that_disagrees_with_the_repository_it_audits item_702_make_every_guard_reachable_before_the_push item_703_report_a_request_criterion_no_linked_document_accounts_for task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_701_report_a_runtime_that_disagrees_with_the_repository_it_audits",
+          "item_702_make_every_guard_reachable_before_the_push",
+          "item_703_report_a_request_criterion_no_linked_document_accounts_for"
+        ],
+        "prod": [
+          "prod_076_tooling_that_tells_the_truth_about_itself"
+        ],
+        "req": [
+          "req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed"
+        ],
+        "task": [
+          "task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle"
+        ]
+      },
+      "path": "logics/product/prod_076_tooling_that_tells_the_truth_about_itself.md",
+      "ref": "prod_076_tooling_that_tells_the_truth_about_itself",
+      "status": "Proposed",
+      "title": "Tooling that tells the truth about itself"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "close, three, trust, gaps, cycle, exposed",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_701_report_a_runtime_that_disagrees_with_the_repository_it_audits",
+          "item_702_make_every_guard_reachable_before_the_push",
+          "item_703_report_a_request_criterion_no_linked_document_accounts_for"
+        ],
+        "prod": [
+          "prod_076_tooling_that_tells_the_truth_about_itself"
+        ],
+        "req": [
+          "req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed"
+        ]
+      },
+      "path": "logics/request/req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed.md",
+      "ref": "req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Close the three trust gaps the 2.21.7 cycle exposed"
+    },
+    {
+      "ai_context": {
+        "keywords": "report, runtime, disagrees, repository, audits",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_701_report_a_runtime_that_disagrees_with_the_repository_it_audits"
+        ],
+        "prod": [
+          "prod_076_tooling_that_tells_the_truth_about_itself"
+        ],
+        "req": [
+          "req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed"
+        ],
+        "task": [
+          "task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle"
+        ]
+      },
+      "path": "logics/backlog/item_701_report_a_runtime_that_disagrees_with_the_repository_it_audits.md",
+      "ref": "item_701_report_a_runtime_that_disagrees_with_the_repository_it_audits",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Report a runtime that disagrees with the repository it audits"
+    },
+    {
+      "ai_context": {
+        "keywords": "guard, reachable, before, push",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_702_make_every_guard_reachable_before_the_push"
+        ],
+        "prod": [
+          "prod_076_tooling_that_tells_the_truth_about_itself"
+        ],
+        "req": [
+          "req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed"
+        ],
+        "task": [
+          "task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle"
+        ]
+      },
+      "path": "logics/backlog/item_702_make_every_guard_reachable_before_the_push.md",
+      "ref": "item_702_make_every_guard_reachable_before_the_push",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Make every guard reachable before the push"
+    },
+    {
+      "ai_context": {
+        "keywords": "report, request, criterion, linked, document, accounts",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_703_report_a_request_criterion_no_linked_document_accounts_for"
+        ],
+        "prod": [
+          "prod_076_tooling_that_tells_the_truth_about_itself"
+        ],
+        "req": [
+          "req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed"
+        ],
+        "task": [
+          "task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle"
+        ]
+      },
+      "path": "logics/backlog/item_703_report_a_request_criterion_no_linked_document_accounts_for.md",
+      "ref": "item_703_report_a_request_criterion_no_linked_document_accounts_for",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Report a request criterion no linked document accounts for"
+    },
+    {
+      "ai_context": {
+        "keywords": "deliver, three, trust, gaps, cycle",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_701_report_a_runtime_that_disagrees_with_the_repository_it_audits",
+          "item_702_make_every_guard_reachable_before_the_push",
+          "item_703_report_a_request_criterion_no_linked_document_accounts_for"
+        ],
+        "prod": [
+          "prod_076_tooling_that_tells_the_truth_about_itself"
+        ],
+        "req": [
+          "req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed"
+        ],
+        "task": [
+          "task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle"
+        ]
+      },
+      "path": "logics/tasks/task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle.md",
+      "ref": "task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Deliver the three trust gaps from the 2.21.7 cycle"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_701_report_a_runtime_that_disagrees_with_the_repository_it_audits",
+          "item_702_make_every_guard_reachable_before_the_push",
+          "item_703_report_a_request_criterion_no_linked_document_accounts_for"
+        ],
+        "prod": [
+          "prod_076_tooling_that_tells_the_truth_about_itself"
+        ],
+        "req": [
+          "req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed"
+        ],
+        "task": [
+          "task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle"
+        ]
+      },
+      "path": "logics/product/prod_076_tooling_that_tells_the_truth_about_itself.md",
+      "ref": "prod_076_tooling_that_tells_the_truth_about_itself",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "Tooling that tells the truth about itself"
+    }
+  ],
+  "estimates": {
+    "char_count": 5798,
+    "companion_doc_count": 1,
+    "doc_count": 6
+  },
+  "generated_at": "2026-08-11T08:01:50Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed",
+      "item_701_report_a_runtime_that_disagrees_with_the_repository_it_audits",
+      "item_702_make_every_guard_reachable_before_the_push",
+      "item_703_report_a_request_criterion_no_linked_document_accounts_for",
+      "task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed,item_701_report_a_runtime_that_disagrees_with_the_repository_it_audits,item_702_make_every_guard_reachable_before_the_push,item_703_report_a_request_criterion_no_linked_document_accounts_for,task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle",
+  "refs": [
+    "req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed",
+    "item_701_report_a_runtime_that_disagrees_with_the_repository_it_audits",
+    "item_702_make_every_guard_reachable_before_the_push",
+    "item_703_report_a_request_criterion_no_linked_document_accounts_for",
+    "task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle"
+  ],
+  "release": {
+    "blocking_reasons": [],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "Release evidence is complete.",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "ready",
+    "target_version": "2.21.7"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle.md",
+      "ref": "task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle"
+    }
+  ]
+}

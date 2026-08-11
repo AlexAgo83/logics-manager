@@ -1,10 +1,10 @@
 ## item_694_keep_deferred_traceability_findings_out_of_the_default_audit_report - Keep deferred traceability findings out of the default audit report
 > From version: 2.21.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -62,6 +62,7 @@ The risk is not the noise itself. It is that an operator who sees eight expected
 - Hybrid rationale: Derived from request `req_333_keep_deferred_traceability_findings_out_of_the_default_audit_report` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_333_keep_deferred_traceability_findings_out_of_the_default_audit_report.md`.
 - Generated locally by logics-manager.
+- Task `task_330_keep_deferred_traceability_findings_out_of_the_default_audit_report` was finished via `logics-manager flow finish task` on 2026-08-11.
 
 # Tasks
 - `task_330_keep_deferred_traceability_findings_out_of_the_default_audit_report`

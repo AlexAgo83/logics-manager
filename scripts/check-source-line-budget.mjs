@@ -55,7 +55,9 @@ const allowedOversizedFiles = new Map(
     // three short functions used in one place next door would be indirection, not a split.
     // 1045: req_331 added the `--refresh-managed` flag and its help text to
     // `bootstrap`, the same pattern as `--sync-harnesses` beside it.
-    "logics_manager/cli.py": { maxLines: 1045, ref: "req_331" },
+    // 1046: req_333 passes --include-deferred through to render_audit, one line in
+    // the argument list this command already builds.
+    "logics_manager/cli.py": { maxLines: 1046, ref: "req_333" },
     // 1564: item_675 added `backfill_schema_versions` and the --apply/--dry-run wiring on
     // schema-status. It sits beside `_schema_status`, whose scan it repairs, and reuses the
     // same `_resolve_target_docs` targeting; a separate module would import both and gain
@@ -70,7 +72,12 @@ const allowedOversizedFiles = new Map(
     // COMPANION_PLACEHOLDERS) and its own small placeholder-check loop, kept separate
     // from the product/roadmap/architecture loop since runbooks skip the primary-link
     // and mermaid requirements those three still enforce.
-    "logics_manager/audit.py": { maxLines: 1169, ref: "req_330" },
+    // 1279: req_337 replaced the whole-text lineage scan with a declared-section
+    // mapping (plus the announcement of what it stopped counting), and req_333 added
+    // the deferred attribute the report withholds on. Both are amendments to rules
+    // that already live here; req_339's code-anchor resolution, which is filesystem
+    // work rather than corpus parsing, went to its own module instead.
+    "logics_manager/audit.py": { maxLines: 1279, ref: "req_339" },
     // 1117: req_317 added the per-gate release/branch comparison (resolving the
     // tagged commit, choosing which commit each gate is judged against, and
     // naming the comparison in stale reasons and status output). The new logic

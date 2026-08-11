@@ -1,7 +1,7 @@
 ## req_334_give_scaffolded_workflow_docs_an_ai_context_worth_reading - Give scaffolded workflow docs an AI Context worth reading
 > From version: 2.21.6
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Complexity: Medium

@@ -7,6 +7,7 @@
 > Complexity: Low
 > Theme: Webview state persistence
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-11 05:02:28
 
 # AI Context
 - Summary: Fix the webview flipping back to the Activity view instead of staying on Project every time a refresh arrives.
@@ -47,5 +48,4 @@
 - `tests/webview.chrome.test.ts`
 
 # Backlog
-- none
 - `item_693_stop_the_webview_activity_view_from_resetting_on_every_refresh`

@@ -2,8 +2,8 @@
 > From version: 2.21.6
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 95%
+> Confidence: 90%
 > Complexity: Low
 > Theme: Validation ergonomics
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -24,6 +24,8 @@
 - So this request is not asking to re-litigate the severity decision. Lowering severity made the finding non-blocking; it did not make it quiet. The remaining gap is presentation: a deferred finding is still printed in full, once per AC, on every run.
 - The finding is emitted per acceptance criterion, so a well-specified request with eight AC produces eight identical lines that differ only by the AC id. Verbosity scales with the quality of the request, which is the wrong incentive.
 - `flow closeout` enforces proof through its own preflight, so hiding deferred findings from the default report does not weaken the gate that actually matters.
+- **Sequencing with `req_337`.** What is deferred is decided by `any_task_done`, computed from `_linked_tasks_for_item`, which `req_337` is about to correct — today that link is a substring scan over whole task documents. Hiding a finding whose deferred flag was computed from a false link would hide it for the wrong reason, and silently. `req_337` should land first; if this one lands first, the withheld-count line of AC2 is what keeps the mistake visible rather than invisible.
+- **Consumed by `req_339`.** The withholding mechanism defined here is what `req_339` relies on to stay quiet on a healthy corpus. It should be built as a general facility keyed on a finding attribute, not as a special case for `ac_missing_*_traceability`.
 
 # Acceptance criteria
 - AC1: By default, `logics-manager audit` does not print individual deferred findings; a corpus whose only outstanding findings are deferred reports as clean.
@@ -47,5 +49,4 @@
 - `tests/python/test_audit_cli.py`
 
 # Backlog
-- none
 - `item_694_keep_deferred_traceability_findings_out_of_the_default_audit_report`

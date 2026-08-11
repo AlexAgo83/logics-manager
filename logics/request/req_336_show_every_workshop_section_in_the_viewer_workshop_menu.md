@@ -7,6 +7,7 @@
 > Complexity: Low
 > Theme: Viewer navigation
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-11 05:02:29
 
 # AI Context
 - Summary: The viewer's Workshop menu is hand-written HTML listing three of the four Workshop sections, so Runbooks has no entry and is only reachable by opening another section first and finding it in the tab strip.
@@ -51,5 +52,4 @@
 - `logics/request/req_330_make_operational_runbooks_a_discoverable_logics_companion_document.md`
 
 # Backlog
-- none
 - `item_697_show_every_workshop_section_in_the_viewer_workshop_menu`

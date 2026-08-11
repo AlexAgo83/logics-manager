@@ -2,8 +2,8 @@
 > From version: 2.21.6
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92%
+> Confidence: 88%
 > Complexity: Medium
 > Theme: Evidence capture
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -25,6 +25,7 @@
 - `release evidence add` already models the missing shape one level up: an append-only record with a kind, a status, a summary, and a target. What is absent is the equivalent inside a task, addressed to one acceptance criterion.
 - `flow validate-closeout` already lists, per criterion, exactly what proof will be expected — so a task knows the shape of its own evidence from the moment it exists. The gap is only that there is nowhere to put an answer until the end.
 - Scope: capturing proof for a single criterion at an arbitrary point in a task's life, and composing recorded proof at closeout. Out of scope: changing what counts as valid proof, the traceability findings themselves, and the existing whole-request repair commands, which keep working unchanged.
+- **Shares a seam with `req_337`.** Both change how a criterion's proof is written and read: this one writes per-criterion records that compose into the traceability entry, that one decides which chain a criterion's proof may legitimately come from. Both land in `_ac_traceability_entry` (`logics_manager/flow/docs.py`) and `_doc_has_ac_with_proof` (`logics_manager/audit.py`). `req_337` should land first, so composition here writes into a matching rule that is already correct.
 - Known risk: a capture command that is trivial to call invites proof recorded before the thing is true. Recording what was actually run, rather than only a claim about it, is what separates this from a faster way to write the same sentence.
 
 # Acceptance criteria
@@ -52,5 +53,4 @@
 - `tests/python/test_flow_cli.py`
 
 # Backlog
-- none
 - `item_699_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced`

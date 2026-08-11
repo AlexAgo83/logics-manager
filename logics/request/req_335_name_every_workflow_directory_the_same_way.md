@@ -2,8 +2,8 @@
 > From version: 2.21.6
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92%
+> Confidence: 90%
 > Complexity: Medium
 > Theme: Corpus layout
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -21,7 +21,7 @@
 
 # Context
 - The canonical list is `WORKFLOW_DIRS` in `logics_manager/bootstrap.py`: `("request", "backlog", "tasks", "specs", "product", "roadmap", "architecture", "runbook", "external", ".cache")`. The same inconsistency is repeated where directories are mapped per kind, for example `insights.py` mapping `"task"` to `logics/tasks`.
-- **A rename is not being proposed, and the reason is measured**: about 469 occurrences of these paths exist across `logics_manager`, `clients`, and `tests`, before counting consuming projects, external tooling, documentation, and every git history link. The disruption is out of proportion to a naming papercut.
+- **A rename is not being proposed, and the reason is measured**: `rg -o 'logics/(tasks|specs)' logics_manager clients tests | wc -l` returns 225 occurrences across 179 lines, and widening it to all seven workflow directories gives 787 — before counting consuming projects, external tooling, documentation, and every git history link. (An earlier draft cited ~469 by an unrecorded method; the reproducible commands are given here so the figure can be rechecked rather than trusted.) The disruption is out of proportion to a naming papercut.
 - What is proposed instead is tolerance: accept the other form wherever a path is resolved, so a wrong guess costs nothing. That keeps the corpus untouched and makes the inconsistency stop mattering.
 - Out of scope: renaming any directory, moving any file, changing document reference syntax, and changing what `bootstrap` creates.
 - Known risk: tolerance must not create ambiguity if both `logics/task/` and `logics/tasks/` exist on disk. The canonical form has to win, and the situation should be reported rather than silently resolved.
@@ -51,5 +51,4 @@
 - `logics_manager/path_utils.py`
 
 # Backlog
-- none
 - `item_696_name_every_workflow_directory_the_same_way`

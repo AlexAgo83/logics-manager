@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Iterable
 
 from .config import find_repo_root
+from .code_anchors import unresolved_anchors
 from .doc_parsing import extract_refs, indicator_value, progress_value, section_lines
 from .flow_evidence import has_ac_proof as _has_ac_with_proof
 from .statuses import workflow_statuses
@@ -917,6 +918,26 @@ def audit_payload(
                     path=doc.path,
                     message=f"{named} mentioned in prose only; declare under `# {section}` if it is real lineage",
                     severity="warning",
+                )
+            )
+
+    # Code anchors: only open docs, since a closed one describing code as it was is
+    # history. Repository text is read at most once, and only if a symbol needs it.
+    anchor_blob: list[str | None] = [None]
+    for doc in docs.values():
+        if _is_done(doc) or _is_abandoned(doc):
+            continue
+        missing_paths, missing_symbols = unresolved_anchors(repo_root, doc.text, blob=anchor_blob)
+        for path in missing_paths:
+            issues.append(AuditIssue(code="code_anchor_path_missing", path=doc.path, message=f"cited path `{path}` does not exist", severity="warning"))
+        for symbol in missing_symbols:
+            issues.append(
+                AuditIssue(
+                    code="code_anchor_symbol_not_found",
+                    path=doc.path,
+                    message=f"`{symbol}` was not found anywhere in the repository — a hint that the citation is stale, not a fact",
+                    severity="warning",
+                    deferred=True,
                 )
             )
 

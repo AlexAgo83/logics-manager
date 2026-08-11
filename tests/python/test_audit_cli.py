@@ -586,3 +586,72 @@ def test_withholding_never_hides_a_blocking_finding(tmp_path: Path) -> None:
     assert payload["deferred_count"] == 0
     assert "missing task-level traceability with proof" in report
     assert "Deferred findings withheld" not in report
+
+
+def _anchor_doc(repo_root: Path, slug: str, *, status: str, references: list[str]) -> None:
+    (repo_root / "logics" / "request").mkdir(parents=True, exist_ok=True)
+    (repo_root / "logics" / "request" / f"req_001_{slug}.md").write_text(
+        "\n".join(
+            [f"## req_001_{slug} - {slug}", "> From version: 2.11.6", f"> Status: {status}", "> Schema version: 1.0", "# References"]
+            + [f"- {reference}" for reference in references]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
+def test_audit_reports_code_anchors_that_no_longer_resolve(tmp_path: Path) -> None:
+    """req_339 AC1/AC2/AC3: paths are decidable, symbols are hints, line numbers are never checked."""
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "src").mkdir(parents=True)
+    (repo_root / "src" / "real.py").write_text("def kept_symbol():\n    return 1\n# only_in_a_comment is mentioned here\n", encoding="utf-8")
+    _anchor_doc(
+        repo_root,
+        "anchors",
+        status="Ready",
+        references=["`src/real.py`", "`src/gone.py`", "`kept_symbol`", "`vanished_symbol`", "`only_in_a_comment`", "`src/real.py:9999`"],
+    )
+
+    payload = audit_payload(repo_root, skip_ac_traceability=True, skip_gates=True)
+    findings = {(f["code"], f["message"]) for f in payload["findings"]}
+
+    # AC1: the missing path, once, named.
+    assert ("code_anchor_path_missing", "cited path `src/gone.py` does not exist") in findings
+    # An existing path is never reported...
+    assert not any("src/real.py" in message for code, message in findings if code == "code_anchor_path_missing")
+    # ...and neither is a line number on it (AC3).
+    assert not any("9999" in message for _, message in findings)
+    # AC2: the symbol is a lower-confidence hint, worded as one, and withheld by default.
+    symbol_findings = [f for f in payload["findings"] if f["code"] == "code_anchor_symbol_not_found"]
+    assert [f["message"].split("`")[1] for f in symbol_findings] == ["vanished_symbol"]
+    assert "a hint that the citation is stale, not a fact" in symbol_findings[0]["message"]
+    assert symbol_findings[0]["deferred"] is True
+    # A symbol that exists only inside a comment still exists.
+    assert not any("only_in_a_comment" in message for _, message in findings)
+    # AC5: warnings only, so the audit still passes and the default report stays quiet.
+    assert payload["ok"] is True
+    assert all(f["severity"] == "warning" for f in payload["findings"])
+    assert "a hint that the citation is stale" not in render_audit(repo_root, skip_ac_traceability=True, skip_gates=True)
+
+
+def test_audit_leaves_closed_documents_code_anchors_alone(tmp_path: Path) -> None:
+    """req_339 AC4: a Done document describing code as it was is history."""
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "src").mkdir(parents=True)
+    _anchor_doc(repo_root, "history", status="Done", references=["`src/long_gone.py`", "`deleted_symbol`"])
+
+    payload = audit_payload(repo_root, skip_ac_traceability=True, skip_gates=True)
+
+    assert not [f for f in payload["findings"] if f["code"].startswith("code_anchor_")]
+
+
+def test_audit_stays_silent_when_every_code_anchor_resolves(tmp_path: Path) -> None:
+    """req_339 AC5: quiet on a healthy corpus, or the check teaches the reader to skim."""
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "src").mkdir(parents=True)
+    (repo_root / "src" / "real.py").write_text("MAX_RETRIES = 3\n", encoding="utf-8")
+    _anchor_doc(repo_root, "healthy", status="Ready", references=["`src/real.py`", "`MAX_RETRIES`", "`src/real.py:1`"])
+
+    report = render_audit(repo_root, skip_ac_traceability=True, skip_gates=True)
+
+    assert "code_anchor" not in report

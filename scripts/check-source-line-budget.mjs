@@ -85,7 +85,11 @@ const allowedOversizedFiles = new Map(
     // is where findings are reported; the wording it recognises is derived from
     // logics_manager/ai_context.py, which owns what the generators write, so the check
     // and the templates cannot drift apart again.
-    "logics_manager/audit.py": { maxLines: 1304, ref: "req_334" },
+    // 1332: the three checks added this release (prose lineage, code anchors,
+    // ungroomed AI Context) were lifted out of audit_payload into named functions
+    // when check_function_length flagged its growth. Each is now readable on its
+    // own; the file is longer for the docstrings that move with them.
+    "logics_manager/audit.py": { maxLines: 1332, ref: "req_334" },
     // 1117: req_317 added the per-gate release/branch comparison (resolving the
     // tagged commit, choosing which commit each gate is judged against, and
     // naming the comparison in stale reasons and status output). The new logic

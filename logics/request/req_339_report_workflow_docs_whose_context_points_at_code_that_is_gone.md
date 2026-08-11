@@ -1,7 +1,7 @@
 ## req_339_report_workflow_docs_whose_context_points_at_code_that_is_gone - Report workflow docs whose context points at code that is gone
 > From version: 2.21.6
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 92%
 > Confidence: 88%
 > Complexity: Medium

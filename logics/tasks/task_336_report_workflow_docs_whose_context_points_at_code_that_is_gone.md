@@ -1,13 +1,14 @@
 ## task_336_report_workflow_docs_whose_context_points_at_code_that_is_gone - Report workflow docs whose context points at code that is gone
 > From version: 2.21.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-11 05:28:43
 
 # AI Context
 - Summary: Implement report workflow docs whose context points at code that is gone.
@@ -16,10 +17,10 @@
 - Skip when: The work is still at the request or backlog shaping stage.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
-- [ ] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
+- [x] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
 
 # Backlog
 - `item_700_report_workflow_docs_whose_context_points_at_code_that_is_gone`
@@ -38,9 +39,22 @@
 
 # Validation
 - (no validation recorded yet)
+- Finish workflow executed on 2026-08-11.
+- Linked backlog/request close verification passed.
 
 # Report
 - Not started.
+- Finished on 2026-08-11.
+- Linked backlog item(s): `item_700_report_workflow_docs_whose_context_points_at_code_that_is_gone`
+- Related request(s): `req_339_report_workflow_docs_whose_context_points_at_code_that_is_gone`
+
+# AC Traceability
+- request-AC1 -> This task. Proof: `code_anchor_path_missing` names the doc and the path, once per path. Verified on this corpus: exactly one finding, `logics/task` cited by req_335. `test_audit_reports_code_anchors_that_no_longer_resolve` asserts the message verbatim and that an existing path produces nothing. Source: `5adf3612`
+- request-AC2 -> This task. Proof: `code_anchor_symbol_not_found` is a separate, lower-confidence code whose message ends "a hint that the citation is stale, not a fact", and carries `deferred=True` so it is withheld from the default report. Same test asserts the wording, the flag, and that a symbol appearing only inside a comment still counts as found. Source: `5adf3612`
+- request-AC3 -> This task. Proof: `_strip_locator` removes a trailing `:123`/`:12-34` before resolution; no line-number rule exists. Test cites `src/real.py:9999` on a file whose line 9999 does not exist and asserts no finding mentions 9999. Source: `5adf3612`
+- request-AC4 -> This task. Proof: The loop skips `_is_done` and `_is_abandoned` docs. `test_audit_leaves_closed_documents_code_anchors_alone` gives a Done request two rotted anchors and asserts zero `code_anchor_*` findings. Source: `5adf3612`
+- request-AC5 -> This task. Proof: Both codes are `severity="warning"`, so `payload["ok"]` stays True and neither lint nor a closeout gate can be blocked. `test_audit_stays_silent_when_every_code_anchor_resolves` asserts the string `code_anchor` is absent from the rendered report on a healthy corpus. Source: `5adf3612`
+- request-AC6 -> This task. Proof: Three tests in `tests/python/test_audit_cli.py` cover all six cases: missing path, existing path, missing symbol, comment-only symbol, Done doc with rotted anchors, and a line number. Full suite 1315 passed; `npm run check:line-budget` passes with the ceiling raised and reasoned. Source: `5adf3612`
 
 # Links
 - Request: `req_339_report_workflow_docs_whose_context_points_at_code_that_is_gone`

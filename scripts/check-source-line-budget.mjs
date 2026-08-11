@@ -81,7 +81,11 @@ const allowedOversizedFiles = new Map(
     // work rather than corpus parsing, went to its own module instead.
     // 1281: req_335 routes --paths scoping through canonical_workflow_path so
     // scoping accepts either spelling of a workflow directory.
-    "logics_manager/audit.py": { maxLines: 1281, ref: "req_335" },
+    // 1304: req_334 added the ungroomed-AI-Context loop. It reports here because this
+    // is where findings are reported; the wording it recognises is derived from
+    // logics_manager/ai_context.py, which owns what the generators write, so the check
+    // and the templates cannot drift apart again.
+    "logics_manager/audit.py": { maxLines: 1304, ref: "req_334" },
     // 1117: req_317 added the per-gate release/branch comparison (resolving the
     // tagged commit, choosing which commit each gate is judged against, and
     // naming the comparison in stale reasons and status output). The new logic

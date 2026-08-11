@@ -10,6 +10,7 @@ from typing import Iterable
 
 from .config import find_repo_root
 from .code_anchors import unresolved_anchors
+from .ai_context import PLACEHOLDERS as AI_CONTEXT_PLACEHOLDERS, is_ungroomed as _ai_context_ungroomed
 from .path_utils import canonical_workflow_path
 from .doc_parsing import extract_refs, indicator_value, progress_value, section_lines
 from .flow_evidence import has_ac_proof as _has_ac_with_proof
@@ -62,11 +63,10 @@ COMPANION_PLACEHOLDERS: dict[str, tuple[str, ...]] = {
         "(describe how to confirm the procedure worked)",
     ),
 }
-TOKEN_HYGIENE_PLACEHOLDERS = (
-    "Summarize the need, scope, and expected outcome",
-    "logics, workflow",
-    "Use when framing scope, context, and acceptance checks",
-)
+#: Derived from what the generators actually write (see logics_manager/ai_context.py),
+#: so a template cannot move and leave this check blind to it -- which is exactly what
+#: had happened: this tuple held three strings the scaffold no longer emitted.
+TOKEN_HYGIENE_PLACEHOLDERS = AI_CONTEXT_PLACEHOLDERS
 TOKEN_HYGIENE_SECTION_LIMITS: dict[str, dict[str, int]] = {
     "request": {"Context": 24},
     "backlog": {"Problem": 16, "Notes": 24},
@@ -998,6 +998,29 @@ def audit_payload(
                 issues.append(AuditIssue(code="task_missing_dod", path=task.path, message="missing DoD checklist"))
             elif any(not checked for checked, _label in dod_checks):
                 issues.append(AuditIssue(code="task_dod_unchecked", path=task.path, message="DoD checklist contains unchecked items"))
+
+    # An ungroomed `# AI Context` is reported wherever it would be seen, not only under
+    # the strict profile: the check that policed this lived behind `token_hygiene`,
+    # which is off in both relaxed and standard, so nothing ever asked for the block to
+    # be replaced. Open docs only, and never blocking -- a corpus with hundreds of
+    # legacy scaffolded docs must not fail its next audit wholesale.
+    for doc in docs.values():
+        if doc.kind.kind not in {"request", "backlog", "task"} or _is_done(doc) or _is_abandoned(doc):
+            continue
+        fields = _extract_ai_context_fields(doc.text)
+        if not fields:
+            continue
+        ungroomed = sorted(label for label in ("summary", "keywords", "use when", "skip when") if _ai_context_ungroomed(fields.get(label)))
+        if ungroomed:
+            issues.append(
+                AuditIssue(
+                    code="ai_context_ungroomed",
+                    path=doc.path,
+                    message=f"`# AI Context` still carries generated wording ({', '.join(ungroomed)}); it should say what the title does not",
+                    severity="warning",
+                    repair_command=f"python3 -m logics_manager flow show {doc.path.stem}  # then edit `# AI Context` by hand",
+                )
+            )
 
     if token_hygiene:
         for doc in docs.values():

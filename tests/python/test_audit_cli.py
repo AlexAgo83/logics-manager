@@ -24,6 +24,7 @@ from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
 from logics_manager.flow import evidence_add_payload, repair_ac_traceability_payload
 from logics_manager.flow.docs import DOC_KINDS, _resolve_workflow_source
+from logics_manager.ai_context import UNFILLED as AI_CONTEXT_UNFILLED, block as ai_context_block, is_ungroomed
 from logics_manager.path_utils import WORKFLOW_DIRS, WORKFLOW_DIR_ALIASES, canonical_workflow_path, duplicate_workflow_dirs
 from logics_manager.flow import PlannedDoc, closeout_payload, validate_closeout_payload
 from logics_manager.flow_evidence import composed_ac_proof, evidence_for_ac, has_ac_proof, has_validation_evidence
@@ -779,3 +780,85 @@ def test_health_reports_an_alias_directory_that_exists_beside_its_canonical_form
 
     assert duplicate_workflow_dirs(repo_root) == ["logics/task"]
     assert "logics/task" in render_health(repo_root)
+
+
+def test_generated_ai_context_asks_to_be_filled_instead_of_restating_the_title() -> None:
+    """req_334 AC1/AC2: the one section meant to help an agent must not repeat the title."""
+    title = "Keep deferred traceability findings out of the default audit report"
+    generated = ai_context_block(title)
+
+    summary = next(line for line in generated if line.startswith("- Summary:"))
+    # AC1: not the title, not a fixed sentence wrapping the title.
+    assert title.lower() not in summary.lower()
+    assert AI_CONTEXT_UNFILLED in summary
+    # AC2: keywords describe the subject, not the tool or the act of scaffolding.
+    keywords = next(line for line in generated if line.startswith("- Keywords:"))
+    assert "deferred" in keywords and "traceability" in keywords and "audit" in keywords
+    for tool_word in ("logics-manager", "python runtime", "bundled CLI", "scaffold", "request-draft"):
+        assert tool_word not in keywords
+
+
+def test_the_ungroomed_check_follows_every_generator_template() -> None:
+    """req_334 AC3: the drift guard.
+
+    The old check was a hand-maintained copy of templates it did not read, so the
+    templates moved and the rule stayed. This fails if a generator's wording changes
+    without the placeholder set following it.
+    """
+    for title in ("Show every Workshop section", "Name every workflow directory the same way"):
+        fields = {
+            line.split(":", 1)[0].removeprefix("- ").strip().lower(): line.split(":", 1)[1].strip()
+            for line in ai_context_block(title)
+            if line.startswith("- ")
+        }
+        for label in ("summary", "use when", "skip when"):
+            assert is_ungroomed(fields[label]), f"{label} of a freshly generated block must read as ungroomed"
+        # Keywords are genuinely derived, so they are the one field that is not a marker.
+        assert not is_ungroomed(fields["keywords"])
+    # A groomed block passes cleanly.
+    assert not is_ungroomed("Stop the webview Activity view resetting on every refresh")
+
+
+def test_audit_reports_an_ungroomed_ai_context_without_blocking(tmp_path: Path) -> None:
+    """req_334 AC4/AC5: named, repairable, never blocking, and closed docs left alone."""
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    for slug, status in (("fresh", "Draft"), ("shipped", "Done")):
+        (repo_root / "logics" / "request" / f"req_001_{slug}.md").write_text(
+            "\n".join([f"## req_001_{slug} - {slug}", "> From version: 2.11.6", f"> Status: {status}", "> Schema version: 1.0"] + ai_context_block(slug)) + "\n",
+            encoding="utf-8",
+        )
+
+    payload = audit_payload(repo_root, skip_ac_traceability=True, skip_gates=True)
+    findings = [f for f in payload["findings"] if f["code"] == "ai_context_ungroomed"]
+
+    # AC4: one finding, naming the document, with a repair command.
+    assert len(findings) == 1
+    assert findings[0]["path"] == "logics/request/req_001_fresh.md"
+    assert "req_001_fresh" in findings[0]["repair_command"]
+    assert "summary" in findings[0]["message"]
+    # AC5: a warning, so this finding can never block. (The Done fixture trips an
+    # unrelated `request_done_without_backlog`, which is why `ok` is not asserted here.)
+    assert findings[0]["severity"] == "warning"
+    assert "ai_context_ungroomed" not in {issue["code"] for issue in payload["issues"]}
+
+
+def test_grooming_the_ai_context_clears_the_finding(tmp_path: Path) -> None:
+    """req_334 AC4: a groomed doc must produce no finding, or the check is just noise."""
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / "logics" / "request" / "req_001_groomed.md").write_text(
+        "\n".join([
+            "## req_001_groomed - Groomed", "> From version: 2.11.6", "> Status: Draft", "> Schema version: 1.0",
+            "# AI Context",
+            "- Summary: Stop the webview flipping back to Activity instead of staying on Project on every refresh.",
+            "- Keywords: webview, activity-view, refresh, state-reset",
+            "- Use when: Changing which view the webview restores after a refresh.",
+            "- Skip when: The work concerns what a view renders rather than which one is shown.",
+        ]) + "\n",
+        encoding="utf-8",
+    )
+
+    payload = audit_payload(repo_root, skip_ac_traceability=True, skip_gates=True)
+
+    assert not [f for f in payload["findings"] if f["code"] == "ai_context_ungroomed"]

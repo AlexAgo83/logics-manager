@@ -8,12 +8,13 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-11 05:47:04
 
 # AI Context
-- Summary: Implement give scaffolded workflow docs an ai context worth reading.
-- Keywords: task, implementation, backlog, runtime, python
-- Use when: You need a bounded implementation task for a backlog item.
-- Skip when: The work is still at the request or backlog shaping stage.
+- Summary: Replace the nine generator templates that restate the title in `# AI Context` with one shared builder that asks to be filled, and derive the audit's placeholder set from it so the check cannot go blind again.
+- Keywords: ai-context, scaffold-templates, placeholder-drift, token-hygiene, grooming
+- Use when: Changing what a generator writes into `# AI Context`, or the check that it was groomed.
+- Skip when: The work concerns another scaffolded section, or the corpus schema itself.
 
 # Definition of Done (DoD)
 - [ ] The backlog scope is implemented.

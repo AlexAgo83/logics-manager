@@ -113,8 +113,8 @@
 | [prod_073_visible_viewer_operational_health](product/prod_073_visible_viewer_operational_health.md) | Visible viewer operational health | Settled |  |  | product/prod_073_visible_viewer_operational_health.md |
 | [prod_074_a_discoverable_library_of_operational_runbooks](product/prod_074_a_discoverable_library_of_operational_runbooks.md) | A discoverable library of operational runbooks | Settled |  |  | product/prod_074_a_discoverable_library_of_operational_runbooks.md |
 | [prod_075_one_logics_runtime_no_setup_noise](product/prod_075_one_logics_runtime_no_setup_noise.md) | One Logics runtime, no setup noise | Settled |  |  | product/prod_075_one_logics_runtime_no_setup_noise.md |
-| [prod_076_tooling_that_tells_the_truth_about_itself](product/prod_076_tooling_that_tells_the_truth_about_itself.md) | Tooling that tells the truth about itself | Proposed |  |  | product/prod_076_tooling_that_tells_the_truth_about_itself.md |
-| [prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say](product/prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say.md) | A plugin that interrupts only when it has something new to say | Proposed |  |  | product/prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say.md |
+| [prod_076_tooling_that_tells_the_truth_about_itself](product/prod_076_tooling_that_tells_the_truth_about_itself.md) | Tooling that tells the truth about itself | Settled |  |  | product/prod_076_tooling_that_tells_the_truth_about_itself.md |
+| [prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say](product/prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say.md) | A plugin that interrupts only when it has something new to say | Settled |  |  | product/prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say.md |
 
 ## Roadmaps
 

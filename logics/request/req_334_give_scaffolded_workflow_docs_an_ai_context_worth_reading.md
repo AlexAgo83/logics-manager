@@ -2,8 +2,8 @@
 > From version: 2.21.6
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 95%
+> Confidence: 90%
 > Complexity: Medium
 > Theme: Scaffold quality
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -17,22 +17,25 @@
 # Needs
 - `# AI Context` exists so an agent can decide, cheaply, whether to open a document. That only works if its four lines say something the title does not.
 - As generated, they do not. `flow new request --title "Keep deferred traceability findings out of the default audit report"` produced, verbatim: *Summary: Draft a bounded request for keep deferred traceability findings out of the default audit report* — the title, lowercased, behind a fixed prefix. `Keywords` were `request-draft, logics-manager, python runtime, bundled CLI`, which describe the tool rather than the request. `Use when: You need a new bounded request doc for the Logics workflow` describes the act of scaffolding, not the subject.
-- Nothing ever asks for it to be replaced. In `cdx-manager`, `req_036` is **delivered** and still carries `Use when: You need to implement or review the scaffolded workflow for Route CDX agent alerts through an active tray companion`; `item_083` and `req_037` are the same. Neither `lint` nor `audit` mentions it.
-- The cost is paid on every read, by every agent, forever: four lines of context spent to learn the title a second time. `audit` already polices verbosity through `token_hygiene_section_too_long`, which makes the absence of any check on *empty* content the inconsistent part.
+- Nothing ever asks for it to be replaced. In `cdx-manager`, a **delivered** request still carries `Use when: You need to implement or review the scaffolded workflow for <its own title>`, and its slice and task are the same. Neither `lint` nor `audit` mentions it.
+- The cost is paid on every read, by every agent, forever: four lines of context spent to learn the title a second time.
 - This repo's own well-groomed docs show the target. `req_332` reads: *Summary: Fix the webview flipping back to the Activity view instead of staying on Project every time a refresh arrives* — a sentence that lets an agent skip or open the doc without opening it.
 
 # Context
 - The generated wording is a literal template in `logics_manager/flow/scaffold_docs.py`, repeated for each document kind — for the request chain: `f"- Summary: {title}"`, `f"- Keywords: request-chain-scaffold, {title.lower()}, development-ready"`, `f"- Use when: You need to implement or review the scaffolded workflow for {title}."`. The block is the title, three times, plus a constant.
-- Two directions are open and the choice is the substance of this request. **Prompt to fill**: leave the block deliberately empty with a `TODO:` marker, and let a validation finding ask for it — cheap, honest, and it makes the gap visible. **Generate better**: derive the block from the title plus the request body at closeout. The second is more work and risks producing plausible filler, which is the failure this request is about.
-- Recommended: the first. A marker that says "not written yet" is strictly more useful than a sentence that pretends to be written, and it is the version an operator can act on.
-- A finding on this must be a warning, never blocking, and must respect `req_333`'s distinction between what deserves attention and what deserves the default report — a corpus with hundreds of legacy docs would otherwise fail its next audit wholesale. Retrofitting existing docs is explicitly out of scope.
+- **The check for this already exists and no longer recognises what it polices.** `token_hygiene_ai_summary_weak` fires when a summary contains one of `TOKEN_HYGIENE_PLACEHOLDERS` in `logics_manager/audit.py`. That tuple holds three strings — `"Summarize the need, scope, and expected outcome"`, `"logics, workflow"`, `"Use when framing scope, context, and acceptance checks"` — and the scaffold emits none of them. The rule is a hand-maintained copy of templates it does not read, so the templates moved and the rule stayed.
+- It is also off where it would be seen: `token_hygiene` is `False` in the `relaxed` and `standard` governance profiles and `True` only in `strict`.
+- So the substance of this request is smaller than it first looks, and better aimed. Deriving the placeholder set from the scaffold templates themselves is what stops the drift recurring; updating the tuple by hand would only reset the same clock.
+- Two directions remain open for what the scaffold should write. **Prompt to fill**: emit an explicit unfilled marker and let the finding ask for it — the gap becomes visible instead of disguised. **Generate better**: derive a real summary from the document body. The second risks producing plausible filler, which is the failure this request is about; the first is recommended.
+- The finding must stay a warning, never blocking. A corpus with hundreds of legacy scaffolded docs would otherwise fail its next audit wholesale. Retrofitting existing docs is explicitly out of scope.
 
 # Acceptance criteria
 - AC1: `flow new` no longer emits a `# AI Context` whose `Summary` is the title restated; the generated block is either a genuinely derived summary or an explicit unfilled marker, and never a fixed sentence wrapping the title.
 - AC2: The generated `Keywords` describe the subject of the document, not the tool or the act of scaffolding.
-- AC3: An ungroomed `# AI Context` is reported by validation as a non-blocking finding naming the document and the line, with a repair command.
-- AC4: The finding never blocks `lint`, `audit`, or a closeout gate, and existing documents are not modified by this change.
-- AC5: Tests cover a freshly scaffolded doc of each kind (request, backlog, task), a groomed doc that must produce no finding, and the ungroomed finding's severity and exit-code neutrality.
+- AC3: The placeholder set used by `token_hygiene_ai_summary_weak` is derived from the scaffold templates rather than maintained as a separate list, so changing a template cannot leave the check blind to it.
+- AC4: A freshly scaffolded, ungroomed `# AI Context` is reported as a non-blocking finding naming the document, with a repair command.
+- AC5: The finding never blocks `lint`, `audit`, or a closeout gate, and existing documents are not modified by this change.
+- AC6: Tests cover a freshly scaffolded doc of each kind (request, backlog, task), a groomed doc that must produce no finding, the finding's severity and exit-code neutrality, and a test that fails if a scaffold template changes without the check following it.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

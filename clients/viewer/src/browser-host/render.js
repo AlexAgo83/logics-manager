@@ -1460,6 +1460,12 @@ export function renderViewerOnboarding() {
     `;
   }
 
+export function renderWorkshopMenuItems() {
+    return workshopTabs.map((tab) =>
+      `<button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="workshop:${escapeHtml(tab.id)}" title="${escapeHtml(tab.title)}">${escapeHtml(tab.label)}</button>`
+    ).join("");
+  }
+
 export function renderWorkshopTabs(activeTab) {
     const buttons = workshopTabs.map((tab) => {
       const isActive = tab.id === activeTab;

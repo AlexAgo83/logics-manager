@@ -129,6 +129,7 @@ import {
   renderReleaseStatus,
   renderSignalRows,
   renderViewerOnboarding,
+  renderWorkshopMenuItems,
   renderWorkshopTabs,
   renderWorkspace,
   resizeWorkshopTerminal,
@@ -3445,6 +3446,14 @@ import {
         setMeta(`Copy failed — long-press to select: ${share}`);
       }
     });
+    // The Workshop menu is the registry: hand-written markup drifted from
+    // `workshopTabs` and Runbooks shipped with no entry. Generated above the
+    // separator, so the project tools below keep their own markup.
+    const workshopSlot = document.querySelector('[data-viewer-nav="workshop"] [data-project-tools-separator]');
+    if (workshopSlot instanceof HTMLElement && workshopSlot.dataset.menuBuilt !== "1") {
+      workshopSlot.dataset.menuBuilt = "1";
+      workshopSlot.insertAdjacentHTML("beforebegin", renderWorkshopMenuItems());
+    }
     // The Workshop / Remote / CDX buttons toggle their sub-section menu rather
     // than navigating directly: a click opens the menu so its items stay
     // clickable; choosing an item (handled below) performs the navigation.

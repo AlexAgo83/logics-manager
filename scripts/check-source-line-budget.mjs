@@ -191,7 +191,11 @@ const allowedOversizedFiles = new Map(
     // 4285: req_330 wired the Runbooks Workshop tab's click delegation (open,
     // search, graph) and passed renderMermaidDiagrams/openDoc into
     // createWorkshopScreen, the same wiring shape createGraphScreen already uses.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4285, ref: "req_330" },
+    // 4294: req_336 generates the Workshop menu from the workshopTabs registry
+    // instead of hand-written markup. The nine lines are the insertion at init;
+    // the markup they replace left index.html, and the alternative -- a module
+    // for one insertAdjacentHTML -- costs more than it saves.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4294, ref: "req_336" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },
@@ -219,7 +223,10 @@ const allowedOversizedFiles = new Map(
     // single-consumer too.
     // 1735: req_321 added the "Apply fixes" button and its section header, beside
     // the findings list it acts on.
-    "clients/viewer/src/browser-host/render.js": { maxLines: 1735, ref: "req_321" },
+    // 1741: req_336 added renderWorkshopMenuItems beside renderWorkshopTabs, the
+    // other consumer of the same registry, so both projections of workshopTabs
+    // sit together rather than one drifting in markup.
+    "clients/viewer/src/browser-host/render.js": { maxLines: 1741, ref: "req_336" },
     // 1353: req_314 taught the board to group by status, which is what its control always
     // claimed to do. The grouping itself is eleven lines; the rest is the heading element
     // the accessibility slice needed.

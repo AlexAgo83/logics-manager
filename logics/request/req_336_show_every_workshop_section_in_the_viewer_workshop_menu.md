@@ -1,7 +1,7 @@
 ## req_336_show_every_workshop_section_in_the_viewer_workshop_menu - Show every Workshop section in the viewer Workshop menu
 > From version: 2.21.6
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Low

@@ -16,6 +16,7 @@ from .assist import main as assist_main
 from .audit import audit_payload, build_parser as build_audit_parser
 from .audit import render_audit
 from .cli_output import render_payload
+from .runtime_drift import drift_message
 from .config import ConfigError, find_repo_root, render_config_show, set_repo_root_override
 from .index import index_payload, render_index
 from .insights import followups_payload, health_payload, render_followups, render_health, render_status, status_payload
@@ -30,6 +31,11 @@ from .update_check import current_version as package_current_version, get_update
 
 DEFAULT_SELF_UPDATE_PY_PACKAGE = "logics-manager"
 DEFAULT_SELF_UPDATE_PACKAGE = "@grifhinz/logics-manager"
+#: Commands whose output is a statement about the corpus. These are the ones where a
+#: stale runtime silently changes the answer, so these are the ones that warn.
+#: `view`, `config`, `mcp` and friends are excluded: they serve rather than report.
+CORPUS_REPORTING_COMMANDS = frozenset({"audit", "lint", "doctor", "health", "status", "followups", "product-consistency", "index", "flow", "sync", "release"})
+
 ROOT_COMMANDS = (
     "bootstrap",
     "flow",
@@ -498,6 +504,23 @@ def _maybe_print_update_notice(command: str, argv: list[str]) -> None:
         print(notice, file=sys.stderr)
 
 
+def _warn_on_runtime_drift(raw_argv: list[str]) -> None:
+    """Tell the operator once when the runtime is not this repository's version.
+
+    On stderr, so `--format json` stdout stays machine-readable, and with no effect
+    on the exit code: a deliberately pinned runtime has to stay usable.
+    """
+    if not raw_argv or raw_argv[0] not in CORPUS_REPORTING_COMMANDS:
+        return
+    try:
+        repo_root = find_repo_root(Path.cwd())
+    except (ConfigError, SystemExit):
+        return
+    message = drift_message(repo_root, get_cli_version())
+    if message:
+        print(f"Warning: {message}", file=sys.stderr)
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run one command, keeping machine-readable output machine-readable.
 
@@ -507,6 +530,7 @@ def main(argv: list[str] | None = None) -> int:
     """
     raw_argv = sys.argv[1:] if argv is None else argv
     json_mode = _is_json_mode(_expand_json_alias(raw_argv))
+    _warn_on_runtime_drift(raw_argv)
     try:
         return _dispatch(argv)
     except SystemExit as exc:

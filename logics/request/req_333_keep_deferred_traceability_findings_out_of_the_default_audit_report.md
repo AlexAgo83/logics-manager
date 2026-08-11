@@ -1,7 +1,7 @@
 ## req_333_keep_deferred_traceability_findings_out_of_the_default_audit_report - Keep deferred traceability findings out of the default audit report
 > From version: 2.21.6
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Complexity: Low

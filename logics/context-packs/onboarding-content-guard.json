@@ -1,0 +1,259 @@
+{
+  "budgets": {
+    "max_docs": 12,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_341_stop_reopening_getting_started_when_its_content_has_not_changed item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version task_338_deliver_the_content_keyed_onboarding_guard --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version"
+        ],
+        "prod": [
+          "prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say"
+        ],
+        "req": [
+          "req_341_stop_reopening_getting_started_when_its_content_has_not_changed"
+        ],
+        "task": [
+          "task_338_deliver_the_content_keyed_onboarding_guard"
+        ]
+      },
+      "path": "logics/product/prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say.md",
+      "ref": "prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say",
+      "status": "Proposed",
+      "title": "A plugin that interrupts only when it has something new to say"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "reopening, getting, started, content, not, changed",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version"
+        ],
+        "prod": [
+          "prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say"
+        ],
+        "req": [
+          "req_341_stop_reopening_getting_started_when_its_content_has_not_changed"
+        ]
+      },
+      "path": "logics/request/req_341_stop_reopening_getting_started_when_its_content_has_not_changed.md",
+      "ref": "req_341_stop_reopening_getting_started_when_its_content_has_not_changed",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Stop reopening Getting Started when its content has not changed"
+    },
+    {
+      "ai_context": {
+        "keywords": "key, onboarding, guard, page, content, instead, extension, version",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version"
+        ],
+        "prod": [
+          "prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say"
+        ],
+        "req": [
+          "req_341_stop_reopening_getting_started_when_its_content_has_not_changed"
+        ],
+        "task": [
+          "task_338_deliver_the_content_keyed_onboarding_guard"
+        ]
+      },
+      "path": "logics/backlog/item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version.md",
+      "ref": "item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Key the onboarding guard on page content instead of extension version"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version"
+        ],
+        "prod": [
+          "prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say"
+        ],
+        "req": [
+          "req_341_stop_reopening_getting_started_when_its_content_has_not_changed"
+        ],
+        "task": [
+          "task_338_deliver_the_content_keyed_onboarding_guard"
+        ]
+      },
+      "path": "logics/product/prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say.md",
+      "ref": "prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "A plugin that interrupts only when it has something new to say"
+    },
+    {
+      "ai_context": {
+        "keywords": "deliver, content, keyed, onboarding, guard",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version"
+        ],
+        "prod": [
+          "prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say"
+        ],
+        "req": [
+          "req_341_stop_reopening_getting_started_when_its_content_has_not_changed"
+        ],
+        "task": [
+          "task_338_deliver_the_content_keyed_onboarding_guard"
+        ]
+      },
+      "path": "logics/tasks/task_338_deliver_the_content_keyed_onboarding_guard.md",
+      "ref": "task_338_deliver_the_content_keyed_onboarding_guard",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Deliver the content-keyed onboarding guard"
+    }
+  ],
+  "estimates": {
+    "char_count": 3996,
+    "companion_doc_count": 1,
+    "doc_count": 4
+  },
+  "generated_at": "2026-08-11T08:25:16Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_341_stop_reopening_getting_started_when_its_content_has_not_changed",
+      "item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version",
+      "task_338_deliver_the_content_keyed_onboarding_guard"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_341_stop_reopening_getting_started_when_its_content_has_not_changed,item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version,task_338_deliver_the_content_keyed_onboarding_guard",
+  "refs": [
+    "req_341_stop_reopening_getting_started_when_its_content_has_not_changed",
+    "item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version",
+    "task_338_deliver_the_content_keyed_onboarding_guard"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.7"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_338_deliver_the_content_keyed_onboarding_guard.md",
+      "ref": "task_338_deliver_the_content_keyed_onboarding_guard"
+    }
+  ]
+}

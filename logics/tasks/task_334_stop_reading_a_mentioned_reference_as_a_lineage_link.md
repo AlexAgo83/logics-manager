@@ -1,13 +1,14 @@
 ## task_334_stop_reading_a_mentioned_reference_as_a_lineage_link - Stop reading a mentioned reference as a lineage link
 > From version: 2.21.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-11 05:15:49
 
 # AI Context
 - Summary: Implement stop reading a mentioned reference as a lineage link.
@@ -16,10 +17,10 @@
 - Skip when: The work is still at the request or backlog shaping stage.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
-- [ ] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
+- [x] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
 
 # Backlog
 - `item_698_stop_reading_a_mentioned_reference_as_a_lineage_link`
@@ -37,9 +38,21 @@
 
 # Validation
 - (no validation recorded yet)
+- Finish workflow executed on 2026-08-11.
+- Linked backlog/request close verification passed.
 
 # Report
 - Not started.
+- Finished on 2026-08-11.
+- Linked backlog item(s): `item_698_stop_reading_a_mentioned_reference_as_a_lineage_link`
+- Related request(s): `req_337_stop_reading_a_mentioned_reference_as_a_lineage_link`
+
+# AC Traceability
+- request-AC1 -> This task. Proof: `_declared_refs` reads refs only from the sections named in `DECLARED_LINK_SECTIONS`; `_linked_items_for_request`, `_linked_tasks_for_item` and `_linked_requests_for_item` all route through it, and the substring test `if item.ref in doc.text` is gone. Source: `ba000ba8`
+- request-AC2 -> This task. Proof: `test_prose_citation_of_a_done_chain_leaves_findings_deferred` builds a Done chain and a fresh Draft chain that only mentions it in `# Context`; the fresh chain reports zero blocking issues and keeps its deferred warnings. Red before the change (findings were blocking), green after. Source: `ba000ba8`
+- request-AC3 -> This task. Proof: `test_ac_ids_shared_across_unrelated_chains_stay_unproven_on_both_sides` gives the cited chain proof for AC1..AC4 and asserts the citing chain reports all five of its own AC unproven, not just AC5 — the exact failure observed while filing req_333. Source: `ba000ba8`
+- request-AC4 -> This task. Proof: New `lineage_mentioned_but_not_declared` warning names the doc, the inferred parent and the section it belongs in. Run against this corpus: 0 findings, so the tightening dropped no existing lineage. Source: `ba000ba8`
+- request-AC5 -> This task. Proof: Three tests added to `tests/python/test_audit_cli.py`, all three confirmed failing pre-fix via `git stash push logics_manager/audit.py`. Full suite 1310 passed; `logics-manager lint` OK and `audit` blocking 0. Source: `ba000ba8`
 
 # Links
 - Request: `req_337_stop_reading_a_mentioned_reference_as_a_lineage_link`

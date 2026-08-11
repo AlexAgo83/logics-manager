@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Iterable
 
 from .config import find_repo_root
-from .doc_parsing import extract_refs, indicator_value, progress_value
+from .doc_parsing import extract_refs, indicator_value, progress_value, section_lines
 from .flow_evidence import has_ac_proof as _has_ac_with_proof
 from .statuses import workflow_statuses
 
@@ -368,24 +368,69 @@ def _apply_scope(
     return {ref: doc for ref, doc in docs.items() if ref in allowed_refs}
 
 
+#: Where each kind *declares* a link to each other kind. Lineage used to be a scan
+#: over a document's whole text, so citing prior art in prose adopted it as a parent:
+#: the cited chain's lifecycle and — because proof is matched by AC identifier, and
+#: every document numbers from AC1 — its acceptance proof both leaked across.
+#: These sections are the declared lineage; prose is not lineage.
+DECLARED_LINK_SECTIONS: dict[tuple[str, str], tuple[str, ...]] = {
+    ("request", "backlog"): ("Backlog",),
+    ("backlog", "request"): ("Links",),
+    ("backlog", "task"): ("Tasks", "Links"),
+    ("task", "backlog"): ("Backlog", "Links"),
+    ("task", "request"): ("Links",),
+}
+
+
+def _declared_refs(doc: DocMeta, target_kind: str) -> set[str]:
+    """Refs `doc` declares to `target_kind`, read only from its link sections."""
+    sections = DECLARED_LINK_SECTIONS.get((doc.kind.kind, target_kind), ())
+    prefix = DOC_KIND_OBJECTS[target_kind].prefix
+    refs: set[str] = set()
+    lines = doc.text.splitlines()
+    for heading in sections:
+        refs |= _extract_refs("\n".join(section_lines(lines, heading)), prefix)
+    return refs
+
+
+def _prose_only_refs(doc: DocMeta, target_kind: str, docs: dict[str, DocMeta]) -> set[str]:
+    """Refs that resolve to a real parent/child but are only mentioned in prose.
+
+    Reported rather than counted, so tightening the rule never drops a document's
+    lineage silently — AC4 of req_337.
+    """
+    if (doc.kind.kind, target_kind) not in DECLARED_LINK_SECTIONS:
+        return set()
+    mentioned = _extract_refs(doc.text, DOC_KIND_OBJECTS[target_kind].prefix)
+    return {
+        ref
+        for ref in mentioned - _declared_refs(doc, target_kind)
+        if ref in docs and docs[ref].kind.kind == target_kind
+    }
+
+
+def _resolve(refs: set[str], docs: dict[str, DocMeta], kind: str) -> list[DocMeta]:
+    return [docs[ref] for ref in sorted(refs) if ref in docs and docs[ref].kind.kind == kind]
+
+
 def _linked_items_for_request(request: DocMeta, docs: dict[str, DocMeta]) -> list[DocMeta]:
-    refs = _extract_refs(request.text, DOC_KIND_OBJECTS["backlog"].prefix)
-    return [docs[ref] for ref in sorted(refs) if ref in docs and docs[ref].kind.kind == "backlog"]
+    return _resolve(_declared_refs(request, "backlog"), docs, "backlog")
 
 
 def _linked_tasks_for_item(item: DocMeta, docs: dict[str, DocMeta]) -> list[DocMeta]:
-    linked: list[DocMeta] = []
-    for doc in docs.values():
-        if doc.kind.kind != "task":
-            continue
-        if item.ref in doc.text:
-            linked.append(doc)
-    return linked
+    # Both directions count: the item may list its tasks, or a task may declare the
+    # item it implements. Either is a declaration; neither is a substring match.
+    refs = _declared_refs(item, "task")
+    refs |= {
+        doc.ref
+        for doc in docs.values()
+        if doc.kind.kind == "task" and item.ref in _declared_refs(doc, "backlog")
+    }
+    return _resolve(refs, docs, "task")
 
 
 def _linked_requests_for_item(item: DocMeta, docs: dict[str, DocMeta]) -> list[DocMeta]:
-    refs = _extract_refs(item.text, DOC_KIND_OBJECTS["request"].prefix)
-    return [docs[ref] for ref in sorted(refs) if ref in docs and docs[ref].kind.kind == "request"]
+    return _resolve(_declared_refs(item, "request"), docs, "request")
 
 
 def _last_modified_age_days(path: Path) -> float:
@@ -844,6 +889,27 @@ def audit_payload(
                         message=f"stale pending doc ({age_days:.1f} days, status={doc.status})",
                     )
                 )
+
+    # Announce what the section-scoped rule stopped counting, so a document whose only
+    # link to a parent lives in prose is told where to move it rather than quietly losing
+    # its lineage. Once per document per target kind.
+    for doc in docs.values():
+        if _is_abandoned(doc):
+            continue
+        for target_kind in ("request", "backlog", "task"):
+            prose_only = _prose_only_refs(doc, target_kind, all_docs)
+            if not prose_only:
+                continue
+            section = DECLARED_LINK_SECTIONS[(doc.kind.kind, target_kind)][0]
+            named = ", ".join(f"`{ref}`" for ref in sorted(prose_only))
+            issues.append(
+                AuditIssue(
+                    code="lineage_mentioned_but_not_declared",
+                    path=doc.path,
+                    message=f"{named} mentioned in prose only; declare under `# {section}` if it is real lineage",
+                    severity="warning",
+                )
+            )
 
     if not skip_ac_traceability:
         for request in [doc for doc in docs.values() if doc.kind.kind == "request"]:

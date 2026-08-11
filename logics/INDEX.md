@@ -1490,4 +1490,6 @@
 
 ## Runbooks
 
-_None_
+| Doc | Title | Status | Category | Verified | Path |
+|---|---|---|---|---|---|
+| [run_001_run_the_viewer_ui_campaign_before_a_delivery](runbook/run_001_run_the_viewer_ui_campaign_before_a_delivery.md) | Run the viewer UI campaign before a delivery | Active | validation | 2026-08-11, automated half runs green on every CI delivery via `scripts/ci-check.mjs`; migrated from `docs/runbooks/viewer-ui-campaign.md` | runbook/run_001_run_the_viewer_ui_campaign_before_a_delivery.md |

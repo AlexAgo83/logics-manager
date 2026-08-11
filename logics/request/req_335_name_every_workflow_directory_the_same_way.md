@@ -1,7 +1,7 @@
 ## req_335_name_every_workflow_directory_the_same_way - Name every workflow directory the same way
 > From version: 2.21.6
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 92%
 > Confidence: 90%
 > Complexity: Medium

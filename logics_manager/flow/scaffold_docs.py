@@ -12,6 +12,8 @@ import re
 from datetime import date
 from pathlib import Path
 
+from ..ai_context import block as ai_context_block
+
 
 def _slugify(text: str) -> str:
     cleaned = "".join(ch.lower() if ch.isalnum() else "_" for ch in text)
@@ -91,11 +93,7 @@ def _build_scaffold_request_doc(repo_root: Path, ref: str, title: str, input_pay
             f"> Theme: {_string_value(request, 'theme', default='Operator workflow')}",
             "> Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.",
             "",
-            "# AI Context",
-            f"- Summary: {title}",
-            f"- Keywords: request-chain-scaffold, {title.lower()}, development-ready",
-            f"- Use when: You need to implement or review the scaffolded workflow for {title}.",
-            "- Skip when: The change is unrelated to this scaffolded request chain.",
+            *ai_context_block(title),
             "",
             "# Needs",
             *_bullets_or_default(needs, f"Deliver {title.lower()}."),
@@ -196,11 +194,7 @@ def _build_scaffold_backlog_doc(repo_root: Path, ref: str, request_ref: str, pro
             f"> Theme: {_string_value(item, 'theme', default='Implementation delivery')}",
             "> Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.",
             "",
-            "# AI Context",
-            f"- Summary: {title}",
-            f"- Keywords: scaffolded-backlog, {title.lower()}, implementation-ready",
-            f"- Use when: Implementing the scaffolded slice for {title}.",
-            "- Skip when: The change belongs to another backlog slice.",
+            *ai_context_block(title),
             "",
             "# Problem",
             *_bullets_or_default(problem, f"Deliver {title.lower()}."),
@@ -298,11 +292,7 @@ def _build_scaffold_task_doc(repo_root: Path, ref: str, title: str, request_ref:
             "> Theme: Implementation delivery",
             "> Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.",
             "",
-            "# AI Context",
-            f"- Summary: {title}",
-            "- Keywords: scaffolded-task, request-chain-scaffold, orchestration",
-            "- Use when: Coordinating implementation of a scaffolded request chain.",
-            "- Skip when: Working on one isolated sibling slice.",
+            *ai_context_block(title),
             "",
             "# Context",
             "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked.",
@@ -353,11 +343,7 @@ def _build_split_orchestration_task_doc(repo_root: Path, ref: str, title: str, r
             "> Theme: Implementation delivery",
             "> Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.",
             "",
-            "# AI Context",
-            f"- Summary: {title}",
-            "- Keywords: ac-aware-split, orchestration-task, generated-task",
-            "- Use when: Coordinating the generated backlog slices from an AC-aware request split.",
-            "- Skip when: Implementing one individual backlog slice.",
+            *ai_context_block(title),
             "",
             "# Context",
             f"- {summary or 'Coordinate the AC-aware split backlog items without implementing them directly.'}",

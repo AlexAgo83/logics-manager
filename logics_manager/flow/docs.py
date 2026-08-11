@@ -981,6 +981,14 @@ def _next_adr_ref(repo_root: Path, title: str) -> str:
     return f"adr_{highest + 1:03d}_{_slugify(title)}"
 
 
+#: Bullets that mean "this section is empty". A real entry evicts them, since the two
+#: cannot both be true. `flow deliver` used to strip `- none` itself after appending,
+#: which left every other writer -- `promote request-to-backlog` among them -- shipping
+#: a request whose `# Backlog` claimed `none` directly above its own slice ref. Doing it
+#: here means no writer can reintroduce it, and no future section needs its own call.
+SECTION_EMPTY_PLACEHOLDERS = frozenset({"- none", "- (none)", "- (none yet)"})
+
+
 def _append_doc_section_bullets(path: Path, heading: str, bullets: list[str], *, dry_run: bool) -> None:
     if dry_run:
         return
@@ -996,6 +1004,9 @@ def _append_doc_section_bullets(path: Path, heading: str, bullets: list[str], *,
                 if rendered not in existing:
                     lines.insert(insert_at, rendered)
                     insert_at += 1
+            section = lines[idx + 1 : insert_at]
+            if len(section) > len([line for line in section if line.strip().lower() in SECTION_EMPTY_PLACEHOLDERS]):
+                lines[idx + 1 : insert_at] = [line for line in section if line.strip().lower() not in SECTION_EMPTY_PLACEHOLDERS]
             path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
             return
     lines.extend(["", f"# {heading}", *[f"- {bullet}" for bullet in bullets]])

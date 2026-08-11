@@ -1,10 +1,10 @@
 ## item_698_stop_reading_a_mentioned_reference_as_a_lineage_link - Stop reading a mentioned reference as a lineage link
 > From version: 2.21.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -65,6 +65,7 @@ Silence is what makes this severe. Nothing reports that a link was inferred, so 
 - Hybrid rationale: Derived from request `req_337_stop_reading_a_mentioned_reference_as_a_lineage_link` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_337_stop_reading_a_mentioned_reference_as_a_lineage_link.md`.
 - Generated locally by logics-manager.
+- Task `task_334_stop_reading_a_mentioned_reference_as_a_lineage_link` was finished via `logics-manager flow finish task` on 2026-08-11.
 
 # Tasks
 - `task_334_stop_reading_a_mentioned_reference_as_a_lineage_link`

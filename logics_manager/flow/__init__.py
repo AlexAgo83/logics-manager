@@ -11,8 +11,12 @@ from ..audit import audit_payload
 from ..cli_output import print_payload
 from ..config import ConfigError, find_repo_root
 from ..doc_parsing import extract_refs, progress_value, section_lines
+from ..flow_evidence import EVIDENCE_SECTION
 from ..flow_evidence import (
     ac_proof_expectation as _ac_proof_expectation,
+    composed_ac_proof as _composed_ac_proof,
+    evidence_for_ac as _evidence_for_ac,
+    evidence_line as _evidence_line,
     ac_proof_state as _ac_proof_state,
     has_ac_proof as _has_ac_proof,
     has_ac_traceability_line as _has_ac_traceability_line,
@@ -660,8 +664,11 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
 
     for task_path in sorted(linked_task_paths):
         task_before = task_path.read_text(encoding="utf-8")
+        # Recorded proof wins over the shared --proof string: it was written when the
+        # thing was true, and it is about this criterion rather than about all of them.
+        # A criterion with no record behaves exactly as it did before.
         task_missing = [
-            _ac_traceability_entry(ac_id, "This task", text, proof, proof_source)
+            _ac_traceability_entry(ac_id, "This task", text, _composed_ac_proof(task_before, ac_id) or proof, proof_source)
             for ac_id, text in ac_entries
             if not _has_ac_traceability_line(task_before, ac_id)
         ]
@@ -1182,6 +1189,18 @@ def build_parser() -> argparse.ArgumentParser:
     start_parser.add_argument("--format", choices=("text", "json"), default="text")
     start_parser.add_argument("--dry-run", action="store_true")
     start_parser.set_defaults(func=cmd_start)
+
+    evidence_parser = sub.add_parser("evidence", help="Record acceptance proof for one criterion, when it is produced.")
+    evidence_sub = evidence_parser.add_subparsers(dest="evidence_kind", required=True)
+    evidence_add = evidence_sub.add_parser("add", help="Append a proof record for one acceptance criterion of a task.")
+    evidence_add.add_argument("source")
+    evidence_add.add_argument("--ac", required=True, help="The acceptance criterion this record is proof of, e.g. AC1.")
+    evidence_add.add_argument("--summary", required=True, help="What was verified.")
+    evidence_add.add_argument("--command", dest="ran_command", help="The command that was run, recorded so a reader can tell verification from assertion.")
+    evidence_add.add_argument("--result", help="What the command reported, e.g. passed.")
+    evidence_add.add_argument("--format", choices=("text", "json"), default="text")
+    evidence_add.add_argument("--dry-run", action="store_true")
+    evidence_add.set_defaults(func=cmd_evidence_add)
 
     repair_parser = sub.add_parser("repair", help="Apply deterministic closeout repairs.")
     repair_sub = repair_parser.add_subparsers(dest="repair_kind", required=True)
@@ -1955,6 +1974,52 @@ def cmd_repair_gates(args: argparse.Namespace) -> dict[str, object]:
     payload = repair_gates_payload(repo_root, args.source, dry_run=args.dry_run)
     payload = _finalize_repair_verify(repo_root, payload, verify_source, snapshot)
     _print_repair_payload(payload, args.format)
+    return payload
+
+
+def evidence_add_payload(repo_root: Path, source: str, *, ac_id: str, summary: str, command: str | None, result: str | None, dry_run: bool) -> dict[str, object]:
+    """Record proof for one criterion, at the moment it is produced.
+
+    Nothing about the task's lifecycle moves: this is capture, not closure.
+    """
+    task_path = _resolve_workflow_source(repo_root, DOC_KINDS["task"], source)
+    normalized = ac_id.strip().upper()
+    if not re.fullmatch(r"AC\d+", normalized):
+        raise SystemExit(f"Expected an acceptance criterion id like `AC1`. Got: `{ac_id}`.")
+    if not summary or not summary.strip():
+        raise SystemExit("A record needs a summary saying what was verified.")
+    before = task_path.read_text(encoding="utf-8")
+    line = _evidence_line(normalized, summary, command, result)
+    changed = _append_doc_section_bullets_changed(task_path, EVIDENCE_SECTION, [line.lstrip("- ")], dry_run=dry_run)
+    return {
+        "command": "evidence",
+        "kind": "add",
+        "source": task_path.relative_to(repo_root).as_posix(),
+        "ac": normalized,
+        "record": line,
+        # Accumulation is the point: a re-run after a fix is the common case.
+        "record_count": len(_evidence_for_ac(before, normalized)) + 1,
+        "changed_files": [task_path.relative_to(repo_root).as_posix()] if changed else [],
+        "dry_run": dry_run,
+    }
+
+
+def cmd_evidence_add(args: argparse.Namespace) -> dict[str, object]:
+    repo_root = _find_repo_root(Path.cwd())
+    payload = evidence_add_payload(
+        repo_root,
+        args.source,
+        ac_id=args.ac,
+        summary=args.summary,
+        command=args.ran_command,
+        result=args.result,
+        dry_run=args.dry_run,
+    )
+    if args.format == "json":
+        print_payload(payload, args.format)
+    else:
+        print(f"Recorded {payload['ac']} proof #{payload['record_count']} in {payload['source']}")
+        print(f"  {payload['record']}")
     return payload
 
 
@@ -3195,7 +3260,7 @@ def main(argv: list[str]) -> int:
     if argv[0] == "progress" and len(argv) > 1 and argv[1] == "task" and _help_requested(argv, 2):
         _print_help(_build_progress_kind_help(argv[1]))
         return 0
-    valid_commands = {"new", "list", "statuses", "show", "companion", "roadmap", "deliver", "scaffold", "validate", "validate-closeout", "start", "progress", "repair", "closeout", "promote", "split", "close", "withdraw", "finish"}
+    valid_commands = {"new", "list", "statuses", "show", "companion", "roadmap", "deliver", "scaffold", "validate", "validate-closeout", "start", "progress", "evidence", "repair", "closeout", "promote", "split", "close", "withdraw", "finish"}
     if argv[0] not in valid_commands:
         hint = " Use `logics-manager flow show <ref>` to inspect a workflow doc." if argv[0] in {"read", "view", "cat"} else " Run `logics-manager flow --help` for valid commands."
         raise SystemExit(f"Unsupported flow subcommand: {argv[0]}.{hint}")

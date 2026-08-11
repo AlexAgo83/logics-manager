@@ -151,7 +151,11 @@ const allowedOversizedFiles = new Map(
     // place every flow subcommand returns through.
     // 3213: req_330 added the "runbook" branch to cmd_companion and the companion
     // subparser loop, the same shape as the existing product/architecture branches.
-    "logics_manager/flow/__init__.py": { maxLines: 3213, ref: "req_330" },
+    // 3278: req_338 added `flow evidence add` -- the per-criterion proof record, its
+    // payload and its parser -- beside `repair ac-traceability`, whose whole-request
+    // --proof it composes over. Splitting them would put the two writers of the same
+    // AC Traceability section in different files.
+    "logics_manager/flow/__init__.py": { maxLines: 3278, ref: "req_338" },
     // 1429: req_324 added resolve_ref_slug/resolve_ref_slugs (the short-ref expansion the
     // generators needed and _resolve_doc_path already did privately, per kind) plus the
     // rejoin loop in _bullet_values. Both are document vocabulary, so this is where they

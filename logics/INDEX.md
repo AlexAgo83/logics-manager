@@ -467,7 +467,7 @@
 | [req_336_show_every_workshop_section_in_the_viewer_workshop_menu](request/req_336_show_every_workshop_section_in_the_viewer_workshop_menu.md) | Show every Workshop section in the viewer Workshop menu | Done |  |  | request/req_336_show_every_workshop_section_in_the_viewer_workshop_menu.md |
 | [req_337_stop_reading_a_mentioned_reference_as_a_lineage_link](request/req_337_stop_reading_a_mentioned_reference_as_a_lineage_link.md) | Stop reading a mentioned reference as a lineage link | Done |  |  | request/req_337_stop_reading_a_mentioned_reference_as_a_lineage_link.md |
 | [req_338_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced](request/req_338_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced.md) | Record acceptance proof for one criterion at the moment it is produced | Draft |  |  | request/req_338_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced.md |
-| [req_339_report_workflow_docs_whose_context_points_at_code_that_is_gone](request/req_339_report_workflow_docs_whose_context_points_at_code_that_is_gone.md) | Report workflow docs whose context points at code that is gone | Draft |  |  | request/req_339_report_workflow_docs_whose_context_points_at_code_that_is_gone.md |
+| [req_339_report_workflow_docs_whose_context_points_at_code_that_is_gone](request/req_339_report_workflow_docs_whose_context_points_at_code_that_is_gone.md) | Report workflow docs whose context points at code that is gone | Done |  |  | request/req_339_report_workflow_docs_whose_context_points_at_code_that_is_gone.md |
 
 ## Backlog
 
@@ -1172,7 +1172,7 @@
 | [item_697_show_every_workshop_section_in_the_viewer_workshop_menu](backlog/item_697_show_every_workshop_section_in_the_viewer_workshop_menu.md) | Show every Workshop section in the viewer Workshop menu | Done |  | 100% | backlog/item_697_show_every_workshop_section_in_the_viewer_workshop_menu.md |
 | [item_698_stop_reading_a_mentioned_reference_as_a_lineage_link](backlog/item_698_stop_reading_a_mentioned_reference_as_a_lineage_link.md) | Stop reading a mentioned reference as a lineage link | Done |  | 100% | backlog/item_698_stop_reading_a_mentioned_reference_as_a_lineage_link.md |
 | [item_699_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced](backlog/item_699_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced.md) | Record acceptance proof for one criterion at the moment it is produced | Ready |  | 0% | backlog/item_699_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced.md |
-| [item_700_report_workflow_docs_whose_context_points_at_code_that_is_gone](backlog/item_700_report_workflow_docs_whose_context_points_at_code_that_is_gone.md) | Report workflow docs whose context points at code that is gone | Ready |  | 0% | backlog/item_700_report_workflow_docs_whose_context_points_at_code_that_is_gone.md |
+| [item_700_report_workflow_docs_whose_context_points_at_code_that_is_gone](backlog/item_700_report_workflow_docs_whose_context_points_at_code_that_is_gone.md) | Report workflow docs whose context points at code that is gone | Done |  | 100% | backlog/item_700_report_workflow_docs_whose_context_points_at_code_that_is_gone.md |
 
 ## Tasks
 
@@ -1507,7 +1507,7 @@
 | [task_333_show_every_workshop_section_in_the_viewer_workshop_menu](tasks/task_333_show_every_workshop_section_in_the_viewer_workshop_menu.md) | Show every Workshop section in the viewer Workshop menu | Done |  | 100% | tasks/task_333_show_every_workshop_section_in_the_viewer_workshop_menu.md |
 | [task_334_stop_reading_a_mentioned_reference_as_a_lineage_link](tasks/task_334_stop_reading_a_mentioned_reference_as_a_lineage_link.md) | Stop reading a mentioned reference as a lineage link | Done |  | 100% | tasks/task_334_stop_reading_a_mentioned_reference_as_a_lineage_link.md |
 | [task_335_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced](tasks/task_335_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced.md) | Record acceptance proof for one criterion at the moment it is produced | Ready |  | 0% | tasks/task_335_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced.md |
-| [task_336_report_workflow_docs_whose_context_points_at_code_that_is_gone](tasks/task_336_report_workflow_docs_whose_context_points_at_code_that_is_gone.md) | Report workflow docs whose context points at code that is gone | Ready |  | 0% | tasks/task_336_report_workflow_docs_whose_context_points_at_code_that_is_gone.md |
+| [task_336_report_workflow_docs_whose_context_points_at_code_that_is_gone](tasks/task_336_report_workflow_docs_whose_context_points_at_code_that_is_gone.md) | Report workflow docs whose context points at code that is gone | Done |  | 100% | tasks/task_336_report_workflow_docs_whose_context_points_at_code_that_is_gone.md |
 
 ## Runbooks
 

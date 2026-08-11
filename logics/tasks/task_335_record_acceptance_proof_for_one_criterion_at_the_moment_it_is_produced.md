@@ -46,3 +46,11 @@
 - Request: `req_338_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced`
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
+
+# Evidence
+- AC1 | date: 2026-08-11 | command: `python3 -m logics_manager flow evidence add --ac AC1` | result: passed | flow evidence add wrote this very record without moving Status or Progress
+- AC2 | date: 2026-08-11 | command: `pytest -k evidence_add_records_proof` | result: passed | each record carries the command and its result beside the summary
+- AC3 | date: 2026-08-11 | command: `pytest -k accumulate` | result: passed | two captures for one criterion keep both, in order
+- AC4 | date: 2026-08-11 | command: `pytest -k composes_the_traceability_entry` | result: passed | recorded proof composes the entry; a criterion with no record still takes the shared --proof text
+- AC5 | date: 2026-08-11 | command: `pytest -k composes_the_traceability_entry` | result: passed | flow validate --proof and flow repair ac-traceability --proof unchanged, exercised in the same test
+- AC6 | date: 2026-08-11 | command: `python3 -m pytest tests/python/ -q` | result: 1323 passed | five tests: capture, accumulation, composition, no-record fallback, rejected input

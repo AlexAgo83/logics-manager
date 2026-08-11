@@ -13,7 +13,7 @@ from .code_anchors import unresolved_anchors
 from .ai_context import PLACEHOLDERS as AI_CONTEXT_PLACEHOLDERS, is_ungroomed as _ai_context_ungroomed
 from .path_utils import canonical_workflow_path
 from .doc_parsing import extract_refs, indicator_value, progress_value, section_lines
-from .flow_evidence import has_ac_proof as _has_ac_with_proof
+from .flow_evidence import has_ac_proof as _has_ac_with_proof, has_ac_traceability_line as _has_ac_traceability_line
 from .statuses import workflow_statuses
 
 
@@ -785,6 +785,43 @@ def _ungroomed_ai_context_issues(docs: dict[str, DocMeta]) -> list[AuditIssue]:
     return issues
 
 
+def _uncovered_criterion_issues(docs: dict[str, DocMeta], all_docs: dict[str, DocMeta], cutoff) -> list[AuditIssue]:
+    """Report a criterion no linked document accounts for at all (req_340/item_703).
+
+    Distinct from the traceability findings beside it, which are about *proof*: this one
+    fires when the chain never learned the criterion exists -- no linked item or task
+    carries a line for it, in any shape. That happens when a request gains a criterion
+    after its chain was scaffolded, and it stayed invisible until a closeout gate
+    demanded proof for it. item_695 carried five criteria while its request carried six.
+
+    Not deferred, because it is actionable the moment it is true: adding the missing
+    line needs no evidence and no finished work.
+    """
+    issues: list[AuditIssue] = []
+    for request in [doc for doc in docs.values() if doc.kind.kind == "request"]:
+        if not _is_strict_scope(request, cutoff) or _is_abandoned(request) or _is_done(request):
+            continue
+        ac_ids = _extract_request_ac_ids(request)
+        if not ac_ids:
+            continue
+        linked = _linked_items_for_request(request, all_docs)
+        linked = linked + [task for item in linked for task in _linked_tasks_for_item(item, all_docs)]
+        if not linked:
+            continue  # `ac_no_linked_backlog`/`ac_no_linked_tasks` already say this, louder.
+        uncovered = [ac_id for ac_id in ac_ids if not any(_has_ac_traceability_line(doc.text, ac_id) for doc in linked)]
+        if uncovered:
+            checked = ", ".join(f"`{doc.ref}`" for doc in linked)
+            issues.append(
+                AuditIssue(
+                    code="ac_not_covered_by_chain",
+                    path=request.path,
+                    message=f"{', '.join(f'`{ac_id}`' for ac_id in uncovered)} named by no linked document; checked {checked}",
+                    severity="warning",
+                )
+            )
+    return issues
+
+
 def audit_payload(
     repo_root: Path,
     *,
@@ -993,6 +1030,7 @@ def audit_payload(
     issues.extend(_code_anchor_issues(repo_root, docs))
 
     if not skip_ac_traceability:
+        issues.extend(_uncovered_criterion_issues(docs, all_docs, cutoff))
         for request in [doc for doc in docs.values() if doc.kind.kind == "request"]:
             if not _is_strict_scope(request, cutoff) or _is_abandoned(request):
                 continue

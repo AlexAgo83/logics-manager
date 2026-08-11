@@ -948,3 +948,97 @@ def test_recorded_proof_composes_over_the_scaffold_placeholder_but_never_over_au
     assert "should not overwrite" not in ac2
     # One line per criterion: replacing must not append a second.
     assert len([line for line in lines if "AC1" in line]) == 1
+
+
+def _chain_with_partial_coverage(repo_root: Path, *, request_acs: int, covered_acs: int, status: str = "Ready") -> None:
+    """A request whose chain accounts for only the first `covered_acs` criteria."""
+    for directory in ("request", "backlog", "tasks"):
+        (repo_root / "logics" / directory).mkdir(parents=True, exist_ok=True)
+    (repo_root / "logics" / "request" / "req_001_drift.md").write_text(
+        "\n".join(
+            ["## req_001_drift - Drift", "> From version: 2.11.6", f"> Status: {status}", "> Schema version: 1.0", "# Acceptance criteria"]
+            + [f"- AC{n}: Demo." for n in range(1, request_acs + 1)]
+            + ["# Backlog", "- `item_001_drift`"]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (repo_root / "logics" / "backlog" / "item_001_drift.md").write_text(
+        "\n".join(
+            ["## item_001_drift - Drift slice", "> From version: 2.11.6", "> Status: Ready", "> Progress: 0%", "> Schema version: 1.0", "# AC Traceability"]
+            + [f"- request-AC{n} -> This backlog slice. Proof: covered." for n in range(1, covered_acs + 1)]
+            + ["# Links", "- `req_001_drift`", "- `task_001_drift`"]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (repo_root / "logics" / "tasks" / "task_001_drift.md").write_text(
+        "\n".join(
+            ["## task_001_drift - Drift task", "> From version: 2.11.6", "> Status: Ready", "> Progress: 0%", "> Schema version: 1.0", "# AC Traceability"]
+            + [f"- request-AC{n} -> This task. Proof: covered." for n in range(1, covered_acs + 1)]
+            + ["# Links", "- `item_001_drift`"]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
+def test_a_criterion_no_linked_document_names_is_reported_before_closeout(tmp_path: Path) -> None:
+    """req_340/item_703: the item_695 case, reproduced.
+
+    A request gained AC6 at grooming; its slice still carried five. Nothing said so
+    until a closeout gate demanded proof for the sixth, at the worst moment.
+    """
+    repo_root = tmp_path / "logics-repo"
+    _chain_with_partial_coverage(repo_root, request_acs=6, covered_acs=5)
+
+    payload = audit_payload(repo_root, skip_gates=True)
+    findings = [f for f in payload["findings"] if f["code"] == "ac_not_covered_by_chain"]
+
+    assert len(findings) == 1
+    # AC5: names the criterion and the documents that were checked.
+    assert "`AC6`" in findings[0]["message"]
+    assert "`item_001_drift`" in findings[0]["message"] and "`task_001_drift`" in findings[0]["message"]
+    for covered in ("`AC1`", "`AC2`", "`AC5`"):
+        assert covered not in findings[0]["message"]
+    # AC6: a warning, so it cannot block while the work is still in flight.
+    assert findings[0]["severity"] == "warning"
+    assert payload["ok"] is True
+    # Not deferred: adding the missing line needs no evidence, so it is shown now.
+    assert findings[0]["deferred"] is False
+
+
+def test_a_fully_covered_chain_reports_no_uncovered_criterion(tmp_path: Path) -> None:
+    """req_340/item_703 AC6: silent on complete coverage, or the check is just noise."""
+    repo_root = tmp_path / "logics-repo"
+    _chain_with_partial_coverage(repo_root, request_acs=4, covered_acs=4)
+
+    payload = audit_payload(repo_root, skip_gates=True)
+
+    assert not [f for f in payload["findings"] if f["code"] == "ac_not_covered_by_chain"]
+
+
+def test_coverage_is_about_the_line_existing_not_about_the_proof(tmp_path: Path) -> None:
+    """The finding beside it already covers proof; this one is about the chain knowing."""
+    repo_root = tmp_path / "logics-repo"
+    _chain_with_partial_coverage(repo_root, request_acs=2, covered_acs=2)
+    item = repo_root / "logics" / "backlog" / "item_001_drift.md"
+    task = repo_root / "logics" / "tasks" / "task_001_drift.md"
+    for path in (item, task):
+        path.write_text(path.read_text(encoding="utf-8").replace("Proof: covered.", "Proof deferred to slice closeout."), encoding="utf-8")
+
+    payload = audit_payload(repo_root, skip_gates=True)
+
+    # Unproven, and said so elsewhere; but the chain does name both criteria.
+    assert not [f for f in payload["findings"] if f["code"] == "ac_not_covered_by_chain"]
+    assert [f for f in payload["findings"] if f["code"].startswith("ac_missing_")]
+
+
+def test_a_closed_request_is_not_nagged_about_coverage(tmp_path: Path) -> None:
+    """Reported before closeout is the point; after it, the record is history."""
+    repo_root = tmp_path / "logics-repo"
+    _chain_with_partial_coverage(repo_root, request_acs=6, covered_acs=5, status="Done")
+
+    payload = audit_payload(repo_root, skip_gates=True)
+
+    assert not [f for f in payload["findings"] if f["code"] == "ac_not_covered_by_chain"]

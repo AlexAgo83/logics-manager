@@ -65,7 +65,9 @@ const allowedOversizedFiles = new Map(
     // 1697: req_330 added match_runbooks_payload/list_active_runbooks_payload (the
     // runbook match/recent-list lookups) beside search_logics_docs_payload/
     // list_logics_docs_payload, the doc-loading primitives they're thin wrappers over.
-    "logics_manager/sync.py": { maxLines: 1697, ref: "req_330" },
+    // 1699: req_335 canonicalises the target path in _resolve_target_docs, the one
+    // seam every sync command resolves through.
+    "logics_manager/sync.py": { maxLines: 1699, ref: "req_335" },
     // 1145: req_321 added `_reposition_ai_context()`, sitting beside the other
     // deterministic `_autofix_structure()` repairs (Status/Schema version) it extends.
     // 1169: req_330 added the runbook companion-kind entries (DOC_KINDS/REF_PREFIXES/
@@ -77,7 +79,9 @@ const allowedOversizedFiles = new Map(
     // the deferred attribute the report withholds on. Both are amendments to rules
     // that already live here; req_339's code-anchor resolution, which is filesystem
     // work rather than corpus parsing, went to its own module instead.
-    "logics_manager/audit.py": { maxLines: 1279, ref: "req_339" },
+    // 1281: req_335 routes --paths scoping through canonical_workflow_path so
+    // scoping accepts either spelling of a workflow directory.
+    "logics_manager/audit.py": { maxLines: 1281, ref: "req_335" },
     // 1117: req_317 added the per-gate release/branch comparison (resolving the
     // tagged commit, choosing which commit each gate is judged against, and
     // naming the comparison in stale reasons and status output). The new logic
@@ -163,7 +167,9 @@ const allowedOversizedFiles = new Map(
     // 1492: req_330 added _next_runbook_ref/_build_native_runbook, document
     // vocabulary sitting beside the near-identical _next_adr_ref/_build_native_adr
     // pair they mirror.
-    "logics_manager/flow/docs.py": { maxLines: 1492, ref: "req_330" },
+    // 1496: req_335 canonicalises the incoming path in the two source resolvers, two
+    // lines each, rather than teaching every caller about both spellings.
+    "logics_manager/flow/docs.py": { maxLines: 1496, ref: "req_335" },
     // req_273: de-glued frontend sources. esbuild/concatenation now consume these directly
     // instead of a regex part-manifest + readFileSync.join, so the bundles stay byte-stable.
     // 7250: viewer screen minimization and workshop terminal follow-ups added here;

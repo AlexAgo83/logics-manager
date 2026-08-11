@@ -25,7 +25,7 @@ from ..flow_evidence import has_validation_evidence as _has_validation_evidence
 from ..flow_evidence import structured_validation_line as _structured_validation_line
 from ..index import index_payload
 from ..lint import expected_workflow_mermaid_signature, lint_payload
-from ..path_utils import ensure_relative_to, resolve_repo_output_path
+from ..path_utils import canonical_workflow_path, ensure_relative_to, resolve_repo_output_path
 from ..statuses import transition_error
 from ..sync import build_context_pack_payload, read_logics_doc_payload
 from ..termstyle import colorize_help
@@ -464,6 +464,8 @@ def _wrong_kind_error(repo_root: Path, source: str, kind: DocKind) -> str:
 
 
 def _resolve_workflow_source(repo_root: Path, kind: DocKind, source: str) -> Path:
+    # req_335: `logics/task/...` resolves like `logics/tasks/...`; a wrong guess costs nothing.
+    source = canonical_workflow_path(source)
     raw = Path(source)
     if raw.is_absolute():
         candidate = raw.resolve()
@@ -491,6 +493,8 @@ def _resolve_workflow_source(repo_root: Path, kind: DocKind, source: str) -> Pat
 
 
 def _resolve_product_source(repo_root: Path, source: str) -> Path:
+    # req_335: `logics/task/...` resolves like `logics/tasks/...`; a wrong guess costs nothing.
+    source = canonical_workflow_path(source)
     raw = Path(source)
     if raw.is_absolute():
         candidate = raw.resolve()

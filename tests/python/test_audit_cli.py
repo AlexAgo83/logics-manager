@@ -23,9 +23,11 @@ from logics_manager.doctor import doctor_payload, render_doctor
 from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
 from logics_manager.flow import evidence_add_payload, repair_ac_traceability_payload
+from logics_manager.flow.docs import DOC_KINDS, _resolve_workflow_source
+from logics_manager.path_utils import WORKFLOW_DIRS, WORKFLOW_DIR_ALIASES, canonical_workflow_path, duplicate_workflow_dirs
 from logics_manager.flow import PlannedDoc, closeout_payload, validate_closeout_payload
 from logics_manager.flow_evidence import composed_ac_proof, evidence_for_ac, has_ac_proof, has_validation_evidence
-from logics_manager.insights import followups_payload, health_payload, product_consistency_payload, status_payload
+from logics_manager.insights import followups_payload, health_payload, product_consistency_payload, render_health, status_payload
 from logics_manager.sync import search_logics_docs_payload
 from logics_manager import viewer as viewer_module
 from logics_manager.viewer import (
@@ -735,3 +737,45 @@ def test_evidence_add_rejects_a_criterion_id_it_cannot_address(tmp_path: Path) -
         evidence_add_payload(repo_root, "task_001_capture", ac_id="the first one", summary="x", command=None, result=None, dry_run=False)
     with pytest.raises(SystemExit):
         evidence_add_payload(repo_root, "task_001_capture", ac_id="AC1", summary="   ", command=None, result=None, dry_run=False)
+
+
+def test_every_workflow_directory_resolves_from_either_spelling() -> None:
+    """req_335 AC1/AC4: one derived mapping, so no directory is handled in one form only."""
+    # AC4: the alias set is derived from WORKFLOW_DIRS, not written per call site.
+    assert set(WORKFLOW_DIR_ALIASES.values()) == {name for name in WORKFLOW_DIRS if not name.startswith(".")}
+    for canonical in WORKFLOW_DIRS:
+        if canonical.startswith("."):
+            continue
+        alias = next(key for key, value in WORKFLOW_DIR_ALIASES.items() if value == canonical)
+        assert canonical_workflow_path(f"logics/{alias}/doc_001.md") == f"logics/{canonical}/doc_001.md"
+        # The canonical form is left exactly as it is.
+        assert canonical_workflow_path(f"logics/{canonical}/doc_001.md") == f"logics/{canonical}/doc_001.md"
+    # Nothing outside a logics/ directory segment is touched.
+    assert canonical_workflow_path("src/task/main.py") == "src/task/main.py"
+    assert canonical_workflow_path("task_001_example") == "task_001_example"
+
+
+def test_workflow_path_alias_resolves_to_the_same_file(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    _chain(repo_root, "alias", status="Ready", ac_count=1, proof=False)
+
+    plural = _resolve_workflow_source(repo_root, DOC_KINDS["task"], "logics/tasks/task_001_alias.md")
+    singular = _resolve_workflow_source(repo_root, DOC_KINDS["task"], "logics/task/task_001_alias.md")
+
+    assert plural == singular
+    # AC2: resolving an alias creates nothing and renames nothing.
+    assert not (repo_root / "logics" / "task").exists()
+    assert sorted(p.name for p in (repo_root / "logics").iterdir()) == ["backlog", "request", "tasks"]
+
+
+def test_health_reports_an_alias_directory_that_exists_beside_its_canonical_form(tmp_path: Path) -> None:
+    """req_335 AC3: tolerance must not become ambiguity."""
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+
+    assert duplicate_workflow_dirs(repo_root) == []
+
+    (repo_root / "logics" / "task").mkdir()
+
+    assert duplicate_workflow_dirs(repo_root) == ["logics/task"]
+    assert "logics/task" in render_health(repo_root)

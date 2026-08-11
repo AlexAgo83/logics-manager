@@ -14,7 +14,7 @@ from .doc_parsing import age_in_days, extract_refs, git_changed_paths, git_last_
 from .help_flags import flag_lines, subparser_for
 from .lint import REVIEWED_INDICATOR, expected_workflow_mermaid_signature
 from .statuses import canonical_status, transition_error
-from .path_utils import resolve_repo_output_path
+from .path_utils import canonical_workflow_path, resolve_repo_output_path
 from .release import release_context_pack_payload
 from .i18n import i18n_plan_payload
 from .termstyle import colorize_help
@@ -470,6 +470,8 @@ def _resolve_target_docs(repo_root: Path, sources: list[str], *, kinds: dict[str
 
     resolved: list[tuple[str, Path]] = []
     for source in sources:
+        # req_335: `logics/task/...` and `logics/tasks/...` name the same file.
+        source = canonical_workflow_path(source)
         raw_source = Path(source)
         if not _is_relative_path(raw_source):
             raise SystemExit(f"Unsupported workflow doc target `{source}`.")

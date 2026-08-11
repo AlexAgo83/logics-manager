@@ -9,7 +9,8 @@ from .harness_mcp import wire_harness_mcp_configs
 from .skills import resync_all_harnesses
 
 
-WORKFLOW_DIRS: tuple[str, ...] = ("request", "backlog", "tasks", "specs", "product", "roadmap", "architecture", "runbook", "external", ".cache")
+# Declared in path_utils, beside the alias map derived from it (req_335).
+from .path_utils import WORKFLOW_DIRS  # noqa: F401  (re-exported: callers import it from here)
 MANAGED_LOGICS_START = "<!-- logics-manager:managed:start -->"
 MANAGED_LOGICS_END = "<!-- logics-manager:managed:end -->"
 AGENTS_LOGICS_REFERENCE = "@LOGICS.md"

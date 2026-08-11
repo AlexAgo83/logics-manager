@@ -9,6 +9,7 @@ from pathlib import Path
 
 from logics_manager.config import ConfigError, load_repo_config
 from logics_manager.doc_parsing import age_in_days, extract_refs, git_last_change_times, last_change_time, priority_rank, priority_tier, progress_value, strip_mermaid_blocks
+from logics_manager.path_utils import duplicate_workflow_dirs
 from logics_manager.statuses import closed_statuses, open_statuses
 
 WORKFLOW_KINDS = ("request", "backlog", "task")
@@ -245,6 +246,10 @@ def health_payload(repo_root: Path, *, limit: int = 10) -> dict[str, object]:
         "stale_after_days": stale_after_days,
         "stale_doc_count": len(stale),
         "stale_docs": stale[:limit],
+        # req_335: tolerating an alias spelling must not become ambiguity. The
+        # canonical directory always wins; a real alias directory beside it is a
+        # corpus anomaly and is reported rather than silently resolved.
+        "duplicate_workflow_dirs": duplicate_workflow_dirs(repo_root),
     }
 
 
@@ -292,6 +297,8 @@ def render_health(repo_root: Path, *, output_format: str = "text", limit: int = 
         f"- open workflow docs: {payload['open_workflow_count']}",
         f"- issue signals: {payload['issue_count']}",
     ]
+    for duplicate in payload.get("duplicate_workflow_dirs", []):
+        lines.append(f"- anomaly: `{duplicate}` exists beside its canonical directory; the canonical one is used")
     issues = payload["issues"]
     for key, items in issues.items():
         if not items:

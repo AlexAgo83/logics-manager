@@ -66,3 +66,69 @@ def resolve_repo_config_path(repo_root: Path, raw_path: str, *, label: str = "co
     except SystemExit as exc:
         raise SystemExit(f"Unsupported {label} path `{raw_path}`. Use a repo-relative path or absolute path inside the repository.") from exc
     return resolved, relative.as_posix()
+
+
+# --- Workflow directory naming (req_335) ------------------------------------------
+#
+# Under `logics/`, five directories are singular and two are plural, with no rule to
+# infer, so the name has to be memorised per directory. `logics/task/...` matches
+# nothing and finding the file costs an extra search -- a small cost, paid by every
+# agent and every shell one-liner, indefinitely, and worst for agents, which
+# reconstruct paths from a pattern rather than from memory.
+#
+# Renaming was measured and rejected: 225 occurrences of `logics/tasks` and
+# `logics/specs` alone across logics_manager, clients and tests, before counting
+# consuming projects, external tooling, docs and every git history link. The
+# disruption is out of proportion to a naming papercut.
+#
+# What is done instead is tolerance: the other form resolves to the same place, so a
+# wrong guess costs nothing. Nothing is renamed, moved or created, and the canonical
+# form the tool writes is unchanged.
+
+#: The canonical name of every workflow directory. One declaration, so a directory
+#: cannot be added with only one of its forms handled.
+WORKFLOW_DIRS: tuple[str, ...] = ("request", "backlog", "tasks", "specs", "product", "roadmap", "architecture", "runbook", "external", ".cache")
+
+
+def _alternate_form(name: str) -> str | None:
+    """The other way someone might reasonably spell this directory."""
+    if name.startswith("."):
+        return None
+    if name.endswith("s"):
+        return name[:-1]
+    return f"{name}s"
+
+
+#: Accepted alternate spelling -> canonical name. Derived, never hand-maintained.
+WORKFLOW_DIR_ALIASES: dict[str, str] = {
+    alternate: name
+    for name in WORKFLOW_DIRS
+    if (alternate := _alternate_form(name)) and alternate not in WORKFLOW_DIRS
+}
+
+
+def canonical_workflow_path(raw: str) -> str:
+    """Rewrite `logics/<alias>/...` to `logics/<canonical>/...`, leaving all else alone.
+
+    Purely textual: no filesystem access, and no mutation of anything on disk.
+    """
+    parts = raw.replace("\\", "/").split("/")
+    for index, part in enumerate(parts[:-1]):
+        if part == "logics" and parts[index + 1] in WORKFLOW_DIR_ALIASES:
+            parts[index + 1] = WORKFLOW_DIR_ALIASES[parts[index + 1]]
+            break
+    return "/".join(parts)
+
+
+def duplicate_workflow_dirs(repo_root: Path) -> list[str]:
+    """Alias directories that exist on disk beside their canonical form.
+
+    Tolerance must not become ambiguity: the canonical form always wins, and the
+    situation is reported rather than silently resolved.
+    """
+    logics = repo_root / "logics"
+    return sorted(
+        f"logics/{alias}"
+        for alias, canonical in WORKFLOW_DIR_ALIASES.items()
+        if (logics / alias).is_dir() and (logics / canonical).is_dir()
+    )

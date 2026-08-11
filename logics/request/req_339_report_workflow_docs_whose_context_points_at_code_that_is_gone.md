@@ -2,8 +2,8 @@
 > From version: 2.21.6
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92%
+> Confidence: 88%
 > Complexity: Medium
 > Theme: Corpus decay
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -27,6 +27,7 @@
 - A doc's own lifecycle matters. A `Done` document describing code as it was is history and should not be nagged about; the value is in **open** documents, which are the ones an agent is about to act on.
 - Scope: detecting and reporting unresolvable code anchors in open workflow docs. Out of scope: repairing them automatically, line-number validation, and any rule about which anchors a document ought to have.
 - Known risk: a noisy version of this check is worse than no check, because it teaches the reader to ignore the report. It has to stay quiet on a healthy corpus, which makes the default reporting behaviour dependent on how withheld findings are surfaced generally.
+- **Depends on `req_333`** for that quietness: this request adds a finding class, and the mechanism that withholds low-signal findings from the default report — plus the one-line count that keeps them from disappearing — is defined there. Building a second, private suppression path here is the outcome to avoid. If `req_333` has not landed, AC5 is met by emitting nothing at all rather than by inventing a new switch.
 
 # Acceptance criteria
 - AC1: An open workflow doc citing a repo-relative path that does not exist is reported once, naming the document and the path.
@@ -53,5 +54,4 @@
 - `tests/python/test_audit_cli.py`
 
 # Backlog
-- none
 - `item_700_report_workflow_docs_whose_context_points_at_code_that_is_gone`

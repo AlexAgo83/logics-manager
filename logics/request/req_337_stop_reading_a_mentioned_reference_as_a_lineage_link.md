@@ -2,8 +2,8 @@
 > From version: 2.21.6
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 95%
+> Confidence: 90%
 > Complexity: Medium
 > Theme: Corpus lineage
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -28,6 +28,7 @@
 - `_doc_has_ac_with_proof(doc, ac_id)` matches on the AC identifier alone. Combined with the above, proof crosses chain boundaries whenever ids coincide — and ids always coincide, because every document numbers from `AC1`.
 - The corpus already distinguishes structural links from prose: requests carry `# Backlog`, tasks carry `# Links`, items carry their request. Those sections are the declared lineage; the text scan is a second, undeclared one that disagrees with it.
 - Scope: how lineage is computed for validation, and how proof is matched once lineage is known. Out of scope: the severity model for traceability findings, the wording of any finding, and any change to document schema or existing documents.
+- **Order it before `req_333` and `req_338`.** `req_333` hides deferred findings, and whether a finding is deferred is computed from the very links this request corrects — hiding first would hide the miscomputation too. `req_338` composes traceability entries from per-criterion records, and this request decides which chain a criterion's proof may come from; both touch `_ac_traceability_entry` in `logics_manager/flow/docs.py`. This is the root of the cluster and should land first.
 - Known risk: some existing documents may rely on the loose scan, declaring a parent only in prose. A migration that tightens the rule silently would drop their lineage. The tightening must therefore report what it stopped counting rather than quietly recompute.
 
 # Acceptance criteria
@@ -53,5 +54,4 @@
 - `tests/python/test_audit_cli.py`
 
 # Backlog
-- none
 - `item_698_stop_reading_a_mentioned_reference_as_a_lineage_link`

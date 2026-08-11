@@ -163,7 +163,9 @@ const allowedOversizedFiles = new Map(
     // payload and its parser -- beside `repair ac-traceability`, whose whole-request
     // --proof it composes over. Splitting them would put the two writers of the same
     // AC Traceability section in different files.
-    "logics_manager/flow/__init__.py": { maxLines: 3278, ref: "req_338" },
+    // 3279: one re-export line for SECTION_EMPTY_PLACEHOLDERS, which the package
+    // surface guard requires for every top-level name lifted into docs.py.
+    "logics_manager/flow/__init__.py": { maxLines: 3279, ref: "req_338" },
     // 1429: req_324 added resolve_ref_slug/resolve_ref_slugs (the short-ref expansion the
     // generators needed and _resolve_doc_path already did privately, per kind) plus the
     // rejoin loop in _bullet_values. Both are document vocabulary, so this is where they

@@ -23,7 +23,8 @@ from logics_manager.doctor import doctor_payload, render_doctor
 from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
 from logics_manager.flow import evidence_add_payload, repair_ac_traceability_payload
-from logics_manager.flow.docs import DOC_KINDS, _resolve_workflow_source
+from logics_manager.flow import scaffold_request_chain_payload
+from logics_manager.flow.docs import DOC_KINDS, _append_doc_section_bullets, _resolve_workflow_source
 from logics_manager.ai_context import UNFILLED as AI_CONTEXT_UNFILLED, block as ai_context_block, is_ungroomed
 from logics_manager.path_utils import WORKFLOW_DIRS, WORKFLOW_DIR_ALIASES, canonical_workflow_path, duplicate_workflow_dirs
 from logics_manager.flow import PlannedDoc, closeout_payload, validate_closeout_payload
@@ -862,3 +863,49 @@ def test_grooming_the_ai_context_clears_the_finding(tmp_path: Path) -> None:
     payload = audit_payload(repo_root, skip_ac_traceability=True, skip_gates=True)
 
     assert not [f for f in payload["findings"] if f["code"] == "ai_context_ungroomed"]
+
+
+def test_a_real_ref_evicts_the_empty_placeholder_it_contradicts(tmp_path: Path) -> None:
+    """A section cannot claim `none` directly above a real entry.
+
+    `flow deliver` stripped the placeholder itself after appending; every other
+    writer -- `scaffold request-chain` among them -- did not, so every request
+    scaffolded through that path shipped `- none` beside its own backlog slice, and
+    nothing reported it.
+    """
+    doc = tmp_path / "req_001_demo.md"
+    doc.write_text("## req_001_demo - Demo\n\n# Backlog\n- none\n", encoding="utf-8")
+
+    _append_doc_section_bullets(doc, "Backlog", ["`item_001_demo`"], dry_run=False)
+
+    backlog = doc.read_text(encoding="utf-8").splitlines()
+    assert backlog[backlog.index("# Backlog") + 1 :] == ["- `item_001_demo`"]
+
+
+def test_an_empty_section_keeps_its_placeholder(tmp_path: Path) -> None:
+    """Eviction happens only when something real replaces it."""
+    doc = tmp_path / "req_001_demo.md"
+    doc.write_text("## req_001_demo - Demo\n\n# Backlog\n- none\n", encoding="utf-8")
+
+    _append_doc_section_bullets(doc, "Backlog", [], dry_run=False)
+
+    assert "- none" in doc.read_text(encoding="utf-8")
+
+
+def test_promoting_a_request_clears_the_placeholder_it_wrote(tmp_path: Path) -> None:
+    """The real path: `flow new` writes `- none`, `promote` appends the slice.
+
+    `flow deliver` stripped the placeholder itself after appending; `promote` did
+    not, so every request promoted this way carried `- none` directly above its own
+    backlog ref, and neither lint nor audit mentioned it.
+    """
+    doc = tmp_path / "req_001_demo.md"
+    doc.write_text("## req_001_demo - Demo\n\n# Backlog\n- none\n\n# References\n- none\n", encoding="utf-8")
+
+    _append_doc_section_bullets(doc, "Backlog", ["`item_001_demo`"], dry_run=False)
+
+    text = doc.read_text(encoding="utf-8")
+    backlog = text.split("# Backlog", 1)[1].split("# ", 1)[0].strip().splitlines()
+    assert backlog == ["- `item_001_demo`"]
+    # A section nothing was appended to keeps its placeholder: eviction is local.
+    assert "# References\n- none" in text

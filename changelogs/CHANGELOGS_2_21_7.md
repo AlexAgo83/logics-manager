@@ -163,9 +163,12 @@ Nine templates across two modules became one shared builder.
 
 ## Also
 
-- Every open request carried a stray `- none` placeholder beside a real ref under
-  `# Backlog`: `flow deliver` strips it, the `scaffold request-chain` path did
-  not, and nothing reported it.
+- A section can no longer claim `none` directly above a real entry. `flow new`
+  writes `- none` under `# Backlog`, and `flow deliver` stripped it after
+  appending a slice -- but `promote request-to-backlog` did not, so every request
+  promoted that way shipped the contradiction, and neither `lint` nor `audit`
+  mentioned it. Appending a real bullet now evicts the placeholder it contradicts,
+  at the one helper every writer goes through.
 - Four requests in this release form one dependency cluster and none of them said
   so. The ordering is now recorded in each: lineage first, then the withholding
   it makes safe, then the check that consumes it.

@@ -97,6 +97,7 @@ from .docs import (  # noqa: E402,F401  (re-exported: callers import these from 
     _SHORT_REF_RE,
     _ac_traceability_entry,
     _add_common_doc_args,
+    SECTION_EMPTY_PLACEHOLDERS,
     _append_doc_section_bullets,
     _append_doc_section_bullets_changed,
     _append_section_bullets,

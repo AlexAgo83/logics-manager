@@ -445,3 +445,92 @@ def test_module_audit_subprocess_returns_nonzero_for_failed_payload(tmp_path: Pa
         assert payload["issue_count"] == 2
     else:
         assert "Workflow audit: FAILED" in result.stdout
+
+
+def _chain(repo_root: Path, slug: str, *, status: str, ac_count: int, proof: bool, extra_request: str = "") -> None:
+    """One request/backlog/task chain, linked only through its declared sections."""
+    for directory in ["request", "backlog", "tasks"]:
+        (repo_root / "logics" / directory).mkdir(parents=True, exist_ok=True)
+    request_ref, item_ref, task_ref = f"req_001_{slug}", f"item_001_{slug}", f"task_001_{slug}"
+    acs = [f"AC{index}" for index in range(1, ac_count + 1)]
+    (repo_root / "logics" / "request" / f"{request_ref}.md").write_text(
+        "\n".join(
+            [f"## {request_ref} - {slug} request", "> From version: 2.11.6", "> Status: Draft", "> Schema version: 1.0", "# Acceptance criteria"]
+            + [f"- {ac}: Demo." for ac in acs]
+            + ["# Context", extra_request, "# Backlog", f"- `{item_ref}`"]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (repo_root / "logics" / "backlog" / f"{item_ref}.md").write_text(
+        "\n".join(
+            [f"## {item_ref} - {slug} backlog", "> From version: 2.11.6", "> Status: Ready", "> Progress: 0%", "> Schema version: 1.0", "# AC Traceability"]
+            + ([f"- request-{ac} -> This item. Proof: measured and checked. Source: `abc1234`" for ac in acs] if proof else [])
+            + ["# Links", f"- `{request_ref}`", f"- `{task_ref}`"]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (repo_root / "logics" / "tasks" / f"{task_ref}.md").write_text(
+        "\n".join(
+            [f"## {task_ref} - {slug} task", "> From version: 2.11.6", f"> Status: {status}", "> Progress: 0%", "> Schema version: 1.0", "# AC Traceability"]
+            + ([f"- request-{ac} -> This task. Proof: measured and checked. Source: `abc1234`" for ac in acs] if proof else [])
+            + ["# Links", f"- `{item_ref}`"]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
+def test_prose_citation_of_a_done_chain_leaves_findings_deferred(tmp_path: Path) -> None:
+    """req_337 AC1/AC2: naming prior art must not adopt its lifecycle.
+
+    Deferred findings turn blocking as soon as any linked task is Done, so citing a
+    finished chain used to flip a brand-new Draft request's findings to blocking for
+    work nobody had started.
+    """
+    repo_root = tmp_path / "logics-repo"
+    _chain(repo_root, "prior", status="Done", ac_count=4, proof=True)
+    # The new chain merely *mentions* the finished one, in narrative prose.
+    _chain(repo_root, "fresh", status="Ready", ac_count=5, proof=False, extra_request="- Prior art: `item_001_prior` did this first.")
+
+    payload = audit_payload(repo_root, skip_gates=True)
+
+    fresh = [issue for issue in payload["issues"] if "fresh" in issue["path"]]
+    assert fresh == [], "a prose citation must not make a fresh chain's findings blocking"
+    deferred = {w["code"] for w in payload["warnings"] if "req_001_fresh" in w["path"]}
+    assert "ac_missing_task_traceability" in deferred
+
+
+def test_ac_ids_shared_across_unrelated_chains_stay_unproven_on_both_sides(tmp_path: Path) -> None:
+    """req_337 AC3: proof is matched by AC id, and every document numbers from AC1."""
+    repo_root = tmp_path / "logics-repo"
+    _chain(repo_root, "prior", status="Done", ac_count=4, proof=True)
+    _chain(repo_root, "fresh", status="Done", ac_count=5, proof=False, extra_request="- Prior art: `item_001_prior` proved AC1..AC4.")
+
+    payload = audit_payload(repo_root, skip_gates=True)
+
+    unproven = sorted(
+        issue["message"].split("`")[1]
+        for issue in payload["issues"]
+        if issue["code"] == "ac_missing_task_traceability" and "req_001_fresh" in issue["path"]
+    )
+    # All five, not just AC5: the cited chain's AC1..AC4 are different criteria.
+    assert unproven == ["AC1", "AC2", "AC3", "AC4", "AC5"]
+
+
+def test_prose_only_lineage_is_announced_once_per_document(tmp_path: Path) -> None:
+    """req_337 AC4: tightening must say what it stopped counting."""
+    repo_root = tmp_path / "logics-repo"
+    _chain(repo_root, "prior", status="Done", ac_count=1, proof=True)
+    _chain(repo_root, "fresh", status="Ready", ac_count=1, proof=False, extra_request="- See `item_001_prior`, and `item_001_prior` again.")
+
+    payload = audit_payload(repo_root, skip_gates=True)
+
+    announced = [w for w in payload["warnings"] if w["code"] == "lineage_mentioned_but_not_declared"]
+    assert len(announced) == 1
+    assert "req_001_fresh" in announced[0]["path"]
+    assert "item_001_prior" in announced[0]["message"]
+    assert "# Backlog" in announced[0]["message"]
+    # A declared link is never announced.
+    assert all("req_001_prior" not in w["path"] for w in announced)

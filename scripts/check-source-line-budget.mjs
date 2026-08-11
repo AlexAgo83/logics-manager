@@ -92,7 +92,11 @@ const allowedOversizedFiles = new Map(
     // ungroomed AI Context) were lifted out of audit_payload into named functions
     // when check_function_length flagged its growth. Each is now readable on its
     // own; the file is longer for the docstrings that move with them.
-    "logics_manager/audit.py": { maxLines: 1332, ref: "req_334" },
+    // 1370: item_703 added _uncovered_criterion_issues -- the check that a request
+    // criterion is named by some linked document at all, distinct from the findings
+    // beside it, which are about proof. Lifted straight into its own function rather
+    // than into audit_payload, following the split check_function_length forced earlier.
+    "logics_manager/audit.py": { maxLines: 1370, ref: "req_340" },
     // 1117: req_317 added the per-gate release/branch comparison (resolving the
     // tagged commit, choosing which commit each gate is judged against, and
     // naming the comparison in stale reasons and status output). The new logic

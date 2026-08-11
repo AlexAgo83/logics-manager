@@ -113,6 +113,7 @@
 | [prod_073_visible_viewer_operational_health](product/prod_073_visible_viewer_operational_health.md) | Visible viewer operational health | Settled |  |  | product/prod_073_visible_viewer_operational_health.md |
 | [prod_074_a_discoverable_library_of_operational_runbooks](product/prod_074_a_discoverable_library_of_operational_runbooks.md) | A discoverable library of operational runbooks | Settled |  |  | product/prod_074_a_discoverable_library_of_operational_runbooks.md |
 | [prod_075_one_logics_runtime_no_setup_noise](product/prod_075_one_logics_runtime_no_setup_noise.md) | One Logics runtime, no setup noise | Settled |  |  | product/prod_075_one_logics_runtime_no_setup_noise.md |
+| [prod_076_tooling_that_tells_the_truth_about_itself](product/prod_076_tooling_that_tells_the_truth_about_itself.md) | Tooling that tells the truth about itself | Proposed |  |  | product/prod_076_tooling_that_tells_the_truth_about_itself.md |
 
 ## Roadmaps
 
@@ -468,6 +469,7 @@
 | [req_337_stop_reading_a_mentioned_reference_as_a_lineage_link](request/req_337_stop_reading_a_mentioned_reference_as_a_lineage_link.md) | Stop reading a mentioned reference as a lineage link | Done |  |  | request/req_337_stop_reading_a_mentioned_reference_as_a_lineage_link.md |
 | [req_338_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced](request/req_338_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced.md) | Record acceptance proof for one criterion at the moment it is produced | Done |  |  | request/req_338_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced.md |
 | [req_339_report_workflow_docs_whose_context_points_at_code_that_is_gone](request/req_339_report_workflow_docs_whose_context_points_at_code_that_is_gone.md) | Report workflow docs whose context points at code that is gone | Done |  |  | request/req_339_report_workflow_docs_whose_context_points_at_code_that_is_gone.md |
+| [req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed](request/req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed.md) | Close the three trust gaps the 2.21.7 cycle exposed | Draft |  |  | request/req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed.md |
 
 ## Backlog
 
@@ -1173,6 +1175,9 @@
 | [item_698_stop_reading_a_mentioned_reference_as_a_lineage_link](backlog/item_698_stop_reading_a_mentioned_reference_as_a_lineage_link.md) | Stop reading a mentioned reference as a lineage link | Done |  | 100% | backlog/item_698_stop_reading_a_mentioned_reference_as_a_lineage_link.md |
 | [item_699_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced](backlog/item_699_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced.md) | Record acceptance proof for one criterion at the moment it is produced | Done |  | 100% | backlog/item_699_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced.md |
 | [item_700_report_workflow_docs_whose_context_points_at_code_that_is_gone](backlog/item_700_report_workflow_docs_whose_context_points_at_code_that_is_gone.md) | Report workflow docs whose context points at code that is gone | Done |  | 100% | backlog/item_700_report_workflow_docs_whose_context_points_at_code_that_is_gone.md |
+| [item_701_report_a_runtime_that_disagrees_with_the_repository_it_audits](backlog/item_701_report_a_runtime_that_disagrees_with_the_repository_it_audits.md) | Report a runtime that disagrees with the repository it audits | Ready |  | 0% | backlog/item_701_report_a_runtime_that_disagrees_with_the_repository_it_audits.md |
+| [item_702_make_every_guard_reachable_before_the_push](backlog/item_702_make_every_guard_reachable_before_the_push.md) | Make every guard reachable before the push | Ready |  | 0% | backlog/item_702_make_every_guard_reachable_before_the_push.md |
+| [item_703_report_a_request_criterion_no_linked_document_accounts_for](backlog/item_703_report_a_request_criterion_no_linked_document_accounts_for.md) | Report a request criterion no linked document accounts for | Ready |  | 0% | backlog/item_703_report_a_request_criterion_no_linked_document_accounts_for.md |
 
 ## Tasks
 
@@ -1508,6 +1513,7 @@
 | [task_334_stop_reading_a_mentioned_reference_as_a_lineage_link](tasks/task_334_stop_reading_a_mentioned_reference_as_a_lineage_link.md) | Stop reading a mentioned reference as a lineage link | Done |  | 100% | tasks/task_334_stop_reading_a_mentioned_reference_as_a_lineage_link.md |
 | [task_335_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced](tasks/task_335_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced.md) | Record acceptance proof for one criterion at the moment it is produced | Done |  | 100% | tasks/task_335_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced.md |
 | [task_336_report_workflow_docs_whose_context_points_at_code_that_is_gone](tasks/task_336_report_workflow_docs_whose_context_points_at_code_that_is_gone.md) | Report workflow docs whose context points at code that is gone | Done |  | 100% | tasks/task_336_report_workflow_docs_whose_context_points_at_code_that_is_gone.md |
+| [task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle](tasks/task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle.md) | Deliver the three trust gaps from the 2.21.7 cycle | Ready |  | 0% | tasks/task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle.md |
 
 ## Runbooks
 

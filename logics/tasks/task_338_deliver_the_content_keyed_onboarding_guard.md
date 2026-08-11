@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-11 10:32:55
+> Indicators reviewed: 2026-08-11 10:37:48
 
 # AI Context
 - Summary: Add the nonce-independent signature beside the builder first, then switch the guard to it; everything else depends on the signature being stable across builds.
@@ -37,13 +37,13 @@
 - [x] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
 
 # AC Traceability
-- request-AC1 -> `item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version`. Proof deferred to slice closeout.
-- request-AC2 -> `item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version`. Proof deferred to slice closeout.
-- request-AC3 -> `item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version`. Proof deferred to slice closeout.
-- request-AC4 -> `item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version`. Proof deferred to slice closeout.
-- request-AC5 -> `item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version`. Proof deferred to slice closeout.
-- request-AC6 -> `item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version`. Proof deferred to slice closeout.
-- request-AC7 -> `item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version`. Proof deferred to slice closeout.
+- request-AC1 -> This task. Proof: date: 2026-08-11 | command: `npx vitest run tests/logicsOnboardingGuard.test.ts -t 'stays closed however many versions ship'` | result: passed | four version bumps over unchanged content reopen nothing after the first show Source: `45dbb326`
+- request-AC2 -> This task. Proof: date: 2026-08-11 | command: `npx vitest run -t 'reopens once when the content actually changes'` | result: passed | a changed signature reopens exactly once, then stays closed Source: `45dbb326`
+- request-AC3 -> This task. Proof: date: 2026-08-11 | command: `npx vitest run -t 'identical across builds, because it never sees the nonce'` | result: passed | five successive builds yield one signature; the nonce and CSP are never hashed Source: `45dbb326`
+- request-AC4 -> This task. Proof: date: 2026-08-11 | command: `grep -n onboardingContentParts clients/vscode/src/logicsOnboardingHtml.ts` | result: 2 call sites, 1 definition | onboardingContentParts is the one source read by both buildOnboardingHtml and onboardingContentSignature, so a new section changes both Source: `45dbb326`
+- request-AC5 -> This task. Proof: date: 2026-08-11 | command: `npx vitest run -t 'stays scoped per workspace root'` | result: passed | workspace-b shows the page after workspace-a has seen it; each root keyed separately Source: `45dbb326`
+- request-AC6 -> This task. Proof: date: 2026-08-11 | command: `git diff --stat clients/vscode/src/logicsViewProviderSupport.ts` | result: only maybeshowonboarding and its import changed | openOnboardingPanel is untouched; the Tools and Insights buttons call it directly and never consult the stored signature Source: `45dbb326`
+- request-AC7 -> This task. Proof: date: 2026-08-11 | command: `npx vitest run` | result: 81 files, 855 passed | six tests in tests/logicsOnboardingGuard.test.ts; the two carrying the complaint confirmed failing against the old version-keyed logic before the switch Source: `45dbb326`
 
 # Validation
 - (no validation recorded yet)

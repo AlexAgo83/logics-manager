@@ -75,6 +75,10 @@ AC_ITEM_PROOF_FORMAT = "- request-{ac_id} -> This backlog slice. Proof: <how it 
 #: would let the gate pass on a placeholder, which is the one thing worse than a gate that
 #: is hard to satisfy.
 AC_PROOF_PLACEHOLDER = "TODO -- state how this was verified"
+#: What `flow scaffold request-chain` writes into a task's AC Traceability before any
+#: work exists. Generated, not authored, so composing recorded proof over it destroys
+#: nothing -- which is why it is named here rather than matched by shape at the call site.
+AC_DEFERRED_PLACEHOLDER = "Proof deferred to slice closeout."
 
 
 def ac_proof_expectation(ac_id: str, *, target: str = "task") -> str:

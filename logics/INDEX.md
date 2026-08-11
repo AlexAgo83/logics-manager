@@ -471,7 +471,7 @@
 | [req_338_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced](request/req_338_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced.md) | Record acceptance proof for one criterion at the moment it is produced | Done |  |  | request/req_338_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced.md |
 | [req_339_report_workflow_docs_whose_context_points_at_code_that_is_gone](request/req_339_report_workflow_docs_whose_context_points_at_code_that_is_gone.md) | Report workflow docs whose context points at code that is gone | Done |  |  | request/req_339_report_workflow_docs_whose_context_points_at_code_that_is_gone.md |
 | [req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed](request/req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed.md) | Close the three trust gaps the 2.21.7 cycle exposed | Draft |  |  | request/req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed.md |
-| [req_341_stop_reopening_getting_started_when_its_content_has_not_changed](request/req_341_stop_reopening_getting_started_when_its_content_has_not_changed.md) | Stop reopening Getting Started when its content has not changed | Draft |  |  | request/req_341_stop_reopening_getting_started_when_its_content_has_not_changed.md |
+| [req_341_stop_reopening_getting_started_when_its_content_has_not_changed](request/req_341_stop_reopening_getting_started_when_its_content_has_not_changed.md) | Stop reopening Getting Started when its content has not changed | Done |  |  | request/req_341_stop_reopening_getting_started_when_its_content_has_not_changed.md |
 
 ## Backlog
 
@@ -1180,7 +1180,7 @@
 | [item_701_report_a_runtime_that_disagrees_with_the_repository_it_audits](backlog/item_701_report_a_runtime_that_disagrees_with_the_repository_it_audits.md) | Report a runtime that disagrees with the repository it audits | Ready |  | 0% | backlog/item_701_report_a_runtime_that_disagrees_with_the_repository_it_audits.md |
 | [item_702_make_every_guard_reachable_before_the_push](backlog/item_702_make_every_guard_reachable_before_the_push.md) | Make every guard reachable before the push | Ready |  | 0% | backlog/item_702_make_every_guard_reachable_before_the_push.md |
 | [item_703_report_a_request_criterion_no_linked_document_accounts_for](backlog/item_703_report_a_request_criterion_no_linked_document_accounts_for.md) | Report a request criterion no linked document accounts for | Ready |  | 0% | backlog/item_703_report_a_request_criterion_no_linked_document_accounts_for.md |
-| [item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version](backlog/item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version.md) | Key the onboarding guard on page content instead of extension version | Ready |  | 0% | backlog/item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version.md |
+| [item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version](backlog/item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version.md) | Key the onboarding guard on page content instead of extension version | Done |  | 100% | backlog/item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version.md |
 
 ## Tasks
 
@@ -1517,7 +1517,7 @@
 | [task_335_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced](tasks/task_335_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced.md) | Record acceptance proof for one criterion at the moment it is produced | Done |  | 100% | tasks/task_335_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced.md |
 | [task_336_report_workflow_docs_whose_context_points_at_code_that_is_gone](tasks/task_336_report_workflow_docs_whose_context_points_at_code_that_is_gone.md) | Report workflow docs whose context points at code that is gone | Done |  | 100% | tasks/task_336_report_workflow_docs_whose_context_points_at_code_that_is_gone.md |
 | [task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle](tasks/task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle.md) | Deliver the three trust gaps from the 2.21.7 cycle | Ready |  | 0% | tasks/task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle.md |
-| [task_338_deliver_the_content_keyed_onboarding_guard](tasks/task_338_deliver_the_content_keyed_onboarding_guard.md) | Deliver the content-keyed onboarding guard | Ready |  | 0% | tasks/task_338_deliver_the_content_keyed_onboarding_guard.md |
+| [task_338_deliver_the_content_keyed_onboarding_guard](tasks/task_338_deliver_the_content_keyed_onboarding_guard.md) | Deliver the content-keyed onboarding guard | Done |  | 100% | tasks/task_338_deliver_the_content_keyed_onboarding_guard.md |
 
 ## Runbooks
 

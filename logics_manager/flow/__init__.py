@@ -11,7 +11,7 @@ from ..audit import audit_payload
 from ..cli_output import print_payload
 from ..config import ConfigError, find_repo_root
 from ..doc_parsing import extract_refs, progress_value, section_lines
-from ..flow_evidence import EVIDENCE_SECTION
+from ..flow_evidence import AC_DEFERRED_PLACEHOLDER, EVIDENCE_SECTION
 from ..flow_evidence import (
     ac_proof_expectation as _ac_proof_expectation,
     composed_ac_proof as _composed_ac_proof,
@@ -668,6 +668,19 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
         # Recorded proof wins over the shared --proof string: it was written when the
         # thing was true, and it is about this criterion rather than about all of them.
         # A criterion with no record behaves exactly as it did before.
+        # A scaffolded task already carries a generated `deferred to slice closeout` line
+        # per criterion, and skipping anything that exists meant recorded proof never
+        # composed into a task that had been scaffolded -- the common case. Generated
+        # wording is replaced; anything authored is still left strictly alone.
+        composable = {
+            ac_id: _ac_traceability_entry(ac_id, "This task", text, composed, proof_source)
+            for ac_id, text in ac_entries
+            if (composed := _composed_ac_proof(task_before, ac_id))
+            and _line_is_generated_placeholder(task_before, ac_id)
+        }
+        if composable and not dry_run:
+            task_before = _replace_ac_traceability_lines(task_path, composable)
+            changed_paths.add(task_path.relative_to(repo_root))
         task_missing = [
             _ac_traceability_entry(ac_id, "This task", text, _composed_ac_proof(task_before, ac_id) or proof, proof_source)
             for ac_id, text in ac_entries
@@ -676,7 +689,7 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
         skipped.extend(
             f"{task_path.relative_to(repo_root).as_posix()}: {ac_id} already has a traceability line"
             for ac_id, _text in ac_entries
-            if _has_ac_traceability_line(task_before, ac_id)
+            if _has_ac_traceability_line(task_before, ac_id) and ac_id not in composable
         )
         if _append_doc_section_bullets_changed(task_path, "AC Traceability", task_missing, dry_run=dry_run):
             changed_paths.add(task_path.relative_to(repo_root))
@@ -1976,6 +1989,25 @@ def cmd_repair_gates(args: argparse.Namespace) -> dict[str, object]:
     payload = _finalize_repair_verify(repo_root, payload, verify_source, snapshot)
     _print_repair_payload(payload, args.format)
     return payload
+
+
+def _line_is_generated_placeholder(text: str, ac_id: str) -> bool:
+    """True when `ac_id`'s traceability line is still the scaffold's generated wording."""
+    pattern = re.compile(rf"^\s*-\s*request-{re.escape(ac_id)}\b.*$", re.IGNORECASE | re.MULTILINE)
+    match = pattern.search(text)
+    return bool(match) and AC_DEFERRED_PLACEHOLDER in match.group(0)
+
+
+def _replace_ac_traceability_lines(path: Path, entries: dict[str, str]) -> str:
+    lines = path.read_text(encoding="utf-8").splitlines()
+    for index, line in enumerate(lines):
+        for ac_id, rendered in entries.items():
+            if re.match(rf"^\s*-\s*request-{re.escape(ac_id)}\b", line, flags=re.IGNORECASE):
+                lines[index] = f"- {rendered}"
+                break
+    text = "\n".join(lines).rstrip() + "\n"
+    path.write_text(text, encoding="utf-8")
+    return text
 
 
 def evidence_add_payload(repo_root: Path, source: str, *, ac_id: str, summary: str, command: str | None, result: str | None, dry_run: bool) -> dict[str, object]:

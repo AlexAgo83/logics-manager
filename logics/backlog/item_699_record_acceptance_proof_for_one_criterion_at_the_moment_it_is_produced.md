@@ -1,10 +1,10 @@
 ## item_699_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced - Record acceptance proof for one criterion at the moment it is produced
 > From version: 2.21.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -64,6 +64,7 @@ Concretely, from a release cycle driven through this workflow: a latency figure 
 - Hybrid rationale: Derived from request `req_338_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_338_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced.md`.
 - Generated locally by logics-manager.
+- Task `task_335_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced` was finished via `logics-manager flow finish task` on 2026-08-11.
 
 # Tasks
 - `task_335_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced`

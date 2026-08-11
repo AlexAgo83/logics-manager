@@ -1,7 +1,7 @@
 ## req_338_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced - Record acceptance proof for one criterion at the moment it is produced
 > From version: 2.21.6
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 92%
 > Confidence: 88%
 > Complexity: Medium

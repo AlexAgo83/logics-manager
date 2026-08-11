@@ -22,8 +22,9 @@ from logics_manager.lint import lint_payload, render_lint
 from logics_manager.doctor import doctor_payload, render_doctor
 from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
+from logics_manager.flow import evidence_add_payload, repair_ac_traceability_payload
 from logics_manager.flow import PlannedDoc, closeout_payload, validate_closeout_payload
-from logics_manager.flow_evidence import has_ac_proof, has_validation_evidence
+from logics_manager.flow_evidence import composed_ac_proof, evidence_for_ac, has_ac_proof, has_validation_evidence
 from logics_manager.insights import followups_payload, health_payload, product_consistency_payload, status_payload
 from logics_manager.sync import search_logics_docs_payload
 from logics_manager import viewer as viewer_module
@@ -655,3 +656,82 @@ def test_audit_stays_silent_when_every_code_anchor_resolves(tmp_path: Path) -> N
     report = render_audit(repo_root, skip_ac_traceability=True, skip_gates=True)
 
     assert "code_anchor" not in report
+
+
+def _indicator(text: str, key: str) -> str | None:
+    return next((line for line in text.splitlines() if line.startswith(f"> {key}:")), None)
+
+
+def _proof_chain(repo_root: Path) -> Path:
+    """A request/backlog/task chain ready to have proof recorded against it."""
+    _chain(repo_root, "capture", status="Ready", ac_count=2, proof=False)
+    return repo_root / "logics" / "tasks" / "task_001_capture.md"
+
+
+def test_evidence_add_records_proof_for_one_criterion_without_closing_anything(tmp_path: Path) -> None:
+    """req_338 AC1/AC2: capture at the moment the evidence is produced."""
+    repo_root = tmp_path / "logics-repo"
+    task_path = _proof_chain(repo_root)
+    before = task_path.read_text(encoding="utf-8")
+
+    payload = evidence_add_payload(
+        repo_root, "task_001_capture", ac_id="ac1", summary="latency measured at 0.57s",
+        command="python3 -m timeit run", result="Passed", dry_run=False,
+    )
+
+    text = task_path.read_text(encoding="utf-8")
+    assert payload["ac"] == "AC1"
+    assert payload["record_count"] == 1
+    # AC2: the command and its result sit beside the summary, so a reader can tell
+    # verification from assertion.
+    assert "command: `python3 -m timeit run`" in text
+    assert "result: passed" in text
+    assert "latency measured at 0.57s" in text
+    # AC1: nothing else moved -- no status, no progress, and no other criterion.
+    assert _indicator(before, "Status") == _indicator(text, "Status")
+    assert _indicator(before, "Progress") == _indicator(text, "Progress")
+    assert composed_ac_proof(text, "AC2") is None
+
+
+def test_evidence_records_accumulate_rather_than_replace(tmp_path: Path) -> None:
+    """req_338 AC3: a re-run after a fix is the common case, and both results matter."""
+    repo_root = tmp_path / "logics-repo"
+    task_path = _proof_chain(repo_root)
+
+    evidence_add_payload(repo_root, "task_001_capture", ac_id="AC1", summary="first run, process exited early", command="pytest -k one", result="failed", dry_run=False)
+    second = evidence_add_payload(repo_root, "task_001_capture", ac_id="AC1", summary="re-run after the fix", command="pytest -k one", result="passed", dry_run=False)
+
+    text = task_path.read_text(encoding="utf-8")
+    assert second["record_count"] == 2
+    assert len(evidence_for_ac(text, "AC1")) == 2
+    composed = composed_ac_proof(text, "AC1")
+    assert "process exited early" in composed and "re-run after the fix" in composed
+    assert composed.index("exited early") < composed.index("re-run"), "records keep their order"
+
+
+def test_recorded_proof_composes_the_traceability_entry_at_closeout(tmp_path: Path) -> None:
+    """req_338 AC4/AC5: records compose; criteria without one behave exactly as today."""
+    repo_root = tmp_path / "logics-repo"
+    task_path = _proof_chain(repo_root)
+    evidence_add_payload(repo_root, "task_001_capture", ac_id="AC1", summary="menu covers the registry", command="pytest -k menu", result="passed", dry_run=False)
+
+    # The whole-request command is unchanged and still available (AC5).
+    repair_ac_traceability_payload(repo_root, "req_001_capture", dry_run=False, proof="shared fallback text", proof_source="abc1234")
+
+    lines = [line for line in task_path.read_text(encoding="utf-8").splitlines() if line.startswith("- request-AC")]
+    ac1, ac2 = sorted(lines)
+    # AC1 got its own record, not the shared sentence.
+    assert "menu covers the registry" in ac1 and "shared fallback text" not in ac1
+    assert "command: `pytest -k menu`" in ac1
+    # AC2 had no record, so it behaves exactly as it did before this change.
+    assert "shared fallback text" in ac2
+
+
+def test_evidence_add_rejects_a_criterion_id_it_cannot_address(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    _proof_chain(repo_root)
+
+    with pytest.raises(SystemExit):
+        evidence_add_payload(repo_root, "task_001_capture", ac_id="the first one", summary="x", command=None, result=None, dry_run=False)
+    with pytest.raises(SystemExit):
+        evidence_add_payload(repo_root, "task_001_capture", ac_id="AC1", summary="   ", command=None, result=None, dry_run=False)

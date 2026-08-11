@@ -136,3 +136,58 @@ def structured_validation_line(command: str, result: str, note: str | None) -> s
     if note and note.strip():
         parts.append(f"note: {note.strip()}")
     return " | ".join(parts)
+
+
+# --- Per-criterion evidence capture (req_338) -------------------------------------
+#
+# Proof used to be writable only for a whole request at once, with one shared string
+# landing on every criterion still missing an entry. That shape is right for filling
+# structural gaps and wrong for evidence: one sentence cannot be true of AC1 and AC5
+# at once, so the text that satisfies the check is necessarily vaguer than the check
+# intends -- and it is written at closeout, hours after the thing it describes was
+# true. A latency figure, a transport checked on three hosts, an icon captured from a
+# real session: each was re-derived from memory, and one of them was wrong because the
+# process being measured had exited early. Proof written from memory cannot catch its
+# own invalidity.
+#
+# Records are append-only bullets in the task's own `# Evidence` section: a re-run
+# after a fix is the common case, and the second result is not always the interesting
+# one.
+
+EVIDENCE_SECTION = "Evidence"
+_EVIDENCE_LINE = re.compile(r"^-\s*(AC\d+)\s*\|\s*(.+)$", re.IGNORECASE)
+
+
+def evidence_line(ac_id: str, summary: str, command: str | None, result: str | None) -> str:
+    """One append-only record, addressed to one acceptance criterion."""
+    parts = [ac_id.upper(), f"date: {date.today().isoformat()}"]
+    if command and command.strip():
+        # What was actually run, not only a claim about it -- this is what separates a
+        # record from a faster way to write the same sentence.
+        parts.append(f"command: `{command.strip()}`")
+    if result and result.strip():
+        parts.append(f"result: {result.strip().lower()}")
+    parts.append(summary.strip())
+    return "- " + " | ".join(parts)
+
+
+def evidence_for_ac(text: str, ac_id: str) -> list[str]:
+    """Every record captured for `ac_id`, in the order they were captured."""
+    wanted = ac_id.strip().upper()
+    records: list[str] = []
+    for line in section_lines(text.splitlines(), EVIDENCE_SECTION):
+        match = _EVIDENCE_LINE.match(line.strip())
+        if match and match.group(1).upper() == wanted:
+            records.append(match.group(2).strip())
+    return records
+
+
+def composed_ac_proof(text: str, ac_id: str) -> str | None:
+    """Proof for `ac_id` composed from its records, or None if none were captured."""
+    records = evidence_for_ac(text, ac_id)
+    if not records:
+        return None
+    if len(records) == 1:
+        return records[0]
+    # Both kept, in order: a re-run after a fix is the common case.
+    return " Then: ".join(records)

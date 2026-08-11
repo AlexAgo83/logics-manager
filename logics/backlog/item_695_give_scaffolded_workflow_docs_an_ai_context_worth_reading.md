@@ -8,6 +8,7 @@
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-11 05:47:47
 
 # AI Context
 - Summary: Give scaffolded workflow docs an AI Context worth reading
@@ -41,6 +42,7 @@ This repo's own well-groomed docs show the target. `req_332` reads: *Summary: Fi
 - request-AC3 -> This backlog slice. Proof: AC3: An ungroomed `# AI Context` is reported by validation as a non-blocking finding naming the document and the line, with a repair command.
 - request-AC4 -> This backlog slice. Proof: AC4: The finding never blocks `lint`, `audit`, or a closeout gate, and existing documents are not modified by this change.
 - request-AC5 -> This backlog slice. Proof: AC5: Tests cover a freshly scaffolded doc of each kind (request, backlog, task), a groomed doc that must produce no finding, and the ungroomed finding's severity and exit-code neutrality.
+- request-AC6 -> This backlog slice. Proof: Covered by `task_331_give_scaffolded_workflow_docs_an_ai_context_worth_reading`, whose AC6 record cites the four tests and the full-suite run. Source: `c8af0b4c`
 
 # Decision framing
 - Product framing: Not needed

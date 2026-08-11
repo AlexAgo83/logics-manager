@@ -108,9 +108,6 @@ function createViewerDom(options: {
     <div class="viewer-nav-menu" data-viewer-nav="workshop">
       <button id="viewer-workshop" type="button" hidden>Workshop</button>
       <div class="viewer-nav-menu__panel" role="menu">
-        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="workshop:terminals">Terminals</button>
-        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="workshop:commands">Commands</button>
-        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="workshop:explorer">Explorer</button>
         <div class="viewer-nav-menu__separator" data-project-tools-separator role="separator" hidden></div>
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="project:translations" hidden>Translations</button>
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="project:theme" hidden>Theme</button>
@@ -1806,8 +1803,57 @@ describe("local viewer browser host", () => {
     const dom = new JSDOM(html);
 
     expect(dom.window.document.querySelector('[data-viewer-nav="cdx"] .viewer-nav-menu__panel [data-viewer-nav-target="cdx:status"]')).not.toBeNull();
-    expect(dom.window.document.querySelector('[data-viewer-nav="workshop"] .viewer-nav-menu__panel [data-viewer-nav-target="workshop:terminals"]')).not.toBeNull();
+    // Workshop entries are generated from the registry, so the static markup holds
+    // only the anchor they are inserted before.
+    expect(dom.window.document.querySelector('[data-viewer-nav="workshop"] .viewer-nav-menu__panel [data-project-tools-separator]')).not.toBeNull();
     expect(dom.window.document.querySelector(".viewer-document__header #viewer-document-nav")).not.toBeNull();
+  });
+
+  // item_697: the Workshop menu was hand-written markup that drifted from the
+  // `workshopTabs` registry — Runbooks shipped with no entry and was reachable only
+  // by opening another section first and finding it in the tab strip.
+  it("derives every Workshop menu entry from the workshopTabs registry", async () => {
+    const constants = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/constants.js"), "utf8");
+    const registry = [...(/export const workshopTabs = \[([\s\S]*?)\n  \];/.exec(constants)![1]).matchAll(/id: "([^"]+)"/g)].map((match) => match[1]);
+    expect(registry).toContain("runbooks");
+
+    const { dom } = createViewerDom();
+    dom.window.acquireVsCodeApi().postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const panel = dom.window.document.querySelector('[data-viewer-nav="workshop"] .viewer-nav-menu__panel')!;
+    const entries = Array.from(panel.querySelectorAll('[data-viewer-nav-target^="workshop:"]'))
+      .map((item) => item.getAttribute("data-viewer-nav-target")!.split(":")[1]);
+    // Same sections, same order, and no entry the registry does not declare.
+    expect(entries).toEqual(registry);
+    // The static markup must not carry them, or the drift is simply reintroduced.
+    expect(fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8")).not.toContain('data-viewer-nav-target="workshop:');
+    // AC4: the project tools stay below the separator, in their own markup.
+    const separator = panel.querySelector("[data-project-tools-separator]")!;
+    entries.forEach((_, index) => {
+      expect(panel.children[index].getAttribute("data-viewer-nav-target")).toBe(`workshop:${entries[index]}`);
+    });
+    expect(Array.from(panel.children).indexOf(separator)).toBe(entries.length);
+    // AC4: generated entries keep the menu semantics the hand-written ones had.
+    panel.querySelectorAll('[data-viewer-nav-target^="workshop:"]').forEach((item) => {
+      expect(item.getAttribute("role")).toBe("menuitem");
+    });
+  });
+
+  it("opens the Runbooks panel from the Workshop menu in one gesture", async () => {
+    const { dom } = createViewerDom();
+    dom.window.acquireVsCodeApi().postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const runbooks = dom.window.document.querySelector('[data-viewer-nav-target="workshop:runbooks"]') as HTMLButtonElement | null;
+    expect(runbooks).not.toBeNull();
+    runbooks!.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(dom.window.document.querySelector('[data-viewer-workshop-tab="runbooks"]')?.getAttribute("aria-selected")).toBe("true");
+    // Choosing an entry collapses the menu, as it did when the markup was static.
+    expect(dom.window.document.querySelector('[data-viewer-nav="workshop"]')?.classList.contains("is-open")).toBe(false);
   });
 
   it("keeps the Workshop commands panel scrollable inside the document viewport", () => {

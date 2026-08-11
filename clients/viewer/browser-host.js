@@ -2758,6 +2758,11 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       </div>
     `;
   }
+  function renderWorkshopMenuItems() {
+    return workshopTabs.map(
+      (tab) => `<button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="workshop:${escapeHtml(tab.id)}" title="${escapeHtml(tab.title)}">${escapeHtml(tab.label)}</button>`
+    ).join("");
+  }
   function renderWorkshopTabs(activeTab) {
     const buttons = workshopTabs.map((tab) => {
       const isActive = tab.id === activeTab;
@@ -10902,6 +10907,11 @@ ${line}` : line;
           setMeta(`Copy failed \u2014 long-press to select: ${share}`);
         }
       });
+      const workshopSlot = document.querySelector('[data-viewer-nav="workshop"] [data-project-tools-separator]');
+      if (workshopSlot instanceof HTMLElement && workshopSlot.dataset.menuBuilt !== "1") {
+        workshopSlot.dataset.menuBuilt = "1";
+        workshopSlot.insertAdjacentHTML("beforebegin", renderWorkshopMenuItems());
+      }
       ["viewer-workshop", "viewer-ci", "viewer-cdx"].forEach((id) => {
         const button = document.getElementById(id);
         if (!(button instanceof HTMLElement) || button.dataset.navBound === "1") return;

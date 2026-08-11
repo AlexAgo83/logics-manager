@@ -53,9 +53,8 @@
       <div class="viewer-nav-menu" data-viewer-nav="workshop">
         <button class="btn" id="viewer-workshop" type="button" title="Show Workshop and project tools" aria-haspopup="menu" hidden>Workshop</button>
         <div class="viewer-nav-menu__panel" role="menu" aria-label="Workshop sections">
-          <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="workshop:terminals">Terminals</button>
-          <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="workshop:commands">Commands</button>
-          <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="workshop:explorer">Explorer</button>
+          <!-- Workshop entries are generated from the `workshopTabs` registry at init
+               (renderWorkshopMenu); a section added there appears here with no edit. -->
           <div class="viewer-nav-menu__separator" data-project-tools-separator role="separator" hidden></div>
           <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="project:translations" hidden>Translations</button>
           <button class="viewer-nav-menu__item" type="button" role="menuitem" data-viewer-nav-target="project:theme" hidden>Theme</button>

@@ -1,13 +1,14 @@
 ## task_335_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced - Record acceptance proof for one criterion at the moment it is produced
 > From version: 2.21.6
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-11 05:35:36
 
 # AI Context
 - Summary: Implement record acceptance proof for one criterion at the moment it is produced.
@@ -16,10 +17,10 @@
 - Skip when: The work is still at the request or backlog shaping stage.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
-- [ ] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
+- [x] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
 
 # Backlog
 - `item_699_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced`
@@ -38,9 +39,14 @@
 
 # Validation
 - (no validation recorded yet)
+- Finish workflow executed on 2026-08-11.
+- Linked backlog/request close verification passed.
 
 # Report
 - Not started.
+- Finished on 2026-08-11.
+- Linked backlog item(s): `item_699_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced`
+- Related request(s): `req_338_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced`
 
 # Links
 - Request: `req_338_record_acceptance_proof_for_one_criterion_at_the_moment_it_is_produced`
@@ -54,3 +60,11 @@
 - AC4 | date: 2026-08-11 | command: `pytest -k composes_the_traceability_entry` | result: passed | recorded proof composes the entry; a criterion with no record still takes the shared --proof text
 - AC5 | date: 2026-08-11 | command: `pytest -k composes_the_traceability_entry` | result: passed | flow validate --proof and flow repair ac-traceability --proof unchanged, exercised in the same test
 - AC6 | date: 2026-08-11 | command: `python3 -m pytest tests/python/ -q` | result: 1323 passed | five tests: capture, accumulation, composition, no-record fallback, rejected input
+
+# AC Traceability
+- request-AC1 -> This task. Proof: date: 2026-08-11 | command: `python3 -m logics_manager flow evidence add --ac AC1` | result: passed | flow evidence add wrote this very record without moving Status or Progress Source: `38671703`
+- request-AC2 -> This task. Proof: date: 2026-08-11 | command: `pytest -k evidence_add_records_proof` | result: passed | each record carries the command and its result beside the summary Source: `38671703`
+- request-AC3 -> This task. Proof: date: 2026-08-11 | command: `pytest -k accumulate` | result: passed | two captures for one criterion keep both, in order Source: `38671703`
+- request-AC4 -> This task. Proof: date: 2026-08-11 | command: `pytest -k composes_the_traceability_entry` | result: passed | recorded proof composes the entry; a criterion with no record still takes the shared --proof text Source: `38671703`
+- request-AC5 -> This task. Proof: date: 2026-08-11 | command: `pytest -k composes_the_traceability_entry` | result: passed | flow validate --proof and flow repair ac-traceability --proof unchanged, exercised in the same test Source: `38671703`
+- request-AC6 -> This task. Proof: date: 2026-08-11 | command: `python3 -m pytest tests/python/ -q` | result: 1323 passed | five tests: capture, accumulation, composition, no-record fallback, rejected input Source: `38671703`

@@ -1,10 +1,10 @@
 ## item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version - Key the onboarding guard on page content instead of extension version
 > From version: 2.21.7
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: VS Code ergonomics
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -57,3 +57,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_338_deliver_the_content_keyed_onboarding_guard` was finished via `logics-manager flow finish task` on 2026-08-11.

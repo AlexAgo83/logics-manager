@@ -1,7 +1,7 @@
 ## req_341_stop_reopening_getting_started_when_its_content_has_not_changed - Stop reopening Getting Started when its content has not changed
 > From version: 2.21.7
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Low

@@ -460,7 +460,7 @@
 | [req_329_polish_viewer_health_actions_and_document_operational_views](request/req_329_polish_viewer_health_actions_and_document_operational_views.md) | Polish viewer health actions and document operational views | Done |  |  | request/req_329_polish_viewer_health_actions_and_document_operational_views.md |
 | [req_330_make_operational_runbooks_a_discoverable_logics_companion_document](request/req_330_make_operational_runbooks_a_discoverable_logics_companion_document.md) | Make operational runbooks a discoverable Logics companion document | Done |  |  | request/req_330_make_operational_runbooks_a_discoverable_logics_companion_document.md |
 | [req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap](request/req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap.md) | Use one resolved Logics Manager runtime and silently refresh existing project bootstrap | Done |  |  | request/req_331_use_one_resolved_logics_manager_runtime_and_silently_refresh_existing_project_bootstrap.md |
-| [req_332_stop_the_webview_activity_view_from_resetting_on_every_refresh](request/req_332_stop_the_webview_activity_view_from_resetting_on_every_refresh.md) | Stop the webview Activity view from resetting on every refresh | Draft |  |  | request/req_332_stop_the_webview_activity_view_from_resetting_on_every_refresh.md |
+| [req_332_stop_the_webview_activity_view_from_resetting_on_every_refresh](request/req_332_stop_the_webview_activity_view_from_resetting_on_every_refresh.md) | Stop the webview Activity view from resetting on every refresh | Done |  |  | request/req_332_stop_the_webview_activity_view_from_resetting_on_every_refresh.md |
 
 ## Backlog
 
@@ -1158,7 +1158,7 @@
 | [item_690_resolve_and_enforce_one_compatible_installed_logics_manager_runtime](backlog/item_690_resolve_and_enforce_one_compatible_installed_logics_manager_runtime.md) | Resolve and enforce one compatible installed Logics Manager runtime | Done |  | 100% | backlog/item_690_resolve_and_enforce_one_compatible_installed_logics_manager_runtime.md |
 | [item_691_make_existing_project_bootstrap_refresh_silent_and_managed_only](backlog/item_691_make_existing_project_bootstrap_refresh_silent_and_managed_only.md) | Make existing-project bootstrap refresh silent and managed-only | Done |  | 100% | backlog/item_691_make_existing_project_bootstrap_refresh_silent_and_managed_only.md |
 | [item_692_remove_global_assistant_publication_and_prompt_cascades_from_normal_vs_code_startup](backlog/item_692_remove_global_assistant_publication_and_prompt_cascades_from_normal_vs_code_startup.md) | Remove global assistant publication and prompt cascades from normal VS Code startup | Done |  | 100% | backlog/item_692_remove_global_assistant_publication_and_prompt_cascades_from_normal_vs_code_startup.md |
-| [item_693_stop_the_webview_activity_view_from_resetting_on_every_refresh](backlog/item_693_stop_the_webview_activity_view_from_resetting_on_every_refresh.md) | Stop the webview Activity view from resetting on every refresh | In progress |  | 10% | backlog/item_693_stop_the_webview_activity_view_from_resetting_on_every_refresh.md |
+| [item_693_stop_the_webview_activity_view_from_resetting_on_every_refresh](backlog/item_693_stop_the_webview_activity_view_from_resetting_on_every_refresh.md) | Stop the webview Activity view from resetting on every refresh | Done |  | 100% | backlog/item_693_stop_the_webview_activity_view_from_resetting_on_every_refresh.md |
 
 ## Tasks
 
@@ -1486,7 +1486,7 @@
 | [task_326_deliver_health_action_polish_and_operational_viewer_documentation](tasks/task_326_deliver_health_action_polish_and_operational_viewer_documentation.md) | Deliver Health action polish and operational viewer documentation | Done | codex | 100% | tasks/task_326_deliver_health_action_polish_and_operational_viewer_documentation.md |
 | [task_327_orchestrate_the_discoverable_runbook_library_delivery](tasks/task_327_orchestrate_the_discoverable_runbook_library_delivery.md) | Orchestrate the discoverable runbook library delivery | Done | claude | 100% | tasks/task_327_orchestrate_the_discoverable_runbook_library_delivery.md |
 | [task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification](tasks/task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification.md) | Deliver the single-runtime and silent-bootstrap simplification | Done | claude | 100% | tasks/task_328_deliver_the_single_runtime_and_silent_bootstrap_simplification.md |
-| [task_329_stop_the_webview_activity_view_from_resetting_on_every_refresh](tasks/task_329_stop_the_webview_activity_view_from_resetting_on_every_refresh.md) | Stop the webview Activity view from resetting on every refresh | In progress | claude | 100% | tasks/task_329_stop_the_webview_activity_view_from_resetting_on_every_refresh.md |
+| [task_329_stop_the_webview_activity_view_from_resetting_on_every_refresh](tasks/task_329_stop_the_webview_activity_view_from_resetting_on_every_refresh.md) | Stop the webview Activity view from resetting on every refresh | Done | claude | 100% | tasks/task_329_stop_the_webview_activity_view_from_resetting_on_every_refresh.md |
 
 ## Runbooks
 

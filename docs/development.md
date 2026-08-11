@@ -47,6 +47,7 @@ Windows notes:
 - Logics workflow audit + docs lint: `npm run audit:logics`
 - Strict Logics governance audit: `npm run audit:logics:strict`
 - Source line budget guardrail: `npm run check:line-budget`
+- Over-long function guardrail: `npm run check:function-length`
 - Local viewer browser-host bundle check: `npm run check:viewer-host`
 - Generate the packaged viewer assets: `npm run build:assets`
 - README metadata drift check: `npm run docs:check`
@@ -64,6 +65,18 @@ Windows notes:
 `logics-manager audit --format json` and `logics-manager lint --format json` expose `issue_count`, `warning_count`, `strict_count`, `finding_count`, `can_continue`, and `release_ready`. Agents should treat `issue_count > 0` or `can_continue: false` as blocking active work. Treat `release_ready: false` as a signal that cleanup remains before release-grade validation, not as a standard-audit process failure when there are warnings only.
 
 `npm run ci:check` mirrors the blocking repository CI contract, including Logics strict-status lint, request auto-close sync verification, workflow audit, README badge drift detection, Python tests, CLI smoke checks, TypeScript validation, extension tests, local viewer smoke, and VSIX packaging.
+
+`npm run check:function-length` fails when a function grows past its entry in
+`scripts/long_functions_baseline.json`, the ledger of grandfathered over-long functions.
+It ran only in CI until req_340, so growth was discovered after the push; it is now part
+of `npm run lint`, which CI runs too. Split the function, or re-freeze with
+`python3 scripts/check_function_length.py --update` when a split legitimately moved code
+around. The ledger should only shrink.
+
+This repository sets no git hooks. `core.hooksPath` was configured for a pre-commit hook
+guarding the committed `viewer_assets` mirror; the mirror became generated and the hook
+was deleted, so `npm install` now clears that one stale setting and leaves any hooks path
+you set yourself alone.
 
 `npm run check:line-budget` fails when a real source file in `logics_manager`, `clients`, or `scripts` exceeds 1000 lines unless the file is explicitly allowlisted in `scripts/check-source-line-budget.mjs`. The allowlist is temporary project debt for the oversized-source modularization program. When a slice splits a listed file into smaller modules, remove that file from the allowlist in the same commit so CI prevents it from growing back.
 

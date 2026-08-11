@@ -16,6 +16,13 @@ export function matchesFilterState(item, viewerFilterState) {
   if (!item) {
     return false;
   }
+  // Runbooks live in the Workshop tab, not the main board (req_330/item_689) -- the board
+  // has no column for them, and there's no `type=runbook` option to opt back in. Counting
+  // them here would announce a total the board can never render. One guard, not three
+  // disagreeing lists (server DOC_FAMILIES, this filter, mainApp's stage order).
+  if (item.stage === "runbook") {
+    return false;
+  }
   const status = statusValue(item);
   if (viewerFilterState.focus === "active" && isClosed(item)) {
     return false;

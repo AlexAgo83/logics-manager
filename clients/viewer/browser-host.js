@@ -7876,6 +7876,9 @@ ${line}` : line;
     if (!item) {
       return false;
     }
+    if (item.stage === "runbook") {
+      return false;
+    }
     const status = statusValue(item);
     if (viewerFilterState.focus === "active" && isClosed(item)) {
       return false;

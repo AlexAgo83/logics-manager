@@ -585,6 +585,30 @@ Workflow target arguments accept these forms:
 - a repo-relative Markdown path under the matching Logics directory, such as `logics/request/req_001_example.md`;
 - an absolute path only when it resolves inside the current repository.
 
+### Workflow directory names
+
+These are the canonical directory names, and the ones the tool writes:
+
+| Kind | Canonical directory | Also accepted |
+| --- | --- | --- |
+| Request | `logics/request` | `logics/requests` |
+| Backlog item | `logics/backlog` | `logics/backlogs` |
+| Task | `logics/tasks` | `logics/task` |
+| Spec | `logics/specs` | `logics/spec` |
+| Product brief | `logics/product` | `logics/products` |
+| Roadmap | `logics/roadmap` | `logics/roadmaps` |
+| Architecture decision | `logics/architecture` | `logics/architectures` |
+| Runbook | `logics/runbook` | `logics/runbooks` |
+| External | `logics/external` | `logics/externals` |
+
+Five are singular and two are plural, with no rule to infer, so a path is guessed
+wrong about half the time. Renaming was measured and rejected as out of proportion to
+the papercut, so the alternate form is simply accepted wherever a path is resolved:
+`logics/task/task_001_example.md` and `logics/tasks/task_001_example.md` behave
+identically. Nothing on disk is renamed, moved, or created, and the canonical form is
+what every command writes. If both forms ever exist as real directories, the canonical
+one wins and `logics-manager health` reports the other as a corpus anomaly.
+
 Mutation commands reject `..` traversal and files outside the repository before writing. Output paths passed with `--out` must also be repo-relative and remain inside the repository after resolution. Configured log/cache paths in `logics.yaml` may be repo-relative or absolute, but absolute paths must still resolve inside the current repository.
 
 When a command supports `--format json`, stdout is a machine-readable JSON payload. Human-oriented status, diagnostics, and progress text should not be mixed into stdout for JSON mode. This makes JSON-mode commands safe to pipe into tools such as `jq` or consume from scripts.

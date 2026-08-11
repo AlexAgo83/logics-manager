@@ -10,6 +10,7 @@ from typing import Iterable
 
 from .config import find_repo_root
 from .code_anchors import unresolved_anchors
+from .path_utils import canonical_workflow_path
 from .doc_parsing import extract_refs, indicator_value, progress_value, section_lines
 from .flow_evidence import has_ac_proof as _has_ac_with_proof
 from .statuses import workflow_statuses
@@ -317,7 +318,8 @@ def _collect_docs(repo_root: Path) -> dict[str, DocMeta]:
 
 def _scope_by_paths(docs: dict[str, DocMeta], repo_root: Path, raw_paths: list[str]) -> set[str]:
     included: set[str] = set()
-    resolved_targets = [(repo_root / raw_path).resolve() for raw_path in raw_paths]
+    # req_335: scoping accepts either spelling of a workflow directory.
+    resolved_targets = [(repo_root / canonical_workflow_path(raw_path)).resolve() for raw_path in raw_paths]
     for ref, doc in docs.items():
         doc_path = doc.path.resolve()
         for target in resolved_targets:

@@ -700,6 +700,91 @@ def _scan_hybrid_cache_for_credentials(repo_root: Path) -> list[AuditIssue]:
     return issues
 
 
+def _prose_lineage_issues(docs: dict[str, DocMeta], all_docs: dict[str, DocMeta]) -> list[AuditIssue]:
+    """Announce what the section-scoped lineage rule stopped counting (req_337 AC4).
+
+    A document whose only link to a parent lives in prose is told where to move it,
+    rather than quietly losing its lineage. Once per document per target kind, and
+    open documents only: a closed one describing lineage in prose is history, and
+    nagging about two hundred of them is how a report teaches itself to be skimmed.
+    """
+    issues: list[AuditIssue] = []
+    for doc in docs.values():
+        if _is_abandoned(doc) or _is_done(doc):
+            continue
+        for target_kind in ("request", "backlog", "task"):
+            prose_only = _prose_only_refs(doc, target_kind, all_docs)
+            if not prose_only:
+                continue
+            section = DECLARED_LINK_SECTIONS[(doc.kind.kind, target_kind)][0]
+            named = ", ".join(f"`{ref}`" for ref in sorted(prose_only))
+            issues.append(
+                AuditIssue(
+                    code="lineage_mentioned_but_not_declared",
+                    path=doc.path,
+                    message=f"{named} mentioned in prose only; declare under `# {section}` if it is real lineage",
+                    severity="warning",
+                )
+            )
+    return issues
+
+
+def _code_anchor_issues(repo_root: Path, docs: dict[str, DocMeta]) -> list[AuditIssue]:
+    """Report citations into the codebase that no longer resolve (req_339).
+
+    Open docs only, since a closed one describing code as it was is history. The
+    repository text is read at most once, and only if a symbol needs it.
+    """
+    issues: list[AuditIssue] = []
+    blob: list[str | None] = [None]
+    for doc in docs.values():
+        if _is_done(doc) or _is_abandoned(doc):
+            continue
+        missing_paths, missing_symbols = unresolved_anchors(repo_root, doc.text, blob=blob)
+        for path in missing_paths:
+            issues.append(AuditIssue(code="code_anchor_path_missing", path=doc.path, message=f"cited path `{path}` does not exist", severity="warning"))
+        for symbol in missing_symbols:
+            issues.append(
+                AuditIssue(
+                    code="code_anchor_symbol_not_found",
+                    path=doc.path,
+                    message=f"`{symbol}` was not found anywhere in the repository \u2014 a hint that the citation is stale, not a fact",
+                    severity="warning",
+                    deferred=True,
+                )
+            )
+    return issues
+
+
+def _ungroomed_ai_context_issues(docs: dict[str, DocMeta]) -> list[AuditIssue]:
+    """Report an `# AI Context` still carrying generator wording (req_334).
+
+    Reported wherever it would be seen, not only under the strict profile: the check
+    that policed this lived behind `token_hygiene`, which is off in both relaxed and
+    standard, so nothing ever asked for the block to be replaced. Open docs only, and
+    never blocking -- a corpus of legacy scaffolded docs must not fail wholesale.
+    """
+    issues: list[AuditIssue] = []
+    for doc in docs.values():
+        if doc.kind.kind not in {"request", "backlog", "task"} or _is_done(doc) or _is_abandoned(doc):
+            continue
+        fields = _extract_ai_context_fields(doc.text)
+        if not fields:
+            continue
+        ungroomed = sorted(label for label in ("summary", "keywords", "use when", "skip when") if _ai_context_ungroomed(fields.get(label)))
+        if ungroomed:
+            issues.append(
+                AuditIssue(
+                    code="ai_context_ungroomed",
+                    path=doc.path,
+                    message=f"`# AI Context` still carries generated wording ({', '.join(ungroomed)}); it should say what the title does not",
+                    severity="warning",
+                    repair_command=f"python3 -m logics_manager flow show {doc.path.stem}  # then edit `# AI Context` by hand",
+                )
+            )
+    return issues
+
+
 def audit_payload(
     repo_root: Path,
     *,
@@ -903,45 +988,9 @@ def audit_payload(
     # Announce what the section-scoped rule stopped counting, so a document whose only
     # link to a parent lives in prose is told where to move it rather than quietly losing
     # its lineage. Once per document per target kind.
-    for doc in docs.values():
-        # Only open documents: a closed one describing lineage in prose is history,
-        # and nagging about 200 of them is how a report teaches itself to be skimmed.
-        if _is_abandoned(doc) or _is_done(doc):
-            continue
-        for target_kind in ("request", "backlog", "task"):
-            prose_only = _prose_only_refs(doc, target_kind, all_docs)
-            if not prose_only:
-                continue
-            section = DECLARED_LINK_SECTIONS[(doc.kind.kind, target_kind)][0]
-            named = ", ".join(f"`{ref}`" for ref in sorted(prose_only))
-            issues.append(
-                AuditIssue(
-                    code="lineage_mentioned_but_not_declared",
-                    path=doc.path,
-                    message=f"{named} mentioned in prose only; declare under `# {section}` if it is real lineage",
-                    severity="warning",
-                )
-            )
+    issues.extend(_prose_lineage_issues(docs, all_docs))
 
-    # Code anchors: only open docs, since a closed one describing code as it was is
-    # history. Repository text is read at most once, and only if a symbol needs it.
-    anchor_blob: list[str | None] = [None]
-    for doc in docs.values():
-        if _is_done(doc) or _is_abandoned(doc):
-            continue
-        missing_paths, missing_symbols = unresolved_anchors(repo_root, doc.text, blob=anchor_blob)
-        for path in missing_paths:
-            issues.append(AuditIssue(code="code_anchor_path_missing", path=doc.path, message=f"cited path `{path}` does not exist", severity="warning"))
-        for symbol in missing_symbols:
-            issues.append(
-                AuditIssue(
-                    code="code_anchor_symbol_not_found",
-                    path=doc.path,
-                    message=f"`{symbol}` was not found anywhere in the repository — a hint that the citation is stale, not a fact",
-                    severity="warning",
-                    deferred=True,
-                )
-            )
+    issues.extend(_code_anchor_issues(repo_root, docs))
 
     if not skip_ac_traceability:
         for request in [doc for doc in docs.values() if doc.kind.kind == "request"]:
@@ -999,28 +1048,7 @@ def audit_payload(
             elif any(not checked for checked, _label in dod_checks):
                 issues.append(AuditIssue(code="task_dod_unchecked", path=task.path, message="DoD checklist contains unchecked items"))
 
-    # An ungroomed `# AI Context` is reported wherever it would be seen, not only under
-    # the strict profile: the check that policed this lived behind `token_hygiene`,
-    # which is off in both relaxed and standard, so nothing ever asked for the block to
-    # be replaced. Open docs only, and never blocking -- a corpus with hundreds of
-    # legacy scaffolded docs must not fail its next audit wholesale.
-    for doc in docs.values():
-        if doc.kind.kind not in {"request", "backlog", "task"} or _is_done(doc) or _is_abandoned(doc):
-            continue
-        fields = _extract_ai_context_fields(doc.text)
-        if not fields:
-            continue
-        ungroomed = sorted(label for label in ("summary", "keywords", "use when", "skip when") if _ai_context_ungroomed(fields.get(label)))
-        if ungroomed:
-            issues.append(
-                AuditIssue(
-                    code="ai_context_ungroomed",
-                    path=doc.path,
-                    message=f"`# AI Context` still carries generated wording ({', '.join(ungroomed)}); it should say what the title does not",
-                    severity="warning",
-                    repair_command=f"python3 -m logics_manager flow show {doc.path.stem}  # then edit `# AI Context` by hand",
-                )
-            )
+    issues.extend(_ungroomed_ai_context_issues(docs))
 
     if token_hygiene:
         for doc in docs.values():

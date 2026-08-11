@@ -1,10 +1,10 @@
 ## item_702_make_every_guard_reachable_before_the_push - Make every guard reachable before the push
 > From version: 2.21.7
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Developer loop
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -46,3 +46,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle` was finished via `logics-manager flow finish task` on 2026-08-11.

@@ -1,7 +1,7 @@
 ## req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed - Close the three trust gaps the 2.21.7 cycle exposed
 > From version: 2.21.7
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

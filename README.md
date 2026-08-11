@@ -1,4 +1,8 @@
+<img src="clients/shared-web/media/icon.png" alt="Logics Manager icon" width="64" align="left" />
+
 # logics-manager
+
+<br clear="left"/>
 
 [![CI](https://github.com/AlexAgo83/logics-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAgo83/logics-manager/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/AlexAgo83/logics-manager)](LICENSE)

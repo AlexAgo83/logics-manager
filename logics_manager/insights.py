@@ -12,7 +12,7 @@ from logics_manager.doc_parsing import age_in_days, extract_refs, git_last_chang
 from logics_manager.statuses import closed_statuses, open_statuses
 
 WORKFLOW_KINDS = ("request", "backlog", "task")
-COMPANION_KINDS = ("product", "roadmap", "architecture")
+COMPANION_KINDS = ("product", "roadmap", "architecture", "runbook")
 OPEN_STATUSES = set(open_statuses())
 CLOSED_STATUSES = set(closed_statuses())
 
@@ -39,6 +39,7 @@ def _doc_dirs(repo_root: Path) -> dict[str, Path]:
         "product": repo_root / "logics" / "product",
         "roadmap": repo_root / "logics" / "roadmap",
         "architecture": repo_root / "logics" / "architecture",
+        "runbook": repo_root / "logics" / "runbook",
     }
 
 

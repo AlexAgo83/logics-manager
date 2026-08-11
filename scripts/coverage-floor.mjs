@@ -13,7 +13,7 @@
 // msvcrt.locking side). 76% (Windows) vs 77% (Ubuntu/macOS), confirmed on a
 // real CI run - the floor must be the lower of the two, not whichever one
 // was measured first.
-export const PYTHON_COVERAGE_FLOOR = 77;
+export const PYTHON_COVERAGE_FLOOR = 76;
 
 export function evaluateCoverageFloor(measured, floor) {
   if (measured < floor) {

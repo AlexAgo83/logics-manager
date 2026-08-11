@@ -787,7 +787,12 @@ describe("LogicsViewProvider", () => {
     expect(sendText).toHaveBeenCalledWith("claude", true);
   });
 
-  it("repairs missing Claude bridge files from Tools when the Logics runtime is already healthy", async () => {
+  // Writes the whole skills kit to a real temp directory, so it is bound by disk rather
+  // than by logic. Measured at 1.2s on a real Windows desktop; the CI Windows runner is
+  // several times slower and crossed vitest's 5s default twice, on 2.21.7 and 2.21.8.
+  // A per-test budget, not a global one: raising the default would hide a real hang
+  // everywhere else.
+  it("repairs missing Claude bridge files from Tools when the Logics runtime is already healthy", { timeout: 30_000 }, async () => {
     fs.mkdirSync(path.join(root, "logics", "skills", "logics-hybrid-delivery-assistant", "agents"), { recursive: true });
     fs.writeFileSync(path.join(root, "logics", "skills", "VERSION"), "1.21.1\n", "utf8");
     fs.writeFileSync(path.join(root, "logics", "skills", "logics-hybrid-delivery-assistant", "SKILL.md"), "# skill\n", "utf8");

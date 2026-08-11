@@ -28,7 +28,7 @@ from logics_manager.flow.docs import DOC_KINDS, _append_doc_section_bullets, _re
 from logics_manager.ai_context import UNFILLED as AI_CONTEXT_UNFILLED, block as ai_context_block, is_ungroomed
 from logics_manager.path_utils import WORKFLOW_DIRS, WORKFLOW_DIR_ALIASES, canonical_workflow_path, duplicate_workflow_dirs
 from logics_manager.flow import PlannedDoc, closeout_payload, validate_closeout_payload
-from logics_manager.flow_evidence import composed_ac_proof, evidence_for_ac, has_ac_proof, has_validation_evidence
+from logics_manager.flow_evidence import AC_DEFERRED_PLACEHOLDER, composed_ac_proof, evidence_for_ac, has_ac_proof, has_validation_evidence
 from logics_manager.insights import followups_payload, health_payload, product_consistency_payload, render_health, status_payload
 from logics_manager.sync import search_logics_docs_payload
 from logics_manager import viewer as viewer_module
@@ -909,3 +909,42 @@ def test_promoting_a_request_clears_the_placeholder_it_wrote(tmp_path: Path) -> 
     assert backlog == ["- `item_001_demo`"]
     # A section nothing was appended to keeps its placeholder: eviction is local.
     assert "# References\n- none" in text
+
+
+def test_recorded_proof_composes_over_the_scaffold_placeholder_but_never_over_authored_text(tmp_path: Path) -> None:
+    """req_338 follow-up: composition has to survive a scaffolded task.
+
+    `flow scaffold request-chain` writes a generated `Proof deferred to slice closeout.`
+    line per criterion. Skipping anything that already had a line meant recorded proof
+    never composed into a scaffolded task -- which is the common case, and is how
+    req_341 reached closeout with seven blocking findings despite full evidence.
+    """
+    repo_root = tmp_path / "logics-repo"
+    task_path = _proof_chain(repo_root)
+    task_path.write_text(
+        task_path.read_text(encoding="utf-8").replace(
+            "# AC Traceability",
+            "\n".join([
+                "# AC Traceability",
+                f"- request-AC1 -> `item_001_capture`. {AC_DEFERRED_PLACEHOLDER}",
+                "- request-AC2 -> This task. Proof: measured by hand on a second host, kept.",
+            ]),
+        ),
+        encoding="utf-8",
+    )
+    evidence_add_payload(repo_root, "task_001_capture", ac_id="AC1", summary="the real thing", command="pytest -k one", result="passed", dry_run=False)
+    evidence_add_payload(repo_root, "task_001_capture", ac_id="AC2", summary="should not overwrite", command="pytest -k two", result="passed", dry_run=False)
+
+    repair_ac_traceability_payload(repo_root, "req_001_capture", dry_run=False, proof="shared", proof_source="abc1234")
+
+    lines = [line for line in task_path.read_text(encoding="utf-8").splitlines() if line.startswith("- request-AC")]
+    ac1 = next(line for line in lines if "AC1" in line)
+    ac2 = next(line for line in lines if "AC2" in line)
+    # Generated wording is replaced by the record it was standing in for...
+    assert AC_DEFERRED_PLACEHOLDER not in ac1
+    assert "the real thing" in ac1 and "pytest -k one" in ac1
+    # ...and authored text is left strictly alone, record or no record.
+    assert "measured by hand on a second host, kept." in ac2
+    assert "should not overwrite" not in ac2
+    # One line per criterion: replacing must not append a second.
+    assert len([line for line in lines if "AC1" in line]) == 1

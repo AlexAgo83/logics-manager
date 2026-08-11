@@ -13,6 +13,7 @@ from datetime import date
 from pathlib import Path
 
 from ..ai_context import block as ai_context_block
+from ..flow_evidence import AC_DEFERRED_PLACEHOLDER
 
 
 def _slugify(text: str) -> str:
@@ -264,7 +265,7 @@ def _scaffold_task_ac_trace(input_payload: dict[str, object], item_refs: list[st
     # lines, so a corpus the scaffold produced could not satisfy the gate the same tool
     # applies to it at closeout, and every operator rewrote them by hand.
     lines = [
-        f"- request-{ac_id} -> `{item_ref}`. Proof deferred to slice closeout."
+        f"- request-{ac_id} -> `{item_ref}`. {AC_DEFERRED_PLACEHOLDER}"
         for item_ref, acs in owned.items()
         for ac_id in acs
     ]

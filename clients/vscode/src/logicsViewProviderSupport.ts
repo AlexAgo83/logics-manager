@@ -12,7 +12,7 @@ import { buildMissingGitMessage, isMissingGitFailureDetail } from "./gitRuntime"
 import { buildMissingPythonMessage, isMissingPythonFailureDetail } from "./pythonRuntime";
 import { LogicsHybridAssistController } from "./logicsHybridAssistController";
 import { LogicsCodexWorkflowOperations as LogicsCodexWorkflowController } from "./logicsCodexWorkflowOperations";
-import { buildOnboardingHtml } from "./logicsOnboardingHtml";
+import { buildOnboardingHtml, onboardingContentSignature } from "./logicsOnboardingHtml";
 import { inspectGitHubReleaseCapability } from "./releasePublishSupport";
 import { inspectReleaseBranchFastForwardConsent } from "./releaseBranchConsent";
 import { RuntimeLaunchersSnapshot, UNAVAILABLE_LAUNCHER_STATE } from "./runtimeLaunchers";
@@ -20,7 +20,7 @@ import { ReleasePublishCapability, UNAVAILABLE_RELEASE_CAPABILITY } from "./rele
 import { LogicsEnvironmentSnapshot } from "./logicsEnvironment";
 import {
   ACTIVE_AGENT_STATE_KEY,
-  ONBOARDING_LAST_VERSION_KEY,
+  ONBOARDING_LAST_CONTENT_KEY,
   ROOT_OVERRIDE_STATE_KEY
 } from "./logicsViewProviderConstants";
 import { inspectKitUpdateNeed } from "./logicsKitVersionSupport";
@@ -219,14 +219,18 @@ const STATUS_OPTIONS_BY_STAGE = STATUS_STAGES as Record<LogicsStage, readonly st
     return (context.extension?.packageJSON as { version?: string } | undefined)?.version ?? null;
   }
   export function maybeShowOnboarding(this: LogicsViewProviderSupportHost, root: string): void {
-    const version = extensionVersion(this.context);
+    // A reopen has to be earned by new content. Keying on the extension version meant
+    // 2.21.4, .5, .6 and .7 -- two days, identical page -- reopened it four times.
+    // Still scoped per workspace root: seeing the page in one workspace must not
+    // suppress it in another that has never shown it.
+    const signature = onboardingContentSignature();
     const normalizedRoot = path.resolve(root);
-    const workspaceKey = `${ONBOARDING_LAST_VERSION_KEY}:${normalizedRoot}`;
+    const workspaceKey = `${ONBOARDING_LAST_CONTENT_KEY}:${normalizedRoot}`;
     const lastSeen = (this.context.workspaceState.get(workspaceKey) as string | undefined) ?? null;
-    if (lastSeen === version) {
+    if (lastSeen === signature) {
       return;
     }
-    void this.context.workspaceState.update(workspaceKey, version);
+    void this.context.workspaceState.update(workspaceKey, signature);
     this.openOnboardingPanel();
   }
   export function openOnboardingPanel(this: LogicsViewProviderSupportHost): void {

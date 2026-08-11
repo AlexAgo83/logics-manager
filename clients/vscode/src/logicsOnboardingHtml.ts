@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import * as vscode from "vscode";
 import { getNonce } from "./logicsReadPreviewHtml";
 import {
@@ -90,13 +91,39 @@ function renderDocGuide(): string {
     </section>`;
 }
 
+/** Everything on the page that is content, and nothing that is presentation plumbing.
+ *
+ * One source for both the page and its signature, so a section added here is covered
+ * without a second list being maintained -- the drift req_334 had to undo, where the
+ * audit's placeholder tuple stopped matching the scaffold templates it policed.
+ */
+function onboardingContentParts(): string[] {
+  return [
+    ONBOARDING_HEADLINE,
+    ONBOARDING_INTRO,
+    ONBOARDING_STAGES.map((stage, i) => renderStage(stage, i)).join("\n"),
+    renderDocGuide(),
+    renderFooterActions(),
+    ONBOARDING_FOOTER
+  ];
+}
+
+/** A stable fingerprint of what the page says.
+ *
+ * Deliberately not a hash of the rendered HTML: `buildOnboardingHtml` embeds a fresh
+ * `getNonce()` in its CSP, so the document differs on every call. Hashing that would
+ * change the signature every time and reopen the panel always -- strictly worse than
+ * the version key it replaces.
+ */
+export function onboardingContentSignature(): string {
+  return createHash("sha256").update(onboardingContentParts().join("\u0000")).digest("hex").slice(0, 16);
+}
+
 export function buildOnboardingHtml(webview: vscode.Webview): string {
   const nonce = getNonce();
   const csp = `default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';`;
 
-  const stagesHtml = ONBOARDING_STAGES.map((stage, i) => renderStage(stage, i)).join("\n");
-  const docGuideHtml = renderDocGuide();
-  const footerActionsHtml = renderFooterActions();
+  const [, , stagesHtml, docGuideHtml, footerActionsHtml] = onboardingContentParts();
 
   return `<!DOCTYPE html>
 <html lang="en">

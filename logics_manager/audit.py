@@ -129,6 +129,10 @@ class AuditIssue:
     message: str
     severity: str = "blocking"
     repair_command: str | None = None
+    #: A finding the lifecycle says cannot be resolved yet. Withheld from the default
+    #: text report (a count line names how many) so a non-empty report means an
+    #: operator is actually needed. Always present in JSON, and never exit-affecting.
+    deferred: bool = False
 
 
 _indicator_value = indicator_value
@@ -374,7 +378,9 @@ def _apply_scope(
 #: every document numbers from AC1 — its acceptance proof both leaked across.
 #: These sections are the declared lineage; prose is not lineage.
 DECLARED_LINK_SECTIONS: dict[tuple[str, str], tuple[str, ...]] = {
-    ("request", "backlog"): ("Backlog",),
+    # `AC Traceability` is a declared section too: legacy requests map a criterion to
+    # the items that satisfy it there, and nowhere else.
+    ("request", "backlog"): ("Backlog", "AC Traceability"),
     ("backlog", "request"): ("Links",),
     ("backlog", "task"): ("Tasks", "Links"),
     ("task", "backlog"): ("Backlog", "Links"),
@@ -475,6 +481,7 @@ def _ac_traceability_issue(code: str, request: DocMeta, ac_id: str, level: str, 
             ),
             severity="warning",
             repair_command=repair,
+            deferred=True,
         )
     return AuditIssue(
         code=code,
@@ -894,7 +901,9 @@ def audit_payload(
     # link to a parent lives in prose is told where to move it rather than quietly losing
     # its lineage. Once per document per target kind.
     for doc in docs.values():
-        if _is_abandoned(doc):
+        # Only open documents: a closed one describing lineage in prose is history,
+        # and nagging about 200 of them is how a report teaches itself to be skimmed.
+        if _is_abandoned(doc) or _is_done(doc):
             continue
         for target_kind in ("request", "backlog", "task"):
             prose_only = _prose_only_refs(doc, target_kind, all_docs)
@@ -1055,7 +1064,7 @@ def audit_payload(
         by_code[issue.code] = by_code.get(issue.code, 0) + 1
         by_path[rel_path] = by_path.get(rel_path, 0) + 1
         by_severity[issue.severity] = by_severity.get(issue.severity, 0) + 1
-        finding = {"code": issue.code, "path": rel_path, "message": issue.message, "severity": issue.severity}
+        finding = {"code": issue.code, "path": rel_path, "message": issue.message, "severity": issue.severity, "deferred": issue.deferred}
         if issue.repair_command:
             finding["repair_command"] = issue.repair_command
         serialized_findings.append(finding)
@@ -1081,6 +1090,7 @@ def audit_payload(
         "warning_count": len(warning_findings),
         "strict_count": len(strict_findings),
         "finding_count": len(serialized_findings),
+        "deferred_count": sum(1 for finding in serialized_findings if finding["deferred"]),
         "issues": blocking_findings,
         "warnings": warning_findings,
         "strict": strict_findings,
@@ -1119,6 +1129,7 @@ def render_audit(
     autofix_structure: bool = False,
     governance_profile: str = "standard",
     active: bool = False,
+    include_deferred: bool = False,
 ) -> str:
     payload = audit_payload(
         repo_root,
@@ -1151,6 +1162,16 @@ def render_audit(
     if payload.get("active"):
         lines.insert(1, "View: active non-terminal docs")
     findings = payload["findings"]
+    # Deferred findings are printed only on request. Hiding them is what makes a
+    # non-empty report mean something, but they are never dropped: the count line
+    # below names how many were withheld and how to see them, and JSON carries
+    # them either way.
+    withheld = 0
+    if not include_deferred:
+        withheld = sum(1 for finding in findings if finding.get("deferred"))
+        findings = [finding for finding in findings if not finding.get("deferred")]
+    if withheld:
+        lines.append(f"Deferred findings withheld: {withheld} (expected at task closeout; show with --include-deferred)")
     if not findings:
         return "\n".join(lines)
     if not group_by_doc:
@@ -1192,6 +1213,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--autofix-structure", action="store_true", help="Deterministically repair missing schema metadata, AI Context, and missing gate sections.")
     parser.add_argument("--governance-profile", choices=tuple(GOVERNANCE_PROFILES), default="standard", help="Apply a named governance profile; `standard` reports early companion-doc polish as warnings, `strict` promotes governance warnings to blockers.")
     parser.add_argument("--active", action="store_true", help="Report findings only for in-scope non-terminal workflow docs.")
+    parser.add_argument("--include-deferred", action="store_true", help="Print deferred findings individually instead of withholding them behind a count line.")
     return parser
 
 
@@ -1230,6 +1252,7 @@ def main(argv: list[str]) -> int:
         autofix_structure=args.autofix_structure,
         governance_profile=args.governance_profile,
         active=args.active,
+        include_deferred=args.include_deferred,
     )
     print(output)
     return 0 if payload["ok"] else 1

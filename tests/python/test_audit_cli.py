@@ -534,3 +534,55 @@ def test_prose_only_lineage_is_announced_once_per_document(tmp_path: Path) -> No
     assert "# Backlog" in announced[0]["message"]
     # A declared link is never announced.
     assert all("req_001_prior" not in w["path"] for w in announced)
+
+
+def test_deferred_findings_are_withheld_from_the_default_report(tmp_path: Path) -> None:
+    """req_333: a corpus whose only findings are deferred must read as clean.
+
+    Three states, since the risk is not the noise but the genuine finding that gets
+    skimmed past because it arrived alongside eight expected ones.
+    """
+    repo_root = tmp_path / "logics-repo"
+    _chain(repo_root, "fresh", status="Ready", ac_count=5, proof=False)
+
+    # 1. Only deferred findings: no per-finding line, one count line, and exit-neutral.
+    default = render_audit(repo_root, skip_gates=True)
+    assert "proof is deferred" not in default
+    assert "Deferred findings withheld: 10 (expected at task closeout; show with --include-deferred)" in default
+    assert audit_payload(repo_root, skip_gates=True)["ok"] is True
+
+    # 2. A real finding alongside them stays visible.
+    (repo_root / "logics" / "backlog" / "item_002_orphan.md").write_text(
+        "\n".join(["## item_002_orphan - Orphan", "> From version: 2.11.6", "> Status: Ready", "> Progress: 0%", "> Schema version: 1.0"]) + "\n",
+        encoding="utf-8",
+    )
+    mixed = render_audit(repo_root, skip_gates=True)
+    assert "backlog_orphan_no_request" in mixed
+    assert "proof is deferred" not in mixed
+    assert "Deferred findings withheld: 10" in mixed
+
+    # 3. --include-deferred restores the per-finding output.
+    verbose = render_audit(repo_root, skip_gates=True, include_deferred=True)
+    assert verbose.count("proof is deferred") == 10
+    assert "Deferred findings withheld" not in verbose
+
+    # JSON carries them regardless of the flag, so tooling loses nothing.
+    payload = audit_payload(repo_root, skip_gates=True)
+    assert payload["deferred_count"] == 10
+    assert all(finding["deferred"] for finding in payload["warnings"] if "traceability proof is deferred" in finding["message"])
+
+
+def test_withholding_never_hides_a_blocking_finding(tmp_path: Path) -> None:
+    """req_333 AC4: withholding is presentation only — severity and exit code are untouched."""
+    repo_root = tmp_path / "logics-repo"
+    _chain(repo_root, "done", status="Done", ac_count=2, proof=False)
+
+    payload = audit_payload(repo_root, skip_gates=True)
+    report = render_audit(repo_root, skip_gates=True)
+
+    # A Done linked task makes the same gap genuinely blocking, so it is not deferred
+    # and not withheld.
+    assert payload["ok"] is False
+    assert payload["deferred_count"] == 0
+    assert "missing task-level traceability with proof" in report
+    assert "Deferred findings withheld" not in report

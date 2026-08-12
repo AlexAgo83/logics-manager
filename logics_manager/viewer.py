@@ -1517,6 +1517,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/stop-viewer",
         "/api/switch-project",
         "/api/select-project-root",
+        "/api/select-fleet-root",
         "/api/preferences",
         "/api/select-project-root-path",
         "/api/cdx-report-request",
@@ -1709,6 +1710,23 @@ class LogicsViewerServer(ThreadingHTTPServer):
                     entry["message"] = "Synthetic dev-only corpus covering every board card state."
         return registry
 
+    def add_fleet_root(self, root: Path) -> None:
+        root = root.resolve()
+        if not root.is_dir():
+            raise FileNotFoundError(str(root))
+        roots = fleet_roots()
+        if root not in roots:
+            update_viewer_preferences(self.launch_repo_root, {"fleetRoots": [str(item) for item in [*roots, root]]})
+        try:
+            candidates = [item.resolve() for item in root.iterdir() if item.is_dir() and _looks_like_viewer_project(item)]
+        except OSError:
+            candidates = []
+        for project in candidates:
+            project_id = _viewer_project_id(project)
+            if project_id not in self.project_root_by_id:
+                self.project_roots.append(project)
+                self.project_root_by_id[project_id] = project
+
     def project_state_payload(self, *, force: bool = False) -> dict[str, Any]:
         """Open-work and issue counts per listed project, cached.
 
@@ -1805,6 +1823,8 @@ class LogicsViewerServer(ThreadingHTTPServer):
             projects=self.project_registry_payload(),
         )
         payload["lanMode"] = bool(self.lan_mode)
+        payload["fleet"] = self.fleet
+        payload["fleetRoots"] = [str(root) for root in fleet_roots()]
         payload["lanRwMode"] = bool(self.lan_rw_mode)
         if self.lan_mode and self.lan_token:
             host, port = self.server_address[:2]
@@ -2684,6 +2704,19 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
             except ValueError as exc:
                 self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
+            except FileNotFoundError as exc:
+                self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
+            return
+        if parsed.path == "/api/select-fleet-root":
+            try:
+                selected = select_project_root_with_native_dialog(Path.home())
+                if selected is None:
+                    self._send_error_json(HTTPStatus.BAD_REQUEST, "No folder selected.")
+                    return
+                self.server.add_fleet_root(selected)
+                self._send_json({"ok": True, "payload": self.server.viewer_payload()})
+            except RuntimeError as exc:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
             except FileNotFoundError as exc:
                 self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
             return

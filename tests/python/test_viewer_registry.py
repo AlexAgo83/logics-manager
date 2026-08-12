@@ -243,6 +243,7 @@ def test_real_cli_fleet_from_plain_directory_opens_home(tmp_path: Path) -> None:
     env = os.environ.copy()
     env["LOGICS_VIEWER_REGISTRY_PATH"] = str(tmp_path / "viewers.json")
     env["LOGICS_VIEWER_PREFERENCES_HOME"] = str(tmp_path / "preferences")
+    env["PYTHONPATH"] = os.pathsep.join([str(REPO_ROOT), env.get("PYTHONPATH", "")]).rstrip(os.pathsep)
     env["NO_COLOR"] = "1"
     plain = tmp_path / "plain"
     plain.mkdir()

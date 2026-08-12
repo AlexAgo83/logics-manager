@@ -2213,10 +2213,10 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError):
             return
         try:
+            baseline = self._viewer_event_snapshot(include_remote=False)
             payload = json.dumps({"seq": self.server.next_event_seq(), "components": []})
             self.wfile.write(f"event: ready\ndata: {payload}\n\n".encode("utf-8"))
             self.wfile.flush()
-            baseline = self._viewer_event_snapshot(include_remote=True)
             remote_due_at = time.monotonic() + VIEWER_EVENT_REMOTE_POLL_SECONDS
             idle_ticks = 0
             while True:

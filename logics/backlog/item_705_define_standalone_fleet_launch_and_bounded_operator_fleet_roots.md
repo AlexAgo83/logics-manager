@@ -1,10 +1,10 @@
 ## item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots - Define standalone fleet launch and bounded operator fleet roots
 > From version: 2.21.8
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 75%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Launch and discovery contract
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -53,3 +53,9 @@
 # Priority
 - Priority: High - it creates the requested project-independent entry point and the safe discovery boundary every later slice uses
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_339_deliver_the_standalone_fleet_viewer_and_singleton_server`
+
+# Notes
+- Task `task_339_deliver_the_standalone_fleet_viewer_and_singleton_server` was finished via `logics-manager flow finish task` on 2026-08-13.

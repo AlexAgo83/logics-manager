@@ -1,7 +1,7 @@
 ## req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server - Launch a standalone Logics fleet viewer through one shared local server
 > From version: 2.21.8
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High

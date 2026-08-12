@@ -49,6 +49,7 @@ describe("viewerServerManager", () => {
     expect(spawnProcess.mock.calls[0]?.[1]).toEqual([
       path.join("/extension", "scripts", "logics-manager.py"),
       "view",
+      "--fleet",
       "--host",
       "127.0.0.1",
       "--port",

@@ -1518,6 +1518,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/switch-project",
         "/api/select-project-root",
         "/api/select-fleet-root",
+        "/api/remove-fleet-root",
         "/api/preferences",
         "/api/select-project-root-path",
         "/api/cdx-report-request",
@@ -1726,6 +1727,16 @@ class LogicsViewerServer(ThreadingHTTPServer):
             if project_id not in self.project_root_by_id:
                 self.project_roots.append(project)
                 self.project_root_by_id[project_id] = project
+
+    def remove_fleet_root(self, root: Path) -> None:
+        root = root.resolve()
+        roots = fleet_roots()
+        if root not in roots:
+            raise ValueError("Unknown fleet root.")
+        update_viewer_preferences(self.launch_repo_root, {"fleetRoots": [str(item) for item in roots if item != root]})
+        retained = [project for project in self.project_roots if project == self.launch_repo_root or root not in project.parents]
+        self.project_roots = retained
+        self.project_root_by_id = {_viewer_project_id(project): project for project in retained}
 
     def project_state_payload(self, *, force: bool = False) -> dict[str, Any]:
         """Open-work and issue counts per listed project, cached.
@@ -2719,6 +2730,16 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
             except FileNotFoundError as exc:
                 self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
+            return
+        if parsed.path == "/api/remove-fleet-root":
+            try:
+                body = self._read_json_body_strict()
+                self.server.remove_fleet_root(Path(str(body.get("root") or "")).expanduser())
+                self._send_json({"ok": True, "payload": self.server.viewer_payload()})
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+            except ValueError as exc:
+                self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
             return
         if parsed.path == "/api/select-project-root-path":
             try:

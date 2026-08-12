@@ -75,6 +75,10 @@ def test_adding_a_fleet_root_discovers_only_its_immediate_projects(home: Path, t
     assert str((project / "nested").resolve()) not in roots
     assert fleet_roots() == [root.resolve()]
 
+    server.remove_fleet_root(root)
+    assert fleet_roots() == []
+    assert str(project.resolve()) not in {entry["root"] for entry in server.project_registry_payload()}
+
 
 def test_a_corpus_preference_stays_with_its_corpus(home: Path, tmp_path: Path) -> None:
     first, second = _repo(tmp_path, "one"), _repo(tmp_path, "two")

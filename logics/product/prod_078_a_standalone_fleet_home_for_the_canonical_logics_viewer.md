@@ -1,8 +1,8 @@
 ## prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer - A standalone fleet home for the canonical Logics viewer
 > Date: 2026-08-12
-> Status: Proposed
+> Status: Settled
 > Related request: `req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server`
-> Related backlog: `item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots`, `item_706_make_project_context_request_scoped_before_sharing_the_viewer_server`, `item_707_build_the_fleet_home_and_project_navigation_surface`, `item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton`
+> Related backlog: `item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots`
 > Related task: `task_339_deliver_the_standalone_fleet_viewer_and_singleton_server`
 > Related architecture: `adr_028_scope_the_fleet_viewer_registry_to_the_operator_profile_and_resolve_project_context_per_request`
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -47,5 +47,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `logics/request/req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server.md`
-- Task back-reference: `logics/tasks/task_339_deliver_the_standalone_fleet_viewer_and_singleton_server.md`
+- Product back-reference: `item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots`
+- Task back-reference: `task_339_deliver_the_standalone_fleet_viewer_and_singleton_server`

@@ -1,10 +1,10 @@
 ## item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton - Replace per-repository viewer reuse with a safe fleet singleton
 > From version: 2.21.8
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 75%
+> Progress: 100%
 > Complexity: High
 > Theme: Shared server lifecycle
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -53,3 +53,9 @@
 # Priority
 - Priority: High - it delivers the single distribution server and must follow request-scoped project isolation
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_339_deliver_the_standalone_fleet_viewer_and_singleton_server`
+
+# Notes
+- Task `task_339_deliver_the_standalone_fleet_viewer_and_singleton_server` was finished via `logics-manager flow finish task` on 2026-08-13.

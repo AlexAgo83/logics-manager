@@ -1,0 +1,637 @@
+{
+  "budgets": {
+    "max_docs": 48,
+    "max_docs_per_ref": 8
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots item_706_make_project_context_request_scoped_before_sharing_the_viewer_server item_707_build_the_fleet_home_and_project_navigation_surface item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton task_339_deliver_the_standalone_fleet_viewer_and_singleton_server --mode full --profile deep --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots",
+          "item_706_make_project_context_request_scoped_before_sharing_the_viewer_server",
+          "item_707_build_the_fleet_home_and_project_navigation_surface",
+          "item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton"
+        ],
+        "prod": [
+          "prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer"
+        ],
+        "req": [
+          "req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server"
+        ],
+        "task": [
+          "task_339_deliver_the_standalone_fleet_viewer_and_singleton_server"
+        ]
+      },
+      "path": "logics/product/prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer.md",
+      "ref": "prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer",
+      "sections": {
+        "Goals": [
+          "- Open Logics first, then choose a project rather than requiring a project before launch.",
+          "- Give operators a bounded, useful fleet overview without a central project database or full-disk scan.",
+          "- Reuse one local viewer server across CLI and VS Code while preventing cross-tab project-context leakage.",
+          "- Preserve existing project workflows, viewer features, and local/LAN security boundaries.",
+          "- Provide a stable launch contract that CDX can invoke from its tray."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Evolve the existing local viewer from a repository-launched server with a mutable shared project into a standalone fleet home. One local server serves the canonical viewer, discovers projects only beneath operator-chosen roots, and resolves every request against an explicit allowed project context. CDX can launch or reuse that viewer, while each project's Markdown corpus remains local and independent."
+        ],
+        "References": [
+          "- Product back-reference: `req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server`",
+          "- Task back-reference: `task_339_deliver_the_standalone_fleet_viewer_and_singleton_server`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "A standalone fleet home for the canonical Logics viewer"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_365_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "prod": [
+          "prod_005_logics_corpus_navigation_views",
+          "prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api",
+          "prod_015_cli_product_maturity_roadmap",
+          "prod_020_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "req": [
+          "req_201_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "task": [
+          "task_166_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ]
+      },
+      "path": "logics/product/prod_020_local_web_viewer_for_cli_driven_logics_work.md",
+      "ref": "prod_020_local_web_viewer_for_cli_driven_logics_work",
+      "sections": {
+        "Goals": [
+          "- Add a CLI-launched local viewer command, for example `logics-manager view` or `logics-manager serve-view`.",
+          "- Open a browser page that shows the Logics board, document details, relationships, status indicators, and markdown content.",
+          "- Reuse the existing webview assets and behavior where practical instead of creating a separate UI model.",
+          "- Introduce a clean host adapter boundary so the same UI can run under VS Code or under a local browser server.",
+          "- Keep the first version read-only by default so the feature is useful without creating mutation risk.",
+          "- Expose simple local API endpoints for corpus data, document reads, lint/audit summaries, and refresh signals."
+        ],
+        "Key product decisions": [
+          "- Treat the viewer as a visual companion to the CLI, not a replacement for either CLI or VS Code.",
+          "- Start read-only, then add bounded actions only after the host adapter and API boundary are stable.",
+          "- Keep dangerous or mutating work in the terminal for the first version.",
+          "- Prefer a browser local server over a rich terminal TUI because document navigation, board scanning, and markdown reading benefit from real layout, links, and persistent UI state.",
+          "- Reuse the existing webview implementation through a browser host adapter instead of maintaining a parallel UI.",
+          "- Keep the local API intentionally small: corpus data, document content, validation summaries, and refresh."
+        ],
+        "Overview": [
+          "Logics has become usable from the CLI, but the operator still loses the visual scanability that makes the VS Code webview useful.",
+          "The product opportunity is a local browser viewer launched from the CLI: a lightweight, local-only web surface that lets an operator inspect the Logics corpus, board, details, links, audits, and document content without opening VS Code.",
+          "The direction is not to recreate VS Code in the browser.",
+          "It is to make the existing webview experience portable through a small host adapter and a local server.",
+          "The CLI remains the canonical command surface, while the browser viewer becomes a visual companion for reading, scanning, and eventually triggering bounded actions.",
+          "The intended product feeling is: the operator keeps using the CLI, but can open a local visual cockpit when the workflow becomes too document-heavy for terminal output alone."
+        ],
+        "References": [
+          "- `logics/request/req_201_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/backlog/item_365_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/tasks/task_166_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/product/prod_005_logics_corpus_navigation_views.md`",
+          "- `logics/product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md`",
+          "- `logics/product/prod_015_cli_product_maturity_roadmap.md`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Local web viewer for CLI-driven Logics work"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_665_turn_port_collisions_into_clear_errors_and_deconflict_the_viewer_mcp_default_ports"
+        ],
+        "prod": [
+          "prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp"
+        ],
+        "req": [
+          "req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp"
+        ],
+        "task": [
+          "task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle"
+        ]
+      },
+      "path": "logics/product/prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp.md",
+      "ref": "prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp",
+      "sections": {
+        "Goals": [
+          "- One live viewer per repo root, reused across CLI invocations and VS Code windows, not duplicated.",
+          "- A stale or dead registry entry never blocks a fresh start.",
+          "- A port collision produces a clear, actionable message, never a raw traceback.",
+          "- The viewer and the MCP HTTP server never collide on a shared default port.",
+          "- Product docs describe what the code actually does, not an aspirational port-selection story that was never implemented."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Replace three independent, uncoordinated server lifecycles - the CLI viewer, one viewer per VS Code window, and the MCP HTTP server - none of which detect an existing instance and two of which share a default port by accident - with a per-repo registry the CLI and every VS Code window consult before spawning, and a port assignment that no longer collides across tool families by default.",
+          "```mermaid",
+          "flowchart LR",
+          "    CLI[logics-manager view] --> Claim[claim_or_reuse]",
+          "    VSCode[VS Code window] --> Spawn[spawn logics-manager view]",
+          "    Spawn --> Claim"
+        ],
+        "References": [
+          "- Product back-reference: `item_665_turn_port_collisions_into_clear_errors_and_deconflict_the_viewer_mcp_default_ports`",
+          "- Task back-reference: `task_319_orchestrate_coordinated_viewer_mcp_server_lifecycle`"
+        ]
+      },
+      "status": "Settled",
+      "title": "One viewer per repo, and a resolved port story across the viewer and MCP"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "launch, standalone, logics, fleet, viewer, through, shared, local, server",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots",
+          "item_706_make_project_context_request_scoped_before_sharing_the_viewer_server",
+          "item_707_build_the_fleet_home_and_project_navigation_surface",
+          "item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton"
+        ],
+        "prod": [
+          "prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer"
+        ],
+        "req": [
+          "req_231_add_multi_project_navigation_to_the_logics_viewer",
+          "req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp",
+          "req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server"
+        ]
+      },
+      "path": "logics/request/req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server.md",
+      "ref": "req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `logics-manager view --fleet --open` starts or reuses the standalone fleet viewer from any directory, including one with no repository or Logics corpus, without prompting to bootstrap the current directory.",
+          "- AC2: The fleet viewer lets an operator add and remove bounded fleet roots stored in operator-scoped preferences; discovery scans only immediate child directories, lists both Logics and bootstrappable projects, and never recursively scans the home directory or disk.",
+          "- AC3: The fleet home shows each discovered project's name, path on demand, Logics availability, and lazy-loaded open-work, issue, and stale-work signals; an unreadable project does not prevent the remaining fleet from rendering.",
+          "- AC4: A project selection is carried explicitly with viewer requests and validated against the server's allowed fleet/project set. Switching projects in one client does not mutate another client's active project, and all document, Git, CDX, workflow, bootstrap, and write actions operate only on their explicitly selected project.",
+          "- AC5: The viewer registry exposes one live standalone fleet server per operator/profile. CLI launches and VS Code embedding reuse its live URL, stale registry entries are safely replaced, and a focus or workspace target opens the intended project without spawning a second repo-bound server.",
+          "- AC6: Existing repo-oriented commands remain compatible: `logics-manager view --repo-root DIR --focus REF` targets that project in the shared viewer, and launching `view` without `--fleet` keeps the documented project-oriented behavior."
+        ],
+        "Needs": [
+          "- Let an operator launch Logics without first knowing or being inside a project, then navigate a bounded fleet of local projects from one viewer.",
+          "- Run one reusable local viewer server per operator instead of one server per repository, while preserving the repo-local Markdown source of truth.",
+          "- Keep every project operation explicitly scoped and validated so changing projects in one browser tab cannot redirect another tab or open arbitrary filesystem paths.",
+          "- Make the standalone viewer a natural target for the existing CDX tray launcher without adding a second Logics tray application."
+        ]
+      },
+      "status": "Draft",
+      "title": "Launch a standalone Logics fleet viewer through one shared local server"
+    },
+    {
+      "ai_context": {
+        "keywords": "multi-project viewer, project switcher, project registry, active project, safe filesystem allowlist, cross-repo navigation",
+        "skip when": "Work is only about a single-project board feature or the assistant runs cockpit itself.",
+        "summary": "Add safe multi-project navigation to the local Logics viewer so operators can switch between known repositories and reload workflow, Git, CI, CDX, and future assistant run context.",
+        "use when": "Designing or implementing viewer project switching, project registry APIs, or cross-project context handling."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_397_add_multi_project_navigation_to_the_logics_viewer"
+        ],
+        "req": [
+          "req_230_add_logics_assistant_runs_cockpit_and_report_to_workflow_actions",
+          "req_231_add_multi_project_navigation_to_the_logics_viewer"
+        ]
+      },
+      "path": "logics/request/req_231_add_multi_project_navigation_to_the_logics_viewer.md",
+      "ref": "req_231_add_multi_project_navigation_to_the_logics_viewer",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The viewer exposes a project navigation control in the left-side identity/context area of the topbar, replacing or extending the repository pill.",
+          "- AC2: Selecting a project changes the active viewer context and reloads the board/document data from that project's Logics corpus.",
+          "- AC3: Git, CI, CDX, and activity/status panels use the selected project context after a switch rather than the original launch repository.",
+          "- AC4: The backend rejects switching to paths that are not in the known/allowed project registry.",
+          "- AC5: The viewer clearly handles projects with no Logics corpus, missing Git metadata, unavailable CDX status, or inaccessible paths.",
+          "- AC6: The selected project can be restored or shown as the current context after refresh."
+        ],
+        "Needs": [
+          "- The Logics viewer should let an operator move between known projects without stopping and relaunching a separate viewer for each repository.",
+          "- Operators working across Logics, CDX, and product repositories need quick project switching to inspect workflow state, Git/CI/CDX status, and future assistant runs in the right context.",
+          "- Project navigation must stay safe: the browser UI should not be able to request arbitrary filesystem paths outside a backend-controlled allowlist."
+        ]
+      },
+      "status": "Done",
+      "title": "Add multi-project navigation to the Logics viewer"
+    },
+    {
+      "ai_context": {
+        "keywords": "request-chain-scaffold, one viewer per repo, and a resolved port story across the viewer and mcp, development-ready",
+        "skip when": "The change is unrelated to this scaffolded request chain.",
+        "summary": "One viewer per repo, and a resolved port story across the viewer and MCP",
+        "use when": "You need to implement or review the scaffolded workflow for One viewer per repo, and a resolved port story across the viewer and MCP."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_665_turn_port_collisions_into_clear_errors_and_deconflict_the_viewer_mcp_default_ports",
+          "item_666_add_a_per_repo_viewer_registry_so_any_surface_reuses_a_live_instance",
+          "item_667_harden_vs_code_deactivation_and_reconcile_prod_020_s_port_selection_claim"
+        ],
+        "prod": [
+          "prod_020_local_web_viewer_for_cli_driven_logics_work",
+          "prod_070_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp"
+        ],
+        "req": [
+          "req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp"
+        ]
+      },
+      "path": "logics/request/req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp.md",
+      "ref": "req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A bind collision on the viewer's or MCP serve-http's default port produces a clear, actionable error identifying which default port conflicted and how to resolve it, instead of a raw Python traceback.",
+          "- AC2: The viewer and `mcp serve-http`/`mcp tunnel`/`mcp connect` no longer share the same default port; each family has its own default, so both can run concurrently against the same repo without a naming collision.",
+          "- AC3: A per-repo registry lets any invocation - CLI `logics-manager view`, or a VS Code window's `ViewerServerManager.getOrStart()` - detect a live viewer already serving that exact repo root and reuse it (return its existing URL) instead of spawning a duplicate.",
+          "- AC4: A registry entry whose recorded server no longer responds to a liveness check is treated as stale and replaced, rather than blocking a fresh start or being trusted blindly.",
+          "- AC5: Opening the same repo from two independent VS Code windows results in one shared viewer server, not two - verified by a test that starts the manager twice against the same root (simulating two windows) and gets back the same port both times.",
+          "- AC5b: Claiming a repo root's registry slot is atomic (using the same `fcntl.flock` exclusive-lock primitive already used in release.py), so two processes starting within the same instant for the same repo root cannot both spawn and silently overwrite each other's registry entry - covered by a test that starts two claims concurrently and asserts exactly one server wins the slot."
+        ],
+        "Needs": [
+          "- Detect a viewer already running for a given repo root - from any surface (CLI, or any VS Code window) - and reuse it instead of spawning a duplicate.",
+          "- Turn a port-bind collision into a clear, actionable error, instead of a raw Python traceback.",
+          "- Stop the viewer and MCP's HTTP server from sharing the same default port by accident, so both can run concurrently against the same repo.",
+          "- Reconcile `prod_020`'s existing \"available localhost port\" and \"clear shutdown and port-selection story\" language with what the code actually does today.",
+          "- Make VS Code's extension deactivation explicitly stop tracked viewer servers, not rely solely on subscription disposal."
+        ]
+      },
+      "status": "Done",
+      "title": "One viewer per repo, and a resolved port story across the viewer and MCP"
+    },
+    {
+      "ai_context": {
+        "keywords": "define, standalone, fleet, launch, bounded, operator, roots",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots"
+        ],
+        "prod": [
+          "prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer"
+        ],
+        "req": [
+          "req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server"
+        ],
+        "task": [
+          "task_339_deliver_the_standalone_fleet_viewer_and_singleton_server"
+        ]
+      },
+      "path": "logics/backlog/item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots.md",
+      "ref": "item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `logics-manager view --fleet --open` starts or reuses the standalone fleet viewer from any directory, including one with no repository or Logics corpus, without prompting to bootstrap the current directory.",
+          "- AC2: The fleet viewer lets an operator add and remove bounded fleet roots stored in operator-scoped preferences; discovery scans only immediate child directories, lists both Logics and bootstrappable projects, and never recursively scans the home directory or disk.",
+          "- AC6: Existing repo-oriented commands remain compatible: `logics-manager view --repo-root DIR --focus REF` targets that project in the shared viewer, and launching `view` without `--fleet` keeps the documented project-oriented behavior."
+        ],
+        "Problem": [
+          "- The viewer resolves a launch repository from the current working directory, so launching it outside a project enters bootstrap onboarding rather than a useful fleet surface.",
+          "- Sibling discovery depends on an already-known launch repository. There is no operator-owned set of bounded roots from which a standalone viewer can discover a fleet."
+        ]
+      },
+      "status": "Ready",
+      "title": "Define standalone fleet launch and bounded operator fleet roots"
+    },
+    {
+      "ai_context": {
+        "keywords": "project, context, request, scoped, before, sharing, viewer, server",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_706_make_project_context_request_scoped_before_sharing_the_viewer_server"
+        ],
+        "prod": [
+          "prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer"
+        ],
+        "req": [
+          "req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server"
+        ],
+        "task": [
+          "task_339_deliver_the_standalone_fleet_viewer_and_singleton_server"
+        ]
+      },
+      "path": "logics/backlog/item_706_make_project_context_request_scoped_before_sharing_the_viewer_server.md",
+      "ref": "item_706_make_project_context_request_scoped_before_sharing_the_viewer_server",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC4: A project selection is carried explicitly with viewer requests and validated against the server's allowed fleet/project set. Switching projects in one client does not mutate another client's active project, and all document, Git, CDX, workflow, bootstrap, and write actions operate only on their explicitly selected project.",
+          "- AC7: LAN read-only/read-write authorization, project-root containment checks, and the bounded native/browser folder pickers remain enforced after fleet routing; no browser-provided absolute path becomes an unrestricted filesystem capability.",
+          "- AC8: Python and browser-host tests cover standalone startup, bounded root discovery, stale-server reuse, two independently selected projects, rejected project identifiers/paths, repo-root focus compatibility, and a regression proving that one tab cannot change another tab's project context."
+        ],
+        "Problem": [
+          "- `/api/switch-project` currently changes `LogicsViewerServer.repo_root` for every client. A fleet singleton would let one tab silently change another tab's data and action target.",
+          "- Most viewer routes derive their filesystem root from that mutable server field, so the project boundary must be carried and checked at the shared route boundary rather than patched action by action."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make project context request-scoped before sharing the viewer server"
+    },
+    {
+      "ai_context": {
+        "keywords": "build, fleet, home, project, navigation, surface",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_707_build_the_fleet_home_and_project_navigation_surface"
+        ],
+        "prod": [
+          "prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer"
+        ],
+        "req": [
+          "req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server"
+        ],
+        "task": [
+          "task_339_deliver_the_standalone_fleet_viewer_and_singleton_server"
+        ]
+      },
+      "path": "logics/backlog/item_707_build_the_fleet_home_and_project_navigation_surface.md",
+      "ref": "item_707_build_the_fleet_home_and_project_navigation_surface",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC2: The fleet viewer lets an operator add and remove bounded fleet roots stored in operator-scoped preferences; discovery scans only immediate child directories, lists both Logics and bootstrappable projects, and never recursively scans the home directory or disk.",
+          "- AC3: The fleet home shows each discovered project's name, path on demand, Logics availability, and lazy-loaded open-work, issue, and stale-work signals; an unreadable project does not prevent the remaining fleet from rendering.",
+          "- AC9: CLI and viewer documentation describe the standalone fleet entry point, fleet-root discovery ceiling, one-server lifecycle, and the relationship with CDX; no separate Logics tray process is introduced."
+        ],
+        "Problem": [
+          "- The existing project switcher is useful only after a repository-launch context has been chosen; it does not present a first-class fleet starting surface or manage fleet roots.",
+          "- Operators need enough aggregate state to choose the next project without opening every board, but this must not make viewer startup expensive."
+        ]
+      },
+      "status": "Ready",
+      "title": "Build the fleet home and project navigation surface"
+    },
+    {
+      "ai_context": {
+        "keywords": "replace, per, repository, viewer, reuse, safe, fleet, singleton",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton"
+        ],
+        "prod": [
+          "prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer"
+        ],
+        "req": [
+          "req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server"
+        ],
+        "task": [
+          "task_339_deliver_the_standalone_fleet_viewer_and_singleton_server"
+        ]
+      },
+      "path": "logics/backlog/item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton.md",
+      "ref": "item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC5: The viewer registry exposes one live standalone fleet server per operator/profile. CLI launches and VS Code embedding reuse its live URL, stale registry entries are safely replaced, and a focus or workspace target opens the intended project without spawning a second repo-bound server.",
+          "- AC6: Existing repo-oriented commands remain compatible: `logics-manager view --repo-root DIR --focus REF` targets that project in the shared viewer, and launching `view` without `--fleet` keeps the documented project-oriented behavior.",
+          "- AC8: Python and browser-host tests cover standalone startup, bounded root discovery, stale-server reuse, two independently selected projects, rejected project identifiers/paths, repo-root focus compatibility, and a regression proving that one tab cannot change another tab's project context."
+        ],
+        "Problem": [
+          "- The current registry is intentionally keyed by repository root, so opening several projects starts several servers even though they all serve identical viewer assets.",
+          "- VS Code currently starts a repo-oriented viewer process. It needs a compatible path to the shared fleet server while retaining workspace-specific focus behavior."
+        ]
+      },
+      "status": "Ready",
+      "title": "Replace per-repository viewer reuse with a safe fleet singleton"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots",
+          "item_706_make_project_context_request_scoped_before_sharing_the_viewer_server",
+          "item_707_build_the_fleet_home_and_project_navigation_surface",
+          "item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton"
+        ],
+        "prod": [
+          "prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer"
+        ],
+        "req": [
+          "req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server"
+        ],
+        "task": [
+          "task_339_deliver_the_standalone_fleet_viewer_and_singleton_server"
+        ]
+      },
+      "path": "logics/product/prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer.md",
+      "ref": "prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "A standalone fleet home for the canonical Logics viewer"
+    },
+    {
+      "ai_context": {
+        "keywords": "deliver, standalone, fleet, viewer, singleton, server",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots",
+          "item_706_make_project_context_request_scoped_before_sharing_the_viewer_server",
+          "item_707_build_the_fleet_home_and_project_navigation_surface",
+          "item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton"
+        ],
+        "prod": [
+          "prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer"
+        ],
+        "req": [
+          "req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server"
+        ],
+        "task": [
+          "task_339_deliver_the_standalone_fleet_viewer_and_singleton_server"
+        ]
+      },
+      "path": "logics/tasks/task_339_deliver_the_standalone_fleet_viewer_and_singleton_server.md",
+      "ref": "task_339_deliver_the_standalone_fleet_viewer_and_singleton_server",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Deliver the standalone fleet viewer and singleton server"
+    }
+  ],
+  "estimates": {
+    "char_count": 28057,
+    "companion_doc_count": 3,
+    "doc_count": 9
+  },
+  "generated_at": "2026-08-12T07:07:12Z",
+  "handoff": {
+    "companion_doc_count": 3,
+    "enabled": true,
+    "source_refs": [
+      "req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server",
+      "item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots",
+      "item_706_make_project_context_request_scoped_before_sharing_the_viewer_server",
+      "item_707_build_the_fleet_home_and_project_navigation_surface",
+      "item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton",
+      "task_339_deliver_the_standalone_fleet_viewer_and_singleton_server"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "deep",
+  "ref": "req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server,item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots,item_706_make_project_context_request_scoped_before_sharing_the_viewer_server,item_707_build_the_fleet_home_and_project_navigation_surface,item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton,task_339_deliver_the_standalone_fleet_viewer_and_singleton_server",
+  "refs": [
+    "req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server",
+    "item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots",
+    "item_706_make_project_context_request_scoped_before_sharing_the_viewer_server",
+    "item_707_build_the_fleet_home_and_project_navigation_surface",
+    "item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton",
+    "task_339_deliver_the_standalone_fleet_viewer_and_singleton_server"
+  ],
+  "release": {
+    "blocking_reasons": [],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "Release evidence is complete.",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "ready",
+    "target_version": "2.21.8"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_339_deliver_the_standalone_fleet_viewer_and_singleton_server.md",
+      "ref": "task_339_deliver_the_standalone_fleet_viewer_and_singleton_server"
+    }
+  ]
+}

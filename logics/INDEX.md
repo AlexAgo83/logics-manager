@@ -116,7 +116,7 @@
 | [prod_075_one_logics_runtime_no_setup_noise](product/prod_075_one_logics_runtime_no_setup_noise.md) | One Logics runtime, no setup noise | Settled |  |  | product/prod_075_one_logics_runtime_no_setup_noise.md |
 | [prod_076_tooling_that_tells_the_truth_about_itself](product/prod_076_tooling_that_tells_the_truth_about_itself.md) | Tooling that tells the truth about itself | Settled |  |  | product/prod_076_tooling_that_tells_the_truth_about_itself.md |
 | [prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say](product/prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say.md) | A plugin that interrupts only when it has something new to say | Settled |  |  | product/prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say.md |
-| [prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer](product/prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer.md) | A standalone fleet home for the canonical Logics viewer | Proposed |  |  | product/prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer.md |
+| [prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer](product/prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer.md) | A standalone fleet home for the canonical Logics viewer | Settled |  |  | product/prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer.md |
 
 ## Roadmaps
 
@@ -474,7 +474,7 @@
 | [req_339_report_workflow_docs_whose_context_points_at_code_that_is_gone](request/req_339_report_workflow_docs_whose_context_points_at_code_that_is_gone.md) | Report workflow docs whose context points at code that is gone | Done |  |  | request/req_339_report_workflow_docs_whose_context_points_at_code_that_is_gone.md |
 | [req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed](request/req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed.md) | Close the three trust gaps the 2.21.7 cycle exposed | Done |  |  | request/req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed.md |
 | [req_341_stop_reopening_getting_started_when_its_content_has_not_changed](request/req_341_stop_reopening_getting_started_when_its_content_has_not_changed.md) | Stop reopening Getting Started when its content has not changed | Done |  |  | request/req_341_stop_reopening_getting_started_when_its_content_has_not_changed.md |
-| [req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server](request/req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server.md) | Launch a standalone Logics fleet viewer through one shared local server | Ready |  |  | request/req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server.md |
+| [req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server](request/req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server.md) | Launch a standalone Logics fleet viewer through one shared local server | Done |  |  | request/req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server.md |
 
 ## Backlog
 
@@ -1184,10 +1184,10 @@
 | [item_702_make_every_guard_reachable_before_the_push](backlog/item_702_make_every_guard_reachable_before_the_push.md) | Make every guard reachable before the push | Done |  | 100% | backlog/item_702_make_every_guard_reachable_before_the_push.md |
 | [item_703_report_a_request_criterion_no_linked_document_accounts_for](backlog/item_703_report_a_request_criterion_no_linked_document_accounts_for.md) | Report a request criterion no linked document accounts for | Done |  | 100% | backlog/item_703_report_a_request_criterion_no_linked_document_accounts_for.md |
 | [item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version](backlog/item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version.md) | Key the onboarding guard on page content instead of extension version | Done |  | 100% | backlog/item_704_key_the_onboarding_guard_on_page_content_instead_of_extension_version.md |
-| [item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots](backlog/item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots.md) | Define standalone fleet launch and bounded operator fleet roots | In progress |  | 75% | backlog/item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots.md |
-| [item_706_make_project_context_request_scoped_before_sharing_the_viewer_server](backlog/item_706_make_project_context_request_scoped_before_sharing_the_viewer_server.md) | Make project context request-scoped before sharing the viewer server | In progress |  | 75% | backlog/item_706_make_project_context_request_scoped_before_sharing_the_viewer_server.md |
-| [item_707_build_the_fleet_home_and_project_navigation_surface](backlog/item_707_build_the_fleet_home_and_project_navigation_surface.md) | Build the fleet home and project navigation surface | In progress |  | 75% | backlog/item_707_build_the_fleet_home_and_project_navigation_surface.md |
-| [item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton](backlog/item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton.md) | Replace per-repository viewer reuse with a safe fleet singleton | In progress |  | 75% | backlog/item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton.md |
+| [item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots](backlog/item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots.md) | Define standalone fleet launch and bounded operator fleet roots | Done |  | 100% | backlog/item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots.md |
+| [item_706_make_project_context_request_scoped_before_sharing_the_viewer_server](backlog/item_706_make_project_context_request_scoped_before_sharing_the_viewer_server.md) | Make project context request-scoped before sharing the viewer server | Done |  | 100% | backlog/item_706_make_project_context_request_scoped_before_sharing_the_viewer_server.md |
+| [item_707_build_the_fleet_home_and_project_navigation_surface](backlog/item_707_build_the_fleet_home_and_project_navigation_surface.md) | Build the fleet home and project navigation surface | Done |  | 100% | backlog/item_707_build_the_fleet_home_and_project_navigation_surface.md |
+| [item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton](backlog/item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton.md) | Replace per-repository viewer reuse with a safe fleet singleton | Done |  | 100% | backlog/item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton.md |
 
 ## Tasks
 
@@ -1525,7 +1525,7 @@
 | [task_336_report_workflow_docs_whose_context_points_at_code_that_is_gone](tasks/task_336_report_workflow_docs_whose_context_points_at_code_that_is_gone.md) | Report workflow docs whose context points at code that is gone | Done |  | 100% | tasks/task_336_report_workflow_docs_whose_context_points_at_code_that_is_gone.md |
 | [task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle](tasks/task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle.md) | Deliver the three trust gaps from the 2.21.7 cycle | Done |  | 100% | tasks/task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle.md |
 | [task_338_deliver_the_content_keyed_onboarding_guard](tasks/task_338_deliver_the_content_keyed_onboarding_guard.md) | Deliver the content-keyed onboarding guard | Done |  | 100% | tasks/task_338_deliver_the_content_keyed_onboarding_guard.md |
-| [task_339_deliver_the_standalone_fleet_viewer_and_singleton_server](tasks/task_339_deliver_the_standalone_fleet_viewer_and_singleton_server.md) | Deliver the standalone fleet viewer and singleton server | In progress | Codex | 75% | tasks/task_339_deliver_the_standalone_fleet_viewer_and_singleton_server.md |
+| [task_339_deliver_the_standalone_fleet_viewer_and_singleton_server](tasks/task_339_deliver_the_standalone_fleet_viewer_and_singleton_server.md) | Deliver the standalone fleet viewer and singleton server | Done | Codex | 100% | tasks/task_339_deliver_the_standalone_fleet_viewer_and_singleton_server.md |
 
 ## Runbooks
 

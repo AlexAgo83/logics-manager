@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-12 09:08:48
+> Indicators reviewed: 2026-08-12 10:19:20
 
 # AI Context
 - Summary: Execute launch/discovery, request-scoped isolation, fleet UI, and singleton lifecycle in that dependency order; do not migrate the registry before isolation is proven.
@@ -64,4 +64,4 @@
 # Links
 - Request: `req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server`
 - Product brief(s): `prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer`
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_028_scope_the_fleet_viewer_registry_to_the_operator_profile_and_resolve_project_context_per_request`

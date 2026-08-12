@@ -1,13 +1,13 @@
 ## req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server - Launch a standalone Logics fleet viewer through one shared local server
 > From version: 2.21.8
 > Schema version: 1.0
-> Status: Draft
+> Status: Ready
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High
 > Theme: Standalone fleet viewer
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-12 09:10:23
+> Indicators reviewed: 2026-08-12 10:19:19
 
 # AI Context
 - Summary: Deliver a bounded, operator-owned fleet entry point without re-centralizing repository data; make project identity explicit at the HTTP boundary before sharing one viewer process.
@@ -27,7 +27,7 @@
 - The current viewer server holds one mutable `self.repo_root`; its project-switch endpoint changes that shared process state. This is acceptable for one active viewer but unsafe as the routing model for a single server used by multiple tabs or clients.
 - The current cross-process registry deliberately provides one viewer per repository (`logics_manager/viewer_registry.py` and req_322). This request intentionally replaces that lifecycle rule for the viewer only; MCP HTTP servers remain separately scoped because their exposed-tool profile can vary.
 - `--repo-root` is a global CLI contract, but the viewer currently resolves its root from the current working directory. The standalone path must make an explicit project target work consistently for CLI focus and VS Code embedding.
-- Existing completed request `req_231_add_multi_project_navigation_to_the_logics_viewer` delivered safe multi-project switching, and `req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp` delivered a per-repo reuse registry. This request evolves those delivered foundations; it must preserve their security and stale-server guarantees rather than duplicate them.
+- Existing completed request `logics/request/req_231_add_multi_project_navigation_to_the_logics_viewer.md` delivered safe multi-project switching, and `logics/request/req_322_one_viewer_per_repo_and_a_resolved_port_story_across_the_viewer_and_mcp.md` delivered a per-repo reuse registry. This request evolves those delivered foundations; it must preserve their security and stale-server guarantees rather than duplicate them.
 
 # Acceptance criteria
 - AC1: `logics-manager view --fleet --open` starts or reuses the standalone fleet viewer from any directory, including one with no repository or Logics corpus, without prompting to bootstrap the current directory.
@@ -48,7 +48,7 @@
 
 # Companion docs
 - Product brief(s): `prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer`
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_028_scope_the_fleet_viewer_registry_to_the_operator_profile_and_resolve_project_context_per_request`
 
 # References
 - logics/request/req_231_add_multi_project_navigation_to_the_logics_viewer.md

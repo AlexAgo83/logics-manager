@@ -171,6 +171,32 @@ def test_the_viewer_serves_and_accepts_preferences(home: Path, tmp_path: Path, m
     assert "workshopActiveTab" in _json.loads(repo_preferences_path(repo).read_text())["preferences"]
 
 
+def test_project_context_is_per_request_not_shared(tmp_path: Path) -> None:
+    import json as _json
+    import threading
+    import urllib.request
+
+    from logics_manager.viewer import _viewer_project_id, create_viewer_server
+
+    first, second = _repo(tmp_path, "first"), _repo(tmp_path, "second")
+    server = create_viewer_server(first, host="127.0.0.1", port=0)
+    server.switch_project_root(second)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        base = f"http://127.0.0.1:{server.server_address[1]}/api/items?project="
+        with urllib.request.urlopen(base + _viewer_project_id(first), timeout=10) as response:
+            first_payload = _json.loads(response.read())["payload"]
+        with urllib.request.urlopen(base + _viewer_project_id(second), timeout=10) as response:
+            second_payload = _json.loads(response.read())["payload"]
+    finally:
+        server.shutdown()
+        server.server_close()
+
+    assert first_payload["root"] == str(first.resolve())
+    assert second_payload["root"] == str(second.resolve())
+
+
 # --- item_633: an ordinary project is not a client error ---------------------
 
 

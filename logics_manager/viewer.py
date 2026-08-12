@@ -2213,10 +2213,10 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError):
             return
         try:
-            baseline = self._viewer_event_snapshot(include_remote=True)
             payload = json.dumps({"seq": self.server.next_event_seq(), "components": []})
             self.wfile.write(f"event: ready\ndata: {payload}\n\n".encode("utf-8"))
             self.wfile.flush()
+            baseline = self._viewer_event_snapshot(include_remote=True)
             remote_due_at = time.monotonic() + VIEWER_EVENT_REMOTE_POLL_SECONDS
             idle_ticks = 0
             while True:
@@ -3428,9 +3428,9 @@ def main(argv: list[str]) -> int:
         ),
         key="fleet",
     )
-    project_param = _viewer_project_id(repo_root) if (not args.fleet or args.focus) else None
     if claim.reused:
-        reused_url = build_viewer_url(bind_host, claim.port, focus=focus, read=bool(args.read), project=project_param, scheme=claim.scheme)
+        reused_project = _viewer_project_id(repo_root) if include_launch_project else None
+        reused_url = build_viewer_url(bind_host, claim.port, focus=focus, read=bool(args.read), project=reused_project, scheme=claim.scheme)
         print(f"Reusing the viewer already running for {repo_root} at {reused_url}", flush=True)
         if args.open and not args.no_open:
             webbrowser.open(reused_url)
@@ -3438,7 +3438,8 @@ def main(argv: list[str]) -> int:
     server = claim.server
     host, port = server.server_address[:2]
     scheme = server.url_scheme
-    url = build_viewer_url(str(host), int(port), focus=focus, read=bool(args.read), project=project_param, scheme=scheme)
+    new_project = _viewer_project_id(repo_root) if args.fleet and focus and include_launch_project else None
+    url = build_viewer_url(str(host), int(port), focus=focus, read=bool(args.read), project=new_project, scheme=scheme)
     network_url = _network_viewer_url(str(host), int(port), focus=focus, read=bool(args.read), scheme=scheme)
     lan_share_url = ""
     qr_lines: list[str] = []

@@ -80,6 +80,40 @@ def test_adding_a_fleet_root_discovers_only_its_immediate_projects(home: Path, t
     assert str(project.resolve()) not in {entry["root"] for entry in server.project_registry_payload()}
 
 
+def test_a_fleet_root_lists_bootstrappable_projects(home: Path, tmp_path: Path) -> None:
+    from logics_manager.viewer import create_viewer_server
+
+    launch = _repo(tmp_path, "launch")
+    root = tmp_path / "fleet"
+    project = root / "package-only"
+    project.mkdir(parents=True)
+    (project / "package.json").write_text("{}", encoding="utf-8")
+    server = create_viewer_server(launch, host="127.0.0.1", port=0, fleet=True)
+    try:
+        server.add_fleet_root(root)
+        entry = next(item for item in server.project_registry_payload() if item["root"] == str(project.resolve()))
+    finally:
+        server.server_close()
+
+    assert entry["hasLogics"] is False
+    assert entry["message"] == "No Logics corpus found."
+
+
+def test_fleet_home_can_start_without_claiming_the_current_directory(home: Path, tmp_path: Path) -> None:
+    from logics_manager.viewer import create_viewer_server
+
+    launch = tmp_path / "random"
+    launch.mkdir()
+    server = create_viewer_server(launch, host="127.0.0.1", port=0, fleet=True, include_launch_project=False)
+    try:
+        payload = server.viewer_payload(fleet_home=True)
+    finally:
+        server.server_close()
+
+    assert payload["fleetHome"] is True
+    assert str(launch.resolve()) not in {entry["root"] for entry in payload["projects"]}
+
+
 def test_a_corpus_preference_stays_with_its_corpus(home: Path, tmp_path: Path) -> None:
     first, second = _repo(tmp_path, "one"), _repo(tmp_path, "two")
 

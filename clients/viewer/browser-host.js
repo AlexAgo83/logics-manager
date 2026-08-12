@@ -8741,9 +8741,15 @@ ${line}` : line;
       renderMeta();
     }
     function updateRepositoryIdentity(payload) {
-      activeProjectId = String(payload.projectId || activeProjectId || "");
+      const url = new URL(window.location.href);
+      if (payload.fleetHome) {
+        activeProjectId = "";
+        url.searchParams.delete("project");
+        window.history.replaceState(null, "", url);
+      } else {
+        activeProjectId = String(payload.projectId || activeProjectId || "");
+      }
       if (activeProjectId) {
-        const url = new URL(window.location.href);
         url.searchParams.set("project", activeProjectId);
         window.history.replaceState(null, "", url);
       }
@@ -8823,12 +8829,79 @@ ${line}` : line;
       menu.innerHTML = `${fleetRoots}${projectRows}${pickerRow}${fleetRootRow}`;
     }
     let latestProjectState = {};
-    async function loadProjectState() {
+    function renderFleetHome() {
+      const favorites = favoriteProjectIds();
+      const projects = latestProjects.filter((project) => project && typeof project === "object").map((project, index) => {
+        const state = latestProjectState[project.id] || null;
+        return { project, state, index, favorite: favorites.has(projectPreferenceId(project)) };
+      }).sort((left, right) => Number(right.favorite) - Number(left.favorite) || left.index - right.index);
+      const rootRows = latestFleetRoots.map((root) => `
+      <div class="viewer-fleet__root">
+        <span>${escapeHtml(root)}</span>
+        <button class="viewer-project-switcher__favorite" type="button" data-viewer-fleet-root-remove="${escapeHtml(root)}" aria-label="Remove fleet root" title="Remove fleet root">x</button>
+      </div>
+    `).join("");
+      const cards = projects.map(({ project, state, favorite }) => {
+        const status = projectStateLabel(project, state);
+        const metrics = state && state.ok !== false && state.hasLogics !== false ? renderMetricCards([
+          ["Open", String(state.openCount ?? 0), ""],
+          ["Issues", String(state.issueCount ?? 0), state.issueCount ? "failing" : ""],
+          ["Stale", String(state.staleCount ?? 0), state.staleCount ? "running" : ""]
+        ]) : `<p class="viewer-fleet__state">${escapeHtml(state?.error || project.message || status)}</p>`;
+        return `
+        <article class="viewer-fleet__project${project.hasLogics === false ? " is-bootstrappable" : ""}">
+          <header class="viewer-fleet__project-head">
+            <button class="viewer-project-switcher__favorite" type="button" aria-label="${favorite ? "Remove favorite" : "Add favorite"} ${escapeHtml(project.name || "project")}" aria-pressed="${favorite ? "true" : "false"}" data-viewer-project-favorite="${escapeHtml(projectPreferenceId(project))}" title="${favorite ? "Remove favorite" : "Add favorite"}">
+              <span aria-hidden="true">${favorite ? "\u2605" : "\u2606"}</span>
+            </button>
+            <div>
+              <h3>${escapeHtml(project.name || "project")}</h3>
+              <span>${escapeHtml(status)}</span>
+            </div>
+            <button class="viewer-fleet__open" type="button" data-viewer-project-id="${escapeHtml(project.id || "")}">Open</button>
+          </header>
+          <details class="viewer-fleet__path"><summary>Path</summary><code>${escapeHtml(project.root || "")}</code></details>
+          ${metrics}
+        </article>
+      `;
+      }).join("");
+      return `
+      <section class="viewer-fleet">
+        <div class="viewer-fleet__toolbar">
+          <div>
+            <h2>Fleet</h2>
+            <p>${projects.length} project${projects.length === 1 ? "" : "s"} discovered.</p>
+          </div>
+          <button class="viewer-fleet__open" type="button" data-viewer-fleet-root-pick>Add root</button>
+        </div>
+        ${latestFleetRoots.length ? `<section class="viewer-fleet__roots">${rootRows}</section>` : ""}
+        <section class="viewer-fleet__grid">${cards || '<p class="viewer-fleet__empty">Add a fleet root to discover projects.</p>'}</section>
+      </section>
+    `;
+    }
+    function isFleetHomeOpen() {
+      const panel = documentPanel();
+      const title = documentTitle();
+      return Boolean(panel && !panel.hidden && title?.textContent === "Fleet");
+    }
+    async function showFleetHome(options = {}) {
+      setDocument("Fleet", renderFleetHome());
+      if (!options.silent) {
+        setMeta(`Fleet \xB7 ${latestProjects.length} projects`);
+      }
+      if (!options.skipStateLoad) {
+        await loadProjectState({ renderFleetHome: true });
+      }
+    }
+    async function loadProjectState(options = {}) {
       try {
         const response = await fetch("/api/projects-state");
         const data = await response.json();
         latestProjectState = data?.payload?.projects || {};
         renderProjectMenu();
+        if (options.renderFleetHome || isFleetHomeOpen()) {
+          setDocument("Fleet", renderFleetHome());
+        }
       } catch {
       }
     }
@@ -10018,6 +10091,9 @@ ${line}` : line;
       if (activityPanelIsOpen()) {
         dispatchViewerActivityUpdate();
       }
+      if (payload.fleetHome) {
+        void showFleetHome({ silent: Boolean(options.silent) });
+      }
       return true;
     }
     function renderUpdateNotice(updateInfo, cdxUpdateInfo) {
@@ -10076,7 +10152,9 @@ ${line}` : line;
     }
     async function refreshViewer(method = "POST", options = {}) {
       const changed = await loadItems(method, options);
-      if (isWorkspaceOpen()) {
+      if (isFleetHomeOpen()) {
+        await showFleetHome({ silent: Boolean(options.silent), skipStateLoad: !changed && !options.force });
+      } else if (isWorkspaceOpen()) {
         if (changed || options.force) {
           await showWorkspace({ silent: Boolean(options.silent) });
         }
@@ -10106,6 +10184,7 @@ ${line}` : line;
       }
     }
     const screenRegistry = [
+      { title: "Fleet", refresh: (opts) => showFleetHome(opts) },
       { title: "Getting Started", refresh: () => showGettingStarted() },
       { title: "CDX status", refresh: (opts) => showCdxStatus(opts) },
       { title: "CDX missions", refresh: (opts) => showCdxMissions(opts) },

@@ -179,6 +179,31 @@ that fails to report is shown as unreadable while the others still render.
 Directories with no `logics/` are still listed — the switcher is also how a
 project gets bootstrapped — and are simply not scanned.
 
+## The fleet viewer
+
+Use the standalone fleet entry point when you want a viewer before choosing a
+project:
+
+```bash
+logics-manager view --fleet --open
+```
+
+`--fleet` starts or reuses one local viewer server for the current operator
+profile. From a normal project launch, `logics-manager view` and the VS Code
+extension target that project in the same shared server; from a plain directory,
+`view --fleet` opens the Fleet home without prompting to bootstrap that
+directory.
+
+Fleet roots are operator-scoped viewer preferences. Add or remove them from the
+Fleet home or project menu. Discovery scans only each configured root's immediate
+children and lists both existing Logics corpora and bootstrappable project
+folders; it never recursively scans home or disk.
+
+The Fleet home lazy-loads the same open-work, issue, and stale-work signals as
+`/api/projects-state`. A project that cannot be read is shown inline while the
+remaining projects still render. The path is tucked behind each project's
+details row for confirmation/debugging.
+
 ## The indicator gate, and what checks a commit
 
 `logics-manager lint --require-status` flags a workflow document edited without updating an
@@ -392,6 +417,10 @@ logics-manager view --open
 ```
 
 The viewer starts a localhost-only browser UI on `127.0.0.1:8765` by default. It shows the same workflow board/list experience as the extension, with search, filters, document previews, corpus insights, lint/audit health, Mermaid rendering, auto-refresh, and an edit shortcut that opens the selected Markdown file in the system editor. The CDX section includes a read-only Memory sub-screen that reuses `assist cdx-memory show` payloads with scope controls and raw/cleaned excerpts.
+
+For fleet navigation, use `logics-manager view --fleet --open`. It opens the
+same viewer server on the Fleet home; no separate Logics tray or background
+service is introduced.
 
 The topbar includes focused operational views:
 

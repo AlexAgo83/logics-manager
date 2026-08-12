@@ -15,6 +15,11 @@ The extension now owns only the VS Code-specific shell:
 - restarting the managed viewer;
 - focusing the viewer on the current Logics document.
 
+The process is project-oriented so the webview opens on the workspace, but it
+claims the same operator-scoped viewer singleton used by
+`logics-manager view --fleet`. A standalone Fleet home can therefore coexist
+with VS Code without starting a second repo-bound viewer server.
+
 The embedded viewer header keeps reload, restart, and external-open actions as compact secondary controls so the canonical viewer remains visually primary.
 
 Install from the Marketplace:

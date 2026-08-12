@@ -84,9 +84,11 @@ The standalone local viewer host is built with esbuild from `clients/viewer/src/
 
 The VS Code Logics panel embeds the canonical local viewer by starting a
 managed `logics-manager view --host 127.0.0.1 --port 0 --no-open` process and
-loading that loopback URL in a webview iframe. Keep normal viewer routes in
-Python; add TypeScript only for VS Code lifecycle, focus, CSP, or documented
-bridge exceptions.
+loading that loopback URL in a webview iframe. That command targets the
+workspace project but reuses the same operator-scoped viewer singleton as
+`logics-manager view --fleet`; keep normal viewer routes in Python and add
+TypeScript only for VS Code lifecycle, focus, CSP, or documented bridge
+exceptions.
 
 The VS Code and local-viewer shared webview scripts `mainApp.js` and
 `renderBoardApp.js` are hand-authored directly under `clients/shared-web/media/`

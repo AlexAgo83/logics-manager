@@ -239,6 +239,34 @@ def test_two_real_cli_processes_for_the_same_repo_share_one_server(tmp_path: Pat
             first.kill()
 
 
+def test_real_cli_fleet_from_plain_directory_opens_home(tmp_path: Path) -> None:
+    env = os.environ.copy()
+    env["LOGICS_VIEWER_REGISTRY_PATH"] = str(tmp_path / "viewers.json")
+    env["LOGICS_VIEWER_PREFERENCES_HOME"] = str(tmp_path / "preferences")
+    env["NO_COLOR"] = "1"
+    plain = tmp_path / "plain"
+    plain.mkdir()
+
+    process = subprocess.Popen(
+        [sys.executable, "-m", "logics_manager", "view", "--fleet", "--port", "0", "--no-open", "--yes"],
+        cwd=plain,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        env=env,
+    )
+    try:
+        line = read_subprocess_line(process, lambda candidate: "Local:" in candidate, timeout=30)
+        assert line is not None
+        assert "project=" not in line
+    finally:
+        process.terminate()
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            process.kill()
+
+
 def test_lock_and_unlock_round_trip_leaves_the_file_usable(tmp_path: Path) -> None:
     """The platform lock helpers (`fcntl.flock` on POSIX, `msvcrt.locking` on
     Windows) must leave the file readable/writable by the same handle after

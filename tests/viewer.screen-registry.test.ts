@@ -28,6 +28,7 @@ describe("the screen registry", () => {
       "CDX reports",
       "CDX status",
       "Corpus insights",
+      "Fleet",
       "Getting Started",
       "Remote",
       "Validation health",

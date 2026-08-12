@@ -2402,6 +2402,37 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         self._send_json({"ok": True, "payload": payload})
         return True
 
+    def _handle_static_get(self, route: str) -> bool:
+        if route == "/":
+            self._serve_file(VIEWER_ROOT / "index.html", root=VIEWER_ROOT)
+            return True
+        if route in {"/browser-host.js", "/browser-host.js.map"}:
+            self._serve_file(VIEWER_ROOT / route.removeprefix("/"), root=VIEWER_ROOT)
+            return True
+        if route == "/viewer.css":
+            self._serve_file(VIEWER_ROOT / "viewer.css", root=VIEWER_ROOT)
+            return True
+        if route == "/vendor/mermaid.min.js":
+            vendor_path = DIST_VENDOR_ROOT / "mermaid.min.js"
+            vendor_root = DIST_VENDOR_ROOT
+            if not vendor_path.is_file():
+                vendor_path = NODE_MERMAID_ROOT / "mermaid.min.js"
+                vendor_root = NODE_MERMAID_ROOT
+            if not vendor_path.is_file():
+                vendor_path = PACKAGE_VENDOR_ROOT / "mermaid.min.js"
+                vendor_root = PACKAGE_VENDOR_ROOT
+            self._serve_file(vendor_path, root=vendor_root)
+            return True
+        if route.startswith("/media/"):
+            rel_media = unquote(route.removeprefix("/media/")).replace("\\", "/").lstrip("/")
+            media_path = (SHARED_MEDIA_ROOT / rel_media).resolve()
+            if SHARED_MEDIA_ROOT.resolve() != media_path and SHARED_MEDIA_ROOT.resolve() not in media_path.parents:
+                self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
+                return True
+            self._serve_file(media_path, root=SHARED_MEDIA_ROOT)
+            return True
+        return False
+
     def _handle_mcp_connector_post(self, parsed: Any) -> bool:
         if parsed.path != "/api/mcp-connector":
             return False
@@ -2445,33 +2476,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             payload = registry.list_payload() if registry is not None else []
             self._send_json({"ok": True, "payload": payload})
             return
-        if route == "/":
-            self._serve_file(VIEWER_ROOT / "index.html", root=VIEWER_ROOT)
-            return
-        if route in {"/browser-host.js", "/browser-host.js.map"}:
-            self._serve_file(VIEWER_ROOT / route.removeprefix("/"), root=VIEWER_ROOT)
-            return
-        if route == "/viewer.css":
-            self._serve_file(VIEWER_ROOT / "viewer.css", root=VIEWER_ROOT)
-            return
-        if route == "/vendor/mermaid.min.js":
-            vendor_path = DIST_VENDOR_ROOT / "mermaid.min.js"
-            vendor_root = DIST_VENDOR_ROOT
-            if not vendor_path.is_file():
-                vendor_path = NODE_MERMAID_ROOT / "mermaid.min.js"
-                vendor_root = NODE_MERMAID_ROOT
-            if not vendor_path.is_file():
-                vendor_path = PACKAGE_VENDOR_ROOT / "mermaid.min.js"
-                vendor_root = PACKAGE_VENDOR_ROOT
-            self._serve_file(vendor_path, root=vendor_root)
-            return
-        if route.startswith("/media/"):
-            rel_media = unquote(route.removeprefix("/media/")).replace("\\", "/").lstrip("/")
-            media_path = (SHARED_MEDIA_ROOT / rel_media).resolve()
-            if SHARED_MEDIA_ROOT.resolve() != media_path and SHARED_MEDIA_ROOT.resolve() not in media_path.parents:
-                self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
-                return
-            self._serve_file(media_path, root=SHARED_MEDIA_ROOT)
+        if self._handle_static_get(route):
             return
         if route == "/api/items":
             project_id = parse_qs(parsed.query).get("project", [""])[0]
@@ -2626,6 +2631,47 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         self._send_json({"ok": True, "payload": payload})
 
+    def _handle_update_status_post(self, parsed: Any) -> bool:
+        if parsed.path != "/api/update-status":
+            return False
+        try:
+            body = self._read_json_body_strict()
+            rel_path = normalize_viewer_focus_target(self.server.repo_root, str(body.get("path") or body.get("ref") or ""))
+            status = " ".join(str(body.get("status") or "").split())
+            stage = _infer_stage(rel_path, Path(rel_path).stem)
+            allowed = VIEWER_STATUS_OPTIONS_BY_STAGE.get(stage, ())
+            if not status:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Missing status.")
+                return True
+            matched_status = next((entry for entry in allowed if entry.lower() == status.lower()), "")
+            if not matched_status:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, f"Unsupported status for {stage}: {status}.")
+                return True
+            payload = update_workflow_indicators_payload(self.server.repo_root, rel_path, {"Status": matched_status})
+            self._send_json({"ok": True, "payload": payload, "viewer": self.server.viewer_payload(selected_id=str(payload.get("ref") or ""))})
+        except json.JSONDecodeError:
+            self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+        except (FileNotFoundError, ValueError) as exc:
+            self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
+        except SystemExit as exc:
+            self._send_error_json(HTTPStatus.BAD_REQUEST, str(exc))
+        except OSError as exc:
+            self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+        return True
+
+    def _lan_mutation_allowed(self, parsed: Any) -> bool:
+        if not self.server.lan_mode or parsed.path not in VIEWER_MUTATING_ROUTES:
+            return True
+        if self._client_is_loopback():
+            return True
+        if self.server.lan_rw_mode and self._paired_device_for_request(parsed) is not None:
+            return True
+        self._send_error_json(
+            HTTPStatus.FORBIDDEN,
+            "Mutating endpoint refused: pair this device first (see /api/lan/pair/start).",
+        )
+        return False
+
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
         if not self._origin_check_passes():
@@ -2638,18 +2684,8 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if viewer_diagnostics.handle_post(self, parsed.path):
             return
-        if self.server.lan_mode and parsed.path in VIEWER_MUTATING_ROUTES:
-            allow = False
-            if self._client_is_loopback():
-                allow = True
-            elif self.server.lan_rw_mode and self._paired_device_for_request(parsed) is not None:
-                allow = True
-            if not allow:
-                self._send_error_json(
-                    HTTPStatus.FORBIDDEN,
-                    "Mutating endpoint refused: pair this device first (see /api/lan/pair/start).",
-                )
-                return
+        if not self._lan_mutation_allowed(parsed):
+            return
         if parsed.path == "/api/lan/pair/start":
             self._handle_pair_start()
             return
@@ -2810,30 +2846,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if viewer_cdx_routes.handle_post(self, parsed):
             return
-        if parsed.path == "/api/update-status":
-            try:
-                body = self._read_json_body_strict()
-                rel_path = normalize_viewer_focus_target(self.server.repo_root, str(body.get("path") or body.get("ref") or ""))
-                status = " ".join(str(body.get("status") or "").split())
-                stage = _infer_stage(rel_path, Path(rel_path).stem)
-                allowed = VIEWER_STATUS_OPTIONS_BY_STAGE.get(stage, ())
-                if not status:
-                    self._send_error_json(HTTPStatus.BAD_REQUEST, "Missing status.")
-                    return
-                matched_status = next((entry for entry in allowed if entry.lower() == status.lower()), "")
-                if not matched_status:
-                    self._send_error_json(HTTPStatus.BAD_REQUEST, f"Unsupported status for {stage}: {status}.")
-                    return
-                payload = update_workflow_indicators_payload(self.server.repo_root, rel_path, {"Status": matched_status})
-                self._send_json({"ok": True, "payload": payload, "viewer": self.server.viewer_payload(selected_id=str(payload.get("ref") or ""))})
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-            except (FileNotFoundError, ValueError) as exc:
-                self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
-            except SystemExit as exc:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, str(exc))
-            except OSError as exc:
-                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+        if self._handle_update_status_post(parsed):
             return
         if parsed.path == "/api/edit":
             rel_path = parse_qs(parsed.query).get("path", [""])[0]
@@ -3366,6 +3379,35 @@ def _resolve_viewer_root(start: Path) -> Path:
         return start.resolve()
 
 
+def _install_shutdown_handlers(server: LogicsViewerServer) -> None:
+    # Install explicit shutdown handlers so the server stops cleanly on
+    # SIGINT/SIGTERM even when launched by wrappers that inherit SIG_IGN.
+    import signal as _signal
+
+    shutdown_grace_seconds = 3.0
+    shutdown_state: dict[str, Any] = {"requested": False}
+
+    def exit_code_for_signal(signum: int) -> int:
+        return 143 if signum == _signal.SIGTERM else 130
+
+    def force_exit_after_grace(signum: int) -> None:
+        time.sleep(shutdown_grace_seconds)
+        os._exit(exit_code_for_signal(signum))
+
+    def request_shutdown(signum: int, _frame: Any) -> None:
+        if shutdown_state["requested"]:
+            os._exit(exit_code_for_signal(signum))
+        shutdown_state["requested"] = True
+        threading.Thread(target=server.shutdown, daemon=True).start()
+        threading.Thread(target=force_exit_after_grace, args=(signum,), daemon=True).start()
+
+    for sig in (_signal.SIGINT, _signal.SIGTERM):
+        try:
+            _signal.signal(sig, request_shutdown)
+        except (ValueError, OSError):
+            pass
+
+
 def main(argv: list[str]) -> int:
     args = build_parser().parse_args(argv)
     repo_root = _resolve_viewer_root(Path.cwd())
@@ -3468,54 +3510,7 @@ def main(argv: list[str]) -> int:
     if args.open and not args.no_open:
         webbrowser.open(url)
 
-    # Install explicit shutdown handlers so the server stops cleanly on
-    # SIGINT (Ctrl+C) and SIGTERM (kill). Relying solely on serve_forever()
-    # raising KeyboardInterrupt is fragile: when the process is launched in
-    # the background or via a wrapper (node/cdx launcher, nohup, &), it
-    # inherits SIGINT as SIG_IGN, so Python never installs its default
-    # handler, KeyboardInterrupt is never raised, and Ctrl+C appears to
-    # freeze. Setting the handler here overrides any inherited SIG_IGN and
-    # turns SIGTERM into a graceful shutdown (closing workshop terminals)
-    # instead of an abrupt kill. shutdown() must run off the serve_forever
-    # thread, so dispatch it to a short-lived thread.
-    #
-    # Belt-and-suspenders: a long-lived SSE handler thread (an open browser on
-    # /api/events) or a wedged child can keep the graceful path from completing.
-    # After requesting shutdown we arm a watchdog that force-exits the process
-    # if the clean path has not returned within a short grace window, so Ctrl+C
-    # is guaranteed to kill the server. A second signal exits immediately.
-    import signal as _signal
-
-    _SHUTDOWN_GRACE_SECONDS = 3.0
-    _shutdown_state: dict[str, Any] = {"requested": False}
-
-    def _exit_code_for_signal(signum: int) -> int:
-        return 143 if signum == _signal.SIGTERM else 130
-
-    def _force_exit_after_grace(signum: int) -> None:
-        time.sleep(_SHUTDOWN_GRACE_SECONDS)
-        # Reaching here means the clean path is still stuck: the process would
-        # already be gone otherwise. Force the exit so Ctrl+C never hangs.
-        os._exit(_exit_code_for_signal(signum))
-
-    def _request_shutdown(_signum: int, _frame: Any) -> None:
-        if _shutdown_state["requested"]:
-            # Impatient second Ctrl+C: don't wait for the grace window.
-            os._exit(_exit_code_for_signal(_signum))
-        _shutdown_state["requested"] = True
-        threading.Thread(target=server.shutdown, daemon=True).start()
-        threading.Thread(
-            target=_force_exit_after_grace, args=(_signum,), daemon=True
-        ).start()
-
-    for _sig in (_signal.SIGINT, _signal.SIGTERM):
-        try:
-            _signal.signal(_sig, _request_shutdown)
-        except (ValueError, OSError):
-            # Not in the main thread or signal unavailable on this platform;
-            # fall back to the KeyboardInterrupt path below.
-            pass
-
+    _install_shutdown_handlers(server)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

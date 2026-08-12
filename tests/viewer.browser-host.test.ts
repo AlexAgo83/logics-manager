@@ -85,6 +85,9 @@ function createViewerDom(options: {
   terminalRenames?: Array<{ sessionId: string; label: string }>;
   autoRefreshIntervalSeconds?: number;
   autoRefreshIntervalForced?: boolean;
+  fleet?: boolean;
+  fleetHome?: boolean;
+  fleetRoots?: string[];
   url?: string;
 } = {}) {
   const parentMessages: unknown[] = [];
@@ -343,6 +346,9 @@ function createViewerDom(options: {
               ],
               autoRefreshIntervalSeconds: options.autoRefreshIntervalSeconds ?? 15,
               autoRefreshIntervalForced: Boolean(options.autoRefreshIntervalForced),
+              fleet: Boolean(options.fleet),
+              fleetHome: Boolean(options.fleetHome),
+              fleetRoots: options.fleetRoots ?? [],
               lanMode: Boolean(options.lanMode),
               lanRwMode: Boolean(options.lanRwMode),
               lanShareUrl: options.lanMode ? "http://192.168.1.42:8765/?t=secret-lan-token" : "",
@@ -2589,6 +2595,30 @@ describe("local viewer browser host", () => {
     expect(rows.slice(0, 2)).toEqual(["logics-manager", "cdx-manager"]);
     expect(menu?.hidden).toBe(false);
     expect(menu?.querySelector('[data-viewer-project-favorite="project-cdx"]')?.getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("toggles favorites in the Fleet home without opening the topbar menu", async () => {
+    const { dom, calls } = createViewerDom({
+      fleet: true,
+      fleetHome: true,
+      projects: [
+        { id: "project-logics", name: "logics-manager", root: "/workspace/logics-manager", active: true, available: true, hasLogics: true },
+        { id: "project-cdx", name: "cdx-manager", root: "/workspace/cdx-manager", active: false, available: true, hasLogics: true }
+      ]
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const menu = dom.window.document.getElementById("viewer-project-menu") as HTMLElement | null;
+    const favorite = dom.window.document.querySelector('.viewer-fleet [data-viewer-project-favorite="project-cdx"]') as HTMLButtonElement | null;
+    favorite?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    expect(calls.filter((call) => call === "/api/switch-project")).toHaveLength(0);
+    expect(menu?.hidden).toBe(true);
+    expect(dom.window.document.querySelector('.viewer-fleet [data-viewer-project-favorite="project-cdx"]')?.getAttribute("aria-pressed")).toBe("true");
   });
 
   it("sorts favorite projects by last-used while keeping the active project first", async () => {

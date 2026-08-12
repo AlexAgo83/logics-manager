@@ -3,7 +3,7 @@
 // unquoted Mermaid identifiers) and wire a click callback per node so the
 // viewer can jump to that document.
 import { describe, expect, it } from "vitest";
-import { buildChainFlowchartSource } from "../clients/viewer/src/browser-host/graph.js";
+import { buildChainFlowchartSource, renderChainGraph } from "../clients/viewer/src/browser-host/graph.js";
 
 describe("buildChainFlowchartSource", () => {
   it("returns null for an empty node list", () => {
@@ -41,5 +41,27 @@ describe("buildChainFlowchartSource", () => {
     });
     expect(source).not.toContain('"quotes"');
     expect(source).toContain("'quotes'");
+  });
+
+  it("renders graphs inside a collapsible panel", () => {
+    const html = renderChainGraph({
+      nodes: [{ ref: "req_001_demo", kind: "request", title: "Demo", status: "Doing" }],
+      edges: []
+    }, { inline: true });
+
+    expect(html).toContain("<details");
+    expect(html).toContain("<summary");
+    expect(html).not.toContain(" open");
+    expect(html).toContain('class="viewer-graph viewer-graph--inline"');
+  });
+
+  it("keeps dedicated graph views expanded but collapsible", () => {
+    const html = renderChainGraph({
+      nodes: [{ ref: "req_001_demo", kind: "request", title: "Demo", status: "Doing" }],
+      edges: []
+    });
+
+    expect(html).toContain("<details");
+    expect(html).toContain(" open");
   });
 });

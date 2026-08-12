@@ -39,16 +39,17 @@ export function buildChainFlowchartSource(payload) {
 
 const NODE_CLASS_BY_KIND = { backlog: "backlog", product: "product", task: "task", runbook: "runbook", category: "category" };
 
-export function renderChainGraph(payload, { inline = false } = {}) {
+export function renderChainGraph(payload, { inline = false, open = !inline } = {}) {
   const source = buildChainFlowchartSource(payload);
   const dangling = Array.isArray(payload?.dangling) ? payload.dangling : [];
   const notes = dangling.length
     ? `<p class="viewer-graph__dangling">Not resolved (no doc on disk): ${dangling.map(_escapeMermaidLabel).join(", ")}</p>`
     : "";
+  const attrs = `class="viewer-graph${inline ? " viewer-graph--inline" : ""}" aria-label="Linked workflow chain"${open ? " open" : ""}`;
   if (!source) {
-    return `<section class="viewer-graph${inline ? " viewer-graph--inline" : ""}"><p>No chain resolved.</p>${notes}</section>`;
+    return `<details ${attrs}><summary class="viewer-graph__label">Linked workflow</summary><p>No chain resolved.</p>${notes}</details>`;
   }
-  return `<section class="viewer-graph${inline ? " viewer-graph--inline" : ""}" aria-label="Linked workflow chain"><div class="viewer-graph__label">Linked workflow</div><pre class="mermaid">${source}</pre>${notes}</section>`;
+  return `<details ${attrs}><summary class="viewer-graph__label">Linked workflow</summary><pre class="mermaid">${source}</pre>${notes}</details>`;
 }
 
 export function createGraphScreen(host) {

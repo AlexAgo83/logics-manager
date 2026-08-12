@@ -118,7 +118,7 @@ async function startViewer() {
   child.stdout.on("data", (chunk) => {
     const text = chunk.toString();
     output.push(text);
-    const match = text.match(/Local:\s+(http:\/\/[^\s]+)/);
+    const match = text.match(/(?:Local:|Reusing the viewer already running .* at)\s+(http:\/\/[^\s]+)/);
     if (match) {
       url = match[1];
     }

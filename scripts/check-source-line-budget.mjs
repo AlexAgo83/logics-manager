@@ -139,7 +139,11 @@ const allowedOversizedFiles = new Map(
     // wires to match_runbooks_payload/list_active_runbooks_payload/
     // resolve_runbook_library_graph - no repair/render logic lives here, same
     // shape as the /api/chain-graph route beside it.
-    "logics_manager/viewer.py": { maxLines: 3504, ref: "req_330" },
+    // 3620: req_342's fleet singleton and 2.21.9 release prep left the backend
+    // as route wiring around already-extracted helpers. The prep pass split static
+    // GETs, update-status POSTs, LAN mutation auth, and shutdown handling instead
+    // of taking on the separate item_476 full viewer-package split.
+    "logics_manager/viewer.py": { maxLines: 3620, ref: "req_342" },
     "logics_manager/viewer_cdx.py": { maxLines: 1523, ref: "req_311" },
     // 1069: req_323 threaded repo_root through _normalize_git_file_path so it
     // could route through the shared path_utils containment check, and removed
@@ -190,7 +194,7 @@ const allowedOversizedFiles = new Map(
     // pair they mirror.
     // 1496: req_335 canonicalises the incoming path in the two source resolvers, two
     // lines each, rather than teaching every caller about both spellings.
-    "logics_manager/flow/docs.py": { maxLines: 1496, ref: "req_335" },
+    "logics_manager/flow/docs.py": { maxLines: 1488, ref: "req_335" },
     // req_273: de-glued frontend sources. esbuild/concatenation now consume these directly
     // instead of a regex part-manifest + readFileSync.join, so the bundles stay byte-stable.
     // 7250: viewer screen minimization and workshop terminal follow-ups added here;
@@ -233,7 +237,11 @@ const allowedOversizedFiles = new Map(
     // instead of hand-written markup. The nine lines are the insertion at init;
     // the markup they replace left index.html, and the alternative -- a module
     // for one insertAdjacentHTML -- costs more than it saves.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4294, ref: "req_336" },
+    // 4447: req_342 added Fleet home/project switching and the 2.21.9 follow-up
+    // kept the Fleet favorite click inside that surface. The remaining growth is
+    // coordinator glue closing over host state; the browser-host split remains the
+    // existing modularization backlog rather than a release-prep side quest.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4447, ref: "req_342" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },
@@ -245,7 +253,10 @@ const allowedOversizedFiles = new Map(
     // a new renderer. The runbook card became a real `<a>` (not `<li>` +
     // role=link) for free keyboard activation, two lines over the estimate
     // made before that accessibility fix.
-    "clients/viewer/src/browser-host/workshop.js": { maxLines: 1397, ref: "req_330" },
+    // 1407: 2.21.9 added the hidden-runbook toggle and made the runbook graph
+    // use the shared collapsible chain graph. Both stay in the existing Workshop
+    // factory; a second runbook submodule would only move one small tab's state.
+    "clients/viewer/src/browser-host/workshop.js": { maxLines: 1407, ref: "req_342" },
     "clients/viewer/src/browser-host/cdx.js": { maxLines: 3057, ref: "req_312" },
     // De-monolith passes 1-3: pure helpers/data extracted out of index.js. May
     // be split by domain (cdx/git/dom) in later passes as they grow.

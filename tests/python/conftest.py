@@ -70,6 +70,11 @@ from logics_manager.update_check import get_update_info, is_newer_version
 from flow_fixtures import write_ac_traceability_chain
 
 
+@pytest.fixture(autouse=True)
+def isolate_viewer_registry(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setenv("LOGICS_VIEWER_REGISTRY_PATH", str(tmp_path / "viewer-registry.json"))
+
+
 def create_viewer_server_or_skip(repo_root: Path):
     try:
         return create_viewer_server(repo_root, host="127.0.0.1", port=0)

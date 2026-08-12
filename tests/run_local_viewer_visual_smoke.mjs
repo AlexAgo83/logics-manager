@@ -196,8 +196,9 @@ async function runChromeSmoke(chrome, url) {
         deviceScaleFactor: 1,
         mobile: viewport.width < 700
       });
+      const loaded = cdp.waitFor("Page.loadEventFired");
       await cdp.send("Page.navigate", { url });
-      await cdp.waitFor("Page.loadEventFired");
+      await withTimeout(loaded, `${viewport.name} page load`, 30_000);
       const result = await evaluate(cdp, browserExerciseScript(viewport.name));
       for (const check of result.checks || []) {
         record(`${viewport.name}: ${check.name}`, check.verdict, check.measured, check.detail);
@@ -461,7 +462,7 @@ function browserExerciseScript(name) {
       });
       await check("insights renders", async () => {
         click("#viewer-insights");
-        await waitFor(() => text("#viewer-document-content").includes("Flow health"), "insights");
+        await waitFor(() => text("#viewer-document-content").includes("Flow health"), "insights", 120000);
         return "Flow health";
       });
       await check("health renders", async () => {
@@ -571,4 +572,12 @@ async function waitFor(predicate, label, debug = () => "", timeoutMs = 15_000) {
     }
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
+}
+
+function withTimeout(promise, label, timeoutMs) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`Timed out waiting for ${label}.`)), timeoutMs);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }

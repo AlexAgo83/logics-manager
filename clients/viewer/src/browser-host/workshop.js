@@ -370,7 +370,7 @@ export function createWorkshopScreen(host) {
           host.openDoc(nodeRef);
         }
       };
-      container.innerHTML = renderChainGraph(data.payload, { inline: true });
+      container.innerHTML = renderChainGraph(data.payload, { inline: true, open: true });
       host.renderMermaidDiagrams();
       workshopRunbookState.showingGraph = true;
     } catch {

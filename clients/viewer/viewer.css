@@ -4499,16 +4499,40 @@
   margin: 0;
 }
 
-.viewer-graph--inline {
+.viewer-graph {
   display: grid;
   gap: 6px;
-  max-height: 260px;
+}
+
+.viewer-graph[open] {
+  max-height: min(78vh, 1000px);
+  overflow: auto;
+}
+
+.viewer-graph .viewer-graph__label {
+  cursor: pointer;
+}
+
+.viewer-graph .mermaid {
+  min-width: max-content;
+  margin: 0;
+}
+
+.viewer-graph .mermaid svg {
+  max-width: none;
+  height: auto;
+}
+
+.viewer-graph--inline {
   margin: 0 0 18px;
   padding: 12px;
-  overflow: auto;
   border: 1px solid color-mix(in srgb, var(--vscode-textLink-foreground, #4ea1ff) 45%, var(--vscode-panel-border, #333333));
   border-radius: 8px;
   background: color-mix(in srgb, var(--vscode-editor-background, #1e1e1e) 90%, var(--vscode-textLink-foreground, #4ea1ff));
+}
+
+.viewer-graph--inline[open] {
+  max-height: min(72vh, 900px);
 }
 
 .viewer-graph--inline .viewer-graph__label {
@@ -4517,16 +4541,6 @@
   font-weight: 700;
   letter-spacing: .06em;
   text-transform: uppercase;
-}
-
-.viewer-graph--inline .mermaid {
-  min-width: max-content;
-  margin: 0;
-}
-
-.viewer-graph--inline .mermaid svg {
-  max-width: 100%;
-  height: auto;
 }
 
 .viewer-settings-screen {

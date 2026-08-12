@@ -4292,6 +4292,10 @@ import {
         const projectId = projectFavoriteTarget.getAttribute("data-viewer-project-favorite") || "";
         const currentlyFavorite = projectFavoriteTarget.getAttribute("aria-pressed") === "true";
         persistFavoriteProject(projectId, !currentlyFavorite);
+        if (isFleetHomeOpen()) {
+          void showFleetHome({ silent: true, skipStateLoad: true });
+          return;
+        }
         renderProjectMenu();
         setProjectMenuOpen(true);
         return;

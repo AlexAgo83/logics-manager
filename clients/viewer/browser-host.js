@@ -5791,14 +5791,15 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
     return lines.join("\n");
   }
   var NODE_CLASS_BY_KIND = { backlog: "backlog", product: "product", task: "task", runbook: "runbook", category: "category" };
-  function renderChainGraph(payload, { inline = false } = {}) {
+  function renderChainGraph(payload, { inline = false, open = !inline } = {}) {
     const source = buildChainFlowchartSource(payload);
     const dangling = Array.isArray(payload?.dangling) ? payload.dangling : [];
     const notes = dangling.length ? `<p class="viewer-graph__dangling">Not resolved (no doc on disk): ${dangling.map(_escapeMermaidLabel).join(", ")}</p>` : "";
+    const attrs = `class="viewer-graph${inline ? " viewer-graph--inline" : ""}" aria-label="Linked workflow chain"${open ? " open" : ""}`;
     if (!source) {
-      return `<section class="viewer-graph${inline ? " viewer-graph--inline" : ""}"><p>No chain resolved.</p>${notes}</section>`;
+      return `<details ${attrs}><summary class="viewer-graph__label">Linked workflow</summary><p>No chain resolved.</p>${notes}</details>`;
     }
-    return `<section class="viewer-graph${inline ? " viewer-graph--inline" : ""}" aria-label="Linked workflow chain"><div class="viewer-graph__label">Linked workflow</div><pre class="mermaid">${source}</pre>${notes}</section>`;
+    return `<details ${attrs}><summary class="viewer-graph__label">Linked workflow</summary><pre class="mermaid">${source}</pre>${notes}</details>`;
   }
   function createGraphScreen(host) {
     async function showChainGraph(ref, options = {}) {
@@ -6133,7 +6134,7 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
             host.openDoc(nodeRef);
           }
         };
-        container.innerHTML = renderChainGraph(data.payload, { inline: true });
+        container.innerHTML = renderChainGraph(data.payload, { inline: true, open: true });
         host.renderMermaidDiagrams();
         workshopRunbookState.showingGraph = true;
       } catch {
@@ -11740,6 +11741,10 @@ ${line}` : line;
           const projectId = projectFavoriteTarget.getAttribute("data-viewer-project-favorite") || "";
           const currentlyFavorite = projectFavoriteTarget.getAttribute("aria-pressed") === "true";
           persistFavoriteProject(projectId, !currentlyFavorite);
+          if (isFleetHomeOpen()) {
+            void showFleetHome({ silent: true, skipStateLoad: true });
+            return;
+          }
           renderProjectMenu();
           setProjectMenuOpen(true);
           return;

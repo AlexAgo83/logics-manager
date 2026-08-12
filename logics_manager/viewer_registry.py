@@ -124,7 +124,41 @@ class RegistryClaim:
     server: Any | None  # the freshly bound server, or None when reused
 
 
-def claim_or_reuse(repo_root: Path, host: str, *, bind: Callable[[], Any]) -> RegistryClaim:
+def register_fleet_project(repo_root: Path) -> None:
+    """Record a CLI-selected project for the fleet server; browsers cannot add paths."""
+    path = _registry_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not path.exists():
+        path.write_text("{}", encoding="utf-8")
+    with path.open("r+", encoding="utf-8") as handle:
+        _lock_exclusive(handle)
+        try:
+            try:
+                registry = json.loads(handle.read().strip() or "{}")
+            except json.JSONDecodeError:
+                registry = {}
+            entry = registry.setdefault("fleet", {})
+            projects = entry.get("projects") if isinstance(entry.get("projects"), list) else []
+            project = str(Path(repo_root).resolve())
+            entry["projects"] = list(dict.fromkeys([*projects, project]))
+            handle.seek(0)
+            handle.truncate()
+            handle.write(json.dumps(registry))
+            handle.flush()
+        finally:
+            _unlock(handle)
+
+
+def fleet_projects() -> list[Path]:
+    try:
+        entry = json.loads(_registry_path().read_text(encoding="utf-8")).get("fleet", {})
+        projects = entry.get("projects", []) if isinstance(entry, dict) else []
+        return [Path(str(project)).resolve() for project in projects if Path(str(project)).is_dir()]
+    except (OSError, ValueError):
+        return []
+
+
+def claim_or_reuse(repo_root: Path, host: str, *, bind: Callable[[], Any], key: str | None = None) -> RegistryClaim:
     """Reuse a live viewer for `repo_root` if one is already registered and
     answers a liveness probe; otherwise call `bind()` - while holding the
     cross-process lock - and register the server it returns.
@@ -136,7 +170,7 @@ def claim_or_reuse(repo_root: Path, host: str, *, bind: Callable[[], Any]) -> Re
     path.parent.mkdir(parents=True, exist_ok=True)
     if not path.exists():
         path.write_text("{}", encoding="utf-8")
-    key = str(Path(repo_root).resolve())
+    key = key or str(Path(repo_root).resolve())
 
     with path.open("r+", encoding="utf-8") as handle:
         _lock_exclusive(handle)
@@ -154,7 +188,10 @@ def claim_or_reuse(repo_root: Path, host: str, *, bind: Callable[[], Any]) -> Re
             server = bind()
             _, port = server.server_address[:2]
             scheme = server.url_scheme
-            registry[key] = {"port": int(port), "scheme": scheme, "claimed_at": time.time()}
+            registry[key] = {
+                "port": int(port), "scheme": scheme, "claimed_at": time.time(),
+                "projects": existing.get("projects", []) if isinstance(existing, dict) else [],
+            }
             handle.seek(0)
             handle.truncate()
             handle.write(json.dumps(registry))

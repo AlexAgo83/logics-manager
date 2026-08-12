@@ -1,10 +1,10 @@
 ## item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton - Replace per-repository viewer reuse with a safe fleet singleton
 > From version: 2.21.8
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 35%
 > Complexity: High
 > Theme: Shared server lifecycle
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

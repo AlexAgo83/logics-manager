@@ -5953,6 +5953,7 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
         <div class="viewer-workshop__panel viewer-workshop__panel--runbooks" role="tabpanel" data-viewer-workshop-panel="runbooks">
           <div class="viewer-workshop__runbook-search">
             <input type="search" placeholder="Search by intent, symptom, path, or category..." data-viewer-workshop-runbook-query aria-label="Search runbooks" />
+            <label class="viewer-workshop__runbook-toggle"><input type="checkbox" data-viewer-workshop-runbook-hidden /> Show hidden</label>
             <button class="btn" type="button" data-viewer-workshop-runbook-search>Search</button>
             <button class="btn" type="button" data-viewer-workshop-runbook-graph>View graph</button>
           </div>
@@ -6078,7 +6079,7 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
       }
       renderWorkshopCommands();
     }
-    const workshopRunbookState = { payload: null, showingGraph: false };
+    const workshopRunbookState = { payload: null, showingGraph: false, includeHidden: false };
     function renderWorkshopRunbookCards(payload) {
       if (!payload || payload.no_match) {
         return `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">\xB7</span><span>${payload?.query ? `No Active runbook matched "${escapeHtml(payload.query)}".` : "No Active runbooks yet."}</span></div>`;
@@ -6098,9 +6099,12 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
       if (!(container instanceof HTMLElement)) return;
       container.innerHTML = renderWorkshopRunbookCards(workshopRunbookState.payload);
     }
-    async function loadWorkshopRunbooks(query = "") {
+    async function loadWorkshopRunbooks(query = "", includeHidden = workshopRunbookState.includeHidden) {
       try {
-        const response = await fetch(`/api/runbooks${query ? `?q=${encodeURIComponent(query)}` : ""}`);
+        const params = new URLSearchParams();
+        if (query) params.set("q", query);
+        if (includeHidden) params.set("includeHidden", "1");
+        const response = await fetch(`/api/runbooks${params.size ? `?${params}` : ""}`);
         const data = await response.json();
         workshopRunbookState.payload = data?.payload || null;
       } catch (error) {
@@ -6108,6 +6112,10 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
       }
       workshopRunbookState.showingGraph = false;
       renderWorkshopRunbooks();
+    }
+    function setWorkshopRunbooksIncludeHidden(includeHidden, query = "") {
+      workshopRunbookState.includeHidden = Boolean(includeHidden);
+      return loadWorkshopRunbooks(query);
     }
     async function showWorkshopRunbookGraph() {
       const container = document.querySelector("[data-viewer-workshop-runbooks]");
@@ -7071,6 +7079,7 @@ ${line}` : line;
       showCustomTerminalModal,
       showWorkshop,
       showWorkshopRunbookGraph,
+      setWorkshopRunbooksIncludeHidden,
       spawnCustomWorkshopTerminal,
       spawnSystemWorkshopTerminal,
       spawnWorkshopTerminal,
@@ -8066,6 +8075,13 @@ ${line}` : line;
 
   // clients/viewer/src/browser-host/index.js
   (() => {
+    let activeProjectId = new URLSearchParams(window.location.search).get("project") || "";
+    function withProjectContext(input) {
+      if (!activeProjectId || typeof input !== "string" || !input.startsWith("/api/")) return input;
+      const url = new URL(input, window.location.origin);
+      url.searchParams.set("project", activeProjectId);
+      return `${url.pathname}${url.search}`;
+    }
     const nativeFetch = window.fetch.bind(window);
     window.fetch = function patchedFetch(input, init) {
       const opts = init ? { ...init } : {};
@@ -8080,7 +8096,7 @@ ${line}` : line;
       return originalFetch(input, withLanAuthorization(input, init));
     }
     window.fetch = (input, init) => {
-      return viewerFetch(input, init);
+      return viewerFetch(withProjectContext(input), init);
     };
     if (typeof window.EventSource === "function") {
       const NativeEventSource = window.EventSource;
@@ -8218,6 +8234,7 @@ ${line}` : line;
       showCustomTerminalModal,
       showWorkshop,
       showWorkshopRunbookGraph,
+      setWorkshopRunbooksIncludeHidden,
       spawnCustomWorkshopTerminal,
       spawnSystemWorkshopTerminal,
       spawnWorkshopTerminal,
@@ -8722,6 +8739,12 @@ ${line}` : line;
       renderMeta();
     }
     function updateRepositoryIdentity(payload) {
+      activeProjectId = String(payload.projectId || activeProjectId || "");
+      if (activeProjectId) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("project", activeProjectId);
+        window.history.replaceState(null, "", url);
+      }
       viewerState.latestRepoRoot = String(payload.root || viewerState.latestRepoRoot || "");
       latestProjects = Array.isArray(payload.projects) ? payload.projects : latestProjects;
       const repository = payload.repository && typeof payload.repository === "object" ? payload.repository : {};
@@ -11153,6 +11176,7 @@ ${line}` : line;
         const workshopRunbookOpenTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-open]") : null;
         const workshopRunbookGraphTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-graph]") : null;
         const workshopRunbookSearchTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-search]") : null;
+        const workshopRunbookHiddenTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-hidden]") : null;
         const workshopRunTerminalTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run-terminal]") : null;
         const workshopStopTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-stop]") : null;
         const workshopTerminalNewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-new]") : null;
@@ -11473,6 +11497,12 @@ ${line}` : line;
           const input = workshopRunbookSearchTarget.parentElement?.querySelector("[data-viewer-workshop-runbook-query]");
           const query = input instanceof HTMLInputElement ? input.value.trim() : "";
           withPrimaryAction("runbook-search", "Searching runbooks", () => loadWorkshopRunbooks(query));
+          return;
+        }
+        if (workshopRunbookHiddenTarget instanceof HTMLInputElement) {
+          const input = workshopRunbookHiddenTarget.parentElement?.parentElement?.querySelector("[data-viewer-workshop-runbook-query]");
+          const query = input instanceof HTMLInputElement ? input.value.trim() : "";
+          withPrimaryAction("runbook-hidden", "Loading runbooks", () => setWorkshopRunbooksIncludeHidden(workshopRunbookHiddenTarget.checked, query));
           return;
         }
         if (workshopTerminalCloseTarget instanceof HTMLElement) {

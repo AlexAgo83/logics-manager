@@ -20,7 +20,7 @@ from pathlib import Path
 import pytest
 
 from logics_manager import viewer_registry
-from logics_manager.viewer_registry import claim_or_reuse
+from logics_manager.viewer_registry import claim_or_reuse, fleet_projects, register_fleet_project
 from process_fixtures import read_subprocess_line
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -72,6 +72,19 @@ def test_first_claim_binds_and_registers(tmp_path: Path) -> None:
     assert claim.reused is False
     assert claim.port == 9999
     assert len(calls) == 1
+
+
+def test_fleet_projects_are_shared_across_the_singleton_claim(tmp_path: Path) -> None:
+    first, second = tmp_path / "one", tmp_path / "two"
+    first.mkdir()
+    second.mkdir()
+
+    register_fleet_project(first)
+    register_fleet_project(second)
+
+    claim = claim_or_reuse(first, "127.0.0.1", key="fleet", bind=lambda: _FakeServer(("127.0.0.1", 9999)))
+    assert claim.reused is False
+    assert fleet_projects() == [first.resolve(), second.resolve()]
 
 
 def test_second_claim_reuses_a_live_first_claim(tmp_path: Path) -> None:

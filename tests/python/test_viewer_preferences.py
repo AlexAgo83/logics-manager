@@ -15,6 +15,7 @@ import pytest
 
 from logics_manager.viewer_preferences import (
     OPERATOR_FIELDS,
+    fleet_roots,
     operator_preferences_path,
     read_preferences,
     repo_preferences_path,
@@ -45,6 +46,15 @@ def test_an_operator_preference_applies_in_every_repository(home: Path, tmp_path
     update_preferences(first, {"workshopUseSystemTerminal": True})
 
     assert read_preferences(second)["workshopUseSystemTerminal"] is True
+
+
+def test_fleet_roots_are_operator_scoped_and_ignore_stale_paths(home: Path, tmp_path: Path) -> None:
+    repo = _repo(tmp_path, "one")
+    root = tmp_path / "fleet"
+    root.mkdir()
+    update_preferences(repo, {"fleetRoots": [str(root), str(tmp_path / "missing"), str(root)]})
+
+    assert fleet_roots() == [root.resolve()]
 
 
 def test_a_corpus_preference_stays_with_its_corpus(home: Path, tmp_path: Path) -> None:

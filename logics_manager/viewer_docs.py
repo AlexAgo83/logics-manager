@@ -175,13 +175,15 @@ def normalize_viewer_focus_target(repo_root: Path, value: str) -> str:
     return normalized
 
 
-def build_viewer_url(host: str, port: int, *, focus: str | None = None, read: bool = False, scheme: str = "http") -> str:
+def build_viewer_url(host: str, port: int, *, focus: str | None = None, read: bool = False, project: str | None = None, scheme: str = "http") -> str:
     url = f"{scheme}://{host}:{port}"
     query: dict[str, str] = {}
     if focus:
         query["focus"] = focus
     if read:
         query["read"] = "1"
+    if project:
+        query["project"] = project
     if query:
         url = f"{url}?{urlencode(query, quote_via=quote)}"
     return url

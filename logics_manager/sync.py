@@ -710,7 +710,7 @@ def search_logics_docs_payload(
 RUNBOOK_MATCH_LIMIT = 3
 
 
-def match_runbooks_payload(repo_root: Path, query: str, *, limit: int = RUNBOOK_MATCH_LIMIT) -> dict[str, object]:
+def match_runbooks_payload(repo_root: Path, query: str, *, limit: int = RUNBOOK_MATCH_LIMIT, include_hidden: bool = False) -> dict[str, object]:
     """Bounded, explainable runbook lookup (req_330/item_688).
 
     A thin wrapper over the same doc-loading `search_logics_docs_payload` uses:
@@ -722,7 +722,7 @@ def match_runbooks_payload(repo_root: Path, query: str, *, limit: int = RUNBOOK_
     normalized = " ".join(query.strip().lower().split())
     if not normalized:
         raise SystemExit("Match query is required.")
-    docs_payload = list_logics_docs_payload(repo_root, kind="runbook", status="Active", limit=10000)
+    docs_payload = list_logics_docs_payload(repo_root, kind="runbook", status=None if include_hidden else "Active", limit=10000)
     docs_by_ref = _load_workflow_docs(repo_root)
     scored: list[tuple[int, str, dict[str, object]]] = []
     for item in docs_payload["items"]:
@@ -773,7 +773,7 @@ def match_runbooks_payload(repo_root: Path, query: str, *, limit: int = RUNBOOK_
     }
 
 
-def list_active_runbooks_payload(repo_root: Path, *, limit: int = 10) -> dict[str, object]:
+def list_active_runbooks_payload(repo_root: Path, *, limit: int = 10, include_hidden: bool = False) -> dict[str, object]:
     """Recent Active runbooks for the viewer's landing view (req_330/item_689).
 
     Same category/verified shape as `match_runbooks_payload`'s results, so the
@@ -781,7 +781,7 @@ def list_active_runbooks_payload(repo_root: Path, *, limit: int = 10) -> dict[st
     `reason` is always "recent"; the empty case is a normal empty library, not
     a no-match search result.
     """
-    listed = list_logics_docs_payload(repo_root, kind="runbook", status="Active", limit=10000, recent=True)
+    listed = list_logics_docs_payload(repo_root, kind="runbook", status=None if include_hidden else "Active", limit=10000, recent=True)
     docs_by_ref = _load_workflow_docs(repo_root)
     items: list[dict[str, object]] = []
     for item in listed["items"][:limit]:

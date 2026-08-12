@@ -57,6 +57,25 @@ def test_fleet_roots_are_operator_scoped_and_ignore_stale_paths(home: Path, tmp_
     assert fleet_roots() == [root.resolve()]
 
 
+def test_adding_a_fleet_root_discovers_only_its_immediate_projects(home: Path, tmp_path: Path) -> None:
+    from logics_manager.viewer import create_viewer_server
+
+    launch = _repo(tmp_path, "launch")
+    root = tmp_path / "fleet"
+    project = _repo(root, "project")
+    _repo(project, "nested")
+    server = create_viewer_server(launch, host="127.0.0.1", port=0, fleet=True)
+    try:
+        server.add_fleet_root(root)
+        roots = {entry["root"] for entry in server.project_registry_payload()}
+    finally:
+        server.server_close()
+
+    assert str(project.resolve()) in roots
+    assert str((project / "nested").resolve()) not in roots
+    assert fleet_roots() == [root.resolve()]
+
+
 def test_a_corpus_preference_stays_with_its_corpus(home: Path, tmp_path: Path) -> None:
     first, second = _repo(tmp_path, "one"), _repo(tmp_path, "two")
 

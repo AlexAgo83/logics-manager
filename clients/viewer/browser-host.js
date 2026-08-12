@@ -8282,6 +8282,7 @@ ${line}` : line;
     let latestItems = [];
     let latestCapabilities = {};
     let latestProjects = [];
+    let latestFleet = false;
     let latestCanBootstrapLogics = false;
     let latestShouldPromptBootstrapLogics = false;
     let latestBootstrapLogicsTitle = "Bootstrap Logics in this project";
@@ -8747,6 +8748,7 @@ ${line}` : line;
       }
       viewerState.latestRepoRoot = String(payload.root || viewerState.latestRepoRoot || "");
       latestProjects = Array.isArray(payload.projects) ? payload.projects : latestProjects;
+      latestFleet = Boolean(payload.fleet);
       const repository = payload.repository && typeof payload.repository === "object" ? payload.repository : {};
       viewerState.latestRepository = {
         root: String(repository.root || viewerState.latestRepoRoot || ""),
@@ -8808,7 +8810,14 @@ ${line}` : line;
         <span class="viewer-project-switcher__item-path">Select another project location</span>
       </button>
     `;
-      menu.innerHTML = `${projectRows}${pickerRow}`;
+      const fleetRootRow = latestFleet ? `
+      <button class="viewer-project-switcher__item viewer-project-switcher__item--picker" type="button" role="menuitem" data-viewer-fleet-root-pick>
+        <span class="viewer-project-switcher__item-name">Add fleet root...</span>
+        <span class="viewer-project-switcher__item-state">bounded scan</span>
+        <span class="viewer-project-switcher__item-path">Discover immediate project folders</span>
+      </button>
+    ` : "";
+      menu.innerHTML = `${projectRows}${pickerRow}${fleetRootRow}`;
     }
     let latestProjectState = {};
     async function loadProjectState() {
@@ -8892,6 +8901,14 @@ ${line}` : line;
         return;
       }
       applySelectedProjectPayload(data.payload, `Switched to ${data.payload?.repoName || "selected project"}.`);
+    }
+    async function pickFleetRoot() {
+      setProjectMenuOpen(false);
+      setMeta("Opening fleet root picker...");
+      const response = await fetch("/api/select-fleet-root", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.error || "Unable to add fleet root.");
+      postToApp(data.payload);
     }
     function applySelectedProjectPayload(payload, message) {
       returnToProjectSurface();
@@ -11177,6 +11194,7 @@ ${line}` : line;
         const workshopRunbookGraphTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-graph]") : null;
         const workshopRunbookSearchTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-search]") : null;
         const workshopRunbookHiddenTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-hidden]") : null;
+        const fleetRootPickTarget = event.target instanceof Element ? event.target.closest("[data-viewer-fleet-root-pick]") : null;
         const workshopRunTerminalTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run-terminal]") : null;
         const workshopStopTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-stop]") : null;
         const workshopTerminalNewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-new]") : null;
@@ -11503,6 +11521,11 @@ ${line}` : line;
           const input = workshopRunbookHiddenTarget.parentElement?.parentElement?.querySelector("[data-viewer-workshop-runbook-query]");
           const query = input instanceof HTMLInputElement ? input.value.trim() : "";
           withPrimaryAction("runbook-hidden", "Loading runbooks", () => setWorkshopRunbooksIncludeHidden(workshopRunbookHiddenTarget.checked, query));
+          return;
+        }
+        if (fleetRootPickTarget instanceof HTMLElement) {
+          event.preventDefault();
+          withPrimaryAction("fleet-root-pick", "Adding fleet root", pickFleetRoot);
           return;
         }
         if (workshopTerminalCloseTarget instanceof HTMLElement) {

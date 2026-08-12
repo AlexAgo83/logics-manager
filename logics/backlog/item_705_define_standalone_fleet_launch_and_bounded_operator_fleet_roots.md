@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Launch and discovery contract
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-12 09:08:47
+> Indicators reviewed: 2026-08-12 10:19:19
 
 # AI Context
 - Summary: Establish the minimal launch and discovery contract: explicit fleet mode plus persisted roots, each scanned one level deep only.
@@ -46,7 +46,7 @@
 
 # Links
 - Product brief(s): `prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer`
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_028_scope_the_fleet_viewer_registry_to_the_operator_profile_and_resolve_project_context_per_request`
 - Request: `req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server`
 - Primary task(s): `task_339_deliver_the_standalone_fleet_viewer_and_singleton_server`
 

@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 65%
+> Progress: 75%
 > Complexity: Medium
 > Theme: Fleet navigation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

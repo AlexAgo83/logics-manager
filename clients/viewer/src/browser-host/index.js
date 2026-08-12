@@ -385,6 +385,7 @@ import {
   let latestCapabilities = {};
   let latestProjects = [];
   let latestFleet = false;
+  let latestFleetRoots = [];
   let latestCanBootstrapLogics = false;
   let latestShouldPromptBootstrapLogics = false;
   let latestBootstrapLogicsTitle = "Bootstrap Logics in this project";
@@ -898,6 +899,7 @@ import {
     viewerState.latestRepoRoot = String(payload.root || viewerState.latestRepoRoot || "");
     latestProjects = Array.isArray(payload.projects) ? payload.projects : latestProjects;
     latestFleet = Boolean(payload.fleet);
+    latestFleetRoots = Array.isArray(payload.fleetRoots) ? payload.fleetRoots : [];
     const repository = payload.repository && typeof payload.repository === "object" ? payload.repository : {};
     viewerState.latestRepository = {
       root: String(repository.root || viewerState.latestRepoRoot || ""),
@@ -967,7 +969,8 @@ import {
         <span class="viewer-project-switcher__item-path">Discover immediate project folders</span>
       </button>
     ` : "";
-    menu.innerHTML = `${projectRows}${pickerRow}${fleetRootRow}`;
+    const fleetRoots = latestFleetRoots.map((root) => `<div class="viewer-project-switcher__row" role="none"><span class="viewer-project-switcher__item"><span class="viewer-project-switcher__item-name">Fleet root</span><span class="viewer-project-switcher__item-path">${escapeHtml(root)}</span></span><button class="viewer-project-switcher__favorite" type="button" data-viewer-fleet-root-remove="${escapeHtml(root)}" aria-label="Remove fleet root" title="Remove fleet root">×</button></div>`).join("");
+    menu.innerHTML = `${fleetRoots}${projectRows}${pickerRow}${fleetRootRow}`;
   }
 
   let latestProjectState = {};
@@ -1063,6 +1066,13 @@ import {
     const response = await fetch("/api/select-fleet-root", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
     const data = await response.json();
     if (!response.ok || !data.ok) throw new Error(data.error || "Unable to add fleet root.");
+    postToApp(data.payload);
+  }
+
+  async function removeFleetRoot(root) {
+    const response = await fetch("/api/remove-fleet-root", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ root }) });
+    const data = await response.json();
+    if (!response.ok || !data.ok) throw new Error(data.error || "Unable to remove fleet root.");
     postToApp(data.payload);
   }
 
@@ -3744,6 +3754,7 @@ import {
       const workshopRunbookSearchTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-search]") : null;
       const workshopRunbookHiddenTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-hidden]") : null;
       const fleetRootPickTarget = event.target instanceof Element ? event.target.closest("[data-viewer-fleet-root-pick]") : null;
+      const fleetRootRemoveTarget = event.target instanceof Element ? event.target.closest("[data-viewer-fleet-root-remove]") : null;
       const workshopRunTerminalTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run-terminal]") : null;
       const workshopStopTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-stop]") : null;
       const workshopTerminalNewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-new]") : null;
@@ -4071,6 +4082,12 @@ import {
       if (fleetRootPickTarget instanceof HTMLElement) {
         event.preventDefault();
         withPrimaryAction("fleet-root-pick", "Adding fleet root", pickFleetRoot);
+        return;
+      }
+      if (fleetRootRemoveTarget instanceof HTMLElement) {
+        event.preventDefault();
+        const root = fleetRootRemoveTarget.getAttribute("data-viewer-fleet-root-remove") || "";
+        withPrimaryAction("fleet-root-remove", "Removing fleet root", () => removeFleetRoot(root));
         return;
       }
       if (workshopTerminalCloseTarget instanceof HTMLElement) {

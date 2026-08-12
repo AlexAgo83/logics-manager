@@ -171,6 +171,7 @@ export function createWorkshopScreen(host) {
         <div class="viewer-workshop__panel viewer-workshop__panel--runbooks" role="tabpanel" data-viewer-workshop-panel="runbooks">
           <div class="viewer-workshop__runbook-search">
             <input type="search" placeholder="Search by intent, symptom, path, or category..." data-viewer-workshop-runbook-query aria-label="Search runbooks" />
+            <label class="viewer-workshop__runbook-toggle"><input type="checkbox" data-viewer-workshop-runbook-hidden /> Show hidden</label>
             <button class="btn" type="button" data-viewer-workshop-runbook-search>Search</button>
             <button class="btn" type="button" data-viewer-workshop-runbook-graph>View graph</button>
           </div>
@@ -310,7 +311,7 @@ export function createWorkshopScreen(host) {
   // req_330/item_689: search results and the "recent" landing list share this
   // card shape ({ref, category, verified, reason, title}), so one render path
   // covers both instead of a separate empty-query branch.
-  const workshopRunbookState = { payload: null, showingGraph: false };
+  const workshopRunbookState = { payload: null, showingGraph: false, includeHidden: false };
 
   function renderWorkshopRunbookCards(payload) {
     if (!payload || payload.no_match) {
@@ -333,9 +334,12 @@ export function createWorkshopScreen(host) {
     container.innerHTML = renderWorkshopRunbookCards(workshopRunbookState.payload);
   }
 
-  async function loadWorkshopRunbooks(query = "") {
+  async function loadWorkshopRunbooks(query = "", includeHidden = workshopRunbookState.includeHidden) {
     try {
-      const response = await fetch(`/api/runbooks${query ? `?q=${encodeURIComponent(query)}` : ""}`);
+      const params = new URLSearchParams();
+      if (query) params.set("q", query);
+      if (includeHidden) params.set("includeHidden", "1");
+      const response = await fetch(`/api/runbooks${params.size ? `?${params}` : ""}`);
       const data = await response.json();
       workshopRunbookState.payload = data?.payload || null;
     } catch (error) {
@@ -343,6 +347,11 @@ export function createWorkshopScreen(host) {
     }
     workshopRunbookState.showingGraph = false;
     renderWorkshopRunbooks();
+  }
+
+  function setWorkshopRunbooksIncludeHidden(includeHidden, query = "") {
+    workshopRunbookState.includeHidden = Boolean(includeHidden);
+    return loadWorkshopRunbooks(query);
   }
 
   async function showWorkshopRunbookGraph() {
@@ -1379,6 +1388,7 @@ export function createWorkshopScreen(host) {
     showCustomTerminalModal,
     showWorkshop,
     showWorkshopRunbookGraph,
+    setWorkshopRunbooksIncludeHidden,
     spawnCustomWorkshopTerminal,
     spawnSystemWorkshopTerminal,
     spawnWorkshopTerminal,

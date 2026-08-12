@@ -1,10 +1,10 @@
 ## item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots - Define standalone fleet launch and bounded operator fleet roots
 > From version: 2.21.8
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 35%
 > Complexity: Medium
 > Theme: Launch and discovery contract
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

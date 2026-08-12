@@ -1,10 +1,10 @@
 ## item_706_make_project_context_request_scoped_before_sharing_the_viewer_server - Make project context request-scoped before sharing the viewer server
 > From version: 2.21.8
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 35%
 > Complexity: High
 > Theme: Project isolation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

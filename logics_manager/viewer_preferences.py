@@ -34,6 +34,7 @@ OPERATOR_FIELDS = frozenset(
         "projectLastUsedAt",
         "workshopUseSystemTerminal",
         "autoRefreshIntervalSeconds",
+        "fleetRoots",
     }
 )
 #: Fields that are sets rather than values: two windows writing at once must not lose an
@@ -106,6 +107,14 @@ def _merge(stored: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:
 def read_preferences(repo_root: Path) -> dict[str, Any]:
     """Everything the viewer should start with, both scopes flattened as the client sees it."""
     return {**_read(repo_preferences_path(repo_root)), **_read(operator_preferences_path())}
+
+
+def fleet_roots() -> list[Path]:
+    """Return the operator's bounded fleet roots, ignoring stale entries."""
+    roots = _read(operator_preferences_path()).get("fleetRoots", [])
+    if not isinstance(roots, list):
+        return []
+    return list(dict.fromkeys(Path(str(root)).expanduser().resolve() for root in roots if Path(str(root)).expanduser().is_dir()))
 
 
 def update_preferences(repo_root: Path, patch: dict[str, Any], *, removed: dict[str, Any] | None = None) -> dict[str, Any]:

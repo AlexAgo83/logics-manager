@@ -166,6 +166,13 @@ import {
   workshopTabs
 } from "./constants.js";
 (() => {
+  let activeProjectId = new URLSearchParams(window.location.search).get("project") || "";
+  function withProjectContext(input) {
+    if (!activeProjectId || typeof input !== "string" || !input.startsWith("/api/")) return input;
+    const url = new URL(input, window.location.origin);
+    url.searchParams.set("project", activeProjectId);
+    return `${url.pathname}${url.search}`;
+  }
   const nativeFetch = window.fetch.bind(window);
   window.fetch = function patchedFetch(input, init) {
     const opts = init ? { ...init } : {};
@@ -184,7 +191,7 @@ import {
     return originalFetch(input, withLanAuthorization(input, init));
   }
   window.fetch = (input, init) => {
-    return viewerFetch(input, init);
+    return viewerFetch(withProjectContext(input), init);
   };
   if (typeof window.EventSource === "function") {
     const NativeEventSource = window.EventSource;
@@ -328,6 +335,7 @@ import {
     showCustomTerminalModal,
     showWorkshop,
     showWorkshopRunbookGraph,
+    setWorkshopRunbooksIncludeHidden,
     spawnCustomWorkshopTerminal,
     spawnSystemWorkshopTerminal,
     spawnWorkshopTerminal,
@@ -880,6 +888,12 @@ import {
   }
 
   function updateRepositoryIdentity(payload) {
+    activeProjectId = String(payload.projectId || activeProjectId || "");
+    if (activeProjectId) {
+      const url = new URL(window.location.href);
+      url.searchParams.set("project", activeProjectId);
+      window.history.replaceState(null, "", url);
+    }
     viewerState.latestRepoRoot = String(payload.root || viewerState.latestRepoRoot || "");
     latestProjects = Array.isArray(payload.projects) ? payload.projects : latestProjects;
     const repository = payload.repository && typeof payload.repository === "object" ? payload.repository : {};
@@ -3710,6 +3724,7 @@ import {
       const workshopRunbookOpenTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-open]") : null;
       const workshopRunbookGraphTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-graph]") : null;
       const workshopRunbookSearchTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-search]") : null;
+      const workshopRunbookHiddenTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-hidden]") : null;
       const workshopRunTerminalTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run-terminal]") : null;
       const workshopStopTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-stop]") : null;
       const workshopTerminalNewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-terminal-new]") : null;
@@ -4026,6 +4041,12 @@ import {
         const input = workshopRunbookSearchTarget.parentElement?.querySelector("[data-viewer-workshop-runbook-query]");
         const query = input instanceof HTMLInputElement ? input.value.trim() : "";
         withPrimaryAction("runbook-search", "Searching runbooks", () => loadWorkshopRunbooks(query));
+        return;
+      }
+      if (workshopRunbookHiddenTarget instanceof HTMLInputElement) {
+        const input = workshopRunbookHiddenTarget.parentElement?.parentElement?.querySelector("[data-viewer-workshop-runbook-query]");
+        const query = input instanceof HTMLInputElement ? input.value.trim() : "";
+        withPrimaryAction("runbook-hidden", "Loading runbooks", () => setWorkshopRunbooksIncludeHidden(workshopRunbookHiddenTarget.checked, query));
         return;
       }
       if (workshopTerminalCloseTarget instanceof HTMLElement) {

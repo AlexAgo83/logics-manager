@@ -37,6 +37,7 @@ from .path_utils import PathEscapesRoot, has_symlink_segment, relative_to_root
 from .release import load_release_context, release_reset_payload, release_status_payload
 from .sync import RUNBOOK_MATCH_LIMIT, list_active_runbooks_payload, match_runbooks_payload, update_workflow_indicators_payload
 from .viewer_preferences import (
+    fleet_roots,
     read_preferences as read_viewer_preferences,
     update_preferences as update_viewer_preferences,
 )
@@ -58,7 +59,7 @@ from .viewer_lan import (
     LanDeviceRegistry,
     LanPairingBroker,
 )
-from .viewer_registry import claim_or_reuse
+from .viewer_registry import claim_or_reuse, fleet_projects, register_fleet_project
 from . import viewer_project_tools
 from .viewer_workshop import (
     _WORKSHOP_SESSION_BUFFER_MAX,
@@ -156,6 +157,7 @@ def viewer_data_payload(
     bootstrap_warning = viewer_bootstrap_warning(active_root) if has_logics else None
     return {
         "root": str(active_root),
+        "projectId": _viewer_project_id(active_root),
         "repoName": active_root.name,
         "repository": {
             "root": str(active_root),
@@ -1569,16 +1571,24 @@ class LogicsViewerServer(ThreadingHTTPServer):
         lan_mode: bool = False,
         lan_rw_mode: bool = False,
         tls_context: ssl.SSLContext | None = None,
+        fleet: bool = False,
     ):
         self.launch_repo_root = repo_root.resolve()
-        self.project_roots = discover_viewer_project_roots(self.launch_repo_root)
+        self.fleet = fleet
+        roots = fleet_roots() if fleet else []
+        self.project_roots = (
+            [project for root in roots for project in root.iterdir() if project.is_dir() and _looks_like_viewer_project(project)]
+            if fleet else discover_viewer_project_roots(self.launch_repo_root)
+        )
+        if self.launch_repo_root not in self.project_roots:
+            self.project_roots.append(self.launch_repo_root)
         # Dev-only: offer a synthetic "all states" board in the project switcher.
         self.demo_project_root = ensure_demo_corpus_if_dev()
         if self.demo_project_root is not None and self.demo_project_root not in self.project_roots:
             self.project_roots.append(self.demo_project_root)
         self.project_root_by_id = {_viewer_project_id(root): root.resolve() for root in self.project_roots}
         self.active_project_id = _viewer_project_id(self.launch_repo_root)
-        self.repo_root = self.launch_repo_root
+        self._request_context = threading.local()
         self.project_picker_base_root = Path.home().resolve()
         try:
             self.project_picker_initial_path = self.launch_repo_root.parent.relative_to(self.project_picker_base_root).as_posix()
@@ -1613,6 +1623,27 @@ class LogicsViewerServer(ThreadingHTTPServer):
         super().__init__(server_address, LogicsViewerRequestHandler)
         if tls_context is not None:
             self.socket = tls_context.wrap_socket(self.socket, server_side=True)
+
+    @property
+    def repo_root(self) -> Path:
+        return getattr(self._request_context, "repo_root", self.launch_repo_root)
+
+    def set_request_project(self, project_id: str | None) -> Path:
+        if not project_id:
+            target = self.launch_repo_root
+        else:
+            target = self.project_root_by_id.get(project_id)
+            if target is None:
+                for project in fleet_projects():
+                    if _viewer_project_id(project) == project_id:
+                        self.project_roots.append(project)
+                        self.project_root_by_id[project_id] = project
+                        target = project
+                        break
+            if target is None or not target.is_dir():
+                raise ValueError("Unknown project id.")
+        self._request_context.repo_root = target
+        return target
 
     @property
     def url_scheme(self) -> str:
@@ -1764,9 +1795,10 @@ class LogicsViewerServer(ThreadingHTTPServer):
             self.event_seq += 1
             return self.event_seq
 
-    def viewer_payload(self, *, selected_id: str | None = None) -> dict[str, Any]:
+    def viewer_payload(self, *, selected_id: str | None = None, project_id: str | None = None) -> dict[str, Any]:
+        repo_root = self.set_request_project(project_id) if project_id is not None else self.repo_root
         payload = viewer_data_payload(
-            self.repo_root,
+            repo_root,
             selected_id=selected_id,
             auto_refresh_interval_seconds=self.auto_refresh_interval_seconds,
             auto_refresh_interval_forced=self.auto_refresh_interval_forced,
@@ -1791,9 +1823,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
             raise ValueError("Unknown project id.")
         if not target.is_dir():
             raise FileNotFoundError(str(target))
-        self.active_project_id = project_id
-        self.repo_root = target
-        return self.viewer_payload()
+        return self.viewer_payload(project_id=project_id)
 
     def switch_project_root(self, project_root: Path) -> dict[str, Any]:
         target = project_root.expanduser().resolve()
@@ -1941,6 +1971,15 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         except json.JSONDecodeError:
             return {}
         return payload if isinstance(payload, dict) else {}
+
+    def _set_project_context(self, parsed: Any) -> bool:
+        project_id = parse_qs(parsed.query).get("project", [None])[0]
+        try:
+            self.server.set_request_project(project_id)
+        except ValueError as exc:
+            self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
+            return False
+        return True
 
     def _handle_pair_start(self) -> None:
         broker = self.server.pairing_broker
@@ -2315,10 +2354,11 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         if parsed.path != "/api/runbooks":
             return False
         query = parse_qs(parsed.query).get("q", [""])[0].strip()
+        include_hidden = parse_qs(parsed.query).get("includeHidden", [""])[0].lower() in {"1", "true", "yes"}
         payload = (
-            match_runbooks_payload(self.server.repo_root, query, limit=RUNBOOK_MATCH_LIMIT)
+            match_runbooks_payload(self.server.repo_root, query, limit=RUNBOOK_MATCH_LIMIT, include_hidden=include_hidden)
             if query
-            else list_active_runbooks_payload(self.server.repo_root, limit=10)
+            else list_active_runbooks_payload(self.server.repo_root, limit=10, include_hidden=include_hidden)
         )
         self._send_json({"ok": True, "payload": payload})
         return True
@@ -2355,6 +2395,8 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         if not self._lan_auth_passes(parsed, method="GET"):
             self._send_lan_unauthorized()
+            return
+        if not self._set_project_context(parsed):
             return
         route = parsed.path
         if viewer_diagnostics.handle_get(self, route):
@@ -2551,6 +2593,8 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if not self._lan_auth_passes(parsed, method="POST"):
             self._send_lan_unauthorized()
+            return
+        if not self._set_project_context(parsed):
             return
         if viewer_diagnostics.handle_post(self, parsed.path):
             return
@@ -2776,6 +2820,7 @@ def create_viewer_server(
     lan_mode: bool = False,
     lan_rw_mode: bool = False,
     tls_context: ssl.SSLContext | None = None,
+    fleet: bool = False,
 ) -> LogicsViewerServer:
     try:
         return LogicsViewerServer(
@@ -2786,6 +2831,7 @@ def create_viewer_server(
             lan_mode=lan_mode,
             lan_rw_mode=lan_rw_mode,
             tls_context=tls_context,
+            fleet=fleet,
         )
     except OSError as exc:
         if exc.errno == errno.EADDRINUSE:
@@ -3193,6 +3239,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Automatic refresh interval in seconds. Defaults to 15; positive intervals are allowed.",
     )
     parser.add_argument("--focus", help="Open the viewer focused on a workflow ref or repo-relative Logics Markdown path.")
+    parser.add_argument("--fleet", action="store_true", help="Open the operator's bounded fleet home from any directory.")
     parser.add_argument("--read", action="store_true", help="Open the focused item in the read preview. Requires --focus.")
     parser.add_argument("--open", action="store_true", help="Open the viewer in the default browser.")
     parser.add_argument("--no-open", action="store_true", help="Do not open the browser. This is the default.")
@@ -3257,7 +3304,8 @@ def _resolve_viewer_root(start: Path) -> Path:
 def main(argv: list[str]) -> int:
     args = build_parser().parse_args(argv)
     repo_root = _resolve_viewer_root(Path.cwd())
-    if not holds_corpus(repo_root):
+    register_fleet_project(repo_root)
+    if not args.fleet and not holds_corpus(repo_root):
         if not _confirm_launch_without_corpus(repo_root, assume_yes=args.yes):
             print("Aborted.")
             return 0
@@ -3307,10 +3355,12 @@ def main(argv: list[str]) -> int:
             lan_mode=lan_enabled,
             lan_rw_mode=bool(args.lan_rw),
             tls_context=tls_context,
+            fleet=bool(args.fleet),
         ),
+        key="fleet",
     )
     if claim.reused:
-        reused_url = build_viewer_url(bind_host, claim.port, focus=focus, read=bool(args.read), scheme=claim.scheme)
+        reused_url = build_viewer_url(bind_host, claim.port, focus=focus, read=bool(args.read), project=_viewer_project_id(repo_root), scheme=claim.scheme)
         print(f"Reusing the viewer already running for {repo_root} at {reused_url}", flush=True)
         if args.open and not args.no_open:
             webbrowser.open(reused_url)
@@ -3318,7 +3368,7 @@ def main(argv: list[str]) -> int:
     server = claim.server
     host, port = server.server_address[:2]
     scheme = server.url_scheme
-    url = build_viewer_url(str(host), int(port), focus=focus, read=bool(args.read), scheme=scheme)
+    url = build_viewer_url(str(host), int(port), focus=focus, read=bool(args.read), project=_viewer_project_id(repo_root), scheme=scheme)
     network_url = _network_viewer_url(str(host), int(port), focus=focus, read=bool(args.read), scheme=scheme)
     lan_share_url = ""
     qr_lines: list[str] = []

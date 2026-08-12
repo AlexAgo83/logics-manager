@@ -1,14 +1,15 @@
 ## task_339_deliver_the_standalone_fleet_viewer_and_singleton_server - Deliver the standalone fleet viewer and singleton server
 > From version: 2.21.8
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 35%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 > Indicators reviewed: 2026-08-12 10:19:20
+> Owner: Codex
 
 # AI Context
 - Summary: Execute launch/discovery, request-scoped isolation, fleet UI, and singleton lifecycle in that dependency order; do not migrate the registry before isolation is proven.

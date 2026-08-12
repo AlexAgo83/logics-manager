@@ -3018,6 +3018,18 @@
   min-width: 0;
 }
 
+.viewer-workshop__runbook-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 8px;
+  border: 1px solid var(--vscode-input-border, #3c3c3c);
+  background: var(--vscode-input-background, #3c3c3c);
+  color: var(--vscode-input-foreground, #cccccc);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
 .viewer-workshop__runbook-list {
   list-style: none;
   padding: 0;

@@ -126,6 +126,7 @@
 | [prod_084_a_viewer_that_repeats_what_it_was_told](product/prod_084_a_viewer_that_repeats_what_it_was_told.md) | A viewer that repeats what it was told | Proposed |  |  | product/prod_084_a_viewer_that_repeats_what_it_was_told.md |
 | [prod_085_numbers_a_screen_can_defend](product/prod_085_numbers_a_screen_can_defend.md) | Numbers a screen can defend | Proposed |  |  | product/prod_085_numbers_a_screen_can_defend.md |
 | [prod_086_a_viewer_that_looks_like_one_product](product/prod_086_a_viewer_that_looks_like_one_product.md) | A viewer that looks like one product | Proposed |  |  | product/prod_086_a_viewer_that_looks_like_one_product.md |
+| [prod_087_surfaces_that_read_like_they_were_finished](product/prod_087_surfaces_that_read_like_they_were_finished.md) | Surfaces that read like they were finished | Proposed |  |  | product/prod_087_surfaces_that_read_like_they_were_finished.md |
 
 ## Roadmaps
 
@@ -492,6 +493,7 @@
 | [req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update](request/req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update.md) | Stop the viewer from swallowing a diagnostic and from repeating a stale update | Draft |  |  | request/req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update.md |
 | [req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print](request/req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print.md) | Make the corpus, health and onboarding screens earn the numbers they print | Draft |  |  | request/req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print.md |
 | [req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens](request/req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens.md) | Theme the viewer's native controls and finish the Workshop and CDX screens | Draft |  |  | request/req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens.md |
+| [req_351_make_the_reader_readable_and_the_filter_panel_say_something](request/req_351_make_the_reader_readable_and_the_filter_panel_say_something.md) | Make the reader readable and the filter panel say something | Draft |  |  | request/req_351_make_the_reader_readable_and_the_filter_panel_say_something.md |
 
 ## Backlog
 
@@ -1257,6 +1259,12 @@
 | [item_758_open_the_explorer_on_something_worth_reading](backlog/item_758_open_the_explorer_on_something_worth_reading.md) | Open the explorer on something worth reading | Ready |  | 0% | backlog/item_758_open_the_explorer_on_something_worth_reading.md |
 | [item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves](backlog/item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves.md) | Bring the CDX screens onto the shape status already proves | Ready |  | 0% | backlog/item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves.md |
 | [item_760_cover_the_reviewed_workshop_and_cdx_screens](backlog/item_760_cover_the_reviewed_workshop_and_cdx_screens.md) | Cover the reviewed Workshop and CDX screens | Ready |  | 0% | backlog/item_760_cover_the_reviewed_workshop_and_cdx_screens.md |
+| [item_761_stop_the_reader_leading_with_a_path_in_capitals](backlog/item_761_stop_the_reader_leading_with_a_path_in_capitals.md) | Stop the reader leading with a path in capitals | Ready |  | 0% | backlog/item_761_stop_the_reader_leading_with_a_path_in_capitals.md |
+| [item_762_make_the_reader_a_place_to_read](backlog/item_762_make_the_reader_a_place_to_read.md) | Make the reader a place to read | Ready |  | 0% | backlog/item_762_make_the_reader_a_place_to_read.md |
+| [item_763_finish_the_new_request_modal_without_redesigning_it](backlog/item_763_finish_the_new_request_modal_without_redesigning_it.md) | Finish the new-request modal without redesigning it | Ready |  | 0% | backlog/item_763_finish_the_new_request_modal_without_redesigning_it.md |
+| [item_764_make_each_filter_say_what_it_would_narrow](backlog/item_764_make_each_filter_say_what_it_would_narrow.md) | Make each filter say what it would narrow | Ready |  | 0% | backlog/item_764_make_each_filter_say_what_it_would_narrow.md |
+| [item_765_make_the_panel_and_the_board_agree_on_what_is_shown](backlog/item_765_make_the_panel_and_the_board_agree_on_what_is_shown.md) | Make the panel and the board agree on what is shown | Ready |  | 0% | backlog/item_765_make_the_panel_and_the_board_agree_on_what_is_shown.md |
+| [item_766_cover_the_reader_the_modal_and_the_filter_panel](backlog/item_766_cover_the_reader_the_modal_and_the_filter_panel.md) | Cover the reader, the modal and the filter panel | Ready |  | 0% | backlog/item_766_cover_the_reader_the_modal_and_the_filter_panel.md |
 
 ## Tasks
 
@@ -1603,10 +1611,11 @@
 | [task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check](tasks/task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check.md) | Deliver the connector diagnostics and the version-aware update check | Ready |  | 0% | tasks/task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check.md |
 | [task_346_deliver_the_corpus_health_and_onboarding_screens](tasks/task_346_deliver_the_corpus_health_and_onboarding_screens.md) | Deliver the corpus, health and onboarding screens | Ready |  | 0% | tasks/task_346_deliver_the_corpus_health_and_onboarding_screens.md |
 | [task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens](tasks/task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens.md) | Deliver the control theming and the Workshop and CDX screens | Ready |  | 0% | tasks/task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens.md |
+| [task_348_deliver_the_reader_the_modal_and_the_filter_panel](tasks/task_348_deliver_the_reader_the_modal_and_the_filter_panel.md) | Deliver the reader, the modal and the filter panel | Ready |  | 0% | tasks/task_348_deliver_the_reader_the_modal_and_the_filter_panel.md |
 
 ## Runbooks
 
 | Doc | Title | Status | Category | Verified | Path |
 |---|---|---|---|---|---|
 | [run_001_run_the_viewer_ui_campaign_before_a_delivery](runbook/run_001_run_the_viewer_ui_campaign_before_a_delivery.md) | Run the viewer UI campaign before a delivery | Active | validation | 2026-08-11, automated half runs green on every CI delivery via `scripts/ci-check.mjs`; migrated from `docs/runbooks/viewer-ui-campaign.md` | runbook/run_001_run_the_viewer_ui_campaign_before_a_delivery.md |
-| [run_002_build_a_visual_review_and_mockup_from_a_live_viewer](runbook/run_002_build_a_visual_review_and_mockup_from_a_live_viewer.md) | Build a visual review and mockup from a live viewer | Active | validation | 2026-08-13, produced the reviews and mockups behind req_344, req_345, req_347, req_349 and req_350 | runbook/run_002_build_a_visual_review_and_mockup_from_a_live_viewer.md |
+| [run_002_build_a_visual_review_and_mockup_from_a_live_viewer](runbook/run_002_build_a_visual_review_and_mockup_from_a_live_viewer.md) | Build a visual review and mockup from a live viewer | Active | validation | 2026-08-13, produced the reviews and mockups behind req_344, req_345, req_347, req_349, req_350 and req_351 | runbook/run_002_build_a_visual_review_and_mockup_from_a_live_viewer.md |

@@ -1,10 +1,10 @@
 ## item_713_keep_the_fleet_home_usable_past_a_dozen_projects - Keep the fleet home usable past a dozen projects
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 93%
 > Confidence: 90%
-> Progress: 80%
+> Progress: 100%
 > Complexity: Low
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -45,3 +45,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_341_deliver_the_fleet_home_first_screen_redesign`
+
+# Notes
+- Task `task_341_deliver_the_fleet_home_first_screen_redesign` was finished via `logics-manager flow finish task` on 2026-08-13.

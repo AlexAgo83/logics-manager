@@ -997,6 +997,19 @@ import {
         </div>
       `;
     }).join("");
+    // item_713/item_728: separating the fleet capability from the launch intent fixed a
+    // plain `view` landing on the fleet home, and removed the only way to reach it from an
+    // ordinary launch -- dropping `?project=` from the URL. Every viewer is still
+    // fleet-capable, so the switcher is where that capability belongs: it is already the
+    // control for "which project am I looking at", and the fleet home is the answer
+    // "none of them yet".
+    const fleetHomeRow = latestFleet ? `
+      <button class="viewer-project-switcher__item viewer-project-switcher__item--picker" type="button" role="menuitem" data-viewer-fleet-home>
+        <span class="viewer-project-switcher__item-name">Fleet home</span>
+        <span class="viewer-project-switcher__item-state">${latestProjects.length} project${latestProjects.length === 1 ? "" : "s"}</span>
+        <span class="viewer-project-switcher__item-path">See every project this operator has</span>
+      </button>
+    ` : "";
     const pickerRow = `
       <button class="viewer-project-switcher__item viewer-project-switcher__item--picker" type="button" role="menuitem" data-viewer-project-pick>
         <span class="viewer-project-switcher__item-name">Choose folder...</span>
@@ -1012,7 +1025,7 @@ import {
       </button>
     ` : "";
     const fleetRoots = latestFleetRoots.map((root) => `<div class="viewer-project-switcher__row" role="none"><span class="viewer-project-switcher__item"><span class="viewer-project-switcher__item-name">Fleet root</span><span class="viewer-project-switcher__item-path">${escapeHtml(root)}</span></span><button class="viewer-project-switcher__favorite" type="button" data-viewer-fleet-root-remove="${escapeHtml(root)}" aria-label="Remove fleet root" title="Remove fleet root">×</button></div>`).join("");
-    menu.innerHTML = `${fleetRoots}${projectRows}${pickerRow}${fleetRootRow}`;
+    menu.innerHTML = `${fleetHomeRow}${fleetRoots}${projectRows}${pickerRow}${fleetRootRow}`;
   }
 
   let latestProjectState = {};
@@ -4032,6 +4045,13 @@ import {
       const workshopRunbookGraphTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-graph]") : null;
       const workshopRunbookSearchTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-search]") : null;
       const workshopRunbookHiddenTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-hidden]") : null;
+      const fleetHomeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-fleet-home]") : null;
+      if (fleetHomeTarget instanceof HTMLElement) {
+        event.preventDefault();
+        setProjectMenuOpen(false);
+        void showFleetHome();
+        return;
+      }
       const fleetRootPickTarget = event.target instanceof Element ? event.target.closest("[data-viewer-fleet-root-pick]") : null;
       const fleetRootRemoveTarget = event.target instanceof Element ? event.target.closest("[data-viewer-fleet-root-remove]") : null;
       const workshopRunTerminalTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run-terminal]") : null;

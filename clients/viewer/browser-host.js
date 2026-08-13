@@ -8834,6 +8834,13 @@ ${line}` : line;
         </div>
       `;
       }).join("");
+      const fleetHomeRow = latestFleet ? `
+      <button class="viewer-project-switcher__item viewer-project-switcher__item--picker" type="button" role="menuitem" data-viewer-fleet-home>
+        <span class="viewer-project-switcher__item-name">Fleet home</span>
+        <span class="viewer-project-switcher__item-state">${latestProjects.length} project${latestProjects.length === 1 ? "" : "s"}</span>
+        <span class="viewer-project-switcher__item-path">See every project this operator has</span>
+      </button>
+    ` : "";
       const pickerRow = `
       <button class="viewer-project-switcher__item viewer-project-switcher__item--picker" type="button" role="menuitem" data-viewer-project-pick>
         <span class="viewer-project-switcher__item-name">Choose folder...</span>
@@ -8849,7 +8856,7 @@ ${line}` : line;
       </button>
     ` : "";
       const fleetRoots = latestFleetRoots.map((root) => `<div class="viewer-project-switcher__row" role="none"><span class="viewer-project-switcher__item"><span class="viewer-project-switcher__item-name">Fleet root</span><span class="viewer-project-switcher__item-path">${escapeHtml(root)}</span></span><button class="viewer-project-switcher__favorite" type="button" data-viewer-fleet-root-remove="${escapeHtml(root)}" aria-label="Remove fleet root" title="Remove fleet root">\xD7</button></div>`).join("");
-      menu.innerHTML = `${fleetRoots}${projectRows}${pickerRow}${fleetRootRow}`;
+      menu.innerHTML = `${fleetHomeRow}${fleetRoots}${projectRows}${pickerRow}${fleetRootRow}`;
     }
     let latestProjectState = {};
     function fleetProjectState(project, state) {
@@ -11401,6 +11408,13 @@ ${line}` : line;
         const workshopRunbookGraphTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-graph]") : null;
         const workshopRunbookSearchTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-search]") : null;
         const workshopRunbookHiddenTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-hidden]") : null;
+        const fleetHomeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-fleet-home]") : null;
+        if (fleetHomeTarget instanceof HTMLElement) {
+          event.preventDefault();
+          setProjectMenuOpen(false);
+          void showFleetHome();
+          return;
+        }
         const fleetRootPickTarget = event.target instanceof Element ? event.target.closest("[data-viewer-fleet-root-pick]") : null;
         const fleetRootRemoveTarget = event.target instanceof Element ? event.target.closest("[data-viewer-fleet-root-remove]") : null;
         const workshopRunTerminalTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run-terminal]") : null;

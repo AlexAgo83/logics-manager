@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-13 19:05:55
 
 # AI Context
 - Summary: The `view` command passes `fleet=True` as a literal, so every viewer is a fleet viewer: the switcher offers fleet root management everywhere and any request without a project parameter lands on the fleet home.
@@ -56,6 +57,14 @@ raising this.
 `docs/cli.md` promised, but it would make the fleet unreachable from an ordinary launch
 and put `adr_028` back in question for a wording problem. Rewriting the sentence is
 cheaper than narrowing the product.
+
+**A consequence found during delivery, 2026-08-13.** Separating the two facts fixed a plain
+`view` landing on the Fleet home -- and removed the only way to reach it from an ordinary
+launch, which was dropping `?project=` from the URL. Nothing in the interface opened it.
+`item_713` therefore adds a `Fleet home` entry to the project switcher: every viewer is
+still fleet-capable, and the switcher already answers "which project am I looking at", so
+"none of them yet" belongs there. Recorded here rather than only in the commit, because a
+decision that removes a route should carry the route it replaced it with.
 
 **Revisit if** an operator wants a viewer that genuinely cannot see other projects -- a
 shared or restricted context, say. That is a capability question and would reopen this.

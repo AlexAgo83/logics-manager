@@ -505,6 +505,10 @@ function browserExerciseScript(name) {
       // asserts against whatever happens to be on screen. Reading the document title back
       // is what makes a capture name itself.
       const visitScreen = async (screen) => {
+        if (screen.before) {
+          document.querySelector(screen.before)?.click();
+          await delay(250);
+        }
         const opened = document.querySelector(screen.open);
         if (!(opened instanceof HTMLElement)) {
           checks.push({ name: screen.name + ": reachable", verdict: "skipped", measured: "control " + screen.open + " is not present" });
@@ -526,11 +530,25 @@ function browserExerciseScript(name) {
           });
           return false;
         }
+        // A screen that finishes loading after the next one is opened re-renders over it:
+        // the fleet home's project-state pass landed on top of insights and the campaign
+        // reported insights as showing 'Fleet'. Settle, and if a late render took the
+        // screen back, open it once more before giving a verdict.
+        await delay(400);
+        const settled = () => (document.getElementById("viewer-document-title")?.textContent || "").trim();
+        if (settled() !== screen.title) {
+          opened.click();
+          await waitFor(() => settled() === screen.title, screen.name + " to settle", 30000);
+        }
         checks.push({ name: screen.name + ": reachable", verdict: "ok", measured: screen.title });
         return true;
       };
 
       const SCREENS = [
+        // item_715: the fleet home is reached through the project switcher, which must be
+        // opened first -- the harness takes a control to click, so the entry names the
+        // switcher and the screen's own control is opened by the step before it.
+        { name: "fleet home", title: "Fleet", open: "[data-viewer-fleet-home]", before: "#viewer-repo-pill" },
         { name: "insights", title: "Corpus insights", open: "#viewer-insights", timeoutMs: 120000 },
         { name: "health", title: "Validation health", open: "#viewer-health" },
         { name: "getting started", title: "Getting Started", open: "#viewer-getting-started" }

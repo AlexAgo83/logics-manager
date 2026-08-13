@@ -291,7 +291,12 @@ const allowedOversizedFiles = new Map(
     // The filter re-renders the screen and restores the caret rather than being held
     // outside the render, which keeps the screen a pure function of its state and costs
     // about ten lines to do honestly.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4639, ref: "req_344" },
+    // 4659: item_715 needed a way back into the fleet home. Separating the fleet
+    // capability from the launch intent (item_728) fixed a plain `view` landing there and
+    // removed the only route to it -- dropping ?project= from the URL. The switcher is
+    // where that belongs: it already answers "which project am I looking at", and the
+    // fleet home is "none of them yet".
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4659, ref: "req_344" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

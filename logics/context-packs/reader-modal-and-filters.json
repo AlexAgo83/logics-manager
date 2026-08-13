@@ -1,0 +1,500 @@
+{
+  "budgets": {
+    "max_docs": 32,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_351_make_the_reader_readable_and_the_filter_panel_say_something item_761_stop_the_reader_leading_with_a_path_in_capitals item_762_make_the_reader_a_place_to_read item_763_finish_the_new_request_modal_without_redesigning_it item_764_make_each_filter_say_what_it_would_narrow item_765_make_the_panel_and_the_board_agree_on_what_is_shown item_766_cover_the_reader_the_modal_and_the_filter_panel task_348_deliver_the_reader_the_modal_and_the_filter_panel --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_761_stop_the_reader_leading_with_a_path_in_capitals",
+          "item_762_make_the_reader_a_place_to_read",
+          "item_763_finish_the_new_request_modal_without_redesigning_it",
+          "item_764_make_each_filter_say_what_it_would_narrow",
+          "item_765_make_the_panel_and_the_board_agree_on_what_is_shown",
+          "item_766_cover_the_reader_the_modal_and_the_filter_panel"
+        ],
+        "prod": [
+          "prod_087_surfaces_that_read_like_they_were_finished"
+        ],
+        "req": [
+          "req_351_make_the_reader_readable_and_the_filter_panel_say_something"
+        ],
+        "task": [
+          "task_348_deliver_the_reader_the_modal_and_the_filter_panel"
+        ]
+      },
+      "path": "logics/product/prod_087_surfaces_that_read_like_they_were_finished.md",
+      "ref": "prod_087_surfaces_that_read_like_they_were_finished",
+      "status": "Proposed",
+      "title": "Surfaces that read like they were finished"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_716_confirm_what_the_payload_can_and_cannot_tell_about_chains_and_lifelines",
+          "item_717_split_the_board_into_a_flow_queue_and_a_companion_library",
+          "item_718_open_the_board_on_the_work_that_is_live",
+          "item_719_reallocate_the_card_face_to_the_facts_that_vary",
+          "item_720_make_selecting_a_card_one_mechanism",
+          "item_721_lead_the_details_panel_with_what_the_document_says",
+          "item_722_give_a_document_a_lifeline_in_the_details_panel",
+          "item_723_draw_the_activity_feed_as_a_chronology",
+          "item_724_tell_one_chain_s_story_in_the_activity_feed",
+          "item_725_cover_the_board_the_selected_state_the_panel_and_the_feed_in_the_campaign"
+        ],
+        "prod": [
+          "prod_081_a_project_view_that_leads_with_what_is_live"
+        ],
+        "req": [
+          "req_345_make_the_project_view_lead_with_the_work_that_is_live"
+        ],
+        "task": [
+          "task_342_deliver_the_project_view_that_leads_with_live_work"
+        ]
+      },
+      "path": "logics/product/prod_081_a_project_view_that_leads_with_what_is_live.md",
+      "ref": "prod_081_a_project_view_that_leads_with_what_is_live",
+      "status": "Proposed",
+      "title": "A project view that leads with what is live"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "reader, readable, filter, panel, say, something",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_761_stop_the_reader_leading_with_a_path_in_capitals",
+          "item_762_make_the_reader_a_place_to_read",
+          "item_763_finish_the_new_request_modal_without_redesigning_it",
+          "item_764_make_each_filter_say_what_it_would_narrow",
+          "item_765_make_the_panel_and_the_board_agree_on_what_is_shown",
+          "item_766_cover_the_reader_the_modal_and_the_filter_panel"
+        ],
+        "prod": [
+          "prod_087_surfaces_that_read_like_they_were_finished"
+        ],
+        "req": [
+          "req_345_make_the_project_view_lead_with_the_work_that_is_live",
+          "req_351_make_the_reader_readable_and_the_filter_panel_say_something"
+        ],
+        "run": [
+          "run_002_build_a_visual_review_and_mockup_from_a_live_viewer"
+        ]
+      },
+      "path": "logics/request/req_351_make_the_reader_readable_and_the_filter_panel_say_something.md",
+      "ref": "req_351_make_the_reader_readable_and_the_filter_panel_say_something",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Make the reader readable and the filter panel say something"
+    },
+    {
+      "ai_context": {
+        "keywords": "project, view, lead, work, live",
+        "skip when": "working on the fleet home, the document reader or editor, or the Workshop, Remote and CDX screens.",
+        "summary": "91.5% of this corpus is finished, and the board, the card, the details panel and the activity feed are all scaled for it; this reallocates their surface and their visual channels to the 13 items that are live.",
+        "use when": "changing the board's columns or cards, the selected-card state, the details panel, or the activity feed."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_716_confirm_what_the_payload_can_and_cannot_tell_about_chains_and_lifelines",
+          "item_717_split_the_board_into_a_flow_queue_and_a_companion_library",
+          "item_718_open_the_board_on_the_work_that_is_live",
+          "item_719_reallocate_the_card_face_to_the_facts_that_vary",
+          "item_720_make_selecting_a_card_one_mechanism",
+          "item_721_lead_the_details_panel_with_what_the_document_says",
+          "item_722_give_a_document_a_lifeline_in_the_details_panel",
+          "item_723_draw_the_activity_feed_as_a_chronology",
+          "item_724_tell_one_chain_s_story_in_the_activity_feed",
+          "item_725_cover_the_board_the_selected_state_the_panel_and_the_feed_in_the_campaign",
+          "item_739_make_list_mode_a_table",
+          "item_740_keep_progress_and_both_modes_honest_at_any_width"
+        ],
+        "prod": [
+          "prod_081_a_project_view_that_leads_with_what_is_live"
+        ],
+        "req": [
+          "req_344_make_the_fleet_home_read_as_the_product_s_first_screen",
+          "req_345_make_the_project_view_lead_with_the_work_that_is_live"
+        ]
+      },
+      "path": "logics/request/req_345_make_the_project_view_lead_with_the_work_that_is_live.md",
+      "ref": "req_345_make_the_project_view_lead_with_the_work_that_is_live",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Make the project view lead with the work that is live"
+    },
+    {
+      "ai_context": {
+        "keywords": "reader, leading, path, capitals",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_761_stop_the_reader_leading_with_a_path_in_capitals"
+        ],
+        "prod": [
+          "prod_087_surfaces_that_read_like_they_were_finished"
+        ],
+        "req": [
+          "req_351_make_the_reader_readable_and_the_filter_panel_say_something"
+        ],
+        "task": [
+          "task_348_deliver_the_reader_the_modal_and_the_filter_panel"
+        ]
+      },
+      "path": "logics/backlog/item_761_stop_the_reader_leading_with_a_path_in_capitals.md",
+      "ref": "item_761_stop_the_reader_leading_with_a_path_in_capitals",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Stop the reader leading with a path in capitals"
+    },
+    {
+      "ai_context": {
+        "keywords": "reader, place, read",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_762_make_the_reader_a_place_to_read"
+        ],
+        "prod": [
+          "prod_087_surfaces_that_read_like_they_were_finished"
+        ],
+        "req": [
+          "req_351_make_the_reader_readable_and_the_filter_panel_say_something"
+        ],
+        "task": [
+          "task_348_deliver_the_reader_the_modal_and_the_filter_panel"
+        ]
+      },
+      "path": "logics/backlog/item_762_make_the_reader_a_place_to_read.md",
+      "ref": "item_762_make_the_reader_a_place_to_read",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Make the reader a place to read"
+    },
+    {
+      "ai_context": {
+        "keywords": "deliver, reader, modal, filter, panel",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_761_stop_the_reader_leading_with_a_path_in_capitals",
+          "item_762_make_the_reader_a_place_to_read",
+          "item_763_finish_the_new_request_modal_without_redesigning_it",
+          "item_764_make_each_filter_say_what_it_would_narrow",
+          "item_765_make_the_panel_and_the_board_agree_on_what_is_shown",
+          "item_766_cover_the_reader_the_modal_and_the_filter_panel"
+        ],
+        "prod": [
+          "prod_087_surfaces_that_read_like_they_were_finished"
+        ],
+        "req": [
+          "req_351_make_the_reader_readable_and_the_filter_panel_say_something"
+        ],
+        "task": [
+          "task_348_deliver_the_reader_the_modal_and_the_filter_panel"
+        ]
+      },
+      "path": "logics/tasks/task_348_deliver_the_reader_the_modal_and_the_filter_panel.md",
+      "ref": "task_348_deliver_the_reader_the_modal_and_the_filter_panel",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Deliver the reader, the modal and the filter panel"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_761_stop_the_reader_leading_with_a_path_in_capitals",
+          "item_762_make_the_reader_a_place_to_read",
+          "item_763_finish_the_new_request_modal_without_redesigning_it",
+          "item_764_make_each_filter_say_what_it_would_narrow",
+          "item_765_make_the_panel_and_the_board_agree_on_what_is_shown",
+          "item_766_cover_the_reader_the_modal_and_the_filter_panel"
+        ],
+        "prod": [
+          "prod_087_surfaces_that_read_like_they_were_finished"
+        ],
+        "req": [
+          "req_351_make_the_reader_readable_and_the_filter_panel_say_something"
+        ],
+        "task": [
+          "task_348_deliver_the_reader_the_modal_and_the_filter_panel"
+        ]
+      },
+      "path": "logics/product/prod_087_surfaces_that_read_like_they_were_finished.md",
+      "ref": "prod_087_surfaces_that_read_like_they_were_finished",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "Surfaces that read like they were finished"
+    },
+    {
+      "ai_context": {
+        "keywords": "finish, new, request, modal, redesigning",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_763_finish_the_new_request_modal_without_redesigning_it"
+        ],
+        "prod": [
+          "prod_087_surfaces_that_read_like_they_were_finished"
+        ],
+        "req": [
+          "req_351_make_the_reader_readable_and_the_filter_panel_say_something"
+        ],
+        "task": [
+          "task_348_deliver_the_reader_the_modal_and_the_filter_panel"
+        ]
+      },
+      "path": "logics/backlog/item_763_finish_the_new_request_modal_without_redesigning_it.md",
+      "ref": "item_763_finish_the_new_request_modal_without_redesigning_it",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Finish the new-request modal without redesigning it"
+    },
+    {
+      "ai_context": {
+        "keywords": "each, filter, say, would, narrow",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_764_make_each_filter_say_what_it_would_narrow"
+        ],
+        "prod": [
+          "prod_087_surfaces_that_read_like_they_were_finished"
+        ],
+        "req": [
+          "req_351_make_the_reader_readable_and_the_filter_panel_say_something"
+        ],
+        "task": [
+          "task_348_deliver_the_reader_the_modal_and_the_filter_panel"
+        ]
+      },
+      "path": "logics/backlog/item_764_make_each_filter_say_what_it_would_narrow.md",
+      "ref": "item_764_make_each_filter_say_what_it_would_narrow",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Make each filter say what it would narrow"
+    },
+    {
+      "ai_context": {
+        "keywords": "panel, board, agree, shown",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_765_make_the_panel_and_the_board_agree_on_what_is_shown"
+        ],
+        "prod": [
+          "prod_087_surfaces_that_read_like_they_were_finished"
+        ],
+        "req": [
+          "req_351_make_the_reader_readable_and_the_filter_panel_say_something"
+        ],
+        "task": [
+          "task_348_deliver_the_reader_the_modal_and_the_filter_panel"
+        ]
+      },
+      "path": "logics/backlog/item_765_make_the_panel_and_the_board_agree_on_what_is_shown.md",
+      "ref": "item_765_make_the_panel_and_the_board_agree_on_what_is_shown",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Make the panel and the board agree on what is shown"
+    },
+    {
+      "ai_context": {
+        "keywords": "cover, reader, modal, filter, panel",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_766_cover_the_reader_the_modal_and_the_filter_panel"
+        ],
+        "prod": [
+          "prod_087_surfaces_that_read_like_they_were_finished"
+        ],
+        "req": [
+          "req_351_make_the_reader_readable_and_the_filter_panel_say_something"
+        ],
+        "task": [
+          "task_348_deliver_the_reader_the_modal_and_the_filter_panel"
+        ]
+      },
+      "path": "logics/backlog/item_766_cover_the_reader_the_modal_and_the_filter_panel.md",
+      "ref": "item_766_cover_the_reader_the_modal_and_the_filter_panel",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Cover the reader, the modal and the filter panel"
+    }
+  ],
+  "estimates": {
+    "char_count": 11783,
+    "companion_doc_count": 2,
+    "doc_count": 10
+  },
+  "generated_at": "2026-08-13T13:39:11Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_351_make_the_reader_readable_and_the_filter_panel_say_something",
+      "item_761_stop_the_reader_leading_with_a_path_in_capitals",
+      "item_762_make_the_reader_a_place_to_read",
+      "item_763_finish_the_new_request_modal_without_redesigning_it",
+      "item_764_make_each_filter_say_what_it_would_narrow",
+      "item_765_make_the_panel_and_the_board_agree_on_what_is_shown",
+      "item_766_cover_the_reader_the_modal_and_the_filter_panel",
+      "task_348_deliver_the_reader_the_modal_and_the_filter_panel"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_351_make_the_reader_readable_and_the_filter_panel_say_something,item_761_stop_the_reader_leading_with_a_path_in_capitals,item_762_make_the_reader_a_place_to_read,item_763_finish_the_new_request_modal_without_redesigning_it,item_764_make_each_filter_say_what_it_would_narrow,item_765_make_the_panel_and_the_board_agree_on_what_is_shown,item_766_cover_the_reader_the_modal_and_the_filter_panel,task_348_deliver_the_reader_the_modal_and_the_filter_panel",
+  "refs": [
+    "req_351_make_the_reader_readable_and_the_filter_panel_say_something",
+    "item_761_stop_the_reader_leading_with_a_path_in_capitals",
+    "item_762_make_the_reader_a_place_to_read",
+    "item_763_finish_the_new_request_modal_without_redesigning_it",
+    "item_764_make_each_filter_say_what_it_would_narrow",
+    "item_765_make_the_panel_and_the_board_agree_on_what_is_shown",
+    "item_766_cover_the_reader_the_modal_and_the_filter_panel",
+    "task_348_deliver_the_reader_the_modal_and_the_filter_panel"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_348_deliver_the_reader_the_modal_and_the_filter_panel.md",
+      "ref": "task_348_deliver_the_reader_the_modal_and_the_filter_panel"
+    }
+  ]
+}

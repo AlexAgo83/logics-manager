@@ -5612,3 +5612,66 @@
     justify-self: start;
   }
 }
+
+/* item_713: the toolbar carries what narrows the screen and what configures it. The roots
+   were a stacked section of bordered rows above the grid; they are configuration, not
+   content, so they sit beside the control that adds one. */
+.viewer-fleet__toolbar {
+  flex-wrap: wrap;
+}
+
+.viewer-fleet__filter {
+  flex: 1 1 190px;
+  min-width: 150px;
+  max-width: 300px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  background: var(--vscode-input-background, #242424);
+  color: var(--vscode-input-foreground, #d4d4d4);
+  font: inherit;
+  font-size: 12.5px;
+}
+
+.viewer-fleet__count {
+  flex: 0 0 auto;
+}
+
+.viewer-fleet__roots {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.viewer-fleet__root-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 4px 2px 9px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 999px;
+  background: var(--vscode-editorWidget-background, #202020);
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-size: 11.5px;
+  max-width: 220px;
+}
+
+.viewer-fleet__root-chip > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viewer-fleet__root-chip button {
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.viewer-fleet__root-chip button:hover {
+  color: var(--vscode-foreground, #d4d4d4);
+}

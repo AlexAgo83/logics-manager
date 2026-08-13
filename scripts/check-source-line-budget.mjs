@@ -286,7 +286,12 @@ const allowedOversizedFiles = new Map(
     // digits -- and is now about 55px. The growth is two small helpers pulled out of the
     // renderer (the state classifier and one metric) plus the degraded-state and empty
     // markup; the card renderer they replace was removed in the same change.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4614, ref: "req_344" },
+    // 4639: item_713 gives the fleet home a filter, attention-first ordering, and the
+    // roots as toolbar chips instead of a stacked section of bordered rows above the grid.
+    // The filter re-renders the screen and restores the caret rather than being held
+    // outside the render, which keeps the screen a pure function of its state and costs
+    // about ten lines to do honestly.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4639, ref: "req_344" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

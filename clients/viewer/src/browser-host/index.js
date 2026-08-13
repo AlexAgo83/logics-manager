@@ -1060,25 +1060,39 @@ import {
     `;
   }
 
+  // item_713: the fleet home is for the case where an operator holds more projects than
+  // they can keep in their head, and nothing narrowed it. Attention-first ordering answers
+  // "where do I look" before the filter is touched at all.
+  const FLEET_ATTENTION_ORDER = { issues: 0, unreadable: 1, stale: 2, bootstrap: 3, unknown: 4, clean: 5 };
+  let fleetFilterText = "";
+
   function renderFleetHome() {
     const favorites = favoriteProjectIds();
-    const projects = latestProjects
+    const needle = fleetFilterText.trim().toLowerCase();
+    const all = latestProjects
       .filter((project) => project && typeof project === "object")
       .map((project, index) => {
         const state = latestProjectState[project.id] || null;
-        return { project, state, index, favorite: favorites.has(projectPreferenceId(project)) };
-      })
-      .sort((left, right) => Number(right.favorite) - Number(left.favorite) || left.index - right.index);
-    const rootRows = latestFleetRoots.map((root) => `
-      <div class="viewer-fleet__root">
-        <span>${escapeHtml(root)}</span>
-        <button class="viewer-project-switcher__favorite" type="button" data-viewer-fleet-root-remove="${escapeHtml(root)}" aria-label="Remove fleet root" title="Remove fleet root">x</button>
-      </div>
+        return { project, state, index, favorite: favorites.has(projectPreferenceId(project)), key: fleetProjectState(project, state).key };
+      });
+    const projects = all
+      .filter(({ project }) => !needle
+        || String(project.name || "").toLowerCase().includes(needle)
+        || String(project.root || "").toLowerCase().includes(needle))
+      // Attention first, then favorites, then the order the fleet was discovered in.
+      .sort((left, right) =>
+        (FLEET_ATTENTION_ORDER[left.key] ?? 9) - (FLEET_ATTENTION_ORDER[right.key] ?? 9)
+        || Number(right.favorite) - Number(left.favorite)
+        || left.index - right.index);
+    // The roots were a stacked section above the grid, each on its own bordered row. They
+    // are configuration, not content: they belong beside the control that adds one.
+    const rootChips = latestFleetRoots.map((root) => `
+      <span class="viewer-fleet__root-chip" title="${escapeHtml(root)}">
+        <span>${escapeHtml(root.split(/[\\/]/).filter(Boolean).pop() || root)}</span>
+        <button type="button" data-viewer-fleet-root-remove="${escapeHtml(root)}" aria-label="Remove fleet root ${escapeHtml(root)}" title="Remove fleet root">&times;</button>
+      </span>
     `).join("");
-    const attention = projects.filter(({ project, state }) => {
-      const key = fleetProjectState(project, state).key;
-      return key === "issues" || key === "unreadable";
-    }).length;
+    const attention = all.filter(({ key }) => key === "issues" || key === "unreadable").length;
     const rows = projects.map(renderFleetRow).join("");
     // item_714: an empty fleet is a new operator's first screen, so it says what a fleet
     // root is and offers the action that resolves it rather than one grey sentence.
@@ -1089,18 +1103,39 @@ import {
         <button class="viewer-fleet__open" type="button" data-viewer-fleet-root-pick>Choose a folder...</button>
       </div>
     `;
+    const counted = needle
+      ? `${projects.length} of ${all.length} project${all.length === 1 ? "" : "s"}`
+      : `${all.length} project${all.length === 1 ? "" : "s"}`;
+    const noMatch = `<div class="viewer-fleet__empty"><p class="viewer-fleet__empty-title">Nothing matches "${escapeHtml(fleetFilterText)}"</p><p>Clear the filter to see all ${all.length}.</p></div>`;
     return `
       <section class="viewer-fleet">
         <div class="viewer-fleet__toolbar">
-          <div>
-            <p>${projects.length} project${projects.length === 1 ? "" : "s"}${attention ? ` \u00b7 <b class="viewer-fleet__attention">${attention} need${attention === 1 ? "s" : ""} attention</b>` : ""}</p>
-          </div>
+          <input class="viewer-fleet__filter" type="search" data-viewer-fleet-filter placeholder="Filter projects..." aria-label="Filter projects" value="${escapeHtml(fleetFilterText)}">
+          <p class="viewer-fleet__count">${counted}${attention ? ` \u00b7 <b class="viewer-fleet__attention">${attention} need${attention === 1 ? "s" : ""} attention</b>` : ""}</p>
+          <span class="viewer-fleet__roots">${rootChips}</span>
           <button class="viewer-fleet__open" type="button" data-viewer-fleet-root-pick>Add root</button>
         </div>
-        ${latestFleetRoots.length ? `<section class="viewer-fleet__roots">${rootRows}</section>` : ""}
-        <section class="viewer-fleet__rows">${rows || empty}</section>
+        <section class="viewer-fleet__rows">${all.length ? (rows || noMatch) : empty}</section>
       </section>
     `;
+  }
+
+  // Re-rendering the screen replaces the input, so the caret has to be put back where it
+  // was. Cheaper than holding the filter outside the render, and keeps the screen a pure
+  // function of its state.
+  function bindFleetFilter() {
+    document.addEventListener("input", (event) => {
+      const field = event.target instanceof Element ? event.target.closest("[data-viewer-fleet-filter]") : null;
+      if (!(field instanceof HTMLInputElement)) return;
+      const caret = field.selectionStart;
+      fleetFilterText = field.value;
+      void showFleetHome({ silent: true, skipStateLoad: true });
+      const next = document.querySelector("[data-viewer-fleet-filter]");
+      if (next instanceof HTMLInputElement) {
+        next.focus();
+        if (caret !== null) next.setSelectionRange(caret, caret);
+      }
+    });
   }
 
   function isFleetHomeOpen() {
@@ -3620,6 +3655,7 @@ import {
     }
     bindRefreshMenuControls();
     bindFocusMenuControls();
+    bindFleetFilter();
     document.addEventListener("click", (event) => {
       const target = event.target;
       const button = refreshMenuButton();

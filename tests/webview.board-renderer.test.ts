@@ -461,10 +461,12 @@ describe("webview board renderer behavior", () => {
     });
 
     const board = dom.window.document.getElementById("board");
-    const card = board?.querySelector('[data-id="prod_010_linked"]');
-    const previewText = card?.querySelector(".card__preview")?.textContent || "";
-    expect(previewText).toContain("For R010");
+    const card = board?.querySelector('[data-id="prod_010_linked"]') as HTMLElement | null;
     expect(card?.querySelector(".card__meta")).toBeFalsy();
+    // item_720: the linkage line moved with the inline preview into the panel, which is
+    // where it was being duplicated from in the first place.
+    card?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(dom.window.document.getElementById("details")?.textContent).toContain("req_010_linked_request");
   });
 
   it("renders the compact document prefix before the card title", () => {
@@ -486,7 +488,7 @@ describe("webview board renderer behavior", () => {
     expect(prefix?.getAttribute("data-stage")).toBe("request");
   });
 
-  it("shows theme status and updated metadata only after selecting the card", () => {
+  it("puts theme, status and updated in the panel instead of copying them onto the card", () => {
     const { dom } = bootstrapWebview();
 
     pushData(dom, {
@@ -503,18 +505,23 @@ describe("webview board renderer behavior", () => {
       ]
     });
 
+    // item_720: these facts used to be copied onto the card as an inline preview that
+    // repeated the panel's own header and grew the card. The panel renders every indicator
+    // already, so selecting is what shows them and the card stays the size it was.
     const card = dom.window.document.querySelector('[data-id="req_000_kickoff"]') as HTMLElement | null;
-    const preview = card?.querySelector(".card__preview") as HTMLElement | null;
-    expect(preview?.hidden).toBe(true);
+    expect(card?.querySelector(".card__preview")).toBeNull();
+    const heightBefore = card?.childElementCount;
 
     card?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
-    const selectedPreview = dom.window.document.querySelector('[data-id="req_000_kickoff"] .card__preview') as HTMLElement | null;
-    expect(selectedPreview?.hidden).toBe(false);
-    expect(selectedPreview?.textContent).toContain("Theme");
-    expect(selectedPreview?.textContent).toContain("Navigation");
-    expect(selectedPreview?.textContent).toContain("Status");
-    expect(selectedPreview?.textContent).toContain("Updated");
+    const selectedCard = dom.window.document.querySelector('[data-id="req_000_kickoff"]') as HTMLElement | null;
+    expect(selectedCard?.childElementCount).toBe(heightBefore);
+    expect(selectedCard?.classList.contains("card--selected")).toBe(true);
+
+    const details = dom.window.document.getElementById("details");
+    expect(details?.classList.contains("details--collapsed")).toBe(false);
+    expect(details?.textContent).toContain("Navigation");
+    expect(details?.textContent).toContain("Ready");
   });
 
   it("omits primary-flow text from spec cards in board and list renderings", () => {
@@ -531,10 +538,11 @@ describe("webview board renderer behavior", () => {
     });
 
     const specCard = dom.window.document.querySelector('[data-id="spec_001_reference_contract"]') as HTMLElement | null;
-    const preview = specCard?.querySelector(".card__preview");
 
     expect(specCard?.querySelector(".card__meta--linkage")).toBeFalsy();
-    expect(preview?.textContent ?? "").not.toContain("Flow");
+    // item_720 retired the inline preview that carried the Flow line; the card must still
+    // not claim a primary-flow link a spec does not have.
+    expect(specCard?.textContent ?? "").not.toContain("Flow");
   });
 
   it("keeps the reference index out of the columns and lets its control actually close it", () => {
@@ -648,7 +656,12 @@ describe("webview board renderer behavior", () => {
     expect(badge?.textContent).not.toContain("C 90%");
     expect(badge?.textContent).toContain("M");
     expect(badge?.querySelector(".card__badge-age")).toBeTruthy();
-    const detail = dom.window.document.querySelector(".card__preview")?.textContent || "";
+    // item_720 retired the inline preview; the panel renders every indicator already, so
+    // this is where understanding and confidence are read now.
+    (dom.window.document.querySelector('[data-id="req_000_kickoff"]') as HTMLElement | null)?.dispatchEvent(
+      new dom.window.Event("click", { bubbles: true })
+    );
+    const detail = dom.window.document.getElementById("details")?.textContent || "";
     expect(detail).toContain("95%");
     expect(detail).toContain("90%");
   });
@@ -678,7 +691,11 @@ describe("webview board renderer behavior", () => {
     expect(badge?.textContent).not.toContain("88%");
     expect(badge?.textContent).not.toContain("84%");
     expect(badge?.textContent).toContain("H");
-    const detail = dom.window.document.querySelector(".card__preview")?.textContent || "";
+    // item_720: read from the panel the click opens, not from an inline copy of it.
+    (dom.window.document.querySelector('[data-id="task_001"]') as HTMLElement | null)?.dispatchEvent(
+      new dom.window.Event("click", { bubbles: true })
+    );
+    const detail = dom.window.document.getElementById("details")?.textContent || "";
     expect(detail).toContain("88%");
     expect(detail).toContain("84%");
   });
@@ -1035,10 +1052,13 @@ describe("webview board renderer behavior", () => {
     expect(badgeStrip?.textContent).toContain("12d");
     expect(badgeStrip?.textContent).toContain("H");
     expect(badgeStrip?.textContent).not.toContain("92%");
-    const previewText = card?.querySelector(".card__preview")?.textContent || "";
-    expect(previewText).toContain("PROD");
-    expect(previewText).toContain("ADR");
-    expect(previewText).toContain("SPEC");
+    // item_720: these were read off the inline preview, which repeated the panel. They are
+    // still reachable, from the panel the click opens.
+    card?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    const panelText = dom.window.document.getElementById("details")?.textContent || "";
+    expect(panelText).toContain("prod_201_companion");
+    expect(panelText).toContain("adr_201_companion");
+    expect(panelText).toContain("spec_201_companion");
     expect(card?.querySelector(".card__request-badge")).toBeTruthy();
     expect(card?.querySelector(".card__task-dot-container")).toBeTruthy();
     expect(card?.querySelector(".card__request-badge")?.closest(".card__badges--strip")).toBeFalsy();
@@ -1329,7 +1349,7 @@ describe("webview board renderer behavior", () => {
     expect(board?.querySelector('[data-id="req_b"]')?.classList.contains("card--selected")).toBe(true);
   });
 
-  it("shows preview only after selecting the card", () => {
+  it("gives a click one outcome: select the card and open the panel", () => {
     const { dom } = bootstrapWebview();
 
     pushData(dom, {
@@ -1339,49 +1359,24 @@ describe("webview board renderer behavior", () => {
 
     const board = dom.window.document.getElementById("board");
     const card = board?.querySelector('[data-id="req_000_kickoff"]');
-    const preview = card?.querySelector(".card__preview") as HTMLElement | null;
-
-    expect(preview?.hidden).toBe(true);
+    // item_720: a click did three things -- selected, expanded an inline preview, and grew
+    // the card so every card below it moved under the pointer. It now has one outcome.
+    // Hover and focus never opened anything and still must not; the card's content is the
+    // same before and after the click, and only the selection and the panel change.
+    const contentBefore = card?.innerHTML;
 
     card?.dispatchEvent(new dom.window.Event("mouseenter"));
-    expect(preview?.hidden).toBe(true);
-    expect(card?.classList.contains("card--preview-open")).toBe(false);
-
     card?.dispatchEvent(new dom.window.Event("focus"));
-    expect(preview?.hidden).toBe(true);
-    expect(card?.classList.contains("card--preview-open")).toBe(false);
+    expect(card?.classList.contains("card--selected")).toBe(false);
+    expect(card?.innerHTML).toBe(contentBefore);
 
     card?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    const selectedPreview = board?.querySelector('[data-id="req_000_kickoff"] .card__preview') as HTMLElement | null;
-    const selectedCard = board?.querySelector('[data-id="req_000_kickoff"]');
-    expect(selectedPreview?.hidden).toBe(false);
-    expect(selectedCard?.classList.contains("card--preview-open")).toBe(true);
-  });
 
-  it("closes preview with Escape key", () => {
-    const { dom } = bootstrapWebview();
-
-    pushData(dom, {
-      root: "/workspace/mock",
-      items: [baseItem]
-    });
-
-    const board = dom.window.document.getElementById("board");
-    const card = board?.querySelector('[data-id="req_000_kickoff"]');
-
-    card?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    const selectedCard = board?.querySelector('[data-id="req_000_kickoff"]');
-    const preview = selectedCard?.querySelector(".card__preview") as HTMLElement | null;
-    expect(preview?.hidden).toBe(false);
-
-    const escEvent = new dom.window.KeyboardEvent("keydown", {
-      key: "Escape",
-      bubbles: true,
-      cancelable: true
-    });
-    selectedCard?.dispatchEvent(escEvent);
-
-    expect(preview?.hidden).toBe(true);
+    const selectedCard = board?.querySelector('[data-id="req_000_kickoff"]') as HTMLElement | null;
+    expect(selectedCard?.classList.contains("card--selected")).toBe(true);
+    expect(selectedCard?.innerHTML).toBe(contentBefore);
+    expect(selectedCard?.querySelector(".card__preview")).toBeNull();
+    expect(dom.window.document.getElementById("details")?.classList.contains("details--collapsed")).toBe(false);
   });
 
   it("shows empty column label for stages with no items", () => {

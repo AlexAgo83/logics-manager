@@ -415,10 +415,14 @@ describe("webview selectors behavior", () => {
     });
 
     const board = dom.window.document.getElementById("board");
-    const productCard = board?.querySelector('[data-id="prod_000_plugin_ux"]');
-    const previewText = productCard?.querySelector(".card__preview")?.textContent || "";
-    expect(previewText).toContain("Unlinked to primary flow");
+    const productCard = board?.querySelector('[data-id="prod_000_plugin_ux"]') as HTMLElement | null;
     expect(productCard?.querySelector(".card__meta")).toBeFalsy();
+    // item_720: the inline preview said "Unlinked to primary flow". The panel says it and
+    // offers the link, which is the same fact with somewhere to act on it.
+    productCard?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    const panel = dom.window.document.getElementById("details")?.textContent || "";
+    expect(panel).toContain("No primary workflow item linked yet.");
+    expect(panel).toContain("Link to primary flow");
   });
 
   it("handles items with no progress indicator gracefully", () => {

@@ -640,52 +640,6 @@
       return "No Logics items found. Use New Request or Bootstrap Logics to populate the board.";
     }
 
-    function createCompanionSummary(item) {
-      const companionDocs = collectCompanionDocs(item);
-      const specs = collectSpecs(item);
-      if (!isPrimaryFlowStage(item.stage) || (companionDocs.length === 0 && specs.length === 0)) {
-        return "";
-      }
-
-      const counts = companionDocs.reduce(
-        (acc, companion) => {
-          if (companion.stage === "product") acc.product += 1;
-          if (companion.stage === "roadmap") acc.roadmap += 1;
-          if (companion.stage === "architecture") acc.architecture += 1;
-          return acc;
-        },
-        { product: 0, roadmap: 0, architecture: 0 }
-      );
-
-      const label = (text, count) => (count > 1 ? `${text} ${count}` : text);
-      const parts = [];
-      if (counts.product > 0) parts.push(label("PROD", counts.product));
-      if (counts.roadmap > 0) parts.push(label("ROAD", counts.roadmap));
-      if (counts.architecture > 0) parts.push(label("ADR", counts.architecture));
-      if (specs.length > 0) parts.push(label("SPEC", specs.length));
-      return parts.join(" • ");
-    }
-
-    function getSuggestedSummary(item) {
-      if (typeof getSuggestedActions !== "function") {
-        return "";
-      }
-      return getSuggestedActions(item)
-        .filter((action) => action.key !== "promote" && action.key !== "add-docs")
-        .map((action) => action.label)
-        .join(" • ");
-    }
-
-    function getAttentionSummary(item) {
-      if (typeof getAttentionReasons !== "function") {
-        return "";
-      }
-      return getAttentionReasons(item)
-        .slice(0, 2)
-        .map((reason) => reason.shortLabel || reason.label)
-        .join(" • ");
-    }
-
     function createCardBadgeStrip(item, activeTasks) {
       const badgeStrip = document.createElement("div");
       badgeStrip.className = "card__badges card__badges--strip";
@@ -740,8 +694,14 @@
      *  moved this week or has sat for six. Absent an `ageDays`, show nothing rather than
      *  a zero that would read as "today". */
     function createCardAgeSegment(item) {
-      const days = Number(item && item.ageDays);
-      if (!Number.isFinite(days) || days < 0) return null;
+      let days = Number(item && item.ageDays);
+      if (!Number.isFinite(days) || days < 0) {
+        // Both surfaces send ageDays, but a card that carries updatedAt already knows how
+        // old it is, and showing nothing there would be a blank where a fact exists.
+        const stamp = Date.parse(String((item && item.updatedAt) || ""));
+        if (!Number.isFinite(stamp)) return null;
+        days = Math.max(0, (Date.now() - stamp) / 86400000);
+      }
       const segment = document.createElement("span");
       segment.className = "card__badge-metric-segment card__badge-age";
       if (days >= 30) segment.classList.add("is-stale");
@@ -765,67 +725,6 @@
       segment.appendChild(valueEl);
 
       return segment;
-    }
-
-    function createPrimaryFlowSummary(item) {
-      if (isPrimaryFlowStage(item.stage)) {
-        return "";
-      }
-      const linkedItems = collectPrimaryFlowItems(item);
-      if (linkedItems.length === 0) {
-        return "Unlinked to primary flow";
-      }
-      const preview = linkedItems
-        .slice(0, 2)
-        .map((linkedItem) => getDocumentPrefix(linkedItem) || getStageLabel(linkedItem.stage) || linkedItem.id)
-        .join(", ");
-      if (linkedItems.length > 2) {
-        return `For ${preview}, +${linkedItems.length - 2} more`;
-      }
-      return `For ${preview}`;
-    }
-
-    function formatPreviewDate(value) {
-      const timestamp = Date.parse(value || "");
-      if (!timestamp) {
-        return "Unknown";
-      }
-      const date = new Date(timestamp);
-      const diffMs = Date.now() - date.getTime();
-      if (diffMs >= 0 && diffMs < 24 * 60 * 60 * 1000) {
-        const totalMinutes = Math.max(1, Math.round(diffMs / (60 * 1000)));
-        const hours = Math.floor(totalMinutes / 60);
-        const minutes = totalMinutes % 60;
-        const relativeLabel =
-          hours > 0
-            ? minutes > 0
-              ? `${hours}h ${minutes}m ago`
-              : `${hours}h ago`
-            : `${totalMinutes}m ago`;
-        const preciseTime = new Intl.DateTimeFormat(undefined, {
-          hour: "2-digit",
-          minute: "2-digit"
-        }).format(date);
-        return `${relativeLabel} • ${preciseTime}`;
-      }
-      return date.toLocaleDateString("en-CA");
-    }
-
-    function createPreviewRow(label, value) {
-      const row = document.createElement("div");
-      row.className = "card__preview-row";
-
-      const term = document.createElement("span");
-      term.className = "card__preview-label";
-      term.textContent = label;
-      row.appendChild(term);
-
-      const description = document.createElement("span");
-      description.className = "card__preview-value";
-      description.textContent = value;
-      row.appendChild(description);
-
-      return row;
     }
 
     function normalizeComplexityLabel(value) {
@@ -901,7 +800,11 @@
             : null;
       const complexityLabel = useUnderstandingConfidence ? complexityValue : complexityValue;
 
-      if (!normalizedPrimary && !normalizedSecondary && !complexityLabel) {
+      // item_719: age is a fact every card has, so it must not be gated behind an indicator
+      // it has nothing to do with. A card carrying no metric at all still gets the pill if
+      // it knows how old it is; a card with neither shows nothing, as before.
+      const ageSegment = createCardAgeSegment(item);
+      if (!normalizedPrimary && !normalizedSecondary && !complexityLabel && !ageSegment) {
         return null;
       }
 
@@ -918,7 +821,7 @@
         // sits at 85 or above. It was the loudest element after the title and very nearly
         // a constant. It moves to the card's detail, and the line it occupied carries what
         // does vary: how long since the document moved.
-        const age = createCardAgeSegment(item);
+        const age = ageSegment;
         if (age) pill.appendChild(age);
         if (complexityValue) {
           // Only separate things that are both there. Removing the U/C pair left a leading
@@ -942,15 +845,23 @@
           .filter(Boolean)
           .join(" • ");
       } else {
-        pill.appendChild(createMetricSegment("P", primaryText));
-        const separator = document.createElement("span");
-        separator.className = "card__badge-metric-separator";
-        separator.textContent = "/";
-        pill.appendChild(separator);
-        const complexitySegment = document.createElement("span");
-        complexitySegment.className = "card__badge-metric-value card__badge-metric-value--complexity";
-        complexitySegment.textContent = complexityText;
-        pill.appendChild(complexitySegment);
+        // item_719: a companion document carries neither progress nor complexity, so this
+        // branch drew `P \u2014 / \u2014` -- a pill of two em-dashes, which is the opposite of a
+        // fact that varies. When there is nothing to report, the pill reports the age.
+        const hasProgress = typeof progressValue === "number";
+        if (!hasProgress && !complexityValue && ageSegment) {
+          pill.appendChild(ageSegment);
+        } else {
+          pill.appendChild(createMetricSegment("P", primaryText));
+          const separator = document.createElement("span");
+          separator.className = "card__badge-metric-separator";
+          separator.textContent = "/";
+          pill.appendChild(separator);
+          const complexitySegment = document.createElement("span");
+          complexitySegment.className = "card__badge-metric-value card__badge-metric-value--complexity";
+          complexitySegment.textContent = complexityText;
+          pill.appendChild(complexitySegment);
+        }
         const titleParts = [];
         if (typeof progressValue === "number") {
           titleParts.push(`Progress: ${Math.max(0, Math.min(100, Math.round(progressValue)))}%`);
@@ -993,47 +904,6 @@
       textEl.textContent = item.title;
       titleEl.appendChild(textEl);
       return titleEl;
-    }
-
-    function createCardPreview(item) {
-      const preview = document.createElement("div");
-      preview.className = "card__preview";
-      preview.hidden = true;
-      const theme = String(item?.indicators?.Theme || "").trim();
-      if (theme) {
-        preview.appendChild(createPreviewRow("Theme", theme));
-      }
-      preview.appendChild(createPreviewRow("Status", item?.indicators?.Status || "No status"));
-      preview.appendChild(createPreviewRow("Updated", formatPreviewDate(item.updatedAt)));
-      // item_719: understanding and confidence leave the card *face*, where they were a
-      // near-constant costing a full line on every card. They are not deleted -- they land
-      // here until item_721 gives the details panel somewhere better to put them.
-      const understanding = String(item?.indicators?.Understanding || "").trim();
-      const confidence = String(item?.indicators?.Confidence || "").trim();
-      if (understanding || confidence) {
-        preview.appendChild(createPreviewRow("Confidence", [understanding && `U ${understanding}`, confidence && `C ${confidence}`].filter(Boolean).join(" / ")));
-      }
-
-      const linkage = String(item?.stage || "").trim() === "spec" ? "" : createPrimaryFlowSummary(item);
-      if (linkage) {
-        preview.appendChild(createPreviewRow("Flow", linkage));
-      }
-
-      const companions = createCompanionSummary(item);
-      if (companions) {
-        preview.appendChild(createPreviewRow("Docs", companions));
-      }
-
-      const attention = getAttentionSummary(item);
-      if (attention) {
-        preview.appendChild(createPreviewRow("Attention", attention));
-      }
-
-      const suggested = getSuggestedSummary(item);
-      if (suggested) {
-        preview.appendChild(createPreviewRow("Suggested", suggested));
-      }
-      return preview;
     }
 
     function normalizeLinkLookupValue(value) {
@@ -1182,13 +1052,7 @@
       if (healthSignals.length > 0) {
         card.classList.add("card--health-alert");
       }
-      const preview = createCardPreview(item);
       const activeTasks = item.stage === "task" ? (isActiveTaskCandidate(item) ? [item] : []) : getActiveTaskUsages(item);
-
-      function setPreviewOpen(isOpen) {
-        preview.hidden = !isOpen;
-        card.classList.toggle("card--preview-open", isOpen);
-      }
 
       card.appendChild(createCardTitle(item));
 
@@ -1202,9 +1066,10 @@
         card.appendChild(linkageBadges);
       }
 
-      card.appendChild(preview);
-      setPreviewOpen(item.id === getSelectedId());
-
+      // item_720: a click used to do three things -- select, expand an inline preview that
+      // repeated the panel's own header, and grow the card so every card below it moved
+      // under the pointer. It now selects, and selecting is what opens the panel. The panel
+      // already renders every indicator the preview was copying, so nothing is lost.
       card.addEventListener("click", () => {
         setSelectedId(item.id);
         render();
@@ -1215,11 +1080,6 @@
         openSelectedItem("read");
       });
       card.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && !preview.hidden) {
-          event.preventDefault();
-          setPreviewOpen(false);
-          return;
-        }
         handleCardKeydown(event, item);
       });
       return card;

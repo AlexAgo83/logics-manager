@@ -716,6 +716,14 @@
         getSelectedId: () => selectedId,
         setSelectedId(value) {
           selectedId = value;
+          // item_720: selecting a card is what fills the panel, so a selection made while
+          // the panel is collapsed is a click with no visible outcome. This is the single
+          // point selection is set from the board, which makes it the one place the two
+          // halves of "select and open" can stay together.
+          if (value && uiState.detailsCollapsed) {
+            uiState.detailsCollapsed = false;
+            persistState();
+          }
         },
         isListMode,
         getVisibleStages,
@@ -773,6 +781,7 @@
         collectSpecs,
         collectPrimaryFlowItems,
         getAttentionReasons,
+        getSuggestedActions,
         buildContextPack,
         buildDependencyMap,
         findManagedItemByReference,

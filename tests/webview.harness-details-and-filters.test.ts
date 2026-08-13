@@ -463,11 +463,14 @@ describe("webview harness filters, details, and docs", () => {
       ]
     });
 
-    const card = dom.window.document.querySelector(".card");
-    const previewText = card?.querySelector(".card__preview")?.textContent || "";
-    expect(previewText).toContain("PROD");
-    expect(previewText).toContain("ADR");
-    expect(previewText).toContain("SPEC");
+    // item_720: the linked-docs list was copied onto the card by the inline preview. It is
+    // the panel's, and the panel had it all along.
+    const card = dom.window.document.querySelector(".card") as HTMLElement | null;
+    card?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    const panel = dom.window.document.getElementById("details")?.textContent || "";
+    expect(panel).toContain("Plugin companion UX");
+    expect(panel).toContain("Plugin companion architecture");
+    expect(panel).toContain("Reference Contract Spec");
   });
 
   it("shows linked specs in a dedicated details section", () => {
@@ -683,13 +686,7 @@ describe("webview harness filters, details, and docs", () => {
     expect(document.querySelector('.companion-index__group[data-stage="architecture"] .companion-index__heading')?.textContent).toContain(
       "Architecture decisions"
     );
-    expect(document.querySelector('.companion-index__group[data-stage="product"] .card__preview')?.textContent).toContain(
-      "For R000"
-    );
     expect(document.querySelector('.companion-index__group[data-stage="product"] .card__meta')).toBeNull();
-    expect(document.querySelector('.companion-index__group[data-stage="architecture"] .card__preview')?.textContent).toContain(
-      "Unlinked to primary flow"
-    );
     expect(persistedStates.some((state) => state.showCompanionDocs === true)).toBe(true);
 
     if (hideSpecToggle) {

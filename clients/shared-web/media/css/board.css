@@ -180,10 +180,6 @@
   overflow: hidden;
 }
 
-.card--preview-open {
-  border-color: var(--vscode-focusBorder, var(--vscode-button-background, #0e639c));
-}
-
 .card--progress-bar {
   position: relative;
   overflow: hidden;
@@ -315,60 +311,6 @@
   background: #f87171;
 }
 
-.card__preview {
-  margin-top: 4px;
-  padding-top: 6px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.card__preview[hidden] {
-  display: none;
-}
-
-.card__preview-header {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding-bottom: 4px;
-  margin-bottom: 2px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.card__preview-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--vscode-foreground, #d4d4d4);
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
-.card__preview-file {
-  font-size: 11px;
-  color: var(--vscode-descriptionForeground, #9da5b4);
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
-.card__preview-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  font-size: 11px;
-}
-
-.card__preview-label {
-  color: var(--vscode-descriptionForeground, #9da5b4);
-}
-
-.card__preview-value {
-  color: var(--vscode-foreground, #d4d4d4);
-  text-align: right;
-  overflow-wrap: anywhere;
-}
-
 .card__badge {
   display: inline-flex;
   align-items: center;
@@ -469,9 +411,14 @@
   align-self: center;
 }
 
+/* item_720: a one-pixel border change was the selected state, competing with the coloured
+   border every stage already carries and with the status accent on the left edge. An
+   outline is drawn outside the box, so it cannot be mistaken for either and costs no
+   layout -- the card does not move, and neither do the cards below it. */
 .card--selected {
-  border-color: var(--vscode-button-background, #0e639c);
-  box-shadow: 0 0 0 1px var(--vscode-button-background, #0e639c);
+  outline: 2px solid var(--vscode-focusBorder, var(--vscode-button-background, #0e639c));
+  outline-offset: 2px;
+  background-color: var(--vscode-list-activeSelectionBackground, rgba(14, 99, 156, 0.18));
 }
 
 .card--health-alert {

@@ -346,15 +346,16 @@ const allowedOversizedFiles = new Map(
     // pass-through bag at four call sites, and mainApp.js sits at exactly 1040 of its own
     // 1040, so the move trades one raised ceiling for two and splits one item's logic across
     // three files for about twenty lines.
-    // 1560: item_717 moves the companion stages out of the columns and into a reference
-    // index below them. This is the fourth raise this request has taken on one file, and it
-    // should be the last: the renderer now holds a column renderer, a list renderer and an
-    // index renderer, which is a split waiting to happen rather than a budget to keep
-    // widening. It is not taken here because the three share createItemCard,
-    // visibleSliceForGroup, createShowMoreControl and the render() loop, so the seam has to
-    // be designed rather than cut mid-item. Recorded in item_717 as a follow-up.
-    "clients/shared-web/media/renderBoardApp.js": { maxLines: 1560, ref: "req_345" },
-    "clients/shared-web/media/mainApp.js": { maxLines: 1040, ref: "req_273" },
+    // 1560 -> 1420: item_720 retires the card's inline preview, which repeated the details
+    // panel's own header, and with it the six helpers that existed only to feed it. That is
+    // 150 lines back. The ceiling comes down with them rather than being left where the
+    // file's worst moment put it -- a budget that only ratchets upward stops being one.
+    "clients/shared-web/media/renderBoardApp.js": { maxLines: 1420, ref: "req_345" },
+    // 1050: item_720 makes selecting a card open the panel it fills. setSelectedId is the
+    // single point selection is set from the board, so it is the one place the two halves of
+    // "select and open" can stay together; splitting them would put the mechanism this slice
+    // exists to unify back into two.
+    "clients/shared-web/media/mainApp.js": { maxLines: 1050, ref: "req_345" },
     // 1009: req_322 added stopViewerServers(), the explicit deactivate() path
     // redundant with (not a replacement for) the subscription-disposal path
     // the constructor already registers.

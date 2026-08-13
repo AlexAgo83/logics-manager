@@ -403,7 +403,9 @@ describe("webview collapsed details layout behavior", () => {
     const columnRule = css.match(/\.column\s*\{[^}]+\}/)?.[0] || "";
     const cardRule = css.match(/\.card\s*\{[^}]+\}/)?.[0] || "";
     const titleRule = css.match(/\.card__title\s*\{[^}]+\}/)?.[0] || "";
-    const metaRule = css.match(/\.card__preview-value\s*\{[^}]+\}/)?.[0] || "";
+    // item_720 retired the inline preview whose value rows this used to check. Supporting-doc
+    // text now lands in the reference index, which is the surface that must not widen.
+    const indexRule = css.match(/\.companion-index__list\s*\{[^}]+\}/)?.[0] || "";
 
     expect(boardRule.includes("overflow-x: auto;")).toBe(true);
     expect(boardRule.includes("overflow-y: hidden;")).toBe(true);
@@ -413,7 +415,7 @@ describe("webview collapsed details layout behavior", () => {
     expect(cardRule.includes("min-width: 0;")).toBe(true);
     expect(cardRule.includes("overflow: hidden;")).toBe(true);
     expect(titleRule.includes("overflow-wrap: anywhere;")).toBe(true);
-    expect(metaRule.includes("overflow-wrap: anywhere;")).toBe(true);
+    expect(indexRule.includes("min-width: 0;")).toBe(true);
   });
 
   it("keeps the primary header actions on one line until the narrow breakpoint", () => {

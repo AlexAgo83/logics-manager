@@ -912,9 +912,11 @@ describe("webview harness core behaviors", () => {
 
     card?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
-    const preview = document.querySelector('.card[data-id="req_004_recent_precision"] .card__preview');
-    expect(preview?.textContent).toContain("Updated");
-    expect(preview?.textContent).toContain("ago");
+    // item_719/item_720: recency used to appear only inside the preview a click expanded,
+    // written as "N ago". It is now on the card face at all times as an age segment, and the
+    // panel carries the absolute date. Neither restates the other.
+    expect(document.querySelector('.card[data-id="req_004_recent_precision"] .card__badge-age')).toBeTruthy();
+    expect(document.getElementById("details")?.textContent).toContain("Updated");
   });
 
   it("updates details from activity even when the selected item is filtered out of the board", () => {
@@ -1037,7 +1039,10 @@ describe("webview harness core behaviors", () => {
 
     expect(requestCard?.textContent).not.toContain("Promote");
     expect(requestCard?.textContent).not.toContain("Add docs");
-    expect(productCard?.textContent).toContain("Link flow");
+    // item_720: suggested actions were on the card's inline preview, which is retired. They
+    // are facts about the document, so they moved into the panel rather than being dropped.
+    (productCard as HTMLElement | null)?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(document.getElementById("details")?.textContent).toContain("Link flow");
   });
 
   it("shows actionable empty-state guidance when no items are available", () => {
@@ -1104,11 +1109,16 @@ describe("webview harness core behaviors", () => {
     const blockedCard = document.querySelector('.card[data-id="task_003_blocked_health"]');
     const orphanCard = document.querySelector('.card[data-id="prod_000_plugin_ux"]');
 
+    // The card still says, by itself, that something is wrong; what is wrong and what to do
+    // about it is the panel's job now that the inline preview is gone (item_720).
     expect(blockedCard?.classList.contains("card--health-alert")).toBe(true);
     expect(blockedCard?.textContent).toContain("Blocked");
     expect(orphanCard?.classList.contains("card--health-alert")).toBe(true);
-    expect(orphanCard?.textContent).toContain("Orphaned");
-    expect(orphanCard?.textContent).toContain("Link flow");
+
+    (orphanCard as HTMLElement | null)?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    const panel = document.getElementById("details")?.textContent || "";
+    expect(panel).toContain("Orphaned");
+    expect(panel).toContain("Link flow");
   });
 
 });

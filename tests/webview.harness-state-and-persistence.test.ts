@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { baseItem, bootstrapWebview, productItem, pushData } from "./webviewHarnessTestUtils";
 
 describe("webview harness state, preview, and persistence behaviors", () => {
-  it("shows a compact preview only after selection and dismisses it cleanly", () => {
+  it("keeps a click to one outcome and leaves the card markup untouched", () => {
     const previewItem = {
       ...baseItem,
       indicators: { Status: "Draft" },
@@ -17,26 +17,46 @@ describe("webview harness state, preview, and persistence behaviors", () => {
 
     const document = dom.window.document;
     const getCard = () => document.querySelector('.card[data-id="req_000_kickoff"]') as HTMLDivElement | null;
-    const getPreview = () => getCard()?.querySelector(".card__preview") as HTMLDivElement | null;
 
-    expect(getPreview()?.hidden).toBe(true);
+    // item_720: there is no inline preview to open, dismiss, or keep closed on hover. The
+    // selection is the state that survives, and the panel is where the facts are.
+    const markup = getCard()?.innerHTML;
 
     getCard()?.dispatchEvent(new dom.window.MouseEvent("mouseenter", { bubbles: true }));
-    expect(getPreview()?.hidden).toBe(true);
-
     getCard()?.dispatchEvent(new dom.window.Event("focus"));
-    expect(getPreview()?.hidden).toBe(true);
+    expect(document.querySelector(".card--selected")).toBeNull();
+    expect(getCard()?.innerHTML).toBe(markup);
 
     getCard()?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    expect(getPreview()?.hidden).toBe(false);
-    expect(getPreview()?.textContent).toContain("Status");
-    expect(getPreview()?.textContent).toContain("Draft");
-    expect(getPreview()?.textContent).not.toContain("References");
-    expect(getPreview()?.textContent).not.toContain("Used by");
 
-    getCard()?.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
-    expect(getPreview()?.hidden).toBe(true);
     expect(document.querySelector(".card--selected")?.getAttribute("data-id")).toBe("req_000_kickoff");
+    expect(getCard()?.innerHTML).toBe(markup);
+    const panel = document.getElementById("details")?.textContent || "";
+    expect(panel).toContain("Draft");
+  });
+
+  it("reveals a collapsed details panel when a card is selected", () => {
+    const { dom } = bootstrapWebview({
+      harness: true,
+      initialState: {
+        detailsCollapsed: true,
+        workspaceRoot: "/workspace/mock"
+      }
+    });
+
+    pushData(dom, { root: "/workspace/mock", items: [baseItem] });
+
+    const document = dom.window.document;
+    // item_720: selecting a card is what fills the panel, so a selection made into a
+    // collapsed panel is a click with no visible outcome -- which is the half of "select
+    // and open the panel" that was missing.
+    expect(document.getElementById("details")?.classList.contains("details--collapsed")).toBe(true);
+
+    (document.querySelector('.card[data-id="req_000_kickoff"]') as HTMLElement | null)?.dispatchEvent(
+      new dom.window.Event("click", { bubbles: true })
+    );
+
+    expect(document.getElementById("details")?.classList.contains("details--collapsed")).toBe(false);
   });
 
   it("restores persisted UI state for the current workspace when it is still valid", () => {

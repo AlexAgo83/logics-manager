@@ -54,6 +54,7 @@
       collectSpecs,
       collectPrimaryFlowItems,
       getAttentionReasons,
+      getSuggestedActions,
       buildContextPack,
       buildDependencyMap,
       findManagedItemByReference,
@@ -409,6 +410,31 @@
         applySectionCollapse(attentionSection, attentionHeader.title, attentionContent, getCollapsedDetailSections().has(attentionKey));
         attachSectionToggle(attentionSection, attentionHeader.title, attentionContent, attentionKey);
         detailsBody.appendChild(attentionSection);
+      }
+
+      // item_720: the suggested actions were rendered only on the card's inline preview,
+      // which that slice retires. They are facts about the document, so they belong here
+      // rather than being copied onto the card -- and dropping the preview must not drop
+      // them with it.
+      const suggestedActions = typeof getSuggestedActions === "function" ? getSuggestedActions(item) : [];
+      if (suggestedActions.length) {
+        const suggestedSection = document.createElement("div");
+        suggestedSection.className = "details__section";
+        const suggestedKey = "suggestedActions";
+        const suggestedHeader = createSectionHeader("Suggested actions", suggestedKey);
+        const suggestedContent = document.createElement("div");
+        suggestedContent.className = "details__indicators";
+        suggestedActions.forEach((action) => {
+          const row = document.createElement("div");
+          row.className = "details__reason-description";
+          row.textContent = String((action && (action.label || action.title || action.id)) || action || "");
+          suggestedContent.appendChild(row);
+        });
+        suggestedSection.appendChild(suggestedHeader.header);
+        suggestedSection.appendChild(suggestedContent);
+        applySectionCollapse(suggestedSection, suggestedHeader.title, suggestedContent, getCollapsedDetailSections().has(suggestedKey));
+        attachSectionToggle(suggestedSection, suggestedHeader.title, suggestedContent, suggestedKey);
+        detailsBody.appendChild(suggestedSection);
       }
 
         const activeWorkspaceRoot = typeof getActiveWorkspaceRoot === "function" ? getActiveWorkspaceRoot() : null;

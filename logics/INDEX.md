@@ -119,6 +119,7 @@
 | [prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer](product/prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer.md) | A standalone fleet home for the canonical Logics viewer | Settled |  |  | product/prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer.md |
 | [prod_079_a_release_that_contains_only_the_product](product/prod_079_a_release_that_contains_only_the_product.md) | A release that contains only the product | Proposed |  |  | product/prod_079_a_release_that_contains_only_the_product.md |
 | [prod_080_a_fleet_home_an_operator_can_triage_from](product/prod_080_a_fleet_home_an_operator_can_triage_from.md) | A fleet home an operator can triage from | Proposed |  |  | product/prod_080_a_fleet_home_an_operator_can_triage_from.md |
+| [prod_081_a_project_view_that_leads_with_what_is_live](product/prod_081_a_project_view_that_leads_with_what_is_live.md) | A project view that leads with what is live | Proposed |  |  | product/prod_081_a_project_view_that_leads_with_what_is_live.md |
 
 ## Roadmaps
 
@@ -479,6 +480,7 @@
 | [req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server](request/req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server.md) | Launch a standalone Logics fleet viewer through one shared local server | Done |  |  | request/req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server.md |
 | [req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact](request/req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact.md) | Keep the synthetic demo board out of every released artifact | Draft |  |  | request/req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact.md |
 | [req_344_make_the_fleet_home_read_as_the_product_s_first_screen](request/req_344_make_the_fleet_home_read_as_the_product_s_first_screen.md) | Make the fleet home read as the product's first screen | Draft |  |  | request/req_344_make_the_fleet_home_read_as_the_product_s_first_screen.md |
+| [req_345_make_the_project_view_lead_with_the_work_that_is_live](request/req_345_make_the_project_view_lead_with_the_work_that_is_live.md) | Make the project view lead with the work that is live | Draft |  |  | request/req_345_make_the_project_view_lead_with_the_work_that_is_live.md |
 
 ## Backlog
 
@@ -1199,6 +1201,16 @@
 | [item_713_keep_the_fleet_home_usable_past_a_dozen_projects](backlog/item_713_keep_the_fleet_home_usable_past_a_dozen_projects.md) | Keep the fleet home usable past a dozen projects | Ready |  | 0% | backlog/item_713_keep_the_fleet_home_usable_past_a_dozen_projects.md |
 | [item_714_give_the_fleet_home_s_empty_and_degraded_states_something_to_say](backlog/item_714_give_the_fleet_home_s_empty_and_degraded_states_something_to_say.md) | Give the fleet home's empty and degraded states something to say | Ready |  | 0% | backlog/item_714_give_the_fleet_home_s_empty_and_degraded_states_something_to_say.md |
 | [item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign](backlog/item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign.md) | Bring the fleet home inside the viewer UI campaign | Ready |  | 0% | backlog/item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign.md |
+| [item_716_confirm_what_the_payload_can_and_cannot_tell_about_chains_and_lifelines](backlog/item_716_confirm_what_the_payload_can_and_cannot_tell_about_chains_and_lifelines.md) | Confirm what the payload can and cannot tell about chains and lifelines | Ready |  | 0% | backlog/item_716_confirm_what_the_payload_can_and_cannot_tell_about_chains_and_lifelines.md |
+| [item_717_split_the_board_into_a_flow_queue_and_a_companion_library](backlog/item_717_split_the_board_into_a_flow_queue_and_a_companion_library.md) | Split the board into a flow queue and a companion library | Ready |  | 0% | backlog/item_717_split_the_board_into_a_flow_queue_and_a_companion_library.md |
+| [item_718_open_the_board_on_the_work_that_is_live](backlog/item_718_open_the_board_on_the_work_that_is_live.md) | Open the board on the work that is live | Ready |  | 0% | backlog/item_718_open_the_board_on_the_work_that_is_live.md |
+| [item_719_reallocate_the_card_face_to_the_facts_that_vary](backlog/item_719_reallocate_the_card_face_to_the_facts_that_vary.md) | Reallocate the card face to the facts that vary | Ready |  | 0% | backlog/item_719_reallocate_the_card_face_to_the_facts_that_vary.md |
+| [item_720_make_selecting_a_card_one_mechanism](backlog/item_720_make_selecting_a_card_one_mechanism.md) | Make selecting a card one mechanism | Ready |  | 0% | backlog/item_720_make_selecting_a_card_one_mechanism.md |
+| [item_721_lead_the_details_panel_with_what_the_document_says](backlog/item_721_lead_the_details_panel_with_what_the_document_says.md) | Lead the details panel with what the document says | Ready |  | 0% | backlog/item_721_lead_the_details_panel_with_what_the_document_says.md |
+| [item_722_give_a_document_a_lifeline_in_the_details_panel](backlog/item_722_give_a_document_a_lifeline_in_the_details_panel.md) | Give a document a lifeline in the details panel | Ready |  | 0% | backlog/item_722_give_a_document_a_lifeline_in_the_details_panel.md |
+| [item_723_draw_the_activity_feed_as_a_chronology](backlog/item_723_draw_the_activity_feed_as_a_chronology.md) | Draw the activity feed as a chronology | Ready |  | 0% | backlog/item_723_draw_the_activity_feed_as_a_chronology.md |
+| [item_724_tell_one_chain_s_story_in_the_activity_feed](backlog/item_724_tell_one_chain_s_story_in_the_activity_feed.md) | Tell one chain's story in the activity feed | Ready |  | 0% | backlog/item_724_tell_one_chain_s_story_in_the_activity_feed.md |
+| [item_725_cover_the_board_the_selected_state_the_panel_and_the_feed_in_the_campaign](backlog/item_725_cover_the_board_the_selected_state_the_panel_and_the_feed_in_the_campaign.md) | Cover the board, the selected state, the panel and the feed in the campaign | Ready |  | 0% | backlog/item_725_cover_the_board_the_selected_state_the_panel_and_the_feed_in_the_campaign.md |
 
 ## Tasks
 
@@ -1539,6 +1551,7 @@
 | [task_339_deliver_the_standalone_fleet_viewer_and_singleton_server](tasks/task_339_deliver_the_standalone_fleet_viewer_and_singleton_server.md) | Deliver the standalone fleet viewer and singleton server | Done | Codex | 100% | tasks/task_339_deliver_the_standalone_fleet_viewer_and_singleton_server.md |
 | [task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof](tasks/task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof.md) | Deliver the release-safe demo gate and its per-artifact proof | Ready |  | 0% | tasks/task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof.md |
 | [task_341_deliver_the_fleet_home_first_screen_redesign](tasks/task_341_deliver_the_fleet_home_first_screen_redesign.md) | Deliver the fleet home first-screen redesign | Ready |  | 0% | tasks/task_341_deliver_the_fleet_home_first_screen_redesign.md |
+| [task_342_deliver_the_project_view_that_leads_with_live_work](tasks/task_342_deliver_the_project_view_that_leads_with_live_work.md) | Deliver the project view that leads with live work | Ready |  | 0% | tasks/task_342_deliver_the_project_view_that_leads_with_live_work.md |
 
 ## Runbooks
 

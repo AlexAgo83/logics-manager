@@ -4437,6 +4437,86 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("focus: blocked");
   });
 
+  it("reports a CI run by its verdict and its duration, and lets a failure lead", async () => {
+    // item_734. `completed / success` was printed on all six job rows in link blue, `pass`
+    // appeared four times, both ends of the run were shown and its duration was not, and a
+    // failing job was drawn at exactly the size of a passing one.
+    const { dom } = createViewerDom({
+      ciResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            visible: true,
+            provider: "github",
+            badgeState: "failing",
+            branch: "main",
+            headSha: "abc123",
+            run: {
+              id: 7,
+              workflowName: "CI",
+              status: "completed",
+              conclusion: "failure",
+              badgeState: "failing",
+              event: "push",
+              runStartedAt: "2026-08-13T10:00:00.000Z",
+              updatedAt: "2026-08-13T10:04:12.000Z",
+              commitMessage: "Something",
+              author: "A"
+            },
+            jobs: [
+              { name: "lint", status: "completed", conclusion: "success", startedAt: "2026-08-13T10:00:05.000Z", completedAt: "2026-08-13T10:01:05.000Z", htmlUrl: "" },
+              { name: "build", status: "completed", conclusion: "failure", startedAt: "2026-08-13T10:01:00.000Z", completedAt: "2026-08-13T10:04:00.000Z", htmlUrl: "" },
+              { name: "test", status: "completed", conclusion: "success", startedAt: "2026-08-13T10:00:05.000Z", completedAt: "2026-08-13T10:02:05.000Z", htmlUrl: "" }
+            ]
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    // The CI screen is reached the way the existing CI tests reach it: open Git, then switch
+    // mode. The nav entry alone lands on Git.
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    dom.window.document.querySelector('[data-viewer-ci-mode="runs"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const document = dom.window.document;
+
+    // The verdict says what happened and how long it took, once.
+    const verdict = document.querySelector(".viewer-ci__verdict-text")?.textContent || "";
+    expect(verdict).toContain("Failed");
+    expect(verdict).toContain("4m 12s");
+
+    // Job tone came from ciBadgeTone fed a raw GitHub conclusion, which that function does
+    // not speak -- every job resolved to "unknown" and the rows were drawn identically.
+    const tones = Array.from(document.querySelectorAll(".viewer-ci__job")).map(
+      (node) => (node as HTMLElement).dataset.viewerCiJobState
+    );
+    expect(tones).toContain("failing");
+    expect(tones).toContain("passing");
+    expect(tones).not.toContain("unknown");
+
+    // The failure leads and stays expanded; the passing jobs collapse to a counted line.
+    const firstJob = document.querySelector(".viewer-ci__job") as HTMLElement | null;
+    expect(firstJob?.dataset.viewerCiJobState).toBe("failing");
+    expect(firstJob?.textContent).toContain("build");
+    expect(firstJob?.textContent).toContain("3m");
+    const fold = document.querySelector(".viewer-ci__job-fold details") as HTMLDetailsElement | null;
+    expect(fold).not.toBeNull();
+    expect(fold?.open).toBe(false);
+    expect(fold?.querySelector("summary")?.textContent).toContain("2 jobs passed");
+
+    // The repeated status string is gone from every row.
+    const content = document.getElementById("viewer-document-content")?.textContent || "";
+    expect(content).not.toContain("completed / success");
+  });
+
   it("shows the diff rather than its header, and offers the rest when it is cut short", async () => {
     // item_732. Every diff opened with `diff --git`, `index <blob>..<blob>`, `--- a/<path>`
     // and `+++ b/<path>` -- the path the pane's own header already states and two hashes
@@ -5100,7 +5180,10 @@ describe("local viewer browser host", () => {
     expect(calls).toContain("/api/ci-status");
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Remote");
     expect(content).toContain("Current HEAD running");
-    expect(content).toContain("in_progress");
+    // item_734: `in_progress` was printed on the run row and repeated on every job row. The
+    // verdict says what the run is doing, once, in words rather than in an API enum.
+    expect(content).toContain("Running");
+    expect(content).not.toContain("in_progress");
     expect(content).toContain("Update release notes");
   });
 
@@ -5199,7 +5282,10 @@ describe("local viewer browser host", () => {
 
     const content = dom.window.document.getElementById("viewer-document-content")?.textContent || "";
     expect(content).toContain("Current HEAD failing");
-    expect(content).toContain("completed / failure");
+    // item_734: `completed / failure` appeared on the run row and on all six job rows in
+    // link blue. The verdict states it once and the jobs carry their own durations.
+    expect(content).toContain("Failed");
+    expect(content).not.toContain("completed / failure");
   });
 
   it("switches the CDX document between status and runs", async () => {

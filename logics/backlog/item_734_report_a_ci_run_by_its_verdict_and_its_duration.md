@@ -4,10 +4,11 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 50%
+> Progress: 62%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 00:50:05
 
 # AI Context
 - Summary: Six job rows all read `completed / success` in link blue, `pass` appears four times, both ends of the run are shown but never the duration, and a failing job is drawn at exactly the size of a passing one.
@@ -26,6 +27,14 @@
   - Show relative times, with the absolute available.
 - Out:
   - Which workflows are reported, and drilling into a job's log content.
+
+# Delivery notes
+- **The defect behind "a failing job is drawn at exactly the size of a passing one" was not sizing. The job tones never worked at all.** `ciBadgeTone` takes a badge *state* -- `passing`, `failing`, `running` -- and the job rows were feeding it a raw GitHub `conclusion` or `status`. Every job resolved to `unknown`, so all six rows on a run were drawn identically no matter what happened. `ciStateFromStatus` mirrors `logics_manager/viewer.py::_ci_badge_state`, and says in its own comment that it must stay in step with it: a job read differently on the two sides is a job reported two ways.
+- The verdict says what happened, how long it took and how long ago, in one sentence, where four metric tiles sat. Both ends of the run were already in the payload; the duration nobody could see was a subtraction away.
+- Each job carries its own duration and a relative time, with the absolute stamp on the tooltip. Jobs are ordered failures first, then anything unresolved, then the passing ones behind a native `<details>` that states how many -- keyboard-reachable without a handler of its own.
+- The `Status` row is gone from the run list because the verdict states it; `Started` and `Updated` became the one fact they were hiding.
+- Tone is carried by marker shape as well as colour on every job, and by border style on the verdict, so the states stay apart in greyscale.
+- Two mistakes of mine worth recording, both caught by the suite rather than by review: the first version fed `ciBadgeTone` the same raw status the old code did, so the verdict rendered blank; and the test fixture said `state: "failing"` where the renderer requires `state: "ok"` with the tone in `badgeState`, so the screen rendered nothing and the assertion blamed the product.
 
 # Acceptance criteria
 - AC1: The screen leads with its verdict.

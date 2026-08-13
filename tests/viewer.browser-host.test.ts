@@ -4437,6 +4437,64 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("focus: blocked");
   });
 
+  it("opens the Git screen on a domain that has content and leads with a verdict", async () => {
+    // item_731. `changes` was the default domain whatever the repository held, so a clean
+    // tree opened the screen on two blank panes -- while `Ahead 5`, the one fact that needed
+    // acting on, was a small pill beside a large `Clean` tile.
+    const openGit = async (payload: Record<string, unknown>) => {
+      const { dom } = createViewerDom({
+        gitResponse: {
+          ok: true,
+          body: {
+            ok: true,
+            payload: {
+              state: "ok",
+              branch: "main",
+              tracking: "origin/main",
+              ahead: 0,
+              behind: 0,
+              clean: true,
+              dirty: false,
+              recentCommits: [{ hash: "c0ffee1", subject: "Commit 1", author: "A", date: "2026-08-13", refs: "HEAD -> main" }],
+              counts: { staged: 0, modified: 0, deleted: 0, renamed: 0, untracked: 0 },
+              groups: { staged: [], modified: [], deleted: [], renamed: [], untracked: [] },
+              ...payload
+            }
+          }
+        }
+      });
+      const api = dom.window.acquireVsCodeApi();
+      api.postMessage({ type: "ready" });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      return dom;
+    };
+
+    // A clean tree with commits to push: History is the domain with content, and the verdict
+    // names the thing to act on with the action beside it.
+    const cleanAhead = await openGit({ ahead: 5 });
+    const activeDomain = (cleanAhead.window.document.querySelector(".viewer-git__domain.is-active") as HTMLElement | null)?.dataset.viewerGitDomain;
+    expect(activeDomain).toBe("history");
+    expect(cleanAhead.window.document.querySelector(".viewer-git__verdict-text")?.textContent).toContain("5 commits ready to push");
+    expect(cleanAhead.window.document.querySelector(".viewer-git__verdict-action")?.textContent).toBe("Push");
+    // The action is the Actions menu's own control, not a second push path.
+    expect(
+      (cleanAhead.window.document.querySelector(".viewer-git__verdict-action") as HTMLElement | null)?.dataset.viewerGitRun
+    ).toBe("viewer-git-push");
+
+    // Behind takes precedence over ahead: pulling comes first when both are true.
+    const behind = await openGit({ ahead: 2, behind: 3 });
+    expect(behind.window.document.querySelector(".viewer-git__verdict-text")?.textContent).toContain("Diverged");
+    expect(behind.window.document.querySelector(".viewer-git__verdict-action")?.textContent).toBe("Pull first");
+
+    // Nothing to do says so, and offers no action, rather than leaving the operator to
+    // read four tiles and conclude it.
+    const idle = await openGit({});
+    expect(idle.window.document.querySelector(".viewer-git__verdict-text")?.textContent).toContain("Nothing to push");
+    expect(idle.window.document.querySelector(".viewer-git__verdict-action")).toBeNull();
+  });
+
   it("renders the local Git status screen from the read-only endpoint", async () => {
     const { dom, calls } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();

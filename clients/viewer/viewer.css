@@ -5675,3 +5675,65 @@
 .viewer-fleet__root-chip button:hover {
   color: var(--vscode-foreground, #d4d4d4);
 }
+
+/* item_731: the verdict answers the question the operator came with, in the room the tile
+   row used to take. It is one sentence and, when something follows from it, one action. */
+.viewer-git__verdict {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  margin: 0 0 12px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-left-width: 4px;
+  border-radius: 8px;
+  background: var(--vscode-editorWidget-background, rgba(255, 255, 255, 0.03));
+}
+
+.viewer-git__verdict-text {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--vscode-foreground, #d4d4d4);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* The tone differs by border style as well as colour, so the three states stay apart in
+   greyscale -- the condition req_352 holds every redesign to. */
+.viewer-git__verdict--ready {
+  border-left-color: var(--vscode-charts-blue, #58a6ff);
+  border-left-style: solid;
+}
+
+.viewer-git__verdict--attention {
+  border-left-color: var(--vscode-editorWarning-foreground, #d29922);
+  border-left-style: double;
+  border-left-width: 6px;
+}
+
+.viewer-git__verdict--clean {
+  border-left-color: var(--vscode-testing-iconPassed, #3fb950);
+  border-left-style: dotted;
+  border-left-width: 5px;
+}
+
+.viewer-git__verdict-action {
+  flex: 0 0 auto;
+}
+
+/* item_731: the tiles keep their facts but stop setting the scale of the screen -- the
+   verdict above them is what the operator reads first. */
+.viewer-git__summary--strip {
+  gap: 8px;
+}
+
+.viewer-git__summary--strip .viewer-insights__card {
+  padding: 6px 10px;
+}
+
+.viewer-git__summary--strip .viewer-insights__value {
+  font-size: 14px;
+}

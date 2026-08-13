@@ -296,7 +296,11 @@ const allowedOversizedFiles = new Map(
     // removed the only route to it -- dropping ?project= from the URL. The switcher is
     // where that belongs: it already answers "which project am I looking at", and the
     // fleet home is "none of them yet".
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4659, ref: "req_344" },
+    // 4670: item_731 routes the Git verdict's action to the control the Actions menu already
+    // owns, rather than giving the verdict its own push. Nine lines in the delegated click
+    // handler where every other screen action is already dispatched; a second push path
+    // would be a second place to change when push changes.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4670, ref: "req_347" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

@@ -379,6 +379,12 @@ export function createGitScreen(host) {
       : "Release evidence already empty; gates are pending.");
   }
 
+  /** The domain the freshly rendered markup marked active, so runtime and render agree. */
+  function renderedGitDomain() {
+    const active = document.querySelector(".viewer-git__domain.is-active[data-viewer-git-domain]");
+    return active instanceof HTMLElement ? active.getAttribute("data-viewer-git-domain") || "" : "";
+  }
+
   function renderGitStatus(payload) {
     if (!payload || payload.state !== "ok") {
       return `
@@ -398,6 +404,56 @@ export function createGitScreen(host) {
     // counts the domain rail below it carries, where they are also the control that scopes
     // the list. A count in two places is a count an operator has to reconcile, and the rail
     // is the one that does something when clicked.
+    // item_731: the screen led with a large `Clean` tile while `Ahead 5` -- the one fact
+    // that needed acting on -- was a small pill beside it. The verdict answers the question
+    // the operator came with, in one sentence, and carries the action that follows from it.
+    // The action is not a new mechanism: it clicks the control the Actions menu already
+    // owns, so there is one push and one place it lives.
+    const gitVerdict = (() => {
+      const ahead = Number(payload.ahead || 0);
+      const behind = Number(payload.behind || 0);
+      const changed = stagedCount + modifiedCount + deletedCount + renamedCount + untrackedCount;
+      if (!payload.tracking) {
+        return { tone: "attention", text: "No upstream branch, so nothing can be pushed yet.", action: null };
+      }
+      if (behind > 0 && ahead > 0) {
+        return {
+          tone: "attention",
+          text: `Diverged: ${ahead} to push, ${behind} to pull.`,
+          action: { id: "viewer-git-pull", label: "Pull first" }
+        };
+      }
+      if (behind > 0) {
+        return { tone: "attention", text: `${behind} commit${behind === 1 ? "" : "s"} to pull.`, action: { id: "viewer-git-pull", label: "Pull" } };
+      }
+      // Unpushed commits and uncommitted changes are two separate answers, and the screen's
+      // question is what can be done now. With both, the commits are pushable and the
+      // changes are not part of them -- saying only the changes hid 42 commits behind 5
+      // files on this very repository.
+      const changeNote = changed > 0 ? ` ${changed} file${changed === 1 ? "" : "s"} changed here are not part of them.` : "";
+      if (ahead > 0) {
+        return {
+          tone: "ready",
+          text: `${ahead} commit${ahead === 1 ? "" : "s"} ready to push.${changeNote}`,
+          action: { id: "viewer-git-push", label: "Push" }
+        };
+      }
+      if (stagedCount > 0) {
+        return { tone: "ready", text: `${stagedCount} file${stagedCount === 1 ? "" : "s"} staged and ready to commit.`, action: { id: "viewer-git-commit", label: "Commit" } };
+      }
+      if (changed > 0) {
+        return { tone: "attention", text: `${changed} file${changed === 1 ? "" : "s"} changed, none staged.`, action: null };
+      }
+      return { tone: "clean", text: "Nothing to push. Working tree clean and up to date.", action: null };
+    })();
+    const verdictHtml = `
+      <section class="viewer-git__verdict viewer-git__verdict--${escapeHtml(gitVerdict.tone)}" role="status">
+        <p class="viewer-git__verdict-text">${escapeHtml(gitVerdict.text)}</p>
+        ${gitVerdict.action
+          ? `<button class="btn viewer-git__verdict-action" type="button" data-viewer-git-run="${escapeHtml(gitVerdict.action.id)}">${escapeHtml(gitVerdict.action.label)}</button>`
+          : ""}
+      </section>
+    `;
     const cards = [
       renderGitSummaryCard("Branch", payload.branch || "HEAD"),
       renderGitSummaryCard("Tracking", payload.tracking || "None"),
@@ -425,8 +481,16 @@ export function createGitScreen(host) {
       // entry whose only content is elsewhere on the same screen is a place to go that
       // takes you nowhere.
     ];
-    const domains = domainDefs.map(([key, label, count], index) => `
-      <button class="viewer-git__domain${index === 0 ? " is-active" : ""}" type="button" data-viewer-git-domain="${escapeHtml(key)}" aria-pressed="${index === 0 ? "true" : "false"}">
+    // item_731: `changes` was the default whatever the repository held, so a clean tree
+    // opened the screen on two blank panes. The opening domain is the first one that has
+    // something in it, in the order they are declared; history is the fallback, because a
+    // repository always has some.
+    const openingDomain = (() => {
+      const withContent = domainDefs.find(([, , count]) => Number(String(count).replace(/[^0-9]/g, "")) > 0);
+      return withContent ? withContent[0] : "history";
+    })();
+    const domains = domainDefs.map(([key, label, count]) => `
+      <button class="viewer-git__domain${key === openingDomain ? " is-active" : ""}" type="button" data-viewer-git-domain="${escapeHtml(key)}" aria-pressed="${key === openingDomain ? "true" : "false"}">
         <span class="viewer-git__domain-label">${escapeHtml(label)}${key === "changes" ? gitBadgeHtml("changes") : ""}${key === "history" ? gitBadgeHtml("history") : ""}</span><strong>${escapeHtml(count)}</strong>
       </button>
     `).join("");
@@ -497,28 +561,29 @@ export function createGitScreen(host) {
     return `
       <div class="viewer-git">
         ${renderCiModeSwitcher("git")}
-        <div class="viewer-git__summary">${cards}</div>
+        ${verdictHtml}
+        <div class="viewer-git__summary viewer-git__summary--strip">${cards}</div>
         <div class="viewer-git__workspace has-diff-detail">
           <nav class="viewer-git__domains" aria-label="Git domains">${domains}</nav>
           <div class="viewer-git__content" aria-label="Git domain content">
-            <section class="viewer-git__panel" data-viewer-git-panel="changes">
+            <section class="viewer-git__panel" data-viewer-git-panel="changes" ${openingDomain === "changes" ? "" : "hidden"}>
               <header class="viewer-git__panel-header"><span>Changes</span><strong>${escapeHtml(stagedCount + modifiedCount + deletedCount + renamedCount + untrackedCount)} files</strong></header>
               ${clean}
               ${changesSections || '<p class="viewer-git__state">No file changes detected.</p>'}
             </section>
-            <section class="viewer-git__panel" data-viewer-git-panel="staged" hidden>
+            <section class="viewer-git__panel" data-viewer-git-panel="staged" ${openingDomain === "staged" ? "" : "hidden"}>
               <header class="viewer-git__panel-header"><span>Staged</span><strong>${escapeHtml(stagedCount)} files</strong></header>
               ${stagedSections || '<p class="viewer-git__state">No staged files.</p>'}
             </section>
-            <section class="viewer-git__panel" data-viewer-git-panel="worktree" hidden>
+            <section class="viewer-git__panel" data-viewer-git-panel="worktree" ${openingDomain === "worktree" ? "" : "hidden"}>
               <header class="viewer-git__panel-header"><span>Worktree</span><strong>${escapeHtml(modifiedCount + deletedCount + renamedCount)} files</strong></header>
               ${worktreeSections || '<p class="viewer-git__state">No modified, deleted, or renamed files.</p>'}
             </section>
-            <section class="viewer-git__panel" data-viewer-git-panel="untracked" hidden>
+            <section class="viewer-git__panel" data-viewer-git-panel="untracked" ${openingDomain === "untracked" ? "" : "hidden"}>
               <header class="viewer-git__panel-header"><span>Untracked</span><strong>${escapeHtml(untrackedCount)} files</strong></header>
               ${untrackedSections || '<p class="viewer-git__state">No untracked files.</p>'}
             </section>
-            <section class="viewer-git__panel" data-viewer-git-panel="history" hidden>
+            <section class="viewer-git__panel" data-viewer-git-panel="history" ${openingDomain === "history" ? "" : "hidden"}>
               <header class="viewer-git__panel-header"><span>History</span><strong>${escapeHtml(historyCount)} commits</strong></header>
               ${history}
             </section>
@@ -770,7 +835,11 @@ export function createGitScreen(host) {
 
   async function showGitStatus(options = {}) {
     latestCiScreenMode = "git";
-    const previous = options.preserve ? currentGitViewState() : { domain: "changes", path: "", cached: false };
+    // item_731: on a fresh open this said `changes` outright, which is the third place that
+    // constant lived and the one that actually won -- the markup chose an opening domain,
+    // the restore call fell back to another, and this overrode both. A fresh open now has no
+    // opinion, so the render's choice stands; a preserved view still keeps the operator's.
+    const previous = options.preserve ? currentGitViewState() : { domain: "", path: "", cached: false };
     if (!host.isCapabilityAvailable("git")) {
       const message = host.capabilityMessage("git", "Git is not available for this project.");
       host.setDocument("Remote", renderGitStatus({ state: host.capability("git").state, message }));
@@ -825,7 +894,11 @@ export function createGitScreen(host) {
     setGitBadgeCountsFromPayload(data.payload, { updateMain: false });
     updateMainGitBadges();
     host.setDocument("Remote", renderGitStatus(data.payload));
-    applyGitDomain(previous.domain || "changes");
+    // item_731: this fell back to the constant "changes", which undid the opening domain the
+    // markup had just chosen from what the repository holds -- so a clean tree still landed
+    // on two blank panes. The operator's last domain still wins; the fallback is what the
+    // render decided, not a name fixed in advance.
+    applyGitDomain(previous.domain || renderedGitDomain() || "changes");
     const restoredFile = previous.path ? findGitFileButton(previous.path, previous.cached) : null;
     const firstFile = restoredFile || document.querySelector("[data-viewer-git-file]");
     if (firstFile instanceof HTMLElement) {

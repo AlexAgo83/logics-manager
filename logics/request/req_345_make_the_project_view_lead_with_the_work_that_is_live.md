@@ -7,6 +7,7 @@
 > Complexity: High
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-13 14:18:13
 
 # AI Context
 - Summary: 91.5% of this corpus is finished, and the board, the card, the details panel and the activity feed are all scaled for it; this reallocates their surface and their visual channels to the 13 items that are live.
@@ -47,6 +48,10 @@
 - AC13: A period with no activity is visible as such rather than inferred from timestamps.
 - AC14: The board, the selected state, the details panel and the activity feed each hold at 1440x900, 820x1180 and 390x844 with no overlap, clipping or sideways scroll, and the viewer UI campaign covers all four.
 - AC15: Every change is made in the shared board and browser-host sources and rebuilt, and behaves the same in the standalone viewer and in the extension host.
+- AC16: List mode presents documents as a table with columns that earn the width -- at least status, links and age beside the title -- rather than a stretched card whose only right-hand content is pinned to the far edge.
+- AC17: Card mode and list mode encode the same facts the same way, so switching mode changes the shape of the screen and not what it means; and the current mode, and the mode switching would reach, are both stated.
+- AC18: Progress is encoded so that it reads the same in a narrow card and in a full-width row, and a finished document never carries more coloured area than a live one.
+- AC19: At phone width both modes remain usable with nothing pushed off-screen: the facts that are columns on a wide screen become a subordinate line under the title.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.
@@ -82,3 +87,5 @@
 - `item_723_draw_the_activity_feed_as_a_chronology`
 - `item_724_tell_one_chain_s_story_in_the_activity_feed`
 - `item_725_cover_the_board_the_selected_state_the_panel_and_the_feed_in_the_campaign`
+- `item_739_make_list_mode_a_table`
+- `item_740_keep_progress_and_both_modes_honest_at_any_width`

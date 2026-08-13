@@ -33,6 +33,7 @@
 | [adr_026_embed_the_canonical_local_viewer_in_the_vs_code_panel](architecture/adr_026_embed_the_canonical_local_viewer_in_the_vs_code_panel.md) | Embed the canonical local viewer in the VS Code panel | Settled |  |  | architecture/adr_026_embed_the_canonical_local_viewer_in_the_vs_code_panel.md |
 | [adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime](architecture/adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime.md) | Use the installed CLI as the only VS Code Logics runtime | Settled |  |  | architecture/adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime.md |
 | [adr_028_scope_the_fleet_viewer_registry_to_the_operator_profile_and_resolve_project_context_per_request](architecture/adr_028_scope_the_fleet_viewer_registry_to_the_operator_profile_and_resolve_project_context_per_request.md) | Scope the fleet viewer registry to the operator profile and resolve project context per request | Settled |  |  | architecture/adr_028_scope_the_fleet_viewer_registry_to_the_operator_profile_and_resolve_project_context_per_request.md |
+| [adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points](architecture/adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points.md) | Land the viewer redesigns on the shared declaration points | Proposed |  |  | architecture/adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points.md |
 
 ## Product briefs
 
@@ -122,6 +123,7 @@
 | [prod_081_a_project_view_that_leads_with_what_is_live](product/prod_081_a_project_view_that_leads_with_what_is_live.md) | A project view that leads with what is live | Proposed |  |  | product/prod_081_a_project_view_that_leads_with_what_is_live.md |
 | [prod_082_a_viewer_that_recovers_and_says_what_happened](product/prod_082_a_viewer_that_recovers_and_says_what_happened.md) | A viewer that recovers, and says what happened | Proposed |  |  | product/prod_082_a_viewer_that_recovers_and_says_what_happened.md |
 | [prod_083_screens_that_state_their_answer](product/prod_083_screens_that_state_their_answer.md) | Screens that state their answer | Proposed |  |  | product/prod_083_screens_that_state_their_answer.md |
+| [prod_084_a_viewer_that_repeats_what_it_was_told](product/prod_084_a_viewer_that_repeats_what_it_was_told.md) | A viewer that repeats what it was told | Proposed |  |  | product/prod_084_a_viewer_that_repeats_what_it_was_told.md |
 
 ## Roadmaps
 
@@ -485,6 +487,7 @@
 | [req_345_make_the_project_view_lead_with_the_work_that_is_live](request/req_345_make_the_project_view_lead_with_the_work_that_is_live.md) | Make the project view lead with the work that is live | Draft |  |  | request/req_345_make_the_project_view_lead_with_the_work_that_is_live.md |
 | [req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing](request/req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing.md) | Close the gaps behind a fleet root click that does nothing | Draft |  |  | request/req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing.md |
 | [req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question](request/req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question.md) | Make the Git, CI, Release and Settings screens answer their own question | Draft |  |  | request/req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question.md |
+| [req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update](request/req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update.md) | Stop the viewer from swallowing a diagnostic and from repeating a stale update | Draft |  |  | request/req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update.md |
 
 ## Backlog
 
@@ -1228,6 +1231,13 @@
 | [item_736_make_the_release_gates_readable_at_a_glance](backlog/item_736_make_the_release_gates_readable_at_a_glance.md) | Make the release gates readable at a glance | Ready |  | 0% | backlog/item_736_make_the_release_gates_readable_at_a_glance.md |
 | [item_737_turn_settings_into_controls_with_state](backlog/item_737_turn_settings_into_controls_with_state.md) | Turn Settings into controls with state | Ready |  | 0% | backlog/item_737_turn_settings_into_controls_with_state.md |
 | [item_738_cover_these_four_screens_in_the_states_an_operator_reaches](backlog/item_738_cover_these_four_screens_in_the_states_an_operator_reaches.md) | Cover these four screens in the states an operator reaches | Ready |  | 0% | backlog/item_738_cover_these_four_screens_in_the_states_an_operator_reaches.md |
+| [item_739_make_list_mode_a_table](backlog/item_739_make_list_mode_a_table.md) | Make list mode a table | Ready |  | 0% | backlog/item_739_make_list_mode_a_table.md |
+| [item_740_keep_progress_and_both_modes_honest_at_any_width](backlog/item_740_keep_progress_and_both_modes_honest_at_any_width.md) | Keep progress and both modes honest at any width | Ready |  | 0% | backlog/item_740_keep_progress_and_both_modes_honest_at_any_width.md |
+| [item_741_pass_the_connector_s_own_failure_reason_through_to_the_operator](backlog/item_741_pass_the_connector_s_own_failure_reason_through_to_the_operator.md) | Pass the connector's own failure reason through to the operator | Ready |  | 0% | backlog/item_741_pass_the_connector_s_own_failure_reason_through_to_the_operator.md |
+| [item_742_check_the_outcome_of_a_viewer_action_before_rendering_it_as_done](backlog/item_742_check_the_outcome_of_a_viewer_action_before_rendering_it_as_done.md) | Check the outcome of a viewer action before rendering it as done | Ready |  | 0% | backlog/item_742_check_the_outcome_of_a_viewer_action_before_rendering_it_as_done.md |
+| [item_743_end_the_update_banner_when_the_update_happens](backlog/item_743_end_the_update_banner_when_the_update_happens.md) | End the update banner when the update happens | Ready |  | 0% | backlog/item_743_end_the_update_banner_when_the_update_happens.md |
+| [item_744_make_the_connector_screen_state_and_action_agree](backlog/item_744_make_the_connector_screen_state_and_action_agree.md) | Make the connector screen state and action agree | Ready |  | 0% | backlog/item_744_make_the_connector_screen_state_and_action_agree.md |
+| [item_745_cover_a_silent_failure_and_a_stale_banner](backlog/item_745_cover_a_silent_failure_and_a_stale_banner.md) | Cover a silent failure and a stale banner | Ready |  | 0% | backlog/item_745_cover_a_silent_failure_and_a_stale_banner.md |
 
 ## Tasks
 
@@ -1571,9 +1581,11 @@
 | [task_342_deliver_the_project_view_that_leads_with_live_work](tasks/task_342_deliver_the_project_view_that_leads_with_live_work.md) | Deliver the project view that leads with live work | Ready |  | 0% | tasks/task_342_deliver_the_project_view_that_leads_with_live_work.md |
 | [task_343_deliver_the_fleet_root_recovery_visible_failures_and_an_honest_fleet_flag](tasks/task_343_deliver_the_fleet_root_recovery_visible_failures_and_an_honest_fleet_flag.md) | Deliver the fleet root recovery, visible failures and an honest fleet flag | Ready |  | 0% | tasks/task_343_deliver_the_fleet_root_recovery_visible_failures_and_an_honest_fleet_flag.md |
 | [task_344_deliver_the_git_ci_release_and_settings_redesign](tasks/task_344_deliver_the_git_ci_release_and_settings_redesign.md) | Deliver the Git, CI, Release and Settings redesign | Ready |  | 0% | tasks/task_344_deliver_the_git_ci_release_and_settings_redesign.md |
+| [task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check](tasks/task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check.md) | Deliver the connector diagnostics and the version-aware update check | Ready |  | 0% | tasks/task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check.md |
 
 ## Runbooks
 
 | Doc | Title | Status | Category | Verified | Path |
 |---|---|---|---|---|---|
 | [run_001_run_the_viewer_ui_campaign_before_a_delivery](runbook/run_001_run_the_viewer_ui_campaign_before_a_delivery.md) | Run the viewer UI campaign before a delivery | Active | validation | 2026-08-11, automated half runs green on every CI delivery via `scripts/ci-check.mjs`; migrated from `docs/runbooks/viewer-ui-campaign.md` | runbook/run_001_run_the_viewer_ui_campaign_before_a_delivery.md |
+| [run_002_build_a_visual_review_and_mockup_from_a_live_viewer](runbook/run_002_build_a_visual_review_and_mockup_from_a_live_viewer.md) | Build a visual review and mockup from a live viewer | Active | validation | 2026-08-13, produced the reviews and mockups behind req_344, req_345 and req_347 | runbook/run_002_build_a_visual_review_and_mockup_from_a_live_viewer.md |

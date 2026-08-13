@@ -1,0 +1,452 @@
+{
+  "budgets": {
+    "max_docs": 28,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update item_741_pass_the_connector_s_own_failure_reason_through_to_the_operator item_742_check_the_outcome_of_a_viewer_action_before_rendering_it_as_done item_743_end_the_update_banner_when_the_update_happens item_744_make_the_connector_screen_state_and_action_agree item_745_cover_a_silent_failure_and_a_stale_banner task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_741_pass_the_connector_s_own_failure_reason_through_to_the_operator",
+          "item_742_check_the_outcome_of_a_viewer_action_before_rendering_it_as_done",
+          "item_743_end_the_update_banner_when_the_update_happens",
+          "item_744_make_the_connector_screen_state_and_action_agree",
+          "item_745_cover_a_silent_failure_and_a_stale_banner"
+        ],
+        "prod": [
+          "prod_084_a_viewer_that_repeats_what_it_was_told"
+        ],
+        "req": [
+          "req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update"
+        ],
+        "task": [
+          "task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check"
+        ]
+      },
+      "path": "logics/product/prod_084_a_viewer_that_repeats_what_it_was_told.md",
+      "ref": "prod_084_a_viewer_that_repeats_what_it_was_told",
+      "status": "Proposed",
+      "title": "A viewer that repeats what it was told"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_726_let_the_fleet_root_picker_recover_the_way_the_project_picker_already_does",
+          "item_727_put_a_failed_viewer_action_where_the_operator_will_see_it",
+          "item_728_make_the_fleet_flag_decide_whether_the_viewer_is_a_fleet_viewer",
+          "item_729_validate_the_fleet_root_path_the_way_its_sibling_handler_already_does",
+          "item_730_cover_the_three_failure_paths_this_request_found"
+        ],
+        "prod": [
+          "prod_082_a_viewer_that_recovers_and_says_what_happened"
+        ],
+        "req": [
+          "req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing"
+        ],
+        "task": [
+          "task_343_deliver_the_fleet_root_recovery_visible_failures_and_an_honest_fleet_flag"
+        ]
+      },
+      "path": "logics/product/prod_082_a_viewer_that_recovers_and_says_what_happened.md",
+      "ref": "prod_082_a_viewer_that_recovers_and_says_what_happened",
+      "status": "Proposed",
+      "title": "A viewer that recovers, and says what happened"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "viewer, swallowing, diagnostic, repeating, stale, update",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_741_pass_the_connector_s_own_failure_reason_through_to_the_operator",
+          "item_742_check_the_outcome_of_a_viewer_action_before_rendering_it_as_done",
+          "item_743_end_the_update_banner_when_the_update_happens",
+          "item_744_make_the_connector_screen_state_and_action_agree",
+          "item_745_cover_a_silent_failure_and_a_stale_banner"
+        ],
+        "prod": [
+          "prod_084_a_viewer_that_repeats_what_it_was_told"
+        ],
+        "req": [
+          "req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing",
+          "req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update"
+        ]
+      },
+      "path": "logics/request/req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update.md",
+      "ref": "req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Stop the viewer from swallowing a diagnostic and from repeating a stale update"
+    },
+    {
+      "ai_context": {
+        "keywords": "fleet root picker, tkinter, folder browser fallback, withPrimaryAction, setMeta, fleet flag, fleetHome landing, path injection, codeql 54",
+        "skip when": "Working on the fleet home's design, the board, the details panel or the activity feed.",
+        "summary": "One click reported as doing nothing turned out to be three defects: a picker that cannot run without tkinter, a failure reported into an overwritten status line, and a `--fleet` flag that never reaches the server -- plus CodeQL #54 in the same handlers.",
+        "use when": "Changing a viewer action's failure path, the folder pickers, what `--fleet` decides, or the fleet root endpoints."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_726_let_the_fleet_root_picker_recover_the_way_the_project_picker_already_does",
+          "item_727_put_a_failed_viewer_action_where_the_operator_will_see_it",
+          "item_728_make_the_fleet_flag_decide_whether_the_viewer_is_a_fleet_viewer",
+          "item_729_validate_the_fleet_root_path_the_way_its_sibling_handler_already_does",
+          "item_730_cover_the_three_failure_paths_this_request_found"
+        ],
+        "prod": [
+          "prod_082_a_viewer_that_recovers_and_says_what_happened"
+        ],
+        "req": [
+          "req_344_make_the_fleet_home_read_as_the_product_s_first_screen",
+          "req_345_make_the_project_view_lead_with_the_work_that_is_live",
+          "req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing"
+        ]
+      },
+      "path": "logics/request/req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing.md",
+      "ref": "req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Close the gaps behind a fleet root click that does nothing"
+    },
+    {
+      "ai_context": {
+        "keywords": "pass, connector, own, failure, reason, through, operator",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_741_pass_the_connector_s_own_failure_reason_through_to_the_operator"
+        ],
+        "prod": [
+          "prod_084_a_viewer_that_repeats_what_it_was_told"
+        ],
+        "req": [
+          "req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update"
+        ],
+        "task": [
+          "task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check"
+        ]
+      },
+      "path": "logics/backlog/item_741_pass_the_connector_s_own_failure_reason_through_to_the_operator.md",
+      "ref": "item_741_pass_the_connector_s_own_failure_reason_through_to_the_operator",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Pass the connector's own failure reason through to the operator"
+    },
+    {
+      "ai_context": {
+        "keywords": "check, outcome, viewer, action, before, rendering, done",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_742_check_the_outcome_of_a_viewer_action_before_rendering_it_as_done"
+        ],
+        "prod": [
+          "prod_084_a_viewer_that_repeats_what_it_was_told"
+        ],
+        "req": [
+          "req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update"
+        ],
+        "task": [
+          "task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check"
+        ]
+      },
+      "path": "logics/backlog/item_742_check_the_outcome_of_a_viewer_action_before_rendering_it_as_done.md",
+      "ref": "item_742_check_the_outcome_of_a_viewer_action_before_rendering_it_as_done",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Check the outcome of a viewer action before rendering it as done"
+    },
+    {
+      "ai_context": {
+        "keywords": "deliver, connector, diagnostics, version, aware, update, check",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_741_pass_the_connector_s_own_failure_reason_through_to_the_operator",
+          "item_742_check_the_outcome_of_a_viewer_action_before_rendering_it_as_done",
+          "item_743_end_the_update_banner_when_the_update_happens",
+          "item_744_make_the_connector_screen_state_and_action_agree",
+          "item_745_cover_a_silent_failure_and_a_stale_banner"
+        ],
+        "prod": [
+          "prod_084_a_viewer_that_repeats_what_it_was_told"
+        ],
+        "req": [
+          "req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update"
+        ],
+        "task": [
+          "task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check"
+        ]
+      },
+      "path": "logics/tasks/task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check.md",
+      "ref": "task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Deliver the connector diagnostics and the version-aware update check"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_741_pass_the_connector_s_own_failure_reason_through_to_the_operator",
+          "item_742_check_the_outcome_of_a_viewer_action_before_rendering_it_as_done",
+          "item_743_end_the_update_banner_when_the_update_happens",
+          "item_744_make_the_connector_screen_state_and_action_agree",
+          "item_745_cover_a_silent_failure_and_a_stale_banner"
+        ],
+        "prod": [
+          "prod_084_a_viewer_that_repeats_what_it_was_told"
+        ],
+        "req": [
+          "req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update"
+        ],
+        "task": [
+          "task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check"
+        ]
+      },
+      "path": "logics/product/prod_084_a_viewer_that_repeats_what_it_was_told.md",
+      "ref": "prod_084_a_viewer_that_repeats_what_it_was_told",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "A viewer that repeats what it was told"
+    },
+    {
+      "ai_context": {
+        "keywords": "end, update, banner, happens",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_743_end_the_update_banner_when_the_update_happens"
+        ],
+        "prod": [
+          "prod_084_a_viewer_that_repeats_what_it_was_told"
+        ],
+        "req": [
+          "req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update"
+        ],
+        "task": [
+          "task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check"
+        ]
+      },
+      "path": "logics/backlog/item_743_end_the_update_banner_when_the_update_happens.md",
+      "ref": "item_743_end_the_update_banner_when_the_update_happens",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "End the update banner when the update happens"
+    },
+    {
+      "ai_context": {
+        "keywords": "connector, screen, state, action, agree",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_744_make_the_connector_screen_state_and_action_agree"
+        ],
+        "prod": [
+          "prod_084_a_viewer_that_repeats_what_it_was_told"
+        ],
+        "req": [
+          "req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update"
+        ],
+        "task": [
+          "task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check"
+        ]
+      },
+      "path": "logics/backlog/item_744_make_the_connector_screen_state_and_action_agree.md",
+      "ref": "item_744_make_the_connector_screen_state_and_action_agree",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Make the connector screen state and action agree"
+    },
+    {
+      "ai_context": {
+        "keywords": "cover, silent, failure, stale, banner",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_745_cover_a_silent_failure_and_a_stale_banner"
+        ],
+        "prod": [
+          "prod_084_a_viewer_that_repeats_what_it_was_told"
+        ],
+        "req": [
+          "req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update"
+        ],
+        "task": [
+          "task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check"
+        ]
+      },
+      "path": "logics/backlog/item_745_cover_a_silent_failure_and_a_stale_banner.md",
+      "ref": "item_745_cover_a_silent_failure_and_a_stale_banner",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Cover a silent failure and a stale banner"
+    }
+  ],
+  "estimates": {
+    "char_count": 11113,
+    "companion_doc_count": 2,
+    "doc_count": 9
+  },
+  "generated_at": "2026-08-13T12:19:38Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update",
+      "item_741_pass_the_connector_s_own_failure_reason_through_to_the_operator",
+      "item_742_check_the_outcome_of_a_viewer_action_before_rendering_it_as_done",
+      "item_743_end_the_update_banner_when_the_update_happens",
+      "item_744_make_the_connector_screen_state_and_action_agree",
+      "item_745_cover_a_silent_failure_and_a_stale_banner",
+      "task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update,item_741_pass_the_connector_s_own_failure_reason_through_to_the_operator,item_742_check_the_outcome_of_a_viewer_action_before_rendering_it_as_done,item_743_end_the_update_banner_when_the_update_happens,item_744_make_the_connector_screen_state_and_action_agree,item_745_cover_a_silent_failure_and_a_stale_banner,task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check",
+  "refs": [
+    "req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update",
+    "item_741_pass_the_connector_s_own_failure_reason_through_to_the_operator",
+    "item_742_check_the_outcome_of_a_viewer_action_before_rendering_it_as_done",
+    "item_743_end_the_update_banner_when_the_update_happens",
+    "item_744_make_the_connector_screen_state_and_action_agree",
+    "item_745_cover_a_silent_failure_and_a_stale_banner",
+    "task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check.md",
+      "ref": "task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check"
+    }
+  ]
+}

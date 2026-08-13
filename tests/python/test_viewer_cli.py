@@ -465,6 +465,31 @@ def test_viewer_lan_rw_pairing_flow_round_trips(tmp_path: Path, monkeypatch: pyt
         server.server_close()
 
 
+def test_fleet_capability_and_launch_intent_are_separate(tmp_path: Path) -> None:
+    """item_728. The `view` command passes fleet=True as a literal -- every viewer is
+    fleet-capable because adr_028 scoped the registry to the operator profile -- and the
+    same flag was also read as "this viewer started on the fleet home". So a plain `view`
+    inside a project landed on the Fleet home for any request without a project
+    parameter, which is what made `--fleet` close to a no-op.
+
+    They are now separate facts, and the landing view follows the flag."""
+    server = create_viewer_server_or_skip(tmp_path)
+    try:
+        # The capability defaults off on the class and is switched on by the command; the
+        # landing intent is independent of it in both directions.
+        assert server.fleet is False
+        assert server.launch_fleet_home is False
+
+        server.fleet = True
+        assert server.viewer_payload(fleet_home=False)["fleetHome"] is False, (
+            "fleet capability alone must not land the operator on the fleet home"
+        )
+        server.launch_fleet_home = True
+        assert server.viewer_payload(fleet_home=True)["fleetHome"] is True
+    finally:
+        server.server_close()
+
+
 def test_viewer_mutating_routes_registry_covers_every_state_changing_post() -> None:
     must_be_gated = {
         "/api/edit",

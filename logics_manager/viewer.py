@@ -1618,10 +1618,18 @@ class LogicsViewerServer(ThreadingHTTPServer):
         lan_rw_mode: bool = False,
         tls_context: ssl.SSLContext | None = None,
         fleet: bool = False,
+        launch_fleet_home: bool = False,
         include_launch_project: bool = True,
     ):
         self.launch_repo_root = repo_root.resolve()
+        # item_728: capability and intent were one flag, so `fleet` meant both "this
+        # server can do fleet things" and "this viewer started on the fleet home". The
+        # `view` command passes the capability as a literal True -- adr_028 scoped the
+        # fleet registry to the operator profile, so every viewer is fleet-capable -- and
+        # the landing view is what `--fleet` was meant to decide. Separated, so a plain
+        # `view` in a project lands on that project instead of the fleet home.
         self.fleet = fleet
+        self.launch_fleet_home = launch_fleet_home
         roots = fleet_roots() if fleet else []
         self.project_roots = (
             [project for root in roots for project in root.iterdir() if project.is_dir() and _looks_like_viewer_project(project)]
@@ -2585,7 +2593,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self._send_json(
                 {
                     "ok": True,
-                    "payload": self.server.viewer_payload(fleet_home=bool(self.server.fleet and not project_id)),
+                    "payload": self.server.viewer_payload(fleet_home=bool(self.server.launch_fleet_home and not project_id)),
                 }
             )
             return
@@ -3001,6 +3009,7 @@ def create_viewer_server(
     lan_rw_mode: bool = False,
     tls_context: ssl.SSLContext | None = None,
     fleet: bool = False,
+    launch_fleet_home: bool = False,
     include_launch_project: bool = True,
 ) -> LogicsViewerServer:
     try:
@@ -3013,6 +3022,7 @@ def create_viewer_server(
             lan_rw_mode=lan_rw_mode,
             tls_context=tls_context,
             fleet=fleet,
+            launch_fleet_home=launch_fleet_home,
             include_launch_project=include_launch_project,
         )
     except OSError as exc:
@@ -3570,6 +3580,7 @@ def main(argv: list[str]) -> int:
             lan_rw_mode=bool(args.lan_rw),
             tls_context=tls_context,
             fleet=True,
+            launch_fleet_home=bool(args.fleet),
             include_launch_project=include_launch_project,
         ),
         key="fleet",

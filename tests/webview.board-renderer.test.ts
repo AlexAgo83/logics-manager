@@ -537,6 +537,55 @@ describe("webview board renderer behavior", () => {
     expect(preview?.textContent ?? "").not.toContain("Flow");
   });
 
+  it("keeps the reference index out of the columns and lets its control actually close it", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        baseItem,
+        productItem,
+        specItem,
+        {
+          ...baseItem,
+          id: "adr_501_index",
+          title: "Architecture companion",
+          stage: "architecture",
+          relPath: "logics/architecture/adr_501_index.md",
+          path: "/workspace/mock/logics/architecture/adr_501_index.md"
+        }
+      ]
+    });
+
+    const document = dom.window.document;
+    const board = document.getElementById("board");
+
+    // item_717: seven stages rendered as peer columns, so the sixth clipped mid-word at 1440
+    // and a third of the board went to settled companion documents. Flow stages are the
+    // queue; companions are an index below it.
+    const columnStages = Array.from(board?.querySelectorAll(".column") || []).map(
+      (node) => (node as HTMLElement).dataset.stage
+    );
+    expect(columnStages).toEqual(["request"]);
+    expect(board?.querySelectorAll(".companion-index__group").length).toBeGreaterThan(0);
+
+    // The control has to close it. It first shipped with `display: flex` on the body, which
+    // beats the hidden attribute, so the index rendered open while its own marker said
+    // closed. This harness loads no stylesheet, so what follows covers the state and not the
+    // rendering of it: reintroducing that CSS rule leaves this test green. The rendered half
+    // was verified by capture and belongs to the campaign, which reaches the board under
+    // item_725.
+    const toggle = document.querySelector(".companion-index__toggle") as HTMLElement | null;
+    const body = () => document.querySelector(".companion-index__body") as HTMLElement | null;
+    expect(toggle?.getAttribute("aria-expanded")).toBe("true");
+    expect(body()?.hidden).toBe(false);
+
+    toggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    expect(document.querySelector(".companion-index__toggle")?.getAttribute("aria-expanded")).toBe("false");
+    expect(body()?.hidden).toBe(true);
+  });
+
   it("carries a card's status by shape as well as colour, so the ordering survives greyscale", () => {
     const { dom } = bootstrapWebview();
 

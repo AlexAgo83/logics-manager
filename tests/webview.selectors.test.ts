@@ -373,12 +373,17 @@ describe("webview selectors behavior", () => {
 
     const board = dom.window.document.getElementById("board");
 
-    // By default showCompanionDocs=true, hideSpec=false
-    const columns = Array.from(board?.querySelectorAll(".column") || []);
-    const stages = columns.map((c) => (c as HTMLElement).dataset.stage);
-    expect(stages).toContain("product");
-    expect(stages).toContain("architecture");
-    expect(stages).toContain("spec");
+    // By default showCompanionDocs=true, hideSpec=false.
+    // item_717: the toggles still decide whether these stages are on the board at all; what
+    // changed is where they land. The flow stages are the columns; the companion stages are
+    // the reference index below them, because a settled document is not a queue entry.
+    const stagesIn = (selector: string) =>
+      Array.from(board?.querySelectorAll(selector) || []).map((node) => (node as HTMLElement).dataset.stage);
+
+    expect(stagesIn(".column")).not.toContain("product");
+    expect(stagesIn(".companion-index__group")).toContain("product");
+    expect(stagesIn(".companion-index__group")).toContain("architecture");
+    expect(stagesIn(".companion-index__group")).toContain("spec");
 
     // Toggle spec visibility off and back on
     const filterToggle = dom.window.document.getElementById("filter-toggle");
@@ -390,18 +395,15 @@ describe("webview selectors behavior", () => {
       hideSpecToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
     }
 
-    const hiddenColumns = Array.from(board?.querySelectorAll(".column") || []);
-    const hiddenStages = hiddenColumns.map((c) => (c as HTMLElement).dataset.stage);
-    expect(hiddenStages).not.toContain("spec");
+    expect(stagesIn(".companion-index__group")).not.toContain("spec");
+    expect(stagesIn(".column")).not.toContain("spec");
 
     if (hideSpecToggle) {
       hideSpecToggle.checked = false;
       hideSpecToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
     }
 
-    const columnsAfter = Array.from(board?.querySelectorAll(".column") || []);
-    const stagesAfter = columnsAfter.map((c) => (c as HTMLElement).dataset.stage);
-    expect(stagesAfter).toContain("spec");
+    expect(stagesIn(".companion-index__group")).toContain("spec");
   });
 
   it("keeps linkage metadata for supporting docs without the filename subtitle", () => {

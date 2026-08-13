@@ -1230,6 +1230,10 @@
     // so 13 live items sat under 1 382 finished ones. Finished work stays reachable; it
     // stops setting the scale of the screen.
     const expandedDoneGroups = new Set();
+    // Open by default: the index is what the freed column width is for, and folding it
+    // would trade a clipped sixth column for an empty right half. The control is there for
+    // an operator who wants the queue alone.
+    let companionIndexOpen = true;
 
     // Deliberately status, not progress. `isComplete` reads Progress >= 100 and is right
     // for the card's progress wash -- but requests carry no Progress indicator at all, so
@@ -1283,8 +1287,21 @@
       return button;
     }
 
+    // item_717: found while splitting this function. It took its columns from
+    // getVisibleStages(), which returns stage names, while `grouped` is keyed by status
+    // whenever the Group by control says status -- so every lookup missed and the board
+    // rendered no columns at all in that mode. getVisibleBoardStages() already answers this
+    // correctly for both modes; only keyboard navigation was asking it.
     function renderBoardColumns(grouped, totalVisibleItems) {
-      getVisibleStages().forEach((stage) => {
+      const stages = getVisibleBoardStages(grouped);
+      const byStage = boardGroupMode() !== "status";
+      // item_717: seven stages rendered as peer columns, so the sixth clipped mid-word at
+      // 1440 and a third of the board went to 118 companion documents that are all Settled.
+      // A settled document is an index entry, not a queue entry. logicsModel.js already
+      // draws this line; the board never used it.
+      const columnStages = byStage ? stages.filter((stage) => isPrimaryFlowStage(stage)) : stages;
+      const companionStages = byStage ? stages.filter((stage) => !isPrimaryFlowStage(stage)) : [];
+      columnStages.forEach((stage) => {
         const stageItems = grouped[stage] || [];
         if (getHideEmptyColumns() && stageItems.length === 0) {
           return;
@@ -1358,6 +1375,57 @@
         column.appendChild(body);
         board.appendChild(column);
       });
+      if (companionStages.length) {
+        board.appendChild(createCompanionIndex(companionStages, grouped));
+      }
+    }
+
+    /** The index is searchable through the board's own search rather than a second box
+     *  beside it: its entries are the same filtered items the columns draw from, so typing
+     *  in Search docs narrows it too. It starts folded and states its count, the same
+     *  shape as the Done fold, because 118 settled documents are a reference, not work. */
+    function createCompanionIndex(companionStages, grouped) {
+      const section = document.createElement("section");
+      section.className = "companion-index";
+      const total = companionStages.reduce((sum, stage) => sum + (grouped[stage] || []).length, 0);
+      const toggle = document.createElement("button");
+      toggle.type = "button";
+      toggle.className = "group-show-more companion-index__toggle";
+      toggle.setAttribute("aria-expanded", companionIndexOpen ? "true" : "false");
+      toggle.setAttribute("aria-controls", "companion-index-body");
+      toggle.textContent = `${companionIndexOpen ? "\u25be" : "\u25b8"} Reference \u2014 ${total} document${total === 1 ? "" : "s"}`;
+      toggle.addEventListener("click", () => {
+        companionIndexOpen = !companionIndexOpen;
+        render();
+      });
+      section.appendChild(toggle);
+
+      const body = document.createElement("div");
+      body.className = "companion-index__body";
+      body.id = "companion-index-body";
+      body.hidden = !companionIndexOpen;
+      companionStages.forEach((stage) => {
+        const stageItems = grouped[stage] || [];
+        if (!stageItems.length) return;
+        const group = document.createElement("div");
+        group.className = "companion-index__group";
+        group.dataset.stage = stage;
+        const heading = document.createElement("h3");
+        heading.className = "companion-index__heading";
+        heading.textContent = `${getStageHeading(stage)} (${stageItems.length})`;
+        group.appendChild(heading);
+        const list = document.createElement("div");
+        list.className = "companion-index__list";
+        const slice = visibleSliceForGroup(`companion::${stage}`, stageItems);
+        slice.items.forEach((item) => list.appendChild(createItemCard(item, true)));
+        if (slice.truncated) {
+          list.appendChild(createShowMoreControl(`companion::${stage}`, slice.remaining, slice.total));
+        }
+        group.appendChild(list);
+        body.appendChild(group);
+      });
+      section.appendChild(body);
+      return section;
     }
 
     function renderListView(groups) {

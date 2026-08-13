@@ -25,6 +25,7 @@ const requested = (process.env.VIEWER_CAMPAIGN_VIEWPORTS || "").split(",").map((
 const viewports = requested.length ? allViewports.filter((viewport) => requested.includes(viewport.name)) : allViewports;
 // Drives the "a failed check does not end the run" property from outside the page.
 const injectFailure = process.env.VIEWER_CAMPAIGN_INJECT_FAILURE === "1";
+const skipSlowChecks = process.env.VIEWER_CAMPAIGN_SKIP_SLOW_CHECKS === "1";
 
 // Every check the run performed, in order, each with a verdict and the value it
 // measured. The campaign used to raise on the first failure, so one defect hid every
@@ -460,16 +461,21 @@ function browserExerciseScript(name) {
         await waitFor(() => !document.getElementById("viewer-document").hidden && text("#viewer-document-content").trim(), "read preview");
         return text("#viewer-document-title").trim();
       });
-      await check("insights renders", async () => {
-        click("#viewer-insights");
-        await waitFor(() => text("#viewer-document-content").includes("Flow health"), "insights", 120000);
-        return "Flow health";
-      });
-      await check("health renders", async () => {
-        click("#viewer-health");
-        await waitFor(() => text("#viewer-document-content").includes("Validation findings"), "health");
-        return "Validation findings";
-      });
+      if (${skipSlowChecks ? "true" : "false"}) {
+        checks.push({ name: "insights renders", verdict: "skipped", measured: "skipped by VIEWER_CAMPAIGN_SKIP_SLOW_CHECKS" });
+        checks.push({ name: "health renders", verdict: "skipped", measured: "skipped by VIEWER_CAMPAIGN_SKIP_SLOW_CHECKS" });
+      } else {
+        await check("insights renders", async () => {
+          click("#viewer-insights");
+          await waitFor(() => text("#viewer-document-content").includes("Flow health"), "insights", 120000);
+          return "Flow health";
+        });
+        await check("health renders", async () => {
+          click("#viewer-health");
+          await waitFor(() => text("#viewer-document-content").includes("Validation findings"), "health");
+          return "Validation findings";
+        });
+      }
       await check("refresh reports what it did", async () => {
         const auto = document.getElementById("viewer-auto-refresh");
         auto.checked = false;

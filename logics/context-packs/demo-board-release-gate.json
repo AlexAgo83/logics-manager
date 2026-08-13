@@ -1,0 +1,293 @@
+{
+  "budgets": {
+    "max_docs": 16,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry item_710_prove_the_demo_is_absent_from_each_built_artifact task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry",
+          "item_710_prove_the_demo_is_absent_from_each_built_artifact"
+        ],
+        "prod": [
+          "prod_079_a_release_that_contains_only_the_product"
+        ],
+        "req": [
+          "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact"
+        ],
+        "task": [
+          "task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof"
+        ]
+      },
+      "path": "logics/product/prod_079_a_release_that_contains_only_the_product.md",
+      "ref": "prod_079_a_release_that_contains_only_the_product",
+      "status": "Proposed",
+      "title": "A release that contains only the product"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "synthetic, demo, board, out, released, artifact",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry",
+          "item_710_prove_the_demo_is_absent_from_each_built_artifact"
+        ],
+        "prod": [
+          "prod_079_a_release_that_contains_only_the_product"
+        ],
+        "req": [
+          "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact"
+        ]
+      },
+      "path": "logics/request/req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact.md",
+      "ref": "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Keep the synthetic demo board out of every released artifact"
+    },
+    {
+      "ai_context": {
+        "keywords": "gate, demo, board, signal, release, artifacts, cannot, carry",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry"
+        ],
+        "prod": [
+          "prod_079_a_release_that_contains_only_the_product"
+        ],
+        "req": [
+          "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact"
+        ],
+        "task": [
+          "task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof"
+        ]
+      },
+      "path": "logics/backlog/item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry.md",
+      "ref": "item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Gate the demo board on a signal release artifacts cannot carry"
+    },
+    {
+      "ai_context": {
+        "keywords": "prove, demo, absent, each, built, artifact",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_710_prove_the_demo_is_absent_from_each_built_artifact"
+        ],
+        "prod": [
+          "prod_079_a_release_that_contains_only_the_product"
+        ],
+        "req": [
+          "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact"
+        ],
+        "task": [
+          "task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof"
+        ]
+      },
+      "path": "logics/backlog/item_710_prove_the_demo_is_absent_from_each_built_artifact.md",
+      "ref": "item_710_prove_the_demo_is_absent_from_each_built_artifact",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Prove the demo is absent from each built artifact"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry",
+          "item_710_prove_the_demo_is_absent_from_each_built_artifact"
+        ],
+        "prod": [
+          "prod_079_a_release_that_contains_only_the_product"
+        ],
+        "req": [
+          "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact"
+        ],
+        "task": [
+          "task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof"
+        ]
+      },
+      "path": "logics/product/prod_079_a_release_that_contains_only_the_product.md",
+      "ref": "prod_079_a_release_that_contains_only_the_product",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "A release that contains only the product"
+    },
+    {
+      "ai_context": {
+        "keywords": "deliver, release, safe, demo, gate, per, artifact, proof",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry",
+          "item_710_prove_the_demo_is_absent_from_each_built_artifact"
+        ],
+        "prod": [
+          "prod_079_a_release_that_contains_only_the_product"
+        ],
+        "req": [
+          "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact"
+        ],
+        "task": [
+          "task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof"
+        ]
+      },
+      "path": "logics/tasks/task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof.md",
+      "ref": "task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Deliver the release-safe demo gate and its per-artifact proof"
+    }
+  ],
+  "estimates": {
+    "char_count": 4910,
+    "companion_doc_count": 1,
+    "doc_count": 5
+  },
+  "generated_at": "2026-08-13T10:47:53Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact",
+      "item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry",
+      "item_710_prove_the_demo_is_absent_from_each_built_artifact",
+      "task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact,item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry,item_710_prove_the_demo_is_absent_from_each_built_artifact,task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof",
+  "refs": [
+    "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact",
+    "item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry",
+    "item_710_prove_the_demo_is_absent_from_each_built_artifact",
+    "task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof.md",
+      "ref": "task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof"
+    }
+  ]
+}

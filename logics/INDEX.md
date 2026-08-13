@@ -32,7 +32,7 @@
 | [adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync](architecture/adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync.md) | Bound viewer CDX modularization around payload state and asset sync | Settled |  |  | architecture/adr_025_bound_viewer_cdx_modularization_around_payload_state_and_asset_sync.md |
 | [adr_026_embed_the_canonical_local_viewer_in_the_vs_code_panel](architecture/adr_026_embed_the_canonical_local_viewer_in_the_vs_code_panel.md) | Embed the canonical local viewer in the VS Code panel | Settled |  |  | architecture/adr_026_embed_the_canonical_local_viewer_in_the_vs_code_panel.md |
 | [adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime](architecture/adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime.md) | Use the installed CLI as the only VS Code Logics runtime | Settled |  |  | architecture/adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime.md |
-| [adr_028_scope_the_fleet_viewer_registry_to_the_operator_profile_and_resolve_project_context_per_request](architecture/adr_028_scope_the_fleet_viewer_registry_to_the_operator_profile_and_resolve_project_context_per_request.md) | Scope the fleet viewer registry to the operator profile and resolve project context per request | Proposed |  |  | architecture/adr_028_scope_the_fleet_viewer_registry_to_the_operator_profile_and_resolve_project_context_per_request.md |
+| [adr_028_scope_the_fleet_viewer_registry_to_the_operator_profile_and_resolve_project_context_per_request](architecture/adr_028_scope_the_fleet_viewer_registry_to_the_operator_profile_and_resolve_project_context_per_request.md) | Scope the fleet viewer registry to the operator profile and resolve project context per request | Settled |  |  | architecture/adr_028_scope_the_fleet_viewer_registry_to_the_operator_profile_and_resolve_project_context_per_request.md |
 
 ## Product briefs
 
@@ -117,6 +117,7 @@
 | [prod_076_tooling_that_tells_the_truth_about_itself](product/prod_076_tooling_that_tells_the_truth_about_itself.md) | Tooling that tells the truth about itself | Settled |  |  | product/prod_076_tooling_that_tells_the_truth_about_itself.md |
 | [prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say](product/prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say.md) | A plugin that interrupts only when it has something new to say | Settled |  |  | product/prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say.md |
 | [prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer](product/prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer.md) | A standalone fleet home for the canonical Logics viewer | Settled |  |  | product/prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer.md |
+| [prod_079_a_release_that_contains_only_the_product](product/prod_079_a_release_that_contains_only_the_product.md) | A release that contains only the product | Proposed |  |  | product/prod_079_a_release_that_contains_only_the_product.md |
 
 ## Roadmaps
 
@@ -475,6 +476,7 @@
 | [req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed](request/req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed.md) | Close the three trust gaps the 2.21.7 cycle exposed | Done |  |  | request/req_340_close_the_three_trust_gaps_the_2_21_7_cycle_exposed.md |
 | [req_341_stop_reopening_getting_started_when_its_content_has_not_changed](request/req_341_stop_reopening_getting_started_when_its_content_has_not_changed.md) | Stop reopening Getting Started when its content has not changed | Done |  |  | request/req_341_stop_reopening_getting_started_when_its_content_has_not_changed.md |
 | [req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server](request/req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server.md) | Launch a standalone Logics fleet viewer through one shared local server | Done |  |  | request/req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server.md |
+| [req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact](request/req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact.md) | Keep the synthetic demo board out of every released artifact | Draft |  |  | request/req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact.md |
 
 ## Backlog
 
@@ -1188,6 +1190,8 @@
 | [item_706_make_project_context_request_scoped_before_sharing_the_viewer_server](backlog/item_706_make_project_context_request_scoped_before_sharing_the_viewer_server.md) | Make project context request-scoped before sharing the viewer server | Done |  | 100% | backlog/item_706_make_project_context_request_scoped_before_sharing_the_viewer_server.md |
 | [item_707_build_the_fleet_home_and_project_navigation_surface](backlog/item_707_build_the_fleet_home_and_project_navigation_surface.md) | Build the fleet home and project navigation surface | Done |  | 100% | backlog/item_707_build_the_fleet_home_and_project_navigation_surface.md |
 | [item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton](backlog/item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton.md) | Replace per-repository viewer reuse with a safe fleet singleton | Done |  | 100% | backlog/item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton.md |
+| [item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry](backlog/item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry.md) | Gate the demo board on a signal release artifacts cannot carry | Ready |  | 0% | backlog/item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry.md |
+| [item_710_prove_the_demo_is_absent_from_each_built_artifact](backlog/item_710_prove_the_demo_is_absent_from_each_built_artifact.md) | Prove the demo is absent from each built artifact | Ready |  | 0% | backlog/item_710_prove_the_demo_is_absent_from_each_built_artifact.md |
 
 ## Tasks
 
@@ -1526,6 +1530,7 @@
 | [task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle](tasks/task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle.md) | Deliver the three trust gaps from the 2.21.7 cycle | Done |  | 100% | tasks/task_337_deliver_the_three_trust_gaps_from_the_2_21_7_cycle.md |
 | [task_338_deliver_the_content_keyed_onboarding_guard](tasks/task_338_deliver_the_content_keyed_onboarding_guard.md) | Deliver the content-keyed onboarding guard | Done |  | 100% | tasks/task_338_deliver_the_content_keyed_onboarding_guard.md |
 | [task_339_deliver_the_standalone_fleet_viewer_and_singleton_server](tasks/task_339_deliver_the_standalone_fleet_viewer_and_singleton_server.md) | Deliver the standalone fleet viewer and singleton server | Done | Codex | 100% | tasks/task_339_deliver_the_standalone_fleet_viewer_and_singleton_server.md |
+| [task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof](tasks/task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof.md) | Deliver the release-safe demo gate and its per-artifact proof | Ready |  | 0% | tasks/task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof.md |
 
 ## Runbooks
 

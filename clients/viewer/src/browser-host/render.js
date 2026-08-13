@@ -597,36 +597,7 @@ export function renderCiStatus(payload) {
       <li class="viewer-ci__row"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></li>
     `).join("") : `<li class="viewer-ci__empty">${escapeHtml(payload.message || `No ${providerLabel} run found for this branch.`)}</li>`;
 
-    const renderJob = (job) => {
-      const jobState = ciStateFromStatus(job.status, job.conclusion);
-      const duration = formatCiDuration(job.startedAt, job.completedAt);
-      const ago = formatCiAgo(job.completedAt || job.startedAt);
-      const absolute = formatCiDate(job.completedAt || job.startedAt) || "";
-      const content = `
-        <span class="viewer-ci__job-name">${escapeHtml(job.name || "Job")}</span>
-        <span class="viewer-ci__job-time"${absolute ? ` title="${escapeHtml(absolute)}"` : ""}>${escapeHtml([duration, ago].filter(Boolean).join(" \u00b7 "))}</span>
-      `;
-      return `<li class="viewer-ci__job viewer-ci__job--${escapeHtml(jobState)}" data-viewer-ci-job-state="${escapeHtml(jobState)}">${job.htmlUrl ? `<a href="${escapeHtml(job.htmlUrl)}" target="_blank" rel="noreferrer">${content}</a>` : content}</li>`;
-    };
-
-    // A failing job is what the operator opened the screen for, so it leads and stays
-    // expanded; the passing ones collapse to a line that states how many. The collapse is a
-    // native <details>, which is keyboard-reachable without a handler of its own.
-    const jobTone = (job) => ciStateFromStatus(job.status, job.conclusion);
-    const failedJobs = jobs.filter((job) => jobTone(job) === "failing");
-    const otherJobs = jobs.filter((job) => jobTone(job) !== "failing");
-    const passingJobs = otherJobs.filter((job) => jobTone(job) === "passing");
-    const remainingJobs = otherJobs.filter((job) => jobTone(job) !== "passing");
-    const jobRows = jobs.length
-      ? `${failedJobs.map(renderJob).join("")}${remainingJobs.map(renderJob).join("")}${
-          passingJobs.length
-            ? `<li class="viewer-ci__job-fold"><details${failedJobs.length ? "" : " open"}>
-                 <summary>${escapeHtml(passingJobs.length)} job${passingJobs.length === 1 ? "" : "s"} passed</summary>
-                 <ul class="viewer-ci__jobs">${passingJobs.map(renderJob).join("")}</ul>
-               </details></li>`
-            : ""
-        }`
-      : `<li class="viewer-ci__empty">No job details reported.</li>`;
+    const jobRows = renderCiJobRows(jobs);
     return `
       <div class="viewer-ci">
         ${renderCiModeSwitcher("runs")}
@@ -897,16 +868,70 @@ export function renderProjectPickerModalBody(body, payload) {
     `;
   }
 
-export function renderReleaseGate(gate) {
+/** item_734/item_736: one job list, used by the CI screen and by the Release screen. They
+ *  each had their own copy, and both copies fed `ciBadgeTone` a raw GitHub conclusion it does
+ *  not speak, so every job on both screens resolved to `unknown` and every row was drawn
+ *  identically. Two copies of a rendering are two places for the same defect.
+ *
+ *  A failing job is what the operator opened the screen for, so it leads; the passing ones
+ *  collapse to a line that states how many, in a native <details> that is keyboard-reachable
+ *  without a handler of its own. */
+export function renderCiJobRows(jobs) {
+    const list = Array.isArray(jobs) ? jobs : [];
+    if (!list.length) return `<li class="viewer-ci__empty">No job details reported.</li>`;
+    const tone = (job) => ciStateFromStatus(job.status, job.conclusion);
+    const renderJob = (job) => {
+      const jobState = tone(job);
+      const duration = formatCiDuration(job.startedAt, job.completedAt);
+      const ago = formatCiAgo(job.completedAt || job.startedAt);
+      const absolute = formatCiDate(job.completedAt || job.startedAt) || "";
+      const time = [duration, ago].filter(Boolean).join(" \u00b7 ");
+      const content = `
+        <span class="viewer-ci__job-name">${escapeHtml(job.name || "Job")}</span>
+        <span class="viewer-ci__job-time"${absolute ? ` title="${escapeHtml(absolute)}"` : ""}>${escapeHtml(time)}</span>
+      `;
+      return `<li class="viewer-ci__job viewer-ci__job--${escapeHtml(jobState)}" data-viewer-ci-job-state="${escapeHtml(jobState)}">${job.htmlUrl ? `<a href="${escapeHtml(job.htmlUrl)}" target="_blank" rel="noreferrer">${content}</a>` : content}</li>`;
+    };
+    const failed = list.filter((job) => tone(job) === "failing");
+    const rest = list.filter((job) => tone(job) !== "failing");
+    const passed = rest.filter((job) => tone(job) === "passing");
+    const unresolved = rest.filter((job) => tone(job) !== "passing");
+    return `${failed.map(renderJob).join("")}${unresolved.map(renderJob).join("")}${
+      passed.length
+        ? `<li class="viewer-ci__job-fold"><details${failed.length ? "" : " open"}>
+             <summary>${escapeHtml(passed.length)} job${passed.length === 1 ? "" : "s"} passed</summary>
+             <ul class="viewer-ci__jobs">${passed.map(renderJob).join("")}</ul>
+           </details></li>`
+        : ""
+    }`;
+  }
+
+export function renderReleaseGate(gate, options = {}) {
     const status = String(gate?.status || "pending");
     const tone = releaseBadgeTone(status);
     const reason = gate?.blocking_reason ? `<div class="viewer-release__reason">${escapeHtml(gate.blocking_reason)}</div>` : "";
+    const id = String(gate?.id || "gate");
+    // item_736: most substates repeated the gate's own name -- `local_validation` followed
+    // by `validation` told the reader nothing twice. A substate is shown only when it says
+    // something the id does not.
+    const rawState = String(gate?.state || "").trim();
+    const substate = rawState && !id.toLowerCase().includes(rawState.toLowerCase()) && rawState.toLowerCase() !== status.toLowerCase()
+      ? rawState
+      : "";
+    // `optional` changes what a gate's failure means, so it is stated where it changes the
+    // conclusion -- beside a gate that is not passing -- and stays quiet where it does not.
+    const optional = gate?.required === false;
+    const optionalMark = optional && tone !== "passing"
+      ? `<span class="viewer-release__gate-optional">optional</span>`
+      : "";
+    const blocking = Boolean(options.blocking);
     return `
-      <details class="viewer-release__gate">
+      <details class="viewer-release__gate viewer-release__gate--${escapeHtml(tone)}${blocking ? " viewer-release__gate--blocking" : ""}"${blocking ? " open" : ""} data-viewer-release-gate="${escapeHtml(id)}" data-viewer-release-gate-tone="${escapeHtml(tone)}">
         <summary>
-          <span>
-            <strong>${escapeHtml(gate?.id || "gate")}</strong>
-            <em>${escapeHtml(gate?.state || "")}${gate?.required === false ? " · optional" : ""}</em>
+          <span class="viewer-release__gate-name">
+            <strong>${escapeHtml(id)}</strong>
+            ${substate ? `<em>${escapeHtml(substate)}</em>` : ""}
+            ${optionalMark}
           </span>
           <span class="viewer-ci__badge viewer-ci__badge--${escapeHtml(tone)}">${escapeHtml(status)}</span>
         </summary>
@@ -930,25 +955,18 @@ export function renderReleaseRunSection(runsPayload) {
     const jobs = Array.isArray(runsPayload.jobs) ? runsPayload.jobs : [];
     const state = runsPayload.badgeState || run?.badgeState || runsPayload.state || "unknown";
     const runUrl = run?.htmlUrl ? `<a class="viewer-ci__link" href="${escapeHtml(run.htmlUrl)}" target="_blank" rel="noreferrer">Open in GitHub</a>` : "";
+    // The badge beside the heading states the run's status, so the row that repeated it is
+    // gone, and both ends of the run become the duration they were hiding.
     const runRows = run ? [
       ["Workflow", run.workflowName || run.name || "Release"],
-      ["Status", `${run.status || "unknown"}${run.conclusion ? ` / ${run.conclusion}` : ""}`],
       ["Tag / ref", run.branch || "Unknown"],
       ["Event", run.event || "Unknown"],
       ["Commit", run.commitMessage || "Unknown"],
-      ["Started", formatCiDate(run.runStartedAt || run.createdAt) || "Unknown"],
-      ["Updated", formatCiDate(run.updatedAt) || "Unknown"],
+      ["Duration", formatCiDuration(run.runStartedAt || run.createdAt, run.updatedAt) || "Not reported"],
     ].map(([label, value]) => `
       <li class="viewer-ci__row"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></li>
     `).join("") : `<li class="viewer-ci__empty">${escapeHtml(runsPayload.message || "No release workflow run found.")}</li>`;
-    const jobRows = jobs.length ? jobs.map((job) => {
-      const jobState = ciBadgeTone(job.conclusion || job.status);
-      const content = `
-        <span>${escapeHtml(job.name || "Job")}</span>
-        <strong>${escapeHtml([job.status, job.conclusion].filter(Boolean).join(" / ") || "unknown")}</strong>
-      `;
-      return `<li class="viewer-ci__job viewer-ci__job--${escapeHtml(jobState)}">${job.htmlUrl ? `<a href="${escapeHtml(job.htmlUrl)}" target="_blank" rel="noreferrer">${content}</a>` : content}</li>`;
-    }).join("") : `<li class="viewer-ci__empty">No job details reported.</li>`;
+    const jobRows = renderCiJobRows(jobs);
     const activeNote = Number(runsPayload.activeCount) > 0 ? `<span>${escapeHtml(String(runsPayload.activeCount))} active</span>` : "";
     return `
       <section class="viewer-ci__section">
@@ -985,20 +1003,54 @@ export function renderReleaseStatus(payload, runsPayload) {
       ["Blocked gate", blockedGate?.id || "None"],
       ["Evidence", `${gates.filter((gate) => gate?.evidence).length}/${gates.length}`],
     ]);
-    const gateRows = gates.length ? gates.map(renderReleaseGate).join("") : `
+    // item_736: the blocking gate sat fifth of eight. It leads and is marked; the rest keep
+    // their declared order behind it.
+    const orderedGates = blockedGate ? [blockedGate, ...gates.filter((gate) => gate !== blockedGate)] : gates;
+    const gateRows = gates.length
+      ? orderedGates.map((gate) => renderReleaseGate(gate, { blocking: gate === blockedGate })).join("")
+      : `
       <div class="viewer-ci__empty">${escapeHtml(payload?.next_action || "Add logics/release/contract.json to configure release workflow state.")}</div>
+    `;
+
+    // item_735: the screen showed `blocked`, `pass` and `8/8` side by side without
+    // reconciling them, and the sentence that resolves it was a right-aligned key/value cell
+    // at the same weight as a file path. The verdict is that reconciliation.
+    const evidenceCount = gates.filter((gate) => gate?.evidence).length;
+    const releaseVerdict = (() => {
+      if (!payload?.configured) {
+        return { tone: "unknown", sentence: "No release contract is configured, so nothing can be checked." };
+      }
+      if (blockedGate) {
+        const reason = String(blockedGate.blocking_reason || "").trim();
+        const counts = gates.length ? ` ${evidenceCount} of ${gates.length} gates have evidence.` : "";
+        return {
+          tone: "fail",
+          sentence: `Blocked by ${blockedGate.id}${reason ? `: ${reason}` : "."}${counts}`
+        };
+      }
+      if (String(state).toLowerCase() === "ready" || String(state).toLowerCase() === "pass") {
+        return { tone: "passing", sentence: `Ready to release ${payload?.target_version || "this version"}. All ${gates.length} gates pass.` };
+      }
+      return { tone: releaseBadgeTone(state), sentence: `Release state is ${state}. ${evidenceCount} of ${gates.length} gates have evidence.` };
+    })();
+    const nextAction = String(payload?.next_action || "").trim();
+    const verdictHtml = `
+      <section class="viewer-release__verdict viewer-release__verdict--${escapeHtml(releaseVerdict.tone)}" role="status">
+        <p class="viewer-release__verdict-text">${escapeHtml(releaseVerdict.sentence)}</p>
+        ${nextAction ? `<p class="viewer-release__verdict-action">${escapeHtml(nextAction)}</p>` : ""}
+      </section>
     `;
     return `
       <div class="viewer-release">
         ${renderCiModeSwitcher("release")}
-        <div class="viewer-ci__summary">${cards}</div>
+        ${verdictHtml}
+        <div class="viewer-ci__summary viewer-ci__summary--strip">${cards}</div>
         <div class="viewer-ci__workspace viewer-release__workspace">
           <section class="viewer-ci__section">
             <div class="viewer-ci__heading"><h2>Release state</h2><span class="viewer-ci__badge viewer-ci__badge--${escapeHtml(releaseBadgeTone(state))}">${escapeHtml(state)}</span></div>
             <ul class="viewer-ci__list">
               <li class="viewer-ci__row"><span>Contract</span><strong>${escapeHtml(payload?.configured ? payload.contract_path || "configured" : "not configured")}</strong></li>
               <li class="viewer-ci__row"><span>Commit</span><strong>${escapeHtml(payload?.commit ? String(payload.commit).slice(0, 12) : "unknown")}</strong></li>
-              <li class="viewer-ci__row"><span>Next action</span><strong>${escapeHtml(payload?.next_action || "Inspect release workflow state.")}</strong></li>
             </ul>
           </section>
           ${renderReleaseRunSection(runsPayload)}

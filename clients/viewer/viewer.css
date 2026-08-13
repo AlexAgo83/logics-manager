@@ -5850,3 +5850,87 @@
   color: var(--vscode-descriptionForeground, #9da5b4);
   padding: 4px 0;
 }
+
+/* item_735: `blocked`, `pass` and `8/8` sat side by side without reconciling, and the
+   sentence that resolves them was a right-aligned key/value cell weighted like a file path.
+   The verdict is that reconciliation, and it carries the action that follows. */
+.viewer-release__verdict {
+  padding: 14px 16px;
+  margin: 0 0 12px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-left-width: 4px;
+  border-radius: 8px;
+  background: var(--vscode-editorWidget-background, rgba(255, 255, 255, 0.03));
+}
+
+.viewer-release__verdict-text {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--vscode-foreground, #d4d4d4);
+  overflow-wrap: anywhere;
+}
+
+.viewer-release__verdict-action {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  overflow-wrap: anywhere;
+}
+
+.viewer-release__verdict--passing { border-left-color: var(--vscode-testing-iconPassed, #3fb950); border-left-style: dotted; border-left-width: 5px; }
+.viewer-release__verdict--failing { border-left-color: var(--vscode-editorError-foreground, #f85149); border-left-style: solid; }
+.viewer-release__verdict--running { border-left-color: var(--vscode-editorWarning-foreground, #d29922); border-left-style: double; border-left-width: 6px; }
+.viewer-release__verdict--unknown { border-left-color: var(--vscode-descriptionForeground, #6e7681); border-left-style: dashed; }
+
+/* item_736: a gate cost about 100px whatever it was. The blocking one keeps its room and
+   is marked; the rest compact to a line an operator can scan. */
+.viewer-release__gate {
+  padding: 4px 8px;
+}
+
+.viewer-release__gate summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.viewer-release__gate-name {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.viewer-release__gate-name em {
+  font-size: 11px;
+  font-style: normal;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+/* `optional` changes what a gate's failure means, so where it changes the conclusion it is
+   a marked word rather than grey small text. */
+.viewer-release__gate-optional {
+  flex: 0 0 auto;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--vscode-editorWarning-foreground, #d29922);
+  color: var(--vscode-editorWarning-foreground, #d29922);
+}
+
+/* The blocking gate leads and says so by form, not only by position. */
+.viewer-release__gate--blocking {
+  border-left: 4px solid var(--vscode-editorError-foreground, #f85149);
+  border-radius: 6px;
+  background: var(--vscode-editorWidget-background, rgba(255, 255, 255, 0.03));
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}

@@ -357,7 +357,13 @@ const allowedOversizedFiles = new Map(
     // ordering that puts a failure first, and the counted fold for the passing ones. It is
     // longer than what it replaced because the old version printed the same status string on
     // every row and computed nothing; this computes durations and an order.
-    "clients/viewer/src/browser-host/render.js": { maxLines: 1800, ref: "req_347" },
+    // 1855: item_735 and item_736 rebuilt the Release screen around a verdict that reconciles
+    // the gate state, the run result and the evidence count, and reordered the gates so the
+    // blocking one leads. What came *out* in the same pass: the CI and Release screens each
+    // had their own copy of the job list, and both copies fed ciBadgeTone a raw GitHub
+    // conclusion, so every job on both screens resolved to "unknown". One renderCiJobRows
+    // now serves both -- two copies of a rendering are two places for the same defect.
+    "clients/viewer/src/browser-host/render.js": { maxLines: 1855, ref: "req_347" },
     // 1353: req_314 taught the board to group by status, which is what its control always
     // claimed to do. The grouping itself is eleven lines; the rest is the heading element
     // the accessibility slice needed.

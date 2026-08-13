@@ -874,9 +874,12 @@ describe("webview harness core behaviors", () => {
     expect(filterButton?.classList.contains("toolbar__filter--active")).toBe(true);
   });
 
-  it("groups same-minute activity entries under a single time bucket", () => {
-    // Two recent entries in the same wall-clock minute, 40s apart. Before the fix the
-    // relative label rounded differently per entry and split the minute into two groups.
+  it("puts one header on a day and the time on each row", () => {
+    // Two recent entries in the same wall-clock minute, 40s apart. They used to be at risk
+    // of splitting into two headers when the relative label rounded differently per entry;
+    // item_723 groups by day, so the risk is gone and the minute moved onto the row --
+    // one scaffold's eleven documents used to produce a single header timing the batch
+    // rather than the work, and nothing said which day anything happened on.
     const base = Math.floor(Date.now() / 60000) * 60000 - 3 * 60000;
     const { dom } = bootstrapWebview({ harness: true });
     pushData(dom, {
@@ -887,10 +890,22 @@ describe("webview harness core behaviors", () => {
         { id: "g2", kind: "git", stage: "git", marker: "G", title: "Commit B", label: "Commit", updatedAt: new Date(base + 50000).toISOString() }
       ]
     });
-    const labels = Array.from(dom.window.document.querySelectorAll(".activity-panel__group-label")).map((el) => el.textContent);
-    const sameMinuteLabels = labels.filter((label) => label && label.includes("•"));
-    expect(new Set(sameMinuteLabels).size).toBe(sameMinuteLabels.length);
-    expect(sameMinuteLabels.length).toBe(1);
+    const document = dom.window.document;
+    const labels = Array.from(document.querySelectorAll(".activity-panel__group-label")).map((el) => el.textContent);
+    // One header for the day the two commits share. `Unknown` is the corpus entry that
+    // carries no timestamp at all -- it degrades to a named group rather than being dropped
+    // into whichever day happens to be last.
+    expect(labels.filter((label) => label === "Today")).toHaveLength(1);
+    expect(labels.every((label) => label === "Today" || label === "Unknown")).toBe(true);
+
+    const times = Array.from(document.querySelectorAll(".activity-panel__entry .activity-panel__time"));
+    expect(times).toHaveLength(2);
+    expect(times.every((node) => (node.textContent || "").trim().length > 0)).toBe(true);
+
+    // The kind is named on the row rather than left to an undecoded letter in the marker.
+    const kinds = Array.from(document.querySelectorAll(".activity-panel__kind")).map((node) => node.textContent);
+    expect(kinds.filter((kind) => kind === "Commit")).toHaveLength(2);
+    expect(kinds.every((kind) => (kind || "").trim().length > 0)).toBe(true);
   });
 
   it("shows more precise Updated values for selected recently changed cards", () => {
@@ -971,6 +986,29 @@ describe("webview harness core behaviors", () => {
     expect(postedMessages.some((message) => message.type === "read" && message.id === "req_003_activity_read_target")).toBe(true);
   });
 
+  it("draws a stretch with no activity instead of leaving it to be subtracted", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    const day = 24 * 60 * 60 * 1000;
+    const recent = new Date(Date.now() - day);
+    const older = new Date(Date.now() - 6 * day);
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [],
+      activityEvents: [
+        { id: "g1", kind: "git", stage: "git", marker: "G", title: "Recent commit", label: "Commit", updatedAt: recent.toISOString() },
+        { id: "g2", kind: "git", stage: "git", marker: "G", title: "Older commit", label: "Commit", updatedAt: older.toISOString() }
+      ]
+    });
+
+    // item_723 (AC13): two dated headers leave the operator subtracting them to find out
+    // whether anything happened in between. The gap is drawn and counted.
+    const quiet = dom.window.document.querySelector(".activity-panel__quiet") as HTMLElement | null;
+    expect(quiet).toBeTruthy();
+    expect(quiet?.dataset.days).toBe("4");
+    expect(quiet?.textContent).toContain("4 days with no recorded activity");
+  });
+
   it("groups recent activity by logical timestamp", () => {
     const recentItem = {
       ...baseItem,
@@ -992,12 +1030,24 @@ describe("webview harness core behaviors", () => {
     });
 
     const document = dom.window.document;
-    const groupLabels = Array.from(document.querySelectorAll(".activity-panel__group-label"));
+    // Read the labels as text: asserting on jsdom nodes makes vitest's diff printer throw
+    // while formatting the failure, which hides the assertion that actually failed.
+    const groupLabels = Array.from(document.querySelectorAll(".activity-panel__group-label")).map(
+      (node) => node.textContent || ""
+    );
     const entry = Array.from(document.querySelectorAll(".activity-panel__entry")).find((button) =>
       button.textContent?.includes("Activity updated target")
     );
-    expect(groupLabels.some((label) => label.textContent === "2024-05-01")).toBe(true);
+    // item_723: the header names a day, and two entries 30s apart share it rather than
+    // producing one header each.
+    // One header for the day the two entries share; `Unknown` is baseItem, which carries no
+    // parseable timestamp and gets a named group rather than being folded into a real day.
+    expect(groupLabels.filter((label) => label.includes("2024"))).toHaveLength(1);
+    expect(groupLabels).toContain("Unknown");
     expect(entry?.querySelector(".activity-panel__updated")).toBeNull();
+    expect(entry?.querySelector(".activity-panel__time")).toBeTruthy();
+    // The row no longer repeats the document's own title back as a slug.
+    expect(entry?.textContent).not.toContain("req_00");
   });
 
   it("degrades gracefully when an activity item has no valid updated timestamp", () => {

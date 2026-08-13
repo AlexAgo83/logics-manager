@@ -4,10 +4,11 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 70%
+> Progress: 80%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-13 21:54:37
 
 # AI Context
 - Summary: Replace the stack of full-width boxes with a continuous spine, a marker per day, a named kind per row, a per-row time, and a visible marker for periods with no activity.
@@ -26,6 +27,15 @@
   - Stop repeating the document's title as a slug on the same row.
 - Out:
   - Which events are recorded, and the activity filters.
+
+# Delivery notes
+- **The feed grouped by floored minute, not by day.** One scaffold writing eleven documents produced a single header reading `21m ago - 07:38 PM` above all eleven, which timed the batch rather than the work, and nothing on the screen said which day anything happened on. Grouping is by day now, and the minute moved onto the row, in width the row already had.
+- **The kind was carried by an undecoded letter in the marker.** Telling a promotion from a status change from a commit meant learning the alphabet. The row names the kind, and the marker's colour agrees with the name rather than replacing it.
+- **The row repeated the document's own title back as a slug.** The meta line was `label - stage - id`, and the id is the title again in another spelling. The id stays reachable from the marker's tooltip and accessible label.
+- A quiet stretch is drawn and counted rather than left to be inferred: two dated headers otherwise leave the operator subtracting them to find out whether anything happened in between.
+- The boxes lost their borders and gained a spine. Eleven bordered boxes drew eleven separate things where there is one sequence; the border returns on hover, where it marks the row under the pointer.
+- Two smaller things fixed on the way: `roadmap` and `runbook` had no marker tint, so they fell back to the grey that means "unrecognised" while every other stage was tinted; and `formatActivityDayBucket` builds its `Intl` options rather than spelling an `undefined` year, because passing the key is not the same as omitting it.
+- Worth recording for whoever writes the next test here: asserting on jsdom nodes makes vitest's diff printer throw while formatting the failure, which replaces the real assertion message with `Cannot read properties of undefined (reading 'name')`. Read `textContent` first.
 
 # Acceptance criteria
 - AC11: The feed reads as a chronology, with kind legible from the row itself.

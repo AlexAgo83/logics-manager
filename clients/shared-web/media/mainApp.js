@@ -100,17 +100,7 @@
   let attentionOnly = false;
   let helpDismissed = false;
   let collapsedListStages = new Set();
-  const defaultCollapsedDetailSections = [
-    "attentionExplain",
-    "contextPack",
-    "dependencyMap",
-    "companionDocs",
-    "indicators",
-    "specs",
-    "primaryFlow",
-    "references",
-    "usedBy"
-  ];
+  const defaultCollapsedDetailSections = (window.CdxLogicsModel && window.CdxLogicsModel.DEFAULT_COLLAPSED_DETAIL_SECTIONS) || [];
   let collapsedDetailSections = new Set(defaultCollapsedDetailSections);
   let activeColumnMenu = null;
   let activeColumnMenuButton = null;

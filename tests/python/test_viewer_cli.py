@@ -465,6 +465,52 @@ def test_viewer_lan_rw_pairing_flow_round_trips(tmp_path: Path, monkeypatch: pyt
         server.server_close()
 
 
+def test_a_truncated_diff_says_the_rest_can_be_asked_for(tmp_path: Path) -> None:
+    """item_732: a truncated diff reported the word `truncated` and offered nothing.
+
+    The file-preview payload beside it has had a `full` escape hatch all along; this
+    asserts the diff takes the same one, and that the flag turns itself off once the
+    forced cap has also been hit -- otherwise the control offers a continuation that
+    returns exactly what is already on screen.
+    """
+    from logics_manager.viewer_git import git_diff_payload
+
+    long_diff = "diff --git a/x b/x\nindex 1..2 100644\n--- a/x\n+++ b/x\n" + "@@ -1 +1 @@\n+line\n" * 4000
+
+    class _Result:
+        returncode = 0
+        stdout = long_diff
+        stderr = ""
+
+    def runner(*_args, **_kwargs):
+        return _Result()
+
+    def which(_name):
+        return "/usr/bin/git"
+
+    repo = tmp_path
+    (repo / ".git").mkdir()
+    (repo / "x").write_text("x", encoding="utf-8")
+
+    class _InsideResult(_Result):
+        stdout = "true"
+
+    calls = {"n": 0}
+
+    def sequenced_runner(*args, **kwargs):
+        calls["n"] += 1
+        return _InsideResult() if calls["n"] == 1 else _Result()
+
+    capped = git_diff_payload(repo, "x", runner=sequenced_runner, which=which)
+    assert capped["truncated"] is True
+    assert capped["canForce"] is True, "a truncated diff must say the rest can be asked for"
+
+    calls["n"] = 0
+    forced = git_diff_payload(repo, "x", full=True, runner=sequenced_runner, which=which)
+    assert len(forced["diff"]) > len(capped["diff"]), "full must return more than the capped read"
+    assert forced["canForce"] is False, "once forced, the control must not offer the same thing again"
+
+
 def test_fleet_capability_and_launch_intent_are_separate(tmp_path: Path) -> None:
     """item_728. The `view` command passes fleet=True as a literal -- every viewer is
     fleet-capable because adr_028 scoped the registry to the operator profile -- and the

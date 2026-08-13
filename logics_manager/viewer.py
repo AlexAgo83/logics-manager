@@ -2571,6 +2571,42 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
         return True
 
+    def _handle_git_content_get(self, route: str, parsed: Any) -> bool:
+        """Serve the three routes that return a file's or a commit's content.
+
+        Extracted from do_GET when item_732 gave the diff route the same `full` escape
+        hatch the file-preview route beside it already had, and the function-length gate
+        refused the growth. They belong together: all three answer "show me this content",
+        all three take a path or a ref, and two of them take the same `full` flag.
+        """
+        def _flag(params: dict[str, list[str]], name: str) -> bool:
+            return params.get(name, [""])[0].lower() in {"1", "true", "yes"}
+
+        if route == "/api/git-diff":
+            params = parse_qs(parsed.query)
+            payload = git_diff_payload(
+                self.server.repo_root,
+                params.get("path", [""])[0],
+                cached=_flag(params, "cached"),
+                full=_flag(params, "full"),
+            )
+            self._send_json({"ok": True, "payload": payload})
+            return True
+        if route == "/api/git-commit-diff":
+            ref = parse_qs(parsed.query).get("ref", [""])[0]
+            self._send_json({"ok": True, "payload": git_commit_diff_payload(self.server.repo_root, ref)})
+            return True
+        if route == "/api/git-file-preview":
+            params = parse_qs(parsed.query)
+            payload = git_file_preview_payload(
+                self.server.repo_root,
+                params.get("path", [""])[0],
+                full=_flag(params, "full"),
+            )
+            self._send_json({"ok": True, "payload": payload})
+            return True
+        return False
+
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
         if not self._lan_auth_passes(parsed, method="GET"):
@@ -2661,21 +2697,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 },
             )
             return
-        if route == "/api/git-diff":
-            params = parse_qs(parsed.query)
-            rel_path = params.get("path", [""])[0]
-            cached = params.get("cached", [""])[0].lower() in {"1", "true", "yes"}
-            self._send_json({"ok": True, "payload": git_diff_payload(self.server.repo_root, rel_path, cached=cached)})
-            return
-        if route == "/api/git-commit-diff":
-            ref = parse_qs(parsed.query).get("ref", [""])[0]
-            self._send_json({"ok": True, "payload": git_commit_diff_payload(self.server.repo_root, ref)})
-            return
-        if route == "/api/git-file-preview":
-            params = parse_qs(parsed.query)
-            rel_path = params.get("path", [""])[0]
-            full = params.get("full", [""])[0].lower() in {"1", "true", "yes"}
-            self._send_json({"ok": True, "payload": git_file_preview_payload(self.server.repo_root, rel_path, full=full)})
+        if self._handle_git_content_get(route, parsed):
             return
         if self._handle_chain_graph_get(parsed):
             return

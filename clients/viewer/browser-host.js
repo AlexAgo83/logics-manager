@@ -7594,8 +7594,15 @@ ${line}` : line;
       }
       return "context";
     }
+    function stripGitDiffHeader(content) {
+      const lines = String(content || "").split("\n");
+      const firstHunk = lines.findIndex((line) => line.startsWith("@@"));
+      if (firstHunk <= 0) return String(content || "");
+      const kept = lines.slice(firstHunk);
+      return kept.join("\n");
+    }
     function renderGitDiffPreview(content) {
-      return renderCodeViewer(content, {
+      return renderCodeViewer(stripGitDiffHeader(content), {
         language: "diff",
         lineClassName: (line) => `viewer-git__diff-line viewer-git__diff-line--${gitDiffLineKind(line)}`,
         renderLineHtml: (line) => escapeHtml(line || " ")
@@ -7613,7 +7620,7 @@ ${line}` : line;
         }
       });
     }
-    async function loadGitDiff(path, cached, button = null) {
+    async function loadGitDiff(path, cached, button = null, options = {}) {
       const diffPanel = document.querySelector("[data-viewer-git-diff]");
       const detailTitle = document.querySelector("[data-viewer-git-detail] .viewer-git__detail-title");
       if (!(diffPanel instanceof HTMLElement) || !path) {
@@ -7630,6 +7637,9 @@ ${line}` : line;
       if (cached) {
         params.set("cached", "1");
       }
+      if (options.full) {
+        params.set("full", "1");
+      }
       const response = await fetch(`/api/git-diff?${params.toString()}`);
       const data = await response.json();
       const payload = data.payload || {};
@@ -7642,7 +7652,8 @@ ${line}` : line;
         await loadGitFilePreview(path, diffPanel, detailTitle);
         return;
       }
-      diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.path || path)} \xB7 ${escapeHtml(payload.mode || "worktree")}${payload.truncated ? " \xB7 truncated" : ""}</div>${renderGitDiffPreview(content)}`;
+      const more = payload.canForce ? `<button class="btn viewer-git__diff-more" type="button" data-viewer-git-diff-full="${escapeHtml(payload.path || path)}" data-viewer-git-diff-cached="${cached ? "1" : "0"}">Load the rest of this diff</button>` : "";
+      diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.path || path)} \xB7 ${escapeHtml(payload.mode || "worktree")}${payload.truncated ? " \xB7 truncated" : ""}</div>${renderGitDiffPreview(content)}${more}`;
     }
     async function loadGitCommitDiff(ref, button = null) {
       const diffPanel = document.querySelector("[data-viewer-git-diff]");
@@ -11435,6 +11446,7 @@ ${line}` : line;
         const gitFileTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-file]") : null;
         const gitCommitTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-commit]") : null;
         const gitPreviewFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-preview-full]") : null;
+        const gitDiffFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-diff-full]") : null;
         const workspaceTreeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-tree]") : null;
         const workspacePreviewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview]") : null;
         const workspacePreviewFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview-full]") : null;
@@ -11877,6 +11889,17 @@ ${line}` : line;
         if (workspaceTreeTarget instanceof HTMLElement) {
           event.preventDefault();
           withPrimaryAction("workspace-tree", "Loading Explorer folder", () => openWorkspaceTree(workspaceTreeTarget.getAttribute("data-viewer-workspace-tree") || ""));
+          return;
+        }
+        if (gitDiffFullTarget instanceof HTMLElement) {
+          event.preventDefault();
+          const diffPath = gitDiffFullTarget.getAttribute("data-viewer-git-diff-full") || "";
+          const diffCached = gitDiffFullTarget.getAttribute("data-viewer-git-diff-cached") === "1";
+          withPrimaryAction(
+            "git-diff-full",
+            "Loading the rest of the diff",
+            () => loadGitDiff(diffPath, diffCached, null, { full: true })
+          );
           return;
         }
         if (gitPreviewFullTarget instanceof HTMLElement) {

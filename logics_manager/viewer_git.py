@@ -482,12 +482,19 @@ def _normalize_git_file_path(repo_root: Path, rel_path: str) -> str | None:
     return normalized
 
 
+# item_732: the ceiling a forced diff load is still held to. Large enough that asking for
+# the rest is worth doing, bounded so one enormous diff cannot be used to exhaust the
+# viewer's memory.
+GIT_DIFF_FORCE_MAX_CHARS = 400000
+
+
 def git_diff_payload(
     repo_root: Path,
     rel_path: str,
     *,
     cached: bool = False,
     max_chars: int = 20000,
+    full: bool = False,
     runner: Any | None = None,
     which: Any | None = None,
 ) -> dict[str, Any]:
@@ -516,6 +523,11 @@ def git_diff_payload(
         message = (diff.stderr or diff.stdout or "Git diff failed.").strip().splitlines()[0]
         return {"state": "error", "message": message}
     content = diff.stdout
+    # item_732: a truncated diff offered nothing but the word "truncated". The file preview
+    # beside it has had a `full` escape hatch all along; this takes the same one rather than
+    # inventing a second way to ask for the rest.
+    if full:
+        max_chars = GIT_DIFF_FORCE_MAX_CHARS
     truncated = len(content) > max_chars
     if truncated:
         content = content[:max_chars]
@@ -525,6 +537,9 @@ def git_diff_payload(
         "mode": "staged" if cached else "worktree",
         "diff": content,
         "truncated": truncated,
+        # False once the forced cap has also been hit, so the control does not offer a
+        # continuation that would return the same thing.
+        "canForce": (not full) and truncated,
         "logicsType": _viewer._logics_doc_type(normalized),
         "message": "" if content else "No diff is available for this file in the selected mode.",
     }

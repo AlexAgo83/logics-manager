@@ -143,8 +143,22 @@ const allowedOversizedFiles = new Map(
     // as route wiring around already-extracted helpers. The prep pass split static
     // GETs, update-status POSTs, LAN mutation auth, and shutdown handling instead
     // of taking on the separate item_476 full viewer-package split.
-    "logics_manager/viewer.py": { maxLines: 3620, ref: "req_342" },
-    "logics_manager/viewer_cdx.py": { maxLines: 1523, ref: "req_311" },
+    // 3690: req_348/req_343 Lot 1 defect work. Three fixes and the reasons they
+    // exist: the demo-board opt-in that replaced a probe which shipped the demo on
+    // npm and in the VSIX; the connector failure reason, which awaits the child and
+    // keeps a bounded tail of its output because the child's own words are worth more
+    // than anything the viewer can invent; and the connector POST dispatch, where
+    // every action that was not exactly "start" used to stop the connector. Most of
+    // the growth is the comments recording why -- the alternative, splitting viewer.py
+    // during a bug fix, is item_476's job and would land untested next to defect
+    // repairs.
+    "logics_manager/viewer.py": { maxLines: 3690, ref: "req_348" },
+    // 1545: item_743 keys the cdx update cache on a fingerprint of the installed
+    // executable, so running the update the banner asks for ends the banner. The
+    // helper is 8 lines; the rest is the docstring stating why it stats rather than
+    // running `cdx --version` (this runs on every payload build) and where the
+    // approach stops working (a launcher shim that never moves).
+    "logics_manager/viewer_cdx.py": { maxLines: 1545, ref: "req_348" },
     // 1069: req_323 threaded repo_root through _normalize_git_file_path so it
     // could route through the shared path_utils containment check, and removed
     // git_file_preview_payload's own now-redundant duplicate of the same check.
@@ -241,7 +255,13 @@ const allowedOversizedFiles = new Map(
     // kept the Fleet favorite click inside that surface. The remaining growth is
     // coordinator glue closing over host state; the browser-host split remains the
     // existing modularization backlog rather than a release-prep side quest.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4447, ref: "req_342" },
+    // 4461: item_742 routes the MCP connector POST through withPrimaryAction and
+    // checks the response before rendering the result as done. It replaces a
+    // `.then(() => showChatgptMcp())` that checked neither the HTTP status nor the
+    // body's ok, so a refusal re-rendered unchanged state. The eleven added lines are
+    // the check and the comment recording the defect; the browser-host split remains
+    // the existing modularization backlog.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4461, ref: "req_348" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

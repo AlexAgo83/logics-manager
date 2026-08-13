@@ -23,7 +23,8 @@ import webbrowser
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from collections.abc import Mapping
+from collections import deque
+from collections.abc import Iterable, Mapping
 from typing import Any
 from urllib.parse import parse_qs, quote, unquote, urlparse
 from .audit import audit_payload
@@ -281,6 +282,25 @@ DEMO_PROJECT_NAME = "✨ Demo board (all states)"
 
 
 DEMO_PROJECT_OPT_IN_ENV = "LOGICS_MANAGER_DEMO_BOARD"
+
+# Enough of the child's output to explain why it stopped, without holding a whole log.
+MCP_CONNECTOR_TAIL_LINES = 20
+
+
+def _mcp_connector_failure_reason(returncode: int | None, tail: Iterable[str]) -> str:
+    """Explain a connector that stopped, preferring the child's own words.
+
+    item_741. The tunnel exits with a precise, actionable line -- `Port 8766 on
+    127.0.0.1 is already in use ... Pass --port <n> for a different one.` -- and the
+    viewer used to discard it because it matched neither of the two patterns the capture
+    thread looked for. Anything this function invents is worth less than that line.
+    """
+    lines = [line for line in tail if line]
+    if lines:
+        return lines[-1] if len(lines) == 1 else f"{lines[-1]} (from {len(lines)} line(s) of connector output)"
+    if returncode:
+        return f"MCP connector stopped with exit code {returncode} before publishing an HTTPS URL, and said nothing."
+    return "MCP connector stopped before publishing an HTTPS URL, and said nothing."
 
 
 def _demo_board_opted_in(environ: Mapping[str, str] | None = None) -> bool:
@@ -1701,17 +1721,31 @@ class LogicsViewerServer(ThreadingHTTPServer):
             self.mcp_connector = subprocess.Popen(command, cwd=self.repo_root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             process = self.mcp_connector
         def capture() -> None:
+            # item_741: the child's own words are the most valuable thing this thread
+            # holds. It used to test each line against the two regexes below and drop
+            # everything else, so `Port 8766 on 127.0.0.1 is already in use -- ... Pass
+            # --port <n> for a different one.` was read and thrown away. Keep a bounded
+            # tail so a failure can be explained without holding a whole log.
             assert process.stdout is not None
+            tail: deque[str] = deque(maxlen=MCP_CONNECTOR_TAIL_LINES)
             for line in process.stdout:
+                stripped = line.strip()
+                if stripped:
+                    tail.append(stripped)
                 match = re.search(r"ChatGPT developer-mode MCP URL:\s*(https://\S+)", line)
                 if match:
                     with self.mcp_connector_lock: self.mcp_connector_url = match.group(1)
                 token_match = re.search(r"Authorization header:\s*Bearer\s+(\S+)", line)
                 if token_match:
                     with self.mcp_connector_lock: self.mcp_connector_token = token_match.group(1)
+            # item_741: stdout closing does not set `returncode`; only `wait()` or
+            # `poll()` does. The old guard read `process.returncode` here, found `None`,
+            # and never set an error -- which is why a stopped connector reported an
+            # empty one. Establish the exit status before judging the outcome.
+            process.wait()
             with self.mcp_connector_lock:
-                if not self.mcp_connector_url and process.returncode:
-                    self.mcp_connector_error = "MCP connector stopped before publishing an HTTPS URL."
+                if not self.mcp_connector_url:
+                    self.mcp_connector_error = _mcp_connector_failure_reason(process.returncode, tail)
         threading.Thread(target=capture, daemon=True).start()
         return self.mcp_connector_payload()
 
@@ -2462,7 +2496,20 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         try:
             body = self._read_json_body_strict()
             action = str(body.get("action") or "")
-            payload = self.server.start_mcp_connector() if action == "start" else self.server.stop_mcp_connector() or self.server.mcp_connector_payload()
+            # item_741: this used to be `start if action == "start" else stop`, so every
+            # request that was not exactly "start" stopped the connector -- including a
+            # body with no action at all, and including the status probe used to diagnose
+            # a failure, which wiped the error it was probing for. Stopping is destructive
+            # and must be asked for by name.
+            if action == "start":
+                payload = self.server.start_mcp_connector()
+            elif action == "stop":
+                self.server.stop_mcp_connector()
+                payload = self.server.mcp_connector_payload()
+            elif action in {"", "status"}:
+                payload = self.server.mcp_connector_payload()
+            else:
+                raise ValueError(f"Unknown MCP connector action: {action!r}. Use 'start', 'stop' or 'status'.")
             self._send_json({"ok": True, "payload": payload})
         except (ValueError, OSError) as exc:
             self._send_error_json(HTTPStatus.BAD_REQUEST, str(exc))

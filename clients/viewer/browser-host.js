@@ -11017,7 +11017,16 @@ ${line}` : line;
         if (!(action instanceof HTMLElement)) return;
         const value = action.dataset.viewerMcpAction;
         if (value === "refresh") return void showChatgptMcp();
-        fetch("/api/mcp-connector", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: value }) }).then(() => showChatgptMcp()).catch((error) => setMeta(error.message));
+        withPrimaryAction(`mcp-${value}`, value === "stop" ? "Stopping connector" : "Starting connector", async () => {
+          const response = await fetch("/api/mcp-connector", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: value })
+          });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok || !data.ok) throw new Error(data.error || `Unable to ${value} the MCP connector.`);
+          await showChatgptMcp();
+        });
       });
       document.addEventListener("toggle", (event) => {
         const current = event.target instanceof Element ? event.target.closest("#viewer-refresh-menu details.viewer-settings-menu__section") : null;

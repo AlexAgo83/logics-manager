@@ -22,7 +22,7 @@ describe("webview harness filters, details, and docs", () => {
     const modeButton = document.querySelector('[data-action="toggle-view-mode"]');
 
     expect(hideSpecToggle?.checked).toBe(false);
-    expect(document.querySelectorAll('.column[data-stage="spec"]').length).toBe(1);
+    expect(document.querySelectorAll('.companion-index__group[data-stage="spec"]').length).toBe(1);
 
     modeButton?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     expect(document.querySelectorAll('.list-view__section[data-stage="spec"]').length).toBe(1);
@@ -32,7 +32,9 @@ describe("webview harness filters, details, and docs", () => {
       hideSpecToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
     }
 
-    expect(document.querySelector('.column[data-stage="spec"], .list-view__section[data-stage="spec"]')).toBeNull();
+    expect(
+      document.querySelector('.companion-index__group[data-stage="spec"], .list-view__section[data-stage="spec"]')
+    ).toBeNull();
     expect(board?.textContent?.includes("No items match the current filters.")).toBe(true);
     expect(persistedStates.some((state) => state.hideSpec === true)).toBe(true);
   });
@@ -652,38 +654,40 @@ describe("webview harness filters, details, and docs", () => {
     const showCompanionDocsToggle = document.getElementById("show-companion-docs") as HTMLInputElement | null;
     const hideSpecToggle = document.getElementById("hide-spec") as HTMLInputElement | null;
 
+    // item_717: companion stages moved from columns to the reference index below the flow
+    // queue. What this guards -- that the toggle decides whether they appear at all -- is
+    // unchanged; only the selector moved with them.
     expect(showCompanionDocsToggle?.checked).toBe(true);
-    expect(document.querySelectorAll('.column[data-stage="product"]').length).toBe(1);
-    expect(document.querySelectorAll('.column[data-stage="architecture"]').length).toBe(1);
+    expect(document.querySelectorAll('.companion-index__group[data-stage="product"]').length).toBe(1);
+    expect(document.querySelectorAll('.companion-index__group[data-stage="architecture"]').length).toBe(1);
+    expect(document.querySelector('.column[data-stage="product"]')).toBeNull();
 
     if (showCompanionDocsToggle) {
       showCompanionDocsToggle.checked = false;
       showCompanionDocsToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
     }
 
-    expect(document.querySelector('.column[data-stage="product"]')).toBeNull();
-    expect(document.querySelector('.column[data-stage="architecture"]')).toBeNull();
+    expect(document.querySelector('.companion-index__group[data-stage="product"]')).toBeNull();
+    expect(document.querySelector('.companion-index__group[data-stage="architecture"]')).toBeNull();
 
     if (showCompanionDocsToggle) {
       showCompanionDocsToggle.checked = true;
       showCompanionDocsToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
     }
 
-    expect(document.querySelectorAll('.column[data-stage="product"]').length).toBe(1);
-    expect(document.querySelectorAll('.column[data-stage="architecture"]').length).toBe(1);
-    expect(document.querySelector('.column[data-stage="product"] .column__title-label')?.textContent).toBe(
+    expect(document.querySelectorAll('.companion-index__group[data-stage="product"]').length).toBe(1);
+    expect(document.querySelectorAll('.companion-index__group[data-stage="architecture"]').length).toBe(1);
+    expect(document.querySelector('.companion-index__group[data-stage="product"] .companion-index__heading')?.textContent).toContain(
       "Product briefs"
     );
-    expect(document.querySelector('.column[data-stage="architecture"] .column__title-label')?.textContent).toBe(
+    expect(document.querySelector('.companion-index__group[data-stage="architecture"] .companion-index__heading')?.textContent).toContain(
       "Architecture decisions"
     );
-    expect(document.querySelector('.column[data-stage="product"] .column__add')).toBeNull();
-    expect(document.querySelector('.column[data-stage="architecture"] .column__add')).toBeNull();
-    expect(document.querySelector('.column[data-stage="product"] .card__preview')?.textContent).toContain(
+    expect(document.querySelector('.companion-index__group[data-stage="product"] .card__preview')?.textContent).toContain(
       "For R000"
     );
-    expect(document.querySelector('.column[data-stage="product"] .card__meta')).toBeNull();
-    expect(document.querySelector('.column[data-stage="architecture"] .card__preview')?.textContent).toContain(
+    expect(document.querySelector('.companion-index__group[data-stage="product"] .card__meta')).toBeNull();
+    expect(document.querySelector('.companion-index__group[data-stage="architecture"] .card__preview')?.textContent).toContain(
       "Unlinked to primary flow"
     );
     expect(persistedStates.some((state) => state.showCompanionDocs === true)).toBe(true);
@@ -693,8 +697,14 @@ describe("webview harness filters, details, and docs", () => {
       hideSpecToggle.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
     }
 
+    // The declared order still governs; it now governs two surfaces instead of one -- the
+    // flow stages keep it across the columns, the companion stages keep it down the index.
     const stageSequence = Array.from(document.querySelectorAll(".column")).map((column) => column.getAttribute("data-stage"));
-    expect(stageSequence).toEqual(["request", "product", "architecture", "spec"]);
+    expect(stageSequence).toEqual(["request"]);
+    const indexSequence = Array.from(document.querySelectorAll(".companion-index__group")).map((group) =>
+      group.getAttribute("data-stage")
+    );
+    expect(indexSequence).toEqual(["product", "architecture", "spec"]);
   });
 
   it("shows primary flow links in details for supporting docs", () => {

@@ -4,7 +4,7 @@
 > Related product: (none yet)
 > Related request: `req_344_make_the_fleet_home_read_as_the_product_s_first_screen`
 > Reminder: Update status, milestone scope, linked refs, risks, and success signals when you edit this doc.
-> Indicators reviewed: 2026-08-13 18:19:39
+> Indicators reviewed: 2026-08-13 19:25:49
 
 # AI Context
 - Summary: Ten viewer requests and 62 backlog items sequenced into five lots by what each one waits on, not by version: defects first, then the decisions that unblock the rest, then the surfaces in order of how often an operator meets them.
@@ -30,8 +30,8 @@ The prefix carries the sequence and nothing else -- no release, no scope, no siz
 # Milestones
 ## 0.1 - Lot 1: What is already broken for the operator
 - Goal: Every defect an operator meets today is gone, and nothing in this lot waits on a decision.
-- Scope: `req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact` (the demo board ships on npm and VSIX today); `req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update`; from `req_346`, the picker recovery and making a failed action visible; from `req_350`, the colour-scheme declaration.
-- Delivered 2026-08-13. `req_343` and `req_348` are Done. `req_343`'s AC6 was amended with the operator's approval -- the demo gate reads no filesystem state, so an invariant test replaced the build-and-inspect regression, and the broader need that AC expressed became `req_353_prove_a_published_artifact_contains_only_the_product` in Lot 5.
+- Scope: `req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to` (found during delivery, and the workaround for it currently lives in the test harness rather than the product); `req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact` (the demo board ships on npm and VSIX today); `req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update`; from `req_346`, the picker recovery and making a failed action visible; from `req_350`, the colour-scheme declaration.
+- Delivered 2026-08-13, except `req_354`, which was opened during Lot 3 for two defects the delivery ran into. `req_343`, `req_344` and `req_348` are Done. `req_343`'s AC6 was amended with the operator's approval -- the demo gate reads no filesystem state, so an invariant test replaced the build-and-inspect regression, and the broader need that AC expressed became `req_353_prove_a_published_artifact_contains_only_the_product` in Lot 5.
 - Why first: none of it needs a design answer, all of it is either shipping broken or a few lines. The colour-scheme declaration in particular improves every screen in the product, including ones nobody has reviewed, and should not wait behind any redesign.
 - Exit signal: an operator can add a fleet root, sees why an action failed, is not told to run an update they already ran, no release contains the demo board, and no control renders as a light-mode widget.
 
@@ -74,6 +74,7 @@ The prefix carries the sequence and nothing else -- no release, no scope, no siz
 - **The colour and keyboard conditions arrive last and apply throughout.** Placing them in Lot 5 is a deliberate trade: they can only be verified against landed controls, but the earlier lots must build with them in mind. The two campaign checks in `item_769` are what keeps that from being a memo -- if they land early, they enforce; if they land late, they audit.
 - **Three lots depend on decisions a person has to take, not code.** `item_746` in particular is a product judgement about which signals mean something is wrong. Nobody can be blocked politely on that for long, so it should be the first thing Lot 2 answers.
 - **The demo board in Lot 1 was already shipping.** Fixed 2026-08-13; every release cut before then carries it.
+- **Delivery finds defects the reviews did not.** `req_354` exists because the campaign harness, built in Lot 2, reported one screen while standing on another. Lots 3 to 5 should expect the same and leave room for it rather than treating the lot contents as fixed.
 - **`req_353` is the class the demo board was an instance of.** Nothing defines dev-only, so nothing stops the next development affordance from being gated on an inference. Leaving it in Lot 5 is a bet that no such affordance is added first.
 
 # References

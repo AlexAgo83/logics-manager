@@ -1,0 +1,482 @@
+{
+  "budgets": {
+    "max_docs": 24,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to item_774_establish_why_the_pending_view_guard_does_not_cover_a_late_screen_render item_775_drop_a_screen_s_late_render_when_the_operator_has_moved_on item_776_take_the_workaround_back_out_of_the_campaign item_777_find_out_whether_a_relaunch_can_reuse_a_server_that_is_gone task_351_deliver_the_superseded_render_guard --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_774_establish_why_the_pending_view_guard_does_not_cover_a_late_screen_render",
+          "item_775_drop_a_screen_s_late_render_when_the_operator_has_moved_on",
+          "item_776_take_the_workaround_back_out_of_the_campaign",
+          "item_777_find_out_whether_a_relaunch_can_reuse_a_server_that_is_gone"
+        ],
+        "prod": [
+          "prod_090_a_viewer_that_knows_which_screen_you_are_on"
+        ],
+        "req": [
+          "req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to"
+        ],
+        "task": [
+          "task_351_deliver_the_superseded_render_guard"
+        ]
+      },
+      "path": "logics/product/prod_090_a_viewer_that_knows_which_screen_you_are_on.md",
+      "ref": "prod_090_a_viewer_that_knows_which_screen_you_are_on",
+      "status": "Proposed",
+      "title": "A viewer that knows which screen you are on"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_746_decide_which_workflow_signals_are_defects_and_which_are_work_in_flight",
+          "item_747_make_the_corpus_insights_headline_count_only_what_needs_a_decision",
+          "item_748_give_corpus_insights_one_visual_language",
+          "item_749_lead_validation_health_with_the_verdict_it_owns",
+          "item_750_group_the_findings_and_flag_what_the_repository_contradicts",
+          "item_751_say_what_applying_fixes_would_change",
+          "item_752_give_getting_started_a_reading_measure_and_a_position",
+          "item_753_make_getting_started_reflect_the_project_in_front_of_it",
+          "item_754_cover_the_three_screens_including_how_slowly_they_load"
+        ],
+        "prod": [
+          "prod_085_numbers_a_screen_can_defend"
+        ],
+        "req": [
+          "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print"
+        ],
+        "task": [
+          "task_346_deliver_the_corpus_health_and_onboarding_screens"
+        ]
+      },
+      "path": "logics/product/prod_085_numbers_a_screen_can_defend.md",
+      "ref": "prod_085_numbers_a_screen_can_defend",
+      "status": "Proposed",
+      "title": "Numbers a screen can defend"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_711_present_the_fleet_home_as_the_root_view_in_fleet_mode"
+        ],
+        "prod": [
+          "prod_080_a_fleet_home_an_operator_can_triage_from"
+        ],
+        "req": [
+          "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact",
+          "req_344_make_the_fleet_home_read_as_the_product_s_first_screen"
+        ],
+        "task": [
+          "task_341_deliver_the_fleet_home_first_screen_redesign"
+        ]
+      },
+      "path": "logics/product/prod_080_a_fleet_home_an_operator_can_triage_from.md",
+      "ref": "prod_080_a_fleet_home_an_operator_can_triage_from",
+      "status": "Settled",
+      "title": "A fleet home an operator can triage from"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "slow, screen, rendering, over, operator, moved",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign",
+          "item_774_establish_why_the_pending_view_guard_does_not_cover_a_late_screen_render",
+          "item_775_drop_a_screen_s_late_render_when_the_operator_has_moved_on",
+          "item_776_take_the_workaround_back_out_of_the_campaign",
+          "item_777_find_out_whether_a_relaunch_can_reuse_a_server_that_is_gone"
+        ],
+        "prod": [
+          "prod_090_a_viewer_that_knows_which_screen_you_are_on"
+        ],
+        "req": [
+          "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print",
+          "req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to"
+        ],
+        "run": [
+          "run_002_build_a_visual_review_and_mockup_from_a_live_viewer"
+        ]
+      },
+      "path": "logics/request/req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to.md",
+      "ref": "req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Stop a slow screen from rendering over the one the operator moved to"
+    },
+    {
+      "ai_context": {
+        "keywords": "corpus insights, validation health, getting started, signal classification, findings grouping, reading measure, per-stage counts, slow loading screens",
+        "skip when": "The audit rules themselves, Workshop and the CDX family, or the board, fleet home, panel, activity and Remote screens.",
+        "summary": "Insights prints a total beside its own component and counts fresh scaffolds as defects; Health shows 87 warnings of which one is contradicted by the filesystem; Getting Started sets prose at a 110-character measure and ignores the project it describes.",
+        "use when": "Changing Corpus insights, Validation health or Getting Started, or how workflow signals and validation findings are presented."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_746_decide_which_workflow_signals_are_defects_and_which_are_work_in_flight",
+          "item_747_make_the_corpus_insights_headline_count_only_what_needs_a_decision",
+          "item_748_give_corpus_insights_one_visual_language",
+          "item_749_lead_validation_health_with_the_verdict_it_owns",
+          "item_750_group_the_findings_and_flag_what_the_repository_contradicts",
+          "item_751_say_what_applying_fixes_would_change",
+          "item_752_give_getting_started_a_reading_measure_and_a_position",
+          "item_753_make_getting_started_reflect_the_project_in_front_of_it",
+          "item_754_cover_the_three_screens_including_how_slowly_they_load",
+          "item_770_measure_how_long_these_screens_take_and_say_so_while_they_load"
+        ],
+        "prod": [
+          "prod_085_numbers_a_screen_can_defend"
+        ],
+        "req": [
+          "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print"
+        ],
+        "run": [
+          "run_002_build_a_visual_review_and_mockup_from_a_live_viewer"
+        ]
+      },
+      "path": "logics/request/req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print.md",
+      "ref": "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Make the corpus, health and onboarding screens earn the numbers they print"
+    },
+    {
+      "ai_context": {
+        "keywords": "viewer ui campaign, run_local_viewer_visual_smoke, viewer-layout-checks, fleet viewport sweep, regression guard",
+        "skip when": "Adding new check kinds beyond what the layout checks already provide.",
+        "summary": "The campaign drives `view` and never `view --fleet`, so every finding in req_344 was invisible to a green suite; have it visit the fleet home and apply the existing layout checks there.",
+        "use when": "Extending the campaign's screen coverage, or adding a check that must hold on the fleet home."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign"
+        ],
+        "prod": [
+          "prod_080_a_fleet_home_an_operator_can_triage_from"
+        ],
+        "req": [
+          "req_344_make_the_fleet_home_read_as_the_product_s_first_screen"
+        ],
+        "task": [
+          "task_341_deliver_the_fleet_home_first_screen_redesign"
+        ]
+      },
+      "path": "logics/backlog/item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign.md",
+      "ref": "item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign",
+      "schema_version": "1.0",
+      "status": "Done",
+      "title": "Bring the fleet home inside the viewer UI campaign"
+    },
+    {
+      "ai_context": {
+        "keywords": "establish, pending, view, guard, does, not, cover, late, screen, render",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_774_establish_why_the_pending_view_guard_does_not_cover_a_late_screen_render"
+        ],
+        "prod": [
+          "prod_090_a_viewer_that_knows_which_screen_you_are_on"
+        ],
+        "req": [
+          "req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to"
+        ],
+        "task": [
+          "task_351_deliver_the_superseded_render_guard"
+        ]
+      },
+      "path": "logics/backlog/item_774_establish_why_the_pending_view_guard_does_not_cover_a_late_screen_render.md",
+      "ref": "item_774_establish_why_the_pending_view_guard_does_not_cover_a_late_screen_render",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Establish why the pending-view guard does not cover a late screen render"
+    },
+    {
+      "ai_context": {
+        "keywords": "deliver, superseded, render, guard",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_774_establish_why_the_pending_view_guard_does_not_cover_a_late_screen_render",
+          "item_775_drop_a_screen_s_late_render_when_the_operator_has_moved_on",
+          "item_776_take_the_workaround_back_out_of_the_campaign",
+          "item_777_find_out_whether_a_relaunch_can_reuse_a_server_that_is_gone"
+        ],
+        "prod": [
+          "prod_090_a_viewer_that_knows_which_screen_you_are_on"
+        ],
+        "req": [
+          "req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to"
+        ],
+        "task": [
+          "task_351_deliver_the_superseded_render_guard"
+        ]
+      },
+      "path": "logics/tasks/task_351_deliver_the_superseded_render_guard.md",
+      "ref": "task_351_deliver_the_superseded_render_guard",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Deliver the superseded-render guard"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_774_establish_why_the_pending_view_guard_does_not_cover_a_late_screen_render",
+          "item_775_drop_a_screen_s_late_render_when_the_operator_has_moved_on",
+          "item_776_take_the_workaround_back_out_of_the_campaign",
+          "item_777_find_out_whether_a_relaunch_can_reuse_a_server_that_is_gone"
+        ],
+        "prod": [
+          "prod_090_a_viewer_that_knows_which_screen_you_are_on"
+        ],
+        "req": [
+          "req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to"
+        ],
+        "task": [
+          "task_351_deliver_the_superseded_render_guard"
+        ]
+      },
+      "path": "logics/product/prod_090_a_viewer_that_knows_which_screen_you_are_on.md",
+      "ref": "prod_090_a_viewer_that_knows_which_screen_you_are_on",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "A viewer that knows which screen you are on"
+    },
+    {
+      "ai_context": {
+        "keywords": "drop, screen, late, render, operator, moved",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_775_drop_a_screen_s_late_render_when_the_operator_has_moved_on"
+        ],
+        "prod": [
+          "prod_090_a_viewer_that_knows_which_screen_you_are_on"
+        ],
+        "req": [
+          "req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to"
+        ],
+        "task": [
+          "task_351_deliver_the_superseded_render_guard"
+        ]
+      },
+      "path": "logics/backlog/item_775_drop_a_screen_s_late_render_when_the_operator_has_moved_on.md",
+      "ref": "item_775_drop_a_screen_s_late_render_when_the_operator_has_moved_on",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Drop a screen's late render when the operator has moved on"
+    },
+    {
+      "ai_context": {
+        "keywords": "take, workaround, back, out, campaign",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_776_take_the_workaround_back_out_of_the_campaign"
+        ],
+        "prod": [
+          "prod_090_a_viewer_that_knows_which_screen_you_are_on"
+        ],
+        "req": [
+          "req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to"
+        ],
+        "task": [
+          "task_351_deliver_the_superseded_render_guard"
+        ]
+      },
+      "path": "logics/backlog/item_776_take_the_workaround_back_out_of_the_campaign.md",
+      "ref": "item_776_take_the_workaround_back_out_of_the_campaign",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Take the workaround back out of the campaign"
+    },
+    {
+      "ai_context": {
+        "keywords": "find, out, whether, relaunch, can, reuse, server, gone",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_777_find_out_whether_a_relaunch_can_reuse_a_server_that_is_gone"
+        ],
+        "prod": [
+          "prod_090_a_viewer_that_knows_which_screen_you_are_on"
+        ],
+        "req": [
+          "req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to"
+        ],
+        "task": [
+          "task_351_deliver_the_superseded_render_guard"
+        ]
+      },
+      "path": "logics/backlog/item_777_find_out_whether_a_relaunch_can_reuse_a_server_that_is_gone.md",
+      "ref": "item_777_find_out_whether_a_relaunch_can_reuse_a_server_that_is_gone",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Find out whether a relaunch can reuse a server that is gone"
+    }
+  ],
+  "estimates": {
+    "char_count": 12130,
+    "companion_doc_count": 3,
+    "doc_count": 9
+  },
+  "generated_at": "2026-08-13T17:23:48Z",
+  "handoff": {
+    "companion_doc_count": 3,
+    "enabled": true,
+    "source_refs": [
+      "req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to",
+      "item_774_establish_why_the_pending_view_guard_does_not_cover_a_late_screen_render",
+      "item_775_drop_a_screen_s_late_render_when_the_operator_has_moved_on",
+      "item_776_take_the_workaround_back_out_of_the_campaign",
+      "item_777_find_out_whether_a_relaunch_can_reuse_a_server_that_is_gone",
+      "task_351_deliver_the_superseded_render_guard"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to,item_774_establish_why_the_pending_view_guard_does_not_cover_a_late_screen_render,item_775_drop_a_screen_s_late_render_when_the_operator_has_moved_on,item_776_take_the_workaround_back_out_of_the_campaign,item_777_find_out_whether_a_relaunch_can_reuse_a_server_that_is_gone,task_351_deliver_the_superseded_render_guard",
+  "refs": [
+    "req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to",
+    "item_774_establish_why_the_pending_view_guard_does_not_cover_a_late_screen_render",
+    "item_775_drop_a_screen_s_late_render_when_the_operator_has_moved_on",
+    "item_776_take_the_workaround_back_out_of_the_campaign",
+    "item_777_find_out_whether_a_relaunch_can_reuse_a_server_that_is_gone",
+    "task_351_deliver_the_superseded_render_guard"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_351_deliver_the_superseded_render_guard.md",
+      "ref": "task_351_deliver_the_superseded_render_guard"
+    }
+  ]
+}

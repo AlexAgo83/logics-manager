@@ -129,6 +129,7 @@
 | [prod_087_surfaces_that_read_like_they_were_finished](product/prod_087_surfaces_that_read_like_they_were_finished.md) | Surfaces that read like they were finished | Proposed |  |  | product/prod_087_surfaces_that_read_like_they_were_finished.md |
 | [prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse](product/prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse.md) | A viewer that does not require perfect eyes or a mouse | Proposed |  |  | product/prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse.md |
 | [prod_089_a_release_that_contains_only_the_product](product/prod_089_a_release_that_contains_only_the_product.md) | A release that contains only the product | Proposed |  |  | product/prod_089_a_release_that_contains_only_the_product.md |
+| [prod_090_a_viewer_that_knows_which_screen_you_are_on](product/prod_090_a_viewer_that_knows_which_screen_you_are_on.md) | A viewer that knows which screen you are on | Proposed |  |  | product/prod_090_a_viewer_that_knows_which_screen_you_are_on.md |
 
 ## Roadmaps
 
@@ -499,6 +500,7 @@
 | [req_351_make_the_reader_readable_and_the_filter_panel_say_something](request/req_351_make_the_reader_readable_and_the_filter_panel_say_something.md) | Make the reader readable and the filter panel say something | Draft |  |  | request/req_351_make_the_reader_readable_and_the_filter_panel_say_something.md |
 | [req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse](request/req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse.md) | Keep the viewer redesigns legible without colour and reachable without a mouse | Draft |  |  | request/req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse.md |
 | [req_353_prove_a_published_artifact_contains_only_the_product](request/req_353_prove_a_published_artifact_contains_only_the_product.md) | Prove a published artifact contains only the product | Draft |  |  | request/req_353_prove_a_published_artifact_contains_only_the_product.md |
+| [req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to](request/req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to.md) | Stop a slow screen from rendering over the one the operator moved to | Draft |  |  | request/req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to.md |
 
 ## Backlog
 
@@ -1277,6 +1279,10 @@
 | [item_771_define_dev_only_as_a_property_rather_than_a_list](backlog/item_771_define_dev_only_as_a_property_rather_than_a_list.md) | Define dev-only as a property rather than a list | Ready |  | 0% | backlog/item_771_define_dev_only_as_a_property_rather_than_a_list.md |
 | [item_772_build_each_published_artifact_and_inspect_what_is_inside_it](backlog/item_772_build_each_published_artifact_and_inspect_what_is_inside_it.md) | Build each published artifact and inspect what is inside it | Ready |  | 0% | backlog/item_772_build_each_published_artifact_and_inspect_what_is_inside_it.md |
 | [item_773_put_the_check_where_a_release_cannot_skip_it](backlog/item_773_put_the_check_where_a_release_cannot_skip_it.md) | Put the check where a release cannot skip it | Ready |  | 0% | backlog/item_773_put_the_check_where_a_release_cannot_skip_it.md |
+| [item_774_establish_why_the_pending_view_guard_does_not_cover_a_late_screen_render](backlog/item_774_establish_why_the_pending_view_guard_does_not_cover_a_late_screen_render.md) | Establish why the pending-view guard does not cover a late screen render | Ready |  | 0% | backlog/item_774_establish_why_the_pending_view_guard_does_not_cover_a_late_screen_render.md |
+| [item_775_drop_a_screen_s_late_render_when_the_operator_has_moved_on](backlog/item_775_drop_a_screen_s_late_render_when_the_operator_has_moved_on.md) | Drop a screen's late render when the operator has moved on | Ready |  | 0% | backlog/item_775_drop_a_screen_s_late_render_when_the_operator_has_moved_on.md |
+| [item_776_take_the_workaround_back_out_of_the_campaign](backlog/item_776_take_the_workaround_back_out_of_the_campaign.md) | Take the workaround back out of the campaign | Ready |  | 0% | backlog/item_776_take_the_workaround_back_out_of_the_campaign.md |
+| [item_777_find_out_whether_a_relaunch_can_reuse_a_server_that_is_gone](backlog/item_777_find_out_whether_a_relaunch_can_reuse_a_server_that_is_gone.md) | Find out whether a relaunch can reuse a server that is gone | Ready |  | 0% | backlog/item_777_find_out_whether_a_relaunch_can_reuse_a_server_that_is_gone.md |
 
 ## Tasks
 
@@ -1626,6 +1632,7 @@
 | [task_348_deliver_the_reader_the_modal_and_the_filter_panel](tasks/task_348_deliver_the_reader_the_modal_and_the_filter_panel.md) | Deliver the reader, the modal and the filter panel | Ready |  | 0% | tasks/task_348_deliver_the_reader_the_modal_and_the_filter_panel.md |
 | [task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns](tasks/task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns.md) | Deliver the colour and keyboard conditions for the redesigns | Ready |  | 0% | tasks/task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns.md |
 | [task_350_deliver_the_released_artifact_content_check](tasks/task_350_deliver_the_released_artifact_content_check.md) | Deliver the released-artifact content check | Ready |  | 0% | tasks/task_350_deliver_the_released_artifact_content_check.md |
+| [task_351_deliver_the_superseded_render_guard](tasks/task_351_deliver_the_superseded_render_guard.md) | Deliver the superseded-render guard | Ready |  | 0% | tasks/task_351_deliver_the_superseded_render_guard.md |
 
 ## Runbooks
 

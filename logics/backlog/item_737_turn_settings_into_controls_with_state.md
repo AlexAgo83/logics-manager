@@ -4,10 +4,11 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 87%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 01:28:05
 
 # AI Context
 - Summary: Nine identical primary buttons, of which `Stop viewer` kills the server and looks exactly like `Insights`, a link; three are navigation; the title prints twice; and nothing reports the address, mode, transport, version or connector state.
@@ -26,6 +27,15 @@
   - Move the navigation entries out, and print the title once.
 - Out:
   - The MCP connector's own behaviour, and what the settings themselves control.
+
+# Delivery notes
+- **The facts the screen was missing had been printed since the beginning -- to stdout.** The launch banner reports the address, the mode, the transport and the bind host every time the viewer starts, where a browser cannot read them. `/api/viewer-info` serves the same values, read off the server object rather than recomputed, so the banner and the screen cannot disagree about which viewer the operator is looking at. The connector's position comes from the endpoint that already answers it.
+- **The three navigation entries are gone**, and their dispatch lines with them. Insights, Health and Getting Started are reached from the navigation, which already offers all three; they were nine identical buttons' worth of the problem.
+- **A destructive action states what it costs and does not look like a link.** `Stop viewer` killed the server and was drawn exactly like `Insights`. It now carries the sentence `This page stops working until you restart it from a terminal`, and a border that says danger. The confirmation AC14 asks for was already there -- `controlViewerServer` has always shown a modal -- so this slice confirms it rather than adding a second one.
+- **The title is printed once.** The hero repeated the document panel's own title above it, and its eyebrow repeated the eyebrow the panel was already given.
+- The automatic-refresh checkbox is a `role="switch"` with `aria-checked` and a visible `On`/`Off`, so where it sits is readable rather than inferred from a small square.
+- The screen degrades rather than guessing: if `/api/viewer-info` cannot be reached it falls back to what the browser itself knows (its own origin and protocol), and an unreachable connector endpoint leaves the position `unknown` rather than asserting `Off`.
+- **Found by the campaign, not by review:** the first run after this change failed `console is clean` on all three viewports with a 404, because the viewer under test was still running the Python from before the route existed. The check earned its place -- a screen that silently degrades to its fallback would otherwise have looked correct.
 
 # Acceptance criteria
 - AC1: The screen states what this viewer is.

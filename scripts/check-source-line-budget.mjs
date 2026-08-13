@@ -168,7 +168,13 @@ const allowedOversizedFiles = new Map(
     // precedent _handle_select_fleet_root_path_post set in do_POST. The extraction costs
     // more lines than it saves, because a named function with a docstring is longer than the
     // branches it replaces; what it buys is a do_GET that stopped growing.
-    "logics_manager/viewer.py": { maxLines: 3760, ref: "req_347" },
+    // 3790: item_737 adds /api/viewer-info and _viewer_info_payload. The Settings screen
+    // reported nothing about what this viewer is -- address, mode, transport, version,
+    // project -- while the launch banner had printed all of it to stdout since the
+    // beginning, where a browser cannot read it. The payload reads the server object rather
+    // than recomputing, so the banner and the screen cannot disagree about which viewer the
+    // operator is looking at.
+    "logics_manager/viewer.py": { maxLines: 3790, ref: "req_347" },
     // 1545: item_743 keys the cdx update cache on a fingerprint of the installed
     // executable, so running the update the banner asks for ends the banner. The
     // helper is 8 lines; the rest is the docstring stating why it stats rather than
@@ -313,7 +319,12 @@ const allowedOversizedFiles = new Map(
     // 4682: item_732 dispatches the "load the rest of this diff" control in the same
     // delegated handler as the file preview's own force beside it, so asking for the rest of
     // a diff and asking for the rest of a file are one pattern rather than two.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4682, ref: "req_347" },
+    // 4720: item_737 turns the Settings screen into controls with state -- an identity
+    // block, a binary control that shows where it sits, and destructive actions that say
+    // what they cost. What came out with it: three navigation entries dressed as settings,
+    // their dispatch lines, and a hero that printed the title the document panel already
+    // prints above it.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4720, ref: "req_347" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

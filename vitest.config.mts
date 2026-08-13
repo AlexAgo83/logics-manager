@@ -17,7 +17,8 @@ const coverageReportsDirectory =
     ? "coverage/plugin-src"
     : coverageTarget === "media"
       ? "coverage/plugin-media"
-      : "coverage/plugin";
+    : "coverage/plugin";
+const testExclude = process.env.CDX_PLUGIN_COVERAGE_TARGET ? ["tests/viewer.campaign-report.test.ts"] : [];
 const coverageThresholds =
   coverageTarget === "src"
     ? {
@@ -40,6 +41,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     include: ["tests/**/*.test.ts"],
+    exclude: testExclude,
     environment: "node",
     coverage: {
       provider: "v8",

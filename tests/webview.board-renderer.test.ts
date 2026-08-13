@@ -537,7 +537,42 @@ describe("webview board renderer behavior", () => {
     expect(preview?.textContent ?? "").not.toContain("Flow");
   });
 
-  it("renders request badges with understanding, confidence, and complexity", () => {
+  it("carries a card's status by shape as well as colour, so the ordering survives greyscale", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [
+        { ...baseItem, id: "req_401_blocked", title: "Blocked", indicators: { Status: "Blocked" } },
+        { ...baseItem, id: "req_402_progress", title: "Running", indicators: { Status: "In Progress" } },
+        { ...baseItem, id: "req_403_ready", title: "Ready", indicators: { Status: "Ready" } },
+        { ...baseItem, id: "req_404_draft", title: "Draft", indicators: { Status: "Draft" } }
+      ]
+    });
+
+    // item_719: the card fill already encodes the stage, which the column states anyway, so
+    // status -- what actually varies inside a column -- had nothing but the done-dimming.
+    // The accent carries it, and each status gets its own border style so an operator who
+    // cannot separate the colours can still separate the states.
+    const board = dom.window.document.getElementById("board");
+    const accentOf = (id: string) =>
+      Array.from((board?.querySelector(`[data-id="${id}"]`) as HTMLElement | null)?.classList || []).find((name) =>
+        name.startsWith("card--status-")
+      );
+
+    expect(accentOf("req_401_blocked")).toBe("card--status-blocked");
+    expect(accentOf("req_402_progress")).toBe("card--status-progress");
+    expect(accentOf("req_403_ready")).toBe("card--status-ready");
+    expect(accentOf("req_404_draft")).toBe("card--status-draft");
+    expect(new Set([
+      accentOf("req_401_blocked"),
+      accentOf("req_402_progress"),
+      accentOf("req_403_ready"),
+      accentOf("req_404_draft")
+    ]).size).toBe(4);
+  });
+
+  it("keeps understanding and confidence off the card face and puts age there instead", () => {
     const { dom } = bootstrapWebview();
 
     pushData(dom, {
@@ -545,6 +580,7 @@ describe("webview board renderer behavior", () => {
       items: [
         {
           ...baseItem,
+          ageDays: 4,
           indicators: {
             Understanding: "95%",
             Confidence: "90%",
@@ -554,15 +590,21 @@ describe("webview board renderer behavior", () => {
       ]
     });
 
+    // item_719: measured across all 1 393 workflow docs, `U __% / C __%` takes 91 distinct
+    // values of which one pair covers 34%, and every document sits at 85 or above. It was
+    // the loudest element after the title and very nearly a constant, so the face carries
+    // age -- which does vary -- and the values move to the card's detail.
     const badge = dom.window.document.querySelector(".card__badge--metric");
-    expect(badge?.querySelector(".card__badge-metric-prefix")?.textContent).toBe("U");
-    expect(badge?.querySelector(".card__badge-metric-value")?.textContent).toBe("95%");
-    expect(Array.from(badge?.querySelectorAll(".card__badge-metric-prefix") || []).map((node) => node.textContent)).toEqual(["U", "C"]);
-    expect(Array.from(badge?.querySelectorAll(".card__badge-metric-value") || []).map((node) => node.textContent)).toContain("90%");
+    expect(badge?.textContent).not.toContain("U 95%");
+    expect(badge?.textContent).not.toContain("C 90%");
     expect(badge?.textContent).toContain("M");
+    expect(badge?.querySelector(".card__badge-age")).toBeTruthy();
+    const detail = dom.window.document.querySelector(".card__preview")?.textContent || "";
+    expect(detail).toContain("95%");
+    expect(detail).toContain("90%");
   });
 
-  it("renders understanding and confidence badges for non-request items when present", () => {
+  it("moves understanding and confidence off the face for non-request items too", () => {
     const { dom } = bootstrapWebview();
 
     pushData(dom, {
@@ -581,14 +623,15 @@ describe("webview board renderer behavior", () => {
       ]
     });
 
+    // item_719: the same rule for non-request stages -- the face keeps complexity and age,
+    // the values move to the detail rather than being dropped.
     const badge = dom.window.document.querySelector(".card__badge--metric");
-    expect(Array.from(badge?.querySelectorAll(".card__badge-metric-prefix") || []).map((node) => node.textContent)).toEqual([
-      "U",
-      "C"
-    ]);
-    expect(Array.from(badge?.querySelectorAll(".card__badge-metric-value") || []).map((node) => node.textContent)).toContain("88%");
-    expect(Array.from(badge?.querySelectorAll(".card__badge-metric-value") || []).map((node) => node.textContent)).toContain("84%");
+    expect(badge?.textContent).not.toContain("88%");
+    expect(badge?.textContent).not.toContain("84%");
     expect(badge?.textContent).toContain("H");
+    const detail = dom.window.document.querySelector(".card__preview")?.textContent || "";
+    expect(detail).toContain("88%");
+    expect(detail).toContain("84%");
   });
 
   it("renders progress badges with a muted P prefix", () => {
@@ -907,6 +950,7 @@ describe("webview board renderer behavior", () => {
             Confidence: "88%",
             Complexity: "High"
           },
+          ageDays: 12,
           references: [
             { kind: "product", label: "Product", path: "logics/product/prod_201_companion.md" },
             { kind: "architecture", label: "ADR", path: "logics/architecture/adr_201_companion.md" },
@@ -937,9 +981,11 @@ describe("webview board renderer behavior", () => {
     expect(badgeStrip?.textContent).not.toContain("PROD");
     expect(badgeStrip?.textContent).not.toContain("ADR");
     expect(badgeStrip?.textContent).not.toContain("SPEC");
-    expect(badgeStrip?.textContent).toContain("U");
-    expect(badgeStrip?.textContent).toContain("C");
+    // item_719: the metric pill now carries age and complexity; the containment rule this
+    // test guards is unchanged -- whatever the pill holds stays inside the one strip.
+    expect(badgeStrip?.textContent).toContain("12d");
     expect(badgeStrip?.textContent).toContain("H");
+    expect(badgeStrip?.textContent).not.toContain("92%");
     const previewText = card?.querySelector(".card__preview")?.textContent || "";
     expect(previewText).toContain("PROD");
     expect(previewText).toContain("ADR");

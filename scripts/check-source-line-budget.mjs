@@ -334,12 +334,19 @@ const allowedOversizedFiles = new Map(
     // 1353: req_314 taught the board to group by status, which is what its control always
     // claimed to do. The grouping itself is eleven lines; the rest is the heading element
     // the accessibility slice needed.
-        // 1431: item_718 opens the board on live work. 1 382 of 1 511 documents in this
+    // 1431: item_718 opens the board on live work. 1 382 of 1 511 documents in this
     // corpus are finished -- 91.5% -- so 13 live items sat under them. Finished work folds
     // per column behind a control that states its count. The fold is a default rather than
     // a filter: a search or a filter that selects finished work turns it off, which the
     // filter-authority tests caught when it did not.
-    "clients/shared-web/media/renderBoardApp.js": { maxLines: 1431, ref: "req_345" },
+    // 1500: item_719 reallocates the card face -- the near-constant U/C pair off it, age and
+    // a status accent onto it. Moving the pure item predicates (formatCardAge,
+    // isFinishedForBoard, cardStatusKey) to logicsModel.js, which already owns exactly this
+    // kind of function, was tried and dropped: they reach the renderer through mainApp.js's
+    // pass-through bag at four call sites, and mainApp.js sits at exactly 1040 of its own
+    // 1040, so the move trades one raised ceiling for two and splits one item's logic across
+    // three files for about twenty lines.
+    "clients/shared-web/media/renderBoardApp.js": { maxLines: 1500, ref: "req_345" },
     "clients/shared-web/media/mainApp.js": { maxLines: 1040, ref: "req_273" },
     // 1009: req_322 added stopViewerServers(), the explicit deactivate() path
     // redundant with (not a replacement for) the subscription-disposal path

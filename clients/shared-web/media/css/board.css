@@ -655,3 +655,51 @@
   color: var(--vscode-foreground, #d4d4d4);
   border-color: var(--vscode-focusBorder, #0e639c);
 }
+
+/* item_719/item_767: status on the accent, carried by shape as well as colour so the
+   ordering survives greyscale. The stage stays on the coloured ref prefix, which already
+   encodes it -- the column the card sits in says the stage anyway. */
+/* Captured at 1440x900 against the real corpus, a 3px accent lost to the progress fill,
+   which is a wide coloured block starting at the same edge. The accent is widened until it
+   reads beside that fill; the shapes below stay distinct so the ordering survives greyscale. */
+.card[class*="card--status-"] {
+  border-left-width: 5px;
+  border-left-style: solid;
+  border-left-color: var(--vscode-descriptionForeground, #6e7681);
+}
+
+.card--status-blocked {
+  border-left-color: var(--vscode-editorError-foreground, #f85149);
+}
+
+.card--status-progress {
+  border-left-color: var(--vscode-charts-blue, #58a6ff);
+  border-left-style: double;
+  border-left-width: 6px;
+}
+
+.card--status-ready {
+  border-left-color: var(--vscode-testing-iconPassed, #3fb950);
+  border-left-style: dotted;
+  border-left-width: 6px;
+}
+
+.card--status-draft {
+  border-left-color: var(--vscode-descriptionForeground, #6e7681);
+  border-left-style: dashed;
+}
+
+.card--status-done {
+  border-left-color: var(--vscode-testing-iconPassed, #3fb950);
+  border-left-width: 2px;
+}
+
+/* Age replaces the near-constant understanding/confidence pair on the card face. */
+.card__badge-age {
+  font-variant-numeric: tabular-nums;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.card__badge-age.is-stale {
+  color: var(--vscode-editorWarning-foreground, #d29922);
+}

@@ -4033,6 +4033,7 @@ import {
       const revealTarget = event.target instanceof Element ? event.target.closest("[data-viewer-reveal]") : null;
       const gitHistoryRevealTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-history-reveal]") : null;
       const gitDomainTarget = event.target instanceof Element ? event.target.closest(".viewer-git__domain[data-viewer-git-domain]") : null;
+      const gitVerdictRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-run]") : null;
       const gitFileTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-file]") : null;
       const gitCommitTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-commit]") : null;
       const gitPreviewFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-preview-full]") : null;
@@ -4556,6 +4557,14 @@ import {
           }
         });
         revealTarget.closest("li")?.remove();
+        return;
+      }
+      if (gitVerdictRunTarget instanceof HTMLElement) {
+        event.preventDefault();
+        // item_731: the verdict's action is the Actions menu's own control, clicked. A
+        // second push path would be a second place to change when push changes.
+        const controlId = gitVerdictRunTarget.getAttribute("data-viewer-git-run") || "";
+        document.getElementById(controlId)?.click();
         return;
       }
       if (gitDomainTarget instanceof HTMLElement) {

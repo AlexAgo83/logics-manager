@@ -7385,6 +7385,10 @@ ${line}` : line;
       const cleared = Number(data.payload?.cleared || 0);
       host.setMeta(cleared > 0 ? `Release evidence reset \u2014 cleared ${cleared} entr${cleared === 1 ? "y" : "ies"}; gates are pending.` : "Release evidence already empty; gates are pending.");
     }
+    function renderedGitDomain() {
+      const active = document.querySelector(".viewer-git__domain.is-active[data-viewer-git-domain]");
+      return active instanceof HTMLElement ? active.getAttribute("data-viewer-git-domain") || "" : "";
+    }
     function renderGitStatus(payload) {
       if (!payload || payload.state !== "ok") {
         return `
@@ -7400,6 +7404,45 @@ ${line}` : line;
       const deletedCount = Number(counts.deleted || 0);
       const renamedCount = Number(counts.renamed || 0);
       const untrackedCount = Number(counts.untracked || 0);
+      const gitVerdict = (() => {
+        const ahead = Number(payload.ahead || 0);
+        const behind = Number(payload.behind || 0);
+        const changed = stagedCount + modifiedCount + deletedCount + renamedCount + untrackedCount;
+        if (!payload.tracking) {
+          return { tone: "attention", text: "No upstream branch, so nothing can be pushed yet.", action: null };
+        }
+        if (behind > 0 && ahead > 0) {
+          return {
+            tone: "attention",
+            text: `Diverged: ${ahead} to push, ${behind} to pull.`,
+            action: { id: "viewer-git-pull", label: "Pull first" }
+          };
+        }
+        if (behind > 0) {
+          return { tone: "attention", text: `${behind} commit${behind === 1 ? "" : "s"} to pull.`, action: { id: "viewer-git-pull", label: "Pull" } };
+        }
+        const changeNote = changed > 0 ? ` ${changed} file${changed === 1 ? "" : "s"} changed here are not part of them.` : "";
+        if (ahead > 0) {
+          return {
+            tone: "ready",
+            text: `${ahead} commit${ahead === 1 ? "" : "s"} ready to push.${changeNote}`,
+            action: { id: "viewer-git-push", label: "Push" }
+          };
+        }
+        if (stagedCount > 0) {
+          return { tone: "ready", text: `${stagedCount} file${stagedCount === 1 ? "" : "s"} staged and ready to commit.`, action: { id: "viewer-git-commit", label: "Commit" } };
+        }
+        if (changed > 0) {
+          return { tone: "attention", text: `${changed} file${changed === 1 ? "" : "s"} changed, none staged.`, action: null };
+        }
+        return { tone: "clean", text: "Nothing to push. Working tree clean and up to date.", action: null };
+      })();
+      const verdictHtml = `
+      <section class="viewer-git__verdict viewer-git__verdict--${escapeHtml(gitVerdict.tone)}" role="status">
+        <p class="viewer-git__verdict-text">${escapeHtml(gitVerdict.text)}</p>
+        ${gitVerdict.action ? `<button class="btn viewer-git__verdict-action" type="button" data-viewer-git-run="${escapeHtml(gitVerdict.action.id)}">${escapeHtml(gitVerdict.action.label)}</button>` : ""}
+      </section>
+    `;
       const cards = [
         renderGitSummaryCard("Branch", payload.branch || "HEAD"),
         renderGitSummaryCard("Tracking", payload.tracking || "None"),
@@ -7427,8 +7470,12 @@ ${line}` : line;
         // entry whose only content is elsewhere on the same screen is a place to go that
         // takes you nowhere.
       ];
-      const domains = domainDefs.map(([key, label, count], index) => `
-      <button class="viewer-git__domain${index === 0 ? " is-active" : ""}" type="button" data-viewer-git-domain="${escapeHtml(key)}" aria-pressed="${index === 0 ? "true" : "false"}">
+      const openingDomain = (() => {
+        const withContent = domainDefs.find(([, , count]) => Number(String(count).replace(/[^0-9]/g, "")) > 0);
+        return withContent ? withContent[0] : "history";
+      })();
+      const domains = domainDefs.map(([key, label, count]) => `
+      <button class="viewer-git__domain${key === openingDomain ? " is-active" : ""}" type="button" data-viewer-git-domain="${escapeHtml(key)}" aria-pressed="${key === openingDomain ? "true" : "false"}">
         <span class="viewer-git__domain-label">${escapeHtml(label)}${key === "changes" ? gitBadgeHtml("changes") : ""}${key === "history" ? gitBadgeHtml("history") : ""}</span><strong>${escapeHtml(count)}</strong>
       </button>
     `).join("");
@@ -7497,28 +7544,29 @@ ${line}` : line;
       return `
       <div class="viewer-git">
         ${renderCiModeSwitcher("git")}
-        <div class="viewer-git__summary">${cards}</div>
+        ${verdictHtml}
+        <div class="viewer-git__summary viewer-git__summary--strip">${cards}</div>
         <div class="viewer-git__workspace has-diff-detail">
           <nav class="viewer-git__domains" aria-label="Git domains">${domains}</nav>
           <div class="viewer-git__content" aria-label="Git domain content">
-            <section class="viewer-git__panel" data-viewer-git-panel="changes">
+            <section class="viewer-git__panel" data-viewer-git-panel="changes" ${openingDomain === "changes" ? "" : "hidden"}>
               <header class="viewer-git__panel-header"><span>Changes</span><strong>${escapeHtml(stagedCount + modifiedCount + deletedCount + renamedCount + untrackedCount)} files</strong></header>
               ${clean}
               ${changesSections || '<p class="viewer-git__state">No file changes detected.</p>'}
             </section>
-            <section class="viewer-git__panel" data-viewer-git-panel="staged" hidden>
+            <section class="viewer-git__panel" data-viewer-git-panel="staged" ${openingDomain === "staged" ? "" : "hidden"}>
               <header class="viewer-git__panel-header"><span>Staged</span><strong>${escapeHtml(stagedCount)} files</strong></header>
               ${stagedSections || '<p class="viewer-git__state">No staged files.</p>'}
             </section>
-            <section class="viewer-git__panel" data-viewer-git-panel="worktree" hidden>
+            <section class="viewer-git__panel" data-viewer-git-panel="worktree" ${openingDomain === "worktree" ? "" : "hidden"}>
               <header class="viewer-git__panel-header"><span>Worktree</span><strong>${escapeHtml(modifiedCount + deletedCount + renamedCount)} files</strong></header>
               ${worktreeSections || '<p class="viewer-git__state">No modified, deleted, or renamed files.</p>'}
             </section>
-            <section class="viewer-git__panel" data-viewer-git-panel="untracked" hidden>
+            <section class="viewer-git__panel" data-viewer-git-panel="untracked" ${openingDomain === "untracked" ? "" : "hidden"}>
               <header class="viewer-git__panel-header"><span>Untracked</span><strong>${escapeHtml(untrackedCount)} files</strong></header>
               ${untrackedSections || '<p class="viewer-git__state">No untracked files.</p>'}
             </section>
-            <section class="viewer-git__panel" data-viewer-git-panel="history" hidden>
+            <section class="viewer-git__panel" data-viewer-git-panel="history" ${openingDomain === "history" ? "" : "hidden"}>
               <header class="viewer-git__panel-header"><span>History</span><strong>${escapeHtml(historyCount)} commits</strong></header>
               ${history}
             </section>
@@ -7756,7 +7804,7 @@ ${line}` : line;
     }
     async function showGitStatus(options = {}) {
       latestCiScreenMode = "git";
-      const previous = options.preserve ? currentGitViewState() : { domain: "changes", path: "", cached: false };
+      const previous = options.preserve ? currentGitViewState() : { domain: "", path: "", cached: false };
       if (!host.isCapabilityAvailable("git")) {
         const message = host.capabilityMessage("git", "Git is not available for this project.");
         host.setDocument("Remote", renderGitStatus({ state: host.capability("git").state, message }));
@@ -7811,7 +7859,7 @@ ${line}` : line;
       setGitBadgeCountsFromPayload(data.payload, { updateMain: false });
       updateMainGitBadges();
       host.setDocument("Remote", renderGitStatus(data.payload));
-      applyGitDomain(previous.domain || "changes");
+      applyGitDomain(previous.domain || renderedGitDomain() || "changes");
       const restoredFile = previous.path ? findGitFileButton(previous.path, previous.cached) : null;
       const firstFile = restoredFile || document.querySelector("[data-viewer-git-file]");
       if (firstFile instanceof HTMLElement) {
@@ -11383,6 +11431,7 @@ ${line}` : line;
         const revealTarget = event.target instanceof Element ? event.target.closest("[data-viewer-reveal]") : null;
         const gitHistoryRevealTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-history-reveal]") : null;
         const gitDomainTarget = event.target instanceof Element ? event.target.closest(".viewer-git__domain[data-viewer-git-domain]") : null;
+        const gitVerdictRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-run]") : null;
         const gitFileTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-file]") : null;
         const gitCommitTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-commit]") : null;
         const gitPreviewFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-preview-full]") : null;
@@ -11911,6 +11960,12 @@ ${line}` : line;
             }
           });
           revealTarget.closest("li")?.remove();
+          return;
+        }
+        if (gitVerdictRunTarget instanceof HTMLElement) {
+          event.preventDefault();
+          const controlId = gitVerdictRunTarget.getAttribute("data-viewer-git-run") || "";
+          document.getElementById(controlId)?.click();
           return;
         }
         if (gitDomainTarget instanceof HTMLElement) {

@@ -895,8 +895,13 @@ describe("webview harness core behaviors", () => {
     // One header for the day the two commits share. `Unknown` is the corpus entry that
     // carries no timestamp at all -- it degrades to a named group rather than being dropped
     // into whichever day happens to be last.
-    expect(labels.filter((label) => label === "Today")).toHaveLength(1);
-    expect(labels.every((label) => label === "Today" || label === "Unknown")).toBe(true);
+    //
+    // The header is not asserted to read "Today": these entries are three minutes old, so a
+    // run that crosses midnight sees "Yesterday" and the assertion was failing on the clock
+    // rather than on the code. What matters is that the two share one header.
+    const dayLabels = labels.filter((label) => label !== "Unknown");
+    expect(dayLabels).toHaveLength(1);
+    expect(dayLabels[0]).toMatch(/Today|Yesterday|\d/);
 
     const times = Array.from(document.querySelectorAll(".activity-panel__entry .activity-panel__time"));
     expect(times).toHaveLength(2);

@@ -1,7 +1,7 @@
 ## req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question - Make the Git, CI, Release and Settings screens answer their own question
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High

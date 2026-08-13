@@ -162,6 +162,26 @@ For new UI controls in this project:
 - Custom interactive elements must be keyboard reachable (`tabindex`) and activatable (`Enter`/`Space`).
 - Keep hover/focus descriptions consistent across toolbar, board, menus, and details panel.
 
+## Dev-only affordances
+
+The viewer can offer a synthetic **demo board** covering every card state, so the board can
+be inspected without a real corpus. It is off unless you ask for it:
+
+```bash
+LOGICS_MANAGER_DEMO_BOARD=1 python3 -m logics_manager view
+```
+
+Accepted values are `1`, `true`, `yes` and `on`. Anything else, including an unset variable,
+leaves the demo board out.
+
+It is an opt-in rather than something inferred from the tree because inference shipped it. The
+gate used to recognise a development checkout by the presence of `clients/shared-web/media`,
+and the npm package and the VS Code extension both ship that directory beside
+`logics_manager/` — so `REPO_ROOT` landed on the package root, the marker was found, and users
+got the demo board. An environment variable cannot travel inside a release artifact, and a
+packaging change cannot invert it. `tests/python/test_viewer_cli.py` rebuilds each published
+layout and asserts the gate stays closed in all of them.
+
 ## Static guardrails
 
 ```bash

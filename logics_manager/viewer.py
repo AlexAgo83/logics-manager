@@ -23,6 +23,7 @@ import webbrowser
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from collections.abc import Mapping
 from typing import Any
 from urllib.parse import parse_qs, quote, unquote, urlparse
 from .audit import audit_payload
@@ -279,8 +280,27 @@ DEMO_PROJECT_DIRNAME = "logics-manager-demo-corpus"
 DEMO_PROJECT_NAME = "✨ Demo board (all states)"
 
 
-def _is_dev_checkout() -> bool:
-    return (REPO_ROOT / "clients" / "shared-web" / "media").is_dir()
+DEMO_PROJECT_OPT_IN_ENV = "LOGICS_MANAGER_DEMO_BOARD"
+
+
+def _demo_board_opted_in(environ: Mapping[str, str] | None = None) -> bool:
+    """Whether the operator explicitly asked for the synthetic demo board.
+
+    item_709. This used to recognise a development checkout by the presence of
+    `clients/shared-web/media`, which is a rule of the form "a release is a tree that
+    lacks file X" -- one packaging-manifest edit away from being wrong. It was wrong:
+    the npm package ships both that directory and `logics_manager/`, so `REPO_ROOT`
+    (`parents[1]` of this file) landed on the package root, the marker was there, and
+    the demo board shipped to users on npm and in the VS Code extension. The pip wheel
+    escaped only because `parents[1]` happens to be `site-packages`.
+
+    The replacement is an explicit opt-in rather than a positive release stamp, because
+    it fails closed: a release artifact cannot carry an environment variable by
+    accident, and a packaging change cannot invert it. A stamp written at package time
+    would fail open the first time a release was cut without it.
+    """
+    env = os.environ if environ is None else environ
+    return str(env.get(DEMO_PROJECT_OPT_IN_ENV, "")).strip().lower() in {"1", "true", "yes", "on"}
 
 
 def demo_corpus_root() -> Path:
@@ -363,9 +383,12 @@ def ensure_demo_corpus(root: Path) -> Path:
     return root.resolve()
 
 
-def ensure_demo_corpus_if_dev() -> Path | None:
-    """In a dev checkout, materialize the demo corpus and return its root."""
-    if not _is_dev_checkout():
+def ensure_demo_corpus_if_dev(environ: Mapping[str, str] | None = None) -> Path | None:
+    """Materialize the demo corpus only when it has been explicitly asked for.
+
+    The single decision point: no caller learns how the opt-in is expressed.
+    """
+    if not _demo_board_opted_in(environ):
         return None
     try:
         return ensure_demo_corpus(demo_corpus_root())

@@ -3853,9 +3853,47 @@ def test_demo_corpus_covers_board_states(tmp_path):
     assert promoted["usedBy"]
 
 
-def test_demo_corpus_disabled_outside_dev_checkout(monkeypatch):
-    monkeypatch.setattr(viewer_module, "_is_dev_checkout", lambda: False)
-    assert viewer_module.ensure_demo_corpus_if_dev() is None
+def test_demo_corpus_is_off_unless_explicitly_opted_in():
+    """item_709/item_710. The previous version of this test monkeypatched the gate to
+    False and asserted the caller returned None -- it supplied the gate's answer, so it
+    could not report that the gate itself said True inside a packaged layout. It did not,
+    and the demo board shipped on npm and in the VS Code extension.
+
+    These assertions exercise the real gate against a real environment mapping."""
+    assert viewer_module.ensure_demo_corpus_if_dev({}) is None
+    assert viewer_module.ensure_demo_corpus_if_dev({"PATH": "/usr/bin"}) is None
+    assert viewer_module.ensure_demo_corpus_if_dev({viewer_module.DEMO_PROJECT_OPT_IN_ENV: "0"}) is None
+    assert viewer_module.ensure_demo_corpus_if_dev({viewer_module.DEMO_PROJECT_OPT_IN_ENV: ""}) is None
+
+
+@pytest.mark.parametrize("value", ["1", "true", "TRUE", "yes", "on"])
+def test_demo_corpus_opt_in_accepts_the_usual_truthy_spellings(value: str) -> None:
+    assert viewer_module._demo_board_opted_in({viewer_module.DEMO_PROJECT_OPT_IN_ENV: value}) is True
+
+
+def test_demo_board_survives_no_packaging_layout(tmp_path: Path, monkeypatch) -> None:
+    """item_710. The defect was that a shipped artifact reproduced whatever the gate
+    probed for. Rebuild each published layout around a copy of the module and assert the
+    gate stays closed in all of them -- including the one that used to open.
+
+    `npm` is the layout that failed: `package.json` ships both `clients/shared-web/media/`
+    and `logics_manager/**/*.py`, so `REPO_ROOT` landed on the package root and the old
+    marker was present."""
+    layouts = {
+        "npm": ["clients/shared-web/media", "logics_manager", "scripts/npm"],
+        "vsix": ["clients/shared-web/media", "logics_manager", "dist"],
+        "wheel": ["logics_manager"],
+        "checkout": ["clients/shared-web/media", "logics_manager", "tests", "docs", ".git"],
+    }
+    for name, directories in layouts.items():
+        root = tmp_path / name
+        for directory in directories:
+            (root / directory).mkdir(parents=True, exist_ok=True)
+        monkeypatch.setattr(viewer_module, "REPO_ROOT", root)
+        assert viewer_module.ensure_demo_corpus_if_dev({}) is None, f"{name} layout offered the demo board"
+        assert viewer_module.ensure_demo_corpus_if_dev({"LOGICS_MANAGER_DEMO_BOARD": "1"}) is not None, (
+            f"{name} layout refused an explicit opt-in"
+        )
 
 
 def test_subprocess_runners_never_inherit_the_terminal(tmp_path: Path) -> None:

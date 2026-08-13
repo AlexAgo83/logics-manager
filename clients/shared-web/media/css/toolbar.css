@@ -543,6 +543,11 @@ body.viewer-screen-activity .toolbar__activity-filter {
 .activity-panel__marker[data-stage="product"] { background: #7c3aed; border-color: #7c3aed; }
 .activity-panel__marker[data-stage="architecture"] { background: #be123c; border-color: #be123c; }
 .activity-panel__marker[data-stage="spec"] { background: #15803d; border-color: #15803d; }
+/* item_723: roadmap and runbook were absent, so they fell back to the grey default while
+   every other stage was tinted -- the one colour that means "unrecognised" was being used
+   for two stages that are. */
+.activity-panel__marker[data-stage="roadmap"] { background: #0369a1; border-color: #0369a1; }
+.activity-panel__marker[data-stage="runbook"] { background: #a16207; border-color: #a16207; }
 .activity-panel__marker[data-activity-kind="git"] { background: #52525b; border-color: #71717a; }
 /* req_284/item_516: CI marker base tint, then health colour by badge state. */
 .activity-panel__marker[data-activity-kind="ci"] { background: #3f3f6b; border-color: #5b5b8a; }
@@ -697,4 +702,115 @@ body.viewer-screen-activity .toolbar__activity-filter {
   .toolbar__reset {
     margin-left: 0;
   }
+}
+
+/* item_723: the feed was a stack of full-width boxes, so order had to be reconstructed card
+   by card. A spine runs behind the markers and ties them into one sequence; the boxes lose
+   their borders, which were drawing eleven separate things where there is one chronology. */
+.activity-panel__list {
+  position: relative;
+}
+
+.activity-panel__list::before {
+  content: "";
+  position: absolute;
+  left: 33px;
+  top: 0;
+  bottom: 12px;
+  width: 1px;
+  background: var(--vscode-panel-border, rgba(255, 255, 255, 0.12));
+}
+
+.activity-panel__group-label {
+  position: relative;
+  z-index: 1;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--vscode-sideBar-background, #252526);
+  padding: 8px 2px 4px;
+}
+
+.activity-panel__entry {
+  position: relative;
+  z-index: 1;
+  border-color: transparent;
+  background: transparent;
+}
+
+.activity-panel__entry:hover,
+.activity-panel__entry:focus-visible {
+  background: var(--vscode-list-hoverBackground, rgba(255, 255, 255, 0.05));
+  border-color: var(--vscode-panel-border, #333333);
+}
+
+/* The marker sits on the spine rather than beside it, so the ring has to be opaque. */
+.activity-panel__marker {
+  box-shadow: 0 0 0 3px var(--vscode-sideBar-background, #252526);
+}
+
+.activity-panel__title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* The time takes width the row already had: the title wraps, the time never does. */
+.activity-panel__time {
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.activity-panel__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* The kind is named on the row. The chip's tint agrees with the marker beside it rather
+   than replacing the name with a colour, which is what the bare letter used to do. */
+.activity-panel__kind {
+  flex: 0 0 auto;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.activity-panel__kind[data-stage="request"] { border-color: #d97706; color: #f0a952; }
+.activity-panel__kind[data-stage="backlog"] { border-color: #2563eb; color: #7aa7f5; }
+.activity-panel__kind[data-stage="task"] { border-color: #0f766e; color: #4bb5a8; }
+.activity-panel__kind[data-stage="product"] { border-color: #7c3aed; color: #ab8bf0; }
+.activity-panel__kind[data-stage="architecture"] { border-color: #be123c; color: #f07a95; }
+.activity-panel__kind[data-stage="spec"] { border-color: #15803d; color: #5fbf7f; }
+.activity-panel__kind[data-stage="roadmap"] { border-color: #0369a1; color: #5aa9d6; }
+.activity-panel__kind[data-stage="runbook"] { border-color: #a16207; color: #d1a24a; }
+.activity-panel__kind[data-activity-kind="git"] { border-color: #71717a; color: #a1a1aa; }
+.activity-panel__kind[data-activity-kind="ci"] { border-color: #5b5b8a; color: #9a9ac7; }
+
+.activity-panel__meta-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* A gap in the record, stated. Two dated headers leave the operator subtracting them to
+   find out whether anything happened in between. */
+.activity-panel__quiet {
+  position: relative;
+  z-index: 1;
+  margin: 4px 0 0 44px;
+  padding: 4px 0;
+  font-size: 11px;
+  font-style: italic;
+  color: var(--vscode-descriptionForeground, #9da5b4);
 }

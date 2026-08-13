@@ -88,6 +88,41 @@
       return `Updated: ${formatActivityTimeBucket(updatedAt)}`;
     }
 
+    // item_723: the feed grouped by floored minute, so eleven events written by one
+    // scaffold produced one header reading "21m ago - 07:38 PM" and nothing said which day
+    // anything happened on. A chronology needs a day, and the minute belongs on the row.
+    function formatActivityDayBucket(updatedAt) {
+      const timestamp = Date.parse(updatedAt || "");
+      if (!Number.isFinite(timestamp)) {
+        return "Unknown";
+      }
+      const date = new Date(timestamp);
+      const startOfDay = (value) => new Date(value.getFullYear(), value.getMonth(), value.getDate()).getTime();
+      const days = Math.round((startOfDay(new Date()) - startOfDay(date)) / 86400000);
+      if (days === 0) return "Today";
+      if (days === 1) return "Yesterday";
+      // The options are built rather than spelled with an `undefined` year: passing the key
+      // at all is not the same as omitting it, and some Intl implementations reject it.
+      const options = { weekday: "short", day: "numeric", month: "short" };
+      if (date.getFullYear() !== new Date().getFullYear()) {
+        options.year = "numeric";
+      }
+      return new Intl.DateTimeFormat(undefined, options).format(date);
+    }
+
+    /** Days between two entries, so a gap can be drawn rather than left to be inferred from
+     *  two headers an operator has to subtract. */
+    function activityDayGap(laterUpdatedAt, earlierUpdatedAt) {
+      const later = Date.parse(laterUpdatedAt || "");
+      const earlier = Date.parse(earlierUpdatedAt || "");
+      if (!Number.isFinite(later) || !Number.isFinite(earlier)) return 0;
+      const startOfDay = (value) => {
+        const date = new Date(value);
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+      };
+      return Math.max(0, Math.round((startOfDay(later) - startOfDay(earlier)) / 86400000));
+    }
+
     function formatActivityTimeBucket(updatedAt) {
       const timestamp = Date.parse(updatedAt || "");
       if (!Number.isFinite(timestamp)) {
@@ -175,6 +210,8 @@
     }
 
     return {
+      activityDayGap,
+      formatActivityDayBucket,
       formatActivityTimeBucket,
       formatActivityUpdated,
       getActiveToolsView,

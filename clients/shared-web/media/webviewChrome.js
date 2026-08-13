@@ -244,11 +244,36 @@
       return String(bucket).split(" • ")[0];
     }
 
+    function activityPreciseTime(updatedAt) {
+      if (!toolsPanelLayout || typeof toolsPanelLayout.formatActivityTimeBucket !== "function") return "";
+      const bucket = toolsPanelLayout.formatActivityTimeBucket(updatedAt);
+      if (!bucket || bucket === "Unknown") return "";
+      const parts = String(bucket).split(" \u2022 ");
+      return parts.length > 1 ? parts[1] : parts[0];
+    }
+
+    /** item_723: the kind was carried by an undecoded letter in the marker, so telling a
+     *  status change from a promotion from a commit meant learning the alphabet. The row
+     *  names it, and the marker's colour agrees with the name rather than replacing it. */
+    function activityKindLabel(entry) {
+      const named = String((entry && (entry.label || entry.action)) || "").trim();
+      if (named) return named;
+      const type = String((entry && entry.type) || "").trim();
+      if (type === "status-change") return "Status changed";
+      if (type === "updated") return "Updated";
+      const kind = String((entry && entry.activityKind) || "").trim();
+      if (kind === "git") return "Git";
+      if (kind === "ci") return "CI";
+      return "Changed";
+    }
+
     // req_284/item_517: human summary for git/CI activity. CI reads
     // "workflow · outcome · Nm ago"; git reads "action · branch @ shortsha · Nm ago".
     // Missing parts drop out. Non-git/ci entries keep the document-flow meta.
     function recomposeActivityMeta(entry, stageTitle) {
-      const fallback = entry.meta || `${entry.label || "Updated"} · ${stageTitle} · ${entry.id}`;
+      // item_723: the fallback appended the id, which is the title again as a slug on the
+      // same row. The id stays reachable from the marker's tooltip and accessible label.
+      const fallback = entry.meta || stageTitle;
       const time = activityRelativeTime(entry.updatedAt);
       if (entry.activityKind === "ci") {
         // Only recompose CI runs that expose workflow/outcome; other ci events
@@ -310,19 +335,37 @@
         empty.textContent = "No recent activity is available yet.";
         list.appendChild(empty);
       } else {
+        // item_723: the feed grouped by floored minute, so one scaffold's eleven documents
+        // produced a single header timing the batch rather than the work, and nothing said
+        // which day anything happened on. A day per marker, the minute on the row.
         let currentGroupLabel = "";
+        let previousEntry = null;
         visibleEntries.forEach((entry) => {
           const groupLabel =
-            toolsPanelLayout && typeof toolsPanelLayout.formatActivityTimeBucket === "function"
-              ? toolsPanelLayout.formatActivityTimeBucket(entry.updatedAt)
+            toolsPanelLayout && typeof toolsPanelLayout.formatActivityDayBucket === "function"
+              ? toolsPanelLayout.formatActivityDayBucket(entry.updatedAt)
               : "Unknown";
           if (groupLabel !== currentGroupLabel) {
+            // A quiet stretch is drawn, not inferred: two dated headers leave the operator
+            // subtracting them to find out whether anything happened in between.
+            const gap =
+              previousEntry && toolsPanelLayout && typeof toolsPanelLayout.activityDayGap === "function"
+                ? toolsPanelLayout.activityDayGap(previousEntry.updatedAt, entry.updatedAt)
+                : 0;
+            if (gap > 1) {
+              const quiet = document.createElement("div");
+              quiet.className = "activity-panel__quiet";
+              quiet.dataset.days = String(gap - 1);
+              quiet.textContent = `${gap - 1} day${gap - 1 === 1 ? "" : "s"} with no recorded activity`;
+              list.appendChild(quiet);
+            }
             currentGroupLabel = groupLabel;
             const groupHeader = document.createElement("div");
             groupHeader.className = "activity-panel__group-label";
             groupHeader.textContent = groupLabel;
             list.appendChild(groupHeader);
           }
+          previousEntry = entry;
           const button = document.createElement("button");
           button.type = "button";
           button.className = "activity-panel__entry";
@@ -366,19 +409,45 @@
           const body = document.createElement("span");
           body.className = "activity-panel__body";
 
+          const titleRow = document.createElement("span");
+          titleRow.className = "activity-panel__title-row";
           const title = document.createElement("span");
           title.className = "activity-panel__title";
           title.textContent = entry.title;
-          body.appendChild(title);
+          titleRow.appendChild(title);
+
+          // The time sits on the row, in width the row already had. One header per batch
+          // timed the batch; this times the work.
+          const preciseTime = activityPreciseTime(entry.updatedAt);
+          if (preciseTime) {
+            const time = document.createElement("time");
+            time.className = "activity-panel__time";
+            time.textContent = preciseTime;
+            if (entry.updatedAt) time.dateTime = String(entry.updatedAt);
+            titleRow.appendChild(time);
+          }
+          body.appendChild(titleRow);
 
           const meta = document.createElement("span");
           meta.className = "activity-panel__meta";
+          const kind = document.createElement("span");
+          kind.className = "activity-panel__kind";
+          if (entry.stage) kind.dataset.stage = entry.stage;
+          if (entry.activityKind) kind.dataset.activityKind = entry.activityKind;
+          kind.textContent = activityKindLabel(entry);
+          meta.appendChild(kind);
           // Readable cell: what changed, the stage name, then the id.
           // req_284/item_517: git/CI events recompose into a human summary with a
           // relative time. The time reuses formatActivityTimeBucket (no new date
           // code), taking its relative part ("Nm ago"); each part degrades out
           // gracefully when its data is absent.
-          meta.textContent = recomposeActivityMeta(entry, stageTitle);
+          const metaText = recomposeActivityMeta(entry, stageTitle);
+          if (metaText) {
+            const detail = document.createElement("span");
+            detail.className = "activity-panel__meta-text";
+            detail.textContent = metaText;
+            meta.appendChild(detail);
+          }
           body.appendChild(meta);
 
           button.appendChild(body);

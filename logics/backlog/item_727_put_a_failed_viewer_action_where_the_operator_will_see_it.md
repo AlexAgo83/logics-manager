@@ -1,10 +1,10 @@
 ## item_727_put_a_failed_viewer_action_where_the_operator_will_see_it - Put a failed viewer action where the operator will see it
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 60%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -45,3 +45,9 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_343_deliver_the_fleet_root_recovery_visible_failures_and_an_honest_fleet_flag`
+
+# Notes
+- Task `task_343_deliver_the_fleet_root_recovery_visible_failures_and_an_honest_fleet_flag` was finished via `logics-manager flow finish task` on 2026-08-13.

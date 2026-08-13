@@ -231,7 +231,10 @@ function createViewerDom(options: {
       <div id="viewer-document-nav" hidden></div>
       <div id="viewer-document-content"></div>
     </section>
-    <div id="viewer-action-error" hidden>
+    <!-- item_730: mirrors clients/viewer/index.html, which marks this an alert. The harness
+         fixture omitted the role, so a test could assert the banner appears and still not
+         notice that a screen reader is never told about it. -->
+    <div id="viewer-action-error" role="alert" hidden>
       <span id="viewer-action-error-label"></span>
       <span id="viewer-action-error-message"></span>
       <button id="viewer-action-error-dismiss" type="button"></button>
@@ -1702,23 +1705,116 @@ describe("local viewer browser host", () => {
     expect(css).toMatch(/@media \(max-width: 640px\)/);
   });
 
-  it("keeps a failed action's reason where the auto-refresh cannot overwrite it", () => {
-    // item_727/item_745. Failures used to go through setMeta, into the small grey
-    // subtitle beside the document count -- and scheduleNextAutoRefresh calls renderMeta
-    // on every tick, so a clear server refusal was overwritten within the refresh
-    // interval and read as nothing happening.
-    const source = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/index.js"), "utf8");
-    const withPrimaryAction = source.slice(source.indexOf("function withPrimaryAction("), source.indexOf("function hydrateViewerFilterState("));
-    expect(withPrimaryAction).toMatch(/showActionFailure\(label, error\?\.message/);
-    expect(withPrimaryAction).not.toMatch(/setMeta\(error\?\.message/);
-    // A new attempt supersedes the previous reason rather than leaving a stale one up.
-    expect(withPrimaryAction).toMatch(/clearActionFailure\(\);/);
+  it("falls back to the folder browser when the native fleet-root picker cannot run", async () => {
+    // item_726/item_730. Reported by the operator: "Add fleet root" in the fleet selector
+    // did nothing when clicked. The server refuses when no native dialog is available, and
+    // the browser dropped the refusal on the floor -- while the project picker beside it had
+    // had a fallback folder browser all along. Nothing in the suite reported that a picker
+    // could not run, which is how it shipped.
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+    const originalFetch = dom.window.fetch;
+    Object.defineProperty(dom.window, "fetch", {
+      configurable: true,
+      value: async (url: string, init?: unknown) => {
+        if (String(url).startsWith("/api/select-fleet-root")) {
+          return { ok: false, status: 501, json: async () => ({ ok: false, error: "No native folder dialog on this host." }) };
+        }
+        if (String(url).startsWith("/api/browse-directories") || String(url).startsWith("/api/list-directories")) {
+          return { ok: true, status: 200, json: async () => ({ ok: true, payload: { path: "/workspace", entries: [] } }) };
+        }
+        return originalFetch(String(url), init as never);
+      }
+    });
 
-    const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
-    expect(css).toMatch(/\.viewer-action-error\s*\{/);
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const trigger = dom.window.document.createElement("button");
+    trigger.setAttribute("data-viewer-fleet-root-pick", "");
+    dom.window.document.body.appendChild(trigger);
+    trigger.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    // The click reaches the fallback the project picker already had, and the modal repeats
+    // the server's own reason rather than inventing one.
+    const modal = dom.window.document.querySelector(".viewer-themed-modal");
+    expect(modal).not.toBeNull();
+    expect(modal?.textContent).toContain("No native folder dialog on this host.");
+    expect(modal?.textContent).toContain("fallback folder browser");
+  });
+
+  it("shows a failed action's reason to the operator, and lets the next attempt supersede it", async () => {
+    // item_727/item_730. Failures used to go through setMeta, into the small grey subtitle
+    // beside the document count -- and scheduleNextAutoRefresh calls renderMeta on every
+    // tick, so a clear server refusal was overwritten within the refresh interval and read
+    // as nothing happening.
+    //
+    // item_730: this was covered by slicing withPrimaryAction out of the source and matching
+    // a regex against it. That is the weakness that let all three of this request's defects
+    // ship -- a test asserting the implementation agrees with itself cannot notice that the
+    // operator sees nothing. It drives the screen now, through the connector action, which
+    // is the path item_742 routed into withPrimaryAction for exactly this reason.
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+    const originalFetch = dom.window.fetch;
+    let refuse = true;
+    Object.defineProperty(dom.window, "fetch", {
+      configurable: true,
+      value: async (url: string, init?: { method?: string }) => {
+        if (String(url).startsWith("/api/mcp-connector")) {
+          if (init?.method === "POST") {
+            return refuse
+              ? { ok: false, status: 409, json: async () => ({ ok: false, error: "Another connector is already bound to this port." }) }
+              : { ok: true, status: 200, json: async () => ({ ok: true }) };
+          }
+          return { ok: true, status: 200, json: async () => ({ ok: true, payload: { state: "off", message: "" } }) };
+        }
+        return originalFetch(String(url), init as never);
+      }
+    });
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const trigger = dom.window.document.createElement("button");
+    trigger.setAttribute("data-viewer-mcp-action", "start");
+    dom.window.document.body.appendChild(trigger);
+
+    const banner = () => dom.window.document.getElementById("viewer-action-error");
+    expect(banner()?.hidden).toBe(true);
+
+    trigger.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    // The reason is visible, in its own alert, and names the action that failed rather than
+    // leaving the operator to guess which one it was.
+    expect(banner()?.hidden).toBe(false);
+    expect(banner()?.getAttribute("role")).toBe("alert");
+    expect(dom.window.document.getElementById("viewer-action-error-label")?.textContent).toContain("Starting connector");
+    expect(dom.window.document.getElementById("viewer-action-error-message")?.textContent).toContain(
+      "Another connector is already bound to this port."
+    );
+
+    // A new attempt supersedes the previous reason rather than leaving a stale one up to be
+    // read as the outcome of what the operator just did.
+    refuse = false;
+    trigger.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+    expect(banner()?.hidden).toBe(true);
+
+    // The banner's own markup and styling cannot be driven from this harness, which builds
+    // its own DOM: the product's index.html and stylesheet are checked directly, and the
+    // fixture above mirrors them so the behaviour above is not proved against a shape the
+    // product does not have.
     const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
     expect(html).toMatch(/id="viewer-action-error"[^>]*role="alert"/);
     expect(html).toMatch(/id="viewer-action-error-dismiss"/);
+    const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
+    expect(css).toMatch(/\.viewer-action-error\s*\{/);
   });
 
   it("checks the connector POST response instead of rendering a refusal as done", () => {

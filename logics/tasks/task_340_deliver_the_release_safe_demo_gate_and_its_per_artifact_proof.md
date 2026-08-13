@@ -8,12 +8,13 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-13 13:03:35
 
 # AI Context
-- Summary: (unfilled: replace before this doc is used)
-- Keywords: deliver, release, safe, demo, gate, per, artifact, proof
-- Use when: (unfilled: replace before this doc is used)
-- Skip when: (unfilled: replace before this doc is used)
+- Summary: Decide the gate's shape first, change it, confirm the dev checkout still offers the demo, then add the per-artifact regression and verify it fails when the old probe is restored.
+- Keywords: demo gate, release artifact, npm, vsix, wheel, dev checkout, regression proof
+- Use when: Implementing the release-safe demo gate or its coverage.
+- Skip when: Working on the fleet home's design, which is task_341.
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.

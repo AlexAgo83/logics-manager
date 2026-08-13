@@ -1,0 +1,395 @@
+{
+  "budgets": {
+    "max_docs": 28,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_344_make_the_fleet_home_read_as_the_product_s_first_screen item_711_present_the_fleet_home_as_the_root_view_in_fleet_mode item_712_redraw_the_fleet_list_as_rows_with_state_carried_by_form item_713_keep_the_fleet_home_usable_past_a_dozen_projects item_714_give_the_fleet_home_s_empty_and_degraded_states_something_to_say item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign task_341_deliver_the_fleet_home_first_screen_redesign --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_711_present_the_fleet_home_as_the_root_view_in_fleet_mode",
+          "item_712_redraw_the_fleet_list_as_rows_with_state_carried_by_form",
+          "item_713_keep_the_fleet_home_usable_past_a_dozen_projects",
+          "item_714_give_the_fleet_home_s_empty_and_degraded_states_something_to_say",
+          "item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign"
+        ],
+        "prod": [
+          "prod_080_a_fleet_home_an_operator_can_triage_from"
+        ],
+        "req": [
+          "req_344_make_the_fleet_home_read_as_the_product_s_first_screen"
+        ],
+        "task": [
+          "task_341_deliver_the_fleet_home_first_screen_redesign"
+        ]
+      },
+      "path": "logics/product/prod_080_a_fleet_home_an_operator_can_triage_from.md",
+      "ref": "prod_080_a_fleet_home_an_operator_can_triage_from",
+      "status": "Proposed",
+      "title": "A fleet home an operator can triage from"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "fleet, home, read, product, first, screen",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_711_present_the_fleet_home_as_the_root_view_in_fleet_mode",
+          "item_712_redraw_the_fleet_list_as_rows_with_state_carried_by_form",
+          "item_713_keep_the_fleet_home_usable_past_a_dozen_projects",
+          "item_714_give_the_fleet_home_s_empty_and_degraded_states_something_to_say",
+          "item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign"
+        ],
+        "prod": [
+          "prod_080_a_fleet_home_an_operator_can_triage_from"
+        ],
+        "req": [
+          "req_344_make_the_fleet_home_read_as_the_product_s_first_screen"
+        ]
+      },
+      "path": "logics/request/req_344_make_the_fleet_home_read_as_the_product_s_first_screen.md",
+      "ref": "req_344_make_the_fleet_home_read_as_the_product_s_first_screen",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Make the fleet home read as the product's first screen"
+    },
+    {
+      "ai_context": {
+        "keywords": "present, fleet, home, root, view, mode",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_711_present_the_fleet_home_as_the_root_view_in_fleet_mode"
+        ],
+        "prod": [
+          "prod_080_a_fleet_home_an_operator_can_triage_from"
+        ],
+        "req": [
+          "req_344_make_the_fleet_home_read_as_the_product_s_first_screen"
+        ],
+        "task": [
+          "task_341_deliver_the_fleet_home_first_screen_redesign"
+        ]
+      },
+      "path": "logics/backlog/item_711_present_the_fleet_home_as_the_root_view_in_fleet_mode.md",
+      "ref": "item_711_present_the_fleet_home_as_the_root_view_in_fleet_mode",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Present the fleet home as the root view in fleet mode"
+    },
+    {
+      "ai_context": {
+        "keywords": "redraw, fleet, list, rows, state, carried, form",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_712_redraw_the_fleet_list_as_rows_with_state_carried_by_form"
+        ],
+        "prod": [
+          "prod_080_a_fleet_home_an_operator_can_triage_from"
+        ],
+        "req": [
+          "req_344_make_the_fleet_home_read_as_the_product_s_first_screen"
+        ],
+        "task": [
+          "task_341_deliver_the_fleet_home_first_screen_redesign"
+        ]
+      },
+      "path": "logics/backlog/item_712_redraw_the_fleet_list_as_rows_with_state_carried_by_form.md",
+      "ref": "item_712_redraw_the_fleet_list_as_rows_with_state_carried_by_form",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Redraw the fleet list as rows with state carried by form"
+    },
+    {
+      "ai_context": {
+        "keywords": "fleet, home, usable, past, dozen, projects",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_713_keep_the_fleet_home_usable_past_a_dozen_projects"
+        ],
+        "prod": [
+          "prod_080_a_fleet_home_an_operator_can_triage_from"
+        ],
+        "req": [
+          "req_344_make_the_fleet_home_read_as_the_product_s_first_screen"
+        ],
+        "task": [
+          "task_341_deliver_the_fleet_home_first_screen_redesign"
+        ]
+      },
+      "path": "logics/backlog/item_713_keep_the_fleet_home_usable_past_a_dozen_projects.md",
+      "ref": "item_713_keep_the_fleet_home_usable_past_a_dozen_projects",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Keep the fleet home usable past a dozen projects"
+    },
+    {
+      "ai_context": {
+        "keywords": "deliver, fleet, home, first, screen, redesign",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_711_present_the_fleet_home_as_the_root_view_in_fleet_mode",
+          "item_712_redraw_the_fleet_list_as_rows_with_state_carried_by_form",
+          "item_713_keep_the_fleet_home_usable_past_a_dozen_projects",
+          "item_714_give_the_fleet_home_s_empty_and_degraded_states_something_to_say",
+          "item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign"
+        ],
+        "prod": [
+          "prod_080_a_fleet_home_an_operator_can_triage_from"
+        ],
+        "req": [
+          "req_344_make_the_fleet_home_read_as_the_product_s_first_screen"
+        ],
+        "task": [
+          "task_341_deliver_the_fleet_home_first_screen_redesign"
+        ]
+      },
+      "path": "logics/tasks/task_341_deliver_the_fleet_home_first_screen_redesign.md",
+      "ref": "task_341_deliver_the_fleet_home_first_screen_redesign",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Deliver the fleet home first-screen redesign"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_711_present_the_fleet_home_as_the_root_view_in_fleet_mode",
+          "item_712_redraw_the_fleet_list_as_rows_with_state_carried_by_form",
+          "item_713_keep_the_fleet_home_usable_past_a_dozen_projects",
+          "item_714_give_the_fleet_home_s_empty_and_degraded_states_something_to_say",
+          "item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign"
+        ],
+        "prod": [
+          "prod_080_a_fleet_home_an_operator_can_triage_from"
+        ],
+        "req": [
+          "req_344_make_the_fleet_home_read_as_the_product_s_first_screen"
+        ],
+        "task": [
+          "task_341_deliver_the_fleet_home_first_screen_redesign"
+        ]
+      },
+      "path": "logics/product/prod_080_a_fleet_home_an_operator_can_triage_from.md",
+      "ref": "prod_080_a_fleet_home_an_operator_can_triage_from",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "A fleet home an operator can triage from"
+    },
+    {
+      "ai_context": {
+        "keywords": "fleet, home, empty, degraded, states, something, say",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_714_give_the_fleet_home_s_empty_and_degraded_states_something_to_say"
+        ],
+        "prod": [
+          "prod_080_a_fleet_home_an_operator_can_triage_from"
+        ],
+        "req": [
+          "req_344_make_the_fleet_home_read_as_the_product_s_first_screen"
+        ],
+        "task": [
+          "task_341_deliver_the_fleet_home_first_screen_redesign"
+        ]
+      },
+      "path": "logics/backlog/item_714_give_the_fleet_home_s_empty_and_degraded_states_something_to_say.md",
+      "ref": "item_714_give_the_fleet_home_s_empty_and_degraded_states_something_to_say",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Give the fleet home's empty and degraded states something to say"
+    },
+    {
+      "ai_context": {
+        "keywords": "bring, fleet, home, inside, viewer, campaign",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign"
+        ],
+        "prod": [
+          "prod_080_a_fleet_home_an_operator_can_triage_from"
+        ],
+        "req": [
+          "req_344_make_the_fleet_home_read_as_the_product_s_first_screen"
+        ],
+        "task": [
+          "task_341_deliver_the_fleet_home_first_screen_redesign"
+        ]
+      },
+      "path": "logics/backlog/item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign.md",
+      "ref": "item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Bring the fleet home inside the viewer UI campaign"
+    }
+  ],
+  "estimates": {
+    "char_count": 8027,
+    "companion_doc_count": 1,
+    "doc_count": 8
+  },
+  "generated_at": "2026-08-13T10:59:57Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_344_make_the_fleet_home_read_as_the_product_s_first_screen",
+      "item_711_present_the_fleet_home_as_the_root_view_in_fleet_mode",
+      "item_712_redraw_the_fleet_list_as_rows_with_state_carried_by_form",
+      "item_713_keep_the_fleet_home_usable_past_a_dozen_projects",
+      "item_714_give_the_fleet_home_s_empty_and_degraded_states_something_to_say",
+      "item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign",
+      "task_341_deliver_the_fleet_home_first_screen_redesign"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_344_make_the_fleet_home_read_as_the_product_s_first_screen,item_711_present_the_fleet_home_as_the_root_view_in_fleet_mode,item_712_redraw_the_fleet_list_as_rows_with_state_carried_by_form,item_713_keep_the_fleet_home_usable_past_a_dozen_projects,item_714_give_the_fleet_home_s_empty_and_degraded_states_something_to_say,item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign,task_341_deliver_the_fleet_home_first_screen_redesign",
+  "refs": [
+    "req_344_make_the_fleet_home_read_as_the_product_s_first_screen",
+    "item_711_present_the_fleet_home_as_the_root_view_in_fleet_mode",
+    "item_712_redraw_the_fleet_list_as_rows_with_state_carried_by_form",
+    "item_713_keep_the_fleet_home_usable_past_a_dozen_projects",
+    "item_714_give_the_fleet_home_s_empty_and_degraded_states_something_to_say",
+    "item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign",
+    "task_341_deliver_the_fleet_home_first_screen_redesign"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_341_deliver_the_fleet_home_first_screen_redesign.md",
+      "ref": "task_341_deliver_the_fleet_home_first_screen_redesign"
+    }
+  ]
+}

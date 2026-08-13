@@ -8,12 +8,13 @@
 > Complexity: Medium
 > Theme: Release hygiene
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-13 13:03:35
 
 # AI Context
-- Summary: (unfilled: replace before this doc is used)
-- Keywords: prove, demo, absent, each, built, artifact
-- Use when: (unfilled: replace before this doc is used)
-- Skip when: (unfilled: replace before this doc is used)
+- Summary: Add a regression that builds each published artifact and asserts the demo is absent from the registry it produces, since both existing tests supply the gate's answer instead of exercising it.
+- Keywords: regression coverage, built artifact, npm pack, vsix, wheel, project registry, monkeypatch
+- Use when: Adding or changing coverage for the demo gate, or wiring a check that must hold for a built artifact.
+- Skip when: Changing the gate itself (that is item_709), or unrelated viewer coverage.
 
 # Problem
 - The two existing tests both supply the gate's answer -- one monkeypatches `_is_dev_checkout` to `False`, the other builds the corpus directly -- so neither would have reported that the gate returns `True` inside a packaged layout.

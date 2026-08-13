@@ -6,9 +6,24 @@
 > Related task: `task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-13 13:03:35
 
 # Overview
 Development affordances earn their place in a checkout and lose it in a release. The demo board is the visible instance; the durable goal is that dev-only surfaces are gated on something a release artifact positively asserts, and that the gate is proven against the artifacts themselves rather than against the working tree.
+
+```mermaid
+flowchart LR
+    Source[Working tree] --> Wheel[pip wheel]
+    Source --> Npm[npm package]
+    Source --> Vsix[VS Code extension]
+    Wheel --> Gate{Dev signal present?}
+    Npm --> Gate
+    Vsix --> Gate
+    Source --> Gate
+    Gate -- yes, checkout only --> Demo[Demo board offered]
+    Gate -- no --> Clean[Release shows product only]
+    Regression[Per-artifact regression] --> Gate
+```
 
 # Goals
 - No dev-only surface reaches a user through any distribution channel.

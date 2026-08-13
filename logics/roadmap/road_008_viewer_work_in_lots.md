@@ -4,7 +4,7 @@
 > Related product: (none yet)
 > Related request: `req_344_make_the_fleet_home_read_as_the_product_s_first_screen`
 > Reminder: Update status, milestone scope, linked refs, risks, and success signals when you edit this doc.
-> Indicators reviewed: 2026-08-13 19:25:49
+> Indicators reviewed: 2026-08-13 21:38:10
 
 # AI Context
 - Summary: Ten viewer requests and 62 backlog items sequenced into five lots by what each one waits on, not by version: defects first, then the decisions that unblock the rest, then the surfaces in order of how often an operator meets them.
@@ -60,10 +60,17 @@ The prefix carries the sequence and nothing else -- no release, no scope, no siz
 - Why last: lower traffic, and `req_352`'s keyboard and focus work can only be verified against controls that have landed. The CodeQL alert sits here because it is not exploitable and its fix is an alignment with a sibling handler, not a mitigation. `req_353` sits here rather than in Lot 1 because the defect it was split from is already fixed -- what remains is the class, and a check written before the dev-only definition exists would encode a list.
 - Exit signal: no screen carries state by colour alone, every control the redesigns added is reachable from the keyboard, and the campaign fails when either stops being true.
 
+## 0.6 - Lot 6: What the outside world is shown
+- Goal: The published documentation shows the product these lots produced, rather than the one they replaced.
+- Scope: `req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land`.
+- Why last: it documents screens, so it can only be correct once the screens are final. Raised by the operator mid-delivery, 2026-08-13, on the grounds that recapturing early produces a second set of images to redo. Checking it turned up more than staleness: two of the four captures are captioned as showing the demo corpus that `req_343` removed from released artifacts, and the prose still calls the companion stages columns, which `req_345` changed.
+- Exit signal: every capture in the README shows a screen a released build will actually draw, the prose beside it says what that screen does, and how each capture was produced is written down -- nothing produces them today, which is why they went stale in silence.
+
 # Sequencing
 - Lot 1 can start immediately and in any internal order; nothing in it blocks anything else in it.
 - Lot 2 gates Lots 3, 4 and 5. Its six answers can be produced in parallel by different people.
 - Lot 3 and Lot 4 can overlap once Lot 2's framing answer exists, but the framing must not be re-decided in Lot 4 -- `req_347` states this and `adr_029` binds it.
+- Lot 6 must follow every other lot without exception: it photographs the result, so any screen still in flight makes it wrong. It is cheap and short, and it is the only lot whose value is entirely outside the repository.
 - Lot 5 must follow Lot 3 and Lot 4, because two of its five items verify what those lots produced. `req_353` is the exception: it depends on nothing in Lots 2 to 4 and could be pulled forward if release hygiene becomes urgent.
 - Across every lot: the campaign harness is built once, by the first campaign item to land, and consumed by the seven that follow. A second harness is a review finding, not a variation.
 - Across every lot: new interface state goes in the existing preference store under `req_315`'s user-versus-repository ruling, and the line budget binds without any request restating it.
@@ -75,6 +82,7 @@ The prefix carries the sequence and nothing else -- no release, no scope, no siz
 - **Three lots depend on decisions a person has to take, not code.** `item_746` in particular is a product judgement about which signals mean something is wrong. Nobody can be blocked politely on that for long, so it should be the first thing Lot 2 answers.
 - **The demo board in Lot 1 was already shipping.** Fixed 2026-08-13; every release cut before then carries it.
 - **Delivery finds defects the reviews did not.** `req_354` exists because the campaign harness, built in Lot 2, reported one screen while standing on another. Lots 3 to 5 should expect the same and leave room for it rather than treating the lot contents as fixed.
+- **Nothing watches the published captures.** No script writes to `docs/media/`, so the four README images went a full redesign cycle out of date without anything reporting it, and two of them still advertise a corpus a release no longer ships. Lot 6 fixes the images; whether anything stops it recurring is a decision inside it.
 - **`req_353` is the class the demo board was an instance of.** Nothing defines dev-only, so nothing stops the next development affordance from being gated on an inference. Leaving it in Lot 5 is a bet that no such affordance is added first.
 
 # References
@@ -82,4 +90,4 @@ The prefix carries the sequence and nothing else -- no release, no scope, no siz
 - Related request: `req_344_make_the_fleet_home_read_as_the_product_s_first_screen`
 - Governed by: `logics/architecture/adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points.md`
 - Method behind the reviews these lots deliver: `logics/runbook/run_002_build_a_visual_review_and_mockup_from_a_live_viewer.md`
-- All ten chains: `logics/request/req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact.md`, `logics/request/req_345_make_the_project_view_lead_with_the_work_that_is_live.md`, `logics/request/req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing.md`, `logics/request/req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question.md`, `logics/request/req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update.md`, `logics/request/req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print.md`, `logics/request/req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens.md`, `logics/request/req_351_make_the_reader_readable_and_the_filter_panel_say_something.md`, `logics/request/req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse.md`
+- All eleven chains: `logics/request/req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact.md`, `logics/request/req_345_make_the_project_view_lead_with_the_work_that_is_live.md`, `logics/request/req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing.md`, `logics/request/req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question.md`, `logics/request/req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update.md`, `logics/request/req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print.md`, `logics/request/req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens.md`, `logics/request/req_351_make_the_reader_readable_and_the_filter_panel_say_something.md`, `logics/request/req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse.md`, `logics/request/req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land.md`

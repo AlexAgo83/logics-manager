@@ -1,7 +1,7 @@
 ## req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing - Close the gaps behind a fleet root click that does nothing
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

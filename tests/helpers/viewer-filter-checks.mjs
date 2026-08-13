@@ -45,7 +45,7 @@ export function filterChecks(window) {
   };
   const isTerminalMeta = (value) =>
     !/action unavailable while another viewer action is running/i.test(value)
-    && /loaded|refreshed|ready|unavailable|detected|state:|no /i.test(value);
+    && /loaded|refreshed|ready|unavailable|not available|detected|state:|no /i.test(value);
 
   return [
     {

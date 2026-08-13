@@ -25,6 +25,24 @@ function build(options: { count: string; cards: string[]; typeOptions?: string[]
 }
 
 describe("viewer filter checks", () => {
+  it("treats unavailable CDX screens as terminal", async () => {
+    const dom = new JSDOM(
+      `<!doctype html><body>
+        <button data-viewer-nav-target="cdx:status"></button>
+        <div id="viewer-meta"></div>
+      </body>`,
+      { pretendToBeVisual: true }
+    );
+    dom.window.document.querySelector("button")?.addEventListener("click", () => {
+      dom.window.document.getElementById("viewer-meta")!.textContent = "CDX executable is not available.";
+    });
+    const checks = filterChecks(dom.window) as { name: string; run: () => Promise<string> }[];
+
+    await expect(checks.find((check) => check.name.includes("every screen"))!.run()).resolves.toContain(
+      "terminal state"
+    );
+  });
+
   it("reports a count announced above an empty board", async () => {
     const lying = build({ count: "310 of 1325 docs shown · type: request", cards: [] });
 

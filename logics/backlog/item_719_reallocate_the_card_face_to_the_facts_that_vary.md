@@ -1,13 +1,14 @@
 ## item_719_reallocate_the_card_face_to_the_facts_that_vary - Reallocate the card face to the facts that vary
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-13 23:01:04
 
 # AI Context
 - Summary: Fill carries status instead of the stage the column already states; the near-constant understanding/confidence chip leaves the face for age and the blocked reason; progress is drawn, and unexplained markers go.
@@ -49,3 +50,13 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_353_make_list_mode_a_table`
+- `task_354_keep_progress_and_both_modes_honest_at_any_width`
+- `task_342_deliver_the_project_view_that_leads_with_live_work`
+
+# Notes
+- Task `task_353_make_list_mode_a_table` was finished via `logics-manager flow finish task` on 2026-08-13.
+- Task `task_354_keep_progress_and_both_modes_honest_at_any_width` was finished via `logics-manager flow finish task` on 2026-08-13.
+- Task `task_342_deliver_the_project_view_that_leads_with_live_work` was finished via `logics-manager flow finish task` on 2026-08-13.

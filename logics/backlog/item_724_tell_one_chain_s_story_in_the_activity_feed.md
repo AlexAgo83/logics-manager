@@ -1,14 +1,14 @@
 ## item_724_tell_one_chain_s_story_in_the_activity_feed - Tell one chain's story in the activity feed
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-13 22:05:55
+> Indicators reviewed: 2026-08-13 23:01:05
 
 # AI Context
 - Summary: One scaffold produced ten peer rows that pushed everything else off screen; collapse an operation into one entry and let a workflow chain's events be read together, reachable from a card.
@@ -54,3 +54,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_342_deliver_the_project_view_that_leads_with_live_work`
+
+# Notes
+- Task `task_342_deliver_the_project_view_that_leads_with_live_work` was finished via `logics-manager flow finish task` on 2026-08-13.

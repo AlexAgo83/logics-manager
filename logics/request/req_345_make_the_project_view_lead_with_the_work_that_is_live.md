@@ -1,7 +1,7 @@
 ## req_345_make_the_project_view_lead_with_the_work_that_is_live - Make the project view lead with the work that is live
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High

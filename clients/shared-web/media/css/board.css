@@ -185,19 +185,46 @@
   overflow: hidden;
 }
 
+/* item_740: progress was a wash across the whole element, filled to --progress. In a 230px
+   card that read as a proportion; in a full-width list row the same 60% covered roughly 900px,
+   so the encoding changed meaning with the aspect ratio, and a finished document -- washed end
+   to end -- carried far more coloured area than live work whatever the dimming did afterwards.
+   It is a bar of fixed length now: the same 64px in a narrow card and in a full-width row, so
+   the amount of colour tracks the progress and nothing else. */
 .card--progress-bar::before {
   content: "";
   position: absolute;
-  inset: 0;
-  /* "In progress" fill: a calm teal "active" wash, not an orange flood that
-     reads as a warning. Orange/red stay reserved for health alerts. */
-  background: linear-gradient(
-    90deg,
-    rgba(20, 184, 166, 0.26) 0%,
-    rgba(20, 184, 166, 0.26) var(--progress, 0%),
-    rgba(0, 0, 0, 0) var(--progress, 0%)
-  );
+  left: 10px;
+  bottom: 4px;
+  width: 64px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(148, 163, 184, 0.25);
   pointer-events: none;
+}
+
+.card--progress-bar::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  bottom: 4px;
+  width: calc(64px * var(--progress-ratio, 0));
+  height: 3px;
+  border-radius: 2px;
+  /* A calm teal "active" fill, not an orange flood that reads as a warning. Orange and red
+     stay reserved for health alerts. */
+  background: rgba(20, 184, 166, 0.85);
+  pointer-events: none;
+}
+
+/* In a list row the bar sits inline with the title rather than under it: the row is 33px
+   tall and has no space below the text to put it in. */
+.list-row.card--progress-bar::before,
+.list-row.card--progress-bar::after {
+  bottom: 50%;
+  transform: translateY(50%);
+  left: auto;
+  right: 96px;
 }
 
 .card--progress-bar > * {
@@ -707,4 +734,73 @@
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 8px;
   min-width: 0;
+}
+
+/* item_739: the list is a table. The columns are sized so the title takes the room that is
+   left rather than the room that is fixed, and each column carries a fact the card face
+   carries too, encoded the same way. */
+.list-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 140px 100px 80px;
+  align-items: center;
+  gap: 12px;
+  /* Not `width: 100%`: the row sits inside a padded container, so a full-width row plus its
+     own padding overflowed by exactly that padding -- 10px at 390px, which the campaign's
+     clipping check caught. `auto` lets it take the room that is actually there. */
+  width: auto;
+  box-sizing: border-box;
+  text-align: left;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--vscode-foreground, #d4d4d4);
+  cursor: pointer;
+  min-width: 0;
+}
+
+.list-row:hover,
+.list-row:focus-visible {
+  background: var(--vscode-list-hoverBackground, rgba(255, 255, 255, 0.05));
+  border-color: var(--vscode-panel-border, #333333);
+}
+
+.list-row .card__title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.list-row__cell {
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The linkage badges keep their own width and sit before the status column. */
+.list-row__linkage {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.list-row__cell--age {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Below the phone breakpoint the columns become subordinate lines under the title rather
+   than being pushed off the right edge (req_345 AC19). */
+@media (max-width: 560px) {
+  .list-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+
+  .list-row__cell--age {
+    text-align: left;
+  }
 }

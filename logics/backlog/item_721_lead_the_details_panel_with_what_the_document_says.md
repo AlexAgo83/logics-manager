@@ -1,14 +1,14 @@
 ## item_721_lead_the_details_panel_with_what_the_document_says - Lead the details panel with what the document says
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 100%
 > Complexity: High
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-13 21:19:23
+> Indicators reviewed: 2026-08-13 23:01:05
 
 # AI Context
 - Summary: The panel shows a title, a path, the same slug twice and seven collapsed headings, while the payload it already receives carries summaryPoints, acceptanceCriteria, references and usedBy; invert what is expanded.
@@ -55,3 +55,13 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_353_make_list_mode_a_table`
+- `task_354_keep_progress_and_both_modes_honest_at_any_width`
+- `task_342_deliver_the_project_view_that_leads_with_live_work`
+
+# Notes
+- Task `task_353_make_list_mode_a_table` was finished via `logics-manager flow finish task` on 2026-08-13.
+- Task `task_354_keep_progress_and_both_modes_honest_at_any_width` was finished via `logics-manager flow finish task` on 2026-08-13.
+- Task `task_342_deliver_the_project_view_that_leads_with_live_work` was finished via `logics-manager flow finish task` on 2026-08-13.

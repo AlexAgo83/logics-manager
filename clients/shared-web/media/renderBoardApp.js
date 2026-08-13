@@ -1042,12 +1042,23 @@
       if (hasProgressBar) {
         const clamped = Math.max(0, Math.min(100, progressValue));
         card.style.setProperty("--progress", `${clamped}%`);
+        // item_740: the bar has a fixed length, so it is filled by a ratio rather than by a
+        // percentage of whatever the element happens to be wide.
+        card.style.setProperty("--progress-ratio", String(clamped / 100));
+        card.style.setProperty("--progress-value", String(Math.round(clamped)));
       }
       card.dataset.id = item.id;
       card.setAttribute("role", "button");
       card.tabIndex = 0;
-      card.setAttribute("aria-label", `${getStageLabel(item.stage)} item ${item.id}: ${item.title}`);
-      card.title = item.title;
+      // item_719/AC6: the status accent is a colour and a border shape on the card's edge.
+      // Both are explained here rather than left to be learned, so nothing the card displays
+      // is a marker the screen never names.
+      const statusText = String((item.indicators && item.indicators.Status) || "").trim();
+      card.setAttribute(
+        "aria-label",
+        `${getStageLabel(item.stage)} item ${item.id}: ${item.title}${statusText ? `. Status ${statusText}` : ""}`
+      );
+      card.title = statusText ? `${item.title}\n${statusText}` : item.title;
       const healthSignals = typeof getHealthSignals === "function" ? getHealthSignals(item) : [];
       if (healthSignals.length > 0) {
         card.classList.add("card--health-alert");
@@ -1288,6 +1299,85 @@
       return section;
     }
 
+    /** item_739: list mode rendered a compact card stretched to full width -- an 82px row
+     *  carrying one line of text, the title in the left third, the middle half empty, and the
+     *  near-constant U/C chip pinned about 1 500px from the title it described. A list is a
+     *  table. These are the columns, and each carries a fact the card face carries too, in
+     *  the same encoding, so switching mode changes the shape and not the meaning. */
+    function createListRow(item) {
+      const row = document.createElement("div");
+      const statusKey = cardStatusKey(item);
+      // It keeps the `card` class: selection, focus and keyboard navigation all find a
+      // document through `findCardById`, which queries `.card`. Dropping it turned the list
+      // into rows the keyboard could not reach, which the existing tests caught.
+      row.className = "card list-row" + (statusKey ? ` card--status-${statusKey}` : "") + (item.id === getSelectedId() ? " card--selected" : "");
+      row.dataset.id = item.id;
+      row.setAttribute("role", "button");
+      row.tabIndex = 0;
+      const statusText = String((item.indicators && item.indicators.Status) || "").trim();
+      row.setAttribute(
+        "aria-label",
+        `${getStageLabel(item.stage)} item ${item.id}: ${item.title}${statusText ? `. Status ${statusText}` : ""}`
+      );
+
+      row.appendChild(createCardTitle(item));
+
+      // AC17: both modes encode the same facts the same way. The task-coverage dots are one
+      // of them, so the list reuses the card's builder rather than drawing its own version
+      // that would drift -- the existing coverage test caught their absence here.
+      const activeTasks = item.stage === "task" ? (isActiveTaskCandidate(item) ? [item] : []) : getActiveTaskUsages(item);
+      const linkage = createLinkageBadges(item, activeTasks);
+      if (linkage) {
+        linkage.classList.add("list-row__linkage");
+        row.appendChild(linkage);
+      }
+
+      const status = document.createElement("span");
+      status.className = "list-row__cell list-row__cell--status";
+      status.textContent = statusText || "No status";
+      row.appendChild(status);
+
+      const links = document.createElement("span");
+      links.className = "list-row__cell list-row__cell--links";
+      const companions = typeof collectCompanionDocs === "function" ? collectCompanionDocs(item, getItems()) : [];
+      const specs = typeof collectSpecs === "function" ? collectSpecs(item, getItems()) : [];
+      const linkCount = (companions ? companions.length : 0) + (specs ? specs.length : 0);
+      // A dash, not a zero: nothing linked is a different statement from a count of none,
+      // and a column of zeroes reads as loudly as a column of counts.
+      links.textContent = linkCount ? `${linkCount} linked` : "\u2014";
+      row.appendChild(links);
+
+      // AC17/AC18: the same progress encoding as a card, set the same way. The list row
+      // previously carried none at all.
+      const progressValue = typeof getProgressValue === "function" ? getProgressValue(item) : null;
+      if (typeof progressValue === "number") {
+        const clamped = Math.max(0, Math.min(100, progressValue));
+        row.classList.add("card--progress-bar");
+        row.style.setProperty("--progress", `${clamped}%`);
+        row.style.setProperty("--progress-ratio", String(clamped / 100));
+        row.title = `${item.title}${statusText ? `\n${statusText}` : ""}\nProgress ${Math.round(clamped)}%`;
+      }
+
+      const age = document.createElement("span");
+      age.className = "list-row__cell list-row__cell--age";
+      const ageSegment = createCardAgeSegment(item);
+      if (ageSegment) age.appendChild(ageSegment);
+      else age.textContent = "\u2014";
+      row.appendChild(age);
+
+      row.addEventListener("click", () => {
+        setSelectedId(item.id);
+        render();
+      });
+      row.addEventListener("dblclick", () => {
+        setSelectedId(item.id);
+        render();
+        openSelectedItem("read");
+      });
+      row.addEventListener("keydown", (event) => handleCardKeydown(event, item));
+      return row;
+    }
+
     function renderListView(groups) {
       disconnectSentinels();
       const listView = document.createElement("div");
@@ -1366,7 +1456,7 @@
           empty.textContent = group.emptyLabel || "No items";
           body.appendChild(empty);
         } else {
-          visibleSlice.items.forEach((item) => body.appendChild(createItemCard(item, true)));
+          visibleSlice.items.forEach((item) => body.appendChild(createListRow(item)));
           if (visibleSlice.truncated) {
             body.appendChild(createShowMoreControl(group.key, visibleSlice.remaining, visibleSlice.total));
           }

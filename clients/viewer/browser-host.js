@@ -8852,6 +8852,37 @@ ${line}` : line;
       menu.innerHTML = `${fleetRoots}${projectRows}${pickerRow}${fleetRootRow}`;
     }
     let latestProjectState = {};
+    function fleetProjectState(project, state) {
+      if (project.hasLogics === false) return { key: "bootstrap", label: "No Logics corpus", action: "Bootstrap" };
+      if (state && state.ok === false) return { key: "unreadable", label: state.error || "Could not be read", action: "Details" };
+      if (!state) return { key: "unknown", label: projectStateLabel(project, state), action: "Open" };
+      if (state.issueCount) return { key: "issues", label: "", action: "Open" };
+      if (state.staleCount) return { key: "stale", label: "", action: "Open" };
+      return { key: "clean", label: "", action: "Open" };
+    }
+    function renderFleetMetric(label, value, tone) {
+      const zero = !value;
+      return `<span class="viewer-fleet__metric${zero ? " is-zero" : ""}${tone && !zero ? ` is-${tone}` : ""}"><b>${escapeHtml(String(value ?? 0))}</b> ${escapeHtml(label)}</span>`;
+    }
+    function renderFleetRow({ project, state, favorite }) {
+      const projectState = fleetProjectState(project, state);
+      const counted = projectState.key !== "bootstrap" && projectState.key !== "unreadable" && state;
+      const facts = counted ? `<span class="viewer-fleet__metrics">${renderFleetMetric("open", state.openCount ?? 0, "")}${renderFleetMetric("issues", state.issueCount ?? 0, "bad")}${renderFleetMetric("stale", state.staleCount ?? 0, "warn")}</span>` : `<span class="viewer-fleet__note">${escapeHtml(projectState.label)}</span>`;
+      return `
+      <div class="viewer-fleet__row viewer-fleet__row--${escapeHtml(projectState.key)}" data-viewer-fleet-state="${escapeHtml(projectState.key)}">
+        <span class="viewer-fleet__accent" aria-hidden="true"></span>
+        <button class="viewer-project-switcher__favorite viewer-fleet__favorite${favorite ? " is-on" : ""}" type="button" aria-label="${favorite ? "Remove favorite" : "Add favorite"} ${escapeHtml(project.name || "project")}" aria-pressed="${favorite ? "true" : "false"}" data-viewer-project-favorite="${escapeHtml(projectPreferenceId(project))}" title="${favorite ? "Remove favorite" : "Add favorite"}">
+          <span aria-hidden="true">${favorite ? "\u2605" : "\u2606"}</span>
+        </button>
+        <span class="viewer-fleet__identity">
+          <span class="viewer-fleet__name"><b>${escapeHtml(project.name || "project")}</b>${project.active ? '<span class="viewer-fleet__tag">current</span>' : ""}</span>
+          <span class="viewer-fleet__path-inline" title="${escapeHtml(project.root || "")}">${escapeHtml(project.root || "")}</span>
+        </span>
+        ${facts}
+        <button class="viewer-fleet__open" type="button" data-viewer-project-id="${escapeHtml(project.id || "")}">${escapeHtml(projectState.action)}</button>
+      </div>
+    `;
+    }
     function renderFleetHome() {
       const favorites = favoriteProjectIds();
       const projects = latestProjects.filter((project) => project && typeof project === "object").map((project, index) => {
@@ -8864,40 +8895,28 @@ ${line}` : line;
         <button class="viewer-project-switcher__favorite" type="button" data-viewer-fleet-root-remove="${escapeHtml(root)}" aria-label="Remove fleet root" title="Remove fleet root">x</button>
       </div>
     `).join("");
-      const cards = projects.map(({ project, state, favorite }) => {
-        const status = projectStateLabel(project, state);
-        const metrics = state && state.ok !== false && state.hasLogics !== false ? renderMetricCards([
-          ["Open", String(state.openCount ?? 0), ""],
-          ["Issues", String(state.issueCount ?? 0), state.issueCount ? "failing" : ""],
-          ["Stale", String(state.staleCount ?? 0), state.staleCount ? "running" : ""]
-        ]) : `<p class="viewer-fleet__state">${escapeHtml(state?.error || project.message || status)}</p>`;
-        return `
-        <article class="viewer-fleet__project${project.hasLogics === false ? " is-bootstrappable" : ""}">
-          <header class="viewer-fleet__project-head">
-            <button class="viewer-project-switcher__favorite" type="button" aria-label="${favorite ? "Remove favorite" : "Add favorite"} ${escapeHtml(project.name || "project")}" aria-pressed="${favorite ? "true" : "false"}" data-viewer-project-favorite="${escapeHtml(projectPreferenceId(project))}" title="${favorite ? "Remove favorite" : "Add favorite"}">
-              <span aria-hidden="true">${favorite ? "\u2605" : "\u2606"}</span>
-            </button>
-            <div>
-              <h3>${escapeHtml(project.name || "project")}</h3>
-              <span>${escapeHtml(status)}</span>
-            </div>
-            <button class="viewer-fleet__open" type="button" data-viewer-project-id="${escapeHtml(project.id || "")}">Open</button>
-          </header>
-          <details class="viewer-fleet__path"><summary>Path</summary><code>${escapeHtml(project.root || "")}</code></details>
-          ${metrics}
-        </article>
-      `;
-      }).join("");
+      const attention = projects.filter(({ project, state }) => {
+        const key = fleetProjectState(project, state).key;
+        return key === "issues" || key === "unreadable";
+      }).length;
+      const rows = projects.map(renderFleetRow).join("");
+      const empty = `
+      <div class="viewer-fleet__empty">
+        <p class="viewer-fleet__empty-title">No projects yet</p>
+        <p>A fleet root is a folder whose immediate subfolders are your projects.</p>
+        <button class="viewer-fleet__open" type="button" data-viewer-fleet-root-pick>Choose a folder...</button>
+      </div>
+    `;
       return `
       <section class="viewer-fleet">
         <div class="viewer-fleet__toolbar">
           <div>
-            <p>${projects.length} project${projects.length === 1 ? "" : "s"} discovered.</p>
+            <p>${projects.length} project${projects.length === 1 ? "" : "s"}${attention ? ` \xB7 <b class="viewer-fleet__attention">${attention} need${attention === 1 ? "s" : ""} attention</b>` : ""}</p>
           </div>
           <button class="viewer-fleet__open" type="button" data-viewer-fleet-root-pick>Add root</button>
         </div>
         ${latestFleetRoots.length ? `<section class="viewer-fleet__roots">${rootRows}</section>` : ""}
-        <section class="viewer-fleet__grid">${cards || '<p class="viewer-fleet__empty">Add a fleet root to discover projects.</p>'}</section>
+        <section class="viewer-fleet__rows">${rows || empty}</section>
       </section>
     `;
     }

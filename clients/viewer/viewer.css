@@ -5425,3 +5425,190 @@
   border-radius: 0;
   box-shadow: none;
 }
+
+/* item_712/item_714/item_767: one row per project. State is carried by the left accent,
+   and by its shape as much as its colour -- greyscale the screen and the ordering
+   survives. Zeros recede rather than being drawn at the weight of findings. */
+.viewer-fleet__rows {
+  display: grid;
+  gap: 4px;
+}
+
+.viewer-fleet__row {
+  display: grid;
+  grid-template-columns: 3px auto 1fr auto auto;
+  align-items: center;
+  gap: 11px;
+  padding: 8px 11px 8px 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: var(--vscode-editorWidget-background, #202020);
+  min-width: 0;
+}
+
+.viewer-fleet__row:hover {
+  border-color: var(--vscode-panel-border, #333333);
+}
+
+.viewer-fleet__accent {
+  height: 22px;
+  border-radius: 2px;
+  background: var(--vscode-descriptionForeground, #6e7681);
+}
+
+/* Shape, not only hue: full/solid, full/hollow, short, hairline, dashed. */
+.viewer-fleet__row--issues .viewer-fleet__accent {
+  background: var(--vscode-editorError-foreground, #f85149);
+}
+
+.viewer-fleet__row--stale .viewer-fleet__accent {
+  background: var(--vscode-editorWarning-foreground, #d29922);
+  height: 22px;
+  border-top: 4px solid var(--vscode-editorWidget-background, #202020);
+  border-bottom: 4px solid var(--vscode-editorWidget-background, #202020);
+  background-clip: content-box;
+}
+
+.viewer-fleet__row--clean .viewer-fleet__accent {
+  background: var(--vscode-testing-iconPassed, #3fb950);
+  height: 8px;
+  align-self: start;
+  margin-top: 7px;
+}
+
+.viewer-fleet__row--bootstrap .viewer-fleet__accent {
+  background: repeating-linear-gradient(
+    180deg,
+    var(--vscode-descriptionForeground, #6e7681) 0 3px,
+    transparent 3px 6px
+  );
+}
+
+.viewer-fleet__row--unreadable .viewer-fleet__accent {
+  background: var(--vscode-editorError-foreground, #f85149);
+  opacity: 0.55;
+}
+
+.viewer-fleet__favorite {
+  opacity: 1;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: var(--vscode-descriptionForeground, #6e7681);
+  padding: 0 2px;
+  font-size: 13px;
+}
+
+.viewer-fleet__favorite.is-on {
+  color: var(--vscode-editorWarning-foreground, #d29922);
+}
+
+.viewer-fleet__identity {
+  min-width: 0;
+  display: grid;
+}
+
+.viewer-fleet__name {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.viewer-fleet__name b {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viewer-fleet__tag {
+  flex: 0 0 auto;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 3px;
+  padding: 0 5px;
+}
+
+.viewer-fleet__path-inline {
+  display: block;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viewer-fleet__metrics {
+  display: flex;
+  gap: 14px;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-variant-numeric: tabular-nums;
+}
+
+.viewer-fleet__metric b {
+  color: var(--vscode-foreground, #d4d4d4);
+  font-weight: 600;
+}
+
+.viewer-fleet__metric.is-zero {
+  opacity: 0.38;
+}
+
+.viewer-fleet__metric.is-bad b {
+  color: var(--vscode-editorError-foreground, #f85149);
+}
+
+.viewer-fleet__metric.is-warn b {
+  color: var(--vscode-editorWarning-foreground, #d29922);
+}
+
+.viewer-fleet__note {
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.viewer-fleet__attention {
+  color: var(--vscode-editorWarning-foreground, #d29922);
+}
+
+.viewer-fleet__empty {
+  border: 1px dashed var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  padding: 20px;
+  text-align: center;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.viewer-fleet__empty-title {
+  color: var(--vscode-foreground, #d4d4d4);
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+@media (max-width: 640px) {
+  .viewer-fleet__row {
+    grid-template-columns: 3px auto 1fr auto;
+    row-gap: 6px;
+  }
+
+  /* item_740's rule, applied here first: what is a column on a wide screen becomes a
+     subordinate line under the title on a phone. Nothing is pushed off-screen, and
+     nothing lands in the accent's column. */
+  .viewer-fleet__metrics,
+  .viewer-fleet__note,
+  .viewer-fleet__row .viewer-fleet__open {
+    grid-column: 3 / -1;
+  }
+
+  .viewer-fleet__row .viewer-fleet__open {
+    justify-self: start;
+  }
+}

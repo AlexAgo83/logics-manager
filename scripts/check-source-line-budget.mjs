@@ -281,7 +281,12 @@ const allowedOversizedFiles = new Map(
     // a body-class toggle, and the root condition folded into updateScreenActions, which
     // already owned whether minimize is shown; deciding it in a second place would have
     // won or lost by ordering. The board suppression is CSS, not host code.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4572, ref: "req_344" },
+    // 4614: item_712/item_714 redraw the fleet home as one row per project. Each project
+    // used to be a card with three stacked metric tiles -- about 360px to show three
+    // digits -- and is now about 55px. The growth is two small helpers pulled out of the
+    // renderer (the state classifier and one metric) plus the degraded-state and empty
+    // markup; the card renderer they replace was removed in the same change.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4614, ref: "req_344" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

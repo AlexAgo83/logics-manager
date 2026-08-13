@@ -3556,7 +3556,21 @@ import {
       if (!(action instanceof HTMLElement)) return;
       const value = action.dataset.viewerMcpAction;
       if (value === "refresh") return void showChatgptMcp();
-      fetch("/api/mcp-connector", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: value }) }).then(() => showChatgptMcp()).catch((error) => setMeta(error.message));
+      // item_742: this used to be `.then(() => showChatgptMcp())`, checking neither the
+      // HTTP status nor the body's `ok`. A refusal resolved the promise, the screen
+      // re-rendered unchanged, and the operator read a stated failure as nothing
+      // happening. Route it through the same path every other primary action's failure
+      // takes, so it surfaces wherever those surface.
+      withPrimaryAction(`mcp-${value}`, value === "stop" ? "Stopping connector" : "Starting connector", async () => {
+        const response = await fetch("/api/mcp-connector", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: value })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.ok) throw new Error(data.error || `Unable to ${value} the MCP connector.`);
+        await showChatgptMcp();
+      });
     });
     document.addEventListener("toggle", (event) => {
       const current = event.target instanceof Element ? event.target.closest("#viewer-refresh-menu details.viewer-settings-menu__section") : null;

@@ -3158,6 +3158,51 @@ def test_viewer_project_switch_endpoint_uses_known_project_allowlist(tmp_path: P
         thread.join(timeout=5)
 
 
+def test_viewer_mcp_connector_reports_the_child_s_own_reason(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """item_741. Reproduced against a live viewer: `start` returned running=true and,
+    twelve seconds later, `status` returned running=false with an empty error. The tunnel
+    had exited immediately with a precise reason that three layers destroyed -- a capture
+    thread that kept only regex matches, a fallback guarded on a `returncode` still None
+    because nothing awaited the child, and a client that never checked the response.
+
+    Here the child says why and stops; the operator must be told what it said."""
+    reason = "Port 8766 on 127.0.0.1 is already in use -- pass --port <n> for a different one."
+
+    class DyingProcess:
+        stdout = ["starting tunnel...\n", f"{reason}\n"]
+        returncode = None
+
+        def poll(self) -> int:
+            return 1
+
+        def wait(self) -> int:
+            self.returncode = 1
+            return 1
+
+        def terminate(self) -> None:
+            return None
+
+    monkeypatch.setattr(viewer_module.subprocess, "Popen", lambda *_args, **_kwargs: DyingProcess())
+    server = create_viewer_server_or_skip(tmp_path)
+    try:
+        server.start_mcp_connector()
+        for _ in range(100):
+            payload = server.mcp_connector_payload()
+            if payload["error"]:
+                break
+            time.sleep(0.02)
+        assert payload["running"] is False
+        assert reason in payload["error"], payload["error"]
+    finally:
+        server.server_close()
+
+
+def test_viewer_mcp_connector_failure_reason_prefers_the_child_over_its_own_wording() -> None:
+    assert viewer_module._mcp_connector_failure_reason(1, ["boom"]) == "boom"
+    assert "exit code 1" in viewer_module._mcp_connector_failure_reason(1, [])
+    assert "said nothing" in viewer_module._mcp_connector_failure_reason(None, [])
+
+
 def test_viewer_mcp_connector_captures_url_and_token(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     class FakeProcess:
         stdout = [
@@ -3169,6 +3214,9 @@ def test_viewer_mcp_connector_captures_url_and_token(tmp_path: Path, monkeypatch
 
         def poll(self) -> None:
             return None
+
+        def wait(self) -> int:
+            return 0
 
         def terminate(self) -> None:
             self.terminated = True

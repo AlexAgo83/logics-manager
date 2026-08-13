@@ -1,10 +1,10 @@
 ## item_717_split_the_board_into_a_flow_queue_and_a_companion_library - Split the board into a flow queue and a companion library
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 25%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

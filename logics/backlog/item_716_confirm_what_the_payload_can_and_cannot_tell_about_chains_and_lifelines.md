@@ -1,10 +1,10 @@
 ## item_716_confirm_what_the_payload_can_and_cannot_tell_about_chains_and_lifelines - Confirm what the payload can and cannot tell about chains and lifelines
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 95%
 > Confidence: 95%
-> Progress: 100%
+> Progress: 25%
 > Complexity: Low
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

@@ -1,10 +1,10 @@
 ## item_718_open_the_board_on_the_work_that_is_live - Open the board on the work that is live
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Status: In progress
+> Understanding: 93%
+> Confidence: 90%
+> Progress: 25%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

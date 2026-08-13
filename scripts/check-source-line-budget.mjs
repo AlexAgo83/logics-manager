@@ -334,7 +334,12 @@ const allowedOversizedFiles = new Map(
     // 1353: req_314 taught the board to group by status, which is what its control always
     // claimed to do. The grouping itself is eleven lines; the rest is the heading element
     // the accessibility slice needed.
-    "clients/shared-web/media/renderBoardApp.js": { maxLines: 1353, ref: "req_314" },
+        // 1431: item_718 opens the board on live work. 1 382 of 1 511 documents in this
+    // corpus are finished -- 91.5% -- so 13 live items sat under them. Finished work folds
+    // per column behind a control that states its count. The fold is a default rather than
+    // a filter: a search or a filter that selects finished work turns it off, which the
+    // filter-authority tests caught when it did not.
+    "clients/shared-web/media/renderBoardApp.js": { maxLines: 1431, ref: "req_345" },
     "clients/shared-web/media/mainApp.js": { maxLines: 1040, ref: "req_273" },
     // 1009: req_322 added stopViewerServers(), the explicit deactivate() path
     // redundant with (not a replacement for) the subscription-disposal path

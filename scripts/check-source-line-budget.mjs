@@ -336,7 +336,13 @@ const allowedOversizedFiles = new Map(
     // it, which is the only other place that knows the warning's shape.
     // 1176: the duplicate-executable warning's dismissal, on the same signature-in-session-
     // storage shape one function above it, so the two dismissible banners stay consistent.
-    "clients/viewer/src/browser-host/util.js": { maxLines: 1176, ref: "req_314" },
+    // 1225: item_734 added formatCiDuration, formatCiAgo and ciStateFromStatus. The last is
+    // the one that matters: ciBadgeTone takes a badge *state* and the job rows were feeding
+    // it a raw GitHub conclusion, so every job resolved to "unknown" and six rows on a run
+    // were drawn identically. It mirrors logics_manager/viewer.py::_ci_badge_state rather
+    // than each surface guessing, and says so, because a job read differently on the two
+    // sides is a job reported two ways.
+    "clients/viewer/src/browser-host/util.js": { maxLines: 1225, ref: "req_347" },
     // 2546: req_305 added the workflow-health sections (blocked docs, stale docs)
     // to the health screen, which previously showed lint and audit only.
     // req_312 moved the rendering whose only consumer is the cdx screen into that screen:
@@ -347,7 +353,11 @@ const allowedOversizedFiles = new Map(
     // 1741: req_336 added renderWorkshopMenuItems beside renderWorkshopTabs, the
     // other consumer of the same registry, so both projections of workshopTabs
     // sit together rather than one drifting in markup.
-    "clients/viewer/src/browser-host/render.js": { maxLines: 1741, ref: "req_336" },
+    // 1800: item_734 rebuilt the CI run section around its verdict -- the duration, the job
+    // ordering that puts a failure first, and the counted fold for the passing ones. It is
+    // longer than what it replaced because the old version printed the same status string on
+    // every row and computed nothing; this computes durations and an order.
+    "clients/viewer/src/browser-host/render.js": { maxLines: 1800, ref: "req_347" },
     // 1353: req_314 taught the board to group by status, which is what its control always
     // claimed to do. The grouping itself is eleven lines; the rest is the heading element
     // the accessibility slice needed.

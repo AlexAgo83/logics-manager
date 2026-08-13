@@ -5767,3 +5767,86 @@
   width: 100%;
   margin: 8px 0 0;
 }
+
+/* item_734: the CI screen leads with what happened, how long it took and how long ago,
+   in one sentence, where four metric tiles used to sit. */
+.viewer-ci__verdict {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  margin: 0 0 12px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-left-width: 4px;
+  border-radius: 8px;
+  background: var(--vscode-editorWidget-background, rgba(255, 255, 255, 0.03));
+}
+
+.viewer-ci__verdict-text {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--vscode-foreground, #d4d4d4);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Tone by border style as well as colour, so the states stay apart in greyscale. */
+.viewer-ci__verdict--passing { border-left-color: var(--vscode-testing-iconPassed, #3fb950); border-left-style: dotted; border-left-width: 5px; }
+.viewer-ci__verdict--failing { border-left-color: var(--vscode-editorError-foreground, #f85149); border-left-style: solid; }
+.viewer-ci__verdict--running,
+.viewer-ci__verdict--queued { border-left-color: var(--vscode-editorWarning-foreground, #d29922); border-left-style: double; border-left-width: 6px; }
+.viewer-ci__verdict--cancelled,
+.viewer-ci__verdict--unknown { border-left-color: var(--vscode-descriptionForeground, #6e7681); border-left-style: dashed; }
+
+.viewer-ci__summary--strip .viewer-insights__card { padding: 6px 10px; }
+.viewer-ci__summary--strip .viewer-insights__value { font-size: 14px; }
+
+/* item_734: a job row carried `completed / success` in link blue whatever it was, and the
+   tone class it was given always resolved to unknown. Status is the marker's shape and
+   colour now, and the row's own words are its name and its duration. */
+.viewer-ci__job {
+  position: relative;
+  padding-left: 22px;
+}
+
+.viewer-ci__job::before {
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.viewer-ci__job--passing::before { content: "\25CF"; color: var(--vscode-testing-iconPassed, #3fb950); }
+.viewer-ci__job--failing::before { content: "\25C6"; color: var(--vscode-editorError-foreground, #f85149); }
+.viewer-ci__job--running::before { content: "\25D0"; color: var(--vscode-editorWarning-foreground, #d29922); }
+.viewer-ci__job--queued::before { content: "\25CB"; color: var(--vscode-editorWarning-foreground, #d29922); }
+.viewer-ci__job--cancelled::before,
+.viewer-ci__job--unknown::before { content: "\25C7"; color: var(--vscode-descriptionForeground, #6e7681); }
+
+.viewer-ci__job-name { min-width: 0; overflow-wrap: anywhere; }
+
+.viewer-ci__job-time {
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+/* The passing jobs collapse to a line that states how many. A native details, so it is
+   keyboard-reachable without a handler of its own. */
+.viewer-ci__job-fold {
+  list-style: none;
+  padding: 4px 0 0;
+}
+
+.viewer-ci__job-fold summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  padding: 4px 0;
+}

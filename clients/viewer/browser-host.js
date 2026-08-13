@@ -275,6 +275,17 @@
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : null;
   }
+  function ciStateFromStatus(status, conclusion) {
+    const normalizedStatus = String(status || "").trim().toLowerCase();
+    const normalizedConclusion = String(conclusion || "").trim().toLowerCase();
+    if (["queued", "in_progress", "waiting", "requested", "pending"].includes(normalizedStatus)) {
+      return normalizedStatus === "in_progress" ? "running" : "queued";
+    }
+    if (normalizedConclusion === "success") return "passing";
+    if (["failure", "timed_out", "action_required"].includes(normalizedConclusion)) return "failing";
+    if (normalizedConclusion === "cancelled") return "cancelled";
+    return "unknown";
+  }
   function ciBadgeTone(value) {
     const state = String(value || "").toLowerCase();
     if (state === "passing") {
@@ -558,6 +569,23 @@ ${entry?.message || ""}`;
   function formatGitHistoryCount(payload) {
     const count = Array.isArray(payload?.recentCommits) ? payload.recentCommits.length : payload?.latestCommit ? 1 : 0;
     return `${count}${payload?.recentCommitsHasMore ? "+" : ""}`;
+  }
+  function formatCiDuration(startIso, endIso) {
+    const start = Date.parse(startIso || "");
+    const end = Date.parse(endIso || "");
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return "";
+    const seconds = Math.round((end - start) / 1e3);
+    if (seconds < 60) return `${seconds}s`;
+    const minutes = Math.floor(seconds / 60);
+    const rest = seconds % 60;
+    if (minutes < 60) return rest ? `${minutes}m ${rest}s` : `${minutes}m`;
+    const hours = Math.floor(minutes / 60);
+    return `${hours}h ${minutes % 60}m`;
+  }
+  function formatCiAgo(iso) {
+    const stamp = Date.parse(iso || "");
+    if (!Number.isFinite(stamp)) return "";
+    return formatRelativeTime(stamp);
   }
   function formatRelativeTime(timestamp) {
     const diffMs = timestamp - Date.now();
@@ -1939,34 +1967,59 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       ["Match", matchLabel]
     ]);
     const runUrl = run?.htmlUrl ? `<a class="viewer-ci__link" href="${escapeHtml(run.htmlUrl)}" target="_blank" rel="noreferrer">Open in ${escapeHtml(payload?.provider === "gitlab" ? "GitLab" : "GitHub")}</a>` : "";
+    const runDuration = run ? formatCiDuration(run.runStartedAt || run.createdAt, run.updatedAt) : "";
+    const runAgo = run ? formatCiAgo(run.updatedAt || run.runStartedAt || run.createdAt) : "";
+    const ciVerdict = (() => {
+      if (!run) return null;
+      const tone = run.badgeState || ciStateFromStatus(run.status, run.conclusion);
+      const verb = tone === "passing" ? "Passed" : tone === "failing" ? "Failed" : tone === "running" ? "Running" : tone === "queued" ? "Queued" : tone === "cancelled" ? "Cancelled" : "Finished";
+      const parts = [verb];
+      if (runDuration) parts.push(`in ${runDuration}`);
+      const sentence = `${parts.join(" ")}${runAgo ? `, ${runAgo}` : ""}.`;
+      return { tone, sentence };
+    })();
+    const verdictHtml = ciVerdict ? `<section class="viewer-ci__verdict viewer-ci__verdict--${escapeHtml(ciVerdict.tone)}" role="status">
+          <p class="viewer-ci__verdict-text">${escapeHtml(ciVerdict.sentence)}</p>
+          ${runUrl}
+        </section>` : "";
     const runRows = run ? [
       ["Workflow", run.workflowName || run.name || providerLabel],
-      ["Status", `${run.status || "unknown"}${run.conclusion ? ` / ${run.conclusion}` : ""}`],
       ["Event", run.event || "Unknown"],
       ["Commit", run.commitMessage || payload.subject || "Unknown"],
       ["Author", run.author || payload.author || "Unknown"],
-      ["Started", formatCiDate(run.runStartedAt || run.createdAt) || "Unknown"],
-      ["Updated", formatCiDate(run.updatedAt) || "Unknown"]
+      ["Duration", runDuration || "Not reported"]
     ].map(([label, value]) => `
       <li class="viewer-ci__row"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></li>
     `).join("") : `<li class="viewer-ci__empty">${escapeHtml(payload.message || `No ${providerLabel} run found for this branch.`)}</li>`;
-    const jobRows = jobs.length ? jobs.map((job) => {
-      const jobState = ciBadgeTone(job.conclusion || job.status);
+    const renderJob = (job) => {
+      const jobState = ciStateFromStatus(job.status, job.conclusion);
+      const duration = formatCiDuration(job.startedAt, job.completedAt);
+      const ago = formatCiAgo(job.completedAt || job.startedAt);
+      const absolute = formatCiDate(job.completedAt || job.startedAt) || "";
       const content = `
-        <span>${escapeHtml(job.name || "Job")}</span>
-        <strong>${escapeHtml([job.status, job.conclusion].filter(Boolean).join(" / ") || "unknown")}</strong>
+        <span class="viewer-ci__job-name">${escapeHtml(job.name || "Job")}</span>
+        <span class="viewer-ci__job-time"${absolute ? ` title="${escapeHtml(absolute)}"` : ""}>${escapeHtml([duration, ago].filter(Boolean).join(" \xB7 "))}</span>
       `;
-      return `<li class="viewer-ci__job viewer-ci__job--${escapeHtml(jobState)}">${job.htmlUrl ? `<a href="${escapeHtml(job.htmlUrl)}" target="_blank" rel="noreferrer">${content}</a>` : content}</li>`;
-    }).join("") : `<li class="viewer-ci__empty">No job details reported.</li>`;
+      return `<li class="viewer-ci__job viewer-ci__job--${escapeHtml(jobState)}" data-viewer-ci-job-state="${escapeHtml(jobState)}">${job.htmlUrl ? `<a href="${escapeHtml(job.htmlUrl)}" target="_blank" rel="noreferrer">${content}</a>` : content}</li>`;
+    };
+    const jobTone = (job) => ciStateFromStatus(job.status, job.conclusion);
+    const failedJobs = jobs.filter((job) => jobTone(job) === "failing");
+    const otherJobs = jobs.filter((job) => jobTone(job) !== "failing");
+    const passingJobs = otherJobs.filter((job) => jobTone(job) === "passing");
+    const remainingJobs = otherJobs.filter((job) => jobTone(job) !== "passing");
+    const jobRows = jobs.length ? `${failedJobs.map(renderJob).join("")}${remainingJobs.map(renderJob).join("")}${passingJobs.length ? `<li class="viewer-ci__job-fold"><details${failedJobs.length ? "" : " open"}>
+                 <summary>${escapeHtml(passingJobs.length)} job${passingJobs.length === 1 ? "" : "s"} passed</summary>
+                 <ul class="viewer-ci__jobs">${passingJobs.map(renderJob).join("")}</ul>
+               </details></li>` : ""}` : `<li class="viewer-ci__empty">No job details reported.</li>`;
     return `
       <div class="viewer-ci">
         ${renderCiModeSwitcher("runs")}
-        <div class="viewer-ci__summary">${cards}</div>
+        ${verdictHtml}
+        <div class="viewer-ci__summary viewer-ci__summary--strip">${cards}</div>
         <div class="viewer-ci__workspace">
           <section class="viewer-ci__section">
             <div class="viewer-ci__heading"><h2>Latest run</h2>${renderCiBadge(state)}</div>
             <ul class="viewer-ci__list">${runRows}</ul>
-            ${runUrl}
           </section>
           <section class="viewer-ci__section">
             <div class="viewer-ci__heading"><h2>Jobs</h2><span>${escapeHtml(jobs.length)} reported</span></div>

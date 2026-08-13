@@ -18,6 +18,7 @@ import {
   cdxStateClass,
   cdxUsageNumber,
   ciBadgeTone,
+  ciStateFromStatus,
   closeThemedModal,
   collectHealthFindings,
   countPayloadEntries,
@@ -25,7 +26,9 @@ import {
   downloadBase64File,
   fileToBase64,
   formatCdxTokenUsage,
+  formatCiAgo,
   formatCiDate,
+  formatCiDuration,
   formatRelativeTime,
   isSafeLogicsDocPath,
   markdownApi,
@@ -554,34 +557,85 @@ export function renderCiStatus(payload) {
       ["Match", matchLabel]
     ]);
     const runUrl = run?.htmlUrl ? `<a class="viewer-ci__link" href="${escapeHtml(run.htmlUrl)}" target="_blank" rel="noreferrer">Open in ${escapeHtml(payload?.provider === "gitlab" ? "GitLab" : "GitHub")}</a>` : "";
+
+    // item_734: the screen printed both ends of the run and never its duration, and repeated
+    // `completed / success` on every row in link blue. The verdict says what happened, how
+    // long it took and how long ago, once, at the top.
+    const runDuration = run ? formatCiDuration(run.runStartedAt || run.createdAt, run.updatedAt) : "";
+    const runAgo = run ? formatCiAgo(run.updatedAt || run.runStartedAt || run.createdAt) : "";
+    const ciVerdict = (() => {
+      if (!run) return null;
+      const tone = run.badgeState || ciStateFromStatus(run.status, run.conclusion);
+      const verb =
+        tone === "passing" ? "Passed"
+        : tone === "failing" ? "Failed"
+        : tone === "running" ? "Running"
+        : tone === "queued" ? "Queued"
+        : tone === "cancelled" ? "Cancelled"
+        : "Finished";
+      const parts = [verb];
+      if (runDuration) parts.push(`in ${runDuration}`);
+      const sentence = `${parts.join(" ")}${runAgo ? `, ${runAgo}` : ""}.`;
+      return { tone, sentence };
+    })();
+    const verdictHtml = ciVerdict
+      ? `<section class="viewer-ci__verdict viewer-ci__verdict--${escapeHtml(ciVerdict.tone)}" role="status">
+          <p class="viewer-ci__verdict-text">${escapeHtml(ciVerdict.sentence)}</p>
+          ${runUrl}
+        </section>`
+      : "";
+
+    // Status is in the verdict, so the row that repeated it is gone; both ends of the run
+    // become the one fact they were hiding.
     const runRows = run ? [
       ["Workflow", run.workflowName || run.name || providerLabel],
-      ["Status", `${run.status || "unknown"}${run.conclusion ? ` / ${run.conclusion}` : ""}`],
       ["Event", run.event || "Unknown"],
       ["Commit", run.commitMessage || payload.subject || "Unknown"],
       ["Author", run.author || payload.author || "Unknown"],
-      ["Started", formatCiDate(run.runStartedAt || run.createdAt) || "Unknown"],
-      ["Updated", formatCiDate(run.updatedAt) || "Unknown"]
+      ["Duration", runDuration || "Not reported"]
     ].map(([label, value]) => `
       <li class="viewer-ci__row"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></li>
     `).join("") : `<li class="viewer-ci__empty">${escapeHtml(payload.message || `No ${providerLabel} run found for this branch.`)}</li>`;
-    const jobRows = jobs.length ? jobs.map((job) => {
-      const jobState = ciBadgeTone(job.conclusion || job.status);
+
+    const renderJob = (job) => {
+      const jobState = ciStateFromStatus(job.status, job.conclusion);
+      const duration = formatCiDuration(job.startedAt, job.completedAt);
+      const ago = formatCiAgo(job.completedAt || job.startedAt);
+      const absolute = formatCiDate(job.completedAt || job.startedAt) || "";
       const content = `
-        <span>${escapeHtml(job.name || "Job")}</span>
-        <strong>${escapeHtml([job.status, job.conclusion].filter(Boolean).join(" / ") || "unknown")}</strong>
+        <span class="viewer-ci__job-name">${escapeHtml(job.name || "Job")}</span>
+        <span class="viewer-ci__job-time"${absolute ? ` title="${escapeHtml(absolute)}"` : ""}>${escapeHtml([duration, ago].filter(Boolean).join(" \u00b7 "))}</span>
       `;
-      return `<li class="viewer-ci__job viewer-ci__job--${escapeHtml(jobState)}">${job.htmlUrl ? `<a href="${escapeHtml(job.htmlUrl)}" target="_blank" rel="noreferrer">${content}</a>` : content}</li>`;
-    }).join("") : `<li class="viewer-ci__empty">No job details reported.</li>`;
+      return `<li class="viewer-ci__job viewer-ci__job--${escapeHtml(jobState)}" data-viewer-ci-job-state="${escapeHtml(jobState)}">${job.htmlUrl ? `<a href="${escapeHtml(job.htmlUrl)}" target="_blank" rel="noreferrer">${content}</a>` : content}</li>`;
+    };
+
+    // A failing job is what the operator opened the screen for, so it leads and stays
+    // expanded; the passing ones collapse to a line that states how many. The collapse is a
+    // native <details>, which is keyboard-reachable without a handler of its own.
+    const jobTone = (job) => ciStateFromStatus(job.status, job.conclusion);
+    const failedJobs = jobs.filter((job) => jobTone(job) === "failing");
+    const otherJobs = jobs.filter((job) => jobTone(job) !== "failing");
+    const passingJobs = otherJobs.filter((job) => jobTone(job) === "passing");
+    const remainingJobs = otherJobs.filter((job) => jobTone(job) !== "passing");
+    const jobRows = jobs.length
+      ? `${failedJobs.map(renderJob).join("")}${remainingJobs.map(renderJob).join("")}${
+          passingJobs.length
+            ? `<li class="viewer-ci__job-fold"><details${failedJobs.length ? "" : " open"}>
+                 <summary>${escapeHtml(passingJobs.length)} job${passingJobs.length === 1 ? "" : "s"} passed</summary>
+                 <ul class="viewer-ci__jobs">${passingJobs.map(renderJob).join("")}</ul>
+               </details></li>`
+            : ""
+        }`
+      : `<li class="viewer-ci__empty">No job details reported.</li>`;
     return `
       <div class="viewer-ci">
         ${renderCiModeSwitcher("runs")}
-        <div class="viewer-ci__summary">${cards}</div>
+        ${verdictHtml}
+        <div class="viewer-ci__summary viewer-ci__summary--strip">${cards}</div>
         <div class="viewer-ci__workspace">
           <section class="viewer-ci__section">
             <div class="viewer-ci__heading"><h2>Latest run</h2>${renderCiBadge(state)}</div>
             <ul class="viewer-ci__list">${runRows}</ul>
-            ${runUrl}
           </section>
           <section class="viewer-ci__section">
             <div class="viewer-ci__heading"><h2>Jobs</h2><span>${escapeHtml(jobs.length)} reported</span></div>

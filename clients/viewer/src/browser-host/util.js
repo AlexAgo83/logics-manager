@@ -309,6 +309,26 @@ export function cdxUsageNumber(value) {
     return Number.isFinite(parsed) ? parsed : null;
   }
 
+/** item_734: `ciBadgeTone` takes a badge *state* -- "passing", "failing", "running" -- and
+ *  the job rows were feeding it a raw GitHub status or conclusion instead, so every job
+ *  resolved to "unknown" and the six rows on a run were drawn identically. The server
+ *  computes this for the run itself in `_ci_badge_state`; jobs arrive without it, so this
+ *  mirrors that rule rather than each surface guessing at the vocabulary.
+ *
+ *  Kept in step with logics_manager/viewer.py::_ci_badge_state -- a job whose status and
+ *  conclusion are read differently on the two sides is a job reported two ways. */
+export function ciStateFromStatus(status, conclusion) {
+    const normalizedStatus = String(status || "").trim().toLowerCase();
+    const normalizedConclusion = String(conclusion || "").trim().toLowerCase();
+    if (["queued", "in_progress", "waiting", "requested", "pending"].includes(normalizedStatus)) {
+      return normalizedStatus === "in_progress" ? "running" : "queued";
+    }
+    if (normalizedConclusion === "success") return "passing";
+    if (["failure", "timed_out", "action_required"].includes(normalizedConclusion)) return "failing";
+    if (normalizedConclusion === "cancelled") return "cancelled";
+    return "unknown";
+  }
+
 export function ciBadgeTone(value) {
     const state = String(value || "").toLowerCase();
     if (state === "passing") {
@@ -612,6 +632,29 @@ export function formatConnectionTime(timestamp) {
 export function formatGitHistoryCount(payload) {
     const count = Array.isArray(payload?.recentCommits) ? payload.recentCommits.length : (payload?.latestCommit ? 1 : 0);
     return `${count}${payload?.recentCommitsHasMore ? "+" : ""}`;
+  }
+
+/** item_734: the CI screen showed both ends of a run and never how long it took, which is
+ *  the number an operator is actually asking for. Both ends are already in the payload. */
+export function formatCiDuration(startIso, endIso) {
+    const start = Date.parse(startIso || "");
+    const end = Date.parse(endIso || "");
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return "";
+    const seconds = Math.round((end - start) / 1000);
+    if (seconds < 60) return `${seconds}s`;
+    const minutes = Math.floor(seconds / 60);
+    const rest = seconds % 60;
+    if (minutes < 60) return rest ? `${minutes}m ${rest}s` : `${minutes}m`;
+    const hours = Math.floor(minutes / 60);
+    return `${hours}h ${minutes % 60}m`;
+  }
+
+/** A relative time an operator can read, with the absolute one kept for the tooltip -- the
+ *  screen showed absolute stamps only, which answer "when" and not "how long ago". */
+export function formatCiAgo(iso) {
+    const stamp = Date.parse(iso || "");
+    if (!Number.isFinite(stamp)) return "";
+    return formatRelativeTime(stamp);
   }
 
 export function formatRelativeTime(timestamp) {

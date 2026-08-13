@@ -192,6 +192,7 @@ function systemIcon() {
 export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode.Webview): string {
   const mediaUri = (...segments: string[]) =>
     webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "clients", "shared-web", "media", ...segments));
+  const statusesScriptUri = mediaUri("workflowStatuses.generated.js");
   const modelScriptUri = mediaUri("logicsModel.js");
   const uiStatusScriptUri = mediaUri("uiStatus.js");
   const harnessApiScriptUri = mediaUri("harnessApi.js");
@@ -465,6 +466,7 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
       </div>
     </aside>
   </div>
+  <script nonce="${nonce}" src="${statusesScriptUri}"></script>
   <script nonce="${nonce}" src="${modelScriptUri}"></script>
   <script nonce="${nonce}" src="${uiStatusScriptUri}"></script>
   <script nonce="${nonce}" src="${harnessApiScriptUri}"></script>

@@ -1078,6 +1078,7 @@ exports[`logics HTML builders > renders the orchestrator webview snapshot 1`] = 
       </div>
     </aside>
   </div>
+  <script nonce="YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFh" src="webview:/extension/clients/shared-web/media/workflowStatuses.generated.js"></script>
   <script nonce="YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFh" src="webview:/extension/clients/shared-web/media/logicsModel.js"></script>
   <script nonce="YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFh" src="webview:/extension/clients/shared-web/media/uiStatus.js"></script>
   <script nonce="YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFh" src="webview:/extension/clients/shared-web/media/harnessApi.js"></script>

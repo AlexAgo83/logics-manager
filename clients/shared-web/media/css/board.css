@@ -654,24 +654,37 @@
 /* item_717: the companion stages are a reference index below the flow queue, not columns
    beside it. It spans the board's full width so its entries wrap instead of competing
    with the queue for horizontal room. */
+/* Reported by the operator: entries ran off the bottom of the index with no way to follow
+   them. The index first shipped with `grid-column: 1 / -1`, and .board is a flex row, not a
+   grid -- so the rule did nothing, the index sized to its content, and .board's
+   `overflow-y: hidden` clipped the overflow away silently. It takes the columns' own shape
+   instead: full height, and the part that grows is the part that scrolls. */
 .companion-index {
-  grid-column: 1 / -1;
+  flex: 1 1 var(--board-column-width);
+  min-width: var(--board-column-width);
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-width: 0;
+  min-height: 0;
+  height: 100%;
   padding: 4px 0 12px;
 }
 
 .companion-index__toggle {
   align-self: flex-start;
+  flex: 0 0 auto;
 }
 
 .companion-index__body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 16px;
   min-width: 0;
+  min-height: 0;
+  padding-bottom: 8px;
 }
 
 /* `display` beats the hidden attribute, so the fold rendered open while its own control

@@ -305,6 +305,7 @@ export function bootstrapWebview(options: BootstrapOptions = {}) {
   });
 
   const mediaFiles = [
+    "clients/shared-web/media/workflowStatuses.generated.js",
     "clients/shared-web/media/logicsModel.js",
     "clients/shared-web/media/uiStatus.js",
     "clients/shared-web/media/harnessApi.js",

@@ -1,7 +1,7 @@
 ## req_344_make_the_fleet_home_read_as_the_product_s_first_screen - Make the fleet home read as the product's first screen
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

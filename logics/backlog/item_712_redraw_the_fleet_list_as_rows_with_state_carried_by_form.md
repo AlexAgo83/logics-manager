@@ -1,10 +1,10 @@
 ## item_712_redraw_the_fleet_list_as_rows_with_state_carried_by_form - Redraw the fleet list as rows with state carried by form
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 93%
 > Confidence: 90%
-> Progress: 80%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -51,3 +51,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_341_deliver_the_fleet_home_first_screen_redesign`
+
+# Notes
+- Task `task_341_deliver_the_fleet_home_first_screen_redesign` was finished via `logics-manager flow finish task` on 2026-08-13.

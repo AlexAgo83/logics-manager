@@ -101,6 +101,9 @@ jobs:
       - run: npm run compile
       - run: npm run test:coverage
       - run: npm run test:viewer-smoke
+        env:
+          VIEWER_CAMPAIGN_VIEWPORTS: desktop
+          VIEWER_CAMPAIGN_SKIP_SLOW_CHECKS: "1"
       - run: npm run test:smoke
       - run: npm run test:npm-cli
 

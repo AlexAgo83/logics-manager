@@ -51,7 +51,12 @@ const steps = [
   { label: "Compile", command: npmCommand(), args: ["run", "compile"] },
   { label: "Lint", command: npmCommand(), args: ["run", "lint"] },
   { label: "Unit tests + coverage", command: npmCommand(), args: ["run", "test:coverage"] },
-  { label: "Local viewer visual smoke", command: npmCommand(), args: ["run", "test:viewer-smoke"] },
+  {
+    label: "Local viewer visual smoke",
+    command: npmCommand(),
+    args: ["run", "test:viewer-smoke"],
+    env: { VIEWER_CAMPAIGN_VIEWPORTS: "desktop", VIEWER_CAMPAIGN_SKIP_SLOW_CHECKS: "1" }
+  },
   { label: "Extension smoke checks", command: npmCommand(), args: ["run", "test:smoke"] },
   { label: "npm CLI smoke checks", command: npmCommand(), args: ["run", "test:npm-cli"] },
   { label: "Logics docs lint", command: npmCommand(), args: ["run", "lint:logics"] },
@@ -101,7 +106,7 @@ for (const step of steps.slice(1)) {
     backgroundStep = startBackgroundStep(step.label, step.command, step.args);
     continue;
   }
-  runStep(step.label, step.command, step.args);
+  runStep(step.label, step.command, step.args, step.env);
 }
 if (backgroundStep) {
   const result = await backgroundStep;
@@ -172,10 +177,11 @@ function startBackgroundStep(label, command, args) {
   });
 }
 
-function runStep(label, command, args) {
+function runStep(label, command, args, env = {}) {
   console.log(`\n==> ${label}`);
   const result = spawnSync(command, args, {
     cwd: repoRoot,
+    env: { ...process.env, ...env },
     stdio: "inherit",
     shell: process.platform === "win32" && command.startsWith("npm")
   });

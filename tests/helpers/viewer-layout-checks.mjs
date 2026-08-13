@@ -133,9 +133,9 @@ export function layoutChecks(window) {
     {
       name: "a disabled action says why",
       run: () => {
-        const disabled = interactive().filter(
-          (node) => node.disabled || node.getAttribute("aria-disabled") === "true"
-        );
+        const disabled = Array.from(
+          document.querySelectorAll("button, a[href], select, [role='button'], [data-action]")
+        ).filter((node) => visible(node) && (node.disabled || node.getAttribute("aria-disabled") === "true"));
         const silent = disabled.filter(
           (node) => !(node.title || node.getAttribute("aria-label") || (node.dataset && node.dataset.reason) || "").trim()
         );

@@ -127,6 +127,7 @@
 | [prod_085_numbers_a_screen_can_defend](product/prod_085_numbers_a_screen_can_defend.md) | Numbers a screen can defend | Proposed |  |  | product/prod_085_numbers_a_screen_can_defend.md |
 | [prod_086_a_viewer_that_looks_like_one_product](product/prod_086_a_viewer_that_looks_like_one_product.md) | A viewer that looks like one product | Proposed |  |  | product/prod_086_a_viewer_that_looks_like_one_product.md |
 | [prod_087_surfaces_that_read_like_they_were_finished](product/prod_087_surfaces_that_read_like_they_were_finished.md) | Surfaces that read like they were finished | Proposed |  |  | product/prod_087_surfaces_that_read_like_they_were_finished.md |
+| [prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse](product/prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse.md) | A viewer that does not require perfect eyes or a mouse | Proposed |  |  | product/prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse.md |
 
 ## Roadmaps
 
@@ -494,6 +495,7 @@
 | [req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print](request/req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print.md) | Make the corpus, health and onboarding screens earn the numbers they print | Draft |  |  | request/req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print.md |
 | [req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens](request/req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens.md) | Theme the viewer's native controls and finish the Workshop and CDX screens | Draft |  |  | request/req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens.md |
 | [req_351_make_the_reader_readable_and_the_filter_panel_say_something](request/req_351_make_the_reader_readable_and_the_filter_panel_say_something.md) | Make the reader readable and the filter panel say something | Draft |  |  | request/req_351_make_the_reader_readable_and_the_filter_panel_say_something.md |
+| [req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse](request/req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse.md) | Keep the viewer redesigns legible without colour and reachable without a mouse | Draft |  |  | request/req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse.md |
 
 ## Backlog
 
@@ -1265,6 +1267,10 @@
 | [item_764_make_each_filter_say_what_it_would_narrow](backlog/item_764_make_each_filter_say_what_it_would_narrow.md) | Make each filter say what it would narrow | Ready |  | 0% | backlog/item_764_make_each_filter_say_what_it_would_narrow.md |
 | [item_765_make_the_panel_and_the_board_agree_on_what_is_shown](backlog/item_765_make_the_panel_and_the_board_agree_on_what_is_shown.md) | Make the panel and the board agree on what is shown | Ready |  | 0% | backlog/item_765_make_the_panel_and_the_board_agree_on_what_is_shown.md |
 | [item_766_cover_the_reader_the_modal_and_the_filter_panel](backlog/item_766_cover_the_reader_the_modal_and_the_filter_panel.md) | Cover the reader, the modal and the filter panel | Ready |  | 0% | backlog/item_766_cover_the_reader_the_modal_and_the_filter_panel.md |
+| [item_767_give_every_colour_carried_state_a_second_channel](backlog/item_767_give_every_colour_carried_state_a_second_channel.md) | Give every colour-carried state a second channel | Ready |  | 0% | backlog/item_767_give_every_colour_carried_state_a_second_channel.md |
+| [item_768_make_the_new_controls_reachable_without_a_mouse](backlog/item_768_make_the_new_controls_reachable_without_a_mouse.md) | Make the new controls reachable without a mouse | Ready |  | 0% | backlog/item_768_make_the_new_controls_reachable_without_a_mouse.md |
+| [item_769_let_the_campaign_fail_on_colour_only_state_and_unreachable_controls](backlog/item_769_let_the_campaign_fail_on_colour_only_state_and_unreachable_controls.md) | Let the campaign fail on colour-only state and unreachable controls | Ready |  | 0% | backlog/item_769_let_the_campaign_fail_on_colour_only_state_and_unreachable_controls.md |
+| [item_770_measure_how_long_these_screens_take_and_say_so_while_they_load](backlog/item_770_measure_how_long_these_screens_take_and_say_so_while_they_load.md) | Measure how long these screens take and say so while they load | Ready |  | 0% | backlog/item_770_measure_how_long_these_screens_take_and_say_so_while_they_load.md |
 
 ## Tasks
 
@@ -1612,6 +1618,7 @@
 | [task_346_deliver_the_corpus_health_and_onboarding_screens](tasks/task_346_deliver_the_corpus_health_and_onboarding_screens.md) | Deliver the corpus, health and onboarding screens | Ready |  | 0% | tasks/task_346_deliver_the_corpus_health_and_onboarding_screens.md |
 | [task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens](tasks/task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens.md) | Deliver the control theming and the Workshop and CDX screens | Ready |  | 0% | tasks/task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens.md |
 | [task_348_deliver_the_reader_the_modal_and_the_filter_panel](tasks/task_348_deliver_the_reader_the_modal_and_the_filter_panel.md) | Deliver the reader, the modal and the filter panel | Ready |  | 0% | tasks/task_348_deliver_the_reader_the_modal_and_the_filter_panel.md |
+| [task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns](tasks/task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns.md) | Deliver the colour and keyboard conditions for the redesigns | Ready |  | 0% | tasks/task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns.md |
 
 ## Runbooks
 

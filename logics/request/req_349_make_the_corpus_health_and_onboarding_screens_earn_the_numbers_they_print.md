@@ -7,6 +7,7 @@
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-13 16:05:55
 
 # AI Context
 - Summary: Insights prints a total beside its own component and counts fresh scaffolds as defects; Health shows 87 warnings of which one is contradicted by the filesystem; Getting Started sets prose at a 110-character measure and ignores the project it describes.
@@ -48,6 +49,9 @@
 - AC13: All three screens hold at 1440x900, 820x1180 and 390x844, with what is a column on a wide screen becoming a subordinate line on a phone.
 - AC14: The viewer UI campaign covers all three, waiting for each screen to finish loading and proving which screen it captured rather than asserting on whatever is on screen.
 - AC15: Every change is made in the shared browser-host sources and rebuilt, and behaves the same in the standalone viewer and in the extension host.
+- AC16: How long each of these screens takes to become useful is measured against a corpus of this size, and the measurement is recorded so a later change can be compared against it rather than guessed at.
+- AC17: A screen that cannot answer immediately says that it is working and what it is waiting for, rather than leaving the previous screen in place with a status line the operator will not read.
+- AC18: Nothing added by this request makes any of the three slower to become useful than it is today; where a proposal computes something new, it is measured before it lands.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.
@@ -80,3 +84,4 @@
 - `item_752_give_getting_started_a_reading_measure_and_a_position`
 - `item_753_make_getting_started_reflect_the_project_in_front_of_it`
 - `item_754_cover_the_three_screens_including_how_slowly_they_load`
+- `item_770_measure_how_long_these_screens_take_and_say_so_while_they_load`

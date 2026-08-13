@@ -1,13 +1,14 @@
 ## item_738_cover_these_four_screens_in_the_states_an_operator_reaches - Cover these four screens in the states an operator reaches
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 12%
 > Complexity: Medium
 > Theme: Validation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-13 23:40:13
 
 # AI Context
 - Summary: The campaign reaches these screens' landing frames only -- the same shape of gap as driving `view` but never `view --fleet`, and the same mistake the review's own first pass made about the Git diff pane.
@@ -26,6 +27,13 @@
   - Confirm both surfaces after rebuilding the shared sources.
 - Out:
   - New check kinds beyond what the layout checks already provide.
+
+# Delivery notes
+- **Delivered before the redraws**, which is what this slice asked for and what `item_725` did not manage. The checks were written against the screens as they are, so they will observe the redesigns rather than be written around them.
+- Six surfaces added, each a state behind a click: the Git screen, its History domain, the CI screen, the Release screen and the Settings screen. History is the domain the review's own first pass reached a wrong conclusion from, so it is the one worth standing in. 238 checks pass across the three viewports.
+- **A finding, before any redraw: Git, CI and Release all render into the document panel under the title `Remote`.** Three screens with one name. The campaign cannot tell them apart by title, so each is proved by markup only it produces -- `.viewer-git__domain`, `.viewer-ci__list`, `.viewer-release__gates`. This is the AC1 and AC3 problem showing up in the harness before it was designed for, and when those are fixed the title proof should replace the markup proof.
+- The surface visitor gained a `titleContains` option for screens that share a container, because a visible selector alone would let a check pass while standing on the previous screen -- the exact failure `run_002` records. It is unused for now, since these three cannot be told apart by title yet.
+- Coverage proven load-bearing by renaming `data-viewer-git-domain` in the renderer and watching both Git surfaces fail.
 
 # Acceptance criteria
 - AC16: All four screens are covered in their clicked-into states at the three viewports.

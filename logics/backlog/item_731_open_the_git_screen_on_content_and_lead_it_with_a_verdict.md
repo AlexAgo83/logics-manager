@@ -1,10 +1,10 @@
 ## item_731_open_the_git_screen_on_content_and_lead_it_with_a_verdict - Open the Git screen on content and lead it with a verdict
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 12%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

@@ -280,6 +280,32 @@
       return button;
     }
 
+    /** item_721: summaryPoints and acceptanceCriteria are raw corpus lines, so they arrive
+     *  carrying `**emphasis**` and `` `code` `` markers. Setting them as text printed the
+     *  markers; rendering them as HTML would hand document text an injection surface for a
+     *  panel that only needs two inline forms. This builds the two, as nodes, and leaves
+     *  everything else exactly as written. */
+    function appendInlineMarkdown(parent, rawText) {
+      const text = String(rawText == null ? "" : rawText);
+      const pattern = /\*\*([^*]+)\*\*|`([^`]+)`/g;
+      let cursor = 0;
+      let match = pattern.exec(text);
+      while (match) {
+        if (match.index > cursor) {
+          parent.appendChild(document.createTextNode(text.slice(cursor, match.index)));
+        }
+        const element = document.createElement(match[1] ? "strong" : "code");
+        element.textContent = match[1] || match[2];
+        parent.appendChild(element);
+        cursor = match.index + match[0].length;
+        match = pattern.exec(text);
+      }
+      if (cursor < text.length) {
+        parent.appendChild(document.createTextNode(text.slice(cursor)));
+      }
+      return parent;
+    }
+
     function applySectionCollapse(section, title, content, isCollapsed) {
       section.classList.toggle("details__section--collapsed", isCollapsed);
       title.setAttribute("aria-expanded", String(!isCollapsed));
@@ -330,13 +356,9 @@
         titleLine.textContent = item.title;
         detailsTitle.appendChild(titleLine);
 
-        const filePath = String(item?.relPath || item?.path || item?.id || "").trim();
-        if (filePath) {
-          const fileLine = document.createElement("div");
-          fileLine.className = "details__header-title-file";
-          fileLine.textContent = `File: ${filePath}`;
-          detailsTitle.appendChild(fileLine);
-        }
+        // item_721: the document was identified three times -- title, `File: <relPath>`,
+        // and the Name row. relPath is the stage folder the eyebrow already names plus the
+        // slug the Name row already carries, so it said nothing the panel had not said.
       }
 
       const list = document.createElement("div");
@@ -377,6 +399,59 @@
       updatedRow.appendChild(updatedValue);
       list.appendChild(updatedRow);
       detailsBody.appendChild(list);
+
+      // item_721: the payload has carried summaryPoints and acceptanceCriteria all along and
+      // the panel showed neither, opening instead on a title and nine closed headings. What
+      // the document says leads; what a machine reads folds below it.
+      //
+      // Criteria come before the summary, which reverses the order the slice was written in.
+      // Captured at 1440x900 against a real request: the summary is up to four corpus
+      // paragraphs and filled the panel on its own, pushing the criteria entirely below the
+      // fold -- expanded, and invisible. The criteria are short, countable and the thing an
+      // operator checks; the summary is the context read afterwards.
+      const acceptanceCriteria = Array.isArray(item.acceptanceCriteria) ? item.acceptanceCriteria.filter(Boolean) : [];
+      if (acceptanceCriteria.length) {
+        const acSection = document.createElement("div");
+        acSection.className = "details__section details__section--lead";
+        const acKey = "acceptanceCriteria";
+        // The count is the point: a criteria list you have to measure by eye is a list you
+        // read rather than check against.
+        const acHeader = createSectionHeader(`Acceptance criteria (${acceptanceCriteria.length})`, acKey);
+        const acContent = document.createElement("ul");
+        acContent.className = "details__criteria";
+        acceptanceCriteria.forEach((criterion) => {
+          const row = document.createElement("li");
+          row.className = "details__criterion";
+          appendInlineMarkdown(row, criterion);
+          acContent.appendChild(row);
+        });
+        acSection.appendChild(acHeader.header);
+        acSection.appendChild(acContent);
+        applySectionCollapse(acSection, acHeader.title, acContent, getCollapsedDetailSections().has(acKey));
+        attachSectionToggle(acSection, acHeader.title, acContent, acKey);
+        detailsBody.appendChild(acSection);
+      }
+
+      const summaryPoints = Array.isArray(item.summaryPoints) ? item.summaryPoints.filter(Boolean) : [];
+      if (summaryPoints.length) {
+        const summarySection = document.createElement("div");
+        summarySection.className = "details__section details__section--lead";
+        const summaryKey = "summary";
+        const summaryHeader = createSectionHeader("Summary", summaryKey);
+        const summaryContent = document.createElement("div");
+        summaryContent.className = "details__indicators";
+        summaryPoints.forEach((point) => {
+          const row = document.createElement("p");
+          row.className = "details__summary-point";
+          appendInlineMarkdown(row, point);
+          summaryContent.appendChild(row);
+        });
+        summarySection.appendChild(summaryHeader.header);
+        summarySection.appendChild(summaryContent);
+        applySectionCollapse(summarySection, summaryHeader.title, summaryContent, getCollapsedDetailSections().has(summaryKey));
+        attachSectionToggle(summarySection, summaryHeader.title, summaryContent, summaryKey);
+        detailsBody.appendChild(summarySection);
+      }
 
       const indicators = item.indicators || {};
       const indicatorKeys = Object.keys(indicators).filter((key) => key.toLowerCase() !== "reminder");

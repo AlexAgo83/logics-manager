@@ -519,7 +519,7 @@ describe("webview harness filters, details, and docs", () => {
     ).toBe(true);
   });
 
-  it("keeps all detail sections collapsed by default in the details panel", () => {
+  it("expands what the document says and folds what a machine reads", () => {
     const { dom } = bootstrapWebview({ harness: false });
     pushData(dom, {
       root: "/workspace/mock",
@@ -528,17 +528,21 @@ describe("webview harness filters, details, and docs", () => {
     });
 
     const document = dom.window.document;
-    const indicatorsToggle = document.querySelector('[data-section="indicators"]');
-    const companionToggle = document.querySelector('[data-section="companionDocs"]');
-    const specsToggle = document.querySelector('[data-section="specs"]');
-    const referencesToggle = document.querySelector('[data-section="references"]');
-    const usedByToggle = document.querySelector('[data-section="usedBy"]');
+    // item_721: everything used to fold, so the panel opened on a title and nine closed
+    // headings while the payload it already had carried the summary and the criteria. What
+    // the document says is expanded; what a machine reads is what folds.
+    const expanded = (section: string) =>
+      document.querySelector(`[data-section="${section}"]`)?.getAttribute("aria-expanded");
 
-    expect(indicatorsToggle?.getAttribute("aria-expanded")).toBe("false");
-    expect(companionToggle?.getAttribute("aria-expanded")).toBe("false");
-    expect(specsToggle?.getAttribute("aria-expanded")).toBe("false");
-    expect(referencesToggle?.getAttribute("aria-expanded")).toBe("false");
-    expect(usedByToggle?.getAttribute("aria-expanded")).toBe("false");
+    expect(expanded("indicators")).toBe("false");
+    expect(expanded("companionDocs")).toBe("false");
+    expect(expanded("specs")).toBe("false");
+    expect(expanded("references")).toBe("false");
+    expect(expanded("contextPack")).toBe("false");
+    expect(expanded("dependencyMap")).toBe("false");
+
+    expect(expanded("usedBy")).toBe("true");
+    expect(expanded("primaryFlow") ?? "true").toBe("true");
   });
 
   it("starts the details panel collapsed on first load in list mode when no persisted state exists", () => {

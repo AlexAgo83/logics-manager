@@ -147,8 +147,53 @@ describe("webview hydration and data message handling", () => {
     const detailsEyebrow = dom.window.document.getElementById("details-eyebrow");
 
     expect(detailsTitle?.textContent).toContain("Kickoff");
-    expect(detailsTitle?.textContent).toContain("File: logics/request/req_000_kickoff.md");
+    // item_721: the panel identified the document three times -- title, `File: <relPath>`,
+    // and the Name row. relPath is the stage folder the eyebrow names plus the slug the
+    // Name row carries, so it is stated once now and the slug is still reachable.
+    expect(detailsTitle?.textContent).not.toContain("File:");
+    expect(dom.window.document.getElementById("details")?.textContent).toContain("req_000_kickoff");
     expect(detailsEyebrow?.textContent).toBeTruthy();
+  });
+
+  it("leads the panel with the criteria and the summary the payload already carried", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [
+        {
+          ...baseItem,
+          summaryPoints: [
+            "**The demo board** was gated on `clients/shared-web/media`.",
+            "A second point that is plain prose."
+          ],
+          acceptanceCriteria: ["AC1: First criterion.", "AC2: Second criterion.", "AC3: Third criterion."]
+        }
+      ]
+    });
+
+    const details = dom.window.document.getElementById("details");
+
+    // item_721: the payload carried summaryPoints and acceptanceCriteria all along and the
+    // panel showed neither, opening on a title and nine closed headings.
+    expect(details?.querySelectorAll(".details__criterion").length).toBe(3);
+    expect(details?.querySelectorAll(".details__summary-point").length).toBe(2);
+
+    // The count is the point: criteria you have to measure by eye are read, not checked.
+    expect(details?.querySelector('[data-section="acceptanceCriteria"]')?.textContent).toContain("(3)");
+
+    // Both are expanded on open. Machine-facing sections are what fold.
+    expect(details?.querySelector('[data-section="acceptanceCriteria"]')?.getAttribute("aria-expanded")).toBe("true");
+    expect(details?.querySelector('[data-section="summary"]')?.getAttribute("aria-expanded")).toBe("true");
+    expect(details?.querySelector('[data-section="indicators"]')?.getAttribute("aria-expanded")).toBe("false");
+
+    // Corpus lines arrive with inline markers. They are rendered as the two forms they use,
+    // as nodes -- never as HTML, which would hand document text an injection surface.
+    const firstPoint = details?.querySelector(".details__summary-point");
+    expect(firstPoint?.querySelector("strong")?.textContent).toBe("The demo board");
+    expect(firstPoint?.querySelector("code")?.textContent).toBe("clients/shared-web/media");
+    expect(firstPoint?.textContent).not.toContain("**");
   });
 
   it("collapses and expands details panel via toggle button", () => {

@@ -913,7 +913,22 @@
     };
   }
 
+  // item_721: which panel sections start folded was declared twice, in mainApp.js and
+  // mainCore.js, and both listed every section -- so the panel opened on a title and nine
+  // closed headings while the payload it already had carried the summary and the criteria.
+  // Machine-facing sections fold; what the document says does not. One list, because two
+  // lists that must agree eventually stop agreeing.
+  const DEFAULT_COLLAPSED_DETAIL_SECTIONS = [
+    "companionDocs",
+    "contextPack",
+    "dependencyMap",
+    "indicators",
+    "references",
+    "specs"
+  ];
+
   window.CdxLogicsModel = {
+    DEFAULT_COLLAPSED_DETAIL_SECTIONS,
     buildContextPack,
     buildDependencyMap,
     collectCompanionDocs,

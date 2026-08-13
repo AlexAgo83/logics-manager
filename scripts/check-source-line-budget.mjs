@@ -351,11 +351,12 @@ const allowedOversizedFiles = new Map(
     // 150 lines back. The ceiling comes down with them rather than being left where the
     // file's worst moment put it -- a budget that only ratchets upward stops being one.
     "clients/shared-web/media/renderBoardApp.js": { maxLines: 1420, ref: "req_345" },
-    // 1050: item_720 makes selecting a card open the panel it fills. setSelectedId is the
-    // single point selection is set from the board, so it is the one place the two halves of
-    // "select and open" can stay together; splitting them would put the mechanism this slice
-    // exists to unify back into two.
-    "clients/shared-web/media/mainApp.js": { maxLines: 1050, ref: "req_345" },
+    // 1050 -> 1040: item_720 makes selecting a card open the panel it fills (setSelectedId is
+    // the single point selection is set from the board, so it is where the two halves of
+    // "select and open" stay together), and item_721 replaced this file's copy of the
+    // default-collapsed section list with the one logicsModel.js now owns -- mainCore.js had
+    // a second copy of the same list, and two lists that must agree eventually stop agreeing.
+    "clients/shared-web/media/mainApp.js": { maxLines: 1040, ref: "req_345" },
     // 1009: req_322 added stopViewerServers(), the explicit deactivate() path
     // redundant with (not a replacement for) the subscription-disposal path
     // the constructor already registers.

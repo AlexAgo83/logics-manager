@@ -469,3 +469,46 @@
     display: none !important;
   }
 }
+
+/* item_721: what the document says leads the panel. These sections read as prose rather
+   than as a key/value list, which is what the machine-facing sections below them are. */
+.details__section--lead .details__section-title {
+  font-weight: 600;
+}
+
+.details__summary-point {
+  margin: 0 0 8px;
+  line-height: 1.5;
+  color: var(--vscode-foreground, #d4d4d4);
+  overflow-wrap: anywhere;
+}
+
+.details__summary-point:last-child {
+  margin-bottom: 0;
+}
+
+.details__criteria {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* A criterion is a thing you check, so it is drawn as one: the marker sits in its own
+   column and the text wraps under itself rather than under the marker. */
+.details__criterion {
+  position: relative;
+  padding-left: 20px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.details__criterion::before {
+  content: "\2610";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}

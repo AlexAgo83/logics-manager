@@ -87,17 +87,9 @@
       setShouldRecommendCheckEnvironment
     } = options;
 
-    const defaultCollapsedDetailSections = new Set([
-      "attentionExplain",
-      "contextPack",
-      "dependencyMap",
-      "companionDocs",
-      "indicators",
-      "specs",
-      "primaryFlow",
-      "references",
-      "usedBy"
-    ]);
+    const defaultCollapsedDetailSections = new Set(
+      (window.CdxLogicsModel && window.CdxLogicsModel.DEFAULT_COLLAPSED_DETAIL_SECTIONS) || []
+    );
 
     function getSnapshot(scrollValues = { boardLeft: 0, boardTop: 0, detailsTop: 0 }) {
       return {

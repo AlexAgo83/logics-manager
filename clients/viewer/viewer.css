@@ -5398,3 +5398,30 @@
   color: var(--vscode-inputValidation-errorForeground, #f5d7d7);
   border-radius: 0 4px 4px 0;
 }
+
+/* item_711: a root screen is the product's starting point, not a panel over somewhere
+   else. The board is suppressed rather than left to bleed around the panel's edges, and
+   the panel gives up the inset it uses when it genuinely floats over content. The dismiss
+   chrome is hidden in the host, which also keeps it out of the tab order. */
+.viewer-shell--root-screen #layout,
+.viewer-shell--root-screen .toolbar {
+  /* `#layout` holds the board and the activity panel; hiding its children still left it
+     claiming flex height, which showed as a 250px gap between the topbar and the screen.
+     The toolbar goes with it: its controls -- the corpus filter, the attention toggle,
+     the Activity/Project slider -- all act on a board a root screen does not show. */
+  display: none !important;
+}
+
+.viewer-shell--root-screen .viewer-document {
+  /* Fills the space below the topbar, not the topbar itself: the topbar is where the
+     operator reads which context they are in, and on the root fleet home it is the only
+     thing naming it. */
+  inset: auto 0 0 0;
+  top: 0;
+  position: relative;
+  flex: 1 1 auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}

@@ -272,7 +272,12 @@ const allowedOversizedFiles = new Map(
     // instead of the fleet one having none. The browser is shared and only what the
     // chosen folder is used for is a parameter -- the alternative, a second modal for
     // fleet roots, is the duplication the item exists to remove.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4540, ref: "req_346" },
+    // 4572: item_711 makes a root screen -- the fleet home under --fleet -- give up its
+    // dismiss chrome and render with nothing behind it. The added code is a title flag,
+    // a body-class toggle, and the root condition folded into updateScreenActions, which
+    // already owned whether minimize is shown; deciding it in a second place would have
+    // won or lost by ordering. The board suppression is CSS, not host code.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4572, ref: "req_344" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

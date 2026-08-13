@@ -1,10 +1,10 @@
 ## item_713_keep_the_fleet_home_usable_past_a_dozen_projects - Keep the fleet home usable past a dozen projects
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 20%
 > Complexity: Low
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

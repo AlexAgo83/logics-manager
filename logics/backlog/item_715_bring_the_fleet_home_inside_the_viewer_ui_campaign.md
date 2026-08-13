@@ -1,10 +1,10 @@
 ## item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign - Bring the fleet home inside the viewer UI campaign
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 20%
 > Complexity: Medium
 > Theme: Validation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

@@ -1,10 +1,10 @@
 ## item_714_give_the_fleet_home_s_empty_and_degraded_states_something_to_say - Give the fleet home's empty and degraded states something to say
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 20%
 > Complexity: Low
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

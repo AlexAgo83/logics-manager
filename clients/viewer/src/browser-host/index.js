@@ -948,7 +948,11 @@ import {
     };
     const pill = repoPill();
     if (pill) {
-      const repoName = String(payload.repoName || viewerState.latestRepoRoot.split(/[\\/]/).filter(Boolean).pop() || "repository");
+      // item_711: on the root fleet home the operator has not chosen a project yet, so
+      // naming one in the topbar answers "where am I" differently from the screen itself.
+      const repoName = payload.fleetHome
+        ? "Fleet"
+        : String(payload.repoName || viewerState.latestRepoRoot.split(/[\\/]/).filter(Boolean).pop() || "repository");
       const label = pill.querySelector("[data-viewer-project-label]");
       if (label) {
         label.textContent = repoName;
@@ -1058,7 +1062,6 @@ import {
       <section class="viewer-fleet">
         <div class="viewer-fleet__toolbar">
           <div>
-            <h2>Fleet</h2>
             <p>${projects.length} project${projects.length === 1 ? "" : "s"} discovered.</p>
           </div>
           <button class="viewer-fleet__open" type="button" data-viewer-fleet-root-pick>Add root</button>
@@ -2072,8 +2075,18 @@ import {
     if (gitActions) gitActions.hidden = !isGit;
     if (!isGit) setGitActionsMenuOpen(false);
     if (releaseReset) releaseReset.hidden = !isRelease;
+    // item_711: a root screen has nowhere to be dismissed to, so it gives up both
+    // dismiss controls. Decided here because this function already owns whether the
+    // minimize button is shown -- a second opinion elsewhere would win or lose by
+    // ordering.
+    const root = isRootScreen(titleText);
+    const close = document.getElementById("viewer-document-close");
+    if (close instanceof HTMLButtonElement) {
+      close.hidden = root;
+      close.disabled = root;
+    }
     if (minimize instanceof HTMLButtonElement) {
-      minimize.hidden = !titleText || !desktopScreensCanMinimize();
+      minimize.hidden = root || !titleText || !desktopScreensCanMinimize();
       minimize.disabled = minimize.hidden;
     }
     if (status instanceof HTMLButtonElement) {
@@ -2246,6 +2259,22 @@ import {
   // collapse what they had open. Mirrors the state-preservation the Git screen
   // already does, generalized to every screen.
   // Human label for the corpus-type pill shown in the document header.
+  // item_711: the fleet home under `--fleet` is where the product starts, and it was
+  // drawn as a document panel over a board that had already loaded -- with Close and
+  // Minimize in its chrome, so closing it landed the operator on a project they never
+  // chose. A root view is the same panel with the dismiss chrome withheld and nothing
+  // rendered behind it; the panel mechanism itself is unchanged, which is what keeps
+  // `screenRegistry` the single declaration point req_313 made it.
+  let rootScreenTitle = "";
+
+  function isRootScreen(titleText) {
+    return Boolean(rootScreenTitle) && titleText === rootScreenTitle;
+  }
+
+  function applyRootScreenChrome(titleText) {
+    document.body.classList.toggle("viewer-shell--root-screen", isRootScreen(titleText));
+  }
+
   function setDocument(titleText, html, options = {}) {
     invalidatePendingViews();
     cdxState.cdxCloseTarget = null;
@@ -2255,6 +2284,7 @@ import {
       renderMinimizedDock();
     }
     currentDocumentItem = options.item || null;
+    applyRootScreenChrome(titleText);
     const panel = documentPanel();
     const title = documentTitle();
     const content = documentContent();
@@ -2492,6 +2522,8 @@ import {
       dispatchViewerActivityUpdate();
     }
     if (payload.fleetHome) {
+      // Declared before the screen renders so its first paint already has root chrome.
+      rootScreenTitle = "Fleet";
       void showFleetHome({ silent: Boolean(options.silent) });
     }
     return true;

@@ -1,14 +1,14 @@
 ## item_737_turn_settings_into_controls_with_state - Turn Settings into controls with state
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 01:28:05
+> Indicators reviewed: 2026-08-14 01:30:05
 
 # AI Context
 - Summary: Nine identical primary buttons, of which `Stop viewer` kills the server and looks exactly like `Insights`, a link; three are navigation; the title prints twice; and nothing reports the address, mode, transport, version or connector state.
@@ -64,3 +64,9 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_344_deliver_the_git_ci_release_and_settings_redesign`
+
+# Notes
+- Task `task_344_deliver_the_git_ci_release_and_settings_redesign` was finished via `logics-manager flow finish task` on 2026-08-14.

@@ -1,14 +1,14 @@
 ## item_734_report_a_ci_run_by_its_verdict_and_its_duration - Report a CI run by its verdict and its duration
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 00:50:05
+> Indicators reviewed: 2026-08-14 01:30:04
 
 # AI Context
 - Summary: Six job rows all read `completed / success` in link blue, `pass` appears four times, both ends of the run are shown but never the duration, and a failing job is drawn at exactly the size of a passing one.
@@ -61,3 +61,9 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_344_deliver_the_git_ci_release_and_settings_redesign`
+
+# Notes
+- Task `task_344_deliver_the_git_ci_release_and_settings_redesign` was finished via `logics-manager flow finish task` on 2026-08-14.

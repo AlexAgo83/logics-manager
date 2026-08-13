@@ -1,8 +1,8 @@
 ## prod_083_screens_that_state_their_answer - Screens that state their answer
 > Date: 2026-08-13
-> Status: Proposed
+> Status: Settled
 > Related request: `req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question`
-> Related backlog: `item_731_open_the_git_screen_on_content_and_lead_it_with_a_verdict`, `item_732_make_the_commit_list_and_the_diff_pane_readable`, `item_733_say_each_git_fact_once`, `item_734_report_a_ci_run_by_its_verdict_and_its_duration`, `item_735_state_in_one_sentence_whether_the_release_can_proceed`, `item_736_make_the_release_gates_readable_at_a_glance`, `item_737_turn_settings_into_controls_with_state`, `item_738_cover_these_four_screens_in_the_states_an_operator_reaches`
+> Related backlog: `item_731_open_the_git_screen_on_content_and_lead_it_with_a_verdict`
 > Related task: `task_344_deliver_the_git_ci_release_and_settings_redesign`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -45,5 +45,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question`
+- Product back-reference: `item_731_open_the_git_screen_on_content_and_lead_it_with_a_verdict`
 - Task back-reference: `task_344_deliver_the_git_ci_release_and_settings_redesign`

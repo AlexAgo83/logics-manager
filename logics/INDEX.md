@@ -121,6 +121,7 @@
 | [prod_080_a_fleet_home_an_operator_can_triage_from](product/prod_080_a_fleet_home_an_operator_can_triage_from.md) | A fleet home an operator can triage from | Proposed |  |  | product/prod_080_a_fleet_home_an_operator_can_triage_from.md |
 | [prod_081_a_project_view_that_leads_with_what_is_live](product/prod_081_a_project_view_that_leads_with_what_is_live.md) | A project view that leads with what is live | Proposed |  |  | product/prod_081_a_project_view_that_leads_with_what_is_live.md |
 | [prod_082_a_viewer_that_recovers_and_says_what_happened](product/prod_082_a_viewer_that_recovers_and_says_what_happened.md) | A viewer that recovers, and says what happened | Proposed |  |  | product/prod_082_a_viewer_that_recovers_and_says_what_happened.md |
+| [prod_083_screens_that_state_their_answer](product/prod_083_screens_that_state_their_answer.md) | Screens that state their answer | Proposed |  |  | product/prod_083_screens_that_state_their_answer.md |
 
 ## Roadmaps
 
@@ -483,6 +484,7 @@
 | [req_344_make_the_fleet_home_read_as_the_product_s_first_screen](request/req_344_make_the_fleet_home_read_as_the_product_s_first_screen.md) | Make the fleet home read as the product's first screen | Draft |  |  | request/req_344_make_the_fleet_home_read_as_the_product_s_first_screen.md |
 | [req_345_make_the_project_view_lead_with_the_work_that_is_live](request/req_345_make_the_project_view_lead_with_the_work_that_is_live.md) | Make the project view lead with the work that is live | Draft |  |  | request/req_345_make_the_project_view_lead_with_the_work_that_is_live.md |
 | [req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing](request/req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing.md) | Close the gaps behind a fleet root click that does nothing | Draft |  |  | request/req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing.md |
+| [req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question](request/req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question.md) | Make the Git, CI, Release and Settings screens answer their own question | Draft |  |  | request/req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question.md |
 
 ## Backlog
 
@@ -1218,6 +1220,14 @@
 | [item_728_make_the_fleet_flag_decide_whether_the_viewer_is_a_fleet_viewer](backlog/item_728_make_the_fleet_flag_decide_whether_the_viewer_is_a_fleet_viewer.md) | Make the fleet flag decide whether the viewer is a fleet viewer | Ready |  | 0% | backlog/item_728_make_the_fleet_flag_decide_whether_the_viewer_is_a_fleet_viewer.md |
 | [item_729_validate_the_fleet_root_path_the_way_its_sibling_handler_already_does](backlog/item_729_validate_the_fleet_root_path_the_way_its_sibling_handler_already_does.md) | Validate the fleet root path the way its sibling handler already does | Ready |  | 0% | backlog/item_729_validate_the_fleet_root_path_the_way_its_sibling_handler_already_does.md |
 | [item_730_cover_the_three_failure_paths_this_request_found](backlog/item_730_cover_the_three_failure_paths_this_request_found.md) | Cover the three failure paths this request found | Ready |  | 0% | backlog/item_730_cover_the_three_failure_paths_this_request_found.md |
+| [item_731_open_the_git_screen_on_content_and_lead_it_with_a_verdict](backlog/item_731_open_the_git_screen_on_content_and_lead_it_with_a_verdict.md) | Open the Git screen on content and lead it with a verdict | Ready |  | 0% | backlog/item_731_open_the_git_screen_on_content_and_lead_it_with_a_verdict.md |
+| [item_732_make_the_commit_list_and_the_diff_pane_readable](backlog/item_732_make_the_commit_list_and_the_diff_pane_readable.md) | Make the commit list and the diff pane readable | Ready |  | 0% | backlog/item_732_make_the_commit_list_and_the_diff_pane_readable.md |
+| [item_733_say_each_git_fact_once](backlog/item_733_say_each_git_fact_once.md) | Say each Git fact once | Ready |  | 0% | backlog/item_733_say_each_git_fact_once.md |
+| [item_734_report_a_ci_run_by_its_verdict_and_its_duration](backlog/item_734_report_a_ci_run_by_its_verdict_and_its_duration.md) | Report a CI run by its verdict and its duration | Ready |  | 0% | backlog/item_734_report_a_ci_run_by_its_verdict_and_its_duration.md |
+| [item_735_state_in_one_sentence_whether_the_release_can_proceed](backlog/item_735_state_in_one_sentence_whether_the_release_can_proceed.md) | State in one sentence whether the release can proceed | Ready |  | 0% | backlog/item_735_state_in_one_sentence_whether_the_release_can_proceed.md |
+| [item_736_make_the_release_gates_readable_at_a_glance](backlog/item_736_make_the_release_gates_readable_at_a_glance.md) | Make the release gates readable at a glance | Ready |  | 0% | backlog/item_736_make_the_release_gates_readable_at_a_glance.md |
+| [item_737_turn_settings_into_controls_with_state](backlog/item_737_turn_settings_into_controls_with_state.md) | Turn Settings into controls with state | Ready |  | 0% | backlog/item_737_turn_settings_into_controls_with_state.md |
+| [item_738_cover_these_four_screens_in_the_states_an_operator_reaches](backlog/item_738_cover_these_four_screens_in_the_states_an_operator_reaches.md) | Cover these four screens in the states an operator reaches | Ready |  | 0% | backlog/item_738_cover_these_four_screens_in_the_states_an_operator_reaches.md |
 
 ## Tasks
 
@@ -1560,6 +1570,7 @@
 | [task_341_deliver_the_fleet_home_first_screen_redesign](tasks/task_341_deliver_the_fleet_home_first_screen_redesign.md) | Deliver the fleet home first-screen redesign | Ready |  | 0% | tasks/task_341_deliver_the_fleet_home_first_screen_redesign.md |
 | [task_342_deliver_the_project_view_that_leads_with_live_work](tasks/task_342_deliver_the_project_view_that_leads_with_live_work.md) | Deliver the project view that leads with live work | Ready |  | 0% | tasks/task_342_deliver_the_project_view_that_leads_with_live_work.md |
 | [task_343_deliver_the_fleet_root_recovery_visible_failures_and_an_honest_fleet_flag](tasks/task_343_deliver_the_fleet_root_recovery_visible_failures_and_an_honest_fleet_flag.md) | Deliver the fleet root recovery, visible failures and an honest fleet flag | Ready |  | 0% | tasks/task_343_deliver_the_fleet_root_recovery_visible_failures_and_an_honest_fleet_flag.md |
+| [task_344_deliver_the_git_ci_release_and_settings_redesign](tasks/task_344_deliver_the_git_ci_release_and_settings_redesign.md) | Deliver the Git, CI, Release and Settings redesign | Ready |  | 0% | tasks/task_344_deliver_the_git_ci_release_and_settings_redesign.md |
 
 ## Runbooks
 

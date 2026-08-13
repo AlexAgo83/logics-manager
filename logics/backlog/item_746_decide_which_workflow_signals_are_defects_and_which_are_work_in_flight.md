@@ -2,9 +2,9 @@
 > From version: 2.21.9
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
+> Understanding: 93%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -24,6 +24,37 @@
   - Record the answer where the screens can act on it, including what happens to a signal that is neither.
 - Out:
   - Changing which signals are computed, and the audit rules that produce them.
+
+# Decision
+
+Taken 2026-08-13, delegated by the operator, recorded as revisable.
+
+**A signal is a defect when it describes something that cannot resolve itself. It is work
+in flight when time alone will resolve it -- until it has had that time.**
+
+| Signal | Class | Why |
+| --- | --- | --- |
+| Broken reference risks | defect | A reference to something absent does not fix itself. |
+| Orphan or unlinked docs | defect | A document nothing links to will stay unlinked. |
+| Incomplete workflow chains | in flight, then defect after 14 days | A scaffolded chain is incomplete by definition on the day it is written. |
+| Promotion gaps | in flight, then defect after 14 days | Same: a request not yet promoted is the normal first state of a request. |
+
+**The threshold is 14 days and it is a guess.** It is long enough that a chain scaffolded
+and delivered inside a fortnight never appears, and short enough that abandoned work
+surfaces within a sprint. Nothing was measured to choose it, because the corpus has no
+record of how long chains historically took to promote -- `item_716` established that no
+per-beat dates exist. The first operator to disagree should change the number, not the
+rule.
+
+**What made this necessary.** At review time, 100% of the documents Corpus insights listed
+under Flow health were chains scaffolded within the hour, reported as incomplete chains
+and promotion gaps -- which is exactly what a freshly scaffolded chain is. The headline
+counted the normal state of new work, which is what made the number unusable rather than
+merely imprecise.
+
+**What this binds.** `item_747` counts only defects in the headline and shows in-flight
+signals separately with their age. `item_750`'s suspect-finding marking is unaffected:
+that is about a finding the repository contradicts, which is a different axis.
 
 # Acceptance criteria
 - AC1: Each signal is classified and the classification is recorded where a screen can use it.

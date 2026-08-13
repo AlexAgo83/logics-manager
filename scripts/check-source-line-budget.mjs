@@ -157,7 +157,11 @@ const allowedOversizedFiles = new Map(
     // the project handler beside it, deliberately including its containment shape --
     // normalize, resolve, assert -- rather than sharing a helper that would have to be
     // parameterised by what the validated path is then used for.
-    "logics_manager/viewer.py": { maxLines: 3724, ref: "req_346" },
+    // 3735: item_728 separates the server's fleet capability from the launch intent that
+    // `--fleet` was meant to decide. Eleven lines: one constructor parameter, one
+    // assignment, one factory parameter, one call site, and the comment recording that a
+    // plain `view` used to land on the Fleet home because the two were one flag.
+    "logics_manager/viewer.py": { maxLines: 3735, ref: "req_346" },
     // 1545: item_743 keys the cdx update cache on a fingerprint of the installed
     // executable, so running the update the banner asks for ends the banner. The
     // helper is 8 lines; the rest is the docstring stating why it stats rather than

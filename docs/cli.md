@@ -188,11 +188,24 @@ project:
 logics-manager view --fleet --open
 ```
 
-`--fleet` starts or reuses one local viewer server for the current operator
-profile. From a normal project launch, `logics-manager view` and the VS Code
-extension target that project in the same shared server; from a plain directory,
-`view --fleet` opens the Fleet home without prompting to bootstrap that
-directory.
+`--fleet` decides **which screen the viewer opens on**, not what the server can do.
+
+Every viewer is fleet-capable: `adr_028` scoped the fleet registry to the operator
+profile, so one local server serves the whole fleet and the project switcher offers
+fleet root management from any launch. What `--fleet` changes is where you land.
+
+| Launch | Opens on |
+| --- | --- |
+| `logics-manager view` | the launch project's board |
+| `logics-manager view --fleet` | the Fleet home |
+| any URL carrying `?project=<id>` | that project's board |
+
+`--fleet` also skips the prompt to bootstrap the current directory, so it is the way
+to open a viewer from a plain folder that holds no corpus.
+
+Before 2.21.10 the server was fleet-capable *and* treated as fleet-launched, so any
+request without a `project` parameter landed on the Fleet home even from a plain
+`view` inside a project. The capability and the launch intent are now separate.
 
 Fleet roots are operator-scoped viewer preferences. Add or remove them from the
 Fleet home or project menu. Discovery scans only each configured root's immediate

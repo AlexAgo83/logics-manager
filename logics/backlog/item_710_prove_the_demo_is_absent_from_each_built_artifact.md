@@ -1,10 +1,10 @@
 ## item_710_prove_the_demo_is_absent_from_each_built_artifact - Prove the demo is absent from each built artifact
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 85%
 > Complexity: Medium
 > Theme: Release hygiene
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

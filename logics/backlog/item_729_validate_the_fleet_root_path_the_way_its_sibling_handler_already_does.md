@@ -1,10 +1,10 @@
 ## item_729_validate_the_fleet_root_path_the_way_its_sibling_handler_already_does - Validate the fleet root path the way its sibling handler already does
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 40%
 > Complexity: Low
 > Theme: Security
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

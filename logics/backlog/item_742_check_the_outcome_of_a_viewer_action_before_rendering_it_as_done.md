@@ -1,10 +1,10 @@
 ## item_742_check_the_outcome_of_a_viewer_action_before_rendering_it_as_done - Check the outcome of a viewer action before rendering it as done
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -45,3 +45,9 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check`
+
+# Notes
+- Task `task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check` was finished via `logics-manager flow finish task` on 2026-08-13.

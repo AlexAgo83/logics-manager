@@ -1,10 +1,10 @@
 ## item_727_put_a_failed_viewer_action_where_the_operator_will_see_it - Put a failed viewer action where the operator will see it
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 40%
 > Complexity: Medium
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

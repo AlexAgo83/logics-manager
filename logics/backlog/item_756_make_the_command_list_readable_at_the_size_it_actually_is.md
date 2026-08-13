@@ -1,10 +1,10 @@
 ## item_756_make_the_command_list_readable_at_the_size_it_actually_is - Make the command list readable at the size it actually is
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 17%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

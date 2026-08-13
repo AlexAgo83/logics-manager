@@ -1,7 +1,7 @@
 ## req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update - Stop the viewer from swallowing a diagnostic and from repeating a stale update
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

@@ -1,0 +1,620 @@
+{
+  "budgets": {
+    "max_docs": 40,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question item_731_open_the_git_screen_on_content_and_lead_it_with_a_verdict item_732_make_the_commit_list_and_the_diff_pane_readable item_733_say_each_git_fact_once item_734_report_a_ci_run_by_its_verdict_and_its_duration item_735_state_in_one_sentence_whether_the_release_can_proceed item_736_make_the_release_gates_readable_at_a_glance item_737_turn_settings_into_controls_with_state item_738_cover_these_four_screens_in_the_states_an_operator_reaches task_344_deliver_the_git_ci_release_and_settings_redesign --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_731_open_the_git_screen_on_content_and_lead_it_with_a_verdict",
+          "item_732_make_the_commit_list_and_the_diff_pane_readable",
+          "item_733_say_each_git_fact_once",
+          "item_734_report_a_ci_run_by_its_verdict_and_its_duration",
+          "item_735_state_in_one_sentence_whether_the_release_can_proceed",
+          "item_736_make_the_release_gates_readable_at_a_glance",
+          "item_737_turn_settings_into_controls_with_state",
+          "item_738_cover_these_four_screens_in_the_states_an_operator_reaches"
+        ],
+        "prod": [
+          "prod_083_screens_that_state_their_answer"
+        ],
+        "req": [
+          "req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question"
+        ],
+        "task": [
+          "task_344_deliver_the_git_ci_release_and_settings_redesign"
+        ]
+      },
+      "path": "logics/product/prod_083_screens_that_state_their_answer.md",
+      "ref": "prod_083_screens_that_state_their_answer",
+      "status": "Proposed",
+      "title": "Screens that state their answer"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_711_present_the_fleet_home_as_the_root_view_in_fleet_mode",
+          "item_712_redraw_the_fleet_list_as_rows_with_state_carried_by_form",
+          "item_713_keep_the_fleet_home_usable_past_a_dozen_projects",
+          "item_714_give_the_fleet_home_s_empty_and_degraded_states_something_to_say",
+          "item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign"
+        ],
+        "prod": [
+          "prod_080_a_fleet_home_an_operator_can_triage_from"
+        ],
+        "req": [
+          "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact",
+          "req_344_make_the_fleet_home_read_as_the_product_s_first_screen"
+        ],
+        "task": [
+          "task_341_deliver_the_fleet_home_first_screen_redesign"
+        ]
+      },
+      "path": "logics/product/prod_080_a_fleet_home_an_operator_can_triage_from.md",
+      "ref": "prod_080_a_fleet_home_an_operator_can_triage_from",
+      "status": "Proposed",
+      "title": "A fleet home an operator can triage from"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_716_confirm_what_the_payload_can_and_cannot_tell_about_chains_and_lifelines",
+          "item_717_split_the_board_into_a_flow_queue_and_a_companion_library",
+          "item_718_open_the_board_on_the_work_that_is_live",
+          "item_719_reallocate_the_card_face_to_the_facts_that_vary",
+          "item_720_make_selecting_a_card_one_mechanism",
+          "item_721_lead_the_details_panel_with_what_the_document_says",
+          "item_722_give_a_document_a_lifeline_in_the_details_panel",
+          "item_723_draw_the_activity_feed_as_a_chronology",
+          "item_724_tell_one_chain_s_story_in_the_activity_feed",
+          "item_725_cover_the_board_the_selected_state_the_panel_and_the_feed_in_the_campaign"
+        ],
+        "prod": [
+          "prod_081_a_project_view_that_leads_with_what_is_live"
+        ],
+        "req": [
+          "req_345_make_the_project_view_lead_with_the_work_that_is_live"
+        ],
+        "task": [
+          "task_342_deliver_the_project_view_that_leads_with_live_work"
+        ]
+      },
+      "path": "logics/product/prod_081_a_project_view_that_leads_with_what_is_live.md",
+      "ref": "prod_081_a_project_view_that_leads_with_what_is_live",
+      "status": "Proposed",
+      "title": "A project view that leads with what is live"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "git, release, settings, screens, answer, own, question",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_731_open_the_git_screen_on_content_and_lead_it_with_a_verdict",
+          "item_732_make_the_commit_list_and_the_diff_pane_readable",
+          "item_733_say_each_git_fact_once",
+          "item_734_report_a_ci_run_by_its_verdict_and_its_duration",
+          "item_735_state_in_one_sentence_whether_the_release_can_proceed",
+          "item_736_make_the_release_gates_readable_at_a_glance",
+          "item_737_turn_settings_into_controls_with_state",
+          "item_738_cover_these_four_screens_in_the_states_an_operator_reaches"
+        ],
+        "prod": [
+          "prod_083_screens_that_state_their_answer"
+        ],
+        "req": [
+          "req_344_make_the_fleet_home_read_as_the_product_s_first_screen",
+          "req_345_make_the_project_view_lead_with_the_work_that_is_live",
+          "req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question"
+        ]
+      },
+      "path": "logics/request/req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question.md",
+      "ref": "req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Make the Git, CI, Release and Settings screens answer their own question"
+    },
+    {
+      "ai_context": {
+        "keywords": "fleet home, browser host, viewer css, screen density, status colour, viewer ui campaign, extension host parity",
+        "skip when": "working on the board, the document screens, the project switcher menu, or the demo project's visibility.",
+        "summary": "The `--fleet` entry screen presents as a dismissable panel over an unchosen project and spends ~360px per project to show three digits; this reframes it as the root view and redraws the list as rows triageable at a glance.",
+        "use when": "changing what `view --fleet` renders, the fleet row or card layout, the fleet toolbar, or the campaign's screen coverage."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_711_present_the_fleet_home_as_the_root_view_in_fleet_mode",
+          "item_712_redraw_the_fleet_list_as_rows_with_state_carried_by_form",
+          "item_713_keep_the_fleet_home_usable_past_a_dozen_projects",
+          "item_714_give_the_fleet_home_s_empty_and_degraded_states_something_to_say",
+          "item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign"
+        ],
+        "prod": [
+          "prod_080_a_fleet_home_an_operator_can_triage_from"
+        ],
+        "req": [
+          "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact",
+          "req_344_make_the_fleet_home_read_as_the_product_s_first_screen"
+        ]
+      },
+      "path": "logics/request/req_344_make_the_fleet_home_read_as_the_product_s_first_screen.md",
+      "ref": "req_344_make_the_fleet_home_read_as_the_product_s_first_screen",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Make the fleet home read as the product's first screen"
+    },
+    {
+      "ai_context": {
+        "keywords": "project, view, lead, work, live",
+        "skip when": "working on the fleet home, the document reader or editor, or the Workshop, Remote and CDX screens.",
+        "summary": "91.5% of this corpus is finished, and the board, the card, the details panel and the activity feed are all scaled for it; this reallocates their surface and their visual channels to the 13 items that are live.",
+        "use when": "changing the board's columns or cards, the selected-card state, the details panel, or the activity feed."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_716_confirm_what_the_payload_can_and_cannot_tell_about_chains_and_lifelines",
+          "item_717_split_the_board_into_a_flow_queue_and_a_companion_library",
+          "item_718_open_the_board_on_the_work_that_is_live",
+          "item_719_reallocate_the_card_face_to_the_facts_that_vary",
+          "item_720_make_selecting_a_card_one_mechanism",
+          "item_721_lead_the_details_panel_with_what_the_document_says",
+          "item_722_give_a_document_a_lifeline_in_the_details_panel",
+          "item_723_draw_the_activity_feed_as_a_chronology",
+          "item_724_tell_one_chain_s_story_in_the_activity_feed",
+          "item_725_cover_the_board_the_selected_state_the_panel_and_the_feed_in_the_campaign"
+        ],
+        "prod": [
+          "prod_081_a_project_view_that_leads_with_what_is_live"
+        ],
+        "req": [
+          "req_344_make_the_fleet_home_read_as_the_product_s_first_screen",
+          "req_345_make_the_project_view_lead_with_the_work_that_is_live"
+        ]
+      },
+      "path": "logics/request/req_345_make_the_project_view_lead_with_the_work_that_is_live.md",
+      "ref": "req_345_make_the_project_view_lead_with_the_work_that_is_live",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Make the project view lead with the work that is live"
+    },
+    {
+      "ai_context": {
+        "keywords": "open, git, screen, content, lead, verdict",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_731_open_the_git_screen_on_content_and_lead_it_with_a_verdict"
+        ],
+        "prod": [
+          "prod_083_screens_that_state_their_answer"
+        ],
+        "req": [
+          "req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question"
+        ],
+        "task": [
+          "task_344_deliver_the_git_ci_release_and_settings_redesign"
+        ]
+      },
+      "path": "logics/backlog/item_731_open_the_git_screen_on_content_and_lead_it_with_a_verdict.md",
+      "ref": "item_731_open_the_git_screen_on_content_and_lead_it_with_a_verdict",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Open the Git screen on content and lead it with a verdict"
+    },
+    {
+      "ai_context": {
+        "keywords": "deliver, git, release, settings, redesign",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_731_open_the_git_screen_on_content_and_lead_it_with_a_verdict",
+          "item_732_make_the_commit_list_and_the_diff_pane_readable",
+          "item_733_say_each_git_fact_once",
+          "item_734_report_a_ci_run_by_its_verdict_and_its_duration",
+          "item_735_state_in_one_sentence_whether_the_release_can_proceed",
+          "item_736_make_the_release_gates_readable_at_a_glance",
+          "item_737_turn_settings_into_controls_with_state",
+          "item_738_cover_these_four_screens_in_the_states_an_operator_reaches"
+        ],
+        "prod": [
+          "prod_083_screens_that_state_their_answer"
+        ],
+        "req": [
+          "req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question"
+        ],
+        "task": [
+          "task_344_deliver_the_git_ci_release_and_settings_redesign"
+        ]
+      },
+      "path": "logics/tasks/task_344_deliver_the_git_ci_release_and_settings_redesign.md",
+      "ref": "task_344_deliver_the_git_ci_release_and_settings_redesign",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Deliver the Git, CI, Release and Settings redesign"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_731_open_the_git_screen_on_content_and_lead_it_with_a_verdict",
+          "item_732_make_the_commit_list_and_the_diff_pane_readable",
+          "item_733_say_each_git_fact_once",
+          "item_734_report_a_ci_run_by_its_verdict_and_its_duration",
+          "item_735_state_in_one_sentence_whether_the_release_can_proceed",
+          "item_736_make_the_release_gates_readable_at_a_glance",
+          "item_737_turn_settings_into_controls_with_state",
+          "item_738_cover_these_four_screens_in_the_states_an_operator_reaches"
+        ],
+        "prod": [
+          "prod_083_screens_that_state_their_answer"
+        ],
+        "req": [
+          "req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question"
+        ],
+        "task": [
+          "task_344_deliver_the_git_ci_release_and_settings_redesign"
+        ]
+      },
+      "path": "logics/product/prod_083_screens_that_state_their_answer.md",
+      "ref": "prod_083_screens_that_state_their_answer",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "Screens that state their answer"
+    },
+    {
+      "ai_context": {
+        "keywords": "commit, list, diff, pane, readable",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_732_make_the_commit_list_and_the_diff_pane_readable"
+        ],
+        "prod": [
+          "prod_083_screens_that_state_their_answer"
+        ],
+        "req": [
+          "req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question"
+        ],
+        "task": [
+          "task_344_deliver_the_git_ci_release_and_settings_redesign"
+        ]
+      },
+      "path": "logics/backlog/item_732_make_the_commit_list_and_the_diff_pane_readable.md",
+      "ref": "item_732_make_the_commit_list_and_the_diff_pane_readable",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Make the commit list and the diff pane readable"
+    },
+    {
+      "ai_context": {
+        "keywords": "say, each, git, fact, once",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_733_say_each_git_fact_once"
+        ],
+        "prod": [
+          "prod_083_screens_that_state_their_answer"
+        ],
+        "req": [
+          "req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question"
+        ],
+        "task": [
+          "task_344_deliver_the_git_ci_release_and_settings_redesign"
+        ]
+      },
+      "path": "logics/backlog/item_733_say_each_git_fact_once.md",
+      "ref": "item_733_say_each_git_fact_once",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Say each Git fact once"
+    },
+    {
+      "ai_context": {
+        "keywords": "report, run, verdict, duration",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_734_report_a_ci_run_by_its_verdict_and_its_duration"
+        ],
+        "prod": [
+          "prod_083_screens_that_state_their_answer"
+        ],
+        "req": [
+          "req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question"
+        ],
+        "task": [
+          "task_344_deliver_the_git_ci_release_and_settings_redesign"
+        ]
+      },
+      "path": "logics/backlog/item_734_report_a_ci_run_by_its_verdict_and_its_duration.md",
+      "ref": "item_734_report_a_ci_run_by_its_verdict_and_its_duration",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Report a CI run by its verdict and its duration"
+    },
+    {
+      "ai_context": {
+        "keywords": "state, sentence, whether, release, can, proceed",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_735_state_in_one_sentence_whether_the_release_can_proceed"
+        ],
+        "prod": [
+          "prod_083_screens_that_state_their_answer"
+        ],
+        "req": [
+          "req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question"
+        ],
+        "task": [
+          "task_344_deliver_the_git_ci_release_and_settings_redesign"
+        ]
+      },
+      "path": "logics/backlog/item_735_state_in_one_sentence_whether_the_release_can_proceed.md",
+      "ref": "item_735_state_in_one_sentence_whether_the_release_can_proceed",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "State in one sentence whether the release can proceed"
+    },
+    {
+      "ai_context": {
+        "keywords": "release, gates, readable, glance",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_736_make_the_release_gates_readable_at_a_glance"
+        ],
+        "prod": [
+          "prod_083_screens_that_state_their_answer"
+        ],
+        "req": [
+          "req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question"
+        ],
+        "task": [
+          "task_344_deliver_the_git_ci_release_and_settings_redesign"
+        ]
+      },
+      "path": "logics/backlog/item_736_make_the_release_gates_readable_at_a_glance.md",
+      "ref": "item_736_make_the_release_gates_readable_at_a_glance",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Make the release gates readable at a glance"
+    },
+    {
+      "ai_context": {
+        "keywords": "turn, settings, controls, state",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_737_turn_settings_into_controls_with_state"
+        ],
+        "prod": [
+          "prod_083_screens_that_state_their_answer"
+        ],
+        "req": [
+          "req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question"
+        ],
+        "task": [
+          "task_344_deliver_the_git_ci_release_and_settings_redesign"
+        ]
+      },
+      "path": "logics/backlog/item_737_turn_settings_into_controls_with_state.md",
+      "ref": "item_737_turn_settings_into_controls_with_state",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Turn Settings into controls with state"
+    },
+    {
+      "ai_context": {
+        "keywords": "cover, four, screens, states, operator, reaches",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_738_cover_these_four_screens_in_the_states_an_operator_reaches"
+        ],
+        "prod": [
+          "prod_083_screens_that_state_their_answer"
+        ],
+        "req": [
+          "req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question"
+        ],
+        "task": [
+          "task_344_deliver_the_git_ci_release_and_settings_redesign"
+        ]
+      },
+      "path": "logics/backlog/item_738_cover_these_four_screens_in_the_states_an_operator_reaches.md",
+      "ref": "item_738_cover_these_four_screens_in_the_states_an_operator_reaches",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Cover these four screens in the states an operator reaches"
+    }
+  ],
+  "estimates": {
+    "char_count": 16212,
+    "companion_doc_count": 3,
+    "doc_count": 13
+  },
+  "generated_at": "2026-08-13T11:59:34Z",
+  "handoff": {
+    "companion_doc_count": 3,
+    "enabled": true,
+    "source_refs": [
+      "req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question",
+      "item_731_open_the_git_screen_on_content_and_lead_it_with_a_verdict",
+      "item_732_make_the_commit_list_and_the_diff_pane_readable",
+      "item_733_say_each_git_fact_once",
+      "item_734_report_a_ci_run_by_its_verdict_and_its_duration",
+      "item_735_state_in_one_sentence_whether_the_release_can_proceed",
+      "item_736_make_the_release_gates_readable_at_a_glance",
+      "item_737_turn_settings_into_controls_with_state",
+      "item_738_cover_these_four_screens_in_the_states_an_operator_reaches",
+      "task_344_deliver_the_git_ci_release_and_settings_redesign"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question,item_731_open_the_git_screen_on_content_and_lead_it_with_a_verdict,item_732_make_the_commit_list_and_the_diff_pane_readable,item_733_say_each_git_fact_once,item_734_report_a_ci_run_by_its_verdict_and_its_duration,item_735_state_in_one_sentence_whether_the_release_can_proceed,item_736_make_the_release_gates_readable_at_a_glance,item_737_turn_settings_into_controls_with_state,item_738_cover_these_four_screens_in_the_states_an_operator_reaches,task_344_deliver_the_git_ci_release_and_settings_redesign",
+  "refs": [
+    "req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question",
+    "item_731_open_the_git_screen_on_content_and_lead_it_with_a_verdict",
+    "item_732_make_the_commit_list_and_the_diff_pane_readable",
+    "item_733_say_each_git_fact_once",
+    "item_734_report_a_ci_run_by_its_verdict_and_its_duration",
+    "item_735_state_in_one_sentence_whether_the_release_can_proceed",
+    "item_736_make_the_release_gates_readable_at_a_glance",
+    "item_737_turn_settings_into_controls_with_state",
+    "item_738_cover_these_four_screens_in_the_states_an_operator_reaches",
+    "task_344_deliver_the_git_ci_release_and_settings_redesign"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_344_deliver_the_git_ci_release_and_settings_redesign.md",
+      "ref": "task_344_deliver_the_git_ci_release_and_settings_redesign"
+    }
+  ]
+}

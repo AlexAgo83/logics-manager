@@ -8,19 +8,22 @@
 > Complexity: Low
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-13 16:28:19
 
 # AI Context
-- Summary: Grepping both stylesheets for `color-scheme`, `accent-color` and input selectors returns nothing; the host emits 18 checkboxes, 8 selects, 2 text and 2 search inputs, and index.html adds 10 more, all rendering light on dark.
+- Summary: `main.css` declares `color-scheme: light dark` while the standalone viewer's palette is unconditionally dark, so on a host resolving to light all forty native controls render light on dark; the fix belongs in `viewer.css`, which only the standalone loads.
 - Keywords: color-scheme dark, accent-color, unstyled inputs, white search field, white checkbox, root declaration, terminals verification
 - Use when: Styling any native control, or fixing a control that renders light on the dark interface.
 - Skip when: Restyling hand-themed controls, and changing the Terminals tab's rendering.
 
 # Problem
-- No stylesheet declares a colour scheme and no native control is styled, so about forty controls render as light-mode widgets on a dark interface -- most visibly a white search field across the Runbooks screen and white checkboxes on the screen that launches an agent against the repository.
+`clients/shared-web/media/main.css` declares `color-scheme: light dark`, telling the browser the page follows the host's preference. The VS Code webview does follow the editor theme, so that is right there. The standalone viewer does not: every colour in `clients/viewer/viewer.css` is a `var(--vscode-*, <dark fallback>)` and those variables are undefined outside the extension host, so the palette is unconditionally dark.
+On any host resolving to light, the browser therefore draws all forty native controls light on a dark interface -- most visibly a white search field across the Runbooks screen and white checkboxes on the screen that launches an agent against the repository.
+The fix is scoped: `viewer.css` is loaded only by `clients/viewer/index.html`, so the declaration belongs there and the webview keeps following the editor theme.
 
 # Scope
 - In:
-  - Declare the colour scheme and accent once at the root so every control inherits it.
+  - Declare the colour scheme once at the root of the stylesheet the standalone viewer alone loads, so every control inherits it and the webview is untouched.
   - Give text and search fields the border and background the hand-styled fields already use.
   - Verify the result against the Terminals tab, which this request must not otherwise change.
 - Out:

@@ -927,8 +927,33 @@
     "specs"
   ];
 
+  // item_724, bounded by item_716: activity events are built client-side by diffing the
+  // previous snapshot against the current poll, so nothing records which command wrote a
+  // document. Two scaffolds inside one poll window are indistinguishable, and always will
+  // be from a snapshot diff -- so grouping by operation is not available and grouping by
+  // workflow chain is, from `references` and `usedBy`, which the payload already carries.
+  // The feed says which of the two it did rather than implying it captured the operation.
+  function resolveChainKey(item, allItems) {
+    if (!item) return "";
+    if (String(item.stage) === "request") return String(item.id || "");
+    const linked = collectPrimaryFlowItems(item, allItems || []);
+    const request = linked.find((candidate) => String(candidate.stage) === "request");
+    if (request) return String(request.id || "");
+    // A backlog item linked only to a task still belongs to that task's chain; take the
+    // earliest primary-flow ancestor rather than reporting no chain at all.
+    const ancestor = linked.find((candidate) => String(candidate.id) !== String(item.id));
+    return ancestor ? String(ancestor.id || "") : "";
+  }
+
+  function chainTitle(chainKey, allItems) {
+    const match = (allItems || []).find((candidate) => String(candidate && candidate.id) === String(chainKey));
+    return match && match.title ? String(match.title) : String(chainKey || "");
+  }
+
   window.CdxLogicsModel = {
     DEFAULT_COLLAPSED_DETAIL_SECTIONS,
+    chainTitle,
+    resolveChainKey,
     buildContextPack,
     buildDependencyMap,
     collectCompanionDocs,

@@ -596,3 +596,27 @@
   line-height: 1.45;
   color: var(--vscode-descriptionForeground, #9da5b4);
 }
+
+/* item_724: a chain's events, read from the card rather than found by scrolling the feed. */
+.details__chain-event {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 3px 0;
+  min-width: 0;
+}
+
+.details__chain-event-kind {
+  flex: 0 0 auto;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.details__chain-event-title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--vscode-foreground, #d4d4d4);
+}

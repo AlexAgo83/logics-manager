@@ -544,6 +544,72 @@ function browserExerciseScript(name) {
         return true;
       };
 
+      // item_725: the board, the selected state, the details panel and the activity feed are
+      // not screens with titles -- they are states of the main view, so they cannot be proved
+      // the way visitScreen proves a screen. Each names the steps that put the app into it
+      // and a selector that is only true once it is there, so a check that silently ran on
+      // the wrong surface fails instead of passing.
+      const surfaceReady = (selector) => {
+        const node = document.querySelector(selector);
+        return node instanceof HTMLElement && node.getClientRects().length > 0;
+      };
+
+      const visitSurface = async (surface) => {
+        // The controls here are toggles, not setters: clicking the activity toggle when the
+        // board is already showing moves away from it. Each attempt checks first and clicks
+        // only if the surface is not already reached, so the steps are idempotent.
+        for (let attempt = 0; attempt < 3 && !surfaceReady(surface.proof); attempt += 1) {
+          for (const step of surface.steps || []) {
+            const target = document.querySelector(step);
+            if (target instanceof HTMLElement) {
+              target.click();
+              await delay(500);
+            }
+          }
+          await delay(600);
+        }
+        try {
+          await waitFor(() => surfaceReady(surface.proof), surface.name + " to be on screen", surface.timeoutMs || 30000);
+        } catch (error) {
+          checks.push({
+            name: surface.name + ": reachable",
+            verdict: "failed",
+            measured: "no visible " + surface.proof,
+            detail: error.message
+          });
+          return false;
+        }
+        checks.push({ name: surface.name + ": reachable", verdict: "ok", measured: surface.proof });
+        return true;
+      };
+
+      // Ordered so each surface builds on the one before it: reach the board, select on it,
+      // read the panel that selection opened, then leave for the feed.
+      const SURFACES = [
+        {
+          name: "board",
+          // The SCREENS pass above leaves a document screen open over the board, so the
+          // close control runs before the mode toggle.
+          steps: ["#viewer-document-close", "#activity-toggle"],
+          // At the narrow viewport the board is a list, which is the same surface drawn for
+          // the width -- the check must accept either rather than skipping the viewport.
+          proof: ".column, .list-view__section"
+        },
+        { name: "selected card", steps: [".card"], proof: ".card--selected" },
+        {
+          name: "details panel",
+          steps: [],
+          proof: ".details__section--lead",
+          // Below 900px details.css hides the panel and its splitter outright -- a
+          // deliberate decision, commented there, on the grounds that they eat too much of a
+          // phone. The surface is skipped rather than failed: a campaign that fails on a
+          // decision somebody took on purpose teaches people to ignore its failures.
+          skipBelowWidth: 901,
+          skipReason: "details.css hides the panel below 900px on purpose"
+        },
+        { name: "activity feed", steps: ["#activity-toggle"], proof: ".activity-panel__list" }
+      ];
+
       const SCREENS = [
         // item_715: the fleet home is reached through the project switcher, which must be
         // opened first -- the harness takes a control to click, so the entry names the
@@ -561,6 +627,16 @@ function browserExerciseScript(name) {
         if (!(await visitScreen(screen))) continue;
         for (const layoutCheck of LAYOUT_CHECKS) {
           await check(screen.name + ": " + layoutCheck.name, layoutCheck.run);
+        }
+      }
+      for (const surface of SURFACES) {
+        if (surface.skipBelowWidth && window.innerWidth < surface.skipBelowWidth) {
+          checks.push({ name: surface.name + ": reachable", verdict: "skipped", measured: surface.skipReason });
+          continue;
+        }
+        if (!(await visitSurface(surface))) continue;
+        for (const layoutCheck of LAYOUT_CHECKS) {
+          await check(surface.name + ": " + layoutCheck.name, layoutCheck.run);
         }
       }
       const failed = checks.some((entry) => entry.verdict === "failed");

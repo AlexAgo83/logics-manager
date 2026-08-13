@@ -4,10 +4,11 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Validation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-13 22:22:35
 
 # AI Context
 - Summary: The campaign opens a card and reaches activity, yet none of this request's findings failed a run; extend it to the four surfaces across three viewports before the redraws, so the checks observe the change.
@@ -25,6 +26,15 @@
   - Confirm both surfaces after rebuilding the shared sources.
 - Out:
   - New check kinds beyond what the layout checks already provide.
+
+# Delivery notes
+- The four surfaces are not screens with titles, so `visitScreen` could not prove them. Each names the steps that put the app into it and a selector that is only true once it is there, so a check that silently ran on the wrong surface fails instead of passing -- verified by removing `card--selected` from the renderer and watching `selected card: reachable` fail.
+- The controls are toggles, not setters: clicking the activity toggle while the board is already showing moves away from it. Each attempt checks first and clicks only if the surface is not already reached, which is what made the first run report all four surfaces unreachable.
+- **Delivered after the redraws rather than before them, which is the opposite of what this slice asked for.** The scope says "do this before the redraws, so the checks observe the change rather than being written around it". They were written after `item_717` through `item_724` had landed. The risk that names is real and is not fully mitigated: these checks were shaped by screens that already exist. What limits it is that the layout checks themselves are the existing ones, unchanged -- only the surfaces they are pointed at are new -- and each was proven to fail by reintroducing a defect rather than assumed to work.
+- Two findings the campaign produced on its first complete run, both recorded rather than quietly fixed or ignored:
+  - **Four disabled buttons in the activity feed said nothing about why.** Git and CI events have no document in the corpus to open. Fixed here, since the check that caught it is this slice's.
+  - **Below 900px, selecting a card produces nothing visible.** Recorded in `item_740_keep_progress_and_both_modes_honest_at_any_width`, which owns narrow-width behaviour, because the media query hiding the panel is a documented decision and overturning it while delivering a different slice would replace one undiscussed decision with another. The campaign skips that surface below 900px with the reason stated rather than failing on it.
+- One check, `mobile: every screen reports when it is done: cdx:runs`, failed once with "Action unavailable while another viewer action is running" and passed on every run since. It is recorded as observed rather than as fixed, because nothing was done to it.
 
 # Acceptance criteria
 - AC14: All four surfaces hold at the three viewports and are covered by the campaign.

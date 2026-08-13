@@ -338,6 +338,12 @@
     if (entry.selectable === false) {
       button.disabled = true;
       button.setAttribute("aria-disabled", "true");
+      // item_725: the campaign's "a disabled action says why" check caught these -- four
+      // dead buttons in the feed with nothing saying why they were dead. A git or CI event
+      // has no document in this corpus to open.
+      const disabledReason = "No document in this corpus to open for this event.";
+      button.title = disabledReason;
+      button.setAttribute("aria-description", disabledReason);
     }
 
     const stageLabel = getStageLabel(entry.stage);

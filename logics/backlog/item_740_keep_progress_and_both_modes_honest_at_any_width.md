@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-13 14:18:13
+> Indicators reviewed: 2026-08-13 22:22:35
 
 # AI Context
 - Summary: Progress is a horizontal wash across the card, so a finished document at 100% is washed end to end; in list mode that wash spans the full row, and finished work carries more coloured area than live work despite the done-dimming.
@@ -26,6 +26,13 @@ At 390px the metric chip already wraps under the title and both modes read well 
   - Keep both modes usable at phone width with nothing pushed off-screen: what is a column on a wide screen becomes a subordinate line under the title.
 - Out:
   - Which facts a card or row shows, and the board's structure.
+# Found by the campaign, 2026-08-13, for this slice to decide
+- **Below 900px, selecting a card produces nothing visible at all.** `clients/shared-web/media/css/details.css` hides `.details` and `.splitter` outright under `@media (max-width: 900px)`, with a comment saying the panel and splitter eat too much of a phone and that selection info stays reachable by tapping the item to open the read-preview document.
+- Measured at 820x1180 after selecting a card: the card carries `card--selected`, `details--collapsed` is false and `hidden` is false -- and the panel computes to `display: none`, 0x0. So a tap selects, and the selection has no visible outcome; seeing anything requires a second, different gesture.
+- This matters for this slice because `item_720` made "a click selects and opens the panel" the rule, and its fix -- revealing a collapsed panel on selection -- cannot reach a panel hidden by a media query. The two decisions disagree, and the disagreement only exists below 900px, which is this slice's subject.
+- Not decided here, deliberately: the media query is a documented choice, not an oversight, and overturning it while delivering a different slice would replace one undiscussed decision with another. The options are to give the narrow layout its own way to show a selection, to make the single tap do what the double tap does at that width, or to keep the current behaviour and say so on screen.
+- The viewer UI campaign skips the details-panel surface below 900px with that reason stated, rather than failing on it: a campaign that fails on a decision somebody took on purpose teaches people to ignore its failures. If this slice changes the behaviour, that skip should go with it.
+
 # Acceptance criteria
 - AC18: Progress is encoded so that it reads the same in a narrow card and in a full-width row, and a finished document never carries more coloured area than a live one.
 - AC19: At phone width both modes remain usable with nothing pushed off-screen: the facts that are columns on a wide screen become a subordinate line under the title.

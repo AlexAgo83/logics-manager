@@ -1,10 +1,10 @@
 ## item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves - Bring the CDX screens onto the shape status already proves
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 17%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

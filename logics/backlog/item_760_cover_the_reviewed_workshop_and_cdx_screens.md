@@ -1,10 +1,10 @@
 ## item_760_cover_the_reviewed_workshop_and_cdx_screens - Cover the reviewed Workshop and CDX screens
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 17%
 > Complexity: Medium
 > Theme: Validation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

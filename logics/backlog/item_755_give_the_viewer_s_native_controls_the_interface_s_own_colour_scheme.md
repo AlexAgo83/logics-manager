@@ -1,10 +1,10 @@
 ## item_755_give_the_viewer_s_native_controls_the_interface_s_own_colour_scheme - Give the viewer's native controls the interface's own colour scheme
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 17%
 > Complexity: Low
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

@@ -1,8 +1,8 @@
 ## prod_084_a_viewer_that_repeats_what_it_was_told - A viewer that repeats what it was told
 > Date: 2026-08-13
-> Status: Proposed
+> Status: Settled
 > Related request: `req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update`
-> Related backlog: `item_741_pass_the_connector_s_own_failure_reason_through_to_the_operator`, `item_742_check_the_outcome_of_a_viewer_action_before_rendering_it_as_done`, `item_743_end_the_update_banner_when_the_update_happens`, `item_744_make_the_connector_screen_state_and_action_agree`, `item_745_cover_a_silent_failure_and_a_stale_banner`
+> Related backlog: `item_741_pass_the_connector_s_own_failure_reason_through_to_the_operator`
 > Related task: `task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -47,5 +47,5 @@ flowchart TB
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update`
+- Product back-reference: `item_741_pass_the_connector_s_own_failure_reason_through_to_the_operator`
 - Task back-reference: `task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check`

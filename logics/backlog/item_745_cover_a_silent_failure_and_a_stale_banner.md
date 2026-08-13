@@ -1,10 +1,10 @@
 ## item_745_cover_a_silent_failure_and_a_stale_banner - Cover a silent failure and a stale banner
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Validation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -44,3 +44,9 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check`
+
+# Notes
+- Task `task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check` was finished via `logics-manager flow finish task` on 2026-08-13.

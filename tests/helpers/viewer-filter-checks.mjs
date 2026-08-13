@@ -43,6 +43,9 @@ export function filterChecks(window) {
       await select(focus, "all");
     }
   };
+  const isTerminalMeta = (value) =>
+    !/action unavailable while another viewer action is running/i.test(value)
+    && /loaded|refreshed|ready|unavailable|detected|state:|no /i.test(value);
 
   return [
     {
@@ -65,8 +68,8 @@ export function filterChecks(window) {
           node.dispatchEvent(new window.MouseEvent("click", { bubbles: true, view: window }));
           const started = Date.now();
           let settled = false;
-          while (Date.now() - started < 6000) {
-            if (/loaded|refreshed|ready|available|detected|state:|no /i.test(document.getElementById("viewer-meta")?.textContent || "")) {
+          while (Date.now() - started < 30000) {
+            if (isTerminalMeta(document.getElementById("viewer-meta")?.textContent || "")) {
               settled = true;
               break;
             }

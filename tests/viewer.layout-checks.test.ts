@@ -119,6 +119,10 @@ describe("viewer layout checks", () => {
     const explained = build(`<div><button id="a" disabled title="No document selected">A</button></div>`);
 
     expect(explained.run("disabled action")).toContain("1 disabled control(s)");
+
+    const disabledSearch = build(`<div><input id="q" disabled /></div>`);
+
+    expect(disabledSearch.run("disabled action")).toContain("0 disabled control(s)");
   });
 
   it("walks the interface rather than a hand-written list of surfaces", () => {

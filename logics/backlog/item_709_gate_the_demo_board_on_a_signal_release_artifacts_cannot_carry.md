@@ -8,12 +8,13 @@
 > Complexity: Medium
 > Theme: Release hygiene
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-13 13:03:35
 
 # AI Context
-- Summary: (unfilled: replace before this doc is used)
-- Keywords: gate, demo, board, signal, release, artifacts, cannot, carry
-- Use when: (unfilled: replace before this doc is used)
-- Skip when: (unfilled: replace before this doc is used)
+- Summary: Replace `_is_dev_checkout()`'s probe for `clients/shared-web/media` -- which the npm package and the VSIX both ship -- with a signal a release artifact cannot carry by accident.
+- Keywords: demo corpus, dev gate, is_dev_checkout, repo_root probe, npm package, vsix, release stamp
+- Use when: Changing how the demo board or any dev-only surface is gated, or touching `ensure_demo_corpus_if_dev`.
+- Skip when: Editing the demo corpus content, or adding coverage (that is item_710).
 
 # Problem
 - `_is_dev_checkout()` recognises a dev tree by the presence of `clients/shared-web/media`, which the npm package and the VSIX both ship, so the demo board is offered to users on two of three channels.

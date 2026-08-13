@@ -118,6 +118,7 @@
 | [prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say](product/prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say.md) | A plugin that interrupts only when it has something new to say | Settled |  |  | product/prod_077_a_plugin_that_interrupts_only_when_it_has_something_new_to_say.md |
 | [prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer](product/prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer.md) | A standalone fleet home for the canonical Logics viewer | Settled |  |  | product/prod_078_a_standalone_fleet_home_for_the_canonical_logics_viewer.md |
 | [prod_079_a_release_that_contains_only_the_product](product/prod_079_a_release_that_contains_only_the_product.md) | A release that contains only the product | Proposed |  |  | product/prod_079_a_release_that_contains_only_the_product.md |
+| [prod_080_a_fleet_home_an_operator_can_triage_from](product/prod_080_a_fleet_home_an_operator_can_triage_from.md) | A fleet home an operator can triage from | Proposed |  |  | product/prod_080_a_fleet_home_an_operator_can_triage_from.md |
 
 ## Roadmaps
 
@@ -477,6 +478,7 @@
 | [req_341_stop_reopening_getting_started_when_its_content_has_not_changed](request/req_341_stop_reopening_getting_started_when_its_content_has_not_changed.md) | Stop reopening Getting Started when its content has not changed | Done |  |  | request/req_341_stop_reopening_getting_started_when_its_content_has_not_changed.md |
 | [req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server](request/req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server.md) | Launch a standalone Logics fleet viewer through one shared local server | Done |  |  | request/req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server.md |
 | [req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact](request/req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact.md) | Keep the synthetic demo board out of every released artifact | Draft |  |  | request/req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact.md |
+| [req_344_make_the_fleet_home_read_as_the_product_s_first_screen](request/req_344_make_the_fleet_home_read_as_the_product_s_first_screen.md) | Make the fleet home read as the product's first screen | Draft |  |  | request/req_344_make_the_fleet_home_read_as_the_product_s_first_screen.md |
 
 ## Backlog
 
@@ -1192,6 +1194,11 @@
 | [item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton](backlog/item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton.md) | Replace per-repository viewer reuse with a safe fleet singleton | Done |  | 100% | backlog/item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton.md |
 | [item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry](backlog/item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry.md) | Gate the demo board on a signal release artifacts cannot carry | Ready |  | 0% | backlog/item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry.md |
 | [item_710_prove_the_demo_is_absent_from_each_built_artifact](backlog/item_710_prove_the_demo_is_absent_from_each_built_artifact.md) | Prove the demo is absent from each built artifact | Ready |  | 0% | backlog/item_710_prove_the_demo_is_absent_from_each_built_artifact.md |
+| [item_711_present_the_fleet_home_as_the_root_view_in_fleet_mode](backlog/item_711_present_the_fleet_home_as_the_root_view_in_fleet_mode.md) | Present the fleet home as the root view in fleet mode | Ready |  | 0% | backlog/item_711_present_the_fleet_home_as_the_root_view_in_fleet_mode.md |
+| [item_712_redraw_the_fleet_list_as_rows_with_state_carried_by_form](backlog/item_712_redraw_the_fleet_list_as_rows_with_state_carried_by_form.md) | Redraw the fleet list as rows with state carried by form | Ready |  | 0% | backlog/item_712_redraw_the_fleet_list_as_rows_with_state_carried_by_form.md |
+| [item_713_keep_the_fleet_home_usable_past_a_dozen_projects](backlog/item_713_keep_the_fleet_home_usable_past_a_dozen_projects.md) | Keep the fleet home usable past a dozen projects | Ready |  | 0% | backlog/item_713_keep_the_fleet_home_usable_past_a_dozen_projects.md |
+| [item_714_give_the_fleet_home_s_empty_and_degraded_states_something_to_say](backlog/item_714_give_the_fleet_home_s_empty_and_degraded_states_something_to_say.md) | Give the fleet home's empty and degraded states something to say | Ready |  | 0% | backlog/item_714_give_the_fleet_home_s_empty_and_degraded_states_something_to_say.md |
+| [item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign](backlog/item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign.md) | Bring the fleet home inside the viewer UI campaign | Ready |  | 0% | backlog/item_715_bring_the_fleet_home_inside_the_viewer_ui_campaign.md |
 
 ## Tasks
 
@@ -1531,6 +1538,7 @@
 | [task_338_deliver_the_content_keyed_onboarding_guard](tasks/task_338_deliver_the_content_keyed_onboarding_guard.md) | Deliver the content-keyed onboarding guard | Done |  | 100% | tasks/task_338_deliver_the_content_keyed_onboarding_guard.md |
 | [task_339_deliver_the_standalone_fleet_viewer_and_singleton_server](tasks/task_339_deliver_the_standalone_fleet_viewer_and_singleton_server.md) | Deliver the standalone fleet viewer and singleton server | Done | Codex | 100% | tasks/task_339_deliver_the_standalone_fleet_viewer_and_singleton_server.md |
 | [task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof](tasks/task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof.md) | Deliver the release-safe demo gate and its per-artifact proof | Ready |  | 0% | tasks/task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof.md |
+| [task_341_deliver_the_fleet_home_first_screen_redesign](tasks/task_341_deliver_the_fleet_home_first_screen_redesign.md) | Deliver the fleet home first-screen redesign | Ready |  | 0% | tasks/task_341_deliver_the_fleet_home_first_screen_redesign.md |
 
 ## Runbooks
 

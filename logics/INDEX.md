@@ -140,6 +140,7 @@
 | [road_005_2_19_the_operator_surface](roadmap/road_005_2_19_the_operator_surface.md) | 2.19: the operator surface | Settled |  |  | roadmap/road_005_2_19_the_operator_surface.md |
 | [road_006_2_20_any_repo_any_agent](roadmap/road_006_2_20_any_repo_any_agent.md) | 2.20: any repo, any agent | Settled |  |  | roadmap/road_006_2_20_any_repo_any_agent.md |
 | [road_007_2_21_evidence_over_assertion](roadmap/road_007_2_21_evidence_over_assertion.md) | 2.21: evidence over assertion | Settled |  |  | roadmap/road_007_2_21_evidence_over_assertion.md |
+| [road_008_viewer_work_in_lots](roadmap/road_008_viewer_work_in_lots.md) | Viewer work in lots | Proposed |  |  | roadmap/road_008_viewer_work_in_lots.md |
 
 ## Requests
 

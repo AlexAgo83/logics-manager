@@ -161,7 +161,14 @@ const allowedOversizedFiles = new Map(
     // `--fleet` was meant to decide. Eleven lines: one constructor parameter, one
     // assignment, one factory parameter, one call site, and the comment recording that a
     // plain `view` used to land on the Fleet home because the two were one flag.
-    "logics_manager/viewer.py": { maxLines: 3735, ref: "req_346" },
+    // 3760: item_732 reads a `full` query parameter on /api/git-diff, the same question the
+    // /api/git-file-preview route below it already answered. The three lines that took made
+    // do_GET grow, and the function-length gate refused it -- so the three content routes
+    // (diff, commit diff, file preview) moved into _handle_git_content_get, following the
+    // precedent _handle_select_fleet_root_path_post set in do_POST. The extraction costs
+    // more lines than it saves, because a named function with a docstring is longer than the
+    // branches it replaces; what it buys is a do_GET that stopped growing.
+    "logics_manager/viewer.py": { maxLines: 3760, ref: "req_347" },
     // 1545: item_743 keys the cdx update cache on a fingerprint of the installed
     // executable, so running the update the banner asks for ends the banner. The
     // helper is 8 lines; the rest is the docstring stating why it stats rather than
@@ -171,7 +178,10 @@ const allowedOversizedFiles = new Map(
     // 1069: req_323 threaded repo_root through _normalize_git_file_path so it
     // could route through the shared path_utils containment check, and removed
     // git_file_preview_payload's own now-redundant duplicate of the same check.
-    "logics_manager/viewer_git.py": { maxLines: 1069, ref: "req_323" },
+    // 1090: item_732 gives git_diff_payload the `full` escape hatch git_file_preview_payload
+    // in the same module has always had, plus the forced ceiling it is held to. A truncated
+    // diff previously reported the word "truncated" and offered no way past it.
+    "logics_manager/viewer_git.py": { maxLines: 1090, ref: "req_347" },
     // 4909: release prep baseline.
     // req_311 lifted the document vocabulary into flow/docs.py: 4725 -> 3627. What is left
     // is the verbs and the CLI wiring, sitting on top of primitives that know nothing of them.
@@ -300,7 +310,10 @@ const allowedOversizedFiles = new Map(
     // owns, rather than giving the verdict its own push. Nine lines in the delegated click
     // handler where every other screen action is already dispatched; a second push path
     // would be a second place to change when push changes.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4670, ref: "req_347" },
+    // 4682: item_732 dispatches the "load the rest of this diff" control in the same
+    // delegated handler as the file preview's own force beside it, so asking for the rest of
+    // a diff and asking for the rest of a file are one pattern rather than two.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4682, ref: "req_347" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

@@ -613,8 +613,20 @@ export function createGitScreen(host) {
     return "context";
   }
 
+  /** item_732: the first five lines of every diff were `diff --git`, `index <blob>..<blob>`,
+   *  `--- a/<path>` and `+++ b/<path>` -- the path the pane's own header already states and
+   *  two hashes nobody reads, pushing the actual change below the fold on a short pane. The
+   *  diff pane shows the diff. */
+  function stripGitDiffHeader(content) {
+    const lines = String(content || "").split("\n");
+    const firstHunk = lines.findIndex((line) => line.startsWith("@@"));
+    if (firstHunk <= 0) return String(content || "");
+    const kept = lines.slice(firstHunk);
+    return kept.join("\n");
+  }
+
   function renderGitDiffPreview(content) {
-    return renderCodeViewer(content, {
+    return renderCodeViewer(stripGitDiffHeader(content), {
       language: "diff",
       lineClassName: (line) => `viewer-git__diff-line viewer-git__diff-line--${gitDiffLineKind(line)}`,
       renderLineHtml: (line) => escapeHtml(line || " ")
@@ -634,7 +646,7 @@ export function createGitScreen(host) {
     });
   }
 
-  async function loadGitDiff(path, cached, button = null) {
+  async function loadGitDiff(path, cached, button = null, options = {}) {
     const diffPanel = document.querySelector("[data-viewer-git-diff]");
     const detailTitle = document.querySelector("[data-viewer-git-detail] .viewer-git__detail-title");
     if (!(diffPanel instanceof HTMLElement) || !path) {
@@ -651,6 +663,9 @@ export function createGitScreen(host) {
     if (cached) {
       params.set("cached", "1");
     }
+    if (options.full) {
+      params.set("full", "1");
+    }
     const response = await fetch(`/api/git-diff?${params.toString()}`);
     const data = await response.json();
     const payload = data.payload || {};
@@ -663,7 +678,12 @@ export function createGitScreen(host) {
       await loadGitFilePreview(path, diffPanel, detailTitle);
       return;
     }
-    diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.path || path)} · ${escapeHtml(payload.mode || "worktree")}${payload.truncated ? " · truncated" : ""}</div>${renderGitDiffPreview(content)}`;
+    // item_732: "truncated" told the operator the diff was cut and offered nothing. When the
+    // server says more is available, the pane says how to get it.
+    const more = payload.canForce
+      ? `<button class="btn viewer-git__diff-more" type="button" data-viewer-git-diff-full="${escapeHtml(payload.path || path)}" data-viewer-git-diff-cached="${cached ? "1" : "0"}">Load the rest of this diff</button>`
+      : "";
+    diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.path || path)} · ${escapeHtml(payload.mode || "worktree")}${payload.truncated ? " · truncated" : ""}</div>${renderGitDiffPreview(content)}${more}`;
   }
 
   async function loadGitCommitDiff(ref, button = null) {

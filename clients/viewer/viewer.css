@@ -5737,3 +5737,33 @@
 .viewer-git__summary--strip .viewer-insights__value {
   font-size: 14px;
 }
+
+/* item_732: a hash is one token. `overflow-wrap: anywhere` on the row let a short hash
+   break across two lines mid-token, which makes it unreadable and uncopyable by eye. */
+.viewer-git__commit-main code,
+.viewer-git__diff-meta code {
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: keep-all;
+  font-variant-ligatures: none;
+}
+
+/* item_732: a path was truncated from its right end -- the end that says which file it is.
+   `direction: rtl` moves the ellipsis to the front and keeps the basename; the isolate
+   stops the leading slash and any punctuation from being reordered with it. */
+.viewer-git__file-path {
+  direction: rtl;
+  text-align: left;
+  unicode-bidi: plaintext;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: normal;
+}
+
+/* The continuation for a diff the server cut short. */
+.viewer-git__diff-more {
+  display: block;
+  width: 100%;
+  margin: 8px 0 0;
+}

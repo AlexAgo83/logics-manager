@@ -4037,6 +4037,7 @@ import {
       const gitFileTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-file]") : null;
       const gitCommitTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-commit]") : null;
       const gitPreviewFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-preview-full]") : null;
+      const gitDiffFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-diff-full]") : null;
       const workspaceTreeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-tree]") : null;
       const workspacePreviewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview]") : null;
       const workspacePreviewFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview-full]") : null;
@@ -4473,6 +4474,17 @@ import {
       if (workspaceTreeTarget instanceof HTMLElement) {
         event.preventDefault();
         withPrimaryAction("workspace-tree", "Loading Explorer folder", () => openWorkspaceTree(workspaceTreeTarget.getAttribute("data-viewer-workspace-tree") || ""));
+        return;
+      }
+      if (gitDiffFullTarget instanceof HTMLElement) {
+        event.preventDefault();
+        // item_732: the same shape as the file preview's own force below, so asking for the
+        // rest of a diff and asking for the rest of a file are one pattern.
+        const diffPath = gitDiffFullTarget.getAttribute("data-viewer-git-diff-full") || "";
+        const diffCached = gitDiffFullTarget.getAttribute("data-viewer-git-diff-cached") === "1";
+        withPrimaryAction("git-diff-full", "Loading the rest of the diff", () =>
+          loadGitDiff(diffPath, diffCached, null, { full: true })
+        );
         return;
       }
       if (gitPreviewFullTarget instanceof HTMLElement) {

@@ -4437,6 +4437,51 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("focus: blocked");
   });
 
+  it("shows the diff rather than its header, and offers the rest when it is cut short", async () => {
+    // item_732. Every diff opened with `diff --git`, `index <blob>..<blob>`, `--- a/<path>`
+    // and `+++ b/<path>` -- the path the pane's own header already states and two hashes
+    // nobody reads, five lines that pushed the actual change below the fold on a short pane.
+    const diff = [
+      "diff --git a/file.ts b/file.ts",
+      "index abc1234..def5678 100644",
+      "--- a/file.ts",
+      "+++ b/file.ts",
+      "@@ -1,3 +1,3 @@",
+      " context",
+      "-removed",
+      "+added"
+    ].join("\n");
+
+    const { dom } = createViewerDom({
+      gitDiffResponse: { ok: true, body: { ok: true, payload: { state: "ok", path: "file.ts", mode: "worktree", diff, truncated: true, canForce: true } } }
+    });
+    const api = dom.window.acquireVsCodeApi();
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const lines = Array.from(dom.window.document.querySelectorAll(".viewer-git__diff-line")).map((node) => node.textContent || "");
+    expect(lines.length).toBeGreaterThan(0);
+    expect(lines[0]).toContain("@@");
+    expect(lines.join("\n")).not.toContain("diff --git");
+    expect(lines.join("\n")).not.toContain("index abc1234");
+
+    // Additions, deletions and hunk headers are told apart by class, which the stylesheet
+    // colours; the classes are what a test can hold.
+    expect(dom.window.document.querySelectorAll(".viewer-git__diff-line--add").length).toBe(1);
+    expect(dom.window.document.querySelectorAll(".viewer-git__diff-line--delete").length).toBe(1);
+    expect(dom.window.document.querySelectorAll(".viewer-git__diff-line--hunk").length).toBe(1);
+    expect(dom.window.document.querySelectorAll(".viewer-git__diff-line--meta").length).toBe(0);
+
+    // A diff the server cut short says how to get the rest.
+    const more = dom.window.document.querySelector("[data-viewer-git-diff-full]") as HTMLElement | null;
+    expect(more).not.toBeNull();
+    expect(more?.textContent).toContain("Load the rest");
+    expect(more?.dataset.viewerGitDiffFull).toBe("file.ts");
+  });
+
   it("opens the Git screen on a domain that has content and leads with a verdict", async () => {
     // item_731. `changes` was the default domain whatever the repository held, so a clean
     // tree opened the screen on two blank panes -- while `Ahead 5`, the one fact that needed

@@ -4,6 +4,7 @@
 > Related product: (none yet)
 > Related request: `req_344_make_the_fleet_home_read_as_the_product_s_first_screen`
 > Reminder: Update status, milestone scope, linked refs, risks, and success signals when you edit this doc.
+> Indicators reviewed: 2026-08-13 16:29:00
 
 # AI Context
 - Summary: Ten viewer requests and 62 backlog items sequenced into five lots by what each one waits on, not by version: defects first, then the decisions that unblock the rest, then the surfaces in order of how often an operator meets them.
@@ -27,31 +28,31 @@ number (`^## \d+(?:\.\d+){1,2}\s+-\s+`), so a roadmap of lots cannot be expresse
 The prefix carries the sequence and nothing else -- no release, no scope, no size.
 
 # Milestones
-## 0.1 - Lot 1: Ce qui est déjà cassé chez l'opérateur
+## 0.1 - Lot 1: What is already broken for the operator
 - Goal: Every defect an operator meets today is gone, and nothing in this lot waits on a decision.
 - Scope: `req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact` (the demo board ships on npm and VSIX today); `req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update`; from `req_346`, the picker recovery and making a failed action visible; from `req_350`, the colour-scheme declaration.
 - Why first: none of it needs a design answer, all of it is either shipping broken or a few lines. The colour-scheme declaration in particular improves every screen in the product, including ones nobody has reviewed, and should not wait behind any redesign.
 - Exit signal: an operator can add a fleet root, sees why an action failed, is not told to run an update they already ran, no release contains the demo board, and no control renders as a light-mode widget.
 
-## 0.2 - Lot 2: Les réponses dont le reste dépend
+## 0.2 - Lot 2: The answers the rest depends on
 - Goal: Every question that a later lot would otherwise have to guess at is answered and recorded.
 - Scope: `item_716` (can the payload support chain threads and document lifelines); `item_746` (which workflow signals are defects and which are the normal state of work in flight); `item_728` (what `--fleet` actually decides); `item_767` (the second channel each colour-carried state uses); `item_711` (the panel framing, decided once and inherited); and the campaign harness, built by whichever of the eight campaign items is delivered first, per `adr_029`.
 - Why second: five design items are drawn on these answers, and drawing before them encodes a guess. This lot produces almost no visible change, which is the point.
 - Exit signal: each answer is written where the lots that need it can act on it, and the campaign can reach a screen, wait for it, prove which one it captured, and apply the layout checks.
 
-## 0.3 - Lot 3: Le premier écran et le board
+## 0.3 - Lot 3: The first screen and the board
 - Goal: The two surfaces an operator meets most are the ones the redesigns have reached.
 - Scope: the remainder of `req_344_make_the_fleet_home_read_as_the_product_s_first_screen`; `req_345_make_the_project_view_lead_with_the_work_that_is_live` in full, including list mode, the phone layouts, the details panel and the activity feed.
 - Why third: the framing settled in Lot 2 lands here first and is inherited by everything after, and the board is where 91.5% of a corpus is finished and 13 items are live.
 - Exit signal: the fleet home is a destination rather than a panel over an unchosen project, and the board opens on live work in either mode at any width.
 
-## 0.4 - Lot 4: Les écrans opérationnels
+## 0.4 - Lot 4: The operational screens
 - Goal: Every screen opened with a question states its answer.
 - Scope: `req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question`; `req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print`, including the load-time measurement.
 - Why together: both deliver the same shape -- a verdict in a sentence, the action beside it, the facts still available. Split across lots they become two implementations of it, which is exactly what `adr_029` exists to prevent.
 - Exit signal: Git says whether you can push, CI says whether it passed and how long it took, Release says whether it can ship and why not, Settings says what this viewer is, and the health screens count only what needs a decision.
 
-## 0.5 - Lot 5: Les surfaces restantes et les conditions tenues
+## 0.5 - Lot 5: The remaining surfaces, and the conditions held
 - Goal: The surfaces nobody revisits are finished, and the conditions the earlier lots inherited are proven rather than assumed.
 - Scope: the remainder of `req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens`; `req_351_make_the_reader_readable_and_the_filter_panel_say_something`; the remainder of `req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse`; the remainder of `req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing`.
 - Why last: lower traffic, and `req_352`'s keyboard and focus work can only be verified against controls that have landed. The CodeQL alert sits here because it is not exploitable and its fix is an alignment with a sibling handler, not a mitigation.

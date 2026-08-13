@@ -1,3 +1,16 @@
+/* item_755: the standalone viewer's palette is unconditionally dark -- every colour in
+   this file is a `var(--vscode-*, <dark fallback>)`, and outside the extension host those
+   variables are undefined, so the fallback always wins. `media/main.css` declares
+   `color-scheme: light dark`, which is right for the VS Code webview (its palette follows
+   the editor theme) and wrong here: on a host resolving to light, the browser drew light
+   checkboxes, selects and search fields on a dark interface. This file is loaded only by
+   `clients/viewer/index.html`, so declaring the scheme here fixes the standalone viewer
+   without touching the webview. Every native control inherits it; nothing is styled
+   per-control. */
+:root {
+  color-scheme: dark;
+}
+
 .viewer-topbar {
   flex: 0 0 auto;
   display: flex;

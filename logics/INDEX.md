@@ -125,6 +125,7 @@
 | [prod_083_screens_that_state_their_answer](product/prod_083_screens_that_state_their_answer.md) | Screens that state their answer | Proposed |  |  | product/prod_083_screens_that_state_their_answer.md |
 | [prod_084_a_viewer_that_repeats_what_it_was_told](product/prod_084_a_viewer_that_repeats_what_it_was_told.md) | A viewer that repeats what it was told | Proposed |  |  | product/prod_084_a_viewer_that_repeats_what_it_was_told.md |
 | [prod_085_numbers_a_screen_can_defend](product/prod_085_numbers_a_screen_can_defend.md) | Numbers a screen can defend | Proposed |  |  | product/prod_085_numbers_a_screen_can_defend.md |
+| [prod_086_a_viewer_that_looks_like_one_product](product/prod_086_a_viewer_that_looks_like_one_product.md) | A viewer that looks like one product | Proposed |  |  | product/prod_086_a_viewer_that_looks_like_one_product.md |
 
 ## Roadmaps
 
@@ -490,6 +491,7 @@
 | [req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question](request/req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question.md) | Make the Git, CI, Release and Settings screens answer their own question | Draft |  |  | request/req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question.md |
 | [req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update](request/req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update.md) | Stop the viewer from swallowing a diagnostic and from repeating a stale update | Draft |  |  | request/req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update.md |
 | [req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print](request/req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print.md) | Make the corpus, health and onboarding screens earn the numbers they print | Draft |  |  | request/req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print.md |
+| [req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens](request/req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens.md) | Theme the viewer's native controls and finish the Workshop and CDX screens | Draft |  |  | request/req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens.md |
 
 ## Backlog
 
@@ -1249,6 +1251,12 @@
 | [item_752_give_getting_started_a_reading_measure_and_a_position](backlog/item_752_give_getting_started_a_reading_measure_and_a_position.md) | Give Getting Started a reading measure and a position | Ready |  | 0% | backlog/item_752_give_getting_started_a_reading_measure_and_a_position.md |
 | [item_753_make_getting_started_reflect_the_project_in_front_of_it](backlog/item_753_make_getting_started_reflect_the_project_in_front_of_it.md) | Make Getting Started reflect the project in front of it | Ready |  | 0% | backlog/item_753_make_getting_started_reflect_the_project_in_front_of_it.md |
 | [item_754_cover_the_three_screens_including_how_slowly_they_load](backlog/item_754_cover_the_three_screens_including_how_slowly_they_load.md) | Cover the three screens, including how slowly they load | Ready |  | 0% | backlog/item_754_cover_the_three_screens_including_how_slowly_they_load.md |
+| [item_755_give_the_viewer_s_native_controls_the_interface_s_own_colour_scheme](backlog/item_755_give_the_viewer_s_native_controls_the_interface_s_own_colour_scheme.md) | Give the viewer's native controls the interface's own colour scheme | Ready |  | 0% | backlog/item_755_give_the_viewer_s_native_controls_the_interface_s_own_colour_scheme.md |
+| [item_756_make_the_command_list_readable_at_the_size_it_actually_is](backlog/item_756_make_the_command_list_readable_at_the_size_it_actually_is.md) | Make the command list readable at the size it actually is | Ready |  | 0% | backlog/item_756_make_the_command_list_readable_at_the_size_it_actually_is.md |
+| [item_757_make_the_runbooks_screen_do_what_its_tab_claims](backlog/item_757_make_the_runbooks_screen_do_what_its_tab_claims.md) | Make the runbooks screen do what its tab claims | Ready |  | 0% | backlog/item_757_make_the_runbooks_screen_do_what_its_tab_claims.md |
+| [item_758_open_the_explorer_on_something_worth_reading](backlog/item_758_open_the_explorer_on_something_worth_reading.md) | Open the explorer on something worth reading | Ready |  | 0% | backlog/item_758_open_the_explorer_on_something_worth_reading.md |
+| [item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves](backlog/item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves.md) | Bring the CDX screens onto the shape status already proves | Ready |  | 0% | backlog/item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves.md |
+| [item_760_cover_the_reviewed_workshop_and_cdx_screens](backlog/item_760_cover_the_reviewed_workshop_and_cdx_screens.md) | Cover the reviewed Workshop and CDX screens | Ready |  | 0% | backlog/item_760_cover_the_reviewed_workshop_and_cdx_screens.md |
 
 ## Tasks
 
@@ -1594,10 +1602,11 @@
 | [task_344_deliver_the_git_ci_release_and_settings_redesign](tasks/task_344_deliver_the_git_ci_release_and_settings_redesign.md) | Deliver the Git, CI, Release and Settings redesign | Ready |  | 0% | tasks/task_344_deliver_the_git_ci_release_and_settings_redesign.md |
 | [task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check](tasks/task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check.md) | Deliver the connector diagnostics and the version-aware update check | Ready |  | 0% | tasks/task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check.md |
 | [task_346_deliver_the_corpus_health_and_onboarding_screens](tasks/task_346_deliver_the_corpus_health_and_onboarding_screens.md) | Deliver the corpus, health and onboarding screens | Ready |  | 0% | tasks/task_346_deliver_the_corpus_health_and_onboarding_screens.md |
+| [task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens](tasks/task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens.md) | Deliver the control theming and the Workshop and CDX screens | Ready |  | 0% | tasks/task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens.md |
 
 ## Runbooks
 
 | Doc | Title | Status | Category | Verified | Path |
 |---|---|---|---|---|---|
 | [run_001_run_the_viewer_ui_campaign_before_a_delivery](runbook/run_001_run_the_viewer_ui_campaign_before_a_delivery.md) | Run the viewer UI campaign before a delivery | Active | validation | 2026-08-11, automated half runs green on every CI delivery via `scripts/ci-check.mjs`; migrated from `docs/runbooks/viewer-ui-campaign.md` | runbook/run_001_run_the_viewer_ui_campaign_before_a_delivery.md |
-| [run_002_build_a_visual_review_and_mockup_from_a_live_viewer](runbook/run_002_build_a_visual_review_and_mockup_from_a_live_viewer.md) | Build a visual review and mockup from a live viewer | Active | validation | 2026-08-13, produced the reviews and mockups behind req_344, req_345, req_347 and req_349 | runbook/run_002_build_a_visual_review_and_mockup_from_a_live_viewer.md |
+| [run_002_build_a_visual_review_and_mockup_from_a_live_viewer](runbook/run_002_build_a_visual_review_and_mockup_from_a_live_viewer.md) | Build a visual review and mockup from a live viewer | Active | validation | 2026-08-13, produced the reviews and mockups behind req_344, req_345, req_347, req_349 and req_350 | runbook/run_002_build_a_visual_review_and_mockup_from_a_live_viewer.md |

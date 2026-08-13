@@ -1,7 +1,7 @@
 ## run_002_build_a_visual_review_and_mockup_from_a_live_viewer - Build a visual review and mockup from a live viewer
 > Status: Active
 > Category: validation
-> Verified: 2026-08-13, produced the reviews and mockups behind req_344, req_345, req_347 and req_349
+> Verified: 2026-08-13, produced the reviews and mockups behind req_344, req_345, req_347, req_349 and req_350
 > Related request: (none yet)
 > Related backlog: (none yet)
 > Related task: (none yet)
@@ -27,7 +27,8 @@
 - **Give every proposal its reason.** A grid of short "what changes, and why" cards, one per change, each naming the defect it answers. A proposal without its reason cannot be argued with, and will be re-litigated during delivery.
 - **Render the mockup through the same launcher and read it.** A mockup that has not been looked at has the same status as a screen that has not been driven.
 - **Write the review as prose in `logics/external/`**, findings ordered by what they cost the reader, with a scope note separating rendering from anything needing new data. The review is what the request's `# Context` is written from.
-- **Correct in place when driving proves the first reading wrong**, and say so in the review. The correction is usually the most valuable paragraph in it.
+- **Correct in place when driving proves the first reading wrong**, and say so in the review. The correction is usually the most valuable paragraph in it. This applies across reviews too: a claim made from one screen ("the CDX family is the internal reference") had to be narrowed to one screen once the rest of the family was driven.
+- **Grep for what is missing, not only for what is there.** Some of the strongest findings are absences: searching both stylesheets for `color-scheme`, `accent-color` and native-input selectors returned nothing at all, which explained roughly forty light-mode controls across every screen at once. A defect visible on two screens can have one root cause reachable in a single search.
 
 # Verification
 - Every finding names what was measured or quotes what was captured. A finding that rests only on taste is either dropped or stated as taste.
@@ -45,4 +46,4 @@
 - Related backlog: (none yet)
 - Related task: (none yet)
 - Companion runbook: `logics/runbook/run_001_run_the_viewer_ui_campaign_before_a_delivery.md`
-- Worked examples: `logics/external/fleet_home_visual_review_2026_08_13.md`, `logics/external/board_activity_visual_review_2026_08_13.md`, `logics/external/remote_settings_visual_review_2026_08_13.md`, `logics/external/insights_health_onboarding_visual_review_2026_08_13.md`
+- Worked examples: `logics/external/fleet_home_visual_review_2026_08_13.md`, `logics/external/board_activity_visual_review_2026_08_13.md`, `logics/external/remote_settings_visual_review_2026_08_13.md`, `logics/external/insights_health_onboarding_visual_review_2026_08_13.md`, `logics/external/workshop_cdx_visual_review_2026_08_13.md`

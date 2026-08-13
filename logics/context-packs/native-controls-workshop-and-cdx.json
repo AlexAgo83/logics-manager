@@ -1,0 +1,429 @@
+{
+  "budgets": {
+    "max_docs": 32,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens item_755_give_the_viewer_s_native_controls_the_interface_s_own_colour_scheme item_756_make_the_command_list_readable_at_the_size_it_actually_is item_757_make_the_runbooks_screen_do_what_its_tab_claims item_758_open_the_explorer_on_something_worth_reading item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves item_760_cover_the_reviewed_workshop_and_cdx_screens task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_755_give_the_viewer_s_native_controls_the_interface_s_own_colour_scheme",
+          "item_756_make_the_command_list_readable_at_the_size_it_actually_is",
+          "item_757_make_the_runbooks_screen_do_what_its_tab_claims",
+          "item_758_open_the_explorer_on_something_worth_reading",
+          "item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves",
+          "item_760_cover_the_reviewed_workshop_and_cdx_screens"
+        ],
+        "prod": [
+          "prod_086_a_viewer_that_looks_like_one_product"
+        ],
+        "req": [
+          "req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens"
+        ],
+        "task": [
+          "task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens"
+        ]
+      },
+      "path": "logics/product/prod_086_a_viewer_that_looks_like_one_product.md",
+      "ref": "prod_086_a_viewer_that_looks_like_one_product",
+      "status": "Proposed",
+      "title": "A viewer that looks like one product"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "theme, viewer, native, controls, finish, workshop, cdx, screens",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_755_give_the_viewer_s_native_controls_the_interface_s_own_colour_scheme",
+          "item_756_make_the_command_list_readable_at_the_size_it_actually_is",
+          "item_757_make_the_runbooks_screen_do_what_its_tab_claims",
+          "item_758_open_the_explorer_on_something_worth_reading",
+          "item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves",
+          "item_760_cover_the_reviewed_workshop_and_cdx_screens"
+        ],
+        "prod": [
+          "prod_086_a_viewer_that_looks_like_one_product"
+        ],
+        "req": [
+          "req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens"
+        ]
+      },
+      "path": "logics/request/req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens.md",
+      "ref": "req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Theme the viewer's native controls and finish the Workshop and CDX screens"
+    },
+    {
+      "ai_context": {
+        "keywords": "viewer, native, controls, interface, own, colour, scheme",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_755_give_the_viewer_s_native_controls_the_interface_s_own_colour_scheme"
+        ],
+        "prod": [
+          "prod_086_a_viewer_that_looks_like_one_product"
+        ],
+        "req": [
+          "req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens"
+        ],
+        "task": [
+          "task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens"
+        ]
+      },
+      "path": "logics/backlog/item_755_give_the_viewer_s_native_controls_the_interface_s_own_colour_scheme.md",
+      "ref": "item_755_give_the_viewer_s_native_controls_the_interface_s_own_colour_scheme",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Give the viewer's native controls the interface's own colour scheme"
+    },
+    {
+      "ai_context": {
+        "keywords": "command, list, readable, size, actually",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_756_make_the_command_list_readable_at_the_size_it_actually_is"
+        ],
+        "prod": [
+          "prod_086_a_viewer_that_looks_like_one_product"
+        ],
+        "req": [
+          "req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens"
+        ],
+        "task": [
+          "task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens"
+        ]
+      },
+      "path": "logics/backlog/item_756_make_the_command_list_readable_at_the_size_it_actually_is.md",
+      "ref": "item_756_make_the_command_list_readable_at_the_size_it_actually_is",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Make the command list readable at the size it actually is"
+    },
+    {
+      "ai_context": {
+        "keywords": "runbooks, screen, tab, claims",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_757_make_the_runbooks_screen_do_what_its_tab_claims"
+        ],
+        "prod": [
+          "prod_086_a_viewer_that_looks_like_one_product"
+        ],
+        "req": [
+          "req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens"
+        ],
+        "task": [
+          "task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens"
+        ]
+      },
+      "path": "logics/backlog/item_757_make_the_runbooks_screen_do_what_its_tab_claims.md",
+      "ref": "item_757_make_the_runbooks_screen_do_what_its_tab_claims",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Make the runbooks screen do what its tab claims"
+    },
+    {
+      "ai_context": {
+        "keywords": "deliver, control, theming, workshop, cdx, screens",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_755_give_the_viewer_s_native_controls_the_interface_s_own_colour_scheme",
+          "item_756_make_the_command_list_readable_at_the_size_it_actually_is",
+          "item_757_make_the_runbooks_screen_do_what_its_tab_claims",
+          "item_758_open_the_explorer_on_something_worth_reading",
+          "item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves",
+          "item_760_cover_the_reviewed_workshop_and_cdx_screens"
+        ],
+        "prod": [
+          "prod_086_a_viewer_that_looks_like_one_product"
+        ],
+        "req": [
+          "req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens"
+        ],
+        "task": [
+          "task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens"
+        ]
+      },
+      "path": "logics/tasks/task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens.md",
+      "ref": "task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Deliver the control theming and the Workshop and CDX screens"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_755_give_the_viewer_s_native_controls_the_interface_s_own_colour_scheme",
+          "item_756_make_the_command_list_readable_at_the_size_it_actually_is",
+          "item_757_make_the_runbooks_screen_do_what_its_tab_claims",
+          "item_758_open_the_explorer_on_something_worth_reading",
+          "item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves",
+          "item_760_cover_the_reviewed_workshop_and_cdx_screens"
+        ],
+        "prod": [
+          "prod_086_a_viewer_that_looks_like_one_product"
+        ],
+        "req": [
+          "req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens"
+        ],
+        "task": [
+          "task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens"
+        ]
+      },
+      "path": "logics/product/prod_086_a_viewer_that_looks_like_one_product.md",
+      "ref": "prod_086_a_viewer_that_looks_like_one_product",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "A viewer that looks like one product"
+    },
+    {
+      "ai_context": {
+        "keywords": "open, explorer, something, worth, reading",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_758_open_the_explorer_on_something_worth_reading"
+        ],
+        "prod": [
+          "prod_086_a_viewer_that_looks_like_one_product"
+        ],
+        "req": [
+          "req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens"
+        ],
+        "task": [
+          "task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens"
+        ]
+      },
+      "path": "logics/backlog/item_758_open_the_explorer_on_something_worth_reading.md",
+      "ref": "item_758_open_the_explorer_on_something_worth_reading",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Open the explorer on something worth reading"
+    },
+    {
+      "ai_context": {
+        "keywords": "bring, cdx, screens, onto, shape, status, already, proves",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves"
+        ],
+        "prod": [
+          "prod_086_a_viewer_that_looks_like_one_product"
+        ],
+        "req": [
+          "req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens"
+        ],
+        "task": [
+          "task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens"
+        ]
+      },
+      "path": "logics/backlog/item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves.md",
+      "ref": "item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Bring the CDX screens onto the shape status already proves"
+    },
+    {
+      "ai_context": {
+        "keywords": "cover, reviewed, workshop, cdx, screens",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_760_cover_the_reviewed_workshop_and_cdx_screens"
+        ],
+        "prod": [
+          "prod_086_a_viewer_that_looks_like_one_product"
+        ],
+        "req": [
+          "req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens"
+        ],
+        "task": [
+          "task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens"
+        ]
+      },
+      "path": "logics/backlog/item_760_cover_the_reviewed_workshop_and_cdx_screens.md",
+      "ref": "item_760_cover_the_reviewed_workshop_and_cdx_screens",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Cover the reviewed Workshop and CDX screens"
+    }
+  ],
+  "estimates": {
+    "char_count": 9480,
+    "companion_doc_count": 1,
+    "doc_count": 9
+  },
+  "generated_at": "2026-08-13T13:16:26Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens",
+      "item_755_give_the_viewer_s_native_controls_the_interface_s_own_colour_scheme",
+      "item_756_make_the_command_list_readable_at_the_size_it_actually_is",
+      "item_757_make_the_runbooks_screen_do_what_its_tab_claims",
+      "item_758_open_the_explorer_on_something_worth_reading",
+      "item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves",
+      "item_760_cover_the_reviewed_workshop_and_cdx_screens",
+      "task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens,item_755_give_the_viewer_s_native_controls_the_interface_s_own_colour_scheme,item_756_make_the_command_list_readable_at_the_size_it_actually_is,item_757_make_the_runbooks_screen_do_what_its_tab_claims,item_758_open_the_explorer_on_something_worth_reading,item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves,item_760_cover_the_reviewed_workshop_and_cdx_screens,task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens",
+  "refs": [
+    "req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens",
+    "item_755_give_the_viewer_s_native_controls_the_interface_s_own_colour_scheme",
+    "item_756_make_the_command_list_readable_at_the_size_it_actually_is",
+    "item_757_make_the_runbooks_screen_do_what_its_tab_claims",
+    "item_758_open_the_explorer_on_something_worth_reading",
+    "item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves",
+    "item_760_cover_the_reviewed_workshop_and_cdx_screens",
+    "task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens.md",
+      "ref": "task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens"
+    }
+  ]
+}

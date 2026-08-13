@@ -1167,6 +1167,64 @@
       return card;
     }
 
+    // item_718: measured on this corpus -- 1 382 of 1 511 documents are Done or Settled,
+    // 91.5%, and what is live is 13 items. The board opened on all of them newest-first,
+    // so 13 live items sat under 1 382 finished ones. Finished work stays reachable; it
+    // stops setting the scale of the screen.
+    const expandedDoneGroups = new Set();
+
+    // Deliberately status, not progress. `isComplete` reads Progress >= 100 and is right
+    // for the card's progress wash -- but requests carry no Progress indicator at all, so
+    // splitting on it left the Requests column reporting `10/353` while Backlog and Tasks
+    // reported live-versus-done correctly. Caught by looking at the screen, not the code.
+    function isFinishedForBoard(item) {
+      const status = String(item && item.indicators && item.indicators.Status ? item.indicators.Status : "")
+        .trim()
+        .toLowerCase();
+      return status === "done" || status === "complete" || status === "completed"
+        || status === "archived" || status === "obsolete" || status === "superseded"
+        || status === "settled" || status === "closed";
+    }
+
+    // Folding is a default, not a filter. When the operator has said what they want to
+    // see -- a search, or a filter that selects finished work -- the board shows it. The
+    // filter-authority tests caught this: they assert the board renders what the panel
+    // allows, and an unconditional fold made the board disagree with its own filters.
+    // Same shape as `visibleSliceForGroup`, which already stops paging during a search.
+    function shouldFoldFinished(items) {
+      if (hasActiveSearch()) return false;
+      // Every item in this group is finished: there is no live work to lead with, so a
+      // fold would hide the whole column behind a control.
+      return items.some((item) => !isFinishedForBoard(item));
+    }
+
+    function splitLiveAndDone(items) {
+      if (!shouldFoldFinished(items)) return { live: items, done: [] };
+      const live = [];
+      const done = [];
+      for (const item of items) (isFinishedForBoard(item) ? done : live).push(item);
+      return { live, done };
+    }
+
+    function createDoneFoldControl(groupKey, doneItems) {
+      const key = normalizeGroupKey(groupKey);
+      const open = expandedDoneGroups.has(key);
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "group-show-more column__done-fold";
+      button.dataset.group = key;
+      button.setAttribute("aria-expanded", open ? "true" : "false");
+      // The fold says how many it is holding: a control that hides work without saying
+      // how much reads as a truncation rather than a choice.
+      button.textContent = `${open ? "\u25be" : "\u25b8"} Done \u2014 ${doneItems.length} item${doneItems.length === 1 ? "" : "s"}`;
+      button.addEventListener("click", () => {
+        if (expandedDoneGroups.has(key)) expandedDoneGroups.delete(key);
+        else expandedDoneGroups.add(key);
+        render();
+      });
+      return button;
+    }
+
     function renderBoardColumns(grouped, totalVisibleItems) {
       getVisibleStages().forEach((stage) => {
         const stageItems = grouped[stage] || [];
@@ -1174,7 +1232,8 @@
           return;
         }
         const totalCount = Math.max(0, stageItems.length || 0);
-        const visibleSlice = visibleSliceForGroup(stage, stageItems);
+        const split = splitLiveAndDone(stageItems);
+        const visibleSlice = visibleSliceForGroup(stage, split.live);
         const column = document.createElement("div");
         column.className = "column";
         column.dataset.stage = stage;
@@ -1195,7 +1254,10 @@
 
         const titleCount = document.createElement("span");
         titleCount.className = "column__title-count";
-        titleCount.textContent = formatRenderedCount(visibleSlice.items.length, totalCount);
+        // `10/343` said how much was hidden but not what state the column was in.
+        titleCount.textContent = split.done.length
+          ? `${split.live.length} live \u00b7 ${split.done.length} done`
+          : formatRenderedCount(visibleSlice.items.length, totalCount);
         title.appendChild(titleCount);
         header.appendChild(title);
 
@@ -1216,6 +1278,22 @@
           visibleSlice.items.forEach((item) => body.appendChild(createItemCard(item)));
           if (visibleSlice.truncated) {
             body.appendChild(createShowMoreControl(stage, visibleSlice.remaining, visibleSlice.total));
+          }
+          if (!split.live.length && split.done.length) {
+            const clear = document.createElement("div");
+            clear.className = "column__empty";
+            clear.textContent = "Nothing live here";
+            body.appendChild(clear);
+          }
+          if (split.done.length) {
+            body.appendChild(createDoneFoldControl(stage, split.done));
+            if (expandedDoneGroups.has(normalizeGroupKey(stage))) {
+              const doneSlice = visibleSliceForGroup(`${stage}::done`, split.done);
+              doneSlice.items.forEach((item) => body.appendChild(createItemCard(item)));
+              if (doneSlice.truncated) {
+                body.appendChild(createShowMoreControl(`${stage}::done`, doneSlice.remaining, doneSlice.total));
+              }
+            }
           }
         }
 

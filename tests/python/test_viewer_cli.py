@@ -1508,6 +1508,40 @@ def test_viewer_cdx_update_info_payload_reports_available_update(tmp_path: Path)
     }
 
 
+def test_viewer_cdx_update_banner_ends_when_the_tool_is_updated(tmp_path: Path) -> None:
+    """item_743. The banner recommends `cdx update`; the operator runs it; the banner
+    kept recommending it for up to 24 hours because the cache expired on time alone and
+    Refresh re-read the same payload. Replacing the executable must end it."""
+    executable = tmp_path / "cdx"
+    executable.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+    calls: list[str] = []
+
+    def runner_before(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append("before")
+        return subprocess.CompletedProcess(
+            args, 0, json.dumps({"update_available": True, "current_version": "0.18.7", "target_version": "0.19.0"}), ""
+        )
+
+    def runner_after(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append("after")
+        return subprocess.CompletedProcess(
+            args, 0, json.dumps({"update_available": False, "current_version": "0.19.1", "target_version": "0.19.1"}), ""
+        )
+
+    which = lambda _name: str(executable)  # noqa: E731 - a one-expression stub reads better inline here
+    assert cdx_update_info_payload(tmp_path, runner=runner_before, which=which)["latestVersion"] == "0.19.0"
+    # Served from cache: the tool has not changed, so the network check is not repeated.
+    assert cdx_update_info_payload(tmp_path, runner=runner_before, which=which)["latestVersion"] == "0.19.0"
+    assert calls == ["before"]
+
+    # The operator runs the update the banner asked for; installing replaces the file.
+    executable.write_text("#!/bin/sh\n# 0.19.1\nexit 0\n", encoding="utf-8")
+    os.utime(executable, (0, 0))
+
+    assert cdx_update_info_payload(tmp_path, runner=runner_after, which=which) == {}
+    assert calls == ["before", "after"]
+
+
 def test_viewer_cdx_status_payload_handles_unavailable_timeout_errors_and_invalid_json(tmp_path: Path) -> None:
     assert cdx_status_payload(tmp_path, which=lambda _name: None)["state"] == "unavailable"
 

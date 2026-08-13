@@ -248,11 +248,33 @@ def cdx_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
     return {"state": "ok", "message": "", "status": parsed}
 
 
+def _cdx_executable_fingerprint(executable: str) -> str:
+    """A cheap identity for the installed `cdx`, so replacing it invalidates the cache.
+
+    item_743. The cached answer used to expire on time alone, keyed on the repository
+    root, so the banner kept recommending an update the operator had already run -- for
+    up to a day, and Refresh could not help because it re-read the same cached payload.
+    The one event that should end the cache is the tool changing version, and that is
+    exactly what it did not notice.
+
+    Stat rather than `cdx --version`: this runs on every payload build, so it must not
+    cost a subprocess. Installing over `cdx` through pip, npm or brew replaces the file
+    and moves its mtime and size. A launcher shim that forwards to a versioned directory
+    would not move, and there the 24h expiry remains the backstop.
+    """
+    try:
+        stat = os.stat(executable)
+    except OSError:
+        return executable
+    return f"{executable}:{stat.st_mtime_ns}:{stat.st_size}"
+
+
 def cdx_update_info_payload(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
     cdx_which = which or shutil.which
-    if not cdx_which("cdx"):
+    executable = cdx_which("cdx")
+    if not executable:
         return {}
-    cache_key = str(repo_root.resolve())
+    cache_key = f"{repo_root.resolve()}|{_cdx_executable_fingerprint(str(executable))}"
     now = int(time.time())
     cached = _CDX_UPDATE_INFO_CACHE.get(cache_key)
     if cached and cached[0] > now:

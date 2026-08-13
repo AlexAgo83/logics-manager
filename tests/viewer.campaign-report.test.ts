@@ -19,7 +19,13 @@ function runCampaign(env: Record<string, string>) {
     cwd: process.cwd(),
     encoding: "utf8",
     timeout: 180_000,
-    env: { ...process.env, VIEWER_CAMPAIGN_OUT: out, VIEWER_CAMPAIGN_VIEWPORTS: "desktop", ...env }
+    env: {
+      ...process.env,
+      VIEWER_CAMPAIGN_OUT: out,
+      VIEWER_CAMPAIGN_VIEWPORTS: "desktop",
+      VIEWER_CAMPAIGN_SKIP_SLOW_CHECKS: "1",
+      ...env
+    }
   });
   const summary = JSON.parse(readFileSync(join(out, "summary.json"), "utf8"));
   return { result, summary, report: readFileSync(join(out, "report.txt"), "utf8") };

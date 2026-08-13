@@ -196,6 +196,55 @@ describe("webview hydration and data message handling", () => {
     expect(firstPoint?.textContent).not.toContain("**");
   });
 
+  it("draws a lifeline from the stage's declared sequence and admits it has no dates", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [{ ...baseItem, indicators: { Status: "In progress" } }]
+    });
+
+    const document = dom.window.document;
+    const beats = Array.from(document.querySelectorAll(".details__beat")).map((node) => ({
+      status: node.querySelector(".details__beat-label")?.textContent,
+      state: (node as HTMLElement).dataset.state
+    }));
+
+    // item_722, bounded by item_716: the beats are the stage's declared sequence from
+    // logics_manager/statuses.json, minus the exits. Reached is a position in that
+    // sequence, not a recorded event -- which is the strongest claim Status alone supports.
+    expect(beats.map((beat) => beat.status)).toEqual(["Draft", "Ready", "In progress", "Done", "Archived"]);
+    expect(beats.map((beat) => beat.state)).toEqual(["reached", "reached", "current", "pending", "pending"]);
+
+    // item_716 measured that no per-beat date exists anywhere in the payload. A lifeline
+    // that stays silent about that reads as one that has the dates.
+    expect(document.querySelector(".details__lifeline-note")?.textContent).toContain("No dates are recorded per beat");
+  });
+
+  it("treats a blocked document as an exit rather than claiming it passed the beats before it", () => {
+    const { dom } = bootstrapWebview();
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      selectedId: "req_000_kickoff",
+      items: [{ ...baseItem, indicators: { Status: "Blocked" } }]
+    });
+
+    const document = dom.window.document;
+    const beats = Array.from(document.querySelectorAll(".details__beat")).map((node) => ({
+      status: node.querySelector(".details__beat-label")?.textContent,
+      state: (node as HTMLElement).dataset.state
+    }));
+
+    // A document does not pass through Blocked on its way to Done. Marking the sequence
+    // before it as reached would be the same invention the dates were rejected for.
+    expect(beats.filter((beat) => beat.state === "reached")).toHaveLength(0);
+    expect(beats.filter((beat) => beat.state === "unknown").length).toBeGreaterThan(0);
+    expect(beats.at(-1)).toEqual({ status: "Blocked", state: "exit" });
+    expect(document.querySelector(".details__lifeline-note")?.textContent).toContain("is an exit, not a later beat");
+  });
+
   it("collapses and expands details panel via toggle button", () => {
     const { dom } = bootstrapWebview({ stacked: true });
 

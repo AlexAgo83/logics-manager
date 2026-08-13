@@ -306,6 +306,37 @@
       return parent;
     }
 
+    // item_722, bounded by what item_716 established: there is no per-beat date anywhere in
+    // the payload. Measured across 1 593 documents, one has a non-empty provenance and its
+    // keys are an external tracker link. `Indicators reviewed` is the date of the last
+    // review, not the date a beat was reached. So the lifeline draws the sequence a stage
+    // declares and where the document sits in it, and says plainly that the dates are not
+    // recorded rather than inventing them from updatedAt.
+    //
+    // These four are exits, not later beats: a document does not pass through Blocked on
+    // its way to Done. When the status is one of them, the sequence before it is left
+    // unmarked -- claiming those beats were reached would be the same invention in a
+    // different place.
+    const LIFELINE_EXIT_STATUSES = new Set(["Blocked", "Obsolete", "Rejected", "Superseded"]);
+
+    function buildLifeline(item) {
+      const statuses = window.CdxWorkflowStatuses && window.CdxWorkflowStatuses.STATUS_STAGES;
+      const sequence = (statuses && statuses[String(item && item.stage)]) || null;
+      if (!sequence || !sequence.length) return null;
+      const current = String((item && item.indicators && item.indicators.Status) || "").trim();
+      const isExit = LIFELINE_EXIT_STATUSES.has(current);
+      const mainline = sequence.filter((status) => !LIFELINE_EXIT_STATUSES.has(status));
+      const currentIndex = isExit ? -1 : mainline.indexOf(current);
+      const beats = mainline.map((status, index) => ({
+        status,
+        // Reached is a position in the declared sequence, not a recorded event. It is the
+        // strongest claim Status alone supports, and the panel says so in as many words.
+        state: currentIndex < 0 ? "unknown" : index < currentIndex ? "reached" : index === currentIndex ? "current" : "pending"
+      }));
+      if (isExit) beats.push({ status: current, state: "exit" });
+      return { beats, isExit, current, known: currentIndex >= 0 || isExit };
+    }
+
     function applySectionCollapse(section, title, content, isCollapsed) {
       section.classList.toggle("details__section--collapsed", isCollapsed);
       title.setAttribute("aria-expanded", String(!isCollapsed));
@@ -451,6 +482,40 @@
         applySectionCollapse(summarySection, summaryHeader.title, summaryContent, getCollapsedDetailSections().has(summaryKey));
         attachSectionToggle(summarySection, summaryHeader.title, summaryContent, summaryKey);
         detailsBody.appendChild(summarySection);
+      }
+
+      const lifeline = buildLifeline(item);
+      if (lifeline && lifeline.known) {
+        const lifelineSection = document.createElement("div");
+        lifelineSection.className = "details__section details__section--lead";
+        const lifelineKey = "lifeline";
+        const lifelineHeader = createSectionHeader("Lifeline", lifelineKey);
+        const lifelineContent = document.createElement("ol");
+        lifelineContent.className = "details__lifeline";
+        lifeline.beats.forEach((beat) => {
+          const row = document.createElement("li");
+          row.className = `details__beat details__beat--${beat.state}`;
+          row.dataset.state = beat.state;
+          const label = document.createElement("span");
+          label.className = "details__beat-label";
+          label.textContent = beat.status;
+          row.appendChild(label);
+          if (beat.state === "current" || beat.state === "exit") {
+            row.setAttribute("aria-current", "step");
+          }
+          lifelineContent.appendChild(row);
+        });
+        const note = document.createElement("p");
+        note.className = "details__lifeline-note";
+        note.textContent = lifeline.isExit
+          ? `${lifeline.current} is an exit, not a later beat, so the sequence before it is left unmarked. No dates are recorded per beat.`
+          : "Beats come from the stage's declared sequence and the current status. No dates are recorded per beat.";
+        lifelineContent.appendChild(note);
+        lifelineSection.appendChild(lifelineHeader.header);
+        lifelineSection.appendChild(lifelineContent);
+        applySectionCollapse(lifelineSection, lifelineHeader.title, lifelineContent, getCollapsedDetailSections().has(lifelineKey));
+        attachSectionToggle(lifelineSection, lifelineHeader.title, lifelineContent, lifelineKey);
+        detailsBody.appendChild(lifelineSection);
       }
 
       const indicators = item.indicators || {};

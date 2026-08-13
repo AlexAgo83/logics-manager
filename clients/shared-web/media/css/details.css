@@ -321,10 +321,15 @@
   min-width: 0;
 }
 
+/* item_721/item_722: the label column is capped at 116px and linked rows put
+   `stage - <slug>` in it. With `overflow-wrap: normal` a slug has nowhere to break, so it
+   overflowed its column and drew on top of the value beside it -- visible as soon as
+   item_721 stopped folding Primary flow by default. `anywhere` only breaks a word that
+   does not fit, so short labels like "Understanding" are unaffected. */
 .details__indicator-label,
 .details__reference > div {
   color: var(--vscode-descriptionForeground, #9da5b4);
-  overflow-wrap: normal;
+  overflow-wrap: anywhere;
   word-break: normal;
   white-space: normal;
 }
@@ -510,5 +515,84 @@
   position: absolute;
   left: 0;
   top: 0;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+/* item_722: a lifeline drawn as a sequence, not a table. The marker shapes differ as well
+   as their colours, so the four states stay apart in greyscale (req_352's condition). */
+.details__lifeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.details__beat {
+  position: relative;
+  padding: 0 0 10px 22px;
+  line-height: 1.3;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+/* The connector between beats. It stops at the last one rather than trailing into the note
+   below, which would imply a beat that is not there. */
+.details__beat:not(:last-of-type)::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 14px;
+  bottom: 0;
+  width: 1px;
+  background: var(--vscode-panel-border, rgba(255, 255, 255, 0.14));
+}
+
+.details__beat::before {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.details__beat--reached {
+  color: var(--vscode-foreground, #d4d4d4);
+}
+
+.details__beat--reached::before {
+  content: "\25CF";
+  color: var(--vscode-testing-iconPassed, #3fb950);
+}
+
+.details__beat--current {
+  color: var(--vscode-foreground, #d4d4d4);
+  font-weight: 600;
+}
+
+.details__beat--current::before {
+  content: "\25C9";
+  color: var(--vscode-charts-blue, #58a6ff);
+}
+
+.details__beat--pending::before {
+  content: "\25CB";
+}
+
+.details__beat--exit {
+  color: var(--vscode-foreground, #d4d4d4);
+  font-weight: 600;
+}
+
+.details__beat--exit::before {
+  content: "\25C7";
+  color: var(--vscode-editorError-foreground, #f85149);
+}
+
+/* The honesty note. It is not decoration: item_716 measured that no per-beat date exists,
+   and a lifeline that stays silent about that reads as one that has the dates. */
+.details__lifeline-note {
+  margin: 4px 0 0;
+  font-size: 11px;
+  line-height: 1.45;
   color: var(--vscode-descriptionForeground, #9da5b4);
 }

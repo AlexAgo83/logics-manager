@@ -4,7 +4,7 @@
 > Status: In progress
 > Understanding: 93%
 > Confidence: 90%
-> Progress: 60%
+> Progress: 70%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

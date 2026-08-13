@@ -230,6 +230,7 @@ function bootstrapWebview(stacked: boolean, narrow = false) {
   });
 
   const mediaFiles = [
+    "clients/shared-web/media/workflowStatuses.generated.js",
     "clients/shared-web/media/logicsModel.js",
     "clients/shared-web/media/uiStatus.js",
     "clients/shared-web/media/harnessApi.js",
@@ -406,6 +407,12 @@ describe("webview collapsed details layout behavior", () => {
     // item_720 retired the inline preview whose value rows this used to check. Supporting-doc
     // text now lands in the reference index, which is the surface that must not widen.
     const indexRule = css.match(/\.companion-index__list\s*\{[^}]+\}/)?.[0] || "";
+    // Reported by the operator: entries ran off the bottom of the reference index with no
+    // way to follow them. It shipped with `grid-column: 1 / -1` and .board is a flex row,
+    // so the rule did nothing, the index sized to its content, and .board's
+    // `overflow-y: hidden` clipped the rest away without a scrollbar.
+    const indexBodyRule = css.match(/\.companion-index__body\s*\{[^}]+\}/)?.[0] || "";
+    const indexRootRule = css.match(/\.companion-index\s*\{[^}]+\}/)?.[0] || "";
 
     expect(boardRule.includes("overflow-x: auto;")).toBe(true);
     expect(boardRule.includes("overflow-y: hidden;")).toBe(true);
@@ -416,6 +423,10 @@ describe("webview collapsed details layout behavior", () => {
     expect(cardRule.includes("overflow: hidden;")).toBe(true);
     expect(titleRule.includes("overflow-wrap: anywhere;")).toBe(true);
     expect(indexRule.includes("min-width: 0;")).toBe(true);
+    expect(indexBodyRule.includes("overflow-y: auto;")).toBe(true);
+    expect(indexBodyRule.includes("min-height: 0;")).toBe(true);
+    expect(indexRootRule.includes("min-height: 0;")).toBe(true);
+    expect(indexRootRule.includes("grid-column")).toBe(false);
   });
 
   it("keeps the primary header actions on one line until the narrow breakpoint", () => {
@@ -459,7 +470,14 @@ describe("webview collapsed details layout behavior", () => {
 
     expect(indicatorRule.includes("display: grid;")).toBe(true);
     expect(indicatorRule.includes("grid-template-columns: minmax(96px, 116px) minmax(0, 1fr);")).toBe(true);
-    expect(indicatorLabelRule.includes("overflow-wrap: normal;")).toBe(true);
+    // item_722: this asserted `overflow-wrap: normal`, which kept indicator names like
+    // "Understanding" from being broken mid-word. That premise held while the label column
+    // only ever carried indicator names. createLinkedIndicatorRow puts `stage - <slug>`
+    // there, and a slug with nowhere to break overflowed its 116px column and drew on top of
+    // the value beside it -- which is the stable two-column grid this test exists to
+    // protect, failing in the way it was written to catch. `anywhere` only breaks a word
+    // that does not fit, so short labels are unchanged.
+    expect(indicatorLabelRule.includes("overflow-wrap: anywhere;")).toBe(true);
     expect(indicatorLabelRule.includes("word-break: normal;")).toBe(true);
     expect(indicatorValueRule.includes("text-align: left;")).toBe(true);
     expect(indicatorValueRule.includes("justify-self: stretch;")).toBe(true);

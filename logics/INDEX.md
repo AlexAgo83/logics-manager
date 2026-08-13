@@ -120,6 +120,7 @@
 | [prod_079_a_release_that_contains_only_the_product](product/prod_079_a_release_that_contains_only_the_product.md) | A release that contains only the product | Proposed |  |  | product/prod_079_a_release_that_contains_only_the_product.md |
 | [prod_080_a_fleet_home_an_operator_can_triage_from](product/prod_080_a_fleet_home_an_operator_can_triage_from.md) | A fleet home an operator can triage from | Proposed |  |  | product/prod_080_a_fleet_home_an_operator_can_triage_from.md |
 | [prod_081_a_project_view_that_leads_with_what_is_live](product/prod_081_a_project_view_that_leads_with_what_is_live.md) | A project view that leads with what is live | Proposed |  |  | product/prod_081_a_project_view_that_leads_with_what_is_live.md |
+| [prod_082_a_viewer_that_recovers_and_says_what_happened](product/prod_082_a_viewer_that_recovers_and_says_what_happened.md) | A viewer that recovers, and says what happened | Proposed |  |  | product/prod_082_a_viewer_that_recovers_and_says_what_happened.md |
 
 ## Roadmaps
 
@@ -481,6 +482,7 @@
 | [req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact](request/req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact.md) | Keep the synthetic demo board out of every released artifact | Draft |  |  | request/req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact.md |
 | [req_344_make_the_fleet_home_read_as_the_product_s_first_screen](request/req_344_make_the_fleet_home_read_as_the_product_s_first_screen.md) | Make the fleet home read as the product's first screen | Draft |  |  | request/req_344_make_the_fleet_home_read_as_the_product_s_first_screen.md |
 | [req_345_make_the_project_view_lead_with_the_work_that_is_live](request/req_345_make_the_project_view_lead_with_the_work_that_is_live.md) | Make the project view lead with the work that is live | Draft |  |  | request/req_345_make_the_project_view_lead_with_the_work_that_is_live.md |
+| [req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing](request/req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing.md) | Close the gaps behind a fleet root click that does nothing | Draft |  |  | request/req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing.md |
 
 ## Backlog
 
@@ -1211,6 +1213,11 @@
 | [item_723_draw_the_activity_feed_as_a_chronology](backlog/item_723_draw_the_activity_feed_as_a_chronology.md) | Draw the activity feed as a chronology | Ready |  | 0% | backlog/item_723_draw_the_activity_feed_as_a_chronology.md |
 | [item_724_tell_one_chain_s_story_in_the_activity_feed](backlog/item_724_tell_one_chain_s_story_in_the_activity_feed.md) | Tell one chain's story in the activity feed | Ready |  | 0% | backlog/item_724_tell_one_chain_s_story_in_the_activity_feed.md |
 | [item_725_cover_the_board_the_selected_state_the_panel_and_the_feed_in_the_campaign](backlog/item_725_cover_the_board_the_selected_state_the_panel_and_the_feed_in_the_campaign.md) | Cover the board, the selected state, the panel and the feed in the campaign | Ready |  | 0% | backlog/item_725_cover_the_board_the_selected_state_the_panel_and_the_feed_in_the_campaign.md |
+| [item_726_let_the_fleet_root_picker_recover_the_way_the_project_picker_already_does](backlog/item_726_let_the_fleet_root_picker_recover_the_way_the_project_picker_already_does.md) | Let the fleet root picker recover the way the project picker already does | Ready |  | 0% | backlog/item_726_let_the_fleet_root_picker_recover_the_way_the_project_picker_already_does.md |
+| [item_727_put_a_failed_viewer_action_where_the_operator_will_see_it](backlog/item_727_put_a_failed_viewer_action_where_the_operator_will_see_it.md) | Put a failed viewer action where the operator will see it | Ready |  | 0% | backlog/item_727_put_a_failed_viewer_action_where_the_operator_will_see_it.md |
+| [item_728_make_the_fleet_flag_decide_whether_the_viewer_is_a_fleet_viewer](backlog/item_728_make_the_fleet_flag_decide_whether_the_viewer_is_a_fleet_viewer.md) | Make the fleet flag decide whether the viewer is a fleet viewer | Ready |  | 0% | backlog/item_728_make_the_fleet_flag_decide_whether_the_viewer_is_a_fleet_viewer.md |
+| [item_729_validate_the_fleet_root_path_the_way_its_sibling_handler_already_does](backlog/item_729_validate_the_fleet_root_path_the_way_its_sibling_handler_already_does.md) | Validate the fleet root path the way its sibling handler already does | Ready |  | 0% | backlog/item_729_validate_the_fleet_root_path_the_way_its_sibling_handler_already_does.md |
+| [item_730_cover_the_three_failure_paths_this_request_found](backlog/item_730_cover_the_three_failure_paths_this_request_found.md) | Cover the three failure paths this request found | Ready |  | 0% | backlog/item_730_cover_the_three_failure_paths_this_request_found.md |
 
 ## Tasks
 
@@ -1552,6 +1559,7 @@
 | [task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof](tasks/task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof.md) | Deliver the release-safe demo gate and its per-artifact proof | Ready |  | 0% | tasks/task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof.md |
 | [task_341_deliver_the_fleet_home_first_screen_redesign](tasks/task_341_deliver_the_fleet_home_first_screen_redesign.md) | Deliver the fleet home first-screen redesign | Ready |  | 0% | tasks/task_341_deliver_the_fleet_home_first_screen_redesign.md |
 | [task_342_deliver_the_project_view_that_leads_with_live_work](tasks/task_342_deliver_the_project_view_that_leads_with_live_work.md) | Deliver the project view that leads with live work | Ready |  | 0% | tasks/task_342_deliver_the_project_view_that_leads_with_live_work.md |
+| [task_343_deliver_the_fleet_root_recovery_visible_failures_and_an_honest_fleet_flag](tasks/task_343_deliver_the_fleet_root_recovery_visible_failures_and_an_honest_fleet_flag.md) | Deliver the fleet root recovery, visible failures and an honest fleet flag | Ready |  | 0% | tasks/task_343_deliver_the_fleet_root_recovery_visible_failures_and_an_honest_fleet_flag.md |
 
 ## Runbooks
 

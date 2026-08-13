@@ -1,0 +1,472 @@
+{
+  "budgets": {
+    "max_docs": 20,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land item_778_retake_the_readme_captures_against_the_delivered_screens item_779_correct_the_prose_and_alt_text_that_describe_the_old_screens item_780_write_down_how_a_documentation_capture_is_produced task_352_refresh_the_published_captures_once_the_screens_are_final --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_778_retake_the_readme_captures_against_the_delivered_screens",
+          "item_779_correct_the_prose_and_alt_text_that_describe_the_old_screens",
+          "item_780_write_down_how_a_documentation_capture_is_produced"
+        ],
+        "prod": [
+          "prod_091_a_readme_that_shows_the_product_a_reader_will_get"
+        ],
+        "req": [
+          "req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land"
+        ],
+        "task": [
+          "task_352_refresh_the_published_captures_once_the_screens_are_final"
+        ]
+      },
+      "path": "logics/product/prod_091_a_readme_that_shows_the_product_a_reader_will_get.md",
+      "ref": "prod_091_a_readme_that_shows_the_product_a_reader_will_get",
+      "status": "Proposed",
+      "title": "A README that shows the product a reader will get"
+    },
+    {
+      "kind": "roadmap",
+      "linked_refs": {
+        "adr": [
+          "adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points"
+        ],
+        "req": [
+          "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact",
+          "req_344_make_the_fleet_home_read_as_the_product_s_first_screen",
+          "req_345_make_the_project_view_lead_with_the_work_that_is_live",
+          "req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing",
+          "req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question",
+          "req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update",
+          "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print",
+          "req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens",
+          "req_351_make_the_reader_readable_and_the_filter_panel_say_something",
+          "req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse",
+          "req_353_prove_a_published_artifact_contains_only_the_product",
+          "req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to"
+        ],
+        "road": [
+          "road_008_viewer_work_in_lots"
+        ],
+        "run": [
+          "run_002_build_a_visual_review_and_mockup_from_a_live_viewer"
+        ]
+      },
+      "path": "logics/roadmap/road_008_viewer_work_in_lots.md",
+      "ref": "road_008_viewer_work_in_lots",
+      "status": "Proposed",
+      "title": "Viewer work in lots"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry"
+        ],
+        "prod": [
+          "prod_079_a_release_that_contains_only_the_product"
+        ],
+        "req": [
+          "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact"
+        ],
+        "task": [
+          "task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof"
+        ]
+      },
+      "path": "logics/product/prod_079_a_release_that_contains_only_the_product.md",
+      "ref": "prod_079_a_release_that_contains_only_the_product",
+      "status": "Settled",
+      "title": "A release that contains only the product"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_716_confirm_what_the_payload_can_and_cannot_tell_about_chains_and_lifelines",
+          "item_717_split_the_board_into_a_flow_queue_and_a_companion_library",
+          "item_718_open_the_board_on_the_work_that_is_live",
+          "item_719_reallocate_the_card_face_to_the_facts_that_vary",
+          "item_720_make_selecting_a_card_one_mechanism",
+          "item_721_lead_the_details_panel_with_what_the_document_says",
+          "item_722_give_a_document_a_lifeline_in_the_details_panel",
+          "item_723_draw_the_activity_feed_as_a_chronology",
+          "item_724_tell_one_chain_s_story_in_the_activity_feed",
+          "item_725_cover_the_board_the_selected_state_the_panel_and_the_feed_in_the_campaign"
+        ],
+        "prod": [
+          "prod_081_a_project_view_that_leads_with_what_is_live"
+        ],
+        "req": [
+          "req_345_make_the_project_view_lead_with_the_work_that_is_live"
+        ],
+        "task": [
+          "task_342_deliver_the_project_view_that_leads_with_live_work"
+        ]
+      },
+      "path": "logics/product/prod_081_a_project_view_that_leads_with_what_is_live.md",
+      "ref": "prod_081_a_project_view_that_leads_with_what_is_live",
+      "status": "Proposed",
+      "title": "A project view that leads with what is live"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "refresh, readme, captures, prose, beside, them, once, redesigns, land",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_717_split_the_board_into_a_flow_queue_and_a_companion_library",
+          "item_778_retake_the_readme_captures_against_the_delivered_screens",
+          "item_779_correct_the_prose_and_alt_text_that_describe_the_old_screens",
+          "item_780_write_down_how_a_documentation_capture_is_produced"
+        ],
+        "prod": [
+          "prod_091_a_readme_that_shows_the_product_a_reader_will_get"
+        ],
+        "req": [
+          "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact",
+          "req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land"
+        ],
+        "road": [
+          "road_008_viewer_work_in_lots"
+        ],
+        "run": [
+          "run_002_build_a_visual_review_and_mockup_from_a_live_viewer"
+        ]
+      },
+      "path": "logics/request/req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land.md",
+      "ref": "req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Refresh the README captures and the prose beside them once the redesigns land"
+    },
+    {
+      "ai_context": {
+        "keywords": "demo corpus, dev gate, release artifact, npm package, vsix, packaging manifest, viewer project registry",
+        "skip when": "working on the demo corpus content itself, or on the fleet home's layout and visual design.",
+        "summary": "The dev-only demo board reaches users on the npm and VSIX channels because its gate recognises a dev tree by a file both channels ship; the fix is a signal a release cannot carry, proven against the built artifacts.",
+        "use when": "changing how a dev-only surface is gated, editing a packaging manifest, or adding coverage that must hold for a built artifact rather than the working tree."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry",
+          "item_710_prove_the_demo_is_absent_from_each_built_artifact"
+        ],
+        "prod": [
+          "prod_079_a_release_that_contains_only_the_product"
+        ],
+        "req": [
+          "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact"
+        ]
+      },
+      "path": "logics/request/req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact.md",
+      "ref": "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact",
+      "schema_version": "1.0",
+      "status": "Done",
+      "title": "Keep the synthetic demo board out of every released artifact"
+    },
+    {
+      "ai_context": {
+        "keywords": "isPrimaryFlowStage, isCompanionStage, board columns, companion index, clipped column, renderBoardApp",
+        "skip when": "Changing which stages exist or how documents are classified into them.",
+        "summary": "Render request/backlog/task as the board's columns and the 118 all-settled companion docs as a searchable collapsible index, using the split `logicsModel.js` already defines.",
+        "use when": "Changing which stages are columns, or how companion, spec and runbook docs are reached from the board."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_717_split_the_board_into_a_flow_queue_and_a_companion_library"
+        ],
+        "prod": [
+          "prod_081_a_project_view_that_leads_with_what_is_live"
+        ],
+        "req": [
+          "req_345_make_the_project_view_lead_with_the_work_that_is_live"
+        ],
+        "task": [
+          "task_342_deliver_the_project_view_that_leads_with_live_work"
+        ]
+      },
+      "path": "logics/backlog/item_717_split_the_board_into_a_flow_queue_and_a_companion_library.md",
+      "ref": "item_717_split_the_board_into_a_flow_queue_and_a_companion_library",
+      "schema_version": "1.0",
+      "status": "In progress",
+      "title": "Split the board into a flow queue and a companion library"
+    },
+    {
+      "ai_context": {
+        "keywords": "retake, readme, captures, against, delivered, screens",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_778_retake_the_readme_captures_against_the_delivered_screens"
+        ],
+        "prod": [
+          "prod_091_a_readme_that_shows_the_product_a_reader_will_get"
+        ],
+        "req": [
+          "req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land"
+        ],
+        "task": [
+          "task_352_refresh_the_published_captures_once_the_screens_are_final"
+        ]
+      },
+      "path": "logics/backlog/item_778_retake_the_readme_captures_against_the_delivered_screens.md",
+      "ref": "item_778_retake_the_readme_captures_against_the_delivered_screens",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Retake the README captures against the delivered screens"
+    },
+    {
+      "ai_context": {
+        "keywords": "refresh, published, captures, once, screens, final",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_778_retake_the_readme_captures_against_the_delivered_screens",
+          "item_779_correct_the_prose_and_alt_text_that_describe_the_old_screens",
+          "item_780_write_down_how_a_documentation_capture_is_produced"
+        ],
+        "prod": [
+          "prod_091_a_readme_that_shows_the_product_a_reader_will_get"
+        ],
+        "req": [
+          "req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land"
+        ],
+        "task": [
+          "task_352_refresh_the_published_captures_once_the_screens_are_final"
+        ]
+      },
+      "path": "logics/tasks/task_352_refresh_the_published_captures_once_the_screens_are_final.md",
+      "ref": "task_352_refresh_the_published_captures_once_the_screens_are_final",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Refresh the published captures once the screens are final"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_778_retake_the_readme_captures_against_the_delivered_screens",
+          "item_779_correct_the_prose_and_alt_text_that_describe_the_old_screens",
+          "item_780_write_down_how_a_documentation_capture_is_produced"
+        ],
+        "prod": [
+          "prod_091_a_readme_that_shows_the_product_a_reader_will_get"
+        ],
+        "req": [
+          "req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land"
+        ],
+        "task": [
+          "task_352_refresh_the_published_captures_once_the_screens_are_final"
+        ]
+      },
+      "path": "logics/product/prod_091_a_readme_that_shows_the_product_a_reader_will_get.md",
+      "ref": "prod_091_a_readme_that_shows_the_product_a_reader_will_get",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "A README that shows the product a reader will get"
+    },
+    {
+      "ai_context": {
+        "keywords": "correct, prose, alt, text, describe, old, screens",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_779_correct_the_prose_and_alt_text_that_describe_the_old_screens"
+        ],
+        "prod": [
+          "prod_091_a_readme_that_shows_the_product_a_reader_will_get"
+        ],
+        "req": [
+          "req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land"
+        ],
+        "task": [
+          "task_352_refresh_the_published_captures_once_the_screens_are_final"
+        ]
+      },
+      "path": "logics/backlog/item_779_correct_the_prose_and_alt_text_that_describe_the_old_screens.md",
+      "ref": "item_779_correct_the_prose_and_alt_text_that_describe_the_old_screens",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Correct the prose and alt text that describe the old screens"
+    },
+    {
+      "ai_context": {
+        "keywords": "write, down, documentation, capture, produced",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_780_write_down_how_a_documentation_capture_is_produced"
+        ],
+        "prod": [
+          "prod_091_a_readme_that_shows_the_product_a_reader_will_get"
+        ],
+        "req": [
+          "req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land"
+        ],
+        "task": [
+          "task_352_refresh_the_published_captures_once_the_screens_are_final"
+        ]
+      },
+      "path": "logics/backlog/item_780_write_down_how_a_documentation_capture_is_produced.md",
+      "ref": "item_780_write_down_how_a_documentation_capture_is_produced",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Write down how a documentation capture is produced"
+    }
+  ],
+  "estimates": {
+    "char_count": 11979,
+    "companion_doc_count": 4,
+    "doc_count": 8
+  },
+  "generated_at": "2026-08-13T19:35:45Z",
+  "handoff": {
+    "companion_doc_count": 4,
+    "enabled": true,
+    "source_refs": [
+      "req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land",
+      "item_778_retake_the_readme_captures_against_the_delivered_screens",
+      "item_779_correct_the_prose_and_alt_text_that_describe_the_old_screens",
+      "item_780_write_down_how_a_documentation_capture_is_produced",
+      "task_352_refresh_the_published_captures_once_the_screens_are_final"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land,item_778_retake_the_readme_captures_against_the_delivered_screens,item_779_correct_the_prose_and_alt_text_that_describe_the_old_screens,item_780_write_down_how_a_documentation_capture_is_produced,task_352_refresh_the_published_captures_once_the_screens_are_final",
+  "refs": [
+    "req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land",
+    "item_778_retake_the_readme_captures_against_the_delivered_screens",
+    "item_779_correct_the_prose_and_alt_text_that_describe_the_old_screens",
+    "item_780_write_down_how_a_documentation_capture_is_produced",
+    "task_352_refresh_the_published_captures_once_the_screens_are_final"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_352_refresh_the_published_captures_once_the_screens_are_final.md",
+      "ref": "task_352_refresh_the_published_captures_once_the_screens_are_final"
+    }
+  ]
+}

@@ -130,6 +130,7 @@
 | [prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse](product/prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse.md) | A viewer that does not require perfect eyes or a mouse | Proposed |  |  | product/prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse.md |
 | [prod_089_a_release_that_contains_only_the_product](product/prod_089_a_release_that_contains_only_the_product.md) | A release that contains only the product | Proposed |  |  | product/prod_089_a_release_that_contains_only_the_product.md |
 | [prod_090_a_viewer_that_knows_which_screen_you_are_on](product/prod_090_a_viewer_that_knows_which_screen_you_are_on.md) | A viewer that knows which screen you are on | Proposed |  |  | product/prod_090_a_viewer_that_knows_which_screen_you_are_on.md |
+| [prod_091_a_readme_that_shows_the_product_a_reader_will_get](product/prod_091_a_readme_that_shows_the_product_a_reader_will_get.md) | A README that shows the product a reader will get | Proposed |  |  | product/prod_091_a_readme_that_shows_the_product_a_reader_will_get.md |
 
 ## Roadmaps
 
@@ -501,6 +502,7 @@
 | [req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse](request/req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse.md) | Keep the viewer redesigns legible without colour and reachable without a mouse | Draft |  |  | request/req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse.md |
 | [req_353_prove_a_published_artifact_contains_only_the_product](request/req_353_prove_a_published_artifact_contains_only_the_product.md) | Prove a published artifact contains only the product | Draft |  |  | request/req_353_prove_a_published_artifact_contains_only_the_product.md |
 | [req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to](request/req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to.md) | Stop a slow screen from rendering over the one the operator moved to | Draft |  |  | request/req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to.md |
+| [req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land](request/req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land.md) | Refresh the README captures and the prose beside them once the redesigns land | Draft |  |  | request/req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land.md |
 
 ## Backlog
 
@@ -1283,6 +1285,9 @@
 | [item_775_drop_a_screen_s_late_render_when_the_operator_has_moved_on](backlog/item_775_drop_a_screen_s_late_render_when_the_operator_has_moved_on.md) | Drop a screen's late render when the operator has moved on | Ready |  | 0% | backlog/item_775_drop_a_screen_s_late_render_when_the_operator_has_moved_on.md |
 | [item_776_take_the_workaround_back_out_of_the_campaign](backlog/item_776_take_the_workaround_back_out_of_the_campaign.md) | Take the workaround back out of the campaign | Ready |  | 0% | backlog/item_776_take_the_workaround_back_out_of_the_campaign.md |
 | [item_777_find_out_whether_a_relaunch_can_reuse_a_server_that_is_gone](backlog/item_777_find_out_whether_a_relaunch_can_reuse_a_server_that_is_gone.md) | Find out whether a relaunch can reuse a server that is gone | Ready |  | 0% | backlog/item_777_find_out_whether_a_relaunch_can_reuse_a_server_that_is_gone.md |
+| [item_778_retake_the_readme_captures_against_the_delivered_screens](backlog/item_778_retake_the_readme_captures_against_the_delivered_screens.md) | Retake the README captures against the delivered screens | Ready |  | 0% | backlog/item_778_retake_the_readme_captures_against_the_delivered_screens.md |
+| [item_779_correct_the_prose_and_alt_text_that_describe_the_old_screens](backlog/item_779_correct_the_prose_and_alt_text_that_describe_the_old_screens.md) | Correct the prose and alt text that describe the old screens | Ready |  | 0% | backlog/item_779_correct_the_prose_and_alt_text_that_describe_the_old_screens.md |
+| [item_780_write_down_how_a_documentation_capture_is_produced](backlog/item_780_write_down_how_a_documentation_capture_is_produced.md) | Write down how a documentation capture is produced | Ready |  | 0% | backlog/item_780_write_down_how_a_documentation_capture_is_produced.md |
 
 ## Tasks
 
@@ -1633,6 +1638,7 @@
 | [task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns](tasks/task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns.md) | Deliver the colour and keyboard conditions for the redesigns | Ready |  | 0% | tasks/task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns.md |
 | [task_350_deliver_the_released_artifact_content_check](tasks/task_350_deliver_the_released_artifact_content_check.md) | Deliver the released-artifact content check | Ready |  | 0% | tasks/task_350_deliver_the_released_artifact_content_check.md |
 | [task_351_deliver_the_superseded_render_guard](tasks/task_351_deliver_the_superseded_render_guard.md) | Deliver the superseded-render guard | Ready |  | 0% | tasks/task_351_deliver_the_superseded_render_guard.md |
+| [task_352_refresh_the_published_captures_once_the_screens_are_final](tasks/task_352_refresh_the_published_captures_once_the_screens_are_final.md) | Refresh the published captures once the screens are final | Ready |  | 0% | tasks/task_352_refresh_the_published_captures_once_the_screens_are_final.md |
 
 ## Runbooks
 

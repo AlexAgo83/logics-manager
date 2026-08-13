@@ -728,6 +728,28 @@
       return badges;
     }
 
+    function formatCardAge(days) {
+      if (days === 0) return "today";
+      if (days === 1) return "1d";
+      if (days < 30) return `${days}d`;
+      if (days < 365) return `${Math.round(days / 30)}mo`;
+      return `${Math.round(days / 365)}y`;
+    }
+
+    /** Age is the fact the card was missing: nothing on it said whether the document
+     *  moved this week or has sat for six. Absent an `ageDays`, show nothing rather than
+     *  a zero that would read as "today". */
+    function createCardAgeSegment(item) {
+      const days = Number(item && item.ageDays);
+      if (!Number.isFinite(days) || days < 0) return null;
+      const segment = document.createElement("span");
+      segment.className = "card__badge-metric-segment card__badge-age";
+      if (days >= 30) segment.classList.add("is-stale");
+      segment.textContent = formatCardAge(Math.round(days));
+      segment.title = `Last moved ${Math.round(days)} day(s) ago`;
+      return segment;
+    }
+
     function createMetricSegment(prefix, value) {
       const segment = document.createElement("span");
       segment.className = "card__badge-metric-segment";
@@ -890,17 +912,23 @@
       const complexityText = complexityLabel ? normalizeComplexityLabel(complexityLabel) : "—";
 
       if (useUnderstandingConfidence) {
-        pill.appendChild(createMetricSegment("U", primaryText));
-        const separatorOne = document.createElement("span");
-        separatorOne.className = "card__badge-metric-separator";
-        separatorOne.textContent = "/";
-        pill.appendChild(separatorOne);
-        pill.appendChild(createMetricSegment("C", secondaryText));
+        // item_719: measured across all 1 393 workflow docs in this corpus, the
+        // `U __% / C __%` pair takes 91 distinct values, of which `U 90% / C 85%` alone
+        // covers 34%; Understanding runs 75 to 100 with a median of 95 and every document
+        // sits at 85 or above. It was the loudest element after the title and very nearly
+        // a constant. It moves to the card's detail, and the line it occupied carries what
+        // does vary: how long since the document moved.
+        const age = createCardAgeSegment(item);
+        if (age) pill.appendChild(age);
         if (complexityValue) {
-          const separatorTwo = document.createElement("span");
-          separatorTwo.className = "card__badge-metric-separator";
-          separatorTwo.textContent = "/";
-          pill.appendChild(separatorTwo);
+          // Only separate things that are both there. Removing the U/C pair left a leading
+          // `/` with nothing before it -- the pill read `/H`.
+          if (age) {
+            const separatorTwo = document.createElement("span");
+            separatorTwo.className = "card__badge-metric-separator";
+            separatorTwo.textContent = "/";
+            pill.appendChild(separatorTwo);
+          }
           const complexitySegment = document.createElement("span");
           complexitySegment.className = "card__badge-metric-value card__badge-metric-value--complexity";
           complexitySegment.textContent = complexityText;
@@ -977,6 +1005,14 @@
       }
       preview.appendChild(createPreviewRow("Status", item?.indicators?.Status || "No status"));
       preview.appendChild(createPreviewRow("Updated", formatPreviewDate(item.updatedAt)));
+      // item_719: understanding and confidence leave the card *face*, where they were a
+      // near-constant costing a full line on every card. They are not deleted -- they land
+      // here until item_721 gives the details panel somewhere better to put them.
+      const understanding = String(item?.indicators?.Understanding || "").trim();
+      const confidence = String(item?.indicators?.Confidence || "").trim();
+      if (understanding || confidence) {
+        preview.appendChild(createPreviewRow("Confidence", [understanding && `U ${understanding}`, confidence && `C ${confidence}`].filter(Boolean).join(" / ")));
+      }
 
       const linkage = String(item?.stage || "").trim() === "spec" ? "" : createPrimaryFlowSummary(item);
       if (linkage) {
@@ -1096,6 +1132,22 @@
       return badges;
     }
 
+    /** The status vocabulary reduced to what the accent can show. Blocked first: it is the
+     *  only one an operator has to act on, and the payload carries no reason for it, so the
+     *  card says the state and the detail carries the rest. */
+    function cardStatusKey(item) {
+      const status = String(item && item.indicators && item.indicators.Status ? item.indicators.Status : "")
+        .trim()
+        .toLowerCase();
+      if (!status) return "";
+      if (status === "blocked") return "blocked";
+      if (status === "in progress") return "progress";
+      if (status === "ready") return "ready";
+      if (status === "draft" || status === "proposed") return "draft";
+      if (isFinishedForBoard(item)) return "done";
+      return "";
+    }
+
     function createItemCard(item, compact = false) {
       const card = document.createElement("div");
       const doneClass = isComplete(item) ? " card--done" : "";
@@ -1103,8 +1155,14 @@
       const usedClass = isRequestProcessed(item) ? " card--used" : "";
       const progressValue = getProgressValue(item);
       const hasProgressBar = typeof progressValue === "number" && progressValue > 0 && progressValue < 100;
+      // item_719/item_767: the card fill encoded the stage, which the column it sits in
+      // already states. Status -- what varies inside a column -- had only the done-dimming.
+      // The accent carries it, and carries it by shape as well as colour so the ordering
+      // survives greyscale, per the decision recorded in item_767.
+      const statusKey = cardStatusKey(item);
       card.className =
         "card" +
+        (statusKey ? ` card--status-${statusKey}` : "") +
         (compact ? " card--compact" : "") +
         (item.id === getSelectedId() ? " card--selected" : "") +
         doneClass +

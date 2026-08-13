@@ -2,9 +2,9 @@
 > From version: 2.21.9
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 92%
+> Confidence: 88%
+> Progress: 35%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -25,6 +25,46 @@
   - Keep the density the redesigns were for: the answer must reuse what the layout has rather than add a marker per row.
 - Out:
   - Colour choices themselves, and the existing screens the nine chains do not touch.
+
+# Decision
+
+Taken 2026-08-13, so the eight chains that draw against it inherit one answer.
+
+## The channel is the accent's shape, not an added marker
+
+Every proposal that puts state on colour already draws a **left accent bar** on the row or
+card: fleet home projects, board cards, list rows, findings groups, release gates. That bar
+is the second channel. It varies by **length and fill**, which are legible without hue:
+
+| State | Colour | Accent | Reads as |
+|---|---|---|---|
+| Blocked | red | full height, solid | the loudest bar on the screen |
+| In progress | blue | full height, hollow centre | present but open |
+| Ready | green | short, solid, top-aligned | a mark, not a bar |
+| Done | green, dimmed | hairline | almost nothing |
+| No corpus / unknown | grey | full height, dashed | present but not a state |
+
+Five states, five shapes, no hue required. Greyscale the screen and the ordering survives.
+
+## Why not the obvious alternatives
+
+- **A glyph per row** (check, cross, dot). This is the noise the near-constant `U 90% / C 85%`
+  chip was removed to escape: a mark on every row, carrying nothing on the 91.5% of rows
+  that are Done. It also costs horizontal space on the phone layouts, which is the width
+  that was hardest to win back.
+- **Text per row.** The status word already appears in the list mode's own column and in the
+  details panel. Repeating it on a card would undo the density the card redesign was for.
+- **Pattern fills.** They survive greyscale but do not survive small sizes, and a 3px accent
+  is the size in question.
+
+## What this binds
+
+- Anywhere a chain puts state on colour, the accent carries the same shape vocabulary.
+  A sixth state needs a sixth shape decided here, not invented locally.
+- Counts keep colour as an emphasis only: a non-zero `issues` count is red **and** bold
+  against a dimmed zero, so the weight difference carries it without the hue.
+- `item_769`'s check enforces this by asserting the shape attribute exists wherever the
+  status colour class does, so a screen that colours without shaping fails a run.
 
 # Acceptance criteria
 - AC1: Every colour-carried state is legible without colour.

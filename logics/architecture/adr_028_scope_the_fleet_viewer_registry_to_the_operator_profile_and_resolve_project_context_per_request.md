@@ -1,6 +1,6 @@
 ## adr_028_scope_the_fleet_viewer_registry_to_the_operator_profile_and_resolve_project_context_per_request - Scope the fleet viewer registry to the operator profile and resolve project context per request
 > Date: 2026-08-12
-> Status: Proposed
+> Status: Settled
 > Drivers: One fleet server per operator, tab isolation, LAN security preservation, CLI and VS Code compatibility
 > Related request: `req_342_launch_a_standalone_logics_fleet_viewer_through_one_shared_local_server`
 > Related backlog: `item_705_define_standalone_fleet_launch_and_bounded_operator_fleet_roots`, `item_706_make_project_context_request_scoped_before_sharing_the_viewer_server`, `item_708_replace_per_repository_viewer_reuse_with_a_safe_fleet_singleton`

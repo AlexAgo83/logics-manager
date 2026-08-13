@@ -814,3 +814,33 @@ body.viewer-screen-activity .toolbar__activity-filter {
   font-style: italic;
   color: var(--vscode-descriptionForeground, #9da5b4);
 }
+
+/* item_724: a chain that produced several documents collapses into one row on the spine.
+   It is a control, so it looks like the day header's sibling rather than like an event. */
+.activity-panel__chain {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin-left: 34px;
+  padding: 6px 8px;
+  border: 1px dashed var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.activity-panel__chain:hover,
+.activity-panel__chain:focus-visible {
+  color: var(--vscode-foreground, #d4d4d4);
+  border-style: solid;
+}
+
+/* Members of an expanded chain are indented under their control, so the collapse is
+   readable as containment rather than as a row that happens to sit above others. */
+.activity-panel__entry--in-chain {
+  margin-left: 16px;
+}

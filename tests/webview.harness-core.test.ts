@@ -986,6 +986,49 @@ describe("webview harness core behaviors", () => {
     expect(postedMessages.some((message) => message.type === "read" && message.id === "req_003_activity_read_target")).toBe(true);
   });
 
+  it("collapses one chain's events into one row and spends the row budget on rows", () => {
+    const { dom } = bootstrapWebview({ harness: true });
+    const now = Date.now();
+    const chainRequest = { ...baseItem, id: "req_900_chain", title: "Chain root", stage: "request" };
+    const members = [1, 2, 3].map((n) => ({
+      ...baseItem,
+      id: `item_90${n}_member`,
+      title: `Member ${n}`,
+      stage: "backlog",
+      updatedAt: new Date(now - n * 1000).toISOString(),
+      references: [{ kind: "manual", label: "Request", path: "logics/request/req_900_chain.md" }]
+    }));
+
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [{ ...chainRequest, relPath: "logics/request/req_900_chain.md" }, ...members]
+    });
+
+    const document = dom.window.document;
+    const chainRow = document.querySelector(".activity-panel__chain") as HTMLElement | null;
+
+    // item_724, bounded by item_716: one scaffold wrote ten documents and produced ten peer
+    // rows. The run itself is not recoverable from a snapshot diff, so the collapse groups by
+    // workflow chain and says so rather than implying it captured the operation.
+    expect(chainRow).toBeTruthy();
+    // Four, not three: a request belongs to its own chain, so the root is counted with the
+    // members it produced rather than sitting outside them.
+    expect(chainRow?.dataset.count).toBe("4");
+    expect(chainRow?.textContent).toContain("4 documents in one chain");
+    expect(chainRow?.textContent).toContain("Chain root");
+    expect(chainRow?.textContent).not.toContain("run");
+    expect(chainRow?.getAttribute("aria-expanded")).toBe("false");
+
+    // Collapsed by default: the members are behind the control, not beside it.
+    expect(document.querySelectorAll(".activity-panel__entry--in-chain")).toHaveLength(0);
+
+    chainRow?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+
+    const expanded = document.querySelector(".activity-panel__chain");
+    expect(expanded?.getAttribute("aria-expanded")).toBe("true");
+    expect(document.querySelectorAll(".activity-panel__entry--in-chain")).toHaveLength(4);
+  });
+
   it("draws a stretch with no activity instead of leaving it to be subtracted", () => {
     const { dom } = bootstrapWebview({ harness: true });
     const day = 24 * 60 * 60 * 1000;

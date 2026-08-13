@@ -32,6 +32,7 @@
       defaultFilterState,
       canPromote,
       getActivityEntries,
+      getItems,
       getAttentionOnly,
       getCanBootstrapLogics,
       getBootstrapLogicsTitle,
@@ -244,6 +245,41 @@
       return String(bucket).split(" • ")[0];
     }
 
+    // item_724: one scaffold wrote ten documents and produced ten peer rows that pushed
+    // everything else off the screen. It was one action and the documents are its detail --
+    // but item_716 established that nothing in the payload records which command wrote a
+    // document, so the run cannot be recovered. What can be recovered is the workflow chain,
+    // from references and usedBy. Consecutive same-chain events collapse into one entry that
+    // names the chain and counts what it touched, and the entry says it grouped by chain.
+    const expandedActivityChains = new Set();
+
+    function activityChainKey(entry) {
+      const model = window.CdxLogicsModel;
+      if (!model || typeof model.resolveChainKey !== "function" || typeof getItems !== "function") return "";
+      if (entry && entry.activityKind && entry.activityKind !== "corpus") return "";
+      const items = getItems() || [];
+      const match = items.find((candidate) => String(candidate && candidate.id) === String(entry && entry.id));
+      if (!match) return "";
+      return model.resolveChainKey(match, items);
+    }
+
+    /** Consecutive runs only. A chain touched this morning and again tonight is two moments
+     *  in its life, not one; merging them across the day would invent an operation exactly
+     *  where item_716 said one cannot be recovered. */
+    function groupActivityByChain(entries) {
+      const groups = [];
+      entries.forEach((entry) => {
+        const chainKey = activityChainKey(entry);
+        const last = groups[groups.length - 1];
+        if (chainKey && last && last.chainKey === chainKey) {
+          last.entries.push(entry);
+          return;
+        }
+        groups.push({ chainKey, entries: [entry] });
+      });
+      return groups;
+    }
+
     function activityPreciseTime(updatedAt) {
       if (!toolsPanelLayout || typeof toolsPanelLayout.formatActivityTimeBucket !== "function") return "";
       const bucket = toolsPanelLayout.formatActivityTimeBucket(updatedAt);
@@ -291,6 +327,104 @@
       return fallback;
     }
 
+    function createActivityEntryButton(entry) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "activity-panel__entry";
+    if (entry.activityKind) {
+      button.classList.add(`activity-panel__entry--${String(entry.activityKind).replace(/[^a-z0-9_-]+/gi, "-").toLowerCase()}`);
+    }
+    button.dataset.id = entry.id;
+    if (entry.selectable === false) {
+      button.disabled = true;
+      button.setAttribute("aria-disabled", "true");
+    }
+
+    const stageLabel = getStageLabel(entry.stage);
+    const stageTitle = stageLabel ? stageLabel.charAt(0).toUpperCase() + stageLabel.slice(1) : "Item";
+
+    const marker = document.createElement("span");
+    marker.className = "activity-panel__marker";
+    // req_284/item_516: git/CI markers get a distinct unicode glyph (branch
+    // for git, check/cross/dot for CI by health) instead of a bare letter;
+    // the kind/id stay in the tooltip + accessible label. Corpus entries keep
+    // their stage letter.
+    const badgeState = String(entry.badgeState || "").toLowerCase();
+    marker.textContent = activityMarkerGlyph(entry.activityKind, badgeState)
+      || entry.marker || stageTitle.slice(0, 1) || "?";
+    // Make the single-letter pill self-explanatory: the stage name and id
+    // are reachable via tooltip / accessible label, and a per-stage colour
+    // distinguishes request/backlog/task/product/architecture/spec.
+    marker.title = `${stageTitle} · ${entry.id}`;
+    marker.setAttribute("aria-label", `${stageTitle} (${entry.id})`);
+    if (entry.stage) {
+      marker.dataset.stage = entry.stage;
+    }
+    if (entry.activityKind) {
+      marker.dataset.activityKind = entry.activityKind;
+    }
+    if (entry.activityKind === "ci" && badgeState) {
+      marker.dataset.badgeState = badgeState;
+    }
+    button.appendChild(marker);
+
+    const body = document.createElement("span");
+    body.className = "activity-panel__body";
+
+    const titleRow = document.createElement("span");
+    titleRow.className = "activity-panel__title-row";
+    const title = document.createElement("span");
+    title.className = "activity-panel__title";
+    title.textContent = entry.title;
+    titleRow.appendChild(title);
+
+    // The time sits on the row, in width the row already had. One header per batch
+    // timed the batch; this times the work.
+    const preciseTime = activityPreciseTime(entry.updatedAt);
+    if (preciseTime) {
+      const time = document.createElement("time");
+      time.className = "activity-panel__time";
+      time.textContent = preciseTime;
+      if (entry.updatedAt) time.dateTime = String(entry.updatedAt);
+      titleRow.appendChild(time);
+    }
+    body.appendChild(titleRow);
+
+    const meta = document.createElement("span");
+    meta.className = "activity-panel__meta";
+    const kind = document.createElement("span");
+    kind.className = "activity-panel__kind";
+    if (entry.stage) kind.dataset.stage = entry.stage;
+    if (entry.activityKind) kind.dataset.activityKind = entry.activityKind;
+    kind.textContent = activityKindLabel(entry);
+    meta.appendChild(kind);
+    // Readable cell: what changed, the stage name, then the id.
+    // req_284/item_517: git/CI events recompose into a human summary with a
+    // relative time. The time reuses formatActivityTimeBucket (no new date
+    // code), taking its relative part ("Nm ago"); each part degrades out
+    // gracefully when its data is absent.
+    const metaText = recomposeActivityMeta(entry, stageTitle);
+    if (metaText) {
+      const detail = document.createElement("span");
+      detail.className = "activity-panel__meta-text";
+      detail.textContent = metaText;
+      meta.appendChild(detail);
+    }
+    body.appendChild(meta);
+
+    button.appendChild(body);
+
+    if (entry.selectable !== false) {
+      button.addEventListener("click", () => {
+        selectItemAndRender(entry.id);
+      });
+      button.addEventListener("dblclick", () => {
+        readItemAndRender(entry.id);
+      });
+    }
+
+      return button;
+    }
     function renderActivityPanel() {
       if (!activityPanel) {
         return;
@@ -313,7 +447,12 @@
         if (entry.activityKind === "ci") return showCi;
         return showCorpus;
       });
-      const visibleEntries = entries.slice(0, visibleActivityLimit);
+      // item_724: the limit used to count events, and a chain that collapses ten events into
+      // one row then spent the whole allowance on a single line -- the collapse made the feed
+      // shorter instead of denser, which is the opposite of what it is for. It counts rows.
+      const allGroups = groupActivityByChain(entries);
+      const visibleGroups = allGroups.slice(0, visibleActivityLimit);
+      const visibleEntries = visibleGroups.flatMap((group) => group.entries);
       // Preserve the feed scroll position across re-renders (auto-refresh, filter
       // toggles, "show next"): the list is rebuilt from scratch each time, which
       // would otherwise snap the user back to the top mid-read.
@@ -340,17 +479,17 @@
         // which day anything happened on. A day per marker, the minute on the row.
         let currentGroupLabel = "";
         let previousEntry = null;
-        visibleEntries.forEach((entry) => {
+        visibleGroups.forEach((group) => {
           const groupLabel =
             toolsPanelLayout && typeof toolsPanelLayout.formatActivityDayBucket === "function"
-              ? toolsPanelLayout.formatActivityDayBucket(entry.updatedAt)
+              ? toolsPanelLayout.formatActivityDayBucket(group.entries[0].updatedAt)
               : "Unknown";
           if (groupLabel !== currentGroupLabel) {
             // A quiet stretch is drawn, not inferred: two dated headers leave the operator
             // subtracting them to find out whether anything happened in between.
             const gap =
               previousEntry && toolsPanelLayout && typeof toolsPanelLayout.activityDayGap === "function"
-                ? toolsPanelLayout.activityDayGap(previousEntry.updatedAt, entry.updatedAt)
+                ? toolsPanelLayout.activityDayGap(previousEntry.updatedAt, group.entries[0].updatedAt)
                 : 0;
             if (gap > 1) {
               const quiet = document.createElement("div");
@@ -365,109 +504,46 @@
             groupHeader.textContent = groupLabel;
             list.appendChild(groupHeader);
           }
-          previousEntry = entry;
-          const button = document.createElement("button");
-          button.type = "button";
-          button.className = "activity-panel__entry";
-          if (entry.activityKind) {
-            button.classList.add(`activity-panel__entry--${String(entry.activityKind).replace(/[^a-z0-9_-]+/gi, "-").toLowerCase()}`);
-          }
-          button.dataset.id = entry.id;
-          if (entry.selectable === false) {
-            button.disabled = true;
-            button.setAttribute("aria-disabled", "true");
-          }
-
-          const stageLabel = getStageLabel(entry.stage);
-          const stageTitle = stageLabel ? stageLabel.charAt(0).toUpperCase() + stageLabel.slice(1) : "Item";
-
-          const marker = document.createElement("span");
-          marker.className = "activity-panel__marker";
-          // req_284/item_516: git/CI markers get a distinct unicode glyph (branch
-          // for git, check/cross/dot for CI by health) instead of a bare letter;
-          // the kind/id stay in the tooltip + accessible label. Corpus entries keep
-          // their stage letter.
-          const badgeState = String(entry.badgeState || "").toLowerCase();
-          marker.textContent = activityMarkerGlyph(entry.activityKind, badgeState)
-            || entry.marker || stageTitle.slice(0, 1) || "?";
-          // Make the single-letter pill self-explanatory: the stage name and id
-          // are reachable via tooltip / accessible label, and a per-stage colour
-          // distinguishes request/backlog/task/product/architecture/spec.
-          marker.title = `${stageTitle} · ${entry.id}`;
-          marker.setAttribute("aria-label", `${stageTitle} (${entry.id})`);
-          if (entry.stage) {
-            marker.dataset.stage = entry.stage;
-          }
-          if (entry.activityKind) {
-            marker.dataset.activityKind = entry.activityKind;
-          }
-          if (entry.activityKind === "ci" && badgeState) {
-            marker.dataset.badgeState = badgeState;
-          }
-          button.appendChild(marker);
-
-          const body = document.createElement("span");
-          body.className = "activity-panel__body";
-
-          const titleRow = document.createElement("span");
-          titleRow.className = "activity-panel__title-row";
-          const title = document.createElement("span");
-          title.className = "activity-panel__title";
-          title.textContent = entry.title;
-          titleRow.appendChild(title);
-
-          // The time sits on the row, in width the row already had. One header per batch
-          // timed the batch; this times the work.
-          const preciseTime = activityPreciseTime(entry.updatedAt);
-          if (preciseTime) {
-            const time = document.createElement("time");
-            time.className = "activity-panel__time";
-            time.textContent = preciseTime;
-            if (entry.updatedAt) time.dateTime = String(entry.updatedAt);
-            titleRow.appendChild(time);
-          }
-          body.appendChild(titleRow);
-
-          const meta = document.createElement("span");
-          meta.className = "activity-panel__meta";
-          const kind = document.createElement("span");
-          kind.className = "activity-panel__kind";
-          if (entry.stage) kind.dataset.stage = entry.stage;
-          if (entry.activityKind) kind.dataset.activityKind = entry.activityKind;
-          kind.textContent = activityKindLabel(entry);
-          meta.appendChild(kind);
-          // Readable cell: what changed, the stage name, then the id.
-          // req_284/item_517: git/CI events recompose into a human summary with a
-          // relative time. The time reuses formatActivityTimeBucket (no new date
-          // code), taking its relative part ("Nm ago"); each part degrades out
-          // gracefully when its data is absent.
-          const metaText = recomposeActivityMeta(entry, stageTitle);
-          if (metaText) {
-            const detail = document.createElement("span");
-            detail.className = "activity-panel__meta-text";
-            detail.textContent = metaText;
-            meta.appendChild(detail);
-          }
-          body.appendChild(meta);
-
-          button.appendChild(body);
-
-          if (entry.selectable !== false) {
-            button.addEventListener("click", () => {
-              selectItemAndRender(entry.id);
+          previousEntry = group.entries[group.entries.length - 1];
+          const chainKey = group.chainKey;
+          if (chainKey && group.entries.length > 1) {
+            const open = expandedActivityChains.has(chainKey);
+            const model = window.CdxLogicsModel;
+            const title =
+              model && typeof model.chainTitle === "function"
+                ? model.chainTitle(chainKey, getItems ? getItems() : [])
+                : chainKey;
+            const chainRow = document.createElement("button");
+            chainRow.type = "button";
+            chainRow.className = "activity-panel__chain";
+            chainRow.dataset.chain = chainKey;
+            chainRow.dataset.count = String(group.entries.length);
+            chainRow.setAttribute("aria-expanded", open ? "true" : "false");
+            // It says `in one chain`, not `in one run`: item_716 established the run is not
+            // recoverable from a snapshot diff, and a count that implied otherwise would be
+            // the screen asserting something the data cannot support.
+            chainRow.textContent = `${open ? "\u25be" : "\u25b8"} ${group.entries.length} documents in one chain \u2014 ${title}`;
+            chainRow.addEventListener("click", () => {
+              if (expandedActivityChains.has(chainKey)) expandedActivityChains.delete(chainKey);
+              else expandedActivityChains.add(chainKey);
+              renderActivityPanel();
             });
-            button.addEventListener("dblclick", () => {
-              readItemAndRender(entry.id);
-            });
+            list.appendChild(chainRow);
+            if (!open) return;
           }
-
-          list.appendChild(button);
+          group.entries.forEach((entry) => {
+            const button = createActivityEntryButton(entry);
+            if (chainKey && group.entries.length > 1) {
+              button.classList.add("activity-panel__entry--in-chain");
+            }
+            list.appendChild(button);
+          });
         });
-        if (entries.length > visibleEntries.length) {
+        if (allGroups.length > visibleGroups.length) {
           const reveal = document.createElement("button");
           reveal.type = "button";
           reveal.className = "activity-panel__reveal";
-          reveal.textContent = `Show next ${Math.min(10, entries.length - visibleEntries.length)}`;
+          reveal.textContent = `Show next ${Math.min(10, allGroups.length - visibleGroups.length)}`;
           reveal.addEventListener("click", () => {
             visibleActivityLimit += 10;
             renderActivityPanel();

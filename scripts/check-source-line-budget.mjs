@@ -356,7 +356,11 @@ const allowedOversizedFiles = new Map(
     // "select and open" stay together), and item_721 replaced this file's copy of the
     // default-collapsed section list with the one logicsModel.js now owns -- mainCore.js had
     // a second copy of the same list, and two lists that must agree eventually stop agreeing.
-    "clients/shared-web/media/mainApp.js": { maxLines: 1040, ref: "req_345" },
+    // 1045: item_724 passes the items to the activity chrome and the activity entries to the
+    // details renderer. Resolving which workflow chain a changed document belongs to needs
+    // both, and this file is the one place that holds them -- the resolution itself lives in
+    // logicsModel.js so the feed and the panel answer it the same way.
+    "clients/shared-web/media/mainApp.js": { maxLines: 1045, ref: "req_345" },
     // 1009: req_322 added stopViewerServers(), the explicit deactivate() path
     // redundant with (not a replacement for) the subscription-disposal path
     // the constructor already registers.

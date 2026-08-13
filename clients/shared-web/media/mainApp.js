@@ -490,6 +490,9 @@
           defaultFilterState,
           canPromote,
           getActivityEntries,
+          // item_724: resolving which workflow chain a changed document belongs to needs the
+          // items, which this surface did not have.
+          getItems: () => items,
           getAttentionOnly: () => attentionOnly,
           getActivityPanelOpen: () => activityPanelOpen,
           getActivityShowCorpus: () => activityShowCorpus,
@@ -772,6 +775,8 @@
         collectPrimaryFlowItems,
         getAttentionReasons,
         getSuggestedActions,
+        // item_724: a chain's history has to be reachable from a card, not only from the feed.
+        getActivityEntries,
         buildContextPack,
         buildDependencyMap,
         findManagedItemByReference,

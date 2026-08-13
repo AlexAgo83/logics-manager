@@ -55,6 +55,7 @@
       collectPrimaryFlowItems,
       getAttentionReasons,
       getSuggestedActions,
+      getActivityEntries,
       buildContextPack,
       buildDependencyMap,
       findManagedItemByReference,
@@ -516,6 +517,55 @@
         applySectionCollapse(lifelineSection, lifelineHeader.title, lifelineContent, getCollapsedDetailSections().has(lifelineKey));
         attachSectionToggle(lifelineSection, lifelineHeader.title, lifelineContent, lifelineKey);
         detailsBody.appendChild(lifelineSection);
+      }
+
+      // item_724: the chain's history was readable only by finding it in the feed and
+      // scrolling. Reached from the card, it answers "what else moved with this" without
+      // leaving the panel. Grouped by workflow chain, which item_716 established is what the
+      // payload supports -- the command that wrote each document is not recorded anywhere.
+      const chainActivity = (() => {
+        const model = window.CdxLogicsModel;
+        if (!model || typeof model.resolveChainKey !== "function" || typeof getActivityEntries !== "function") return [];
+        const items = getItems() || [];
+        const chainKey = model.resolveChainKey(item, items);
+        if (!chainKey) return [];
+        return (getActivityEntries() || [])
+          .filter((entry) => {
+            if (entry && entry.activityKind && entry.activityKind !== "corpus") return false;
+            const match = items.find((candidate) => String(candidate && candidate.id) === String(entry && entry.id));
+            return match ? model.resolveChainKey(match, items) === chainKey : false;
+          })
+          .slice(0, 8);
+      })();
+      if (chainActivity.length) {
+        const chainSection = document.createElement("div");
+        chainSection.className = "details__section";
+        const chainKey = "chainActivity";
+        const chainHeader = createSectionHeader(`Chain activity (${chainActivity.length})`, chainKey);
+        const chainContent = document.createElement("div");
+        chainContent.className = "details__indicators";
+        chainActivity.forEach((entry) => {
+          const row = document.createElement("div");
+          row.className = "details__chain-event";
+          const label = document.createElement("span");
+          label.className = "details__chain-event-kind";
+          label.textContent = String((entry && (entry.label || entry.action)) || "Changed");
+          row.appendChild(label);
+          const text = document.createElement("span");
+          text.className = "details__chain-event-title";
+          text.textContent = String((entry && entry.title) || entry.id || "");
+          row.appendChild(text);
+          chainContent.appendChild(row);
+        });
+        const note = document.createElement("p");
+        note.className = "details__lifeline-note";
+        note.textContent = "Grouped by workflow chain. Which command wrote each document is not recorded.";
+        chainContent.appendChild(note);
+        chainSection.appendChild(chainHeader.header);
+        chainSection.appendChild(chainContent);
+        applySectionCollapse(chainSection, chainHeader.title, chainContent, getCollapsedDetailSections().has(chainKey));
+        attachSectionToggle(chainSection, chainHeader.title, chainContent, chainKey);
+        detailsBody.appendChild(chainSection);
       }
 
       const indicators = item.indicators || {};

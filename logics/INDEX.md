@@ -124,6 +124,7 @@
 | [prod_082_a_viewer_that_recovers_and_says_what_happened](product/prod_082_a_viewer_that_recovers_and_says_what_happened.md) | A viewer that recovers, and says what happened | Proposed |  |  | product/prod_082_a_viewer_that_recovers_and_says_what_happened.md |
 | [prod_083_screens_that_state_their_answer](product/prod_083_screens_that_state_their_answer.md) | Screens that state their answer | Proposed |  |  | product/prod_083_screens_that_state_their_answer.md |
 | [prod_084_a_viewer_that_repeats_what_it_was_told](product/prod_084_a_viewer_that_repeats_what_it_was_told.md) | A viewer that repeats what it was told | Proposed |  |  | product/prod_084_a_viewer_that_repeats_what_it_was_told.md |
+| [prod_085_numbers_a_screen_can_defend](product/prod_085_numbers_a_screen_can_defend.md) | Numbers a screen can defend | Proposed |  |  | product/prod_085_numbers_a_screen_can_defend.md |
 
 ## Roadmaps
 
@@ -488,6 +489,7 @@
 | [req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing](request/req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing.md) | Close the gaps behind a fleet root click that does nothing | Draft |  |  | request/req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing.md |
 | [req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question](request/req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question.md) | Make the Git, CI, Release and Settings screens answer their own question | Draft |  |  | request/req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question.md |
 | [req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update](request/req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update.md) | Stop the viewer from swallowing a diagnostic and from repeating a stale update | Draft |  |  | request/req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update.md |
+| [req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print](request/req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print.md) | Make the corpus, health and onboarding screens earn the numbers they print | Draft |  |  | request/req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print.md |
 
 ## Backlog
 
@@ -1238,6 +1240,15 @@
 | [item_743_end_the_update_banner_when_the_update_happens](backlog/item_743_end_the_update_banner_when_the_update_happens.md) | End the update banner when the update happens | Ready |  | 0% | backlog/item_743_end_the_update_banner_when_the_update_happens.md |
 | [item_744_make_the_connector_screen_state_and_action_agree](backlog/item_744_make_the_connector_screen_state_and_action_agree.md) | Make the connector screen state and action agree | Ready |  | 0% | backlog/item_744_make_the_connector_screen_state_and_action_agree.md |
 | [item_745_cover_a_silent_failure_and_a_stale_banner](backlog/item_745_cover_a_silent_failure_and_a_stale_banner.md) | Cover a silent failure and a stale banner | Ready |  | 0% | backlog/item_745_cover_a_silent_failure_and_a_stale_banner.md |
+| [item_746_decide_which_workflow_signals_are_defects_and_which_are_work_in_flight](backlog/item_746_decide_which_workflow_signals_are_defects_and_which_are_work_in_flight.md) | Decide which workflow signals are defects and which are work in flight | Ready |  | 0% | backlog/item_746_decide_which_workflow_signals_are_defects_and_which_are_work_in_flight.md |
+| [item_747_make_the_corpus_insights_headline_count_only_what_needs_a_decision](backlog/item_747_make_the_corpus_insights_headline_count_only_what_needs_a_decision.md) | Make the corpus insights headline count only what needs a decision | Ready |  | 0% | backlog/item_747_make_the_corpus_insights_headline_count_only_what_needs_a_decision.md |
+| [item_748_give_corpus_insights_one_visual_language](backlog/item_748_give_corpus_insights_one_visual_language.md) | Give corpus insights one visual language | Ready |  | 0% | backlog/item_748_give_corpus_insights_one_visual_language.md |
+| [item_749_lead_validation_health_with_the_verdict_it_owns](backlog/item_749_lead_validation_health_with_the_verdict_it_owns.md) | Lead validation health with the verdict it owns | Ready |  | 0% | backlog/item_749_lead_validation_health_with_the_verdict_it_owns.md |
+| [item_750_group_the_findings_and_flag_what_the_repository_contradicts](backlog/item_750_group_the_findings_and_flag_what_the_repository_contradicts.md) | Group the findings and flag what the repository contradicts | Ready |  | 0% | backlog/item_750_group_the_findings_and_flag_what_the_repository_contradicts.md |
+| [item_751_say_what_applying_fixes_would_change](backlog/item_751_say_what_applying_fixes_would_change.md) | Say what applying fixes would change | Ready |  | 0% | backlog/item_751_say_what_applying_fixes_would_change.md |
+| [item_752_give_getting_started_a_reading_measure_and_a_position](backlog/item_752_give_getting_started_a_reading_measure_and_a_position.md) | Give Getting Started a reading measure and a position | Ready |  | 0% | backlog/item_752_give_getting_started_a_reading_measure_and_a_position.md |
+| [item_753_make_getting_started_reflect_the_project_in_front_of_it](backlog/item_753_make_getting_started_reflect_the_project_in_front_of_it.md) | Make Getting Started reflect the project in front of it | Ready |  | 0% | backlog/item_753_make_getting_started_reflect_the_project_in_front_of_it.md |
+| [item_754_cover_the_three_screens_including_how_slowly_they_load](backlog/item_754_cover_the_three_screens_including_how_slowly_they_load.md) | Cover the three screens, including how slowly they load | Ready |  | 0% | backlog/item_754_cover_the_three_screens_including_how_slowly_they_load.md |
 
 ## Tasks
 
@@ -1582,10 +1593,11 @@
 | [task_343_deliver_the_fleet_root_recovery_visible_failures_and_an_honest_fleet_flag](tasks/task_343_deliver_the_fleet_root_recovery_visible_failures_and_an_honest_fleet_flag.md) | Deliver the fleet root recovery, visible failures and an honest fleet flag | Ready |  | 0% | tasks/task_343_deliver_the_fleet_root_recovery_visible_failures_and_an_honest_fleet_flag.md |
 | [task_344_deliver_the_git_ci_release_and_settings_redesign](tasks/task_344_deliver_the_git_ci_release_and_settings_redesign.md) | Deliver the Git, CI, Release and Settings redesign | Ready |  | 0% | tasks/task_344_deliver_the_git_ci_release_and_settings_redesign.md |
 | [task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check](tasks/task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check.md) | Deliver the connector diagnostics and the version-aware update check | Ready |  | 0% | tasks/task_345_deliver_the_connector_diagnostics_and_the_version_aware_update_check.md |
+| [task_346_deliver_the_corpus_health_and_onboarding_screens](tasks/task_346_deliver_the_corpus_health_and_onboarding_screens.md) | Deliver the corpus, health and onboarding screens | Ready |  | 0% | tasks/task_346_deliver_the_corpus_health_and_onboarding_screens.md |
 
 ## Runbooks
 
 | Doc | Title | Status | Category | Verified | Path |
 |---|---|---|---|---|---|
 | [run_001_run_the_viewer_ui_campaign_before_a_delivery](runbook/run_001_run_the_viewer_ui_campaign_before_a_delivery.md) | Run the viewer UI campaign before a delivery | Active | validation | 2026-08-11, automated half runs green on every CI delivery via `scripts/ci-check.mjs`; migrated from `docs/runbooks/viewer-ui-campaign.md` | runbook/run_001_run_the_viewer_ui_campaign_before_a_delivery.md |
-| [run_002_build_a_visual_review_and_mockup_from_a_live_viewer](runbook/run_002_build_a_visual_review_and_mockup_from_a_live_viewer.md) | Build a visual review and mockup from a live viewer | Active | validation | 2026-08-13, produced the reviews and mockups behind req_344, req_345 and req_347 | runbook/run_002_build_a_visual_review_and_mockup_from_a_live_viewer.md |
+| [run_002_build_a_visual_review_and_mockup_from_a_live_viewer](runbook/run_002_build_a_visual_review_and_mockup_from_a_live_viewer.md) | Build a visual review and mockup from a live viewer | Active | validation | 2026-08-13, produced the reviews and mockups behind req_344, req_345, req_347 and req_349 | runbook/run_002_build_a_visual_review_and_mockup_from_a_live_viewer.md |

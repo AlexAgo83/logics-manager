@@ -1,0 +1,534 @@
+{
+  "budgets": {
+    "max_docs": 44,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print item_746_decide_which_workflow_signals_are_defects_and_which_are_work_in_flight item_747_make_the_corpus_insights_headline_count_only_what_needs_a_decision item_748_give_corpus_insights_one_visual_language item_749_lead_validation_health_with_the_verdict_it_owns item_750_group_the_findings_and_flag_what_the_repository_contradicts item_751_say_what_applying_fixes_would_change item_752_give_getting_started_a_reading_measure_and_a_position item_753_make_getting_started_reflect_the_project_in_front_of_it item_754_cover_the_three_screens_including_how_slowly_they_load task_346_deliver_the_corpus_health_and_onboarding_screens --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_746_decide_which_workflow_signals_are_defects_and_which_are_work_in_flight",
+          "item_747_make_the_corpus_insights_headline_count_only_what_needs_a_decision",
+          "item_748_give_corpus_insights_one_visual_language",
+          "item_749_lead_validation_health_with_the_verdict_it_owns",
+          "item_750_group_the_findings_and_flag_what_the_repository_contradicts",
+          "item_751_say_what_applying_fixes_would_change",
+          "item_752_give_getting_started_a_reading_measure_and_a_position",
+          "item_753_make_getting_started_reflect_the_project_in_front_of_it",
+          "item_754_cover_the_three_screens_including_how_slowly_they_load"
+        ],
+        "prod": [
+          "prod_085_numbers_a_screen_can_defend"
+        ],
+        "req": [
+          "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print"
+        ],
+        "task": [
+          "task_346_deliver_the_corpus_health_and_onboarding_screens"
+        ]
+      },
+      "path": "logics/product/prod_085_numbers_a_screen_can_defend.md",
+      "ref": "prod_085_numbers_a_screen_can_defend",
+      "status": "Proposed",
+      "title": "Numbers a screen can defend"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "corpus, health, onboarding, screens, earn, numbers, they, print",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_746_decide_which_workflow_signals_are_defects_and_which_are_work_in_flight",
+          "item_747_make_the_corpus_insights_headline_count_only_what_needs_a_decision",
+          "item_748_give_corpus_insights_one_visual_language",
+          "item_749_lead_validation_health_with_the_verdict_it_owns",
+          "item_750_group_the_findings_and_flag_what_the_repository_contradicts",
+          "item_751_say_what_applying_fixes_would_change",
+          "item_752_give_getting_started_a_reading_measure_and_a_position",
+          "item_753_make_getting_started_reflect_the_project_in_front_of_it",
+          "item_754_cover_the_three_screens_including_how_slowly_they_load"
+        ],
+        "prod": [
+          "prod_085_numbers_a_screen_can_defend"
+        ],
+        "req": [
+          "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print"
+        ],
+        "run": [
+          "run_002_build_a_visual_review_and_mockup_from_a_live_viewer"
+        ]
+      },
+      "path": "logics/request/req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print.md",
+      "ref": "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Make the corpus, health and onboarding screens earn the numbers they print"
+    },
+    {
+      "ai_context": {
+        "keywords": "decide, workflow, signals, defects, work, flight",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_746_decide_which_workflow_signals_are_defects_and_which_are_work_in_flight"
+        ],
+        "prod": [
+          "prod_085_numbers_a_screen_can_defend"
+        ],
+        "req": [
+          "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print"
+        ],
+        "task": [
+          "task_346_deliver_the_corpus_health_and_onboarding_screens"
+        ]
+      },
+      "path": "logics/backlog/item_746_decide_which_workflow_signals_are_defects_and_which_are_work_in_flight.md",
+      "ref": "item_746_decide_which_workflow_signals_are_defects_and_which_are_work_in_flight",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Decide which workflow signals are defects and which are work in flight"
+    },
+    {
+      "ai_context": {
+        "keywords": "corpus, insights, headline, count, only, needs, decision",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_747_make_the_corpus_insights_headline_count_only_what_needs_a_decision"
+        ],
+        "prod": [
+          "prod_085_numbers_a_screen_can_defend"
+        ],
+        "req": [
+          "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print"
+        ],
+        "task": [
+          "task_346_deliver_the_corpus_health_and_onboarding_screens"
+        ]
+      },
+      "path": "logics/backlog/item_747_make_the_corpus_insights_headline_count_only_what_needs_a_decision.md",
+      "ref": "item_747_make_the_corpus_insights_headline_count_only_what_needs_a_decision",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Make the corpus insights headline count only what needs a decision"
+    },
+    {
+      "ai_context": {
+        "keywords": "corpus, insights, visual, language",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_748_give_corpus_insights_one_visual_language"
+        ],
+        "prod": [
+          "prod_085_numbers_a_screen_can_defend"
+        ],
+        "req": [
+          "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print"
+        ],
+        "task": [
+          "task_346_deliver_the_corpus_health_and_onboarding_screens"
+        ]
+      },
+      "path": "logics/backlog/item_748_give_corpus_insights_one_visual_language.md",
+      "ref": "item_748_give_corpus_insights_one_visual_language",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Give corpus insights one visual language"
+    },
+    {
+      "ai_context": {
+        "keywords": "deliver, corpus, health, onboarding, screens",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_746_decide_which_workflow_signals_are_defects_and_which_are_work_in_flight",
+          "item_747_make_the_corpus_insights_headline_count_only_what_needs_a_decision",
+          "item_748_give_corpus_insights_one_visual_language",
+          "item_749_lead_validation_health_with_the_verdict_it_owns",
+          "item_750_group_the_findings_and_flag_what_the_repository_contradicts",
+          "item_751_say_what_applying_fixes_would_change",
+          "item_752_give_getting_started_a_reading_measure_and_a_position",
+          "item_753_make_getting_started_reflect_the_project_in_front_of_it",
+          "item_754_cover_the_three_screens_including_how_slowly_they_load"
+        ],
+        "prod": [
+          "prod_085_numbers_a_screen_can_defend"
+        ],
+        "req": [
+          "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print"
+        ],
+        "task": [
+          "task_346_deliver_the_corpus_health_and_onboarding_screens"
+        ]
+      },
+      "path": "logics/tasks/task_346_deliver_the_corpus_health_and_onboarding_screens.md",
+      "ref": "task_346_deliver_the_corpus_health_and_onboarding_screens",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Deliver the corpus, health and onboarding screens"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_746_decide_which_workflow_signals_are_defects_and_which_are_work_in_flight",
+          "item_747_make_the_corpus_insights_headline_count_only_what_needs_a_decision",
+          "item_748_give_corpus_insights_one_visual_language",
+          "item_749_lead_validation_health_with_the_verdict_it_owns",
+          "item_750_group_the_findings_and_flag_what_the_repository_contradicts",
+          "item_751_say_what_applying_fixes_would_change",
+          "item_752_give_getting_started_a_reading_measure_and_a_position",
+          "item_753_make_getting_started_reflect_the_project_in_front_of_it",
+          "item_754_cover_the_three_screens_including_how_slowly_they_load"
+        ],
+        "prod": [
+          "prod_085_numbers_a_screen_can_defend"
+        ],
+        "req": [
+          "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print"
+        ],
+        "task": [
+          "task_346_deliver_the_corpus_health_and_onboarding_screens"
+        ]
+      },
+      "path": "logics/product/prod_085_numbers_a_screen_can_defend.md",
+      "ref": "prod_085_numbers_a_screen_can_defend",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "Numbers a screen can defend"
+    },
+    {
+      "ai_context": {
+        "keywords": "lead, validation, health, verdict, owns",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_749_lead_validation_health_with_the_verdict_it_owns"
+        ],
+        "prod": [
+          "prod_085_numbers_a_screen_can_defend"
+        ],
+        "req": [
+          "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print"
+        ],
+        "task": [
+          "task_346_deliver_the_corpus_health_and_onboarding_screens"
+        ]
+      },
+      "path": "logics/backlog/item_749_lead_validation_health_with_the_verdict_it_owns.md",
+      "ref": "item_749_lead_validation_health_with_the_verdict_it_owns",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Lead validation health with the verdict it owns"
+    },
+    {
+      "ai_context": {
+        "keywords": "group, findings, flag, repository, contradicts",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_750_group_the_findings_and_flag_what_the_repository_contradicts"
+        ],
+        "prod": [
+          "prod_085_numbers_a_screen_can_defend"
+        ],
+        "req": [
+          "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print"
+        ],
+        "task": [
+          "task_346_deliver_the_corpus_health_and_onboarding_screens"
+        ]
+      },
+      "path": "logics/backlog/item_750_group_the_findings_and_flag_what_the_repository_contradicts.md",
+      "ref": "item_750_group_the_findings_and_flag_what_the_repository_contradicts",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Group the findings and flag what the repository contradicts"
+    },
+    {
+      "ai_context": {
+        "keywords": "say, applying, fixes, would, change",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_751_say_what_applying_fixes_would_change"
+        ],
+        "prod": [
+          "prod_085_numbers_a_screen_can_defend"
+        ],
+        "req": [
+          "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print"
+        ],
+        "task": [
+          "task_346_deliver_the_corpus_health_and_onboarding_screens"
+        ]
+      },
+      "path": "logics/backlog/item_751_say_what_applying_fixes_would_change.md",
+      "ref": "item_751_say_what_applying_fixes_would_change",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Say what applying fixes would change"
+    },
+    {
+      "ai_context": {
+        "keywords": "getting, started, reading, measure, position",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_752_give_getting_started_a_reading_measure_and_a_position"
+        ],
+        "prod": [
+          "prod_085_numbers_a_screen_can_defend"
+        ],
+        "req": [
+          "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print"
+        ],
+        "task": [
+          "task_346_deliver_the_corpus_health_and_onboarding_screens"
+        ]
+      },
+      "path": "logics/backlog/item_752_give_getting_started_a_reading_measure_and_a_position.md",
+      "ref": "item_752_give_getting_started_a_reading_measure_and_a_position",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Give Getting Started a reading measure and a position"
+    },
+    {
+      "ai_context": {
+        "keywords": "getting, started, reflect, project, front",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_753_make_getting_started_reflect_the_project_in_front_of_it"
+        ],
+        "prod": [
+          "prod_085_numbers_a_screen_can_defend"
+        ],
+        "req": [
+          "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print"
+        ],
+        "task": [
+          "task_346_deliver_the_corpus_health_and_onboarding_screens"
+        ]
+      },
+      "path": "logics/backlog/item_753_make_getting_started_reflect_the_project_in_front_of_it.md",
+      "ref": "item_753_make_getting_started_reflect_the_project_in_front_of_it",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Make Getting Started reflect the project in front of it"
+    },
+    {
+      "ai_context": {
+        "keywords": "cover, three, screens, including, slowly, they, load",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_754_cover_the_three_screens_including_how_slowly_they_load"
+        ],
+        "prod": [
+          "prod_085_numbers_a_screen_can_defend"
+        ],
+        "req": [
+          "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print"
+        ],
+        "task": [
+          "task_346_deliver_the_corpus_health_and_onboarding_screens"
+        ]
+      },
+      "path": "logics/backlog/item_754_cover_the_three_screens_including_how_slowly_they_load.md",
+      "ref": "item_754_cover_the_three_screens_including_how_slowly_they_load",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Cover the three screens, including how slowly they load"
+    }
+  ],
+  "estimates": {
+    "char_count": 12648,
+    "companion_doc_count": 1,
+    "doc_count": 12
+  },
+  "generated_at": "2026-08-13T12:59:34Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print",
+      "item_746_decide_which_workflow_signals_are_defects_and_which_are_work_in_flight",
+      "item_747_make_the_corpus_insights_headline_count_only_what_needs_a_decision",
+      "item_748_give_corpus_insights_one_visual_language",
+      "item_749_lead_validation_health_with_the_verdict_it_owns",
+      "item_750_group_the_findings_and_flag_what_the_repository_contradicts",
+      "item_751_say_what_applying_fixes_would_change",
+      "item_752_give_getting_started_a_reading_measure_and_a_position",
+      "item_753_make_getting_started_reflect_the_project_in_front_of_it",
+      "item_754_cover_the_three_screens_including_how_slowly_they_load",
+      "task_346_deliver_the_corpus_health_and_onboarding_screens"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print,item_746_decide_which_workflow_signals_are_defects_and_which_are_work_in_flight,item_747_make_the_corpus_insights_headline_count_only_what_needs_a_decision,item_748_give_corpus_insights_one_visual_language,item_749_lead_validation_health_with_the_verdict_it_owns,item_750_group_the_findings_and_flag_what_the_repository_contradicts,item_751_say_what_applying_fixes_would_change,item_752_give_getting_started_a_reading_measure_and_a_position,item_753_make_getting_started_reflect_the_project_in_front_of_it,item_754_cover_the_three_screens_including_how_slowly_they_load,task_346_deliver_the_corpus_health_and_onboarding_screens",
+  "refs": [
+    "req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print",
+    "item_746_decide_which_workflow_signals_are_defects_and_which_are_work_in_flight",
+    "item_747_make_the_corpus_insights_headline_count_only_what_needs_a_decision",
+    "item_748_give_corpus_insights_one_visual_language",
+    "item_749_lead_validation_health_with_the_verdict_it_owns",
+    "item_750_group_the_findings_and_flag_what_the_repository_contradicts",
+    "item_751_say_what_applying_fixes_would_change",
+    "item_752_give_getting_started_a_reading_measure_and_a_position",
+    "item_753_make_getting_started_reflect_the_project_in_front_of_it",
+    "item_754_cover_the_three_screens_including_how_slowly_they_load",
+    "task_346_deliver_the_corpus_health_and_onboarding_screens"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_346_deliver_the_corpus_health_and_onboarding_screens.md",
+      "ref": "task_346_deliver_the_corpus_health_and_onboarding_screens"
+    }
+  ]
+}

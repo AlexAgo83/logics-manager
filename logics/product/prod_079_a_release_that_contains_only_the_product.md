@@ -1,8 +1,8 @@
 ## prod_079_a_release_that_contains_only_the_product - A release that contains only the product
 > Date: 2026-08-13
-> Status: Proposed
+> Status: Settled
 > Related request: `req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact`
-> Related backlog: `item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry`, `item_710_prove_the_demo_is_absent_from_each_built_artifact`
+> Related backlog: `item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry`
 > Related task: `task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -48,5 +48,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact`
+- Product back-reference: `item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry`
 - Task back-reference: `task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof`

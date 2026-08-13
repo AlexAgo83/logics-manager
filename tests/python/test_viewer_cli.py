@@ -4005,6 +4005,29 @@ def test_demo_corpus_opt_in_accepts_the_usual_truthy_spellings(value: str) -> No
     assert viewer_module._demo_board_opted_in({viewer_module.DEMO_PROJECT_OPT_IN_ENV: value}) is True
 
 
+def test_demo_board_gate_reads_no_filesystem_state(monkeypatch) -> None:
+    """item_710, AC6 as amended. The defect was an inference: the gate recognised a
+    development checkout by the presence of a directory, and the npm package and the VSIX
+    both ship that directory, so the demo board reached users.
+
+    Asserting the invariant beats asserting three instances of its violation. Making the
+    filesystem unreachable proves the decision cannot be derived from it -- which catches
+    any future inference, not only the one that was removed. Building each artifact would
+    check three cases of a mechanism this gate no longer has.
+    """
+
+    def refuse(*_args, **_kwargs):
+        raise AssertionError("the demo board gate must not read filesystem state")
+
+    for target in ("exists", "is_dir", "is_file", "iterdir", "glob"):
+        monkeypatch.setattr(Path, target, refuse, raising=False)
+    monkeypatch.setattr(viewer_module.os, "stat", refuse)
+
+    assert viewer_module._demo_board_opted_in({}) is False
+    assert viewer_module._demo_board_opted_in({viewer_module.DEMO_PROJECT_OPT_IN_ENV: "1"}) is True
+    assert viewer_module.ensure_demo_corpus_if_dev({}) is None
+
+
 def test_demo_board_survives_no_packaging_layout(tmp_path: Path, monkeypatch) -> None:
     """item_710. The defect was that a shipped artifact reproduced whatever the gate
     probed for. Rebuild each published layout around a copy of the module and assert the

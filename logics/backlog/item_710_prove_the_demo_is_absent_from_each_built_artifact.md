@@ -1,10 +1,10 @@
 ## item_710_prove_the_demo_is_absent_from_each_built_artifact - Prove the demo is absent from each built artifact
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 85%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Release hygiene
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -48,3 +48,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof`
+
+# Notes
+- Task `task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof` was finished via `logics-manager flow finish task` on 2026-08-13.

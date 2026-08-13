@@ -4,7 +4,7 @@
 > Related product: (none yet)
 > Related request: `req_344_make_the_fleet_home_read_as_the_product_s_first_screen`
 > Reminder: Update status, milestone scope, linked refs, risks, and success signals when you edit this doc.
-> Indicators reviewed: 2026-08-13 16:29:00
+> Indicators reviewed: 2026-08-13 18:19:39
 
 # AI Context
 - Summary: Ten viewer requests and 62 backlog items sequenced into five lots by what each one waits on, not by version: defects first, then the decisions that unblock the rest, then the surfaces in order of how often an operator meets them.
@@ -13,7 +13,7 @@
 - Skip when: You need the detail of one request; read that request instead.
 
 # Summary
-Ten requests were opened against the viewer in a single day, from five passes of visual review
+Ten requests were opened against the viewer in a single day, and an eleventh was split out of one of them during delivery, from five passes of visual review
 plus three defect investigations. They are not independent: five of them are drawn on answers that
 do not exist yet, four inherit a framing decision from a fifth, and eight of them each carry their
 own copy of the same campaign work. This line groups them into lots ordered by what each one is
@@ -31,6 +31,7 @@ The prefix carries the sequence and nothing else -- no release, no scope, no siz
 ## 0.1 - Lot 1: What is already broken for the operator
 - Goal: Every defect an operator meets today is gone, and nothing in this lot waits on a decision.
 - Scope: `req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact` (the demo board ships on npm and VSIX today); `req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update`; from `req_346`, the picker recovery and making a failed action visible; from `req_350`, the colour-scheme declaration.
+- Delivered 2026-08-13. `req_343` and `req_348` are Done. `req_343`'s AC6 was amended with the operator's approval -- the demo gate reads no filesystem state, so an invariant test replaced the build-and-inspect regression, and the broader need that AC expressed became `req_353_prove_a_published_artifact_contains_only_the_product` in Lot 5.
 - Why first: none of it needs a design answer, all of it is either shipping broken or a few lines. The colour-scheme declaration in particular improves every screen in the product, including ones nobody has reviewed, and should not wait behind any redesign.
 - Exit signal: an operator can add a fleet root, sees why an action failed, is not told to run an update they already ran, no release contains the demo board, and no control renders as a light-mode widget.
 
@@ -39,6 +40,7 @@ The prefix carries the sequence and nothing else -- no release, no scope, no siz
 - Scope: `item_716` (can the payload support chain threads and document lifelines); `item_746` (which workflow signals are defects and which are the normal state of work in flight); `item_728` (what `--fleet` actually decides); `item_767` (the second channel each colour-carried state uses); `item_711` (the panel framing, decided once and inherited); and the campaign harness, built by whichever of the eight campaign items is delivered first, per `adr_029`.
 - Why second: five design items are drawn on these answers, and drawing before them encodes a guess. This lot produces almost no visible change, which is the point.
 - Exit signal: each answer is written where the lots that need it can act on it, and the campaign can reach a screen, wait for it, prove which one it captured, and apply the layout checks.
+- Delivered 2026-08-13. `item_716` answered by measurement, `item_767` and the two product decisions (`item_728`, `item_746`) taken and recorded as revisable, `item_711` shipped, and the harness built in `item_715` -- which immediately found that the layout checks assumed the board was the visible surface.
 
 ## 0.3 - Lot 3: The first screen and the board
 - Goal: The two surfaces an operator meets most are the ones the redesigns have reached.
@@ -54,15 +56,15 @@ The prefix carries the sequence and nothing else -- no release, no scope, no siz
 
 ## 0.5 - Lot 5: The remaining surfaces, and the conditions held
 - Goal: The surfaces nobody revisits are finished, and the conditions the earlier lots inherited are proven rather than assumed.
-- Scope: the remainder of `req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens`; `req_351_make_the_reader_readable_and_the_filter_panel_say_something`; the remainder of `req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse`; the remainder of `req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing`.
-- Why last: lower traffic, and `req_352`'s keyboard and focus work can only be verified against controls that have landed. The CodeQL alert sits here because it is not exploitable and its fix is an alignment with a sibling handler, not a mitigation.
+- Scope: the remainder of `req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens`; `req_351_make_the_reader_readable_and_the_filter_panel_say_something`; the remainder of `req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse`; the remainder of `req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing`; `req_353_prove_a_published_artifact_contains_only_the_product`.
+- Why last: lower traffic, and `req_352`'s keyboard and focus work can only be verified against controls that have landed. The CodeQL alert sits here because it is not exploitable and its fix is an alignment with a sibling handler, not a mitigation. `req_353` sits here rather than in Lot 1 because the defect it was split from is already fixed -- what remains is the class, and a check written before the dev-only definition exists would encode a list.
 - Exit signal: no screen carries state by colour alone, every control the redesigns added is reachable from the keyboard, and the campaign fails when either stops being true.
 
 # Sequencing
 - Lot 1 can start immediately and in any internal order; nothing in it blocks anything else in it.
 - Lot 2 gates Lots 3, 4 and 5. Its six answers can be produced in parallel by different people.
 - Lot 3 and Lot 4 can overlap once Lot 2's framing answer exists, but the framing must not be re-decided in Lot 4 -- `req_347` states this and `adr_029` binds it.
-- Lot 5 must follow Lot 3 and Lot 4, because two of its four items verify what those lots produced.
+- Lot 5 must follow Lot 3 and Lot 4, because two of its five items verify what those lots produced. `req_353` is the exception: it depends on nothing in Lots 2 to 4 and could be pulled forward if release hygiene becomes urgent.
 - Across every lot: the campaign harness is built once, by the first campaign item to land, and consumed by the seven that follow. A second harness is a review finding, not a variation.
 - Across every lot: new interface state goes in the existing preference store under `req_315`'s user-versus-repository ruling, and the line budget binds without any request restating it.
 
@@ -71,7 +73,8 @@ The prefix carries the sequence and nothing else -- no release, no scope, no siz
 - **Lot 2 produces nothing an operator can see**, which makes it the lot most likely to be skipped under pressure. Skipping it does not remove the work; it moves it into a screen as a guess that later has to be found and undone.
 - **The colour and keyboard conditions arrive last and apply throughout.** Placing them in Lot 5 is a deliberate trade: they can only be verified against landed controls, but the earlier lots must build with them in mind. The two campaign checks in `item_769` are what keeps that from being a memo -- if they land early, they enforce; if they land late, they audit.
 - **Three lots depend on decisions a person has to take, not code.** `item_746` in particular is a product judgement about which signals mean something is wrong. Nobody can be blocked politely on that for long, so it should be the first thing Lot 2 answers.
-- **The demo board in Lot 1 is already shipping.** Every release cut before that lot lands carries it.
+- **The demo board in Lot 1 was already shipping.** Fixed 2026-08-13; every release cut before then carries it.
+- **`req_353` is the class the demo board was an instance of.** Nothing defines dev-only, so nothing stops the next development affordance from being gated on an inference. Leaving it in Lot 5 is a bet that no such affordance is added first.
 
 # References
 - Related product: (none yet)

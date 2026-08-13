@@ -554,11 +554,18 @@ function browserExerciseScript(name) {
         return node instanceof HTMLElement && node.getClientRects().length > 0;
       };
 
+      const reachedFor = (surface) => {
+        if (!surfaceReady(surface.proof)) return false;
+        if (!surface.titleContains) return true;
+        const title = (document.getElementById("viewer-document-title")?.textContent || "").trim();
+        return title.toLowerCase().includes(String(surface.titleContains).toLowerCase());
+      };
+
       const visitSurface = async (surface) => {
         // The controls here are toggles, not setters: clicking the activity toggle when the
         // board is already showing moves away from it. Each attempt checks first and clicks
         // only if the surface is not already reached, so the steps are idempotent.
-        for (let attempt = 0; attempt < 3 && !surfaceReady(surface.proof); attempt += 1) {
+        for (let attempt = 0; attempt < 3 && !reachedFor(surface); attempt += 1) {
           for (const step of surface.steps || []) {
             const target = document.querySelector(step);
             if (target instanceof HTMLElement) {
@@ -568,18 +575,35 @@ function browserExerciseScript(name) {
           }
           await delay(600);
         }
+        const reached = () => {
+          if (!surfaceReady(surface.proof)) return false;
+          if (!surface.titleContains) return true;
+          // The Git, CI and Release screens all render into the document panel, so the same
+          // selector is visible for all three. Without the title, a check could pass while
+          // standing on the previous one -- which is the exact failure run_002 records.
+          const title = (document.getElementById("viewer-document-title")?.textContent || "").trim();
+          return title.toLowerCase().includes(String(surface.titleContains).toLowerCase());
+        };
         try {
-          await waitFor(() => surfaceReady(surface.proof), surface.name + " to be on screen", surface.timeoutMs || 30000);
+          await waitFor(reached, surface.name + " to be on screen", surface.timeoutMs || 30000);
         } catch (error) {
           checks.push({
             name: surface.name + ": reachable",
             verdict: "failed",
-            measured: "no visible " + surface.proof,
+            measured: surface.titleContains
+              ? "showing '" + (document.getElementById("viewer-document-title")?.textContent || "").trim() + "'"
+              : "no visible " + surface.proof,
             detail: error.message
           });
           return false;
         }
-        checks.push({ name: surface.name + ": reachable", verdict: "ok", measured: surface.proof });
+        checks.push({
+          name: surface.name + ": reachable",
+          verdict: "ok",
+          measured: surface.titleContains
+            ? (document.getElementById("viewer-document-title")?.textContent || "").trim()
+            : surface.proof
+        });
         return true;
       };
 
@@ -607,7 +631,49 @@ function browserExerciseScript(name) {
           skipBelowWidth: 901,
           skipReason: "details.css hides the panel below 900px on purpose"
         },
-        { name: "activity feed", steps: ["#activity-toggle"], proof: ".activity-panel__list" }
+        { name: "activity feed", steps: ["#activity-toggle"], proof: ".activity-panel__list" },
+
+        // item_738: these four were reached at their landing frames only, which is the same
+        // shape of gap as the campaign driving plain view but never view --fleet -- and the
+        // review's own first pass made exactly that mistake, judging the Git diff pane from
+        // a frame where nothing was selected. Each entry here is a state behind a click.
+        {
+          name: "git",
+          steps: ["#viewer-ci", "[data-viewer-nav-target='remote:git']"],
+          proof: ".viewer-git__domain[data-viewer-git-domain]",
+          timeoutMs: 60000
+        },
+        {
+          // The domains are changes / staged / worktree / untracked / history / remote.
+          // History is the one the review reached a wrong conclusion from, so it is the one
+          // worth standing in.
+          name: "git history domain",
+          steps: ["[data-viewer-git-domain='history']"],
+          proof: ".viewer-git__domain[data-viewer-git-domain='history'].is-active",
+          timeoutMs: 60000
+        },
+        {
+          // Git, CI and Release all render into the document panel under the title
+          // Remote -- three screens with one name, which is its own finding for AC1 and
+          // AC3. Until that is fixed the title cannot tell them apart, so each is proved by
+          // markup only it produces.
+          name: "ci",
+          steps: ["#viewer-ci", "[data-viewer-nav-target='remote:runs']"],
+          proof: ".viewer-ci__list, .viewer-ci__empty",
+          timeoutMs: 60000
+        },
+        {
+          name: "release",
+          steps: ["#viewer-ci", "[data-viewer-nav-target='remote:release']"],
+          proof: ".viewer-release__gates, .viewer-release__reason",
+          timeoutMs: 60000
+        },
+        {
+          name: "settings",
+          steps: ["#viewer-refresh-menu-button"],
+          proof: ".viewer-settings-card",
+          timeoutMs: 60000
+        }
       ];
 
       const SCREENS = [

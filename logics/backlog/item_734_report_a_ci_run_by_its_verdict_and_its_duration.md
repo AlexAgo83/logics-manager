@@ -1,10 +1,10 @@
 ## item_734_report_a_ci_run_by_its_verdict_and_its_duration - Report a CI run by its verdict and its duration
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 12%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

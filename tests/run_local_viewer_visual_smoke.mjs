@@ -561,7 +561,20 @@ function browserExerciseScript(name) {
         return title.toLowerCase().includes(String(surface.titleContains).toLowerCase());
       };
 
+      // item_738: the viewer refuses a primary action while another is running, and says so
+      // in the subtitle. The campaign was clicking into that refusal -- four runs across
+      // three viewports reported "Action unavailable while another viewer action is
+      // running", which is the harness racing the product rather than the product being
+      // wrong. The body carries data-viewer-busy for exactly this; wait for it.
+      const waitForIdle = async (timeoutMs = 30000) => {
+        const deadline = Date.now() + timeoutMs;
+        while (document.body?.hasAttribute("data-viewer-busy") && Date.now() < deadline) {
+          await delay(150);
+        }
+      };
+
       const visitSurface = async (surface) => {
+        await waitForIdle();
         // The controls here are toggles, not setters: clicking the activity toggle when the
         // board is already showing moves away from it. Each attempt checks first and clicks
         // only if the surface is not already reached, so the steps are idempotent.
@@ -571,6 +584,7 @@ function browserExerciseScript(name) {
             if (target instanceof HTMLElement) {
               target.click();
               await delay(500);
+              await waitForIdle();
             }
           }
           await delay(600);

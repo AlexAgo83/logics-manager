@@ -4454,15 +4454,25 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("Branch");
     expect(content?.textContent).toContain("main");
     expect(content?.textContent).toContain("Ahead / Behind");
-    expect(content?.textContent).toContain("Files");
     const summarySegments = Array.from(content?.querySelectorAll(".viewer-git__summary-segment") || []).map((node) => node.textContent || "");
     expect(summarySegments).toEqual(expect.arrayContaining([
       expect.stringContaining("Ahead"),
-      expect.stringContaining("Behind"),
-      expect.stringContaining("Staged"),
-      expect.stringContaining("Worktree"),
-      expect.stringContaining("Untracked")
+      expect.stringContaining("Behind")
     ]));
+
+    // item_733: Staged, Worktree and Untracked were printed in a Files tile *and* in the
+    // domain rail below it. They stay in the rail, which is also the control that scopes the
+    // list, so a count appears once and clicking it does something.
+    expect(summarySegments.join(" ")).not.toContain("Staged");
+    const domains = Array.from(content?.querySelectorAll("[data-viewer-git-domain]") || []).map(
+      (node) => (node as HTMLElement).dataset.viewerGitDomain
+    );
+    expect(domains).toEqual(["changes", "staged", "worktree", "untracked", "history"]);
+
+    // The Remote domain's entire content was Tracking and Ahead/Behind, both already in the
+    // tiles above it -- a place to go that takes you nowhere.
+    expect(domains).not.toContain("remote");
+    expect(content?.querySelector('[data-viewer-git-panel="remote"]')).toBeNull();
     expect(content?.textContent).toContain("Staged");
     expect(content?.textContent).toContain("logics/request/req_001_demo.md");
     expect(content?.textContent).toContain("+3-1");

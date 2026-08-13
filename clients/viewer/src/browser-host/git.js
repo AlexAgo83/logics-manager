@@ -394,6 +394,10 @@ export function createGitScreen(host) {
     const deletedCount = Number(counts.deleted || 0);
     const renamedCount = Number(counts.renamed || 0);
     const untrackedCount = Number(counts.untracked || 0);
+    // item_733: the Files tile printed Staged, Worktree and Untracked -- the same three
+    // counts the domain rail below it carries, where they are also the control that scopes
+    // the list. A count in two places is a count an operator has to reconcile, and the rail
+    // is the one that does something when clicked.
     const cards = [
       renderGitSummaryCard("Branch", payload.branch || "HEAD"),
       renderGitSummaryCard("Tracking", payload.tracking || "None"),
@@ -401,12 +405,7 @@ export function createGitScreen(host) {
         ["Ahead", payload.ahead || 0],
         ["Behind", payload.behind || 0]
       ]),
-      renderGitSummaryCard("State", payload.clean ? "Clean" : "Dirty"),
-      renderGitSummarySegments("Files", [
-        ["Staged", stagedCount],
-        ["Worktree", modifiedCount + deletedCount + renamedCount],
-        ["Untracked", untrackedCount]
-      ])
+      renderGitSummaryCard("State", payload.clean ? "Clean" : "Dirty")
     ].join("");
     const groupDefs = [
       ["staged", "Staged", "staged"],
@@ -420,8 +419,11 @@ export function createGitScreen(host) {
       ["staged", "Staged", stagedCount],
       ["worktree", "Worktree", modifiedCount + deletedCount + renamedCount],
       ["untracked", "Untracked", untrackedCount],
-      ["history", "History", formatGitHistoryCount(payload)],
-      ["remote", "Remote", payload.tracking ? 1 : 0]
+      ["history", "History", formatGitHistoryCount(payload)]
+      // item_733: the Remote domain's entire content was `Tracking <ref>` and
+      // `Ahead N, behind M` -- both printed verbatim in the tiles above it. A navigation
+      // entry whose only content is elsewhere on the same screen is a place to go that
+      // takes you nowhere.
     ];
     const domains = domainDefs.map(([key, label, count], index) => `
       <button class="viewer-git__domain${index === 0 ? " is-active" : ""}" type="button" data-viewer-git-domain="${escapeHtml(key)}" aria-pressed="${index === 0 ? "true" : "false"}">
@@ -492,13 +494,6 @@ export function createGitScreen(host) {
         <ul class="viewer-git__commits">${historyRows}</ul>
       </section>
     `;
-    const remote = `
-      <section class="viewer-git__section">
-        <h2>Remote</h2>
-        <p class="viewer-git__state">${escapeHtml(payload.tracking ? `Tracking ${payload.tracking}` : "No upstream branch detected.")}</p>
-        <p class="viewer-git__state">${escapeHtml(`Ahead ${payload.ahead || 0}, behind ${payload.behind || 0}`)}</p>
-      </section>
-    `;
     return `
       <div class="viewer-git">
         ${renderCiModeSwitcher("git")}
@@ -526,10 +521,6 @@ export function createGitScreen(host) {
             <section class="viewer-git__panel" data-viewer-git-panel="history" hidden>
               <header class="viewer-git__panel-header"><span>History</span><strong>${escapeHtml(historyCount)} commits</strong></header>
               ${history}
-            </section>
-            <section class="viewer-git__panel" data-viewer-git-panel="remote" hidden>
-              <header class="viewer-git__panel-header"><span>Remote</span><strong>${escapeHtml(payload.tracking || "none")}</strong></header>
-              ${remote}
             </section>
           </div>
           <section class="viewer-git__detail" aria-label="Git diff" data-viewer-git-detail>

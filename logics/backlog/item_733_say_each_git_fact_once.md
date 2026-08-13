@@ -4,10 +4,11 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 12%
+> Progress: 25%
 > Complexity: Low
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-13 23:52:34
 
 # AI Context
 - Summary: The `Remote` domain's whole content is two lines already printed verbatim in the tiles above it, and the staged, worktree and untracked counts appear in both the tiles and the domain rail.
@@ -24,6 +25,12 @@
   - Keep each count in one place.
 - Out:
   - Which git facts are collected, and the remote-related actions.
+
+# Delivery notes
+- **The `Remote` domain is retired.** Its entire panel was `Tracking <ref>` and `Ahead N, behind M`, both printed verbatim in the tiles above it -- a navigation entry whose only content is elsewhere on the same screen is a place to go that takes you nowhere.
+- **The `Files` tile is retired.** It printed Staged, Worktree and Untracked, the same three counts the domain rail below it carries -- and the rail is also the control that scopes the list. A count in two places is a count an operator has to reconcile; the one that does something when clicked is the one that stays.
+- What remains is four tiles (Branch, Tracking, Ahead / Behind, State) and five domains (changes, staged, worktree, untracked, history). `changes` and its parts are a total and its breakdown inside one control group, which is not the same as printing a number twice.
+- The test that asserted the old shape is rewritten to assert the new one, including that no domain named `remote` exists and that the summary segments no longer carry `Staged`.
 
 # Acceptance criteria
 - AC6: No count or fact appears twice, and no navigation entry duplicates the screen.

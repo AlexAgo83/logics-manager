@@ -1,0 +1,411 @@
+{
+  "budgets": {
+    "max_docs": 20,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse item_767_give_every_colour_carried_state_a_second_channel item_768_make_the_new_controls_reachable_without_a_mouse item_769_let_the_campaign_fail_on_colour_only_state_and_unreachable_controls task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_767_give_every_colour_carried_state_a_second_channel",
+          "item_768_make_the_new_controls_reachable_without_a_mouse",
+          "item_769_let_the_campaign_fail_on_colour_only_state_and_unreachable_controls"
+        ],
+        "prod": [
+          "prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse"
+        ],
+        "req": [
+          "req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse"
+        ],
+        "task": [
+          "task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns"
+        ]
+      },
+      "path": "logics/product/prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse.md",
+      "ref": "prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse",
+      "status": "Proposed",
+      "title": "A viewer that does not require perfect eyes or a mouse"
+    },
+    {
+      "kind": "architecture",
+      "linked_refs": {
+        "adr": [
+          "adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points"
+        ],
+        "req": [
+          "req_344_make_the_fleet_home_read_as_the_product_s_first_screen",
+          "req_345_make_the_project_view_lead_with_the_work_that_is_live",
+          "req_346_close_the_gaps_behind_a_fleet_root_click_that_does_nothing",
+          "req_347_make_the_git_ci_release_and_settings_screens_answer_their_own_question",
+          "req_348_stop_the_viewer_from_swallowing_a_diagnostic_and_from_repeating_a_stale_update"
+        ]
+      },
+      "path": "logics/architecture/adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points.md",
+      "ref": "adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points",
+      "status": "Proposed",
+      "title": "Land the viewer redesigns on the shared declaration points"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_716_confirm_what_the_payload_can_and_cannot_tell_about_chains_and_lifelines",
+          "item_717_split_the_board_into_a_flow_queue_and_a_companion_library",
+          "item_718_open_the_board_on_the_work_that_is_live",
+          "item_719_reallocate_the_card_face_to_the_facts_that_vary",
+          "item_720_make_selecting_a_card_one_mechanism",
+          "item_721_lead_the_details_panel_with_what_the_document_says",
+          "item_722_give_a_document_a_lifeline_in_the_details_panel",
+          "item_723_draw_the_activity_feed_as_a_chronology",
+          "item_724_tell_one_chain_s_story_in_the_activity_feed",
+          "item_725_cover_the_board_the_selected_state_the_panel_and_the_feed_in_the_campaign"
+        ],
+        "prod": [
+          "prod_081_a_project_view_that_leads_with_what_is_live"
+        ],
+        "req": [
+          "req_345_make_the_project_view_lead_with_the_work_that_is_live"
+        ],
+        "task": [
+          "task_342_deliver_the_project_view_that_leads_with_live_work"
+        ]
+      },
+      "path": "logics/product/prod_081_a_project_view_that_leads_with_what_is_live.md",
+      "ref": "prod_081_a_project_view_that_leads_with_what_is_live",
+      "status": "Proposed",
+      "title": "A project view that leads with what is live"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "viewer, redesigns, legible, colour, reachable, mouse",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "adr": [
+          "adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points"
+        ],
+        "item": [
+          "item_720_make_selecting_a_card_one_mechanism",
+          "item_767_give_every_colour_carried_state_a_second_channel",
+          "item_768_make_the_new_controls_reachable_without_a_mouse",
+          "item_769_let_the_campaign_fail_on_colour_only_state_and_unreachable_controls"
+        ],
+        "prod": [
+          "prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse"
+        ],
+        "req": [
+          "req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse"
+        ],
+        "run": [
+          "run_001_run_the_viewer_ui_campaign_before_a_delivery"
+        ]
+      },
+      "path": "logics/request/req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse.md",
+      "ref": "req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Keep the viewer redesigns legible without colour and reachable without a mouse"
+    },
+    {
+      "ai_context": {
+        "keywords": "card--preview-open, card selection, inline preview, layout shift, details panel coupling",
+        "skip when": "How the panel is dismissed, and keyboard navigation across cards.",
+        "summary": "A click currently sets a weak border, expands an inline preview that repeats the panel header, and grows the card so the column jumps; make it select and open the panel, and nothing else.",
+        "use when": "Changing what happens when a card is clicked, or how the selected card is drawn."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_720_make_selecting_a_card_one_mechanism"
+        ],
+        "prod": [
+          "prod_081_a_project_view_that_leads_with_what_is_live"
+        ],
+        "req": [
+          "req_345_make_the_project_view_lead_with_the_work_that_is_live"
+        ],
+        "task": [
+          "task_342_deliver_the_project_view_that_leads_with_live_work"
+        ]
+      },
+      "path": "logics/backlog/item_720_make_selecting_a_card_one_mechanism.md",
+      "ref": "item_720_make_selecting_a_card_one_mechanism",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Make selecting a card one mechanism"
+    },
+    {
+      "ai_context": {
+        "keywords": "colour, carried, state, second, channel",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_767_give_every_colour_carried_state_a_second_channel"
+        ],
+        "prod": [
+          "prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse"
+        ],
+        "req": [
+          "req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse"
+        ],
+        "task": [
+          "task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns"
+        ]
+      },
+      "path": "logics/backlog/item_767_give_every_colour_carried_state_a_second_channel.md",
+      "ref": "item_767_give_every_colour_carried_state_a_second_channel",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Give every colour-carried state a second channel"
+    },
+    {
+      "ai_context": {
+        "keywords": "new, controls, reachable, mouse",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_768_make_the_new_controls_reachable_without_a_mouse"
+        ],
+        "prod": [
+          "prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse"
+        ],
+        "req": [
+          "req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse"
+        ],
+        "task": [
+          "task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns"
+        ]
+      },
+      "path": "logics/backlog/item_768_make_the_new_controls_reachable_without_a_mouse.md",
+      "ref": "item_768_make_the_new_controls_reachable_without_a_mouse",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Make the new controls reachable without a mouse"
+    },
+    {
+      "ai_context": {
+        "keywords": "deliver, colour, keyboard, conditions, redesigns",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_767_give_every_colour_carried_state_a_second_channel",
+          "item_768_make_the_new_controls_reachable_without_a_mouse",
+          "item_769_let_the_campaign_fail_on_colour_only_state_and_unreachable_controls"
+        ],
+        "prod": [
+          "prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse"
+        ],
+        "req": [
+          "req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse"
+        ],
+        "task": [
+          "task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns"
+        ]
+      },
+      "path": "logics/tasks/task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns.md",
+      "ref": "task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Deliver the colour and keyboard conditions for the redesigns"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_767_give_every_colour_carried_state_a_second_channel",
+          "item_768_make_the_new_controls_reachable_without_a_mouse",
+          "item_769_let_the_campaign_fail_on_colour_only_state_and_unreachable_controls"
+        ],
+        "prod": [
+          "prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse"
+        ],
+        "req": [
+          "req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse"
+        ],
+        "task": [
+          "task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns"
+        ]
+      },
+      "path": "logics/product/prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse.md",
+      "ref": "prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "A viewer that does not require perfect eyes or a mouse"
+    },
+    {
+      "ai_context": {
+        "keywords": "let, campaign, fail, colour, only, state, unreachable, controls",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_769_let_the_campaign_fail_on_colour_only_state_and_unreachable_controls"
+        ],
+        "prod": [
+          "prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse"
+        ],
+        "req": [
+          "req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse"
+        ],
+        "task": [
+          "task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns"
+        ]
+      },
+      "path": "logics/backlog/item_769_let_the_campaign_fail_on_colour_only_state_and_unreachable_controls.md",
+      "ref": "item_769_let_the_campaign_fail_on_colour_only_state_and_unreachable_controls",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Let the campaign fail on colour-only state and unreachable controls"
+    }
+  ],
+  "estimates": {
+    "char_count": 9468,
+    "companion_doc_count": 3,
+    "doc_count": 7
+  },
+  "generated_at": "2026-08-13T14:03:48Z",
+  "handoff": {
+    "companion_doc_count": 3,
+    "enabled": true,
+    "source_refs": [
+      "req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse",
+      "item_767_give_every_colour_carried_state_a_second_channel",
+      "item_768_make_the_new_controls_reachable_without_a_mouse",
+      "item_769_let_the_campaign_fail_on_colour_only_state_and_unreachable_controls",
+      "task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse,item_767_give_every_colour_carried_state_a_second_channel,item_768_make_the_new_controls_reachable_without_a_mouse,item_769_let_the_campaign_fail_on_colour_only_state_and_unreachable_controls,task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns",
+  "refs": [
+    "req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse",
+    "item_767_give_every_colour_carried_state_a_second_channel",
+    "item_768_make_the_new_controls_reachable_without_a_mouse",
+    "item_769_let_the_campaign_fail_on_colour_only_state_and_unreachable_controls",
+    "task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns.md",
+      "ref": "task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns"
+    }
+  ]
+}

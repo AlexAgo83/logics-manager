@@ -1,10 +1,10 @@
 ## item_711_present_the_fleet_home_as_the_root_view_in_fleet_mode - Present the fleet home as the root view in fleet mode
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Status: In progress
+> Understanding: 95%
+> Confidence: 92%
+> Progress: 20%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

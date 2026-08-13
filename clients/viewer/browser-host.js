@@ -8790,7 +8790,7 @@ ${line}` : line;
       };
       const pill = repoPill();
       if (pill) {
-        const repoName = String(payload.repoName || viewerState.latestRepoRoot.split(/[\\/]/).filter(Boolean).pop() || "repository");
+        const repoName = payload.fleetHome ? "Fleet" : String(payload.repoName || viewerState.latestRepoRoot.split(/[\\/]/).filter(Boolean).pop() || "repository");
         const label = pill.querySelector("[data-viewer-project-label]");
         if (label) {
           label.textContent = repoName;
@@ -8892,7 +8892,6 @@ ${line}` : line;
       <section class="viewer-fleet">
         <div class="viewer-fleet__toolbar">
           <div>
-            <h2>Fleet</h2>
             <p>${projects.length} project${projects.length === 1 ? "" : "s"} discovered.</p>
           </div>
           <button class="viewer-fleet__open" type="button" data-viewer-fleet-root-pick>Add root</button>
@@ -9790,8 +9789,14 @@ ${line}` : line;
       if (gitActions) gitActions.hidden = !isGit;
       if (!isGit) setGitActionsMenuOpen(false);
       if (releaseReset) releaseReset.hidden = !isRelease;
+      const root = isRootScreen(titleText);
+      const close = document.getElementById("viewer-document-close");
+      if (close instanceof HTMLButtonElement) {
+        close.hidden = root;
+        close.disabled = root;
+      }
       if (minimize instanceof HTMLButtonElement) {
-        minimize.hidden = !titleText || !desktopScreensCanMinimize();
+        minimize.hidden = root || !titleText || !desktopScreensCanMinimize();
         minimize.disabled = minimize.hidden;
       }
       if (status instanceof HTMLButtonElement) {
@@ -9928,6 +9933,13 @@ ${line}` : line;
       }
       return view.userSeq !== userViewSeq;
     }
+    let rootScreenTitle = "";
+    function isRootScreen(titleText) {
+      return Boolean(rootScreenTitle) && titleText === rootScreenTitle;
+    }
+    function applyRootScreenChrome(titleText) {
+      document.body.classList.toggle("viewer-shell--root-screen", isRootScreen(titleText));
+    }
     function setDocument(titleText, html, options = {}) {
       invalidatePendingViews();
       cdxState.cdxCloseTarget = null;
@@ -9937,6 +9949,7 @@ ${line}` : line;
         renderMinimizedDock();
       }
       currentDocumentItem = options.item || null;
+      applyRootScreenChrome(titleText);
       const panel = documentPanel();
       const title = documentTitle();
       const content = documentContent();
@@ -10151,6 +10164,7 @@ ${line}` : line;
         dispatchViewerActivityUpdate();
       }
       if (payload.fleetHome) {
+        rootScreenTitle = "Fleet";
         void showFleetHome({ silent: Boolean(options.silent) });
       }
       return true;

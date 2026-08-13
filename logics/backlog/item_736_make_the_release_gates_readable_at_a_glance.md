@@ -4,10 +4,11 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 62%
+> Progress: 87%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 01:10:36
 
 # AI Context
 - Summary: One gate is called blocked, stale and pushed on the same screen; it sits fifth of eight; each costs about 100px; most substates repeat the gate's own name; and `optional`, which changes what a gate means, is grey small text.
@@ -27,6 +28,13 @@
 - Out:
   - Adding, removing or reordering the gates themselves.
 
+# Delivery notes
+- The blocking gate leads, is marked by form as well as position, and is the only one left expanded; the rest keep their declared order behind it and stay compact.
+- **A substate is shown only when it says something the gate's id does not.** `local_validation` followed by `validation` told the reader nothing twice.
+- **`optional` is stated where it changes the conclusion** -- beside a gate that is not passing -- and stays quiet where it does not, because what it changes is the meaning of a *failure*.
+- **A defect found while doing it, and it was mine.** The marker's condition read `tone !== "pass"`, but `releaseBadgeTone` returns `passing` -- so the check was always true and `optional` would have appeared on every gate including the passing ones. The regression caught it because the fixture asserted the tone rather than trusting it.
+- **A defect found that was not mine, in the same class as `item_734`'s.** The Release screen had its own copy of the job list, and like the CI screen's copy it fed `ciBadgeTone` a raw GitHub conclusion that function does not speak -- so every release job also resolved to `unknown`. Both screens now use one `renderCiJobRows`, which is also what delivers this slice's counted fold for the passing jobs. Two copies of a rendering are two places for the same defect.
+- The release run's `Status` row is gone, since the badge beside the heading states it, and both ends of the run became the duration they were hiding -- the same trade `item_734` made on the CI screen.
 # Acceptance criteria
 - AC8: Gate status is colour and form.
 - AC9: The blocking gate leads and stays expanded; passing ones collapse.

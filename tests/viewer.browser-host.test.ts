@@ -4437,6 +4437,84 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("focus: blocked");
   });
 
+  it("reconciles blocked, pass and the evidence count into one sentence, and leads with the blocking gate", async () => {
+    // item_735/item_736. The screen showed `blocked`, `pass` and `8/8` side by side without
+    // reconciling them; the sentence that resolves it was a right-aligned key/value cell at
+    // the same weight as a file path; and the blocking gate sat fifth of eight.
+    const gate = (id: string, status: string, extra: Record<string, unknown> = {}) => ({
+      id,
+      status,
+      state: id.split("_")[0],
+      required: true,
+      evidence: { observed_at: "2026-08-13T10:00:00.000Z" },
+      ...extra
+    });
+
+    const { dom } = createViewerDom({
+      releaseResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "blocked",
+            configured: true,
+            contract_path: "logics/release/contract.json",
+            commit: "abcdef1234567890",
+            target_version: "1.2.3",
+            next_action: "Re-run local validation against the current commit.",
+            gates: [
+              gate("ci_run", "passed"),
+              gate("changelog", "passed"),
+              gate("docs", "passed", { required: false }),
+              gate("tests", "passed"),
+              gate("local_validation", "stale", { blocking_reason: "evidence targets a different commit" })
+            ]
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    dom.window.document.querySelector('[data-viewer-ci-mode="release"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const document = dom.window.document;
+
+    // One sentence that reconciles the three numbers, with the action beside it.
+    const verdict = document.querySelector(".viewer-release__verdict-text")?.textContent || "";
+    expect(verdict).toContain("Blocked by local_validation");
+    expect(verdict).toContain("evidence targets a different commit");
+    expect(verdict).toContain("5 of 5 gates have evidence");
+    expect(document.querySelector(".viewer-release__verdict-action")?.textContent).toContain("Re-run local validation");
+
+    // The blocking gate leads, is marked, and is the one left open.
+    const gates = Array.from(document.querySelectorAll("[data-viewer-release-gate]")) as HTMLDetailsElement[];
+    expect(gates[0]?.dataset.viewerReleaseGate).toBe("local_validation");
+    expect(gates[0]?.classList.contains("viewer-release__gate--blocking")).toBe(true);
+    expect(gates[0]?.open).toBe(true);
+    expect(gates.slice(1).every((node) => !node.open)).toBe(true);
+
+    // A substate that only repeats the gate's own name is dropped; `optional` is stated
+    // where it changes the conclusion and stays quiet where it does not.
+    // Scoped to the summary: the blocking gate is expanded, so an unscoped query would
+    // reach into its evidence rows and report their markup instead.
+    expect(gates[0]?.querySelector(".viewer-release__gate-name em")).toBeNull();
+    // `docs` is optional and passing, so the marker stays quiet: it changes what a failure
+    // means, and there is no failure to reinterpret.
+    const optionalGate = gates.find((node) => node.dataset.viewerReleaseGate === "docs");
+    expect(optionalGate?.dataset.viewerReleaseGateTone).toBe("passing");
+    expect(optionalGate?.querySelector(".viewer-release__gate-optional")).toBeNull();
+
+    // The Next action row repeated the verdict's own action line.
+    const listRows = Array.from(document.querySelectorAll(".viewer-ci__row")).map((node) => node.textContent || "");
+    expect(listRows.join(" ")).not.toContain("Next action");
+  });
+
   it("reports a CI run by its verdict and its duration, and lets a failure lead", async () => {
     // item_734. `completed / success` was printed on all six job rows in link blue, `pass`
     // appeared four times, both ends of the run were shown and its duration was not, and a

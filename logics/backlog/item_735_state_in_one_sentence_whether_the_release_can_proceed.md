@@ -4,10 +4,11 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 62%
+> Progress: 87%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 01:10:36
 
 # AI Context
 - Summary: The screen shows blocked, passed and a complete evidence count side by side without reconciling them, and the sentence that resolves it is a right-aligned key/value cell at the same weight as a file path.
@@ -26,6 +27,10 @@
 - Out:
   - What the gates check, and the release contract itself.
 
+# Delivery notes
+- The verdict is the reconciliation the screen was missing: it names the blocking gate, quotes its own reason, and states the evidence count in the same sentence -- so `blocked`, `pass` and `8/8` stop sitting side by side as three unexplained facts. The next action follows it, where it used to be a right-aligned key/value cell weighted like a file path.
+- The `Next action` row is gone from the list below, because the verdict now carries it and a fact stated twice is a fact an operator has to reconcile.
+- The underlying facts stay: the tiles keep State, Version, Blocked gate and Evidence, compacted into a strip rather than setting the scale of the screen.
 # Acceptance criteria
 - AC1: The screen leads with its verdict and the action that follows.
 - AC10: A blocked release is explained in one sentence that reconciles gate, run and evidence.

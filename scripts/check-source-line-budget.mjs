@@ -350,7 +350,19 @@ const allowedOversizedFiles = new Map(
     // panel's own header, and with it the six helpers that existed only to feed it. That is
     // 150 lines back. The ceiling comes down with them rather than being left where the
     // file's worst moment put it -- a budget that only ratchets upward stops being one.
-    "clients/shared-web/media/renderBoardApp.js": { maxLines: 1420, ref: "req_345" },
+    // 1500: item_739 makes list mode a table, which needs a row builder rather than a
+    // compact card stretched to full width. This reverses what the 1420 entry said -- that
+    // the previous raise should be the last -- and the reversal is deliberate rather than
+    // silent. The extraction that entry called for was measured here first:
+    // renderListView alone calls thirteen names from this closure (attachSentinelObserver,
+    // createShowMoreControl, visibleSliceForGroup, focusListHeader, selectItemAndFocus and
+    // the rest), so the seam is a design job with its own slice, not a cut taken while
+    // delivering a different one. What did not happen: no facts were duplicated for the new
+    // mode -- the list reuses createCardTitle, createLinkageBadges, createCardAgeSegment and
+    // cardStatusKey, which is what keeps AC17 true.
+    // 1510: item_740 gave the list row the same progress encoding as a card, which it had
+    // none of. Seven lines, and the alternative was a second encoding that would drift.
+    "clients/shared-web/media/renderBoardApp.js": { maxLines: 1510, ref: "req_345" },
     // 1050 -> 1040: item_720 makes selecting a card open the panel it fills (setSelectedId is
     // the single point selection is set from the board, so it is where the two halves of
     // "select and open" stay together), and item_721 replaced this file's copy of the

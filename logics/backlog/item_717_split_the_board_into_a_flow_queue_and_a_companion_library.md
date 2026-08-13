@@ -1,14 +1,14 @@
 ## item_717_split_the_board_into_a_flow_queue_and_a_companion_library - Split the board into a flow queue and a companion library
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-13 20:19:42
+> Indicators reviewed: 2026-08-13 23:01:04
 
 # AI Context
 - Summary: Render request/backlog/task as the board's columns and the 118 all-settled companion docs as a searchable collapsible index, using the split `logicsModel.js` already defines.
@@ -52,3 +52,13 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_353_make_list_mode_a_table`
+- `task_354_keep_progress_and_both_modes_honest_at_any_width`
+- `task_342_deliver_the_project_view_that_leads_with_live_work`
+
+# Notes
+- Task `task_353_make_list_mode_a_table` was finished via `logics-manager flow finish task` on 2026-08-13.
+- Task `task_354_keep_progress_and_both_modes_honest_at_any_width` was finished via `logics-manager flow finish task` on 2026-08-13.
+- Task `task_342_deliver_the_project_view_that_leads_with_live_work` was finished via `logics-manager flow finish task` on 2026-08-13.

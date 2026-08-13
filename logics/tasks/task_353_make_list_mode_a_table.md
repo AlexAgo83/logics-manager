@@ -1,4 +1,4 @@
-## item_739_make_list_mode_a_table - Make list mode a table
+## task_353_make_list_mode_a_table - Make list mode a table
 > From version: 2.21.9
 > Schema version: 1.0
 > Status: Done
@@ -6,42 +6,32 @@
 > Confidence: 85%
 > Progress: 100%
 > Complexity: Medium
-> Theme: Viewer experience
-> Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-13 22:58:04
+> Theme: Implementation delivery
+> Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-13 22:58:15
 
 # AI Context
-- Summary: List mode is the card layout stretched: an 82px row for one line of text, the title in the left third, the middle half empty, and the near-constant metric chip pinned about 1 500px away at the far edge.
-- Keywords: list mode, board--list, list-view, table columns, metric chip placement, mode toggle label
-- Use when: Changing the board's list mode, its row layout, or the control that switches between modes.
-- Skip when: The card mode's own layout, which is covered by the card-face slice.
+- Summary: List mode rendered a compact card stretched to full width; it is a table now, with columns that carry the same facts the card face carries, in the same encoding.
+- Keywords: list mode, table columns, list-row, mode toggle labelling, shared encoding
+- Use when: Changing what list mode shows or how its columns are laid out.
+- Skip when: Card mode's own layout, and which documents the board shows.
 
-# Problem
-List mode renders a row about 82px tall to carry one line of text: the title sits in the left third, the middle half is empty, and the `U __% / C __%` chip is pinned to the far right edge, roughly 1 500px from the title it describes.
-So the entire right half of the screen is spent on the one value already measured to be almost constant, and pairing a document with its metrics means crossing the whole viewport. A list is a table; this one has no columns.
-The mode toggle is an unlabelled icon titled "Switch project display mode". Which mode is active, and which one switching would reach, are both unstated.
-# Scope
-- In:
-  - Give the list real columns that earn the width: status, links and age beside the title.
-  - Encode the same facts the same way as card mode, so switching changes the shape and not the meaning.
-  - State the current mode and the mode the control would switch to.
-- Out:
-  - The card mode's own layout, and which documents the board shows.
-# Delivery notes
-- Measured against the live corpus at 1440x900: rows are 33px tall where they were about 82px, with five columns (title, linkage, status, links, age) instead of a title in the left third and a chip pinned to the far edge.
-- **The row keeps the `card` class.** Selection, focus and keyboard navigation all find a document through `findCardById`, which queries `.card`; the first version dropped it and turned the list into rows the keyboard could not reach. The existing tests caught that before it shipped, which is the second time this request's own coverage stopped a regression rather than a review doing it.
-- Nothing was duplicated for the new mode: the row reuses `createCardTitle`, `createLinkageBadges`, `createCardAgeSegment` and `cardStatusKey`. That is what keeps AC17 true -- a second set of builders would drift, and the task-coverage dots proved it by being missing from the first version.
-- A count of zero links renders as a dash. A column of zeroes reads as loudly as a column of counts, and "nothing linked" is a different statement from "none".
-- The mode control already stated the current mode and the mode switching would reach, in its `aria-label` and `title`, from earlier work; this slice confirmed it rather than redoing it.
+# Definition of Done (DoD)
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
+- [x] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
+
+# Backlog
+- `item_739_make_list_mode_a_table`
 
 # Acceptance criteria
 - AC16: List mode presents documents as a table with columns that earn the width -- at least status, links and age beside the title -- rather than a stretched card whose only right-hand content is pinned to the far edge.
 - AC17: Card mode and list mode encode the same facts the same way, so switching mode changes the shape of the screen and not what it means; and the current mode, and the mode switching would reach, are both stated.
 
 # AC Traceability
-- request-AC16 -> This backlog slice. Proof: measured at 1440x900 against the live corpus -- rows are 33px tall where they were about 82px, laid out as `minmax(0,1fr) auto 140px 100px 80px` carrying title, linkage, status, links and age. Covered by `renders list mode as a table with columns that carry facts` in `tests/webview.board-renderer.test.ts`.
-- request-AC17 -> This backlog slice. Proof: the row reuses `createCardTitle`, `createLinkageBadges`, `createCardAgeSegment`, `cardStatusKey` and the same progress bar rather than drawing its own versions. The task-coverage dots were absent from the first version and `renders task coverage dots for active tasks only in board and list views` failed until they were shared. The mode control states the current mode and the mode switching would reach in both its `aria-label` and `title`.
-
+- request-AC16 -> This task. Proof: measured at 1440x900 against the live corpus -- rows are 33px tall where they were about 82px, with `minmax(0,1fr) auto 140px 100px 80px` columns carrying title, linkage, status, links and age. The near-constant `U __% / C __%` chip that used to sit at the far right edge is gone from the face entirely under `item_719`.
+- request-AC17 -> This task. Proof: the row reuses `createCardTitle`, `createLinkageBadges`, `createCardAgeSegment` and `cardStatusKey` rather than drawing its own versions, and `item_740` gave both modes the same progress bar. The task-coverage dots were missing from the first version and the existing coverage test caught it. The mode control states the current mode and the mode switching would reach, in both its `aria-label` and its `title`.
 - request-AC1 -> Delivered by `item_717_split_the_board_into_a_flow_queue_and_a_companion_library` under the same request. Proof: measured at 1440x900 against this corpus -- three flow columns (`request|backlog|task`), 129 companion documents in a collapsible reference index below them, and `scrollWidth === clientWidth`, where seven peer columns previously clipped the sixth mid-word.
 - request-AC2 -> Delivered by `item_718_open_the_board_on_the_work_that_is_live` under the same request. Proof: 1 382 of 1 511 documents in this corpus are finished (91.5%). Each column folds its finished work behind a control stating the count; the fold turns off under an active search or when a group has no live work, which six filter-authority tests caught when it did not.
 - request-AC3 -> Delivered by `item_718_open_the_board_on_the_work_that_is_live` under the same request. Proof: headers read `9 live - 344 done` rather than `10/353`. Status-based rather than progress-based, because requests carry no Progress indicator and splitting on it left the Requests column reporting the old count.
@@ -57,31 +47,27 @@ The mode toggle is an unlabelled icon titled "Switch project display mode". Whic
 - request-AC13 -> Delivered by `item_723_draw_the_activity_feed_as_a_chronology` under the same request. Proof: a gap of more than a day renders as `N days with no recorded activity`, counted; proven load-bearing by disabling the branch and watching the regression fail.
 - request-AC14 -> Delivered by `item_725_cover_the_board_the_selected_state_the_panel_and_the_feed_in_the_campaign` under the same request. Proof: the campaign visits all four surfaces at 1440x900, 820x1180 and 390x844, applying the existing layout checks -- 133 checks pass. The details panel is skipped below 900px with its reason stated, because `details.css` hides it there on purpose; that tension is recorded in `item_740_keep_progress_and_both_modes_honest_at_any_width`, which owns narrow-width behaviour. Coverage proven load-bearing by removing `card--selected` and watching `selected card: reachable` fail.
 - request-AC15 -> Delivered by `item_725_cover_the_board_the_selected_state_the_panel_and_the_feed_in_the_campaign` under the same request. Proof: every change is in `clients/shared-web/media/*` and `clients/viewer/src/browser-host/`, rebuilt via `npm run bundle:viewer-host` after each; the extension's webview loads the same media files, and the added `workflowStatuses.generated.js` was wired into `clients/viewer/index.html`, `clients/vscode/src/logicsWebviewHtml.ts` and both test harnesses together.
-- request-AC18 -> Delivered by `item_740_keep_progress_and_both_modes_honest_at_any_width` under the same request. Proof: progress was a wash filled to `var(--progress)` across the element, so the same value covered about 138px in a card and about 900px in a row; it is a 64px bar in both modes, filled by a ratio.
-- request-AC19 -> Delivered by `item_740_keep_progress_and_both_modes_honest_at_any_width` under the same request. Proof: measured at 390x844 -- the list collapses to one column, status, links and age become subordinate lines under the title, and `scrollWidth === clientWidth`.
-# Decision framing
-- Product framing: Not needed
-- Product signals: (none detected)
-- Product follow-up: No product brief follow-up is expected based on current signals.
-- Architecture framing: Not needed
-- Architecture signals: (none detected)
-- Architecture follow-up: No architecture decision follow-up is expected based on current signals.
+- request-AC18 -> Delivered by `task_354_keep_progress_and_both_modes_honest_at_any_width` under the same request. Proof: progress was a wash filled to `var(--progress)` across the element, so the same value covered about 138px in a card and about 900px in a row; it is a 64px bar in both modes, filled by a ratio.
+- request-AC19 -> Delivered by `task_354_keep_progress_and_both_modes_honest_at_any_width` under the same request. Proof: measured at 390x844 -- the list collapses to one column, status, links and age become subordinate lines under the title, and `scrollWidth === clientWidth`.
+
+# Plan
+- [x] Use `python3 -m logics_manager flow progress task task_353_make_list_mode_a_table.md --progress <n>%` during multi-wave work.
+- [x] Run `python3 -m logics_manager flow finish task task_353_make_list_mode_a_table.md` after implementation.
+
+# Validation
+- `npx vitest run`: 876 passed (82 files).
+- Viewer UI campaign at 1440x900, 820x1180 and 390x844: 133 checks, no findings.
+- Measured in the live viewer: list rows 33px tall, five columns at 1440, one column at 390, no sideways scroll at either.
+- Finish workflow executed on 2026-08-13.
+- Linked backlog/request close verification passed.
+
+# Report
+- Delivered 2026-08-13. The row keeps the `card` class because selection, focus and keyboard navigation all find a document through `findCardById`, which queries `.card`; dropping it turned the list into rows the keyboard could not reach, which the existing tests caught before the change shipped.
+- Finished on 2026-08-13.
+- Linked backlog item(s): `item_716_confirm_what_the_payload_can_and_cannot_tell_about_chains_and_lifelines`, `item_717_split_the_board_into_a_flow_queue_and_a_companion_library`, `item_718_open_the_board_on_the_work_that_is_live`, `item_719_reallocate_the_card_face_to_the_facts_that_vary`, `item_720_make_selecting_a_card_one_mechanism`, `item_721_lead_the_details_panel_with_what_the_document_says`, `item_723_draw_the_activity_feed_as_a_chronology`, `item_725_cover_the_board_the_selected_state_the_panel_and_the_feed_in_the_campaign`, `item_739_make_list_mode_a_table`, `item_740_keep_progress_and_both_modes_honest_at_any_width`
+- Related request(s): `req_345_make_the_project_view_lead_with_the_work_that_is_live`
 
 # Links
+- Request: `req_345_make_the_project_view_lead_with_the_work_that_is_live`
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `req_345_make_the_project_view_lead_with_the_work_that_is_live`
-- Primary task(s): `task_353_make_list_mode_a_table`
-
-# Priority
-- Priority: Medium
-- Rationale: Default until groomed.
-
-# Notes
-- Hybrid rationale: Derived from request `req_345_make_the_project_view_lead_with_the_work_that_is_live` and kept bounded to one coherent delivery slice.
-- Source file: `logics/request/req_345_make_the_project_view_lead_with_the_work_that_is_live.md`.
-- Generated locally by logics-manager.
-- Task `task_353_make_list_mode_a_table` was finished via `logics-manager flow finish task` on 2026-08-13.
-
-# Tasks
-- `task_353_make_list_mode_a_table`

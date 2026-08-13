@@ -1,8 +1,8 @@
 ## prod_081_a_project_view_that_leads_with_what_is_live - A project view that leads with what is live
 > Date: 2026-08-13
-> Status: Proposed
+> Status: Settled
 > Related request: `req_345_make_the_project_view_lead_with_the_work_that_is_live`
-> Related backlog: `item_716_confirm_what_the_payload_can_and_cannot_tell_about_chains_and_lifelines`, `item_717_split_the_board_into_a_flow_queue_and_a_companion_library`, `item_718_open_the_board_on_the_work_that_is_live`, `item_719_reallocate_the_card_face_to_the_facts_that_vary`, `item_720_make_selecting_a_card_one_mechanism`, `item_721_lead_the_details_panel_with_what_the_document_says`, `item_722_give_a_document_a_lifeline_in_the_details_panel`, `item_723_draw_the_activity_feed_as_a_chronology`, `item_724_tell_one_chain_s_story_in_the_activity_feed`, `item_725_cover_the_board_the_selected_state_the_panel_and_the_feed_in_the_campaign`
+> Related backlog: `item_716_confirm_what_the_payload_can_and_cannot_tell_about_chains_and_lifelines`
 > Related task: `task_342_deliver_the_project_view_that_leads_with_live_work`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -47,5 +47,5 @@ flowchart TB
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_345_make_the_project_view_lead_with_the_work_that_is_live`
+- Product back-reference: `item_716_confirm_what_the_payload_can_and_cannot_tell_about_chains_and_lifelines`
 - Task back-reference: `task_342_deliver_the_project_view_that_leads_with_live_work`

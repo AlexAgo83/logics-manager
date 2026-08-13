@@ -1,13 +1,14 @@
 ## item_716_confirm_what_the_payload_can_and_cannot_tell_about_chains_and_lifelines - Confirm what the payload can and cannot tell about chains and lifelines
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 95%
 > Progress: 100%
 > Complexity: Low
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-13 23:01:03
 
 # AI Context
 - Summary: Two proposals assume data that may not exist -- per-event operation and chain, and per-beat lifeline dates; settle what the payload can honestly support before either is designed in.
@@ -102,3 +103,13 @@ Two ways to get one, neither in scope here:
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_353_make_list_mode_a_table`
+- `task_354_keep_progress_and_both_modes_honest_at_any_width`
+- `task_342_deliver_the_project_view_that_leads_with_live_work`
+
+# Notes
+- Task `task_353_make_list_mode_a_table` was finished via `logics-manager flow finish task` on 2026-08-13.
+- Task `task_354_keep_progress_and_both_modes_honest_at_any_width` was finished via `logics-manager flow finish task` on 2026-08-13.
+- Task `task_342_deliver_the_project_view_that_leads_with_live_work` was finished via `logics-manager flow finish task` on 2026-08-13.

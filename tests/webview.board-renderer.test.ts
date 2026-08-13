@@ -413,7 +413,7 @@ describe("webview board renderer behavior", () => {
     expect(instances[0].disconnect).toHaveBeenCalledTimes(1);
   });
 
-  it("renders compact cards in list mode", () => {
+  it("renders list mode as a table with columns that carry facts", () => {
     const { dom } = bootstrapWebview();
 
     pushData(dom, {
@@ -425,9 +425,17 @@ describe("webview board renderer behavior", () => {
     viewModeToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
     const board = dom.window.document.getElementById("board");
+    // item_739: list mode was a compact card stretched to full width -- an 82px row for one
+    // line of text, the middle half empty, and the near-constant U/C chip pinned about
+    // 1 500px from the title. It is a table now, with columns that carry facts. The row
+    // keeps the `card` class because selection, focus and keyboard navigation all find a
+    // document through findCardById, which queries `.card`.
     const card = board?.querySelector(".card");
-    expect(card?.classList.contains("card--compact")).toBe(true);
+    expect(card?.classList.contains("list-row")).toBe(true);
     expect(card?.querySelector(".card__meta")).toBeFalsy();
+    expect(card?.querySelector(".list-row__cell--status")).toBeTruthy();
+    expect(card?.querySelector(".list-row__cell--links")).toBeTruthy();
+    expect(card?.querySelector(".list-row__cell--age")).toBeTruthy();
   });
 
   it("keeps linkage metadata while dropping filename subtitles from cards", () => {

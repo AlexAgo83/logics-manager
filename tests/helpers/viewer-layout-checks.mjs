@@ -22,6 +22,26 @@ export function layoutChecks(window) {
     const style = window.getComputedStyle(node);
     return style.visibility !== "hidden" && style.display !== "none" && style.opacity !== "0";
   };
+  // item_715: laid out is not the same as seen. Once the checks run per screen rather than
+  // only on the board, a surface behind an open document panel still has a size and a
+  // computed style, and the empty-surface check reported an empty `#board` on every screen
+  // that covers it. Hit-testing the centre answers "is the operator looking at this".
+  //
+  // Deliberately not folded into `visible()`: applied to every check it also suppressed
+  // the topbar's h1, and the heading-structure check then reported that no top-level
+  // heading names the page. Occlusion matters for "is this surface blank", not for
+  // "does this screen have a heading".
+  const unoccluded = (node) => {
+    // The headless-DOM fallback and the checks' own unit harness have no hit testing.
+    // Absent an answer, assume nothing is on top: the campaign's rule is that a check
+    // which cannot run is not a check that failed.
+    if (typeof document.elementFromPoint !== "function") return true;
+    const box = node.getBoundingClientRect();
+    const x = Math.min(Math.max(box.left + box.width / 2, 0), window.innerWidth - 1);
+    const y = Math.min(Math.max(box.top + box.height / 2, 0), window.innerHeight - 1);
+    const hit = document.elementFromPoint(x, y);
+    return !hit || node === hit || node.contains(hit);
+  };
   const interactive = () =>
     Array.from(
       document.querySelectorAll("button, a[href], select, input, textarea, [role='button'], [data-action]")
@@ -107,7 +127,7 @@ export function layoutChecks(window) {
       run: () => {
         const empty = Array.from(
           document.querySelectorAll("[data-empty-when-blank], #board, #details, #activity-panel")
-        ).filter((node) => visible(node) && node.children.length === 0 && !node.textContent.trim());
+        ).filter((node) => visible(node) && unoccluded(node) && node.children.length === 0 && !node.textContent.trim());
         if (empty.length) throw new Error(empty.map(describe).join("; ") + " rendered empty with no explanation");
         return "no unexplained empty surface";
       }

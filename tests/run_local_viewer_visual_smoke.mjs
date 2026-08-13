@@ -461,21 +461,11 @@ function browserExerciseScript(name) {
         await waitFor(() => !document.getElementById("viewer-document").hidden && text("#viewer-document-content").trim(), "read preview");
         return text("#viewer-document-title").trim();
       });
-      if (${skipSlowChecks ? "true" : "false"}) {
-        checks.push({ name: "insights renders", verdict: "skipped", measured: "skipped by VIEWER_CAMPAIGN_SKIP_SLOW_CHECKS" });
-        checks.push({ name: "health renders", verdict: "skipped", measured: "skipped by VIEWER_CAMPAIGN_SKIP_SLOW_CHECKS" });
-      } else {
-        await check("insights renders", async () => {
-          click("#viewer-insights");
-          await waitFor(() => text("#viewer-document-content").includes("Flow health"), "insights", 120000);
-          return "Flow health";
-        });
-        await check("health renders", async () => {
-          click("#viewer-health");
-          await waitFor(() => text("#viewer-document-content").includes("Validation findings"), "health");
-          return "Validation findings";
-        });
-      }
+      // item_715: the insights and health render checks used to live here, each clicking
+      // its control and waiting for a phrase in the content. They are superseded by the
+      // screen harness below, which proves the screen by its title rather than by a string
+      // that a redesign will move, and then applies every layout check to it instead of
+      // asserting one phrase.
       await check("refresh reports what it did", async () => {
         const auto = document.getElementById("viewer-auto-refresh");
         auto.checked = false;
@@ -498,10 +488,62 @@ function browserExerciseScript(name) {
         return "opened";
       });
       for (const layoutCheck of LAYOUT_CHECKS) {
-        await check(layoutCheck.name, layoutCheck.run);
+        await check("board: " + layoutCheck.name, layoutCheck.run);
       }
       for (const filterCheck of FILTER_CHECKS) {
         await check(filterCheck.name, filterCheck.run);
+      }
+
+      // item_715 builds the harness eight backlog items across seven requests each
+      // described separately: reach a screen, wait for it to finish loading, prove which
+      // screen was captured, then apply the layout checks to it. Per adr_029 the first
+      // campaign item to land owns this; the others add only their entry to SCREENS.
+      //
+      // "Prove which screen" is the part that is not obvious. Several screens take
+      // twenty seconds or more against a large corpus, and the viewer leaves the previous
+      // screen in place while one loads -- so a check that only waits a fixed time
+      // asserts against whatever happens to be on screen. Reading the document title back
+      // is what makes a capture name itself.
+      const visitScreen = async (screen) => {
+        const opened = document.querySelector(screen.open);
+        if (!(opened instanceof HTMLElement)) {
+          checks.push({ name: screen.name + ": reachable", verdict: "skipped", measured: "control " + screen.open + " is not present" });
+          return false;
+        }
+        opened.click();
+        try {
+          await waitFor(
+            () => (document.getElementById("viewer-document-title")?.textContent || "").trim() === screen.title,
+            screen.name + " to become the active screen",
+            screen.timeoutMs || 60000
+          );
+        } catch (error) {
+          checks.push({
+            name: screen.name + ": reachable",
+            verdict: "failed",
+            measured: "showing '" + (document.getElementById("viewer-document-title")?.textContent || "").trim() + "'",
+            detail: error.message
+          });
+          return false;
+        }
+        checks.push({ name: screen.name + ": reachable", verdict: "ok", measured: screen.title });
+        return true;
+      };
+
+      const SCREENS = [
+        { name: "insights", title: "Corpus insights", open: "#viewer-insights", timeoutMs: 120000 },
+        { name: "health", title: "Validation health", open: "#viewer-health" },
+        { name: "getting started", title: "Getting Started", open: "#viewer-getting-started" }
+      ];
+      for (const screen of SCREENS) {
+        if (${skipSlowChecks ? "true" : "false"}) {
+          checks.push({ name: screen.name + ": reachable", verdict: "skipped", measured: "skipped by VIEWER_CAMPAIGN_SKIP_SLOW_CHECKS" });
+          continue;
+        }
+        if (!(await visitScreen(screen))) continue;
+        for (const layoutCheck of LAYOUT_CHECKS) {
+          await check(screen.name + ": " + layoutCheck.name, layoutCheck.run);
+        }
       }
       const failed = checks.some((entry) => entry.verdict === "failed");
       resolve({ checks, html: failed ? document.documentElement.outerHTML : "" });

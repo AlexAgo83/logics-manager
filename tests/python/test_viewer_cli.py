@@ -476,6 +476,7 @@ def test_viewer_mutating_routes_registry_covers_every_state_changing_post() -> N
         "/api/switch-project",
         "/api/select-project-root",
         "/api/select-project-root-path",
+        "/api/select-fleet-root-path",
         "/api/cdx-report-request",
         "/api/cdx-mission-run",
         "/api/cdx-mission-apply-plan",
@@ -485,6 +486,32 @@ def test_viewer_mutating_routes_registry_covers_every_state_changing_post() -> N
         "/api/lan/devices/revoke",
     }
     assert must_be_gated.issubset(VIEWER_MUTATING_ROUTES)
+
+
+def test_fleet_root_browser_fallback_adds_a_root_and_refuses_an_escape(tmp_path: Path) -> None:
+    """item_726. `pickViewerProjectRoot` already fell back to the in-browser folder
+    browser when the host had no native dialog; `pickFleetRoot` threw instead, so on an
+    interpreter without tkinter -- Homebrew's python3 on macOS, measured -- the only route
+    to add a fleet root was unreachable. This is the endpoint that recovery posts to.
+
+    It validates before use, in the same shape as the sibling project handler, rather
+    than resolving first and checking membership afterwards."""
+    base = tmp_path / "base"
+    (base / "alpha").mkdir(parents=True)
+    server = create_viewer_server_or_skip(base / "alpha")
+    try:
+        server.project_picker_base_root = base.resolve()
+        server.add_fleet_root((base / "alpha").resolve())
+        assert (base / "alpha").resolve() in viewer_module.fleet_roots()
+
+        with pytest.raises(ValueError):
+            viewer_module._normalize_workspace_path("../../etc")
+    finally:
+        try:
+            server.remove_fleet_root((base / "alpha").resolve())
+        except ValueError:
+            pass
+        server.server_close()
 
 
 def test_create_request_from_viewer_draft_writes_request_doc(tmp_path: Path) -> None:

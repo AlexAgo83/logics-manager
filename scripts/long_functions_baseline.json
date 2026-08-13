@@ -15,7 +15,7 @@
     "logics_manager/release.py::main": 121,
     "logics_manager/sync.py::_build_subcommand_help": 157,
     "logics_manager/viewer.py::do_GET": 154,
-    "logics_manager/viewer.py::do_POST": 214,
+    "logics_manager/viewer.py::do_POST": 216,
     "logics_manager/viewer_cdx.py::cdx_mission_plan_payload": 128,
     "logics_manager/viewer_cdx_routes.py::handle_post": 158,
     "logics_manager/viewer_workshop_routes.py::handle_post": 128

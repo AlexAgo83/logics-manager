@@ -152,7 +152,12 @@ const allowedOversizedFiles = new Map(
     // the growth is the comments recording why -- the alternative, splitting viewer.py
     // during a bug fix, is item_476's job and would land untested next to defect
     // repairs.
-    "logics_manager/viewer.py": { maxLines: 3690, ref: "req_348" },
+    // 3715: item_726 added /api/select-fleet-root-path, the browser-side recovery for
+    // adding a fleet root when the host has no native dialog. It is 20 lines mirroring
+    // the project handler beside it, deliberately including its containment shape --
+    // normalize, resolve, assert -- rather than sharing a helper that would have to be
+    // parameterised by what the validated path is then used for.
+    "logics_manager/viewer.py": { maxLines: 3724, ref: "req_346" },
     // 1545: item_743 keys the cdx update cache on a fingerprint of the installed
     // executable, so running the update the banner asks for ends the banner. The
     // helper is 8 lines; the rest is the docstring stating why it stats rather than
@@ -261,7 +266,13 @@ const allowedOversizedFiles = new Map(
     // body's ok, so a refusal re-rendered unchanged state. The eleven added lines are
     // the check and the comment recording the defect; the browser-host split remains
     // the existing modularization backlog.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4461, ref: "req_348" },
+    // 4540: item_727 moved a failed action's reason out of the meta line, which the
+    // next auto-refresh overwrote, into a banner that holds until dismissed; and
+    // item_726 split the fallback folder browser so both pickers reach one recovery
+    // instead of the fleet one having none. The browser is shared and only what the
+    // chosen folder is used for is a parameter -- the alternative, a second modal for
+    // fleet roots, is the duplication the item exists to remove.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4540, ref: "req_346" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

@@ -5332,3 +5332,59 @@
 .viewer-project-tool__swatch, .viewer-project-tool__shape, .viewer-project-tool__placeholder { width: 2.3rem; height: 2.3rem; display: block; }
 .viewer-project-tool__swatch, .viewer-project-tool__shape { border: 1px solid var(--vscode-panel-border, #454545); border-radius: 4px; }
 .viewer-project-tool__shape { background: currentColor; }
+
+/* item_727: a failed primary action is reported here rather than in the meta line.
+   `setMeta` writes the small grey subtitle beside the document count, and
+   `scheduleNextAutoRefresh` calls `renderMeta` on every tick -- so a refusal was
+   overwritten within the refresh interval, which is why a clear server error read as
+   nothing happening. This holds until dismissed or superseded, and takes the same
+   shape as the LAN banner above it so the two read as one kind of notice. */
+.viewer-action-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: var(--vscode-inputValidation-errorBackground, #5a1d1d);
+  color: var(--vscode-inputValidation-errorForeground, #f5d7d7);
+  border-bottom: 1px solid var(--vscode-inputValidation-errorBorder, #be1100);
+  font-size: 12px;
+}
+
+.viewer-action-error[hidden] {
+  display: none !important;
+}
+
+.viewer-action-error__icon {
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--vscode-inputValidation-errorBorder, #be1100);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.viewer-action-error__label {
+  flex: 0 0 auto;
+  font-weight: 600;
+}
+
+.viewer-action-error__message {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.viewer-action-error__dismiss {
+  flex: 0 0 auto;
+  background: transparent;
+  border: 1px solid currentColor;
+  color: inherit;
+  border-radius: 4px;
+  padding: 1px 8px;
+  cursor: pointer;
+  line-height: 1.4;
+}

@@ -26,6 +26,16 @@
     <button class="btn viewer-lan-banner__pair-button" id="viewer-lan-banner-pair" type="button" title="Pair this device for write access" hidden>Pair this device</button>
     <span class="viewer-lan-banner__paired" id="viewer-lan-banner-paired" hidden></span>
   </div>
+  <!-- item_727: a failed action used to be reported through setMeta, into the small grey
+       subtitle beside the document count, which the next auto-refresh tick overwrote. A
+       clear server refusal read as nothing happening. This banner holds the reason until
+       it is dismissed or another failure supersedes it. -->
+  <div class="viewer-action-error" id="viewer-action-error" role="alert" aria-live="assertive" hidden>
+    <span class="viewer-action-error__icon" aria-hidden="true">!</span>
+    <span class="viewer-action-error__label" id="viewer-action-error-label"></span>
+    <span class="viewer-action-error__message" id="viewer-action-error-message"></span>
+    <button class="btn viewer-action-error__dismiss" id="viewer-action-error-dismiss" type="button" aria-label="Dismiss this failure" title="Dismiss">&times;</button>
+  </div>
   <header class="viewer-topbar" aria-label="Viewer status">
     <div>
       <div class="viewer-topbar__identity">

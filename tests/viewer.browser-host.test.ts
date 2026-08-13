@@ -231,6 +231,11 @@ function createViewerDom(options: {
       <div id="viewer-document-nav" hidden></div>
       <div id="viewer-document-content"></div>
     </section>
+    <div id="viewer-action-error" hidden>
+      <span id="viewer-action-error-label"></span>
+      <span id="viewer-action-error-message"></span>
+      <button id="viewer-action-error-dismiss" type="button"></button>
+    </div>
     <div id="viewer-minimized-dock" hidden></div>
     <aside id="activity-panel" hidden></aside>
   </body></html>`;
@@ -1697,6 +1702,49 @@ describe("local viewer browser host", () => {
     expect(css).toMatch(/@media \(max-width: 640px\)/);
   });
 
+  it("keeps a failed action's reason where the auto-refresh cannot overwrite it", () => {
+    // item_727/item_745. Failures used to go through setMeta, into the small grey
+    // subtitle beside the document count -- and scheduleNextAutoRefresh calls renderMeta
+    // on every tick, so a clear server refusal was overwritten within the refresh
+    // interval and read as nothing happening.
+    const source = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/index.js"), "utf8");
+    const withPrimaryAction = source.slice(source.indexOf("function withPrimaryAction("), source.indexOf("function hydrateViewerFilterState("));
+    expect(withPrimaryAction).toMatch(/showActionFailure\(label, error\?\.message/);
+    expect(withPrimaryAction).not.toMatch(/setMeta\(error\?\.message/);
+    // A new attempt supersedes the previous reason rather than leaving a stale one up.
+    expect(withPrimaryAction).toMatch(/clearActionFailure\(\);/);
+
+    const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
+    expect(css).toMatch(/\.viewer-action-error\s*\{/);
+    const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
+    expect(html).toMatch(/id="viewer-action-error"[^>]*role="alert"/);
+    expect(html).toMatch(/id="viewer-action-error-dismiss"/);
+  });
+
+  it("checks the connector POST response instead of rendering a refusal as done", () => {
+    // item_742/item_745. This was `.then(() => showChatgptMcp())`, checking neither the
+    // HTTP status nor the body's ok, so a refusal re-rendered unchanged state.
+    const source = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/index.js"), "utf8");
+    const handler = source.slice(source.indexOf('data-viewer-mcp-action]'), source.indexOf('document.addEventListener("toggle"'));
+    expect(handler).toMatch(/withPrimaryAction\(/);
+    expect(handler).toMatch(/if \(!response\.ok \|\| !data\.ok\) throw new Error/);
+    // The comment above the handler quotes the old shape on purpose, so assert against
+    // code lines only rather than the whole slice.
+    const handlerCode = handler.split("\n").filter((line) => !line.trim().startsWith("//")).join("\n");
+    expect(handlerCode).not.toMatch(/\.then\(\(\) => showChatgptMcp\(\)\)/);
+  });
+
+  it("names the connector action after what it does, not after the state", () => {
+    // item_744. The heading said "Connector ON" while the button beneath said
+    // "OFF — stop connector": one names the state, the other the action, and together
+    // they read as a contradiction.
+    const source = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/index.js"), "utf8");
+    expect(source).toMatch(/Stop the connector/);
+    expect(source).toMatch(/Start the connector/);
+    expect(source).not.toMatch(/OFF — stop connector/);
+    expect(source).not.toMatch(/ON — start connector/);
+  });
+
   it("syncs Activity/Project slider state from the shared chrome", () => {
     const source = fs.readFileSync(path.resolve(process.cwd(), "clients/shared-web/media/webviewChrome.js"), "utf8");
     const host = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/browser-host.js"), "utf8");
@@ -2454,7 +2502,11 @@ describe("local viewer browser host", () => {
     edit?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Restart the local viewer");
+    // item_727: this reason used to land in the meta line, where the next auto-refresh
+    // tick overwrote it. It now holds in the failure banner until dismissed.
+    expect(dom.window.document.getElementById("viewer-action-error")?.hidden).toBe(false);
+    expect(dom.window.document.getElementById("viewer-action-error-message")?.textContent).toContain("Restart the local viewer");
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).not.toContain("Restart the local viewer");
   });
 
   it("refreshes viewer data from the refresh button", async () => {

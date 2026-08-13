@@ -5388,3 +5388,13 @@
   cursor: pointer;
   line-height: 1.4;
 }
+
+/* item_744: the connector's failure reason is why the state above it says OFF, so it is
+   set apart from the surrounding copy rather than reading as another paragraph of it. */
+.viewer-settings-screen__error {
+  padding: 8px 11px;
+  border-left: 3px solid var(--vscode-inputValidation-errorBorder, #be1100);
+  background: var(--vscode-inputValidation-errorBackground, #5a1d1d);
+  color: var(--vscode-inputValidation-errorForeground, #f5d7d7);
+  border-radius: 0 4px 4px 0;
+}

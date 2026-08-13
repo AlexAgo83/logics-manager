@@ -1,12 +1,13 @@
 ## req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact - Keep the synthetic demo board out of every released artifact
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium
 > Theme: Release hygiene
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-13 18:17:19
 
 # AI Context
 - Summary: The dev-only demo board reaches users on the npm and VSIX channels because its gate recognises a dev tree by a file both channels ship; the fix is a signal a release cannot carry, proven against the built artifacts.
@@ -34,8 +35,35 @@
 - AC3: A viewer started from an installed pip wheel does not list it, as today.
 - AC4: A viewer started from a development checkout still offers it, unchanged.
 - AC5: Whether the demo is offered is decided by a signal a release artifact cannot carry by accident -- a positive release assertion or an explicit opt-in -- not by the absence of a packaged file.
-- AC6: A regression builds each published artifact and asserts the demo is absent from the project registry it produces, so a future packaging-manifest edit that reintroduces the marker fails the build rather than shipping.
+- AC6 (amended 2026-08-13, see `# Amendments`): A regression proves the decision to offer the demo board reads no filesystem state at all, by making the filesystem unreachable and asserting the gate still answers correctly -- so any inference, not only the one removed, fails a run rather than shipping.
 - AC7: The existing dev-checkout behaviour keeps its coverage, and the monkeypatched tests are joined by at least one that exercises the real gate rather than substituting its answer.
+
+# Amendments
+
+## AC6, amended 2026-08-13 -- approved by the operator
+
+**Was:** a regression *builds* each published artifact and asserts the demo is absent from
+the registry it produces, so a future packaging-manifest edit that reintroduces the marker
+fails the build.
+
+**Now:** a regression proves the gate reads no filesystem state, by making the filesystem
+unreachable and asserting it still answers correctly.
+
+**Why the mechanism changed.** The AC's purpose clause names a specific threat: a packaging
+manifest edit reintroducing the marker. The delivered gate reads `LOGICS_MANAGER_DEMO_BOARD`
+and nothing else, so no manifest edit can reach it -- building the three artifacts would
+check three instances of a mechanism this gate no longer has.
+
+Asserting the invariant is strictly stronger for the AC's purpose. Verified: reintroducing
+the original probe fails the layout regression, and reintroducing a *different* inference
+(`REPO_ROOT / "clients"`, a directory the old probe never looked at) fails the invariant
+test. The layout regression catches instances; the invariant catches the class.
+
+**What this amendment does not cover, and where it went.** "A packaging edit cannot ship
+something dev-only" is broader than the demo board, and is what `prod_079` is named for.
+Artifact-level assurance -- build each published artifact and inspect it -- is where that
+cost is justified, but it first needs a definition of "dev-only" that does not exist
+anywhere today. That is scoped separately rather than smuggled into this AC.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

@@ -1,0 +1,375 @@
+{
+  "budgets": {
+    "max_docs": 20,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_353_prove_a_published_artifact_contains_only_the_product item_771_define_dev_only_as_a_property_rather_than_a_list item_772_build_each_published_artifact_and_inspect_what_is_inside_it item_773_put_the_check_where_a_release_cannot_skip_it task_350_deliver_the_released_artifact_content_check --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_771_define_dev_only_as_a_property_rather_than_a_list",
+          "item_772_build_each_published_artifact_and_inspect_what_is_inside_it",
+          "item_773_put_the_check_where_a_release_cannot_skip_it"
+        ],
+        "prod": [
+          "prod_089_a_release_that_contains_only_the_product"
+        ],
+        "req": [
+          "req_353_prove_a_published_artifact_contains_only_the_product"
+        ],
+        "task": [
+          "task_350_deliver_the_released_artifact_content_check"
+        ]
+      },
+      "path": "logics/product/prod_089_a_release_that_contains_only_the_product.md",
+      "ref": "prod_089_a_release_that_contains_only_the_product",
+      "status": "Proposed",
+      "title": "A release that contains only the product"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry"
+        ],
+        "prod": [
+          "prod_079_a_release_that_contains_only_the_product"
+        ],
+        "req": [
+          "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact"
+        ],
+        "task": [
+          "task_340_deliver_the_release_safe_demo_gate_and_its_per_artifact_proof"
+        ]
+      },
+      "path": "logics/product/prod_079_a_release_that_contains_only_the_product.md",
+      "ref": "prod_079_a_release_that_contains_only_the_product",
+      "status": "Settled",
+      "title": "A release that contains only the product"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "prove, published, artifact, contains, only, product",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_771_define_dev_only_as_a_property_rather_than_a_list",
+          "item_772_build_each_published_artifact_and_inspect_what_is_inside_it",
+          "item_773_put_the_check_where_a_release_cannot_skip_it"
+        ],
+        "prod": [
+          "prod_089_a_release_that_contains_only_the_product"
+        ],
+        "req": [
+          "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact",
+          "req_353_prove_a_published_artifact_contains_only_the_product"
+        ]
+      },
+      "path": "logics/request/req_353_prove_a_published_artifact_contains_only_the_product.md",
+      "ref": "req_353_prove_a_published_artifact_contains_only_the_product",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Prove a published artifact contains only the product"
+    },
+    {
+      "ai_context": {
+        "keywords": "demo corpus, dev gate, release artifact, npm package, vsix, packaging manifest, viewer project registry",
+        "skip when": "working on the demo corpus content itself, or on the fleet home's layout and visual design.",
+        "summary": "The dev-only demo board reaches users on the npm and VSIX channels because its gate recognises a dev tree by a file both channels ship; the fix is a signal a release cannot carry, proven against the built artifacts.",
+        "use when": "changing how a dev-only surface is gated, editing a packaging manifest, or adding coverage that must hold for a built artifact rather than the working tree."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry",
+          "item_710_prove_the_demo_is_absent_from_each_built_artifact"
+        ],
+        "prod": [
+          "prod_079_a_release_that_contains_only_the_product"
+        ],
+        "req": [
+          "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact"
+        ]
+      },
+      "path": "logics/request/req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact.md",
+      "ref": "req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact",
+      "schema_version": "1.0",
+      "status": "Done",
+      "title": "Keep the synthetic demo board out of every released artifact"
+    },
+    {
+      "ai_context": {
+        "keywords": "define, dev, only, property, rather, than, list",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_771_define_dev_only_as_a_property_rather_than_a_list"
+        ],
+        "prod": [
+          "prod_089_a_release_that_contains_only_the_product"
+        ],
+        "req": [
+          "req_353_prove_a_published_artifact_contains_only_the_product"
+        ],
+        "task": [
+          "task_350_deliver_the_released_artifact_content_check"
+        ]
+      },
+      "path": "logics/backlog/item_771_define_dev_only_as_a_property_rather_than_a_list.md",
+      "ref": "item_771_define_dev_only_as_a_property_rather_than_a_list",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Define dev-only as a property rather than a list"
+    },
+    {
+      "ai_context": {
+        "keywords": "build, each, published, artifact, inspect, inside",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_772_build_each_published_artifact_and_inspect_what_is_inside_it"
+        ],
+        "prod": [
+          "prod_089_a_release_that_contains_only_the_product"
+        ],
+        "req": [
+          "req_353_prove_a_published_artifact_contains_only_the_product"
+        ],
+        "task": [
+          "task_350_deliver_the_released_artifact_content_check"
+        ]
+      },
+      "path": "logics/backlog/item_772_build_each_published_artifact_and_inspect_what_is_inside_it.md",
+      "ref": "item_772_build_each_published_artifact_and_inspect_what_is_inside_it",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Build each published artifact and inspect what is inside it"
+    },
+    {
+      "ai_context": {
+        "keywords": "deliver, released, artifact, content, check",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_771_define_dev_only_as_a_property_rather_than_a_list",
+          "item_772_build_each_published_artifact_and_inspect_what_is_inside_it",
+          "item_773_put_the_check_where_a_release_cannot_skip_it"
+        ],
+        "prod": [
+          "prod_089_a_release_that_contains_only_the_product"
+        ],
+        "req": [
+          "req_353_prove_a_published_artifact_contains_only_the_product"
+        ],
+        "task": [
+          "task_350_deliver_the_released_artifact_content_check"
+        ]
+      },
+      "path": "logics/tasks/task_350_deliver_the_released_artifact_content_check.md",
+      "ref": "task_350_deliver_the_released_artifact_content_check",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Deliver the released-artifact content check"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_771_define_dev_only_as_a_property_rather_than_a_list",
+          "item_772_build_each_published_artifact_and_inspect_what_is_inside_it",
+          "item_773_put_the_check_where_a_release_cannot_skip_it"
+        ],
+        "prod": [
+          "prod_089_a_release_that_contains_only_the_product"
+        ],
+        "req": [
+          "req_353_prove_a_published_artifact_contains_only_the_product"
+        ],
+        "task": [
+          "task_350_deliver_the_released_artifact_content_check"
+        ]
+      },
+      "path": "logics/product/prod_089_a_release_that_contains_only_the_product.md",
+      "ref": "prod_089_a_release_that_contains_only_the_product",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "A release that contains only the product"
+    },
+    {
+      "ai_context": {
+        "keywords": "put, check, release, cannot, skip",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_773_put_the_check_where_a_release_cannot_skip_it"
+        ],
+        "prod": [
+          "prod_089_a_release_that_contains_only_the_product"
+        ],
+        "req": [
+          "req_353_prove_a_published_artifact_contains_only_the_product"
+        ],
+        "task": [
+          "task_350_deliver_the_released_artifact_content_check"
+        ]
+      },
+      "path": "logics/backlog/item_773_put_the_check_where_a_release_cannot_skip_it.md",
+      "ref": "item_773_put_the_check_where_a_release_cannot_skip_it",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Put the check where a release cannot skip it"
+    }
+  ],
+  "estimates": {
+    "char_count": 7569,
+    "companion_doc_count": 2,
+    "doc_count": 7
+  },
+  "generated_at": "2026-08-13T16:18:42Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_353_prove_a_published_artifact_contains_only_the_product",
+      "item_771_define_dev_only_as_a_property_rather_than_a_list",
+      "item_772_build_each_published_artifact_and_inspect_what_is_inside_it",
+      "item_773_put_the_check_where_a_release_cannot_skip_it",
+      "task_350_deliver_the_released_artifact_content_check"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_353_prove_a_published_artifact_contains_only_the_product,item_771_define_dev_only_as_a_property_rather_than_a_list,item_772_build_each_published_artifact_and_inspect_what_is_inside_it,item_773_put_the_check_where_a_release_cannot_skip_it,task_350_deliver_the_released_artifact_content_check",
+  "refs": [
+    "req_353_prove_a_published_artifact_contains_only_the_product",
+    "item_771_define_dev_only_as_a_property_rather_than_a_list",
+    "item_772_build_each_published_artifact_and_inspect_what_is_inside_it",
+    "item_773_put_the_check_where_a_release_cannot_skip_it",
+    "task_350_deliver_the_released_artifact_content_check"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_350_deliver_the_released_artifact_content_check.md",
+      "ref": "task_350_deliver_the_released_artifact_content_check"
+    }
+  ]
+}

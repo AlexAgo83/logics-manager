@@ -2827,22 +2827,60 @@ import {
     setDropdownOpen(refreshMenuPanel(), refreshMenuButton(), open);
   }
 
-  function renderSettingsScreen() {
+  function renderSettingsIdentity(info, mcpState) {
+    // item_737: the screen said nothing about what this viewer is -- not its address, mode,
+    // transport, version, project, nor whether the connector was on. All of it was already
+    // printed to stdout at launch, where a browser cannot read it.
+    const rows = [
+      ["Address", info?.address || window.location.origin],
+      ["Mode", info?.mode || "unknown"],
+      ["Transport", info?.transport || (window.location.protocol === "https:" ? "HTTPS" : "HTTP")],
+      ["Version", info?.version ? `v${info.version}` : "unknown"],
+      ["Project", info?.repoName || "unknown"],
+      ["MCP connector", mcpState || "unknown"]
+    ];
+    return `<section class="viewer-settings-identity">
+      <h3>This viewer</h3>
+      <dl class="viewer-settings-identity__list">
+        ${rows.map(([label, value]) => `<div class="viewer-settings-identity__row"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(String(value))}</dd></div>`).join("")}
+      </dl>
+    </section>`;
+  }
+
+  function renderSettingsScreen(info, mcpState) {
     const vscode = Boolean(document.getElementById("viewer-vscode-section") && !document.getElementById("viewer-vscode-section").hidden);
+    // item_737: the hero repeated the title the document panel already prints above it, and
+    // the eyebrow repeated its own eyebrow. The screen is named once, by the panel.
     return `<div class="viewer-settings-screen">
-      <section class="viewer-settings-screen__hero"><p class="viewer-settings-screen__eyebrow">Viewer controls</p><h2>Settings</h2><p>Controls are scoped to this viewer and project.</p></section>
+      ${renderSettingsIdentity(info, mcpState)}
       <div class="viewer-settings-screen__grid">
-        <section class="viewer-settings-card"><h3>Refresh</h3><label class="viewer-auto-refresh"><input type="checkbox" data-viewer-settings-auto-refresh ${autoRefreshEnabled ? "checked" : ""} /><span>Automatic refresh</span></label><label class="viewer-refresh-menu__interval"><span>Interval</span><select data-viewer-settings-interval aria-label="Automatic refresh interval"><option value="5">5 sec</option><option value="10">10 sec</option><option value="15">15 sec</option><option value="30">30 sec</option><option value="60">60 sec</option></select></label><button class="btn" type="button" data-viewer-settings-action="refresh">Refresh now</button></section>
-        <section class="viewer-settings-card"><h3>Corpus</h3><button class="btn" type="button" data-viewer-settings-action="insights">Insights</button><button class="btn" type="button" data-viewer-settings-action="health">Health</button><button class="btn" type="button" data-viewer-settings-action="getting-started">Getting Started</button></section>
+        <section class="viewer-settings-card"><h3>Refresh</h3><label class="viewer-auto-refresh viewer-settings-toggle"><input type="checkbox" role="switch" aria-checked="${autoRefreshEnabled ? "true" : "false"}" data-viewer-settings-auto-refresh ${autoRefreshEnabled ? "checked" : ""} /><span>Automatic refresh</span><em class="viewer-settings-toggle__state">${autoRefreshEnabled ? "On" : "Off"}</em></label><label class="viewer-refresh-menu__interval"><span>Interval</span><select data-viewer-settings-interval aria-label="Automatic refresh interval"><option value="5">5 sec</option><option value="10">10 sec</option><option value="15">15 sec</option><option value="30">30 sec</option><option value="60">60 sec</option></select></label><button class="btn" type="button" data-viewer-settings-action="refresh">Refresh now</button></section>
         <section class="viewer-settings-card"><h3>ChatGPT Developer Mode</h3><p>Start a temporary HTTPS MCP connector only when you choose ON.</p><button class="btn" type="button" data-viewer-settings-action="mcp">Open MCP controls</button></section>
-        <section class="viewer-settings-card"><h3>Server</h3><button class="btn" type="button" data-viewer-settings-action="copy-diagnostics">Copy diagnostics</button><button class="btn" type="button" data-viewer-settings-action="restart">Restart viewer</button><button class="btn" type="button" data-viewer-settings-action="stop">Stop viewer</button></section>
-        ${vscode ? '<section class="viewer-settings-card"><h3>VS Code panel</h3><button class="btn" type="button" data-viewer-settings-action="vscode-reload">Reload</button><button class="btn" type="button" data-viewer-settings-action="vscode-restart">Restart panel</button><button class="btn" type="button" data-viewer-settings-action="vscode-external">Open externally</button></section>' : ""}
+        <section class="viewer-settings-card"><h3>Server</h3><button class="btn" type="button" data-viewer-settings-action="copy-diagnostics">Copy diagnostics</button>
+          <button class="btn viewer-settings-danger" type="button" data-viewer-settings-action="restart">Restart viewer<small>Reconnects this page automatically</small></button>
+          <button class="btn viewer-settings-danger" type="button" data-viewer-settings-action="stop">Stop viewer<small>This page stops working until you restart it from a terminal</small></button>
+        </section>
+        ${vscode ? '<section class="viewer-settings-card"><h3>VS Code panel</h3><button class="btn" type="button" data-viewer-settings-action="vscode-reload">Reload</button><button class="btn viewer-settings-danger" type="button" data-viewer-settings-action="vscode-restart">Restart panel<small>Discards this panel\'s open screens</small></button><button class="btn" type="button" data-viewer-settings-action="vscode-external">Open externally</button></section>' : ""}
       </div>
     </div>`;
   }
 
-  function showSettings() {
-    setDocument("Settings", renderSettingsScreen(), { eyebrow: "Viewer controls" });
+  async function showSettings() {
+    // item_737: Insights, Health and Getting Started were navigation dressed as settings.
+    // They are reached from the navigation, which already offers all three.
+    let info = null;
+    try {
+      const response = await fetch("/api/viewer-info");
+      const data = await response.json();
+      if (response.ok && data.ok) info = data.payload;
+    } catch { /* the screen degrades to what the browser itself knows */ }
+    let mcpState = "";
+    try {
+      const response = await fetch("/api/mcp-connector");
+      const data = await response.json();
+      if (response.ok && data.ok) mcpState = String(data.payload?.state || "");
+    } catch { /* left unknown rather than guessed */ }
+    setDocument("Settings", renderSettingsScreen(info, mcpState === "on" ? "On" : mcpState === "off" ? "Off" : mcpState || "unknown"));
     const interval = document.querySelector("[data-viewer-settings-interval]");
     if (interval instanceof HTMLSelectElement) interval.value = String(Math.round(autoRefreshIntervalMs / 1000));
     setMeta("Settings loaded.");
@@ -3728,9 +3766,6 @@ import {
       event.preventDefault();
       const action = target.dataset.viewerSettingsAction;
       if (action === "refresh") withPrimaryAction("settings-refresh", "Refreshing", () => refreshViewer("POST", { force: true }));
-      if (action === "insights") withPrimaryAction("settings-insights", "Loading insights", showCorpusInsights);
-      if (action === "health") withPrimaryAction("settings-health", "Checking health", showHealth);
-      if (action === "getting-started") showGettingStarted();
       if (action === "mcp") withPrimaryAction("settings-mcp", "Loading MCP controls", showChatgptMcp);
       if (action === "copy-diagnostics") withPrimaryAction("settings-diagnostics", "Copying diagnostics", copyViewerDiagnostics);
       if (action === "restart") withPrimaryAction("settings-restart", "Restarting server", restartViewerServer);

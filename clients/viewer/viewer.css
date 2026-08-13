@@ -5934,3 +5934,94 @@
   padding: 8px 12px;
   margin-bottom: 8px;
 }
+
+/* item_737: what this viewer is -- address, mode, transport, version, project and the
+   connector's position. All of it was printed to stdout at launch, where a browser cannot
+   read it, while the screen offered nine identical buttons and said none of it. */
+.viewer-settings-identity {
+  padding: 14px 16px;
+  margin: 0 0 16px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 8px;
+  background: var(--vscode-editorWidget-background, rgba(255, 255, 255, 0.03));
+}
+
+.viewer-settings-identity h3 {
+  margin: 0 0 10px;
+  font-size: 13px;
+}
+
+.viewer-settings-identity__list {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 6px 20px;
+}
+
+.viewer-settings-identity__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--vscode-panel-border, rgba(255, 255, 255, 0.06));
+}
+
+.viewer-settings-identity__row dt {
+  flex: 0 0 auto;
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.viewer-settings-identity__row dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A binary control shows where it sits, rather than leaving the reader to infer it from a
+   checkbox they have to look closely at. */
+.viewer-settings-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.viewer-settings-toggle__state {
+  margin-left: auto;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+/* item_737: `Stop viewer` killed the server and looked exactly like `Insights`, which was a
+   link. A destructive action says what it costs and does not look like navigation. */
+.viewer-settings-danger {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+  border-color: var(--vscode-editorWarning-foreground, #d29922);
+  background: transparent;
+  color: var(--vscode-foreground, #d4d4d4);
+}
+
+.viewer-settings-danger small {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  white-space: normal;
+}
+
+.viewer-settings-danger:hover,
+.viewer-settings-danger:focus-visible {
+  border-color: var(--vscode-editorError-foreground, #f85149);
+  background: color-mix(in srgb, var(--vscode-editorError-foreground, #f85149) 12%, transparent);
+}

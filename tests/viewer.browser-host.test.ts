@@ -4437,6 +4437,84 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("focus: blocked");
   });
 
+  it("says what this viewer is, and does not dress navigation as settings", async () => {
+    // item_737. Nine identical primary buttons, of which `Stop viewer` killed the server and
+    // looked exactly like `Insights`, which was a link; three were navigation rather than
+    // settings; the title was printed twice; and nothing reported the address, mode,
+    // transport, version, or whether the MCP connector was on -- all of which the launch
+    // banner has always printed to stdout, where a browser cannot read it.
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+    const originalFetch = dom.window.fetch;
+    Object.defineProperty(dom.window, "fetch", {
+      configurable: true,
+      value: async (url: string, init?: unknown) => {
+        if (String(url).startsWith("/api/viewer-info")) {
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({
+              ok: true,
+              payload: {
+                address: "http://127.0.0.1:8813",
+                transport: "HTTP",
+                mode: "read-only, loopback only",
+                version: "2.21.9",
+                repoName: "logics-manager"
+              }
+            })
+          };
+        }
+        if (String(url).startsWith("/api/mcp-connector")) {
+          return { ok: true, status: 200, json: async () => ({ ok: true, payload: { state: "off" } }) };
+        }
+        return originalFetch(String(url), init as never);
+      }
+    });
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    dom.window.document.getElementById("viewer-refresh-menu-button")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const document = dom.window.document;
+    const identity = document.querySelector(".viewer-settings-identity")?.textContent || "";
+    expect(identity).toContain("127.0.0.1:8813");
+    expect(identity).toContain("read-only, loopback only");
+    expect(identity).toContain("HTTP");
+    expect(identity).toContain("v2.21.9");
+    expect(identity).toContain("logics-manager");
+    expect(identity).toContain("Off");
+
+    // The title is printed once, by the document panel, not again by the screen's own hero.
+    expect(document.getElementById("viewer-document-title")?.textContent).toBe("Settings");
+    expect(document.querySelector(".viewer-settings-screen__hero")).toBeNull();
+
+    // Insights, Health and Getting Started are navigation; they are reached from the
+    // navigation, which already offers all three.
+    const actions = Array.from(document.querySelectorAll("[data-viewer-settings-action]")).map(
+      (node) => (node as HTMLElement).dataset.viewerSettingsAction
+    );
+    expect(actions).not.toContain("insights");
+    expect(actions).not.toContain("health");
+    expect(actions).not.toContain("getting-started");
+
+    // A destructive action states what it costs and does not look like a link.
+    const stop = document.querySelector('[data-viewer-settings-action="stop"]') as HTMLElement | null;
+    expect(stop?.classList.contains("viewer-settings-danger")).toBe(true);
+    expect(stop?.querySelector("small")?.textContent).toContain("stops working");
+    const refresh = document.querySelector('[data-viewer-settings-action="refresh"]') as HTMLElement | null;
+    expect(refresh?.classList.contains("viewer-settings-danger")).toBe(false);
+
+    // A binary control shows where it sits.
+    const toggle = document.querySelector("[data-viewer-settings-auto-refresh]") as HTMLInputElement | null;
+    expect(toggle?.getAttribute("role")).toBe("switch");
+    expect(toggle?.getAttribute("aria-checked")).toBe(String(toggle?.checked));
+    expect(document.querySelector(".viewer-settings-toggle__state")?.textContent).toMatch(/^(On|Off)$/);
+  });
+
   it("reconciles blocked, pass and the evidence count into one sentence, and leads with the blocking gate", async () => {
     // item_735/item_736. The screen showed `blocked`, `pass` and `8/8` side by side without
     // reconciling them; the sentence that resolves it was a right-aligned key/value cell at

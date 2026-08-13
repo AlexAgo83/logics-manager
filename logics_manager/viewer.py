@@ -2571,6 +2571,29 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
         return True
 
+    def _viewer_info_payload(self) -> dict[str, Any]:
+        """What this viewer is: the facts the launch banner prints, served to the screen.
+
+        Read from the server object rather than recomputed, so the banner and the Settings
+        screen cannot disagree about which viewer the operator is looking at.
+        """
+        lan_mode = bool(getattr(self.server, "lan_mode", False))
+        lan_rw = bool(getattr(self.server, "lan_rw_mode", False))
+        tls = bool(getattr(self.server, "tls_enabled", False))
+        host, port = self.server.server_address[0], self.server.server_address[1]
+        return {
+            "address": f"{'https' if tls else 'http'}://{host}:{port}",
+            "bindHost": str(host),
+            "transport": "HTTPS" if tls else "HTTP",
+            "mode": ("read-write over LAN" if lan_rw else "read-only over LAN") if lan_mode else "read-only, loopback only",
+            "lan": lan_mode,
+            "lanReadWrite": lan_rw,
+            "version": _current_version(),
+            "repoName": self.server.repo_root.name,
+            "repoRoot": str(self.server.repo_root),
+            "autoRefreshSeconds": int(getattr(self.server, "auto_refresh_interval_seconds", 15) or 15),
+        }
+
     def _handle_git_content_get(self, route: str, parsed: Any) -> bool:
         """Serve the three routes that return a file's or a commit's content.
 
@@ -2670,6 +2693,12 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/preferences":
             self._send_json({"ok": True, "payload": read_viewer_preferences(self.server.repo_root)})
+            return
+        if route == "/api/viewer-info":
+            # item_737: the Settings screen offered nine identical buttons and said nothing
+            # about what this viewer *is*. The launch banner has always printed the mode,
+            # the transport and the bind host to stdout, where a browser cannot read it.
+            self._send_json({"ok": True, "payload": self._viewer_info_payload()})
             return
         if route == "/api/capabilities":
             self._send_json({"ok": True, "payload": viewer_project_capabilities(self.server.repo_root)})

@@ -8523,6 +8523,27 @@ ${line}` : line;
         transientMetaText = "";
       }
     }
+    function actionErrorNodes() {
+      return {
+        banner: document.getElementById("viewer-action-error"),
+        label: document.getElementById("viewer-action-error-label"),
+        message: document.getElementById("viewer-action-error-message")
+      };
+    }
+    function showActionFailure(label, message) {
+      const nodes = actionErrorNodes();
+      if (!(nodes.banner instanceof HTMLElement)) {
+        setMeta(message);
+        return;
+      }
+      if (nodes.label) nodes.label.textContent = label ? `${label} failed` : "Action failed";
+      if (nodes.message) nodes.message.textContent = message;
+      nodes.banner.hidden = false;
+    }
+    function clearActionFailure() {
+      const nodes = actionErrorNodes();
+      if (nodes.banner instanceof HTMLElement) nodes.banner.hidden = true;
+    }
     function withPrimaryAction(actionKey, label, action) {
       if (primaryActionBusyKey) {
         setMeta("Action unavailable while another viewer action is running.");
@@ -8536,12 +8557,13 @@ ${line}` : line;
       }
       const controller = typeof AbortController === "function" ? new AbortController() : null;
       primaryActionController = controller;
+      clearActionFailure();
       setPrimaryActionBusy(actionKey, label);
       return Promise.resolve().then(action).then(() => true).catch((error) => {
         if (error && (error.name === "AbortError" || controller?.signal.aborted)) {
           return false;
         }
-        setMeta(error?.message || "Viewer action failed.");
+        showActionFailure(label, error?.message || "The viewer did not say why.");
         return false;
       }).finally(() => {
         if (primaryActionController === controller) {
@@ -8982,9 +9004,18 @@ ${line}` : line;
     async function pickFleetRoot() {
       setProjectMenuOpen(false);
       setMeta("Opening fleet root picker...");
-      const response = await fetch("/api/select-fleet-root", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
-      const data = await response.json();
-      if (!response.ok || !data.ok) throw new Error(data.error || "Unable to add fleet root.");
+      let response;
+      let data = {};
+      try {
+        response = await fetch("/api/select-fleet-root", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+        data = await response.json();
+      } catch (error) {
+        return openFleetRootPickerModal(error?.message || "Native folder picker is unavailable.");
+      }
+      if (!response.ok || !data.ok) {
+        await openFleetRootPickerModal(String(data.error || "Native folder picker is unavailable."));
+        return;
+      }
       postToApp(data.payload);
     }
     async function removeFleetRoot(root) {
@@ -9013,9 +9044,9 @@ ${line}` : line;
       postToApp(payload, { force: true });
       setMeta(message);
     }
-    async function openProjectPickerModal(reason = "") {
+    async function openFolderPickerModal({ reason = "", title = "Choose project folder", onSelect } = {}) {
       const modal = createThemedModal({
-        title: "Choose project folder",
+        title,
         message: reason ? `${reason} Use the fallback folder browser below.` : "Use the fallback folder browser below.",
         submitLabel: "Close",
         cancelLabel: "Cancel"
@@ -9046,18 +9077,11 @@ ${line}` : line;
         if (selectTarget instanceof HTMLElement) {
           event.preventDefault();
           const selectedPath = selectTarget.getAttribute("data-viewer-project-picker-select") || currentPath;
-          const response = await fetch("/api/select-project-root-path", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ path: selectedPath })
-          });
-          const data = await response.json();
-          if (!response.ok || !data.ok) {
-            await showThemedMessageModal({ title: "Folder refused", message: String(data.error || response.status) });
-            return;
+          try {
+            await onSelect(selectedPath, () => closeThemedModal(modal));
+          } catch (error) {
+            await showThemedMessageModal({ title: "Folder refused", message: String(error?.message || error) });
           }
-          closeThemedModal(modal);
-          applySelectedProjectPayload(data.payload, `Switched to ${data.payload?.repoName || "selected project"}.`);
         }
       });
       try {
@@ -9067,6 +9091,40 @@ ${line}` : line;
           body.innerHTML = `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--unavailable"><span>${escapeHtml(error?.message || "Unable to browse folders.")}</span></div>`;
         }
       }
+    }
+    function openProjectPickerModal(reason = "") {
+      return openFolderPickerModal({
+        reason,
+        title: "Choose project folder",
+        onSelect: async (path, close) => {
+          const response = await fetch("/api/select-project-root-path", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ path })
+          });
+          const data = await response.json();
+          if (!response.ok || !data.ok) throw new Error(String(data.error || response.status));
+          close();
+          applySelectedProjectPayload(data.payload, `Switched to ${data.payload?.repoName || "selected project"}.`);
+        }
+      });
+    }
+    function openFleetRootPickerModal(reason = "") {
+      return openFolderPickerModal({
+        reason,
+        title: "Choose fleet root",
+        onSelect: async (path, close) => {
+          const response = await fetch("/api/select-fleet-root-path", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ path })
+          });
+          const data = await response.json();
+          if (!response.ok || !data.ok) throw new Error(String(data.error || response.status));
+          close();
+          postToApp(data.payload);
+        }
+      });
     }
     async function bootstrapLogicsProject() {
       setMeta("Bootstrapping Logics...");
@@ -11035,6 +11093,7 @@ ${line}` : line;
           if (section !== current && section instanceof HTMLDetailsElement) section.open = false;
         });
       }, true);
+      document.getElementById("viewer-action-error-dismiss")?.addEventListener("click", () => clearActionFailure());
       document.getElementById("viewer-lan-banner-copy")?.addEventListener("click", async () => {
         const share = latestLanShareUrl;
         if (!share) return;

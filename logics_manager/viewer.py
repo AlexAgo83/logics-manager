@@ -1564,6 +1564,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/remove-fleet-root",
         "/api/preferences",
         "/api/select-project-root-path",
+        "/api/select-fleet-root-path",
         "/api/cdx-report-request",
         "/api/cdx-mission-run",
         "/api/cdx-mission-apply-plan",
@@ -2490,6 +2491,37 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return True
         return False
 
+    def _handle_select_fleet_root_path_post(self, parsed: Any) -> bool:
+        """Browser-side recovery for adding a fleet root without a native dialog.
+
+        item_726. Extracted rather than inlined because `do_POST` is already at its
+        length ceiling and the file's own convention is a `_handle_*_post` per route.
+
+        The containment shape is the sibling project handler's: normalize, resolve, then
+        assert the result stays under the picker base -- validated before use, rather
+        than afterwards by a membership test no analyser recognises as a sanitizer.
+        """
+        if parsed.path != "/api/select-fleet-root-path":
+            return False
+        try:
+            body = self._read_json_body_strict()
+            normalized = _normalize_workspace_path(str(body.get("path") or ""))
+            base = self.server.project_picker_base_root.resolve()
+            selected = (base / normalized).resolve()
+            try:
+                selected.relative_to(base)
+            except ValueError as exc:
+                raise ValueError("Selected fleet root escapes the picker base.") from exc
+            self.server.add_fleet_root(selected)
+            self._send_json({"ok": True, "payload": self.server.viewer_payload(fleet_home=True)})
+        except json.JSONDecodeError:
+            self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+        except ValueError as exc:
+            self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
+        except FileNotFoundError as exc:
+            self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
+        return True
+
     def _handle_mcp_connector_post(self, parsed: Any) -> bool:
         if parsed.path != "/api/mcp-connector":
             return False
@@ -2874,6 +2906,8 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
             except FileNotFoundError as exc:
                 self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
+            return
+        if self._handle_select_fleet_root_path_post(parsed):
             return
         if viewer_workshop_routes.handle_post(self, parsed):
             return

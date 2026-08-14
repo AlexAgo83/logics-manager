@@ -1,14 +1,14 @@
 ## item_800_fleet_home_clear_the_root_screen_latch_once_a_project_is_active - Fleet home: clear the root-screen latch once a project is active
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer polish
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 00:40:29
+> Indicators reviewed: 2026-08-15 01:07:23
 
 # AI Context
 - Summary: The Fleet home/discover screen permanently traps the operator once shown, because `postToApp()` sets a module-level `rootScreenTitle = "Fleet"` latch that is never reset back to `""` once a fleet root/project is active, so Close/Minimize stay hidden even on later reopenings of Fleet home from the nav.
@@ -45,8 +45,8 @@ Reported directly by the operator with a screenshot: reaching the Fleet discover
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_362_fleet_and_runbooks_dead_end_screen_unpersisted_preference_dead_ui_option.md`
-- Primary task(s): (none yet)
+- Request: `req_362_fleet_and_runbooks_dead_end_screen_unpersisted_preference_dead_ui_option`
+- Primary task(s): `task_371_fleet_home_clear_the_root_screen_latch_once_a_project_is_active`
 
 # Priority
 - Priority: High
@@ -55,6 +55,7 @@ Reported directly by the operator with a screenshot: reaching the Fleet discover
 # Notes
 - Hybrid rationale: Derived from request `req_362_fleet_and_runbooks_dead_end_screen_unpersisted_preference_dead_ui_option` and kept bounded to one coherent delivery slice (the Fleet home latch only).
 - Source file: `logics/request/req_362_fleet_and_runbooks_dead_end_screen_unpersisted_preference_dead_ui_option.md`.
+- Task `task_371_fleet_home_clear_the_root_screen_latch_once_a_project_is_active` was finished via `logics-manager flow finish task` on 2026-08-15.
 
 # Tasks
 - `task_371_fleet_home_clear_the_root_screen_latch_once_a_project_is_active`

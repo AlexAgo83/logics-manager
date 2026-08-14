@@ -1,13 +1,13 @@
 ## req_362_fleet_and_runbooks_dead_end_screen_unpersisted_preference_dead_ui_option - Fleet and Runbooks: dead-end screen, unpersisted preference, dead UI option
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium
 > Theme: Viewer polish
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 00:40:29
+> Indicators reviewed: 2026-08-15 01:08:44
 
 # AI Context
 - Summary: Three unrelated operator-reported findings bundled in one request: (1) the Fleet discover/home screen permanently traps the operator once shown, because a "root screen" latch is set once and never cleared; (2) the Runbooks "Show hidden" checkbox is in-memory only and defaults to off, losing the choice every reload; (3) the Runbooks "View graph" button is a dead feature that should be hidden from the UI.

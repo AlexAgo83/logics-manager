@@ -188,6 +188,86 @@ def duplicate_proof_ac_ids(text: str) -> list[tuple[str, str]]:
     return pairs
 
 
+# --- Local-AC-to-request-AC mapping (item_784 AC2/AC3, revised) -------------------
+#
+# AC2/AC3 as originally scoped tried to judge whether a proof's *text* "corresponds
+# to" a criterion -- unanswerable by string matching alone, because a slice's own
+# local AC numbering and the request's AC numbering are two independent lists with no
+# declared correspondence between them (confirmed against a real document, item_786:
+# 3 local ACs, 2 `request-ACn` traceability lines, because local AC3 is legitimately
+# folded into AC1/AC2's proof rather than owning a dedicated line).
+#
+# The fix is not a smarter text match -- it's replacing "guess the correspondence
+# from prose" with "let the author declare it, and check the declaration is
+# consistent." A local AC may name which request AC(s) it backs:
+#
+#   - AC3 (backs request-AC1, request-AC2): <criterion text>
+#
+# Purely opt-in: a document that never writes `(backs ...)` gets neither check --
+# `has_adopted_backs_annotation` is the gate every function below checks first, so
+# the 350+ Done tasks written before this existed are never touched by it.
+
+_LOCAL_AC_LINE = re.compile(r"^-\s*(?P<local_id>AC\d+)\s*(?:\(backs\s+(?P<backs>[^)]*)\))?\s*:", re.IGNORECASE)
+_BACKS_TOKEN = re.compile(r"request-(AC\d+)", re.IGNORECASE)
+_DECLARED_AC_LINE = re.compile(r"^\s*-\s*request-(?P<ac_id>[A-Za-z0-9_]+)\b", re.IGNORECASE)
+
+
+def local_ac_backs(text: str) -> dict[str, list[str]]:
+    """`local AC id -> [request AC ids it declares backing]`, from this document's own
+    `# Acceptance criteria` section. An id with an empty list wrote no `(backs ...)`
+    annotation at all -- distinct from "the annotation isn't in use in this document",
+    which callers check separately via `has_adopted_backs_annotation`."""
+    result: dict[str, list[str]] = {}
+    for line in section_lines(text.splitlines(), "Acceptance criteria"):
+        match = _LOCAL_AC_LINE.match(line.strip())
+        if not match:
+            continue
+        result[match.group("local_id").upper()] = [tok.upper() for tok in _BACKS_TOKEN.findall(match.group("backs") or "")]
+    return result
+
+
+def has_adopted_backs_annotation(text: str) -> bool:
+    """Whether this document declares at least one `(backs request-ACn)` annotation --
+    the opt-in gate for both `invalid_backs_references` and `unbacked_local_ac_ids`."""
+    return any(local_ac_backs(text).values())
+
+
+def declared_request_ac_ids(text: str) -> set[str]:
+    """Every request-ACn id this document's own `# AC Traceability` section names, in
+    any shape (proven, placeholder, or deferred) -- what a `(backs ...)` annotation is
+    checked against."""
+    section = "\n".join(section_lines(text.splitlines(), "AC Traceability"))
+    return {match.group("ac_id").upper() for match in _DECLARED_AC_LINE.finditer(section)}
+
+
+def invalid_backs_references(text: str) -> list[tuple[str, str]]:
+    """`(local_ac_id, request_ac_id)` pairs where a `(backs request-ACn)` annotation
+    names a request AC this document's own `# AC Traceability` section has no line
+    for at all -- a declared mapping to something that doesn't exist in this document,
+    which is wrong rather than merely unproven (item_784 AC2, revised)."""
+    if not has_adopted_backs_annotation(text):
+        return []
+    declared = declared_request_ac_ids(text)
+    return [
+        (local_id, request_id)
+        for local_id, backs in sorted(local_ac_backs(text).items())
+        for request_id in backs
+        if request_id not in declared
+    ]
+
+
+def unbacked_local_ac_ids(text: str) -> list[str]:
+    """Local AC ids with no `(backs request-ACn)` annotation, in a document that has
+    adopted the annotation on at least one other AC -- an orphaned slice criterion
+    the request never asked for (item_784 AC3, revised). Silent in a document that
+    hasn't adopted the annotation at all, which is every document written before it
+    existed."""
+    backs_map = local_ac_backs(text)
+    if not any(backs_map.values()):
+        return []
+    return sorted(local_id for local_id, backs in backs_map.items() if not backs)
+
+
 def structured_validation_line(command: str, result: str, note: str | None) -> str:
     normalized_result = result.strip().lower() or "passed"
     parts = [

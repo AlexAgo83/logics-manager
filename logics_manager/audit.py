@@ -17,6 +17,8 @@ from .flow_evidence import (
     has_ac_proof as _has_ac_with_proof,
     has_ac_traceability_line as _has_ac_traceability_line,
     duplicate_proof_ac_ids as _duplicate_proof_ac_ids,
+    invalid_backs_references as _invalid_backs_references,
+    unbacked_local_ac_ids as _unbacked_local_ac_ids,
 )
 from .statuses import workflow_statuses
 
@@ -864,6 +866,37 @@ def _duplicate_proof_issues(docs: dict[str, DocMeta], cutoff) -> list[AuditIssue
     return issues
 
 
+def _local_ac_backs_issues(docs: dict[str, DocMeta], cutoff) -> list[AuditIssue]:
+    """item_784 AC2/AC3, revised: opt-in `(backs request-ACn)` annotations, checked as
+    a declared graph rather than guessed from prose -- see `invalid_backs_references`
+    and `unbacked_local_ac_ids` in flow_evidence.py for why the original text-matching
+    versions of these checks were unsound. Both are no-ops on a document that has
+    never written the annotation, which is every document predating it.
+    """
+    issues: list[AuditIssue] = []
+    for doc in docs.values():
+        if doc.kind.kind not in {"backlog", "task"} or not _is_strict_scope(doc, cutoff):
+            continue
+        for local_id, request_id in _invalid_backs_references(doc.text):
+            issues.append(
+                AuditIssue(
+                    code="ac_backs_target_missing",
+                    path=doc.path,
+                    message=f"local `{local_id}` declares `(backs request-{request_id})`, but this document's own `# AC Traceability` has no `request-{request_id}` line",
+                )
+            )
+        for local_id in _unbacked_local_ac_ids(doc.text):
+            issues.append(
+                AuditIssue(
+                    code="ac_local_ac_unbacked",
+                    path=doc.path,
+                    message=f"local `{local_id}` declares no `(backs request-ACn)` -- scope this document promises that no request AC asked for",
+                    severity="warning",
+                )
+            )
+    return issues
+
+
 def audit_payload(
     repo_root: Path,
     *,
@@ -1084,6 +1117,7 @@ def audit_payload(
     if not skip_ac_traceability:
         issues.extend(_uncovered_criterion_issues(docs, all_docs, cutoff))
         issues.extend(_duplicate_proof_issues(docs, cutoff))
+        issues.extend(_local_ac_backs_issues(docs, cutoff))
         for request in [doc for doc in docs.values() if doc.kind.kind == "request"]:
             if not _is_strict_scope(request, cutoff) or _is_abandoned(request):
                 continue

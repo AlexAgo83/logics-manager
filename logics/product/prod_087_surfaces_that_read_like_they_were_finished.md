@@ -1,11 +1,12 @@
 ## prod_087_surfaces_that_read_like_they_were_finished - Surfaces that read like they were finished
 > Date: 2026-08-13
-> Status: Proposed
+> Status: Settled
 > Related request: `req_351_make_the_reader_readable_and_the_filter_panel_say_something`
 > Related backlog: `item_761_stop_the_reader_leading_with_a_path_in_capitals`, `item_762_make_the_reader_a_place_to_read`, `item_763_finish_the_new_request_modal_without_redesigning_it`, `item_764_make_each_filter_say_what_it_would_narrow`, `item_765_make_the_panel_and_the_board_agree_on_what_is_shown`, `item_766_cover_the_reader_the_modal_and_the_filter_panel`
 > Related task: `task_348_deliver_the_reader_the_modal_and_the_filter_panel`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-14 19:07:50
 
 # Overview
 The last surfaces an operator meets are the ones nobody revisits: the reader they land in from a card, the modal that creates their work, the panel that narrows their board. Each is a few decisions away from being right, and one of them already is. The goal is to finish them without redesigning what already works.
@@ -45,8 +46,13 @@ flowchart LR
 - Keep generated write paths local and repo-bounded.
 
 # Success signals
-- Generated docs pass lint and audit without broad manual rewrites.
-- Context-pack output can be handed to an implementation agent directly.
+- The reader sets its prose at a readable measure. Measured at 1440px: **72 characters a line**, against roughly 150 before.
+- A document is identified once, the same way, wherever it appears -- reference, status, title -- rather than each surface choosing. Nothing is uppercased that was not written in capitals.
+- The width a measure frees carries navigation: a contents list saying how long the document is, where you are in it, and letting you jump.
+- A form says where it will write before it writes, using the backend's own naming rule -- kept honest by a drift gate that runs both copies of that rule against the same inputs.
+- No two controls state the same number when neither is doing anything. Measured: four filters that all read `(1574)` now read `All types - 8 to narrow by`, `Any status - 6`, `Any relation - 3`, `Any activity - 1`.
+- One word means one thing on one screen: the panel counts what matches and names the paging the columns apply, rather than both calling it `shown`.
+- Not yet true, and recorded: the filter panel's layout is not covered by the campaign, though its behaviour is.
 
 # References
 - Product back-reference: `req_351_make_the_reader_readable_and_the_filter_panel_say_something`

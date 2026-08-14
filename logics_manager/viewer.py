@@ -1564,6 +1564,12 @@ def _stable_json_signature(value: Any) -> str:
 STATUS_CACHE_TTL_SECONDS = 2.0
 REMOTE_STATUS_CACHE_TTL_SECONDS = 60.0
 VIEWER_EVENT_POLL_SECONDS = 1.0
+#: item_782, server side. The snapshot below walks the whole corpus, so its cost grows
+#: with the corpus exactly as the payload's did -- measured at 12.5ms for 1615 documents,
+#: which is 1.3% of a core at one poll a second, and not a constant anybody should trust
+#: at ten times the size. A snapshot may occupy at most a tenth of the interval between
+#: snapshots, the same duty cycle the client paces itself by.
+VIEWER_EVENT_DUTY_DIVISOR = 10
 VIEWER_EVENT_REMOTE_POLL_SECONDS = 5.0
 
 
@@ -2321,7 +2327,9 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             while True:
                 now = time.monotonic()
                 include_remote = now >= remote_due_at
+                snapshot_started = time.monotonic()
                 current = self._viewer_event_snapshot(include_remote=include_remote)
+                snapshot_cost = time.monotonic() - snapshot_started
                 if include_remote:
                     remote_due_at = now + VIEWER_EVENT_REMOTE_POLL_SECONDS
                 else:
@@ -2342,7 +2350,11 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                         self.wfile.write(b": keep-alive\n\n")
                         self.wfile.flush()
                         idle_ticks = 0
-                time.sleep(VIEWER_EVENT_POLL_SECONDS)
+                # The configured interval unless the snapshot cost enough that honouring
+                # it would leave this thread working more than a tenth of the time. On
+                # this corpus the snapshot is 12.5ms and the configured second always
+                # wins, so this changes nothing until it needs to.
+                time.sleep(max(VIEWER_EVENT_POLL_SECONDS, snapshot_cost * VIEWER_EVENT_DUTY_DIVISOR))
         except (BrokenPipeError, ConnectionResetError):
             return
 

@@ -4466,6 +4466,59 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("focus: blocked");
   });
 
+  it("gives Getting Started a position, and lets it reflect the project in front of it", async () => {
+    // item_752/item_753. Nothing said how many stages there were or where the reader was;
+    // one stage had no action while another action appeared twice; and a corpus of 1 555
+    // documents got the same first-run guide as an empty one, though the screen already
+    // receives the counts that would let it say which stages this project has passed.
+    const doc = (id: string, stage: string) => ({
+      id,
+      title: id,
+      stage,
+      relPath: `logics/${stage}/${id}.md`,
+      path: `/workspace/mock/logics/${stage}/${id}.md`,
+      updatedAt: new Date().toISOString(),
+      indicators: { Status: "Ready" },
+      references: [],
+      usedBy: []
+    });
+
+    const { dom } = createViewerDom({
+      items: [doc("req_600", "request"), doc("req_601", "request"), doc("task_600", "task")]
+    });
+    const api = dom.window.acquireVsCodeApi();
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.getElementById("viewer-getting-started")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    const document = dom.window.document;
+
+    // The screen says how many stages there are, and each stage says which one it is.
+    expect(document.querySelector(".viewer-onboarding__nav-title")?.textContent).toContain("4 stages");
+    const numbers = Array.from(document.querySelectorAll(".viewer-onboarding__stage-number")).map((node) => node.textContent);
+    expect(numbers).toEqual(["1 of 4", "2 of 4", "3 of 4", "4 of 4"]);
+
+    // item_753: each stage reports what this project already has there, and a stage with
+    // nothing yet is marked -- to orient, not to grade. Nothing is hidden for having plenty.
+    const holdings = Array.from(document.querySelectorAll(".viewer-onboarding__holding")).map(
+      (node) => (node.textContent || "").trim()
+    );
+    expect(holdings[0]).toContain("2 request");
+    expect(holdings[1]).toContain("nothing here yet");
+    expect(holdings[2]).toContain("1 task");
+    expect(document.querySelectorAll(".viewer-onboarding__holding--empty").length).toBeGreaterThan(0);
+    expect(document.querySelectorAll(".viewer-onboarding__stage")).toHaveLength(4);
+
+    // item_752: every stage ends in an action, and no action is offered twice.
+    const stages = Array.from(document.querySelectorAll(".viewer-onboarding__stage"));
+    expect(stages.every((stage) => stage.querySelector("[data-viewer-onboarding-action]"))).toBe(true);
+    const actions = Array.from(document.querySelectorAll("[data-viewer-onboarding-action]")).map(
+      (node) => (node as HTMLElement).dataset.viewerOnboardingAction
+    );
+    expect(new Set(actions).size).toBe(actions.length);
+  });
+
   it("leads validation health with its own verdict and groups findings by file", async () => {
     // item_749/item_750. Five tiles, three of them zero, with `RELEASE READY: No` last and no
     // reason on a screen where everything else was green -- restating in a different

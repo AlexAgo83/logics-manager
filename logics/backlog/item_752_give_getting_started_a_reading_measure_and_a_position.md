@@ -4,10 +4,11 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 77%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 10:13:04
 
 # AI Context
 - Summary: The intro runs about 110 characters where comfortable reading is 45 to 75, the right third stays empty while four stages stack into a long scroll, and one stage has an action, another none, and `Open Health` appears twice.
@@ -26,6 +27,13 @@
 - Out:
   - What the guide says, which is not in question.
 
+# Delivery notes
+- The prose takes a 68ch measure; the width that frees carries the screen's own stage navigation rather than nothing. Measured live at 1440x900: the paragraph column is 454px, roughly 60 characters, inside the 45-75 the slice asks for, and there is no sideways scroll.
+- The screen states there are four stages, and each stage says which one it is -- `1 of 4` where the number used to be a bare `1`. The navigation is sticky, so the position stays available through the scroll rather than only at the top.
+- **Every stage ends in an action, and no action is offered twice.** `Delivery Slices` ended in nothing while the other three ended in a button, so the guide stopped being a sequence at its second step; it opens the board, which is where the slices it describes actually appear. `Open Health` sat in the Closeout stage *and* in the footer -- an action offered twice reads as two different actions until you try both -- and it stays where the stage that needs it is.
+- Below 900px the two columns become one and the navigation stops being sticky, which is where a 68ch measure and a 220px rail no longer both fit.
+
+# Acceptance criteria
 # Acceptance criteria
 - AC10: Prose is at a readable measure and the freed width carries the navigation.
 - AC11: Stage count, position, and one action per stage with no duplicates.

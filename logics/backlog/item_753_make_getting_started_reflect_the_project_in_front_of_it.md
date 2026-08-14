@@ -4,10 +4,11 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 77%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 10:13:04
 
 # AI Context
 - Summary: A corpus of 1 555 documents gets the same first-run guide as an empty one, though the screen already receives the counts that would let it say which stages this project has clearly passed.
@@ -25,6 +26,12 @@
 - Out:
   - Hiding stages, and any judgement about whether a project is using Logics correctly.
 
+# Delivery notes
+- Each stage reports what this project already has at it, from the counts the screen was already receiving. Measured live: `354 request, 92 product, 8 roadmap` at Workflow Intake, `780 backlog`, `348 task`, `30 architecture`.
+- **It orients rather than grades.** A stage with nothing yet is marked, in the stage and in the navigation, because that is the one worth reading first. Nothing is hidden for having plenty, and nothing judges whether the project is using Logics correctly -- both explicitly out of scope.
+- The mapping from a guide stage to the corpus stages it covers lives beside the stage's own text in `onboardingStages`, not in a second list the renderer keeps in step. A guide stage and its corpus stages are one fact.
+
+# Acceptance criteria
 # Acceptance criteria
 - AC12: Each stage reports what this project already has at it.
 

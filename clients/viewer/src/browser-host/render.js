@@ -1569,7 +1569,24 @@ export function refreshLanBannerPairingState() {
 
 
 
-export function renderViewerOnboarding() {
+export function renderViewerOnboarding(items = []) {
+    // item_753: a corpus of 1 555 documents got the same first-run guide as an empty one,
+    // though the screen already receives the counts that would let it say which stages this
+    // project has clearly passed. This orients rather than grades: a stage with nothing yet
+    // is the one worth reading first, and no stage is hidden for having plenty.
+    const corpusDocs = Array.isArray(items) ? items : [];
+    const perStage = corpusDocs.reduce((acc, item) => {
+      const key = String(item && item.stage || "");
+      if (key) acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+    const stageHolding = (stage) => {
+      const keys = Array.isArray(stage.corpusStages) ? stage.corpusStages : [];
+      if (!keys.length) return null;
+      const parts = keys.map((key) => [key, perStage[key] || 0]);
+      const total = parts.reduce((sum, [, count]) => sum + count, 0);
+      return { total, parts };
+    };
     const stages = onboardingStages.map((stage, index) => {
       const prompts = stage.prompts.map((prompt) => `
         <div class="viewer-onboarding__prompt">
@@ -1580,11 +1597,20 @@ export function renderViewerOnboarding() {
       const actions = stage.actions.map((action) => `
         <button class="btn viewer-onboarding__action" type="button" data-viewer-onboarding-action="${escapeHtml(action.action)}">${escapeHtml(action.label)}</button>
       `).join("");
+      const holding = stageHolding(stage);
+      const holdingHtml = holding
+        ? `<p class="viewer-onboarding__holding${holding.total ? "" : " viewer-onboarding__holding--empty"}">${
+            holding.total
+              ? `This project has ${escapeHtml(holding.parts.filter(([, count]) => count > 0).map(([key, count]) => `${count} ${key}`).join(", "))}.`
+              : "This project has nothing here yet."
+          }</p>`
+        : "";
       return `
-        <section class="viewer-onboarding__stage">
-          <div class="viewer-onboarding__stage-number" aria-hidden="true">${index + 1}</div>
+        <section class="viewer-onboarding__stage" id="onboarding-stage-${index + 1}" data-viewer-onboarding-stage="${index + 1}">
+          <div class="viewer-onboarding__stage-number" aria-hidden="true">${index + 1} of ${onboardingStages.length}</div>
           <div class="viewer-onboarding__stage-body">
             <h2>${escapeHtml(stage.label)}</h2>
+            ${holdingHtml}
             <p class="viewer-onboarding__tagline">${escapeHtml(stage.tagline)}</p>
             <p>${escapeHtml(stage.description)}</p>
             <div class="viewer-onboarding__prompts">${prompts}</div>
@@ -1604,17 +1630,32 @@ export function renderViewerOnboarding() {
       <div class="viewer-onboarding">
         <header class="viewer-onboarding__header">
           <h1>Logics workflow map</h1>
-          <p>Use Logics to keep product intent, roadmap, delivery slices, tasks, decisions, specs, theme, and i18n context in plain project files that humans and AI assistants can both follow.</p>
+          <p>Four stages, from the reason for the work to settling the documents it leaves behind. Read the one where this project has nothing yet.</p>
         </header>
-        <div class="viewer-onboarding__stages">${stages}</div>
+        <div class="viewer-onboarding__layout">
+          <nav class="viewer-onboarding__nav" aria-label="Workflow stages">
+            <p class="viewer-onboarding__nav-title">${escapeHtml(onboardingStages.length)} stages</p>
+            <ol class="viewer-onboarding__nav-list">
+              ${onboardingStages.map((stage, index) => {
+                const holding = stageHolding(stage);
+                return `<li><a href="#onboarding-stage-${index + 1}">${escapeHtml(stage.label)}</a>${
+                  holding ? `<span class="viewer-onboarding__nav-count${holding.total ? "" : " viewer-onboarding__nav-count--empty"}">${holding.total ? escapeHtml(holding.total) : "none yet"}</span>` : ""
+                }</li>`;
+              }).join("")}
+            </ol>
+          </nav>
+          <div class="viewer-onboarding__stages">${stages}</div>
+        </div>
         <section class="viewer-onboarding__doc-guide">
           <h2>What each document is for</h2>
           <p>A quick rule of thumb for choosing the right artifact before writing or asking an assistant to act.</p>
           <div class="viewer-onboarding__doc-grid">${docs}</div>
         </section>
         <footer class="viewer-onboarding__footer">
+          <!-- item_752: Open Health sat here and in the Closeout stage. An action offered
+               twice reads as two different actions until you try both. It stays where the
+               stage that needs it is. -->
           <button class="btn primary" type="button" data-viewer-onboarding-action="open-logics-insights">Open Insights</button>
-          <button class="btn" type="button" data-viewer-onboarding-action="health">Open Health</button>
           <button class="btn" type="button" data-viewer-onboarding-action="workshop-explorer">Open Explorer</button>
         </footer>
       </div>

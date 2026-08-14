@@ -96,7 +96,11 @@ const allowedOversizedFiles = new Map(
     // criterion is named by some linked document at all, distinct from the findings
     // beside it, which are about proof. Lifted straight into its own function rather
     // than into audit_payload, following the split check_function_length forced earlier.
-    "logics_manager/audit.py": { maxLines: 1370, ref: "req_340" },
+    // 1390: item_751 gives both autofix paths a dry run. `Apply fixes` edited documents with
+    // no count of what it would touch and no way to look first; a separate implementation
+    // for the count would be free to disagree with what the button does, so the preview is
+    // the same walk taking a flag rather than a twin.
+    "logics_manager/audit.py": { maxLines: 1390, ref: "req_349" },
     // 1117: req_317 added the per-gate release/branch comparison (resolving the
     // tagged commit, choosing which commit each gate is judged against, and
     // naming the comparison in stale reasons and status output). The new logic
@@ -174,7 +178,9 @@ const allowedOversizedFiles = new Map(
     // beginning, where a browser cannot read it. The payload reads the server object rather
     // than recomputing, so the banner and the screen cannot disagree about which viewer the
     // operator is looking at.
-    "logics_manager/viewer.py": { maxLines: 3790, ref: "req_347" },
+    // 3800: item_751 reads a `preview` flag off the apply-fixes body and passes it through
+    // to the same audit_payload call the repair uses.
+    "logics_manager/viewer.py": { maxLines: 3800, ref: "req_349" },
     // 1545: item_743 keys the cdx update cache on a fingerprint of the installed
     // executable, so running the update the banner asks for ends the banner. The
     // helper is 8 lines; the rest is the docstring stating why it stats rather than
@@ -336,7 +342,9 @@ const allowedOversizedFiles = new Map(
     // claimed as work needing a decision.
     // 4785: item_750 passes the corpus's own paths into the health report, which is what
     // lets a finding claiming a document is absent be checked against a corpus that lists it.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4785, ref: "req_349" },
+    // 4820: item_751 makes Apply fixes ask the server what it would change, name the
+    // documents, and apply only if the operator agrees.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4820, ref: "req_349" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

@@ -465,6 +465,44 @@ def test_viewer_lan_rw_pairing_flow_round_trips(tmp_path: Path, monkeypatch: pyt
         server.server_close()
 
 
+def test_previewing_fixes_reports_what_would_change_and_writes_nothing(tmp_path: Path) -> None:
+    """item_751: the preview and the repair must be one computation, not two.
+
+    `Apply fixes` edited documents with no count of what it would touch and no way to look
+    first. A separate implementation for the count would be free to disagree with what the
+    button actually does, so `audit_payload` takes a dry-run flag: the same walk, reporting
+    instead of writing.
+    """
+    from logics_manager.audit import audit_payload
+
+    repo = tmp_path
+    (repo / "logics" / "request").mkdir(parents=True)
+    doc = repo / "logics" / "request" / "req_001_thing.md"
+    # A request with no Definition of Ready is one the structure autofix repairs.
+    doc.write_text(
+        "## req_001_thing - Thing\n"
+        "> Status: draft\n"
+        "> Schema version: 0.1\n"
+        "\n"
+        "# Needs\n"
+        "- Something.\n",
+        encoding="utf-8",
+    )
+    before = doc.read_text(encoding="utf-8")
+
+    preview = audit_payload(repo, autofix_structure=True, autofix_dry_run=True)
+    assert preview["autofix"]["dryRun"] is True
+    assert "logics/request/req_001_thing.md" in preview["autofix"]["modified_files"]
+    assert doc.read_text(encoding="utf-8") == before, "a preview must not write"
+
+    applied = audit_payload(repo, autofix_structure=True)
+    assert applied["autofix"]["dryRun"] is False
+    assert applied["autofix"]["modified_files"] == preview["autofix"]["modified_files"], (
+        "the preview must name exactly what the repair changes"
+    )
+    assert doc.read_text(encoding="utf-8") != before, "the repair must write"
+
+
 def test_a_truncated_diff_says_the_rest_can_be_asked_for(tmp_path: Path) -> None:
     """item_732: a truncated diff reported the word `truncated` and offered nothing.
 

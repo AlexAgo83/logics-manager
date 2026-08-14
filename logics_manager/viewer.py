@@ -2559,11 +2559,23 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         if parsed.path != "/api/apply-fixes":
             return False
         # req_321/item_664: reuses the exact same repair logic CLI and MCP already call.
+        # item_751: with `preview`, the same call reports which documents it would change and
+        # writes none of them. The preview and the repair are one computation taking a flag,
+        # so the count the screen shows cannot disagree with what the button does.
+        preview = False
+        length = int(self.headers.get("Content-Length") or 0)
+        if length > 0:
+            try:
+                body = json.loads(self.rfile.read(length) or "{}")
+                preview = bool(body.get("preview"))
+            except (ValueError, OSError):
+                preview = False
         try:
             result = audit_payload(
                 self.server.repo_root,
                 autofix_structure=True,
                 autofix_ac_traceability=True,
+                autofix_dry_run=preview,
                 group_by_doc=True,
             )
             self._send_json({"ok": True, "payload": self.server.viewer_payload(), "audit": result})

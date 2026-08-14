@@ -2193,7 +2193,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         <section class="viewer-health__section">
           <div class="viewer-health__section-header">
             <h2 class="viewer-health__heading">Validation findings</h2>
-            <button class="viewer-health__apply-fixes" type="button" data-viewer-apply-fixes>Apply fixes</button>
+            <button class="viewer-health__apply-fixes" type="button" data-viewer-apply-fixes title="Shows which documents would be edited before applying anything">Apply fixes\u2026</button>
           </div>
           <ul class="viewer-health__list">${list}</ul>
         </section>
@@ -11066,15 +11066,48 @@ ${line}` : line;
         throw error;
       }
     }
-    async function applyFixes() {
-      setMeta("Applying fixes...");
-      const response = await fetch("/api/apply-fixes", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+    async function requestFixes(preview) {
+      const response = await fetch("/api/apply-fixes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ preview: Boolean(preview) })
+      });
       const payload = await response.json().catch(() => ({ ok: false }));
       if (!response.ok || !payload.ok) {
-        setMeta(payload?.error || "Unable to apply fixes.");
+        throw new Error(payload?.error || "Unable to apply fixes.");
+      }
+      return payload;
+    }
+    async function applyFixes() {
+      setMeta("Checking what can be repaired...");
+      const preview = await requestFixes(true);
+      const files = Array.isArray(preview?.audit?.autofix?.modified_files) ? preview.audit.autofix.modified_files : [];
+      if (!files.length) {
+        setMeta("No findings can be repaired automatically.");
+        await showThemedMessageModal({
+          title: "Nothing to apply",
+          message: "No finding on this screen can be repaired automatically. The rest need a decision."
+        });
         return;
       }
-      setMeta("Fixes applied.");
+      const shown = files.slice(0, 20);
+      const confirmed = await showThemedConfirmModal({
+        title: `Apply fixes to ${files.length} document${files.length === 1 ? "" : "s"}?`,
+        message: `These documents would be edited:
+
+${shown.join("\n")}${files.length > shown.length ? `
+... and ${files.length - shown.length} more` : ""}`,
+        submitLabel: `Apply to ${files.length}`,
+        cancelLabel: "Cancel"
+      });
+      if (!confirmed) {
+        setMeta("Fixes not applied.");
+        return;
+      }
+      setMeta("Applying fixes...");
+      const applied = await requestFixes(false);
+      const changed = Array.isArray(applied?.audit?.autofix?.modified_files) ? applied.audit.autofix.modified_files.length : 0;
+      setMeta(`Fixes applied to ${changed} document${changed === 1 ? "" : "s"}.`);
       await showHealth();
     }
     async function showWorkspace(options = {}) {

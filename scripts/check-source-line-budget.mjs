@@ -351,6 +351,10 @@ const allowedOversizedFiles = new Map(
     // it before they commit. The guard already existed and already worked -- for the screens
     // that asked it. These three never did, which is why a fleet home could land over
     // whatever the operator opened next.
+    // req_356: +45 for item_782's refresh pacing -- the measured cost of the last
+    // refresh, the delay derived from it, and the control that says when the cost rather
+    // than the setting is pacing the viewer. All three read the auto-refresh state this
+    // file already owns; moving them out would mean exporting that state to reach it.
     // req_351: +40 for the reader's identity and its reading layout, then +25 more for
     // the filter panel's reconciled count, the recede rule on Clear filters, and the
     // number the new-request modal states -- all inside functions that already own the
@@ -358,7 +362,7 @@ const allowedOversizedFiles = new Map(
     // itself went to util.js, where the DOM helpers already live; what stays here is the
     // wiring -- the eyebrow, the copy-path control, and the listener handle -- which has
     // to be beside setDocument because that is what owns the document's DOM.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4940, ref: "req_350" },
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4985, ref: "req_356" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

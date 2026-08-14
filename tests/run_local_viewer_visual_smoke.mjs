@@ -440,6 +440,14 @@ function browserExerciseScript(name) {
         await waitFor(() => /\\d+\\s+of\\s+\\d+/.test(text("#viewer-filter-count")), "payload");
         return text("#viewer-filter-count").trim();
       });
+      // item_783: what "Timed out waiting for cards" was reporting, written here so the
+      // next person does not raise this budget again. It was never this check's budget.
+      // Two causes, both since removed: the readiness probe above matched a literal the
+      // panel had stopped printing and then a regex the template literal had eaten, so
+      // this check began from a page that had not finished arriving; and the items
+      // endpoint rebuilt all 1615 documents on every request, which req_356 measured at
+      // 6.1s fresh and 38.0s on a server left running. If this times out again, measure
+      // the endpoint before touching the number.
       await check("board shows cards", async () => {
         if (document.querySelectorAll(".card[data-id]").length === 0) {
           const focus = document.querySelector('[data-viewer-filter-group="focus"]');

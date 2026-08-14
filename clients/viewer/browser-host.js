@@ -8725,6 +8725,8 @@ ${line}` : line;
     const promptedBootstrapRoots = /* @__PURE__ */ new Set();
     let latestMetaText = "Read-only local viewer";
     let autoRefreshIntervalMs = defaultAutoRefreshIntervalMs;
+    const AUTO_REFRESH_DUTY_DIVISOR = 10;
+    let lastAutoRefreshMs = 0;
     let nextAutoRefreshAt = 0;
     let autoRefreshEnabled = true;
     let autoRefreshTimeoutId = 0;
@@ -9175,6 +9177,9 @@ ${line}` : line;
         control.appendChild(option);
       }
       control.value = seconds;
+      const throttled = autoRefreshIsThrottled();
+      control.title = throttled ? `Refreshing every ${Math.round(autoRefreshDelayMs() / 1e3)} sec: a refresh currently takes ${(lastAutoRefreshMs / 1e3).toFixed(1)} sec, and it may not occupy more than a tenth of the interval.` : "How often the board reloads";
+      control.dataset.throttled = throttled ? "true" : "false";
     }
     function setAutoRefreshIntervalSeconds(value, options = {}) {
       autoRefreshIntervalMs = normalizeAutoRefreshIntervalSeconds(value) * 1e3;
@@ -9185,14 +9190,21 @@ ${line}` : line;
       updateRefreshIntervalControl();
       scheduleNextAutoRefresh();
     }
+    function autoRefreshDelayMs() {
+      return Math.max(autoRefreshIntervalMs, Math.round(lastAutoRefreshMs * AUTO_REFRESH_DUTY_DIVISOR));
+    }
+    function autoRefreshIsThrottled() {
+      return autoRefreshDelayMs() > autoRefreshIntervalMs;
+    }
     function scheduleNextAutoRefresh() {
       if (autoRefreshTimeoutId) {
         window.clearTimeout(autoRefreshTimeoutId);
         autoRefreshTimeoutId = 0;
       }
-      nextAutoRefreshAt = autoRefreshEnabled ? Date.now() + autoRefreshIntervalMs : 0;
+      const delayMs = autoRefreshDelayMs();
+      nextAutoRefreshAt = autoRefreshEnabled ? Date.now() + delayMs : 0;
       if (autoRefreshEnabled) {
-        autoRefreshTimeoutId = window.setTimeout(autoRefreshItems, autoRefreshIntervalMs);
+        autoRefreshTimeoutId = window.setTimeout(autoRefreshItems, delayMs);
       }
       renderMeta();
     }
@@ -10811,7 +10823,13 @@ ${line}` : line;
         refreshAfterVisible = true;
         return;
       }
-      refreshViewer("POST", { silent: true }).catch((error) => setMeta(error.message));
+      const startedAt = Date.now();
+      refreshViewer("POST", { silent: true }).then(() => {
+        lastAutoRefreshMs = Date.now() - startedAt;
+      }).catch((error) => {
+        lastAutoRefreshMs = Date.now() - startedAt;
+        setMeta(error.message);
+      });
     }
     function startAutoRefresh() {
       if (autoRefreshStarted) {

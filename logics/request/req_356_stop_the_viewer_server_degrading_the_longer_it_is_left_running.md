@@ -7,7 +7,7 @@
 > Complexity: Medium
 > Theme: Viewer performance
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 14:43:22
+> Indicators reviewed: 2026-08-14 17:06:04
 
 # AI Context
 - Summary: The payload endpoint answered in 6.1s on a fresh server and 38.0s on one up 2h30, over the same corpus; the build itself is 3.7s, so the rest is the request queueing behind the server's own 15-second polling, which rebuilds all 1615 documents every time.
@@ -23,7 +23,7 @@
 # Context
 - **The same request takes six times longer on a server that has been up a while.** the viewer's items endpoint (`viewer.py`, route `/api/items`) returned 5.8 MB in **38.0 s** and again in **37.6 s** on a server up for 2h30. The same request against a freshly started server on the same corpus: **6.1 s**. Nothing about the corpus changed between the two.
 - **The work itself does not account for it.** Profiled in-process, `viewer_data_payload` builds the whole payload in **3.7 s** and `json.dumps` of the result takes **0.04 s** for 4.5 MB. So roughly 34 of those 38 seconds are not the payload being built -- they are the request waiting.
-- **The server is busy with its own refreshing.** The dev viewer process was measured at **85% CPU with 83 minutes of CPU time over about 2h30 of wall clock**, with nobody interacting with it. The client polls that same endpoint on a 15-second timer (`auto_refresh_interval_seconds`, default 15), each poll rebuilds the payload from scratch, and every open tab runs its own timer. There is no cache: two consecutive requests one second apart each did the full work.
+- **The server is busy with its own refreshing.** The dev viewer process was measured at **85% CPU with 83 minutes of CPU time over about 2h30 of wall clock**. **Correction, established while delivering this: "with nobody interacting with it" was wrong.** 124 headless Chrome processes left over from this cycle's capture scripts were still connected, each holding an event stream the server polls once a second. The reading is real and the polling cost it exposes is real, but the number is a server under many clients, not an idle one. The idle figure this request should be judged against is the one recorded in `item_782`, taken with zero connections. The client polls that same endpoint on a 15-second timer (`auto_refresh_interval_seconds`, default 15), each poll rebuilds the payload from scratch, and every open tab runs its own timer. There is no cache: two consecutive requests one second apart each did the full work.
 - **Nothing bounds the growth.** The payload builder walks all 1615 documents on every request -- `collect_viewer_items` is the bulk of it, and within it `_extract_section_lines` runs 16150 times and `_extract_references` 1615 times, all over file contents that did not change between polls. The cost is linear in corpus size and the poll interval is a constant, so the ratio of work to idle only moves one way as a corpus grows.
 - **This is why the campaign looked flaky.** The campaign waits for the board to draw cards, and against a degraded server the payload arrives after the wait expires. Several sessions were spent raising the campaign's own timeouts, which changed nothing, because the campaign was reporting a real condition of the product.
 - Out of scope: what the payload contains, and the board's own paging, which `item_765` reconciled separately.

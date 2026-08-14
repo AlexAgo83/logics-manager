@@ -394,6 +394,15 @@ import {
   const promptedBootstrapRoots = new Set();
   let latestMetaText = "Read-only local viewer";
   let autoRefreshIntervalMs = defaultAutoRefreshIntervalMs;
+  //: item_782: a refresh may never occupy more than a tenth of the time between refreshes.
+  //: The interval was a constant chosen when the corpus was small, and on a corpus where a
+  //: rebuild outlasts it the viewer never stops working -- measured at 85% CPU with nobody
+  //: using it. Ten is the duty cycle, not a delay: it is what "the cadence accounts for the
+  //: cost" means when the cost is not known in advance and grows with the corpus.
+  const AUTO_REFRESH_DUTY_DIVISOR = 10;
+  //: What the last refresh actually cost, measured rather than assumed. Zero until one has
+  //: completed, so the first interval is the configured one.
+  let lastAutoRefreshMs = 0;
   let nextAutoRefreshAt = 0;
   let autoRefreshEnabled = true;
   let autoRefreshTimeoutId = 0;
@@ -898,6 +907,16 @@ import {
       control.appendChild(option);
     }
     control.value = seconds;
+    // item_782: when the cost of refreshing is pacing the viewer rather than this
+    // setting, the control says so. A select reading "15 sec" while the viewer refreshes
+    // every minute is a control that lies about what it does, and the operator's only
+    // clue would be that the screen feels stale.
+    const throttled = autoRefreshIsThrottled();
+    control.title = throttled
+      ? `Refreshing every ${Math.round(autoRefreshDelayMs() / 1000)} sec: a refresh currently takes `
+        + `${(lastAutoRefreshMs / 1000).toFixed(1)} sec, and it may not occupy more than a tenth of the interval.`
+      : "How often the board reloads";
+    control.dataset.throttled = throttled ? "true" : "false";
   }
 
   function setAutoRefreshIntervalSeconds(value, options = {}) {
@@ -910,14 +929,32 @@ import {
     scheduleNextAutoRefresh();
   }
 
+  /**
+   * How long until the next automatic refresh.
+   *
+   * The configured interval, unless the last refresh cost enough that honouring it would
+   * leave the viewer working more than a tenth of the time. On a healthy corpus the
+   * measured cost is a fraction of a second and the configured interval always wins, so
+   * this changes nothing until it needs to.
+   */
+  function autoRefreshDelayMs() {
+    return Math.max(autoRefreshIntervalMs, Math.round(lastAutoRefreshMs * AUTO_REFRESH_DUTY_DIVISOR));
+  }
+
+  /** Whether the cost of refreshing, rather than the operator's setting, is pacing it. */
+  function autoRefreshIsThrottled() {
+    return autoRefreshDelayMs() > autoRefreshIntervalMs;
+  }
+
   function scheduleNextAutoRefresh() {
     if (autoRefreshTimeoutId) {
       window.clearTimeout(autoRefreshTimeoutId);
       autoRefreshTimeoutId = 0;
     }
-    nextAutoRefreshAt = autoRefreshEnabled ? Date.now() + autoRefreshIntervalMs : 0;
+    const delayMs = autoRefreshDelayMs();
+    nextAutoRefreshAt = autoRefreshEnabled ? Date.now() + delayMs : 0;
     if (autoRefreshEnabled) {
-      autoRefreshTimeoutId = window.setTimeout(autoRefreshItems, autoRefreshIntervalMs);
+      autoRefreshTimeoutId = window.setTimeout(autoRefreshItems, delayMs);
     }
     renderMeta();
   }
@@ -2831,7 +2868,16 @@ import {
       refreshAfterVisible = true;
       return;
     }
-    refreshViewer("POST", { silent: true }).catch((error) => setMeta(error.message));
+    const startedAt = Date.now();
+    refreshViewer("POST", { silent: true })
+      .then(() => { lastAutoRefreshMs = Date.now() - startedAt; })
+      .catch((error) => {
+        // A failed refresh is still time the viewer spent, and pacing off a cost of zero
+        // after a slow failure would retry a struggling server as fast as the interval
+        // allows. Recorded either way.
+        lastAutoRefreshMs = Date.now() - startedAt;
+        setMeta(error.message);
+      });
   }
 
   function startAutoRefresh() {

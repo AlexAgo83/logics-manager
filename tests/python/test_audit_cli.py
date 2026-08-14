@@ -23,6 +23,7 @@ from logics_manager.doctor import doctor_payload, render_doctor
 from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
 from logics_manager.flow import evidence_add_payload, repair_ac_traceability_payload
+from logics_manager.flow_evidence import duplicate_proof_ac_ids
 from logics_manager.flow import scaffold_request_chain_payload
 from logics_manager.flow.docs import DOC_KINDS, _append_doc_section_bullets, _resolve_workflow_source
 from logics_manager.ai_context import UNFILLED as AI_CONTEXT_UNFILLED, block as ai_context_block, is_ungroomed
@@ -204,6 +205,90 @@ def test_ac_proof_requires_same_line_for_matching_ac() -> None:
     assert has_ac_proof("- request-AC1 -> This task. Proof: validated by regression.", "AC1") is True
     assert has_ac_proof("- AC1 is mentioned here.\n- Proof: validated by unrelated note.", "AC1") is False
     assert has_ac_proof("- request-AC10 -> This task. Proof: validates AC10.", "AC1") is False
+
+
+def test_duplicate_proof_ac_ids_flags_the_ac6_ac7_shift_shape() -> None:
+    """item_784/GH#20: the concrete original bug -- two request-ACn lines, both
+    self-referential (`This task.`), carrying the exact same proof sentence."""
+    text = "\n".join(
+        [
+            "# AC Traceability",
+            "- request-AC6 -> This task. Proof: token aggregation is non-zero, asserted by test_token_totals.",
+            "- request-AC7 -> This task. Proof: token aggregation is non-zero, asserted by test_token_totals.",
+        ]
+    )
+    assert duplicate_proof_ac_ids(text) == [("AC6", "AC7")]
+
+
+def test_duplicate_proof_ac_ids_ignores_orchestration_redirects() -> None:
+    """An orchestration task delegating several ACs to the same child item repeats the
+    same redirect sentence on purpose -- its target is the child ref, not a
+    self-reference, so it is out of scope for this check."""
+    text = "\n".join(
+        [
+            "# AC Traceability",
+            "- request-AC1 -> `item_596_demo`. Proof deferred to slice closeout.",
+            "- request-AC2 -> `item_596_demo`. Proof deferred to slice closeout.",
+        ]
+    )
+    assert duplicate_proof_ac_ids(text) == []
+
+
+def test_duplicate_proof_ac_ids_ignores_placeholders() -> None:
+    text = "\n".join(
+        [
+            "# AC Traceability",
+            "- request-AC1 -> This task. Proof: TODO -- state how this was verified",
+            "- request-AC2 -> This task. Proof: TODO -- state how this was verified",
+        ]
+    )
+    assert duplicate_proof_ac_ids(text) == []
+
+
+def test_duplicate_proof_ac_ids_allows_distinct_proofs() -> None:
+    text = "\n".join(
+        [
+            "# AC Traceability",
+            "- request-AC1 -> This task. Proof: implemented in abc123, per test_one.",
+            "- request-AC2 -> This task. Proof: implemented in abc123, per test_two.",
+        ]
+    )
+    assert duplicate_proof_ac_ids(text) == []
+
+
+def test_audit_reports_duplicate_proof_as_a_warning_not_blocking(tmp_path: Path) -> None:
+    """item_784/GH#20: a warning, not a gate -- a prototype run as blocking produced
+    437 false positives against this repository's own real corpus (legitimate
+    orchestration delegation and single-wave multi-AC proofs), which is why this is
+    wired in as a signal for a human to confirm rather than an automated gate."""
+    repo_root = tmp_path / "logics-repo"
+    for directory in ["request", "backlog"]:
+        (repo_root / "logics" / directory).mkdir(parents=True, exist_ok=True)
+    (repo_root / "logics" / "backlog" / "item_001_demo.md").write_text(
+        "\n".join(
+            [
+                "## item_001_demo - Demo backlog",
+                "> From version: 2.11.6",
+                "> Status: Done",
+                "> Progress: 100%",
+                "> Schema version: 1.0",
+                "# Links",
+                "- `req_001_demo`",
+                "# AC Traceability",
+                "- request-AC1 -> This backlog slice. Proof: implemented and validated by the full suite.",
+                "- request-AC2 -> This backlog slice. Proof: implemented and validated by the full suite.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    payload = audit_payload(repo_root, group_by_doc=True)
+
+    assert payload["ok"] is True
+    assert payload["issue_count"] == 0
+    codes_and_severity = {(w["code"], w.get("severity", "warning")) for w in payload["warnings"]}
+    assert ("ac_duplicate_proof", "warning") in codes_and_severity
 
 
 def test_audit_keeps_legacy_ac_proof_compatibility_but_enforces_new_same_line_proof(tmp_path: Path) -> None:

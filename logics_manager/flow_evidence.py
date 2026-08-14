@@ -130,6 +130,64 @@ def has_ac_proof(text: str, ac_id: str, *, legacy: bool = False) -> bool:
     return ac_proof_state(text, ac_id) == "proven"
 
 
+#: `request-<ac_id> -> <target>. Proof: <text>`, scoped to one line so a proof spanning
+#: several lines (which the format doesn't support) is read as ending at the newline,
+#: same as `_ac_line` above.
+_AC_TRACE_LINE_PATTERN = re.compile(
+    r"^\s*-\s*request-(?P<ac_id>[A-Za-z0-9_]+)\s*->\s*(?P<target>.+?)\.\s*Proof:\s*(?P<proof>.+?)\s*$",
+    re.IGNORECASE,
+)
+#: The two self-referential targets a *leaf* document (one that did the work itself,
+#: rather than delegating to a child item/task) writes. An orchestration task's own
+#: lines point at a child ref instead (`` `item_669_...` ``) -- see `duplicate_proof_ac_ids`.
+_SELF_PROOF_TARGETS = {"this task", "this backlog slice"}
+
+
+def ac_proofs_by_id(text: str) -> dict[str, tuple[str, str]]:
+    """`ac_id -> (target, proof text)` for every `request-ACn` line in this doc's own
+    `# AC Traceability` section. A later line for a repeated id overwrites an earlier
+    one, matching how the section is read elsewhere (last write wins)."""
+    entries: dict[str, tuple[str, str]] = {}
+    for line in section_lines(text.splitlines(), "AC Traceability"):
+        match = _AC_TRACE_LINE_PATTERN.match(line)
+        if match:
+            entries[match.group("ac_id").upper()] = (match.group("target").strip(), match.group("proof").strip())
+    return entries
+
+
+def duplicate_proof_ac_ids(text: str) -> list[tuple[str, str]]:
+    """Pairs of AC ids in this document whose proof text is identical once whitespace
+    is normalized -- item_784/GH#20: a proof block shifted or copy-pasted across
+    criteria leaves two different `request-ACn` lines carrying the same sentence.
+
+    Deliberately a *signal to check*, not a verdict: this repository's own corpus
+    (1497 docs, 350+ Done tasks) has two entirely legitimate patterns that produce the
+    same shape -- an orchestration task delegating several ACs to the same child item
+    with an identical redirect sentence, and a single implementation wave (one commit,
+    one test run) that legitimately closes several ACs with one shared proof sentence.
+    A prototype of this check as a *blocking* finding produced 437 false positives
+    against exactly those patterns; it is wired in as a warning for a human to
+    confirm, not a gate, for that reason. Scoped to lines whose target is the doc's
+    own self-reference (`This task.` / `This backlog slice.`) to at least exclude the
+    orchestration-redirect shape, which is unambiguous from the doc's own text.
+    """
+    entries = ac_proofs_by_id(text)
+    placeholder_marker = AC_PROOF_PLACEHOLDER.split(" --")[0]
+    seen: dict[str, str] = {}
+    pairs: list[tuple[str, str]] = []
+    for ac_id, (target, proof) in sorted(entries.items()):
+        if target.strip().lower() not in _SELF_PROOF_TARGETS:
+            continue
+        if not proof or placeholder_marker in proof or proof == AC_DEFERRED_PLACEHOLDER:
+            continue
+        key = " ".join(proof.split()).lower()
+        if key in seen:
+            pairs.append((seen[key], ac_id))
+        else:
+            seen[key] = ac_id
+    return pairs
+
+
 def structured_validation_line(command: str, result: str, note: str | None) -> str:
     normalized_result = result.strip().lower() or "passed"
     parts = [

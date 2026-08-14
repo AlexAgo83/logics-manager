@@ -1,13 +1,14 @@
 ## item_757_make_the_runbooks_screen_do_what_its_tab_claims - Make the runbooks screen do what its tab claims
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 17%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 15:01:16
 
 # AI Context
 - Summary: The tab promises search, browse by category and verify; the screen offers search, a redundant Search button beside the field, 85% empty space, and an eyebrow naming three tabs on a screen with four.
@@ -25,6 +26,13 @@
   - Remove the control that duplicates the live filter, and correct the eyebrow.
 - Out:
   - What a runbook contains, and the verification workflow itself.
+
+# Delivery notes
+- The tab is titled "search, browse by category, verify" and the screen offered search alone. All three are there now.
+- **Browse by category** uses the categories the runbooks already declare, in the width the screen was wasting: results were a narrow strip with 85% of the screen empty below two entries. A rail lists the categories with their counts and jumps to each.
+- **Verification status is on every row.** Never verified is stated as such rather than left blank -- a blank reads as "no information" when it is in fact the strongest information the row carries -- and a verification older than 180 days says how old. The rail counts the unverified, so the answer to "what needs verifying" does not require reading every row.
+- **The `Search` button is gone, and the field it duplicated searches as it is typed.** Worth recording: the field had *no* listener at all. The button was the only way to run a search, so removing it had to come with making the field live, or the screen would have lost its only search. Debounced at 250ms, because without that every keystroke is a request against the runbook index.
+- The eyebrow named three of the screen's four tabs, and the one it left out was Runbooks -- the tab this slice exists to finish. It names four now.
 
 # Acceptance criteria
 - AC6: Search, browse by category and verification status are all present.

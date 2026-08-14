@@ -2994,15 +2994,23 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(calls).toContain("/api/workspace-tree?path=");
-    expect(calls).toContain("/api/workspace-preview?path=");
+    // item_758: the explorer used to preview the root, whose payload is a directory, so
+    // three quarters of the screen arrived empty. It opens on the README the root
+    // declares -- the file a repository puts there to be read first.
+    expect(calls).toContain("/api/workspace-preview?path=README.md");
+    expect(calls).not.toContain("/api/workspace-preview?path=");
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Workshop");
     let content = dom.window.document.querySelector("[data-viewer-workshop-explorer]");
     expect(content?.textContent).toContain("src");
     expect(content?.textContent).toContain("README.md");
     expect(content?.textContent).toContain("node_modules");
-    expect(content?.textContent).toContain("3 item(s)");
-    expect(content?.querySelector(".viewer-workspace__preview-notice")?.textContent).toContain("3 item(s)");
-    expect(content?.querySelector(".viewer-workspace__preview-notice")?.closest(".viewer-workspace__placeholder")).toBeNull();
+    // item_758: the explorer now arrives on the README rather than on the root, so the
+    // pane holds a file. The directory listing that replaced "3 item(s)" is asserted
+    // below, from a directory the operator actually navigates to.
+    expect(content?.textContent).toContain("Read me");
+    // The pane holds a file now, so there is no notice at all -- which is the stronger
+    // form of what this line was asserting: that the notice is not a placeholder.
+    expect(content?.querySelector(".viewer-workspace__preview-notice")).toBeNull();
 
     content?.querySelector('[data-viewer-workspace-tree="src"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -3214,7 +3222,10 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(calls).toContain("/api/workshop-command-start");
-    expect(dom.window.document.querySelector('[data-viewer-workshop-command="npm-test"] .viewer-workshop__state')?.textContent).toBe("running");
+    // item_756: the state carries its duration now -- the row could not answer "how long
+    // has this been going" at all before, which is the first thing asked of a running script.
+    expect(dom.window.document.querySelector('[data-viewer-workshop-command="npm-test"] .viewer-workshop__state')?.textContent)
+      .toMatch(/^running · \d+s$/);
 
     dom.window.document.querySelector('[data-viewer-workshop-command-stop="npm-test"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -3246,10 +3257,17 @@ describe("local viewer browser host", () => {
     expect(runbooksPanel?.textContent).toContain("recent");
 
     // Search with a query that matches nothing renders the empty state, not an error.
+    // item_757: the Search button that duplicated this field is gone, so the search has
+    // to be driven the way an operator now drives it -- by typing. The 250ms debounce is
+    // waited out here rather than removed: a test that only passes without it would pass
+    // against a field that fires a request per keystroke.
+    expect(dom.window.document.querySelector("[data-viewer-workshop-runbook-search]")).toBeNull();
     const queryInput = dom.window.document.querySelector("[data-viewer-workshop-runbook-query]") as HTMLInputElement | null;
-    if (queryInput) queryInput.value = "release";
-    dom.window.document.querySelector("[data-viewer-workshop-runbook-search]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    if (queryInput) {
+      queryInput.value = "release";
+      queryInput.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    }
+    await new Promise((resolve) => setTimeout(resolve, 400));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(calls).toContain("/api/runbooks?q=release");
@@ -8455,7 +8473,9 @@ describe("local viewer browser host", () => {
     const option = (value: string) => Array.from(typeSelect.options).find((entry) => entry.value === value)!;
 
     // The seeded corpus holds one request and one task, and no companion document.
-    expect(option("all").textContent).toBe("All (2)");
+    // item_764: the neutral option's count was always the corpus size, so it said nothing
+    // about the filter it belonged to. It names the dimension and what is left to narrow by.
+    expect(option("all").textContent).toBe("All types — 1 to narrow by");
     expect(option("task").textContent).toBe("Tasks (1)");
     expect(option("companion").textContent).toBe("Companions (0)");
     expect(option("companion").disabled).toBe(true);

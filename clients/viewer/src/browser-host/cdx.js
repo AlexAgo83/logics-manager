@@ -292,7 +292,10 @@ function renderCdxReport(payload) {
         ${renderCdxModeSwitcher("runs")}
         <section class="viewer-cdx__section">
           <div class="viewer-ci__heading viewer-ci__heading--actions">
-            <div><h2>Run report</h2><span>${escapeHtml(run.status || "unknown")}</span></div>
+            <!-- item_759: this read "Run report" under a document header already titled
+                 "CDX run report" -- the screen naming itself twice, in the two most
+                 prominent places on it. The section names the run it is showing. -->
+            <div><h2>${escapeHtml(report.missionTitle || report.missionId || run.id || "This run")}</h2><span>${escapeHtml(run.status || "unknown")}</span></div>
             <button class="viewer-cdx__mode" type="button" data-viewer-cdx-back-runs>Back to reports</button>
           </div>
           <ul class="viewer-cdx__list">
@@ -1870,6 +1873,20 @@ export function createCdxScreen(host) {
     host.setMeta(`CDX config updated for ${sessionName}.`);
   }
 
+/**
+ * Why the launch action is unavailable.
+ *
+ * item_759: it was disabled with nothing said, on a screen whose whole purpose is
+ * launching something. The safety it enforces -- preview before launch -- is correct and
+ * unchanged; what was missing was the sentence saying so.
+ */
+  function cdxRunBlockedReason(planPayload, plan) {
+    if (!planPayload) return "Preview the mission first: a run is launched from a plan, never from the form.";
+    if (planPayload.state !== "ok") return String(planPayload.message || "The plan could not be built, so there is nothing to launch.");
+    if (plan && !plan.canRun) return String(plan.reason || "This plan reports it cannot be run as configured.");
+    return "Preview the mission first.";
+  }
+
   function renderCdxMissionSetup(statusPayload, planPayload, runPayload, applyPayload) {
     const catalog = cdxMissionCatalog(planPayload || {});
     latestCdxMissionState.catalog = catalog;
@@ -1983,11 +2000,16 @@ export function createCdxScreen(host) {
       ${run?.stdout ? `<pre class="viewer-cdx__code">${escapeHtml(run.stdout)}</pre>` : ""}
       ${run?.stderr ? `<pre class="viewer-cdx__code viewer-cdx__code--error">${escapeHtml(run.stderr)}</pre>` : ""}
     `;
+    // item_759: two of the four tiles held "Not previewed" and "Not launched" -- states
+    // meaning nothing has happened yet, given the same weight as a count. A metric tile
+    // that says "nothing yet" spends a tile to report the absence of news. Those two
+    // states moved onto the panels they describe, where the operator is already looking
+    // for them, and the tiles carry counts.
     const cards = [
       ["Missions", String(missions.length)],
       ["Sessions", String(sessions.length)],
-      ["Plan", planState],
-      ["Run", runState]
+      ["Strengths", String(strengths.length)],
+      ["Corpus actions", String(parsedActions.length)]
     ].map(([label, value]) => `
       <div class="viewer-cdx__card">
         <div class="viewer-cdx__label">${escapeHtml(label)}</div>
@@ -2022,14 +2044,15 @@ export function createCdxScreen(host) {
             </label>
             <div class="viewer-cdx__actions">
               <button class="btn" type="button" data-viewer-cdx-plan>Preview</button>
-              <button class="btn" type="button" data-viewer-cdx-run${canRun ? "" : " disabled"}>${runMode === "terminal" ? "Launch in terminal" : "Launch run"}</button>
+              <button class="btn" type="button" data-viewer-cdx-run${canRun ? "" : " disabled"} title="${escapeHtml(canRun ? "Launch this mission" : cdxRunBlockedReason(planPayload, plan))}">${runMode === "terminal" ? "Launch in terminal" : "Launch run"}</button>
             </div>
+            ${canRun ? "" : `<p class="viewer-cdx__blocked-reason">${escapeHtml(cdxRunBlockedReason(planPayload, plan))}</p>`}
           </section>
         </div>
         <div class="viewer-cdx__stack">
           <section class="viewer-cdx__section">
             <div class="viewer-ci__heading viewer-ci__heading--actions">
-              <h2>${outputMode === "run" ? "Run output" : "Plan preview"}</h2>
+              <h2>${outputMode === "run" ? "Run output" : "Plan preview"} <span class="viewer-cdx__panel-state">${escapeHtml(outputMode === "run" ? runState : planState)}</span></h2>
               ${outputSwitch}
             </div>
             <div class="viewer-cdx__output-panel">

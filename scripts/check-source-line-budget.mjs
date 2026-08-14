@@ -180,7 +180,10 @@ const allowedOversizedFiles = new Map(
     // operator is looking at.
     // 3800: item_751 reads a `preview` flag off the apply-fixes body and passes it through
     // to the same audit_payload call the repair uses.
-    "logics_manager/viewer.py": { maxLines: 3800, ref: "req_349" },
+    // req_350: +25 for item_758's directory listing. The preview builder is the one place
+    // that knows how a workspace path resolves, and a directory reporting its own contents
+    // is that same knowledge -- moving it out would mean resolving the path twice.
+    "logics_manager/viewer.py": { maxLines: 3835, ref: "req_350" },
     // 1545: item_743 keys the cdx update cache on a fingerprint of the installed
     // executable, so running the update the banner asks for ends the banner. The
     // helper is 8 lines; the rest is the docstring stating why it stats rather than
@@ -355,7 +358,7 @@ const allowedOversizedFiles = new Map(
     // itself went to util.js, where the DOM helpers already live; what stays here is the
     // wiring -- the eyebrow, the copy-path control, and the listener handle -- which has
     // to be beside setDocument because that is what owns the document's DOM.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4915, ref: "req_351" },
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4940, ref: "req_350" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },
@@ -370,8 +373,15 @@ const allowedOversizedFiles = new Map(
     // 1407: 2.21.9 added the hidden-runbook toggle and made the runbook graph
     // use the shared collapsible chain graph. Both stay in the existing Workshop
     // factory; a second runbook submodule would only move one small tab's state.
-    "clients/viewer/src/browser-host/workshop.js": { maxLines: 1407, ref: "req_342" },
-    "clients/viewer/src/browser-host/cdx.js": { maxLines: 3057, ref: "req_312" },
+    // req_350: +130 across item_756 (the command list's grouping, filter and duration)
+    // and item_757 (the runbook rail, category grouping and verification status). Kept
+    // in workshop.js because each is the rendering of one of this screen's own tabs --
+    // splitting a tab's markup from the tab that owns it would mean two files to read to
+    // answer one question about one panel.
+    "clients/viewer/src/browser-host/workshop.js": { maxLines: 1540, ref: "req_350" },
+    // req_350: +25 for item_759's blocked-launch reason and the tiles it emptied. The
+    // reason has to read the plan payload the button already reads, so it stays beside it.
+    "clients/viewer/src/browser-host/cdx.js": { maxLines: 3085, ref: "req_350" },
     // De-monolith passes 1-3: pure helpers/data extracted out of index.js. May
     // be split by domain (cdx/git/dom) in later passes as they grow.
     // 1151: req_314 put the environment warning's dismissal beside the renderer that reads
@@ -425,7 +435,7 @@ const allowedOversizedFiles = new Map(
     // Kept in the modal builder rather than split out: the three parts item_763 adds
     // all read the same field controls, and separating them would mean handing that
     // map across a boundary to save nothing.
-    "clients/viewer/src/browser-host/render.js": { maxLines: 1990, ref: "req_351" },
+    "clients/viewer/src/browser-host/render.js": { maxLines: 2010, ref: "req_350" },
     // 1353: req_314 taught the board to group by status, which is what its control always
     // claimed to do. The grouping itself is eleven lines; the rest is the heading element
     // the accessibility slice needed.

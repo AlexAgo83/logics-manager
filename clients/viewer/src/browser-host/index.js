@@ -4253,6 +4253,7 @@ import {
       const gitDiffFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-diff-full]") : null;
       const workspaceTreeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-tree]") : null;
       const workspacePreviewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview]") : null;
+      const workspaceSelectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-select]") : null;
       const workspacePreviewFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview-full]") : null;
       const workshopTabTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-tab]") : null;
       const workshopRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run]") : null;
@@ -4588,6 +4589,9 @@ import {
         withPrimaryAction("runbook-graph", "Loading runbook graph", showWorkshopRunbookGraph);
         return;
       }
+      // item_757: the Search button is gone and the field searches as it is typed. The
+      // click handler stays for one release so a cached page still works, but nothing in
+      // the markup produces the target any more.
       if (workshopRunbookSearchTarget instanceof HTMLElement) {
         event.preventDefault();
         const input = workshopRunbookSearchTarget.parentElement?.querySelector("[data-viewer-workshop-runbook-query]");
@@ -4720,6 +4724,14 @@ import {
       if (workspacePreviewFullTarget instanceof HTMLElement) {
         event.preventDefault();
         withPrimaryAction("workspace-preview-full", "Loading full file", () => openWorkspacePreview(workspacePreviewFullTarget.getAttribute("data-viewer-workspace-preview-full") || "", { full: true }));
+        return;
+      }
+      if (workspaceSelectTarget instanceof HTMLElement) {
+        // item_758: a listed entry opens, so the directory preview navigates rather than
+        // merely describing. The preview loader handles both kinds -- it asks the server
+        // what the path is, so a folder listed here opens as a folder.
+        event.preventDefault();
+        withPrimaryAction("workspace-select", "Opening", () => openWorkspacePreview(workspaceSelectTarget.getAttribute("data-viewer-workspace-select") || ""));
         return;
       }
       if (workspacePreviewTarget instanceof HTMLElement) {
@@ -4872,6 +4884,19 @@ import {
       if (!documentPath) return;
       const copied = await copyTextToClipboard(documentPath);
       setMeta(copied ? `Copied ${documentPath}` : "Clipboard access was refused.");
+    });
+    // item_757: the runbook field had no listener at all -- the button beside it was the
+    // only way to run a search, which is why removing the button had to come with this.
+    // Debounced: without it every keystroke is a request against the runbook index.
+    let runbookSearchTimer = 0;
+    document.addEventListener("input", (event) => {
+      const field = event.target instanceof Element
+        ? event.target.closest("[data-viewer-workshop-runbook-query]")
+        : null;
+      if (!(field instanceof HTMLInputElement)) return;
+      window.clearTimeout(runbookSearchTimer);
+      const query = field.value.trim();
+      runbookSearchTimer = window.setTimeout(() => { void loadWorkshopRunbooks(query); }, 250);
     });
     document.getElementById("viewer-document-refresh")?.addEventListener("click", () => {
       withPrimaryAction("refresh-document", "Refreshing", refreshCurrentScreen);

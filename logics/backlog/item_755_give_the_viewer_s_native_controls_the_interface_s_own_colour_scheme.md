@@ -1,14 +1,14 @@
 ## item_755_give_the_viewer_s_native_controls_the_interface_s_own_colour_scheme - Give the viewer's native controls the interface's own colour scheme
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 17%
+> Progress: 100%
 > Complexity: Low
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-13 16:28:19
+> Indicators reviewed: 2026-08-14 15:01:16
 
 # AI Context
 - Summary: `main.css` declares `color-scheme: light dark` while the standalone viewer's palette is unconditionally dark, so on a host resolving to light all forty native controls render light on dark; the fix belongs in `viewer.css`, which only the standalone loads.
@@ -28,6 +28,11 @@ The fix is scoped: `viewer.css` is loaded only by `clients/viewer/index.html`, s
   - Verify the result against the Terminals tab, which this request must not otherwise change.
 - Out:
   - Restyling controls that are already themed by hand, and any change to the Terminals tab's own rendering.
+
+# Delivery notes
+- `:root { color-scheme: dark }` in `clients/viewer/viewer.css`, and nothing else. Every native control inherits it; not one is styled individually.
+- Declared in `viewer.css` rather than `media/main.css` because `main.css` is shared with the VS Code webview, whose palette really does follow the editor theme -- `light dark` is correct there. `viewer.css` is loaded only by `clients/viewer/index.html`, so the standalone viewer is fixed without changing what the webview does.
+- The premise this rests on: every colour in `viewer.css` is a `var(--vscode-*, <dark fallback>)`, and outside the extension host those variables are undefined, so the fallback always wins. The palette is unconditionally dark whatever the host says, and the declaration now says so too.
 
 # Acceptance criteria
 - AC1: No control renders as a light-mode widget.

@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-14 22:26:09
+> Indicators reviewed: 2026-08-14 22:45:34
 > Owner: claude
 
 # AI Context
@@ -43,6 +43,7 @@
 - `node scripts/build/build-assets.mjs` — regenerates `viewer_assets`; `browser-host.js` measured 627,456 bytes -> 368,132 bytes (~41% smaller).
 - `node scripts/build/build-viewer-browser-host.mjs --check` — passes; the committed `clients/viewer/browser-host.js` is untouched by this change.
 - `npx vitest run` — 929 passed (full suite). None of these tests read from `logics_manager/viewer_assets/`, so they exercise the unminified source unmodified, per AC2.
+- **Correction (found while implementing task_357, same session):** the claim above missed a *Python* test — `tests/python/test_cli_main.py::test_python_viewer_assets_include_workshop_terminal_vendor_files` asserted `"convertEol: false"` (readable, spaced) against the packaged `viewer_assets/viewer/browser-host.js`, which the minification pass had made unreadable. `python3 -m pytest tests/python/ -q` (1370/1371) caught it; fixed by pointing that one assertion at the committed `clients/viewer/browser-host.js` source instead of the packaged copy. Full suite (`pytest` 1371 + `vitest` 929) passes after the fix.
 - Finish workflow executed on 2026-08-14.
 - Linked backlog/request close verification passed.
 

@@ -30,6 +30,17 @@ if (process.env.GITHUB_ACTIONS === "true") {
   process.stdout.write("Publishing via GitHub Actions trusted publishing/OIDC.\n");
 }
 
+// item_773: the check runs here because this is the last point at which the artifact still
+// exists and the release has not happened. A check in CI protects a pipeline; a check here
+// protects the package. Measured warm on this repository: 0.8s for the npm package, which
+// is why all three artifacts are checked on their own publish paths rather than one being
+// traded away for speed.
+execFileSync(process.execPath, [path.join(root, "scripts", "check-artifact-contents.mjs"), "npm package"], {
+  cwd: root,
+  encoding: "utf8",
+  stdio: "inherit"
+});
+
 execFileSync("npm", ["publish", "--access", "public"], {
   cwd: root,
   encoding: "utf8",

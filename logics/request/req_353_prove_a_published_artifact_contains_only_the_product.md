@@ -1,7 +1,7 @@
 ## req_353_prove_a_published_artifact_contains_only_the_product - Prove a published artifact contains only the product
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

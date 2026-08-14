@@ -1,8 +1,8 @@
 ## prod_089_a_release_that_contains_only_the_product - A release that contains only the product
 > Date: 2026-08-13
-> Status: Proposed
+> Status: Settled
 > Related request: `req_353_prove_a_published_artifact_contains_only_the_product`
-> Related backlog: `item_771_define_dev_only_as_a_property_rather_than_a_list`, `item_772_build_each_published_artifact_and_inspect_what_is_inside_it`, `item_773_put_the_check_where_a_release_cannot_skip_it`
+> Related backlog: `item_771_define_dev_only_as_a_property_rather_than_a_list`
 > Related task: `task_350_deliver_the_released_artifact_content_check`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -45,5 +45,5 @@ flowchart TB
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_353_prove_a_published_artifact_contains_only_the_product`
+- Product back-reference: `item_771_define_dev_only_as_a_property_rather_than_a_list`
 - Task back-reference: `task_350_deliver_the_released_artifact_content_check`

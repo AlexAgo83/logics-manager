@@ -43,9 +43,14 @@ export function filterChecks(window) {
       await select(focus, "all");
     }
   };
+  // The terminal vocabulary is a list of words, not a rule, so a screen can be finished and
+  // still fail this check by saying so in a word nobody added. `opened` was missing: Getting
+  // Started reports "Getting Started opened." and was read as never settling. Widening it by
+  // an unambiguously finished word does not weaken what the check is for -- distinguishing
+  // finished from still working -- but the list should be read as the guess it is.
   const isTerminalMeta = (value) =>
     !/action unavailable while another viewer action is running/i.test(value)
-    && /loaded|refreshed|ready|unavailable|not available|detected|state:|no /i.test(value);
+    && /loaded|refreshed|ready|opened|unavailable|not available|detected|state:|no /i.test(value);
 
   return [
     {

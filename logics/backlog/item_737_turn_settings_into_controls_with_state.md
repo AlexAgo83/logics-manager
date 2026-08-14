@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 01:30:05
+> Indicators reviewed: 2026-08-14 09:01:53
 
 # AI Context
 - Summary: Nine identical primary buttons, of which `Stop viewer` kills the server and looks exactly like `Insights`, a link; three are navigation; the title prints twice; and nothing reports the address, mode, transport, version or connector state.
@@ -36,6 +36,11 @@
 - The automatic-refresh checkbox is a `role="switch"` with `aria-checked` and a visible `On`/`Off`, so where it sits is readable rather than inferred from a small square.
 - The screen degrades rather than guessing: if `/api/viewer-info` cannot be reached it falls back to what the browser itself knows (its own origin and protocol), and an unreachable connector endpoint leaves the position `unknown` rather than asserting `Off`.
 - **Found by the campaign, not by review:** the first run after this change failed `console is clean` on all three viewports with a 404, because the viewer under test was still running the Python from before the route existed. The check earned its place -- a screen that silently degrades to its fallback would otherwise have looked correct.
+
+- **A defect this slice introduced, found by the operator and fixed here.** Removing Insights, Health and Getting Started as "navigation dressed as settings" left all three unreachable by clicking. They lived only inside the settings dropdown, and the gear button stopped opening that dropdown when it began opening the Settings *screen* -- so the screen's buttons were their only working route. My own delivery note asserted "the navigation already offers all three" without checking, which is exactly the mistake `item_728` recorded when it removed the only route to the fleet home. Measured before the fix: all three controls present in the DOM, none visible, the dropdown permanently `hidden`.
+- The fix makes the assertion true rather than withdrawing it: a `Corpus` nav menu beside Workshop, Remote and CDX carries Insights, Health and Getting Started, dispatched through the same `data-viewer-nav-target` path every other nav menu uses. Verified in a live viewer: each entry lands on its screen by title.
+- **The regression needed two halves.** The harness builds its own DOM, so a behaviour test proves the route against the fixture and stays green when the product's markup loses the menu -- which is precisely how this shipped. It asserts `clients/viewer/index.html` carries the menu as well, and both halves were proven by removing the markup and watching the second fail.
+- Found while re-running the campaign: `Getting Started opened.` was read as a screen that never settles, because the completion check's terminal vocabulary is a list of words and `opened` was not on it. Widened by that one word, with the list named as the guess it is.
 
 # Acceptance criteria
 - AC1: The screen states what this viewer is.

@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 09:01:53
 
 # AI Context
 - Summary: An operator clicking faster than a screen loads sees the previous screen paint over the new one; several screens take twenty seconds or more against a large corpus.
@@ -25,6 +26,19 @@
   - A regression that fails when the guard is removed.
 - Out:
   - Making any screen faster.
+
+# Further evidence
+
+Recurred 2026-08-14 while delivering `req_349`, on a full campaign run at 390x844:
+`mobile: insights: reachable` failed with `showing 'Fleet'`. The settle-and-reopen the
+harness carries did not recover it that time -- the reopen timed out too. An isolated
+mobile-only run passed, so it remains intermittent and load-dependent rather than
+deterministic.
+
+Worth recording because the original report came from one run: this is the second
+independent observation, and the first where the workaround itself failed. It also
+narrows the shape -- it is the fleet home's late render specifically, arriving over
+whichever screen was opened next, not a general race between any two screens.
 
 # Acceptance criteria
 - AC1: A superseded screen does not render.

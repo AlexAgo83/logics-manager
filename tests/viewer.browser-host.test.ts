@@ -119,6 +119,16 @@ function createViewerDom(options: {
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="project:theme" hidden>Theme</button>
       </div>
     </div>
+    <!-- item_737: mirrors clients/viewer/index.html. The harness fixture omitting a nav menu
+         is how a screen can lose its only route without a test noticing. -->
+    <div class="viewer-nav-menu" data-viewer-nav="corpus">
+      <button id="viewer-corpus" type="button">Corpus</button>
+      <div class="viewer-nav-menu__panel" role="menu">
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="corpus:insights">Insights</button>
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="corpus:health">Health</button>
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="corpus:getting-started">Getting Started</button>
+      </div>
+    </div>
     <div class="viewer-nav-menu" data-viewer-nav="remote">
       <button id="viewer-ci" type="button">Remote</button>
       <div class="viewer-nav-menu__panel" role="menu">
@@ -1901,7 +1911,10 @@ describe("local viewer browser host", () => {
     const labels = Array.from(dom.window.document.querySelectorAll(".viewer-topbar__actions > button, .viewer-topbar__actions > .viewer-nav-menu > button, .viewer-topbar__actions > .viewer-refresh-menu > button"))
       .map((node) => node.textContent?.trim().replace(/\s+/g, " "));
 
-    expect(labels).toEqual(["Workshop", "Remote", "CDX", "Settings"]);
+    // item_737: Corpus joins the row. It is where Insights, Health and Getting Started live
+    // now -- they were only in the settings dropdown, which the gear stopped opening, so
+    // removing them from the Settings screen left them unreachable.
+    expect(labels).toEqual(["Workshop", "Corpus", "Remote", "CDX", "Settings"]);
     expect(dom.window.document.getElementById("viewer-getting-started")?.textContent).toContain("Getting Started");
     const settingsHeadings = Array.from(dom.window.document.querySelectorAll("#viewer-refresh-menu .viewer-settings-menu__heading"))
       .map((node) => node.textContent?.trim());
@@ -4559,6 +4572,45 @@ describe("local viewer browser host", () => {
     // cancelled the very load it announced and the screen stayed on the placeholder.
     expect(document.querySelector("[data-viewer-screen-loading]")).toBeNull();
     expect(document.getElementById("viewer-document-content")?.textContent).toContain("Overview");
+  });
+
+  it("keeps Insights, Health and Getting Started reachable from the navigation", async () => {
+    // item_737, and a defect that slice introduced. Those three lived only inside the
+    // settings dropdown, which the gear button stopped opening when it began opening the
+    // Settings *screen* instead -- so the screen's own buttons were their only working
+    // route. Removing them as "navigation dressed as settings" left all three unreachable
+    // by clicking, and the slice's note asserted the navigation offered them without
+    // checking. This is that assertion, checked.
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const document = dom.window.document;
+    const open = async (target: string) => {
+      document.getElementById("viewer-document-close")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+      await flushViewerAsync();
+      document.getElementById("viewer-corpus")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+      await flushViewerAsync();
+      const entry = document.querySelector(`[data-viewer-nav-target="${target}"]`);
+      expect(entry).not.toBeNull();
+      entry?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+      for (let turn = 0; turn < 6; turn += 1) await flushViewerAsync();
+      return document.getElementById("viewer-document-title")?.textContent || "";
+    };
+
+    expect(await open("corpus:insights")).toBe("Corpus insights");
+    expect(await open("corpus:health")).toBe("Validation health");
+    expect(await open("corpus:getting-started")).toBe("Getting Started");
+
+    // The harness builds its own DOM, so the behaviour above is proved against the fixture.
+    // The route only exists if the product's markup carries it too: removing the menu from
+    // index.html leaves the test above green, which is exactly how this defect shipped.
+    const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
+    expect(html).toMatch(/data-viewer-nav="corpus"/);
+    expect(html).toMatch(/data-viewer-nav-target="corpus:insights"/);
+    expect(html).toMatch(/data-viewer-nav-target="corpus:health"/);
+    expect(html).toMatch(/data-viewer-nav-target="corpus:getting-started"/);
   });
 
   it("says what this viewer is, and does not dress navigation as settings", async () => {

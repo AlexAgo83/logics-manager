@@ -334,7 +334,7 @@ const allowedOversizedFiles = new Map(
     // signal is a defect when it cannot resolve itself, and work in flight when time alone
     // resolves it. The headline counts only the former; the latter is reported without being
     // claimed as work needing a decision.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4765, ref: "req_349" },
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4775, ref: "req_349" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

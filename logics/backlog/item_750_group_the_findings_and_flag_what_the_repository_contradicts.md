@@ -1,10 +1,10 @@
 ## item_750_group_the_findings_and_flag_what_the_repository_contradicts - Group the findings and flag what the repository contradicts
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 33%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

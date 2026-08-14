@@ -3093,12 +3093,23 @@ import {
     const concentratedIssues = Object.entries(countBy(qualityFindings, (finding) => finding.path || "repository"))
       .sort((left, right) => Number(right[1]) - Number(left[1]))
       .slice(0, 8);
+    // item_746/item_747: a signal is a defect when it describes something that cannot resolve
+    // itself, and work in flight when time alone resolves it -- until it has had that time.
+    // An incomplete chain is what a freshly scaffolded chain *is*; at review time every
+    // document under Flow health was a chain written within the hour, so the headline was
+    // counting the normal state of new work. The threshold is 14 days and item_746 records
+    // it as a guess with nothing measured behind it, because no per-beat dates exist.
+    const IN_FLIGHT_GRACE_DAYS = 14;
+    const settledIntoDefect = (item) => !isRecent(item, IN_FLIGHT_GRACE_DAYS);
+    const chainsInFlight = incompleteChains.filter((item) => !settledIntoDefect(item));
+    const chainsOverdue = incompleteChains.filter(settledIntoDefect);
+
     const actions = [];
     if (blocked.length) {
       actions.push({ label: "Review blocked workflow docs", value: blocked.length, filter: { group: "focus", value: "blocked" } });
     }
-    if (incompleteChains.length) {
-      actions.push({ label: "Promote or close incomplete workflow chains", value: incompleteChains.length, filter: { group: "focus", value: "needs-promotion" } });
+    if (chainsOverdue.length) {
+      actions.push({ label: `Promote or close chains untouched for ${IN_FLIGHT_GRACE_DAYS} days`, value: chainsOverdue.length, filter: { group: "focus", value: "needs-promotion" } });
     }
     if (brokenRefs.length) {
       actions.push({ label: "Repair broken references", value: brokenRefs.length, health: true });
@@ -3117,7 +3128,7 @@ import {
       .sort((left, right) => String(left[0]).localeCompare(String(right[0])))
       .map(([stage, count]) => [stage, count]);
     const qualityTotal = qualityFindings.length;
-    const needsAttention = blocked.length + incompleteChains.length + brokenRefs.length + missingStatus.length + qualityTotal;
+    const needsAttention = blocked.length + chainsOverdue.length + brokenRefs.length + missingStatus.length + qualityTotal;
     const activeQuiet = Math.max(0, open.length - recentlyModified.length - staleActive.length);
     const primaryState = needsAttention > 0
       ? `${needsAttention} signals need attention`
@@ -3130,8 +3141,11 @@ import {
             <p>${escapeHtml(primaryState)} across ${escapeHtml(docs.length)} workflow docs.</p>
           </div>
           <div class="viewer-insights__summary">${renderMetricCards([
+            // item_747/AC3: `Needs attention` is the sum of the signals reported below it,
+            // so it is labelled as a total rather than sitting beside its own components as
+            // if it were one more of them.
             ["Docs", docs.length],
-            ["Needs attention", needsAttention, needsAttention ? "warning" : "ok"],
+            ["Needs attention (total)", needsAttention, needsAttention ? "warning" : "ok"],
             ["Recent 7d", recentlyModified.length],
             ["Quality findings", qualityTotal, qualityTotal ? "warning" : "ok"]
           ])}</div>
@@ -3154,12 +3168,16 @@ import {
           <section class="viewer-insights__section">
             <h2>Flow health</h2>
             <ul class="viewer-insights__signals">${renderSignalRows([
-              ["Incomplete workflow chains", incompleteChains.length, incompleteChains.length ? "warning" : "ok"],
-              ["Promotion gaps", incompleteChains.filter((item) => item.stage === "request" || item.stage === "backlog").length, incompleteChains.length ? "warning" : "ok"],
+              // item_747: the two rows the headline used to count are split by the same rule
+              // that decides whether they are defects. An in-flight chain is not hidden --
+              // it is reported as what it is, so a reader can see the queue without the
+              // headline claiming it needs a decision.
+              [`Chains untouched for ${IN_FLIGHT_GRACE_DAYS}+ days`, chainsOverdue.length, chainsOverdue.length ? "warning" : "ok"],
+              ["Chains in flight", chainsInFlight.length, "muted"],
               ["Orphan or unlinked docs", unlinked.length, unlinked.length ? "muted" : "ok"],
               ["Broken reference risks", brokenRefs.length, brokenRefs.length ? "warning" : "ok"]
             ])}</ul>
-            <ul class="viewer-insights__rows">${renderDocRows(incompleteChains, "No incomplete chains")}</ul>
+            <ul class="viewer-insights__rows">${renderDocRows(chainsOverdue.length ? chainsOverdue : chainsInFlight, chainsInFlight.length ? "No chains are overdue" : "No incomplete chains")}</ul>
           </section>
           <section class="viewer-insights__section">
             <h2>Activity</h2>

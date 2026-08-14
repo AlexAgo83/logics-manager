@@ -59,6 +59,9 @@ function createViewerDom(options: {
   gitlabUrl?: string;
   repositoryProvider?: string;
   hidden?: boolean;
+  // item_747: lets a test supply the corpus it means to reason about, instead of asserting
+  // about signal classification against whatever the demo fixture happens to contain.
+  items?: Array<Record<string, unknown>>;
   initialState?: unknown;
   initialPreferences?: unknown;
   projects?: Array<Record<string, unknown>>;
@@ -364,7 +367,7 @@ function createViewerDom(options: {
               shouldPromptBootstrapLogics: Boolean(options.shouldPromptBootstrapLogics),
               bootstrapLogicsTitle: options.canBootstrapLogics === false ? "Bootstrap unavailable." : "Refresh Logics bootstrap files.",
               bootstrapWarning: options.bootstrapWarning ?? null,
-              items: [
+              items: options.items ?? [
                 {
                   id: "req_001_demo",
                   title: "Demo",
@@ -4388,7 +4391,12 @@ describe("local viewer browser host", () => {
     expect(content?.textContent).toContain("Traceability");
     expect(content?.textContent).toContain("Quality signals");
     expect(content?.textContent).toContain("Blocked");
-    expect(content?.textContent).toContain("Incomplete workflow chains");
+    // item_746/item_747: `Incomplete workflow chains` counted the normal state of new work --
+    // at review time every document under it was a chain scaffolded within the hour. The row
+    // is split by the rule that decides whether the signal is a defect: overdue chains are
+    // counted by the headline, in-flight ones are reported without being claimed as work.
+    expect(content?.textContent).toContain("Chains untouched for 14+ days");
+    expect(content?.textContent).toContain("Chains in flight");
     expect(content?.textContent).toContain("req_001_demo -> logics/request/req_missing.md");
     expect(content?.textContent).not.toContain("req_001_demo -> README.md");
     expect(content?.textContent).not.toContain("req_001_demo -> clients/viewer/browser-host.js");
@@ -4443,6 +4451,66 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("focus-menu-label")?.textContent).toBe("Blocked");
     expect((dom.window.document.querySelector('[data-viewer-filter-group="focus"]') as HTMLSelectElement | null)?.value).toBe("blocked");
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("focus: blocked");
+  });
+
+  it("counts only what needs a decision in the insights headline", async () => {
+    // item_746/item_747. At review time 100% of the documents Corpus insights listed under
+    // Flow health were chains scaffolded within the hour, reported as incomplete chains and
+    // promotion gaps -- which is exactly what a freshly scaffolded chain is. The headline
+    // counted the normal state of new work, which made the number unusable rather than
+    // merely imprecise.
+    const day = 24 * 60 * 60 * 1000;
+    const chain = (id: string, ageDays: number) => ({
+      id,
+      title: id,
+      stage: "request",
+      relPath: `logics/request/${id}.md`,
+      path: `/workspace/mock/logics/request/${id}.md`,
+      updatedAt: new Date(Date.now() - ageDays * day).toISOString(),
+      indicators: { Status: "Draft" },
+      references: [],
+      usedBy: []
+    });
+
+    const openInsights = async (items: Array<Record<string, unknown>>) => {
+      const { dom } = createViewerDom({ items });
+      const api = dom.window.acquireVsCodeApi();
+      api.postMessage({ type: "ready" });
+      await flushViewerAsync();
+      dom.window.document.getElementById("viewer-insights")?.dispatchEvent(new dom.window.Event("click"));
+      await flushViewerAsync();
+      await flushViewerAsync();
+      const rows = Array.from(dom.window.document.querySelectorAll(".viewer-insights__signal")).map(
+        (node) => (node.textContent || "").replace(/\s+/g, " ").trim()
+      );
+      const headline = dom.window.document.querySelector(".viewer-insights__hero p")?.textContent || "";
+      const rowFor = (label: string) => rows.find((row) => row.startsWith(label)) || "";
+      return {
+        dom,
+        rows,
+        rowFor,
+        content: dom.window.document.getElementById("viewer-document-content")?.textContent || "",
+        headlineCount: Number((headline.match(/(\d+) signals need attention/) || [])[1] || 0)
+      };
+    };
+
+    // The same three chains, aged differently. Comparing two corpora is what makes this
+    // load-bearing: an assertion that reads the count off the headline and then compares it
+    // to itself passes whether or not the classification is applied at all.
+    const allOverdue = await openInsights([chain("req_900", 40), chain("req_901", 41), chain("req_902", 42)]);
+    const twoInFlight = await openInsights([chain("req_900", 1), chain("req_901", 2), chain("req_902", 42)]);
+
+    expect(allOverdue.headlineCount - twoInFlight.headlineCount).toBe(2);
+
+    // In flight is reported, not hidden: a reader sees the queue without the headline
+    // claiming it needs a decision.
+    expect(twoInFlight.rowFor("Chains untouched for 14+ days")).toMatch(/\b1$/);
+    expect(twoInFlight.rowFor("Chains in flight")).toMatch(/\b2$/);
+    expect(allOverdue.rowFor("Chains untouched for 14+ days")).toMatch(/\b3$/);
+    expect(allOverdue.rowFor("Chains in flight")).toMatch(/\b0$/);
+
+    // AC3: the total is labelled as a total rather than sitting beside its own components.
+    expect(twoInFlight.content).toContain("Needs attention (total)");
   });
 
   it("takes the screen's place immediately and says what it is waiting for", async () => {

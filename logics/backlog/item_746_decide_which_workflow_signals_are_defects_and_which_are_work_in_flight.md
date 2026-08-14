@@ -1,13 +1,14 @@
 ## item_746_decide_which_workflow_signals_are_defects_and_which_are_work_in_flight - Decide which workflow signals are defects and which are work in flight
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 93%
 > Confidence: 85%
-> Progress: 100%
+> Progress: 33%
 > Complexity: Low
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 08:31:09
 
 # AI Context
 - Summary: Incomplete workflow chains and promotion gaps were, at review time, entirely produced by chains scaffolded within the hour -- which is what a fresh scaffold is; grouping cannot be drawn until each signal is classified.

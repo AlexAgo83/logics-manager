@@ -1,10 +1,10 @@
 ## item_753_make_getting_started_reflect_the_project_in_front_of_it - Make Getting Started reflect the project in front of it
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 33%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

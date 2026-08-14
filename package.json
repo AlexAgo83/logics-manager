@@ -126,7 +126,7 @@
     "docs:check": "node scripts/check-readme-badges.mjs",
     "logics:finish:task": "node scripts/run-python.mjs -m logics_manager flow finish task",
     "logics:scaffold": "node scripts/logics-scaffold.mjs",
-    "ci:fast": "npm run compile && npm run lint && npm run test:coverage && npm run test:smoke && npm run lint:logics && npm run package:ci",
+    "ci:fast": "npm run compile && npm run lint && npm run test:coverage && npm run test:smoke && npm run lint:logics && npm run check:artifacts && npm run package:ci",
     "ci:check": "node scripts/ci-check.mjs",
     "dev": "npm run compile && code --extensionDevelopmentPath=.",
     "test:vscode": "npm run bundle:viewer-host && npm run build:assets && npm run compile && open -na 'Visual Studio Code' --args --extensionDevelopmentPath=\"$PWD\" \"$PWD\"",
@@ -137,7 +137,8 @@
     "install:vsix": "npm run package && node scripts/build/install-vsix.mjs",
     "publish:npm": "node scripts/release/publish-npm.mjs",
     "release:changelog:resolve": "node scripts/release/resolve-release-changelog.mjs --validate-current",
-    "release:changelog:validate": "node scripts/release/resolve-release-changelog.mjs --validate-current --require-curated"
+    "release:changelog:validate": "node scripts/release/resolve-release-changelog.mjs --validate-current --require-curated",
+    "check:artifacts": "node scripts/check-artifact-contents.mjs"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

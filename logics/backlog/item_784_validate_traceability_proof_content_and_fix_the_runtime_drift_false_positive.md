@@ -8,12 +8,13 @@
 > Complexity: Medium
 > Theme: flow-integrity
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 22:01:31
 
 # AI Context
-- Summary: (unfilled: replace before this doc is used)
-- Keywords: validate, traceability, proof, content, fix, runtime, drift, false, positive
-- Use when: (unfilled: replace before this doc is used)
-- Skip when: (unfilled: replace before this doc is used)
+- Summary: Add three deterministic proof-content checks (dup-proof, proof-matches-AC, orphan-slice-AC) to flow's traceability validation, and point runtime-drift's version comparison at a logics-manager-recorded value instead of the consumer repo's own VERSION.
+- Keywords: ac_proof_state, has_ac_proof, flow_evidence.py, runtime_drift.py, duplicate proof, proof matching
+- Use when: Implementing this backlog item.
+- Skip when: The self-consistency issue (item_785) — separate concern.
 
 # Problem
 - ac_proof_state/has_ac_proof (logics_manager/flow_evidence.py:98-130) only check that a Proof: line exists mentioning the AC id; the proof text is never compared to anything, so a whole block of shifted or duplicated proofs passes validate, repair, and the closeout gate.

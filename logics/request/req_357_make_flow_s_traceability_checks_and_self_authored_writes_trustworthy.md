@@ -7,12 +7,13 @@
 > Complexity: Medium
 > Theme: flow-integrity
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 22:01:31
 
 # AI Context
-- Summary: (unfilled: replace before this doc is used)
-- Keywords: flow, traceability, checks, self, authored, writes, trustworthy
-- Use when: (unfilled: replace before this doc is used)
-- Skip when: (unfilled: replace before this doc is used)
+- Summary: `flow` validates traceability by presence only (a wrong or duplicated proof passes) and its own write commands (`start`/`repair`/`closeout`) trip lint's own indicator check on their own output — two GitHub issues (#20, #21) about the checking half and the writing half disagreeing on what a valid document is.
+- Keywords: flow, traceability proof, ac_proof_state, runtime-drift, indicator rebaseline, companion_doc_missing_mermaid
+- Use when: Changing traceability validation/repair logic, the runtime-drift version check, or how flow's own write commands leave a document's indicators.
+- Skip when: Anything about the viewer server or client performance — that's req_358.
 
 # Needs
 - As an operator running flow validate/lint/audit, I need traceability content to be checked, not just its presence, so a closeout gate cannot certify fictional proof.

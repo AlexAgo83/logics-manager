@@ -23,7 +23,13 @@ from logics_manager.doctor import doctor_payload, render_doctor
 from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
 from logics_manager.flow import evidence_add_payload, repair_ac_traceability_payload
-from logics_manager.flow_evidence import duplicate_proof_ac_ids
+from logics_manager.flow_evidence import (
+    duplicate_proof_ac_ids,
+    has_adopted_backs_annotation,
+    invalid_backs_references,
+    local_ac_backs,
+    unbacked_local_ac_ids,
+)
 from logics_manager.flow import scaffold_request_chain_payload
 from logics_manager.flow.docs import DOC_KINDS, _append_doc_section_bullets, _resolve_workflow_source
 from logics_manager.ai_context import UNFILLED as AI_CONTEXT_UNFILLED, block as ai_context_block, is_ungroomed
@@ -289,6 +295,85 @@ def test_audit_reports_duplicate_proof_as_a_warning_not_blocking(tmp_path: Path)
     assert payload["issue_count"] == 0
     codes_and_severity = {(w["code"], w.get("severity", "warning")) for w in payload["warnings"]}
     assert ("ac_duplicate_proof", "warning") in codes_and_severity
+
+
+def test_local_ac_backs_parses_annotation_and_leaves_unbacked_acs_empty() -> None:
+    text = "\n".join(
+        [
+            "# Acceptance criteria",
+            "- AC1 (backs request-AC1): first thing.",
+            "- AC2 (backs request-AC1, request-AC2): second thing.",
+            "- AC3: unbacked local thing.",
+        ]
+    )
+    assert local_ac_backs(text) == {"AC1": ["AC1"], "AC2": ["AC1", "AC2"], "AC3": []}
+
+
+def test_has_adopted_backs_annotation_is_false_for_every_historical_document() -> None:
+    """The opt-in gate: a document that never wrote `(backs ...)` -- every document in
+    this repository predating the annotation -- gets neither check."""
+    text = "\n".join(["# Acceptance criteria", "- AC1: no annotation here.", "- AC2: none here either."])
+    assert has_adopted_backs_annotation(text) is False
+    assert invalid_backs_references(text) == []
+    assert unbacked_local_ac_ids(text) == []
+
+
+def test_invalid_backs_references_flags_a_target_this_document_never_declares() -> None:
+    """item_784 AC2, revised: a declared mapping to something that doesn't exist in
+    this document is wrong, not merely unproven."""
+    text = "\n".join(
+        [
+            "# Acceptance criteria",
+            "- AC1 (backs request-AC1): first thing.",
+            "- AC2 (backs request-AC9): second thing.",
+            "# AC Traceability",
+            "- request-AC1 -> This backlog slice. Proof: implemented.",
+        ]
+    )
+    assert invalid_backs_references(text) == [("AC2", "AC9")]
+
+
+def test_unbacked_local_ac_ids_flags_orphaned_scope_only_once_adopted() -> None:
+    """item_784 AC3, revised."""
+    adopted = "\n".join(
+        [
+            "# Acceptance criteria",
+            "- AC1 (backs request-AC1): backed.",
+            "- AC2: never annotated.",
+        ]
+    )
+    assert unbacked_local_ac_ids(adopted) == ["AC2"]
+
+
+def test_audit_reports_backs_annotation_findings_with_expected_severity(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    (repo_root / "logics" / "backlog" / "item_001_demo.md").write_text(
+        "\n".join(
+            [
+                "## item_001_demo - Demo backlog",
+                "> From version: 2.11.6",
+                "> Status: Ready",
+                "> Progress: 0%",
+                "> Schema version: 1.0",
+                "# Acceptance criteria",
+                "- AC1 (backs request-AC1): backed and real.",
+                "- AC2 (backs request-AC9): backed but the target doesn't exist here.",
+                "- AC3: never annotated, so orphaned once the doc has opted in.",
+                "# AC Traceability",
+                "- request-AC1 -> This backlog slice. Proof: implemented.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    payload = audit_payload(repo_root, group_by_doc=True)
+
+    codes_and_severity = {(w["code"], w.get("severity", "warning")) for w in payload["warnings"]}
+    blocking_codes = {i["code"] for i in payload["issues"]}
+    assert "ac_backs_target_missing" in blocking_codes
+    assert ("ac_local_ac_unbacked", "warning") in codes_and_severity
 
 
 def test_audit_keeps_legacy_ac_proof_compatibility_but_enforces_new_same_line_proof(tmp_path: Path) -> None:

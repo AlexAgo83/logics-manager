@@ -359,8 +359,15 @@ export function closeCdxMenus(exceptMenu = null) {
   }
 
 export function closeThemedModal(modal) {
-    if (modal instanceof HTMLElement) {
-      modal.remove();
+    if (!(modal instanceof HTMLElement)) return;
+    // item_768: focus returns where it came from. Without this it falls to the document
+    // body when the modal is removed, so a keyboard operator who opened the modal from
+    // the +New button lands at the top of the page and has to tab back to where they
+    // were -- every time they cancel.
+    const opener = modal.__logicsOpener;
+    modal.remove();
+    if (opener instanceof HTMLElement && opener.isConnected && typeof opener.focus === "function") {
+      opener.focus();
     }
   }
 
@@ -470,7 +477,29 @@ export function createThemedModal({ title, message, submitLabel = "OK", cancelLa
     if (copyTarget instanceof HTMLElement) copyTarget.textContent = message || "";
     if (submit instanceof HTMLButtonElement) submit.textContent = submitLabel;
     if (cancel instanceof HTMLButtonElement) cancel.textContent = cancelLabel;
+    // Remembered before the modal takes focus, so closing can hand it back.
+    modal.__logicsOpener = document.activeElement;
     document.body.appendChild(modal);
+    // item_768: Tab is confined to the modal while it is open. Without it the next Tab
+    // from the last field lands on the board behind the backdrop -- controls that are
+    // visually unreachable and, to a keyboard, the ones that come next.
+    modal.addEventListener("keydown", (event) => {
+      if (event.key !== "Tab") return;
+      const focusable = Array.from(modal.querySelectorAll(
+        "button, a[href], input, select, textarea, [tabindex]:not([tabindex='-1'])"
+      )).filter((node) => !node.disabled && node.getAttribute("tabindex") !== "-1");
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      if (event.shiftKey && (active === first || !modal.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
     return modal;
   }
 

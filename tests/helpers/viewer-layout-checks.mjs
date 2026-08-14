@@ -164,6 +164,88 @@ export function layoutChecks(window) {
         }
         return disabled.length + " disabled control(s)";
       }
+    },
+    {
+      // item_769: the condition item_767 decided -- state carried by shape as well as
+      // hue -- becomes enforceable here. The states are read off the interface rather
+      // than listed: any class of the form `--status-x`, `--state-x`, `job--x` or
+      // `gate--x` is a state, so a state added later is covered without editing this.
+      name: "no state is carried by colour alone",
+      run: () => {
+        // BEM: the modifier is the last `--` segment and everything before it is the
+        // block that owns it. The state words themselves are never listed -- a state
+        // added later is a new modifier on an existing block, and is covered. What is
+        // named is the set of blocks that carry state at all, so `btn--small` against
+        // `btn--large` is not reported as two states that look alike.
+        const MODIFIER = /^(.*)--([a-z][a-z0-9-]*)$/;
+        const CARRIES_STATE = /status|state|job|gate|badge|finding|signal|health/;
+        // Grouped by the family the class belongs to, because the question is only ever
+        // "can these two be told apart", and two states from different components are
+        // never on screen as a pair to be compared.
+        const families = new Map();
+        for (const node of Array.from(document.querySelectorAll("[class*='--']"))) {
+          if (!visible(node)) continue;
+          for (const className of Array.from(node.classList)) {
+            const match = MODIFIER.exec(className);
+            if (!match) continue;
+            const family = match[1];
+            if (!CARRIES_STATE.test(family) && !node.hasAttribute("data-state")) continue;
+            if (!families.has(family)) families.set(family, new Map());
+            const states = families.get(family);
+            if (!states.has(match[2])) states.set(match[2], node);
+          }
+        }
+        // What a state looks like with hue removed. Two states that produce the same
+        // signature are distinguishable by colour only -- which is the defect.
+        const signature = (node) => {
+          const style = window.getComputedStyle(node);
+          const before = window.getComputedStyle(node, "::before");
+          return [
+            style.borderLeftStyle, style.borderLeftWidth,
+            style.borderStyle, style.fontWeight, style.textDecorationLine,
+            before.content, (node.textContent || "").trim().toLowerCase(),
+            node.getAttribute("data-state-shape") || "",
+            (node.getAttribute("aria-label") || node.getAttribute("title") || "").trim().toLowerCase()
+          ].join("|");
+        };
+        const offenders = [];
+        for (const [family, states] of families) {
+          if (states.size < 2) continue;
+          const seen = new Map();
+          for (const [state, node] of states) {
+            const key = signature(node);
+            if (seen.has(key)) offenders.push(family + ": " + seen.get(key) + " and " + state + " differ only in colour");
+            else seen.set(key, state);
+          }
+        }
+        if (offenders.length) throw new Error(offenders.slice(0, 5).join("; "));
+        return families.size + " state family/families, " +
+          Array.from(families.values()).reduce((total, states) => total + states.size, 0) + " state(s) on screen";
+      }
+    },
+    {
+      // item_769/item_768: the redesigns added folds, segmented controls, selectable rows
+      // and hover-revealed actions. A control that only answers to a pointer is a control
+      // some operators do not have.
+      name: "every control can be reached from the keyboard",
+      run: () => {
+        const controls = Array.from(document.querySelectorAll(
+          "[data-action], [role='button'], [role='tab'], [data-viewer-nav-target], summary, [data-viewer-filter-group]"
+        )).filter((node) => visible(node) && !node.disabled && node.getAttribute("aria-disabled") !== "true");
+        const unreachable = controls.filter((node) => {
+          const tag = node.tagName.toLowerCase();
+          // Natively focusable, whatever the tabindex says -- a button is reachable.
+          if (["button", "a", "input", "select", "textarea", "summary"].includes(tag)) {
+            return node.getAttribute("tabindex") === "-1";
+          }
+          const tabindex = node.getAttribute("tabindex");
+          return tabindex === null || tabindex === "-1";
+        });
+        if (unreachable.length) {
+          throw new Error(unreachable.slice(0, 5).map(describe).join("; ") + " cannot be reached from the keyboard");
+        }
+        return controls.length + " keyboard-reachable control(s)";
+      }
     }
   ];
 }

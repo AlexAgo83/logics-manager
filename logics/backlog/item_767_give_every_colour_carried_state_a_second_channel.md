@@ -1,13 +1,14 @@
 ## item_767_give_every_colour_carried_state_a_second_channel - Give every colour-carried state a second channel
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 92%
 > Confidence: 88%
 > Progress: 35%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 15:13:36
 
 # AI Context
 - Summary: Card accents, row accents, project state, CI results, gate results, findings and corpus signals were all moved onto colour, every one using the green-against-red pairing colour vision deficiency most commonly affects.
@@ -65,6 +66,13 @@ Five states, five shapes, no hue required. Greyscale the screen and the ordering
   against a dimmed zero, so the weight difference carries it without the hue.
 - `item_769`'s check enforces this by asserting the shape attribute exists wherever the
   status colour class does, so a screen that colours without shaping fails a run.
+
+# Delivery notes
+- The channel decided above is what shipped: the **accent bar's style and width**, not a glyph, not a word, not a pattern fill. Five states, five shapes, and the ordering survives greyscale.
+- The board's card accents already carried it. What this slice added is the thing that keeps it true: `item_769`'s check compares every pair of states a component has on screen and fails when two produce the same signature with hue removed.
+- The signature is deliberately wide -- border style and width, font weight, text decoration, the `::before` content, the element's own text, `data-state-shape`, and the accessible name. A component that tells its states apart by **any** of those passes. That is the point: the decision names one channel as the default, not as the only permitted answer, and the CI job list already distinguishes its five states by glyph (● ◆ ◐ ○ ◇) rather than by accent. Forcing it onto the accent to satisfy a check would have made the product worse to satisfy a rule.
+- Counts keep colour as emphasis only, per the decision: a non-zero count is red **and** bold against a dimmed zero.
+- **The stylesheet is asserted as a file, separately.** jsdom applies no stylesheet, so the campaign check under jsdom sees no `border-left-style` at all and would pass against a product that had gone back to hue alone -- the same gap `item_737` shipped through. `tests/viewer.state-channels.test.ts` reads `board.css` and fails when two statuses collapse onto one shape.
 
 # Acceptance criteria
 - AC1: Every colour-carried state is legible without colour.

@@ -314,8 +314,11 @@
     });
   }
   function closeThemedModal(modal) {
-    if (modal instanceof HTMLElement) {
-      modal.remove();
+    if (!(modal instanceof HTMLElement)) return;
+    const opener = modal.__logicsOpener;
+    modal.remove();
+    if (opener instanceof HTMLElement && opener.isConnected && typeof opener.focus === "function") {
+      opener.focus();
     }
   }
   function collectHealthFindings(lintData, auditData) {
@@ -423,7 +426,25 @@ ${entry?.message || ""}`;
     if (copyTarget instanceof HTMLElement) copyTarget.textContent = message || "";
     if (submit instanceof HTMLButtonElement) submit.textContent = submitLabel;
     if (cancel instanceof HTMLButtonElement) cancel.textContent = cancelLabel;
+    modal.__logicsOpener = document.activeElement;
     document.body.appendChild(modal);
+    modal.addEventListener("keydown", (event) => {
+      if (event.key !== "Tab") return;
+      const focusable = Array.from(modal.querySelectorAll(
+        "button, a[href], input, select, textarea, [tabindex]:not([tabindex='-1'])"
+      )).filter((node) => !node.disabled && node.getAttribute("tabindex") !== "-1");
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      if (event.shiftKey && (active === first || !modal.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
     return modal;
   }
   function cssEscape(value) {

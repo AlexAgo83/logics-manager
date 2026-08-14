@@ -132,6 +132,7 @@
 | [prod_090_a_viewer_that_knows_which_screen_you_are_on](product/prod_090_a_viewer_that_knows_which_screen_you_are_on.md) | A viewer that knows which screen you are on | Settled |  |  | product/prod_090_a_viewer_that_knows_which_screen_you_are_on.md |
 | [prod_091_a_readme_that_shows_the_product_a_reader_will_get](product/prod_091_a_readme_that_shows_the_product_a_reader_will_get.md) | A README that shows the product a reader will get | Settled |  |  | product/prod_091_a_readme_that_shows_the_product_a_reader_will_get.md |
 | [prod_092_a_viewer_that_stays_as_fast_as_it_started](product/prod_092_a_viewer_that_stays_as_fast_as_it_started.md) | A viewer that stays as fast as it started | Settled |  |  | product/prod_092_a_viewer_that_stays_as_fast_as_it_started.md |
+| [prod_093_trustworthy_flow_checks](product/prod_093_trustworthy_flow_checks.md) | Trustworthy flow checks | Proposed |  |  | product/prod_093_trustworthy_flow_checks.md |
 
 ## Roadmaps
 
@@ -505,6 +506,7 @@
 | [req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to](request/req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to.md) | Stop a slow screen from rendering over the one the operator moved to | Done |  |  | request/req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to.md |
 | [req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land](request/req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land.md) | Refresh the README captures and the prose beside them once the redesigns land | Done |  |  | request/req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land.md |
 | [req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running](request/req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running.md) | Stop the viewer server degrading the longer it is left running | Done |  |  | request/req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running.md |
+| [req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy](request/req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy.md) | Make flow's traceability checks and self-authored writes trustworthy | Draft |  |  | request/req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy.md |
 
 ## Backlog
 
@@ -1293,6 +1295,8 @@
 | [item_781_serve_an_unchanged_corpus_without_rebuilding_it](backlog/item_781_serve_an_unchanged_corpus_without_rebuilding_it.md) | Serve an unchanged corpus without rebuilding it | Done |  | 100% | backlog/item_781_serve_an_unchanged_corpus_without_rebuilding_it.md |
 | [item_782_make_the_refresh_cadence_follow_what_a_refresh_costs](backlog/item_782_make_the_refresh_cadence_follow_what_a_refresh_costs.md) | Make the refresh cadence follow what a refresh costs | Done |  | 100% | backlog/item_782_make_the_refresh_cadence_follow_what_a_refresh_costs.md |
 | [item_783_fail_when_the_work_is_repeated_or_a_change_is_missed](backlog/item_783_fail_when_the_work_is_repeated_or_a_change_is_missed.md) | Fail when the work is repeated or a change is missed | Done |  | 100% | backlog/item_783_fail_when_the_work_is_repeated_or_a_change_is_missed.md |
+| [item_784_validate_traceability_proof_content_and_fix_the_runtime_drift_false_positive](backlog/item_784_validate_traceability_proof_content_and_fix_the_runtime_drift_false_positive.md) | Validate traceability proof content and fix the runtime-drift false positive | Ready |  | 0% | backlog/item_784_validate_traceability_proof_content_and_fix_the_runtime_drift_false_positive.md |
+| [item_785_stop_flow_s_own_writes_from_tripping_its_own_checks](backlog/item_785_stop_flow_s_own_writes_from_tripping_its_own_checks.md) | Stop flow's own writes from tripping its own checks | Ready |  | 0% | backlog/item_785_stop_flow_s_own_writes_from_tripping_its_own_checks.md |
 
 ## Tasks
 
@@ -1648,6 +1652,7 @@
 | [task_354_keep_progress_and_both_modes_honest_at_any_width](tasks/task_354_keep_progress_and_both_modes_honest_at_any_width.md) | Keep progress and both modes honest at any width | Done |  | 100% | tasks/task_354_keep_progress_and_both_modes_honest_at_any_width.md |
 | [task_355_measure_how_long_these_screens_take_and_say_so_while_they_load](tasks/task_355_measure_how_long_these_screens_take_and_say_so_while_they_load.md) | Measure how long these screens take and say so while they load | Done |  | 100% | tasks/task_355_measure_how_long_these_screens_take_and_say_so_while_they_load.md |
 | [task_356_keep_the_viewer_as_fast_as_it_started](tasks/task_356_keep_the_viewer_as_fast_as_it_started.md) | Keep the viewer as fast as it started | Done |  | 100% | tasks/task_356_keep_the_viewer_as_fast_as_it_started.md |
+| [task_357_orchestrate_flow_traceability_and_self_consistency_fixes_gh_20_21](tasks/task_357_orchestrate_flow_traceability_and_self_consistency_fixes_gh_20_21.md) | Orchestrate flow traceability and self-consistency fixes (GH #20, #21) | Ready |  | 0% | tasks/task_357_orchestrate_flow_traceability_and_self_consistency_fixes_gh_20_21.md |
 
 ## Runbooks
 

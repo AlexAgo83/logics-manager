@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-15 00:22:29
+> Indicators reviewed: 2026-08-15 00:26:38
 
 # AI Context
 - Summary: Once every other task in this request lands, the README's screenshots and captures need regenerating again, same treatment req_355 gave the previous redesign wave.
@@ -28,6 +28,8 @@
 # Acceptance criteria
 - AC1: Every README capture affected by this request's fixes is regenerated and visibly reflects the fixed screens.
 - AC2: This slice is not started until item_790 through item_797 are Done, so it captures the real end state rather than a partial one.
+- AC3: The README includes a capture of the board's list mode (not previously shown at all).
+- AC4: The README no longer includes the Health screen capture (reported directly by the operator as deceptive), and no prose references it as if it were still there.
 
 # Plan
 - [ ] Use `python3 -m logics_manager flow progress task task_369_regenerate_the_readme_captures_once_the_fixes_above_land.md --progress <n>%` during multi-wave work.

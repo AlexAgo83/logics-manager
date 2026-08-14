@@ -1,14 +1,14 @@
 ## item_778_retake_the_readme_captures_against_the_delivered_screens - Retake the README captures against the delivered screens
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Documentation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-13 21:36:44
+> Indicators reviewed: 2026-08-14 17:26:34
 
 # AI Context
 - Summary: (unfilled: replace before this doc is used)
@@ -26,6 +26,12 @@
   - State which redesigns the retake waited on.
 - Out:
   - Changing which screens the README shows.
+
+# Delivery notes
+- All four retaken from a live viewer against **this repository's own corpus at 1621 documents**, never the synthetic demo board -- `req_343` removed that from released artifacts, so a capture of it would document a screen a reader cannot reach. The two captions that said "from the demo corpus" are gone with the images.
+- Taken **after** the redesigns they document, which is what this request waited on: `item_717` (three flow columns and a reference index), `item_718` (folded done work), `item_719` (the card face, and the stage tint removed), `item_720`/`item_721`/`item_722` (the details panel), `item_752`/`item_753` (Getting Started), `item_761`/`item_762` (the reader's identity and reading layout), `item_764`/`item_765` (the filter panel), and `req_350`'s Workshop and CDX work.
+- Each one now shows something the old capture could not: the board shows `5 live / 350 done` column headers and the reference index; the reader shows prose at a measure with its contents list; health leads with `Nothing blocks`; insights leads with how many signals need attention.
+- Produced by the script from `item_780`, so retaking them is one command and the framing is recorded rather than remembered.
 
 # Acceptance criteria
 - AC1: Each capture shows the shipped design.

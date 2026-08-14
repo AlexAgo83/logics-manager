@@ -52,11 +52,18 @@ describe("the screen registry", () => {
   it("declares no screen that nothing opens", () => {
     // Every declared title must be a title some code actually sets, or the registry would
     // accumulate entries for screens that no longer exist.
-    const opened = new Set(
-      [...hostSource.matchAll(/setDocument\("([^"]+)"/g), ...cdxSource.matchAll(/setDocument\("([^"]+)"/g),
-       ...workshopSource.matchAll(/setDocument\("([^"]+)"/g), ...gitSource.matchAll(/setDocument\("([^"]+)"/g)]
-        .map((match) => match[1])
-    );
+    // The pattern tolerates a newline after the opening paren: item_749 wrapped one call
+    // across lines to pass the corpus paths alongside the reports, and a registry check that
+    // depends on where a formatter puts a line break reports a missing screen when the only
+    // thing that moved was whitespace.
+    const opens = /setDocument\(\s*"([^"]+)"/g;
+    const openedIn = (source: string) => [...source.matchAll(new RegExp(opens.source, "g"))].map((match) => match[1]);
+    const opened = new Set([
+      ...openedIn(hostSource),
+      ...openedIn(cdxSource),
+      ...openedIn(workshopSource),
+      ...openedIn(gitSource)
+    ]);
 
     for (const title of declaredTitles()) {
       expect(opened, `nothing opens the declared screen "${title}"`).toContain(title);

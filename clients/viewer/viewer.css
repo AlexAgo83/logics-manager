@@ -6084,3 +6084,89 @@
 .viewer-insights__bar-row[data-stage="blocked"] .viewer-insights__bar-track span {
   background: var(--vscode-editorError-foreground, #f85149);
 }
+
+/* item_749: five tiles, three of them zero, with `RELEASE READY: No` last and no reason on a
+   screen where everything else was green. The verdict is this screen's own answer; release
+   readiness is deferred to the screen that owns both the gate and the words for it. */
+.viewer-health__verdict {
+  padding: 14px 16px;
+  margin: 0 0 12px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-left-width: 4px;
+  border-radius: 8px;
+  background: var(--vscode-editorWidget-background, rgba(255, 255, 255, 0.03));
+}
+
+.viewer-health__verdict-text {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--vscode-foreground, #d4d4d4);
+  overflow-wrap: anywhere;
+}
+
+.viewer-health__verdict-defer {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.viewer-health__verdict--pass { border-left-color: var(--vscode-testing-iconPassed, #3fb950); border-left-style: dotted; border-left-width: 5px; }
+.viewer-health__verdict--warn { border-left-color: var(--vscode-editorWarning-foreground, #d29922); border-left-style: double; border-left-width: 6px; }
+.viewer-health__verdict--fail { border-left-color: var(--vscode-editorError-foreground, #f85149); border-left-style: solid; }
+
+/* The zeros keep their place without setting the scale of the screen. */
+.viewer-health__summary--strip .viewer-health__card { padding: 6px 10px; }
+.viewer-health__summary--strip .viewer-health__value { font-size: 16px; }
+
+/* item_750: the file is the group, the finding is the headline of its own row. Five
+   consecutive findings used to print the same path in link blue with the finding demoted
+   beneath it, so the screen read as a list of paths. */
+.viewer-health__issue--group {
+  display: block;
+  padding: 8px 10px;
+}
+
+.viewer-health__group-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.viewer-health__group-count {
+  flex: 0 0 auto;
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.viewer-health__findings {
+  margin: 0;
+  padding: 0 0 0 12px;
+  list-style: none;
+  border-left: 2px solid var(--vscode-panel-border, rgba(255, 255, 255, 0.12));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.viewer-health__finding-message {
+  color: var(--vscode-foreground, #d4d4d4);
+  overflow-wrap: anywhere;
+}
+
+/* A finding the repository itself contradicts. The viewer reports rather than adjudicates:
+   the finding stays, marked, with the contradiction named -- because one unreliable finding
+   discredits the others beside it. */
+.viewer-health__finding--suspect {
+  border-left: 3px dashed var(--vscode-editorWarning-foreground, #d29922);
+  margin-left: -12px;
+  padding-left: 9px;
+}
+
+.viewer-health__suspect-note {
+  font-size: 11px;
+  color: var(--vscode-editorWarning-foreground, #d29922);
+  overflow-wrap: anywhere;
+}

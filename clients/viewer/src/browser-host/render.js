@@ -712,7 +712,7 @@ export function renderGitSummarySegments(label, segments) {
     `;
   }
 
-export function renderHealthSummary(lintData, auditData, healthData = null) {
+export function renderHealthSummary(lintData, auditData, healthData = null, knownPaths = null) {
     const lintPayload = lintData.payload || {};
     const auditPayload = auditData.payload || {};
     const blocking = countPayloadEntries(lintPayload, ["issue_count", "issues"]) +
@@ -720,7 +720,6 @@ export function renderHealthSummary(lintData, auditData, healthData = null) {
     const warnings = countPayloadEntries(lintPayload, ["warning_count", "warnings"]) +
       countPayloadEntries(auditPayload, ["warning_count", "warnings"]);
     const findings = collectHealthFindings(lintData, auditData);
-    const releaseReady = Boolean(lintPayload.ok) && Boolean(auditPayload.release_ready ?? auditPayload.ok);
     // Workflow health is a separate report from lint and audit: blocked docs,
     // backlog items with no task, and stale docs are only reported there, so
     // this screen showed none of them.
@@ -728,12 +727,35 @@ export function renderHealthSummary(lintData, auditData, healthData = null) {
     const workflowIssues = healthPayload?.issues || {};
     const staleDocs = Array.isArray(healthPayload?.stale_docs) ? healthPayload.stale_docs : [];
 
+    // item_749: five tiles, three of them zero, with `RELEASE READY: No` last and no reason
+    // on a screen where everything else was green -- restating, in a different vocabulary, an
+    // answer the release gate already gives on its own screen. The verdict is this screen's
+    // own: whether anything blocks, and how much. Release readiness is deferred, not
+    // restated, because the Release screen owns both the answer and the words for it.
+    const workflowSignalCount = healthPayload ? Number(healthPayload.issue_count ?? 0) : null;
+    const healthVerdict = (() => {
+      if (blocking > 0) {
+        return { tone: "fail", sentence: `${blocking} blocking finding${blocking === 1 ? "" : "s"} to clear before this corpus validates.` };
+      }
+      if (warnings > 0 || (workflowSignalCount || 0) > 0) {
+        const parts = [];
+        if (warnings > 0) parts.push(`${warnings} warning${warnings === 1 ? "" : "s"}`);
+        if (workflowSignalCount) parts.push(`${workflowSignalCount} workflow signal${workflowSignalCount === 1 ? "" : "s"}`);
+        return { tone: "warn", sentence: `Nothing blocks. ${parts.join(" and ")} to look at.` };
+      }
+      return { tone: "pass", sentence: "Nothing blocks and nothing is flagged." };
+    })();
+    const verdictHtml = `
+      <section class="viewer-health__verdict viewer-health__verdict--${escapeHtml(healthVerdict.tone)}" role="status">
+        <p class="viewer-health__verdict-text">${escapeHtml(healthVerdict.sentence)}</p>
+        <p class="viewer-health__verdict-defer">Whether a release can proceed is answered on the Release screen, which owns that gate.</p>
+      </section>
+    `;
     const cards = [
       ["Blocking", blocking],
       ["Warnings", warnings],
       ["Workflow signals", healthPayload ? healthPayload.issue_count ?? 0 : "Unavailable"],
-      ["Stale docs", healthPayload ? healthPayload.stale_doc_count ?? 0 : "Unavailable"],
-      ["Release ready", releaseReady ? "Yes" : "No"]
+      ["Stale docs", healthPayload ? healthPayload.stale_doc_count ?? 0 : "Unavailable"]
     ]
       .map(([label, value]) => `
         <div class="viewer-health__card">
@@ -743,18 +765,50 @@ export function renderHealthSummary(lintData, auditData, healthData = null) {
       `)
       .join("");
 
-    const list = findings.length
-      ? findings.slice(0, 50).map((finding) => {
-          const path = finding.path || "";
+    // item_750: five consecutive findings printed the same file path as their headline in
+    // link blue with the finding demoted beneath it, so the screen read as a list of paths.
+    // The file is the group; the finding is the headline of its own row.
+    const knownPathSet = knownPaths instanceof Set ? knownPaths : new Set(Array.isArray(knownPaths) ? knownPaths : []);
+    // A finding that says a document is absent while the corpus in front of us lists it is
+    // contradicted by the repository itself. The viewer reports, it does not adjudicate: it
+    // marks the finding suspect and says what the contradiction is, without claiming to know
+    // why the rule produced it. One unreliable finding discredits the other eighty-six.
+    const contradicted = (finding) => {
+      const message = String(finding?.message || "");
+      if (!/\b(missing|not found|does not exist|absent)\b/i.test(message)) return "";
+      const referenced = (message.match(/`([^`]+\.md)`/) || message.match(/([\w./-]+\.md)/) || [])[1] || "";
+      if (!referenced || !knownPathSet.has(referenced)) return "";
+      return `${referenced} is present in this corpus`;
+    };
+    const findingGroups = new Map();
+    findings.slice(0, 200).forEach((finding) => {
+      const key = finding.path || "";
+      if (!findingGroups.has(key)) findingGroups.set(key, []);
+      findingGroups.get(key).push(finding);
+    });
+    const list = findingGroups.size
+      ? Array.from(findingGroups.entries()).slice(0, 50).map(([path, entries]) => {
           const pathControl = path && isSafeLogicsDocPath(path)
             ? `<button class="viewer-health__path" type="button" data-viewer-doc-path="${escapeHtml(path)}">${escapeHtml(path)}</button>`
             : `<span class="viewer-health__meta">${escapeHtml(path ? `Repository-level or unsafe path: ${path}` : "Repository-level finding")}</span>`;
-          const severity = finding.severity || finding.code || finding.source || "finding";
+          const rows = entries.map((finding) => {
+            const severity = finding.severity || finding.code || finding.source || "finding";
+            const doubt = contradicted(finding);
+            return `
+              <li class="viewer-health__finding${doubt ? " viewer-health__finding--suspect" : ""}"${doubt ? ' data-viewer-health-suspect' : ""}>
+                <div class="viewer-health__finding-message">${escapeHtml(finding.message || finding.code || "Validation finding")}</div>
+                <div class="viewer-health__meta">${escapeHtml(finding.source)} \u00b7 ${escapeHtml(severity)}</div>
+                ${doubt ? `<div class="viewer-health__suspect-note">Suspect: ${escapeHtml(doubt)}.</div>` : ""}
+              </li>
+            `;
+          }).join("");
           return `
-            <li class="viewer-health__issue">
-              ${pathControl}
-              <div>${escapeHtml(finding.message || finding.code || "Validation finding")}</div>
-              <div class="viewer-health__meta">${escapeHtml(finding.source)} · ${escapeHtml(severity)}</div>
+            <li class="viewer-health__issue viewer-health__issue--group">
+              <div class="viewer-health__group-header">
+                ${pathControl}
+                <span class="viewer-health__group-count">${escapeHtml(entries.length)} finding${entries.length === 1 ? "" : "s"}</span>
+              </div>
+              <ul class="viewer-health__findings">${rows}</ul>
             </li>
           `;
         }).join("")
@@ -793,7 +847,8 @@ export function renderHealthSummary(lintData, auditData, healthData = null) {
 
     return `
       <div class="viewer-health">
-        <div class="viewer-health__summary">${cards}</div>
+        ${verdictHtml}
+        <div class="viewer-health__summary viewer-health__summary--strip">${cards}</div>
         <section class="viewer-health__section">
           <div class="viewer-health__section-header">
             <h2 class="viewer-health__heading">Validation findings</h2>

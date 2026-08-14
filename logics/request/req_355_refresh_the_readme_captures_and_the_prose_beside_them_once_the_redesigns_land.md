@@ -1,7 +1,7 @@
 ## req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land - Refresh the README captures and the prose beside them once the redesigns land
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Low

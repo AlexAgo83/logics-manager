@@ -1,7 +1,7 @@
 ## req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens - Theme the viewer's native controls and finish the Workshop and CDX screens
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

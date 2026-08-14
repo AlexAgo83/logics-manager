@@ -1,7 +1,7 @@
 ## req_352_keep_the_viewer_redesigns_legible_without_colour_and_reachable_without_a_mouse - Keep the viewer redesigns legible without colour and reachable without a mouse
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: Documentation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 17:26:34
+> Indicators reviewed: 2026-08-14 17:48:27
 
 # AI Context
 - Summary: (unfilled: replace before this doc is used)
@@ -56,3 +56,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_352_refresh_the_published_captures_once_the_screens_are_final` was finished via `logics-manager flow finish task` on 2026-08-14.

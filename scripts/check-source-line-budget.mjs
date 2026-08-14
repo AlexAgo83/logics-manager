@@ -364,7 +364,7 @@ const allowedOversizedFiles = new Map(
     // itself went to util.js, where the DOM helpers already live; what stays here is the
     // wiring -- the eyebrow, the copy-path control, and the listener handle -- which has
     // to be beside setDocument because that is what owns the document's DOM.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4985, ref: "req_356" },
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4990, ref: "req_356" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

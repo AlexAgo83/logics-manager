@@ -3424,7 +3424,10 @@ import {
           const graphData = await graphResponse?.json?.().catch(() => ({}));
           if (!isViewStale(tracked) && graphResponse?.ok && graphData?.ok) {
             window.__logicsGraphNodeClick = (nodeRef) => showDocumentByPath(nodeRef);
-            chainHtml = renderChainGraph(graphData.payload, { inline: true });
+            // AC4: open. The reader's linked workflow is the only navigation the screen
+            // has, and it was the one thing on it that arrived folded -- a reader had to
+            // know it was there to find out what this document connects to.
+            chainHtml = renderChainGraph(graphData.payload, { inline: true, open: true });
           }
         } catch {
           // A document stays readable when an older viewer backend has no graph route.

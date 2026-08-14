@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Validation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 15:13:36
+> Indicators reviewed: 2026-08-14 17:48:27
 
 # AI Context
 - Summary: A condition living only in a request is a memo; the campaign already asserts heading structure and disabled-control reasons, and its layout checks read their targets from the interface so later screens are covered without editing a check.
@@ -59,3 +59,6 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns` was finished via `logics-manager flow finish task` on 2026-08-14.

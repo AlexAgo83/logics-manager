@@ -145,8 +145,11 @@ def test_python_viewer_assets_include_workshop_terminal_vendor_files() -> None:
     assert "@xterm/xterm@5.5.0" in provenance
     assert "@xterm/addon-fit@0.10.0" in provenance
     assert "@xterm/addon-web-links@0.11.0" in provenance
-    package_host = (package_viewer_root / "browser-host.js").read_text(encoding="utf-8")
-    assert "convertEol: false" in package_host
+    # item_787: the served copy under viewer_assets is minified, so this reads the
+    # committed, human-readable source instead of the packaged output for this
+    # particular assertion.
+    source_host = (repo_root / "clients" / "viewer" / "browser-host.js").read_text(encoding="utf-8")
+    assert "convertEol: false" in source_host
 
 
 def test_main_renders_the_canonical_claude_bridge_manifest(capsys: pytest.CaptureFixture[str]) -> None:
@@ -624,6 +627,33 @@ def test_flow_start_task_updates_linked_backlog_progress(
     assert "logics/backlog/item_001_demo.md" in payload["changed_files"]
     assert "> Status: In progress" in item_text
     assert "> Progress: 10%" in item_text
+
+
+def test_flow_start_rebaselines_indicators_reviewed_stamp(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """item_785/GH#21: flow start writes Status/Owner but not the doc's indicator
+    baseline, so the very next `lint --require-status` flagged the tool's own edit
+    as "modified without updating indicators" -- the ordinary result of running
+    `flow start` then `lint`, not an edge case. It should now leave an `Indicators
+    reviewed` stamp behind, the same one `sync update-indicators --touch` writes."""
+    repo_root = tmp_path
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    task_path = repo_root / "logics" / "tasks" / "task_001_demo.md"
+    _write_minimal_workflow_doc(task_path, title="Demo task", kind="task", status="Ready", links=[])
+    assert "Indicators reviewed" not in task_path.read_text(encoding="utf-8")
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setenv("LOGICS_AGENT", "codex")
+
+    exit_code = main(["flow", "start", "task_001_demo", "--format", "json"])
+
+    capsys.readouterr()
+    text = task_path.read_text(encoding="utf-8")
+    assert exit_code == 0
+    assert "> Status: In progress" in text
+    assert "> Indicators reviewed:" in text
 
 
 def test_flow_progress_task_updates_linked_backlog_average(

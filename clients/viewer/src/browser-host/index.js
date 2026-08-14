@@ -3869,7 +3869,7 @@ import {
     // The Workshop / Remote / CDX buttons toggle their sub-section menu rather
     // than navigating directly: a click opens the menu so its items stay
     // clickable; choosing an item (handled below) performs the navigation.
-    ["viewer-workshop", "viewer-ci", "viewer-cdx"].forEach((id) => {
+    ["viewer-workshop", "viewer-corpus", "viewer-ci", "viewer-cdx"].forEach((id) => {
       const button = document.getElementById(id);
       // Guard against the init block running more than once (the load event can
       // fire twice), which would otherwise double-bind and cancel the toggle.
@@ -4197,6 +4197,14 @@ import {
             withPrimaryAction("remote-runs", "Checking CI status", showCiStatus);
           } else {
             withPrimaryAction("remote-git", "Checking Git status", () => showGitStatus());
+          }
+        } else if (screen === "corpus") {
+          if (section === "health") {
+            withPrimaryAction("corpus-health", "Checking health", showHealth);
+          } else if (section === "getting-started") {
+            showGettingStarted();
+          } else {
+            withPrimaryAction("corpus-insights", "Loading insights", showCorpusInsights);
           }
         } else if (screen === "cdx") {
           if (section === "runs") {

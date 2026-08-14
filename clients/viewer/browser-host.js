@@ -11346,7 +11346,7 @@ ${line}` : line;
         workshopSlot.dataset.menuBuilt = "1";
         workshopSlot.insertAdjacentHTML("beforebegin", renderWorkshopMenuItems());
       }
-      ["viewer-workshop", "viewer-ci", "viewer-cdx"].forEach((id) => {
+      ["viewer-workshop", "viewer-corpus", "viewer-ci", "viewer-cdx"].forEach((id) => {
         const button = document.getElementById(id);
         if (!(button instanceof HTMLElement) || button.dataset.navBound === "1") return;
         button.dataset.navBound = "1";
@@ -11661,6 +11661,14 @@ ${line}` : line;
               withPrimaryAction("remote-runs", "Checking CI status", showCiStatus);
             } else {
               withPrimaryAction("remote-git", "Checking Git status", () => showGitStatus());
+            }
+          } else if (screen === "corpus") {
+            if (section === "health") {
+              withPrimaryAction("corpus-health", "Checking health", showHealth);
+            } else if (section === "getting-started") {
+              showGettingStarted();
+            } else {
+              withPrimaryAction("corpus-insights", "Loading insights", showCorpusInsights);
             }
           } else if (screen === "cdx") {
             if (section === "runs") {

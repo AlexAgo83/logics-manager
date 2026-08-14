@@ -6,10 +6,23 @@
 > Related task: `task_352_refresh_the_published_captures_once_the_screens_are_final`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
-> Indicators reviewed: 2026-08-14 19:07:50
+> Indicators reviewed: 2026-08-14 21:20:44
 
 # Overview
 The README is where someone decides whether to install this. It should show the screens they will actually see, in the state a released build puts them in, described in the words the product now uses. A capture that is a release behind is not a small inaccuracy: it is a promise the product does not keep.
+
+```mermaid
+flowchart LR
+    Reader[Someone deciding whether to install] --> README[Reads the README]
+    README --> Sees[Sees four captures]
+    Sees --> Runs[Runs it]
+    Runs --> Match{Does it match?}
+    Match -- before --> Broken[Screens five redesigns old, two of a corpus no build has]
+    Match -- after --> Kept[The screens they were shown]
+    Script[capture-readme-media.mjs] --> Sees
+    Script --> Prov[PROVENANCE.md records the framing]
+    Prov -.- Notice[Staleness becomes noticeable rather than silent]
+```
 
 # Goals
 - What a reader sees in the README is what they get when they run it.

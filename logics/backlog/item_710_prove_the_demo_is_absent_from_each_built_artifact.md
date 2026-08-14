@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Release hygiene
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-13 13:03:35
+> Indicators reviewed: 2026-08-14 21:25:44
 
 # AI Context
 - Summary: Add a regression that builds each published artifact and asserts the demo is absent from the registry it produces, since both existing tests supply the gate's answer instead of exercising it.
@@ -35,6 +35,11 @@
 - request-AC6 -> This backlog slice. Proof: AC6: Each published artifact is built and asserted demo-free; reintroducing the marker fails the build.
 - request-AC7 -> This backlog slice. Proof: AC7: The real gate is exercised at least once without monkeypatching, and existing dev-checkout coverage still passes.
 
+- request-AC1 -> Delivered by `item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry` under the same request. Proof: the demo is absent from an installed npm package's project registry, because the gate no longer infers a dev checkout from a packaged file.
+- request-AC2 -> Delivered by `item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry` under the same request. Proof: the same signal decides for the VS Code extension, whose `.vscodeignore` had been shipping the marker file the old gate read.
+- request-AC3 -> Delivered by `item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry` under the same request. Proof: the pip wheel was already correct and stays so, now for a stated reason rather than by the accident of its layout.
+- request-AC4 -> Delivered by `item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry` under the same request. Proof: a development checkout still offers the demo board, covered by the tests that predate the request.
+- request-AC5 -> Delivered by `item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry` under the same request. Proof: the decision rests on a positive release assertion or an explicit opt-in, neither of which a release artifact can carry by accident.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

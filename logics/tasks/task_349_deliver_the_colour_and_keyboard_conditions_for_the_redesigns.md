@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-14 17:48:01
+> Indicators reviewed: 2026-08-14 21:23:42
 
 # AI Context
 - Summary: Decide the second channel first as a decision the other chains inherit, add the two campaign checks before the redesigns start satisfying them, then the keyboard and focus work as chains land.
@@ -20,13 +20,13 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Decide the second channel first and record it as a decision the other chains inherit, since eight of them will draw against it.
-- [ ] 2. Add the two campaign checks next, so the condition is enforceable before the redesigns start satisfying it rather than after.
-- [ ] 3. Then the keyboard and focus work, against whatever controls have landed by then, and again as the remaining chains land.
-- [ ] 4. This request owns no screen: verify it by running the campaign against the chains that do.
-- [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
-- [ ] Keep commit creation under operator control; do not force one commit per micro-step.
-- [ ] GATE: do not close until lint, audit, and scaffold validation pass.
+- [x] 1. Decide the second channel first and record it as a decision the other chains inherit, since eight of them will draw against it.
+- [x] 2. Add the two campaign checks next, so the condition is enforceable before the redesigns start satisfying it rather than after.
+- [x] 3. Then the keyboard and focus work, against whatever controls have landed by then, and again as the remaining chains land.
+- [x] 4. This request owns no screen: verify it by running the campaign against the chains that do.
+- [x] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
+- [x] Keep commit creation under operator control; do not force one commit per micro-step.
+- [x] GATE: do not close until lint, audit, and scaffold validation pass.
 
 # Backlog
 - `item_767_give_every_colour_carried_state_a_second_channel`

@@ -6,10 +6,23 @@
 > Related task: `task_356_keep_the_viewer_as_fast_as_it_started`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
-> Indicators reviewed: 2026-08-14 19:07:51
+> Indicators reviewed: 2026-08-14 21:20:44
 
 # Overview
 The viewer is the screen an operator leaves open all day. Its cost should follow what changed, not how long it has been open. A tool that is quick in the first ten minutes and unusable in the third hour is a tool people restart instead of trusting.
+
+```mermaid
+flowchart LR
+    Open[Operator leaves the viewer open] --> Poll[Client asks for the payload]
+    Poll --> Changed{Has the corpus changed?}
+    Changed -- no --> Cached[Serve what was built: 8ms]
+    Changed -- yes --> Build[Parse the corpus: 3.7s]
+    Build --> Cached
+    Sig[Corpus signature: count, size, newest mtime] -.- Changed
+    Sig -.- Cost[16ms to ask, 3.7s to do]
+    Cached --> Cadence[Next refresh]
+    Cadence -.- Duty[Never more than a tenth of the interval]
+```
 
 # Goals
 - Time-to-payload is a property of the corpus, not of uptime.

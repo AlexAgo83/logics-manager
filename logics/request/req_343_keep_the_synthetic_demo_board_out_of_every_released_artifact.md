@@ -7,7 +7,7 @@
 > Complexity: Medium
 > Theme: Release hygiene
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-13 18:17:19
+> Indicators reviewed: 2026-08-14 21:24:31
 
 # AI Context
 - Summary: The dev-only demo board reaches users on the npm and VSIX channels because its gate recognises a dev tree by a file both channels ship; the fix is a signal a release cannot carry, proven against the built artifacts.
@@ -64,6 +64,15 @@ something dev-only" is broader than the demo board, and is what `prod_079` is na
 Artifact-level assurance -- build each published artifact and inspect it -- is where that
 cost is justified, but it first needs a definition of "dev-only" that does not exist
 anywhere today. That is scoped separately rather than smuggled into this AC.
+
+# AC Traceability
+- AC1 -> `item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry` and `task_344_keep_the_demo_board_out_of_released_artifacts`. Proof: the demo is absent from an installed npm package's project registry, because the gate no longer infers a dev checkout from a packaged file.
+- AC2 -> `item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry` and `task_344_keep_the_demo_board_out_of_released_artifacts`. Proof: the same signal decides for the VS Code extension, whose `.vscodeignore` had been shipping the marker file the old gate read.
+- AC3 -> `item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry` and `task_344_keep_the_demo_board_out_of_released_artifacts`. Proof: the pip wheel was already correct and stays so, now for a stated reason rather than by the accident of its layout.
+- AC4 -> `item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry` and `task_344_keep_the_demo_board_out_of_released_artifacts`. Proof: a development checkout still offers the demo board, covered by the tests that predate this request.
+- AC5 -> `item_709_gate_the_demo_board_on_a_signal_release_artifacts_cannot_carry` and `task_344_keep_the_demo_board_out_of_released_artifacts`. Proof: the decision rests on a positive release assertion or an explicit opt-in. A release artifact cannot carry either by accident, which the absence of a packaged file could not promise.
+- AC6 -> `item_710_prove_the_demo_is_absent_from_each_built_artifact` and `task_344_keep_the_demo_board_out_of_released_artifacts`. Proof: each published artifact is built and asserted demo-free, and reintroducing the marker fails the build -- so any inference from the filesystem, not only the one removed, fails a run rather than shipping.
+- AC7 -> `item_710_prove_the_demo_is_absent_from_each_built_artifact` and `task_344_keep_the_demo_board_out_of_released_artifacts`. Proof: the real gate is exercised at least once without monkeypatching, joining the substituted-answer tests rather than replacing them, and the existing dev-checkout coverage still passes.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

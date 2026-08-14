@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-14 17:48:01
+> Indicators reviewed: 2026-08-14 21:26:38
 
 # AI Context
 - Summary: (unfilled: replace before this doc is used)
@@ -20,12 +20,12 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Wait for the screen redesigns to land. Starting early produces a second set of images to redo, which is the waste this request exists to avoid.
-- [ ] 2. Write down how a capture is produced first, so the retake follows a recorded framing instead of setting one nobody wrote down again.
-- [ ] 3. Then retake against a real corpus, and correct the prose in the same pass -- the text is wrong independently of the images, and fixing one without the other leaves the section half true.
-- [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
-- [ ] Keep commit creation under operator control; do not force one commit per micro-step.
-- [ ] GATE: do not close until lint, audit, and scaffold validation pass.
+- [x] 1. Wait for the screen redesigns to land. Starting early produces a second set of images to redo, which is the waste this request exists to avoid.
+- [x] 2. Write down how a capture is produced first, so the retake follows a recorded framing instead of setting one nobody wrote down again.
+- [x] 3. Then retake against a real corpus, and correct the prose in the same pass -- the text is wrong independently of the images, and fixing one without the other leaves the section half true.
+- [x] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
+- [x] Keep commit creation under operator control; do not force one commit per micro-step.
+- [x] GATE: do not close until lint, audit, and scaffold validation pass.
 
 # Backlog
 - `item_778_retake_the_readme_captures_against_the_delivered_screens`
@@ -54,7 +54,11 @@
 - Not started.
 - Finished on 2026-08-14.
 - Linked backlog item(s): `item_778_retake_the_readme_captures_against_the_delivered_screens`, `item_779_correct_the_prose_and_alt_text_that_describe_the_old_screens`, `item_780_write_down_how_a_documentation_capture_is_produced`
-- Related request(s): `req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact`, `req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land`
+- Related request(s): `req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land`
+
+## A declared lineage that was a citation
+
+The demo-board request (req_343) was listed here as a related request, picked up from `item_778` citing it as the reason to capture the real corpus rather than the demo board. It is a citation, not lineage: nothing in this task delivers any of that request's acceptance criteria, and the closeout gate was correctly demanding proofs for seven ACs this task never owned. Obeying a request is not delivering it. The citation stays in `item_778`'s prose, where it explains a choice; the lineage claim is gone.
 
 # Links
 - Request: `req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land`

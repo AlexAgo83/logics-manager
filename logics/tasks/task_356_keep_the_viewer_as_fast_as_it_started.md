@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-14 17:48:01
+> Indicators reviewed: 2026-08-14 21:23:42
 
 # AI Context
 - Summary: (unfilled: replace before this doc is used)
@@ -20,13 +20,13 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Establish what 'unchanged' can be checked against cheaply, and what that check itself costs -- a staleness check that walks every file has moved the cost rather than removed it.
-- [ ] 2. Reuse the payload behind that check, and prove a real edit still lands, before touching the cadence: a slow refresh that is correct is better than a fast one that is not.
-- [ ] 3. Then set the cadence against the measured cost, and write down what an idle viewer consumes.
-- [ ] 4. Record, in the campaign's own file, that the card timeout was reporting the server rather than the test. Several sessions were spent raising it.
-- [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
-- [ ] Keep commit creation under operator control; do not force one commit per micro-step.
-- [ ] GATE: do not close until lint, audit, and scaffold validation pass.
+- [x] 1. Establish what 'unchanged' can be checked against cheaply, and what that check itself costs -- a staleness check that walks every file has moved the cost rather than removed it.
+- [x] 2. Reuse the payload behind that check, and prove a real edit still lands, before touching the cadence: a slow refresh that is correct is better than a fast one that is not.
+- [x] 3. Then set the cadence against the measured cost, and write down what an idle viewer consumes.
+- [x] 4. Record, in the campaign's own file, that the card timeout was reporting the server rather than the test. Several sessions were spent raising it.
+- [x] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
+- [x] Keep commit creation under operator control; do not force one commit per micro-step.
+- [x] GATE: do not close until lint, audit, and scaffold validation pass.
 
 # Backlog
 - `item_781_serve_an_unchanged_corpus_without_rebuilding_it`

@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-14 17:48:00
+> Indicators reviewed: 2026-08-14 21:23:42
 
 # AI Context
 - Summary: Ship the colour-scheme declaration first and alone, verify it against Terminals immediately, baseline the campaign, then Commands, Runbooks, Explorer, then CDX missions and the propagation of the status shape.
@@ -20,16 +20,16 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Do the colour-scheme declaration first and alone: it is a few lines, it improves every screen including unreviewed ones, and it should not wait behind any redesign.
-- [ ] 2. Verify it against the Terminals tab immediately, because this request is not allowed to change that screen and the theming reaches it.
-- [ ] 3. Extend the campaign next, with the wait-and-prove behaviour, and record the baseline.
-- [ ] 4. Then Commands, then Runbooks, then Explorer -- each self-contained.
-- [ ] 5. Then CDX missions, and only then propagate the status screen's shape to the other CDX screens.
-- [ ] 6. Check each against `logics/external/mockup/workshop_cdx_redesign.html`, and inherit the panel framing rather than re-deciding it.
-- [ ] 7. Rebuild the browser host and confirm both surfaces before closeout.
-- [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
-- [ ] Keep commit creation under operator control; do not force one commit per micro-step.
-- [ ] GATE: do not close until lint, audit, and scaffold validation pass.
+- [x] 1. Do the colour-scheme declaration first and alone: it is a few lines, it improves every screen including unreviewed ones, and it should not wait behind any redesign.
+- [x] 2. Verify it against the Terminals tab immediately, because this request is not allowed to change that screen and the theming reaches it.
+- [x] 3. Extend the campaign next, with the wait-and-prove behaviour, and record the baseline.
+- [x] 4. Then Commands, then Runbooks, then Explorer -- each self-contained.
+- [x] 5. Then CDX missions, and only then propagate the status screen's shape to the other CDX screens.
+- [x] 6. Check each against `logics/external/mockup/workshop_cdx_redesign.html`, and inherit the panel framing rather than re-deciding it.
+- [x] 7. Rebuild the browser host and confirm both surfaces before closeout.
+- [x] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
+- [x] Keep commit creation under operator control; do not force one commit per micro-step.
+- [x] GATE: do not close until lint, audit, and scaffold validation pass.
 
 # Backlog
 - `item_755_give_the_viewer_s_native_controls_the_interface_s_own_colour_scheme`

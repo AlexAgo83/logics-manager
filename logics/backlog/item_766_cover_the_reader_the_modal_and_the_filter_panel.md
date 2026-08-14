@@ -1,13 +1,14 @@
 ## item_766_cover_the_reader_the_modal_and_the_filter_panel - Cover the reader, the modal and the filter panel
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Validation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 16:37:54
 
 # AI Context
 - Summary: None of the three is covered; the reader in particular is the destination of the details panel's primary action and had never been opened in five passes over this viewer.
@@ -25,6 +26,14 @@
   - Confirm both surfaces after rebuilding the shared sources.
 - Out:
   - The surfaces this request could not drive, and the Terminals tab.
+
+# Delivery notes
+- Two of the three are covered as campaign surfaces: **the reader** and **the new-request modal**. Both run every layout check against the surface they reach.
+- The reader is proved by `.markdown-preview--reading .markdown-preview__prose`, not by the document panel: that panel is shared with every app screen, so its presence proves nothing about the reader. It is skipped below 900px, because the Read action lives in the details panel, which `details.css` hides there on purpose -- the same reason the details panel entry already records.
+- The modal runs last and is dismissed after. It is a blocking overlay, so leaving it open would make every surface after it unreachable, and those failures would read as faults in the surfaces rather than in this entry. The harness gained a `dismiss` step for exactly that.
+- **The filter panel is not covered, and the entry says so where the surfaces are declared rather than leaving a gap somebody has to notice.** Its behaviour is already driven by `FILTER_CHECKS` -- the count agreeing with the board, the count following the search box, a filter returning only what it names -- so what a surface would add is the layout checks against the panel while open. Four attempts at driving it left the panel closed at check time by a route not established, and parking that is better than an entry failing for a reason nobody has found.
+- **The reason this was worth doing, found immediately:** the campaign had been failing for several sessions on `Timed out waiting for cards`, and the cause was in the harness. The readiness probe is inside a template literal serialized into the page, and a single-escaped `d` in a template literal evaluates to a plain `d` -- so the regex reached the browser as `/d+s+ofs+d+/` and could never match. It timed out on every run while the count was on screen. Two sessions were spent raising budgets over a regex eaten on the way in. The escape is doubled now, with the reason beside it, and the budget is back to the default.
+- Desktop run after: **158 checks, 0 failures.**
 
 # Acceptance criteria
 - AC14: All three are covered at the three viewports with proof of what was captured.

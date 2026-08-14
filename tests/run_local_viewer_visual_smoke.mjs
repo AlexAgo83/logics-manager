@@ -431,7 +431,13 @@ function browserExerciseScript(name) {
         await check("injected failure", () => { throw new Error("injected on purpose"); });
       }
       await check("payload arrives", async () => {
-        await waitFor(() => /\d+\s+of\s+\d+/.test(text("#viewer-filter-count")), "payload");
+        // The backslashes are doubled because everything in this function is a template
+        // literal serialized into the page: a single-escaped d in a template literal
+        // evaluates to a plain d, so the regex reached the browser as /d+s+ofs+d+/ and
+        // could never match. It timed out while the count was on screen, and the
+        // answer looked like a slow server -- two sessions were spent raising budgets
+        // over a regex that had been eaten on the way in.
+        await waitFor(() => /\\d+\\s+of\\s+\\d+/.test(text("#viewer-filter-count")), "payload");
         return text("#viewer-filter-count").trim();
       });
       await check("board shows cards", async () => {
@@ -664,6 +670,15 @@ function browserExerciseScript(name) {
         },
         { name: "activity feed", steps: ["#activity-toggle"], proof: ".activity-panel__list" },
 
+        // item_766 covered the reader and the modal below and NOT the filter panel, which
+        // is stated rather than left as a gap somebody has to notice. Its behaviour is
+        // already driven by FILTER_CHECKS -- the count agreeing with the board, the count
+        // following the search box, a filter returning only what it names -- so what a
+        // surface entry would add is the layout checks against the panel while it is
+        // open. Four attempts at driving it left the panel closed at check time by a
+        // route not found; parking that is better than an entry that fails for a reason
+        // nobody has established.
+
         // item_738: these four were reached at their landing frames only, which is the same
         // shape of gap as the campaign driving plain view but never view --fleet -- and the
         // review's own first pass made exactly that mistake, judging the Git diff pane from
@@ -704,6 +719,35 @@ function browserExerciseScript(name) {
           steps: ["#viewer-refresh-menu-button"],
           proof: ".viewer-settings-card",
           timeoutMs: 60000
+        },
+
+        // item_766: none of the three below was covered. The reader in particular is the
+        // destination of the details panel's primary action and had never been opened in
+        // five passes over this viewer -- which is how it kept an uppercased file path
+        // across its header for that long.
+        {
+          name: "reader",
+          // Proved by the reading layout, not by the document panel: that panel is shared
+          // with every app screen, so its presence proves nothing about the reader.
+          steps: [".card[data-id]", "[data-action='read']"],
+          proof: ".markdown-preview--reading .markdown-preview__prose",
+          timeoutMs: 60000,
+          dismiss: "#viewer-document-close",
+          // The Read action lives in the details panel, which details.css hides below
+          // 900px on purpose. Skipped rather than failed, for the reason the details
+          // panel entry above already records.
+          skipBelowWidth: 901,
+          skipReason: "the Read action is in the details panel, which is hidden below 900px"
+        },
+        {
+          // Last, and dismissed after: the modal is a blocking overlay, so leaving it open
+          // would make every surface after it unreachable and those failures would read as
+          // faults in the surfaces rather than in this entry.
+          name: "new request modal",
+          steps: ["[data-action='new-request']"],
+          proof: ".viewer-themed-modal__destination",
+          timeoutMs: 60000,
+          dismiss: ".viewer-themed-modal__cancel"
         }
       ];
 
@@ -734,6 +778,16 @@ function browserExerciseScript(name) {
         if (!(await visitSurface(surface))) continue;
         for (const layoutCheck of LAYOUT_CHECKS) {
           await check(surface.name + ": " + layoutCheck.name, layoutCheck.run);
+        }
+        // A surface that covers the screen has to be put away, or the next one is judged
+        // through it and the failure names the wrong surface.
+        if (surface.dismiss) {
+          const closer = document.querySelector(surface.dismiss);
+          if (closer instanceof HTMLElement) {
+            closer.click();
+            await delay(400);
+            await waitForIdle();
+          }
         }
       }
       const failed = checks.some((entry) => entry.verdict === "failed");

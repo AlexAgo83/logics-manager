@@ -259,7 +259,59 @@ def _to_usage(rel_path: str, items_by_rel_path: dict[str, dict[str, Any]]) -> di
     }
 
 
-def collect_viewer_items(repo_root: Path) -> list[dict[str, Any]]:
+#: item_781: the corpus, as one comparable value, cheap enough to compute on every
+#: request. Measured on this repository at 1615 documents: stat-walking the eight document
+#: directories takes about 16ms, against 3.7s to parse them. A rebuild is 200x the cost of
+#: asking whether one is needed.
+def _corpus_signature(repo_root: Path) -> tuple[Any, ...]:
+    parts: list[Any] = []
+    for family in DOC_FAMILIES:
+        directory = repo_root / family.directory
+        if not directory.is_dir():
+            parts.append((family.directory, None))
+            continue
+        newest = 0.0
+        total = 0
+        count = 0
+        for path in directory.glob("*.md"):
+            if not path.name.startswith(family.prefixes):
+                continue
+            try:
+                stat = path.stat()
+            except OSError:
+                # A file that vanished mid-walk is a change, and the next walk will
+                # produce a different signature anyway. Counting it as absent is right.
+                continue
+            count += 1
+            total += stat.st_size
+            # Size as well as mtime: an edit that replaces a character keeps the byte
+            # count, and an edit within one filesystem timestamp tick keeps the mtime.
+            # Both together are wrong far less often than either alone.
+            newest = max(newest, stat.st_mtime)
+        parts.append((family.directory, count, total, newest))
+    return tuple(parts)
+
+
+#: One entry, not a map: a viewer serves one repository, and a map keyed on repo_root
+#: would hold every project the operator ever switched to for the life of the process.
+_ITEMS_CACHE: dict[str, Any] = {"root": None, "signature": None, "items": None}
+
+
+def collect_viewer_items(repo_root: Path, *, use_cache: bool = True) -> list[dict[str, Any]]:
+    repo_root = repo_root.resolve()
+    if use_cache:
+        signature = _corpus_signature(repo_root)
+        if _ITEMS_CACHE["root"] == str(repo_root) and _ITEMS_CACHE["signature"] == signature:
+            # Copied per item, because callers annotate what they are handed -- a shared
+            # list would let one request's `selected` flag leak into the next one's.
+            return [dict(item) for item in _ITEMS_CACHE["items"]]
+        items = collect_viewer_items(repo_root, use_cache=False)
+        _ITEMS_CACHE.update({"root": str(repo_root), "signature": signature, "items": items})
+        return [dict(item) for item in items]
+    return _collect_viewer_items_uncached(repo_root)
+
+
+def _collect_viewer_items_uncached(repo_root: Path) -> list[dict[str, Any]]:
     repo_root = repo_root.resolve()
     items: list[dict[str, Any]] = []
     promoted_sources: set[str] = set()

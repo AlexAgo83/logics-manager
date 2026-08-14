@@ -21,8 +21,25 @@ from __future__ import annotations
 from pathlib import Path
 
 
+def _is_logics_manager_checkout(repo_root: Path) -> bool:
+    """Whether `repo_root` is this project's own source checkout, as opposed to some
+    other repository that merely uses logics-manager.
+
+    item_784/GH#20: `VERSION` at a repo's root belongs to whatever project owns that
+    repo. Reading it unconditionally meant every consumer repo (its own project
+    legitimately on, say, `0.19.3`) got told it was "behind" a completely unrelated
+    2.21.x release train. A `logics_manager/` package at the root is what every
+    consumer repo lacks and this repo has -- cheaper and more direct than teaching
+    `logics.yaml` to record a version nothing currently writes there.
+    """
+    return (repo_root / "logics_manager" / "__init__.py").is_file()
+
+
 def repository_version(repo_root: Path) -> str | None:
-    """The version the repository declares, or None if it declares none."""
+    """The version the repository declares, or None if it declares none, or if this
+    is not logics-manager's own repository."""
+    if not _is_logics_manager_checkout(repo_root):
+        return None
     version_file = repo_root / "VERSION"
     if not version_file.is_file():
         return None

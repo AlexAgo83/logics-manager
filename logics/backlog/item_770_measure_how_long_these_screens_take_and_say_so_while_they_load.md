@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-13 16:05:55
+> Indicators reviewed: 2026-08-14 08:13:36
 
 # AI Context
 - Summary: All three screens take twenty seconds or more against this corpus, and while they load the viewer leaves the previous screen up with a status line nobody reads; nothing measures it and this request adds computation to them.
@@ -28,6 +28,40 @@ And this request adds work to all three screens: per-stage corpus counts on Gett
 - Out:
   - Optimising the underlying scans; this establishes the number and the guard, not the speed-up.
   - The meta line's own redesign, which belongs to the visible-failures request.
+# Measurement
+
+Taken 2026-08-14 against this corpus (1 614 workflow documents) at 1440x900, driving a real
+viewer through CDP. Each screen was opened from the board, three runs, two against a warm
+server and one against a freshly started one. Time is from the click.
+
+| Screen | Time to title, before | Time to useful content | Cold vs warm |
+| --- | --- | --- | --- |
+| Corpus insights | 7 551 - 8 316 ms | 7 551 - 8 320 ms | no material difference |
+| Validation health | 8 055 - 8 065 ms | 8 056 - 8 609 ms | no material difference |
+| Getting Started | 4 - 5 ms | 4 - 6 ms | client-side, no fetch |
+
+**The cost is the scan, not a cache.** A freshly started server measured within the same band
+as one that had already served the screen twice, so there is nothing being warmed.
+
+After `AC17` landed, the title appears in **14 ms** for Corpus insights and **5 ms** for
+Validation health, and time-to-useful is unchanged at 8 320 ms and 8 609 ms -- inside the
+band measured before the change, which is what `AC18` asks. The measurement script excludes
+the placeholder when deciding the screen is useful; counting it would have reported a
+false improvement.
+
+# Delivery notes
+- **The placeholder cancelled the load it was announcing.** `setDocument` calls
+  `invalidatePendingViews`, so putting the placeholder up *after* `beginView()` made the
+  screen's own view stale and the content never replaced it. It goes up before the view
+  token is taken. Proven by moving it back and watching the regression fail.
+- The placeholder carries the screen's final title, which means a check that stops at the
+  title would assert on it. The campaign waits for `[data-viewer-screen-loading]` to be
+  gone, which is the same rule `run_002` records for not asserting on whatever is on screen.
+- The three screens are no longer skipped by the campaign's slow-check flag: all three now
+  run at all three viewports, 322 checks, no findings.
+- Out of scope and untouched, as the slice says: the scans themselves. This establishes the
+  number and the guard.
+
 # Acceptance criteria
 - AC16: How long each of these screens takes to become useful is measured against a corpus of this size, and the measurement is recorded so a later change can be compared against it rather than guessed at.
 - AC17: A screen that cannot answer immediately says that it is working and what it is waiting for, rather than leaving the previous screen in place with a status line the operator will not read.

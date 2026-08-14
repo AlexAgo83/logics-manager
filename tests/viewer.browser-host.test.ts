@@ -4372,6 +4372,10 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.getElementById("viewer-insights")?.dispatchEvent(new dom.window.Event("click"));
     await new Promise((resolve) => setTimeout(resolve, 0));
+    // item_770: these screens render a loading placeholder the moment they are opened and
+    // replace it when the scans return, so the assertion needs the extra turn that
+    // replacement takes. Measured at 7.5-8.3s against a real corpus; here it is one tick.
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     const content = dom.window.document.getElementById("viewer-document-content");
     expect(content?.textContent).toContain("Overview");
@@ -4408,6 +4412,10 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.getElementById("viewer-insights")?.dispatchEvent(new dom.window.Event("click"));
     await new Promise((resolve) => setTimeout(resolve, 0));
+    // item_770: these screens render a loading placeholder the moment they are opened and
+    // replace it when the scans return, so the assertion needs the extra turn that
+    // replacement takes. Measured at 7.5-8.3s against a real corpus; here it is one tick.
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     const action = dom.window.document.querySelector('[data-viewer-filter-group="focus"][data-viewer-filter-value="blocked"]') as HTMLButtonElement | null;
     action?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
@@ -4435,6 +4443,54 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("focus-menu-label")?.textContent).toBe("Blocked");
     expect((dom.window.document.querySelector('[data-viewer-filter-group="focus"]') as HTMLSelectElement | null)?.value).toBe("blocked");
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("focus: blocked");
+  });
+
+  it("takes the screen's place immediately and says what it is waiting for", async () => {
+    // item_770. Measured against this corpus (1 614 workflow documents), Corpus insights
+    // takes 7.5-8.3s to become useful and Validation health 8.0-8.6s, cold or warm -- the
+    // cost is the scan, not a cache. For all that time the viewer left the previous screen
+    // in place with `Loading insights...` in the small grey meta line, so the click read as
+    // nothing happening. After this change the title appears in 14ms and 5ms; the wait for
+    // content is unchanged, which is what AC18 asks.
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+    const originalFetch = dom.window.fetch;
+    let release: (() => void) | null = null;
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    Object.defineProperty(dom.window, "fetch", {
+      configurable: true,
+      value: async (url: string, init?: unknown) => {
+        if (String(url).startsWith("/api/lint") || String(url).startsWith("/api/audit")) {
+          await gate;
+        }
+        return originalFetch(String(url), init as never);
+      }
+    });
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    dom.window.document.getElementById("viewer-insights")?.dispatchEvent(new dom.window.Event("click"));
+    await flushViewerAsync();
+
+    // The screen takes its place while the scans are still running.
+    const document = dom.window.document;
+    expect(document.getElementById("viewer-document-title")?.textContent).toBe("Corpus insights");
+    const loading = document.querySelector("[data-viewer-screen-loading]");
+    expect(loading).not.toBeNull();
+    expect(loading?.getAttribute("role")).toBe("status");
+    expect(loading?.textContent).toContain("Working on Corpus insights");
+    // It says what it is waiting for, not merely that it is busy.
+    expect(loading?.textContent).toContain("the corpus lint and audit scans");
+
+    release?.();
+    for (let turn = 0; turn < 6; turn += 1) await flushViewerAsync();
+
+    // The placeholder is replaced, not left up. It went up before the view token is taken:
+    // setDocument invalidates pending views, so announcing the load after beginView()
+    // cancelled the very load it announced and the screen stayed on the placeholder.
+    expect(document.querySelector("[data-viewer-screen-loading]")).toBeNull();
+    expect(document.getElementById("viewer-document-content")?.textContent).toContain("Overview");
   });
 
   it("says what this viewer is, and does not dress navigation as settings", async () => {
@@ -8057,6 +8113,10 @@ describe("local viewer browser host", () => {
 
     dom.window.document.getElementById("viewer-health")?.dispatchEvent(new dom.window.Event("click"));
     await new Promise((resolve) => setTimeout(resolve, 0));
+    // item_770: these screens render a loading placeholder the moment they are opened and
+    // replace it when the scans return, so the assertion needs the extra turn that
+    // replacement takes. Measured at 7.5-8.3s against a real corpus; here it is one tick.
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     const content = dom.window.document.getElementById("viewer-document-content");
     expect(content?.textContent).toContain("Blocking");
@@ -8092,6 +8152,10 @@ describe("local viewer browser host", () => {
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
     dom.window.document.getElementById("viewer-health")?.dispatchEvent(new dom.window.Event("click"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    // item_770: these screens render a loading placeholder the moment they are opened and
+    // replace it when the scans return, so the assertion needs the extra turn that
+    // replacement takes. Measured at 7.5-8.3s against a real corpus; here it is one tick.
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const content = dom.window.document.getElementById("viewer-document-content");

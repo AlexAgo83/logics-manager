@@ -6025,3 +6025,27 @@
   border-color: var(--vscode-editorError-foreground, #f85149);
   background: color-mix(in srgb, var(--vscode-editorError-foreground, #f85149) 12%, transparent);
 }
+
+/* item_770: measured at 7.5-8.3s for Corpus insights and 8.0-8.1s for Validation health
+   against a corpus of 1 614 workflow documents, cold or warm. For all that time the viewer
+   left the previous screen in place with a status line in the small grey meta text. The
+   screen takes its place immediately and says what it is waiting for. */
+.viewer-screen-loading {
+  padding: 24px 20px;
+  border: 1px dashed var(--vscode-panel-border, #333333);
+  border-radius: 8px;
+  background: var(--vscode-editorWidget-background, rgba(255, 255, 255, 0.03));
+}
+
+.viewer-screen-loading__title {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--vscode-foreground, #d4d4d4);
+}
+
+.viewer-screen-loading__detail {
+  margin: 0;
+  font-size: 13px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}

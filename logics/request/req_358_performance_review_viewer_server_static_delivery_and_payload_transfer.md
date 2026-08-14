@@ -7,6 +7,7 @@
 > Complexity: Medium
 > Theme: Viewer performance
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 21:59:19
 
 # AI Context
 - Summary: Three findings from a performance-focused read of `logics_manager/viewer.py` and the viewer's build pipeline: static assets are served with `Cache-Control: no-store` and no compression, the /api/items poll payload is re-transferred in full every 15s even on a cache hit, and the shipped client bundle is unminified. All three sit downstream of the payload-rebuild fix already shipped in req_356/item_781-783, which this review deliberately does not re-litigate.
@@ -47,4 +48,5 @@
 - `logics_manager/viewer_assets/viewer/browser-host.js`
 
 # Backlog
-- none
+- `item_786_performance_review_viewer_server_static_delivery_and_payload_transfer`
+- `item_787_performance_review_viewer_server_static_delivery_and_payload_transfer`

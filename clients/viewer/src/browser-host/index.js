@@ -1143,7 +1143,15 @@ import {
       </span>
     `).join("");
     const attention = all.filter(({ key }) => key === "issues" || key === "unreadable").length;
-    const rows = projects.map(renderFleetRow).join("");
+    // item_791: favorites used to be sorted to the top of one continuous list with no
+    // heading separating them from the rest -- the mockup's two labelled sections
+    // ("Favorites" / "All projects") never arrived. The sort above already yields
+    // favorites-first within each attention tier, so grouping is just a split of the
+    // same ordered array; an empty group renders no heading rather than an empty one.
+    const fleetSection = (label, group) => group.length
+      ? `<p class="viewer-fleet__section-label">${escapeHtml(label)}</p><section class="viewer-fleet__rows">${group.map(renderFleetRow).join("")}</section>`
+      : "";
+    const rows = `${fleetSection("Favorites", projects.filter((p) => p.favorite))}${fleetSection("All projects", projects.filter((p) => !p.favorite))}`;
     // item_714: an empty fleet is a new operator's first screen, so it says what a fleet
     // root is and offers the action that resolves it rather than one grey sentence.
     const empty = `
@@ -1165,7 +1173,7 @@ import {
           <span class="viewer-fleet__roots">${rootChips}</span>
           <button class="viewer-fleet__open" type="button" data-viewer-fleet-root-pick>Add root</button>
         </div>
-        <section class="viewer-fleet__rows">${all.length ? (rows || noMatch) : empty}</section>
+        ${all.length ? (rows || noMatch) : empty}
       </section>
     `;
   }

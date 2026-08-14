@@ -2835,6 +2835,47 @@ describe("local viewer browser host", () => {
     expect((document.getElementById("viewer-document-close") as HTMLButtonElement | null)?.disabled).toBe(false);
   });
 
+  it("groups Fleet home rows under Favorites/All projects section labels (task_362)", async () => {
+    const { dom } = createViewerDom({
+      fleet: true,
+      fleetHome: true,
+      initialPreferences: { version: 1, favoriteProjects: ["project-cdx"] },
+      projects: [
+        { id: "project-logics", name: "logics-manager", root: "/workspace/logics-manager", active: false, available: true, hasLogics: true },
+        { id: "project-cdx", name: "cdx-manager", root: "/workspace/cdx-manager", active: false, available: true, hasLogics: true }
+      ]
+    });
+    const api = dom.window.acquireVsCodeApi();
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const document = dom.window.document;
+    const labels = Array.from(document.querySelectorAll(".viewer-fleet .viewer-fleet__section-label")).map((node) => node.textContent);
+    expect(labels).toEqual(["Favorites", "All projects"]);
+    // The favorite (cdx-manager) is under the first section, the rest under the second.
+    const sections = document.querySelectorAll(".viewer-fleet .viewer-fleet__rows");
+    expect(sections[0].textContent).toContain("cdx-manager");
+    expect(sections[0].textContent).not.toContain("logics-manager");
+    expect(sections[1].textContent).toContain("logics-manager");
+  });
+
+  it("omits an empty Fleet home section label (no favorites yet)", async () => {
+    const { dom } = createViewerDom({
+      fleet: true,
+      fleetHome: true,
+      projects: [
+        { id: "project-logics", name: "logics-manager", root: "/workspace/logics-manager", active: false, available: true, hasLogics: true }
+      ]
+    });
+    const api = dom.window.acquireVsCodeApi();
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const document = dom.window.document;
+    const labels = Array.from(document.querySelectorAll(".viewer-fleet .viewer-fleet__section-label")).map((node) => node.textContent);
+    expect(labels).toEqual(["All projects"]);
+  });
+
   it("sorts favorite projects by last-used while keeping the active project first", async () => {
     const { dom } = createViewerDom({
       initialPreferences: {

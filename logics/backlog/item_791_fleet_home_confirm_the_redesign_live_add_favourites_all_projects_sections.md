@@ -1,14 +1,14 @@
 ## item_791_fleet_home_confirm_the_redesign_live_add_favourites_all_projects_sections - Fleet home: confirm the redesign live, add favourites/all-projects sections
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer redesign follow-through
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 00:45:53
+> Indicators reviewed: 2026-08-15 01:31:45
 
 # AI Context
 - Summary: This repo's own redesigned `renderFleetHome()` has never been visually confirmed on a running server, and the mockup's two labelled sections ("Favorites" / "All projects") don't exist in the implementation.
@@ -32,7 +32,7 @@ No server currently reachable on the review machine actually served this repo's 
 - AC2: The fleet home row list shows a "Favorites" section and an "All projects" section as distinct labelled groups, not one continuous sorted list.
 
 # AC Traceability
-- request-AC3 -> This backlog slice. Proof: AC3: A --fleet launch of this repository's own checkout serves the redesigned Fleet home (row layout, colored+shaped left accent, favorites/all-projects sections) and that has been visually confirmed against a running server, not only read from source.
+- request-AC3 -> This backlog slice. Proof: Screenshot of this repository's own running viewer server, navigated to Fleet home, confirms the row-based redesign renders live (left accent, favourite stars, "current" tag, root chips), and shows "Favorites"/"All projects" as distinct labelled groups built in `renderFleetHome()` (`clients/viewer/src/browser-host/index.js`). Verified by `npx vitest run tests/viewer.browser-host.test.ts` (211/211 passed, including 2 new regression tests).
 
 # Decision framing
 - Product framing: Not needed

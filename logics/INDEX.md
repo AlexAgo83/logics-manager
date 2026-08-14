@@ -511,6 +511,7 @@
 | [req_358_performance_review_viewer_server_static_delivery_and_payload_transfer](request/req_358_performance_review_viewer_server_static_delivery_and_payload_transfer.md) | Performance review: viewer server static delivery and payload transfer | Done |  |  | request/req_358_performance_review_viewer_server_static_delivery_and_payload_transfer.md |
 | [req_359_viewer_redesign_mockups_gap_review_across_all_screens](request/req_359_viewer_redesign_mockups_gap_review_across_all_screens.md) | Viewer redesign mockups: gap review across all screens | Draft |  |  | request/req_359_viewer_redesign_mockups_gap_review_across_all_screens.md |
 | [req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads](request/req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads.md) | Loading border trace: an animated ring on the header while a screen loads | Draft |  |  | request/req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads.md |
+| [req_361_fleet_project_switcher_icon_buttons_show_a_clashing_native_browser_tooltip](request/req_361_fleet_project_switcher_icon_buttons_show_a_clashing_native_browser_tooltip.md) | Fleet project switcher: icon buttons show a clashing native browser tooltip | Draft |  |  | request/req_361_fleet_project_switcher_icon_buttons_show_a_clashing_native_browser_tooltip.md |
 
 ## Backlog
 
@@ -1314,6 +1315,7 @@
 | [item_796_remote_settings_close_the_remaining_mockup_gaps](backlog/item_796_remote_settings_close_the_remaining_mockup_gaps.md) | Remote/Settings: close the remaining mockup gaps | Ready |  | 0% | backlog/item_796_remote_settings_close_the_remaining_mockup_gaps.md |
 | [item_797_insights_health_onboarding_close_the_remaining_mockup_gaps](backlog/item_797_insights_health_onboarding_close_the_remaining_mockup_gaps.md) | Insights/Health/Onboarding: close the remaining mockup gaps | Ready |  | 0% | backlog/item_797_insights_health_onboarding_close_the_remaining_mockup_gaps.md |
 | [item_798_regenerate_the_readme_captures_once_the_fixes_above_land](backlog/item_798_regenerate_the_readme_captures_once_the_fixes_above_land.md) | Regenerate the README captures once the fixes above land | Ready |  | 0% | backlog/item_798_regenerate_the_readme_captures_once_the_fixes_above_land.md |
+| [item_799_fleet_project_switcher_icon_buttons_show_a_clashing_native_browser_tooltip](backlog/item_799_fleet_project_switcher_icon_buttons_show_a_clashing_native_browser_tooltip.md) | Fleet project switcher: icon buttons show a clashing native browser tooltip | Ready |  | 0% | backlog/item_799_fleet_project_switcher_icon_buttons_show_a_clashing_native_browser_tooltip.md |
 
 ## Tasks
 
@@ -1682,6 +1684,7 @@
 | [task_367_remote_settings_close_the_remaining_mockup_gaps](tasks/task_367_remote_settings_close_the_remaining_mockup_gaps.md) | Remote/Settings: close the remaining mockup gaps | Ready |  | 0% | tasks/task_367_remote_settings_close_the_remaining_mockup_gaps.md |
 | [task_368_insights_health_onboarding_close_the_remaining_mockup_gaps](tasks/task_368_insights_health_onboarding_close_the_remaining_mockup_gaps.md) | Insights/Health/Onboarding: close the remaining mockup gaps | Ready |  | 0% | tasks/task_368_insights_health_onboarding_close_the_remaining_mockup_gaps.md |
 | [task_369_regenerate_the_readme_captures_once_the_fixes_above_land](tasks/task_369_regenerate_the_readme_captures_once_the_fixes_above_land.md) | Regenerate the README captures once the fixes above land | Ready |  | 0% | tasks/task_369_regenerate_the_readme_captures_once_the_fixes_above_land.md |
+| [task_370_fleet_project_switcher_icon_buttons_show_a_clashing_native_browser_tooltip](tasks/task_370_fleet_project_switcher_icon_buttons_show_a_clashing_native_browser_tooltip.md) | Fleet project switcher: icon buttons show a clashing native browser tooltip | Ready |  | 0% | tasks/task_370_fleet_project_switcher_icon_buttons_show_a_clashing_native_browser_tooltip.md |
 
 ## Runbooks
 

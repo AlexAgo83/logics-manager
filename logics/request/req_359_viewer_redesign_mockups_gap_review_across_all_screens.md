@@ -7,7 +7,7 @@
 > Complexity: High
 > Theme: Viewer redesign follow-through
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 23:59:51
+> Indicators reviewed: 2026-08-15 00:20:30
 
 # AI Context
 - Summary: A screen-by-screen review comparing the live viewer against its own approved redesign mockups (logics/external/mockup/*_redesign.html) found that several screens shipped only part of their "Proposed" design — some regressed to pre-redesign visuals, one redesign was never actually deployed to any running server, and two structural/navigation issues span multiple screens at once.
@@ -115,4 +115,12 @@
 - clients/viewer/src/browser-host/git.js
 
 # Backlog
-- none
+- `item_790_board_remove_the_leftover_full_card_wash_fix_progress_bar_placement`
+- `item_791_fleet_home_confirm_the_redesign_live_add_favourites_all_projects_sections`
+- `item_792_move_runbooks_under_corpus_add_the_header_switch_to_corpus_screens`
+- `item_793_stop_capping_content_to_a_fixed_width_on_task_reader_getting_started_and_settings`
+- `item_794_workshop_cdx_close_the_remaining_mockup_gaps`
+- `item_795_reader_filters_close_the_remaining_mockup_gaps`
+- `item_796_remote_settings_close_the_remaining_mockup_gaps`
+- `item_797_insights_health_onboarding_close_the_remaining_mockup_gaps`
+- `item_798_regenerate_the_readme_captures_once_the_fixes_above_land`

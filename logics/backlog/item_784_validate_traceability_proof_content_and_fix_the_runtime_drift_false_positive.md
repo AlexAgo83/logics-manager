@@ -1,14 +1,14 @@
 ## item_784_validate_traceability_proof_content_and_fix_the_runtime_drift_false_positive - Validate traceability proof content and fix the runtime-drift false positive
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 50%
+> Progress: 100%
 > Complexity: Medium
 > Theme: flow-integrity
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 23:00:50
+> Indicators reviewed: 2026-08-14 23:12:04
 
 # AI Context
 - Summary: Add three deterministic proof-content checks (dup-proof, proof-matches-AC, orphan-slice-AC) to flow's traceability validation, and point runtime-drift's version comparison at a logics-manager-recorded value instead of the consumer repo's own VERSION.
@@ -30,71 +30,59 @@
   - Fuzzy or semantic proof matching.
   - Removing the runtime-drift feature; it stays, just pointed at the right source of truth.
 
-# Findings from implementation (AC1 revised and shipped; AC2/AC3 not shipped)
-AC4 is implemented and proven. AC1, AC2, and AC3, as originally scoped (all blocking
-or warning per the table above), were built and tested against this repository's own
-real corpus (1497 docs, 350+ Done tasks) before any of it was committed: each produced
-a large, concrete false-positive rate against real, correctly implemented,
-historically-Done work, which is a worse outcome than the bug they fix (an unusable
-check trains operators to ignore findings -- exactly the failure mode these issues
-are about).
+# Findings from implementation (all four ACs shipped, two of them revised)
+All four ACs were built and tested against this repository's own real corpus (1497
+docs, 350+ Done tasks) before any of it was committed. AC1, AC2, and AC3, exactly as
+originally scoped, each produced a large, concrete false-positive rate against real,
+correctly implemented, historically-Done work -- a worse outcome than the bug they
+fix (an unusable check trains operators to ignore findings, exactly the failure mode
+these issues are about). AC4 was sound as scoped and needed no revision.
 
-**Resolution for AC1:** downgraded from a blocking finding to a non-blocking warning
-and shipped. The false-positive rate is unchanged (437 warnings on this corpus), but
-the cost of a false positive is now "an operator reads one extra line and confirms
-it," not "347 historically-Done tasks can no longer close." The detection itself is
-unchanged and still catches the concrete original bug shape (two self-referential
-`request-ACn` lines with byte-identical proof).
+**AC1 (duplicate proof text):** downgraded from a blocking finding to a non-blocking
+warning. The detection is unchanged and still catches the concrete original bug shape
+(two self-referential `request-ACn` lines with byte-identical proof) -- only the
+severity changed, from "347 historically-Done tasks can no longer close" to "an
+operator reads one line and confirms it." Root cause: a duplicate proof is also the
+correct, common shape of two legitimate patterns already in this corpus -- an
+orchestration task delegating several ACs to the same child item with an identical
+redirect sentence, and a single implementation wave (one commit, one test run) that
+legitimately closes several ACs with one shared proof sentence (concretely observed:
+this repository's own task_301 "restore the per-command help contract", five ACs, one
+commit, one shared proof for all five).
 
-**AC2/AC3 remain unresolved** -- their ambiguity (below) has no equivalent safe
-downgrade, since the check itself, not just its severity, is unsound as scoped.
-
-- **AC1 (duplicate proof text) was unsafe as a blocking finding; shipped as a warning
-  instead (see Resolution above).** A duplicate `request-ACn` proof
-  is not only produced by a shift/copy-paste bug; it is also the correct, common
-  shape of two other patterns already in this corpus: (a) an orchestration task
-  delegating several request ACs to the *same* child item, where the redirect
-  sentence ("see that item's AC Traceability") is deliberately identical across every
-  AC that child covers; (b) a single implementation wave (one commit, one test run)
-  that legitimately closes several ACs at once with one shared validation sentence
-  (concretely observed: this repository's own task_301 "restore the per-command help contract",
-  five ACs, one commit, one shared "Implemented in commit 0086e92a..." proof for all
-  five). A prototype scoped to lines whose target is the doc's own self-reference
-  (`This task.`/`This backlog slice.`, excluding orchestration redirects) still
-  produced 437 blocking false positives across the existing corpus when run for
-  real -- confirmed by inspecting several by hand, all legitimate.
-- **AC2/AC3 share the same root ambiguity, found before a prototype was even run.**
-  "The citing document's own acceptance criteria" is ambiguous between the slice's
-  own local AC numbering and the request's AC numbering, and the two do not
-  correspond 1:1 in real documents: `item_786` (this same request's own sibling
-  slice) declares 3 local ACs but only 2 `request-ACn` traceability lines -- its
-  local AC3 (gzip) is legitimately covered inside AC1/AC2's proof text, not by a
-  dedicated line. A literal "every declared AC must have its own request-ACn line"
-  check (AC3 as scoped) would immediately warn on that real, correctly-implemented
-  document. A literal "proof text must appear in the citing doc's own AC section"
-  check (AC2 as scoped) would fail on essentially every well-written evidence-based
-  proof in this codebase, none of which quote their AC verbatim (they describe
-  implementation + validation commands instead, e.g. this very item's AC4 proof
-  below).
-
-**Recommendation, not shipped:** either check needs a design that distinguishes
-"one proof legitimately covers several/delegates" from "proof was shifted/invented,"
-which the plain string-matching rules originally scoped cannot do without either a
-structural field this document format doesn't have (an explicit slice-AC-to-request-AC
-map) or semantic judgment (explicitly out of scope per the original ask: "no
-semantics, no new doc structure, no LLM"). Left open for a follow-up scoping
-decision rather than shipped broken or silently dropped.
+**AC2/AC3 (proof-matches-criterion / orphan-slice-AC):** the original text-matching
+design was unsound, not just too strict. "The citing document's own acceptance
+criteria" was ambiguous between the slice's own local AC numbering and the request's
+AC numbering, and the two do not correspond 1:1 in real documents: `item_786` (this
+request's own sibling slice) declares 3 local ACs but only 2 `request-ACn`
+traceability lines, because its local AC3 (gzip) is legitimately folded into AC1/AC2's
+proof text rather than owning a dedicated line. No amount of severity tuning fixes an
+unanswerable question -- **replaced the text-matching entirely** with an opt-in,
+declared structural mapping: a local AC may state `(backs request-ACn)`. AC2 became "a
+declared mapping to a request AC this document doesn't actually declare is wrong"
+(blocking, unambiguous, zero guessing). AC3 became "a local AC with no declared backing,
+in a document that has adopted the annotation, is orphaned scope" (warning). Both are
+no-ops on a document that has never written the annotation -- verified against this
+repo's own corpus: 0 new findings, since no historical document uses it yet. This
+document's own AC1-AC4 above now carry the annotation, dogfooding the feature.
 
 # Acceptance criteria
-- AC1 (revised, see Findings below): two request-ACn proof lines with byte-identical proof text in the same document produce a **non-blocking warning** naming both AC ids, for a human to confirm rather than a gate to fail. Downgraded from the original "blocking" wording after a blocking prototype produced 437 false positives against this repository's own real corpus.
-- AC2: a request-ACn proof line whose text does not match (exact/strict) any acceptance criterion declared by the citing document produces a blocking finding. **Not shipped** — see Findings.
-- AC3: a slice acceptance criterion backing no request AC produces a non-blocking warning. **Not shipped** — see Findings.
-- AC4: in a repo with no logics-manager-recorded version, the runtime-drift notice does not fire; where one is recorded, the notice compares against it instead of the repo's own VERSION/package version.
+Revised twice since scaffolding, both times recorded in "Findings from implementation"
+below rather than silently: AC1 downgraded from blocking to a non-blocking warning;
+AC2/AC3 replaced with an opt-in structural annotation instead of the original
+text-matching design. `(backs request-ACn)` on each line below is that annotation,
+adopted here so this document is itself checked by AC2/AC3 rather than only
+describing them.
+
+- AC1 (backs request-AC1): two request-ACn proof lines with byte-identical proof text in the same document produce a **non-blocking warning** naming both AC ids, for a human to confirm rather than a gate to fail.
+- AC2 (backs request-AC2): a `(backs request-ACn)` annotation naming a request AC this document's own `# AC Traceability` has no line for produces a blocking finding.
+- AC3 (backs request-AC3): a local AC with no `(backs request-ACn)` annotation, in a document that has adopted the annotation elsewhere, produces a non-blocking warning.
+- AC4 (backs request-AC4): in a repo with no logics-manager-recorded version, the runtime-drift notice does not fire; where one is recorded, the notice compares against it instead of the repo's own VERSION/package version.
 
 # AC Traceability
 - request-AC1 -> This backlog slice. Proof: Implemented in cd7fb24a: `duplicate_proof_ac_ids` (`logics_manager/flow_evidence.py`) detects two self-referential `request-ACn` lines in one document sharing byte-identical proof text (whitespace-normalized), excluding orchestration redirects and placeholders; wired into `audit.py` as a non-blocking warning (`ac_duplicate_proof`), not the originally-scoped blocking finding, after a blocking prototype produced 437 false positives against this repository's own real corpus. Validated with 4 new unit tests plus an audit-level severity test, and the full suite (`pytest` 1376 passed). Source: `cd7fb24a`
-- request-AC2 -> This backlog slice. Proof: AC2: a request-ACn proof line whose text does not match (exact/strict) any acceptance criterion declared by the citing document produces a blocking finding.
-- request-AC3 -> This backlog slice. Proof: AC3: a slice acceptance criterion backing no request AC produces a non-blocking warning.
+- request-AC2 -> This backlog slice. Proof: Implemented in 09fb1412: `invalid_backs_references`/`ac_backs_target_missing` flags a `(backs request-ACn)` annotation naming a request AC this document's own AC Traceability has no line for, as a blocking finding -- opt-in, so it never fires on a document that hasn't adopted the annotation. Validated with 4 unit tests plus an audit-level severity test, and the full suite (`pytest` 1381 passed). This document's own AC1-AC4 lines above now carry the annotation. Source: `09fb1412`
+- request-AC3 -> This backlog slice. Proof: Implemented in 09fb1412: `unbacked_local_ac_ids`/`ac_local_ac_unbacked` flags a local AC with no `(backs request-ACn)` annotation, in a document that has adopted the annotation elsewhere, as a non-blocking warning. Same validation as AC2 above. Source: `09fb1412`
 - request-AC4 -> This backlog slice. Proof: Implemented in 285c46e8: `repository_version()` now only reads `VERSION` for what looks like logics-manager's own checkout (a `logics_manager/__init__.py` at repo_root); a consumer repo's own version is never read, so `drift_message` is silent there regardless of what it declares. Validated with `python3 -m pytest tests/python/test_runtime_drift.py -q` (8 passed, including a new consumer-repo case) and the full suite (`pytest` 1371 passed). Source: `285c46e8`
 
 # Decision framing
@@ -110,3 +98,6 @@ decision rather than shipped broken or silently dropped.
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_357_orchestrate_flow_traceability_and_self_consistency_fixes_gh_20_21` was finished via `logics-manager flow finish task` on 2026-08-14.

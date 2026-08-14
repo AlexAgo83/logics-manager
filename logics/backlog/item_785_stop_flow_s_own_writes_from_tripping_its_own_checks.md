@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: flow-integrity
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 22:47:53
+> Indicators reviewed: 2026-08-14 23:18:29
 
 # AI Context
 - Summary: Make `flow start`/`repair`/`closeout` re-baseline the indicators of documents they write, and clarify the `companion_doc_missing_mermaid` finding for product docs so it names the hand-authoring path `flow repair mermaid` refuses.
@@ -49,3 +49,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_357_orchestrate_flow_traceability_and_self_consistency_fixes_gh_20_21` was finished via `logics-manager flow finish task` on 2026-08-14.

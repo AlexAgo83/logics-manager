@@ -1,0 +1,382 @@
+{
+  "budgets": {
+    "max_docs": 20,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running item_781_serve_an_unchanged_corpus_without_rebuilding_it item_782_make_the_refresh_cadence_follow_what_a_refresh_costs item_783_fail_when_the_work_is_repeated_or_a_change_is_missed task_356_keep_the_viewer_as_fast_as_it_started --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_781_serve_an_unchanged_corpus_without_rebuilding_it",
+          "item_782_make_the_refresh_cadence_follow_what_a_refresh_costs",
+          "item_783_fail_when_the_work_is_repeated_or_a_change_is_missed"
+        ],
+        "prod": [
+          "prod_092_a_viewer_that_stays_as_fast_as_it_started"
+        ],
+        "req": [
+          "req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running"
+        ],
+        "task": [
+          "task_356_keep_the_viewer_as_fast_as_it_started"
+        ]
+      },
+      "path": "logics/product/prod_092_a_viewer_that_stays_as_fast_as_it_started.md",
+      "ref": "prod_092_a_viewer_that_stays_as_fast_as_it_started",
+      "status": "Proposed",
+      "title": "A viewer that stays as fast as it started"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_761_stop_the_reader_leading_with_a_path_in_capitals",
+          "item_762_make_the_reader_a_place_to_read",
+          "item_763_finish_the_new_request_modal_without_redesigning_it",
+          "item_764_make_each_filter_say_what_it_would_narrow",
+          "item_765_make_the_panel_and_the_board_agree_on_what_is_shown",
+          "item_766_cover_the_reader_the_modal_and_the_filter_panel"
+        ],
+        "prod": [
+          "prod_087_surfaces_that_read_like_they_were_finished"
+        ],
+        "req": [
+          "req_351_make_the_reader_readable_and_the_filter_panel_say_something"
+        ],
+        "task": [
+          "task_348_deliver_the_reader_the_modal_and_the_filter_panel"
+        ]
+      },
+      "path": "logics/product/prod_087_surfaces_that_read_like_they_were_finished.md",
+      "ref": "prod_087_surfaces_that_read_like_they_were_finished",
+      "status": "Proposed",
+      "title": "Surfaces that read like they were finished"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "viewer, server, degrading, longer, left, running",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_765_make_the_panel_and_the_board_agree_on_what_is_shown",
+          "item_781_serve_an_unchanged_corpus_without_rebuilding_it",
+          "item_782_make_the_refresh_cadence_follow_what_a_refresh_costs",
+          "item_783_fail_when_the_work_is_repeated_or_a_change_is_missed"
+        ],
+        "prod": [
+          "prod_092_a_viewer_that_stays_as_fast_as_it_started"
+        ],
+        "req": [
+          "req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running"
+        ]
+      },
+      "path": "logics/request/req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running.md",
+      "ref": "req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Stop the viewer server degrading the longer it is left running"
+    },
+    {
+      "ai_context": {
+        "keywords": "shown count, panel versus columns, docs shown, column pagination, count reconciliation",
+        "skip when": "How many documents a column renders, decided by the board's own request.",
+        "summary": "The panel reports `1574 of 1576 docs shown` while the columns behind it read ten-of-349, ten-of-760 and ten-of-341 -- two meanings of the word shown, on one screen, three inches apart.",
+        "use when": "Reconciling what the filter panel and the board columns each report as shown."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_765_make_the_panel_and_the_board_agree_on_what_is_shown"
+        ],
+        "prod": [
+          "prod_087_surfaces_that_read_like_they_were_finished"
+        ],
+        "req": [
+          "req_351_make_the_reader_readable_and_the_filter_panel_say_something"
+        ],
+        "task": [
+          "task_348_deliver_the_reader_the_modal_and_the_filter_panel"
+        ]
+      },
+      "path": "logics/backlog/item_765_make_the_panel_and_the_board_agree_on_what_is_shown.md",
+      "ref": "item_765_make_the_panel_and_the_board_agree_on_what_is_shown",
+      "schema_version": "1.0",
+      "status": "Done",
+      "title": "Make the panel and the board agree on what is shown"
+    },
+    {
+      "ai_context": {
+        "keywords": "serve, unchanged, corpus, rebuilding",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_781_serve_an_unchanged_corpus_without_rebuilding_it"
+        ],
+        "prod": [
+          "prod_092_a_viewer_that_stays_as_fast_as_it_started"
+        ],
+        "req": [
+          "req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running"
+        ],
+        "task": [
+          "task_356_keep_the_viewer_as_fast_as_it_started"
+        ]
+      },
+      "path": "logics/backlog/item_781_serve_an_unchanged_corpus_without_rebuilding_it.md",
+      "ref": "item_781_serve_an_unchanged_corpus_without_rebuilding_it",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Serve an unchanged corpus without rebuilding it"
+    },
+    {
+      "ai_context": {
+        "keywords": "refresh, cadence, follow, costs",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_782_make_the_refresh_cadence_follow_what_a_refresh_costs"
+        ],
+        "prod": [
+          "prod_092_a_viewer_that_stays_as_fast_as_it_started"
+        ],
+        "req": [
+          "req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running"
+        ],
+        "task": [
+          "task_356_keep_the_viewer_as_fast_as_it_started"
+        ]
+      },
+      "path": "logics/backlog/item_782_make_the_refresh_cadence_follow_what_a_refresh_costs.md",
+      "ref": "item_782_make_the_refresh_cadence_follow_what_a_refresh_costs",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Make the refresh cadence follow what a refresh costs"
+    },
+    {
+      "ai_context": {
+        "keywords": "viewer, fast, started",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_781_serve_an_unchanged_corpus_without_rebuilding_it",
+          "item_782_make_the_refresh_cadence_follow_what_a_refresh_costs",
+          "item_783_fail_when_the_work_is_repeated_or_a_change_is_missed"
+        ],
+        "prod": [
+          "prod_092_a_viewer_that_stays_as_fast_as_it_started"
+        ],
+        "req": [
+          "req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running"
+        ],
+        "task": [
+          "task_356_keep_the_viewer_as_fast_as_it_started"
+        ]
+      },
+      "path": "logics/tasks/task_356_keep_the_viewer_as_fast_as_it_started.md",
+      "ref": "task_356_keep_the_viewer_as_fast_as_it_started",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Keep the viewer as fast as it started"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_781_serve_an_unchanged_corpus_without_rebuilding_it",
+          "item_782_make_the_refresh_cadence_follow_what_a_refresh_costs",
+          "item_783_fail_when_the_work_is_repeated_or_a_change_is_missed"
+        ],
+        "prod": [
+          "prod_092_a_viewer_that_stays_as_fast_as_it_started"
+        ],
+        "req": [
+          "req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running"
+        ],
+        "task": [
+          "task_356_keep_the_viewer_as_fast_as_it_started"
+        ]
+      },
+      "path": "logics/product/prod_092_a_viewer_that_stays_as_fast_as_it_started.md",
+      "ref": "prod_092_a_viewer_that_stays_as_fast_as_it_started",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "A viewer that stays as fast as it started"
+    },
+    {
+      "ai_context": {
+        "keywords": "fail, work, repeated, change, missed",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_783_fail_when_the_work_is_repeated_or_a_change_is_missed"
+        ],
+        "prod": [
+          "prod_092_a_viewer_that_stays_as_fast_as_it_started"
+        ],
+        "req": [
+          "req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running"
+        ],
+        "task": [
+          "task_356_keep_the_viewer_as_fast_as_it_started"
+        ]
+      },
+      "path": "logics/backlog/item_783_fail_when_the_work_is_repeated_or_a_change_is_missed.md",
+      "ref": "item_783_fail_when_the_work_is_repeated_or_a_change_is_missed",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Fail when the work is repeated or a change is missed"
+    }
+  ],
+  "estimates": {
+    "char_count": 7665,
+    "companion_doc_count": 2,
+    "doc_count": 7
+  },
+  "generated_at": "2026-08-14T12:42:48Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running",
+      "item_781_serve_an_unchanged_corpus_without_rebuilding_it",
+      "item_782_make_the_refresh_cadence_follow_what_a_refresh_costs",
+      "item_783_fail_when_the_work_is_repeated_or_a_change_is_missed",
+      "task_356_keep_the_viewer_as_fast_as_it_started"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running,item_781_serve_an_unchanged_corpus_without_rebuilding_it,item_782_make_the_refresh_cadence_follow_what_a_refresh_costs,item_783_fail_when_the_work_is_repeated_or_a_change_is_missed,task_356_keep_the_viewer_as_fast_as_it_started",
+  "refs": [
+    "req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running",
+    "item_781_serve_an_unchanged_corpus_without_rebuilding_it",
+    "item_782_make_the_refresh_cadence_follow_what_a_refresh_costs",
+    "item_783_fail_when_the_work_is_repeated_or_a_change_is_missed",
+    "task_356_keep_the_viewer_as_fast_as_it_started"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_356_keep_the_viewer_as_fast_as_it_started.md",
+      "ref": "task_356_keep_the_viewer_as_fast_as_it_started"
+    }
+  ]
+}

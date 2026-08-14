@@ -1,10 +1,10 @@
 ## item_777_find_out_whether_a_relaunch_can_reuse_a_server_that_is_gone - Find out whether a relaunch can reuse a server that is gone
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 50%
 > Complexity: Low
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

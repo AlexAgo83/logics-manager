@@ -1,14 +1,14 @@
 ## item_775_drop_a_screen_s_late_render_when_the_operator_has_moved_on - Drop a screen's late render when the operator has moved on
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 50%
 > Complexity: Medium
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 10:20:50
+> Indicators reviewed: 2026-08-14 10:45:30
 
 # AI Context
 - Summary: An operator clicking faster than a screen loads sees the previous screen paint over the new one; several screens take twenty seconds or more against a large corpus.
@@ -49,6 +49,14 @@ awkward middle this item has to be designed for.
 always at the narrow viewport, and always on the first screen opened after it. That is a
 narrower target than "any two screens racing", and the fix should be judged against it.
 
+# Delivery notes
+- The three screens that fetched without a token now take one, and check it before committing: `showFleetHome`, `showSettings` and `showChatgptMcp`. That is AC3 -- the behaviour holds for every screen that loads asynchronously, not only the one the defect was found on.
+- `loadProjectState`'s `options.renderFleetHome ||` short-circuit is gone. The token answers the same question for every screen, and `isFleetHomeOpen()` is now reachable on the path that needed it.
+- **The regression drives Settings, not the fleet home, and that is worth stating plainly.** The fleet home's late render does not reproduce under jsdom: `loadProjectState` wraps everything in a try/catch and the re-render never lands there, so a test written against it asserts an outcome that is *also* true when nothing happens. I wrote that test first, watched it pass against the exact original code, and replaced it. Settings has the same shape, renders in this harness, and fails when its guard is removed.
+- The test also asserts the screen really was mid-flight, so a future change that stops the fetch happening at all cannot make it pass by accident.
+- **Not proven: that the campaign's intermittent failure is gone.** It was observed three times over two days and never on demand. The fix removes the mechanism that produced it, and the reasoning is recorded above, but only repeated campaign runs over time can confirm it -- `item_776` takes the harness workaround out, and that removal is the real test.
+
+# Acceptance criteria
 # Acceptance criteria
 - AC1: A superseded screen does not render.
 - AC3: It holds for every asynchronous screen.

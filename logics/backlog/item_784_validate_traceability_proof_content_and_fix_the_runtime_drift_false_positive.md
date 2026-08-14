@@ -4,11 +4,11 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 60%
+> Progress: 50%
 > Complexity: Medium
 > Theme: flow-integrity
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 22:48:40
+> Indicators reviewed: 2026-08-14 23:00:50
 
 # AI Context
 - Summary: Add three deterministic proof-content checks (dup-proof, proof-matches-AC, orphan-slice-AC) to flow's traceability validation, and point runtime-drift's version comparison at a logics-manager-recorded value instead of the consumer repo's own VERSION.
@@ -30,15 +30,27 @@
   - Fuzzy or semantic proof matching.
   - Removing the runtime-drift feature; it stays, just pointed at the right source of truth.
 
-# Findings from implementation (AC1/AC2/AC3 not shipped -- see below)
-AC4 is implemented and proven. AC1-AC3, as scoped above, were built, tested against
-this repository's own real corpus (1497 docs, 350+ Done tasks), and reverted before
-commit: each produces a large, concrete false-positive rate against real, correctly
-implemented, historically-Done work, which is a worse outcome than the bug they fix
-(an unusable check trains operators to ignore findings -- exactly the failure mode
-these issues are about).
+# Findings from implementation (AC1 revised and shipped; AC2/AC3 not shipped)
+AC4 is implemented and proven. AC1, AC2, and AC3, as originally scoped (all blocking
+or warning per the table above), were built and tested against this repository's own
+real corpus (1497 docs, 350+ Done tasks) before any of it was committed: each produced
+a large, concrete false-positive rate against real, correctly implemented,
+historically-Done work, which is a worse outcome than the bug they fix (an unusable
+check trains operators to ignore findings -- exactly the failure mode these issues
+are about).
 
-- **AC1 (duplicate proof text) is unsafe as scoped.** A duplicate `request-ACn` proof
+**Resolution for AC1:** downgraded from a blocking finding to a non-blocking warning
+and shipped. The false-positive rate is unchanged (437 warnings on this corpus), but
+the cost of a false positive is now "an operator reads one extra line and confirms
+it," not "347 historically-Done tasks can no longer close." The detection itself is
+unchanged and still catches the concrete original bug shape (two self-referential
+`request-ACn` lines with byte-identical proof).
+
+**AC2/AC3 remain unresolved** -- their ambiguity (below) has no equivalent safe
+downgrade, since the check itself, not just its severity, is unsound as scoped.
+
+- **AC1 (duplicate proof text) was unsafe as a blocking finding; shipped as a warning
+  instead (see Resolution above).** A duplicate `request-ACn` proof
   is not only produced by a shift/copy-paste bug; it is also the correct, common
   shape of two other patterns already in this corpus: (a) an orchestration task
   delegating several request ACs to the *same* child item, where the redirect
@@ -74,13 +86,13 @@ semantics, no new doc structure, no LLM"). Left open for a follow-up scoping
 decision rather than shipped broken or silently dropped.
 
 # Acceptance criteria
-- AC1: two request-ACn proof lines with byte-identical proof text in the same document produce a blocking finding.
-- AC2: a request-ACn proof line whose text does not match (exact/strict) any acceptance criterion declared by the citing document produces a blocking finding.
-- AC3: a slice acceptance criterion backing no request AC produces a non-blocking warning.
+- AC1 (revised, see Findings below): two request-ACn proof lines with byte-identical proof text in the same document produce a **non-blocking warning** naming both AC ids, for a human to confirm rather than a gate to fail. Downgraded from the original "blocking" wording after a blocking prototype produced 437 false positives against this repository's own real corpus.
+- AC2: a request-ACn proof line whose text does not match (exact/strict) any acceptance criterion declared by the citing document produces a blocking finding. **Not shipped** — see Findings.
+- AC3: a slice acceptance criterion backing no request AC produces a non-blocking warning. **Not shipped** — see Findings.
 - AC4: in a repo with no logics-manager-recorded version, the runtime-drift notice does not fire; where one is recorded, the notice compares against it instead of the repo's own VERSION/package version.
 
 # AC Traceability
-- request-AC1 -> This backlog slice. Proof: AC1: two request-ACn proof lines with byte-identical proof text in the same document produce a blocking finding.
+- request-AC1 -> This backlog slice. Proof: Implemented in cd7fb24a: `duplicate_proof_ac_ids` (`logics_manager/flow_evidence.py`) detects two self-referential `request-ACn` lines in one document sharing byte-identical proof text (whitespace-normalized), excluding orchestration redirects and placeholders; wired into `audit.py` as a non-blocking warning (`ac_duplicate_proof`), not the originally-scoped blocking finding, after a blocking prototype produced 437 false positives against this repository's own real corpus. Validated with 4 new unit tests plus an audit-level severity test, and the full suite (`pytest` 1376 passed). Source: `cd7fb24a`
 - request-AC2 -> This backlog slice. Proof: AC2: a request-ACn proof line whose text does not match (exact/strict) any acceptance criterion declared by the citing document produces a blocking finding.
 - request-AC3 -> This backlog slice. Proof: AC3: a slice acceptance criterion backing no request AC produces a non-blocking warning.
 - request-AC4 -> This backlog slice. Proof: Implemented in 285c46e8: `repository_version()` now only reads `VERSION` for what looks like logics-manager's own checkout (a `logics_manager/__init__.py` at repo_root); a consumer repo's own version is never read, so `drift_message` is silent there regardless of what it declares. Validated with `python3 -m pytest tests/python/test_runtime_drift.py -q` (8 passed, including a new consumer-repo case) and the full suite (`pytest` 1371 passed). Source: `285c46e8`

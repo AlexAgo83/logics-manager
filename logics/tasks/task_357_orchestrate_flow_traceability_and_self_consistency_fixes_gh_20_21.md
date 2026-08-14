@@ -1,14 +1,15 @@
 ## task_357_orchestrate_flow_traceability_and_self_consistency_fixes_gh_20_21 - Orchestrate flow traceability and self-consistency fixes (GH #20, #21)
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 60%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-14 22:01:31
+> Indicators reviewed: 2026-08-14 22:47:53
+> Owner: claude
 
 # AI Context
 - Summary: Orchestrates item_784 (traceability proof-content checks + runtime-drift fix) and item_785 (flow's own writes re-baselining indicators + Mermaid finding wording) in the priority order set by req_357.
@@ -20,16 +21,16 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Implement the duplicate-proof-text check (backlog AC1) — highest yield, no tuning, ship first.
-- [ ] 2. Implement the proof-must-match-a-real-AC check (backlog AC2), strict/exact matching.
-- [ ] 3. Implement the orphaned-slice-AC warning (backlog AC3).
-- [ ] 4. Point runtime-drift at a logics-manager-recorded version and silence it otherwise (backlog AC4).
-- [ ] 5. Make flow start/repair/closeout re-baseline indicators on every document they write (backlog AC5).
-- [ ] 6. Update the companion_doc_missing_mermaid finding text for product documents (backlog AC6).
-- [ ] 7. Validate the full chain with flow validate, lint --require-status, and a manual replay of the two issues' repro steps.
-- [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
-- [ ] Keep commit creation under operator control; do not force one commit per micro-step.
-- [ ] GATE: do not close until lint, audit, and scaffold validation pass.
+- [ ] 1. Implement the duplicate-proof-text check (backlog AC1) — attempted, tested against the real corpus, reverted before commit: 437 blocking false positives against legitimate historical work. See item_784's "Findings from implementation" for the evidence.
+- [ ] 2. Implement the proof-must-match-a-real-AC check (backlog AC2) — not built: the same ambiguity that broke AC1 (slice-local vs request AC numbering don't correspond 1:1) makes literal matching unsafe here too, confirmed against a real sibling document (item_786) before writing any code.
+- [ ] 3. Implement the orphaned-slice-AC warning (backlog AC3) — not built, same reason as AC2.
+- [x] 4. Point runtime-drift at a logics-manager-recorded version and silence it otherwise (backlog AC4) — done: gated on self-repo detection (a `logics_manager/__init__.py` at repo_root), the cheaper of the two options the source issue offered.
+- [x] 5. Make flow start/repair/closeout re-baseline indicators on every document they write (backlog AC5) — done.
+- [x] 6. Update the companion_doc_missing_mermaid finding text for product documents (backlog AC6) — done, and generalized to every companion kind `flow repair mermaid` refuses (architecture included, not just product).
+- [x] 7. Validate the full chain with flow validate, lint --require-status, and a manual replay of the two issues' repro steps — done for AC4/5/6; AC1/2/3 have no fix to replay against.
+- [x] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
+- [x] Keep commit creation under operator control; do not force one commit per micro-step.
+- [ ] GATE: do not close until lint, audit, and scaffold validation pass — item_784/AC1-3 remain open; this task and req_357 stay In progress rather than closing over unimplemented, undecided scope.
 
 # Backlog
 - `item_784_validate_traceability_proof_content_and_fix_the_runtime_drift_false_positive`
@@ -50,10 +51,16 @@
 - request-AC6 -> `item_785_stop_flow_s_own_writes_from_tripping_its_own_checks`. Proof deferred to slice closeout.
 
 # Validation
-- (no validation recorded yet)
+- `python3 -m pytest tests/python/ -q` — 1371 passed (full suite, includes 3 new/updated tests for AC4/AC5/AC6).
+- `npx vitest run` — 929 passed (unaffected by this task's changes).
+- `python3 -m ruff check logics_manager/audit.py logics_manager/flow/__init__.py logics_manager/runtime_drift.py logics_manager/flow_evidence.py` — clean.
+- Manual replay against this repo's own corpus: `logics-manager audit --group-by-doc` shows the new `companion_doc_missing_mermaid` wording live on `prod_093`'s existing warning.
 
 # Report
-- Not started.
+- Delivered AC4 (runtime-drift self-repo gating), AC5 (indicator rebaseline on flow start/repair/closeout), AC6 (mermaid finding wording) -- see item_784 and item_785 for per-AC proof.
+- AC1/AC2/AC3 (traceability proof-content checks) are not shipped. AC1 was built and reverted after producing 437 false positives against this repository's own real, correctly-implemented corpus; AC2/AC3 were not built at all once the same root ambiguity (slice-local AC numbering vs request AC numbering, which don't correspond 1:1 in real documents) was confirmed against a real sibling document. Full evidence and a recommendation are recorded on item_784.
+- This is a genuine scope gap, not an oversight: shipping any of the three as originally specified would have introduced a corpus-wide false-positive regression on this very project, which is a worse outcome than the bug the checks were meant to fix.
+- This task, item_784, and req_357 are left In progress rather than closed, since 3 of 6 ACs remain open pending a design decision.
 
 # Links
 - Request: `req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy`

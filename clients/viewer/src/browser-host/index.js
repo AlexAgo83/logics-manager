@@ -335,7 +335,6 @@ import {
     setWorkshopActiveTab,
     showCustomTerminalModal,
     showWorkshop,
-    showWorkshopRunbookGraph,
     setWorkshopRunbooksIncludeHidden,
     spawnCustomWorkshopTerminal,
     spawnSystemWorkshopTerminal,
@@ -2695,6 +2694,11 @@ import {
       // Declared before the screen renders so its first paint already has root chrome.
       rootScreenTitle = "Fleet";
       void showFleetHome({ silent: Boolean(options.silent) });
+    } else {
+      // A project is active behind any later "Fleet home" reopen: it is no longer
+      // a true root screen, so Close/Minimize must stay available (ponytail: this
+      // was the actual dead-end bug -- the latch used to never clear).
+      rootScreenTitle = "";
     }
     return true;
   }
@@ -4307,7 +4311,6 @@ import {
       const workshopTabTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-tab]") : null;
       const workshopRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run]") : null;
       const workshopRunbookOpenTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-open]") : null;
-      const workshopRunbookGraphTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-graph]") : null;
       const workshopRunbookSearchTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-search]") : null;
       const workshopRunbookHiddenTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-hidden]") : null;
       const fleetHomeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-fleet-home]") : null;
@@ -4633,11 +4636,6 @@ import {
         if (path) withPrimaryAction("runbook-open", "Loading runbook", () => showDocumentByPath(path));
         return;
       }
-      if (workshopRunbookGraphTarget instanceof HTMLElement) {
-        event.preventDefault();
-        withPrimaryAction("runbook-graph", "Loading runbook graph", showWorkshopRunbookGraph);
-        return;
-      }
       // item_757: the Search button is gone and the field searches as it is typed. The
       // click handler stays for one release so a cached page still works, but nothing in
       // the markup produces the target any more.
@@ -4651,6 +4649,7 @@ import {
       if (workshopRunbookHiddenTarget instanceof HTMLInputElement) {
         const input = workshopRunbookHiddenTarget.parentElement?.parentElement?.querySelector("[data-viewer-workshop-runbook-query]");
         const query = input instanceof HTMLInputElement ? input.value.trim() : "";
+        updateViewerPreferences({ workshopRunbookShowHidden: workshopRunbookHiddenTarget.checked });
         withPrimaryAction("runbook-hidden", "Loading runbooks", () => setWorkshopRunbooksIncludeHidden(workshopRunbookHiddenTarget.checked, query));
         return;
       }

@@ -47,6 +47,13 @@ export function createWorkshopScreen(host) {
     return host.shared.viewerPreferences.workshopUseSystemTerminal === true || window.parent !== window;
   }
 
+  // item_801/task_372: "Show hidden" used to be in-memory only (workshopRunbookState.
+  // includeHidden, hardcoded false) and reset every reload. Default is "on" -- an
+  // explicit `false` preference is the only thing that turns it off.
+  function workshopRunbookShowsHidden() {
+    return host.shared.viewerPreferences.workshopRunbookShowHidden !== false;
+  }
+
   function syncWorkshopSystemTerminalControls() {
     document.querySelectorAll("[data-viewer-workshop-system-terminal]").forEach((node) => {
       if (node instanceof HTMLInputElement) {
@@ -190,8 +197,7 @@ export function createWorkshopScreen(host) {
         <div class="viewer-workshop__panel viewer-workshop__panel--runbooks" role="tabpanel" data-viewer-workshop-panel="runbooks">
           <div class="viewer-workshop__runbook-search">
             <input type="search" placeholder="Search by intent, symptom, path, or category..." data-viewer-workshop-runbook-query aria-label="Search runbooks" />
-            <label class="viewer-workshop__runbook-toggle"><input type="checkbox" data-viewer-workshop-runbook-hidden /> Show hidden</label>
-            <button class="btn" type="button" data-viewer-workshop-runbook-graph>View graph</button>
+            <label class="viewer-workshop__runbook-toggle"><input type="checkbox" data-viewer-workshop-runbook-hidden${workshopRunbookShowsHidden() ? " checked" : ""} /> Show hidden</label>
           </div>
           <div data-viewer-workshop-runbooks>
             <div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty">
@@ -393,7 +399,7 @@ export function createWorkshopScreen(host) {
   // req_330/item_689: search results and the "recent" landing list share this
   // card shape ({ref, category, verified, reason, title}), so one render path
   // covers both instead of a separate empty-query branch.
-  const workshopRunbookState = { payload: null, showingGraph: false, includeHidden: false };
+  const workshopRunbookState = { payload: null, showingGraph: false, includeHidden: workshopRunbookShowsHidden() };
 
   function renderWorkshopRunbookCards(payload) {
     if (!payload || payload.no_match) {
@@ -1421,6 +1427,9 @@ export function createWorkshopScreen(host) {
       await loadWorkshopCommands();
       host.setMeta(`Workshop / ${activeTab} loaded.`);
     } else if (activeTab === "runbooks") {
+      // Re-synced here (not only at module init) since viewerPreferences hydrates
+      // from the server asynchronously and may not have landed yet at init time.
+      workshopRunbookState.includeHidden = workshopRunbookShowsHidden();
       await loadWorkshopRunbooks();
       host.setMeta(`Workshop / ${activeTab} loaded.`);
     } else if (activeTab === "terminals") {

@@ -6145,6 +6145,9 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
     function workshopUsesSystemTerminal() {
       return host.shared.viewerPreferences.workshopUseSystemTerminal === true || window.parent !== window;
     }
+    function workshopRunbookShowsHidden() {
+      return host.shared.viewerPreferences.workshopRunbookShowHidden !== false;
+    }
     function syncWorkshopSystemTerminalControls() {
       document.querySelectorAll("[data-viewer-workshop-system-terminal]").forEach((node) => {
         if (node instanceof HTMLInputElement) {
@@ -6265,8 +6268,7 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
         <div class="viewer-workshop__panel viewer-workshop__panel--runbooks" role="tabpanel" data-viewer-workshop-panel="runbooks">
           <div class="viewer-workshop__runbook-search">
             <input type="search" placeholder="Search by intent, symptom, path, or category..." data-viewer-workshop-runbook-query aria-label="Search runbooks" />
-            <label class="viewer-workshop__runbook-toggle"><input type="checkbox" data-viewer-workshop-runbook-hidden /> Show hidden</label>
-            <button class="btn" type="button" data-viewer-workshop-runbook-graph>View graph</button>
+            <label class="viewer-workshop__runbook-toggle"><input type="checkbox" data-viewer-workshop-runbook-hidden${workshopRunbookShowsHidden() ? " checked" : ""} /> Show hidden</label>
           </div>
           <div data-viewer-workshop-runbooks>
             <div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty">
@@ -6429,7 +6431,7 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
       }
       renderWorkshopCommands();
     }
-    const workshopRunbookState = { payload: null, showingGraph: false, includeHidden: false };
+    const workshopRunbookState = { payload: null, showingGraph: false, includeHidden: workshopRunbookShowsHidden() };
     function renderWorkshopRunbookCards(payload) {
       if (!payload || payload.no_match) {
         return `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">\xB7</span><span>${payload?.query ? `No Active runbook matched "${escapeHtml(payload.query)}".` : "No Active runbooks yet."}</span></div>`;
@@ -7369,6 +7371,7 @@ ${line}` : line;
         await loadWorkshopCommands();
         host.setMeta(`Workshop / ${activeTab} loaded.`);
       } else if (activeTab === "runbooks") {
+        workshopRunbookState.includeHidden = workshopRunbookShowsHidden();
         await loadWorkshopRunbooks();
         host.setMeta(`Workshop / ${activeTab} loaded.`);
       } else if (activeTab === "terminals") {
@@ -8672,7 +8675,6 @@ ${line}` : line;
       setWorkshopActiveTab,
       showCustomTerminalModal,
       showWorkshop,
-      showWorkshopRunbookGraph,
       setWorkshopRunbooksIncludeHidden,
       spawnCustomWorkshopTerminal,
       spawnSystemWorkshopTerminal,
@@ -10684,6 +10686,8 @@ ${line}` : line;
       if (payload.fleetHome) {
         rootScreenTitle = "Fleet";
         void showFleetHome({ silent: Boolean(options.silent) });
+      } else {
+        rootScreenTitle = "";
       }
       return true;
     }
@@ -12000,7 +12004,6 @@ ${shown.join("\n")}${files.length > shown.length ? `
         const workshopTabTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-tab]") : null;
         const workshopRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run]") : null;
         const workshopRunbookOpenTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-open]") : null;
-        const workshopRunbookGraphTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-graph]") : null;
         const workshopRunbookSearchTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-search]") : null;
         const workshopRunbookHiddenTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-hidden]") : null;
         const fleetHomeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-fleet-home]") : null;
@@ -12330,11 +12333,6 @@ ${shown.join("\n")}${files.length > shown.length ? `
           if (path2) withPrimaryAction("runbook-open", "Loading runbook", () => showDocumentByPath(path2));
           return;
         }
-        if (workshopRunbookGraphTarget instanceof HTMLElement) {
-          event.preventDefault();
-          withPrimaryAction("runbook-graph", "Loading runbook graph", showWorkshopRunbookGraph);
-          return;
-        }
         if (workshopRunbookSearchTarget instanceof HTMLElement) {
           event.preventDefault();
           const input = workshopRunbookSearchTarget.parentElement?.querySelector("[data-viewer-workshop-runbook-query]");
@@ -12345,6 +12343,7 @@ ${shown.join("\n")}${files.length > shown.length ? `
         if (workshopRunbookHiddenTarget instanceof HTMLInputElement) {
           const input = workshopRunbookHiddenTarget.parentElement?.parentElement?.querySelector("[data-viewer-workshop-runbook-query]");
           const query = input instanceof HTMLInputElement ? input.value.trim() : "";
+          updateViewerPreferences({ workshopRunbookShowHidden: workshopRunbookHiddenTarget.checked });
           withPrimaryAction("runbook-hidden", "Loading runbooks", () => setWorkshopRunbooksIncludeHidden(workshopRunbookHiddenTarget.checked, query));
           return;
         }

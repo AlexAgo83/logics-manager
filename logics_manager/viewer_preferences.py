@@ -33,6 +33,7 @@ OPERATOR_FIELDS = frozenset(
         "favoriteProjects",
         "projectLastUsedAt",
         "workshopUseSystemTerminal",
+        "workshopRunbookShowHidden",
         "autoRefreshIntervalSeconds",
         "fleetRoots",
     }

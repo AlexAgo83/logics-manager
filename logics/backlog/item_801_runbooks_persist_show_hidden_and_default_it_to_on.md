@@ -1,14 +1,14 @@
 ## item_801_runbooks_persist_show_hidden_and_default_it_to_on - Runbooks: persist "Show hidden" and default it to on
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Viewer polish
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 00:45:53
+> Indicators reviewed: 2026-08-15 01:08:19
 
 # AI Context
 - Summary: The Runbooks "Show hidden" checkbox is in-memory only (`workshopRunbookState.includeHidden`, defaults to `false`) and resets on every reload. Persist it via the existing `viewerPreferences` mechanism (same pattern as `workshopUseSystemTerminal`) and default it to on.
@@ -33,8 +33,8 @@ Reported directly by the operator. Confirmed in `clients/viewer/src/browser-host
 - AC2: The Runbooks "Show hidden" checkbox defaults to checked (on) for an operator with no prior recorded preference.
 
 # AC Traceability
-- request-AC2 -> This backlog slice. Proof: AC2: The Runbooks "Show hidden" choice survives a reload/restart of the viewer, using the existing `viewerPreferences` mechanism (mirroring `workshopUseSystemTerminal`).
-- request-AC3 -> This backlog slice. Proof: AC3: The Runbooks "Show hidden" checkbox defaults to checked (on) for an operator with no prior recorded preference.
+- request-AC2 -> This backlog slice. Proof: Implemented via `workshopRunbookShowHidden` registered in `OPERATOR_FIELDS` (`logics_manager/viewer_preferences.py`) and persisted through `updateViewerPreferences()` on checkbox change (`clients/viewer/src/browser-host/index.js`); verified by the new test "defaults Runbooks 'Show hidden' to on and persists a toggle to viewer preferences (task_372)" in `tests/viewer.browser-host.test.ts`, asserting the toggled value round-trips through `logics.localViewer.preferences.v1`.
+- request-AC3 -> This backlog slice. Proof: `workshopRunbookShowsHidden()` (`clients/viewer/src/browser-host/workshop.js`) treats anything but an explicit `false` preference as on; the same task_372 test asserts the checkbox is checked and the initial load requests `/api/runbooks?includeHidden=1` with no prior preference recorded.
 
 # Decision framing
 - Product framing: Not needed
@@ -47,8 +47,8 @@ Reported directly by the operator. Confirmed in `clients/viewer/src/browser-host
 # Links
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_362_fleet_and_runbooks_dead_end_screen_unpersisted_preference_dead_ui_option.md`
-- Primary task(s): (none yet)
+- Request: `req_362_fleet_and_runbooks_dead_end_screen_unpersisted_preference_dead_ui_option`
+- Primary task(s): `task_372_runbooks_persist_show_hidden_and_default_it_to_on`
 
 # Priority
 - Priority: Low
@@ -58,6 +58,7 @@ Reported directly by the operator. Confirmed in `clients/viewer/src/browser-host
 - Hybrid rationale: Derived from request `req_362_fleet_and_runbooks_dead_end_screen_unpersisted_preference_dead_ui_option` and kept bounded to one coherent delivery slice (the "Show hidden" preference only).
 - Source file: `logics/request/req_362_fleet_and_runbooks_dead_end_screen_unpersisted_preference_dead_ui_option.md`.
 - req_359/item_792 plans to move Runbooks' navigation placement (Workshop → Corpus). If that slice relocates the rendering code out of `workshop.js` before this one ships, re-verify the `workshop.js:396`/`:473-476` citations still hold before implementing.
+- Task `task_372_runbooks_persist_show_hidden_and_default_it_to_on` was finished via `logics-manager flow finish task` on 2026-08-15.
 
 # Tasks
 - `task_372_runbooks_persist_show_hidden_and_default_it_to_on`

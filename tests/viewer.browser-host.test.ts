@@ -443,6 +443,10 @@ function createViewerDom(options: {
               ],
               autoRefreshIntervalSeconds: options.autoRefreshIntervalSeconds ?? 15,
               autoRefreshIntervalForced: Boolean(options.autoRefreshIntervalForced),
+              // Mirrors the real server's switch_project(), which always re-sends "fleet"
+              // via viewer_payload() -- omitting it here made Fleet mode look like it
+              // vanished across a project switch, which the real server never does.
+              fleet: Boolean(options.fleet),
               items: [
                 { id: "req_002_cdx", title: "CDX", stage: "request", relPath: "logics/request/req_002_cdx.md", references: [], usedBy: [], indicators: { Status: "Ready" }, isPromoted: false, updatedAt: "2026-06-03T10:00:00" }
               ],
@@ -2796,6 +2800,41 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.querySelector('.viewer-fleet [data-viewer-project-favorite="project-cdx"]')?.getAttribute("aria-pressed")).toBe("true");
   });
 
+  it("restores Close/Minimize when Fleet home is reopened after a project is active (task_371)", async () => {
+    // item_800/task_371: rootScreenTitle used to be set to "Fleet" on the true
+    // first-boot case and never cleared, so every later reopening of Fleet home
+    // (via the switcher's Fleet entry) kept Close/Minimize hidden even with a
+    // real project active behind it -- a genuine dead end.
+    const { dom, calls } = createViewerDom({
+      fleet: true,
+      fleetHome: true,
+      projects: [
+        { id: "project-logics", name: "logics-manager", root: "/workspace/logics-manager", active: false, available: true, hasLogics: true },
+        { id: "project-cdx", name: "cdx-manager", root: "/workspace/cdx-manager", active: false, available: true, hasLogics: true }
+      ]
+    });
+    const api = dom.window.acquireVsCodeApi();
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const document = dom.window.document;
+    // True first boot: Fleet is the root screen, Close/Minimize are withheld.
+    expect((document.getElementById("viewer-document-close") as HTMLButtonElement | null)?.hidden).toBe(true);
+
+    const open = document.querySelector('.viewer-fleet [data-viewer-project-id="project-cdx"]') as HTMLButtonElement | null;
+    open?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    for (let turn = 0; turn < 6; turn += 1) await flushViewerAsync();
+    expect(calls).toContain("/api/switch-project");
+
+    document.getElementById("viewer-repo-pill")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    document.querySelector("[data-viewer-fleet-home]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    expect((document.getElementById("viewer-document-close") as HTMLButtonElement | null)?.hidden).toBe(false);
+    expect((document.getElementById("viewer-document-close") as HTMLButtonElement | null)?.disabled).toBe(false);
+  });
+
   it("sorts favorite projects by last-used while keeping the active project first", async () => {
     const { dom } = createViewerDom({
       initialPreferences: {
@@ -3232,7 +3271,7 @@ describe("local viewer browser host", () => {
     expect(calls).toContain("/api/workshop-command-stop");
   });
 
-  it("shows the Runbooks Workshop tab between Commands and Explorer, searches, and renders the graph", async () => {
+  it("shows the Runbooks Workshop tab between Commands and Explorer, and searches", async () => {
     const { dom, calls } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();
 
@@ -3250,7 +3289,9 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(calls).toContain("/api/runbooks");
+    // item_801/task_372: "Show hidden" now defaults to on, so the initial load already
+    // requests hidden runbooks too.
+    expect(calls).toContain("/api/runbooks?includeHidden=1");
     const runbooksPanel = dom.window.document.querySelector("[data-viewer-workshop-runbooks]");
     expect(runbooksPanel?.textContent).toContain("Restart the ingest worker");
     expect(runbooksPanel?.textContent).toContain("infrastructure");
@@ -3270,18 +3311,50 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 400));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(calls).toContain("/api/runbooks?q=release");
+    expect(calls).toContain("/api/runbooks?q=release&includeHidden=1");
     expect(dom.window.document.querySelector("[data-viewer-workshop-runbooks]")?.textContent).toContain("No Active runbook matched");
+  });
 
-    // The graph reuses the chain-graph Mermaid renderer -- category and runbook nodes appear.
-    dom.window.document.querySelector("[data-viewer-workshop-runbook-graph]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+  it("no longer shows the dead \"View graph\" button in Runbooks (task_373)", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+    api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(calls).toContain("/api/runbook-graph");
-    const graphSource = dom.window.document.querySelector("[data-viewer-workshop-runbooks] pre.mermaid")?.textContent || "";
-    expect(graphSource).toContain("category_infrastructure");
-    expect(graphSource).toContain("run_001_probe");
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-workshop-tab="runbooks"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(dom.window.document.querySelector("[data-viewer-workshop-runbook-graph]")).toBeNull();
+  });
+
+  it("defaults Runbooks \"Show hidden\" to on and persists a toggle to viewer preferences (task_372)", async () => {
+    // item_801/task_372: this checkbox used to be in-memory only (workshopRunbookState.
+    // includeHidden, hardcoded false) and reset to unchecked on every reload.
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    dom.window.document.querySelector('[data-viewer-workshop-tab="runbooks"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const hidden = dom.window.document.querySelector("[data-viewer-workshop-runbook-hidden]") as HTMLInputElement | null;
+    expect(hidden?.checked).toBe(true);
+    expect(calls).toContain("/api/runbooks?includeHidden=1");
+
+    hidden?.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const stored = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "{}");
+    expect(stored.workshopRunbookShowHidden).toBe(false);
   });
 
   it("captures a LAN token from the URL, scrubs it, and attaches it to outbound fetches", async () => {

@@ -1464,6 +1464,17 @@ export function createWorkshopScreen(host) {
     }
   }
 
+  // item_792: Runbooks moved from a Workshop tab to its own Corpus screen. Reuses
+  // renderWorkshopPanel("runbooks")/loadWorkshopRunbooks unchanged -- only the tab
+  // bar wrapper (renderWorkshop) and the Workshop-specific dispatch are skipped.
+  async function showCorpusRunbooks() {
+    host.setDocument("Runbooks", `<div class="viewer-workshop">${renderWorkshopPanel("runbooks")}</div>`);
+    host.setMeta("Runbooks: loading...");
+    workshopRunbookState.includeHidden = workshopRunbookShowsHidden();
+    await loadWorkshopRunbooks();
+    host.setMeta("Runbooks loaded.");
+  }
+
   const state = {};
   Object.defineProperties(state, {
     workshopButton: { get: () => workshopButton },
@@ -1521,6 +1532,7 @@ export function createWorkshopScreen(host) {
     setActiveWorkshopTerminal,
     setCustomTerminalBusy,
     setWorkshopActiveTab,
+    showCorpusRunbooks,
     showCustomTerminalModal,
     showWorkshop,
     showWorkshopRunbookGraph,

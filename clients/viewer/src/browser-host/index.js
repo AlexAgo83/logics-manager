@@ -333,6 +333,7 @@ import {
     setActiveWorkshopTerminal,
     setCustomTerminalBusy,
     setWorkshopActiveTab,
+    showCorpusRunbooks,
     showCustomTerminalModal,
     showWorkshop,
     setWorkshopRunbooksIncludeHidden,
@@ -4399,6 +4400,8 @@ import {
             withPrimaryAction("corpus-health", "Checking health", showHealth);
           } else if (section === "getting-started") {
             showGettingStarted();
+          } else if (section === "runbooks") {
+            withPrimaryAction("corpus-runbooks", "Loading runbooks", showCorpusRunbooks);
           } else {
             withPrimaryAction("corpus-insights", "Loading insights", showCorpusInsights);
           }

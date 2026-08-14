@@ -1682,7 +1682,6 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
   var workshopTabs = [
     { id: "terminals", label: "Terminals", title: "In-app PTY terminals" },
     { id: "commands", label: "Commands", title: "Discovered package and project scripts" },
-    { id: "runbooks", label: "Runbooks", title: "Operational runbooks: search, browse by category, verify" },
     { id: "explorer", label: "Explorer", title: "Browse repository files" }
   ];
   var WORKSHOP_TERMINAL_MIN_COLS = 80;
@@ -7398,6 +7397,13 @@ ${line}` : line;
         host.setMeta(`Workshop / ${activeTab} loaded.`);
       }
     }
+    async function showCorpusRunbooks() {
+      host.setDocument("Runbooks", `<div class="viewer-workshop">${renderWorkshopPanel("runbooks")}</div>`);
+      host.setMeta("Runbooks: loading...");
+      workshopRunbookState.includeHidden = workshopRunbookShowsHidden();
+      await loadWorkshopRunbooks();
+      host.setMeta("Runbooks loaded.");
+    }
     const state = {};
     Object.defineProperties(state, {
       workshopButton: { get: () => workshopButton },
@@ -7460,6 +7466,7 @@ ${line}` : line;
       setActiveWorkshopTerminal,
       setCustomTerminalBusy,
       setWorkshopActiveTab,
+      showCorpusRunbooks,
       showCustomTerminalModal,
       showWorkshop,
       showWorkshopRunbookGraph,
@@ -8673,6 +8680,7 @@ ${line}` : line;
       setActiveWorkshopTerminal,
       setCustomTerminalBusy,
       setWorkshopActiveTab,
+      showCorpusRunbooks,
       showCustomTerminalModal,
       showWorkshop,
       setWorkshopRunbooksIncludeHidden,
@@ -12084,6 +12092,8 @@ ${shown.join("\n")}${files.length > shown.length ? `
               withPrimaryAction("corpus-health", "Checking health", showHealth);
             } else if (section === "getting-started") {
               showGettingStarted();
+            } else if (section === "runbooks") {
+              withPrimaryAction("corpus-runbooks", "Loading runbooks", showCorpusRunbooks);
             } else {
               withPrimaryAction("corpus-insights", "Loading insights", showCorpusInsights);
             }

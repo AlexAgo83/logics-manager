@@ -173,10 +173,11 @@ export const HLJS_EXT_LANGUAGE = {
     diff: "diff", patch: "diff"
   };
 
+// item_792: Runbooks moved out of Workshop's tab bar into the Corpus nav group
+// (`corpus:runbooks` in index.js) -- it lives here no longer.
 export const workshopTabs = [
     { id: "terminals", label: "Terminals", title: "In-app PTY terminals" },
     { id: "commands", label: "Commands", title: "Discovered package and project scripts" },
-    { id: "runbooks", label: "Runbooks", title: "Operational runbooks: search, browse by category, verify" },
     { id: "explorer", label: "Explorer", title: "Browse repository files" },
   ];
 

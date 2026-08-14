@@ -1,14 +1,14 @@
 ## item_793_stop_capping_content_to_a_fixed_width_on_task_reader_getting_started_and_settings - Stop capping content to a fixed width on task/reader, Getting Started, and Settings
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer redesign follow-through
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 00:19:56
+> Indicators reviewed: 2026-08-15 01:40:22
 
 # AI Context
 - Summary: Several screens cap content to a fixed width instead of using available space — on a task/reader screen this pushes the side menu to the right instead of the left; on Getting Started it leaves a dead column on the right of every stage card.
@@ -34,7 +34,7 @@ Reported directly by the operator and independently corroborated by the mockup r
 - AC3: Settings' layout uses the available width rather than capping to a fixed value.
 
 # AC Traceability
-- request-AC5 -> This backlog slice. Proof: AC5: No viewer screen caps its content to a fixed width when the viewport offers more room; a task/reader screen's side panel/menu renders on the left with content filling the remaining width, and Getting Started's stage cards use the full available width instead of leaving a dead column on the right.
+- request-AC5 -> This backlog slice. Proof: Three independent fixes in `clients/viewer/viewer.css`: (1) the reader's two grid tracks were swapped (nav now track 1/fixed/left, prose now track 2/flexible/right, with the 72ch reading measure moved onto the prose element itself); (2) `.viewer-onboarding`'s whole-screen 920px cap removed, and `.viewer-onboarding__layout`'s second grid track changed from `minmax(0, 68ch)` to `minmax(0, 1fr)` (the actual bug -- the *track*, not just its paragraphs, was capped to the prose measure, squeezing the whole stage-card box); (3) `.viewer-settings-screen`'s 980px cap removed. Verified by headless-Chrome screenshots of all three screens at 1440px and a DOM measurement confirming the reader's contents nav sits at `x=43` (left) with prose starting after it.
 
 # Decision framing
 - Product framing: Not needed

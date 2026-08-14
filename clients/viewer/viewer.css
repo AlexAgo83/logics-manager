@@ -5816,6 +5816,19 @@
   gap: 4px;
 }
 
+/* item_791: the "Favorites" / "All projects" section headings the mockup shows. */
+.viewer-fleet__section-label {
+  margin: 16px 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.viewer-fleet__section-label:first-child {
+  margin-top: 0;
+}
+
 .viewer-fleet__row {
   display: grid;
   grid-template-columns: 3px auto 1fr auto auto;

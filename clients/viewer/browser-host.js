@@ -9359,7 +9359,8 @@ ${line}` : line;
       </span>
     `).join("");
       const attention = all.filter(({ key }) => key === "issues" || key === "unreadable").length;
-      const rows = projects.map(renderFleetRow).join("");
+      const fleetSection = (label, group) => group.length ? `<p class="viewer-fleet__section-label">${escapeHtml(label)}</p><section class="viewer-fleet__rows">${group.map(renderFleetRow).join("")}</section>` : "";
+      const rows = `${fleetSection("Favorites", projects.filter((p) => p.favorite))}${fleetSection("All projects", projects.filter((p) => !p.favorite))}`;
       const empty = `
       <div class="viewer-fleet__empty">
         <p class="viewer-fleet__empty-title">No projects yet</p>
@@ -9377,7 +9378,7 @@ ${line}` : line;
           <span class="viewer-fleet__roots">${rootChips}</span>
           <button class="viewer-fleet__open" type="button" data-viewer-fleet-root-pick>Add root</button>
         </div>
-        <section class="viewer-fleet__rows">${all.length ? rows || noMatch : empty}</section>
+        ${all.length ? rows || noMatch : empty}
       </section>
     `;
     }

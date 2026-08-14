@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Viewer redesign follow-through
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 00:19:55
+> Indicators reviewed: 2026-08-15 00:45:53
 
 # AI Context
 - Summary: This repo's own redesigned `renderFleetHome()` has never been visually confirmed on a running server, and the mockup's two labelled sections ("Favorites" / "All projects") don't exist in the implementation.
@@ -47,6 +47,9 @@ No server currently reachable on the review machine actually served this repo's 
 # Priority
 - Priority: Medium
 - Rationale: The redesign is already coded; this is a confirmation pass plus one small structural addition.
+
+# Notes
+- Fleet home also has a separate, unrelated bug tracked in req_362/item_800 (a stale `rootScreenTitle` latch that hides Close/Minimize on later reopenings). That fix is independent of this slice's scope and does not block confirming the redesign here.
 
 # Tasks
 - `task_362_fleet_home_confirm_the_redesign_live_add_favourites_all_projects_sections`

@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: Viewer polish
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 00:40:30
+> Indicators reviewed: 2026-08-15 00:45:53
 
 # AI Context
 - Summary: The Runbooks "View graph" button (`data-viewer-workshop-runbook-graph`) renders a Mermaid chain graph nobody uses; remove the button and its click-handler branch, keep the underlying `showWorkshopRunbookGraph`/`graph.js`/`/api/runbook-graph` code in place unused, and update the one test that asserts on the button.
@@ -54,6 +54,7 @@ Reported directly by the operator: the Runbooks "View graph" button serves no pu
 # Notes
 - Hybrid rationale: Derived from request `req_362_fleet_and_runbooks_dead_end_screen_unpersisted_preference_dead_ui_option` and kept bounded to one coherent delivery slice (the "View graph" button only).
 - Source file: `logics/request/req_362_fleet_and_runbooks_dead_end_screen_unpersisted_preference_dead_ui_option.md`.
+- req_359/item_792 plans to move Runbooks' navigation placement (Workshop → Corpus). If that slice relocates the rendering code out of `workshop.js` before this one ships, re-verify the `workshop.js:194`/`index.js:4310,4636-4640` citations still hold before implementing.
 
 # Tasks
 - `task_373_runbooks_remove_the_dead_view_graph_button`

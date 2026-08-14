@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: Viewer polish
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 00:30:39
+> Indicators reviewed: 2026-08-15 00:45:53
 
 # AI Context
 - Summary: The fleet project switcher's icon-only buttons (favorite star, remove fleet root) rely on the native `title` attribute for their hint, producing the browser's own plain tooltip that overlaps adjacent row text and clashes with the app's dark theme.
@@ -52,8 +52,8 @@ Reported directly by the operator with a screenshot: hovering the "×" remove-fl
 - Primary task(s): (none yet)
 
 # Priority
-- Priority: Medium
-- Rationale: Default until groomed.
+- Priority: Low
+- Rationale: Visual/cosmetic clash with no functional impact (both buttons still work) and a narrow, well-understood fix.
 
 # Notes
 - Hybrid rationale: Derived from request `req_361_fleet_project_switcher_icon_buttons_show_a_clashing_native_browser_tooltip` and kept bounded to one coherent delivery slice.

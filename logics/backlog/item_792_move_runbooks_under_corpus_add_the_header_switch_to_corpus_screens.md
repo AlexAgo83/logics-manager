@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Viewer redesign follow-through
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 00:19:55
+> Indicators reviewed: 2026-08-15 00:45:53
 
 # AI Context
 - Summary: Runbooks is currently under Workshop; it belongs under Corpus. Corpus screens are also missing the header selection switch every other top-level screen already carries.
@@ -47,6 +47,9 @@ Reported directly by the operator, not found by the mockup review: Runbooks shou
 # Priority
 - Priority: Medium
 - Rationale: Reported directly by the operator; structural navigation fix with no dependency on the other screen-specific slices.
+
+# Notes
+- Runbooks also has two independent, unrelated fixes tracked in req_362 (item_801: persist "Show hidden"; item_802: remove the "View graph" button), currently cited against `clients/viewer/src/browser-host/workshop.js`. If this slice relocates Runbooks' rendering code out of `workshop.js` (rather than only its nav placement), whichever of these three slices lands second should update the other two's file citations rather than assume they're stale.
 
 # Tasks
 - `task_363_move_runbooks_under_corpus_add_the_header_switch_to_corpus_screens`

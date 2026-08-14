@@ -18,7 +18,13 @@ function runCampaign(env: Record<string, string>) {
   const result = spawnSync(process.execPath, ["tests/run_local_viewer_visual_smoke.mjs"], {
     cwd: process.cwd(),
     encoding: "utf8",
-    timeout: 180_000,
+    // Measured 2026-08-14 on this corpus (1 614 workflow docs): a desktop-only run with the
+    // slow screens skipped takes about 190s, over the 180s this budget was set to when the
+    // campaign visited four screens. It now visits those four plus the board, the selection,
+    // the details panel, the activity feed, Git, its History domain, CI, Release and
+    // Settings. The budget follows the coverage rather than the coverage being trimmed to
+    // fit a number chosen before it.
+    timeout: 300_000,
     env: {
       ...process.env,
       VIEWER_CAMPAIGN_OUT: out,
@@ -27,11 +33,21 @@ function runCampaign(env: Record<string, string>) {
       ...env
     }
   });
+  // The campaign writes summary.json and report.txt together, at the end. If it was killed
+  // by the budget above, neither exists and the reader throws ENOENT -- which names a
+  // missing file rather than the timeout that caused it, and sent me looking for a write
+  // bug that was not there. Say what actually happened.
+  if (result.error || result.signal) {
+    throw new Error(
+      `the campaign did not finish: ${result.error?.message ?? `killed by ${result.signal}`}. `
+      + `It writes its summary at the end, so nothing was produced to assert on.`
+    );
+  }
   const summary = JSON.parse(readFileSync(join(out, "summary.json"), "utf8"));
   return { result, summary, report: readFileSync(join(out, "report.txt"), "utf8") };
 }
 
-describe("viewer campaign", { timeout: 200_000 }, () => {
+describe("viewer campaign", { timeout: 660_000 }, () => {
   it("keeps running after a failed check, reports every check, and still gates", () => {
     const { result, summary, report } = runCampaign({ VIEWER_CAMPAIGN_INJECT_FAILURE: "1" });
 

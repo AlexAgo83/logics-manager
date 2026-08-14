@@ -3045,8 +3045,12 @@ import {
     return entries.map(([label, value]) => {
       const count = Number(value) || 0;
       const width = Math.max(count > 0 ? 4 : 0, Math.min(100, Math.round((count / denominator) * 100)));
+      // item_748: the bar carries its stage, so the palette the board already uses applies
+      // here instead of one blue for everything. The label *is* the stage for the corpus
+      // shape card; other callers pass a label that matches no stage and fall back.
+      const stage = String(label || "").trim().toLowerCase();
       return `
-        <li class="viewer-insights__bar-row">
+        <li class="viewer-insights__bar-row" data-stage="${escapeHtml(stage)}">
           <div class="viewer-insights__bar-meta"><span>${escapeHtml(label)}</span><strong>${escapeHtml(count)}</strong></div>
           <div class="viewer-insights__bar-track" aria-hidden="true"><span style="width: ${width}%"></span></div>
         </li>
@@ -3157,13 +3161,15 @@ import {
         <div class="viewer-insights__workspace">
           <section class="viewer-insights__section">
             <h2>Corpus shape</h2>
+            <h3 class="viewer-insights__subhead">By stage</h3>
             <ul class="viewer-insights__bars">${renderInsightBars(stageRows, docs.length)}</ul>
-            <ul class="viewer-insights__list">${renderInsightRows([
+            <h3 class="viewer-insights__subhead">By state</h3>
+            <ul class="viewer-insights__bars">${renderInsightBars([
               ["Open", open.length],
               ["Closed", closed.length],
               ["Blocked", blocked.length],
               ["Missing status", missingStatus.length]
-            ])}</ul>
+            ], docs.length)}</ul>
           </section>
           <section class="viewer-insights__section">
             <h2>Flow health</h2>

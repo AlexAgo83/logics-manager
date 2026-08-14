@@ -3429,15 +3429,50 @@ import {
   // --autofix-structure --autofix-ac-traceability) via a new caller, not new
   // repair logic - then re-loads the health screen so the findings list
   // reflects what actually got fixed.
-  async function applyFixes() {
-    setMeta("Applying fixes...");
-    const response = await fetch("/api/apply-fixes", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+  async function requestFixes(preview) {
+    const response = await fetch("/api/apply-fixes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ preview: Boolean(preview) })
+    });
     const payload = await response.json().catch(() => ({ ok: false }));
     if (!response.ok || !payload.ok) {
-      setMeta(payload?.error || "Unable to apply fixes.");
+      throw new Error(payload?.error || "Unable to apply fixes.");
+    }
+    return payload;
+  }
+
+  /** item_751: `Apply fixes` was one primary button over 87 findings, with no count of what
+   *  was fixable and no preview, and it edited documents. It asks the server what it would
+   *  change, names the documents, and applies only if the operator agrees. The preview and
+   *  the repair are the same call with a flag, so the count cannot disagree with the act. */
+  async function applyFixes() {
+    setMeta("Checking what can be repaired...");
+    const preview = await requestFixes(true);
+    const files = Array.isArray(preview?.audit?.autofix?.modified_files) ? preview.audit.autofix.modified_files : [];
+    if (!files.length) {
+      setMeta("No findings can be repaired automatically.");
+      await showThemedMessageModal({
+        title: "Nothing to apply",
+        message: "No finding on this screen can be repaired automatically. The rest need a decision."
+      });
       return;
     }
-    setMeta("Fixes applied.");
+    const shown = files.slice(0, 20);
+    const confirmed = await showThemedConfirmModal({
+      title: `Apply fixes to ${files.length} document${files.length === 1 ? "" : "s"}?`,
+      message: `These documents would be edited:\n\n${shown.join("\n")}${files.length > shown.length ? `\n... and ${files.length - shown.length} more` : ""}`,
+      submitLabel: `Apply to ${files.length}`,
+      cancelLabel: "Cancel"
+    });
+    if (!confirmed) {
+      setMeta("Fixes not applied.");
+      return;
+    }
+    setMeta("Applying fixes...");
+    const applied = await requestFixes(false);
+    const changed = Array.isArray(applied?.audit?.autofix?.modified_files) ? applied.audit.autofix.modified_files.length : 0;
+    setMeta(`Fixes applied to ${changed} document${changed === 1 ? "" : "s"}.`);
     await showHealth();
   }
 

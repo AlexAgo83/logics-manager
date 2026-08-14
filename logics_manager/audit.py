@@ -555,7 +555,14 @@ def _reposition_ai_context(lines: list[str]) -> bool:
     return True
 
 
-def _autofix_structure(path: Path, doc_kind: str) -> bool:
+def _autofix_structure(path: Path, doc_kind: str, *, dry_run: bool = False) -> bool:
+    """Repair a workflow document's structure, or report whether it would change.
+
+    item_751: `Apply fixes` was one button over 87 findings that edited documents with no
+    count of what it would touch and no way to look first. The preview and the repair must
+    be the same computation, or the count would be a second implementation free to disagree
+    with what the button actually does -- so this takes a flag rather than gaining a twin.
+    """
     original = path.read_text(encoding="utf-8")
     lines = original.splitlines()
     modified = False
@@ -607,11 +614,13 @@ def _autofix_structure(path: Path, doc_kind: str) -> bool:
 
     if not modified:
         return False
+    if dry_run:
+        return True
     path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     return True
 
 
-def _autofix_ac_traceability(path: Path, ac_ids: set[str]) -> bool:
+def _autofix_ac_traceability(path: Path, ac_ids: set[str], *, dry_run: bool = False) -> bool:
     if not ac_ids:
         return False
 
@@ -654,6 +663,8 @@ def _autofix_ac_traceability(path: Path, ac_ids: set[str]) -> bool:
 
     if not modified:
         return False
+    if dry_run:
+        return True
     path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     return True
 
@@ -836,6 +847,7 @@ def audit_payload(
     since_version: str | None = None,
     token_hygiene: bool = False,
     autofix_structure: bool = False,
+    autofix_dry_run: bool = False,
     governance_profile: str = "standard",
     active: bool = False,
 ) -> dict[str, object]:
@@ -1122,10 +1134,10 @@ def audit_payload(
 
     if autofix_ac_traceability and autofix_targets:
         for path, ac_ids in sorted(autofix_targets.items(), key=lambda pair: pair[0].as_posix()):
-            if _autofix_ac_traceability(path, ac_ids):
+            if _autofix_ac_traceability(path, ac_ids, dry_run=autofix_dry_run):
                 autofix_modified.append(path)
 
-        if autofix_modified:
+        if autofix_modified and not autofix_dry_run:
             all_docs = _collect_docs(repo_root)
             docs = _apply_scope(all_docs, repo_root, paths or [], refs or [], scope_since)
             issues = [issue for issue in issues if issue.code not in {"ac_missing_item_traceability", "ac_missing_task_traceability"}]
@@ -1151,10 +1163,12 @@ def audit_payload(
         for doc in docs.values():
             if doc.kind.kind not in {"request", "backlog", "task"}:
                 continue
-            if _autofix_structure(doc.path, doc.kind.kind):
+            if _autofix_structure(doc.path, doc.kind.kind, dry_run=autofix_dry_run):
                 autofix_modified.append(doc.path)
 
-        if autofix_modified:
+        # A dry run reports what would change and leaves the findings as they are:
+        # rerunning the scan against files nothing wrote would report the same issues twice.
+        if autofix_modified and not autofix_dry_run:
             all_docs = _collect_docs(repo_root)
             docs = _apply_scope(all_docs, repo_root, paths or [], refs or [], scope_since)
             structure_issue_codes = {
@@ -1216,6 +1230,7 @@ def audit_payload(
         },
         "autofix": {
             "enabled": autofix_ac_traceability or autofix_structure,
+            "dryRun": autofix_dry_run,
             "modified_files": [_rel(repo_root, path) for path in sorted(set(autofix_modified))],
         },
         "workflow_doc_count": sum(1 for directory in ("logics/request", "logics/backlog", "logics/tasks") for _ in (repo_root / directory).glob("*.md") if (repo_root / directory).is_dir()),

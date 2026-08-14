@@ -478,17 +478,20 @@
   opacity: 0.55;
 }
 
-.card--progress-zero {
-  background: rgba(59, 130, 246, 0.16);
-}
+/* Reported by the operator, 2026-08-14: the delivered cards do not look like the mockup.
+   They were right, and this is why. item_719's own comment said "the card fill encoded the
+   stage, which the column it sits in already states" -- and then added the status accent
+   without ever removing the fill. These three rules tint the whole card body, so a backlog
+   card is blue and a task card teal whatever the accent says, and the mockup's flat card
+   with one coloured edge never arrived.
 
-.card--progress-active {
-  background: rgba(20, 184, 166, 0.12);
-}
-
-.card--progress-done {
-  background: rgba(34, 197, 94, 0.18);
-}
+   The classes stay: they are the progress state, three surfaces read them, and dropping
+   them would be a second change hidden inside this one. What goes is the body tint. The
+   state is carried by the left accent and the progress rule, which is where the redesign
+   put it. */
+/* Not `transparent`: that let the column's background through and made the tinted cards a
+   different shade from the untinted ones -- the inconsistency, inverted. The rules are gone,
+   so every card takes `.card`'s own background and they are the same card. */
 
 .card--used {
   background: rgba(234, 179, 8, 0.18);

@@ -1,7 +1,7 @@
 ## req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to - Stop a slow screen from rendering over the one the operator moved to
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

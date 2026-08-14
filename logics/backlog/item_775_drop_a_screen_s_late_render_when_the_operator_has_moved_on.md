@@ -1,10 +1,10 @@
 ## item_775_drop_a_screen_s_late_render_when_the_operator_has_moved_on - Drop a screen's late render when the operator has moved on
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 50%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -80,3 +80,9 @@ narrower target than "any two screens racing", and the fix should be judged agai
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_351_deliver_the_superseded_render_guard`
+
+# Notes
+- Task `task_351_deliver_the_superseded_render_guard` was finished via `logics-manager flow finish task` on 2026-08-14.

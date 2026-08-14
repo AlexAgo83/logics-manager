@@ -13,7 +13,11 @@ from .code_anchors import unresolved_anchors
 from .ai_context import PLACEHOLDERS as AI_CONTEXT_PLACEHOLDERS, is_ungroomed as _ai_context_ungroomed
 from .path_utils import canonical_workflow_path
 from .doc_parsing import extract_refs, indicator_value, progress_value, section_lines
-from .flow_evidence import has_ac_proof as _has_ac_with_proof, has_ac_traceability_line as _has_ac_traceability_line
+from .flow_evidence import (
+    has_ac_proof as _has_ac_with_proof,
+    has_ac_traceability_line as _has_ac_traceability_line,
+    duplicate_proof_ac_ids as _duplicate_proof_ac_ids,
+)
 from .statuses import workflow_statuses
 
 
@@ -833,6 +837,33 @@ def _uncovered_criterion_issues(docs: dict[str, DocMeta], all_docs: dict[str, Do
     return issues
 
 
+def _duplicate_proof_issues(docs: dict[str, DocMeta], cutoff) -> list[AuditIssue]:
+    """A shifted or copy-pasted traceability block can leave two `request-ACn` lines in
+    the same document carrying byte-identical proof text (item_784/GH#20: AC6 and AC7
+    both cited the same proof, one of them necessarily wrong). A warning, not blocking:
+    identical proof text is also the correct, common shape of an orchestration
+    delegation or a single implementation wave that legitimately closes several ACs at
+    once -- see `duplicate_proof_ac_ids`'s docstring for the corpus evidence.
+    """
+    issues: list[AuditIssue] = []
+    for doc in docs.values():
+        if doc.kind.kind not in {"backlog", "task"} or not _is_strict_scope(doc, cutoff):
+            continue
+        for first_id, second_id in _duplicate_proof_ac_ids(doc.text):
+            issues.append(
+                AuditIssue(
+                    code="ac_duplicate_proof",
+                    path=doc.path,
+                    message=(
+                        f"`request-{first_id}` and `request-{second_id}` cite the same proof text -- "
+                        "confirm this is a shared implementation wave, not a shifted or copy-pasted proof"
+                    ),
+                    severity="warning",
+                )
+            )
+    return issues
+
+
 def audit_payload(
     repo_root: Path,
     *,
@@ -1052,6 +1083,7 @@ def audit_payload(
 
     if not skip_ac_traceability:
         issues.extend(_uncovered_criterion_issues(docs, all_docs, cutoff))
+        issues.extend(_duplicate_proof_issues(docs, cutoff))
         for request in [doc for doc in docs.values() if doc.kind.kind == "request"]:
             if not _is_strict_scope(request, cutoff) or _is_abandoned(request):
                 continue

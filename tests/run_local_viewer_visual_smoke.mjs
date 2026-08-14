@@ -516,9 +516,16 @@ function browserExerciseScript(name) {
         }
         opened.click();
         try {
+          // item_754/item_770: the title appears before the content does -- Corpus insights
+          // and Validation health take 7.5 to 8.3 seconds against a corpus this size, and
+          // item_770 gives them a placeholder that carries the final title while they wait.
+          // A check that stops at the title would assert on that placeholder, which is the
+          // same shape of mistake as asserting on whatever screen happened to be up.
           await waitFor(
-            () => (document.getElementById("viewer-document-title")?.textContent || "").trim() === screen.title,
-            screen.name + " to become the active screen",
+            () =>
+              (document.getElementById("viewer-document-title")?.textContent || "").trim() === screen.title
+              && !document.querySelector("[data-viewer-screen-loading]"),
+            screen.name + " to finish loading",
             screen.timeoutMs || 60000
           );
         } catch (error) {
@@ -538,7 +545,11 @@ function browserExerciseScript(name) {
         const settled = () => (document.getElementById("viewer-document-title")?.textContent || "").trim();
         if (settled() !== screen.title) {
           opened.click();
-          await waitFor(() => settled() === screen.title, screen.name + " to settle", 30000);
+          await waitFor(
+            () => settled() === screen.title && !document.querySelector("[data-viewer-screen-loading]"),
+            screen.name + " to settle",
+            60000
+          );
         }
         checks.push({ name: screen.name + ": reachable", verdict: "ok", measured: screen.title });
         return true;

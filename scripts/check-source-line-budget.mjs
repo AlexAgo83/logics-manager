@@ -324,7 +324,13 @@ const allowedOversizedFiles = new Map(
     // what they cost. What came out with it: three navigation entries dressed as settings,
     // their dispatch lines, and a hero that printed the title the document panel already
     // prints above it.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4720, ref: "req_347" },
+    // 4745: item_770 gives the two slow corpus screens a placeholder that takes the screen's
+    // place immediately and names what it is waiting for. Measured against 1 614 workflow
+    // documents, they take 7.5-8.6s to become useful cold or warm -- the cost is the scan --
+    // and for all that time the viewer left the previous screen up with a status line in the
+    // small grey meta text. After the change the title lands in 14ms and 5ms and the wait for
+    // content is unchanged.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4745, ref: "req_349" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

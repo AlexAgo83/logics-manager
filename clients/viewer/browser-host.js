@@ -10843,7 +10843,17 @@ ${line}` : line;
       </div>
     `;
     }
+    function showScreenLoading(title, waitingFor) {
+      setDocument(
+        title,
+        `<div class="viewer-screen-loading" data-viewer-screen-loading role="status" aria-live="polite">
+        <p class="viewer-screen-loading__title">Working on ${escapeHtml(title)}</p>
+        <p class="viewer-screen-loading__detail">Waiting for ${escapeHtml(waitingFor)}. On a corpus this size that takes a few seconds.</p>
+      </div>`
+      );
+    }
     async function showCorpusInsights(options = {}) {
+      if (!options.view) showScreenLoading("Corpus insights", "the corpus lint and audit scans");
       const view = options.view || beginView();
       try {
         const [lintResponse, auditResponse] = await Promise.all([
@@ -10979,6 +10989,7 @@ ${line}` : line;
       setMeta(data.payload?.changed === false ? `${item.id || item.relPath} was already ${normalized}.` : `Updated ${item.id || item.relPath} to ${normalized}.`);
     }
     async function showHealth(options = {}) {
+      if (!options.view) showScreenLoading("Validation health", "the corpus lint, audit and workflow health reports");
       const view = options.view || beginView();
       setMeta("Checking health...");
       try {

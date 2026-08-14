@@ -3194,7 +3194,30 @@ import {
     `;
   }
 
+  /** item_770: measured against this corpus (1 614 workflow documents), Corpus insights takes
+   *  7.5 to 8.3 seconds to become useful and Validation health 8.0 to 8.1, cold or warm --
+   *  the cost is the scan, not a cache. For all that time the viewer left the previous screen
+   *  in place with `Loading insights...` in the small grey meta line, so a click read as
+   *  nothing happening. The screen takes its own place immediately and says what it is
+   *  waiting for; the content replaces this when it arrives.
+   *
+   *  `data-viewer-screen-loading` is what a check waits on: a title alone appears before the
+   *  content and would let a capture assert on this placeholder. */
+  function showScreenLoading(title, waitingFor) {
+    setDocument(
+      title,
+      `<div class="viewer-screen-loading" data-viewer-screen-loading role="status" aria-live="polite">
+        <p class="viewer-screen-loading__title">Working on ${escapeHtml(title)}</p>
+        <p class="viewer-screen-loading__detail">Waiting for ${escapeHtml(waitingFor)}. On a corpus this size that takes a few seconds.</p>
+      </div>`
+    );
+  }
+
   async function showCorpusInsights(options = {}) {
+    // The placeholder goes up *before* the view token is taken: setDocument invalidates
+    // pending views, so announcing the load after beginView() cancelled the very load it
+    // was announcing, and the screen stayed on the placeholder for ever.
+    if (!options.view) showScreenLoading("Corpus insights", "the corpus lint and audit scans");
     const view = options.view || beginView();
     try {
       const [lintResponse, auditResponse] = await Promise.all([
@@ -3344,6 +3367,8 @@ import {
   }
 
   async function showHealth(options = {}) {
+    // Before beginView(), for the reason recorded in showCorpusInsights.
+    if (!options.view) showScreenLoading("Validation health", "the corpus lint, audit and workflow health reports");
     const view = options.view || beginView();
     setMeta("Checking health...");
     try {

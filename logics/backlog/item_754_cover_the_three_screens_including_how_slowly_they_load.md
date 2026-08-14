@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Validation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 08:13:36
 
 # AI Context
 - Summary: None of the three is covered, and all load slowly enough that a capture seven seconds after the click returned the previous screen with a loading message -- so a check that does not wait asserts on whatever is there.
@@ -26,6 +27,11 @@
   - Confirm both surfaces after rebuilding the shared sources.
 - Out:
   - New check kinds beyond what the layout checks already provide.
+
+# Delivery notes
+- All three screens were already visited by the campaign, added by `item_715`, but skipped by the slow-check flag on every run -- so they were covered in name and never exercised. They run now at all three viewports: 322 checks, no findings.
+- **The wait was on the title, and the title is not the screen.** `item_770` gives these screens a placeholder that carries the final title while the scans run, so a check stopping at the title would assert on the placeholder. The campaign waits for `[data-viewer-screen-loading]` to be gone as well, which is the same rule `run_002` records: prove which screen you captured, and prove it has finished.
+- Delivered before the redraws, as the slice asks, so the checks will observe them.
 
 # Acceptance criteria
 - AC13: All three hold at the three viewports.

@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 14:17:44
+> Indicators reviewed: 2026-08-14 17:48:26
 
 # AI Context
 - Summary: The reader's eyebrow renders the document's full path uppercased across the width, above the title it duplicates -- a snake_case slug in capitals, the least readable form the same information could take.
@@ -55,3 +55,6 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_348_deliver_the_reader_the_modal_and_the_filter_panel` was finished via `logics-manager flow finish task` on 2026-08-14.

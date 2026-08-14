@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Validation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 16:37:54
+> Indicators reviewed: 2026-08-14 17:48:27
 
 # AI Context
 - Summary: None of the three is covered; the reader in particular is the destination of the details panel's primary action and had never been opened in five passes over this viewer.
@@ -56,3 +56,6 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_348_deliver_the_reader_the_modal_and_the_filter_panel` was finished via `logics-manager flow finish task` on 2026-08-14.

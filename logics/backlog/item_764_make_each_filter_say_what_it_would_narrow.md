@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 14:25:46
+> Indicators reviewed: 2026-08-14 17:48:27
 
 # AI Context
 - Summary: Four filters read `All (1574)` and `Any (1574)` three times over, `Group` is greyed in a way that reads as broken, and `Clear filters` is the loudest control while no filter is set.
@@ -58,3 +58,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_348_deliver_the_reader_the_modal_and_the_filter_panel` was finished via `logics-manager flow finish task` on 2026-08-14.

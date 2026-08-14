@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 15:13:36
+> Indicators reviewed: 2026-08-14 17:48:27
 
 # AI Context
 - Summary: Card accents, row accents, project state, CI results, gate results, findings and corpus signals were all moved onto colour, every one using the green-against-red pairing colour vision deficiency most commonly affects.
@@ -95,3 +95,6 @@ Five states, five shapes, no hue required. Greyscale the screen and the ordering
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_349_deliver_the_colour_and_keyboard_conditions_for_the_redesigns` was finished via `logics-manager flow finish task` on 2026-08-14.

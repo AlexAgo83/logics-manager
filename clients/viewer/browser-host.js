@@ -11282,7 +11282,7 @@ ${line}` : line;
             const graphData = await graphResponse?.json?.().catch(() => ({}));
             if (!isViewStale(tracked) && graphResponse?.ok && graphData?.ok) {
               window.__logicsGraphNodeClick = (nodeRef) => showDocumentByPath(nodeRef);
-              chainHtml = renderChainGraph(graphData.payload, { inline: true });
+              chainHtml = renderChainGraph(graphData.payload, { inline: true, open: true });
             }
           } catch {
           }

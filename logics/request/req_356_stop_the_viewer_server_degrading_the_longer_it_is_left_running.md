@@ -1,7 +1,7 @@
 ## req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running - Stop the viewer server degrading the longer it is left running
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

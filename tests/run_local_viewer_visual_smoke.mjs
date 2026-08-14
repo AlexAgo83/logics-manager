@@ -729,6 +729,42 @@ function browserExerciseScript(name) {
           timeoutMs: 60000
         },
 
+        // item_760: the Workshop and CDX screens req_350 reviewed. Terminals is excluded
+        // on purpose -- it is out of that request's scope and untouched by it, and a
+        // surface that drives it would be judging a screen nobody changed.
+        {
+          name: "workshop commands",
+          steps: ["#viewer-workshop", "[data-viewer-nav-target='workshop:commands']"],
+          // The filter, which is this screen's own markup: the panel container exists
+          // before the catalog arrives, so proving by the panel would prove nothing.
+          proof: "[data-viewer-workshop-command-query]",
+          timeoutMs: 90000
+        },
+        {
+          name: "workshop runbooks",
+          steps: ["#viewer-workshop", "[data-viewer-nav-target='workshop:runbooks']"],
+          proof: ".viewer-workshop__runbook-rail, .viewer-workspace__placeholder",
+          timeoutMs: 90000
+        },
+        {
+          name: "workshop explorer",
+          steps: ["#viewer-workshop", "[data-viewer-nav-target='workshop:explorer']"],
+          proof: ".viewer-workspace__preview",
+          timeoutMs: 90000
+        },
+        {
+          name: "cdx status",
+          steps: ["#viewer-cdx", "[data-viewer-nav-target='cdx:status']"],
+          proof: ".viewer-cdx__card, .viewer-cdx__state",
+          timeoutMs: 90000
+        },
+        {
+          name: "cdx missions",
+          steps: ["#viewer-cdx", "[data-viewer-nav-target='cdx:missions']"],
+          proof: ".viewer-cdx__mission-summary, .viewer-cdx__state",
+          timeoutMs: 90000
+        },
+
         // item_766: none of the three below was covered. The reader in particular is the
         // destination of the details panel's primary action and had never been opened in
         // five passes over this viewer -- which is how it kept an uppercased file path

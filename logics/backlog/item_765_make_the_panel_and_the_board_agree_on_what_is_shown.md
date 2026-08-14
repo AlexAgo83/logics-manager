@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 14:25:46
+> Indicators reviewed: 2026-08-14 17:48:27
 
 # AI Context
 - Summary: The panel reports `1574 of 1576 docs shown` while the columns behind it read ten-of-349, ten-of-760 and ten-of-341 -- two meanings of the word shown, on one screen, three inches apart.
@@ -51,3 +51,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_348_deliver_the_reader_the_modal_and_the_filter_panel` was finished via `logics-manager flow finish task` on 2026-08-14.

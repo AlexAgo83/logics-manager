@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 14:17:44
+> Indicators reviewed: 2026-08-14 17:48:26
 
 # AI Context
 - Summary: Prose runs at roughly 150 characters a line, the eight sections have no contents list or position indicator, and the linked workflow -- the only navigation the reader has -- is the only thing collapsed.
@@ -60,3 +60,6 @@
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_348_deliver_the_reader_the_modal_and_the_filter_panel` was finished via `logics-manager flow finish task` on 2026-08-14.

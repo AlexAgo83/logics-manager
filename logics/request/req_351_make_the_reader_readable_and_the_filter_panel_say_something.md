@@ -1,7 +1,7 @@
 ## req_351_make_the_reader_readable_and_the_filter_panel_say_something - Make the reader readable and the filter panel say something
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

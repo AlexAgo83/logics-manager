@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 15:01:16
+> Indicators reviewed: 2026-08-14 17:48:26
 
 # AI Context
 - Summary: The tab promises search, browse by category and verify; the screen offers search, a redundant Search button beside the field, 85% empty space, and an eyebrow naming three tabs on a screen with four.
@@ -55,3 +55,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens` was finished via `logics-manager flow finish task` on 2026-08-14.

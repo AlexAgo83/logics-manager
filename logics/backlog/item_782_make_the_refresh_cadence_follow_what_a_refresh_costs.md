@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: Viewer performance
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 17:10:26
+> Indicators reviewed: 2026-08-14 17:48:28
 
 # AI Context
 - Summary: (unfilled: replace before this doc is used)
@@ -67,3 +67,6 @@ Measured on this repository at 1615 documents, nothing else running:
 # Priority
 - Priority: High
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_356_keep_the_viewer_as_fast_as_it_started` was finished via `logics-manager flow finish task` on 2026-08-14.

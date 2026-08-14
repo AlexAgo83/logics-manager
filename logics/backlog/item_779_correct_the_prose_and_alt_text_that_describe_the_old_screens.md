@@ -1,14 +1,14 @@
 ## item_779_correct_the_prose_and_alt_text_that_describe_the_old_screens - Correct the prose and alt text that describe the old screens
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Documentation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-13 21:36:44
+> Indicators reviewed: 2026-08-14 17:26:35
 
 # AI Context
 - Summary: (unfilled: replace before this doc is used)
@@ -25,6 +25,13 @@
   - Re-read the surrounding section for other claims the redesigns invalidated.
 - Out:
   - Restructuring the README.
+
+# Delivery notes
+- The Viewer section described "requests, backlog items, tasks, product briefs, and architecture decisions as columns". After `item_717` the columns are the three flow stages and the companions are a reference index beside them, so the sentence was wrong independently of the images.
+- The alt text repeated the same wrong list. Every one of the four is rewritten to describe what the capture actually shows -- and to be useful on its own, since alt text is read by people who will never see the image. They name what is in the frame rather than labelling it "board view".
+- Two captions read "from the demo corpus", describing a corpus a released build does not have. Gone.
+- Re-read the surrounding section for other claims the redesigns invalidated. "read-only" was dropped from the board's description: the viewer creates requests, changes status, applies fixes and drives git.
+- A pointer to `scripts/dev/capture-readme-media.mjs` and `docs/media/PROVENANCE.md` sits under the captures, so the next person finds the producer from the thing produced rather than the other way round.
 
 # Acceptance criteria
 - AC3: The prose and alt text describe what the screens now do.

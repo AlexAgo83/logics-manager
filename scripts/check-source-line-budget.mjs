@@ -183,7 +183,9 @@ const allowedOversizedFiles = new Map(
     // req_350: +25 for item_758's directory listing. The preview builder is the one place
     // that knows how a workspace path resolves, and a directory reporting its own contents
     // is that same knowledge -- moving it out would mean resolving the path twice.
-    "logics_manager/viewer.py": { maxLines: 3835, ref: "req_350" },
+    // req_356: +10 more for the event stream measuring its own snapshot cost, which has to
+    // be timed where the snapshot is taken.
+    "logics_manager/viewer.py": { maxLines: 3845, ref: "req_356" },
     // 1545: item_743 keys the cdx update cache on a fingerprint of the installed
     // executable, so running the update the banner asks for ends the banner. The
     // helper is 8 lines; the rest is the docstring stating why it stats rather than

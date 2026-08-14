@@ -29,25 +29,31 @@ The source of truth stays in your repository. Logics documents are plain Markdow
 
 ## The Viewer
 
-A local, read-only board over your `logics/*` documents — requests, backlog items, tasks,
-product briefs, and architecture decisions as columns, filterable, searchable, grouped by
-whatever you're deciding. It runs standalone (`logics-manager view`) or embedded in the VS
-Code extension.
+A local board over your `logics/*` documents. The columns are the three stages work moves
+through — requests, backlog items, tasks — each showing what is live and folding what is
+done. Product briefs, roadmaps, architecture decisions and the rest are a reference index
+beside them: reachable, but not competing with the queue. Filterable, searchable, and
+groupable by whatever you're deciding. It runs standalone (`logics-manager view`) or
+embedded in the VS Code extension.
 
-![Board view: requests, backlog, tasks, product briefs, and architecture decisions as columns of cards](docs/media/viewer-board.png)
+![The board: three flow columns — requests, backlog, tasks — each headed with how many are live against how many are done, beside a reference index of product briefs and roadmaps](docs/media/viewer-board.png)
 
-Opening a card reads the document in place — indicators, acceptance criteria, and all —
-without leaving the board.
+Reading a document opens it at a comfortable measure, with its sections listed beside it
+and your position in them marked.
 
-![Document view: a request's needs, context, and acceptance criteria rendered from its Markdown](docs/media/viewer-document.png)
+![The reader: a request's AI context and needs set at a readable line length, with a contents list of its eight sections beside it](docs/media/viewer-document.png)
 
-Health surfaces lint, audit, and workflow findings from the real viewer, with a styled repair action when automated fixes are available.
+Validation health answers whether anything blocks, then lists the lint, audit and workflow
+findings behind that answer — with a repair action where fixes are automatic.
 
-![Health view: validation findings from the demo corpus with the styled Apply fixes action](docs/media/viewer-health.png)
+![Validation health: a headline reading "nothing blocks", counts for blocking, warnings, workflow signals and stale documents, then the findings grouped by document](docs/media/viewer-health.png)
 
-Insights summarizes the workflow shape and attention signals without leaving the viewer.
+Corpus insights summarizes the shape of the corpus and the signals worth acting on.
 
-![Insights view: corpus shape, operator actions, and workflow health signals from the demo corpus](docs/media/viewer-insights.png)
+![Corpus insights: how many signals need attention across the corpus, the operator actions that address them, the corpus by stage and state, and the chains in flight](docs/media/viewer-insights.png)
+
+The captures above are produced by `scripts/dev/capture-readme-media.mjs` against this
+repository's own corpus; `docs/media/PROVENANCE.md` records the framing.
 
 ## What It Solves
 

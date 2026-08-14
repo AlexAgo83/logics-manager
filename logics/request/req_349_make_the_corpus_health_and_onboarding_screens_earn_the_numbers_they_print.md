@@ -1,7 +1,7 @@
 ## req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print - Make the corpus, health and onboarding screens earn the numbers they print
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

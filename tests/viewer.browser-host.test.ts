@@ -241,6 +241,10 @@ function createViewerDom(options: {
       <span id="viewer-document-badge" hidden></span>
       <span id="viewer-document-priority" hidden></span>
       <div id="viewer-document-title"></div>
+      <!-- item_761: mirrors clients/viewer/index.html, where the file path moved off the
+           eyebrow and onto this control. Omitting it here would leave the assertion that
+           the path is still reachable passing against a fixture that cannot show it. -->
+      <button id="viewer-document-path-copy" type="button" hidden></button>
       <div id="viewer-document-nav" hidden></div>
       <div id="viewer-document-content"></div>
     </section>
@@ -2543,7 +2547,14 @@ describe("local viewer browser host", () => {
     expect(priority?.hidden).toBe(false);
     expect(priority?.querySelector(".card__priority-meter--high")).toBeTruthy();
     expect(priority?.compareDocumentPosition(dom.window.document.getElementById("viewer-document-title") as Node)).toBe(dom.window.Node.DOCUMENT_POSITION_FOLLOWING);
-    expect(dom.window.document.getElementById("viewer-document-eyebrow")?.textContent).toBe("logics/request/req_001_demo.md");
+    // item_761: the eyebrow used to be the file path, uppercased by the stylesheet. It
+    // identifies the document the way the details panel does now -- reference and status
+    // -- and the path moved to the control asserted below, which is where this test has
+    // to follow it: dropping the assertion would leave the path uncovered entirely.
+    expect(dom.window.document.getElementById("viewer-document-eyebrow")?.textContent).toBe("req_001_demo • Ready");
+    const pathCopy = dom.window.document.getElementById("viewer-document-path-copy");
+    expect(pathCopy?.hidden).toBe(false);
+    expect(pathCopy?.getAttribute("title")).toContain("logics/request/req_001_demo.md");
     expect(dom.window.document.getElementById("viewer-document-meta")).toBeNull();
     const meta = dom.window.document.querySelector("#viewer-document-content .viewer-document-meta");
     expect(meta).toBeTruthy();

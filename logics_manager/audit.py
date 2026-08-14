@@ -961,7 +961,16 @@ def audit_payload(
                 AuditIssue(
                     code="companion_doc_missing_mermaid",
                     path=doc.path,
-                    message="companion doc is missing its overview Mermaid diagram",
+                    # item_785/GH#21: `flow repair mermaid` only derives a signature for
+                    # request/backlog/task docs (MERMAID_SIGNATURE_KINDS) and explicitly
+                    # refuses product/architecture ones -- this finding used to stop at
+                    # "missing", leaving the operator to run the repair, get refused, and
+                    # infer the remedy from the refusal message rather than from here.
+                    message=(
+                        "companion doc is missing its overview Mermaid diagram "
+                        "(authored by hand; flow repair mermaid does not generate diagrams for "
+                        f"{doc.kind.kind} documents)"
+                    ),
                     severity=mermaid_severity,
                 )
             )

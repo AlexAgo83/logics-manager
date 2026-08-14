@@ -410,6 +410,11 @@ def test_audit_reports_early_companion_mermaid_and_link_gaps_as_warnings(tmp_pat
     assert {warning["code"] for warning in payload["warnings"]} == {"companion_doc_missing_mermaid", "companion_doc_missing_primary_link"}
     assert "Workflow audit: OK (warnings)" in output
     assert "WARNING: [companion_doc_missing_mermaid]" in output
+    # item_785/GH#21: the finding names the remedy (hand-authored) instead of leaving
+    # the operator to run `flow repair mermaid`, get refused, and infer it from there.
+    mermaid_warning = next(w for w in payload["warnings"] if w["code"] == "companion_doc_missing_mermaid")
+    assert "authored by hand" in mermaid_warning["message"]
+    assert "flow repair mermaid does not generate diagrams for product documents" in mermaid_warning["message"]
 
 
 def test_strict_audit_blocks_companion_mermaid_and_link_gaps(tmp_path: Path) -> None:

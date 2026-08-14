@@ -27,7 +27,7 @@ from ..index import index_payload
 from ..lint import expected_workflow_mermaid_signature, lint_payload
 from ..path_utils import ensure_relative_to, resolve_repo_output_path
 from ..statuses import transition_error
-from ..sync import build_context_pack_payload, read_logics_doc_payload
+from ..sync import build_context_pack_payload, read_logics_doc_payload, update_workflow_indicators_payload
 from ..termstyle import colorize_help
 from .help_text import (
     _build_close_help,
@@ -573,6 +573,29 @@ def validate_closeout_payload(repo_root: Path, source: str) -> dict[str, object]
 
 
 
+def _touch_reviewed_indicators(repo_root: Path, changed_paths, *, dry_run: bool) -> None:
+    """Re-baseline the `Indicators reviewed` stamp on every doc this command just wrote.
+
+    item_785/GH#21: flow start/repair/closeout write a document's body but not its
+    indicator baseline, so the very next `lint --require-status` flags the tool's own
+    edit as "modified without updating indicators" -- the ordinary result of running
+    these commands in sequence, not an edge case. The command that wrote the doc
+    already knows it is the author; it should not need a human to run
+    `sync update-indicators --touch` to confirm the values it just wrote.
+
+    Best-effort: a path this doesn't recognize as an indicator-bearing workflow doc
+    (index output, a non-workflow file swept into a changed-files set) is skipped
+    rather than failing the whole command over a stamping nicety.
+    """
+    if dry_run:
+        return
+    for path in changed_paths:
+        try:
+            update_workflow_indicators_payload(repo_root, str(path), {}, dry_run=False, touch=True)
+        except SystemExit:
+            continue
+
+
 def repair_gates_payload(repo_root: Path, source: str, *, dry_run: bool) -> dict[str, object]:
     task_path = _resolve_workflow_source(repo_root, DOC_KINDS["task"], source)
     changed_paths: set[Path] = set()
@@ -606,6 +629,7 @@ def repair_gates_payload(repo_root: Path, source: str, *, dry_run: bool) -> dict
         if not dry_run:
             _changed_rel(repo_root, changed_paths, request_path, before)
 
+    _touch_reviewed_indicators(repo_root, changed_paths, dry_run=dry_run)
     return {
         "command": "repair",
         "kind": "gates",
@@ -694,6 +718,7 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
         if _append_doc_section_bullets_changed(task_path, "AC Traceability", task_missing, dry_run=dry_run):
             changed_paths.add(task_path.relative_to(repo_root))
 
+    _touch_reviewed_indicators(repo_root, changed_paths, dry_run=dry_run)
     return {
         "command": "repair",
         "kind": "ac-traceability",
@@ -757,6 +782,7 @@ def repair_links_payload(repo_root: Path, source: str, *, dry_run: bool) -> dict
             if not dry_run:
                 product_path.write_text(after, encoding="utf-8")
 
+    _touch_reviewed_indicators(repo_root, changed_paths, dry_run=dry_run)
     return {
         "command": "repair",
         "kind": "links",
@@ -803,6 +829,7 @@ def repair_mermaid_payload(repo_root: Path, refs: list[str], *, dry_run: bool) -
                 changed_paths.add(path.relative_to(repo_root))
                 if not dry_run:
                     path.write_text(repaired, encoding="utf-8")
+    _touch_reviewed_indicators(repo_root, changed_paths, dry_run=dry_run)
     return {
         "command": "repair",
         "kind": "mermaid",
@@ -2220,6 +2247,13 @@ def closeout_payload(
         changed_files.update(post_finish_mermaid["changed_files"])
         steps.append(post_finish_mermaid)
 
+    # item_785/GH#21: repair_* above already touch what they individually wrote, but
+    # closeout also writes task_path directly (Validation bullets, finish) and the
+    # request/backlog docs `_close_chain_for_kind`/`_maybe_close_request_chain` moved to
+    # Done -- covering the whole set here is a harmless re-stamp for anything already
+    # touched and the only stamp for what wasn't.
+    _touch_reviewed_indicators(repo_root, changed_files, dry_run=dry_run)
+
     index_result: dict[str, object] | None = None
     if run_index:
         if dry_run:
@@ -2374,6 +2408,7 @@ def start_payload(repo_root: Path, source: str, *, owner: str | None, dry_run: b
     changed_files = [source_path.relative_to(repo_root).as_posix()] if changed else []
     if kind == "task":
         changed_files.extend(_sync_linked_backlog_progress(repo_root, source_path, dry_run=dry_run, active_task_path=source_path))
+    _touch_reviewed_indicators(repo_root, changed_files, dry_run=dry_run)
 
     return {
         "command": "start",

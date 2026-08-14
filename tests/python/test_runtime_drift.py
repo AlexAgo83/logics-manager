@@ -21,9 +21,16 @@ from logics_manager import cli
 from logics_manager.runtime_drift import drift_message, repository_version
 
 
-def _repo_at(tmp_path: Path, version: str | None) -> Path:
+def _repo_at(tmp_path: Path, version: str | None, *, self_checkout: bool = True) -> Path:
     repo_root = tmp_path / "repo"
     (repo_root / "logics" / "request").mkdir(parents=True)
+    if self_checkout:
+        # item_784/GH#20: repository_version() now only reads VERSION for what looks
+        # like logics-manager's own checkout -- these tests are about the drift
+        # *message*, so they mark the fixture as one unless told otherwise.
+        pkg_dir = repo_root / "logics_manager"
+        pkg_dir.mkdir(parents=True, exist_ok=True)
+        (pkg_dir / "__init__.py").write_text("", encoding="utf-8")
     if version is not None:
         (repo_root / "VERSION").write_text(f"{version}\n", encoding="utf-8")
     return repo_root
@@ -88,6 +95,15 @@ def test_only_commands_that_report_on_the_corpus_warn(
     for command in ("view", "config", "skills", ""):
         cli._warn_on_runtime_drift([command] if command else [])
         assert capsys.readouterr().err == "", command
+
+
+def test_a_consumer_repos_own_version_is_not_read_as_drift(tmp_path: Path) -> None:
+    """item_784/GH#20: a consumer repo's own VERSION (its own release, unrelated to
+    logics-manager's) must not be compared against the runtime at all."""
+    repo_root = _repo_at(tmp_path, "0.19.3", self_checkout=False)
+
+    assert repository_version(repo_root) is None
+    assert drift_message(repo_root, "2.21.9") is None
 
 
 def test_running_from_source_never_reports_drift_against_itself(tmp_path: Path) -> None:

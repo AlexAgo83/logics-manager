@@ -1,14 +1,14 @@
 ## item_786_performance_review_viewer_server_static_delivery_and_payload_transfer - Give viewer static assets and /api/items cache-friendly, conditional responses
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer performance
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 21:59:19
+> Indicators reviewed: 2026-08-14 22:21:55
 
 # AI Context
 - Summary: `_serve_file` and the /api/items route both call `_send_bytes`/`_send_json` without an ETag, which forces `Cache-Control: no-store` on every response — so unchanging static assets (mermaid.min.js, browser-host.js, viewer.css) and unchanged `/api/items` polls are re-transferred in full every time, uncompressed, even though `_send_status_json` next to them already demonstrates the ETag + 304 pattern in this same file.
@@ -35,8 +35,8 @@
 - AC3: Responses to `.js`/`.css` static assets and the /api/items JSON body are gzip-compressed when the client sends `Accept-Encoding: gzip`, with a test asserting the `Content-Encoding` header and a smaller body than the uncompressed original.
 
 # AC Traceability
-- request-AC1 -> This backlog slice. Proof: AC1: A request for an unchanged static asset (`/browser-host.js`, `/viewer.css`, `/vendor/mermaid.min.js`) sent with a valid `If-None-Match` gets a 304 with an empty body instead of the full file.
-- request-AC2 -> This backlog slice. Proof: AC2: A poll of /api/items sent with a valid `If-None-Match`, when the server-side payload cache has not been invalidated, gets a 304 with an empty body instead of the full JSON payload.
+- request-AC1 -> This backlog slice. Proof: Implemented in e16ac48a: `_serve_file` computes an ETag from mtime+size, answers 304 with no disk read on a match, and gzip-compresses text assets. Validated with `python3 -m pytest tests/python/test_viewer_cli.py -q` (169 passed) and manually against the running dev viewer. Source: `e16ac48a`
+- request-AC2 -> This backlog slice. Proof: Implemented in e16ac48a: `/api/items` serves through `_send_json_cacheable` (ETag over the response body, gzip when accepted); `UpdateInfo.checked_at` was fixed so the payload actually repeats byte-for-byte across unchanged polls. Validated with `python3 -m pytest tests/python/test_viewer_cli.py -q` (169 passed) and manually (curl: ETag + 304 on revalidation). Source: `e16ac48a`
 
 # Decision framing
 - Product framing: Not needed
@@ -59,6 +59,7 @@
 # Notes
 - Derived from `req_358_performance_review_viewer_server_static_delivery_and_payload_transfer`, AC1 and AC2. AC3 of the request (bundle minification) is scoped separately in item_787 since it's a build-pipeline change, not a runtime response change.
 - Source file: `logics/request/req_358_performance_review_viewer_server_static_delivery_and_payload_transfer.md`.
+- Task `task_358_give_viewer_static_assets_and_api_items_cache_friendly_conditional_responses` was finished via `logics-manager flow finish task` on 2026-08-14.
 
 # Tasks
 - `task_358_give_viewer_static_assets_and_api_items_cache_friendly_conditional_responses`

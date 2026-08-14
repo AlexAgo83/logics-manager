@@ -1,13 +1,13 @@
 ## req_358_performance_review_viewer_server_static_delivery_and_payload_transfer - Performance review: viewer server static delivery and payload transfer
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium
 > Theme: Viewer performance
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 21:59:19
+> Indicators reviewed: 2026-08-14 22:26:09
 
 # AI Context
 - Summary: Three findings from a performance-focused read of `logics_manager/viewer.py` and the viewer's build pipeline: static assets are served with `Cache-Control: no-store` and no compression, the /api/items poll payload is re-transferred in full every 15s even on a cache hit, and the shipped client bundle is unminified. All three sit downstream of the payload-rebuild fix already shipped in req_356/item_781-783, which this review deliberately does not re-litigate.
@@ -32,10 +32,10 @@
 - AC3: A decision is recorded on whether the production client bundle should be minified (via esbuild's `minify` option) separately from the byte-stable, reviewable committed artifact, and if so, at what stage of the build/package pipeline.
 
 # Definition of Ready (DoR)
-- [ ] Problem statement is explicit and user impact is clear.
-- [ ] Scope boundaries (in/out) are explicit.
-- [ ] Acceptance criteria are testable.
-- [ ] Dependencies and known risks are listed.
+- [x] Problem statement is explicit and user impact is clear.
+- [x] Scope boundaries (in/out) are explicit.
+- [x] Acceptance criteria are testable.
+- [x] Dependencies and known risks are listed.
 
 # Companion docs
 - Product brief(s): (none yet)

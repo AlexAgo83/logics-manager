@@ -1,14 +1,14 @@
 ## item_787_performance_review_viewer_server_static_delivery_and_payload_transfer - Minify the shipped viewer client bundle at packaging time
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Viewer performance
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 21:59:19
+> Indicators reviewed: 2026-08-14 22:21:55
 
 # AI Context
 - Summary: `scripts/build/build-viewer-browser-host.mjs` builds `clients/viewer/browser-host.js` with esbuild but no `minify` option, and its `--check` mode compares that output byte-for-byte against the committed file — deliberately readable for reviewable diffs. What actually reaches the browser (`logics_manager/viewer_assets/viewer/browser-host.js`) should be a minified copy produced at packaging time, not a change to the committed bundle itself.
@@ -32,7 +32,7 @@
 - AC2: The existing viewer test suite (JS/TS tests exercising `browser-host.js` behavior) passes unmodified against the minified asset actually served.
 
 # AC Traceability
-- request-AC3 -> This backlog slice. Proof: AC3: A decision is recorded on whether the production client bundle should be minified (via esbuild's minify option) separately from the byte-stable, reviewable committed artifact, and if so, at what stage of the build/package pipeline.
+- request-AC3 -> This backlog slice. Proof: Implemented in 1fd484eb: `build-assets.mjs` minifies `browser-host.js` via esbuild when writing it into `viewer_assets` (627,456 -> 368,132 bytes), while the committed `clients/viewer/browser-host.js` and its `--check` byte-stability contract are unaffected. Validated with `node scripts/build/build-viewer-browser-host.mjs --check` and `npx vitest run` (929 passed). Source: `1fd484eb`
 
 # Decision framing
 - Product framing: Not needed
@@ -55,6 +55,7 @@
 # Notes
 - Derived from `req_358_performance_review_viewer_server_static_delivery_and_payload_transfer`, AC3 only. AC1 and AC2 of the request are scoped separately in item_786.
 - Source file: `logics/request/req_358_performance_review_viewer_server_static_delivery_and_payload_transfer.md`.
+- Task `task_359_minify_the_shipped_viewer_client_bundle_at_packaging_time` was finished via `logics-manager flow finish task` on 2026-08-14.
 
 # Tasks
 - `task_359_minify_the_shipped_viewer_client_bundle_at_packaging_time`

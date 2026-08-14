@@ -7,6 +7,7 @@
 > Complexity: High
 > Theme: Viewer redesign follow-through
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 23:59:51
 
 # AI Context
 - Summary: A screen-by-screen review comparing the live viewer against its own approved redesign mockups (logics/external/mockup/*_redesign.html) found that several screens shipped only part of their "Proposed" design — some regressed to pre-redesign visuals, one redesign was never actually deployed to any running server, and two structural/navigation issues span multiple screens at once.
@@ -79,6 +80,9 @@
 - Getting Started: a wide column on the right of the viewport (roughly x≈980–1420 at 1440px) stays empty behind every stage card — the same "a third of the screen unused" defect the mockup called out originally, now recurring alongside the fixed-width issue reported directly by the operator.
 - Already correct, no action needed: Insights' "needs attention" arithmetic reconciles, stage-coloured shape bars, Health's verdict-first layout with grouped-by-file findings and the dropped "Release ready" tile, and Getting Started's left TOC with real per-stage document counts and a capped reading width for prose.
 
+## Last step
+- The README's own screenshots and captures predate this cycle's fixes (the prior refresh, req_355, ran before these gaps were found). Once the fixes above land, the README captures need regenerating again — same as req_355 did for the previous redesign wave — so the published screenshots don't go stale a second time in a row.
+
 # Acceptance criteria
 - AC1: Board cards carry no full-card background wash for any state, including a promoted/"used" request; state is conveyed only by the left accent (colour + shape) and the fixed-length progress bar, matching the approved mockup.
 - AC2: The board's progress bar renders directly under the card title, not behind the footer row.
@@ -86,6 +90,7 @@
 - AC4: Runbooks appear under the Corpus section of the viewer's navigation, not under Workshop, and every Corpus screen carries the same header selection switch present on other top-level screens.
 - AC5: No viewer screen caps its content to a fixed width when the viewport offers more room; a task/reader screen's side panel/menu renders on the left with content filling the remaining width, and Getting Started's stage cards use the full available width instead of leaving a dead column on the right.
 - AC6: Each of the per-screen findings listed under Workshop/CDX, Reader/modal/filters, Remote/Settings, and Insights/Health/Onboarding above is either resolved to match its mockup's "Proposed" design, or explicitly deferred with a stated reason (e.g. a state genuinely unreachable in this corpus, or a deliberate design deviation from the mockup).
+- AC7: As the last step, once the fixes above land, the README's screenshots and captures are regenerated to reflect them (same treatment req_355 gave the previous redesign wave), so published documentation doesn't go stale again.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

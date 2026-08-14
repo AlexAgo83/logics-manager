@@ -131,6 +131,7 @@
 | [prod_089_a_release_that_contains_only_the_product](product/prod_089_a_release_that_contains_only_the_product.md) | A release that contains only the product | Settled |  |  | product/prod_089_a_release_that_contains_only_the_product.md |
 | [prod_090_a_viewer_that_knows_which_screen_you_are_on](product/prod_090_a_viewer_that_knows_which_screen_you_are_on.md) | A viewer that knows which screen you are on | Settled |  |  | product/prod_090_a_viewer_that_knows_which_screen_you_are_on.md |
 | [prod_091_a_readme_that_shows_the_product_a_reader_will_get](product/prod_091_a_readme_that_shows_the_product_a_reader_will_get.md) | A README that shows the product a reader will get | Proposed |  |  | product/prod_091_a_readme_that_shows_the_product_a_reader_will_get.md |
+| [prod_092_a_viewer_that_stays_as_fast_as_it_started](product/prod_092_a_viewer_that_stays_as_fast_as_it_started.md) | A viewer that stays as fast as it started | Proposed |  |  | product/prod_092_a_viewer_that_stays_as_fast_as_it_started.md |
 
 ## Roadmaps
 
@@ -503,6 +504,7 @@
 | [req_353_prove_a_published_artifact_contains_only_the_product](request/req_353_prove_a_published_artifact_contains_only_the_product.md) | Prove a published artifact contains only the product | Done |  |  | request/req_353_prove_a_published_artifact_contains_only_the_product.md |
 | [req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to](request/req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to.md) | Stop a slow screen from rendering over the one the operator moved to | Done |  |  | request/req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to.md |
 | [req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land](request/req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land.md) | Refresh the README captures and the prose beside them once the redesigns land | Draft |  |  | request/req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land.md |
+| [req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running](request/req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running.md) | Stop the viewer server degrading the longer it is left running | Draft |  |  | request/req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running.md |
 
 ## Backlog
 
@@ -1268,11 +1270,11 @@
 | [item_758_open_the_explorer_on_something_worth_reading](backlog/item_758_open_the_explorer_on_something_worth_reading.md) | Open the explorer on something worth reading | In progress |  | 17% | backlog/item_758_open_the_explorer_on_something_worth_reading.md |
 | [item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves](backlog/item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves.md) | Bring the CDX screens onto the shape status already proves | In progress |  | 17% | backlog/item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves.md |
 | [item_760_cover_the_reviewed_workshop_and_cdx_screens](backlog/item_760_cover_the_reviewed_workshop_and_cdx_screens.md) | Cover the reviewed Workshop and CDX screens | In progress |  | 17% | backlog/item_760_cover_the_reviewed_workshop_and_cdx_screens.md |
-| [item_761_stop_the_reader_leading_with_a_path_in_capitals](backlog/item_761_stop_the_reader_leading_with_a_path_in_capitals.md) | Stop the reader leading with a path in capitals | Ready |  | 0% | backlog/item_761_stop_the_reader_leading_with_a_path_in_capitals.md |
-| [item_762_make_the_reader_a_place_to_read](backlog/item_762_make_the_reader_a_place_to_read.md) | Make the reader a place to read | Ready |  | 0% | backlog/item_762_make_the_reader_a_place_to_read.md |
-| [item_763_finish_the_new_request_modal_without_redesigning_it](backlog/item_763_finish_the_new_request_modal_without_redesigning_it.md) | Finish the new-request modal without redesigning it | Ready |  | 0% | backlog/item_763_finish_the_new_request_modal_without_redesigning_it.md |
-| [item_764_make_each_filter_say_what_it_would_narrow](backlog/item_764_make_each_filter_say_what_it_would_narrow.md) | Make each filter say what it would narrow | Ready |  | 0% | backlog/item_764_make_each_filter_say_what_it_would_narrow.md |
-| [item_765_make_the_panel_and_the_board_agree_on_what_is_shown](backlog/item_765_make_the_panel_and_the_board_agree_on_what_is_shown.md) | Make the panel and the board agree on what is shown | Ready |  | 0% | backlog/item_765_make_the_panel_and_the_board_agree_on_what_is_shown.md |
+| [item_761_stop_the_reader_leading_with_a_path_in_capitals](backlog/item_761_stop_the_reader_leading_with_a_path_in_capitals.md) | Stop the reader leading with a path in capitals | Done |  | 100% | backlog/item_761_stop_the_reader_leading_with_a_path_in_capitals.md |
+| [item_762_make_the_reader_a_place_to_read](backlog/item_762_make_the_reader_a_place_to_read.md) | Make the reader a place to read | Done |  | 100% | backlog/item_762_make_the_reader_a_place_to_read.md |
+| [item_763_finish_the_new_request_modal_without_redesigning_it](backlog/item_763_finish_the_new_request_modal_without_redesigning_it.md) | Finish the new-request modal without redesigning it | Done |  | 100% | backlog/item_763_finish_the_new_request_modal_without_redesigning_it.md |
+| [item_764_make_each_filter_say_what_it_would_narrow](backlog/item_764_make_each_filter_say_what_it_would_narrow.md) | Make each filter say what it would narrow | Done |  | 100% | backlog/item_764_make_each_filter_say_what_it_would_narrow.md |
+| [item_765_make_the_panel_and_the_board_agree_on_what_is_shown](backlog/item_765_make_the_panel_and_the_board_agree_on_what_is_shown.md) | Make the panel and the board agree on what is shown | Done |  | 100% | backlog/item_765_make_the_panel_and_the_board_agree_on_what_is_shown.md |
 | [item_766_cover_the_reader_the_modal_and_the_filter_panel](backlog/item_766_cover_the_reader_the_modal_and_the_filter_panel.md) | Cover the reader, the modal and the filter panel | Ready |  | 0% | backlog/item_766_cover_the_reader_the_modal_and_the_filter_panel.md |
 | [item_767_give_every_colour_carried_state_a_second_channel](backlog/item_767_give_every_colour_carried_state_a_second_channel.md) | Give every colour-carried state a second channel | Ready |  | 35% | backlog/item_767_give_every_colour_carried_state_a_second_channel.md |
 | [item_768_make_the_new_controls_reachable_without_a_mouse](backlog/item_768_make_the_new_controls_reachable_without_a_mouse.md) | Make the new controls reachable without a mouse | Ready |  | 0% | backlog/item_768_make_the_new_controls_reachable_without_a_mouse.md |
@@ -1288,6 +1290,9 @@
 | [item_778_retake_the_readme_captures_against_the_delivered_screens](backlog/item_778_retake_the_readme_captures_against_the_delivered_screens.md) | Retake the README captures against the delivered screens | Ready |  | 0% | backlog/item_778_retake_the_readme_captures_against_the_delivered_screens.md |
 | [item_779_correct_the_prose_and_alt_text_that_describe_the_old_screens](backlog/item_779_correct_the_prose_and_alt_text_that_describe_the_old_screens.md) | Correct the prose and alt text that describe the old screens | Ready |  | 0% | backlog/item_779_correct_the_prose_and_alt_text_that_describe_the_old_screens.md |
 | [item_780_write_down_how_a_documentation_capture_is_produced](backlog/item_780_write_down_how_a_documentation_capture_is_produced.md) | Write down how a documentation capture is produced | Ready |  | 0% | backlog/item_780_write_down_how_a_documentation_capture_is_produced.md |
+| [item_781_serve_an_unchanged_corpus_without_rebuilding_it](backlog/item_781_serve_an_unchanged_corpus_without_rebuilding_it.md) | Serve an unchanged corpus without rebuilding it | Ready |  | 0% | backlog/item_781_serve_an_unchanged_corpus_without_rebuilding_it.md |
+| [item_782_make_the_refresh_cadence_follow_what_a_refresh_costs](backlog/item_782_make_the_refresh_cadence_follow_what_a_refresh_costs.md) | Make the refresh cadence follow what a refresh costs | Ready |  | 0% | backlog/item_782_make_the_refresh_cadence_follow_what_a_refresh_costs.md |
+| [item_783_fail_when_the_work_is_repeated_or_a_change_is_missed](backlog/item_783_fail_when_the_work_is_repeated_or_a_change_is_missed.md) | Fail when the work is repeated or a change is missed | Ready |  | 0% | backlog/item_783_fail_when_the_work_is_repeated_or_a_change_is_missed.md |
 
 ## Tasks
 
@@ -1642,6 +1647,7 @@
 | [task_353_make_list_mode_a_table](tasks/task_353_make_list_mode_a_table.md) | Make list mode a table | Done |  | 100% | tasks/task_353_make_list_mode_a_table.md |
 | [task_354_keep_progress_and_both_modes_honest_at_any_width](tasks/task_354_keep_progress_and_both_modes_honest_at_any_width.md) | Keep progress and both modes honest at any width | Done |  | 100% | tasks/task_354_keep_progress_and_both_modes_honest_at_any_width.md |
 | [task_355_measure_how_long_these_screens_take_and_say_so_while_they_load](tasks/task_355_measure_how_long_these_screens_take_and_say_so_while_they_load.md) | Measure how long these screens take and say so while they load | Done |  | 100% | tasks/task_355_measure_how_long_these_screens_take_and_say_so_while_they_load.md |
+| [task_356_keep_the_viewer_as_fast_as_it_started](tasks/task_356_keep_the_viewer_as_fast_as_it_started.md) | Keep the viewer as fast as it started | Ready |  | 0% | tasks/task_356_keep_the_viewer_as_fast_as_it_started.md |
 
 ## Runbooks
 

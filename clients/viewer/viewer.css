@@ -6255,3 +6255,21 @@
     position: static;
   }
 }
+
+/* AC4: a document listed under a signal says which signal listed it. The row used to carry
+   its id and its status only, and the same renderer serves several lists -- so a reader who
+   scrolled past the heading, or a document that appears under two signals, had no way to
+   tell why the row was there. */
+.viewer-insights__row-signal,
+.viewer-health__row-signal {
+  flex: 0 0 auto;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  white-space: nowrap;
+}

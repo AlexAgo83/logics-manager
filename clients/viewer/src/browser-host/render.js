@@ -650,7 +650,7 @@ export function renderCodeViewer(content, options = {}) {
     </div>`;
   }
 
-export function renderDocRows(items, emptyText = "None", limit = 6) {
+export function renderDocRows(items, emptyText = "None", limit = 6, signal = "") {
     if (!items.length) {
       return `<li class="viewer-insights__row viewer-insights__row--empty">${escapeHtml(emptyText)}</li>`;
     }
@@ -659,9 +659,17 @@ export function renderDocRows(items, emptyText = "None", limit = 6) {
       const control = path && isSafeLogicsDocPath(path)
         ? `<button class="viewer-insights__doc" type="button" data-viewer-doc-path="${escapeHtml(path)}">${escapeHtml(item.id || path)}</button>`
         : `<span class="viewer-insights__doc">${escapeHtml(item.id || path || item.title)}</span>`;
+      // AC4: a row said its id and its status and never why it was on this list. The same
+      // renderer serves several lists, and a document can appear under more than one signal,
+      // so the row names the signal that listed it rather than leaving it to the heading the
+      // reader scrolled past.
+      const signalTag = signal
+        ? `<span class="viewer-insights__row-signal" data-viewer-insights-signal="${escapeHtml(signal)}">${escapeHtml(signal)}</span>`
+        : "";
       return `
         <li class="viewer-insights__row" ${index >= limit ? "hidden data-viewer-hidden-row" : ""}>
           ${control}
+          ${signalTag}
           <span>${escapeHtml(item.indicators?.Status || item.stage || "No status")}</span>
         </li>
       `;
@@ -823,7 +831,9 @@ export function renderHealthSummary(lintData, auditData, healthData = null, know
           const control = path && isSafeLogicsDocPath(path)
             ? `<button class="viewer-health__path" type="button" data-viewer-doc-path="${escapeHtml(path)}">${escapeHtml(entry?.ref || path)}</button>`
             : `<span class="viewer-health__meta">${escapeHtml(entry?.ref || "Unknown document")}</span>`;
-          return `<li class="viewer-health__issue">${control}<div class="viewer-health__meta">${escapeHtml(entry?.status || "")}</div></li>`;
+          // AC4: the section heading names the signal, but a reader who lands on a row after
+          // scrolling cannot see it, and a document can appear under more than one signal.
+          return `<li class="viewer-health__issue">${control}<span class="viewer-health__row-signal" data-viewer-health-signal="${escapeHtml(label)}">${escapeHtml(label)}</span><div class="viewer-health__meta">${escapeHtml(entry?.status || "")}</div></li>`;
         }).join("");
         return `<section class="viewer-health__section"><h2 class="viewer-health__heading">${escapeHtml(label)}</h2><ul class="viewer-health__list">${rows}</ul></section>`;
       }).join("");

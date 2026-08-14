@@ -3190,7 +3190,12 @@ import {
               ["Orphan or unlinked docs", unlinked.length, unlinked.length ? "muted" : "ok"],
               ["Broken reference risks", brokenRefs.length, brokenRefs.length ? "warning" : "ok"]
             ])}</ul>
-            <ul class="viewer-insights__rows">${renderDocRows(chainsOverdue.length ? chainsOverdue : chainsInFlight, chainsInFlight.length ? "No chains are overdue" : "No incomplete chains")}</ul>
+            <ul class="viewer-insights__rows">${renderDocRows(
+              chainsOverdue.length ? chainsOverdue : chainsInFlight,
+              chainsInFlight.length ? "No chains are overdue" : "No incomplete chains",
+              6,
+              chainsOverdue.length ? `untouched ${IN_FLIGHT_GRACE_DAYS}+ days` : "in flight"
+            )}</ul>
           </section>
           <section class="viewer-insights__section">
             <h2>Activity</h2>
@@ -3199,7 +3204,7 @@ import {
               ["Stale active docs", staleActive.length, staleActive.length ? "warning" : "ok"],
               ["Quiet active docs", activeQuiet]
             ])}</ul>
-            <ul class="viewer-insights__rows">${renderDocRows(recentRows, "No recent documents")}</ul>
+            <ul class="viewer-insights__rows">${renderDocRows(recentRows, "No recent documents", 6, "recently active")}</ul>
           </section>
           <section class="viewer-insights__section">
             <h2>Traceability</h2>

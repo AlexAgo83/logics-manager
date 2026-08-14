@@ -1,4 +1,4 @@
-## item_752_give_getting_started_a_reading_measure_and_a_position - Give Getting Started a reading measure and a position
+## task_355_measure_how_long_these_screens_take_and_say_so_while_they_load - Measure how long these screens take and say so while they load
 > From version: 2.21.9
 > Schema version: 1.0
 > Status: Done
@@ -6,41 +6,34 @@
 > Confidence: 85%
 > Progress: 100%
 > Complexity: Medium
-> Theme: Viewer experience
-> Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 10:28:43
+> Theme: Implementation delivery
+> Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-14 10:28:44
 
 # AI Context
-- Summary: The intro runs about 110 characters where comfortable reading is 45 to 75, the right third stays empty while four stages stack into a long scroll, and one stage has an action, another none, and `Open Health` appears twice.
-- Keywords: reading measure, line length, stage navigation, position indicator, duplicate action, long scroll
-- Use when: Changing the Getting Started layout, its navigation, or its per-stage actions.
-- Skip when: What the guide says, which is not in question.
+- Summary: Time-to-useful for Corpus insights, Validation health and Getting Started, measured against a corpus of this size, with the two slow screens taking their place immediately and naming what they wait for.
+- Keywords: measure, long, screens, take, say, while, they, load
+- Use when: Changing what these three screens compute, or comparing a later change against the recorded numbers.
+- Skip when: Optimising the underlying scans, which this establishes a number for rather than changes.
 
-# Problem
-- The intro runs about 110 characters where comfortable reading is 45 to 75; the column is pinned left with the right third empty while four stages stack into a long scroll; nothing says how many stages there are or where the reader is; and one stage has an action, another has none, and one action appears twice.
+# Definition of Done (DoD)
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
+- [x] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
 
-# Scope
-- In:
-  - Set the prose at a readable measure and put the screen's own stage navigation in the width that frees.
-  - State the number of stages and the reader's position.
-  - Give every stage an action, and no action twice.
-- Out:
-  - What the guide says, which is not in question.
-
-# Delivery notes
-- The prose takes a 68ch measure; the width that frees carries the screen's own stage navigation rather than nothing. Measured live at 1440x900: the paragraph column is 454px, roughly 60 characters, inside the 45-75 the slice asks for, and there is no sideways scroll.
-- The screen states there are four stages, and each stage says which one it is -- `1 of 4` where the number used to be a bare `1`. The navigation is sticky, so the position stays available through the scroll rather than only at the top.
-- **Every stage ends in an action, and no action is offered twice.** `Delivery Slices` ended in nothing while the other three ended in a button, so the guide stopped being a sequence at its second step; it opens the board, which is where the slices it describes actually appear. `Open Health` sat in the Closeout stage *and* in the footer -- an action offered twice reads as two different actions until you try both -- and it stays where the stage that needs it is.
-- Below 900px the two columns become one and the navigation stops being sticky, which is where a 68ch measure and a 220px rail no longer both fit.
+# Backlog
+- `item_770_measure_how_long_these_screens_take_and_say_so_while_they_load`
 
 # Acceptance criteria
-# Acceptance criteria
-- AC10: Prose is at a readable measure and the freed width carries the navigation.
-- AC11: Stage count, position, and one action per stage with no duplicates.
+- AC16: How long each of these screens takes to become useful is measured against a corpus of this size, and the measurement is recorded so a later change can be compared against it rather than guessed at.
+- AC17: A screen that cannot answer immediately says that it is working and what it is waiting for, rather than leaving the previous screen in place with a status line the operator will not read.
+- AC18: Nothing added by this request makes any of the three slower to become useful than it is today; where a proposal computes something new, it is measured before it lands.
 
 # AC Traceability
-- request-AC10 -> This backlog slice. Proof: AC10: Prose is at a readable measure and the freed width carries the navigation.
-- request-AC11 -> This backlog slice. Proof: AC11: Stage count, position, and one action per stage with no duplicates.
+- request-AC16 -> This task. Proof: measured 2026-08-14 against 1 614 workflow documents at 1440x900 through CDP, three runs, two warm and one against a freshly started server: Corpus insights 7 551-8 320 ms to useful content, Validation health 8 056-8 609 ms, Getting Started 4-6 ms. Cold and warm measured in the same band, so the cost is the scan and nothing is being cached. Recorded as a table in `item_770`.
+- request-AC17 -> This task. Proof: the two slow screens take their place immediately and name what they are waiting for; the title lands in 14 ms and 5 ms where it used to take the whole scan. The placeholder goes up before the view token is taken, because `setDocument` invalidates pending views and announcing the load after `beginView()` cancelled the very load it announced.
+- request-AC18 -> This task. Proof: time-to-useful after every change in this request is 8 320 ms and 8 609 ms, inside the band measured before it. The measurement script excludes the placeholder when deciding a screen is useful; counting it would have reported a false improvement of eight seconds.
 
 - request-AC1 -> Delivered by `item_746_decide_which_workflow_signals_are_defects_and_which_are_work_in_flight` under the same request. Proof: item_746 classifies each signal and records the rule with its reasoning: a signal is a defect when it describes something that cannot resolve itself, work in flight when time alone resolves it. Broken references and orphans are defects; incomplete chains and promotion gaps are in flight, then defects after 14 days. The threshold is recorded as a guess with nothing measured behind it, because item_716 established no per-beat dates exist.
 - request-AC2 -> Delivered by `item_747_make_the_corpus_insights_headline_count_only_what_needs_a_decision` under the same request. Proof: the headline counts blocked + overdue chains + broken references + missing status + quality findings; chains still in flight get their own row with the threshold named in the label. Covered by a regression that opens the same three chains twice, aged differently, and asserts the headline differs by exactly two -- an assertion that reads the count off the headline and compares it to itself passes whether or not the classification runs, which the first version did.
@@ -51,31 +44,30 @@
 - request-AC7 -> Delivered by `item_750_group_the_findings_and_flag_what_the_repository_contradicts` under the same request. Proof: findings are grouped by file, the file carries its own count, and the finding is the headline of its own row. Measured live: 13 groups where there were 87 flat rows.
 - request-AC8 -> Delivered by `item_750_group_the_findings_and_flag_what_the_repository_contradicts` under the same request. Proof: a finding that says a document is missing while the corpus in front of the viewer lists it is marked suspect with the contradiction named. The finding and its words stay, because the viewer reports and does not adjudicate. The check is narrow on purpose -- it fires only on a missing/absent phrasing naming a `.md` path the corpus lists -- because a broader rule would start marking findings it does not understand.
 - request-AC9 -> Delivered by `item_751_say_what_applying_fixes_would_change` under the same request. Proof: `Apply fixes` asks the server what it would change, names the documents in a confirmation, and applies only if the operator agrees. The preview and the repair are one `audit_payload` call taking `autofix_dry_run`, not two implementations: a separate counter would have been free to disagree with what the button does. Proven by removing the dry-run guard and watching the preview write.
+- request-AC10 -> Delivered by `item_752_give_getting_started_a_reading_measure_and_a_position` under the same request. Proof: the prose takes a 68ch measure and the width that frees carries the screen's own stage navigation. Measured live at 1440x900: the paragraph column is 454px, roughly 60 characters, inside the 45-75 band, with no sideways scroll.
+- request-AC11 -> Delivered by `item_752_give_getting_started_a_reading_measure_and_a_position` under the same request. Proof: the screen states four stages and each stage says which one it is (`1 of 4`). Every stage ends in an action -- `Delivery Slices` ended in nothing, so the guide stopped being a sequence at its second step -- and no action is offered twice: `Open Health` sat in the Closeout stage and again in the footer.
 - request-AC12 -> Delivered by `item_753_make_getting_started_reflect_the_project_in_front_of_it` under the same request. Proof: each stage reports what this project already has there, from counts the screen already received. Measured live: `354 request, 92 product, 8 roadmap`, then 780 backlog, 348 task, 30 architecture. A stage with nothing yet is marked because it is the one worth reading first; nothing is hidden for having plenty.
 - request-AC13 -> Delivered by `item_754_cover_the_three_screens_including_how_slowly_they_load` under the same request. Proof: all three screens hold at 1440x900, 820x1180 and 390x844 under the campaign's existing layout checks. They had been visited since item_715 but skipped by the slow-check flag on every run, so they were covered in name only.
 - request-AC14 -> Delivered by `item_754_cover_the_three_screens_including_how_slowly_they_load` under the same request. Proof: the campaign waits for the screen's title *and* for the loading marker to be gone. The title alone is not the screen: item_770 gives these screens a placeholder carrying the final title while the scans run, so a check stopping at the title would assert on the placeholder.
 - request-AC15 -> Delivered by `item_754_cover_the_three_screens_including_how_slowly_they_load` under the same request. Proof: every change is in `clients/viewer/src/browser-host/`, `clients/shared-web/media/css/board.css` and `logics_manager/`, rebuilt with `npm run bundle:viewer-host` after each; the extension webview loads the same built host and the same board stylesheet.
-- request-AC16 -> Delivered by `task_355_measure_how_long_these_screens_take_and_say_so_while_they_load` under the same request. Proof: measured 2026-08-14 against 1 614 workflow documents at 1440x900 through CDP, three runs, two warm and one against a freshly started server: Corpus insights 7 551-8 320 ms to useful content, Validation health 8 056-8 609 ms, Getting Started 4-6 ms. Cold and warm measured in the same band, so the cost is the scan and nothing is being cached. Recorded as a table in `item_770`.
-- request-AC17 -> Delivered by `task_355_measure_how_long_these_screens_take_and_say_so_while_they_load` under the same request. Proof: the two slow screens take their place immediately and name what they are waiting for; the title lands in 14 ms and 5 ms where it used to take the whole scan. The placeholder goes up before the view token is taken, because `setDocument` invalidates pending views and announcing the load after `beginView()` cancelled the very load it announced.
-- request-AC18 -> Delivered by `task_355_measure_how_long_these_screens_take_and_say_so_while_they_load` under the same request. Proof: time-to-useful after every change in this request is 8 320 ms and 8 609 ms, inside the band measured before it. The measurement script excludes the placeholder when deciding a screen is useful; counting it would have reported a false improvement of eight seconds.
-# Decision framing
-- Product framing: Not needed
-- Architecture framing: Not needed
+# Plan
+- [x] Use `python3 -m logics_manager flow progress task task_355_measure_how_long_these_screens_take_and_say_so_while_they_load.md --progress <n>%` during multi-wave work.
+- [x] Run `python3 -m logics_manager flow finish task task_355_measure_how_long_these_screens_take_and_say_so_while_they_load.md` after implementation.
+
+# Validation
+- Measured 2026-08-14 against 1 614 workflow documents at 1440x900 through CDP, three runs, two warm and one against a freshly started server. Recorded as a table in `item_770`.
+- Before: Corpus insights 7 551-8 320 ms to useful content, Validation health 8 056-8 609 ms, Getting Started 4-6 ms. After: title in 14 ms and 5 ms, time-to-useful unchanged inside the same band.
+- Covered by a regression that gates the scans and asserts the placeholder appears with what it is waiting for, then is replaced. Proven load-bearing by moving the placeholder after `beginView()` -- where it cancels the load it announces.
+- Finish workflow executed on 2026-08-14.
+- Linked backlog/request close verification passed.
+
+# Report
+- Not started.
+- Finished on 2026-08-14.
+- Linked backlog item(s): `item_746_decide_which_workflow_signals_are_defects_and_which_are_work_in_flight`, `item_747_make_the_corpus_insights_headline_count_only_what_needs_a_decision`, `item_748_give_corpus_insights_one_visual_language`, `item_749_lead_validation_health_with_the_verdict_it_owns`, `item_750_group_the_findings_and_flag_what_the_repository_contradicts`, `item_751_say_what_applying_fixes_would_change`, `item_752_give_getting_started_a_reading_measure_and_a_position`, `item_753_make_getting_started_reflect_the_project_in_front_of_it`, `item_754_cover_the_three_screens_including_how_slowly_they_load`, `item_770_measure_how_long_these_screens_take_and_say_so_while_they_load`
+- Related request(s): `req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print`
 
 # Links
-- Product brief(s): `prod_085_numbers_a_screen_can_defend`
-- Architecture decision(s): (none yet)
 - Request: `req_349_make_the_corpus_health_and_onboarding_screens_earn_the_numbers_they_print`
-- Primary task(s): `task_346_deliver_the_corpus_health_and_onboarding_screens`
-
-# Priority
-- Priority: Medium
-- Rationale: Set by scaffold input or defaulted for grooming.
-
-# Tasks
-- `task_355_measure_how_long_these_screens_take_and_say_so_while_they_load`
-- `task_346_deliver_the_corpus_health_and_onboarding_screens`
-
-# Notes
-- Task `task_355_measure_how_long_these_screens_take_and_say_so_while_they_load` was finished via `logics-manager flow finish task` on 2026-08-14.
-- Task `task_346_deliver_the_corpus_health_and_onboarding_screens` was finished via `logics-manager flow finish task` on 2026-08-14.
+- Product brief(s): (none yet)
+- Architecture decision(s): (none yet)

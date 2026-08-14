@@ -344,7 +344,7 @@ const allowedOversizedFiles = new Map(
     // lets a finding claiming a document is absent be checked against a corpus that lists it.
     // 4820: item_751 makes Apply fixes ask the server what it would change, name the
     // documents, and apply only if the operator agrees.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4820, ref: "req_349" },
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4830, ref: "req_349" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },
@@ -403,7 +403,10 @@ const allowedOversizedFiles = new Map(
     // frees, and item_753 lets each stage report what this project already has there -- a
     // corpus of 1 555 documents was getting the same first-run guide as an empty one, from
     // counts the screen already received.
-    "clients/viewer/src/browser-host/render.js": { maxLines: 1950, ref: "req_349" },
+    // 1960: AC4 -- a document listed under a signal now names the signal that listed it. The
+    // same renderer serves several lists and a document can appear under more than one, so
+    // the row carries it rather than relying on a heading the reader has scrolled past.
+    "clients/viewer/src/browser-host/render.js": { maxLines: 1960, ref: "req_349" },
     // 1353: req_314 taught the board to group by status, which is what its control always
     // claimed to do. The grouping itself is eleven lines; the rest is the heading element
     // the accessibility slice needed.

@@ -4718,6 +4718,16 @@ describe("local viewer browser host", () => {
 
     // AC3: the total is labelled as a total rather than sitting beside its own components.
     expect(twoInFlight.content).toContain("Needs attention (total)");
+
+    // AC4: a row said its id and its status and never why it was on this list. The same
+    // renderer serves several lists and a document can appear under more than one signal,
+    // so the row names the signal that listed it rather than relying on a heading the
+    // reader has scrolled past.
+    const signals = Array.from(twoInFlight.dom.window.document.querySelectorAll("[data-viewer-insights-signal]")).map(
+      (node) => (node as HTMLElement).dataset.viewerInsightsSignal
+    );
+    expect(signals).toContain("untouched 14+ days");
+    expect(new Set(signals).size).toBeGreaterThan(0);
   });
 
   it("takes the screen's place immediately and says what it is waiting for", async () => {

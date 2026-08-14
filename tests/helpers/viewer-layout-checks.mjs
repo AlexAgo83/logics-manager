@@ -197,6 +197,15 @@ export function layoutChecks(window) {
         }
         // What a state looks like with hue removed. Two states that produce the same
         // signature are distinguishable by colour only -- which is the defect.
+        // What colour the state is drawn in. Two modifiers that draw the same colour are
+        // not carrying state on colour at all -- `card__badges--strip` against
+        // `--metrics` is a layout variant, and reporting it sent the first run chasing a
+        // difference nobody was making. Colour has to be doing the work before its being
+        // alone is a defect.
+        const hue = (node) => {
+          const style = window.getComputedStyle(node);
+          return [style.color, style.backgroundColor, style.borderLeftColor].join("|");
+        };
         const signature = (node) => {
           const style = window.getComputedStyle(node);
           const before = window.getComputedStyle(node, "::before");
@@ -214,8 +223,16 @@ export function layoutChecks(window) {
           const seen = new Map();
           for (const [state, node] of states) {
             const key = signature(node);
-            if (seen.has(key)) offenders.push(family + ": " + seen.get(key) + " and " + state + " differ only in colour");
-            else seen.set(key, state);
+            const previous = seen.get(key);
+            // An element cannot be told apart from itself. A release gate carries both
+            // its tone and `--blocking` on one `<details>`, and comparing those two
+            // reported the element against itself -- which is how the first live run
+            // named a defect that was in this check.
+            if (previous && previous.node !== node && hue(previous.node) !== hue(node)) {
+              offenders.push(family + ": " + previous.state + " and " + state + " differ only in colour");
+            } else if (!previous) {
+              seen.set(key, { state, node });
+            }
           }
         }
         if (offenders.length) throw new Error(offenders.slice(0, 5).join("; "));

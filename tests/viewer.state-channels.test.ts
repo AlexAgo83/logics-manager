@@ -72,6 +72,27 @@ describe("the campaign fails on colour-only state", () => {
     expect(() => check.run()).not.toThrow();
   });
 
+  it("says nothing about two variants drawn in the same colour", () => {
+    // Found by the first live run: `card__badges--strip` against `--metrics` are layout
+    // variants of one container, not two states. Colour has to be carrying the
+    // distinction before its being alone is a defect.
+    const check = checkNamed(`
+      <span class="card__badges card__badges--strip" style="color: #cccccc"></span>
+      <span class="card__badges card__badges--metrics" style="color: #cccccc"></span>
+    `, NAME);
+    expect(() => check.run()).not.toThrow();
+  });
+
+  it("does not compare an element against itself", () => {
+    // Found by the first live run: a release gate carries its tone and `--blocking` on
+    // one element, and comparing those two modifiers reported the element against itself.
+    const check = checkNamed(
+      `<details class="viewer-release__gate viewer-release__gate--failing viewer-release__gate--blocking">failing</details>`,
+      NAME
+    );
+    expect(() => check.run()).not.toThrow();
+  });
+
   it("says nothing about a component showing only one state", () => {
     const check = checkNamed(`<span class="gate gate--passed" style="color: #22c55e"></span>`, NAME);
     expect(check.run()).toContain("1 state(s)");

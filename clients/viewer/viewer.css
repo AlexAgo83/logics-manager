@@ -841,10 +841,12 @@
   user-select: none;
 }
 
+/* item_793: this whole-screen cap left a dead column on the right at wide viewports; the
+   legitimate prose measure lives inside `.viewer-onboarding__layout`'s own children
+   (68ch, further down this file) and needs no help from an outer wrapper cap. */
 .viewer-onboarding {
   display: grid;
   gap: 18px;
-  max-width: 920px;
 }
 
 .viewer-onboarding__header {
@@ -1513,18 +1515,27 @@
 /* item_762: the reader set its prose across the whole window -- about 150 characters a
    line against the 45-75 that reads comfortably -- on the screen in the product most made
    of prose. The measure below is the fix; the column it frees carries the contents list,
-   which is the navigation this screen did not have. */
+   which is the navigation this screen did not have.
+
+   item_793: the two tracks were assigned backwards -- the fixed/narrow (72ch) track held
+   the prose and the flexible (1fr) track held the contents nav, so the nav ended up wider
+   than the content and sitting on the right, mismatching every other nav-plus-content
+   screen in this file (e.g. Getting Started's `.viewer-onboarding__layout`: nav first/
+   narrow/left, content second/flexible). The nav is track 1 (narrow, fixed) now; the prose
+   is track 2 (flexible), with its own 72ch measure enforced as a `max-width` on the prose
+   element itself rather than as the track's own size, so the track can still fill the
+   viewport for the non-prose children below that opt out of the measure. */
 .markdown-preview--reading {
   display: grid;
-  grid-template-columns: minmax(0, 72ch) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
   gap: 0 32px;
   align-items: start;
-  justify-content: center;
 }
 
 .markdown-preview--reading .markdown-preview__prose {
-  grid-column: 1;
+  grid-column: 2;
   min-width: 0;
+  max-width: 72ch;
 }
 
 /* Tables, diagrams and code are not prose and are unreadable when squeezed to a prose
@@ -1537,15 +1548,14 @@
 }
 
 .markdown-preview__contents {
-  grid-column: 2;
+  grid-column: 1;
   position: sticky;
   top: 0;
   max-height: calc(100vh - 160px);
   overflow-y: auto;
   min-width: 0;
-  max-width: 260px;
   padding: 10px 12px;
-  border-left: 1px solid var(--vscode-panel-border, #333333);
+  border-right: 1px solid var(--vscode-panel-border, #333333);
 }
 
 /* Below the width where a 72ch measure and a rail both fit, the measure wins and the
@@ -1553,6 +1563,11 @@
 @media (max-width: 1100px) {
   .markdown-preview--reading {
     grid-template-columns: minmax(0, 72ch);
+  }
+
+  /* Only one track exists now (see above): the prose reclaims it. */
+  .markdown-preview--reading .markdown-preview__prose {
+    grid-column: 1;
   }
 
   .markdown-preview__contents {
@@ -4938,10 +4953,11 @@
   text-transform: uppercase;
 }
 
+/* item_793: an arbitrary whole-screen cap with no prose to justify it -- Settings is all
+   cards, and `__grid`'s own `auto-fit, minmax(220px, 1fr)` (below) already reflows them. */
 .viewer-settings-screen {
   display: grid;
   gap: 16px;
-  max-width: 980px;
 }
 
 .viewer-settings-screen__hero,
@@ -6570,9 +6586,14 @@
    column was pinned left with the right third empty, and nothing said how many stages there
    were or where the reader was. The prose takes a measure; the width that frees carries the
    screen's own stage navigation instead of nothing. */
+/* item_793: the second track itself was capped to the 68ch prose measure, not just the
+   paragraphs inside it -- so the stage card's own box (border, example-prompt buttons,
+   none of it prose) was squeezed to that width too, leaving the dead column on the right
+   the operator reported. The measure stays on the `p` selectors below; the track is
+   flexible now. */
 .viewer-onboarding__layout {
   display: grid;
-  grid-template-columns: 220px minmax(0, 68ch);
+  grid-template-columns: 220px minmax(0, 1fr);
   gap: 32px;
   align-items: start;
 }

@@ -8,12 +8,13 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-14 22:01:31
 
 # AI Context
-- Summary: (unfilled: replace before this doc is used)
-- Keywords: orchestrate, flow, traceability, self, consistency, fixes
-- Use when: (unfilled: replace before this doc is used)
-- Skip when: (unfilled: replace before this doc is used)
+- Summary: Orchestrates item_784 (traceability proof-content checks + runtime-drift fix) and item_785 (flow's own writes re-baselining indicators + Mermaid finding wording) in the priority order set by req_357.
+- Keywords: orchestration, flow-integrity, GH #20, GH #21
+- Use when: Sequencing or tracking overall progress across item_784 and item_785.
+- Skip when: Implementation detail of either backlog item — see them directly.
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.

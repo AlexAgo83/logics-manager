@@ -8,12 +8,13 @@
 > Complexity: Low
 > Theme: flow-integrity
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 22:01:31
 
 # AI Context
-- Summary: (unfilled: replace before this doc is used)
-- Keywords: flow, own, writes, tripping, checks
-- Use when: (unfilled: replace before this doc is used)
-- Skip when: (unfilled: replace before this doc is used)
+- Summary: Make `flow start`/`repair`/`closeout` re-baseline the indicators of documents they write, and clarify the `companion_doc_missing_mermaid` finding for product docs so it names the hand-authoring path `flow repair mermaid` refuses.
+- Keywords: indicator rebaseline, sync update-indicators --touch, companion_doc_missing_mermaid, flow repair mermaid
+- Use when: Implementing this backlog item.
+- Skip when: The traceability proof-content issue (item_784) — separate concern.
 
 # Problem
 - flow start/repair/closeout write a document's body but not its indicator baseline, so the next lint --require-status run flags the tool's own edit as 'modified without updating indicators' and the prescribed remedy is run against the tool's own output.

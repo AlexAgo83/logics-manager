@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import errno
 import functools
+import gzip
 import hashlib
 import hmac
 import json
@@ -14,6 +15,7 @@ import shlex
 import shutil
 import socket
 import ssl
+import stat
 import subprocess
 import sys
 import threading
@@ -757,6 +759,11 @@ STATIC_CONTENT_TYPES = {
     ".svg": "image/svg+xml",
     ".wasm": "application/wasm",
 }
+
+# item_786: text formats worth gzipping; .png/.wasm are already compressed.
+_COMPRESSIBLE_SUFFIXES = {".css", ".html", ".js", ".json", ".map", ".svg"}
+# Below this, gzip's own framing overhead can outweigh the saving.
+_GZIP_MIN_BYTES = 512
 
 
 def _path_on_windows_drive_mount(path: Path) -> bool:
@@ -2025,7 +2032,12 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         status: int = 200,
         content_type: str = "application/octet-stream",
         etag: str = "",
+        compress: bool = False,
     ) -> None:
+        encoding = ""
+        if compress and len(content) >= _GZIP_MIN_BYTES and "gzip" in self.headers.get("Accept-Encoding", ""):
+            content = gzip.compress(content, compresslevel=6)
+            encoding = "gzip"
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         if etag:
@@ -2036,6 +2048,8 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self.send_header("ETag", etag)
         else:
             self.send_header("Cache-Control", "no-store")
+        if encoding:
+            self.send_header("Content-Encoding", encoding)
         self.send_header("Content-Length", str(len(content)))
         self.end_headers()
         try:
@@ -2043,8 +2057,28 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError):
             return
 
+    def _etag_fresh(self, etag: str) -> bool:
+        return bool(etag) and self.headers.get("If-None-Match", "") == etag
+
+    def _send_not_modified(self, etag: str) -> None:
+        self.send_response(HTTPStatus.NOT_MODIFIED.value)
+        self.send_header("ETag", etag)
+        self.send_header("Cache-Control", "no-cache")
+        self.end_headers()
+
     def _send_json(self, payload: Any, *, status: int = 200) -> None:
         self._send_bytes(_json_bytes(payload), status=status, content_type="application/json; charset=utf-8")
+
+    def _send_json_cacheable(self, payload: Any) -> None:
+        """Serve JSON with an ETag over the exact bytes sent, gzipped when the
+        client allows it -- item_786: /api/items polled every 15s previously
+        re-transferred the full body even when nothing had changed."""
+        body = _json_bytes(payload)
+        etag = '"%s"' % hashlib.sha1(body).hexdigest()
+        if self._etag_fresh(etag):
+            self._send_not_modified(etag)
+            return
+        self._send_bytes(body, content_type="application/json; charset=utf-8", etag=etag, compress=True)
 
     def _status_component(self, name: str, *, force: bool = False) -> Any:
         repo_root = self.server.repo_root
@@ -2086,11 +2120,8 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 server.status_cache[full_key] = (now, etag, body)
         else:
             _, etag, body = cached
-        if etag and self.headers.get("If-None-Match", "") == etag:
-            self.send_response(HTTPStatus.NOT_MODIFIED.value)
-            self.send_header("ETag", etag)
-            self.send_header("Cache-Control", "no-cache")
-            self.end_headers()
+        if self._etag_fresh(etag):
+            self._send_not_modified(etag)
             return
         self._send_bytes(body, content_type="application/json; charset=utf-8", etag=etag)
 
@@ -2215,11 +2246,28 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
             return
         absolute = Path(absolute_name)
-        if not absolute.is_file():  # lgtm [py/path-injection]
+        try:
+            file_stat = absolute.stat()  # lgtm [py/path-injection]
+        except OSError:
             self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
             return
-        content_type = STATIC_CONTENT_TYPES.get(absolute.suffix.lower(), "application/octet-stream")
-        self._send_bytes(absolute.read_bytes(), content_type=content_type)  # lgtm [py/path-injection]
+        if not stat.S_ISREG(file_stat.st_mode):
+            self._send_error_json(HTTPStatus.NOT_FOUND, "Not found")
+            return
+        # item_786: an unchanged asset (the common case -- these are never
+        # edited at runtime) answers from mtime+size alone, with no disk read.
+        etag = '"%x-%x"' % (int(file_stat.st_mtime_ns), file_stat.st_size)
+        if self._etag_fresh(etag):
+            self._send_not_modified(etag)
+            return
+        suffix = absolute.suffix.lower()
+        content_type = STATIC_CONTENT_TYPES.get(suffix, "application/octet-stream")
+        self._send_bytes(
+            absolute.read_bytes(),  # lgtm [py/path-injection]
+            content_type=content_type,
+            etag=etag,
+            compress=suffix in _COMPRESSIBLE_SUFFIXES,
+        )
 
     def _stream_sse_events(self, session: Any, parsed: Any, *, render_item: Any, event_name: str, sleep_delay: float) -> None:
         """Shared SSE loop for the workshop terminal and command streamers.
@@ -2706,7 +2754,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/items":
             project_id = parse_qs(parsed.query).get("project", [""])[0]
-            self._send_json(
+            self._send_json_cacheable(
                 {
                     "ok": True,
                     "payload": self.server.viewer_payload(fleet_home=bool(self.server.launch_fleet_home and not project_id)),

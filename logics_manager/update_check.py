@@ -162,16 +162,23 @@ def get_update_info(
     now_value = int(time.time() if now is None else now)
     path = cache_path or update_cache_path()
     cached = _read_cache(path, now_value)
-    latest = str(cached.get("latest_version") or "") if cached else ""
-    if not latest:
+    # item_786: `checked_at` reports when the version was actually looked up,
+    # not the current call's wall clock -- otherwise it changes on every call
+    # even on a cache hit, which made /api/items (which embeds this payload)
+    # never produce a byte-identical body across two polls, defeating its ETag.
+    if cached:
+        latest = str(cached.get("latest_version") or "")
+        checked_at = int(cached.get("checked_at") or now_value)
+    else:
         latest = (fetch_latest or fetch_latest_npm_version)() or ""
+        checked_at = now_value
         if latest:
             _write_cache(path, {"checked_at": now_value, "latest_version": latest})
     return UpdateInfo(
         current_version=current_version,
         latest_version=latest or None,
         update_available=is_newer_version(latest, current_version),
-        checked_at=now_value,
+        checked_at=checked_at,
         update_command=os.environ.get(UPDATE_COMMAND_ENV) or "logics-manager self-update",
         source="npm",
     )

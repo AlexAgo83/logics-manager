@@ -6170,3 +6170,88 @@
   color: var(--vscode-editorWarning-foreground, #d29922);
   overflow-wrap: anywhere;
 }
+
+/* item_752: the intro ran about 110 characters where comfortable reading is 45 to 75, the
+   column was pinned left with the right third empty, and nothing said how many stages there
+   were or where the reader was. The prose takes a measure; the width that frees carries the
+   screen's own stage navigation instead of nothing. */
+.viewer-onboarding__layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 68ch);
+  gap: 32px;
+  align-items: start;
+}
+
+.viewer-onboarding__header p,
+.viewer-onboarding__stage-body p,
+.viewer-onboarding__doc-guide > p {
+  max-width: 68ch;
+}
+
+.viewer-onboarding__nav {
+  position: sticky;
+  top: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 8px;
+  background: var(--vscode-editorWidget-background, rgba(255, 255, 255, 0.03));
+}
+
+.viewer-onboarding__nav-title {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.viewer-onboarding__nav-list {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.viewer-onboarding__nav-list a {
+  color: var(--vscode-textLink-foreground, #4ea1ff);
+  text-decoration: none;
+}
+
+.viewer-onboarding__nav-list a:hover,
+.viewer-onboarding__nav-list a:focus-visible {
+  text-decoration: underline;
+}
+
+.viewer-onboarding__nav-count {
+  display: block;
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-variant-numeric: tabular-nums;
+}
+
+/* item_753: a stage with nothing yet is the one worth reading first, so it is marked --
+   to orient, not to grade. Nothing is hidden for having plenty. */
+.viewer-onboarding__nav-count--empty,
+.viewer-onboarding__holding--empty {
+  color: var(--vscode-editorWarning-foreground, #d29922);
+}
+
+.viewer-onboarding__holding {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+/* The two columns become one below the width where 68ch and a 220px rail both fit. */
+@media (max-width: 900px) {
+  .viewer-onboarding__layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .viewer-onboarding__nav {
+    position: static;
+  }
+}

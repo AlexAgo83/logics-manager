@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 09:01:53
+> Indicators reviewed: 2026-08-14 10:20:50
 
 # AI Context
 - Summary: An operator clicking faster than a screen loads sees the previous screen paint over the new one; several screens take twenty seconds or more against a large corpus.
@@ -39,6 +39,15 @@ Worth recording because the original report came from one run: this is the secon
 independent observation, and the first where the workaround itself failed. It also
 narrows the shape -- it is the fleet home's late render specifically, arriving over
 whichever screen was opened next, not a general race between any two screens.
+
+Third occurrence 2026-08-14, same run shape: full campaign, `mobile: insights: reachable`
+reporting `showing 'Fleet'`, and an isolated mobile-only run immediately after passing. It
+is reproducible enough to be worth fixing and not reproducible on demand, which is the
+awkward middle this item has to be designed for.
+
+**One thing the three observations agree on:** it is always the fleet home's late render,
+always at the narrow viewport, and always on the first screen opened after it. That is a
+narrower target than "any two screens racing", and the fix should be judged against it.
 
 # Acceptance criteria
 - AC1: A superseded screen does not render.

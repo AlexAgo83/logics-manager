@@ -399,7 +399,11 @@ const allowedOversizedFiles = new Map(
     // finding as the headline, and marks a finding the repository itself contradicts. The
     // grouping is longer than the flat list it replaces because it is two levels rather than
     // one, and the contradiction check is a rule rather than a formatting change.
-    "clients/viewer/src/browser-host/render.js": { maxLines: 1910, ref: "req_349" },
+    // 1950: item_752 gives Getting Started a stage navigation in the width its prose measure
+    // frees, and item_753 lets each stage report what this project already has there -- a
+    // corpus of 1 555 documents was getting the same first-run guide as an empty one, from
+    // counts the screen already received.
+    "clients/viewer/src/browser-host/render.js": { maxLines: 1950, ref: "req_349" },
     // 1353: req_314 taught the board to group by status, which is what its control always
     // claimed to do. The grouping itself is eleven lines; the rest is the heading element
     // the accessibility slice needed.

@@ -1475,6 +1475,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         "Create or update the product brief, then propose a roadmap with 0.1, 0.2, and 1.0 slices."
       ],
       mapping: "Maps to logics/request/, logics/product/, and logics/roadmap/.",
+      corpusStages: ["request", "product", "roadmap"],
       actions: [{ label: "New Request", action: "new-request" }]
     },
     {
@@ -1486,7 +1487,11 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         "Create orchestration tasks for the next useful delivery slice."
       ],
       mapping: "Maps to logics/backlog/ and logics/tasks/.",
-      actions: []
+      corpusStages: ["backlog"],
+      // item_752: this stage ended in nothing while the others ended in an action, so the
+      // guide stopped being a sequence at its second step. The board is where the slices it
+      // describes actually appear.
+      actions: [{ label: "Open the board", action: "board" }]
     },
     {
       label: "Execution",
@@ -1497,6 +1502,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         "Validate the changed surface, update docs if needed, then close the task with evidence."
       ],
       mapping: "Maps to task execution, commits, checks, and activity in the viewer.",
+      corpusStages: ["task"],
       actions: [{ label: "CDX Missions", action: "cdx-missions" }]
     },
     {
@@ -1508,6 +1514,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         "Audit the viewer for open docs that should be Done, Settled, or Superseded after this work."
       ],
       mapping: "Maps to statuses across request, backlog, task, product, roadmap, ADR, and spec docs.",
+      corpusStages: ["architecture", "spec"],
       actions: [{ label: "Open Health", action: "health" }]
     }
   ];
@@ -2825,7 +2832,20 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       }
     }
   }
-  function renderViewerOnboarding() {
+  function renderViewerOnboarding(items = []) {
+    const corpusDocs = Array.isArray(items) ? items : [];
+    const perStage = corpusDocs.reduce((acc, item) => {
+      const key = String(item && item.stage || "");
+      if (key) acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+    const stageHolding = (stage) => {
+      const keys = Array.isArray(stage.corpusStages) ? stage.corpusStages : [];
+      if (!keys.length) return null;
+      const parts = keys.map((key) => [key, perStage[key] || 0]);
+      const total = parts.reduce((sum, [, count]) => sum + count, 0);
+      return { total, parts };
+    };
     const stages = onboardingStages.map((stage, index) => {
       const prompts = stage.prompts.map((prompt) => `
         <div class="viewer-onboarding__prompt">
@@ -2836,11 +2856,14 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       const actions = stage.actions.map((action) => `
         <button class="btn viewer-onboarding__action" type="button" data-viewer-onboarding-action="${escapeHtml(action.action)}">${escapeHtml(action.label)}</button>
       `).join("");
+      const holding = stageHolding(stage);
+      const holdingHtml = holding ? `<p class="viewer-onboarding__holding${holding.total ? "" : " viewer-onboarding__holding--empty"}">${holding.total ? `This project has ${escapeHtml(holding.parts.filter(([, count]) => count > 0).map(([key, count]) => `${count} ${key}`).join(", "))}.` : "This project has nothing here yet."}</p>` : "";
       return `
-        <section class="viewer-onboarding__stage">
-          <div class="viewer-onboarding__stage-number" aria-hidden="true">${index + 1}</div>
+        <section class="viewer-onboarding__stage" id="onboarding-stage-${index + 1}" data-viewer-onboarding-stage="${index + 1}">
+          <div class="viewer-onboarding__stage-number" aria-hidden="true">${index + 1} of ${onboardingStages.length}</div>
           <div class="viewer-onboarding__stage-body">
             <h2>${escapeHtml(stage.label)}</h2>
+            ${holdingHtml}
             <p class="viewer-onboarding__tagline">${escapeHtml(stage.tagline)}</p>
             <p>${escapeHtml(stage.description)}</p>
             <div class="viewer-onboarding__prompts">${prompts}</div>
@@ -2860,17 +2883,30 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       <div class="viewer-onboarding">
         <header class="viewer-onboarding__header">
           <h1>Logics workflow map</h1>
-          <p>Use Logics to keep product intent, roadmap, delivery slices, tasks, decisions, specs, theme, and i18n context in plain project files that humans and AI assistants can both follow.</p>
+          <p>Four stages, from the reason for the work to settling the documents it leaves behind. Read the one where this project has nothing yet.</p>
         </header>
-        <div class="viewer-onboarding__stages">${stages}</div>
+        <div class="viewer-onboarding__layout">
+          <nav class="viewer-onboarding__nav" aria-label="Workflow stages">
+            <p class="viewer-onboarding__nav-title">${escapeHtml(onboardingStages.length)} stages</p>
+            <ol class="viewer-onboarding__nav-list">
+              ${onboardingStages.map((stage, index) => {
+      const holding = stageHolding(stage);
+      return `<li><a href="#onboarding-stage-${index + 1}">${escapeHtml(stage.label)}</a>${holding ? `<span class="viewer-onboarding__nav-count${holding.total ? "" : " viewer-onboarding__nav-count--empty"}">${holding.total ? escapeHtml(holding.total) : "none yet"}</span>` : ""}</li>`;
+    }).join("")}
+            </ol>
+          </nav>
+          <div class="viewer-onboarding__stages">${stages}</div>
+        </div>
         <section class="viewer-onboarding__doc-guide">
           <h2>What each document is for</h2>
           <p>A quick rule of thumb for choosing the right artifact before writing or asking an assistant to act.</p>
           <div class="viewer-onboarding__doc-grid">${docs}</div>
         </section>
         <footer class="viewer-onboarding__footer">
+          <!-- item_752: Open Health sat here and in the Closeout stage. An action offered
+               twice reads as two different actions until you try both. It stays where the
+               stage that needs it is. -->
           <button class="btn primary" type="button" data-viewer-onboarding-action="open-logics-insights">Open Insights</button>
-          <button class="btn" type="button" data-viewer-onboarding-action="health">Open Health</button>
           <button class="btn" type="button" data-viewer-onboarding-action="workshop-explorer">Open Explorer</button>
         </footer>
       </div>
@@ -9822,7 +9858,7 @@ ${line}` : line;
       }
     }
     function showGettingStarted() {
-      setDocument("Getting Started", renderViewerOnboarding());
+      setDocument("Getting Started", renderViewerOnboarding(latestItems));
       setMeta("Getting Started opened.");
     }
     async function createNewRequest(draft) {
@@ -9861,6 +9897,10 @@ ${line}` : line;
       }
       if (key === "workshop-explorer") {
         withPrimaryAction("workshop-explorer", "Opening Explorer", () => showWorkshop({ tab: "explorer" }));
+        return;
+      }
+      if (key === "board") {
+        closeDocumentPanel();
         return;
       }
       if (key === "cdx-missions") {

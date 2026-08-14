@@ -1961,7 +1961,8 @@ import {
   // header. Replaces the old static "Read-only preview" label; the goal
   // is one line describing what the user is currently looking at.
   function showGettingStarted() {
-    setDocument("Getting Started", renderViewerOnboarding());
+    // item_753: the corpus travels with the guide, so it can say what this project has.
+    setDocument("Getting Started", renderViewerOnboarding(latestItems));
     setMeta("Getting Started opened.");
   }
 
@@ -2003,6 +2004,12 @@ import {
     }
     if (key === "workshop-explorer") {
       withPrimaryAction("workshop-explorer", "Opening Explorer", () => showWorkshop({ tab: "explorer" }));
+      return;
+    }
+    if (key === "board") {
+      // item_752: the Delivery Slices stage ended in nothing while the others ended in an
+      // action. The board is where the slices it describes actually appear.
+      closeDocumentPanel();
       return;
     }
     if (key === "cdx-missions") {

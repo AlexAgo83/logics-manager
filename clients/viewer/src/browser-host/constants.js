@@ -91,6 +91,7 @@ export const onboardingStages = [
         "Create or update the product brief, then propose a roadmap with 0.1, 0.2, and 1.0 slices."
       ],
       mapping: "Maps to logics/request/, logics/product/, and logics/roadmap/.",
+      corpusStages: ["request", "product", "roadmap"],
       actions: [{ label: "New Request", action: "new-request" }]
     },
     {
@@ -102,7 +103,11 @@ export const onboardingStages = [
         "Create orchestration tasks for the next useful delivery slice."
       ],
       mapping: "Maps to logics/backlog/ and logics/tasks/.",
-      actions: []
+      corpusStages: ["backlog"],
+      // item_752: this stage ended in nothing while the others ended in an action, so the
+      // guide stopped being a sequence at its second step. The board is where the slices it
+      // describes actually appear.
+      actions: [{ label: "Open the board", action: "board" }]
     },
     {
       label: "Execution",
@@ -113,6 +118,7 @@ export const onboardingStages = [
         "Validate the changed surface, update docs if needed, then close the task with evidence."
       ],
       mapping: "Maps to task execution, commits, checks, and activity in the viewer.",
+      corpusStages: ["task"],
       actions: [{ label: "CDX Missions", action: "cdx-missions" }]
     },
     {
@@ -124,6 +130,7 @@ export const onboardingStages = [
         "Audit the viewer for open docs that should be Done, Settled, or Superseded after this work."
       ],
       mapping: "Maps to statuses across request, backlog, task, product, roadmap, ADR, and spec docs.",
+      corpusStages: ["architecture", "spec"],
       actions: [{ label: "Open Health", action: "health" }]
     }
   ];

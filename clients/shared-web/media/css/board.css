@@ -253,13 +253,28 @@
   cursor: help;
 }
 
+/* item_748: the stage palette, declared once. Corpus insights drew its corpus-shape bars in
+   a single blue while the board had given every stage its own colour since long before --
+   two screens describing the same corpus in two languages. Anything that tints by stage
+   reads these rather than repeating the six values. */
+:root {
+  --stage-color-request: #f59e0b;
+  --stage-color-backlog: #3b82f6;
+  --stage-color-task: #14b8a6;
+  --stage-color-product: #a78bfa;
+  --stage-color-roadmap: #0ea5e9;
+  --stage-color-architecture: #fb7185;
+  --stage-color-spec: #22c55e;
+  --stage-color-runbook: #d1a24a;
+}
+
 /* Per-stage tint so the compact id prefix is distinguishable and decodable. */
-.card__title-prefix[data-stage="request"] { color: #f59e0b; }
-.card__title-prefix[data-stage="backlog"] { color: #3b82f6; }
-.card__title-prefix[data-stage="task"] { color: #14b8a6; }
-.card__title-prefix[data-stage="product"] { color: #a78bfa; }
-.card__title-prefix[data-stage="architecture"] { color: #fb7185; }
-.card__title-prefix[data-stage="spec"] { color: #22c55e; }
+.card__title-prefix[data-stage="request"] { color: var(--stage-color-request); }
+.card__title-prefix[data-stage="backlog"] { color: var(--stage-color-backlog); }
+.card__title-prefix[data-stage="task"] { color: var(--stage-color-task); }
+.card__title-prefix[data-stage="product"] { color: var(--stage-color-product); }
+.card__title-prefix[data-stage="architecture"] { color: var(--stage-color-architecture); }
+.card__title-prefix[data-stage="spec"] { color: var(--stage-color-spec); }
 
 .card__title-text {
   min-width: 0;

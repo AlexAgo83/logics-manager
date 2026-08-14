@@ -4466,6 +4466,61 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("focus: blocked");
   });
 
+  it("gives corpus insights one visual language, reusing the board's stage palette", async () => {
+    // item_748. The corpus shape bars were all one blue while the board had given every
+    // stage its own colour long before -- two screens describing the same corpus in two
+    // languages -- and Open, Closed and Blocked were drawn as large key/value rows directly
+    // beneath the thin bars they are the same kind of fact as.
+    const doc = (id: string, stage: string) => ({
+      id,
+      title: id,
+      stage,
+      relPath: `logics/${stage}/${id}.md`,
+      path: `/workspace/mock/logics/${stage}/${id}.md`,
+      updatedAt: new Date().toISOString(),
+      indicators: { Status: "Ready" },
+      references: [],
+      usedBy: []
+    });
+
+    const { dom } = createViewerDom({
+      items: [doc("req_800", "request"), doc("item_800", "backlog"), doc("task_800", "task")]
+    });
+    const api = dom.window.acquireVsCodeApi();
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.getElementById("viewer-insights")?.dispatchEvent(new dom.window.Event("click"));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const document = dom.window.document;
+
+    // Each bar carries its stage, which is what lets the shared palette apply.
+    const stages = Array.from(document.querySelectorAll(".viewer-insights__bar-row")).map(
+      (node) => (node as HTMLElement).dataset.stage
+    );
+    expect(stages).toContain("request");
+    expect(stages).toContain("backlog");
+    expect(stages).toContain("task");
+
+    // Both sets of facts in the Corpus shape card are bars, under subheads that say which
+    // axis each counts -- they do not sum to the same thing.
+    const shape = Array.from(document.querySelectorAll(".viewer-insights__section")).find(
+      (node) => (node.querySelector("h2")?.textContent || "") === "Corpus shape"
+    );
+    expect(shape?.querySelectorAll(".viewer-insights__list")).toHaveLength(0);
+    const subheads = Array.from(shape?.querySelectorAll(".viewer-insights__subhead") || []).map((node) => node.textContent);
+    expect(subheads).toEqual(["By stage", "By state"]);
+    expect(shape?.querySelectorAll(".viewer-insights__bars")).toHaveLength(2);
+
+    // The palette is declared once rather than repeated per screen.
+    const board = fs.readFileSync(path.resolve(process.cwd(), "clients/shared-web/media/css/board.css"), "utf8");
+    expect(board).toMatch(/--stage-color-request:/);
+    expect(board).toMatch(/\.card__title-prefix\[data-stage="request"\] \{ color: var\(--stage-color-request\); \}/);
+    const viewerCss = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
+    expect(viewerCss).toMatch(/viewer-insights__bar-row\[data-stage="request"\][^\n]*var\(--stage-color-request\)/);
+  });
+
   it("counts only what needs a decision in the insights headline", async () => {
     // item_746/item_747. At review time 100% of the documents Corpus insights listed under
     // Flow health were chains scaffolded within the hour, reported as incomplete chains and

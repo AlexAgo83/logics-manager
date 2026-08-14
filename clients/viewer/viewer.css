@@ -6049,3 +6049,38 @@
   font-size: 13px;
   color: var(--vscode-descriptionForeground, #9da5b4);
 }
+
+/* item_748: the corpus shape reuses the board's stage palette instead of drawing every
+   stage in the same blue. The tokens are declared once, in board.css. */
+.viewer-insights__bar-row[data-stage="request"] .viewer-insights__bar-track span { background: var(--stage-color-request); }
+.viewer-insights__bar-row[data-stage="backlog"] .viewer-insights__bar-track span { background: var(--stage-color-backlog); }
+.viewer-insights__bar-row[data-stage="task"] .viewer-insights__bar-track span { background: var(--stage-color-task); }
+.viewer-insights__bar-row[data-stage="product"] .viewer-insights__bar-track span { background: var(--stage-color-product); }
+.viewer-insights__bar-row[data-stage="roadmap"] .viewer-insights__bar-track span { background: var(--stage-color-roadmap); }
+.viewer-insights__bar-row[data-stage="architecture"] .viewer-insights__bar-track span { background: var(--stage-color-architecture); }
+.viewer-insights__bar-row[data-stage="spec"] .viewer-insights__bar-track span { background: var(--stage-color-spec); }
+.viewer-insights__bar-row[data-stage="runbook"] .viewer-insights__bar-track span { background: var(--stage-color-runbook); }
+
+/* item_748: within a card, facts of the same kind are drawn the same way. Open, Closed and
+   Blocked were large key/value rows sitting directly beneath the thin stage bars they are
+   the same kind of fact as -- two languages inside one card. They are bars too, under a
+   subhead that says which axis each set counts, since the two sets do not sum to the same
+   thing and stacking them unlabelled would invite reading them as one list. */
+.viewer-insights__subhead {
+  margin: 12px 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.viewer-insights__subhead:first-of-type {
+  margin-top: 0;
+}
+
+/* A state bar has no stage, so it keeps the neutral track fill rather than borrowing a
+   stage colour it does not mean. */
+.viewer-insights__bar-row[data-stage="blocked"] .viewer-insights__bar-track span {
+  background: var(--vscode-editorError-foreground, #f85149);
+}

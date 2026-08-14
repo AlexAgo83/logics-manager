@@ -4,10 +4,11 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 33%
+> Progress: 44%
 > Complexity: Low
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 09:13:44
 
 # AI Context
 - Summary: The corpus shape bars are one blue for all seven stages while the board already colours each stage, and Open/Closed/Blocked render as large rows directly beneath those thin bars in the same card.
@@ -24,6 +25,13 @@
   - Draw facts of the same kind the same way within a card.
 - Out:
   - Which figures the screen reports.
+
+# Delivery notes
+- **The palette is declared once.** The board had tinted every stage since long before, in six hex values inside `board.css`; Corpus insights drew every bar in one blue. Copying the six values into the insights stylesheet would have made a seventh place they must agree, which is the mistake this session has already fixed three times over. They are `--stage-color-*` tokens on `:root`, and both surfaces read them.
+- The bar carries its stage as a data attribute, which is what lets the palette apply. Verified in a live viewer: seven distinct colours across eight stage bars, matching the board.
+- **One card, one language.** Open, Closed and Blocked were large key/value rows sitting directly beneath the thin stage bars -- the same kind of fact drawn two ways inside one card. They are bars too.
+- They are *not* stacked as one list: the two sets count different axes and do not sum to the same total, so each sits under a subhead naming its axis. Stacking them unlabelled would have invited reading eleven bars as one distribution.
+- A state bar has no stage, so it keeps the neutral track fill rather than borrowing a stage colour it does not mean. `Blocked` is the exception and takes the error colour, because that is the one state the card is asking you to act on.
 
 # Acceptance criteria
 - AC5: Stage colours are reused and each card uses one visual language.

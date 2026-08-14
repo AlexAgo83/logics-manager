@@ -8,12 +8,13 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-15 00:13:30
 
 # AI Context
-- Summary: (unfilled: replace before this doc is used)
-- Keywords: orchestrate, loading, border, trace, feature
-- Use when: (unfilled: replace before this doc is used)
-- Skip when: (unfilled: replace before this doc is used)
+- Summary: Orchestrates item_788 (CSS ring mechanism + neutral colour decision) and item_789 (wiring into real screens) in that order.
+- Keywords: orchestration, loading ring, viewer feedback
+- Use when: Sequencing or tracking overall progress across item_788 and item_789.
+- Skip when: Implementation detail of either backlog item — see them directly.
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.

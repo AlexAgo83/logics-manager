@@ -8,12 +8,13 @@
 > Complexity: Medium
 > Theme: Viewer loading feedback
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-15 00:13:30
 
 # AI Context
-- Summary: (unfilled: replace before this doc is used)
-- Keywords: wire, loading, ring, real, viewer, screens
-- Use when: (unfilled: replace before this doc is used)
-- Skip when: (unfilled: replace before this doc is used)
+- Summary: Set `data-loading`/`--loading-color` from the viewer's existing loading signals (`setMeta`, `showScreenLoading`) for both typed document screens (coloured by stage) and untyped screens (neutral colour), without touching any existing loading text.
+- Keywords: setMeta, showScreenLoading, data-loading wiring, stage colour, neutral colour
+- Use when: Implementing this backlog item.
+- Skip when: The CSS ring mechanism itself — that's item_788.
 
 # Problem
 - The loading-ring mechanism (once built) has no connection yet to the real signals a viewer screen already has for "I am loading" and "I am a request/backlog/task/product" -- setMeta/showScreenLoading and their callers know this today, but nothing sets `data-loading`/`--loading-color` from them.

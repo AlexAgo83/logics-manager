@@ -7,12 +7,13 @@
 > Complexity: Medium
 > Theme: Viewer loading feedback
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-15 00:13:30
 
 # AI Context
-- Summary: (unfilled: replace before this doc is used)
-- Keywords: loading, border, trace, animated, ring, header, while, screen, loads
-- Use when: (unfilled: replace before this doc is used)
-- Skip when: (unfilled: replace before this doc is used)
+- Summary: A stage-coloured animated ring travels the viewer header's edge while a screen loads, approved from a working prototype (`logics/external/mockup/loading_border_trace_proto.html`) that already solved the hard part -- the CSS technique that actually renders (an opaque inner cover over an absolutely-positioned glow/sweep layer, not a CSS mask, which was tried first and rendered invisible).
+- Keywords: loading ring, conic-gradient, stage colours, board.css tokens, reduced motion, header animation
+- Use when: Building the shared CSS ring mechanism, deciding the neutral colour for untyped screens, or wiring the ring into a real screen's loading lifecycle.
+- Skip when: Anything about the mockup-vs-viewer gap review — that's req_359, unrelated.
 
 # Needs
 - As an operator watching a screen load (some take 10-20s against a large corpus), I need a visual, ambient signal that something is happening, not just static text, so a slow load doesn't read as a stuck one.

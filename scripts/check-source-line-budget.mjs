@@ -330,7 +330,11 @@ const allowedOversizedFiles = new Map(
     // and for all that time the viewer left the previous screen up with a status line in the
     // small grey meta text. After the change the title lands in 14ms and 5ms and the wait for
     // content is unchanged.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4745, ref: "req_349" },
+    // 4765: item_747 splits the incomplete-chain signal by the rule item_746 recorded -- a
+    // signal is a defect when it cannot resolve itself, and work in flight when time alone
+    // resolves it. The headline counts only the former; the latter is reported without being
+    // claimed as work needing a decision.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4765, ref: "req_349" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

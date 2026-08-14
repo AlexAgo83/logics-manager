@@ -1999,7 +1999,16 @@ import {
 
   async function startNewRequest() {
     const modals = window.logicsViewerModals;
-    const draft = modals && typeof modals.requestDraft === "function" ? await modals.requestDraft() : null;
+    // The backend numbers a new request one above the highest req_NNN on disk. The same
+    // rule over the loaded items gives the modal a number to state; when the items are
+    // not loaded it states the path without one rather than guessing.
+    const nextNumber = viewerState.items.reduce((highest, item) => {
+      const match = /^req_(\d{3})_/.exec(String(item.id || ""));
+      return match ? Math.max(highest, Number(match[1])) : highest;
+    }, -1) + 1;
+    const draft = modals && typeof modals.requestDraft === "function"
+      ? await modals.requestDraft({ nextNumber: nextNumber > 0 ? nextNumber : undefined })
+      : null;
     if (!draft) {
       return;
     }
@@ -3087,7 +3096,23 @@ import {
       ? window.__CDX_LOGICS_VISIBLE_COUNT__()
       : latestItems.filter(matchesViewerFilter).length;
     const suffix = activeLabels.length > 0 ? ` · ${activeLabels.join(" · ")}` : " · All docs";
-    count.textContent = `${visibleCount} of ${latestItems.length} docs shown${suffix}`;
+    // item_765: this said "docs shown" while the columns behind it read ten-of-349 --
+    // two meanings of one word, three inches apart on the same screen. The panel counts
+    // what passes the filter; the columns render a page of each group at a time. Both
+    // numbers are true, and the panel is the one that has to say which is which.
+    const rendered = document.querySelectorAll(".card[data-id]").length;
+    const paging = rendered && rendered < visibleCount
+      ? ` · ${rendered} drawn so far, the rest load as you reach them`
+      : "";
+    count.textContent = `${visibleCount} of ${latestItems.length} docs match${paging}${suffix}`;
+    const reset = document.getElementById("filter-reset");
+    if (reset instanceof HTMLButtonElement) {
+      // AC: an action recedes when there is nothing for it to do. This was the panel's
+      // loudest control while no filter was set -- the one thing offered on a screen
+      // where nothing had been narrowed.
+      reset.disabled = !hasActiveFilters;
+      reset.title = hasActiveFilters ? "Clear every filter" : "No filter is set";
+    }
   }
 
   function renderInsightBars(entries, total) {

@@ -1,13 +1,14 @@
 ## item_765_make_the_panel_and_the_board_agree_on_what_is_shown - Make the panel and the board agree on what is shown
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 14:25:46
 
 # AI Context
 - Summary: The panel reports `1574 of 1576 docs shown` while the columns behind it read ten-of-349, ten-of-760 and ten-of-341 -- two meanings of the word shown, on one screen, three inches apart.
@@ -23,6 +24,13 @@
   - Reconcile the two counts and explain the one the columns display.
 - Out:
   - How many documents a column renders, which the board's own request decides.
+
+# Delivery notes
+- Both numbers were true. The panel counted what passes the filter; the columns draw one page per group at a time (`GROUP_RENDER_PAGE_SIZE` is 10, and grows as the operator reaches the bottom). The defect was the word: `shown` meant two different things three inches apart.
+- The panel says `match` for what it counts, and names the paging for what the columns do. Measured live on this corpus: `1613 of 1615 docs match - 46 drawn so far, the rest load as you reach them - All docs`.
+- The paging clause appears only when the board is actually holding some back. On a filtered view where everything fits, adding it would explain a limit that is not being applied.
+- How many a column renders is unchanged -- that is the board's own request to decide. This slice reconciles the words, which is what made the two numbers read as a contradiction.
+- The campaign's filter checks parse the number with `/(\d+)\s+of\s+\d+/` and were unaffected, but their fixtures spelled the old sentence. They spell the new one now: a fixture that no longer mirrors the product is a check passing against a screen that does not exist.
 
 # Acceptance criteria
 - AC11: Panel and board agree, and the panel explains the columns' count.

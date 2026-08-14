@@ -3533,6 +3533,46 @@
   max-width: 100%;
 }
 
+/* item_763: what the modal is about to write, stated as the fields are typed. Quiet --
+   it is a statement, not an action, and it sits below the fields it describes. */
+/* item_764: why a control in this panel is unavailable, said on the screen rather than
+   in a tooltip nobody on a touch screen can reach. */
+.viewer-filter-panel__note {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.viewer-filter-panel__note[hidden] {
+  display: none;
+}
+
+/* Clear filters recedes when no filter is set, rather than being the loudest control on
+   a panel where nothing has been narrowed. */
+#filter-reset:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.viewer-themed-modal__destination {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.viewer-themed-modal__destination code {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+  color: var(--vscode-foreground, #cccccc);
+}
+
+/* The submit waits until Need is filled. Dimmed and not-allowed rather than hidden: a
+   control that disappears leaves the operator wondering what they did. */
+.viewer-themed-modal__submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .viewer-themed-modal__field {
   display: grid;
   gap: 6px;

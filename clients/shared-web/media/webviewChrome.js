@@ -688,6 +688,14 @@
         groupBySelect.value = getGroupMode();
         groupBySelect.disabled = !getIsListMode();
         groupBySelect.title = getIsListMode() ? "Group visible list items" : "Grouping modes apply in list mode";
+        // item_764: a greyed control with its reason in a tooltip is a control that
+        // reads as broken to everyone who does not hover it -- and to everyone on a
+        // touch screen, where there is no hover at all.
+        const note = typeof document !== "undefined" ? document.getElementById("group-by-note") : null;
+        if (note) {
+          note.hidden = Boolean(getIsListMode());
+          note.textContent = getIsListMode() ? "" : "Grouping applies in list mode.";
+        }
       }
       if (sortBySelect) {
         sortBySelect.value = getSortMode();

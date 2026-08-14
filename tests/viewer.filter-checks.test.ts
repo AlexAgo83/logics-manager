@@ -44,25 +44,25 @@ describe("viewer filter checks", () => {
   });
 
   it("reports a count announced above an empty board", async () => {
-    const lying = build({ count: "310 of 1325 docs shown · type: request", cards: [] });
+    const lying = build({ count: "310 of 1325 docs match · type: request", cards: [] });
 
     await expect(lying.run("count agrees")).rejects.toThrow(/announced 310 above an empty board/);
   });
 
   it("reports a board rendering cards under a count of none", async () => {
-    const lying = build({ count: "0 of 1325 docs shown · type: request", cards: ["req_001_demo"] });
+    const lying = build({ count: "0 of 1325 docs match · type: request", cards: ["req_001_demo"] });
 
     await expect(lying.run("count agrees")).rejects.toThrow(/announced none while the board rendered 1/);
   });
 
   it("passes when the count and the board agree", async () => {
-    const honest = build({ count: "2 of 1325 docs shown · All docs", cards: ["req_001_demo", "task_001_demo"] });
+    const honest = build({ count: "2 of 1325 docs match · All docs", cards: ["req_001_demo", "task_001_demo"] });
 
     await expect(honest.run("count agrees")).resolves.toContain("selection(s) checked");
   });
 
   it("reports a type filter returning a document it did not name", async () => {
-    const lying = build({ count: "1 of 1 docs shown · type: request", cards: ["task_001_demo"] });
+    const lying = build({ count: "1 of 1 docs match · type: request", cards: ["task_001_demo"] });
 
     await expect(lying.run("only what it names")).rejects.toThrow(/type=request rendered task/);
   });
@@ -70,7 +70,7 @@ describe("viewer filter checks", () => {
   it("walks the type options read from the control, not a list of its own", async () => {
     // A type present in the markup is checked without this test naming it here.
     const added = build({
-      count: "1 of 1 docs shown · type: roadmap",
+      count: "1 of 1 docs match · type: roadmap",
       cards: ["item_001_demo"],
       typeOptions: ["all", "roadmap"]
     });
@@ -80,13 +80,13 @@ describe("viewer filter checks", () => {
 
   it("reports a count that ignores the search box", async () => {
     // req_314: typing narrowed the board to nine cards under a count still reading 1337.
-    const frozen = build({ count: "1337 of 1337 docs shown · All docs", cards: ["req_001_demo"] });
+    const frozen = build({ count: "1337 of 1337 docs match · All docs", cards: ["req_001_demo"] });
 
     await expect(frozen.run("follows the search box")).rejects.toThrow(/the count stayed at 1337/);
   });
 
   it("skips the search check when there is no search box", async () => {
-    const bare = build({ count: "1 of 1 docs shown", cards: ["req_001_demo"], searchable: false });
+    const bare = build({ count: "1 of 1 docs match", cards: ["req_001_demo"], searchable: false });
 
     await expect(bare.run("follows the search box")).resolves.toContain("no search box");
   });

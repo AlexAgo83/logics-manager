@@ -125,13 +125,13 @@
 | [prod_083_screens_that_state_their_answer](product/prod_083_screens_that_state_their_answer.md) | Screens that state their answer | Settled |  |  | product/prod_083_screens_that_state_their_answer.md |
 | [prod_084_a_viewer_that_repeats_what_it_was_told](product/prod_084_a_viewer_that_repeats_what_it_was_told.md) | A viewer that repeats what it was told | Settled |  |  | product/prod_084_a_viewer_that_repeats_what_it_was_told.md |
 | [prod_085_numbers_a_screen_can_defend](product/prod_085_numbers_a_screen_can_defend.md) | Numbers a screen can defend | Settled |  |  | product/prod_085_numbers_a_screen_can_defend.md |
-| [prod_086_a_viewer_that_looks_like_one_product](product/prod_086_a_viewer_that_looks_like_one_product.md) | A viewer that looks like one product | Proposed |  |  | product/prod_086_a_viewer_that_looks_like_one_product.md |
-| [prod_087_surfaces_that_read_like_they_were_finished](product/prod_087_surfaces_that_read_like_they_were_finished.md) | Surfaces that read like they were finished | Proposed |  |  | product/prod_087_surfaces_that_read_like_they_were_finished.md |
-| [prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse](product/prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse.md) | A viewer that does not require perfect eyes or a mouse | Proposed |  |  | product/prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse.md |
+| [prod_086_a_viewer_that_looks_like_one_product](product/prod_086_a_viewer_that_looks_like_one_product.md) | A viewer that looks like one product | Settled |  |  | product/prod_086_a_viewer_that_looks_like_one_product.md |
+| [prod_087_surfaces_that_read_like_they_were_finished](product/prod_087_surfaces_that_read_like_they_were_finished.md) | Surfaces that read like they were finished | Settled |  |  | product/prod_087_surfaces_that_read_like_they_were_finished.md |
+| [prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse](product/prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse.md) | A viewer that does not require perfect eyes or a mouse | Settled |  |  | product/prod_088_a_viewer_that_does_not_require_perfect_eyes_or_a_mouse.md |
 | [prod_089_a_release_that_contains_only_the_product](product/prod_089_a_release_that_contains_only_the_product.md) | A release that contains only the product | Settled |  |  | product/prod_089_a_release_that_contains_only_the_product.md |
 | [prod_090_a_viewer_that_knows_which_screen_you_are_on](product/prod_090_a_viewer_that_knows_which_screen_you_are_on.md) | A viewer that knows which screen you are on | Settled |  |  | product/prod_090_a_viewer_that_knows_which_screen_you_are_on.md |
-| [prod_091_a_readme_that_shows_the_product_a_reader_will_get](product/prod_091_a_readme_that_shows_the_product_a_reader_will_get.md) | A README that shows the product a reader will get | Proposed |  |  | product/prod_091_a_readme_that_shows_the_product_a_reader_will_get.md |
-| [prod_092_a_viewer_that_stays_as_fast_as_it_started](product/prod_092_a_viewer_that_stays_as_fast_as_it_started.md) | A viewer that stays as fast as it started | Proposed |  |  | product/prod_092_a_viewer_that_stays_as_fast_as_it_started.md |
+| [prod_091_a_readme_that_shows_the_product_a_reader_will_get](product/prod_091_a_readme_that_shows_the_product_a_reader_will_get.md) | A README that shows the product a reader will get | Settled |  |  | product/prod_091_a_readme_that_shows_the_product_a_reader_will_get.md |
+| [prod_092_a_viewer_that_stays_as_fast_as_it_started](product/prod_092_a_viewer_that_stays_as_fast_as_it_started.md) | A viewer that stays as fast as it started | Settled |  |  | product/prod_092_a_viewer_that_stays_as_fast_as_it_started.md |
 
 ## Roadmaps
 

@@ -1,11 +1,12 @@
 ## prod_086_a_viewer_that_looks_like_one_product - A viewer that looks like one product
 > Date: 2026-08-13
-> Status: Proposed
+> Status: Settled
 > Related request: `req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens`
 > Related backlog: `item_755_give_the_viewer_s_native_controls_the_interface_s_own_colour_scheme`, `item_756_make_the_command_list_readable_at_the_size_it_actually_is`, `item_757_make_the_runbooks_screen_do_what_its_tab_claims`, `item_758_open_the_explorer_on_something_worth_reading`, `item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves`, `item_760_cover_the_reviewed_workshop_and_cdx_screens`
 > Related task: `task_347_deliver_the_control_theming_and_the_workshop_and_cdx_screens`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-14 19:07:50
 
 # Overview
 Forty controls rendering in the browser's default light theme, a tab that promises three capabilities and offers one, and two screens that open on their emptiest state all say the same thing to an operator: parts of this were finished and parts were not. Consistency is not decoration here; it is the difference between a tool that reads as maintained and one that reads as a prototype.
@@ -42,8 +43,13 @@ flowchart TB
 - Keep generated write paths local and repo-bounded.
 
 # Success signals
-- Generated docs pass lint and audit without broad manual rewrites.
-- Context-pack output can be handed to an implementation agent directly.
+- A native control on any viewer screen is drawn in the interface's palette, whatever colour scheme the host resolves to. Held by one `color-scheme` declaration at the root, so a control added later is covered without anyone remembering.
+- A list of thirty scripts is something an operator can scan: the command beside its name, grouped by the prefix the names carry, filterable, and no constant repeated per row.
+- A screen does what its tab title claims. Runbooks claimed search, browse and verify and offered search; it offers all three.
+- A pane that occupies most of the screen holds something worth reading on arrival -- the explorer opens on a README, and a directory lists what is in it rather than counting it.
+- A disabled action says why it is disabled, on the screen rather than in a tooltip only a pointer can reach.
+- Measured after: campaign desktop run at 203 checks, 0 failures, with five Workshop and CDX surfaces now covered.
+- Not yet true, and recorded rather than implied: History, Memory and Disk have not adopted the shape the status screen establishes.
 
 # References
 - Product back-reference: `req_350_theme_the_viewer_s_native_controls_and_finish_the_workshop_and_cdx_screens`

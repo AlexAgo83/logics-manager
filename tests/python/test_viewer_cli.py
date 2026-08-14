@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gzip
 import json
 from importlib import metadata as importlib_metadata
 import os
@@ -2977,6 +2978,101 @@ def test_viewer_status_endpoint_no_store_bypasses_status_caches(
         second = conn.getresponse()
         assert json.loads(second.read().decode("utf-8"))["payload"]["count"] == 2
         assert calls["count"] == 2
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
+def test_viewer_static_asset_revalidates_with_etag_and_skips_disk_read(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    # item_786: a static asset is only ever re-read from disk when its
+    # mtime+size ETag no longer matches; an unchanged asset answers 304.
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("GET", "/viewer.css")
+        first = conn.getresponse()
+        body = first.read()
+        etag = first.getheader("ETag")
+        assert first.status == 200
+        assert etag
+        assert first.getheader("Cache-Control") == "no-cache"
+
+        original_read_bytes = Path.read_bytes
+        read_calls = {"count": 0}
+
+        def counting_read_bytes(self: Path) -> bytes:
+            read_calls["count"] += 1
+            return original_read_bytes(self)
+
+        monkeypatch.setattr(Path, "read_bytes", counting_read_bytes)
+        conn.request("GET", "/viewer.css", headers={"If-None-Match": etag})
+        second = conn.getresponse()
+        second.read()
+        assert second.status == 304
+        assert second.getheader("ETag") == etag
+        assert read_calls["count"] == 0
+        assert body
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
+def test_viewer_items_endpoint_revalidates_with_etag(tmp_path: Path) -> None:
+    # item_786: /api/items previously re-sent the full body on every 15s
+    # poll even when nothing had changed; it now revalidates via ETag.
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("GET", "/api/items")
+        first = conn.getresponse()
+        body = first.read()
+        etag = first.getheader("ETag")
+        assert first.status == 200
+        assert etag
+        assert first.getheader("Cache-Control") == "no-cache"
+        assert json.loads(body)["ok"] is True
+
+        conn.request("GET", "/api/items", headers={"If-None-Match": etag})
+        second = conn.getresponse()
+        second_body = second.read()
+        assert second.status == 304
+        assert second.getheader("ETag") == etag
+        assert second_body == b""
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
+def test_viewer_static_asset_gzips_when_accepted(tmp_path: Path) -> None:
+    # viewer.css (~150KB) is comfortably above the compression threshold,
+    # unlike /api/items' payload on a near-empty test corpus.
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("GET", "/viewer.css", headers={"Accept-Encoding": "gzip"})
+        gzipped = conn.getresponse()
+        gzipped_body = gzipped.read()
+        assert gzipped.status == 200
+        assert gzipped.getheader("Content-Encoding") == "gzip"
+
+        conn.request("GET", "/viewer.css")
+        plain = conn.getresponse()
+        plain_body = plain.read()
+        assert plain.status == 200
+        assert plain.getheader("Content-Encoding") is None
+        assert len(gzipped_body) < len(plain_body)
+        assert gzip.decompress(gzipped_body) == plain_body
     finally:
         server.shutdown()
         server.server_close()

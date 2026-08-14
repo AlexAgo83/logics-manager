@@ -1,13 +1,14 @@
 ## item_768_make_the_new_controls_reachable_without_a_mouse - Make the new controls reachable without a mouse
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 15:13:36
 
 # AI Context
 - Summary: One item scopes keyboard navigation out and none picks it up, while the redesigns add folds, segmented controls, selectable rows, hover-revealed actions and a card tied to a panel.
@@ -25,6 +26,13 @@
 - Out:
   - Keyboard shortcuts and a command palette, which are a feature rather than a condition.
   - Existing controls the nine chains do not change.
+
+# Delivery notes
+- **Audited rather than assumed.** Every element matching `[data-action]`, `[role=button]`, `[role=tab]`, `[data-viewer-nav-target]`, `summary` and `[data-viewer-filter-group]` in `clients/viewer/index.html` was checked: 34 controls, 0 unreachable. The runtime-rendered ones the redesigns added are buttons and anchors by construction -- the reader's copy-path control, its contents links, the explorer's directory entries, the command filter, the runbook rail.
+- **The focus ring is one rule, not twenty.** `viewer.css` had `:focus-visible` styled in twenty places, which means the twenty-first control added has no ring and nothing says so -- the exact shape of gap this redesign kept producing. A bare `:focus-visible` at the top of the file covers everything; the per-control rules below still win where they have a reason to. `:focus-visible` rather than `:focus`, so a pointer click does not draw a ring nobody asked for.
+- **Focus returns where it came from.** `createThemedModal` remembers `document.activeElement` before it takes focus and `closeThemedModal` hands it back. Without this it fell to the document body, so an operator who opened the modal from `+New` and cancelled landed at the top of the page and had to tab back -- every time.
+- **Tab is confined to an open modal.** The next Tab from the last field used to land on the board behind the backdrop: controls that are visually unreachable and, to a keyboard, exactly the ones that come next.
+- Restoring focus checks the opener is still connected, because a re-render between opening and closing can replace it.
 
 # Acceptance criteria
 - AC3: Every new control is keyboard-reachable and operable.

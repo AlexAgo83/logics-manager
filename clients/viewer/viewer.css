@@ -11,6 +11,18 @@
   color-scheme: dark;
 }
 
+/* item_768: a focused control is visibly focused, everywhere, rather than in the twenty
+   places somebody remembered to style. Twenty per-control rules mean the twenty-first
+   control added has no ring, and nothing says so -- which is the shape of gap this
+   redesign kept producing. `:focus-visible` rather than `:focus`, so a pointer click
+   does not draw a ring nobody asked for.
+
+   Placed first so a per-control rule below still wins where one has a reason to. */
+:focus-visible {
+  outline: 2px solid var(--vscode-focusBorder, #0e639c);
+  outline-offset: 1px;
+}
+
 .viewer-topbar {
   flex: 0 0 auto;
   display: flex;

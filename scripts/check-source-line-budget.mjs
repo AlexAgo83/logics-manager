@@ -398,7 +398,10 @@ const allowedOversizedFiles = new Map(
     // in render.js because both are DOM shaping over a rendered document, which is what
     // this file already is; a third module for two functions with one caller would be a
     // file to find rather than a seam.
-    "clients/viewer/src/browser-host/util.js": { maxLines: 1350, ref: "req_351" },
+    // req_352: +30 for item_768's focus return and Tab confinement, which belong in
+    // createThemedModal/closeThemedModal because those are what open and close the modal
+    // -- focus management put anywhere else is management the modal can forget to call.
+    "clients/viewer/src/browser-host/util.js": { maxLines: 1380, ref: "req_352" },
     // 2546: req_305 added the workflow-health sections (blocked docs, stale docs)
     // to the health screen, which previously showed lint and audit only.
     // req_312 moved the rendering whose only consumer is the cdx screen into that screen:

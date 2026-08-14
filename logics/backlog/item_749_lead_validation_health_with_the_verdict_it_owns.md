@@ -4,10 +4,11 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 44%
+> Progress: 66%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 09:27:43
 
 # AI Context
 - Summary: Five tiles, three of them zero, and `RELEASE READY: No` last with no reason -- restating in a different vocabulary an answer the release gate already gives on another screen.
@@ -26,6 +27,12 @@
 - Out:
   - The release gate's own screen and vocabulary, covered by the Remote request.
 
+# Delivery notes
+- The verdict is this screen's own answer -- whether anything blocks, and how much. Measured on the live corpus: `Nothing blocks. 79 warnings and 1 workflow signal to look at.`
+- **Release readiness is deferred, not restated.** The `Release ready` tile is gone and a line names the screen that owns the gate. Restating another screen's answer in a second vocabulary is worse than not answering: it invites two screens to disagree, and this one had no reason to give.
+- The four remaining tiles keep their figures, zeros included, in a strip under the verdict rather than as five equal blocks where three read `0`.
+
+# Acceptance criteria
 # Acceptance criteria
 - AC6: The screen leads with its own verdict and defers release readiness to the screen that owns it.
 

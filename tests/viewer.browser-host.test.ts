@@ -4466,6 +4466,92 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("focus: blocked");
   });
 
+  it("leads validation health with its own verdict and groups findings by file", async () => {
+    // item_749/item_750. Five tiles, three of them zero, with `RELEASE READY: No` last and no
+    // reason on a screen where everything else was green -- restating in a different
+    // vocabulary an answer the release gate gives on its own screen. And five consecutive
+    // findings printed the same path as their headline with the finding demoted beneath, so
+    // the screen read as a list of paths rather than of findings.
+    const { dom } = createViewerDom({
+      items: [
+        {
+          id: "req_700_present",
+          title: "Present",
+          stage: "request",
+          relPath: "logics/request/req_700_present.md",
+          path: "/workspace/mock/logics/request/req_700_present.md",
+          updatedAt: new Date().toISOString(),
+          indicators: { Status: "Ready" },
+          references: [],
+          usedBy: []
+        }
+      ]
+    });
+    const api = dom.window.acquireVsCodeApi();
+    const originalFetch = dom.window.fetch;
+    Object.defineProperty(dom.window, "fetch", {
+      configurable: true,
+      value: async (url: string, init?: unknown) => {
+        if (String(url).startsWith("/api/lint")) {
+          return {
+            ok: true,
+            json: async () => ({
+              ok: true,
+              payload: {
+                ok: true,
+                issue_count: 0,
+                warning_count: 2,
+                issues: [],
+                findings: [
+                  { path: "logics/request/req_001_demo.md", message: "First finding", source: "lint", severity: "warning" },
+                  { path: "logics/request/req_001_demo.md", message: "Second finding", source: "lint", severity: "warning" },
+                  { path: "logics/request/req_002_other.md", message: "references logics/request/req_700_present.md which is missing", source: "audit", severity: "warning" }
+                ]
+              }
+            })
+          };
+        }
+        if (String(url).startsWith("/api/audit")) {
+          return { ok: true, json: async () => ({ ok: true, payload: { ok: true, issue_count: 0, warning_count: 0, issues: [], findings: [] } }) };
+        }
+        return originalFetch(String(url), init as never);
+      }
+    });
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.getElementById("viewer-health")?.dispatchEvent(new dom.window.Event("click"));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const document = dom.window.document;
+
+    // item_749: the screen's own verdict, and release readiness deferred rather than restated.
+    const verdict = document.querySelector(".viewer-health__verdict-text")?.textContent || "";
+    expect(verdict).toContain("Nothing blocks");
+    expect(document.querySelector(".viewer-health__verdict-defer")?.textContent).toContain("Release screen");
+    const cardLabels = Array.from(document.querySelectorAll(".viewer-health__label")).map((node) => node.textContent);
+    expect(cardLabels).not.toContain("Release ready");
+
+    // item_750: the file is the group, the finding is the headline of its own row.
+    const groups = Array.from(document.querySelectorAll(".viewer-health__issue--group"));
+    expect(groups).toHaveLength(2);
+    const demoGroup = groups.find((node) => (node.textContent || "").includes("req_001_demo"));
+    expect(demoGroup?.querySelector(".viewer-health__group-count")?.textContent).toContain("2 findings");
+    expect(demoGroup?.querySelectorAll(".viewer-health__finding")).toHaveLength(2);
+    expect(demoGroup?.querySelector(".viewer-health__finding-message")?.textContent).toBe("First finding");
+
+    // item_750: a finding that says a document is absent while the corpus lists it is marked
+    // suspect, with the contradiction named. The viewer reports; it does not adjudicate.
+    const suspect = document.querySelector("[data-viewer-health-suspect]");
+    expect(suspect).not.toBeNull();
+    expect(suspect?.querySelector(".viewer-health__suspect-note")?.textContent).toContain(
+      "logics/request/req_700_present.md is present in this corpus"
+    );
+    // The finding is not removed -- only marked.
+    expect(suspect?.textContent).toContain("which is missing");
+  });
+
   it("gives corpus insights one visual language, reusing the board's stage palette", async () => {
     // item_748. The corpus shape bars were all one blue while the board had given every
     // stage its own colour long before -- two screens describing the same corpus in two

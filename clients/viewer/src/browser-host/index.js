@@ -3410,7 +3410,12 @@ import {
       if (isViewStale(view)) {
         return;
       }
-      setDocument("Validation health", renderHealthSummary(lintData, auditData, healthData));
+      // item_750: the corpus the viewer is showing is what can contradict a finding that claims
+      // a document is absent, so the known paths travel with the report.
+      setDocument(
+        "Validation health",
+        renderHealthSummary(lintData, auditData, healthData, new Set(latestItems.map((item) => item.relPath).filter(Boolean)))
+      );
       setMeta("Health loaded.");
     } catch (error) {
       if (isAbortError(error)) {

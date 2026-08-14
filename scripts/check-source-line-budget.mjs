@@ -334,7 +334,9 @@ const allowedOversizedFiles = new Map(
     // signal is a defect when it cannot resolve itself, and work in flight when time alone
     // resolves it. The headline counts only the former; the latter is reported without being
     // claimed as work needing a decision.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4775, ref: "req_349" },
+    // 4785: item_750 passes the corpus's own paths into the health report, which is what
+    // lets a finding claiming a document is absent be checked against a corpus that lists it.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4785, ref: "req_349" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },
@@ -384,7 +386,12 @@ const allowedOversizedFiles = new Map(
     // had their own copy of the job list, and both copies fed ciBadgeTone a raw GitHub
     // conclusion, so every job on both screens resolved to "unknown". One renderCiJobRows
     // now serves both -- two copies of a rendering are two places for the same defect.
-    "clients/viewer/src/browser-host/render.js": { maxLines: 1855, ref: "req_347" },
+    // 1910: item_749 gives Validation health the verdict it owns and stops it restating the
+    // release gate's answer in another vocabulary; item_750 groups findings by file with the
+    // finding as the headline, and marks a finding the repository itself contradicts. The
+    // grouping is longer than the flat list it replaces because it is two levels rather than
+    // one, and the contradiction check is a rule rather than a formatting change.
+    "clients/viewer/src/browser-host/render.js": { maxLines: 1910, ref: "req_349" },
     // 1353: req_314 taught the board to group by status, which is what its control always
     // claimed to do. The grouping itself is eleven lines; the rest is the heading element
     // the accessibility slice needed.

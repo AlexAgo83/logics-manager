@@ -507,6 +507,7 @@
 | [req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land](request/req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land.md) | Refresh the README captures and the prose beside them once the redesigns land | Done |  |  | request/req_355_refresh_the_readme_captures_and_the_prose_beside_them_once_the_redesigns_land.md |
 | [req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running](request/req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running.md) | Stop the viewer server degrading the longer it is left running | Done |  |  | request/req_356_stop_the_viewer_server_degrading_the_longer_it_is_left_running.md |
 | [req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy](request/req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy.md) | Make flow's traceability checks and self-authored writes trustworthy | Draft |  |  | request/req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy.md |
+| [req_358_performance_review_viewer_server_static_delivery_and_payload_transfer](request/req_358_performance_review_viewer_server_static_delivery_and_payload_transfer.md) | Performance review: viewer server static delivery and payload transfer | Draft |  |  | request/req_358_performance_review_viewer_server_static_delivery_and_payload_transfer.md |
 
 ## Backlog
 

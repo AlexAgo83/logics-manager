@@ -537,19 +537,25 @@ function browserExerciseScript(name) {
           });
           return false;
         }
-        // A screen that finishes loading after the next one is opened re-renders over it:
-        // the fleet home's project-state pass landed on top of insights and the campaign
-        // reported insights as showing 'Fleet'. Settle, and if a late render took the
-        // screen back, open it once more before giving a verdict.
+        // item_776: this used to settle for 400ms and, if a late render had taken the screen
+        // back, open it once more before giving a verdict. That was the harness compensating
+        // for a product defect -- item_775 gave the three screens that fetched without a view
+        // token one, so a superseded render is dropped rather than painted over the current
+        // screen. The compensation is gone; if the defect returns, the campaign says so
+        // instead of hiding it.
+        //
+        // The settle delay stays, without the reopen: a screen that has just committed may
+        // still be laying out, and the layout checks below read geometry.
         await delay(400);
         const settled = () => (document.getElementById("viewer-document-title")?.textContent || "").trim();
-        if (settled() !== screen.title) {
-          opened.click();
-          await waitFor(
-            () => settled() === screen.title && !document.querySelector("[data-viewer-screen-loading]"),
-            screen.name + " to settle",
-            60000
-          );
+        if (settled() !== screen.title || document.querySelector("[data-viewer-screen-loading]")) {
+          checks.push({
+            name: screen.name + ": reachable",
+            verdict: "failed",
+            measured: "showing '" + settled() + "'",
+            detail: "a later render took the screen back after it had finished loading"
+          });
+          return false;
         }
         checks.push({ name: screen.name + ": reachable", verdict: "ok", measured: screen.title });
         return true;

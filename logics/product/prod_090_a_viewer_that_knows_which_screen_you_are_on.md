@@ -1,8 +1,8 @@
 ## prod_090_a_viewer_that_knows_which_screen_you_are_on - A viewer that knows which screen you are on
 > Date: 2026-08-13
-> Status: Proposed
+> Status: Settled
 > Related request: `req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to`
-> Related backlog: `item_774_establish_why_the_pending_view_guard_does_not_cover_a_late_screen_render`, `item_775_drop_a_screen_s_late_render_when_the_operator_has_moved_on`, `item_776_take_the_workaround_back_out_of_the_campaign`, `item_777_find_out_whether_a_relaunch_can_reuse_a_server_that_is_gone`
+> Related backlog: `item_774_establish_why_the_pending_view_guard_does_not_cover_a_late_screen_render`
 > Related task: `task_351_deliver_the_superseded_render_guard`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
@@ -43,5 +43,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_354_stop_a_slow_screen_from_rendering_over_the_one_the_operator_moved_to`
+- Product back-reference: `item_774_establish_why_the_pending_view_guard_does_not_cover_a_late_screen_render`
 - Task back-reference: `task_351_deliver_the_superseded_render_guard`

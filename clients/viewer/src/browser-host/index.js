@@ -1158,12 +1158,17 @@ import {
   }
 
   async function showFleetHome(options = {}) {
+    // item_774/item_775: this never took a view token, so `isViewStale` could not protect it
+    // -- the guard was not broken, it was never asked. The fleet home rendered, started its
+    // project-state pass, and re-rendered when that returned, over whatever screen the
+    // operator had opened in the meantime.
+    const view = options.view || beginView({ silent: Boolean(options.silent) });
     setDocument("Fleet", renderFleetHome());
     if (!options.silent) {
       setMeta(`Fleet · ${latestProjects.length} projects`);
     }
     if (!options.skipStateLoad) {
-      await loadProjectState({ renderFleetHome: true });
+      await loadProjectState({ view });
     }
   }
 
@@ -1175,7 +1180,15 @@ import {
       const data = await response.json();
       latestProjectState = data?.payload?.projects || {};
       renderProjectMenu();
-      if (options.renderFleetHome || isFleetHomeOpen()) {
+      // item_775: this used to be `options.renderFleetHome || isFleetHomeOpen()`, and the
+      // flag was captured before the await. It meant "I was the fleet home when I started",
+      // which is not the question -- the question is whether the fleet home is still the
+      // screen. The short-circuit made the correct test unreachable on the one path that
+      // needed it. The view token answers the same question for every screen.
+      if (isViewStale(options.view)) {
+        return;
+      }
+      if (isFleetHomeOpen()) {
         setDocument("Fleet", renderFleetHome());
       }
     } catch {
@@ -2872,9 +2885,11 @@ import {
     </div>`;
   }
 
-  async function showSettings() {
+  async function showSettings(options = {}) {
     // item_737: Insights, Health and Getting Started were navigation dressed as settings.
     // They are reached from the navigation, which already offers all three.
+    // item_775/AC3: and this fetches twice before committing, so it takes a token too.
+    const view = options.view || beginView();
     let info = null;
     try {
       const response = await fetch("/api/viewer-info");
@@ -2887,18 +2902,24 @@ import {
       const data = await response.json();
       if (response.ok && data.ok) mcpState = String(data.payload?.state || "");
     } catch { /* left unknown rather than guessed */ }
+    if (isViewStale(view)) return;
     setDocument("Settings", renderSettingsScreen(info, mcpState === "on" ? "On" : mcpState === "off" ? "Off" : mcpState || "unknown"));
     const interval = document.querySelector("[data-viewer-settings-interval]");
     if (interval instanceof HTMLSelectElement) interval.value = String(Math.round(autoRefreshIntervalMs / 1000));
     setMeta("Settings loaded.");
   }
 
-  async function showChatgptMcp() {
+  async function showChatgptMcp(options = {}) {
+    // item_775/AC3: same shape as the fleet home -- fetch, then commit whatever came back
+    // over whatever screen is now on. The guard covers every screen that loads
+    // asynchronously, not only the one the defect was found on.
+    const view = options.view || beginView();
     const response = await fetch("/api/mcp-connector");
     const data = await response.json().catch(() => ({}));
     const state = data.payload || {};
     const ready = state.running && state.url;
     const token = String(state.token || "");
+    if (isViewStale(view)) return;
     setDocument("ChatGPT Developer Mode", `<div class="viewer-settings-screen"><section class="viewer-settings-screen__hero"><p class="viewer-settings-screen__eyebrow">Per-project MCP connector</p><h2>${state.running ? "Connector ON" : "Connector OFF"}</h2><p>${ready ? "Copy the HTTPS /mcp URL and bearer token into ChatGPT developer mode. Stop it when you are done." : state.running ? "Starting the secure tunnel… the URL will appear here shortly." : "Nothing is exposed until you turn this connector on."}</p></section><section class="viewer-settings-card"><h3>ChatGPT connection</h3>${ready ? `<code class="viewer-mcp-url">${escapeHtml(state.url)}</code><button class="btn" type="button" data-viewer-mcp-copy="${escapeHtml(state.url)}">Copy URL</button>${token ? `<button class="btn" type="button" data-viewer-mcp-copy="${escapeHtml(token)}" data-viewer-mcp-copy-kind="token">Copy token</button>` : ""}` : ""}${state.error ? `<p class="viewer-settings-screen__error"><strong>The connector stopped.</strong> ${escapeHtml(state.error)}</p>` : ""}<button class="btn" type="button" data-viewer-mcp-action="${state.running ? "stop" : "start"}">${state.running ? "Stop the connector" : "Start the connector"}</button>${state.running && !ready ? '<button class="btn" type="button" data-viewer-mcp-action="refresh">Refresh status</button>' : ""}</section></div>`, { eyebrow: "Settings / ChatGPT Developer Mode" });
     setMeta(ready ? "MCP connector ready." : state.running ? "MCP connector starting." : "MCP connector is off.");
   }

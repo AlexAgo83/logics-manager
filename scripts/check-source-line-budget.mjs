@@ -344,7 +344,11 @@ const allowedOversizedFiles = new Map(
     // lets a finding claiming a document is absent be checked against a corpus that lists it.
     // 4820: item_751 makes Apply fixes ask the server what it would change, name the
     // documents, and apply only if the operator agrees.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4830, ref: "req_349" },
+    // 4850: item_775 gives the three screens that fetched without a view token one, and checks
+    // it before they commit. The guard already existed and already worked -- for the screens
+    // that asked it. These three never did, which is why a fleet home could land over
+    // whatever the operator opened next.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4850, ref: "req_354" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

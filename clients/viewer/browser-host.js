@@ -9151,12 +9151,13 @@ ${line}` : line;
       return Boolean(panel && !panel.hidden && title?.textContent === "Fleet");
     }
     async function showFleetHome(options = {}) {
+      const view = options.view || beginView({ silent: Boolean(options.silent) });
       setDocument("Fleet", renderFleetHome());
       if (!options.silent) {
         setMeta(`Fleet \xB7 ${latestProjects.length} projects`);
       }
       if (!options.skipStateLoad) {
-        await loadProjectState({ renderFleetHome: true });
+        await loadProjectState({ view });
       }
     }
     async function loadProjectState(options = {}) {
@@ -9165,7 +9166,10 @@ ${line}` : line;
         const data = await response.json();
         latestProjectState = data?.payload?.projects || {};
         renderProjectMenu();
-        if (options.renderFleetHome || isFleetHomeOpen()) {
+        if (isViewStale(options.view)) {
+          return;
+        }
+        if (isFleetHomeOpen()) {
           setDocument("Fleet", renderFleetHome());
         }
       } catch {
@@ -10633,7 +10637,8 @@ ${line}` : line;
       </div>
     </div>`;
     }
-    async function showSettings() {
+    async function showSettings(options = {}) {
+      const view = options.view || beginView();
       let info = null;
       try {
         const response = await fetch("/api/viewer-info");
@@ -10648,17 +10653,20 @@ ${line}` : line;
         if (response.ok && data.ok) mcpState = String(data.payload?.state || "");
       } catch {
       }
+      if (isViewStale(view)) return;
       setDocument("Settings", renderSettingsScreen(info, mcpState === "on" ? "On" : mcpState === "off" ? "Off" : mcpState || "unknown"));
       const interval = document.querySelector("[data-viewer-settings-interval]");
       if (interval instanceof HTMLSelectElement) interval.value = String(Math.round(autoRefreshIntervalMs / 1e3));
       setMeta("Settings loaded.");
     }
-    async function showChatgptMcp() {
+    async function showChatgptMcp(options = {}) {
+      const view = options.view || beginView();
       const response = await fetch("/api/mcp-connector");
       const data = await response.json().catch(() => ({}));
       const state = data.payload || {};
       const ready = state.running && state.url;
       const token = String(state.token || "");
+      if (isViewStale(view)) return;
       setDocument("ChatGPT Developer Mode", `<div class="viewer-settings-screen"><section class="viewer-settings-screen__hero"><p class="viewer-settings-screen__eyebrow">Per-project MCP connector</p><h2>${state.running ? "Connector ON" : "Connector OFF"}</h2><p>${ready ? "Copy the HTTPS /mcp URL and bearer token into ChatGPT developer mode. Stop it when you are done." : state.running ? "Starting the secure tunnel\u2026 the URL will appear here shortly." : "Nothing is exposed until you turn this connector on."}</p></section><section class="viewer-settings-card"><h3>ChatGPT connection</h3>${ready ? `<code class="viewer-mcp-url">${escapeHtml(state.url)}</code><button class="btn" type="button" data-viewer-mcp-copy="${escapeHtml(state.url)}">Copy URL</button>${token ? `<button class="btn" type="button" data-viewer-mcp-copy="${escapeHtml(token)}" data-viewer-mcp-copy-kind="token">Copy token</button>` : ""}` : ""}${state.error ? `<p class="viewer-settings-screen__error"><strong>The connector stopped.</strong> ${escapeHtml(state.error)}</p>` : ""}<button class="btn" type="button" data-viewer-mcp-action="${state.running ? "stop" : "start"}">${state.running ? "Stop the connector" : "Start the connector"}</button>${state.running && !ready ? '<button class="btn" type="button" data-viewer-mcp-action="refresh">Refresh status</button>' : ""}</section></div>`, { eyebrow: "Settings / ChatGPT Developer Mode" });
       setMeta(ready ? "MCP connector ready." : state.running ? "MCP connector starting." : "MCP connector is off.");
     }

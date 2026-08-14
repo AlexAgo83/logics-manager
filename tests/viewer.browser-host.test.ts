@@ -4778,6 +4778,64 @@ describe("local viewer browser host", () => {
     expect(document.getElementById("viewer-document-content")?.textContent).toContain("Overview");
   });
 
+  it("drops a screen's late render once the operator has moved on", async () => {
+    // item_774/item_775. Reproduced by the campaign three times, always the same shape: a
+    // screen's asynchronous work landing over whichever screen was opened next.
+    //
+    // The guard was not broken -- it was never asked. showFleetHome, showSettings and
+    // showChatgptMcp all fetched and committed without taking a view token, so isViewStale
+    // had nothing to judge. And loadProjectState committed on
+    // `options.renderFleetHome || isFleetHomeOpen()`, where the flag was captured before the
+    // await: it meant "I was the fleet home when I started", which is not the question, and
+    // the short-circuit made the correct test unreachable on the one path that needed it.
+    //
+    // This drives Settings rather than the fleet home. The fleet home's late render does not
+    // reproduce under jsdom -- loadProjectState wraps everything in a try/catch and the
+    // re-render never lands there -- so a test written against it asserts an outcome that is
+    // also true when nothing happens. Settings has the same shape, renders in this harness,
+    // and fails when its guard is removed, which is what AC6 asks for.
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+    const originalFetch = dom.window.fetch;
+    let releaseInfo: (() => void) | null = null;
+    let infoCalls = 0;
+    const infoGate = new Promise<void>((resolve) => { releaseInfo = resolve; });
+    Object.defineProperty(dom.window, "fetch", {
+      configurable: true,
+      value: async (url: string, init?: unknown) => {
+        if (String(url).startsWith("/api/viewer-info")) {
+          infoCalls += 1;
+          await infoGate;
+          return { ok: true, status: 200, json: async () => ({ ok: true, payload: { address: "http://127.0.0.1:1", mode: "read-only", transport: "HTTP", version: "0.0.0", repoName: "x" } }) };
+        }
+        return originalFetch(String(url), init as never);
+      }
+    });
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const document = dom.window.document;
+
+    // Open Settings; its viewer-info fetch is held open.
+    document.getElementById("viewer-refresh-menu-button")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    // The operator moves on before it finishes.
+    document.getElementById("viewer-getting-started")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    expect(document.getElementById("viewer-document-title")?.textContent).toBe("Getting Started");
+
+    // The late answer arrives. It must be dropped, not painted over the current screen.
+    releaseInfo?.();
+    for (let turn = 0; turn < 8; turn += 1) await flushViewerAsync();
+
+    // The screen really was mid-flight, so the assertion below distinguishes "the guard
+    // worked" from "nothing ever happened".
+    expect(infoCalls).toBeGreaterThan(0);
+    expect(document.getElementById("viewer-document-title")?.textContent).toBe("Getting Started");
+  });
+
   it("keeps Insights, Health and Getting Started reachable from the navigation", async () => {
     // item_737, and a defect that slice introduced. Those three lived only inside the
     // settings dropdown, which the gear button stopped opening when it began opening the

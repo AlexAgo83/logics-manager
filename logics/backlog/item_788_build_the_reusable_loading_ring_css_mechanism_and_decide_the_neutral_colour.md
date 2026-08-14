@@ -8,12 +8,13 @@
 > Complexity: Medium
 > Theme: Viewer loading feedback
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-15 00:13:30
 
 # AI Context
-- Summary: (unfilled: replace before this doc is used)
-- Keywords: build, reusable, loading, ring, css, mechanism, decide, neutral, colour
-- Use when: (unfilled: replace before this doc is used)
-- Skip when: (unfilled: replace before this doc is used)
+- Summary: Port the prototype's proven ring technique into the viewer's shared CSS (opaque inner cover + absolutely-positioned glow/sweep, square sweep box, opacity fade, reduced-motion fallback) and decide the neutral colour for untyped screens.
+- Keywords: conic-gradient ring, opaque inner cover, prefers-reduced-motion, neutral colour decision
+- Use when: Implementing this backlog item.
+- Skip when: Wiring the ring into real screens — that's item_789.
 
 # Problem
 - The loading-ring technique exists only as a hand-tested standalone prototype (logics/external/mockup/loading_border_trace_proto.html); the viewer's own CSS has no shared version of it yet.

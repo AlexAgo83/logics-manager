@@ -123,7 +123,12 @@ export function createWorkshopScreen(host) {
       host.setMeta("Loading workspace...");
     }
     const view = options.view || host.beginView({ silent: Boolean(options.silent) });
-    const [tree, preview] = await Promise.all([fetchWorkspaceTree(""), fetchWorkspacePreview("")]);
+    // item_758: the explorer opened on the root directory, whose preview was one count,
+    // so three quarters of the screen were empty on arrival -- the same shape as the Git
+    // screen opening on its empty domain. It opens on a file instead.
+    const tree = await fetchWorkspaceTree("");
+    const opening = openingWorkspacePath(tree);
+    const preview = await fetchWorkspacePreview(opening);
     if (host.isViewStale(view)) {
       return;
     }
@@ -132,6 +137,20 @@ export function createWorkshopScreen(host) {
       fresh.innerHTML = renderWorkspace(tree, preview);
     }
     host.setMeta(options.silent ? "Explorer refreshed." : "Explorer loaded.");
+  }
+
+/**
+ * The file the explorer should open on.
+ *
+ * A README if the root has one -- it is what a repository puts there to be read first --
+ * and otherwise the first previewable file at the root. Falls back to the root itself,
+ * which now lists its contents rather than counting them, so even that is not empty.
+ */
+  function openingWorkspacePath(treePayload) {
+    const entries = Array.isArray(treePayload?.entries) ? treePayload.entries : [];
+    const files = entries.filter((entry) => entry.kind !== "directory" && !entry.ignored);
+    const readme = files.find((entry) => /^readme(\.|$)/i.test(String(entry.name || "")));
+    return String((readme || files[0])?.path || "");
   }
 
   function preferredWorkshopTab() {
@@ -172,7 +191,6 @@ export function createWorkshopScreen(host) {
           <div class="viewer-workshop__runbook-search">
             <input type="search" placeholder="Search by intent, symptom, path, or category..." data-viewer-workshop-runbook-query aria-label="Search runbooks" />
             <label class="viewer-workshop__runbook-toggle"><input type="checkbox" data-viewer-workshop-runbook-hidden /> Show hidden</label>
-            <button class="btn" type="button" data-viewer-workshop-runbook-search>Search</button>
             <button class="btn" type="button" data-viewer-workshop-runbook-graph>View graph</button>
           </div>
           <div data-viewer-workshop-runbooks>
@@ -217,6 +235,9 @@ export function createWorkshopScreen(host) {
     catalog: null,
     sessions: new Map(),
     streams: new Map(),
+    // item_756: what the filter box holds, kept out of the DOM so a re-render caused by
+    // a running script's log arriving does not throw away what the operator typed.
+    query: "",
   };
 
   function renderWorkshopCommandRunMenu(entry) {
@@ -245,25 +266,55 @@ export function createWorkshopScreen(host) {
     const exitBadge = session && session.exitCode !== null && session.exitCode !== undefined
       ? `<span class="viewer-workshop__exit viewer-workshop__exit--${session.exitCode === 0 ? "ok" : "fail"}">exit ${escapeHtml(String(session.exitCode))}</span>`
       : "";
+    // item_756: `idle` was printed on every row, and `idle` is what a script is unless
+    // something is happening -- thirty rows carrying one word that means "nothing to
+    // report". A state shows when it is not the default, and a running one says for how
+    // long, which is the thing the row was never able to answer.
+    const stateBadge = state === "idle"
+      ? ""
+      : `<span class="viewer-workshop__state viewer-workshop__state--${escapeHtml(state)}">${escapeHtml(state)}${running ? escapeHtml(formatCommandDuration(session?.startedAt)) : ""}</span>`;
     return `
       <li class="viewer-workshop__command" data-viewer-workshop-command="${escapeHtml(entry.id)}">
         <div class="viewer-workshop__command-header">
           <div class="viewer-workshop__command-name">
             <strong>${escapeHtml(entry.name)}</strong>
-            <span class="viewer-workshop__command-source">${escapeHtml(entry.source)}</span>
+            <code class="viewer-workshop__command-line" title="${escapeHtml(entry.command)}">${escapeHtml(entry.command)}</code>
           </div>
           <div class="viewer-workshop__command-actions">
-            <span class="viewer-workshop__state viewer-workshop__state--${escapeHtml(state)}">${escapeHtml(state)}</span>
+            ${stateBadge}
             ${exitBadge}
             ${running
               ? `<button class="btn" type="button" data-viewer-workshop-command-stop="${escapeHtml(entry.id)}">Stop</button>`
               : renderWorkshopCommandRunMenu(entry)}
           </div>
         </div>
-        <div class="viewer-workshop__command-meta"><code>${escapeHtml(entry.command)}</code></div>
         <pre class="viewer-workshop__log" data-viewer-workshop-command-log="${escapeHtml(entry.id)}" aria-live="polite">${escapeHtml(session?.logText || "")}</pre>
       </li>
     `;
+  }
+
+  /** How long a running script has been running, as " · 4m 12s". Empty when unknown. */
+  function formatCommandDuration(startedAt) {
+    const started = Number(startedAt) || 0;
+    if (!started) return "";
+    const seconds = Math.max(0, Math.round((Date.now() - started) / 1000));
+    if (seconds < 60) return ` · ${seconds}s`;
+    return ` · ${Math.floor(seconds / 60)}m ${String(seconds % 60).padStart(2, "0")}s`;
+  }
+
+  /**
+   * The prefix an npm script name already carries, as its group.
+   *
+   * item_756: the catalog groups by source, so thirty scripts landed under one heading
+   * called `npm scripts` and every row then repeated `package.json` underneath it. The
+   * names group themselves -- check:, build:, test: -- and that is the grouping an
+   * operator is actually looking along.
+   */
+  function workshopCommandGroup(entry) {
+    const name = String(entry.name || "");
+    const colon = name.indexOf(":");
+    if (colon > 0) return name.slice(0, colon);
+    return entry.group || "Commands";
   }
 
   function renderWorkshopCommandList(catalog) {
@@ -274,27 +325,58 @@ export function createWorkshopScreen(host) {
     if (commands.length === 0) {
       return `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>${escapeHtml(catalog.message || "No commands discovered.")}</span></div>`;
     }
+    const query = String(workshopCommandState.query || "").trim().toLowerCase();
+    const matching = query
+      ? commands.filter((entry) => `${entry.name} ${entry.command}`.toLowerCase().includes(query))
+      : commands;
     const groups = new Map();
-    commands.forEach((entry) => {
-      const group = entry.group || "Commands";
+    matching.forEach((entry) => {
+      const group = workshopCommandGroup(entry);
       if (!groups.has(group)) groups.set(group, []);
       groups.get(group).push(entry);
     });
     const sections = [...groups.entries()].map(([group, entries]) => `
       <section class="viewer-workshop__group">
-        <h3 class="viewer-workshop__group-title">${escapeHtml(group)}</h3>
+        <h3 class="viewer-workshop__group-title">${escapeHtml(group)} <span class="viewer-workshop__group-count">${entries.length}</span></h3>
         <ul class="viewer-workshop__commands">
           ${entries.map(renderWorkshopCommandRow).join("")}
         </ul>
       </section>
     `).join("");
-    return sections;
+    // The filter states what it left out rather than silently showing fewer rows: a list
+    // that shrinks without saying so reads as a list that lost something.
+    const summary = query
+      ? `<p class="viewer-workshop__command-summary">${matching.length} of ${commands.length} commands match “${escapeHtml(query)}”</p>`
+      : `<p class="viewer-workshop__command-summary">${commands.length} commands from ${escapeHtml(commands[0]?.source || "this repository")}</p>`;
+    return `
+      <div class="viewer-workshop__command-filter">
+        <input type="search" placeholder="Filter by name or command..." aria-label="Filter commands"
+               data-viewer-workshop-command-query value="${escapeHtml(workshopCommandState.query || "")}" />
+      </div>
+      ${summary}
+      ${sections || '<p class="viewer-workshop__command-summary">Nothing matches that filter.</p>'}
+    `;
   }
 
   function renderWorkshopCommands() {
     const container = document.querySelector("[data-viewer-workshop-commands]");
     if (!(container instanceof HTMLElement)) return;
+    const focused = document.activeElement?.hasAttribute?.("data-viewer-workshop-command-query");
+    const caret = focused ? document.activeElement.selectionStart : null;
     container.innerHTML = renderWorkshopCommandList(workshopCommandState.catalog);
+    const filter = container.querySelector("[data-viewer-workshop-command-query]");
+    if (filter instanceof HTMLInputElement) {
+      filter.addEventListener("input", () => {
+        workshopCommandState.query = filter.value;
+        renderWorkshopCommands();
+      });
+      // Typing into a box that re-renders on every keystroke loses focus and caret on
+      // each character, which makes the filter unusable rather than merely awkward.
+      if (focused) {
+        filter.focus();
+        if (caret !== null) filter.setSelectionRange(caret, caret);
+      }
+    }
   }
 
   async function loadWorkshopCommands() {
@@ -317,15 +399,54 @@ export function createWorkshopScreen(host) {
     if (!payload || payload.no_match) {
       return `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>${payload?.query ? `No Active runbook matched "${escapeHtml(payload.query)}".` : "No Active runbooks yet."}</span></div>`;
     }
-    const cards = payload.matches.map((entry) => `
+    // item_757: the tab is titled "search, browse by category, verify" and the screen
+    // offered search alone, with 85% of it empty below two results. The categories the
+    // runbooks already declare become the browse; the width they cost was going unused.
+    const byCategory = new Map();
+    payload.matches.forEach((entry) => {
+      const category = entry.category || "uncategorized";
+      if (!byCategory.has(category)) byCategory.set(category, []);
+      byCategory.get(category).push(entry);
+    });
+    const card = (entry) => `
       <li>
         <a class="viewer-workshop__runbook-card" href="#" data-viewer-workshop-runbook-open="${escapeHtml(entry.path)}">
-          <div class="viewer-workshop__runbook-title"><strong>${escapeHtml(entry.title || entry.ref)}</strong> <span class="viewer-workshop__runbook-category">${escapeHtml(entry.category || "uncategorized")}</span></div>
-          <div class="viewer-workshop__runbook-meta">${escapeHtml(entry.reason || "")}${entry.verified ? ` · verified ${escapeHtml(entry.verified)}` : ""}</div>
+          <div class="viewer-workshop__runbook-title"><strong>${escapeHtml(entry.title || entry.ref)}</strong></div>
+          <div class="viewer-workshop__runbook-meta">${escapeHtml(entry.reason || "")}${renderRunbookVerification(entry)}</div>
         </a>
       </li>
+    `;
+    const sections = [...byCategory.entries()].map(([category, entries]) => `
+      <section class="viewer-workshop__runbook-group" id="runbook-category-${escapeHtml(category)}">
+        <h3 class="viewer-workshop__runbook-group-title">${escapeHtml(category)} <span class="viewer-workshop__group-count">${entries.length}</span></h3>
+        <ul class="viewer-workshop__runbook-list">${entries.map(card).join("")}</ul>
+      </section>
     `).join("");
-    return `<ul class="viewer-workshop__runbook-list">${cards}</ul>`;
+    const unverified = payload.matches.filter((entry) => !entry.verified).length;
+    const rail = `
+      <nav class="viewer-workshop__runbook-rail" aria-label="Runbook categories">
+        <div class="viewer-workshop__runbook-rail-title">${payload.matches.length} runbooks</div>
+        ${unverified ? `<p class="viewer-workshop__runbook-due">${unverified} never verified</p>` : ""}
+        <ul>${[...byCategory.entries()].map(([category, entries]) =>
+          `<li><a href="#runbook-category-${escapeHtml(category)}">${escapeHtml(category)} <span class="viewer-workshop__group-count">${entries.length}</span></a></li>`
+        ).join("")}</ul>
+      </nav>
+    `;
+    return `<div class="viewer-workshop__runbook-layout">${rail}<div class="viewer-workshop__runbook-results">${sections}</div></div>`;
+  }
+
+  /**
+   * When a runbook was last verified, and whether that is overdue.
+   *
+   * Never verified is stated as such rather than left blank: a blank reads as "no
+   * information" when it is in fact the strongest information the row carries.
+   */
+  function renderRunbookVerification(entry) {
+    if (!entry.verified) return ' · <span class="viewer-workshop__runbook-unverified">never verified</span>';
+    const days = Math.floor((Date.now() - Date.parse(entry.verified)) / 86400000);
+    if (!Number.isFinite(days)) return ` · verified ${escapeHtml(entry.verified)}`;
+    const stale = days > 180 ? ' viewer-workshop__runbook-stale' : "";
+    return ` · <span class="viewer-workshop__runbook-verified${stale}">verified ${escapeHtml(entry.verified)}${days > 180 ? ` (${days} days ago)` : ""}</span>`;
   }
 
   function renderWorkshopRunbooks() {
@@ -380,7 +501,13 @@ export function createWorkshopScreen(host) {
 
   function updateWorkshopCommandSession(commandId, patch) {
     const previous = workshopCommandState.sessions.get(commandId) || { logText: "" };
-    workshopCommandState.sessions.set(commandId, { ...previous, ...patch });
+    // Stamped when the state first becomes a running one, not on every patch: the log
+    // lines that follow are patches too, and restamping would reset the duration to zero
+    // every time the script printed something.
+    const enteringRun = (patch.state === "running" || patch.state === "starting")
+      && previous.state !== "running" && previous.state !== "starting";
+    const startedAt = enteringRun ? Date.now() : previous.startedAt;
+    workshopCommandState.sessions.set(commandId, { ...previous, ...patch, startedAt });
     renderWorkshopCommands();
     recomputeWorkshopBadges();
   }

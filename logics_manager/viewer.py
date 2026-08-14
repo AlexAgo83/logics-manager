@@ -99,6 +99,8 @@ WORKSPACE_PREVIEW_MAX_BYTES = 30000
 WORKSPACE_PREVIEW_MAX_CHARS = 20000
 # Hard safety ceiling applied when the operator explicitly forces a full load
 # ("load anyway"); keeps the browser from choking on pathological files.
+#: A directory listing is a way to choose what to open next, not a file manager.
+DIRECTORY_PREVIEW_MAX_ENTRIES = 200
 PREVIEW_FORCE_MAX_BYTES = 5_000_000
 PREVIEW_FORCE_MAX_CHARS = 5_000_000
 WORKSPACE_IGNORED_DIRS = {
@@ -1051,6 +1053,48 @@ def _normalize_workspace_path(rel_path: str) -> str:
     return "/".join(parts)
 
 
+def _directory_preview_payload(repo_root: Path, target: Path, normalized: str) -> dict[str, Any]:
+    """What a directory holds, for the explorer's preview pane.
+
+    item_758: this pane was the string "N item(s)" -- a count occupying three quarters of
+    the screen and answering nothing an operator opens a folder to ask. It reports what is
+    in it, directories first and then files, each with the one fact that decides whether
+    to open it.
+    """
+    entries: list[dict[str, Any]] = []
+    try:
+        children = sorted(target.iterdir(), key=lambda item: (item.is_file(), item.name.lower()))
+    except OSError:
+        children = []
+    for child in children[:DIRECTORY_PREVIEW_MAX_ENTRIES]:
+        try:
+            is_dir = child.is_dir()
+            size = 0 if is_dir else child.stat().st_size
+        except OSError:
+            continue
+        entries.append({
+            "name": child.name,
+            "path": f"{normalized}/{child.name}" if normalized else child.name,
+            "kind": "directory" if is_dir else "file",
+            "size": size,
+            # The tree already dims these; the preview says the same thing rather than
+            # listing them as though they were worth opening.
+            "ignored": is_dir and child.name in WORKSPACE_IGNORED_DIRS,
+        })
+    count = len(children)
+    return {
+        "state": "directory",
+        "path": normalized,
+        "name": target.name or repo_root.resolve().name,
+        "kind": "directory",
+        "message": f"{count} item(s)",
+        "entries": entries,
+        # Stated so the list never implies it is complete when it is not.
+        "entriesTruncated": count > len(entries),
+        "childrenAvailable": target.name not in WORKSPACE_IGNORED_DIRS,
+    }
+
+
 def workspace_preview_payload(
     repo_root: Path,
     rel_path: str,
@@ -1069,18 +1113,7 @@ def workspace_preview_payload(
     if not target.exists():
         return {"state": "missing", "path": normalized, "message": "Workspace path does not exist."}
     if target.is_dir():
-        try:
-            count = sum(1 for _ in target.iterdir())
-        except OSError:
-            count = 0
-        return {
-            "state": "directory",
-            "path": normalized,
-            "name": target.name or repo_root.resolve().name,
-            "kind": "directory",
-            "message": f"{count} item(s)",
-            "childrenAvailable": target.name not in WORKSPACE_IGNORED_DIRS,
-        }
+        return _directory_preview_payload(repo_root, target, normalized)
     if not target.is_file():
         return {"state": "unsupported", "path": normalized, "message": "Workspace object cannot be previewed."}
     try:

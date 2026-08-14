@@ -1,13 +1,14 @@
 ## item_759_bring_the_cdx_screens_onto_the_shape_status_already_proves - Bring the CDX screens onto the shape status already proves
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 17%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 15:01:17
 
 # AI Context
 - Summary: CDX missions puts `Not previewed` and `Not launched` in metric tiles, prints its panel title twice and carries two unstyled checkboxes -- while CDX status has already built the table, strip and next-action shape the rest of the product is being asked to adopt.
@@ -26,6 +27,13 @@
   - Adopt the status screen's table and strip shape across the other CDX screens rather than inventing per screen.
 - Out:
   - What a mission does, how sessions are managed, and the Terminals tab a mission can launch into.
+
+# Delivery notes
+- **The tiles carry counts.** Two of the four held `Not previewed` and `Not launched` -- states meaning nothing has happened yet, given the weight of a metric. Those two moved onto the panels they describe, beside the panel heading, where the operator is already looking for them. The tiles now count missions, sessions, strengths and pending corpus actions.
+- **The disabled launch action says why.** It was disabled with nothing said, on a screen whose whole purpose is launching something. The safety it enforces -- preview before launch -- is unchanged and deliberately so; what was missing was the sentence. The reason distinguishes the three cases: no plan yet, a plan that failed to build, and a plan that reports it cannot run.
+- **The run report screen stopped naming itself twice.** It read `Run report` under a document header already titled `CDX run report`, in the two most prominent places on the screen. The section names the run it is showing.
+- **The two checkboxes take the form's own row shape.** `item_755` made them dark; it did not make them part of this interface.
+- **Deferred, and stated rather than implied: AC13 is partly delivered.** The missions screen adopted the status screen's tile shape and its panel-state convention. Bringing the History, Memory and Disk screens onto the status screen's table and strip is a larger change than this slice, and doing it badly to close an AC would leave three screens half-converted. It is worth its own slice.
 
 # Acceptance criteria
 - AC10: Tiles carry metrics, not placeholders.

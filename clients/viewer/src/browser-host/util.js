@@ -497,7 +497,9 @@ export function describeDocumentScreen(titleText) {
     const exact = {
       "Getting Started": "Logics workflow guide",
       "Remote": "Git status, CI runs, and release gates",
-      "Workshop": "Terminals, commands, and file explorer",
+      // item_757: this named three of the screen's four tabs, and the one it left out --
+      // Runbooks -- is the one the review found unfinished.
+      "Workshop": "Terminals, commands, runbooks, and file explorer",
       "Validation health": "Lint and audit summary",
       "Corpus insights": "Workflow corpus dashboard",
       "CDX status": "Configured agents and runtime checks",

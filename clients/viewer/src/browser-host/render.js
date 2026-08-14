@@ -1731,6 +1731,14 @@ export function renderWorkspace(treePayload, previewPayload) {
     `;
   }
 
+/** A file size in the unit a reader would say it in. */
+function formatByteSize(bytes) {
+    const size = Number(bytes) || 0;
+    if (size < 1024) return `${size} B`;
+    if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`;
+    return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
 export function renderWorkspacePreview(previewPayload) {
     if (!previewPayload) {
       return '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>Select a file or directory.</span></div>';
@@ -1778,12 +1786,26 @@ export function renderWorkspacePreview(previewPayload) {
       `;
     }
     if (state === "directory") {
+      const entries = Array.isArray(previewPayload.entries) ? previewPayload.entries : [];
+      const rows = entries.map((entry) => `
+        <li class="viewer-workspace__dir-row${entry.ignored ? " viewer-workspace__dir-row--ignored" : ""}">
+          <button type="button" class="viewer-workspace__dir-entry" data-viewer-workspace-select="${escapeHtml(entry.path)}">
+            <span class="viewer-workspace__dir-kind" aria-hidden="true">${entry.kind === "directory" ? "▸" : "·"}</span>
+            <span class="viewer-workspace__dir-name">${escapeHtml(entry.name)}</span>
+            <span class="viewer-workspace__dir-size">${entry.kind === "directory" ? "" : formatByteSize(entry.size)}</span>
+          </button>
+        </li>
+      `).join("");
+      // item_758: this pane was one sentence -- "12 item(s)" -- across three quarters of
+      // the screen. A folder is opened to find out what is in it, so that is what it says.
       return `
         <div class="viewer-workspace__preview-header">
           <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path || "/")}</span></div>
-          <em>directory</em>
+          <em>${escapeHtml(previewPayload.message || "directory")}</em>
         </div>
-        <div class="viewer-workspace__preview-notice">${escapeHtml(previewPayload.message || "Directory selected.")}</div>
+        ${rows
+          ? `<ul class="viewer-workspace__dir-list">${rows}</ul>${previewPayload.entriesTruncated ? '<p class="viewer-workspace__preview-notice">Only the first 200 entries are listed.</p>' : ""}`
+          : `<div class="viewer-workspace__preview-notice">${escapeHtml(previewPayload.message || "This folder is empty.")}</div>`}
       `;
     }
     const placeholderState = state === "unavailable" ? "unavailable" : "empty";

@@ -447,7 +447,9 @@ ${entry?.message || ""}`;
     const exact = {
       "Getting Started": "Logics workflow guide",
       "Remote": "Git status, CI runs, and release gates",
-      "Workshop": "Terminals, commands, and file explorer",
+      // item_757: this named three of the screen's four tabs, and the one it left out --
+      // Runbooks -- is the one the review found unfinished.
+      "Workshop": "Terminals, commands, runbooks, and file explorer",
       "Validation health": "Lint and audit summary",
       "Corpus insights": "Workflow corpus dashboard",
       "CDX status": "Configured agents and runtime checks",
@@ -3032,6 +3034,12 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       </div>
     `;
   }
+  function formatByteSize(bytes) {
+    const size = Number(bytes) || 0;
+    if (size < 1024) return `${size} B`;
+    if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`;
+    return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+  }
   function renderWorkspacePreview(previewPayload) {
     if (!previewPayload) {
       return '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">\xB7</span><span>Select a file or directory.</span></div>';
@@ -3075,12 +3083,22 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       `;
     }
     if (state === "directory") {
+      const entries = Array.isArray(previewPayload.entries) ? previewPayload.entries : [];
+      const rows = entries.map((entry) => `
+        <li class="viewer-workspace__dir-row${entry.ignored ? " viewer-workspace__dir-row--ignored" : ""}">
+          <button type="button" class="viewer-workspace__dir-entry" data-viewer-workspace-select="${escapeHtml(entry.path)}">
+            <span class="viewer-workspace__dir-kind" aria-hidden="true">${entry.kind === "directory" ? "\u25B8" : "\xB7"}</span>
+            <span class="viewer-workspace__dir-name">${escapeHtml(entry.name)}</span>
+            <span class="viewer-workspace__dir-size">${entry.kind === "directory" ? "" : formatByteSize(entry.size)}</span>
+          </button>
+        </li>
+      `).join("");
       return `
         <div class="viewer-workspace__preview-header">
           <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path || "/")}</span></div>
-          <em>directory</em>
+          <em>${escapeHtml(previewPayload.message || "directory")}</em>
         </div>
-        <div class="viewer-workspace__preview-notice">${escapeHtml(previewPayload.message || "Directory selected.")}</div>
+        ${rows ? `<ul class="viewer-workspace__dir-list">${rows}</ul>${previewPayload.entriesTruncated ? '<p class="viewer-workspace__preview-notice">Only the first 200 entries are listed.</p>' : ""}` : `<div class="viewer-workspace__preview-notice">${escapeHtml(previewPayload.message || "This folder is empty.")}</div>`}
       `;
     }
     const placeholderState = state === "unavailable" ? "unavailable" : "empty";
@@ -3440,7 +3458,10 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         ${renderCdxModeSwitcher("runs")}
         <section class="viewer-cdx__section">
           <div class="viewer-ci__heading viewer-ci__heading--actions">
-            <div><h2>Run report</h2><span>${escapeHtml(run.status || "unknown")}</span></div>
+            <!-- item_759: this read "Run report" under a document header already titled
+                 "CDX run report" -- the screen naming itself twice, in the two most
+                 prominent places on it. The section names the run it is showing. -->
+            <div><h2>${escapeHtml(report.missionTitle || report.missionId || run.id || "This run")}</h2><span>${escapeHtml(run.status || "unknown")}</span></div>
             <button class="viewer-cdx__mode" type="button" data-viewer-cdx-back-runs>Back to reports</button>
           </div>
           <ul class="viewer-cdx__list">
@@ -4821,6 +4842,12 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       latestCdxMissionState.promptOverride = "";
       host.setMeta(`CDX config updated for ${sessionName}.`);
     }
+    function cdxRunBlockedReason(planPayload, plan) {
+      if (!planPayload) return "Preview the mission first: a run is launched from a plan, never from the form.";
+      if (planPayload.state !== "ok") return String(planPayload.message || "The plan could not be built, so there is nothing to launch.");
+      if (plan && !plan.canRun) return String(plan.reason || "This plan reports it cannot be run as configured.");
+      return "Preview the mission first.";
+    }
     function renderCdxMissionSetup(statusPayload, planPayload, runPayload, applyPayload) {
       const catalog = cdxMissionCatalog(planPayload || {});
       latestCdxMissionState.catalog = catalog;
@@ -4927,8 +4954,8 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       const cards = [
         ["Missions", String(missions.length)],
         ["Sessions", String(sessions.length)],
-        ["Plan", planState],
-        ["Run", runState]
+        ["Strengths", String(strengths.length)],
+        ["Corpus actions", String(parsedActions.length)]
       ].map(([label, value]) => `
       <div class="viewer-cdx__card">
         <div class="viewer-cdx__label">${escapeHtml(label)}</div>
@@ -4963,14 +4990,15 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
             </label>
             <div class="viewer-cdx__actions">
               <button class="btn" type="button" data-viewer-cdx-plan>Preview</button>
-              <button class="btn" type="button" data-viewer-cdx-run${canRun ? "" : " disabled"}>${runMode === "terminal" ? "Launch in terminal" : "Launch run"}</button>
+              <button class="btn" type="button" data-viewer-cdx-run${canRun ? "" : " disabled"} title="${escapeHtml(canRun ? "Launch this mission" : cdxRunBlockedReason(planPayload, plan))}">${runMode === "terminal" ? "Launch in terminal" : "Launch run"}</button>
             </div>
+            ${canRun ? "" : `<p class="viewer-cdx__blocked-reason">${escapeHtml(cdxRunBlockedReason(planPayload, plan))}</p>`}
           </section>
         </div>
         <div class="viewer-cdx__stack">
           <section class="viewer-cdx__section">
             <div class="viewer-ci__heading viewer-ci__heading--actions">
-              <h2>${outputMode === "run" ? "Run output" : "Plan preview"}</h2>
+              <h2>${outputMode === "run" ? "Run output" : "Plan preview"} <span class="viewer-cdx__panel-state">${escapeHtml(outputMode === "run" ? runState : planState)}</span></h2>
               ${outputSwitch}
             </div>
             <div class="viewer-cdx__output-panel">
@@ -6158,7 +6186,9 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
         host.setMeta("Loading workspace...");
       }
       const view = options.view || host.beginView({ silent: Boolean(options.silent) });
-      const [tree, preview] = await Promise.all([fetchWorkspaceTree(""), fetchWorkspacePreview("")]);
+      const tree = await fetchWorkspaceTree("");
+      const opening = openingWorkspacePath(tree);
+      const preview = await fetchWorkspacePreview(opening);
       if (host.isViewStale(view)) {
         return;
       }
@@ -6167,6 +6197,12 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
         fresh.innerHTML = renderWorkspace(tree, preview);
       }
       host.setMeta(options.silent ? "Explorer refreshed." : "Explorer loaded.");
+    }
+    function openingWorkspacePath(treePayload) {
+      const entries = Array.isArray(treePayload?.entries) ? treePayload.entries : [];
+      const files = entries.filter((entry) => entry.kind !== "directory" && !entry.ignored);
+      const readme = files.find((entry) => /^readme(\.|$)/i.test(String(entry.name || "")));
+      return String((readme || files[0])?.path || "");
     }
     function preferredWorkshopTab() {
       const stored = String(host.shared.viewerPreferences.workshopActiveTab || "");
@@ -6204,7 +6240,6 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
           <div class="viewer-workshop__runbook-search">
             <input type="search" placeholder="Search by intent, symptom, path, or category..." data-viewer-workshop-runbook-query aria-label="Search runbooks" />
             <label class="viewer-workshop__runbook-toggle"><input type="checkbox" data-viewer-workshop-runbook-hidden /> Show hidden</label>
-            <button class="btn" type="button" data-viewer-workshop-runbook-search>Search</button>
             <button class="btn" type="button" data-viewer-workshop-runbook-graph>View graph</button>
           </div>
           <div data-viewer-workshop-runbooks>
@@ -6247,7 +6282,10 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
     const workshopCommandState = {
       catalog: null,
       sessions: /* @__PURE__ */ new Map(),
-      streams: /* @__PURE__ */ new Map()
+      streams: /* @__PURE__ */ new Map(),
+      // item_756: what the filter box holds, kept out of the DOM so a re-render caused by
+      // a running script's log arriving does not throw away what the operator typed.
+      query: ""
     };
     function renderWorkshopCommandRunMenu(entry) {
       const id = escapeHtml(entry.id);
@@ -6272,23 +6310,36 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
       const state2 = session?.state || "idle";
       const running = state2 === "running" || state2 === "starting";
       const exitBadge = session && session.exitCode !== null && session.exitCode !== void 0 ? `<span class="viewer-workshop__exit viewer-workshop__exit--${session.exitCode === 0 ? "ok" : "fail"}">exit ${escapeHtml(String(session.exitCode))}</span>` : "";
+      const stateBadge = state2 === "idle" ? "" : `<span class="viewer-workshop__state viewer-workshop__state--${escapeHtml(state2)}">${escapeHtml(state2)}${running ? escapeHtml(formatCommandDuration(session?.startedAt)) : ""}</span>`;
       return `
       <li class="viewer-workshop__command" data-viewer-workshop-command="${escapeHtml(entry.id)}">
         <div class="viewer-workshop__command-header">
           <div class="viewer-workshop__command-name">
             <strong>${escapeHtml(entry.name)}</strong>
-            <span class="viewer-workshop__command-source">${escapeHtml(entry.source)}</span>
+            <code class="viewer-workshop__command-line" title="${escapeHtml(entry.command)}">${escapeHtml(entry.command)}</code>
           </div>
           <div class="viewer-workshop__command-actions">
-            <span class="viewer-workshop__state viewer-workshop__state--${escapeHtml(state2)}">${escapeHtml(state2)}</span>
+            ${stateBadge}
             ${exitBadge}
             ${running ? `<button class="btn" type="button" data-viewer-workshop-command-stop="${escapeHtml(entry.id)}">Stop</button>` : renderWorkshopCommandRunMenu(entry)}
           </div>
         </div>
-        <div class="viewer-workshop__command-meta"><code>${escapeHtml(entry.command)}</code></div>
         <pre class="viewer-workshop__log" data-viewer-workshop-command-log="${escapeHtml(entry.id)}" aria-live="polite">${escapeHtml(session?.logText || "")}</pre>
       </li>
     `;
+    }
+    function formatCommandDuration(startedAt) {
+      const started = Number(startedAt) || 0;
+      if (!started) return "";
+      const seconds = Math.max(0, Math.round((Date.now() - started) / 1e3));
+      if (seconds < 60) return ` \xB7 ${seconds}s`;
+      return ` \xB7 ${Math.floor(seconds / 60)}m ${String(seconds % 60).padStart(2, "0")}s`;
+    }
+    function workshopCommandGroup(entry) {
+      const name = String(entry.name || "");
+      const colon = name.indexOf(":");
+      if (colon > 0) return name.slice(0, colon);
+      return entry.group || "Commands";
     }
     function renderWorkshopCommandList(catalog) {
       if (!catalog || catalog.state === "unavailable") {
@@ -6298,26 +6349,49 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
       if (commands.length === 0) {
         return `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">\xB7</span><span>${escapeHtml(catalog.message || "No commands discovered.")}</span></div>`;
       }
+      const query = String(workshopCommandState.query || "").trim().toLowerCase();
+      const matching = query ? commands.filter((entry) => `${entry.name} ${entry.command}`.toLowerCase().includes(query)) : commands;
       const groups = /* @__PURE__ */ new Map();
-      commands.forEach((entry) => {
-        const group = entry.group || "Commands";
+      matching.forEach((entry) => {
+        const group = workshopCommandGroup(entry);
         if (!groups.has(group)) groups.set(group, []);
         groups.get(group).push(entry);
       });
       const sections = [...groups.entries()].map(([group, entries]) => `
       <section class="viewer-workshop__group">
-        <h3 class="viewer-workshop__group-title">${escapeHtml(group)}</h3>
+        <h3 class="viewer-workshop__group-title">${escapeHtml(group)} <span class="viewer-workshop__group-count">${entries.length}</span></h3>
         <ul class="viewer-workshop__commands">
           ${entries.map(renderWorkshopCommandRow).join("")}
         </ul>
       </section>
     `).join("");
-      return sections;
+      const summary = query ? `<p class="viewer-workshop__command-summary">${matching.length} of ${commands.length} commands match \u201C${escapeHtml(query)}\u201D</p>` : `<p class="viewer-workshop__command-summary">${commands.length} commands from ${escapeHtml(commands[0]?.source || "this repository")}</p>`;
+      return `
+      <div class="viewer-workshop__command-filter">
+        <input type="search" placeholder="Filter by name or command..." aria-label="Filter commands"
+               data-viewer-workshop-command-query value="${escapeHtml(workshopCommandState.query || "")}" />
+      </div>
+      ${summary}
+      ${sections || '<p class="viewer-workshop__command-summary">Nothing matches that filter.</p>'}
+    `;
     }
     function renderWorkshopCommands() {
       const container = document.querySelector("[data-viewer-workshop-commands]");
       if (!(container instanceof HTMLElement)) return;
+      const focused = document.activeElement?.hasAttribute?.("data-viewer-workshop-command-query");
+      const caret = focused ? document.activeElement.selectionStart : null;
       container.innerHTML = renderWorkshopCommandList(workshopCommandState.catalog);
+      const filter = container.querySelector("[data-viewer-workshop-command-query]");
+      if (filter instanceof HTMLInputElement) {
+        filter.addEventListener("input", () => {
+          workshopCommandState.query = filter.value;
+          renderWorkshopCommands();
+        });
+        if (focused) {
+          filter.focus();
+          if (caret !== null) filter.setSelectionRange(caret, caret);
+        }
+      }
     }
     async function loadWorkshopCommands() {
       try {
@@ -6334,15 +6408,44 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
       if (!payload || payload.no_match) {
         return `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">\xB7</span><span>${payload?.query ? `No Active runbook matched "${escapeHtml(payload.query)}".` : "No Active runbooks yet."}</span></div>`;
       }
-      const cards = payload.matches.map((entry) => `
+      const byCategory = /* @__PURE__ */ new Map();
+      payload.matches.forEach((entry) => {
+        const category = entry.category || "uncategorized";
+        if (!byCategory.has(category)) byCategory.set(category, []);
+        byCategory.get(category).push(entry);
+      });
+      const card = (entry) => `
       <li>
         <a class="viewer-workshop__runbook-card" href="#" data-viewer-workshop-runbook-open="${escapeHtml(entry.path)}">
-          <div class="viewer-workshop__runbook-title"><strong>${escapeHtml(entry.title || entry.ref)}</strong> <span class="viewer-workshop__runbook-category">${escapeHtml(entry.category || "uncategorized")}</span></div>
-          <div class="viewer-workshop__runbook-meta">${escapeHtml(entry.reason || "")}${entry.verified ? ` \xB7 verified ${escapeHtml(entry.verified)}` : ""}</div>
+          <div class="viewer-workshop__runbook-title"><strong>${escapeHtml(entry.title || entry.ref)}</strong></div>
+          <div class="viewer-workshop__runbook-meta">${escapeHtml(entry.reason || "")}${renderRunbookVerification(entry)}</div>
         </a>
       </li>
+    `;
+      const sections = [...byCategory.entries()].map(([category, entries]) => `
+      <section class="viewer-workshop__runbook-group" id="runbook-category-${escapeHtml(category)}">
+        <h3 class="viewer-workshop__runbook-group-title">${escapeHtml(category)} <span class="viewer-workshop__group-count">${entries.length}</span></h3>
+        <ul class="viewer-workshop__runbook-list">${entries.map(card).join("")}</ul>
+      </section>
     `).join("");
-      return `<ul class="viewer-workshop__runbook-list">${cards}</ul>`;
+      const unverified = payload.matches.filter((entry) => !entry.verified).length;
+      const rail = `
+      <nav class="viewer-workshop__runbook-rail" aria-label="Runbook categories">
+        <div class="viewer-workshop__runbook-rail-title">${payload.matches.length} runbooks</div>
+        ${unverified ? `<p class="viewer-workshop__runbook-due">${unverified} never verified</p>` : ""}
+        <ul>${[...byCategory.entries()].map(
+        ([category, entries]) => `<li><a href="#runbook-category-${escapeHtml(category)}">${escapeHtml(category)} <span class="viewer-workshop__group-count">${entries.length}</span></a></li>`
+      ).join("")}</ul>
+      </nav>
+    `;
+      return `<div class="viewer-workshop__runbook-layout">${rail}<div class="viewer-workshop__runbook-results">${sections}</div></div>`;
+    }
+    function renderRunbookVerification(entry) {
+      if (!entry.verified) return ' \xB7 <span class="viewer-workshop__runbook-unverified">never verified</span>';
+      const days = Math.floor((Date.now() - Date.parse(entry.verified)) / 864e5);
+      if (!Number.isFinite(days)) return ` \xB7 verified ${escapeHtml(entry.verified)}`;
+      const stale = days > 180 ? " viewer-workshop__runbook-stale" : "";
+      return ` \xB7 <span class="viewer-workshop__runbook-verified${stale}">verified ${escapeHtml(entry.verified)}${days > 180 ? ` (${days} days ago)` : ""}</span>`;
     }
     function renderWorkshopRunbooks() {
       const container = document.querySelector("[data-viewer-workshop-runbooks]");
@@ -6392,7 +6495,9 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
     }
     function updateWorkshopCommandSession(commandId, patch) {
       const previous = workshopCommandState.sessions.get(commandId) || { logText: "" };
-      workshopCommandState.sessions.set(commandId, { ...previous, ...patch });
+      const enteringRun = (patch.state === "running" || patch.state === "starting") && previous.state !== "running" && previous.state !== "starting";
+      const startedAt = enteringRun ? Date.now() : previous.startedAt;
+      workshopCommandState.sessions.set(commandId, { ...previous, ...patch, startedAt });
       renderWorkshopCommands();
       recomputeWorkshopBadges();
     }
@@ -11846,6 +11951,7 @@ ${shown.join("\n")}${files.length > shown.length ? `
         const gitDiffFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-diff-full]") : null;
         const workspaceTreeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-tree]") : null;
         const workspacePreviewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview]") : null;
+        const workspaceSelectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-select]") : null;
         const workspacePreviewFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview-full]") : null;
         const workshopTabTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-tab]") : null;
         const workshopRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run]") : null;
@@ -12321,6 +12427,11 @@ ${shown.join("\n")}${files.length > shown.length ? `
           withPrimaryAction("workspace-preview-full", "Loading full file", () => openWorkspacePreview(workspacePreviewFullTarget.getAttribute("data-viewer-workspace-preview-full") || "", { full: true }));
           return;
         }
+        if (workspaceSelectTarget instanceof HTMLElement) {
+          event.preventDefault();
+          withPrimaryAction("workspace-select", "Opening", () => openWorkspacePreview(workspaceSelectTarget.getAttribute("data-viewer-workspace-select") || ""));
+          return;
+        }
         if (workspacePreviewTarget instanceof HTMLElement) {
           event.preventDefault();
           withPrimaryAction("workspace-preview", "Loading Explorer preview", () => openWorkspacePreview(workspacePreviewTarget.getAttribute("data-viewer-workspace-preview") || ""));
@@ -12464,6 +12575,16 @@ ${shown.join("\n")}${files.length > shown.length ? `
         if (!documentPath) return;
         const copied = await copyTextToClipboard(documentPath);
         setMeta(copied ? `Copied ${documentPath}` : "Clipboard access was refused.");
+      });
+      let runbookSearchTimer = 0;
+      document.addEventListener("input", (event) => {
+        const field = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-query]") : null;
+        if (!(field instanceof HTMLInputElement)) return;
+        window.clearTimeout(runbookSearchTimer);
+        const query = field.value.trim();
+        runbookSearchTimer = window.setTimeout(() => {
+          void loadWorkshopRunbooks(query);
+        }, 250);
       });
       document.getElementById("viewer-document-refresh")?.addEventListener("click", () => {
         withPrimaryAction("refresh-document", "Refreshing", refreshCurrentScreen);

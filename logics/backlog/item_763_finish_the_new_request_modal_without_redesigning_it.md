@@ -1,13 +1,14 @@
 ## item_763_finish_the_new_request_modal_without_redesigning_it - Finish the new-request modal without redesigning it
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Viewer experience
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-14 14:25:46
 
 # AI Context
 - Summary: The best-behaved surface in the viewer needs three small things: a dismiss glyph rather than a lowercase letter, a statement of where the document will be written, and a submit that waits until the form can be submitted.
@@ -27,6 +28,14 @@
 - Out:
   - The placeholders, field order, button order and backdrop, which are correct.
   - What creating a request does after the modal closes.
+
+# Delivery notes
+- Three things, nothing else. The placeholders, field order, button order and backdrop were correct and are untouched.
+- The dismiss control was a lowercase `x` -- a letter, in a row of glyphs. It is `×` now.
+- **The destination is stated as the fields are typed**, using the backend's own naming rule rather than an approximation of it. That meant reproducing `_slugify_viewer_doc` in the browser host, and the title falling back to the first line of the need -- which is the backend's rule, not a convenience added here: a modal silent when the title is blank would be silent in exactly the case the operator cannot predict the filename themselves.
+- The request number comes from the loaded items by the same rule the backend uses (one above the highest `req_NNN`). When the items are not loaded the path is still stated, with `req_<next>` naming the part that is not yet decided. Inventing a number would be worse than admitting it is allocated later.
+- **The naming rule now exists twice, so it has a drift gate.** `tests/viewer.request-modal.test.ts` runs the Python function and the JavaScript one against the same inputs -- punctuation, accents, case, over-length, leading and trailing separators -- and fails when they disagree. A stated path that is wrong is worse than no statement, because the operator has no reason to doubt it.
+- Submit waits for Need. It used to be live, and pressing it moved focus into the empty field without saying why -- a control that looks ready and then refuses. Disabled and dimmed rather than hidden: a control that disappears leaves the operator wondering what they did.
 
 # Acceptance criteria
 - AC6: The dismiss control is a glyph.

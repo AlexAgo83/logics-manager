@@ -15,7 +15,7 @@ export function filterChecks(window) {
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const countNode = () => document.getElementById("viewer-filter-count");
-  /** The number the panel prints, parsed out of "N of M docs shown · ...". */
+  /** The number the panel prints, parsed out of "N of M docs match · ...". */
   const announced = () => {
     const match = /(\d+)\s+of\s+\d+/.exec(countNode()?.textContent || "");
     return match ? Number(match[1]) : null;

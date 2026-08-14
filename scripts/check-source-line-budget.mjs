@@ -348,11 +348,14 @@ const allowedOversizedFiles = new Map(
     // it before they commit. The guard already existed and already worked -- for the screens
     // that asked it. These three never did, which is why a fleet home could land over
     // whatever the operator opened next.
-    // req_351: +40 for the reader's identity and its reading layout. The layout builder
+    // req_351: +40 for the reader's identity and its reading layout, then +25 more for
+    // the filter panel's reconciled count, the recede rule on Clear filters, and the
+    // number the new-request modal states -- all inside functions that already own the
+    // DOM they touch. The layout builder
     // itself went to util.js, where the DOM helpers already live; what stays here is the
     // wiring -- the eyebrow, the copy-path control, and the listener handle -- which has
     // to be beside setDocument because that is what owns the document's DOM.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4890, ref: "req_351" },
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4915, ref: "req_351" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },
@@ -385,7 +388,7 @@ const allowedOversizedFiles = new Map(
     // in render.js because both are DOM shaping over a rendered document, which is what
     // this file already is; a third module for two functions with one caller would be a
     // file to find rather than a seam.
-    "clients/viewer/src/browser-host/util.js": { maxLines: 1315, ref: "req_351" },
+    "clients/viewer/src/browser-host/util.js": { maxLines: 1350, ref: "req_351" },
     // 2546: req_305 added the workflow-health sections (blocked docs, stale docs)
     // to the health screen, which previously showed lint and audit only.
     // req_312 moved the rendering whose only consumer is the cdx screen into that screen:
@@ -418,7 +421,11 @@ const allowedOversizedFiles = new Map(
     // 1960: AC4 -- a document listed under a signal now names the signal that listed it. The
     // same renderer serves several lists and a document can appear under more than one, so
     // the row carries it rather than relying on a heading the reader has scrolled past.
-    "clients/viewer/src/browser-host/render.js": { maxLines: 1960, ref: "req_349" },
+    // req_351: +25 for the new-request modal's destination line and its submit gate.
+    // Kept in the modal builder rather than split out: the three parts item_763 adds
+    // all read the same field controls, and separating them would mean handing that
+    // map across a boundary to save nothing.
+    "clients/viewer/src/browser-host/render.js": { maxLines: 1990, ref: "req_351" },
     // 1353: req_314 taught the board to group by status, which is what its control always
     // claimed to do. The grouping itself is eleven lines; the rest is the heading element
     // the accessibility slice needed.

@@ -406,7 +406,7 @@ ${entry?.message || ""}`;
             <h2 class="viewer-themed-modal__title"></h2>
             <p class="viewer-themed-modal__copy"></p>
           </div>
-          <button class="viewer-themed-modal__close" type="button" aria-label="Close" title="Close">x</button>
+          <button class="viewer-themed-modal__close" type="button" aria-label="Close" title="Close">&#215;</button>
         </div>
         <div class="viewer-themed-modal__body"></div>
         <div class="viewer-themed-modal__actions">
@@ -1135,6 +1135,16 @@ ${entry?.message || ""}`;
     else mark();
     content.addEventListener("scroll", mark, { passive: true });
     return () => content.removeEventListener("scroll", mark);
+  }
+  function slugifyViewerDoc(text) {
+    const slug = String(text ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+    return slug.slice(0, 80) || "cdx_code_review_findings";
+  }
+  function previewRequestPath({ title, intent, nextNumber }) {
+    const effectiveTitle = String(title || "").trim() || String(intent || "").split("\n")[0].trim().slice(0, 80) || "New request";
+    const number = Number.isInteger(nextNumber) && nextNumber >= 0 ? String(nextNumber).padStart(3, "0") : "";
+    const ref = number ? `req_${number}_${slugifyViewerDoc(effectiveTitle)}` : `req_<next>_${slugifyViewerDoc(effectiveTitle)}`;
+    return `logics/request/${ref}.md`;
   }
 
   // clients/viewer/src/browser-host/diagnostics.js
@@ -2563,7 +2573,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       item.insertAdjacentHTML("beforeend", `<span class="viewer-nav-menu__badges" data-viewer-menu-badges>${html}</span>`);
     }
   }
-  function showRequestDraftModal() {
+  function showRequestDraftModal({ nextNumber } = {}) {
     return new Promise((resolve) => {
       const modal = createThemedModal({
         title: "New request",
@@ -2598,6 +2608,28 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         body?.appendChild(wrapper);
         controls.set(field.id, control);
       });
+      const destination = document.createElement("p");
+      destination.className = "viewer-themed-modal__destination";
+      const destinationLabel = document.createElement("span");
+      destinationLabel.textContent = "Will be created at ";
+      const destinationPath = document.createElement("code");
+      destination.append(destinationLabel, destinationPath);
+      body?.appendChild(destination);
+      const submitButton = modal.querySelector(".viewer-themed-modal__submit");
+      const refresh = () => {
+        const intent = String(controls.get("intent")?.value || "").trim();
+        destinationPath.textContent = previewRequestPath({
+          title: String(controls.get("title")?.value || ""),
+          intent: String(controls.get("intent")?.value || ""),
+          nextNumber
+        });
+        if (submitButton instanceof HTMLButtonElement) {
+          submitButton.disabled = !intent;
+          submitButton.title = intent ? "" : "Fill in Need first.";
+        }
+      };
+      controls.forEach((control) => control.addEventListener("input", refresh));
+      refresh();
       const done = (value) => {
         closeThemedModal(modal);
         resolve(value);
@@ -8227,12 +8259,24 @@ ${line}` : line;
         const candidate = { ...filterState, [group]: option.value };
         const count = items.filter((item) => matchesFilterState(item, candidate)).length;
         option.textContent = `${option.dataset.baseLabel} (${count})`;
+        option.dataset.matchCount = String(count);
         const selected = option.value === control.value;
         option.disabled = count === 0 && !selected;
         option.title = count === 0 ? "No document matches this here" : `${count} document(s)`;
       });
+      const neutral = control.options[0];
+      if (neutral) {
+        const narrowing = Array.from(control.options).slice(1).filter((option) => Number(option.dataset.matchCount || 0) > 0).length;
+        neutral.textContent = `${neutral.dataset.baseLabel} ${NEUTRAL_DIMENSION[group] || ""}`.trim() + (narrowing ? ` \u2014 ${narrowing} to narrow by` : " \u2014 nothing to narrow by");
+      }
     });
   }
+  var NEUTRAL_DIMENSION = {
+    type: "types",
+    status: "status",
+    relation: "relation",
+    activity: "activity"
+  };
   function focusFilterLabel(value) {
     return {
       active: "Active work",
@@ -9946,7 +9990,11 @@ ${line}` : line;
     }
     async function startNewRequest() {
       const modals = window.logicsViewerModals;
-      const draft = modals && typeof modals.requestDraft === "function" ? await modals.requestDraft() : null;
+      const nextNumber = viewerState.items.reduce((highest, item) => {
+        const match = /^req_(\d{3})_/.exec(String(item.id || ""));
+        return match ? Math.max(highest, Number(match[1])) : highest;
+      }, -1) + 1;
+      const draft = modals && typeof modals.requestDraft === "function" ? await modals.requestDraft({ nextNumber: nextNumber > 0 ? nextNumber : void 0 }) : null;
       if (!draft) {
         return;
       }
@@ -10858,7 +10906,14 @@ ${line}` : line;
       }
       const visibleCount = typeof window.__CDX_LOGICS_VISIBLE_COUNT__ === "function" ? window.__CDX_LOGICS_VISIBLE_COUNT__() : latestItems.filter(matchesViewerFilter).length;
       const suffix = activeLabels.length > 0 ? ` \xB7 ${activeLabels.join(" \xB7 ")}` : " \xB7 All docs";
-      count.textContent = `${visibleCount} of ${latestItems.length} docs shown${suffix}`;
+      const rendered = document.querySelectorAll(".card[data-id]").length;
+      const paging = rendered && rendered < visibleCount ? ` \xB7 ${rendered} drawn so far, the rest load as you reach them` : "";
+      count.textContent = `${visibleCount} of ${latestItems.length} docs match${paging}${suffix}`;
+      const reset = document.getElementById("filter-reset");
+      if (reset instanceof HTMLButtonElement) {
+        reset.disabled = !hasActiveFilters;
+        reset.title = hasActiveFilters ? "Clear every filter" : "No filter is set";
+      }
     }
     function renderInsightBars(entries, total) {
       const denominator = Math.max(1, Number(total) || 0);

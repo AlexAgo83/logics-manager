@@ -453,7 +453,7 @@ export function createThemedModal({ title, message, submitLabel = "OK", cancelLa
             <h2 class="viewer-themed-modal__title"></h2>
             <p class="viewer-themed-modal__copy"></p>
           </div>
-          <button class="viewer-themed-modal__close" type="button" aria-label="Close" title="Close">x</button>
+          <button class="viewer-themed-modal__close" type="button" aria-label="Close" title="Close">&#215;</button>
         </div>
         <div class="viewer-themed-modal__body"></div>
         <div class="viewer-themed-modal__actions">
@@ -1311,4 +1311,37 @@ function trackReadingPosition(content, sections) {
     else mark();
     content.addEventListener("scroll", mark, { passive: true });
     return () => content.removeEventListener("scroll", mark);
+  }
+
+/**
+ * The slug the backend will give a document created from this title.
+ *
+ * item_763: mirrors `_slugify_viewer_doc` in logics_manager/viewer.py, so the path the
+ * modal states is the path the file is written at. Two copies of one rule drift, so
+ * tests/viewer.request-modal.test.ts runs both against the same inputs and fails when
+ * they disagree -- the statement is only worth making if it is true.
+ */
+export function slugifyViewerDoc(text) {
+    const slug = String(text ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+    return slug.slice(0, 80) || "cdx_code_review_findings";
+  }
+
+/**
+ * Where a request drafted with these fields will be written.
+ *
+ * The title falling back to the first line of the need is the backend's rule, not a
+ * convenience added here: a modal that showed a path for a filled title and nothing for
+ * an empty one would be silent in exactly the case the operator cannot predict.
+ */
+export function previewRequestPath({ title, intent, nextNumber }) {
+    const effectiveTitle = String(title || "").trim()
+      || String(intent || "").split("\n")[0].trim().slice(0, 80)
+      || "New request";
+    const number = Number.isInteger(nextNumber) && nextNumber >= 0
+      ? String(nextNumber).padStart(3, "0")
+      : "";
+    // Without a number the path is still stated, with the part that is not yet decided
+    // named as such. Inventing one would be worse than admitting it is allocated later.
+    const ref = number ? `req_${number}_${slugifyViewerDoc(effectiveTitle)}` : `req_<next>_${slugifyViewerDoc(effectiveTitle)}`;
+    return `logics/request/${ref}.md`;
   }

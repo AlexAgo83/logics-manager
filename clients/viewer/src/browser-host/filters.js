@@ -104,14 +104,36 @@ export function updateFilterOptionCounts({ items, filterState }) {
       const candidate = { ...filterState, [group]: option.value };
       const count = items.filter((item) => matchesFilterState(item, candidate)).length;
       option.textContent = `${option.dataset.baseLabel} (${count})`;
+      option.dataset.matchCount = String(count);
       // Never disable the option currently chosen: an operator has to be able to see
       // what they picked, and to pick their way back out of it.
       const selected = option.value === control.value;
       option.disabled = count === 0 && !selected;
       option.title = count === 0 ? "No document matches this here" : `${count} document(s)`;
     });
+    // item_764: the four filters all sat on their neutral option, whose count is the
+    // corpus size by definition -- so the collapsed controls read `All (1574)` and
+    // `Any (1574)` three times over, four statements of one number, none of them about
+    // the dimension they belong to. The neutral option says what it is neutral about,
+    // and how many narrowing choices below it would actually match something.
+    const neutral = control.options[0];
+    if (neutral) {
+      const narrowing = Array.from(control.options)
+        .slice(1)
+        .filter((option) => Number(option.dataset.matchCount || 0) > 0).length;
+      neutral.textContent = `${neutral.dataset.baseLabel} ${NEUTRAL_DIMENSION[group] || ""}`.trim()
+        + (narrowing ? ` — ${narrowing} to narrow by` : " — nothing to narrow by");
+    }
   });
 }
+
+/** What each filter's neutral option is neutral about, named on the option itself. */
+const NEUTRAL_DIMENSION = {
+  type: "types",
+  status: "status",
+  relation: "relation",
+  activity: "activity"
+};
 
 export function focusFilterLabel(value) {
   return {

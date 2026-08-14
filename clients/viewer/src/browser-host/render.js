@@ -23,6 +23,7 @@ import {
   collectHealthFindings,
   countPayloadEntries,
   createThemedModal,
+  previewRequestPath,
   downloadBase64File,
   fileToBase64,
   formatCdxTokenUsage,
@@ -1227,7 +1228,7 @@ export function setNavMenuBadges(target, html) {
   }
 
 
-export function showRequestDraftModal() {
+export function showRequestDraftModal({ nextNumber } = {}) {
     return new Promise((resolve) => {
       const modal = createThemedModal({
         title: "New request",
@@ -1262,6 +1263,36 @@ export function showRequestDraftModal() {
         body?.appendChild(wrapper);
         controls.set(field.id, control);
       });
+      // item_763: the modal took a need, wrote a file, and never said where. The path is
+      // stated as the fields are typed, using the backend's own naming rule, so the
+      // operator knows what is about to appear in their repository before it does.
+      const destination = document.createElement("p");
+      destination.className = "viewer-themed-modal__destination";
+      const destinationLabel = document.createElement("span");
+      destinationLabel.textContent = "Will be created at ";
+      const destinationPath = document.createElement("code");
+      destination.append(destinationLabel, destinationPath);
+      body?.appendChild(destination);
+
+      const submitButton = modal.querySelector(".viewer-themed-modal__submit");
+      const refresh = () => {
+        const intent = String(controls.get("intent")?.value || "").trim();
+        destinationPath.textContent = previewRequestPath({
+          title: String(controls.get("title")?.value || ""),
+          intent: String(controls.get("intent")?.value || ""),
+          nextNumber
+        });
+        if (submitButton instanceof HTMLButtonElement) {
+          // AC8: submit waits until the form can be submitted. It used to be live, and
+          // pressing it moved focus to the empty field without saying why -- a control
+          // that looks ready and then refuses.
+          submitButton.disabled = !intent;
+          submitButton.title = intent ? "" : "Fill in Need first.";
+        }
+      };
+      controls.forEach((control) => control.addEventListener("input", refresh));
+      refresh();
+
       const done = (value) => {
         closeThemedModal(modal);
         resolve(value);

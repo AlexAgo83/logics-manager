@@ -185,30 +185,52 @@
   overflow: hidden;
 }
 
-/* item_740: progress was a wash across the whole element, filled to --progress. In a 230px
-   card that read as a proportion; in a full-width list row the same 60% covered roughly 900px,
-   so the encoding changed meaning with the aspect ratio, and a finished document -- washed end
-   to end -- carried far more coloured area than live work whatever the dimming did afterwards.
-   It is a bar of fixed length now: the same 64px in a narrow card and in a full-width row, so
-   the amount of colour tracks the progress and nothing else. */
-.card--progress-bar::before {
+/* item_740: progress was a wash across the whole element, filled to --progress. In a full-width
+   list row 60% covered roughly 900px, so the encoding changed meaning with the aspect ratio, and
+   a finished document -- washed end to end -- carried far more coloured area than live work
+   whatever the dimming did afterwards. List rows keep a bar of fixed length for exactly that
+   reason: a row can be anywhere from ~300px to 1400px+ wide depending on the window, so a
+   percentage fill there still misrepresents progress by width. A card's width barely varies by
+   comparison (one column's worth, board layout to board layout), so in card mode the approved
+   mockup (`board_activity_redesign.html`, "Proposed -- one mechanism": `.c__bar` spans its
+   container, `.c__bar i` fills it by percentage) uses a real percentage-of-card-width track
+   instead -- restored here after this rule was carried over as a flat 64px in both modes.
+
+   item_790: the bar used to sit on `.card`/`.list-row` itself, anchored `bottom: 4px` -- the
+   very bottom edge of the card, behind the footer row, instead of under the title the mockup
+   shows. It is anchored to `.card__title` now, in both modes, for two different reasons:
+   in card mode that puts it directly under the title without a magic pixel offset that would
+   need re-deriving whenever the footer's own height changes; in list mode the title is grid
+   column 1 (`minmax(0, 1fr)`), a flexible box whose right edge never crosses into the fixed
+   `140px`/`100px`/`80px` columns after it -- so a bar anchored to the title's own right edge
+   structurally cannot land on the age/"today" column, rather than sitting `96px` from the
+   row's right edge and hoping that number still clears three fixed columns whenever their
+   widths change. */
+.card--progress-bar .card__title {
+  position: relative;
+  /* Reserves the flow room the bar sits in (card mode only -- see the list-row override
+     below), so the next flex sibling (badge strip) does not render underneath it. */
+  padding-bottom: 7px;
+}
+
+.card--progress-bar .card__title::before {
   content: "";
   position: absolute;
-  left: 10px;
-  bottom: 4px;
-  width: 64px;
+  left: 0;
+  bottom: 0;
+  width: 100%;
   height: 3px;
   border-radius: 2px;
   background: rgba(148, 163, 184, 0.25);
   pointer-events: none;
 }
 
-.card--progress-bar::after {
+.card--progress-bar .card__title::after {
   content: "";
   position: absolute;
-  left: 10px;
-  bottom: 4px;
-  width: calc(64px * var(--progress-ratio, 0));
+  left: 0;
+  bottom: 0;
+  width: calc(100% * var(--progress-ratio, 0));
   height: 3px;
   border-radius: 2px;
   /* A calm teal "active" fill, not an orange flood that reads as a warning. Orange and red
@@ -218,13 +240,27 @@
 }
 
 /* In a list row the bar sits inline with the title rather than under it: the row is 33px
-   tall and has no space below the text to put it in. */
-.list-row.card--progress-bar::before,
-.list-row.card--progress-bar::after {
-  bottom: 50%;
-  transform: translateY(50%);
+   tall and has no space below the text to put it in. Right-aligned within the title's own
+   flexible column, not the row's own right edge -- see the item_790 note above. Fixed-length
+   (64px), not a percentage of the title's column, per the item_740 note above: that column's
+   own width swings with the window, which is exactly the distortion item_740 fixed. */
+.list-row.card--progress-bar .card__title {
+  padding-bottom: 0;
+  padding-right: 72px;
+}
+
+.list-row.card--progress-bar .card__title::before,
+.list-row.card--progress-bar .card__title::after {
   left: auto;
-  right: 96px;
+  right: 0;
+  bottom: auto;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 64px;
+}
+
+.list-row.card--progress-bar .card__title::after {
+  width: calc(64px * var(--progress-ratio, 0));
 }
 
 .card--progress-bar > * {
@@ -491,11 +527,12 @@
    put it. */
 /* Not `transparent`: that let the column's background through and made the tinted cards a
    different shade from the untinted ones -- the inconsistency, inverted. The rules are gone,
-   so every card takes `.card`'s own background and they are the same card. */
+   so every card takes `.card`'s own background and they are the same card.
 
-.card--used {
-  background: rgba(234, 179, 8, 0.18);
-}
+   item_790: `.card--used` (a request already promoted to backlog/task) carried the exact
+   same full-body wash, missed by the sweep above because it isn't a stage colour -- same
+   defect, same fix. The class stays on the element (still readable if a future signal wants
+   it), the tint goes. */
 
 .state-message {
   padding: 16px;

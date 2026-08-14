@@ -1,14 +1,14 @@
 ## item_790_board_remove_the_leftover_full_card_wash_fix_progress_bar_placement - Board: remove the leftover full-card wash, fix progress bar placement
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Viewer redesign follow-through
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 00:26:37
+> Indicators reviewed: 2026-08-15 01:23:03
 
 # AI Context
 - Summary: `.card--used` still washes a promoted request card's whole body yellow, and the progress bar sits behind the footer row instead of under the title — both against the approved board mockup.
@@ -36,8 +36,10 @@ Reported directly by the operator, suspected but not confirmed: in list mode spe
 - AC3: In list mode, the progress bar does not visually overlap the age/"today" column at common desktop widths — confirmed by rendering, not inferred from CSS alone.
 
 # AC Traceability
-- request-AC1 -> This backlog slice. Proof: AC1: Board cards carry no full-card background wash for any state, including a promoted/"used" request; state is conveyed only by the left accent (colour + shape) and the fixed-length progress bar, matching the approved mockup.
-- request-AC2 -> This backlog slice. Proof: AC2: The board's progress bar renders directly under the card title, not behind the footer row.
+- request-AC1 -> This backlog slice. Proof: `.card--used`'s background wash removed from `clients/shared-web/media/css/board.css` (no other rule reads the class); verified no wash remains via screenshot of a promoted request card in board mode.
+- request-AC2 -> This backlog slice. Proof: Progress bar re-anchored to `.card__title` in both card and list-row modes; verified via headless-Chrome screenshot that the bar sits directly under (card mode) or beside (list mode) the title, separated from the badge/footer row, not at the card's bottom edge.
+
+Local AC3 (list-mode age-column overlap, no request-level AC of its own -- corroborating context for AC2) is now also resolved: the bar is right-aligned within the title's own flexible grid column (`minmax(0, 1fr)`), which structurally cannot reach the fixed-width Status/linked/date columns after it. Confirmed by screenshot of the board in list mode: the bar for a Done item sits fully clear of its "Done" status text and the date column to its right.
 
 # Decision framing
 - Product framing: Not needed

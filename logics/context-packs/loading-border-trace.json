@@ -1,0 +1,363 @@
+{
+  "budgets": {
+    "max_docs": 16,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [
+    "logics/backlog/item_788_build_the_reusable_loading_ring_css_mechanism_and_decide_the_neutral_colour.md",
+    "logics/backlog/item_789_wire_the_loading_ring_into_the_real_viewer_screens.md",
+    "logics/product/prod_094_loading_border_trace.md",
+    "logics/request/req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads.md",
+    "logics/tasks/task_360_orchestrate_the_loading_border_trace_feature.md"
+  ],
+  "command": "logics-manager sync context-pack req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads item_788_build_the_reusable_loading_ring_css_mechanism_and_decide_the_neutral_colour item_789_wire_the_loading_ring_into_the_real_viewer_screens task_360_orchestrate_the_loading_border_trace_feature --mode diff-first --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_788_build_the_reusable_loading_ring_css_mechanism_and_decide_the_neutral_colour",
+          "item_789_wire_the_loading_ring_into_the_real_viewer_screens"
+        ],
+        "prod": [
+          "prod_094_loading_border_trace"
+        ],
+        "req": [
+          "req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads"
+        ],
+        "task": [
+          "task_360_orchestrate_the_loading_border_trace_feature"
+        ]
+      },
+      "path": "logics/product/prod_094_loading_border_trace.md",
+      "ref": "prod_094_loading_border_trace",
+      "sections": {
+        "Goals": [
+          "- A slow screen load (10-20s against a large corpus) reads as active, not stuck.",
+          "- Zero new colour palette -- the ring's colours come from tokens the board already uses."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "An ambient, stage-coloured animated ring on the viewer header that signals a screen is loading, reusing the app's existing colour tokens and respecting reduced-motion."
+        ],
+        "References": [
+          "- Product back-reference: `req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads`",
+          "- Task back-reference: `task_360_orchestrate_the_loading_border_trace_feature`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Loading border trace"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "loading, border, trace, animated, ring, header, while, screen, loads",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_788_build_the_reusable_loading_ring_css_mechanism_and_decide_the_neutral_colour",
+          "item_789_wire_the_loading_ring_into_the_real_viewer_screens"
+        ],
+        "prod": [
+          "prod_094_loading_border_trace"
+        ],
+        "req": [
+          "req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads"
+        ]
+      },
+      "path": "logics/request/req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads.md",
+      "ref": "req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A reusable CSS ring mechanism exists (one set of rules, not duplicated per screen) driven by a `data-loading` attribute and a `--loading-color` custom property on a header element, matching the prototype's proven technique (opaque inner cover over an absolutely-positioned glow+sweep layer, not a CSS mask).",
+          "- AC2: The ring is coloured via the existing --stage-color-* tokens when the loading screen is a known document stage (request/backlog/task/product), and a decided, documented neutral colour for screens with no document type (Settings, CI, Release, Workshop, CDX) -- not the prototype's placeholder choice left unexamined.",
+          "- AC3: The ring fades in and out on opacity (roughly 450ms) when loading starts and stops, never appearing or disappearing mid-rotation.",
+          "- AC4: Under `prefers-reduced-motion: reduce`, the ring shows a static/breathing glow (opacity pulse only, no rotation) instead of the travelling comet, via a real media query rather than a manual toggle.",
+          "- AC5: The real viewer screens' existing loading text (e.g. \"Refreshing...\", `showScreenLoading`'s waiting-for text) is unchanged -- the ring is wired in beside it, not instead of it.",
+          "- AC6: The ring is wired into the real viewer header for at least the board/document screens (request/backlog/task/product) and the untyped screens (Settings, CI, Release, Workshop, CDX), driven by the same loading-state signals those screens already have (`setMeta`/`showScreenLoading` and equivalents), not a new parallel loading-tracking mechanism."
+        ],
+        "Needs": [
+          "- As an operator watching a screen load (some take 10-20s against a large corpus), I need a visual, ambient signal that something is happening, not just static text, so a slow load doesn't read as a stuck one.",
+          "- As an operator, I need that signal coloured by what kind of document is loading (request/backlog/task/product), reusing colours the app already uses elsewhere, so it doesn't introduce a new visual language.",
+          "- As an operator with motion sensitivity or an OS-level reduced-motion setting, I need the same information without the travelling animation.",
+          "- As an operator relying on the existing textual loading state (e.g. a screen reader), I need that text kept exactly as it is today -- this is an addition, not a replacement."
+        ]
+      },
+      "status": "Draft",
+      "title": "Loading border trace: an animated ring on the header while a screen loads"
+    },
+    {
+      "ai_context": {
+        "keywords": "build, reusable, loading, ring, css, mechanism, decide, neutral, colour",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_788_build_the_reusable_loading_ring_css_mechanism_and_decide_the_neutral_colour"
+        ],
+        "prod": [
+          "prod_094_loading_border_trace"
+        ],
+        "req": [
+          "req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads"
+        ],
+        "task": [
+          "task_360_orchestrate_the_loading_border_trace_feature"
+        ]
+      },
+      "path": "logics/backlog/item_788_build_the_reusable_loading_ring_css_mechanism_and_decide_the_neutral_colour.md",
+      "ref": "item_788_build_the_reusable_loading_ring_css_mechanism_and_decide_the_neutral_colour",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The ring's CSS lives once in the viewer's shared stylesheet(s), not copy-pasted per screen, and is driven purely by `data-loading` + `--loading-color` on a header element.",
+          "- AC2: Toggling `data-loading` on a real header element in a local test produces a smooth fade-in/out with no visible snap, matching the prototype's behaviour.",
+          "- AC3: With `prefers-reduced-motion: reduce` simulated (e.g. via browser dev tools emulation), the ring shows a static/breathing glow with no rotation.",
+          "- AC4: A neutral colour for untyped screens is chosen and recorded (in code comment or this doc), not left as the prototype's unexamined placeholder."
+        ],
+        "Problem": [
+          "- The loading-ring technique exists only as a hand-tested standalone prototype (logics/external/mockup/loading_border_trace_proto.html); the viewer's own CSS has no shared version of it yet.",
+          "- The prototype's neutral colour for untyped screens (--vscode-descriptionForeground) was a placeholder chosen to have something to show, not a reviewed decision."
+        ]
+      },
+      "status": "Ready",
+      "title": "Build the reusable loading-ring CSS mechanism and decide the neutral colour"
+    },
+    {
+      "ai_context": {
+        "keywords": "wire, loading, ring, real, viewer, screens",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_789_wire_the_loading_ring_into_the_real_viewer_screens"
+        ],
+        "prod": [
+          "prod_094_loading_border_trace"
+        ],
+        "req": [
+          "req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads"
+        ],
+        "task": [
+          "task_360_orchestrate_the_loading_border_trace_feature"
+        ]
+      },
+      "path": "logics/backlog/item_789_wire_the_loading_ring_into_the_real_viewer_screens.md",
+      "ref": "item_789_wire_the_loading_ring_into_the_real_viewer_screens",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Opening a request/backlog/task/product document shows the ring in that document's stage colour while it loads, and the ring clears when the content is ready.",
+          "- AC2: Opening an untyped screen (Settings, CI, Release, Workshop, or CDX) shows the ring in the decided neutral colour while it loads.",
+          "- AC3: The existing loading text on every wired screen is unchanged, verified by comparing before/after screen text."
+        ],
+        "Problem": [
+          "- The loading-ring mechanism (once built) has no connection yet to the real signals a viewer screen already has for \"I am loading\" and \"I am a request/backlog/task/product\" -- setMeta/showScreenLoading and their callers know this today, but nothing sets `data-loading`/`--loading-color` from them."
+        ]
+      },
+      "status": "Ready",
+      "title": "Wire the loading ring into the real viewer screens"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_788_build_the_reusable_loading_ring_css_mechanism_and_decide_the_neutral_colour",
+          "item_789_wire_the_loading_ring_into_the_real_viewer_screens"
+        ],
+        "prod": [
+          "prod_094_loading_border_trace"
+        ],
+        "req": [
+          "req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads"
+        ],
+        "task": [
+          "task_360_orchestrate_the_loading_border_trace_feature"
+        ]
+      },
+      "path": "logics/product/prod_094_loading_border_trace.md",
+      "ref": "prod_094_loading_border_trace",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Loading border trace"
+    },
+    {
+      "ai_context": {
+        "keywords": "orchestrate, loading, border, trace, feature",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_788_build_the_reusable_loading_ring_css_mechanism_and_decide_the_neutral_colour",
+          "item_789_wire_the_loading_ring_into_the_real_viewer_screens"
+        ],
+        "prod": [
+          "prod_094_loading_border_trace"
+        ],
+        "req": [
+          "req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads"
+        ],
+        "task": [
+          "task_360_orchestrate_the_loading_border_trace_feature"
+        ]
+      },
+      "path": "logics/tasks/task_360_orchestrate_the_loading_border_trace_feature.md",
+      "ref": "task_360_orchestrate_the_loading_border_trace_feature",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the loading border trace feature"
+    }
+  ],
+  "estimates": {
+    "char_count": 9892,
+    "companion_doc_count": 1,
+    "doc_count": 5
+  },
+  "generated_at": "2026-08-14T22:09:55Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads",
+      "item_788_build_the_reusable_loading_ring_css_mechanism_and_decide_the_neutral_colour",
+      "item_789_wire_the_loading_ring_into_the_real_viewer_screens",
+      "task_360_orchestrate_the_loading_border_trace_feature"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "diff-first",
+  "profile": "normal",
+  "ref": "req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads,item_788_build_the_reusable_loading_ring_css_mechanism_and_decide_the_neutral_colour,item_789_wire_the_loading_ring_into_the_real_viewer_screens,task_360_orchestrate_the_loading_border_trace_feature",
+  "refs": [
+    "req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads",
+    "item_788_build_the_reusable_loading_ring_css_mechanism_and_decide_the_neutral_colour",
+    "item_789_wire_the_loading_ring_into_the_real_viewer_screens",
+    "task_360_orchestrate_the_loading_border_trace_feature"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_360_orchestrate_the_loading_border_trace_feature.md",
+      "ref": "task_360_orchestrate_the_loading_border_trace_feature"
+    }
+  ]
+}

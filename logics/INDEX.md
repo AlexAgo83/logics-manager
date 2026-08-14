@@ -133,6 +133,7 @@
 | [prod_091_a_readme_that_shows_the_product_a_reader_will_get](product/prod_091_a_readme_that_shows_the_product_a_reader_will_get.md) | A README that shows the product a reader will get | Settled |  |  | product/prod_091_a_readme_that_shows_the_product_a_reader_will_get.md |
 | [prod_092_a_viewer_that_stays_as_fast_as_it_started](product/prod_092_a_viewer_that_stays_as_fast_as_it_started.md) | A viewer that stays as fast as it started | Settled |  |  | product/prod_092_a_viewer_that_stays_as_fast_as_it_started.md |
 | [prod_093_trustworthy_flow_checks](product/prod_093_trustworthy_flow_checks.md) | Trustworthy flow checks | Proposed |  |  | product/prod_093_trustworthy_flow_checks.md |
+| [prod_094_loading_border_trace](product/prod_094_loading_border_trace.md) | Loading border trace | Proposed |  |  | product/prod_094_loading_border_trace.md |
 
 ## Roadmaps
 
@@ -509,6 +510,7 @@
 | [req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy](request/req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy.md) | Make flow's traceability checks and self-authored writes trustworthy | Done |  |  | request/req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy.md |
 | [req_358_performance_review_viewer_server_static_delivery_and_payload_transfer](request/req_358_performance_review_viewer_server_static_delivery_and_payload_transfer.md) | Performance review: viewer server static delivery and payload transfer | Done |  |  | request/req_358_performance_review_viewer_server_static_delivery_and_payload_transfer.md |
 | [req_359_viewer_redesign_mockups_gap_review_across_all_screens](request/req_359_viewer_redesign_mockups_gap_review_across_all_screens.md) | Viewer redesign mockups: gap review across all screens | Draft |  |  | request/req_359_viewer_redesign_mockups_gap_review_across_all_screens.md |
+| [req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads](request/req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads.md) | Loading border trace: an animated ring on the header while a screen loads | Draft |  |  | request/req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads.md |
 
 ## Backlog
 
@@ -1301,6 +1303,8 @@
 | [item_785_stop_flow_s_own_writes_from_tripping_its_own_checks](backlog/item_785_stop_flow_s_own_writes_from_tripping_its_own_checks.md) | Stop flow's own writes from tripping its own checks | Done |  | 100% | backlog/item_785_stop_flow_s_own_writes_from_tripping_its_own_checks.md |
 | [item_786_performance_review_viewer_server_static_delivery_and_payload_transfer](backlog/item_786_performance_review_viewer_server_static_delivery_and_payload_transfer.md) | Give viewer static assets and /api/items cache-friendly, conditional responses | Done |  | 100% | backlog/item_786_performance_review_viewer_server_static_delivery_and_payload_transfer.md |
 | [item_787_performance_review_viewer_server_static_delivery_and_payload_transfer](backlog/item_787_performance_review_viewer_server_static_delivery_and_payload_transfer.md) | Minify the shipped viewer client bundle at packaging time | Done |  | 100% | backlog/item_787_performance_review_viewer_server_static_delivery_and_payload_transfer.md |
+| [item_788_build_the_reusable_loading_ring_css_mechanism_and_decide_the_neutral_colour](backlog/item_788_build_the_reusable_loading_ring_css_mechanism_and_decide_the_neutral_colour.md) | Build the reusable loading-ring CSS mechanism and decide the neutral colour | Ready |  | 0% | backlog/item_788_build_the_reusable_loading_ring_css_mechanism_and_decide_the_neutral_colour.md |
+| [item_789_wire_the_loading_ring_into_the_real_viewer_screens](backlog/item_789_wire_the_loading_ring_into_the_real_viewer_screens.md) | Wire the loading ring into the real viewer screens | Ready |  | 0% | backlog/item_789_wire_the_loading_ring_into_the_real_viewer_screens.md |
 
 ## Tasks
 
@@ -1659,6 +1663,7 @@
 | [task_357_orchestrate_flow_traceability_and_self_consistency_fixes_gh_20_21](tasks/task_357_orchestrate_flow_traceability_and_self_consistency_fixes_gh_20_21.md) | Orchestrate flow traceability and self-consistency fixes (GH #20, #21) | Done | claude | 100% | tasks/task_357_orchestrate_flow_traceability_and_self_consistency_fixes_gh_20_21.md |
 | [task_358_give_viewer_static_assets_and_api_items_cache_friendly_conditional_responses](tasks/task_358_give_viewer_static_assets_and_api_items_cache_friendly_conditional_responses.md) | Give viewer static assets and /api/items cache-friendly, conditional responses | Done | claude | 100% | tasks/task_358_give_viewer_static_assets_and_api_items_cache_friendly_conditional_responses.md |
 | [task_359_minify_the_shipped_viewer_client_bundle_at_packaging_time](tasks/task_359_minify_the_shipped_viewer_client_bundle_at_packaging_time.md) | Minify the shipped viewer client bundle at packaging time | Done | claude | 100% | tasks/task_359_minify_the_shipped_viewer_client_bundle_at_packaging_time.md |
+| [task_360_orchestrate_the_loading_border_trace_feature](tasks/task_360_orchestrate_the_loading_border_trace_feature.md) | Orchestrate the loading border trace feature | Ready |  | 0% | tasks/task_360_orchestrate_the_loading_border_trace_feature.md |
 
 ## Runbooks
 

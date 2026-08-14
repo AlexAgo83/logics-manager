@@ -2052,7 +2052,12 @@ export function createCdxScreen(host) {
         <div class="viewer-cdx__stack">
           <section class="viewer-cdx__section">
             <div class="viewer-ci__heading viewer-ci__heading--actions">
-              <h2>${outputMode === "run" ? "Run output" : "Plan preview"} <span class="viewer-cdx__panel-state">${escapeHtml(outputMode === "run" ? runState : planState)}</span></h2>
+              <!-- AC12, second instance, named by the mockup and missed on the first
+                   pass: the heading read "Plan preview" while the selected toggle beside
+                   it read "Plan preview" too. The toggle already says which of the two
+                   panels is showing, so the heading names the pair rather than repeating
+                   the selection. The state moved here from the metric tiles. -->
+              <h2>Mission output <span class="viewer-cdx__panel-state">${escapeHtml(outputMode === "run" ? runState : planState)}</span></h2>
               ${outputSwitch}
             </div>
             <div class="viewer-cdx__output-panel">

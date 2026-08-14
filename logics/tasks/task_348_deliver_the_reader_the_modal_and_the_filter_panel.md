@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-14 17:48:01
+> Indicators reviewed: 2026-08-14 21:23:42
 
 # AI Context
 - Summary: Settle document identity with the details panel's request first, baseline the campaign, then the reader, then the filter panel, then the modal -- last, so its three small changes do not acquire others.
@@ -20,15 +20,15 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Settle the document-identity question first, with the details panel's request, since both screens need one answer and the reader is where that panel's primary action lands.
-- [ ] 2. Extend the campaign next and record the baseline for all three surfaces.
-- [ ] 3. Then the reader, which is the largest of the three and the one an operator reaches most.
-- [ ] 4. Then the filter panel, then the modal -- the modal last because it is three small changes and must not acquire others.
-- [ ] 5. Check each against `logics/external/mockup/reader_modal_filters_redesign.html`, and inherit the panel framing rather than re-deciding it.
-- [ ] 6. Rebuild the browser host and confirm both surfaces before closeout.
-- [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
-- [ ] Keep commit creation under operator control; do not force one commit per micro-step.
-- [ ] GATE: do not close until lint, audit, and scaffold validation pass.
+- [x] 1. Settle the document-identity question first, with the details panel's request, since both screens need one answer and the reader is where that panel's primary action lands.
+- [x] 2. Extend the campaign next and record the baseline for all three surfaces.
+- [x] 3. Then the reader, which is the largest of the three and the one an operator reaches most.
+- [x] 4. Then the filter panel, then the modal -- the modal last because it is three small changes and must not acquire others.
+- [x] 5. Check each against `logics/external/mockup/reader_modal_filters_redesign.html`, and inherit the panel framing rather than re-deciding it.
+- [x] 6. Rebuild the browser host and confirm both surfaces before closeout.
+- [x] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
+- [x] Keep commit creation under operator control; do not force one commit per micro-step.
+- [x] GATE: do not close until lint, audit, and scaffold validation pass.
 
 # Backlog
 - `item_761_stop_the_reader_leading_with_a_path_in_capitals`

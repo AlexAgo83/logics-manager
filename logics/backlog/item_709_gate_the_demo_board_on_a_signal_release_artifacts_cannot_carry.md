@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Release hygiene
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-13 13:03:35
+> Indicators reviewed: 2026-08-14 21:25:44
 
 # AI Context
 - Summary: Replace `_is_dev_checkout()`'s probe for `clients/shared-web/media` -- which the npm package and the VSIX both ship -- with a signal a release artifact cannot carry by accident.
@@ -41,6 +41,8 @@
 - request-AC4 -> This backlog slice. Proof: AC4: It stays present in a development checkout.
 - request-AC5 -> This backlog slice. Proof: AC5: The decision rests on a positive release assertion or explicit opt-in, not on a file's absence.
 
+- request-AC6 -> Delivered by `item_710_prove_the_demo_is_absent_from_each_built_artifact` under the same request. Proof: each published artifact is built and asserted demo-free, and reintroducing the marker fails the build.
+- request-AC7 -> Delivered by `item_710_prove_the_demo_is_absent_from_each_built_artifact` under the same request. Proof: the real gate is exercised at least once without monkeypatching, joining the substituted-answer tests rather than replacing them.
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: Not needed

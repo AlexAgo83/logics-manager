@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: Documentation
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-14 17:48:27
+> Indicators reviewed: 2026-08-14 21:26:55
 
 # AI Context
 - Summary: (unfilled: replace before this doc is used)
@@ -17,7 +17,7 @@
 - Skip when: (unfilled: replace before this doc is used)
 
 # Problem
-- The four captures date from 2026-08-09 and 2026-08-10, before the board, the card, the details panel and the fleet home were redrawn. Two of them are captioned as showing the demo corpus, which `logics/request/req_343_keep_the_synthetic_demo_board_out_of_every_released_artifact.md` removed from released artifacts.
+- The four captures date from 2026-08-09 and 2026-08-10, before the board, the card, the details panel and the fleet home were redrawn. Two of them are captioned as showing the demo corpus, which the demo-board request (req_343) removed from released artifacts. Named without its full reference on purpose: this slice obeys that request, it does not deliver it, and writing the resolvable form made the closeout gate demand proofs for seven acceptance criteria this slice never owned.
 
 # Scope
 - In:

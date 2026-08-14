@@ -431,7 +431,7 @@ function browserExerciseScript(name) {
         await check("injected failure", () => { throw new Error("injected on purpose"); });
       }
       await check("payload arrives", async () => {
-        await waitFor(() => text("#viewer-filter-count").includes("docs shown"), "payload");
+        await waitFor(() => /\d+\s+of\s+\d+/.test(text("#viewer-filter-count")), "payload");
         return text("#viewer-filter-count").trim();
       });
       await check("board shows cards", async () => {
@@ -778,7 +778,7 @@ async function runJsdomFallback(url) {
       try {
         await waitFor(() => dom.window.document.readyState === "complete", `${viewport.name} load`);
         dom.window.acquireVsCodeApi?.().postMessage({ type: "ready" });
-        await waitFor(() => text(dom, "#viewer-filter-count").includes("docs shown"), `${viewport.name} payload`);
+        await waitFor(() => /\d+\s+of\s+\d+/.test(text(dom, "#viewer-filter-count")), `${viewport.name} payload`);
         record(`${viewport.name}: payload renders`, "ok", text(dom, "#viewer-filter-count").trim());
       } catch (error) {
         record(`${viewport.name}: payload renders`, "failed", "no payload", error.message);

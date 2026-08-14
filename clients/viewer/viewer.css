@@ -1341,13 +1341,16 @@
   }
 }
 
+/* item_761: no `text-transform` here any more. The eyebrow carries text nobody wrote in
+   capitals -- a document reference, a screen name -- and uppercasing a snake_case slug
+   strips the shape a reader recognises the word by. The letter-spacing went with it: it
+   exists to keep uppercase legible, and it only widens lowercase. */
 .viewer-document__eyebrow {
   display: block;
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-weight: 600;
   color: var(--vscode-descriptionForeground, #9da5b4);
+  font-variant-numeric: tabular-nums;
 }
 
 .viewer-document__eyebrow[hidden] {
@@ -1370,6 +1373,32 @@
      the moment the header's title column got squeezed on mobile. break-word still
      wraps at spaces first, and only splits a single word if it alone overflows. */
   overflow-wrap: break-word;
+}
+
+/* The path lives here now, one click away, rather than across the top of the screen. */
+.viewer-document__path-copy {
+  flex: 0 0 auto;
+  align-self: center;
+  min-width: 22px;
+  min-height: 22px;
+  padding: 0 5px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.viewer-document__path-copy[hidden] {
+  display: none;
+}
+
+.viewer-document__path-copy:hover,
+.viewer-document__path-copy:focus-visible {
+  border-color: var(--vscode-panel-border, #333333);
+  color: var(--vscode-foreground, #cccccc);
 }
 
 .viewer-document-meta {
@@ -1467,6 +1496,97 @@
   overflow: auto;
   padding: 18px 22px 28px;
   line-height: 1.55;
+}
+
+/* item_762: the reader set its prose across the whole window -- about 150 characters a
+   line against the 45-75 that reads comfortably -- on the screen in the product most made
+   of prose. The measure below is the fix; the column it frees carries the contents list,
+   which is the navigation this screen did not have. */
+.markdown-preview--reading {
+  display: grid;
+  grid-template-columns: minmax(0, 72ch) minmax(0, 1fr);
+  gap: 0 32px;
+  align-items: start;
+  justify-content: center;
+}
+
+.markdown-preview--reading .markdown-preview__prose {
+  grid-column: 1;
+  min-width: 0;
+}
+
+/* Tables, diagrams and code are not prose and are unreadable when squeezed to a prose
+   measure, so they take the width the grid gives them rather than the measure. */
+.markdown-preview--reading .markdown-preview__prose > table,
+.markdown-preview--reading .markdown-preview__prose > pre,
+.markdown-preview--reading .markdown-preview__prose > .mermaid,
+.markdown-preview--reading .markdown-preview__prose > .viewer-chain-graph {
+  max-width: none;
+}
+
+.markdown-preview__contents {
+  grid-column: 2;
+  position: sticky;
+  top: 0;
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+  min-width: 0;
+  max-width: 260px;
+  padding: 10px 12px;
+  border-left: 1px solid var(--vscode-panel-border, #333333);
+}
+
+/* Below the width where a 72ch measure and a rail both fit, the measure wins and the
+   list goes: a contents column squeezed to nothing is worse than no column. */
+@media (max-width: 1100px) {
+  .markdown-preview--reading {
+    grid-template-columns: minmax(0, 72ch);
+  }
+
+  .markdown-preview__contents {
+    display: none;
+  }
+}
+
+.markdown-preview__contents-title {
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-variant-numeric: tabular-nums;
+}
+
+.markdown-preview__contents-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.markdown-preview__contents-list a {
+  display: block;
+  padding: 3px 8px;
+  /* The marker is a bar rather than a background: it has to read as a position in a
+     sequence, and a filled row reads as a selected item. */
+  border-left: 2px solid transparent;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-size: 12px;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.markdown-preview__contents-list a:hover,
+.markdown-preview__contents-list a:focus-visible {
+  color: var(--vscode-foreground, #cccccc);
+}
+
+/* Weight as well as colour, so the position is still readable without the accent. */
+.markdown-preview__contents-list a.is-current {
+  border-left-color: var(--vscode-textLink-foreground, #4ea1ff);
+  color: var(--vscode-foreground, #cccccc);
+  font-weight: 600;
 }
 
 .viewer-document__content h1,

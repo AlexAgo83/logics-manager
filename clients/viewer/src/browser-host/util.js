@@ -1217,3 +1217,98 @@ export function workspaceParentPath(path) {
     parts.pop();
     return parts.join("/");
   }
+
+/**
+ * Give a rendered document a reading measure and a contents list.
+ *
+ * item_762: the reader set its prose across the whole window -- about 150 characters a
+ * line, twice a comfortable measure -- on the screen in the product most made of prose.
+ * Narrowing it frees a column, and the column carries the navigation the reader did not
+ * have: what the sections are, how many there are, and which one is on screen.
+ *
+ * Called after the markdown is in the DOM rather than woven into the renderer, because
+ * the headings it lists are the rendered ones -- whatever produced them.
+ */
+export function applyReadingLayout(content) {
+    if (!(content instanceof HTMLElement)) return null;
+    const headings = Array.from(content.querySelectorAll(":scope > h1, :scope > h2"));
+    // Two sections is a document you can see the end of; a contents list for it is a
+    // second copy of the screen. The measure below still applies -- that is about the
+    // line length, which is wrong at any number of headings.
+    const listed = headings.length >= 3 ? headings : [];
+
+    const prose = document.createElement("div");
+    prose.className = "markdown-preview__prose";
+    prose.append(...Array.from(content.childNodes));
+    content.replaceChildren(prose);
+    content.classList.add("markdown-preview--reading");
+    if (!listed.length) {
+      content.classList.remove("markdown-preview--with-contents");
+      return null;
+    }
+
+    const nav = document.createElement("nav");
+    nav.className = "markdown-preview__contents";
+    nav.setAttribute("aria-label", "Document sections");
+    const heading = document.createElement("div");
+    heading.className = "markdown-preview__contents-title";
+    // The count is stated rather than left to be counted: how long the document is, is
+    // the first thing the list is being asked.
+    heading.textContent = `${listed.length} sections`;
+    nav.appendChild(heading);
+
+    const list = document.createElement("ol");
+    list.className = "markdown-preview__contents-list";
+    listed.forEach((section, index) => {
+      if (!section.id) section.id = `doc-section-${index + 1}`;
+      const entry = document.createElement("li");
+      const link = document.createElement("a");
+      link.href = `#${section.id}`;
+      link.textContent = (section.textContent || "").trim() || `Section ${index + 1}`;
+      link.dataset.section = section.id;
+      link.addEventListener("click", (event) => {
+        // The document scrolls inside its own panel, so the default hash jump moves the
+        // page rather than the reader.
+        event.preventDefault();
+        section.scrollIntoView({ block: "start", behavior: "smooth" });
+      });
+      entry.appendChild(link);
+      list.appendChild(entry);
+    });
+    nav.appendChild(list);
+    content.appendChild(nav);
+    content.classList.add("markdown-preview--with-contents");
+    return trackReadingPosition(content, listed);
+  }
+
+/**
+ * Mark the section currently on screen in the contents list.
+ *
+ * The topmost heading that has passed the top of the viewport, not the first one
+ * intersecting it: a reader halfway through a long section sees no heading at all, and a
+ * list that then marks nothing says the reader is nowhere.
+ */
+function trackReadingPosition(content, sections) {
+    const links = new Map(Array.from(content.querySelectorAll(".markdown-preview__contents-list a"))
+      .map((link) => [link.dataset.section, link]));
+    const mark = () => {
+      const top = content.getBoundingClientRect().top;
+      let current = sections[0];
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top - top <= 8) current = section;
+      }
+      for (const [id, link] of links) {
+        const active = Boolean(current) && id === current.id;
+        link.classList.toggle("is-current", active);
+        if (active) link.setAttribute("aria-current", "true");
+        else link.removeAttribute("aria-current");
+      }
+    };
+    // Not marked synchronously: this runs while the document panel is still hidden, so
+    // every rect is zero, every heading reads as "already passed the top", and the list
+    // opens with its LAST section marked -- measured, and the reason this is deferred.
+    if (typeof requestAnimationFrame === "function") requestAnimationFrame(mark);
+    else mark();
+    content.addEventListener("scroll", mark, { passive: true });
+    return () => content.removeEventListener("scroll", mark);
+  }

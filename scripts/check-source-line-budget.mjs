@@ -348,7 +348,11 @@ const allowedOversizedFiles = new Map(
     // it before they commit. The guard already existed and already worked -- for the screens
     // that asked it. These three never did, which is why a fleet home could land over
     // whatever the operator opened next.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4850, ref: "req_354" },
+    // req_351: +40 for the reader's identity and its reading layout. The layout builder
+    // itself went to util.js, where the DOM helpers already live; what stays here is the
+    // wiring -- the eyebrow, the copy-path control, and the listener handle -- which has
+    // to be beside setDocument because that is what owns the document's DOM.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 4890, ref: "req_351" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },
@@ -377,7 +381,11 @@ const allowedOversizedFiles = new Map(
     // were drawn identically. It mirrors logics_manager/viewer.py::_ci_badge_state rather
     // than each surface guessing, and says so, because a job read differently on the two
     // sides is a job reported two ways.
-    "clients/viewer/src/browser-host/util.js": { maxLines: 1225, ref: "req_347" },
+    // req_351: +90 for applyReadingLayout and trackReadingPosition. Kept here rather than
+    // in render.js because both are DOM shaping over a rendered document, which is what
+    // this file already is; a third module for two functions with one caller would be a
+    // file to find rather than a seam.
+    "clients/viewer/src/browser-host/util.js": { maxLines: 1315, ref: "req_351" },
     // 2546: req_305 added the workflow-health sections (blocked docs, stale docs)
     // to the health screen, which previously showed lint and audit only.
     // req_312 moved the rendering whose only consumer is the cdx screen into that screen:

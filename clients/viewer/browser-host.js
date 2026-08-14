@@ -1075,6 +1075,67 @@ ${entry?.message || ""}`;
     parts.pop();
     return parts.join("/");
   }
+  function applyReadingLayout(content) {
+    if (!(content instanceof HTMLElement)) return null;
+    const headings = Array.from(content.querySelectorAll(":scope > h1, :scope > h2"));
+    const listed = headings.length >= 3 ? headings : [];
+    const prose = document.createElement("div");
+    prose.className = "markdown-preview__prose";
+    prose.append(...Array.from(content.childNodes));
+    content.replaceChildren(prose);
+    content.classList.add("markdown-preview--reading");
+    if (!listed.length) {
+      content.classList.remove("markdown-preview--with-contents");
+      return null;
+    }
+    const nav = document.createElement("nav");
+    nav.className = "markdown-preview__contents";
+    nav.setAttribute("aria-label", "Document sections");
+    const heading = document.createElement("div");
+    heading.className = "markdown-preview__contents-title";
+    heading.textContent = `${listed.length} sections`;
+    nav.appendChild(heading);
+    const list = document.createElement("ol");
+    list.className = "markdown-preview__contents-list";
+    listed.forEach((section, index) => {
+      if (!section.id) section.id = `doc-section-${index + 1}`;
+      const entry = document.createElement("li");
+      const link = document.createElement("a");
+      link.href = `#${section.id}`;
+      link.textContent = (section.textContent || "").trim() || `Section ${index + 1}`;
+      link.dataset.section = section.id;
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        section.scrollIntoView({ block: "start", behavior: "smooth" });
+      });
+      entry.appendChild(link);
+      list.appendChild(entry);
+    });
+    nav.appendChild(list);
+    content.appendChild(nav);
+    content.classList.add("markdown-preview--with-contents");
+    return trackReadingPosition(content, listed);
+  }
+  function trackReadingPosition(content, sections) {
+    const links = new Map(Array.from(content.querySelectorAll(".markdown-preview__contents-list a")).map((link) => [link.dataset.section, link]));
+    const mark = () => {
+      const top = content.getBoundingClientRect().top;
+      let current = sections[0];
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top - top <= 8) current = section;
+      }
+      for (const [id, link] of links) {
+        const active = Boolean(current) && id === current.id;
+        link.classList.toggle("is-current", active);
+        if (active) link.setAttribute("aria-current", "true");
+        else link.removeAttribute("aria-current");
+      }
+    };
+    if (typeof requestAnimationFrame === "function") requestAnimationFrame(mark);
+    else mark();
+    content.addEventListener("scroll", mark, { passive: true });
+    return () => content.removeEventListener("scroll", mark);
+  }
 
   // clients/viewer/src/browser-host/diagnostics.js
   function errorMessage(error) {
@@ -10192,6 +10253,7 @@ ${line}` : line;
     function applyRootScreenChrome(titleText) {
       document.body.classList.toggle("viewer-shell--root-screen", isRootScreen(titleText));
     }
+    let detachReadingPosition = null;
     function setDocument(titleText, html, options = {}) {
       invalidatePendingViews();
       cdxState.cdxCloseTarget = null;
@@ -10220,12 +10282,25 @@ ${line}` : line;
           eyebrow.textContent = description;
           eyebrow.hidden = !description;
         }
+        const pathCopy = document.getElementById("viewer-document-path-copy");
+        if (pathCopy instanceof HTMLElement) {
+          const documentPath = String(options.path || "");
+          pathCopy.hidden = !documentPath;
+          pathCopy.dataset.path = documentPath;
+          if (documentPath) {
+            pathCopy.title = `Copy the file path: ${documentPath}`;
+            pathCopy.setAttribute("aria-label", `Copy the file path: ${documentPath}`);
+          }
+        }
         updateDocumentBadge(options.badgeStage);
         updateDocumentPriority(currentDocumentItem);
         updateScreenActions(titleText);
         if (content) {
           content.innerHTML = html || "";
           updateDocumentHeaderNav(content);
+          detachReadingPosition?.();
+          detachReadingPosition = options.item ? applyReadingLayout(content) : null;
+          if (!options.item) content.classList.remove("markdown-preview--reading", "markdown-preview--with-contents");
         }
         if (panel) {
           panel.hidden = false;
@@ -11015,10 +11090,14 @@ ${line}` : line;
         }
         const html = `${renderDocumentMeta(documentItem)}${chainHtml}${roadmapHtml}${bodyHtml}`;
         const objectName = String(item.title || "").trim() || docPath;
+        const reference = String(item.id || "").trim();
+        const documentStatus = String(item.indicators?.Status || "").trim();
+        const eyebrowText = [reference, documentStatus].filter(Boolean).join(" \u2022 ") || docPath;
         setDocument(objectName, html, {
           item: documentItem,
           badgeStage: item.stage,
-          eyebrow: docPath
+          eyebrow: eyebrowText,
+          path: docPath
         });
         setMeta("Document loaded.");
       } catch (error) {
@@ -12323,6 +12402,13 @@ ${shown.join("\n")}${files.length > shown.length ? `
         if (restore instanceof HTMLElement) {
           withPrimaryAction("restore-document", "Restoring screen", () => restoreMinimizedScreen(restore.getAttribute("data-viewer-minimized-restore") || ""));
         }
+      });
+      document.getElementById("viewer-document-path-copy")?.addEventListener("click", async (event) => {
+        const control = event.currentTarget;
+        const documentPath = control instanceof HTMLElement ? control.dataset.path || "" : "";
+        if (!documentPath) return;
+        const copied = await copyTextToClipboard(documentPath);
+        setMeta(copied ? `Copied ${documentPath}` : "Clipboard access was refused.");
       });
       document.getElementById("viewer-document-refresh")?.addEventListener("click", () => {
         withPrimaryAction("refresh-document", "Refreshing", refreshCurrentScreen);

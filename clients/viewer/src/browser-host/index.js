@@ -67,6 +67,7 @@ import {
   showMermaidFallback,
   statusValue,
   updateDocumentHeaderNav,
+  applyReadingLayout,
   updatedWithin,
   workshopTerminalListNode,
   workshopTerminalPreferredFontSize,
@@ -2374,6 +2375,10 @@ import {
     document.body.classList.toggle("viewer-shell--root-screen", isRootScreen(titleText));
   }
 
+  // The scroll listener the contents list installs, so a second document does not leave
+  // the first one's listener marking headings that are no longer on the screen.
+  let detachReadingPosition = null;
+
   function setDocument(titleText, html, options = {}) {
     invalidatePendingViews();
     cdxState.cdxCloseTarget = null;
@@ -2407,12 +2412,27 @@ import {
         title.textContent = titleText || "Document";
       }
       if (eyebrow instanceof HTMLElement) {
-        // For corpus docs the title is the object name and the pill carries the
-        // type, so surface the file path as the subtitle instead of the derived
-        // "Logics request" label; other screens keep the derived description.
+        // item_761: this used to carry the document's full path, uppercased across the
+        // width, above the title that already named the document -- a snake_case slug in
+        // capitals, on the one screen whose purpose is reading. The eyebrow names the
+        // document the way the details panel does, by reference and status; the path is
+        // still here, behind the control below, for whoever actually wants it.
         const description = options.eyebrow !== undefined ? String(options.eyebrow || "") : describeDocumentScreen(titleText);
         eyebrow.textContent = description;
         eyebrow.hidden = !description;
+      }
+      const pathCopy = document.getElementById("viewer-document-path-copy");
+      if (pathCopy instanceof HTMLElement) {
+        const documentPath = String(options.path || "");
+        pathCopy.hidden = !documentPath;
+        pathCopy.dataset.path = documentPath;
+        // The path is named in the tooltip rather than only in the aria-label: a control
+        // whose only statement of what it copies is invisible offers the path on demand
+        // to a screen reader and to nobody else.
+        if (documentPath) {
+          pathCopy.title = `Copy the file path: ${documentPath}`;
+          pathCopy.setAttribute("aria-label", `Copy the file path: ${documentPath}`);
+        }
       }
       updateDocumentBadge(options.badgeStage);
       updateDocumentPriority(currentDocumentItem);
@@ -2420,6 +2440,11 @@ import {
       if (content) {
         content.innerHTML = html || "";
         updateDocumentHeaderNav(content);
+        // Only for documents. The app screens -- Workshop, CDX, Settings -- lay out their
+        // own width and are not prose, so a measure and a contents list would fight them.
+        detachReadingPosition?.();
+        detachReadingPosition = options.item ? applyReadingLayout(content) : null;
+        if (!options.item) content.classList.remove("markdown-preview--reading", "markdown-preview--with-contents");
       }
       if (panel) {
         panel.hidden = false;
@@ -3337,10 +3362,16 @@ import {
       const html = `${renderDocumentMeta(documentItem)}${chainHtml}${roadmapHtml}${bodyHtml}`;
       // Header reads as: [type pill] Object name, with the file path as subtitle.
       const objectName = String(item.title || "").trim() || docPath;
+      // AC5: the same four facts the details panel shows, in the same order -- the stage
+      // (the badge beside the title), the reference, the status, and the title.
+      const reference = String(item.id || "").trim();
+      const documentStatus = String(item.indicators?.Status || "").trim();
+      const eyebrowText = [reference, documentStatus].filter(Boolean).join(" • ") || docPath;
       setDocument(objectName, html, {
         item: documentItem,
         badgeStage: item.stage,
-        eyebrow: docPath
+        eyebrow: eyebrowText,
+        path: docPath
       });
       // Every other screen says "<X> loaded." once it renders; this was the one path
       // that left whatever the status line said before -- an unrelated screen's error
@@ -4805,6 +4836,17 @@ import {
       if (restore instanceof HTMLElement) {
         withPrimaryAction("restore-document", "Restoring screen", () => restoreMinimizedScreen(restore.getAttribute("data-viewer-minimized-restore") || ""));
       }
+    });
+    document.getElementById("viewer-document-path-copy")?.addEventListener("click", async (event) => {
+      // Not through withPrimaryAction: copying is instantaneous and touches nothing, and
+      // routing it through the single-action gate would make it refuse while a refresh
+      // was in flight -- a control the operator has to wait for, to copy a string the
+      // screen is already holding.
+      const control = event.currentTarget;
+      const documentPath = control instanceof HTMLElement ? control.dataset.path || "" : "";
+      if (!documentPath) return;
+      const copied = await copyTextToClipboard(documentPath);
+      setMeta(copied ? `Copied ${documentPath}` : "Clipboard access was refused.");
     });
     document.getElementById("viewer-document-refresh")?.addEventListener("click", () => {
       withPrimaryAction("refresh-document", "Refreshing", refreshCurrentScreen);

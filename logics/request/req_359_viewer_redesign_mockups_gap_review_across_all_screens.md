@@ -7,7 +7,7 @@
 > Complexity: High
 > Theme: Viewer redesign follow-through
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 00:20:30
+> Indicators reviewed: 2026-08-15 00:45:53
 
 # AI Context
 - Summary: A screen-by-screen review comparing the live viewer against its own approved redesign mockups (logics/external/mockup/*_redesign.html) found that several screens shipped only part of their "Proposed" design — some regressed to pre-redesign visuals, one redesign was never actually deployed to any running server, and two structural/navigation issues span multiple screens at once.
@@ -80,7 +80,7 @@
 - Getting Started: a wide column on the right of the viewport (roughly x≈980–1420 at 1440px) stays empty behind every stage card — the same "a third of the screen unused" defect the mockup called out originally, now recurring alongside the fixed-width issue reported directly by the operator.
 - Already correct, no action needed: Insights' "needs attention" arithmetic reconciles, stage-coloured shape bars, Health's verdict-first layout with grouped-by-file findings and the dropped "Release ready" tile, and Getting Started's left TOC with real per-stage document counts and a capped reading width for prose.
 
-## Last step
+## Documentation refresh
 - The README's own screenshots and captures predate this cycle's fixes (the prior refresh, req_355, ran before these gaps were found). Once the fixes above land, the README captures need regenerating again — same as req_355 did for the previous redesign wave — so the published screenshots don't go stale a second time in a row.
 
 # Acceptance criteria

@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: Viewer polish
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 00:40:29
+> Indicators reviewed: 2026-08-15 00:45:53
 
 # AI Context
 - Summary: The Runbooks "Show hidden" checkbox is in-memory only (`workshopRunbookState.includeHidden`, defaults to `false`) and resets on every reload. Persist it via the existing `viewerPreferences` mechanism (same pattern as `workshopUseSystemTerminal`) and default it to on.
@@ -57,6 +57,7 @@ Reported directly by the operator. Confirmed in `clients/viewer/src/browser-host
 # Notes
 - Hybrid rationale: Derived from request `req_362_fleet_and_runbooks_dead_end_screen_unpersisted_preference_dead_ui_option` and kept bounded to one coherent delivery slice (the "Show hidden" preference only).
 - Source file: `logics/request/req_362_fleet_and_runbooks_dead_end_screen_unpersisted_preference_dead_ui_option.md`.
+- req_359/item_792 plans to move Runbooks' navigation placement (Workshop → Corpus). If that slice relocates the rendering code out of `workshop.js` before this one ships, re-verify the `workshop.js:396`/`:473-476` citations still hold before implementing.
 
 # Tasks
 - `task_372_runbooks_persist_show_hidden_and_default_it_to_on`

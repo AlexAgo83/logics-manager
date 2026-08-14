@@ -1,14 +1,14 @@
 ## item_792_move_runbooks_under_corpus_add_the_header_switch_to_corpus_screens - Move Runbooks under Corpus, add the header switch to Corpus screens
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 60%
 > Complexity: Medium
 > Theme: Viewer redesign follow-through
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 00:45:53
+> Indicators reviewed: 2026-08-15 01:48:38
 
 # AI Context
 - Summary: Runbooks is currently under Workshop; it belongs under Corpus. Corpus screens are also missing the header selection switch every other top-level screen already carries.

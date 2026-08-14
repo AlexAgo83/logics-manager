@@ -127,6 +127,7 @@ function createViewerDom(options: {
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="corpus:insights">Insights</button>
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="corpus:health">Health</button>
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="corpus:getting-started">Getting Started</button>
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="corpus:runbooks">Runbooks</button>
       </div>
     </div>
     <div class="viewer-nav-menu" data-viewer-nav="remote">
@@ -1989,7 +1990,8 @@ describe("local viewer browser host", () => {
   it("derives every Workshop menu entry from the workshopTabs registry", async () => {
     const constants = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/constants.js"), "utf8");
     const registry = [...(/export const workshopTabs = \[([\s\S]*?)\n  \];/.exec(constants)![1]).matchAll(/id: "([^"]+)"/g)].map((match) => match[1]);
-    expect(registry).toContain("runbooks");
+    // item_792: Runbooks moved to the Corpus nav group -- it is deliberately absent here now.
+    expect(registry).not.toContain("runbooks");
 
     const { dom } = createViewerDom();
     dom.window.acquireVsCodeApi().postMessage({ type: "ready" });
@@ -2014,20 +2016,24 @@ describe("local viewer browser host", () => {
     });
   });
 
-  it("opens the Runbooks panel from the Workshop menu in one gesture", async () => {
-    const { dom } = createViewerDom();
+  it("opens Runbooks from the Corpus menu as its own screen (task_363)", async () => {
+    // item_792: Runbooks moved out of Workshop's tab bar into the Corpus nav group.
+    const { dom, calls } = createViewerDom();
     dom.window.acquireVsCodeApi().postMessage({ type: "ready" });
     await flushViewerAsync();
 
-    const runbooks = dom.window.document.querySelector('[data-viewer-nav-target="workshop:runbooks"]') as HTMLButtonElement | null;
+    expect(dom.window.document.querySelector('[data-viewer-nav-target="workshop:runbooks"]')).toBeNull();
+    const runbooks = dom.window.document.querySelector('[data-viewer-nav-target="corpus:runbooks"]') as HTMLButtonElement | null;
     expect(runbooks).not.toBeNull();
     runbooks!.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
     await flushViewerAsync();
 
-    expect(dom.window.document.querySelector('[data-viewer-workshop-tab="runbooks"]')?.getAttribute("aria-selected")).toBe("true");
-    // Choosing an entry collapses the menu, as it did when the markup was static.
-    expect(dom.window.document.querySelector('[data-viewer-nav="workshop"]')?.classList.contains("is-open")).toBe(false);
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Runbooks");
+    expect(dom.window.document.querySelector("[data-viewer-workshop-runbooks]")).not.toBeNull();
+    expect(calls).toContain("/api/runbooks?includeHidden=1");
+    // Choosing an entry collapses the menu, as it did for every other nav group.
+    expect(dom.window.document.querySelector('[data-viewer-nav="corpus"]')?.classList.contains("is-open")).toBe(false);
   });
 
   it("keeps the Workshop commands panel scrollable inside the document viewport", () => {
@@ -3312,10 +3318,9 @@ describe("local viewer browser host", () => {
     expect(calls).toContain("/api/workshop-command-stop");
   });
 
-  it("shows the Runbooks Workshop tab between Commands and Explorer, and searches", async () => {
-    const { dom, calls } = createViewerDom();
+  it("no longer shows Runbooks in the Workshop tab bar (task_363)", async () => {
+    const { dom } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();
-
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -3324,9 +3329,18 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const tabIds = [...dom.window.document.querySelectorAll("[data-viewer-workshop-tab]")].map((node) => node.getAttribute("data-viewer-workshop-tab"));
-    expect(tabIds).toEqual(["terminals", "commands", "runbooks", "explorer"]);
+    expect(tabIds).toEqual(["terminals", "commands", "explorer"]);
+  });
 
-    dom.window.document.querySelector('[data-viewer-workshop-tab="runbooks"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+  it("opens Runbooks from Corpus and searches", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    dom.window.document.querySelector('[data-viewer-nav-target="corpus:runbooks"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -3363,9 +3377,7 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.querySelector('[data-viewer-workshop-tab="runbooks"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    dom.window.document.querySelector('[data-viewer-nav-target="corpus:runbooks"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -3381,9 +3393,7 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    dom.window.document.querySelector('[data-viewer-workshop-tab="runbooks"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    dom.window.document.querySelector('[data-viewer-nav-target="corpus:runbooks"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
 

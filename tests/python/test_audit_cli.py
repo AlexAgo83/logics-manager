@@ -318,6 +318,24 @@ def test_has_adopted_backs_annotation_is_false_for_every_historical_document() -
     assert unbacked_local_ac_ids(text) == []
 
 
+def test_invalid_backs_references_accepts_a_target_from_any_line_in_a_multi_line_section() -> None:
+    """Regression: `declared_request_ac_ids` must match every line of a multi-line
+    `# AC Traceability` section, not only the first -- a single-line fixture would
+    have passed even with a `^`-anchored regex missing MULTILINE."""
+    text = "\n".join(
+        [
+            "# Acceptance criteria",
+            "- AC1 (backs request-AC1): first.",
+            "- AC2 (backs request-AC3): third, declared third in the section below.",
+            "# AC Traceability",
+            "- request-AC1 -> This backlog slice. Proof: implemented.",
+            "- request-AC2 -> This backlog slice. Proof: implemented.",
+            "- request-AC3 -> This backlog slice. Proof: implemented.",
+        ]
+    )
+    assert invalid_backs_references(text) == []
+
+
 def test_invalid_backs_references_flags_a_target_this_document_never_declares() -> None:
     """item_784 AC2, revised: a declared mapping to something that doesn't exist in
     this document is wrong, not merely unproven."""

@@ -209,7 +209,7 @@ def duplicate_proof_ac_ids(text: str) -> list[tuple[str, str]]:
 
 _LOCAL_AC_LINE = re.compile(r"^-\s*(?P<local_id>AC\d+)\s*(?:\(backs\s+(?P<backs>[^)]*)\))?\s*:", re.IGNORECASE)
 _BACKS_TOKEN = re.compile(r"request-(AC\d+)", re.IGNORECASE)
-_DECLARED_AC_LINE = re.compile(r"^\s*-\s*request-(?P<ac_id>[A-Za-z0-9_]+)\b", re.IGNORECASE)
+_DECLARED_AC_LINE = re.compile(r"^\s*-\s*request-(?P<ac_id>[A-Za-z0-9_]+)\b", re.IGNORECASE | re.MULTILINE)
 
 
 def local_ac_backs(text: str) -> dict[str, list[str]]:

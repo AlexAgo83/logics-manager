@@ -245,6 +245,10 @@ export function createWorkshopScreen(host) {
     // item_756: what the filter box holds, kept out of the DOM so a re-render caused by
     // a running script's log arriving does not throw away what the operator typed.
     query: "",
+    // item_794: the chip narrowing to one prefix. Separate from `query` rather than
+    // typed into it: the prefix is an exact match on a group, and "test" as free text
+    // also matches `latest` and every command whose body mentions it.
+    prefix: "",
   };
 
   function renderWorkshopCommandRunMenu(entry) {
@@ -277,11 +281,19 @@ export function createWorkshopScreen(host) {
     // something is happening -- thirty rows carrying one word that means "nothing to
     // report". A state shows when it is not the default, and a running one says for how
     // long, which is the thing the row was never able to answer.
+    // item_794/AC2: what the left accent says. Derived rather than taken from `state`,
+    // which stops at `running`/`idle` -- how a finished script ended is in its exit code,
+    // and that is the half of the answer a reader scanning a list wants.
+    const accent = running
+      ? "running"
+      : session && session.exitCode !== null && session.exitCode !== undefined
+      ? (session.exitCode === 0 ? "passed" : "failed")
+      : "idle";
     const stateBadge = state === "idle"
       ? ""
       : `<span class="viewer-workshop__state viewer-workshop__state--${escapeHtml(state)}">${escapeHtml(state)}${running ? escapeHtml(formatCommandDuration(session?.startedAt)) : ""}</span>`;
     return `
-      <li class="viewer-workshop__command" data-viewer-workshop-command="${escapeHtml(entry.id)}">
+      <li class="viewer-workshop__command" data-viewer-workshop-command="${escapeHtml(entry.id)}" data-viewer-workshop-command-accent="${escapeHtml(accent)}">
         <div class="viewer-workshop__command-header">
           <div class="viewer-workshop__command-name">
             <strong>${escapeHtml(entry.name)}</strong>
@@ -333,9 +345,31 @@ export function createWorkshopScreen(host) {
       return `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>${escapeHtml(catalog.message || "No commands discovered.")}</span></div>`;
     }
     const query = String(workshopCommandState.query || "").trim().toLowerCase();
-    const matching = query
-      ? commands.filter((entry) => `${entry.name} ${entry.command}`.toLowerCase().includes(query))
-      : commands;
+    const prefix = String(workshopCommandState.prefix || "");
+    const matching = commands.filter((entry) => {
+      if (prefix && workshopCommandGroup(entry) !== prefix) return false;
+      if (!query) return true;
+      return `${entry.name} ${entry.command}`.toLowerCase().includes(query);
+    });
+
+    // item_794: the mockup names four chips (view/build/check/test) because that is what
+    // its repository had. Derived from the prefixes actually present instead, so a chip
+    // never offers a filter that matches nothing here -- and ordered by how many commands
+    // each one holds, which is the order a reader would guess at.
+    const prefixCounts = new Map();
+    commands.forEach((entry) => {
+      const group = workshopCommandGroup(entry);
+      prefixCounts.set(group, (prefixCounts.get(group) || 0) + 1);
+    });
+    const chips = [...prefixCounts.entries()]
+      .filter(([, count]) => count > 1)
+      .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+      .slice(0, 6)
+      .map(([group, count]) => `<button class="viewer-workshop__chip${group === prefix ? " is-active" : ""}" type="button" data-viewer-workshop-command-prefix="${escapeHtml(group)}" aria-pressed="${group === prefix ? "true" : "false"}">${escapeHtml(group)} <span>${count}</span></button>`)
+      .join("");
+    const chipBar = chips
+      ? `<div class="viewer-workshop__chips" role="group" aria-label="Filter commands by prefix">${chips}${prefix ? `<button class="viewer-workshop__chip viewer-workshop__chip--clear" type="button" data-viewer-workshop-command-prefix="">All</button>` : ""}</div>`
+      : "";
     const groups = new Map();
     matching.forEach((entry) => {
       const group = workshopCommandGroup(entry);
@@ -352,10 +386,11 @@ export function createWorkshopScreen(host) {
     `).join("");
     // The filter states what it left out rather than silently showing fewer rows: a list
     // that shrinks without saying so reads as a list that lost something.
-    const summary = query
-      ? `<p class="viewer-workshop__command-summary">${matching.length} of ${commands.length} commands match “${escapeHtml(query)}”</p>`
+    const summary = query || prefix
+      ? `<p class="viewer-workshop__command-summary">${matching.length} of ${commands.length} commands${prefix ? ` under ${escapeHtml(prefix)}` : ""}${query ? ` match “${escapeHtml(query)}”` : ""}</p>`
       : `<p class="viewer-workshop__command-summary">${commands.length} commands from ${escapeHtml(commands[0]?.source || "this repository")}</p>`;
     return `
+      ${chipBar}
       <div class="viewer-workshop__command-filter">
         <input type="search" placeholder="Filter by name or command..." aria-label="Filter commands"
                data-viewer-workshop-command-query value="${escapeHtml(workshopCommandState.query || "")}" />
@@ -377,6 +412,16 @@ export function createWorkshopScreen(host) {
         workshopCommandState.query = filter.value;
         renderWorkshopCommands();
       });
+    }
+    container.querySelectorAll("[data-viewer-workshop-command-prefix]").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const next = chip.getAttribute("data-viewer-workshop-command-prefix") || "";
+        // Clicking the active chip clears it: a filter you cannot take off is a trap.
+        workshopCommandState.prefix = next === workshopCommandState.prefix ? "" : next;
+        renderWorkshopCommands();
+      });
+    });
+    if (filter instanceof HTMLInputElement) {
       // Typing into a box that re-renders on every keystroke loses focus and caret on
       // each character, which makes the filter unusable rather than merely awkward.
       if (focused) {

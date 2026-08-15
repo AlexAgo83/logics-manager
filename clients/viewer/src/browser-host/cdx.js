@@ -2005,11 +2005,22 @@ export function createCdxScreen(host) {
     // that says "nothing yet" spends a tile to report the absence of news. Those two
     // states moved onto the panels they describe, where the operator is already looking
     // for them, and the tiles carry counts.
+    // item_794: `Strengths` and `Corpus actions` counted things the operator had not asked
+    // about, beside the two facts a launch actually depends on and which were readable
+    // only by hunting through the controls: which mission is selected, and which session
+    // it would run in with how much of its quota left.
+    const selectedMissionLabel = selectedMission
+      ? String(selectedMission.title || selectedMission.id || "Mission")
+      : "None yet";
+    const sessionRemaining = renderTextRemaining(selectedSessionItem);
+    const selectedSessionLabel = selectedSession
+      ? [selectedSession, sessionRemaining].filter(Boolean).join(" · ")
+      : "None yet";
     const cards = [
       ["Missions", String(missions.length)],
       ["Sessions", String(sessions.length)],
-      ["Strengths", String(strengths.length)],
-      ["Corpus actions", String(parsedActions.length)]
+      ["Selected", selectedMissionLabel],
+      ["Session", selectedSessionLabel]
     ].map(([label, value]) => `
       <div class="viewer-cdx__card">
         <div class="viewer-cdx__label">${escapeHtml(label)}</div>
@@ -2042,6 +2053,16 @@ export function createCdxScreen(host) {
                 <option value="background"${runMode === "terminal" ? "" : " selected"}>Background runner (Experimental)</option>
               </select>
             </label>
+            <!-- item_794: what will run, beside the button that runs it. It was readable
+                 only by switching the output panel to "Plan preview", so the control that
+                 launches a command and the statement of that command were never on screen
+                 together. Dimmed, because it is there to be checked rather than read. -->
+            <div class="viewer-cdx__command-preview" data-viewer-cdx-command-preview>
+              <span class="viewer-cdx__command-preview-label">Will run</span>
+              ${command
+                ? `<code>${escapeHtml(command)}</code>`
+                : '<span class="viewer-cdx__command-preview-empty">Preview to see the exact command.</span>'}
+            </div>
             <div class="viewer-cdx__actions">
               <button class="btn" type="button" data-viewer-cdx-plan>Preview</button>
               <button class="btn" type="button" data-viewer-cdx-run${canRun ? "" : " disabled"} title="${escapeHtml(canRun ? "Launch this mission" : cdxRunBlockedReason(planPayload, plan))}">${runMode === "terminal" ? "Launch in terminal" : "Launch run"}</button>

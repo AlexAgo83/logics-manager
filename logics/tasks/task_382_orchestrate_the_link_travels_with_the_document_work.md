@@ -20,11 +20,11 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Build the reader first: four surfaces are about to need the same answer, and building it per surface is how they come to disagree.
-- [ ] 2. Then the MCP responses, which reach the assistants that read no instructions at all.
-- [ ] 3. Then the CLI, which reaches the ones that never call a tool.
-- [ ] 4. State the convention last, for what the first three cannot cover -- a document named rather than fetched.
-- [ ] 5. Measure the payload growth on this corpus rather than asserting it is small, and verify each surface with a viewer running and with none.
+- [x] 1. Build the reader first: four surfaces are about to need the same answer, and building it per surface is how they come to disagree.
+- [x] 2. Then the MCP responses, which reach the assistants that read no instructions at all.
+- [x] 3. Then the CLI, which reaches the ones that never call a tool.
+- [x] 4. State the convention last, for what the first three cannot cover -- a document named rather than fetched.
+- [x] 5. Measure the payload growth on this corpus rather than asserting it is small, and verify each surface with a viewer running and with none.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.

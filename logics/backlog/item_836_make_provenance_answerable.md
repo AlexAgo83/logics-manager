@@ -2,9 +2,9 @@
 > From version: 2.21.9
 > Schema version: 1.0
 > Status: In progress
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 10%
+> Understanding: 95%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Low
 > Theme: Provenance is data
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -50,3 +50,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Two later slices read this answer, and each deriving it separately is how they drift -- but nothing is visible until one of them exists.
+
+# Validation
+- request_issue_urls(repo_root, "logics/request/req_302_...md") returns req_302's issue (https://github.com/AlexAgo83/logics-manager/issues/9) from what is already written, no change to that document -- verified interactively against the real doc. A request with no Provenance section returns [] rather than raising. read_logics_doc now carries provenance_issues (absent when empty) so it and the future reconciliation report/closeout notice read the same module instead of each parsing the section again. 7 new tests in tests/python/test_provenance.py and tests/python/test_sync_cli.py.

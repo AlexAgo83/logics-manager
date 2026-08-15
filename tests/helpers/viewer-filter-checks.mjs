@@ -153,10 +153,24 @@ export function filterChecks(window) {
             .map((node) => (node.dataset?.group ?? node.textContent ?? "").trim())
             .join("|");
         };
+        // item_795: `group-by` became a segmented control (buttons carrying `value`), not a
+        // select -- it has no `.options` to iterate, and answers to `click`, not `change`.
+        const segments = Array.from(control.querySelectorAll("[value]"));
+        const options = segments.length ? segments : Array.from(control.options || []);
+        if (segments.length && segments[0].disabled) {
+          // Grouping only applies in list mode (item_764); switch into it once so the
+          // segments are actually clickable, rather than reporting a no-op as "identical".
+          document.querySelector('[data-action="toggle-view-mode"]')?.dispatchEvent(new window.Event("click", { bubbles: true }));
+          await delay(600);
+        }
         const seen = new Map();
-        for (const option of Array.from(control.options)) {
-          control.value = option.value;
-          control.dispatchEvent(new window.Event("change", { bubbles: true }));
+        for (const option of options) {
+          if (segments.length) {
+            option.dispatchEvent(new window.Event("click", { bubbles: true }));
+          } else {
+            control.value = option.value;
+            control.dispatchEvent(new window.Event("change", { bubbles: true }));
+          }
           await delay(600);
           seen.set(option.value, headings());
         }

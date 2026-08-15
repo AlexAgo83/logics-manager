@@ -740,12 +740,10 @@ function browserExerciseScript(name) {
           proof: "[data-viewer-workshop-command-query]",
           timeoutMs: 90000
         },
-        {
-          name: "workshop runbooks",
-          steps: ["#viewer-workshop", "[data-viewer-nav-target='workshop:runbooks']"],
-          proof: ".viewer-workshop__runbook-rail, .viewer-workspace__placeholder",
-          timeoutMs: 90000
-        },
+        // item_817 retired the dedicated Runbooks screen -- a runbook is a document now,
+        // with its own stage heading, reachable from the board and reference index like
+        // any other companion kind, so there is no "workshop:runbooks" nav-target left
+        // to open.
         {
           name: "workshop explorer",
           steps: ["#viewer-workshop", "[data-viewer-nav-target='workshop:explorer']"],

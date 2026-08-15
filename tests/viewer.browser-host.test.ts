@@ -2129,6 +2129,34 @@ describe("local viewer browser host", () => {
     expect(cdx).toContain("data-viewer-cdx-command-preview");
   });
 
+  it("lights a loading ring on the header from the signal the screens already have", async () => {
+    // req_360. One mechanism, driven by data-loading + --loading-color, coloured by the
+    // document's stage when the load stays on the current screen and by a decided neutral
+    // when it does not -- what is loading is not known when the load starts.
+    const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
+    const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
+
+    expect(html).toContain('<div class="viewer-document__ring" aria-hidden="true">');
+    // The reveal is a punch-through: the ring clips the sweep and covers the middle itself.
+    // A mask is what the prototype tried first, and it rendered invisible.
+    expect(css).toMatch(/\.viewer-document__ring \{[^}]*overflow: hidden/);
+    expect(css).toMatch(/\.viewer-document__ring::after \{[^}]*inset: 2px/);
+    expect(css).not.toMatch(/viewer-document__ring[^}]*mask-composite/);
+    // AC3: it fades on opacity, so the comet is never seen appearing mid-travel.
+    expect(css).toMatch(/\.viewer-document__ring \{[^}]*transition: opacity 0\.45s/);
+    // AC4: a real media query, not a setting of our own.
+    const reduced = css.slice(css.indexOf("@media (prefers-reduced-motion: reduce)", css.indexOf(".viewer-document__ring")));
+    expect(reduced.slice(0, 400)).toContain("viewer-loading-ring-breathe");
+    expect(reduced.slice(0, 400)).toMatch(/animation: none/);
+    // AC2: the neutral is declared once, and is none of the stage colours.
+    expect(css).toMatch(/--viewer-loading-neutral:/);
+
+    const host = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/index.js"), "utf8");
+    // AC6: driven by the existing busy signal rather than a second loading tracker.
+    expect(host).toMatch(/function setPrimaryActionBusy\([^)]*\) \{[\s\S]{0,400}applyLoadingRing\(/);
+    expect(host).toMatch(/screenChange \? "" : String\(currentDocumentItem\?\.stage/);
+  });
+
   it("leads the Corpus navigation and switcher with Getting Started", () => {
     // It is the one Corpus entry written for someone who does not yet know what Insights,
     // Health or Runbooks are, so it cannot be third. Both surfaces are checked: the menu

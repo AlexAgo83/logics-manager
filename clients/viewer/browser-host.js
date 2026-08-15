@@ -9043,8 +9043,24 @@ ${line}` : line;
     }
     let transientMetaText = "";
     let latestEnvironmentWarning = null;
-    function setPrimaryActionBusy(actionKey, label = "") {
+    const LOADING_RING_STAGES = /* @__PURE__ */ new Set(["request", "backlog", "task", "product"]);
+    function applyLoadingRing(busy, screenChange = false) {
+      const header = document.querySelector(".viewer-document__header");
+      if (!(header instanceof HTMLElement)) return;
+      if (!busy) {
+        header.removeAttribute("data-loading");
+        return;
+      }
+      const stage = screenChange ? "" : String(currentDocumentItem?.stage || "");
+      header.style.setProperty(
+        "--loading-color",
+        LOADING_RING_STAGES.has(stage) ? `var(--stage-color-${stage})` : "var(--viewer-loading-neutral)"
+      );
+      header.setAttribute("data-loading", "");
+    }
+    function setPrimaryActionBusy(actionKey, label = "", options = {}) {
       primaryActionBusyKey = actionKey || "";
+      applyLoadingRing(Boolean(actionKey), Boolean(options.screenChange));
       document.body?.classList.toggle("viewer-is-busy", Boolean(primaryActionBusyKey));
       document.body?.toggleAttribute("data-viewer-busy", Boolean(primaryActionBusyKey));
       if (primaryActionBusyKey) {
@@ -9113,7 +9129,7 @@ ${line}` : line;
       const controller = typeof AbortController === "function" ? new AbortController() : null;
       primaryActionController = controller;
       clearActionFailure();
-      setPrimaryActionBusy(actionKey, label);
+      setPrimaryActionBusy(actionKey, label, { screenChange: Boolean(options.supersede) });
       return Promise.resolve().then(action).then(() => true).catch((error) => {
         if (error && (error.name === "AbortError" || controller?.signal.aborted)) {
           return false;

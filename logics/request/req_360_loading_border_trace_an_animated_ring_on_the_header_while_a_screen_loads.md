@@ -1,7 +1,7 @@
 ## req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads - Loading border trace: an animated ring on the header while a screen loads
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

@@ -8,6 +8,12 @@
    without touching the webview. Every native control inherits it; nothing is styled
    per-control. */
 :root {
+  /* req_360/AC2: the ring's colour for a screen with no document stage -- Settings, Remote,
+     Workshop, CDX. Decided rather than inherited from the prototype's placeholder: it must
+     not be any of the four stage colours, or an untyped screen would read as a request or a
+     task. The description grey is already the palette's "this is not a state" colour, and it
+     is the only neutral in it that no stage claims. */
+  --viewer-loading-neutral: var(--vscode-descriptionForeground, #9da5b4);
   color-scheme: dark;
 }
 
@@ -6933,4 +6939,96 @@
 .viewer-cdx__command-preview-empty {
   font-size: 11px;
   color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+/* req_360: the loading ring -- a comet travelling the header's rim while a screen loads,
+   beside the existing loading text rather than instead of it.
+   Ported from logics/external/mockup/loading_border_trace_proto.html. The reveal is a
+   punch-through, not a CSS mask: the prototype's first pass used `mask-composite: exclude`
+   and the ring was invisible in every engine tried. `.viewer-document__ring` clips the
+   sweep, and its own ::after covers everything but the 2px rim. */
+.viewer-document__header {
+  position: relative;
+}
+
+/* The ring is absolutely positioned, so it takes no cell in the header's own grid. The
+   real children are lifted above its cover; without this they paint under it. */
+.viewer-document__heading,
+.viewer-document__actions,
+.viewer-document__nav {
+  position: relative;
+  z-index: 1;
+}
+
+.viewer-document__ring {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  /* Fades on opacity alone, so the comet is never seen appearing or vanishing mid-travel. */
+  transition: opacity 0.45s ease;
+}
+
+.viewer-document__header[data-loading] .viewer-document__ring {
+  opacity: 1;
+}
+
+.viewer-document__ring::before {
+  content: "";
+  position: absolute;
+  /* Square and larger than the header, so the conic gradient's angular maths runs against
+     a square rather than the header's own wide box -- otherwise the comet sprints along the
+     long edges and crawls on the short ones. */
+  inset: -60%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 268deg,
+    color-mix(in srgb, var(--loading-color, var(--viewer-loading-neutral)) 0%, transparent) 292deg,
+    var(--loading-color, var(--viewer-loading-neutral)) 322deg,
+    #ffffff 344deg,
+    var(--loading-color, var(--viewer-loading-neutral)) 356deg,
+    transparent 360deg
+  );
+  animation: viewer-loading-ring-spin 1.8s linear infinite;
+}
+
+.viewer-document__ring::after {
+  content: "";
+  position: absolute;
+  /* The rim's thickness. Everything inside is covered by the header's own colour. */
+  inset: 2px;
+  background: var(--vscode-sideBar-background, #252526);
+}
+
+@keyframes viewer-loading-ring-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* AC4: no travel at all under reduced motion -- the same colour, breathing. A media query,
+   not a setting of our own: the operator has already answered this question once. */
+@media (prefers-reduced-motion: reduce) {
+  .viewer-document__ring::before {
+    animation: none;
+    background: var(--loading-color, var(--viewer-loading-neutral));
+    inset: 0;
+  }
+
+  .viewer-document__header[data-loading] .viewer-document__ring {
+    opacity: 0.55;
+    animation: viewer-loading-ring-breathe 2.4s ease-in-out infinite;
+  }
+}
+
+@keyframes viewer-loading-ring-breathe {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.65;
+  }
 }

@@ -918,6 +918,15 @@ def _duplicate_proof_issues(docs: dict[str, DocMeta], cutoff) -> list[AuditIssue
     for doc in docs.values():
         if doc.kind.kind not in {"backlog", "task"} or not _is_strict_scope(doc, cutoff):
             continue
+        # item_824: open documents only, which is what `_lineage_issues` and
+        # `_code_anchor_issues` already do and this one did not. Every one of the 127
+        # findings it produced on this corpus was on a Done document -- 91% of the whole
+        # report, and unactionable by construction: the proof was accepted at closeout, and
+        # asking again on every audit re-litigates a decision nobody is going to reopen.
+        # The shift item_784 found happens while a document is being written, which is
+        # exactly where the check still fires.
+        if _is_done(doc) or _is_abandoned(doc):
+            continue
         for group in _duplicate_proof_ac_groups(doc.text):
             named = ", ".join(f"`request-{ac_id}`" for ac_id in group)
             issues.append(

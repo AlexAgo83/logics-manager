@@ -1,10 +1,10 @@
 ## item_816_say_the_board_is_loading_instead_of_saying_the_project_is_empty - Say the board is loading instead of saying the project is empty
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Arrival
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -52,3 +52,6 @@
 # Priority
 - Priority: High - the screen states something false, on the screen reached first
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_378_orchestrate_the_board_arrival_and_runbook_document_work` was finished via `logics-manager flow finish task` on 2026-08-15.

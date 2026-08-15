@@ -1,7 +1,7 @@
 ## req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents - Make the project view honest on arrival, and let runbooks be documents
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

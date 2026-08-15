@@ -4441,3 +4441,34 @@ def test_viewer_chain_graph_endpoint_resolves_structural_links_only(tmp_path: Pa
         server.shutdown()
         server.server_close()
         thread.join(timeout=5)
+
+
+def test_switching_project_stops_the_viewer_claiming_fleet_home(tmp_path: Path) -> None:
+    """item_795: `--fleet` describes the launch, not every later poll.
+
+    `/api/items` answered `fleetHome: true` to any request that carried no project id, and
+    the client clears its own project id whenever it reads that. One un-parameterised poll
+    after a switch therefore left every later call -- mutations included -- resolving
+    against the launch repository while the page still showed the chosen project. It
+    surfaced as "Could not resolve workflow doc target `logics/product/prod_041_...`" when
+    changing a status in a project other than the launch one.
+    """
+    active = tmp_path / "logics-manager"
+    selected = tmp_path / "cdx-manager"
+    for root, ref in ((active, "req_001_active"), (selected, "req_001_selected")):
+        (root / "logics" / "request").mkdir(parents=True)
+        (root / "logics" / "request" / f"{ref}.md").write_text(
+            f"## {ref} - Doc\n> Status: Ready\n", encoding="utf-8"
+        )
+
+    server = create_viewer_server_or_skip(active)
+    try:
+        server.launch_fleet_home = True
+        assert server.viewer_payload(fleet_home=bool(server.launch_fleet_home))["fleetHome"] is True
+
+        server.switch_project_root(selected)
+
+        # The same call the auto-refresh makes when the page's URL carries no project id.
+        assert server.viewer_payload(fleet_home=bool(server.launch_fleet_home))["fleetHome"] is False
+    finally:
+        server.server_close()

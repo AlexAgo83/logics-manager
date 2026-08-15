@@ -296,22 +296,33 @@
       return typeof getGroupMode === "function" ? getGroupMode() : "stage";
     }
 
+    // item_795: `status` was the only alternative to `stage`, as an inverted special case.
+    // The mockup's segmented control offers Type / Status / Theme / None, and the last three
+    // are the same operation over a different key -- so they are one function keyed by the
+    // mode rather than three branches.
+    const BOARD_GROUP_KEYS = {
+      status: (item) => String((item && item.indicators && item.indicators.Status) || "No status"),
+      theme: (item) => String((item && item.indicators && item.indicators.Theme) || "No theme"),
+      none: () => "All documents"
+    };
+
     function groupBoardItems(visibleItems) {
-      if (boardGroupMode() !== "status") {
+      const key = BOARD_GROUP_KEYS[boardGroupMode()];
+      if (!key) {
         return groupByStage(visibleItems);
       }
       return visibleItems.reduce((acc, item) => {
-        const status = (item && item.indicators && item.indicators.Status) || "No status";
-        const key = String(status);
-        acc[key] = acc[key] || [];
-        acc[key].push(item);
+        const bucket = key(item);
+        acc[bucket] = acc[bucket] || [];
+        acc[bucket].push(item);
         return acc;
       }, {});
     }
 
     function getVisibleBoardStages(grouped) {
-      if (boardGroupMode() === "status") {
-        // Status columns are whatever the corpus actually holds, in a stable order.
+      if (BOARD_GROUP_KEYS[boardGroupMode()]) {
+        // Columns are whatever the corpus actually holds, in a stable order -- for `none`
+        // that is the single bucket the key function returns for every document.
         return Object.keys(grouped).sort();
       }
       return getVisibleStages().filter((stage) => {

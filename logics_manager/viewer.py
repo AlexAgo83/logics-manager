@@ -1974,6 +1974,14 @@ class LogicsViewerServer(ThreadingHTTPServer):
             raise ValueError("Unknown project id.")
         if not target.is_dir():
             raise FileNotFoundError(str(target))
+        # `--fleet` means "this launch opened on the fleet home", not "every later poll is
+        # the fleet home". It used to keep answering `fleetHome: true` to any request that
+        # carried no project id -- and the client clears its own project id whenever it
+        # reads that, so one un-parameterised poll after a switch left every later call,
+        # mutations included, resolving against the launch repository while the page still
+        # showed the project the operator had chosen. Reported as "Could not resolve
+        # workflow doc target `logics/product/prod_041_...`" from a different project.
+        self.launch_fleet_home = False
         return self.viewer_payload(project_id=project_id)
 
     def switch_project_root(self, project_root: Path) -> dict[str, Any]:

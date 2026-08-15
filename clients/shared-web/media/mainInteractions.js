@@ -238,7 +238,18 @@
         searchInput.addEventListener("input", (event) => onSearchInput(event));
       }
       if (groupBySelect) {
+        // A segmented control answers to clicks on its segments; a select answers to
+        // `change`. Both are bound so the handler stays the one that decides what a group
+        // change means, whichever control the host renders.
         groupBySelect.addEventListener("change", (event) => onGroupChange(event));
+        groupBySelect.addEventListener("click", (event) => {
+          const segment = event.target && typeof event.target.closest === "function"
+            ? event.target.closest("[value]")
+            : null;
+          if (segment && !segment.disabled && groupBySelect.contains(segment)) {
+            onGroupChange({ target: segment });
+          }
+        });
       }
       if (sortBySelect) {
         sortBySelect.addEventListener("change", (event) => onSortChange(event));

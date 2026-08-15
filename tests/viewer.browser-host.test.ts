@@ -2727,7 +2727,9 @@ describe("local viewer browser host", () => {
     // identifies the document the way the details panel does now -- reference and status
     // -- and the path moved to the control asserted below, which is where this test has
     // to follow it: dropping the assertion would leave the path uncovered entirely.
-    expect(dom.window.document.getElementById("viewer-document-eyebrow")?.textContent).toBe("req_001_demo • Ready");
+    // item_795: by the board's short reference rather than the full slug, on the screen
+    // whose title already says the same thing in prose.
+    expect(dom.window.document.getElementById("viewer-document-eyebrow")?.textContent).toBe("R001 • Ready");
     const pathCopy = dom.window.document.getElementById("viewer-document-path-copy");
     expect(pathCopy?.hidden).toBe(false);
     expect(pathCopy?.getAttribute("title")).toContain("logics/request/req_001_demo.md");

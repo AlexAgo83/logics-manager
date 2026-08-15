@@ -1219,6 +1219,23 @@ ${entry?.message || ""}`;
     root.addEventListener("focusout", hide);
     window.addEventListener("scroll", hide, true);
   }
+  function shortDocumentRef(id, stage) {
+    const prefixByStage = {
+      request: "R",
+      backlog: "I",
+      task: "T",
+      product: "P",
+      roadmap: "M",
+      architecture: "A",
+      spec: "S"
+    };
+    const key = String(stage || "").trim();
+    const prefix = prefixByStage[key] || (key ? key.slice(0, 1).toUpperCase() : "");
+    const raw = String(id || "");
+    const match = raw.match(/^[a-z]+_(\d+)/i) || raw.match(/(\d+)/);
+    if (!prefix || !match) return "";
+    return `${prefix}${String(match[1] || "").padStart(3, "0")}`;
+  }
 
   // clients/viewer/src/browser-host/diagnostics.js
   function errorMessage(error) {
@@ -11356,7 +11373,7 @@ ${line}` : line;
         }
         const html = `${renderDocumentMeta(documentItem)}${chainHtml}${roadmapHtml}${bodyHtml}`;
         const objectName = String(item.title || "").trim() || docPath;
-        const reference = String(item.id || "").trim();
+        const reference = shortDocumentRef(item.id, item.stage) || String(item.id || "").trim();
         const documentStatus = String(item.indicators?.Status || "").trim();
         const eyebrowText = [reference, documentStatus].filter(Boolean).join(" \u2022 ") || docPath;
         setDocument(objectName, html, {

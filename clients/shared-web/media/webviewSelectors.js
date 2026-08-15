@@ -413,13 +413,26 @@
       return matchesSearch(item);
     }
 
+    // item_795: `status` was the only alternative to `stage`, written inline. The segmented
+    // control offers Type / Status / Theme / None, and the last three are the same grouping
+    // over a different heading -- one table, not three copies of the same reduce. Statuses
+    // keep their lifecycle order; the others sort by heading, there being no other order to
+    // claim. `none` yields a single group, which is what turning grouping off looks like.
+    const LIST_GROUP_HEADINGS = {
+      status: (item) => (item && item.indicators && item.indicators.Status ? String(item.indicators.Status) : "No status"),
+      theme: (item) => (item && item.indicators && item.indicators.Theme ? String(item.indicators.Theme) : "No theme"),
+      none: () => "All documents"
+    };
+
     function getListGroups() {
       const visibleItems = getItems().filter((item) => isVisible(item));
-      if (getGroupMode() === "status") {
+      const mode = getGroupMode();
+      const heading = LIST_GROUP_HEADINGS[mode];
+      if (heading) {
         const grouped = visibleItems.reduce((acc, item) => {
-          const heading = item && item.indicators && item.indicators.Status ? String(item.indicators.Status) : "No status";
-          const key = `status:${normalizeSearchValue(heading) || "no-status"}`;
-          acc[key] = acc[key] || { key, heading, items: [], totalCount: 0 };
+          const label = heading(item);
+          const key = `${mode}:${normalizeSearchValue(label) || "none"}`;
+          acc[key] = acc[key] || { key, heading: label, items: [], totalCount: 0 };
           acc[key].items.push(item);
           acc[key].totalCount = acc[key].items.length;
           return acc;
@@ -427,10 +440,12 @@
         return Object.values(grouped)
           .map((group) => ({ ...group, items: sortItems(group.items), totalCount: group.items.length }))
           .sort((left, right) => {
-            const leftIndex = getStatusGroupOrder(normalizeSearchValue(left.heading));
-            const rightIndex = getStatusGroupOrder(normalizeSearchValue(right.heading));
-            if (leftIndex !== rightIndex) {
-              return leftIndex - rightIndex;
+            if (mode === "status") {
+              const leftIndex = getStatusGroupOrder(normalizeSearchValue(left.heading));
+              const rightIndex = getStatusGroupOrder(normalizeSearchValue(right.heading));
+              if (leftIndex !== rightIndex) {
+                return leftIndex - rightIndex;
+              }
             }
             return normalizeSearchValue(left.heading).localeCompare(normalizeSearchValue(right.heading));
           });

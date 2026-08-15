@@ -1,0 +1,549 @@
+{
+  "budgets": {
+    "max_docs": 20,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong item_813_put_lint_and_the_health_report_behind_the_corpus_signature_cache item_814_warm_the_corpus_reports_off_the_request_path item_815_show_the_last_answer_while_the_new_one_is_computed task_377_orchestrate_the_second_look_at_insights_and_health --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_804_index_the_backlog_to_task_links_instead_of_re_scanning_for_each_item",
+          "item_805_serve_the_audit_answer_from_a_cache_keyed_on_the_corpus_not_on_a_timer",
+          "item_806_send_the_screens_the_findings_they_display_not_all_of_them",
+          "item_807_stop_rebuilding_the_repository_wide_source_blob_on_every_audit",
+          "item_808_memoise_the_remaining_reference_extraction"
+        ],
+        "prod": [
+          "prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows"
+        ],
+        "req": [
+          "req_364_make_insights_and_health_answer_quickly_on_a_large_corpus"
+        ],
+        "task": [
+          "task_375_orchestrate_the_audit_cost_work_behind_insights_and_health"
+        ]
+      },
+      "path": "logics/product/prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows.md",
+      "ref": "prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows",
+      "sections": {
+        "Goals": [
+          "- Cost that grows in step with the corpus, not faster.",
+          "- An answer computed once and reused until the corpus actually changes.",
+          "- A payload sized by what the screen shows, not by what the scan found.",
+          "- The same findings as today: faster, not fewer."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Keep the viewer's reading screens -- Corpus insights and Validation health -- answering in about a second whatever the corpus size, by removing the work that grows faster than the corpus, reusing answers that have not changed, and sending only what the screens display."
+        ],
+        "References": [
+          "- Product back-reference: `req_364_make_insights_and_health_answer_quickly_on_a_large_corpus`",
+          "- Task back-reference: `task_375_orchestrate_the_audit_cost_work_behind_insights_and_health`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Corpus screens that stay usable as the corpus grows"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_813_put_lint_and_the_health_report_behind_the_corpus_signature_cache",
+          "item_814_warm_the_corpus_reports_off_the_request_path",
+          "item_815_show_the_last_answer_while_the_new_one_is_computed"
+        ],
+        "prod": [
+          "prod_097_corpus_screens_that_are_quick_on_the_first_look_too"
+        ],
+        "req": [
+          "req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong"
+        ],
+        "task": [
+          "task_377_orchestrate_the_second_look_at_insights_and_health"
+        ]
+      },
+      "path": "logics/product/prod_097_corpus_screens_that_are_quick_on_the_first_look_too.md",
+      "ref": "prod_097_corpus_screens_that_are_quick_on_the_first_look_too",
+      "sections": {
+        "Goals": [
+          "- One caching mechanism behind every expensive corpus report, not one of the three.",
+          "- A first look that does not pay what a background pass could have paid.",
+          "- A screen that shows its last answer rather than an empty frame.",
+          "- Timings taken the way an operator experiences them."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Extend the caching req_364 built for the audit to the two costs it measured wrongly, warm them off the request path, and let a returning operator read the previous answer while the new one is computed."
+        ],
+        "References": [
+          "- Product back-reference: `req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong`",
+          "- Task back-reference: `task_377_orchestrate_the_second_look_at_insights_and_health`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Corpus screens that are quick on the first look too"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_365_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "prod": [
+          "prod_005_logics_corpus_navigation_views",
+          "prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api",
+          "prod_015_cli_product_maturity_roadmap",
+          "prod_020_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "req": [
+          "req_201_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "task": [
+          "task_166_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ]
+      },
+      "path": "logics/product/prod_020_local_web_viewer_for_cli_driven_logics_work.md",
+      "ref": "prod_020_local_web_viewer_for_cli_driven_logics_work",
+      "sections": {
+        "Goals": [
+          "- Add a CLI-launched local viewer command, for example `logics-manager view` or `logics-manager serve-view`.",
+          "- Open a browser page that shows the Logics board, document details, relationships, status indicators, and markdown content.",
+          "- Reuse the existing webview assets and behavior where practical instead of creating a separate UI model.",
+          "- Introduce a clean host adapter boundary so the same UI can run under VS Code or under a local browser server.",
+          "- Keep the first version read-only by default so the feature is useful without creating mutation risk.",
+          "- Expose simple local API endpoints for corpus data, document reads, lint/audit summaries, and refresh signals."
+        ],
+        "Key product decisions": [
+          "- Treat the viewer as a visual companion to the CLI, not a replacement for either CLI or VS Code.",
+          "- Start read-only, then add bounded actions only after the host adapter and API boundary are stable.",
+          "- Keep dangerous or mutating work in the terminal for the first version.",
+          "- Prefer a browser local server over a rich terminal TUI because document navigation, board scanning, and markdown reading benefit from real layout, links, and persistent UI state.",
+          "- Reuse the existing webview implementation through a browser host adapter instead of maintaining a parallel UI.",
+          "- Keep the local API intentionally small: corpus data, document content, validation summaries, and refresh."
+        ],
+        "Overview": [
+          "Logics has become usable from the CLI, but the operator still loses the visual scanability that makes the VS Code webview useful.",
+          "The product opportunity is a local browser viewer launched from the CLI: a lightweight, local-only web surface that lets an operator inspect the Logics corpus, board, details, links, audits, and document content without opening VS Code.",
+          "The direction is not to recreate VS Code in the browser.",
+          "It is to make the existing webview experience portable through a small host adapter and a local server.",
+          "The CLI remains the canonical command surface, while the browser viewer becomes a visual companion for reading, scanning, and eventually triggering bounded actions.",
+          "The intended product feeling is: the operator keeps using the CLI, but can open a local visual cockpit when the workflow becomes too document-heavy for terminal output alone."
+        ],
+        "References": [
+          "- `logics/request/req_201_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/backlog/item_365_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/tasks/task_166_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/product/prod_005_logics_corpus_navigation_views.md`",
+          "- `logics/product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md`",
+          "- `logics/product/prod_015_cli_product_maturity_roadmap.md`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Local web viewer for CLI-driven Logics work"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "finish, insights, health, work, first, measurement, got, wrong",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_813_put_lint_and_the_health_report_behind_the_corpus_signature_cache",
+          "item_814_warm_the_corpus_reports_off_the_request_path",
+          "item_815_show_the_last_answer_while_the_new_one_is_computed"
+        ],
+        "prod": [
+          "prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows",
+          "prod_097_corpus_screens_that_are_quick_on_the_first_look_too"
+        ],
+        "req": [
+          "req_364_make_insights_and_health_answer_quickly_on_a_large_corpus",
+          "req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong"
+        ]
+      },
+      "path": "logics/request/req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong.md",
+      "ref": "req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Lint and the workflow health report are served from the same corpus-signature cache the audit uses, recomputing when the corpus changes and not when a timer lapses.",
+          "- AC2: The first open of either screen after the viewer starts does not pay the full cold computation on the request path.",
+          "- AC3: Returning to Insights or Health shows what it said last time immediately, with the fresh answer replacing it when it arrives, and says which of the two is on screen.",
+          "- AC4: Both screens answer in well under a second on a second look and in about a second on a first, measured over HTTP against a running viewer on this repository's corpus.",
+          "- AC5: The measurement that misled req_364 is not repeatable: timings quoted for these endpoints are taken over HTTP against a freshly started viewer, not in a process that has already done the work."
+        ],
+        "Needs": [
+          "- As an operator, I need Corpus insights and Validation health to answer quickly on the first look after starting the viewer, not only on the second.",
+          "- As an operator returning to one of those screens, I need to read what it said last time immediately, with the fresh answer replacing it when it arrives, instead of watching it be rebuilt from nothing."
+        ]
+      },
+      "status": "Draft",
+      "title": "Finish the Insights and Health work the first measurement got wrong"
+    },
+    {
+      "ai_context": {
+        "keywords": "audit cost, corpus insights, validation health, quadratic link sweep, audit cache, payload size, repo blob",
+        "skip when": "Changing what the audit checks or what the screens say -- this is only about how long they take to answer. Also skip for lint (0.16s) and workflow health (0.15s), neither of which is worth attacking.",
+        "summary": "Corpus insights and Validation health both wait on /api/audit, measured at 1.39s in-process and 2.2s over HTTP on 1668 documents with a 0.46 MB payload. No single hot spot is left; what remains is one quadratic link sweep, an answer recomputed on every look, a payload larger than either screen shows, and a 44 MB source scan rebuilt each run.",
+        "use when": "Changing anything that decides how long an audit takes, or before assuming a corpus screen is slow for a reason not measured here."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_804_index_the_backlog_to_task_links_instead_of_re_scanning_for_each_item",
+          "item_805_serve_the_audit_answer_from_a_cache_keyed_on_the_corpus_not_on_a_timer",
+          "item_806_send_the_screens_the_findings_they_display_not_all_of_them",
+          "item_807_stop_rebuilding_the_repository_wide_source_blob_on_every_audit",
+          "item_808_memoise_the_remaining_reference_extraction"
+        ],
+        "prod": [
+          "prod_020_local_web_viewer_for_cli_driven_logics_work",
+          "prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows"
+        ],
+        "req": [
+          "req_364_make_insights_and_health_answer_quickly_on_a_large_corpus"
+        ]
+      },
+      "path": "logics/request/req_364_make_insights_and_health_answer_quickly_on_a_large_corpus.md",
+      "ref": "req_364_make_insights_and_health_answer_quickly_on_a_large_corpus",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: An audit of a corpus contains no per-document scan of all documents of another kind; its measured cost grows in step with the document count rather than faster, demonstrated on at least two corpus sizes.",
+          "- AC2: Re-opening Insights or Health, or letting the auto-refresh run, reuses the previously computed audit instead of recomputing it, and a document edited on disk is reflected in the next answer rather than after a delay.",
+          "- AC3: The audit response carries the counts and groupings the screens display plus a bounded number of findings, with the remainder reachable on demand; no screen loses information it previously showed.",
+          "- AC4: The repository-wide source scan behind code-anchor checking is not rebuilt on every audit.",
+          "- AC5: Insights and Health answer in about a second on this repository's corpus, measured over HTTP against a running viewer, and the audit payload is byte-identical in its findings to the current implementation for the same corpus."
+        ],
+        "Needs": [
+          "- As an operator on a large corpus, I need Corpus insights and Validation health to answer in about a second, so that reading the corpus is not a decision about whether it is worth waiting.",
+          "- As an operator, I need the cost of those screens to grow in step with the corpus rather than faster than it, so that a corpus twice the size does not cost four times the wait.",
+          "- As an operator, I need a screen re-opened or auto-refreshed to reuse the answer it already computed, while still reflecting a document I have just edited."
+        ]
+      },
+      "status": "Done",
+      "title": "Make Insights and Health answer quickly on a large corpus"
+    },
+    {
+      "ai_context": {
+        "keywords": "put, lint, health, report, behind, corpus, signature, cache",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_813_put_lint_and_the_health_report_behind_the_corpus_signature_cache"
+        ],
+        "prod": [
+          "prod_097_corpus_screens_that_are_quick_on_the_first_look_too"
+        ],
+        "req": [
+          "req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong"
+        ],
+        "task": [
+          "task_377_orchestrate_the_second_look_at_insights_and_health"
+        ]
+      },
+      "path": "logics/backlog/item_813_put_lint_and_the_health_report_behind_the_corpus_signature_cache.md",
+      "ref": "item_813_put_lint_and_the_health_report_behind_the_corpus_signature_cache",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A second request for lint or the health report with the corpus unchanged returns without recomputing.",
+          "- AC2: Editing a workflow document changes the next answer from both.",
+          "- AC3: Both payloads are byte-identical to the current implementation for the same corpus."
+        ],
+        "Problem": [
+          "- req_364 cached the audit alone, on a measurement of lint that was taken in an already-warm process and read 0.16s. Over HTTP against a fresh viewer lint is 4.18s cold and 0.97s warm -- now the dominant cost of both screens.",
+          "- The workflow health report is 0.69s cold and 0.39s warm, and is not cached either."
+        ]
+      },
+      "status": "Ready",
+      "title": "Put lint and the health report behind the corpus-signature cache"
+    },
+    {
+      "ai_context": {
+        "keywords": "warm, corpus, reports, off, request, path",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_814_warm_the_corpus_reports_off_the_request_path"
+        ],
+        "prod": [
+          "prod_097_corpus_screens_that_are_quick_on_the_first_look_too"
+        ],
+        "req": [
+          "req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong"
+        ],
+        "task": [
+          "task_377_orchestrate_the_second_look_at_insights_and_health"
+        ]
+      },
+      "path": "logics/backlog/item_814_warm_the_corpus_reports_off_the_request_path.md",
+      "ref": "item_814_warm_the_corpus_reports_off_the_request_path",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Opening Insights or Health shortly after a viewer start does not pay the full cold computation.",
+          "- AC2: Startup and the first page load are not delayed by the warm-up.",
+          "- AC3: A request arriving during the warm-up does not trigger a second computation of the same report."
+        ],
+        "Problem": [
+          "- Nothing is computed until it is asked for, so the first operator to open Insights or Health after a viewer start pays the whole cold cost -- about thirteen seconds on this corpus -- on the request path.",
+          "- The viewer is usually started well before either screen is opened, so that time is available and unused."
+        ]
+      },
+      "status": "Ready",
+      "title": "Warm the corpus reports off the request path"
+    },
+    {
+      "ai_context": {
+        "keywords": "orchestrate, second, look, insights, health",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_813_put_lint_and_the_health_report_behind_the_corpus_signature_cache",
+          "item_814_warm_the_corpus_reports_off_the_request_path",
+          "item_815_show_the_last_answer_while_the_new_one_is_computed"
+        ],
+        "prod": [
+          "prod_097_corpus_screens_that_are_quick_on_the_first_look_too"
+        ],
+        "req": [
+          "req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong"
+        ],
+        "task": [
+          "task_377_orchestrate_the_second_look_at_insights_and_health"
+        ]
+      },
+      "path": "logics/tasks/task_377_orchestrate_the_second_look_at_insights_and_health.md",
+      "ref": "task_377_orchestrate_the_second_look_at_insights_and_health",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the second look at Insights and Health"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_813_put_lint_and_the_health_report_behind_the_corpus_signature_cache",
+          "item_814_warm_the_corpus_reports_off_the_request_path",
+          "item_815_show_the_last_answer_while_the_new_one_is_computed"
+        ],
+        "prod": [
+          "prod_097_corpus_screens_that_are_quick_on_the_first_look_too"
+        ],
+        "req": [
+          "req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong"
+        ],
+        "task": [
+          "task_377_orchestrate_the_second_look_at_insights_and_health"
+        ]
+      },
+      "path": "logics/product/prod_097_corpus_screens_that_are_quick_on_the_first_look_too.md",
+      "ref": "prod_097_corpus_screens_that_are_quick_on_the_first_look_too",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Corpus screens that are quick on the first look too"
+    },
+    {
+      "ai_context": {
+        "keywords": "show, last, answer, while, new, computed",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_815_show_the_last_answer_while_the_new_one_is_computed"
+        ],
+        "prod": [
+          "prod_097_corpus_screens_that_are_quick_on_the_first_look_too"
+        ],
+        "req": [
+          "req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong"
+        ],
+        "task": [
+          "task_377_orchestrate_the_second_look_at_insights_and_health"
+        ]
+      },
+      "path": "logics/backlog/item_815_show_the_last_answer_while_the_new_one_is_computed.md",
+      "ref": "item_815_show_the_last_answer_while_the_new_one_is_computed",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Returning to Insights or Health shows the previous answer without an empty frame.",
+          "- AC2: The fresh answer replaces it when it arrives, and the screen states which of the two is showing.",
+          "- AC3: Switching project does not show the previous project's answer."
+        ],
+        "Problem": [
+          "- Arriving at Insights or Health rebuilds the screen from nothing, even when the corpus has not changed since the last visit, so the operator watches a placeholder to be shown what they were already shown.",
+          "- The viewer keeps no rendered state for these screens at all."
+        ]
+      },
+      "status": "Ready",
+      "title": "Show the last answer while the new one is computed"
+    }
+  ],
+  "estimates": {
+    "char_count": 19166,
+    "companion_doc_count": 3,
+    "doc_count": 7
+  },
+  "generated_at": "2026-08-15T09:47:15Z",
+  "handoff": {
+    "companion_doc_count": 3,
+    "enabled": true,
+    "source_refs": [
+      "req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong",
+      "item_813_put_lint_and_the_health_report_behind_the_corpus_signature_cache",
+      "item_814_warm_the_corpus_reports_off_the_request_path",
+      "item_815_show_the_last_answer_while_the_new_one_is_computed",
+      "task_377_orchestrate_the_second_look_at_insights_and_health"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong,item_813_put_lint_and_the_health_report_behind_the_corpus_signature_cache,item_814_warm_the_corpus_reports_off_the_request_path,item_815_show_the_last_answer_while_the_new_one_is_computed,task_377_orchestrate_the_second_look_at_insights_and_health",
+  "refs": [
+    "req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong",
+    "item_813_put_lint_and_the_health_report_behind_the_corpus_signature_cache",
+    "item_814_warm_the_corpus_reports_off_the_request_path",
+    "item_815_show_the_last_answer_while_the_new_one_is_computed",
+    "task_377_orchestrate_the_second_look_at_insights_and_health"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_377_orchestrate_the_second_look_at_insights_and_health.md",
+      "ref": "task_377_orchestrate_the_second_look_at_insights_and_health"
+    }
+  ]
+}

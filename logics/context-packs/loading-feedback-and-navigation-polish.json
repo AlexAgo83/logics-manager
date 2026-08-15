@@ -1,0 +1,508 @@
+{
+  "budgets": {
+    "max_docs": 24,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_365_say_the_viewer_is_working_wherever_the_operator_is_looking item_809_show_a_load_that_has_no_screen_to_draw_on item_810_one_lap_then_a_resting_outline_and_nothing_at_all_for_a_short_load item_811_give_every_stage_with_a_colour_token_its_accent item_812_one_menu_button_on_the_phone_header task_376_orchestrate_the_loading_feedback_and_navigation_polish --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_365_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "prod": [
+          "prod_005_logics_corpus_navigation_views",
+          "prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api",
+          "prod_015_cli_product_maturity_roadmap",
+          "prod_020_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "req": [
+          "req_201_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "task": [
+          "task_166_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ]
+      },
+      "path": "logics/product/prod_020_local_web_viewer_for_cli_driven_logics_work.md",
+      "ref": "prod_020_local_web_viewer_for_cli_driven_logics_work",
+      "sections": {
+        "Goals": [
+          "- Add a CLI-launched local viewer command, for example `logics-manager view` or `logics-manager serve-view`.",
+          "- Open a browser page that shows the Logics board, document details, relationships, status indicators, and markdown content.",
+          "- Reuse the existing webview assets and behavior where practical instead of creating a separate UI model.",
+          "- Introduce a clean host adapter boundary so the same UI can run under VS Code or under a local browser server.",
+          "- Keep the first version read-only by default so the feature is useful without creating mutation risk.",
+          "- Expose simple local API endpoints for corpus data, document reads, lint/audit summaries, and refresh signals."
+        ],
+        "Key product decisions": [
+          "- Treat the viewer as a visual companion to the CLI, not a replacement for either CLI or VS Code.",
+          "- Start read-only, then add bounded actions only after the host adapter and API boundary are stable.",
+          "- Keep dangerous or mutating work in the terminal for the first version.",
+          "- Prefer a browser local server over a rich terminal TUI because document navigation, board scanning, and markdown reading benefit from real layout, links, and persistent UI state.",
+          "- Reuse the existing webview implementation through a browser host adapter instead of maintaining a parallel UI.",
+          "- Keep the local API intentionally small: corpus data, document content, validation summaries, and refresh."
+        ],
+        "Overview": [
+          "Logics has become usable from the CLI, but the operator still loses the visual scanability that makes the VS Code webview useful.",
+          "The product opportunity is a local browser viewer launched from the CLI: a lightweight, local-only web surface that lets an operator inspect the Logics corpus, board, details, links, audits, and document content without opening VS Code.",
+          "The direction is not to recreate VS Code in the browser.",
+          "It is to make the existing webview experience portable through a small host adapter and a local server.",
+          "The CLI remains the canonical command surface, while the browser viewer becomes a visual companion for reading, scanning, and eventually triggering bounded actions.",
+          "The intended product feeling is: the operator keeps using the CLI, but can open a local visual cockpit when the workflow becomes too document-heavy for terminal output alone."
+        ],
+        "References": [
+          "- `logics/request/req_201_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/backlog/item_365_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/tasks/task_166_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/product/prod_005_logics_corpus_navigation_views.md`",
+          "- `logics/product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md`",
+          "- `logics/product/prod_015_cli_product_maturity_roadmap.md`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Local web viewer for CLI-driven Logics work"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_809_show_a_load_that_has_no_screen_to_draw_on",
+          "item_810_one_lap_then_a_resting_outline_and_nothing_at_all_for_a_short_load",
+          "item_811_give_every_stage_with_a_colour_token_its_accent",
+          "item_812_one_menu_button_on_the_phone_header"
+        ],
+        "prod": [
+          "prod_096_a_viewer_that_says_what_it_is_doing"
+        ],
+        "req": [
+          "req_365_say_the_viewer_is_working_wherever_the_operator_is_looking"
+        ],
+        "task": [
+          "task_376_orchestrate_the_loading_feedback_and_navigation_polish"
+        ]
+      },
+      "path": "logics/product/prod_096_a_viewer_that_says_what_it_is_doing.md",
+      "ref": "prod_096_a_viewer_that_says_what_it_is_doing",
+      "sections": {
+        "Goals": [
+          "- A visible answer to 'is it working' wherever the operator is looking.",
+          "- Motion that marks a start, and a resting state that carries the wait.",
+          "- Nothing shown for a load too short to be worth reporting.",
+          "- One colour language across stages, accents and loading."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the viewer's own state legible without reading it: whether it is working, on which screen, and for how long -- through motion that marks events rather than motion that runs while nothing is known."
+        ],
+        "References": [
+          "- Product back-reference: `req_365_say_the_viewer_is_working_wherever_the_operator_is_looking`",
+          "- Task back-reference: `task_376_orchestrate_the_loading_feedback_and_navigation_polish`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "A viewer that says what it is doing"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "say, viewer, working, wherever, operator, looking",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_809_show_a_load_that_has_no_screen_to_draw_on",
+          "item_810_one_lap_then_a_resting_outline_and_nothing_at_all_for_a_short_load",
+          "item_811_give_every_stage_with_a_colour_token_its_accent",
+          "item_812_one_menu_button_on_the_phone_header"
+        ],
+        "prod": [
+          "prod_020_local_web_viewer_for_cli_driven_logics_work",
+          "prod_096_a_viewer_that_says_what_it_is_doing"
+        ],
+        "req": [
+          "req_365_say_the_viewer_is_working_wherever_the_operator_is_looking"
+        ]
+      },
+      "path": "logics/request/req_365_say_the_viewer_is_working_wherever_the_operator_is_looking.md",
+      "ref": "req_365_say_the_viewer_is_working_wherever_the_operator_is_looking",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A load with no document screen open is visible in the status line: a spinner beside the message rather than replacing it, and the header's own background carrying a slow low-alpha sheen in the same loading colour.",
+          "- AC2: The document header's ring travels one lap and then holds a steady dimmed outline until the load ends, instead of rotating for the load's whole duration.",
+          "- AC3: No loading affordance is shown for a load that resolves quickly -- a threshold below which nothing appears at all, so a cached answer does not flash a spinner.",
+          "- AC4: Every stage with a colour token carries it on the board's card accent, roadmap and runbook included, and nothing is left to derive the list a second time.",
+          "- AC5: At phone widths the header's screen buttons are one menu button on the project selector's own row, opening the navigation the viewer already has rather than a second copy of it.",
+          "- AC6: Every animation added here has a `prefers-reduced-motion: reduce` fallback that removes travel rather than only slowing it."
+        ],
+        "Needs": [
+          "- As an operator, I need to see that the viewer is working when the load has no screen to draw on, instead of a status line whose text quietly changes.",
+          "- As an operator, I need the loading animation to mark that a load started rather than run for as long as it lasts, so a long screen does not hold my attention for the whole wait to tell me nothing.",
+          "- As an operator, I need a roadmap document to carry its own colour like every other stage.",
+          "- As an operator on a phone, I need the header's controls behind one menu button on the selector's own row, instead of a two-column grid of buttons taking a block of the screen."
+        ]
+      },
+      "status": "Draft",
+      "title": "Say the viewer is working, wherever the operator is looking"
+    },
+    {
+      "ai_context": {
+        "keywords": "show, load, screen, draw",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_809_show_a_load_that_has_no_screen_to_draw_on"
+        ],
+        "prod": [
+          "prod_096_a_viewer_that_says_what_it_is_doing"
+        ],
+        "req": [
+          "req_365_say_the_viewer_is_working_wherever_the_operator_is_looking"
+        ],
+        "task": [
+          "task_376_orchestrate_the_loading_feedback_and_navigation_polish"
+        ]
+      },
+      "path": "logics/backlog/item_809_show_a_load_that_has_no_screen_to_draw_on.md",
+      "ref": "item_809_show_a_load_that_has_no_screen_to_draw_on",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: While the viewer is busy with no document screen open, the status line shows a spinner beside its message and the header background carries the sheen.",
+          "- AC2: The status line's text is unchanged, and its layout does not shift when the spinner appears or clears.",
+          "- AC3: Under `prefers-reduced-motion: reduce` neither the spinner nor the sheen travels."
+        ],
+        "Problem": [
+          "- req_360's ring lives on the document header, so a load with no document screen open produces no signal beyond the status line's text quietly changing.",
+          "- The status line is also where a failure is announced, so an operator watching it cannot tell a line that is about to change from one that already has."
+        ]
+      },
+      "status": "Ready",
+      "title": "Show a load that has no screen to draw on"
+    },
+    {
+      "ai_context": {
+        "keywords": "lap, resting, outline, nothing, all, short, load",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_810_one_lap_then_a_resting_outline_and_nothing_at_all_for_a_short_load"
+        ],
+        "prod": [
+          "prod_096_a_viewer_that_says_what_it_is_doing"
+        ],
+        "req": [
+          "req_365_say_the_viewer_is_working_wherever_the_operator_is_looking"
+        ],
+        "task": [
+          "task_376_orchestrate_the_loading_feedback_and_navigation_polish"
+        ]
+      },
+      "path": "logics/backlog/item_810_one_lap_then_a_resting_outline_and_nothing_at_all_for_a_short_load.md",
+      "ref": "item_810_one_lap_then_a_resting_outline_and_nothing_at_all_for_a_short_load",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The ring completes one lap and then holds a steady dimmed outline for the rest of the load.",
+          "- AC2: A load that resolves faster than the threshold shows no ring, no spinner and no sheen.",
+          "- AC3: The threshold is one value read by all three affordances, not three that can drift."
+        ],
+        "Problem": [
+          "- The ring rotates for as long as the load lasts. On a screen taking several seconds it holds the eye for all of them to say 'still going', which is not something an operator can act on.",
+          "- Nothing gates it on duration either: since req_364 cached the audit, most loads resolve in milliseconds and the ring is shown and hidden inside a frame -- read as a glitch rather than as feedback."
+        ]
+      },
+      "status": "Ready",
+      "title": "One lap, then a resting outline, and nothing at all for a short load"
+    },
+    {
+      "ai_context": {
+        "keywords": "stage, colour, token, accent",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_811_give_every_stage_with_a_colour_token_its_accent"
+        ],
+        "prod": [
+          "prod_096_a_viewer_that_says_what_it_is_doing"
+        ],
+        "req": [
+          "req_365_say_the_viewer_is_working_wherever_the_operator_is_looking"
+        ],
+        "task": [
+          "task_376_orchestrate_the_loading_feedback_and_navigation_polish"
+        ]
+      },
+      "path": "logics/backlog/item_811_give_every_stage_with_a_colour_token_its_accent.md",
+      "ref": "item_811_give_every_stage_with_a_colour_token_its_accent",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A roadmap card and a runbook card each draw their own stage colour on the accent.",
+          "- AC2: No stage with a colour token is left drawing the neutral base.",
+          "- AC3: A test fails if a token is added without its accent, rather than the omission being noticed on a screenshot."
+        ],
+        "Problem": [
+          "- `.card[data-stage=\"roadmap\"]` and `.card[data-stage=\"runbook\"]` have no accent rule, so both draw the grey base while their colour tokens already exist.",
+          "- The same omission was found and fixed for the progress bar in item_790; the accent kept its own copy of the stage list and was missed, which is the shape of the defect rather than an accident."
+        ]
+      },
+      "status": "Ready",
+      "title": "Give every stage with a colour token its accent"
+    },
+    {
+      "ai_context": {
+        "keywords": "orchestrate, loading, feedback, navigation, polish",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_809_show_a_load_that_has_no_screen_to_draw_on",
+          "item_810_one_lap_then_a_resting_outline_and_nothing_at_all_for_a_short_load",
+          "item_811_give_every_stage_with_a_colour_token_its_accent",
+          "item_812_one_menu_button_on_the_phone_header"
+        ],
+        "prod": [
+          "prod_096_a_viewer_that_says_what_it_is_doing"
+        ],
+        "req": [
+          "req_365_say_the_viewer_is_working_wherever_the_operator_is_looking"
+        ],
+        "task": [
+          "task_376_orchestrate_the_loading_feedback_and_navigation_polish"
+        ]
+      },
+      "path": "logics/tasks/task_376_orchestrate_the_loading_feedback_and_navigation_polish.md",
+      "ref": "task_376_orchestrate_the_loading_feedback_and_navigation_polish",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the loading feedback and navigation polish"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_809_show_a_load_that_has_no_screen_to_draw_on",
+          "item_810_one_lap_then_a_resting_outline_and_nothing_at_all_for_a_short_load",
+          "item_811_give_every_stage_with_a_colour_token_its_accent",
+          "item_812_one_menu_button_on_the_phone_header"
+        ],
+        "prod": [
+          "prod_096_a_viewer_that_says_what_it_is_doing"
+        ],
+        "req": [
+          "req_365_say_the_viewer_is_working_wherever_the_operator_is_looking"
+        ],
+        "task": [
+          "task_376_orchestrate_the_loading_feedback_and_navigation_polish"
+        ]
+      },
+      "path": "logics/product/prod_096_a_viewer_that_says_what_it_is_doing.md",
+      "ref": "prod_096_a_viewer_that_says_what_it_is_doing",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "A viewer that says what it is doing"
+    },
+    {
+      "ai_context": {
+        "keywords": "menu, button, phone, header",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_812_one_menu_button_on_the_phone_header"
+        ],
+        "prod": [
+          "prod_096_a_viewer_that_says_what_it_is_doing"
+        ],
+        "req": [
+          "req_365_say_the_viewer_is_working_wherever_the_operator_is_looking"
+        ],
+        "task": [
+          "task_376_orchestrate_the_loading_feedback_and_navigation_polish"
+        ]
+      },
+      "path": "logics/backlog/item_812_one_menu_button_on_the_phone_header.md",
+      "ref": "item_812_one_menu_button_on_the_phone_header",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: At phone widths the header shows the selector and one menu button on one row, and no grid of screen buttons.",
+          "- AC2: The menu opens the same navigation entries the desktop header offers, from the same markup.",
+          "- AC3: Desktop widths are unchanged."
+        ],
+        "Problem": [
+          "- At 420px and below the header's screen buttons become a two-column grid, spending a block of the viewport on navigation on the viewport that can least afford it.",
+          "- The controls are also pushed off the selector's row, so the header reads as two unrelated things stacked."
+        ]
+      },
+      "status": "Ready",
+      "title": "One menu button on the phone header"
+    }
+  ],
+  "estimates": {
+    "char_count": 15848,
+    "companion_doc_count": 2,
+    "doc_count": 7
+  },
+  "generated_at": "2026-08-15T09:47:13Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_365_say_the_viewer_is_working_wherever_the_operator_is_looking",
+      "item_809_show_a_load_that_has_no_screen_to_draw_on",
+      "item_810_one_lap_then_a_resting_outline_and_nothing_at_all_for_a_short_load",
+      "item_811_give_every_stage_with_a_colour_token_its_accent",
+      "item_812_one_menu_button_on_the_phone_header",
+      "task_376_orchestrate_the_loading_feedback_and_navigation_polish"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_365_say_the_viewer_is_working_wherever_the_operator_is_looking,item_809_show_a_load_that_has_no_screen_to_draw_on,item_810_one_lap_then_a_resting_outline_and_nothing_at_all_for_a_short_load,item_811_give_every_stage_with_a_colour_token_its_accent,item_812_one_menu_button_on_the_phone_header,task_376_orchestrate_the_loading_feedback_and_navigation_polish",
+  "refs": [
+    "req_365_say_the_viewer_is_working_wherever_the_operator_is_looking",
+    "item_809_show_a_load_that_has_no_screen_to_draw_on",
+    "item_810_one_lap_then_a_resting_outline_and_nothing_at_all_for_a_short_load",
+    "item_811_give_every_stage_with_a_colour_token_its_accent",
+    "item_812_one_menu_button_on_the_phone_header",
+    "task_376_orchestrate_the_loading_feedback_and_navigation_polish"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_376_orchestrate_the_loading_feedback_and_navigation_polish.md",
+      "ref": "task_376_orchestrate_the_loading_feedback_and_navigation_polish"
+    }
+  ]
+}

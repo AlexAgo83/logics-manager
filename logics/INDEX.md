@@ -135,6 +135,8 @@
 | [prod_093_trustworthy_flow_checks](product/prod_093_trustworthy_flow_checks.md) | Trustworthy flow checks | Proposed |  |  | product/prod_093_trustworthy_flow_checks.md |
 | [prod_094_loading_border_trace](product/prod_094_loading_border_trace.md) | Loading border trace | Proposed |  |  | product/prod_094_loading_border_trace.md |
 | [prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows](product/prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows.md) | Corpus screens that stay usable as the corpus grows | Proposed |  |  | product/prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows.md |
+| [prod_096_a_viewer_that_says_what_it_is_doing](product/prod_096_a_viewer_that_says_what_it_is_doing.md) | A viewer that says what it is doing | Proposed |  |  | product/prod_096_a_viewer_that_says_what_it_is_doing.md |
+| [prod_097_corpus_screens_that_are_quick_on_the_first_look_too](product/prod_097_corpus_screens_that_are_quick_on_the_first_look_too.md) | Corpus screens that are quick on the first look too | Proposed |  |  | product/prod_097_corpus_screens_that_are_quick_on_the_first_look_too.md |
 
 ## Roadmaps
 
@@ -516,6 +518,8 @@
 | [req_362_fleet_and_runbooks_dead_end_screen_unpersisted_preference_dead_ui_option](request/req_362_fleet_and_runbooks_dead_end_screen_unpersisted_preference_dead_ui_option.md) | Fleet and Runbooks: dead-end screen, unpersisted preference, dead UI option | Done |  |  | request/req_362_fleet_and_runbooks_dead_end_screen_unpersisted_preference_dead_ui_option.md |
 | [req_363_redesign_the_viewer_s_scrollbars_custom_discreet_no_visible_track](request/req_363_redesign_the_viewer_s_scrollbars_custom_discreet_no_visible_track.md) | Redesign the viewer's scrollbars: custom, discreet, no visible track | Done |  |  | request/req_363_redesign_the_viewer_s_scrollbars_custom_discreet_no_visible_track.md |
 | [req_364_make_insights_and_health_answer_quickly_on_a_large_corpus](request/req_364_make_insights_and_health_answer_quickly_on_a_large_corpus.md) | Make Insights and Health answer quickly on a large corpus | Done |  |  | request/req_364_make_insights_and_health_answer_quickly_on_a_large_corpus.md |
+| [req_365_say_the_viewer_is_working_wherever_the_operator_is_looking](request/req_365_say_the_viewer_is_working_wherever_the_operator_is_looking.md) | Say the viewer is working, wherever the operator is looking | Draft |  |  | request/req_365_say_the_viewer_is_working_wherever_the_operator_is_looking.md |
+| [req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong](request/req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong.md) | Finish the Insights and Health work the first measurement got wrong | Draft |  |  | request/req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong.md |
 
 ## Backlog
 
@@ -1329,6 +1333,13 @@
 | [item_806_send_the_screens_the_findings_they_display_not_all_of_them](backlog/item_806_send_the_screens_the_findings_they_display_not_all_of_them.md) | Send the screens the findings they display, not all of them | Done |  | 100% | backlog/item_806_send_the_screens_the_findings_they_display_not_all_of_them.md |
 | [item_807_stop_rebuilding_the_repository_wide_source_blob_on_every_audit](backlog/item_807_stop_rebuilding_the_repository_wide_source_blob_on_every_audit.md) | Stop rebuilding the repository-wide source blob on every audit | Done |  | 100% | backlog/item_807_stop_rebuilding_the_repository_wide_source_blob_on_every_audit.md |
 | [item_808_memoise_the_remaining_reference_extraction](backlog/item_808_memoise_the_remaining_reference_extraction.md) | Memoise the remaining reference extraction | Done |  | 100% | backlog/item_808_memoise_the_remaining_reference_extraction.md |
+| [item_809_show_a_load_that_has_no_screen_to_draw_on](backlog/item_809_show_a_load_that_has_no_screen_to_draw_on.md) | Show a load that has no screen to draw on | Ready |  | 0% | backlog/item_809_show_a_load_that_has_no_screen_to_draw_on.md |
+| [item_810_one_lap_then_a_resting_outline_and_nothing_at_all_for_a_short_load](backlog/item_810_one_lap_then_a_resting_outline_and_nothing_at_all_for_a_short_load.md) | One lap, then a resting outline, and nothing at all for a short load | Ready |  | 0% | backlog/item_810_one_lap_then_a_resting_outline_and_nothing_at_all_for_a_short_load.md |
+| [item_811_give_every_stage_with_a_colour_token_its_accent](backlog/item_811_give_every_stage_with_a_colour_token_its_accent.md) | Give every stage with a colour token its accent | Ready |  | 0% | backlog/item_811_give_every_stage_with_a_colour_token_its_accent.md |
+| [item_812_one_menu_button_on_the_phone_header](backlog/item_812_one_menu_button_on_the_phone_header.md) | One menu button on the phone header | Ready |  | 0% | backlog/item_812_one_menu_button_on_the_phone_header.md |
+| [item_813_put_lint_and_the_health_report_behind_the_corpus_signature_cache](backlog/item_813_put_lint_and_the_health_report_behind_the_corpus_signature_cache.md) | Put lint and the health report behind the corpus-signature cache | Ready |  | 0% | backlog/item_813_put_lint_and_the_health_report_behind_the_corpus_signature_cache.md |
+| [item_814_warm_the_corpus_reports_off_the_request_path](backlog/item_814_warm_the_corpus_reports_off_the_request_path.md) | Warm the corpus reports off the request path | Ready |  | 0% | backlog/item_814_warm_the_corpus_reports_off_the_request_path.md |
+| [item_815_show_the_last_answer_while_the_new_one_is_computed](backlog/item_815_show_the_last_answer_while_the_new_one_is_computed.md) | Show the last answer while the new one is computed | Ready |  | 0% | backlog/item_815_show_the_last_answer_while_the_new_one_is_computed.md |
 
 ## Tasks
 
@@ -1703,6 +1714,8 @@
 | [task_373_runbooks_remove_the_dead_view_graph_button](tasks/task_373_runbooks_remove_the_dead_view_graph_button.md) | Runbooks: remove the dead "View graph" button | Done | assistant | 100% | tasks/task_373_runbooks_remove_the_dead_view_graph_button.md |
 | [task_374_redesign_the_viewer_s_scrollbars_custom_discreet_no_visible_track](tasks/task_374_redesign_the_viewer_s_scrollbars_custom_discreet_no_visible_track.md) | Redesign the viewer's scrollbars: custom, discreet, no visible track | Done |  | 100% | tasks/task_374_redesign_the_viewer_s_scrollbars_custom_discreet_no_visible_track.md |
 | [task_375_orchestrate_the_audit_cost_work_behind_insights_and_health](tasks/task_375_orchestrate_the_audit_cost_work_behind_insights_and_health.md) | Orchestrate the audit cost work behind Insights and Health | Done |  | 100% | tasks/task_375_orchestrate_the_audit_cost_work_behind_insights_and_health.md |
+| [task_376_orchestrate_the_loading_feedback_and_navigation_polish](tasks/task_376_orchestrate_the_loading_feedback_and_navigation_polish.md) | Orchestrate the loading feedback and navigation polish | Ready |  | 0% | tasks/task_376_orchestrate_the_loading_feedback_and_navigation_polish.md |
+| [task_377_orchestrate_the_second_look_at_insights_and_health](tasks/task_377_orchestrate_the_second_look_at_insights_and_health.md) | Orchestrate the second look at Insights and Health | Ready |  | 0% | tasks/task_377_orchestrate_the_second_look_at_insights_and_health.md |
 
 ## Runbooks
 

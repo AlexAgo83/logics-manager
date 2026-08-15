@@ -3555,7 +3555,12 @@ def test_viewer_mcp_connector_captures_url_and_token(tmp_path: Path, monkeypatch
     class FakeProcess:
         stdout = [
             "ChatGPT developer-mode MCP URL: https://example.ngrok-free.app/mcp\n",
-            "Authorization header: Bearer test-token\n",
+            # This is the actual shape _print_connector_plan prints (mcp.py:1742): the
+            # line's own "Authorization header: " label, then plan["auth_header"]'s value
+            # of "Authorization: Bearer <token>" -- not "Bearer <token>" alone, which this
+            # fixture used to say and which let the capture regex's real bug (it required
+            # Bearer right after the label) pass unnoticed.
+            "Authorization header: Authorization: Bearer test-token\n",
         ]
         returncode = None
         terminated = False

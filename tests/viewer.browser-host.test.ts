@@ -1846,7 +1846,9 @@ describe("local viewer browser host", () => {
               ? { ok: false, status: 409, json: async () => ({ ok: false, error: "Another connector is already bound to this port." }) }
               : { ok: true, status: 200, json: async () => ({ ok: true }) };
           }
-          return { ok: true, status: 200, json: async () => ({ ok: true, payload: { state: "off", message: "" } }) };
+          // item_849: the endpoint reports `running`, never a `state` string; this fixture
+          // said `state` and so agreed with the bug rather than with viewer.py.
+          return { ok: true, status: 200, json: async () => ({ ok: true, payload: { running: false, url: "", token: "", error: "" } }) };
         }
         return originalFetch(String(url), init as never);
       }
@@ -1892,6 +1894,99 @@ describe("local viewer browser host", () => {
     expect(html).toMatch(/id="viewer-action-error-dismiss"/);
     const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
     expect(css).toMatch(/\.viewer-action-error\s*\{/);
+  });
+
+  it("renders the Settings connector toggle from the running connector, not a phantom field", async () => {
+    // item_849: /api/mcp-connector reports `running`; Settings read `state`, so the toggle
+    // rendered "unknown"/unchecked whatever the connector was actually doing.
+    const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
+    const dom = new JSDOM(html, { runScripts: "outside-only", url: "http://127.0.0.1:8765/" });
+    Object.defineProperty(dom.window, "fetch", {
+      configurable: true,
+      value: async (url: string) => ({
+        ok: true,
+        json: async () =>
+          String(url).startsWith("/api/mcp-connector")
+            ? { ok: true, payload: { running: true, url: "https://x.example/mcp", token: "t", error: "" } }
+            : { ok: true, payload: { root: "/r", repoName: "r", autoRefreshIntervalSeconds: 15, items: [], updateInfo: {} } }
+      })
+    });
+    loadScript(dom, "clients/viewer/browser-host.js");
+    dom.window.dispatchEvent(new dom.window.Event("load"));
+    dom.window.acquireVsCodeApi().postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    (dom.window.document.getElementById("viewer-refresh-menu-button") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const toggle = dom.window.document.querySelector("[data-viewer-settings-mcp]") as HTMLInputElement | null;
+    expect(toggle).toBeTruthy();
+    expect(toggle!.checked).toBe(true);
+    expect(toggle!.getAttribute("aria-checked")).toBe("true");
+    expect(dom.window.document.querySelector(".viewer-settings-toggle__state")?.textContent).toBe("On");
+  });
+
+  it("polls the connector screen until the starting tunnel reports its outcome", async () => {
+    // item_849: the screen fetched once per visit, so an operator watching the tunnel come
+    // up had to click 'Refresh status' to see a connector that had already finished.
+    const { dom } = createViewerDom();
+    {
+      const originalFetch = dom.window.fetch;
+      let ready = false;
+      let connectorFetches = 0;
+      // The host runs inside the JSDOM context, so vitest's fake timers (which patch this
+      // module's globals) never see its setTimeout. Capture the poll's own timer instead
+      // and fire it by hand: deterministic, and no test that waits 1.5 real seconds.
+      const pending: Array<() => void> = [];
+      const realSetTimeout = dom.window.setTimeout;
+      Object.defineProperty(dom.window, "setTimeout", {
+        configurable: true,
+        value: (fn: () => void, delay?: number) => {
+          if (delay === 1500) { pending.push(fn); return 0; }
+          return realSetTimeout(fn, delay);
+        }
+      });
+      Object.defineProperty(dom.window, "fetch", {
+        configurable: true,
+        value: async (url: string, init?: { method?: string }) => {
+          if (String(url).startsWith("/api/mcp-connector")) {
+            connectorFetches += 1;
+            return {
+              ok: true,
+              status: 200,
+              json: async () => ({ ok: true, payload: { running: true, url: ready ? "https://x.example/mcp" : "", token: ready ? "t" : "", error: "" } })
+            };
+          }
+          return originalFetch(String(url), init as never);
+        }
+      });
+
+      dom.window.acquireVsCodeApi().postMessage({ type: "ready" });
+      await flushViewerAsync();
+      await flushViewerAsync();
+
+      const open = dom.window.document.createElement("button");
+      open.setAttribute("data-viewer-settings-action", "mcp");
+      dom.window.document.body.appendChild(open);
+      open.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+      await flushViewerAsync();
+
+      const body = () => dom.window.document.getElementById("viewer-document-content")?.innerHTML || "";
+      expect(body()).toContain("Starting the secure tunnel");
+      const whileStarting = connectorFetches;
+      expect(pending).toHaveLength(1);
+
+      // The URL lands server-side with nobody clicking anything.
+      ready = true;
+      pending.splice(0).forEach((fn) => fn());
+      await flushViewerAsync();
+      expect(connectorFetches).toBeGreaterThan(whileStarting);
+      expect(body()).toContain("https://x.example/mcp");
+
+      // And once it is ready the screen stops asking.
+      expect(pending).toHaveLength(0);
+    }
   });
 
   it("checks the connector POST response instead of rendering a refusal as done", () => {

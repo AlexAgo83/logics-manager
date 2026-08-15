@@ -1,10 +1,10 @@
 ## item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive - Fix the Settings Connector toggle and make the connector screen reactive
 > From version: 2.22.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Viewer MCP connector UX
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

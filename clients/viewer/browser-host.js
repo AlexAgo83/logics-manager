@@ -11110,15 +11110,15 @@ ${line}` : line;
         if (response.ok && data.ok) info = data.payload;
       } catch {
       }
-      let mcpState = "";
+      let mcpState = "unknown";
       try {
         const response = await fetch("/api/mcp-connector");
         const data = await response.json();
-        if (response.ok && data.ok) mcpState = String(data.payload?.state || "");
+        if (response.ok && data.ok) mcpState = data.payload?.running ? "On" : "Off";
       } catch {
       }
       if (isViewStale(view)) return;
-      setDocument("Settings", renderSettingsScreen(info, mcpState === "on" ? "On" : mcpState === "off" ? "Off" : mcpState || "unknown"));
+      setDocument("Settings", renderSettingsScreen(info, mcpState));
       const interval = document.querySelector("[data-viewer-settings-interval]");
       if (interval instanceof HTMLSelectElement) interval.value = String(Math.round(autoRefreshIntervalMs / 1e3));
       setMeta("Settings loaded.");
@@ -11133,6 +11133,13 @@ ${line}` : line;
       if (isViewStale(view)) return;
       setDocument("ChatGPT Developer Mode", `<div class="viewer-settings-screen"><section class="viewer-settings-screen__hero"><p class="viewer-settings-screen__eyebrow">Per-project MCP connector</p><h2>${state.running ? "Connector ON" : "Connector OFF"}</h2><p>${ready ? "Copy the HTTPS /mcp URL and bearer token into ChatGPT developer mode. Stop it when you are done." : state.running ? "Starting the secure tunnel\u2026 the URL will appear here shortly." : "Nothing is exposed until you turn this connector on."}</p></section><section class="viewer-settings-card"><h3>ChatGPT connection</h3>${ready ? `<code class="viewer-mcp-url">${escapeHtml(state.url)}</code><button class="btn" type="button" data-viewer-mcp-copy="${escapeHtml(state.url)}">Copy URL</button>${token ? `<button class="btn" type="button" data-viewer-mcp-copy="${escapeHtml(token)}" data-viewer-mcp-copy-kind="token">Copy token</button>` : ""}` : ""}${state.error ? `<p class="viewer-settings-screen__error"><strong>The connector stopped.</strong> ${escapeHtml(state.error)}</p>` : ""}<button class="btn" type="button" data-viewer-mcp-action="${state.running ? "stop" : "start"}">${state.running ? "Stop the connector" : "Start the connector"}</button>${state.running && !ready ? '<button class="btn" type="button" data-viewer-mcp-action="refresh">Refresh status</button>' : ""}</section></div>`, { eyebrow: "Settings / ChatGPT Developer Mode" });
       setMeta(ready ? "MCP connector ready." : state.running ? "MCP connector starting." : "MCP connector is off.");
+      if (state.running && !ready && !state.error) {
+        setTimeout(() => {
+          const panel = documentPanel();
+          if (!panel || panel.hidden || documentTitle()?.textContent !== "ChatGPT Developer Mode") return;
+          showChatgptMcp({ view: beginView({ silent: true }) });
+        }, 1500);
+      }
     }
     function bindRefreshMenuControls() {
       const button = refreshMenuButton();

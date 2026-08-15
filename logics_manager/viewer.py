@@ -1955,7 +1955,13 @@ class LogicsViewerServer(ThreadingHTTPServer):
                 match = re.search(r"ChatGPT developer-mode MCP URL:\s*(https://\S+)", line)
                 if match:
                     with self.mcp_connector_lock: self.mcp_connector_url = match.group(1)
-                token_match = re.search(r"Authorization header:\s*Bearer\s+(\S+)", line)
+                # _print_connector_plan prints "Authorization header: Authorization: Bearer
+                # <token>" -- plan["auth_header"]'s own value is "Authorization: Bearer
+                # <token>", printed after this line's own "Authorization header: " label.
+                # This never matched a real token: it required Bearer right after the
+                # label with only whitespace between, which the label's repeated
+                # "Authorization: " prefix never satisfies.
+                token_match = re.search(r"Authorization header:.*Bearer\s+(\S+)", line)
                 if token_match:
                     with self.mcp_connector_lock: self.mcp_connector_token = token_match.group(1)
             # item_741: stdout closing does not set `returncode`; only `wait()` or

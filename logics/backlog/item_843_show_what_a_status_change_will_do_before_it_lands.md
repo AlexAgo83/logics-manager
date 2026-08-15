@@ -1,13 +1,14 @@
 ## item_843_show_what_a_status_change_will_do_before_it_lands - Show what a status change will do before it lands
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Low
 > Theme: See it before it lands
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-15 18:40:09
 
 # AI Context
 - Summary: The existing status choice modal states the document, its current status, and the requested status before applying anything -- one modal, not a choice modal plus a second confirm.

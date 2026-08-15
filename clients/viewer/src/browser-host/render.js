@@ -1391,6 +1391,78 @@ export function showThemedChoiceModal({ title, message, options, value, submitLa
     });
   }
 
+//: item_843/item_844: one modal for both the status pick and the commit decision, not a
+//: choice modal followed by a second confirm -- the preview line and the commit checkbox
+//: are just more controls in the same body, updated live as the select changes.
+export function showStatusChangeModal({ title, message, options, value, submitLabel = "Apply", previewLabel, defaultCommitMessage }) {
+    return new Promise((resolve) => {
+      const modal = createThemedModal({ title, message, submitLabel });
+      const body = modal.querySelector(".viewer-themed-modal__body");
+      const select = document.createElement("select");
+      select.className = "viewer-themed-modal__select";
+      for (const option of options) {
+        const element = document.createElement("option");
+        element.value = option;
+        element.textContent = option;
+        select.appendChild(element);
+      }
+      select.value = value && options.includes(value) ? value : (options[0] || "");
+
+      const preview = document.createElement("p");
+      preview.className = "viewer-status-confirm__preview";
+
+      const commitRow = document.createElement("label");
+      commitRow.className = "viewer-status-confirm__commit-row";
+      const commitCheckbox = document.createElement("input");
+      commitCheckbox.type = "checkbox";
+      commitCheckbox.checked = true;
+      const commitText = document.createElement("span");
+      commitText.textContent = "Commit this change";
+      commitRow.append(commitCheckbox, commitText);
+
+      const commitMessage = document.createElement("textarea");
+      commitMessage.className = "viewer-themed-modal__input viewer-status-confirm__message";
+      commitMessage.rows = 2;
+      let messageDirty = false;
+      commitMessage.addEventListener("input", () => {
+        messageDirty = true;
+      });
+
+      const refresh = () => {
+        preview.textContent = `${previewLabel ? `${previewLabel}: ` : ""}${value || "(none)"} → ${select.value}`;
+        if (!messageDirty && typeof defaultCommitMessage === "function") {
+          commitMessage.value = defaultCommitMessage(select.value);
+        }
+        commitMessage.hidden = !commitCheckbox.checked;
+      };
+      select.addEventListener("change", refresh);
+      commitCheckbox.addEventListener("change", refresh);
+      refresh();
+
+      body?.append(select, preview, commitRow, commitMessage);
+
+      const done = (result) => {
+        closeThemedModal(modal);
+        resolve(result);
+      };
+      modal.querySelector(".viewer-themed-modal__submit")?.addEventListener("click", () => done({
+        status: select.value,
+        commit: commitCheckbox.checked,
+        message: commitMessage.value.trim()
+      }));
+      modal.querySelector(".viewer-themed-modal__cancel")?.addEventListener("click", () => done(null));
+      modal.querySelector(".viewer-themed-modal__close")?.addEventListener("click", () => done(null));
+      // No Enter-to-submit here: a textarea for the commit message is one of this
+      // modal's controls, and Enter in it has to stay a newline.
+      modal.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") done(null);
+      });
+      window.setTimeout(() => {
+        select.focus();
+      }, 0);
+    });
+  }
+
 export function showThemedConfirmModal({ title, message, submitLabel = "Confirm", cancelLabel = "Cancel" }) {
     return new Promise((resolve) => {
       const modal = createThemedModal({ title, message, submitLabel, cancelLabel });

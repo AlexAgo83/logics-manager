@@ -1,13 +1,15 @@
 ## task_385_orchestrate_the_status_confirm_and_commit_work - Orchestrate the status-confirm-and-commit work
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Owner: claude
+> Indicators reviewed: 2026-08-15 18:40:09
 
 # AI Context
 - Summary: Sequences the status-confirm-and-commit work: state the change before it lands, then offer to commit it.

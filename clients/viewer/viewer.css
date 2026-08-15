@@ -4444,6 +4444,24 @@
   resize: vertical;
 }
 
+.viewer-status-confirm__preview {
+  margin: 4px 0 8px;
+  color: var(--vscode-descriptionForeground, #999999);
+}
+
+.viewer-status-confirm__commit-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+
+.viewer-status-confirm__message {
+  min-height: 56px;
+  resize: vertical;
+}
+
 .viewer-git-commit__error {
   color: var(--vscode-errorForeground, #f85149);
   font-size: 12px;

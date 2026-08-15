@@ -2800,6 +2800,66 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       }, 0);
     });
   }
+  function showStatusChangeModal({ title, message, options, value, submitLabel = "Apply", previewLabel, defaultCommitMessage }) {
+    return new Promise((resolve) => {
+      const modal = createThemedModal({ title, message, submitLabel });
+      const body = modal.querySelector(".viewer-themed-modal__body");
+      const select = document.createElement("select");
+      select.className = "viewer-themed-modal__select";
+      for (const option of options) {
+        const element = document.createElement("option");
+        element.value = option;
+        element.textContent = option;
+        select.appendChild(element);
+      }
+      select.value = value && options.includes(value) ? value : options[0] || "";
+      const preview = document.createElement("p");
+      preview.className = "viewer-status-confirm__preview";
+      const commitRow = document.createElement("label");
+      commitRow.className = "viewer-status-confirm__commit-row";
+      const commitCheckbox = document.createElement("input");
+      commitCheckbox.type = "checkbox";
+      commitCheckbox.checked = true;
+      const commitText = document.createElement("span");
+      commitText.textContent = "Commit this change";
+      commitRow.append(commitCheckbox, commitText);
+      const commitMessage = document.createElement("textarea");
+      commitMessage.className = "viewer-themed-modal__input viewer-status-confirm__message";
+      commitMessage.rows = 2;
+      let messageDirty = false;
+      commitMessage.addEventListener("input", () => {
+        messageDirty = true;
+      });
+      const refresh = () => {
+        preview.textContent = `${previewLabel ? `${previewLabel}: ` : ""}${value || "(none)"} \u2192 ${select.value}`;
+        if (!messageDirty && typeof defaultCommitMessage === "function") {
+          commitMessage.value = defaultCommitMessage(select.value);
+        }
+        commitMessage.hidden = !commitCheckbox.checked;
+      };
+      select.addEventListener("change", refresh);
+      commitCheckbox.addEventListener("change", refresh);
+      refresh();
+      body?.append(select, preview, commitRow, commitMessage);
+      const done = (result) => {
+        closeThemedModal(modal);
+        resolve(result);
+      };
+      modal.querySelector(".viewer-themed-modal__submit")?.addEventListener("click", () => done({
+        status: select.value,
+        commit: commitCheckbox.checked,
+        message: commitMessage.value.trim()
+      }));
+      modal.querySelector(".viewer-themed-modal__cancel")?.addEventListener("click", () => done(null));
+      modal.querySelector(".viewer-themed-modal__close")?.addEventListener("click", () => done(null));
+      modal.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") done(null);
+      });
+      window.setTimeout(() => {
+        select.focus();
+      }, 0);
+    });
+  }
   function showThemedConfirmModal({ title, message, submitLabel = "Confirm", cancelLabel = "Cancel" }) {
     return new Promise((resolve) => {
       const modal = createThemedModal({ title, message, submitLabel, cancelLabel });
@@ -8550,7 +8610,8 @@ ${line}` : line;
       choice: showThemedChoiceModal,
       message: showThemedMessageModal,
       confirm: showThemedConfirmModal,
-      requestDraft: showRequestDraftModal
+      requestDraft: showRequestDraftModal,
+      statusChange: showStatusChangeModal
     };
     window.addEventListener("DOMContentLoaded", () => {
       const pairButton = document.getElementById("viewer-lan-banner-pair");
@@ -11489,23 +11550,26 @@ ${line}` : line;
         return;
       }
       const currentStatus = String(item?.indicators?.Status || item?.status || "").trim();
-      const requested = await showThemedChoiceModal({
+      const label = item.id || item.relPath;
+      const requested = await showStatusChangeModal({
         title: "Change status",
-        message: currentStatus ? `${item.id || item.relPath} is currently ${currentStatus}.` : `Choose a status for ${item.id || item.relPath}.`,
+        message: currentStatus ? `${label} is currently ${currentStatus}.` : `Choose a status for ${label}.`,
         options,
         value: currentStatus || options[0],
-        submitLabel: "Update status"
+        previewLabel: label,
+        submitLabel: "Update status",
+        defaultCommitMessage: (status) => `${label}: status -> ${status}`
       });
       if (requested === null) {
         return;
       }
-      const normalized = options.find((status) => status.toLowerCase() === requested.trim().toLowerCase());
+      const normalized = options.find((status) => status.toLowerCase() === requested.status.trim().toLowerCase());
       if (!normalized) {
         setMeta(`Unsupported status. Allowed: ${options.join(", ")}.`);
         return;
       }
       if (normalized === currentStatus) {
-        setMeta(`${item.id || item.relPath} is already ${normalized}.`);
+        setMeta(`${label} is already ${normalized}.`);
         return;
       }
       const response = await viewerFetch("/api/update-status", {
@@ -11518,8 +11582,30 @@ ${line}` : line;
         throw new Error(data.error || "Unable to update status.");
       }
       await loadItems("POST", { force: true });
-      await showDocumentByPath(data.payload?.path || item.relPath);
-      setMeta(data.payload?.changed === false ? `${item.id || item.relPath} was already ${normalized}.` : `Updated ${item.id || item.relPath} to ${normalized}.`);
+      const changedPath = data.payload?.path || item.relPath;
+      await showDocumentByPath(changedPath);
+      const wasNoOp = data.payload?.changed === false;
+      const applied = wasNoOp ? `${label} was already ${normalized}.` : `Updated ${label} to ${normalized}.`;
+      if (!requested.commit || wasNoOp) {
+        setMeta(applied);
+        return;
+      }
+      try {
+        const commitMessage = requested.message || `${label}: status -> ${normalized}`;
+        const commitResponse = await fetch("/api/git-commit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ files: [changedPath], message: commitMessage })
+        });
+        const commitData = await commitResponse.json();
+        if (!commitResponse.ok || !commitData.ok) {
+          throw new Error(commitData.error || commitData.payload?.message || "Git commit failed.");
+        }
+        recordGitActivity("Commit", `Created commit ${commitData.payload?.shortHash || ""}`.trim());
+        setMeta(`${applied} Committed${commitData.payload?.shortHash ? `: ${commitData.payload.shortHash}` : "."}`);
+      } catch (err) {
+        setMeta(`${applied} Commit failed: ${err?.message || "unknown error"}.`);
+      }
     }
     async function showHealth(options = {}) {
       if (!options.view) showKeptAnswerOrLoading("Validation health", "the corpus lint, audit and workflow health reports");

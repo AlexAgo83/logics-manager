@@ -1,0 +1,408 @@
+{
+  "budgets": {
+    "max_docs": 40,
+    "max_docs_per_ref": 8
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_376_make_the_chatgpt_mcp_connector_plug_and_play item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts item_848_give_the_connector_a_chatgpt_native_oauth_front_door item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector --mode full --profile deep --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts",
+          "item_848_give_the_connector_a_chatgpt_native_oauth_front_door",
+          "item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive"
+        ],
+        "prod": [
+          "prod_107_a_connector_configured_once_then_just_on_off"
+        ],
+        "req": [
+          "req_376_make_the_chatgpt_mcp_connector_plug_and_play"
+        ],
+        "task": [
+          "task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector"
+        ]
+      },
+      "path": "logics/product/prod_107_a_connector_configured_once_then_just_on_off.md",
+      "ref": "prod_107_a_connector_configured_once_then_just_on_off",
+      "sections": {
+        "Goals": [
+          "- One-time ChatGPT configuration that survives every future stop/start.",
+          "- A ChatGPT-native authentication flow, not a no-auth workaround.",
+          "- Viewer controls that reflect and drive real connector state without a manual refresh."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "The ChatGPT MCP connector already works once it starts, but every restart forces a full reconfiguration in ChatGPT, and ChatGPT's own setup screen has no simple slot for the bearer auth this tool uses. This makes the connector durable across restarts, gives it a real OAuth front door ChatGPT's screen actually supports, and makes the viewer's own controls (the toggle, the detail screen) tell the truth about what is running."
+        ],
+        "References": [
+          "- Product back-reference: `req_376_make_the_chatgpt_mcp_connector_plug_and_play`",
+          "- Task back-reference: `task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "A connector configured once, then just ON/OFF"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "chatgpt, mcp, connector, plug, play",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts",
+          "item_848_give_the_connector_a_chatgpt_native_oauth_front_door",
+          "item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive"
+        ],
+        "prod": [
+          "prod_107_a_connector_configured_once_then_just_on_off"
+        ],
+        "req": [
+          "req_376_make_the_chatgpt_mcp_connector_plug_and_play"
+        ]
+      },
+      "path": "logics/request/req_376_make_the_chatgpt_mcp_connector_plug_and_play.md",
+      "ref": "req_376_make_the_chatgpt_mcp_connector_plug_and_play",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- Stopping and starting the connector any number of times keeps the same public URL and the same bearer token, so a ChatGPT connector configured once keeps working without edits.",
+          "- The persisted bearer token lives outside version control, with file permissions restricted to the operator, and can be rotated on demand without editing any file by hand.",
+          "- The connector's HTTP server exposes an OAuth 2.0 authorization-code + PKCE flow (metadata discovery, dynamic client registration, authorize, token) that ChatGPT's own connector-creation screen can complete end to end, granting the same access the bearer token grants today -- with no client secret and no login screen beyond an explicit local approval.",
+          "- The 401 a request without credentials receives points at the new OAuth metadata endpoint, so ChatGPT's connector screen auto-detects the flow instead of showing placeholder OAuth fields.",
+          "- The Settings screen's Connector toggle reflects the connector's real running state on load and after every toggle, and toggling it on or off actually starts or stops the connector.",
+          "- The connector detail screen (Settings / ChatGPT Developer Mode) updates itself without a manual click while it is open and the connector is running but not yet ready, stopping once the URL/token appear or the connector reports an error."
+        ],
+        "Needs": [
+          "- As an operator, I need the connector's public URL and bearer token to stay the same across stop/start cycles, so I configure ChatGPT once and never re-paste anything afterward.",
+          "- As an operator, I need ChatGPT's own connector-creation screen to accept this connector cleanly through the authentication method it actually offers (OAuth), rather than falling back to no authentication at all.",
+          "- As an operator, I need the Settings screen's Connector toggle to actually reflect and control whether the connector is running.",
+          "- As an operator watching the connector detail screen while it starts, I need it to update on its own once the tunnel is ready, without a manual refresh click."
+        ]
+      },
+      "status": "Draft",
+      "title": "Make the ChatGPT MCP connector plug-and-play"
+    },
+    {
+      "ai_context": {
+        "keywords": "tunnel, url, bearer, token, durable, across, restarts",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts"
+        ],
+        "prod": [
+          "prod_107_a_connector_configured_once_then_just_on_off"
+        ],
+        "req": [
+          "req_376_make_the_chatgpt_mcp_connector_plug_and_play"
+        ],
+        "task": [
+          "task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector"
+        ]
+      },
+      "path": "logics/backlog/item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts.md",
+      "ref": "item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- Two consecutive launch_tunnel calls against the same repository produce the same localtunnel subdomain and the same bearer token.",
+          "- The persisted token file is listed in .gitignore and created with owner-only read/write permissions.",
+          "- Deleting the persisted token file (or passing an explicit rotate option) causes the next launch to generate and persist a new token, and the old token no longer authenticates."
+        ],
+        "Problem": [
+          "- launch_tunnel picks a random localtunnel subdomain every launch and generates a fresh secrets.token_urlsafe(32) every launch, so every stop/start cycle invalidates whatever the operator already gave ChatGPT."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make the tunnel URL and bearer token durable across restarts"
+    },
+    {
+      "ai_context": {
+        "keywords": "connector, chatgpt, native, oauth, front, door",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_848_give_the_connector_a_chatgpt_native_oauth_front_door"
+        ],
+        "prod": [
+          "prod_107_a_connector_configured_once_then_just_on_off"
+        ],
+        "req": [
+          "req_376_make_the_chatgpt_mcp_connector_plug_and_play"
+        ],
+        "task": [
+          "task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector"
+        ]
+      },
+      "path": "logics/backlog/item_848_give_the_connector_a_chatgpt_native_oauth_front_door.md",
+      "ref": "item_848_give_the_connector_a_chatgpt_native_oauth_front_door",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- A client that discovers metadata, registers, completes /authorize with PKCE, and exchanges the code at /token receives a token that successfully calls /mcp.",
+          "- An /authorize request with a mismatched redirect_uri or an invalid client_id is refused rather than issuing a code.",
+          "- A /token request with the wrong code_verifier is refused.",
+          "- The existing static bearer token (LOGICS_MCP_BEARER_TOKEN / --bearer-token) still gates /mcp exactly as before; the two auth paths coexist."
+        ],
+        "Problem": [
+          "- ChatGPT's connector-creation screen only offers OAuth (or a Mixte option that also only exposes OAuth fields) or no authentication at all in the flow an operator actually goes through -- the existing static bearer token has no field to land in there, forcing a no-auth workaround to get a working connector."
+        ]
+      },
+      "status": "Ready",
+      "title": "Give the connector a ChatGPT-native OAuth front door"
+    },
+    {
+      "ai_context": {
+        "keywords": "fix, settings, connector, toggle, screen, reactive",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive"
+        ],
+        "prod": [
+          "prod_107_a_connector_configured_once_then_just_on_off"
+        ],
+        "req": [
+          "req_376_make_the_chatgpt_mcp_connector_plug_and_play"
+        ],
+        "task": [
+          "task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector"
+        ]
+      },
+      "path": "logics/backlog/item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive.md",
+      "ref": "item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- Settings renders the Connector toggle as checked/\"On\" when the connector is actually running, and unchecked/\"Off\" when it is not.",
+          "- Toggling the Connector switch starts or stops the connector and the switch reflects the outcome without a page reload.",
+          "- Opening the connector detail screen while the connector is running but not yet ready shows the URL and token once they become available, with no manual refresh click, and stops polling once ready/stopped/errored."
+        ],
+        "Problem": [
+          "- Settings' Connector toggle reads a `state` field from /api/mcp-connector's response, but that endpoint returns `running`, not `state` -- the toggle's checked attribute is always computed from an undefined value, so it always shows unchecked/\"unknown\" regardless of whether the connector is actually running, reported directly by an operator as \"doesn't seem to do anything\".",
+          "- The connector detail screen already reads the right fields and renders correctly once fetched, but only ever fetches once per visit -- an operator watching it while the tunnel establishes has to click 'Refresh status' manually to see it finish, confirmed directly this session."
+        ]
+      },
+      "status": "Ready",
+      "title": "Fix the Settings Connector toggle and make the connector screen reactive"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts",
+          "item_848_give_the_connector_a_chatgpt_native_oauth_front_door",
+          "item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive"
+        ],
+        "prod": [
+          "prod_107_a_connector_configured_once_then_just_on_off"
+        ],
+        "req": [
+          "req_376_make_the_chatgpt_mcp_connector_plug_and_play"
+        ],
+        "task": [
+          "task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector"
+        ]
+      },
+      "path": "logics/product/prod_107_a_connector_configured_once_then_just_on_off.md",
+      "ref": "prod_107_a_connector_configured_once_then_just_on_off",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "A connector configured once, then just ON/OFF"
+    },
+    {
+      "ai_context": {
+        "keywords": "deliver, durable, chatgpt, native, reactive, mcp, connector",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts",
+          "item_848_give_the_connector_a_chatgpt_native_oauth_front_door",
+          "item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive"
+        ],
+        "prod": [
+          "prod_107_a_connector_configured_once_then_just_on_off"
+        ],
+        "req": [
+          "req_376_make_the_chatgpt_mcp_connector_plug_and_play"
+        ],
+        "task": [
+          "task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector"
+        ]
+      },
+      "path": "logics/tasks/task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector.md",
+      "ref": "task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Deliver a durable, ChatGPT-native, reactive MCP connector"
+    }
+  ],
+  "estimates": {
+    "char_count": 12097,
+    "companion_doc_count": 1,
+    "doc_count": 6
+  },
+  "generated_at": "2026-08-15T21:03:16Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_376_make_the_chatgpt_mcp_connector_plug_and_play",
+      "item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts",
+      "item_848_give_the_connector_a_chatgpt_native_oauth_front_door",
+      "item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive",
+      "task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "deep",
+  "ref": "req_376_make_the_chatgpt_mcp_connector_plug_and_play,item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts,item_848_give_the_connector_a_chatgpt_native_oauth_front_door,item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive,task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector",
+  "refs": [
+    "req_376_make_the_chatgpt_mcp_connector_plug_and_play",
+    "item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts",
+    "item_848_give_the_connector_a_chatgpt_native_oauth_front_door",
+    "item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive",
+    "task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different version",
+      "changelog: evidence targets a different version",
+      "local_validation: evidence targets a different version",
+      "git_push: evidence targets a different version",
+      "ci: evidence targets a different version",
+      "github_release: evidence targets a different version",
+      "issue_closure: evidence targets a different version"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different version",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "stale"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.22.0"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector.md",
+      "ref": "task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector"
+    }
+  ]
+}

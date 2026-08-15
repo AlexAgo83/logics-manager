@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: One answer, read by everything
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 15:59:34
+> Indicators reviewed: 2026-08-15 16:29:33
 
 # AI Context
 - Summary: One function answers whether a viewer is running for a repository and at what address; four surfaces read it instead of deriving it four times.
@@ -50,5 +50,5 @@
 - Primary task(s): `task_382_orchestrate_the_link_travels_with_the_document_work`
 
 # Priority
-- Priority: High - four surfaces deriving it separately is how they disagree
-- Rationale: Set by scaffold input or defaulted for grooming.
+- Priority: High
+- Rationale: Four surfaces deriving it separately is how they disagree

@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: Measured the way an operator experiences it
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:21:53
+> Indicators reviewed: 2026-08-15 16:29:35
 
 # AI Context
 - Summary: Re-measure per component the way the 3.1s baseline was taken, and write the breakdown where the lifetimes are set.
@@ -49,5 +49,5 @@
 - Primary task(s): `task_384_orchestrate_the_auto_refresh_cost_work`
 
 # Priority
-- Priority: Medium - the first pass at this kind of work got its numbers from the wrong place twice
-- Rationale: Set by scaffold input or defaulted for grooming.
+- Priority: Medium
+- Rationale: The first pass at this kind of work got its numbers from the wrong place twice

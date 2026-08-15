@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Drift is reported, not remembered
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:05:08
+> Indicators reviewed: 2026-08-15 16:29:34
 
 # AI Context
 - Summary: Three questions answered in one report: issues with no request, Done requests whose issues are open, closed issues whose request is open.
@@ -29,6 +29,7 @@
   - Mirroring issue content into the corpus.
   - Acting on the drift: this reports it.
   - Reconciling anything but issues -- not pull requests, not discussions.
+  - Joining the auto-refresh poll. This is asked for, not polled: req_373 measured that tick at about 3.1s every 15s and exists to bring it down, and a reconciliation on it would add a GitHub call per tick for an answer that changes on the scale of a delivery.
 
 # Acceptance criteria
 - AC1: The report names each of the three disagreements separately, with the issue numbers and the Logics refs involved.
@@ -50,5 +51,5 @@
 - Primary task(s): `task_383_orchestrate_the_issue_bridge_work`
 
 # Priority
-- Priority: High - it makes the drift visible instead of requiring discipline
-- Rationale: Set by scaffold input or defaulted for grooming.
+- Priority: High
+- Rationale: It makes the drift visible instead of requiring discipline

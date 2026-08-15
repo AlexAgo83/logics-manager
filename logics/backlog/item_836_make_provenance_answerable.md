@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: Provenance is data
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:05:08
+> Indicators reviewed: 2026-08-15 16:29:34
 
 # AI Context
 - Summary: One reader for which issues a request names and which requests cover an issue, so the report and the closeout notice do not each parse the section.
@@ -49,4 +49,4 @@
 
 # Priority
 - Priority: Medium
-- Rationale: Set by scaffold input or defaulted for grooming.
+- Rationale: Two later slices read this answer, and each deriving it separately is how they drift -- but nothing is visible until one of them exists.

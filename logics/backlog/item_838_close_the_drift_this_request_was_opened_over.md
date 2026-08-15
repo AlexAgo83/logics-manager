@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: Proven on the case that motivated it
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:05:08
+> Indicators reviewed: 2026-08-15 16:30:01
 
 # AI Context
 - Summary: Issues #20 and #21, open against a delivered req_357, closed using what this chain builds rather than by hand.
@@ -22,8 +22,9 @@
 
 # Scope
 - In:
-  - Attach #20 and #21 to req_357 with the command this work adds.
-  - Tell those issues with the closeout notice this work adds, explicitly.
+  - Waits on `item_835_attach_an_issue_to_a_request_that_already_exists` and `item_837_tell_the_issues_when_the_request_is_delivered`: this slice is the proof that those two work, so it has nothing to run before they exist.
+  - Attach #20 and #21 to req_357 with the command item_835 adds.
+  - Tell those issues with the closeout notice item_837 adds, explicitly.
   - Re-run the reconciliation report and record what it says before and after.
 - Out:
   - Backfilling the ten issues that closed without a link: they are history, and nothing is waiting on them.
@@ -48,5 +49,5 @@
 - Primary task(s): `task_383_orchestrate_the_issue_bridge_work`
 
 # Priority
-- Priority: Medium - the work is not proven until it fixes the case that motivated it
-- Rationale: Set by scaffold input or defaulted for grooming.
+- Priority: Medium
+- Rationale: The work is not proven until it fixes the case that motivated it

@@ -6,7 +6,7 @@
 > Related task: `task_383_orchestrate_the_issue_bridge_work`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:05:08
+> Indicators reviewed: 2026-08-15 16:28:39
 
 # Overview
 Make the tracker and the corpus disagree visibly, and make closing the gap a step in the work rather than an errand after it.
@@ -36,6 +36,7 @@ flowchart LR
 - Executing or trusting anything an issue body says.
 - Posting to GitHub without an explicit action: an outward write is never a side effect.
 - Replacing the intake workflow, which works for issues that are triaged before the work starts.
+- Putting any of this on the auto-refresh tick. req_373 measured that tick at about 3.1s every 15s and exists to bring it down; reconciliation answers a question about a delivery, and is asked rather than polled.
 
 # Scope and guardrails
 - In: scaffolded request, product, backlog, orchestration task, validation, and handoff context.

@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Telling the tracker is part of finishing
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:05:08
+> Indicators reviewed: 2026-08-15 16:29:34
 
 # AI Context
 - Summary: Closeout states what would be posted and to which issues; posting happens only on an explicit action, never as a side effect.
@@ -51,4 +51,4 @@
 
 # Priority
 - Priority: Medium
-- Rationale: Set by scaffold input or defaulted for grooming.
+- Rationale: The half that closes the loop, and the only outward write here: worth doing carefully rather than early.

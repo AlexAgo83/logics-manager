@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Cheap enough to ask often
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:21:52
+> Indicators reviewed: 2026-08-15 16:29:35
 
 # AI Context
 - Summary: A 304 on /api/items costs 0.156s because the 6.17 MB payload is rebuilt and hashed to discover nothing changed; corpus_signature answers that in 6ms.
@@ -51,4 +51,4 @@
 
 # Priority
 - Priority: Medium
-- Rationale: Set by scaffold input or defaulted for grooming.
+- Rationale: 5% of the measured tick against 74% for item_839, so it follows it -- and it is the slice that makes a file watcher unnecessary.

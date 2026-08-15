@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: The link arrives as data
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 15:59:35
+> Indicators reviewed: 2026-08-15 16:29:34
 
 # AI Context
 - Summary: `flow show` and the listing commands print where to open what they printed, for assistants that shell out instead of calling a tool.
@@ -49,5 +49,5 @@
 - Primary task(s): `task_382_orchestrate_the_link_travels_with_the_document_work`
 
 # Priority
-- Priority: Medium - most coding agents shell out rather than speak MCP
-- Rationale: Set by scaffold input or defaulted for grooming.
+- Priority: Medium
+- Rationale: Most coding agents shell out rather than speak MCP

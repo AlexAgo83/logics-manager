@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: Paying before being asked
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:21:52
+> Indicators reviewed: 2026-08-15 16:29:35
 
 # AI Context
 - Summary: The first /api/status after a start costs 9.07s on the request path; req_366's warm-up already exists and does not cover the badges.
@@ -49,5 +49,5 @@
 - Primary task(s): `task_384_orchestrate_the_auto_refresh_cost_work`
 
 # Priority
-- Priority: Medium - nine seconds, once, exactly where the operator is watching
-- Rationale: Set by scaffold input or defaulted for grooming.
+- Priority: Medium
+- Rationale: Nine seconds, once, exactly where the operator is watching

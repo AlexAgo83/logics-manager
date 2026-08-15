@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: For the documents nobody fetched
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 15:59:35
+> Indicators reviewed: 2026-08-15 16:29:34
 
 # AI Context
 - Summary: The convention in words, for the case the payloads cannot cover: a document named rather than fetched.
@@ -49,4 +49,4 @@
 
 # Priority
 - Priority: Medium
-- Rationale: Set by scaffold input or defaulted for grooming.
+- Rationale: Weakest of the four surfaces and the only one that covers a document named rather than fetched; three lines, and useless before the other three land.

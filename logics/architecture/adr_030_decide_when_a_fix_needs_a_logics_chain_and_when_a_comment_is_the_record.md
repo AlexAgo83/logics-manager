@@ -1,6 +1,6 @@
 ## adr_030_decide_when_a_fix_needs_a_logics_chain_and_when_a_comment_is_the_record - Decide when a fix needs a Logics chain and when a comment is the record
 > Date: 2026-08-15
-> Status: Accepted
+> Status: Settled
 > Related request: (none yet)
 > Related backlog: (none yet)
 > Related task: (none yet)

@@ -1,7 +1,7 @@
 ## item_835_attach_an_issue_to_a_request_that_already_exists - Attach an issue to a request that already exists
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 95%
 > Progress: 100%

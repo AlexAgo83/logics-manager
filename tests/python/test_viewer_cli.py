@@ -1645,6 +1645,24 @@ def test_viewer_cdx_update_info_payload_reports_available_update(tmp_path: Path)
     }
 
 
+def test_viewer_cdx_update_info_payload_caches_a_failed_check(tmp_path: Path) -> None:
+    """item_841. A failing `cdx update --check` was not cached at all, so every payload
+    build (roughly once per poll) re-spawned it. A failure must still be remembered,
+    just for a much shorter window than a success."""
+    calls: list[str] = []
+
+    def failing_runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append("call")
+        return subprocess.CompletedProcess(args, 1, "", "network unreachable")
+
+    which = lambda _name: "/usr/bin/cdx"
+
+    assert cdx_update_info_payload(tmp_path, runner=failing_runner, which=which) == {}
+    # Served from the failure cache: the check is not repeated within the window.
+    assert cdx_update_info_payload(tmp_path, runner=failing_runner, which=which) == {}
+    assert calls == ["call"]
+
+
 def test_viewer_cdx_update_banner_ends_when_the_tool_is_updated(tmp_path: Path) -> None:
     """item_743. The banner recommends `cdx update`; the operator runs it; the banner
     kept recommending it for up to 24 hours because the cache expired on time alone and

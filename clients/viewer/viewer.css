@@ -7027,7 +7027,8 @@
   content: "";
   position: absolute;
   left: 0;
-  width: 22%;
+  /* Operator's call: half again as slow, with a trail twice as long. */
+  width: 44%;
   height: 2px;
   background: linear-gradient(
     90deg,
@@ -7060,11 +7061,11 @@
    itself an animation is running from page load, which is the defect that made the first
    version look frozen. */
 .viewer-document__header[data-loading] .viewer-document__ring::before {
-  animation: viewer-loading-ring-top 1.15s linear infinite;
+  animation: viewer-loading-ring-top 2s linear infinite;
 }
 
 .viewer-document__header[data-loading] .viewer-document__ring::after {
-  animation: viewer-loading-ring-bottom 1.15s linear infinite;
+  animation: viewer-loading-ring-bottom 2s linear infinite;
 }
 
 @keyframes viewer-loading-ring-top {

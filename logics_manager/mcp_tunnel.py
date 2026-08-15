@@ -207,6 +207,42 @@ def explain(reason: str, settings: Mapping[str, Any]) -> str:
 _REJECTED_KEY = re.compile(r"\b401\b|unauthoriz|invalid api key|forbidden", re.IGNORECASE)
 
 
+def readable_failure(tail: Iterable[str]) -> str:
+    """Say why the tunnel stopped, in the words a person can act on.
+
+    `tunnel-client` logs structured JSON, and its last lines are always shutdown
+    hooks -- so the naive "last line of output" reads as
+    `{"msg":"OnStop hook executed","callee":"...metrics.NewMeterProvider.func1()"}`
+    whatever actually happened. Its real failures come out either as a plain line
+    before the logger starts (`configure tunnel-client: parse config file ...`) or as
+    a levelled record. Prefer both over noise.
+    """
+    lines = [line.strip() for line in tail if line and line.strip()]
+    if not lines:
+        return ""
+    plain = [line for line in lines if not line.startswith("{")]
+    if plain:
+        return plain[-1]
+    for line in reversed(lines):
+        record = _parse_log_record(line)
+        if record and str(record.get("level", "")).upper() in {"ERROR", "FATAL", "PANIC"}:
+            message = str(record.get("msg") or "").strip()
+            detail = str(record.get("error") or "").strip()
+            return f"{message}: {detail}" if message and detail else message or detail or line
+    # Nothing levelled and nothing plain: the child was stopped rather than failed.
+    return ""
+
+
+def _parse_log_record(line: str) -> dict[str, Any] | None:
+    import json
+
+    try:
+        record = json.loads(line)
+    except ValueError:
+        return None
+    return record if isinstance(record, dict) else None
+
+
 def is_rejected_key(line: str) -> bool:
     return bool(_REJECTED_KEY.search(line))
 
@@ -256,11 +292,14 @@ def prerequisite_rows(
         },
         {
             "id": "api_key",
+            # The value is never rendered back: the row says configured, and offers
+            # replacing it -- a key that is set but wrong is the failure this whole
+            # path is most likely to hit, so replacing it must never require a terminal.
             "label": "Control-plane API key",
             "met": bool(settings.get("has_api_key")) and reason != REASON_API_KEY_REJECTED,
             "action": "save-key",
-            "action_label": "Save the key",
-            # The value is never rendered back: the row says configured, and offers replacing it.
+            "action_label": "Replace the key" if settings.get("has_api_key") else "Save the key",
+            "replaceable": bool(settings.get("has_api_key")),
             "detail": f"Stored owner-only in {settings.get('config_path', '')}. Never shown again.",
         },
         {
@@ -269,7 +308,7 @@ def prerequisite_rows(
             "met": profile_exists,
             "action": "open-console",
             "action_label": "Open the tunnel console",
-            "detail": TUNNEL_CONSOLE_URL,
+            "detail": "The tunnel ChatGPT holds. Created on OpenAI's site, never here." if profile_exists else TUNNEL_CONSOLE_URL,
             "url": TUNNEL_CONSOLE_URL,
         },
         {
@@ -278,7 +317,7 @@ def prerequisite_rows(
             "met": profile_exists,
             "action": "init-profile",
             "action_label": "Create the profile",
-            "detail": "Paste the tunnel ID from the console. It is written to the profile, never to this repository.",
+            "detail": "Holds the tunnel ID and the command it drives." if profile_exists else "Paste the tunnel ID from the console. It is written to the profile, never to this repository.",
         },
         {
             "id": "plugin",

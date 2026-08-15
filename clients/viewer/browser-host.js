@@ -11127,6 +11127,9 @@ ${line}` : line;
       const state = row.met ? "met" : row.actionable ? "next" : "waiting";
       const mark = row.met ? "\u2713" : row.actionable ? "\u2192" : "\xB7";
       let control = "";
+      if (row.met && row.replaceable) {
+        control = `<label class="viewer-settings-field"><span>Replace the key</span><input type="password" data-viewer-mcp-api-key autocomplete="off" /></label><button class="btn viewer-settings-quiet" type="button" data-viewer-mcp-action="save-key">${escapeHtml(row.action_label)}</button>`;
+      }
       if (!row.met && row.actionable) {
         if (row.id === "api_key") {
           control = '<label class="viewer-settings-field"><span>Control-plane API key</span><input type="password" data-viewer-mcp-api-key autocomplete="off" /></label>';

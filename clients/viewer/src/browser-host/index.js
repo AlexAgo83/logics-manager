@@ -3223,6 +3223,11 @@ import {
     const state = row.met ? "met" : row.actionable ? "next" : "waiting";
     const mark = row.met ? "✓" : row.actionable ? "→" : "·";
     let control = "";
+    // A key that is set but wrong is the likeliest failure on this path, so a met key
+    // row still offers replacing it -- otherwise the only way out is a terminal.
+    if (row.met && row.replaceable) {
+      control = `<label class="viewer-settings-field"><span>Replace the key</span><input type="password" data-viewer-mcp-api-key autocomplete="off" /></label><button class="btn viewer-settings-quiet" type="button" data-viewer-mcp-action="save-key">${escapeHtml(row.action_label)}</button>`;
+    }
     if (!row.met && row.actionable) {
       if (row.id === "api_key") {
         control = '<label class="viewer-settings-field"><span>Control-plane API key</span><input type="password" data-viewer-mcp-api-key autocomplete="off" /></label>';

@@ -1,12 +1,12 @@
 ## req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door - Expose the MCP surface to hosted web clients through a public HTTPS door
 > From version: 2.22.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Archived
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High
 > Theme: MCP transport and authentication
-> Indicators reviewed: 2026-08-16 00:56:34
+> Indicators reviewed: 2026-08-16 00:57:53
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
 
 # AI Context
@@ -62,4 +62,4 @@
 - Approval: required before implementation starts.
 
 # Notes
-- 2026-08-16: parked indefinitely, not pending. adr_031 routes every client class we actually have -- ChatGPT over the Secure MCP Tunnel, local clients over stdio -- so this request serves no client today, and the operator confirmed it is not planned for a long while. It stays Draft as the record of a decision: the research it inherited from item_847 and item_848 is written down, and promoting it to Ready is all it takes if a hosted web client other than ChatGPT ever needs this corpus. Until then, nothing here is owed -- item_852 stopped the audit from reporting a parked Draft as a defect, which is what made keeping it honest possible.
+- 2026-08-16: Archived, which here means parked rather than dead. Archived is the only status this workflow has for a document that is decided and out of the active board, and the operator does not want it read as work in flight; the request itself is intact and un-archiving it is one command. adr_031 routes every client class we actually have -- ChatGPT over the Secure MCP Tunnel, local clients over stdio -- so this request serves no client today, and the operator confirmed it is not planned for a long while. It stays Draft as the record of a decision: the research it inherited from item_847 and item_848 is written down, and promoting it to Ready is all it takes if a hosted web client other than ChatGPT ever needs this corpus. Until then, nothing here is owed -- item_852 stopped the audit from reporting a parked Draft as a defect, which is what made keeping it honest possible.

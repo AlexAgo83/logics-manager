@@ -1,11 +1,12 @@
 ## prod_106_an_editor_that_stays_in_the_browser_it_is_already_in - An editor that stays in the browser it is already in
 > Date: 2026-08-15
-> Status: Proposed
+> Status: Settled
 > Related request: `req_375_edit_documents_in_the_browser_viewer`
-> Related backlog: `item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged`, `item_846_offer_to_commit_a_save_the_way_a_status_change_already_does`
+> Related backlog: `item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged`
 > Related task: `task_386_orchestrate_the_in_browser_document_editor_work`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-15 19:07:28
 
 # Overview
 The standalone browser viewer currently hands editing off to a system editor; give it its own editor screen instead, and let VS Code keep doing what it already does best.
@@ -47,5 +48,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_375_edit_documents_in_the_browser_viewer`
+- Product back-reference: `item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged`
 - Task back-reference: `task_386_orchestrate_the_in_browser_document_editor_work`

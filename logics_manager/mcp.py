@@ -28,7 +28,7 @@ from .doctor import doctor_payload
 from .flow import flow_list_payload, roadmap_validate_payload, validate_closeout_payload
 from .insights import followups_payload, health_payload, product_consistency_payload, status_payload
 from .lint import expected_workflow_mermaid_signature, lint_payload
-from .mcp_request import update_created_request
+from .mcp_request import attach_issue, update_created_request
 from .mcp_tool_definitions import TOOL_DEFINITIONS
 from .path_utils import PathEscapesRoot, has_symlink_segment, relative_to_root
 from .release import release_plan_payload, release_status_payload
@@ -128,6 +128,7 @@ TOOL_CAPABILITIES: dict[str, str] = {
     "deliver_from_product": MUTATING,
     "repair_gates": MUTATING,
     "repair_links": MUTATING,
+    "attach_github_issue": MUTATING,
     # destructive: removes a document, or restructures the corpus around it
     "delete_logics_file": DESTRUCTIVE,
     "rename_logics_file": DESTRUCTIVE,
@@ -871,6 +872,21 @@ def _tool_append_report_entry(root: Path, args: dict[str, Any], name: str) -> di
         raise _mcp_mutation_error(exc) from exc
     return _workflow_write_result(root, payload, paths=[rel_path])
 
+def _tool_attach_github_issue(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    source = str(args.get("source") or "")
+    issue_url = str(args.get("issue_url") or "")
+    dry_run = bool(args.get("dry_run", False))
+    rel_path = _workflow_doc_path_for_source(root, source)
+    if not dry_run:
+        _ensure_no_dirty_conflict(root, [rel_path])
+    if dry_run:
+        return _dry_run_result(root, summary=f"Would attach {issue_url} to {rel_path}", paths=[rel_path], refs=[source])
+    try:
+        payload = attach_issue(root, rel_path, issue_url, actor=str(args.get("actor") or "") or None)
+    except ValueError as exc:
+        raise McpToolError("invalid_argument_value", str(exc), details={"argument": "issue_url"}) from exc
+    return _workflow_write_result(root, payload, paths=[rel_path])
+
 def _tool_split_request(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     rel_path = _relative_path(root, str(args.get("request_path") or ""), ("logics/request",))
     titles = _nonempty_titles(args.get("titles"))
@@ -1343,6 +1359,7 @@ _TOOL_HANDLERS: dict[str, Any] = {
     "repair_links": _tool_repair_links,
     "get_logics_doctor": _tool_get_logics_doctor,
     "create_request": _tool_create_request,
+    "attach_github_issue": _tool_attach_github_issue,
     "promote_request_to_backlog": _tool_promote_request_to_backlog,
     "promote_backlog_to_task": _tool_promote_backlog_to_task,
     "create_product_brief": _tool_create_product_brief,

@@ -104,6 +104,19 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
         ),
     },
     {
+        "name": "attach_github_issue",
+        "description": "Attach a GitHub issue to a Logics request that already exists, writing the same Provenance shape create_request produces.",
+        "inputSchema": _tool_schema(
+            {
+                "source": {"type": "string"},
+                "issue_url": {"type": "string"},
+                "actor": {"type": "string"},
+                "dry_run": {"type": "boolean"},
+            },
+            ["source", "issue_url"],
+        ),
+    },
+    {
         "name": "list_companion_docs",
         "description": "List Logics companion documents such as product briefs, roadmaps, architecture decisions, and runbooks.",
         "inputSchema": _tool_schema(

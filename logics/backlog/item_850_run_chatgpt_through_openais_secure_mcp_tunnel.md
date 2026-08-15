@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: ChatGPT developer-mode MCP operations
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-16 00:20:00
+> Indicators reviewed: 2026-08-16 01:15:00
 
 # AI Context
 - Summary: Replace the public-URL connector path for ChatGPT with OpenAI's Secure MCP Tunnel: `tunnel-client` runs locally, connects outbound, and drives `logics-manager mcp serve` -- no public URL, no bearer token in the loop, and a `tunnel_id` that never changes.
@@ -30,10 +30,11 @@
   - Creating the tunnel-client profile from the viewer too (`tunnel-client init`, with the `tunnel_id` the operator pastes and the MCP command derived from the open repository), not assuming a profile someone already made by hand. Every step between a fresh machine and a working connector belongs to the operator's flow: install the binary, create the profile, hold the key, run.
   - Surfacing a rejected key as such. `tunnel-client doctor` only checks that the variable is set; a wrong or unscoped key still passes it and fails later as a repeating 401 from the control plane. The connector must read that 401 and say the key is refused, rather than looking like it started.
   - Keeping the existing `mcp tunnel` (localtunnel) path working and reachable, since it stays the fallback for anything that is not ChatGPT.
+  - Tests that pass on a machine where `tunnel-client` is not installed: the binary is an optional external tool -- the same status `npx localtunnel` already has in `launch_tunnel` -- so the suite asserts on the command that would be built and on each missing-prerequisite branch, and never shells out to the real binary. CI on the fleet must not need a `brew install`.
   - Tests covering: the tunnel-client command built from configuration, each of the three missing-prerequisite cases reporting its own cause, and the connector's running state reflecting the child process.
 - Out:
   - Installing `tunnel-client` without the operator's confirmation, and vendoring it into this repository.
-  - Making `tunnel-client` a hard dependency of logics-manager: it serves one transport out of three, and clients that speak stdio must never be made to install it.
+  - Making `tunnel-client` a hard dependency of logics-manager at any level -- packaging (it is a Go binary, not a Python package), runtime (the tool works fully without it), or test (see above). It serves one transport out of three, and clients that speak stdio must never be made to install it.
   - Writing our own downloader (architecture detection, signature verification, PATH placement, updates): that is what the Homebrew tap already owns.
   - Any change to which tools exist. Which capability profile the tunnel serves is an explicit choice at launch (`mcp serve --profile {curated,full,read-only}`), decided 2026-08-15 in favour of write access; the flag already exists and this slice only has to pass it deliberately rather than by default.
   - Multi-tunnel or multi-organization support: one tunnel per machine.

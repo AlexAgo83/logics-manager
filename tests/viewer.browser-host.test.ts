@@ -2149,7 +2149,9 @@ describe("local viewer browser host", () => {
     // continuous travel instead, and the outline went with it -- it existed only to carry
     // the wait after the lap ended. Linear rather than eased: each half is one leg of a
     // circuit, and easing each leg separately stutters at both seams.
-    expect(css).toMatch(/animation: viewer-loading-ring-top [^;]*linear infinite/);
+    // The circuit's duration and the minimum-visible rule are one number in two places:
+    // a light taken away mid-travel is what the operator reported as broken.
+    expect(css).toMatch(/animation: viewer-loading-ring-top 2s linear infinite/);
     expect(css).toMatch(/animation: viewer-loading-ring-bottom [^;]*linear infinite/);
     expect(css).not.toContain("viewer-document__ring-rest");
     // Reported by the operator as the ring being broken, and it was: a conic gradient maps
@@ -2189,6 +2191,9 @@ describe("local viewer browser host", () => {
     // like when the payload lands halfway through it and the comet is cut off mid-travel.
     // Once shown, the affordance stays for at least one lap.
     expect(host).toContain("LOADING_AFFORDANCE_LAP_MS");
+    // The circuit's duration and the minimum-visible rule are one number in two places:
+    // a light taken away mid-travel is what the operator reported as broken.
+    expect(host).toContain("LOADING_AFFORDANCE_LAP_MS = 2000");
     expect(host).toMatch(/const remaining = LOADING_AFFORDANCE_LAP_MS - \(Date\.now\(\) - shownAt\)/);
     // And the animation is declared only while loading: on the element itself a one-shot
     // animation runs once when the element is created -- at page load -- and `forwards`

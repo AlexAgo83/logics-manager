@@ -9045,7 +9045,7 @@ ${line}` : line;
     let latestEnvironmentWarning = null;
     const LOADING_RING_STAGES = /* @__PURE__ */ new Set(["request", "backlog", "task", "product"]);
     const LOADING_AFFORDANCE_DELAY_MS = 250;
-    const LOADING_AFFORDANCE_LAP_MS = 1150;
+    const LOADING_AFFORDANCE_LAP_MS = 2e3;
     function installTopbarMenu() {
       const topbar = document.querySelector(".viewer-topbar");
       const button = document.getElementById("viewer-topbar-menu");

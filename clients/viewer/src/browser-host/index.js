@@ -639,7 +639,7 @@ import {
   //: halfway through it and the light is cut off mid-travel. The travel is continuous now,
   //: so this is no longer about letting a one-shot gesture finish -- it is about not
   //: showing a fragment of a circuit and taking it away again.
-  const LOADING_AFFORDANCE_LAP_MS = 1150;
+  const LOADING_AFFORDANCE_LAP_MS = 2000;
 
   /**
    * item_812: the phone header's one control, opening the screen buttons as a sheet.

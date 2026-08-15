@@ -1,13 +1,14 @@
 ## item_844_offer_to_commit_the_status_change_right_there - Offer to commit the status change right there
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Medium
 > Theme: The commit is offered, not a separate errand
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-15 18:40:09
 
 # AI Context
 - Summary: The status-change flow offers to commit the change immediately through the existing git-commit route, with a default message; declining still applies the status change.

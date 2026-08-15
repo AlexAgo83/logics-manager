@@ -142,6 +142,7 @@ import {
   sanitizeViewerFilterState,
   setNavMenuBadges,
   showRequestDraftModal,
+  showStatusChangeModal,
   showThemedChoiceModal,
   showThemedConfirmModal,
   showThemedInputModal,
@@ -221,7 +222,8 @@ import {
     choice: showThemedChoiceModal,
     message: showThemedMessageModal,
     confirm: showThemedConfirmModal,
-    requestDraft: showRequestDraftModal
+    requestDraft: showRequestDraftModal,
+    statusChange: showStatusChangeModal
   };
 
   window.addEventListener("DOMContentLoaded", () => {
@@ -3793,25 +3795,28 @@ import {
       return;
     }
     const currentStatus = String(item?.indicators?.Status || item?.status || "").trim();
-    const requested = await showThemedChoiceModal({
+    const label = item.id || item.relPath;
+    const requested = await showStatusChangeModal({
       title: "Change status",
       message: currentStatus
-        ? `${item.id || item.relPath} is currently ${currentStatus}.`
-        : `Choose a status for ${item.id || item.relPath}.`,
+        ? `${label} is currently ${currentStatus}.`
+        : `Choose a status for ${label}.`,
       options,
       value: currentStatus || options[0],
-      submitLabel: "Update status"
+      previewLabel: label,
+      submitLabel: "Update status",
+      defaultCommitMessage: (status) => `${label}: status -> ${status}`
     });
     if (requested === null) {
       return;
     }
-    const normalized = options.find((status) => status.toLowerCase() === requested.trim().toLowerCase());
+    const normalized = options.find((status) => status.toLowerCase() === requested.status.trim().toLowerCase());
     if (!normalized) {
       setMeta(`Unsupported status. Allowed: ${options.join(", ")}.`);
       return;
     }
     if (normalized === currentStatus) {
-      setMeta(`${item.id || item.relPath} is already ${normalized}.`);
+      setMeta(`${label} is already ${normalized}.`);
       return;
     }
     const response = await viewerFetch("/api/update-status", {
@@ -3824,8 +3829,32 @@ import {
       throw new Error(data.error || "Unable to update status.");
     }
     await loadItems("POST", { force: true });
-    await showDocumentByPath(data.payload?.path || item.relPath);
-    setMeta(data.payload?.changed === false ? `${item.id || item.relPath} was already ${normalized}.` : `Updated ${item.id || item.relPath} to ${normalized}.`);
+    const changedPath = data.payload?.path || item.relPath;
+    await showDocumentByPath(changedPath);
+    const wasNoOp = data.payload?.changed === false;
+    const applied = wasNoOp ? `${label} was already ${normalized}.` : `Updated ${label} to ${normalized}.`;
+    // item_844: the commit is a second, independent action reported on here -- a decline
+    // or a failure never touches the status change already applied above.
+    if (!requested.commit || wasNoOp) {
+      setMeta(applied);
+      return;
+    }
+    try {
+      const commitMessage = requested.message || `${label}: status -> ${normalized}`;
+      const commitResponse = await fetch("/api/git-commit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ files: [changedPath], message: commitMessage })
+      });
+      const commitData = await commitResponse.json();
+      if (!commitResponse.ok || !commitData.ok) {
+        throw new Error(commitData.error || commitData.payload?.message || "Git commit failed.");
+      }
+      recordGitActivity("Commit", `Created commit ${commitData.payload?.shortHash || ""}`.trim());
+      setMeta(`${applied} Committed${commitData.payload?.shortHash ? `: ${commitData.payload.shortHash}` : "."}`);
+    } catch (err) {
+      setMeta(`${applied} Commit failed: ${err?.message || "unknown error"}.`);
+    }
   }
 
   async function showHealth(options = {}) {

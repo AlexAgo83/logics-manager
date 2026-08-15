@@ -2768,9 +2768,100 @@ describe("local viewer browser host", () => {
     });
     expect(fetchCalls.filter((call) => String(call.url).startsWith("/api/doc")).length).toBeGreaterThanOrEqual(2);
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Updated req_001_demo to Done");
+    // item_844: commit is offered by default from the same modal, wired to the existing
+    // git-commit route.
+    const commitCall = fetchCalls.find((call) => call.url === "/api/git-commit");
+    expect(commitCall).toBeTruthy();
+    expect(JSON.parse(String(commitCall?.options?.body || "{}"))).toMatchObject({
+      files: ["logics/request/req_001_demo.md"]
+    });
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Committed: fedcba9");
 
     expect(promptSpy).not.toHaveBeenCalled();
     promptSpy.mockRestore();
+  });
+
+  it("shows the status-change preview live and updates the default commit message", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    api.postMessage({ type: "read", id: "req_001_demo" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    dom.window.document.getElementById("viewer-document-status")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    const select = modal?.querySelector(".viewer-themed-modal__select") as HTMLSelectElement | null;
+    const preview = modal?.querySelector(".viewer-status-confirm__preview") as HTMLElement | null;
+    const message = modal?.querySelector(".viewer-status-confirm__message") as HTMLTextAreaElement | null;
+    expect(preview?.textContent).toContain("Ready");
+    expect(preview?.textContent).toContain("req_001_demo");
+
+    if (select) {
+      select.value = "Done";
+      select.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    }
+
+    expect(preview?.textContent).toContain("Ready → Done");
+    expect(message?.value).toContain("Done");
+  });
+
+  it("declining the commit still applies the status change and commits nothing", async () => {
+    const { dom, fetchCalls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    api.postMessage({ type: "read", id: "req_001_demo" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    dom.window.document.getElementById("viewer-document-status")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    const select = modal?.querySelector(".viewer-themed-modal__select") as HTMLSelectElement | null;
+    const commitCheckbox = modal?.querySelector(".viewer-status-confirm__commit-row input[type='checkbox']") as HTMLInputElement | null;
+    if (select) select.value = "Done";
+    commitCheckbox?.click();
+    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(fetchCalls.find((call) => call.url === "/api/update-status")).toBeTruthy();
+    expect(fetchCalls.find((call) => call.url === "/api/git-commit")).toBeUndefined();
+    const meta = dom.window.document.getElementById("viewer-meta")?.textContent || "";
+    expect(meta).toContain("Updated req_001_demo to Done");
+    expect(meta).not.toContain("Commit");
+  });
+
+  it("reports a failed commit without touching the status change already applied", async () => {
+    const { dom, fetchCalls } = createViewerDom({
+      gitCommitResponse: { ok: false, status: 400, body: { ok: false, error: "nothing staged" } }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    api.postMessage({ type: "read", id: "req_001_demo" });
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    dom.window.document.getElementById("viewer-document-status")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    const select = modal?.querySelector(".viewer-themed-modal__select") as HTMLSelectElement | null;
+    if (select) select.value = "Done";
+    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(fetchCalls.find((call) => call.url === "/api/update-status")).toBeTruthy();
+    const meta = dom.window.document.getElementById("viewer-meta")?.textContent || "";
+    expect(meta).toContain("Updated req_001_demo to Done");
+    expect(meta).toContain("Commit failed: nothing staged");
   });
 
   it("uses the paired device token when changing status from a LAN RW viewer", async () => {

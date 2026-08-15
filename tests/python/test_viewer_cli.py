@@ -4538,6 +4538,49 @@ def test_a_report_is_computed_once_even_when_two_callers_race(tmp_path: Path) ->
         server.server_close()
 
 
+def test_a_status_component_is_computed_once_even_when_the_warm_up_is_racing(tmp_path: Path) -> None:
+    """item_840: the badge poll fires seconds after the page opens, which is while the
+    warm-up is still running.
+
+    Without a per-component lock that poll starts a second computation of the very thing
+    the warm-up exists to have already paid for -- and these are 2s subprocesses and
+    GitHub calls, not cheap reads.
+    """
+    import threading as _threading
+
+    root = tmp_path / "project"
+    (root / "logics" / "request").mkdir(parents=True)
+
+    server = create_viewer_server_or_skip(root)
+    try:
+        calls: list[str] = []
+        started = _threading.Event()
+
+        def slow() -> dict[str, object]:
+            calls.append("computed")
+            started.set()
+            time.sleep(0.2)
+            return {"value": len(calls)}
+
+        results: list[object] = []
+
+        def ask() -> None:
+            results.append(server.status_component("slow", slow))
+
+        warming = _threading.Thread(target=ask)
+        warming.start()
+        assert started.wait(2), "the first computation never started"
+        polling = _threading.Thread(target=ask)
+        polling.start()
+        warming.join(5)
+        polling.join(5)
+
+        assert calls == ["computed"], f"the component was computed {len(calls)} times"
+        assert results[0] is results[1], "the poll did not get the answer already being built"
+    finally:
+        server.server_close()
+
+
 def test_a_status_lifetime_is_never_shorter_than_the_poll_consuming_it() -> None:
     """item_839: a lifetime shorter than the interval polling it is not a cache.
 

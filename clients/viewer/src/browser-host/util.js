@@ -1455,3 +1455,36 @@ export function installViewerHints(root = document) {
     // A hint pinned to a rect that has moved is worse than no hint.
     window.addEventListener("scroll", hide, true);
   }
+
+/**
+ * The board's compact document reference (`R357`, `T012`), for the reader's eyebrow.
+ *
+ * item_795: the eyebrow named the document by its full slug --
+ * `req_363_redesign_the_viewer_s_scrollbars_custom_discreet_no_visible_track` -- above the
+ * title that already says the same thing in prose. The board has shown the short form since
+ * item_719 and the reader is the screen most made of reading, so it is the one that least
+ * needs the long one. The full path is still a click away on the copy control beside the
+ * title.
+ *
+ * The stage table mirrors `getDocumentPrefix` in clients/shared-web/media/renderBoardApp.js.
+ * Two bundles, no shared module between them; a test asserts the two tables agree, because a
+ * board card and its own reader disagreeing about a document's name is worse than either
+ * form alone.
+ */
+export function shortDocumentRef(id, stage) {
+    const prefixByStage = {
+      request: "R",
+      backlog: "I",
+      task: "T",
+      product: "P",
+      roadmap: "M",
+      architecture: "A",
+      spec: "S"
+    };
+    const key = String(stage || "").trim();
+    const prefix = prefixByStage[key] || (key ? key.slice(0, 1).toUpperCase() : "");
+    const raw = String(id || "");
+    const match = raw.match(/^[a-z]+_(\d+)/i) || raw.match(/(\d+)/);
+    if (!prefix || !match) return "";
+    return `${prefix}${String(match[1] || "").padStart(3, "0")}`;
+  }

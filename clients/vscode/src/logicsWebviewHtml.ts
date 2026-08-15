@@ -385,10 +385,12 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
       <div class="toolbar__ordering">
         <label class="toolbar__select">
           <span>Group</span>
-          <select id="group-by" aria-label="Group items">
-            <option value="stage">Stage</option>
-            <option value="status">Status</option>
-          </select>
+          <div class="toolbar__segmented" id="group-by" role="group" aria-label="Group items">
+            <button class="toolbar__segment" type="button" value="stage" aria-pressed="true">Type</button>
+            <button class="toolbar__segment" type="button" value="status" aria-pressed="false">Status</button>
+            <button class="toolbar__segment" type="button" value="theme" aria-pressed="false">Theme</button>
+            <button class="toolbar__segment" type="button" value="none" aria-pressed="false">None</button>
+          </div>
         </label>
         <label class="toolbar__select">
           <span>Sort</span>

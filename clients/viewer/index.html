@@ -283,7 +283,16 @@
       <div class="viewer-filter-panel__column viewer-filter-panel__column--organize">
         <div class="viewer-filter-panel__section">
           <div class="viewer-filter-panel__label">Organize</div>
-          <label class="toolbar__select-label">Group <select id="group-by"><option value="stage">Type</option><option value="status">Status</option></select></label>
+          <!-- item_795: a two-option dropdown for a choice with four values, one of which
+               ("None") is how you turn grouping off. Segments show the whole choice and the
+               current answer without opening anything. -->
+          <span class="toolbar__select-label">Group</span>
+          <div class="toolbar__segmented" id="group-by" role="group" aria-label="Group items">
+            <button class="toolbar__segment" type="button" value="stage" aria-pressed="true">Type</button>
+            <button class="toolbar__segment" type="button" value="status" aria-pressed="false">Status</button>
+            <button class="toolbar__segment" type="button" value="theme" aria-pressed="false">Theme</button>
+            <button class="toolbar__segment" type="button" value="none" aria-pressed="false">None</button>
+          </div>
           <!-- item_764: the Group control is greyed outside list mode, which reads as broken.
                The reason lived only in a tooltip; it is stated here when it applies. -->
           <p class="viewer-filter-panel__note" id="group-by-note" hidden></p>

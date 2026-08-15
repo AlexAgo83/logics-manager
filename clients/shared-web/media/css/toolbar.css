@@ -844,3 +844,41 @@ body.viewer-screen-activity .toolbar__activity-filter {
 .activity-panel__entry--in-chain {
   margin-left: 16px;
 }
+
+/* item_795: the segmented control the board's Group choice uses. Four values, one of which
+   turns grouping off -- a dropdown hid three of them behind a click and showed the current
+   answer only as text. */
+.toolbar__segmented {
+  display: inline-flex;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.toolbar__segment {
+  border: 0;
+  border-right: 1px solid var(--vscode-panel-border, #333333);
+  background: transparent;
+  color: var(--vscode-foreground, #d4d4d4);
+  font-size: 11px;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+
+.toolbar__segment:last-child {
+  border-right: 0;
+}
+
+.toolbar__segment:hover:not(:disabled) {
+  background: var(--vscode-list-hoverBackground, rgb(255 255 255 / 6%));
+}
+
+.toolbar__segment.is-active {
+  background: var(--vscode-button-background, #0e639c);
+  color: var(--vscode-button-foreground, #ffffff);
+}
+
+.toolbar__segment:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

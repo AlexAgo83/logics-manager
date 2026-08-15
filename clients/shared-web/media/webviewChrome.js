@@ -685,8 +685,23 @@
         searchInput.value = getSearchQuery();
       }
       if (groupBySelect) {
-        groupBySelect.value = getGroupMode();
-        groupBySelect.disabled = !getIsListMode();
+        // item_795: `group-by` is a segmented control now, not a select. Its segments are
+        // buttons carrying the same `value`s the select's options did, so the state the
+        // rest of this file reads and writes is unchanged.
+        const groupMode = getGroupMode();
+        const segments = typeof groupBySelect.querySelectorAll === "function"
+          ? Array.prototype.slice.call(groupBySelect.querySelectorAll("[value]"))
+          : [];
+        segments.forEach((segment) => {
+          const active = String(segment.value) === groupMode;
+          segment.classList.toggle("is-active", active);
+          segment.setAttribute("aria-pressed", String(active));
+          segment.disabled = !getIsListMode();
+        });
+        if (!segments.length) {
+          groupBySelect.value = groupMode;
+          groupBySelect.disabled = !getIsListMode();
+        }
         groupBySelect.title = getIsListMode() ? "Group visible list items" : "Grouping modes apply in list mode";
         // item_764: a greyed control with its reason in a tooltip is a control that
         // reads as broken to everyone who does not hover it -- and to everyone on a

@@ -22,6 +22,7 @@ import {
   closeCdxMenus,
   closeThemedModal,
   installViewerHints,
+  shortDocumentRef,
   collectHealthFindings,
   copyTextToClipboard,
   countBy,
@@ -3457,7 +3458,7 @@ import {
       const objectName = String(item.title || "").trim() || docPath;
       // AC5: the same four facts the details panel shows, in the same order -- the stage
       // (the badge beside the title), the reference, the status, and the title.
-      const reference = String(item.id || "").trim();
+      const reference = shortDocumentRef(item.id, item.stage) || String(item.id || "").trim();
       const documentStatus = String(item.indicators?.Status || "").trim();
       const eyebrowText = [reference, documentStatus].filter(Boolean).join(" • ") || docPath;
       setDocument(objectName, html, {

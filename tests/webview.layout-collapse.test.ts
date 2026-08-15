@@ -625,3 +625,54 @@ describe("a selected card is marked in its own stage colour", () => {
     }
   });
 });
+
+
+describe("the board's Group choice is a segmented control", () => {
+  const css = readCssBundle("clients/shared-web/media/main.css");
+
+  it("offers all four groupings as segments in both hosts", () => {
+    // item_795: a two-option dropdown for a four-value choice, one of which ("None") is how
+    // grouping is turned off. Both hosts render the control, and the shared JS reads the
+    // same `value`s the select's options carried, so the state model is unchanged.
+    for (const file of ["clients/viewer/index.html", "clients/vscode/src/logicsWebviewHtml.ts"]) {
+      const html = fs.readFileSync(path.resolve(process.cwd(), file), "utf8");
+      const control = html.match(/<div class="toolbar__segmented" id="group-by"[\s\S]*?<\/div>/)?.[0] || "";
+      expect([...control.matchAll(/value="([a-z]+)"/g)].map((m) => m[1])).toEqual(["stage", "status", "theme", "none"]);
+      expect(html).not.toMatch(/<select id="group-by"/);
+    }
+    expect(css).toMatch(/\.toolbar__segment\.is-active\s*\{/);
+  });
+
+  it("groups by theme and by nothing, off one keyed table", () => {
+    // `status` used to be the only alternative to `stage`, as an inverted special case;
+    // theme and none are the same operation over a different key, so they are one function.
+    const board = fs.readFileSync(path.resolve(process.cwd(), "clients/shared-web/media/renderBoardApp.js"), "utf8");
+    const table = board.match(/const BOARD_GROUP_KEYS = \{[\s\S]*?\};/)?.[0] || "";
+    expect(table).toContain("status:");
+    expect(table).toContain("theme:");
+    expect(table).toContain("none:");
+    // Columns for a keyed grouping are whatever the corpus holds, not the stage list.
+    expect(board).toMatch(/if \(BOARD_GROUP_KEYS\[boardGroupMode\(\)\]\)/);
+  });
+});
+
+
+describe("a document is named the same way on the board and in its reader", () => {
+  it("keeps the two stage-prefix tables in agreement", () => {
+    // item_795: the reader's eyebrow shows the board's short reference (R357) now. The
+    // rule lives twice -- renderBoardApp.js and browser-host/util.js are separate bundles
+    // with no shared module -- and a board card disagreeing with its own reader about a
+    // document's name is worse than either form alone.
+    const read = (file: string, marker: string) => {
+      const src = fs.readFileSync(path.resolve(process.cwd(), file), "utf8");
+      const block = src.slice(src.indexOf(marker));
+      return [...block.slice(0, block.indexOf("}")).matchAll(/(\w+):\s*"([A-Z])"/g)]
+        .map((match) => `${match[1]}=${match[2]}`);
+    };
+    const board = read("clients/shared-web/media/renderBoardApp.js", "const prefixByStage = {");
+    const reader = read("clients/viewer/src/browser-host/util.js", "const prefixByStage = {");
+
+    expect(board.length).toBeGreaterThan(0);
+    expect(reader).toEqual(board);
+  });
+});

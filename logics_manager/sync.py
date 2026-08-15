@@ -18,6 +18,7 @@ from .path_utils import canonical_workflow_path, resolve_repo_output_path
 from .release import release_context_pack_payload
 from .i18n import i18n_plan_payload
 from .termstyle import colorize_help
+from .viewer_docs import viewer_url_template
 
 
 @dataclass(frozen=True)
@@ -1558,6 +1559,11 @@ def cmd_list_docs(args: argparse.Namespace) -> dict[str, object]:
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:
         print(f"Workflow docs ({payload['view']}): {payload['returned_count']} returned of {payload['total_count']}")
+        # item_832: the form once, where the listing already states its bounds -- not a
+        # line saying no viewer is running, which is noise in a command about documents.
+        template = viewer_url_template(repo_root)
+        if template:
+            print(f"- open with: {template}")
         for item in payload["items"]:
             print(f"- {item['ref']} [{item['status']}]: {item['title']}")
     return {"command": "sync", "kind": "list-docs", "repo_root": repo_root.as_posix(), **payload}
@@ -1577,6 +1583,9 @@ def cmd_search_docs(args: argparse.Namespace) -> dict[str, object]:
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:
         print(f"Search `{payload['query']}`: {payload['returned_count']} match(es)")
+        template = viewer_url_template(repo_root)
+        if template:
+            print(f"- open with: {template}")
         for match in payload["matches"]:
             print(f"- {match['ref']}:{match['line']} {match['title']}")
     return {"command": "sync", "kind": "search-docs", "repo_root": repo_root.as_posix(), **payload}

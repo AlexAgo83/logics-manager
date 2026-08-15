@@ -796,6 +796,41 @@ def test_flow_show_reads_workflow_doc_content(
     assert "task_001_demo (task): Demo Task" in captured.out
     assert "# Validation" in captured.out
     assert "pytest will run." in captured.out
+    # item_832 AC3: no viewer running in this test, so the output is exactly what it
+    # was before this slice -- no "- link:" line at all.
+    assert "- link:" not in captured.out
+
+
+def test_flow_show_prints_a_link_when_a_viewer_is_running(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """item_832 AC1: `flow show <ref>` prints a link that opens that document."""
+    from types import SimpleNamespace
+
+    from logics_manager import viewer_docs
+
+    repo_root = tmp_path / "logics-repo"
+    task_dir = repo_root / "logics" / "tasks"
+    task_dir.mkdir(parents=True)
+    (task_dir / "task_001_demo.md").write_text(
+        "## task_001_demo - Demo Task\n> Status: Ready\n> Schema version: 1.0\n# Validation\n- pytest will run.\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+    monkeypatch.setattr(
+        viewer_docs,
+        "running_viewer",
+        lambda root, **kwargs: SimpleNamespace(scheme="http", host="127.0.0.1", port=4321),
+    )
+
+    exit_code = main(["flow", "show", "task_001_demo"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "- link: http://127.0.0.1:4321?focus=task_001_demo&read=1" in captured.out
 
 
 def test_flow_unknown_subcommand_suggests_show(capsys: pytest.CaptureFixture[str]) -> None:

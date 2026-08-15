@@ -112,6 +112,45 @@ def test_sync_list_docs_recent_open_changed_filters(
     assert [item["ref"] for item in changed_payload["items"]] == ["task_001_changed"]
 
 
+def test_sync_list_and_search_docs_print_the_viewer_link_once(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """item_832 AC2/AC3: a listing prints the open-with form once, not per row, and says
+    nothing at all when no viewer is running."""
+    from logics_manager import viewer_docs
+
+    repo_root = tmp_path / "logics-repo"
+    request_dir = repo_root / "logics" / "request"
+    request_dir.mkdir(parents=True)
+    _write_minimal_workflow_doc(request_dir / "req_001_one.md", title="One", kind="request", status="Ready", links=[])
+    _write_minimal_workflow_doc(request_dir / "req_002_two.md", title="Two", kind="request", status="Ready", links=[])
+    monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _cwd: repo_root)
+
+    exit_code = main(["sync", "list-docs", "--kind", "request"])
+    listed_without_viewer = capsys.readouterr().out
+    assert exit_code == 0
+    assert "- open with:" not in listed_without_viewer
+
+    monkeypatch.setattr(
+        viewer_docs,
+        "running_viewer",
+        lambda root, **kwargs: SimpleNamespace(scheme="http", host="127.0.0.1", port=4321),
+    )
+
+    exit_code = main(["sync", "list-docs", "--kind", "request"])
+    listed = capsys.readouterr().out
+    assert exit_code == 0
+    assert listed.count("- open with:") == 1
+    assert "- open with: http://127.0.0.1:4321?focus={ref}&read=1" in listed
+
+    exit_code = main(["sync", "search-docs", "One"])
+    searched = capsys.readouterr().out
+    assert exit_code == 0
+    assert searched.count("- open with:") == 1
+
+
 def test_search_docs_truncated_only_when_extra_match_exists(tmp_path: Path) -> None:
     repo_root = tmp_path / "logics-repo"
     (repo_root / "logics" / "request").mkdir(parents=True)

@@ -7,7 +7,7 @@
 > Complexity: Medium
 > Theme: GitHub issue intake
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:05:08
+> Indicators reviewed: 2026-08-15 16:28:38
 
 # AI Context
 - Summary: The bridge works and is unused: it assumes an issue is triaged before the work starts, and the work starts in a conversation. Three uses in its first week, none since.
@@ -25,7 +25,7 @@
 - The bridge is already built: issue forms, an intake workflow that turns a `logics:triage` label into a Logics request on a branch with a PR, a `# Provenance` section carrying `Origin`, `External id` and `External issue`, and a lifecycle-update workflow. None of this needs inventing.
 - It has been used three times, all in its first week. Issues #5 and #7 were intake tests; #9 is the only complete cycle, carrying `logics:triage` and `logics:delivered`. Issues #12 through #19 closed carrying no label and no Logics link at all.
 - Issues #20 and #21 are open and unlabelled, and `req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy` -- which delivered both -- is Done and closed out. The work shipped and the issues were never told.
-- In the corpus the same gap shows as data: exactly one request of 371 carries a `# Provenance` section -- req_302, the one the intake workflow created. req_357 records its two issues as URLs under `# References`, which nothing can query.
+- In the corpus the same gap shows as data: exactly one request in the whole corpus carries a `# Provenance` section -- req_302, the one the intake workflow created. req_357 records its two issues as URLs under `# References`, which nothing can query.
 - The reason is not neglect. The bridge assumes an issue is triaged on GitHub before the work starts, and the work starts somewhere else: a conversation, then a scaffolded chain, then delivery. The door is not on the path people walk, which is the same defect shape as req_369's unused `?focus=` -- an affordance that works and is never reached.
 - Lifecycle feedback is a `workflow_dispatch` with three inputs, one of which is a Logics ref the maintainer has to look up. That is why it has run once.
 - Issue content is untrusted, and `docs/github-issues.md` already states this. Reconciliation must read state -- numbers, labels, open or closed -- and never a body.

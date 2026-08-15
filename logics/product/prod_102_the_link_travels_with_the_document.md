@@ -6,7 +6,7 @@
 > Related task: `task_382_orchestrate_the_link_travels_with_the_document_work`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
-> Indicators reviewed: 2026-08-15 15:59:45
+> Indicators reviewed: 2026-08-15 16:28:38
 
 # Overview
 Make the viewer address arrive with every document any assistant reads, so that naming a document and linking to it are the same act for all of them, not a habit one of them holds.
@@ -29,6 +29,7 @@ flowchart LR
 - One answer to where the viewer is, read by every surface.
 - The link arrives as data, not as a convention to remember.
 - Absent rather than wrong when there is no viewer.
+- Read at response time, never stored: an address that outlives its viewer is worse than none.
 - No surface pays for the link by the row.
 
 # Non-goals

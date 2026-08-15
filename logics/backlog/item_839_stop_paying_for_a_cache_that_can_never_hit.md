@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: A lifetime that matches its poll
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:21:52
+> Indicators reviewed: 2026-08-15 16:29:35
 
 # AI Context
 - Summary: cdx-status costs 2.3s and its cache lives 2s under a 15s poll, so every tick misses. Lifetimes decided against the poll that consumes them.
@@ -50,5 +50,5 @@
 - Primary task(s): `task_384_orchestrate_the_auto_refresh_cost_work`
 
 # Priority
-- Priority: High - three quarters of the per-tick cost
-- Rationale: Set by scaffold input or defaulted for grooming.
+- Priority: High
+- Rationale: Three quarters of the per-tick cost

@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-15 15:59:35
+> Indicators reviewed: 2026-08-15 16:28:38
 
 # AI Context
 - Summary: Sequences the four surfaces: one address reader, then MCP, then CLI, then the written convention for what neither covers.
@@ -50,6 +50,7 @@
 - request-AC3 -> `item_832_print_the_link_from_the_cli`. Proof deferred to slice closeout.
 - request-AC4 -> `item_832_print_the_link_from_the_cli`. Proof deferred to slice closeout.
 - request-AC5 -> `item_833_state_the_convention_where_an_assistant_reads_its_instructions`. Proof deferred to slice closeout.
+- request-AC7 -> `item_831_carry_the_link_in_the_mcp_responses`. Proof deferred to slice closeout.
 
 # Validation
 - (no validation recorded yet)

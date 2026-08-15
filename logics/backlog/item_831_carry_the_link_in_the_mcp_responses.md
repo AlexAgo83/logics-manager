@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: The link arrives as data
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 15:59:34
+> Indicators reviewed: 2026-08-15 16:29:33
 
 # AI Context
 - Summary: MCP responses carry the viewer link: one URL for a single document, one template for a listing, so the payload does not grow per row.
@@ -28,14 +28,17 @@
 - Out:
   - Adding a link to responses that name no document.
   - Changing what any tool returns beyond this addition.
+  - Embedding the address anywhere it can outlive the viewer it names. A payload served from a cache -- which item_841 of req_373 is about to make more likely -- would carry the port it was built with, and req_370 left a `--port 0` viewer restarting onto a different one. The link is read at response time or it is not carried.
 
 # Acceptance criteria
 - AC1: `read_logics_doc` returns a link that opens that document.
 - AC2: `list_logics_docs`, `search_logics_docs`, `list_active_work` and `list_companion_docs` carry one template each, not one URL per row.
 - AC3: With no viewer running the field is absent and every tool still answers.
 - AC4: The payload growth is measured on this corpus and does not scale with the number of rows.
+- AC5: A response served from a cache carries no address it did not read for that response.
 
 # AC Traceability
+- request-AC7 -> This backlog slice. Proof: AC5: the address is read when the response is written, so a payload served from a cache cannot carry a link to a viewer that has moved or stopped.
 - request-AC2 -> This backlog slice. Proof: AC1: `read_logics_doc` returns a link that opens that document.
 - request-AC4 -> This backlog slice. Proof: AC2: `list_logics_docs`, `search_logics_docs`, `list_active_work` and `list_companion_docs` carry one template each, not one URL per row.
 - request-AC6 -> This backlog slice. Proof: AC3: With no viewer running the field is absent and every tool still answers.
@@ -51,5 +54,5 @@
 - Primary task(s): `task_382_orchestrate_the_link_travels_with_the_document_work`
 
 # Priority
-- Priority: High - the surface that reaches assistants who read no instructions
-- Rationale: Set by scaffold input or defaulted for grooming.
+- Priority: High
+- Rationale: The surface that reaches assistants who read no instructions

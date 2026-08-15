@@ -7,7 +7,7 @@
 > Complexity: Medium
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 15:59:34
+> Indicators reviewed: 2026-08-15 16:28:38
 
 # AI Context
 - Summary: req_369 made the link writable and taught one assistant the habit. This makes it arrive with the document, for all of them.
@@ -26,6 +26,7 @@
 - Every assistant that reads a Logics document goes through one of four surfaces: the MCP tools (`read_logics_doc`, `list_logics_docs`, `search_logics_docs`, `list_active_work`, `list_companion_docs`), the CLI (`flow show`, `sync list-docs`, `sync search-docs`), the bundled skills in `logics_manager/skill_assets/`, or `logics/instructions.md`. None of the four mentions the viewer link.
 - The address is knowable: the viewer registry in the user's cache directory (viewers.json) records the running viewer's port and scheme, and `claim_or_reuse` already probes it. But `viewer_registry.py` exposes no reader for 'is a viewer running, and at what address' -- only `claim_or_reuse`, which binds. Four surfaces each deriving that separately is how they come to disagree.
 - Payload size is a real constraint, not a hypothetical: req_364 measured the audit payload at 0.479 MB and spent a slice getting it to 0.190. `read_logics_doc` returns one document and can carry a URL; `list_logics_docs` returns hundreds of rows and must not carry hundreds of near-identical ones.
+- The address can go stale in a way none of the four surfaces would notice: req_370 left a viewer started with `--port 0` restarting onto a different port, and req_373 is about to stop rebuilding a payload whose corpus has not changed. A link built once and cached would name a port nothing answers, which is worse than no link at all -- so it is read when the response is written, not stored with it.
 - None of this makes the link mandatory -- an assistant can ignore a field as easily as a convention. What changes is the cost: no form to know, no port to guess, no lookup to make.
 
 # Acceptance criteria
@@ -33,6 +34,7 @@
 - AC2: A single-document MCP response carries that document's viewer link; a multi-document response carries what is needed to build one without repeating it per row.
 - AC3: The CLI commands that show or list documents print the link for what they showed.
 - AC4: When no viewer is running, no surface emits a link, and nothing fails because of it.
+- AC7: No surface serves an address it did not read for that response, so a cached payload cannot carry a link to a viewer that has moved or stopped.
 - AC5: The convention is stated in `logics/instructions.md` and in the bundled skills, for the case where an assistant names a document it did not fetch.
 - AC6: The added payload is measured, not assumed: the multi-document responses do not grow per row.
 

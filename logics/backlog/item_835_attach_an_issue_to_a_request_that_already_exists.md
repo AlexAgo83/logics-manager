@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: The link can be made when it is noticed
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:05:08
+> Indicators reviewed: 2026-08-15 16:29:34
 
 # AI Context
 - Summary: Declare provenance after the fact, because the request is almost always written before anyone thinks about the issue.
@@ -50,5 +50,5 @@
 - Primary task(s): `task_383_orchestrate_the_issue_bridge_work`
 
 # Priority
-- Priority: High - the direction the real flow needs and the only one missing
-- Rationale: Set by scaffold input or defaulted for grooming.
+- Priority: High
+- Rationale: The direction the real flow needs and the only one missing

@@ -138,6 +138,7 @@
 | [prod_096_a_viewer_that_says_what_it_is_doing](product/prod_096_a_viewer_that_says_what_it_is_doing.md) | A viewer that says what it is doing | Proposed |  |  | product/prod_096_a_viewer_that_says_what_it_is_doing.md |
 | [prod_097_corpus_screens_that_are_quick_on_the_first_look_too](product/prod_097_corpus_screens_that_are_quick_on_the_first_look_too.md) | Corpus screens that are quick on the first look too | Proposed |  |  | product/prod_097_corpus_screens_that_are_quick_on_the_first_look_too.md |
 | [prod_098_a_board_that_tells_the_truth_while_it_is_still_loading](product/prod_098_a_board_that_tells_the_truth_while_it_is_still_loading.md) | A board that tells the truth while it is still loading | Proposed |  |  | product/prod_098_a_board_that_tells_the_truth_while_it_is_still_loading.md |
+| [prod_099_an_audit_worth_reading](product/prod_099_an_audit_worth_reading.md) | An audit worth reading | Proposed |  |  | product/prod_099_an_audit_worth_reading.md |
 
 ## Roadmaps
 
@@ -522,6 +523,7 @@
 | [req_365_say_the_viewer_is_working_wherever_the_operator_is_looking](request/req_365_say_the_viewer_is_working_wherever_the_operator_is_looking.md) | Say the viewer is working, wherever the operator is looking | Done |  |  | request/req_365_say_the_viewer_is_working_wherever_the_operator_is_looking.md |
 | [req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong](request/req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong.md) | Finish the Insights and Health work the first measurement got wrong | Done |  |  | request/req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong.md |
 | [req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents](request/req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents.md) | Make the project view honest on arrival, and let runbooks be documents | Done |  |  | request/req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents.md |
+| [req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on](request/req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on.md) | Make the duplicate-proof check say something a reader can act on | Draft |  |  | request/req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on.md |
 
 ## Backlog
 
@@ -1347,6 +1349,10 @@
 | [item_818_collapse_a_reference_category_on_its_own](backlog/item_818_collapse_a_reference_category_on_its_own.md) | Collapse a reference category on its own | Done |  | 100% | backlog/item_818_collapse_a_reference_category_on_its_own.md |
 | [item_819_make_getting_started_s_stage_list_say_something](backlog/item_819_make_getting_started_s_stage_list_say_something.md) | Make Getting Started's stage list say something | Done |  | 100% | backlog/item_819_make_getting_started_s_stage_list_say_something.md |
 | [item_820_retire_the_corpus_menu_into_a_settings_section](backlog/item_820_retire_the_corpus_menu_into_a_settings_section.md) | Retire the Corpus menu into a Settings section | Done |  | 100% | backlog/item_820_retire_the_corpus_menu_into_a_settings_section.md |
+| [item_821_report_a_shared_proof_once_not_once_per_pair](backlog/item_821_report_a_shared_proof_once_not_once_per_pair.md) | Report a shared proof once, not once per pair | Ready |  | 0% | backlog/item_821_report_a_shared_proof_once_not_once_per_pair.md |
+| [item_822_let_a_document_settle_a_deliberate_shared_proof](backlog/item_822_let_a_document_settle_a_deliberate_shared_proof.md) | Let a document settle a deliberate shared proof | Ready |  | 0% | backlog/item_822_let_a_document_settle_a_deliberate_shared_proof.md |
+| [item_823_prove_the_check_still_finds_what_it_was_built_for](backlog/item_823_prove_the_check_still_finds_what_it_was_built_for.md) | Prove the check still finds what it was built for | Ready |  | 0% | backlog/item_823_prove_the_check_still_finds_what_it_was_built_for.md |
+| [item_824_say_what_the_audit_s_remaining_warnings_are](backlog/item_824_say_what_the_audit_s_remaining_warnings_are.md) | Say what the audit's remaining warnings are | Ready |  | 0% | backlog/item_824_say_what_the_audit_s_remaining_warnings_are.md |
 
 ## Tasks
 
@@ -1724,6 +1730,7 @@
 | [task_376_orchestrate_the_loading_feedback_and_navigation_polish](tasks/task_376_orchestrate_the_loading_feedback_and_navigation_polish.md) | Orchestrate the loading feedback and navigation polish | Done |  | 100% | tasks/task_376_orchestrate_the_loading_feedback_and_navigation_polish.md |
 | [task_377_orchestrate_the_second_look_at_insights_and_health](tasks/task_377_orchestrate_the_second_look_at_insights_and_health.md) | Orchestrate the second look at Insights and Health | Done |  | 100% | tasks/task_377_orchestrate_the_second_look_at_insights_and_health.md |
 | [task_378_orchestrate_the_board_arrival_and_runbook_document_work](tasks/task_378_orchestrate_the_board_arrival_and_runbook_document_work.md) | Orchestrate the board arrival and runbook document work | Done |  | 100% | tasks/task_378_orchestrate_the_board_arrival_and_runbook_document_work.md |
+| [task_379_orchestrate_the_audit_signal_work](tasks/task_379_orchestrate_the_audit_signal_work.md) | Orchestrate the audit signal work | Ready |  | 0% | tasks/task_379_orchestrate_the_audit_signal_work.md |
 
 ## Runbooks
 

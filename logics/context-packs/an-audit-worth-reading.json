@@ -1,0 +1,534 @@
+{
+  "budgets": {
+    "max_docs": 24,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on item_821_report_a_shared_proof_once_not_once_per_pair item_822_let_a_document_settle_a_deliberate_shared_proof item_823_prove_the_check_still_finds_what_it_was_built_for item_824_say_what_the_audit_s_remaining_warnings_are task_379_orchestrate_the_audit_signal_work --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_784_validate_traceability_proof_content_and_fix_the_runtime_drift_false_positive",
+          "item_785_stop_flow_s_own_writes_from_tripping_its_own_checks"
+        ],
+        "prod": [
+          "prod_093_trustworthy_flow_checks"
+        ],
+        "req": [
+          "req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy"
+        ],
+        "task": [
+          "task_357_orchestrate_flow_traceability_and_self_consistency_fixes_gh_20_21"
+        ]
+      },
+      "path": "logics/product/prod_093_trustworthy_flow_checks.md",
+      "ref": "prod_093_trustworthy_flow_checks",
+      "sections": {
+        "Goals": [
+          "- A passed traceability check means the cited proof actually supports the cited acceptance criterion.",
+          "- A finding an operator cannot act on (false drift warning, a repair the tool itself refuses, a lint flag on the tool's own write) says so plainly or stops firing."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "flow's validation and self-generated writes agree on what counts as a valid, reviewed document.",
+          "```mermaid",
+          "flowchart LR",
+          "    Write[Agent writes a proof line] --> Check{Flow traceability check}",
+          "    Check -- \"self-authored\" --> Reject[Not evidence: the writer is the claimant]",
+          "    Check -- \"independent\" --> Accept[Counts as proof]"
+        ],
+        "References": [
+          "- Product back-reference: `req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy`",
+          "- Task back-reference: `task_357_orchestrate_flow_traceability_and_self_consistency_fixes_gh_20_21`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Trustworthy flow checks"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_821_report_a_shared_proof_once_not_once_per_pair",
+          "item_822_let_a_document_settle_a_deliberate_shared_proof",
+          "item_823_prove_the_check_still_finds_what_it_was_built_for",
+          "item_824_say_what_the_audit_s_remaining_warnings_are"
+        ],
+        "prod": [
+          "prod_099_an_audit_worth_reading"
+        ],
+        "req": [
+          "req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on"
+        ],
+        "task": [
+          "task_379_orchestrate_the_audit_signal_work"
+        ]
+      },
+      "path": "logics/product/prod_099_an_audit_worth_reading.md",
+      "ref": "prod_099_an_audit_worth_reading",
+      "sections": {
+        "Goals": [
+          "- One finding per thing to look at, not per pair of things.",
+          "- An operator can settle a legitimate pattern once instead of confirming it forever.",
+          "- Every check earns its noise: what it reports is dominated by defects, not by the shape it cannot tell from one.",
+          "- The count in the summary line means something."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Keep every check that finds real defects, and stop the ones that report the normal case, so that a report with warnings in it is a reason to look."
+        ],
+        "References": [
+          "- Product back-reference: `req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on`",
+          "- Task back-reference: `task_379_orchestrate_the_audit_signal_work`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "An audit worth reading"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "duplicate, proof, check, say, something, reader, can, act",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_784_validate_traceability_proof_content_and_fix_the_runtime_drift_false_positive",
+          "item_821_report_a_shared_proof_once_not_once_per_pair",
+          "item_822_let_a_document_settle_a_deliberate_shared_proof",
+          "item_823_prove_the_check_still_finds_what_it_was_built_for",
+          "item_824_say_what_the_audit_s_remaining_warnings_are"
+        ],
+        "prod": [
+          "prod_093_trustworthy_flow_checks",
+          "prod_099_an_audit_worth_reading"
+        ],
+        "req": [
+          "req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on"
+        ]
+      },
+      "path": "logics/request/req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on.md",
+      "ref": "req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A shared proof covering several criteria is reported once, naming every criterion it covers, rather than once per pair.",
+          "- AC2: A document can state that a shared proof is deliberate, and that document stops being reported without the check being disabled anywhere else.",
+          "- AC3: The case item_784 was built for -- one proof block shifted or copy-pasted across criteria that do not share a wave -- is still reported.",
+          "- AC4: After this work the audit's warning count on this corpus reflects things worth reading, and what remains is stated with its number rather than left implied.",
+          "- AC5: No check in this audit reports the normal case as a finding: any check whose warning count is dominated by a legitimate pattern is either narrowed or acknowledged, and the reasoning is recorded where the check lives."
+        ],
+        "Needs": [
+          "- As an operator running an audit, I need its warnings to be findings I can act on, so that a report with warnings in it is worth opening.",
+          "- As an operator, I need a shared implementation wave to be stated once rather than once per pair of criteria it covers.",
+          "- As an operator, I need to be able to say 'yes, this proof is shared on purpose' and not be asked again."
+        ]
+      },
+      "status": "Draft",
+      "title": "Make the duplicate-proof check say something a reader can act on"
+    },
+    {
+      "ai_context": {
+        "keywords": "ac_proof_state, has_ac_proof, flow_evidence.py, runtime_drift.py, duplicate proof, proof matching",
+        "skip when": "The self-consistency issue (item_785) \u2014 separate concern.",
+        "summary": "Add three deterministic proof-content checks (dup-proof, proof-matches-AC, orphan-slice-AC) to flow's traceability validation, and point runtime-drift's version comparison at a logics-manager-recorded value instead of the consumer repo's own VERSION.",
+        "use when": "Implementing this backlog item."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_784_validate_traceability_proof_content_and_fix_the_runtime_drift_false_positive"
+        ],
+        "prod": [
+          "prod_093_trustworthy_flow_checks"
+        ],
+        "req": [
+          "req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy"
+        ],
+        "task": [
+          "task_357_orchestrate_flow_traceability_and_self_consistency_fixes_gh_20_21"
+        ]
+      },
+      "path": "logics/backlog/item_784_validate_traceability_proof_content_and_fix_the_runtime_drift_false_positive.md",
+      "ref": "item_784_validate_traceability_proof_content_and_fix_the_runtime_drift_false_positive",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "Revised twice since scaffolding, both times recorded in \"Findings from implementation\"",
+          "below rather than silently: AC1 downgraded from blocking to a non-blocking warning;",
+          "AC2/AC3 replaced with an opt-in structural annotation instead of the original",
+          "text-matching design. `(backs request-ACn)` on each line below is that annotation,",
+          "adopted here so this document is itself checked by AC2/AC3 rather than only",
+          "describing them."
+        ],
+        "Problem": [
+          "- ac_proof_state/has_ac_proof (logics_manager/flow_evidence.py:98-130) only check that a Proof: line exists mentioning the AC id; the proof text is never compared to anything, so a whole block of shifted or duplicated proofs passes validate, repair, and the closeout gate.",
+          "- runtime_drift.repository_version() (logics_manager/runtime_drift.py:24-33) reads the current repo's own VERSION/version file and compares it to the running logics-manager version, which is only meaningful when the repo being inspected is logics-manager itself; in any consumer repo it fires a confidently wrong warning with actively harmful suggested remedies."
+        ]
+      },
+      "status": "Done",
+      "title": "Validate traceability proof content and fix the runtime-drift false positive"
+    },
+    {
+      "ai_context": {
+        "keywords": "report, shared, proof, once, not, per, pair",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_821_report_a_shared_proof_once_not_once_per_pair"
+        ],
+        "prod": [
+          "prod_099_an_audit_worth_reading"
+        ],
+        "req": [
+          "req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on"
+        ],
+        "task": [
+          "task_379_orchestrate_the_audit_signal_work"
+        ]
+      },
+      "path": "logics/backlog/item_821_report_a_shared_proof_once_not_once_per_pair.md",
+      "ref": "item_821_report_a_shared_proof_once_not_once_per_pair",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A proof shared by N criteria produces one finding naming all N.",
+          "- AC2: Two independent shared proofs in one document are two findings.",
+          "- AC3: The corpus warning count drops from 437 to the number of groups, and the number is stated rather than estimated."
+        ],
+        "Problem": [
+          "- `duplicate_proof_ac_ids` returns pairs, so a proof shared by twelve criteria is reported eleven times, each line naming two of the twelve.",
+          "- A reader cannot see from any one of those lines how many criteria are involved, which is exactly what decides whether it is a wave or a mistake."
+        ]
+      },
+      "status": "Ready",
+      "title": "Report a shared proof once, not once per pair"
+    },
+    {
+      "ai_context": {
+        "keywords": "let, document, settle, deliberate, shared, proof",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_822_let_a_document_settle_a_deliberate_shared_proof"
+        ],
+        "prod": [
+          "prod_099_an_audit_worth_reading"
+        ],
+        "req": [
+          "req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on"
+        ],
+        "task": [
+          "task_379_orchestrate_the_audit_signal_work"
+        ]
+      },
+      "path": "logics/backlog/item_822_let_a_document_settle_a_deliberate_shared_proof.md",
+      "ref": "item_822_let_a_document_settle_a_deliberate_shared_proof",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A document declaring a shared proof for the criteria it covers is not reported for it.",
+          "- AC2: Adding a criterion to that shared proof without adding it to the declaration is reported.",
+          "- AC3: A document that has never written the declaration behaves exactly as it does today."
+        ],
+        "Problem": [
+          "- The check asks a human to confirm, and offers no way to record the answer, so the same confirmation is asked on every audit for ever.",
+          "- The two legitimate patterns are known and named in the check's own docstring; what is missing is a way for a document to say it is one of them."
+        ]
+      },
+      "status": "Ready",
+      "title": "Let a document settle a deliberate shared proof"
+    },
+    {
+      "ai_context": {
+        "keywords": "orchestrate, audit, signal, work",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_821_report_a_shared_proof_once_not_once_per_pair",
+          "item_822_let_a_document_settle_a_deliberate_shared_proof",
+          "item_823_prove_the_check_still_finds_what_it_was_built_for",
+          "item_824_say_what_the_audit_s_remaining_warnings_are"
+        ],
+        "prod": [
+          "prod_099_an_audit_worth_reading"
+        ],
+        "req": [
+          "req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on"
+        ],
+        "task": [
+          "task_379_orchestrate_the_audit_signal_work"
+        ]
+      },
+      "path": "logics/tasks/task_379_orchestrate_the_audit_signal_work.md",
+      "ref": "task_379_orchestrate_the_audit_signal_work",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the audit signal work"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_821_report_a_shared_proof_once_not_once_per_pair",
+          "item_822_let_a_document_settle_a_deliberate_shared_proof",
+          "item_823_prove_the_check_still_finds_what_it_was_built_for",
+          "item_824_say_what_the_audit_s_remaining_warnings_are"
+        ],
+        "prod": [
+          "prod_099_an_audit_worth_reading"
+        ],
+        "req": [
+          "req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on"
+        ],
+        "task": [
+          "task_379_orchestrate_the_audit_signal_work"
+        ]
+      },
+      "path": "logics/product/prod_099_an_audit_worth_reading.md",
+      "ref": "prod_099_an_audit_worth_reading",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "An audit worth reading"
+    },
+    {
+      "ai_context": {
+        "keywords": "prove, check, still, finds, built",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_823_prove_the_check_still_finds_what_it_was_built_for"
+        ],
+        "prod": [
+          "prod_099_an_audit_worth_reading"
+        ],
+        "req": [
+          "req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on"
+        ],
+        "task": [
+          "task_379_orchestrate_the_audit_signal_work"
+        ]
+      },
+      "path": "logics/backlog/item_823_prove_the_check_still_finds_what_it_was_built_for.md",
+      "ref": "item_823_prove_the_check_still_finds_what_it_was_built_for",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A shifted proof block across unrelated criteria is still reported after both slices.",
+          "- AC2: The declaration does not silence it."
+        ],
+        "Problem": [
+          "- Both slices above make the check quieter, and the way to make a check quiet by accident is to make it quiet on purpose without a case that proves it still fires.",
+          "- The defect item_784 found -- one proof block shifted across criteria that do not share a wave -- is the case that must survive."
+        ]
+      },
+      "status": "Ready",
+      "title": "Prove the check still finds what it was built for"
+    },
+    {
+      "ai_context": {
+        "keywords": "say, audit, remaining, warnings",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_824_say_what_the_audit_s_remaining_warnings_are"
+        ],
+        "prod": [
+          "prod_099_an_audit_worth_reading"
+        ],
+        "req": [
+          "req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on"
+        ],
+        "task": [
+          "task_379_orchestrate_the_audit_signal_work"
+        ]
+      },
+      "path": "logics/backlog/item_824_say_what_the_audit_s_remaining_warnings_are.md",
+      "ref": "item_824_say_what_the_audit_s_remaining_warnings_are",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The audit's warnings on this corpus are recorded by code, with a number.",
+          "- AC2: No check contributes a majority of the warnings by reporting a legitimate pattern.",
+          "- AC3: Whatever remains is explained where the check lives, so the next reader does not rediscover it from the count."
+        ],
+        "Problem": [
+          "- With 437 of 437 warnings coming from one check, the summary line's count says nothing about the corpus, and no one can tell whether the number moving is good or bad.",
+          "- The anchor check was misreading lineage as a code citation until today, and it went unnoticed inside that count for as long as it existed."
+        ]
+      },
+      "status": "Ready",
+      "title": "Say what the audit's remaining warnings are"
+    }
+  ],
+  "estimates": {
+    "char_count": 15170,
+    "companion_doc_count": 2,
+    "doc_count": 8
+  },
+  "generated_at": "2026-08-15T13:13:33Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on",
+      "item_821_report_a_shared_proof_once_not_once_per_pair",
+      "item_822_let_a_document_settle_a_deliberate_shared_proof",
+      "item_823_prove_the_check_still_finds_what_it_was_built_for",
+      "item_824_say_what_the_audit_s_remaining_warnings_are",
+      "task_379_orchestrate_the_audit_signal_work"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on,item_821_report_a_shared_proof_once_not_once_per_pair,item_822_let_a_document_settle_a_deliberate_shared_proof,item_823_prove_the_check_still_finds_what_it_was_built_for,item_824_say_what_the_audit_s_remaining_warnings_are,task_379_orchestrate_the_audit_signal_work",
+  "refs": [
+    "req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on",
+    "item_821_report_a_shared_proof_once_not_once_per_pair",
+    "item_822_let_a_document_settle_a_deliberate_shared_proof",
+    "item_823_prove_the_check_still_finds_what_it_was_built_for",
+    "item_824_say_what_the_audit_s_remaining_warnings_are",
+    "task_379_orchestrate_the_audit_signal_work"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_379_orchestrate_the_audit_signal_work.md",
+      "ref": "task_379_orchestrate_the_audit_signal_work"
+    }
+  ]
+}

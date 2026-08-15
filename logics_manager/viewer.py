@@ -1807,9 +1807,40 @@ class LogicsViewerServer(ThreadingHTTPServer):
                         self.project_root_by_id[project_id] = project
                         target = project
                         break
+            if target is None:
+                # item_826: the id is twelve characters of a SHA-1 of the resolved path, so
+                # nobody writes it from memory and a cross-project link had to be looked up
+                # before it could be written. The switcher already shows every project by
+                # name, which is what an operator would write.
+                target = self._project_root_by_name(project_id)
             if target is None or not target.is_dir():
                 raise ValueError("Unknown project id.")
         self._request_context.repo_root = target
+        return target
+
+    def _project_root_by_name(self, name: str) -> Path | None:
+        """The one known project whose directory name matches, or nothing.
+
+        Exactly one or nothing: two projects can share a directory name from different
+        parents, and picking whichever was discovered first would open the wrong corpus
+        while looking like the link worked.
+        """
+        wanted = str(name).strip().casefold()
+        if not wanted:
+            return None
+        roots = list(self.project_roots)
+        known = {root.resolve() for root in roots}
+        for project in fleet_projects():
+            if project.resolve() not in known:
+                roots.append(project)
+                known.add(project.resolve())
+        matches = [root for root in roots if root.name.casefold() == wanted]
+        if len(matches) != 1:
+            return None
+        target = matches[0]
+        self.project_root_by_id.setdefault(_viewer_project_id(target), target)
+        if all(root.resolve() != target.resolve() for root in self.project_roots):
+            self.project_roots.append(target)
         return target
 
     @property

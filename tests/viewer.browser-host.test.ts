@@ -2833,6 +2833,29 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Focused logics/tasks/task_001_blocked.md");
   });
 
+  it("focuses a corpus item from its short id, or from nothing when it is ambiguous", async () => {
+    // item_825: the shortest working link carried the whole slug, which is why `?focus=`
+    // went unused -- nobody writes 76 characters of slug in a sentence.
+    const short = createViewerDom({ url: "http://127.0.0.1:8765/?focus=task_001" });
+    short.dom.window.acquireVsCodeApi().postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const persisted = JSON.parse(short.dom.window.localStorage.getItem("logics.localViewer.state") || "null");
+    expect(persisted?.selectedId).toBe("task_001_blocked");
+
+    // Short means exactly one document or none: opening whichever sorted first would be a
+    // wrong document that looks like a working link.
+    const ambiguous = createViewerDom({ url: "http://127.0.0.1:8765/?focus=task_0" });
+    ambiguous.dom.window.acquireVsCodeApi().postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(ambiguous.dom.window.document.getElementById("viewer-meta")?.textContent).toContain(
+      "Focus target not found: task_0"
+    );
+  });
+
   it("keeps the focused item selected when viewer data refreshes", async () => {
     const { dom, calls } = createViewerDom({
       url: "http://127.0.0.1:8765/?focus=req_001_demo",

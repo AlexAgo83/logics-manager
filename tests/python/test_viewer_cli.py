@@ -4538,6 +4538,39 @@ def test_a_report_is_computed_once_even_when_two_callers_race(tmp_path: Path) ->
         server.server_close()
 
 
+def test_a_project_can_be_selected_by_its_name(tmp_path: Path) -> None:
+    """item_826: `?project=` took twelve characters of a SHA-1 of the resolved path.
+
+    Nobody writes `c0b5091ab49d` from memory, so a link to another project's document had to
+    be looked up before it could be written -- which is most of why such links are not
+    written at all. The switcher already shows every project by the name used here.
+    """
+    from logics_manager.viewer import _viewer_project_id
+
+    root = tmp_path / "project"
+    (root / "logics" / "request").mkdir(parents=True)
+    (root / "logics" / "request" / "req_001_one.md").write_text(
+        "## req_001_one - One\n> Status: Ready\n", encoding="utf-8"
+    )
+    sibling = tmp_path / "sibling"
+    (sibling / "logics" / "request").mkdir(parents=True)
+
+    server = create_viewer_server_or_skip(root)
+    try:
+        server.project_roots = [root, sibling]
+        server.project_root_by_id = {_viewer_project_id(root): root}
+
+        assert server.set_request_project("sibling") == sibling
+        assert server.set_request_project("SIBLING") == sibling, "the name is matched case-insensitively"
+        # The opaque id is what the viewer itself emits, and keeps working.
+        assert server.set_request_project(_viewer_project_id(root)) == root
+
+        with pytest.raises(ValueError):
+            server.set_request_project("no-such-project")
+    finally:
+        server.server_close()
+
+
 def test_lint_and_health_are_cached_until_the_corpus_changes(tmp_path: Path) -> None:
     """item_813: req_364 cached the audit alone, on a lint timing taken in a warm process.
 

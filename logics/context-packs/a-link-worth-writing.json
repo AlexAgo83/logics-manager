@@ -1,0 +1,597 @@
+{
+  "budgets": {
+    "max_docs": 20,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence item_825_resolve_a_document_from_its_short_id item_826_select_a_project_by_the_name_the_switcher_shows item_827_write_down_the_link_forms_where_a_writer_will_look task_380_orchestrate_the_short_viewer_link_work --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_365_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "prod": [
+          "prod_005_logics_corpus_navigation_views",
+          "prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api",
+          "prod_015_cli_product_maturity_roadmap",
+          "prod_020_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "req": [
+          "req_201_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "task": [
+          "task_166_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ]
+      },
+      "path": "logics/product/prod_020_local_web_viewer_for_cli_driven_logics_work.md",
+      "ref": "prod_020_local_web_viewer_for_cli_driven_logics_work",
+      "sections": {
+        "Goals": [
+          "- Add a CLI-launched local viewer command, for example `logics-manager view` or `logics-manager serve-view`.",
+          "- Open a browser page that shows the Logics board, document details, relationships, status indicators, and markdown content.",
+          "- Reuse the existing webview assets and behavior where practical instead of creating a separate UI model.",
+          "- Introduce a clean host adapter boundary so the same UI can run under VS Code or under a local browser server.",
+          "- Keep the first version read-only by default so the feature is useful without creating mutation risk.",
+          "- Expose simple local API endpoints for corpus data, document reads, lint/audit summaries, and refresh signals."
+        ],
+        "Key product decisions": [
+          "- Treat the viewer as a visual companion to the CLI, not a replacement for either CLI or VS Code.",
+          "- Start read-only, then add bounded actions only after the host adapter and API boundary are stable.",
+          "- Keep dangerous or mutating work in the terminal for the first version.",
+          "- Prefer a browser local server over a rich terminal TUI because document navigation, board scanning, and markdown reading benefit from real layout, links, and persistent UI state.",
+          "- Reuse the existing webview implementation through a browser host adapter instead of maintaining a parallel UI.",
+          "- Keep the local API intentionally small: corpus data, document content, validation summaries, and refresh."
+        ],
+        "Overview": [
+          "Logics has become usable from the CLI, but the operator still loses the visual scanability that makes the VS Code webview useful.",
+          "The product opportunity is a local browser viewer launched from the CLI: a lightweight, local-only web surface that lets an operator inspect the Logics corpus, board, details, links, audits, and document content without opening VS Code.",
+          "The direction is not to recreate VS Code in the browser.",
+          "It is to make the existing webview experience portable through a small host adapter and a local server.",
+          "The CLI remains the canonical command surface, while the browser viewer becomes a visual companion for reading, scanning, and eventually triggering bounded actions.",
+          "The intended product feeling is: the operator keeps using the CLI, but can open a local visual cockpit when the workflow becomes too document-heavy for terminal output alone."
+        ],
+        "References": [
+          "- `logics/request/req_201_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/backlog/item_365_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/tasks/task_166_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/product/prod_005_logics_corpus_navigation_views.md`",
+          "- `logics/product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md`",
+          "- `logics/product/prod_015_cli_product_maturity_roadmap.md`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Local web viewer for CLI-driven Logics work"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_825_resolve_a_document_from_its_short_id",
+          "item_826_select_a_project_by_the_name_the_switcher_shows",
+          "item_827_write_down_the_link_forms_where_a_writer_will_look"
+        ],
+        "prod": [
+          "prod_100_a_viewer_link_worth_writing"
+        ],
+        "req": [
+          "req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence"
+        ],
+        "task": [
+          "task_380_orchestrate_the_short_viewer_link_work"
+        ]
+      },
+      "path": "logics/product/prod_100_a_viewer_link_worth_writing.md",
+      "ref": "prod_100_a_viewer_link_worth_writing",
+      "sections": {
+        "Goals": [
+          "- The link an operator would write by hand is the link that works.",
+          "- Short means unambiguous or nothing -- never a guess at which document was meant.",
+          "- Nothing that works today stops working.",
+          "- The form is written down where it will be read."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the address of a document short enough that naming it and linking to it are the same act."
+        ],
+        "References": [
+          "- Product back-reference: `req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence`",
+          "- Task back-reference: `task_380_orchestrate_the_short_viewer_link_work`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "A viewer link worth writing"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_784_validate_traceability_proof_content_and_fix_the_runtime_drift_false_positive",
+          "item_785_stop_flow_s_own_writes_from_tripping_its_own_checks"
+        ],
+        "prod": [
+          "prod_093_trustworthy_flow_checks"
+        ],
+        "req": [
+          "req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy"
+        ],
+        "task": [
+          "task_357_orchestrate_flow_traceability_and_self_consistency_fixes_gh_20_21"
+        ]
+      },
+      "path": "logics/product/prod_093_trustworthy_flow_checks.md",
+      "ref": "prod_093_trustworthy_flow_checks",
+      "sections": {
+        "Goals": [
+          "- A passed traceability check means the cited proof actually supports the cited acceptance criterion.",
+          "- A finding an operator cannot act on (false drift warning, a repair the tool itself refuses, a lint flag on the tool's own write) says so plainly or stops firing."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "flow's validation and self-generated writes agree on what counts as a valid, reviewed document.",
+          "```mermaid",
+          "flowchart LR",
+          "    Write[Agent writes a proof line] --> Check{Flow traceability check}",
+          "    Check -- \"self-authored\" --> Reject[Not evidence: the writer is the claimant]",
+          "    Check -- \"independent\" --> Accept[Counts as proof]"
+        ],
+        "References": [
+          "- Product back-reference: `req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy`",
+          "- Task back-reference: `task_357_orchestrate_flow_traceability_and_self_consistency_fixes_gh_20_21`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Trustworthy flow checks"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_821_report_a_shared_proof_once_not_once_per_pair",
+          "item_822_let_a_document_settle_a_deliberate_shared_proof",
+          "item_823_prove_the_check_still_finds_what_it_was_built_for",
+          "item_824_say_what_the_audit_s_remaining_warnings_are"
+        ],
+        "prod": [
+          "prod_099_an_audit_worth_reading"
+        ],
+        "req": [
+          "req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on"
+        ],
+        "task": [
+          "task_379_orchestrate_the_audit_signal_work"
+        ]
+      },
+      "path": "logics/product/prod_099_an_audit_worth_reading.md",
+      "ref": "prod_099_an_audit_worth_reading",
+      "sections": {
+        "Goals": [
+          "- One finding per thing to look at, not per pair of things.",
+          "- An operator can settle a legitimate pattern once instead of confirming it forever.",
+          "- Every check earns its noise: what it reports is dominated by defects, not by the shape it cannot tell from one.",
+          "- The count in the summary line means something."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Keep every check that finds real defects, and stop the ones that report the normal case, so that a report with warnings in it is a reason to look.",
+          "```mermaid",
+          "flowchart LR",
+          "    Run[Audit runs] --> Same{Two criteria, same proof text?}",
+          "    Same -- no --> Quiet[Nothing said]",
+          "    Same -- yes --> Open{Is the document still open?}"
+        ],
+        "References": [
+          "- Product back-reference: `req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on`",
+          "- Task back-reference: `task_379_orchestrate_the_audit_signal_work`"
+        ]
+      },
+      "status": "Settled",
+      "title": "An audit worth reading"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "viewer, link, short, enough, write, sentence",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_825_resolve_a_document_from_its_short_id",
+          "item_826_select_a_project_by_the_name_the_switcher_shows",
+          "item_827_write_down_the_link_forms_where_a_writer_will_look"
+        ],
+        "prod": [
+          "prod_020_local_web_viewer_for_cli_driven_logics_work",
+          "prod_100_a_viewer_link_worth_writing"
+        ],
+        "req": [
+          "req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on",
+          "req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence"
+        ]
+      },
+      "path": "logics/request/req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence.md",
+      "ref": "req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `?focus=req_368` opens the viewer on that document, and the full id, filename and path forms keep working exactly as they do today.",
+          "- AC2: A short form that does not identify exactly one document resolves to nothing and says so, rather than opening whichever document happened to sort first.",
+          "- AC3: `?project=<name>` selects a known project by the name the switcher displays, and the existing opaque id keeps working.",
+          "- AC4: A link combining both -- a document in another project -- opens that document in that project.",
+          "- AC5: The short forms are documented where someone writing a link will look, not only in a test."
+        ],
+        "Needs": [
+          "- As an operator reading an assistant's answer, I need the documents it names to be links I can open, so that reading about a document and opening it are the same gesture.",
+          "- As whoever writes that answer -- an assistant or a person -- I need the link short enough to put inline in a sentence, or it will not be written at all.",
+          "- As an operator working across projects, I need a link to another project's document to be writable from memory."
+        ]
+      },
+      "status": "Draft",
+      "title": "Make a viewer link short enough to write in a sentence"
+    },
+    {
+      "ai_context": {
+        "keywords": "audit signal, duplicate proof, false positives, warning fatigue",
+        "skip when": "The check finds real defects at a rate worth its volume.",
+        "summary": "`ac_duplicate_proof` was all 437 of the audit's warnings, on 122 documents, every one of them closed. Keep the signal, stop paying for it.",
+        "use when": "A check reports the normal case and the report stops being read."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_784_validate_traceability_proof_content_and_fix_the_runtime_drift_false_positive",
+          "item_821_report_a_shared_proof_once_not_once_per_pair",
+          "item_822_let_a_document_settle_a_deliberate_shared_proof",
+          "item_823_prove_the_check_still_finds_what_it_was_built_for",
+          "item_824_say_what_the_audit_s_remaining_warnings_are"
+        ],
+        "prod": [
+          "prod_093_trustworthy_flow_checks",
+          "prod_099_an_audit_worth_reading"
+        ],
+        "req": [
+          "req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on"
+        ]
+      },
+      "path": "logics/request/req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on.md",
+      "ref": "req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A shared proof covering several criteria is reported once, naming every criterion it covers, rather than once per pair.",
+          "- AC2: A document can state that a shared proof is deliberate, and that document stops being reported without the check being disabled anywhere else.",
+          "- AC3: The case item_784 was built for -- one proof block shifted or copy-pasted across criteria that do not share a wave -- is still reported.",
+          "- AC4: After this work the audit's warning count on this corpus reflects things worth reading, and what remains is stated with its number rather than left implied.",
+          "- AC5: No check in this audit reports the normal case as a finding: any check whose warning count is dominated by a legitimate pattern is either narrowed or acknowledged, and the reasoning is recorded where the check lives."
+        ],
+        "Needs": [
+          "- As an operator running an audit, I need its warnings to be findings I can act on, so that a report with warnings in it is worth opening.",
+          "- As an operator, I need a shared implementation wave to be stated once rather than once per pair of criteria it covers.",
+          "- As an operator, I need to be able to say 'yes, this proof is shared on purpose' and not be asked again."
+        ]
+      },
+      "status": "Done",
+      "title": "Make the duplicate-proof check say something a reader can act on"
+    },
+    {
+      "ai_context": {
+        "keywords": "resolve, document, short",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_825_resolve_a_document_from_its_short_id"
+        ],
+        "prod": [
+          "prod_100_a_viewer_link_worth_writing"
+        ],
+        "req": [
+          "req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence"
+        ],
+        "task": [
+          "task_380_orchestrate_the_short_viewer_link_work"
+        ]
+      },
+      "path": "logics/backlog/item_825_resolve_a_document_from_its_short_id.md",
+      "ref": "item_825_resolve_a_document_from_its_short_id",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `req_368` resolves to the document whose id starts with `req_368_`.",
+          "- AC2: `req_36` resolves to nothing, and so does a short id no document carries.",
+          "- AC3: The full id, the filename, the relative path and the absolute path all still resolve as they do today."
+        ],
+        "Problem": [
+          "- `findFocusItem` matches the full id, the filename or a path, so the shortest link to `req_368` carries its entire 76-character slug.",
+          "- An answer naming several documents would be mostly URLs, so the links are not written and the operator navigates by hand -- an affordance that exists and is never used."
+        ]
+      },
+      "status": "Ready",
+      "title": "Resolve a document from its short id"
+    },
+    {
+      "ai_context": {
+        "keywords": "select, project, name, switcher, shows",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_826_select_a_project_by_the_name_the_switcher_shows"
+        ],
+        "prod": [
+          "prod_100_a_viewer_link_worth_writing"
+        ],
+        "req": [
+          "req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence"
+        ],
+        "task": [
+          "task_380_orchestrate_the_short_viewer_link_work"
+        ]
+      },
+      "path": "logics/backlog/item_826_select_a_project_by_the_name_the_switcher_shows.md",
+      "ref": "item_826_select_a_project_by_the_name_the_switcher_shows",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `?project=logics-manager` selects that project.",
+          "- AC2: An unknown or ambiguous name is refused with a message naming what was tried, not silently ignored.",
+          "- AC3: The opaque id keeps working."
+        ],
+        "Problem": [
+          "- `?project=` takes `_viewer_project_id`, twelve characters of a SHA-1 of the resolved path. Nobody writes `c0b5091ab49d` from memory, so a cross-project link has to be looked up before it can be written.",
+          "- The switcher already shows every project by name, which is what an operator would write."
+        ]
+      },
+      "status": "Ready",
+      "title": "Select a project by the name the switcher shows"
+    },
+    {
+      "ai_context": {
+        "keywords": "orchestrate, short, viewer, link, work",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_825_resolve_a_document_from_its_short_id",
+          "item_826_select_a_project_by_the_name_the_switcher_shows",
+          "item_827_write_down_the_link_forms_where_a_writer_will_look"
+        ],
+        "prod": [
+          "prod_100_a_viewer_link_worth_writing"
+        ],
+        "req": [
+          "req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence"
+        ],
+        "task": [
+          "task_380_orchestrate_the_short_viewer_link_work"
+        ]
+      },
+      "path": "logics/tasks/task_380_orchestrate_the_short_viewer_link_work.md",
+      "ref": "task_380_orchestrate_the_short_viewer_link_work",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the short viewer link work"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_825_resolve_a_document_from_its_short_id",
+          "item_826_select_a_project_by_the_name_the_switcher_shows",
+          "item_827_write_down_the_link_forms_where_a_writer_will_look"
+        ],
+        "prod": [
+          "prod_100_a_viewer_link_worth_writing"
+        ],
+        "req": [
+          "req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence"
+        ],
+        "task": [
+          "task_380_orchestrate_the_short_viewer_link_work"
+        ]
+      },
+      "path": "logics/product/prod_100_a_viewer_link_worth_writing.md",
+      "ref": "prod_100_a_viewer_link_worth_writing",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "A viewer link worth writing"
+    },
+    {
+      "ai_context": {
+        "keywords": "write, down, link, forms, writer, look",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_827_write_down_the_link_forms_where_a_writer_will_look"
+        ],
+        "prod": [
+          "prod_100_a_viewer_link_worth_writing"
+        ],
+        "req": [
+          "req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence"
+        ],
+        "task": [
+          "task_380_orchestrate_the_short_viewer_link_work"
+        ]
+      },
+      "path": "logics/backlog/item_827_write_down_the_link_forms_where_a_writer_will_look.md",
+      "ref": "item_827_write_down_the_link_forms_where_a_writer_will_look",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The short forms are written where the viewer's operator-facing behaviour is already described.",
+          "- AC2: The example given resolves against this corpus."
+        ],
+        "Problem": [
+          "- Both short forms are only discoverable by reading `findFocusItem` and `set_request_project`, which is not where someone about to write a link looks.",
+          "- The long form went unused for exactly this reason: nothing that was going to be read said it existed."
+        ]
+      },
+      "status": "Ready",
+      "title": "Write down the link forms where a writer will look"
+    }
+  ],
+  "estimates": {
+    "char_count": 18465,
+    "companion_doc_count": 4,
+    "doc_count": 7
+  },
+  "generated_at": "2026-08-15T13:37:22Z",
+  "handoff": {
+    "companion_doc_count": 4,
+    "enabled": true,
+    "source_refs": [
+      "req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence",
+      "item_825_resolve_a_document_from_its_short_id",
+      "item_826_select_a_project_by_the_name_the_switcher_shows",
+      "item_827_write_down_the_link_forms_where_a_writer_will_look",
+      "task_380_orchestrate_the_short_viewer_link_work"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence,item_825_resolve_a_document_from_its_short_id,item_826_select_a_project_by_the_name_the_switcher_shows,item_827_write_down_the_link_forms_where_a_writer_will_look,task_380_orchestrate_the_short_viewer_link_work",
+  "refs": [
+    "req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence",
+    "item_825_resolve_a_document_from_its_short_id",
+    "item_826_select_a_project_by_the_name_the_switcher_shows",
+    "item_827_write_down_the_link_forms_where_a_writer_will_look",
+    "task_380_orchestrate_the_short_viewer_link_work"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_380_orchestrate_the_short_viewer_link_work.md",
+      "ref": "task_380_orchestrate_the_short_viewer_link_work"
+    }
+  ]
+}

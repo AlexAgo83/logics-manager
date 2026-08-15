@@ -2086,13 +2086,19 @@ import {
     return latestItems.find((entry) => entry.relPath === normalized || entry.path === normalized) || null;
   }
 
+  //: item_825: a document's id is `kind_number_slug`, and the number is unique within its
+  //: kind -- so `req_368` names exactly one document while `req_36` names none. Nothing
+  //: shorter than the whole slug resolved before, which is why `?focus=` went unused: a
+  //: link carrying 76 characters of slug is not one anybody writes in a sentence.
+  const SHORT_DOCUMENT_ID = /^[a-z]+_\d+$/i;
+
   function findFocusItem(target) {
     const normalized = normalizeFocusTarget(target);
     if (!normalized) {
       return null;
     }
     const bare = normalized.endsWith(".md") ? normalized.slice(0, -3).split("/").pop() : normalized;
-    return latestItems.find((entry) => {
+    const exact = latestItems.find((entry) => {
       const relPath = String(entry.relPath || "").replace(/\\/g, "/");
       const fullPath = String(entry.path || "").replace(/\\/g, "/");
       return entry.id === normalized ||
@@ -2100,7 +2106,18 @@ import {
         entry.filename === normalized ||
         relPath === normalized ||
         fullPath.endsWith(`/${normalized}`);
-    }) || null;
+    });
+    if (exact) {
+      return exact;
+    }
+    if (!SHORT_DOCUMENT_ID.test(bare)) {
+      return null;
+    }
+    // Exactly one, or nothing: resolving `req_36` to whichever of req_360..368 sorted first
+    // would open the wrong document while looking like it worked.
+    const prefix = `${bare.toLowerCase()}_`;
+    const matches = latestItems.filter((entry) => String(entry.id || "").toLowerCase().startsWith(prefix));
+    return matches.length === 1 ? matches[0] : null;
   }
 
   function persistSelectedItem(id) {

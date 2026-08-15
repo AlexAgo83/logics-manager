@@ -1,14 +1,14 @@
 ## item_791_fleet_home_confirm_the_redesign_live_add_favourites_all_projects_sections - Fleet home: confirm the redesign live, add favourites/all-projects sections
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Viewer redesign follow-through
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 01:31:45
+> Indicators reviewed: 2026-08-15 04:31:03
 
 # AI Context
 - Summary: This repo's own redesigned `renderFleetHome()` has never been visually confirmed on a running server, and the mockup's two labelled sections ("Favorites" / "All projects") don't exist in the implementation.
@@ -50,6 +50,7 @@ No server currently reachable on the review machine actually served this repo's 
 
 # Notes
 - Fleet home also has a separate, unrelated bug tracked in req_362/item_800 (a stale `rootScreenTitle` latch that hides Close/Minimize on later reopenings). That fix is independent of this slice's scope and does not block confirming the redesign here.
+- Task `task_362_fleet_home_confirm_the_redesign_live_add_favourites_all_projects_sections` was finished via `logics-manager flow finish task` on 2026-08-15.
 
 # Tasks
 - `task_362_fleet_home_confirm_the_redesign_live_add_favourites_all_projects_sections`

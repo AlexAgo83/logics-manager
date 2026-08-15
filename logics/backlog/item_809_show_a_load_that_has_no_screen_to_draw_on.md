@@ -46,6 +46,11 @@
   - Lifting the bar's children with `z-index: 1` then put each of them in a stacking context capped at 1, so the menus were painted under the toolbar below. `position: relative` with `z-index: auto` creates no context, and the sheen being the first child is enough for everything after it to paint on top.
 - Both are pinned by a test that reads the two rules rather than trusting the effect, and both were confirmed live with `elementFromPoint` at the open menu's own coordinates -- which answers "is this the thing actually painted here", where a screenshot only answers "does this look right".
 
+# Follow-up, second report
+- Reported by the operator: arriving on the app after a restart shows the word "Refreshing" and nothing else. The affordance was wired to `setPrimaryActionBusy`, which only fires for a primary action -- the initial load and the auto-refresh ticks go through `loadItems` and never set it.
+- The two surfaces answer different questions, so they are now two affordances rather than one flag driving both: the document header says "this screen is loading", the app header says "the viewer is fetching". A refresh arriving on its own lights the app header and must not light a screen that is not reloading.
+- Measured live from page load, polling every 100ms: the app header is lit from 300ms to 1200ms during the initial fetch -- the threshold, then the minimum visible duration.
+
 # AC Traceability
 - request-AC1 -> This backlog slice. Proof: AC1: While the viewer is busy with no document screen open, the status line shows a spinner beside its message and the header background carries the sheen.
 - request-AC6 -> This backlog slice. Proof: AC2: The status line's text is unchanged, and its layout does not shift when the spinner appears or clears.

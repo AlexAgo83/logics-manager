@@ -53,6 +53,11 @@
 - Replaced rather than tuned: two 2px lights walk the edges directly, left to right along the top for the first half of the lap and right to left along the bottom for the second. Uniform by construction at any width, which the conic version could never be at this aspect ratio. It also needs no cover over the middle and no mask -- there is nothing in the middle to hide.
 - Verified by capturing the header at points around the lap: at 15% the light is on the top edge toward the left, at 80% on the bottom edge travelling back.
 
+# Decision reversed by the operator
+- The slice's own title proposed one lap and a resting outline, on the argument that a light which never stops is a clock nobody can read. Seen running, the operator asked for the opposite: it should keep travelling, and the highlighted frame behind it should go. Their call, and it is implemented that way -- the outline existed only to carry the wait after the lap ended, so it has nothing to carry when the light never leaves.
+- Linear rather than eased: each half of the circuit is one leg, and easing each leg separately puts a stutter at both seams. That was invisible while the animation ran once and obvious once it loops.
+- The minimum-visible rule stays and changes meaning: it is no longer about letting a one-shot gesture finish, but about not showing a fragment of a circuit and taking it away again.
+
 # AC Traceability
 - request-AC2 -> This backlog slice. Proof: AC1: The ring completes one lap and then holds a steady dimmed outline for the rest of the load.
 - request-AC3 -> This backlog slice. Proof: AC2: A load that resolves faster than the threshold shows no ring, no spinner and no sheen.

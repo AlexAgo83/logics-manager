@@ -633,15 +633,13 @@ import {
   //: things that come to disagree.
   const LOADING_AFFORDANCE_DELAY_MS = 250;
 
-  //: How long the ring's lap takes, matching `viewer-loading-ring-spin` in the stylesheet.
-  //: Once the affordance is shown it stays for at least this long: reported by the operator
-  //: as "the ring does not go round", which is what a lap looks like when the payload lands
-  //: halfway through it and the comet is cut off mid-travel. A gesture that marks a
-  //: beginning has to be allowed to finish, or it reads as a fault rather than as feedback.
+  //: How long one circuit takes, matching the ring keyframes in the stylesheet. Once the
+  //: affordance is shown it stays for at least this long: reported by the operator as "the
+  //: ring does not go round", which is what a circuit looks like when the payload lands
+  //: halfway through it and the light is cut off mid-travel. The travel is continuous now,
+  //: so this is no longer about letting a one-shot gesture finish -- it is about not
+  //: showing a fragment of a circuit and taking it away again.
   const LOADING_AFFORDANCE_LAP_MS = 1150;
-
-  let loadingAffordanceTimer = null;
-  let loadingAffordanceShownAt = 0;
 
   /**
    * item_812: the phone header's one control, opening the screen buttons as a sheet.
@@ -679,62 +677,81 @@ import {
     });
   }
 
-  function loadingSurfaces() {
-    return [
-      document.querySelector(".viewer-document__header"),
-      document.querySelector(".viewer-topbar")
-    ].filter((node) => node instanceof HTMLElement);
-  }
+  /**
+   * One loading affordance on one surface, with the threshold and the minimum-visible rule.
+   *
+   * Two of these, because the two surfaces answer different questions: the document header
+   * says "this screen is loading", the app header says "the viewer is fetching". A refresh
+   * arriving on its own -- the initial load after a restart, an auto-refresh tick -- lights
+   * the app header and must not light a screen that is not reloading.
+   */
+  function createLoadingAffordance(findNode) {
+    let timer = null;
+    let shownAt = 0;
 
-  function clearLoadingAffordances() {
-    loadingAffordanceShownAt = 0;
-    loadingSurfaces().forEach((node) => node.removeAttribute("data-loading"));
-  }
+    const clear = () => {
+      shownAt = 0;
+      findNode()?.removeAttribute("data-loading");
+    };
 
-  function applyLoadingRing(busy, screenChange = false) {
-    if (loadingAffordanceTimer !== null) {
-      window.clearTimeout(loadingAffordanceTimer);
-      loadingAffordanceTimer = null;
-    }
-    const surfaces = loadingSurfaces();
-    if (!busy) {
-      if (!loadingAffordanceShownAt) {
-        // Never shown -- the load finished inside the threshold, so there is nothing to
-        // take away and nothing was ever seen.
-        clearLoadingAffordances();
+    return (busy, colour) => {
+      if (timer !== null) {
+        window.clearTimeout(timer);
+        timer = null;
+      }
+      if (!busy) {
+        if (!shownAt) {
+          // Never shown -- the load finished inside the threshold, so nothing was seen and
+          // there is nothing to take away.
+          clear();
+          return;
+        }
+        const remaining = LOADING_AFFORDANCE_LAP_MS - (Date.now() - shownAt);
+        if (remaining <= 0) {
+          clear();
+          return;
+        }
+        // Showing a fragment of a circuit and taking it away again reads as a fault; a new
+        // load starting in this tail cancels it.
+        timer = window.setTimeout(() => {
+          timer = null;
+          clear();
+        }, remaining);
         return;
       }
-      const remaining = LOADING_AFFORDANCE_LAP_MS - (Date.now() - loadingAffordanceShownAt);
-      if (remaining <= 0) {
-        clearLoadingAffordances();
-        return;
-      }
-      // The payload landed mid-lap. Let the lap finish rather than cutting the comet off
-      // where it happens to be; a new load starting in the meantime cancels this.
-      loadingAffordanceTimer = window.setTimeout(() => {
-        loadingAffordanceTimer = null;
-        clearLoadingAffordances();
-      }, remaining);
-      return;
-    }
+      const node = findNode();
+      if (!node) return;
+      // The colour is set now and the attribute after the threshold: a surface that changes
+      // colour as it appears reads as two events rather than one.
+      if (colour) node.style.setProperty("--loading-color", colour);
+      timer = window.setTimeout(() => {
+        timer = null;
+        shownAt = Date.now();
+        // Re-read rather than closing over the node: a screen change between the click and
+        // the threshold replaces the header this was about to light.
+        findNode()?.setAttribute("data-loading", "");
+      }, LOADING_AFFORDANCE_DELAY_MS);
+    };
+  }
+
+  const setDocumentHeaderLoading = createLoadingAffordance(() => document.querySelector(".viewer-document__header"));
+  const setTopbarLoading = createLoadingAffordance(() => document.querySelector(".viewer-topbar"));
+
+  function loadingColourFor(screenChange) {
     // What is loading is not known when the load starts -- `currentDocumentItem` is still
     // the document being left. A screen change is exactly the case where the stage on hand
     // is the wrong one, and navigation already declares itself as one (`supersede`), so the
     // ring reads neutral there rather than colouring a Settings load like a request.
     const stage = screenChange ? "" : String(currentDocumentItem?.stage || "");
-    const colour = LOADING_RING_STAGES.has(stage)
+    return LOADING_RING_STAGES.has(stage)
       ? `var(--stage-color-${stage})`
       : "var(--viewer-loading-neutral)";
-    // The colour is set now and the attribute later: a surface that changes colour as it
-    // appears reads as two events rather than one.
-    surfaces.forEach((node) => node.style.setProperty("--loading-color", colour));
-    loadingAffordanceTimer = window.setTimeout(() => {
-      loadingAffordanceTimer = null;
-      loadingAffordanceShownAt = Date.now();
-      // Re-read rather than closing over the list: a screen change between the click and
-      // the threshold replaces the header this was about to light.
-      loadingSurfaces().forEach((node) => node.setAttribute("data-loading", ""));
-    }, LOADING_AFFORDANCE_DELAY_MS);
+  }
+
+  function applyLoadingRing(busy, screenChange = false) {
+    const colour = busy ? loadingColourFor(screenChange) : "";
+    setDocumentHeaderLoading(busy, colour);
+    setTopbarLoading(busy, colour);
   }
 
   function setPrimaryActionBusy(actionKey, label = "", options = {}) {
@@ -2869,6 +2886,10 @@ import {
       return false;
     }
     itemsLoadInFlight = true;
+    // Reported by the operator: arriving on the app after a restart showed the word
+    // "Refreshing" and nothing else. This is the fetch every one of those goes through,
+    // including the ones no primary action wraps.
+    setTopbarLoading(true, "var(--viewer-loading-neutral)");
     try {
       if (!options.silent) {
         setMeta("Refreshing...");
@@ -2888,6 +2909,7 @@ import {
       throw error;
     } finally {
       itemsLoadInFlight = false;
+      setTopbarLoading(false);
     }
   }
 

@@ -7049,17 +7049,22 @@
   bottom: 0;
 }
 
-/* item_810: one lap, not a rotation for the load's whole duration. A spinner that never
-   stops is a clock the operator cannot read -- it says "still going" and nothing they can
-   act on. Declared only while loading: on the element itself a one-shot animation runs once
-   when that element is created -- at page load, before any load -- and `forwards` then holds
-   it at the end for ever, so it never played again. */
+/* item_810 proposed one lap and a resting outline, on the argument that a spinner which
+   never stops is a clock the operator cannot read. Seen running, the operator asked for the
+   opposite and that is the answer: it keeps travelling for as long as the load does, and the
+   resting outline is gone -- it existed only to carry the wait after the lap ended, and has
+   nothing to carry when the light never leaves.
+
+   Linear, not eased: each half is one leg of a continuous circuit, and easing each leg
+   separately puts a stutter at both seams. Declared only while loading -- on the element
+   itself an animation is running from page load, which is the defect that made the first
+   version look frozen. */
 .viewer-document__header[data-loading] .viewer-document__ring::before {
-  animation: viewer-loading-ring-top 1.15s ease-in-out 1 forwards;
+  animation: viewer-loading-ring-top 1.15s linear infinite;
 }
 
 .viewer-document__header[data-loading] .viewer-document__ring::after {
-  animation: viewer-loading-ring-bottom 1.15s ease-in-out 1 forwards;
+  animation: viewer-loading-ring-bottom 1.15s linear infinite;
 }
 
 @keyframes viewer-loading-ring-top {
@@ -7082,20 +7087,6 @@
   }
 }
 
-/* What carries the wait once the lap is done: the same colour, steady, dimmed enough not to
-   compete with the screen it frames. */
-.viewer-document__ring-rest {
-  position: absolute;
-  inset: 0;
-  box-shadow: inset 0 0 0 2px var(--loading-color, var(--viewer-loading-neutral));
-  opacity: 0;
-  transition: opacity 0.35s ease 0.95s;
-}
-
-.viewer-document__header[data-loading] .viewer-document__ring-rest {
-  opacity: 0.5;
-}
-
 /* AC4: no travel at all under reduced motion -- the same colour, breathing. A media query,
    not a setting of our own: the operator has already answered this question once. */
 @media (prefers-reduced-motion: reduce) {
@@ -7110,12 +7101,6 @@
   .viewer-document__header[data-loading] .viewer-document__ring {
     opacity: 0.55;
     animation: viewer-loading-ring-breathe 2.4s ease-in-out infinite;
-  }
-
-  /* No lap runs, so there is nothing to hand over to: the breathing edges are the whole
-     signal, and a static outline over them would only mute it. */
-  .viewer-document__ring-rest {
-    display: none;
   }
 }
 

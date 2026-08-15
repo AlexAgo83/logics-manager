@@ -36,6 +36,8 @@
         return "Roadmaps";
       case "architecture":
         return "Architecture decisions";
+      case "runbook":
+        return "Runbooks";
       case "spec":
         return "Specs";
       default:
@@ -48,7 +50,11 @@
   }
 
   function isCompanionStage(stage) {
-    return stage === "product" || stage === "roadmap" || stage === "architecture";
+    // item_817: a runbook is a companion document like the rest. It was already in the
+    // payload with its own stage and colour, and only ever left the board because nothing
+    // here named it -- so it fell through to the raw stage string and never reached the
+    // reference index.
+    return stage === "product" || stage === "roadmap" || stage === "architecture" || stage === "runbook";
   }
 
   function normalizeManagedDocValue(value) {

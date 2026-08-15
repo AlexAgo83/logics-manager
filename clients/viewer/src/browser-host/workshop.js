@@ -48,12 +48,6 @@ export function createWorkshopScreen(host) {
     return host.shared.viewerPreferences.workshopUseSystemTerminal === true || window.parent !== window;
   }
 
-  // item_801/task_372: "Show hidden" used to be in-memory only (workshopRunbookState.
-  // includeHidden, hardcoded false) and reset every reload. Default is "on" -- an
-  // explicit `false` preference is the only thing that turns it off.
-  function workshopRunbookShowsHidden() {
-    return host.shared.viewerPreferences.workshopRunbookShowHidden !== false;
-  }
 
   function syncWorkshopSystemTerminalControls() {
     document.querySelectorAll("[data-viewer-workshop-system-terminal]").forEach((node) => {
@@ -189,33 +183,6 @@ export function createWorkshopScreen(host) {
           <div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty">
             <span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span>
             <span>Discovering commands...</span>
-          </div>
-        </div>
-      `;
-    }
-    if (tabId === "runbooks") {
-      return `
-        <div class="viewer-workshop__panel viewer-workshop__panel--runbooks" role="tabpanel" data-viewer-workshop-panel="runbooks">
-          <div class="viewer-workshop__runbook-search">
-            <input type="search" placeholder="Search by intent, symptom, path, or category..." data-viewer-workshop-runbook-query aria-label="Search runbooks" />
-            <label class="viewer-workshop__runbook-toggle"><input type="checkbox" data-viewer-workshop-runbook-hidden${workshopRunbookShowsHidden() ? " checked" : ""} /> Show hidden</label>
-          </div>
-          <div data-viewer-workshop-runbooks>
-            <div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty">
-              <span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span>
-              <span>Loading runbooks...</span>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-    const terminalsAvailable = Boolean(host.capability("workshop").detail?.terminalsAvailable);
-    if (!terminalsAvailable) {
-      return `
-        <div class="viewer-workshop__panel viewer-workshop__panel--terminals" role="tabpanel" data-viewer-workshop-panel="terminals">
-          <div class="viewer-workspace__placeholder viewer-workspace__placeholder--unavailable">
-            <span class="viewer-workspace__placeholder-icon" aria-hidden="true">!</span>
-            <span>In-app terminals require a Unix host with stdlib pty support (macOS or Linux). Use the Commands tab to run discovered scripts in the meantime.</span>
           </div>
         </div>
       `;
@@ -445,111 +412,6 @@ export function createWorkshopScreen(host) {
   // req_330/item_689: search results and the "recent" landing list share this
   // card shape ({ref, category, verified, reason, title}), so one render path
   // covers both instead of a separate empty-query branch.
-  const workshopRunbookState = { payload: null, showingGraph: false, includeHidden: workshopRunbookShowsHidden() };
-
-  function renderWorkshopRunbookCards(payload) {
-    if (!payload || payload.no_match) {
-      return `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">·</span><span>${payload?.query ? `No Active runbook matched "${escapeHtml(payload.query)}".` : "No Active runbooks yet."}</span></div>`;
-    }
-    // item_757: the tab is titled "search, browse by category, verify" and the screen
-    // offered search alone, with 85% of it empty below two results. The categories the
-    // runbooks already declare become the browse; the width they cost was going unused.
-    const byCategory = new Map();
-    payload.matches.forEach((entry) => {
-      const category = entry.category || "uncategorized";
-      if (!byCategory.has(category)) byCategory.set(category, []);
-      byCategory.get(category).push(entry);
-    });
-    const card = (entry) => `
-      <li>
-        <a class="viewer-workshop__runbook-card" href="#" data-viewer-workshop-runbook-open="${escapeHtml(entry.path)}">
-          <div class="viewer-workshop__runbook-title"><strong>${escapeHtml(entry.title || entry.ref)}</strong></div>
-          <div class="viewer-workshop__runbook-meta">${escapeHtml(entry.reason || "")}${renderRunbookVerification(entry)}</div>
-        </a>
-      </li>
-    `;
-    const sections = [...byCategory.entries()].map(([category, entries]) => `
-      <section class="viewer-workshop__runbook-group" id="runbook-category-${escapeHtml(category)}">
-        <h3 class="viewer-workshop__runbook-group-title">${escapeHtml(category)} <span class="viewer-workshop__group-count">${entries.length}</span></h3>
-        <ul class="viewer-workshop__runbook-list">${entries.map(card).join("")}</ul>
-      </section>
-    `).join("");
-    const unverified = payload.matches.filter((entry) => !entry.verified).length;
-    const rail = `
-      <nav class="viewer-workshop__runbook-rail" aria-label="Runbook categories">
-        <div class="viewer-workshop__runbook-rail-title">${payload.matches.length} runbooks</div>
-        ${unverified ? `<p class="viewer-workshop__runbook-due">${unverified} never verified</p>` : ""}
-        <ul>${[...byCategory.entries()].map(([category, entries]) =>
-          `<li><a href="#runbook-category-${escapeHtml(category)}">${escapeHtml(category)} <span class="viewer-workshop__group-count">${entries.length}</span></a></li>`
-        ).join("")}</ul>
-      </nav>
-    `;
-    return `<div class="viewer-workshop__runbook-layout">${rail}<div class="viewer-workshop__runbook-results">${sections}</div></div>`;
-  }
-
-  /**
-   * When a runbook was last verified, and whether that is overdue.
-   *
-   * Never verified is stated as such rather than left blank: a blank reads as "no
-   * information" when it is in fact the strongest information the row carries.
-   */
-  function renderRunbookVerification(entry) {
-    if (!entry.verified) return ' · <span class="viewer-workshop__runbook-unverified">never verified</span>';
-    const days = Math.floor((Date.now() - Date.parse(entry.verified)) / 86400000);
-    if (!Number.isFinite(days)) return ` · verified ${escapeHtml(entry.verified)}`;
-    const stale = days > 180 ? ' viewer-workshop__runbook-stale' : "";
-    return ` · <span class="viewer-workshop__runbook-verified${stale}">verified ${escapeHtml(entry.verified)}${days > 180 ? ` (${days} days ago)` : ""}</span>`;
-  }
-
-  function renderWorkshopRunbooks() {
-    const container = document.querySelector("[data-viewer-workshop-runbooks]");
-    if (!(container instanceof HTMLElement)) return;
-    container.innerHTML = renderWorkshopRunbookCards(workshopRunbookState.payload);
-  }
-
-  async function loadWorkshopRunbooks(query = "", includeHidden = workshopRunbookState.includeHidden) {
-    try {
-      const params = new URLSearchParams();
-      if (query) params.set("q", query);
-      if (includeHidden) params.set("includeHidden", "1");
-      const response = await fetch(`/api/runbooks${params.size ? `?${params}` : ""}`);
-      const data = await response.json();
-      workshopRunbookState.payload = data?.payload || null;
-    } catch (error) {
-      workshopRunbookState.payload = { matches: [], no_match: true, query };
-    }
-    workshopRunbookState.showingGraph = false;
-    renderWorkshopRunbooks();
-  }
-
-  function setWorkshopRunbooksIncludeHidden(includeHidden, query = "") {
-    workshopRunbookState.includeHidden = Boolean(includeHidden);
-    return loadWorkshopRunbooks(query);
-  }
-
-  async function showWorkshopRunbookGraph() {
-    const container = document.querySelector("[data-viewer-workshop-runbooks]");
-    if (!(container instanceof HTMLElement)) return;
-    container.innerHTML = `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span>Loading graph...</span></div>`;
-    try {
-      const response = await fetch("/api/runbook-graph");
-      const data = await response.json();
-      if (!response.ok || !data.ok) {
-        container.innerHTML = `<p>Unable to load the runbook graph.</p>`;
-        return;
-      }
-      window.__logicsGraphNodeClick = (nodeRef) => {
-        if (!String(nodeRef).startsWith("category_")) {
-          host.openDoc(nodeRef);
-        }
-      };
-      container.innerHTML = renderChainGraph(data.payload, { inline: true, open: true });
-      host.renderMermaidDiagrams();
-      workshopRunbookState.showingGraph = true;
-    } catch {
-      container.innerHTML = `<p>Unable to load the runbook graph.</p>`;
-    }
-  }
 
   function updateWorkshopCommandSession(commandId, patch) {
     const previous = workshopCommandState.sessions.get(commandId) || { logText: "" };
@@ -1472,12 +1334,6 @@ export function createWorkshopScreen(host) {
     } else if (activeTab === "commands") {
       await loadWorkshopCommands();
       host.setMeta(`Workshop / ${activeTab} loaded.`);
-    } else if (activeTab === "runbooks") {
-      // Re-synced here (not only at module init) since viewerPreferences hydrates
-      // from the server asynchronously and may not have landed yet at init time.
-      workshopRunbookState.includeHidden = workshopRunbookShowsHidden();
-      await loadWorkshopRunbooks();
-      host.setMeta(`Workshop / ${activeTab} loaded.`);
     } else if (activeTab === "terminals") {
       host.setMeta("Workshop / terminals ready.");
       // The Workshop DOM was just re-rendered, so every prior xterm host /
@@ -1510,21 +1366,6 @@ export function createWorkshopScreen(host) {
     }
   }
 
-  // item_792: Runbooks moved from a Workshop tab to its own Corpus screen. Reuses
-  // renderWorkshopPanel("runbooks")/loadWorkshopRunbooks unchanged -- only the tab
-  // bar wrapper (renderWorkshop) and the Workshop-specific dispatch are skipped.
-  async function showCorpusRunbooks() {
-    // Reported by the operator as a long wait with nothing to read. This screen arrived in
-    // Corpus after item_770 gave the other three a loading state, so it was the one still
-    // mounting an empty panel and leaving the meta line to explain itself. It says what it
-    // is waiting for and how long it has been waiting, like its siblings.
-    host.showScreenLoading("Runbooks", "the runbook library");
-    workshopRunbookState.includeHidden = workshopRunbookShowsHidden();
-    host.setDocument("Runbooks", `<div class="viewer-workshop">${renderCorpusModeSwitcher("runbooks")}${renderWorkshopPanel("runbooks")}</div>`);
-    await loadWorkshopRunbooks();
-    host.setMeta("Runbooks loaded.");
-  }
-
   const state = {};
   Object.defineProperties(state, {
     workshopButton: { get: () => workshopButton },
@@ -1553,7 +1394,6 @@ export function createWorkshopScreen(host) {
     hydrateWorkshopTerminals,
     loadWorkshopCommands,
     loadWorkshopExplorer,
-    loadWorkshopRunbooks,
     measureWorkshopTerminalGrid,
     mountWorkshopTerminalEmulator,
     moveWorkshopTerminalBefore,
@@ -1574,7 +1414,6 @@ export function createWorkshopScreen(host) {
     renderWorkshopCommandRunMenu,
     renderWorkshopCommands,
     renderWorkshopPanel,
-    renderWorkshopRunbooks,
     renderWorkshopTerminalList,
     reopenWorkshopTerminalStreamSoon,
     repaintAllWorkshopTerminals,
@@ -1582,11 +1421,8 @@ export function createWorkshopScreen(host) {
     setActiveWorkshopTerminal,
     setCustomTerminalBusy,
     setWorkshopActiveTab,
-    showCorpusRunbooks,
     showCustomTerminalModal,
     showWorkshop,
-    showWorkshopRunbookGraph,
-    setWorkshopRunbooksIncludeHidden,
     spawnCustomWorkshopTerminal,
     spawnSystemWorkshopTerminal,
     spawnWorkshopTerminal,

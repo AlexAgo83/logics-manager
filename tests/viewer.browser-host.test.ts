@@ -2043,9 +2043,10 @@ describe("local viewer browser host", () => {
     // Stopped by setDocument, which is what replaces the panel: a screen whose load never
     // resolves keeps its panel mounted, so a self-detaching check would tick for ever.
     expect(host).toMatch(/function setDocument\([^)]*\) \{\n\s+stopScreenLoadingTimer\(\);/);
-    // Runbooks announces itself like its Corpus siblings.
-    expect(workshop).toContain('host.showScreenLoading("Runbooks", "the runbook library")');
+    // item_817 retired the Runbooks screen this was first added for; the counter belongs to
+    // every screen that loads, so what is asserted is that the host still offers it.
     expect(host).toMatch(/setDocument,\n\s+setMeta,\n\s+showScreenLoading,/);
+    expect(workshop).not.toContain("showCorpusRunbooks");
   });
 
   it("lets a screen click supersede a screen that is still loading", async () => {
@@ -2422,25 +2423,6 @@ describe("local viewer browser host", () => {
     });
   });
 
-  it("opens Runbooks from the Corpus menu as its own screen (task_363)", async () => {
-    // item_792: Runbooks moved out of Workshop's tab bar into the Corpus nav group.
-    const { dom, calls } = createViewerDom();
-    dom.window.acquireVsCodeApi().postMessage({ type: "ready" });
-    await flushViewerAsync();
-
-    expect(dom.window.document.querySelector('[data-viewer-nav-target="workshop:runbooks"]')).toBeNull();
-    const runbooks = dom.window.document.querySelector('[data-viewer-nav-target="corpus:runbooks"]') as HTMLButtonElement | null;
-    expect(runbooks).not.toBeNull();
-    runbooks!.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    await flushViewerAsync();
-    await flushViewerAsync();
-
-    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Runbooks");
-    expect(dom.window.document.querySelector("[data-viewer-workshop-runbooks]")).not.toBeNull();
-    expect(calls).toContain("/api/runbooks?includeHidden=1");
-    // Choosing an entry collapses the menu, as it did for every other nav group.
-    expect(dom.window.document.querySelector('[data-viewer-nav="corpus"]')?.classList.contains("is-open")).toBe(false);
-  });
 
   it("keeps the Workshop commands panel scrollable inside the document viewport", () => {
     const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
@@ -3749,14 +3731,9 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Corpus insights");
     let modes = Array.from(dom.window.document.querySelectorAll("[data-viewer-corpus-mode]"));
-    expect(modes.map((node) => node.getAttribute("data-viewer-corpus-mode"))).toEqual(["getting-started", "insights", "health", "runbooks"]);
+    // item_817: Runbooks left this switcher with its screen -- it is a document kind now.
+    expect(modes.map((node) => node.getAttribute("data-viewer-corpus-mode"))).toEqual(["getting-started", "insights", "health"]);
     expect(dom.window.document.querySelector('[data-viewer-corpus-mode="insights"]')?.getAttribute("aria-selected")).toBe("true");
-
-    dom.window.document.querySelector('[data-viewer-corpus-mode="runbooks"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    await flushViewerAsync();
-    await flushViewerAsync();
-    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Runbooks");
-    expect(dom.window.document.querySelector('[data-viewer-corpus-mode="runbooks"]')?.getAttribute("aria-selected")).toBe("true");
 
     dom.window.document.querySelector('[data-viewer-corpus-mode="getting-started"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
@@ -3768,43 +3745,6 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Validation health");
   });
 
-  it("opens Runbooks from Corpus and searches", async () => {
-    const { dom, calls } = createViewerDom();
-    const api = dom.window.acquireVsCodeApi();
-
-    api.postMessage({ type: "ready" });
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    dom.window.document.querySelector('[data-viewer-nav-target="corpus:runbooks"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    // item_801/task_372: "Show hidden" now defaults to on, so the initial load already
-    // requests hidden runbooks too.
-    expect(calls).toContain("/api/runbooks?includeHidden=1");
-    const runbooksPanel = dom.window.document.querySelector("[data-viewer-workshop-runbooks]");
-    expect(runbooksPanel?.textContent).toContain("Restart the ingest worker");
-    expect(runbooksPanel?.textContent).toContain("infrastructure");
-    expect(runbooksPanel?.textContent).toContain("recent");
-
-    // Search with a query that matches nothing renders the empty state, not an error.
-    // item_757: the Search button that duplicated this field is gone, so the search has
-    // to be driven the way an operator now drives it -- by typing. The 250ms debounce is
-    // waited out here rather than removed: a test that only passes without it would pass
-    // against a field that fires a request per keystroke.
-    expect(dom.window.document.querySelector("[data-viewer-workshop-runbook-search]")).toBeNull();
-    const queryInput = dom.window.document.querySelector("[data-viewer-workshop-runbook-query]") as HTMLInputElement | null;
-    if (queryInput) {
-      queryInput.value = "release";
-      queryInput.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
-    }
-    await new Promise((resolve) => setTimeout(resolve, 400));
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    expect(calls).toContain("/api/runbooks?q=release&includeHidden=1");
-    expect(dom.window.document.querySelector("[data-viewer-workshop-runbooks]")?.textContent).toContain("No Active runbook matched");
-  });
 
   it("no longer shows the dead \"View graph\" button in Runbooks (task_373)", async () => {
     const { dom } = createViewerDom();
@@ -3820,29 +3760,6 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.querySelector("[data-viewer-workshop-runbook-graph]")).toBeNull();
   });
 
-  it("defaults Runbooks \"Show hidden\" to on and persists a toggle to viewer preferences (task_372)", async () => {
-    // item_801/task_372: this checkbox used to be in-memory only (workshopRunbookState.
-    // includeHidden, hardcoded false) and reset to unchecked on every reload.
-    const { dom, calls } = createViewerDom();
-    const api = dom.window.acquireVsCodeApi();
-    api.postMessage({ type: "ready" });
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    dom.window.document.querySelector('[data-viewer-nav-target="corpus:runbooks"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    const hidden = dom.window.document.querySelector("[data-viewer-workshop-runbook-hidden]") as HTMLInputElement | null;
-    expect(hidden?.checked).toBe(true);
-    expect(calls).toContain("/api/runbooks?includeHidden=1");
-
-    hidden?.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true }));
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    const stored = JSON.parse(dom.window.localStorage.getItem("logics.localViewer.preferences.v1") || "{}");
-    expect(stored.workshopRunbookShowHidden).toBe(false);
-  });
 
   it("captures a LAN token from the URL, scrubs it, and attaches it to outbound fetches", async () => {
     const { dom, calls } = createViewerDom({

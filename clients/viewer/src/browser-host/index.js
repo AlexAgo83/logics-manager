@@ -308,7 +308,6 @@ import {
     hydrateWorkshopTerminals,
     loadWorkshopCommands,
     loadWorkshopExplorer,
-    loadWorkshopRunbooks,
     measureWorkshopTerminalGrid,
     mountWorkshopTerminalEmulator,
     moveWorkshopTerminalBefore,
@@ -336,10 +335,8 @@ import {
     setActiveWorkshopTerminal,
     setCustomTerminalBusy,
     setWorkshopActiveTab,
-    showCorpusRunbooks,
     showCustomTerminalModal,
     showWorkshop,
-    setWorkshopRunbooksIncludeHidden,
     spawnCustomWorkshopTerminal,
     spawnSystemWorkshopTerminal,
     spawnWorkshopTerminal,
@@ -4546,9 +4543,6 @@ import {
       const workspacePreviewFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview-full]") : null;
       const workshopTabTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-tab]") : null;
       const workshopRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run]") : null;
-      const workshopRunbookOpenTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-open]") : null;
-      const workshopRunbookSearchTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-search]") : null;
-      const workshopRunbookHiddenTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-hidden]") : null;
       const fleetHomeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-fleet-home]") : null;
       if (fleetHomeTarget instanceof HTMLElement) {
         event.preventDefault();
@@ -4628,8 +4622,6 @@ import {
             withPrimaryAction("corpus-health", "Checking health", showHealth, { supersede: true });
           } else if (section === "getting-started") {
             showGettingStarted();
-          } else if (section === "runbooks") {
-            withPrimaryAction("corpus-runbooks", "Loading runbooks", showCorpusRunbooks, { supersede: true });
           } else {
             withPrimaryAction("corpus-insights", "Loading insights", showCorpusInsights, { supersede: true });
           }
@@ -4735,8 +4727,6 @@ import {
           withPrimaryAction("corpus-health", "Checking health", showHealth, { supersede: true });
         } else if (mode === "getting-started") {
           showGettingStarted();
-        } else if (mode === "runbooks") {
-          withPrimaryAction("corpus-runbooks", "Loading runbooks", showCorpusRunbooks, { supersede: true });
         } else {
           withPrimaryAction("corpus-insights", "Loading insights", showCorpusInsights, { supersede: true });
         }
@@ -4880,29 +4870,6 @@ import {
         event.preventDefault();
         const tab = workshopTabTarget.getAttribute("data-viewer-workshop-tab") || "terminals";
         withPrimaryAction("workshop-tab", `Switching to ${tab}`, () => showWorkshop({ tab }));
-        return;
-      }
-      if (workshopRunbookOpenTarget instanceof HTMLElement) {
-        event.preventDefault();
-        const path = workshopRunbookOpenTarget.getAttribute("data-viewer-workshop-runbook-open") || "";
-        if (path) withPrimaryAction("runbook-open", "Loading runbook", () => showDocumentByPath(path));
-        return;
-      }
-      // item_757: the Search button is gone and the field searches as it is typed. The
-      // click handler stays for one release so a cached page still works, but nothing in
-      // the markup produces the target any more.
-      if (workshopRunbookSearchTarget instanceof HTMLElement) {
-        event.preventDefault();
-        const input = workshopRunbookSearchTarget.parentElement?.querySelector("[data-viewer-workshop-runbook-query]");
-        const query = input instanceof HTMLInputElement ? input.value.trim() : "";
-        withPrimaryAction("runbook-search", "Searching runbooks", () => loadWorkshopRunbooks(query));
-        return;
-      }
-      if (workshopRunbookHiddenTarget instanceof HTMLInputElement) {
-        const input = workshopRunbookHiddenTarget.parentElement?.parentElement?.querySelector("[data-viewer-workshop-runbook-query]");
-        const query = input instanceof HTMLInputElement ? input.value.trim() : "";
-        updateViewerPreferences({ workshopRunbookShowHidden: workshopRunbookHiddenTarget.checked });
-        withPrimaryAction("runbook-hidden", "Loading runbooks", () => setWorkshopRunbooksIncludeHidden(workshopRunbookHiddenTarget.checked, query));
         return;
       }
       if (fleetRootPickTarget instanceof HTMLElement) {
@@ -5184,19 +5151,6 @@ import {
       if (!documentPath) return;
       const copied = await copyTextToClipboard(documentPath);
       setMeta(copied ? `Copied ${documentPath}` : "Clipboard access was refused.");
-    });
-    // item_757: the runbook field had no listener at all -- the button beside it was the
-    // only way to run a search, which is why removing the button had to come with this.
-    // Debounced: without it every keystroke is a request against the runbook index.
-    let runbookSearchTimer = 0;
-    document.addEventListener("input", (event) => {
-      const field = event.target instanceof Element
-        ? event.target.closest("[data-viewer-workshop-runbook-query]")
-        : null;
-      if (!(field instanceof HTMLInputElement)) return;
-      window.clearTimeout(runbookSearchTimer);
-      const query = field.value.trim();
-      runbookSearchTimer = window.setTimeout(() => { void loadWorkshopRunbooks(query); }, 250);
     });
     document.getElementById("viewer-document-refresh")?.addEventListener("click", () => {
       withPrimaryAction("refresh-document", "Refreshing", refreshCurrentScreen);

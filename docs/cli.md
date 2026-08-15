@@ -603,12 +603,29 @@ logics-manager view --no-open
 
 Use `--port 0` when the default port is already taken. Direct Logics workflow mutations still route through canonical CLI commands such as `flow promote`, `flow finish`, `lint`, and `audit`; guided CDX missions may edit repository files only when the mission's file-write checkbox is enabled.
 
-Focused viewer links can point directly at a corpus item:
+Focused viewer links can point directly at a corpus item, and the short form is the one
+worth writing:
 
 ```text
+http://127.0.0.1:8765/?focus=req_368
+http://127.0.0.1:8765/?focus=req_368&read=1
+http://127.0.0.1:8765/?focus=item_821&project=logics-manager
 http://127.0.0.1:8765/?focus=logics/request/req_001_example.md
-http://127.0.0.1:8765/?focus=logics/request/req_001_example.md&read=1
 ```
+
+`kind_number` (`req_368`, `item_821`, `task_380`) resolves to the one document whose id
+starts with it. A short form naming more than one document -- `req_36` -- resolves to
+nothing rather than to whichever sorted first, so a link either opens what was meant or
+says it found nothing.
+
+`project=` takes the name the switcher shows (`logics-manager`, `pom`) as well as the
+opaque id the viewer emits. Same rule: exactly one match or nothing.
+
+The address is not a guess. `~/.cache/logics-manager/viewers.json` records the running
+viewer's port and scheme -- it is what `view` reads to say it is reusing a viewer already
+running -- so a link can be written against the viewer that is actually up, and its absence
+is how you know there is none to link to. Note that a viewer started with `--port 0` picks a
+different port each time it restarts.
 
 If the viewer server is not already running, start it with the equivalent fallback command:
 

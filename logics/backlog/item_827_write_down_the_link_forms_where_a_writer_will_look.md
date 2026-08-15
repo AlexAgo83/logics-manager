@@ -1,10 +1,10 @@
 ## item_827_write_down_the_link_forms_where_a_writer_will_look - Write down the link forms where a writer will look
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Written where it is read
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -49,3 +49,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_380_orchestrate_the_short_viewer_link_work` was finished via `logics-manager flow finish task` on 2026-08-15.

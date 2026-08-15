@@ -1,7 +1,7 @@
 ## req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence - Make a viewer link short enough to write in a sentence
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Low

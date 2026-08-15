@@ -1,10 +1,10 @@
 ## item_826_select_a_project_by_the_name_the_switcher_shows - Select a project by the name the switcher shows
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: A link short enough to write
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -50,3 +50,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_380_orchestrate_the_short_viewer_link_work` was finished via `logics-manager flow finish task` on 2026-08-15.

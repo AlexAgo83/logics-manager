@@ -2,9 +2,9 @@
 > From version: 2.21.9
 > Schema version: 1.0
 > Status: In progress
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 10%
+> Understanding: 95%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Low
 > Theme: See it before it lands
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -51,3 +51,6 @@
 # Priority
 - Priority: High - the confirmation is the point of the request
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Validation
+- Extended the existing status choice modal (showStatusChangeModal in render.js) with a live preview line -- "<doc>: <old> → <new>" -- updated on select change, instead of adding a second modal. Covered by test_shows_the_status_change_preview_live_and_updates_the_default_commit_message and the existing changes-status test, which still exercises the same .viewer-themed-modal__select control; cancel/escape behavior unchanged.

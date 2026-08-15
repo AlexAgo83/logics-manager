@@ -56,11 +56,13 @@ def test_reconciliation_report_names_all_three_disagreements(tmp_path: Path) -> 
     _write_request(tmp_path, "req_001_done_open_issue", status="Done", issue_urls=["https://github.com/acme/demo/issues/20"])
     _write_request(tmp_path, "req_002_open_closed_issue", status="Ready", issue_urls=["https://github.com/acme/demo/issues/21"])
     _write_request(tmp_path, "req_003_settled_fine", status="Done", issue_urls=["https://github.com/acme/demo/issues/22"])
+    _write_request(tmp_path, "req_004_told_but_not_closed", status="Done", issue_urls=["https://github.com/acme/demo/issues/23"])
 
     issues = [
-        {"number": 20, "state": "OPEN", "labels": [{"name": "logics:delivered"}], "url": "https://github.com/acme/demo/issues/20"},
+        {"number": 20, "state": "OPEN", "labels": [], "url": "https://github.com/acme/demo/issues/20"},
         {"number": 21, "state": "CLOSED", "labels": [], "url": "https://github.com/acme/demo/issues/21"},
         {"number": 22, "state": "CLOSED", "labels": [{"name": "logics:delivered"}], "url": "https://github.com/acme/demo/issues/22"},
+        {"number": 23, "state": "OPEN", "labels": [{"name": "logics:delivered"}], "url": "https://github.com/acme/demo/issues/23"},
         {"number": 30, "state": "OPEN", "labels": [], "url": "https://github.com/acme/demo/issues/30"},
     ]
 
@@ -81,8 +83,11 @@ def test_reconciliation_report_names_all_three_disagreements(tmp_path: Path) -> 
         {"issue": "21", "url": "https://github.com/acme/demo/issues/21", "request": "req_002_open_closed_issue", "request_status": "ready"}
     ]
     # req_003 is settled and its issue is closed -- no disagreement, nothing reported.
+    # req_004 is settled and already carries the posted lifecycle label -- item_837 already
+    # told it; closing the issue afterwards is a human act, so it is not a disagreement.
     all_issue_numbers = {entry["issue"] for group in ("open_issues_with_no_request", "done_requests_with_open_issues", "closed_issues_with_open_request") for entry in payload[group]}
     assert "22" not in all_issue_numbers
+    assert "23" not in all_issue_numbers
 
     # item_834 AC3: never a body. The gh call requested only number/state/labels/url.
     assert len(calls) == 1

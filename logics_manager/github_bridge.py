@@ -27,6 +27,11 @@ _SETTLED_STATUSES = {"done", "declined", "archived", "withdrawn", "superseded"}
 #: uses -- item_837 reuses it rather than inventing a second one.
 LIFECYCLE_STATES = ("accepted", "in-progress", "delivered", "declined")
 
+#: Settled statuses that item_837's closeout notice can actually post a label for.
+#: An issue already carrying that label has been told -- closing it afterwards is a
+#: human act (item_837's own scope), so it is no longer a disagreement to flag.
+_SETTLED_STATUS_LABEL = {"done": "logics:delivered", "declined": "logics:declined"}
+
 
 def _owner_repo(repo_root: Path, *, runner: Any | None = None) -> tuple[str, str] | None:
     # `git remote -v`, not `get-url origin`: a remote is not always named origin (this
@@ -112,12 +117,14 @@ def reconciliation_report_payload(repo_root: Path, *, git_runner: Any | None = N
         number = str(issue.get("number") or "")
         state = str(issue.get("state") or "").upper()
         url = str(issue.get("url") or "")
+        labels = {str(label.get("name") or "") for label in issue.get("labels", []) if isinstance(label, dict)}
         refs = issue_requests.get(number, [])
         if state == "OPEN" and not refs:
             open_no_request.append({"issue": number, "url": url})
         for ref in refs:
             status = _request_status(repo_root, ref).lower()
-            if state == "OPEN" and status in _SETTLED_STATUSES:
+            already_told = _SETTLED_STATUS_LABEL.get(status) in labels
+            if state == "OPEN" and status in _SETTLED_STATUSES and not already_told:
                 done_with_open_issue.append({"issue": number, "url": url, "request": ref, "request_status": status})
             if state == "CLOSED" and status not in _SETTLED_STATUSES:
                 closed_with_open_request.append({"issue": number, "url": url, "request": ref, "request_status": status})

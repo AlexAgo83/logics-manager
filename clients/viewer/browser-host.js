@@ -2268,10 +2268,9 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       </div>
     `;
   }
-  function renderDocEditorScreen({ path, content }) {
+  function renderDocEditorScreen({ content }) {
     return `
       <div class="viewer-doc-editor">
-        <p class="viewer-doc-editor__path">${escapeHtml(path)}</p>
         <textarea class="viewer-doc-editor__textarea" spellcheck="false">${escapeHtml(content)}</textarea>
         <div class="viewer-doc-editor__actions">
           <button class="btn" type="button" data-viewer-editor-action="cancel">Cancel</button>
@@ -11587,7 +11586,11 @@ ${line}` : line;
       const content = String(data.document?.content || "");
       const label = item.id || item.relPath;
       activeEditSession = { item, originalContent: content };
-      setDocument(`Edit ${label}`, renderDocEditorScreen({ path: item.relPath, content }), { eyebrow: item.relPath, item });
+      const panelTitle = String(item.title || "").trim() || item.relPath;
+      const reference = shortDocumentRef(item.id, item.stage) || String(item.id || "").trim();
+      const documentStatus = String(item.indicators?.Status || "").trim();
+      const eyebrowText = [reference, documentStatus].filter(Boolean).join(" \u2022 ") || item.relPath;
+      setDocument(`Edit ${panelTitle}`, renderDocEditorScreen({ content }), { eyebrow: eyebrowText });
       setMeta(`Editing ${label}.`);
       window.setTimeout(() => {
         const textarea = documentContent()?.querySelector(".viewer-doc-editor__textarea");

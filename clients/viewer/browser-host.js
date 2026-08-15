@@ -800,14 +800,8 @@ ${entry?.message || ""}`;
   }
   function primaryActionControls() {
     return Array.from(document.querySelectorAll([
-      "#viewer-insights",
-      "#viewer-health",
-      "#viewer-getting-started",
       "#viewer-bootstrap-logics",
       "#viewer-restart-server",
-      "#viewer-workshop",
-      "#viewer-ci",
-      "#viewer-cdx",
       "#viewer-repo-folder",
       "#viewer-document-status",
       "#viewer-release-reset",
@@ -815,9 +809,12 @@ ${entry?.message || ""}`;
       '[data-action="refresh"]',
       '[data-viewer-action="edit-document"]',
       "[data-viewer-project-id]",
-      "[data-viewer-nav-target]",
-      "[data-viewer-ci-mode]",
-      "[data-viewer-cdx-mode]",
+      // item_795 follow-up, reported as "Runbooks takes a long time": navigation used to be
+      // disabled while a screen loaded, so clicking another screen did nothing at all -- a
+      // disabled button does not even fire, so there was no click to refuse and no message
+      // to read. The operator was left on the screen they were leaving, which then announced
+      // that *it* had loaded. Opening another screen supersedes the load in flight, so these
+      // stay live; the busy state still disables the actions that mutate something.
       "[data-viewer-cdx-session-action]",
       "[data-viewer-cdx-report]",
       "[data-viewer-cdx-artifact-path]"
@@ -9064,8 +9061,8 @@ ${line}` : line;
       const nodes = actionErrorNodes();
       if (nodes.banner instanceof HTMLElement) nodes.banner.hidden = true;
     }
-    function withPrimaryAction(actionKey, label, action) {
-      if (primaryActionBusyKey) {
+    function withPrimaryAction(actionKey, label, action, options = {}) {
+      if (primaryActionBusyKey && !options.supersede) {
         setMeta("Action unavailable while another viewer action is running.");
         return Promise.resolve(false);
       }
@@ -10518,7 +10515,9 @@ ${line}` : line;
       return view.userSeq !== userViewSeq;
     }
     let detachReadingPosition = null;
+    let screenLoadingTimer = null;
     function setDocument(titleText, html, options = {}) {
+      stopScreenLoadingTimer();
       invalidatePendingViews();
       cdxState.cdxCloseTarget = null;
       const screenId = documentScreenId(titleText);
@@ -11318,13 +11317,18 @@ ${line}` : line;
       const elapsed = document.querySelector("[data-viewer-screen-loading-elapsed]");
       if (!(elapsed instanceof HTMLElement)) return;
       const startedAt = Date.now();
-      const timer = window.setInterval(() => {
+      screenLoadingTimer = window.setInterval(() => {
         if (!elapsed.isConnected) {
-          window.clearInterval(timer);
+          stopScreenLoadingTimer();
           return;
         }
         elapsed.textContent = `${((Date.now() - startedAt) / 1e3).toFixed(1)}s`;
       }, 100);
+    }
+    function stopScreenLoadingTimer() {
+      if (screenLoadingTimer === null) return;
+      window.clearInterval(screenLoadingTimer);
+      screenLoadingTimer = null;
     }
     async function showCorpusInsights(options = {}) {
       if (!options.view) showScreenLoading("Corpus insights", "the corpus lint and audit scans");
@@ -12172,40 +12176,40 @@ ${shown.join("\n")}${files.length > shown.length ? `
           const [screen, section] = (navTarget.getAttribute("data-viewer-nav-target") || "").split(":");
           closeNavMenus();
           if (screen === "project") {
-            withPrimaryAction(`project-${section}`, `Opening project ${section}`, () => openProjectTool(section === "theme" ? "theme" : "i18n", { beginView, isViewStale, setDocument, setMeta }));
+            withPrimaryAction(`project-${section}`, `Opening project ${section}`, () => openProjectTool(section === "theme" ? "theme" : "i18n", { beginView, isViewStale, setDocument, setMeta }), { supersede: true });
           } else if (screen === "workshop") {
-            withPrimaryAction("workshop-nav", `Opening Workshop ${section}`, () => showWorkshop({ tab: section }));
+            withPrimaryAction("workshop-nav", `Opening Workshop ${section}`, () => showWorkshop({ tab: section }), { supersede: true });
           } else if (screen === "remote") {
             if (section === "release") {
-              withPrimaryAction("remote-release", "Checking release workflow", showReleaseStatus);
+              withPrimaryAction("remote-release", "Checking release workflow", showReleaseStatus, { supersede: true });
             } else if (section === "runs") {
-              withPrimaryAction("remote-runs", "Checking CI status", showCiStatus);
+              withPrimaryAction("remote-runs", "Checking CI status", showCiStatus, { supersede: true });
             } else {
-              withPrimaryAction("remote-git", "Checking Git status", () => showGitStatus());
+              withPrimaryAction("remote-git", "Checking Git status", () => showGitStatus(), { supersede: true });
             }
           } else if (screen === "corpus") {
             if (section === "health") {
-              withPrimaryAction("corpus-health", "Checking health", showHealth);
+              withPrimaryAction("corpus-health", "Checking health", showHealth, { supersede: true });
             } else if (section === "getting-started") {
               showGettingStarted();
             } else if (section === "runbooks") {
-              withPrimaryAction("corpus-runbooks", "Loading runbooks", showCorpusRunbooks);
+              withPrimaryAction("corpus-runbooks", "Loading runbooks", showCorpusRunbooks, { supersede: true });
             } else {
-              withPrimaryAction("corpus-insights", "Loading insights", showCorpusInsights);
+              withPrimaryAction("corpus-insights", "Loading insights", showCorpusInsights, { supersede: true });
             }
           } else if (screen === "cdx") {
             if (section === "runs") {
-              withPrimaryAction("cdx-runs", "Loading CDX reports", showCdxRuns);
+              withPrimaryAction("cdx-runs", "Loading CDX reports", showCdxRuns, { supersede: true });
             } else if (section === "missions") {
-              withPrimaryAction("cdx-missions", "Loading CDX missions", showCdxMissions);
+              withPrimaryAction("cdx-missions", "Loading CDX missions", showCdxMissions, { supersede: true });
             } else if (section === "history") {
-              withPrimaryAction("cdx-history", "Loading CDX history", showCdxHistory);
+              withPrimaryAction("cdx-history", "Loading CDX history", showCdxHistory, { supersede: true });
             } else if (section === "memory") {
-              withPrimaryAction("cdx-memory", "Loading CDX memory", showCdxMemory);
+              withPrimaryAction("cdx-memory", "Loading CDX memory", showCdxMemory, { supersede: true });
             } else if (section === "disk") {
-              withPrimaryAction("cdx-disk", "Loading CDX disk usage", showCdxDisk);
+              withPrimaryAction("cdx-disk", "Loading CDX disk usage", showCdxDisk, { supersede: true });
             } else {
-              withPrimaryAction("cdx", "Checking CDX status", showCdxStatus);
+              withPrimaryAction("cdx", "Checking CDX status", showCdxStatus, { supersede: true });
             }
           }
           return;
@@ -12294,13 +12298,13 @@ ${shown.join("\n")}${files.length > shown.length ? `
         if (corpusModeTarget instanceof HTMLElement) {
           const mode = corpusModeTarget.getAttribute("data-viewer-corpus-mode") || "insights";
           if (mode === "health") {
-            withPrimaryAction("corpus-health", "Checking health", showHealth);
+            withPrimaryAction("corpus-health", "Checking health", showHealth, { supersede: true });
           } else if (mode === "getting-started") {
             showGettingStarted();
           } else if (mode === "runbooks") {
-            withPrimaryAction("corpus-runbooks", "Loading runbooks", showCorpusRunbooks);
+            withPrimaryAction("corpus-runbooks", "Loading runbooks", showCorpusRunbooks, { supersede: true });
           } else {
-            withPrimaryAction("corpus-insights", "Loading insights", showCorpusInsights);
+            withPrimaryAction("corpus-insights", "Loading insights", showCorpusInsights, { supersede: true });
           }
           return;
         }

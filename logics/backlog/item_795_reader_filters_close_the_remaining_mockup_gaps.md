@@ -32,6 +32,11 @@ The mockup review found the new-request modal and the filter panel's "four ident
 - AC2: Filters' `Group`/`Sort` render as a segmented control (Type | Status | Theme | None), not `<select>` dropdowns.
 - AC3: `Clear filters` dims to roughly 50% opacity when no filter is currently active.
 
+# Follow-up
+- Reported by the operator as "Runbooks takes a long time to load", and found by driving the screen: clicking a screen while another was still loading did nothing at all. Two locks, not one -- `withPrimaryAction` refused a second action, and `setPrimaryActionBusy` *disabled* the navigation controls, so the click never fired. There was nothing to refuse and no message to read: the refusal is announced through `setMeta`, which the running action then overwrites with its own "loaded" line. The operator was left on the screen they were leaving, being told that screen had loaded.
+- Fixed in the same wave: navigation supersedes a load in flight, and the busy state no longer disables navigation -- only the actions that mutate something. Measured before and after against a running viewer with a cold audit: before, the title stayed "Corpus insights" six seconds after clicking Runbooks; after, "Runbooks" within 600ms with its cards rendered.
+- Known, not fixed: `tests/viewer.browser-host.test.ts` reports one unhandled jsdom teardown error in a full-file run (all 268 assertions pass). Bisected to neither of the new tests; it appears once navigation is allowed through, so an existing test clicks a nav target it previously could not and starts a load that outlives it. Worth finding, since an unhandled error is what hides the next real one.
+
 # AC Traceability
 - request-AC6 -> This backlog slice. Proof: AC6: Each of the per-screen findings listed under Workshop/CDX, Reader/modal/filters, Remote/Settings, and Insights/Health/Onboarding above is either resolved to match its mockup's "Proposed" design, or explicitly deferred with a stated reason (e.g. a state genuinely unreachable in this corpus, or a deliberate design deviation from the mockup).
 

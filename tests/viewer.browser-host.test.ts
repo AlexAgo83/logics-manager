@@ -2040,10 +2040,67 @@ describe("local viewer browser host", () => {
     expect(host).toContain("data-viewer-screen-loading-elapsed");
     // The counter stops when the real screen replaces the panel, rather than needing a
     // teardown call every caller could forget.
-    expect(host).toMatch(/if \(!elapsed\.isConnected\)[\s\S]{0,80}clearInterval/);
+    // Stopped by setDocument, which is what replaces the panel: a screen whose load never
+    // resolves keeps its panel mounted, so a self-detaching check would tick for ever.
+    expect(host).toMatch(/function setDocument\([^)]*\) \{\n\s+stopScreenLoadingTimer\(\);/);
     // Runbooks announces itself like its Corpus siblings.
     expect(workshop).toContain('host.showScreenLoading("Runbooks", "the runbook library")');
     expect(host).toMatch(/setDocument,\n\s+setMeta,\n\s+showScreenLoading,/);
+  });
+
+  it("lets a screen click supersede a screen that is still loading", async () => {
+    // Reported as "Runbooks takes a long time": it was never opened. Two locks, not one --
+    // withPrimaryAction refused a second action while one ran, and setPrimaryActionBusy
+    // *disabled* the navigation controls, so the click did not even fire. There was nothing
+    // to refuse and no message to read; the operator stayed on the screen they were leaving,
+    // which then announced that it had loaded.
+    const host = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/index.js"), "utf8");
+    const util = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/util.js"), "utf8");
+
+    // Navigation is not among the controls the busy state disables.
+    const controls = util.slice(util.indexOf("function primaryActionControls"));
+    const list = controls.slice(0, controls.indexOf("].join(\",\")"));
+    for (const selector of ["[data-viewer-nav-target]", "[data-viewer-ci-mode]", "[data-viewer-cdx-mode]"]) {
+      expect(list).not.toContain(selector);
+    }
+    // The actions that mutate something still are.
+    expect(list).toContain("#viewer-restart-server");
+    expect(list).toContain("#viewer-document-status");
+
+    // And every screen-opening call says so, so the guard lets it through.
+    const nav = host.slice(host.indexOf("if (navTarget instanceof HTMLElement) {"));
+    const navBlock = nav.slice(0, nav.indexOf("        return;\n      }"));
+    const calls = navBlock.match(/withPrimaryAction\(/g) || [];
+    const superseding = navBlock.match(/\{ supersede: true \}/g) || [];
+    expect(calls.length).toBeGreaterThan(0);
+    expect(superseding.length).toBe(calls.length);
+  });
+
+  it("keeps navigation clickable while a screen is loading", async () => {
+    const { dom } = createViewerDom();
+    dom.window.acquireVsCodeApi().postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const target = dom.window.document.querySelector('[data-viewer-nav-target="corpus:runbooks"]') as HTMLButtonElement | null;
+    expect(target).not.toBeNull();
+
+    // Drive the real busy state through a screen that loads, then look at the control the
+    // operator would reach for next.
+    dom.window.document.querySelector('[data-viewer-nav-target="corpus:insights"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(dom.window.document.body.hasAttribute("data-viewer-busy")).toBe(true);
+    expect(target!.disabled).toBe(false);
+
+    // Let the load this test started finish inside the test, rather than against a window
+    // that has already been torn down: the loading panel owns an interval, and a panel left
+    // mounted past teardown is what an unhandled jsdom `_location` error is reporting.
+    for (let turn = 0; turn < 20 && dom.window.document.body.hasAttribute("data-viewer-busy"); turn += 1) {
+      await flushViewerAsync();
+    }
+    expect(dom.window.document.body.hasAttribute("data-viewer-busy")).toBe(false);
+    // Closing the panel invalidates anything the load left pending, so nothing resolves
+    // into a window that no longer exists once this file's other tests tear it down.
+    dom.window.document.getElementById("viewer-document-close")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
   });
 
   it("leads the Corpus navigation and switcher with Getting Started", () => {
@@ -4571,7 +4628,10 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.body.hasAttribute("data-viewer-busy")).toBe(false);
   });
 
-  it("blocks competing primary actions while one action is loading", async () => {
+  it("blocks a competing action while one loads, but not a screen change", async () => {
+    // The busy state exists so two writes do not race. Navigation is not a write: clicking
+    // another screen *is* superseding the one in flight, and refusing it dropped the click
+    // with no trace -- reported as "Runbooks takes a long time" when it was never opened.
     let resolveRefresh: () => void = () => {};
     const refreshGate = new Promise<void>((resolve) => {
       resolveRefresh = resolve;
@@ -4582,18 +4642,30 @@ describe("local viewer browser host", () => {
     api.postMessage({ type: "ready" });
     await flushViewerAsync();
     await flushViewerAsync();
-    const gitCallsBefore = calls.filter((call) => call === "/api/git-status").length;
     dom.window.document.querySelector('[data-action="refresh"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    await flushViewerAsync();
-
-    expect(calls.filter((call) => call === "/api/refresh")).toHaveLength(1);
-    expect(calls.filter((call) => call === "/api/git-status")).toHaveLength(gitCallsBefore);
-    expect((dom.window.document.getElementById("viewer-ci") as HTMLButtonElement | null)?.disabled).toBe(true);
     expect(dom.window.document.body.getAttribute("data-viewer-busy-action")).toBe("refresh");
 
+    // A second *action* is still refused: one refresh, not two.
+    dom.window.document.querySelector('[data-action="refresh"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    expect(calls.filter((call) => call === "/api/refresh")).toHaveLength(1);
+
+    // Navigation stays clickable and takes over.
+    const remote = dom.window.document.getElementById("viewer-ci") as HTMLButtonElement | null;
+    expect(remote?.disabled).toBe(false);
+    const gitCallsBefore = calls.filter((call) => call === "/api/git-status").length;
+    dom.window.document.querySelector('[data-viewer-nav-target="remote:git"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+    // It ran rather than being dropped: the screen it opens went and asked for its data.
+    expect(calls.filter((call) => call === "/api/git-status").length).toBeGreaterThan(gitCallsBefore);
+
     resolveRefresh();
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    // Both the superseded refresh and the screen that took over settle inside the test,
+    // rather than against a window that has already been torn down.
+    for (let turn = 0; turn < 20 && dom.window.document.body.hasAttribute("data-viewer-busy"); turn += 1) {
+      await flushViewerAsync();
+    }
   });
 
   it("clears busy state after a failed primary action", async () => {
@@ -8251,7 +8323,10 @@ describe("local viewer browser host", () => {
     }
     dom.window.document.querySelector('[data-viewer-nav-target="cdx:status"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
-    expect(dom.window.document.getElementById("viewer-document-content")?.textContent).toContain("Starting");
+    // The screen is open. Which poll frame it caught on the way in is not this test's
+    // subject and stopped being fixed once navigation could supersede a load in flight
+    // (item_795 follow-up); what matters is that the background signal below refreshes it.
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("CDX status");
 
     sources[0]?.emit("changed", { components: ["workshop"] });
     for (let attempt = 0; attempt < 10 && !dom.window.document.getElementById("viewer-document-content")?.textContent?.includes("anthropic"); attempt += 1) {

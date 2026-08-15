@@ -900,14 +900,8 @@ export function pickFirstObject(status, keys) {
 
 export function primaryActionControls() {
     return Array.from(document.querySelectorAll([
-      "#viewer-insights",
-      "#viewer-health",
-      "#viewer-getting-started",
       "#viewer-bootstrap-logics",
       "#viewer-restart-server",
-      "#viewer-workshop",
-      "#viewer-ci",
-      "#viewer-cdx",
       "#viewer-repo-folder",
       "#viewer-document-status",
       "#viewer-release-reset",
@@ -915,9 +909,12 @@ export function primaryActionControls() {
       '[data-action="refresh"]',
       '[data-viewer-action="edit-document"]',
       "[data-viewer-project-id]",
-      "[data-viewer-nav-target]",
-      "[data-viewer-ci-mode]",
-      "[data-viewer-cdx-mode]",
+      // item_795 follow-up, reported as "Runbooks takes a long time": navigation used to be
+      // disabled while a screen loaded, so clicking another screen did nothing at all -- a
+      // disabled button does not even fire, so there was no click to refuse and no message
+      // to read. The operator was left on the screen they were leaving, which then announced
+      // that *it* had loaded. Opening another screen supersedes the load in flight, so these
+      // stay live; the busy state still disables the actions that mutate something.
       "[data-viewer-cdx-session-action]",
       "[data-viewer-cdx-report]",
       "[data-viewer-cdx-artifact-path]",

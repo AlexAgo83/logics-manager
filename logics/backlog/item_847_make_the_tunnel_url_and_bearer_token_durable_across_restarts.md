@@ -1,14 +1,14 @@
 ## item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts - Make the tunnel URL and bearer token durable across restarts
 > From version: 2.22.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Obsolete
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Connector durability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 23:04:49
+> Indicators reviewed: 2026-08-16 00:20:00
 
 # AI Context
 - Summary: launch_tunnel picks a random localtunnel subdomain and a fresh bearer token on every launch, so every stop/start invalidates whatever the operator already gave ChatGPT -- observed directly this session across three consecutive restarts of the same repo.
@@ -46,6 +46,7 @@
 - Architecture decision(s): (none yet)
 - Request: `req_376_make_the_chatgpt_mcp_connector_plug_and_play`
 - Primary task(s): `task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector`
+- Superseded by: `req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door`
 
 # Priority
 - Priority: High

@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: Viewer MCP connector UX
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 23:04:49
+> Indicators reviewed: 2026-08-16 00:20:00
 
 # AI Context
 - Summary: Root-caused this session -- Settings' toggle reads a `state` field /api/mcp-connector never sends (it sends `running`), so the switch always renders unchecked regardless of real state; the detail screen reads the right fields but only ever fetches once, so an operator has to click Refresh to see a connector that already finished starting.
@@ -19,6 +19,7 @@
 # Problem
 - Settings' Connector toggle reads a `state` field from /api/mcp-connector's response, but that endpoint returns `running`, not `state` -- the toggle's checked attribute is always computed from an undefined value, so it always shows unchecked/"unknown" regardless of whether the connector is actually running, reported directly by an operator as "doesn't seem to do anything".
 - The connector detail screen already reads the right fields and renders correctly once fetched, but only ever fetches once per visit -- an operator watching it while the tunnel establishes has to click 'Refresh status' manually to see it finish, confirmed directly this session.
+- Both bugs survive `adr_031_one_mcp_transport_per_client_class` untouched: whatever transport the connector runs (localtunnel today, `tunnel-client` after `item_850_run_chatgpt_through_openais_secure_mcp_tunnel`), the payload still reports `running` and the screen still has to reflect it and keep up with it.
 
 # Scope
 - In:
@@ -32,12 +33,11 @@
 # Acceptance criteria
 - Settings renders the Connector toggle as checked/"On" when the connector is actually running, and unchecked/"Off" when it is not.
 - Toggling the Connector switch starts or stops the connector and the switch reflects the outcome without a page reload.
-- Opening the connector detail screen while the connector is running but not yet ready shows the URL and token once they become available, with no manual refresh click, and stops polling once ready/stopped/errored.
+- Opening the connector detail screen while the connector is starting shows the outcome -- ready, or the specific error -- once it arrives, with no manual refresh click, and stops polling once ready/stopped/errored.
 
 # AC Traceability
 - request-The Settings screen's Connector toggle reflects the connector's real running state on load and after every toggle, and toggling it on or off actually starts or stops the connector. -> This backlog slice. Proof: Settings renders the Connector toggle as checked/"On" when the connector is actually running, and unchecked/"Off" when it is not.
-- request-The connector detail screen (Settings / ChatGPT Developer Mode) updates itself without a manual click while it is open and the connector is running but not yet ready, stopping once the URL/token appear or the connector reports an error. -> This backlog slice. Proof: Toggling the Connector switch starts or stops the connector and the switch reflects the outcome without a page reload.
-- request-An operator's first visit to the connector screen is enough to get everything ChatGPT needs in one place; every visit after that is a one-click ON/OFF with nothing left to re-copy. -> This backlog slice. Proof: Opening the connector detail screen while the connector is running but not yet ready shows the URL and token once they become available, with no manual refresh click, and stops polling once ready/stopped/errored.
+- request-The connector screen updates itself without a manual click while it is open and the connector is starting, stopping once it is ready, stopped, or errored. -> This backlog slice. Proof: Opening the connector detail screen while the connector is starting shows the outcome once it arrives, with no manual refresh click, and stops polling once ready/stopped/errored.
 
 # Decision framing
 - Product framing: Not needed
@@ -45,7 +45,7 @@
 
 # Links
 - Product brief(s): `prod_107_a_connector_configured_once_then_just_on_off`
-- Architecture decision(s): (none yet)
+- Architecture decision(s): `adr_031_one_mcp_transport_per_client_class`
 - Request: `req_376_make_the_chatgpt_mcp_connector_plug_and_play`
 - Primary task(s): `task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector`
 

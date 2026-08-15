@@ -240,3 +240,34 @@ def test_cli_match_runbooks_reports_no_match_without_error(
 
     assert exit_code == 0
     assert "No Active runbook matched" in out
+
+
+def test_kind_filter_pushed_into_loading_matches_filtering_afterwards(tmp_path: Path) -> None:
+    """The `only_kinds` fast path must select the same docs the old post-filter did.
+
+    `/api/runbooks` parsed all ~1700 corpus docs to return 2 runbooks (~18s per call);
+    the filter now happens at directory level. It reads `INDICATOR_TARGET_KINDS` keys
+    while callers pass `doc.kind` values, so this pins the two to each other -- a key
+    that stops matching its docs' `kind` would silently return an empty list.
+    """
+    from logics_manager.sync import INDICATOR_TARGET_KINDS, _load_workflow_docs, list_logics_docs_payload
+
+    repo_root = tmp_path / "repo"
+    for name, kind in INDICATOR_TARGET_KINDS.items():
+        directory = repo_root / kind["directory"]
+        directory.mkdir(parents=True, exist_ok=True)
+        prefix = kind["prefix"][0] if isinstance(kind["prefix"], tuple) else kind["prefix"]
+        (directory / f"{prefix}_001_{name}.md").write_text(
+            f"## {prefix}_001_{name} - A {name}\n> Status: Active\n", encoding="utf-8"
+        )
+
+    everything = _load_workflow_docs(repo_root)
+    assert len(everything) == len(INDICATOR_TARGET_KINDS)
+
+    seen: set[str] = set()
+    for name in INDICATOR_TARGET_KINDS:
+        refs = set(_load_workflow_docs(repo_root, only_kinds=(name,)))
+        assert refs == {ref for ref, doc in everything.items() if doc.kind == name}, name
+        assert {item["ref"] for item in list_logics_docs_payload(repo_root, kind=name)["items"]} == refs, name
+        seen |= refs
+    assert seen == set(everything)

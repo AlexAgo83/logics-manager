@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import os
+import socket
 import subprocess
+import sys
 import json
 import threading
+import time
 from http.client import HTTPConnection
 from http.server import ThreadingHTTPServer
 from pathlib import Path
@@ -14,6 +17,12 @@ import pytest
 import logics_manager.mcp as mcp_module
 from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.mcp import McpToolError, call_tool, connector_plan, handle_jsonrpc, make_http_handler
+
+
+def _free_port() -> int:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+        probe.bind(("127.0.0.1", 0))
+        return probe.getsockname()[1]
 
 
 def _repo(tmp_path: Path) -> Path:
@@ -805,6 +814,31 @@ def test_mcp_file_tools_reject_symlink_directory_escape(tmp_path: Path) -> None:
     assert exc.value.code == "invalid_path"
     assert request_path.exists()
     assert outside_file.read_text(encoding="utf-8") == "# Outside\n"
+
+
+def test_launch_tunnel_times_out_instead_of_hanging_on_a_silent_child(tmp_path: Path) -> None:
+    """A tunnel command that never prints anything (a stuck `npx` install, a host that
+    never answers) must not hang past its own timeout. `readline()` blocks with no
+    timeout of its own; a naive read loop's wall-clock check never gets a turn while it
+    is waiting inside one, so the child can run forever with the connector stuck on
+    "the URL will appear here shortly."."""
+    repo_root = _repo(tmp_path)
+    silent_command = [sys.executable, "-c", "import time; time.sleep(5)"]
+
+    start = time.monotonic()
+    with pytest.raises(McpToolError) as exc:
+        mcp_module.launch_tunnel(
+            repo_root=repo_root,
+            host="127.0.0.1",
+            port=_free_port(),
+            no_bearer=True,
+            tunnel_command=silent_command,
+            wait_seconds=0.5,
+        )
+    elapsed = time.monotonic() - start
+
+    assert exc.value.code == "command_failed"
+    assert elapsed < 3, f"the timeout should bound the wait near 0.5s, took {elapsed:.2f}s"
 
 
 def test_mcp_connector_plan_generates_chatgpt_setup(tmp_path: Path) -> None:

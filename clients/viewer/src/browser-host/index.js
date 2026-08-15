@@ -620,8 +620,37 @@ import {
   let transientMetaText = "";
   let latestEnvironmentWarning = null;
 
-  function setPrimaryActionBusy(actionKey, label = "") {
+  //: req_360/AC2: the four document stages colour the ring from the tokens the board
+  //: already uses, so a loading request and a loading task are told apart the same way
+  //: everywhere. Anything else -- Settings, Remote, Workshop, CDX -- gets the decided
+  //: neutral, which is deliberately none of the four.
+  const LOADING_RING_STAGES = new Set(["request", "backlog", "task", "product"]);
+
+  function applyLoadingRing(busy, screenChange = false) {
+    const header = document.querySelector(".viewer-document__header");
+    if (!(header instanceof HTMLElement)) return;
+    if (!busy) {
+      header.removeAttribute("data-loading");
+      return;
+    }
+    // What is loading is not known when the load starts -- `currentDocumentItem` is still
+    // the document being left. A screen change is exactly the case where the stage on hand
+    // is the wrong one, and navigation already declares itself as one (`supersede`), so the
+    // ring reads neutral there rather than colouring a Settings load like a request.
+    const stage = screenChange ? "" : String(currentDocumentItem?.stage || "");
+    header.style.setProperty(
+      "--loading-color",
+      LOADING_RING_STAGES.has(stage) ? `var(--stage-color-${stage})` : "var(--viewer-loading-neutral)"
+    );
+    header.setAttribute("data-loading", "");
+  }
+
+  function setPrimaryActionBusy(actionKey, label = "", options = {}) {
     primaryActionBusyKey = actionKey || "";
+    // Driven by the loading signal the screens already have, rather than a second one kept
+    // in step with it: anything that makes the viewer busy lights the ring, and nothing has
+    // to remember to.
+    applyLoadingRing(Boolean(actionKey), Boolean(options.screenChange));
     document.body?.classList.toggle("viewer-is-busy", Boolean(primaryActionBusyKey));
     document.body?.toggleAttribute("data-viewer-busy", Boolean(primaryActionBusyKey));
     if (primaryActionBusyKey) {
@@ -707,7 +736,7 @@ import {
     // A new attempt supersedes the previous failure: leaving it up would let the operator
     // read a stale reason as the outcome of what they just did.
     clearActionFailure();
-    setPrimaryActionBusy(actionKey, label);
+    setPrimaryActionBusy(actionKey, label, { screenChange: Boolean(options.supersede) });
     return Promise.resolve()
       .then(action)
       .then(() => true)

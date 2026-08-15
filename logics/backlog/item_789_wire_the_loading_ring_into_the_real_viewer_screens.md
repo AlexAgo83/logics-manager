@@ -1,10 +1,10 @@
 ## item_789_wire_the_loading_ring_into_the_real_viewer_screens - Wire the loading ring into the real viewer screens
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer loading feedback
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -33,6 +33,11 @@
 - AC2: Opening an untyped screen (Settings, CI, Release, Workshop, or CDX) shows the ring in the decided neutral colour while it loads.
 - AC3: The existing loading text on every wired screen is unchanged, verified by comparing before/after screen text.
 
+# Report
+- Wired into `setPrimaryActionBusy`, which is the loading signal every screen already goes through -- so anything that makes the viewer busy lights the ring and no screen has to remember to. No parallel loading-tracking mechanism was added.
+- Colour rule, and the defect found by driving it: at the moment a load starts, `currentDocumentItem` is still the document being *left*, so opening Validation health from an open request coloured the ring request-amber. A screen change is exactly the case where the stage on hand is the wrong one, and navigation already declares itself as one through the `supersede` option added for req_359, so that flag decides it. Measured after the fix: Health reads `var(--viewer-loading-neutral)`, Settings reads the neutral, and refreshing an open request reads `var(--stage-color-request)`.
+- The existing loading text is untouched: `setMeta` and `showScreenLoading` were not modified, and the ring is drawn beside them.
+
 # AC Traceability
 - request-AC5 -> This backlog slice. Proof: AC1: Opening a request/backlog/task/product document shows the ring in that document's stage colour while it loads, and the ring clears when the content is ready.
 - request-AC6 -> This backlog slice. Proof: AC2: Opening an untyped screen (Settings, CI, Release, Workshop, or CDX) shows the ring in the decided neutral colour while it loads.
@@ -50,3 +55,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_360_orchestrate_the_loading_border_trace_feature` was finished via `logics-manager flow finish task` on 2026-08-15.

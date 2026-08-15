@@ -1,10 +1,10 @@
 ## item_788_build_the_reusable_loading_ring_css_mechanism_and_decide_the_neutral_colour - Build the reusable loading-ring CSS mechanism and decide the neutral colour
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer loading feedback
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -36,6 +36,14 @@
 - AC3: With `prefers-reduced-motion: reduce` simulated (e.g. via browser dev tools emulation), the ring shows a static/breathing glow with no rotation.
 - AC4: A neutral colour for untyped screens is chosen and recorded (in code comment or this doc), not left as the prototype's unexamined placeholder.
 
+# Report
+- Ported from `logics/external/mockup/loading_border_trace_proto.html` into `clients/viewer/viewer.css` as one rule set driven by `data-loading` and `--loading-color` on `.viewer-document__header`.
+- The reveal is a punch-through, not a CSS mask: `.viewer-document__ring` clips the rotating sweep and its own `::after` covers everything but a 2px rim. The prototype's first pass used `mask-composite: exclude` and the ring rendered invisible; that note is carried into the stylesheet so it is not tried again.
+- One thing the prototype did not have to solve: it clipped on the header itself. The real header holds the Git actions menu, and `overflow: hidden` there would clip that menu open, so the clipping lives on a dedicated absolutely-positioned child -- which also keeps it out of the header's three-column grid.
+- The sweep's box is square and oversized (`inset: -60%`) so the conic gradient's angular maths runs against a square rather than the header's wide box; otherwise the comet sprints along the long edges and crawls on the short ones.
+- Neutral colour decided: `--viewer-loading-neutral`, the palette's description grey. It must not be any of the four stage colours, or an untyped screen would read as a request or a task; the description grey is already the palette's "this is not a state" colour and no stage claims it.
+- Verified live: fade measured mid-transition at opacity 0.145 and 0.22 with `transition-duration: 0.45s`. Under `prefers-reduced-motion: reduce` emulated in Chrome, the sweep's animation computes to `none` with no gradient and the ring animates `viewer-loading-ring-breathe` at opacity 0.3 -- a pulse, no rotation.
+
 # AC Traceability
 - request-AC1 -> This backlog slice. Proof: AC1: The ring's CSS lives once in the viewer's shared stylesheet(s), not copy-pasted per screen, and is driven purely by `data-loading` + `--loading-color` on a header element.
 - request-AC2 -> This backlog slice. Proof: AC2: Toggling `data-loading` on a real header element in a local test produces a smooth fade-in/out with no visible snap, matching the prototype's behaviour.
@@ -55,3 +63,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_360_orchestrate_the_loading_border_trace_feature` was finished via `logics-manager flow finish task` on 2026-08-15.

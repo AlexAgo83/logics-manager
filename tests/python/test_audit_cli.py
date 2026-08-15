@@ -227,6 +227,35 @@ def test_duplicate_proof_ac_groups_flags_the_ac6_ac7_shift_shape() -> None:
     assert duplicate_proof_ac_groups(text) == [["AC6", "AC7"]]
 
 
+def test_the_item_784_shape_survives_the_grouping_and_the_declaration() -> None:
+    """item_823: both slices above make the check quieter, and the way to make a check
+    quiet by accident is to make it quiet on purpose without a case that proves it fires.
+
+    On AC2 of that slice -- "the declaration does not silence it" -- the honest finding is
+    that it cannot hold as written. A shifted proof block and a shared wave are the same
+    bytes; telling them apart is the human judgement the check exists to ask for. What can
+    hold, and is what this asserts, is that silencing is never implicit or broad: it takes a
+    line naming those exact criteria, in that document, which greps in one command.
+    """
+    shifted = "\n".join(
+        [
+            "# AC Traceability",
+            "- request-AC6 -> This task. Proof: token aggregation is non-zero, asserted by test_token_totals.",
+            "- request-AC7 -> This task. Proof: token aggregation is non-zero, asserted by test_token_totals.",
+        ]
+    )
+
+    # Still reported after item_821's grouping.
+    assert duplicate_proof_ac_groups(shifted) == [["AC6", "AC7"]]
+    # A declaration naming other criteria does not reach it.
+    assert duplicate_proof_ac_groups("> Shared proof: AC1, AC2\n" + shifted) == [["AC6", "AC7"]]
+    # Neither does one that names only half of it.
+    assert duplicate_proof_ac_groups("> Shared proof: AC6, AC8\n" + shifted) == [["AC6", "AC7"]]
+    # A malformed line settles nothing rather than settling everything.
+    assert duplicate_proof_ac_groups("> Shared proof:\n" + shifted) == [["AC6", "AC7"]]
+    assert duplicate_proof_ac_groups("> Shared proof: all of them\n" + shifted) == [["AC6", "AC7"]]
+
+
 def test_duplicate_proof_ac_groups_reports_a_shared_proof_once() -> None:
     """item_821: the pair shape turned 127 groups into 437 findings on this corpus.
 

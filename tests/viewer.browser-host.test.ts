@@ -1986,6 +1986,32 @@ describe("local viewer browser host", () => {
     expect(css).toMatch(/\.viewer-settings-danger--destructive\s*\{[^}]*editorError-foreground/);
   });
 
+  it("drops the duplicate tile rows and ranks CI jobs slowest-first", () => {
+    // item_796/AC2+AC3. Both screens printed a State/Branch/Commit tile row directly under a
+    // verdict banner that already said all of it, and the job list left the reader comparing
+    // a column of duration strings by hand.
+    const render = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/render.js"), "utf8");
+    const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
+
+    // Health still has its strip; CI and Release no longer do.
+    expect(render.match(/viewer-ci__summary--strip/g)).toBeNull();
+    // Branch and Match only lived in CI's tiles, so dropping the tiles had to move them.
+    expect(render).toMatch(/\["Branch", run\.branch/);
+    expect(render).toMatch(/\["Match", matchLabel\]/);
+    // Release's Version had the same problem.
+    expect(render).toMatch(/<span>Version<\/span>/);
+
+    expect(render).toContain("const slowestFirst =");
+    expect(render).toContain("viewer-ci__job-bar");
+    // The bar is a ratio against the slowest job, not the job's own duration in pixels.
+    expect(css).toMatch(/\.viewer-ci__job-bar::after\s*\{[^}]*var\(--job-ratio/);
+
+    // Gates wrap instead of stacking, and the opened blocking gate takes its own row.
+    const gatesRule = css.match(/\.viewer-release__gates\s*\{[^}]+\}/)?.[0] || "";
+    expect(gatesRule).toContain("repeat(auto-fill");
+    expect(css).toMatch(/\.viewer-release__gate--blocking\s*\{[^}]*grid-column: 1 \/ -1/);
+  });
+
   it("leads the Corpus navigation and switcher with Getting Started", () => {
     // It is the one Corpus entry written for someone who does not yet know what Insights,
     // Health or Runbooks are, so it cannot be third. Both surfaces are checked: the menu
@@ -5309,11 +5335,15 @@ describe("local viewer browser host", () => {
 
     const document = dom.window.document;
 
-    // One sentence that reconciles the three numbers, with the action beside it.
+    // One sentence that reconciles the three numbers, with the action beside it. item_796:
+    // it names the blocking gate and stops -- saying *why* is the gate's job, and the gate
+    // is moved to the front and opened precisely so it can do it.
     const verdict = document.querySelector(".viewer-release__verdict-text")?.textContent || "";
     expect(verdict).toContain("Blocked by local_validation");
-    expect(verdict).toContain("evidence targets a different commit");
+    expect(verdict).not.toContain("evidence targets a different commit");
     expect(verdict).toContain("5 of 5 gates have evidence");
+    expect(document.querySelector(".viewer-release__gate--blocking .viewer-release__reason")?.textContent)
+      .toContain("evidence targets a different commit");
     expect(document.querySelector(".viewer-release__verdict-action")?.textContent).toContain("Re-run local validation");
 
     // The blocking gate leads, is marked, and is the one left open.
@@ -5328,11 +5358,13 @@ describe("local viewer browser host", () => {
     // Scoped to the summary: the blocking gate is expanded, so an unscoped query would
     // reach into its evidence rows and report their markup instead.
     expect(gates[0]?.querySelector(".viewer-release__gate-name em")).toBeNull();
-    // `docs` is optional and passing, so the marker stays quiet: it changes what a failure
-    // means, and there is no failure to reinterpret.
+    // item_796 reversed item_736 here: `docs` is optional and passing, and the mark is shown
+    // anyway. A passing optional gate is exactly what makes "5 of 5 pass" mean something
+    // other than it appears -- four gates had to pass and one chose to, and the reader
+    // cannot tell which without the mark.
     const optionalGate = gates.find((node) => node.dataset.viewerReleaseGate === "docs");
     expect(optionalGate?.dataset.viewerReleaseGateTone).toBe("passing");
-    expect(optionalGate?.querySelector(".viewer-release__gate-optional")).toBeNull();
+    expect(optionalGate?.querySelector(".viewer-release__gate-optional")?.textContent).toBe("optional");
 
     // The Next action row repeated the verdict's own action line.
     const listRows = Array.from(document.querySelectorAll(".viewer-ci__row")).map((node) => node.textContent || "");

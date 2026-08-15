@@ -552,12 +552,6 @@ export function renderCiStatus(payload) {
       : run?.matchSource === "branch-failing"
       ? "Branch failing"
       : "Latest branch run";
-    const cards = renderMetricCards([
-      ["State", ciBadgeLabel(state)],
-      ["Branch", run?.branch || payload.branch || "Unknown"],
-      ["Commit", (run?.headSha || payload.headSha || "").slice(0, 7) || "Unknown"],
-      ["Match", matchLabel]
-    ]);
     const runUrl = run?.htmlUrl ? `<a class="viewer-ci__link" href="${escapeHtml(run.htmlUrl)}" target="_blank" rel="noreferrer">Open in ${escapeHtml(payload?.provider === "gitlab" ? "GitLab" : "GitHub")}</a>` : "";
 
     // item_734: the screen printed both ends of the run and never its duration, and repeated
@@ -589,8 +583,13 @@ export function renderCiStatus(payload) {
 
     // Status is in the verdict, so the row that repeated it is gone; both ends of the run
     // become the one fact they were hiding.
+    // item_796: Branch and Match lived only in the tile row that duplicated the verdict.
+    // They are facts about this run and nothing else stated them, so they move here rather
+    // than being dropped with the tiles.
     const runRows = run ? [
       ["Workflow", run.workflowName || run.name || providerLabel],
+      ["Branch", run.branch || payload.branch || "Unknown"],
+      ["Match", matchLabel],
       ["Event", run.event || "Unknown"],
       ["Commit", run.commitMessage || payload.subject || "Unknown"],
       ["Author", run.author || payload.author || "Unknown"],
@@ -604,7 +603,6 @@ export function renderCiStatus(payload) {
       <div class="viewer-ci">
         ${renderCiModeSwitcher("runs")}
         ${verdictHtml}
-        <div class="viewer-ci__summary viewer-ci__summary--strip">${cards}</div>
         <div class="viewer-ci__workspace">
           <section class="viewer-ci__section">
             <div class="viewer-ci__heading"><h2>Latest run</h2>${renderCiBadge(state)}</div>
@@ -948,22 +946,42 @@ export function renderCiJobRows(jobs) {
     const list = Array.isArray(jobs) ? jobs : [];
     if (!list.length) return `<li class="viewer-ci__empty">No job details reported.</li>`;
     const tone = (job) => ciStateFromStatus(job.status, job.conclusion);
+    // item_796: the list printed each job's duration and left the reader to compare a column
+    // of "1m 12s" strings. What a reader wants from a job list is which one the run is
+    // waiting on, so the slowest leads its group and every row carries a bar drawn against
+    // the slowest job in the run -- a comparison the eye makes instead of the reader.
+    const durationMs = (job) => {
+      const start = Date.parse(job?.startedAt || "");
+      const end = Date.parse(job?.completedAt || "");
+      return Number.isFinite(start) && Number.isFinite(end) && end > start ? end - start : 0;
+    };
+    const slowestMs = list.reduce((max, job) => Math.max(max, durationMs(job)), 0);
+    // Ordering within a group only: failing-first is a separate decision (item_734) and
+    // sorting across the groups would undo it.
+    const slowestFirst = (jobs) => [...jobs].sort((left, right) => durationMs(right) - durationMs(left));
     const renderJob = (job) => {
       const jobState = tone(job);
       const duration = formatCiDuration(job.startedAt, job.completedAt);
       const ago = formatCiAgo(job.completedAt || job.startedAt);
       const absolute = formatCiDate(job.completedAt || job.startedAt) || "";
       const time = [duration, ago].filter(Boolean).join(" \u00b7 ");
+      // No bar when nothing timed the job, and none when there is nothing to compare against:
+      // a full-width bar on a single job states a ratio of one job to itself.
+      const ratio = slowestMs > 0 && list.length > 1 ? durationMs(job) / slowestMs : 0;
+      const bar = ratio > 0
+        ? `<span class="viewer-ci__job-bar" style="--job-ratio: ${ratio.toFixed(3)}" aria-hidden="true"></span>`
+        : "";
       const content = `
         <span class="viewer-ci__job-name">${escapeHtml(job.name || "Job")}</span>
         <span class="viewer-ci__job-time"${absolute ? ` title="${escapeHtml(absolute)}"` : ""}>${escapeHtml(time)}</span>
+        ${bar}
       `;
       return `<li class="viewer-ci__job viewer-ci__job--${escapeHtml(jobState)}" data-viewer-ci-job-state="${escapeHtml(jobState)}">${job.htmlUrl ? `<a href="${escapeHtml(job.htmlUrl)}" target="_blank" rel="noreferrer">${content}</a>` : content}</li>`;
     };
-    const failed = list.filter((job) => tone(job) === "failing");
+    const failed = slowestFirst(list.filter((job) => tone(job) === "failing"));
     const rest = list.filter((job) => tone(job) !== "failing");
-    const passed = rest.filter((job) => tone(job) === "passing");
-    const unresolved = rest.filter((job) => tone(job) !== "passing");
+    const passed = slowestFirst(rest.filter((job) => tone(job) === "passing"));
+    const unresolved = slowestFirst(rest.filter((job) => tone(job) !== "passing"));
     return `${failed.map(renderJob).join("")}${unresolved.map(renderJob).join("")}${
       passed.length
         ? `<li class="viewer-ci__job-fold"><details${failed.length ? "" : " open"}>
@@ -986,10 +1004,11 @@ export function renderReleaseGate(gate, options = {}) {
     const substate = rawState && !id.toLowerCase().includes(rawState.toLowerCase()) && rawState.toLowerCase() !== status.toLowerCase()
       ? rawState
       : "";
-    // `optional` changes what a gate's failure means, so it is stated where it changes the
-    // conclusion -- beside a gate that is not passing -- and stays quiet where it does not.
-    const optional = gate?.required === false;
-    const optionalMark = optional && tone !== "passing"
+    // item_736 showed `optional` only on a gate that was not passing, on the grounds that it
+    // changes what a failure means. item_796 reverses that: a passing optional gate is what
+    // makes "8 of 8 pass" mean something other than it appears -- seven gates had to pass and
+    // one chose to. The reader cannot tell which without the mark.
+    const optionalMark = gate?.required === false
       ? `<span class="viewer-release__gate-optional">optional</span>`
       : "";
     const blocking = Boolean(options.blocking);
@@ -1065,12 +1084,6 @@ export function renderReleaseStatus(payload, runsPayload) {
     const state = payload?.state || "not_configured";
     const gates = Array.isArray(payload?.gates) ? payload.gates : [];
     const blockedGate = gates.find((gate) => gate && gate.required !== false && gate.blocking_reason);
-    const cards = renderMetricCards([
-      ["State", state],
-      ["Version", payload?.target_version || "Unknown"],
-      ["Blocked gate", blockedGate?.id || "None"],
-      ["Evidence", `${gates.filter((gate) => gate?.evidence).length}/${gates.length}`],
-    ]);
     // item_736: the blocking gate sat fifth of eight. It leads and is marked; the rest keep
     // their declared order behind it.
     const orderedGates = blockedGate ? [blockedGate, ...gates.filter((gate) => gate !== blockedGate)] : gates;
@@ -1089,19 +1102,23 @@ export function renderReleaseStatus(payload, runsPayload) {
         return { tone: "unknown", sentence: "No release contract is configured, so nothing can be checked." };
       }
       if (blockedGate) {
-        const reason = String(blockedGate.blocking_reason || "").trim();
+        // item_796: the reason was printed here *and* on the gate below, which is opened and
+        // moved to the front precisely so it can carry it. Naming the gate is this
+        // sentence's job; saying why is the gate's.
         const counts = gates.length ? ` ${evidenceCount} of ${gates.length} gates have evidence.` : "";
-        return {
-          tone: "fail",
-          sentence: `Blocked by ${blockedGate.id}${reason ? `: ${reason}` : "."}${counts}`
-        };
+        return { tone: "fail", sentence: `Blocked by ${blockedGate.id}.${counts}` };
       }
       if (String(state).toLowerCase() === "ready" || String(state).toLowerCase() === "pass") {
         return { tone: "passing", sentence: `Ready to release ${payload?.target_version || "this version"}. All ${gates.length} gates pass.` };
       }
       return { tone: releaseBadgeTone(state), sentence: `Release state is ${state}. ${evidenceCount} of ${gates.length} gates have evidence.` };
     })();
-    const nextAction = String(payload?.next_action || "").trim();
+    // item_796: `next_action` on a blocked release is the server restating the blocking
+    // gate's own reason, which the gate below already prints in full and opened to show.
+    // Kept only where it says something the gate does not -- that is, when nothing blocks.
+    const rawNextAction = String(payload?.next_action || "").trim();
+    const blockingReason = String(blockedGate?.blocking_reason || "").trim();
+    const nextAction = blockingReason && rawNextAction.includes(blockingReason) ? "" : rawNextAction;
     const verdictHtml = `
       <section class="viewer-release__verdict viewer-release__verdict--${escapeHtml(releaseVerdict.tone)}" role="status">
         <p class="viewer-release__verdict-text">${escapeHtml(releaseVerdict.sentence)}</p>
@@ -1112,11 +1129,11 @@ export function renderReleaseStatus(payload, runsPayload) {
       <div class="viewer-release">
         ${renderCiModeSwitcher("release")}
         ${verdictHtml}
-        <div class="viewer-ci__summary viewer-ci__summary--strip">${cards}</div>
         <div class="viewer-ci__workspace viewer-release__workspace">
           <section class="viewer-ci__section">
             <div class="viewer-ci__heading"><h2>Release state</h2><span class="viewer-ci__badge viewer-ci__badge--${escapeHtml(releaseBadgeTone(state))}">${escapeHtml(state)}</span></div>
             <ul class="viewer-ci__list">
+              <li class="viewer-ci__row"><span>Version</span><strong>${escapeHtml(payload?.target_version || "Unknown")}</strong></li>
               <li class="viewer-ci__row"><span>Contract</span><strong>${escapeHtml(payload?.configured ? payload.contract_path || "configured" : "not configured")}</strong></li>
               <li class="viewer-ci__row"><span>Commit</span><strong>${escapeHtml(payload?.commit ? String(payload.commit).slice(0, 12) : "unknown")}</strong></li>
             </ul>

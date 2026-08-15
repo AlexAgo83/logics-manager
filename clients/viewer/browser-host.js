@@ -2110,12 +2110,6 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     const jobs = Array.isArray(payload.jobs) ? payload.jobs : [];
     const state = payload.badgeState || run?.badgeState || payload.state || "unknown";
     const matchLabel = run?.matchSource === "head-active" ? "Current HEAD running" : run?.matchSource === "head-failing" ? "Current HEAD failing" : run?.matchSource === "head-cancelled" ? "Current HEAD cancelled" : run?.matchSource === "head-unknown" ? "Current HEAD unknown" : run?.matchSource === "head" ? "Current HEAD" : run?.matchSource === "branch-active" ? "Branch running" : run?.matchSource === "branch-failing" ? "Branch failing" : "Latest branch run";
-    const cards = renderMetricCards([
-      ["State", ciBadgeLabel(state)],
-      ["Branch", run?.branch || payload.branch || "Unknown"],
-      ["Commit", (run?.headSha || payload.headSha || "").slice(0, 7) || "Unknown"],
-      ["Match", matchLabel]
-    ]);
     const runUrl = run?.htmlUrl ? `<a class="viewer-ci__link" href="${escapeHtml(run.htmlUrl)}" target="_blank" rel="noreferrer">Open in ${escapeHtml(payload?.provider === "gitlab" ? "GitLab" : "GitHub")}</a>` : "";
     const runDuration = run ? formatCiDuration(run.runStartedAt || run.createdAt, run.updatedAt) : "";
     const runAgo = run ? formatCiAgo(run.updatedAt || run.runStartedAt || run.createdAt) : "";
@@ -2134,6 +2128,8 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         </section>` : "";
     const runRows = run ? [
       ["Workflow", run.workflowName || run.name || providerLabel],
+      ["Branch", run.branch || payload.branch || "Unknown"],
+      ["Match", matchLabel],
       ["Event", run.event || "Unknown"],
       ["Commit", run.commitMessage || payload.subject || "Unknown"],
       ["Author", run.author || payload.author || "Unknown"],
@@ -2146,7 +2142,6 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       <div class="viewer-ci">
         ${renderCiModeSwitcher("runs")}
         ${verdictHtml}
-        <div class="viewer-ci__summary viewer-ci__summary--strip">${cards}</div>
         <div class="viewer-ci__workspace">
           <section class="viewer-ci__section">
             <div class="viewer-ci__heading"><h2>Latest run</h2>${renderCiBadge(state)}</div>
@@ -2406,22 +2401,32 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     const list = Array.isArray(jobs) ? jobs : [];
     if (!list.length) return `<li class="viewer-ci__empty">No job details reported.</li>`;
     const tone = (job) => ciStateFromStatus(job.status, job.conclusion);
+    const durationMs = (job) => {
+      const start = Date.parse(job?.startedAt || "");
+      const end = Date.parse(job?.completedAt || "");
+      return Number.isFinite(start) && Number.isFinite(end) && end > start ? end - start : 0;
+    };
+    const slowestMs = list.reduce((max, job) => Math.max(max, durationMs(job)), 0);
+    const slowestFirst = (jobs2) => [...jobs2].sort((left, right) => durationMs(right) - durationMs(left));
     const renderJob = (job) => {
       const jobState = tone(job);
       const duration = formatCiDuration(job.startedAt, job.completedAt);
       const ago = formatCiAgo(job.completedAt || job.startedAt);
       const absolute = formatCiDate(job.completedAt || job.startedAt) || "";
       const time = [duration, ago].filter(Boolean).join(" \xB7 ");
+      const ratio = slowestMs > 0 && list.length > 1 ? durationMs(job) / slowestMs : 0;
+      const bar = ratio > 0 ? `<span class="viewer-ci__job-bar" style="--job-ratio: ${ratio.toFixed(3)}" aria-hidden="true"></span>` : "";
       const content = `
         <span class="viewer-ci__job-name">${escapeHtml(job.name || "Job")}</span>
         <span class="viewer-ci__job-time"${absolute ? ` title="${escapeHtml(absolute)}"` : ""}>${escapeHtml(time)}</span>
+        ${bar}
       `;
       return `<li class="viewer-ci__job viewer-ci__job--${escapeHtml(jobState)}" data-viewer-ci-job-state="${escapeHtml(jobState)}">${job.htmlUrl ? `<a href="${escapeHtml(job.htmlUrl)}" target="_blank" rel="noreferrer">${content}</a>` : content}</li>`;
     };
-    const failed = list.filter((job) => tone(job) === "failing");
+    const failed = slowestFirst(list.filter((job) => tone(job) === "failing"));
     const rest = list.filter((job) => tone(job) !== "failing");
-    const passed = rest.filter((job) => tone(job) === "passing");
-    const unresolved = rest.filter((job) => tone(job) !== "passing");
+    const passed = slowestFirst(rest.filter((job) => tone(job) === "passing"));
+    const unresolved = slowestFirst(rest.filter((job) => tone(job) !== "passing"));
     return `${failed.map(renderJob).join("")}${unresolved.map(renderJob).join("")}${passed.length ? `<li class="viewer-ci__job-fold"><details${failed.length ? "" : " open"}>
              <summary>${escapeHtml(passed.length)} job${passed.length === 1 ? "" : "s"} passed</summary>
              <ul class="viewer-ci__jobs">${passed.map(renderJob).join("")}</ul>
@@ -2434,8 +2439,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     const id = String(gate?.id || "gate");
     const rawState = String(gate?.state || "").trim();
     const substate = rawState && !id.toLowerCase().includes(rawState.toLowerCase()) && rawState.toLowerCase() !== status.toLowerCase() ? rawState : "";
-    const optional = gate?.required === false;
-    const optionalMark = optional && tone !== "passing" ? `<span class="viewer-release__gate-optional">optional</span>` : "";
+    const optionalMark = gate?.required === false ? `<span class="viewer-release__gate-optional">optional</span>` : "";
     const blocking = Boolean(options.blocking);
     return `
       <details class="viewer-release__gate viewer-release__gate--${escapeHtml(tone)}${blocking ? " viewer-release__gate--blocking" : ""}"${blocking ? " open" : ""} data-viewer-release-gate="${escapeHtml(id)}" data-viewer-release-gate-tone="${escapeHtml(tone)}">
@@ -2502,12 +2506,6 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     const state = payload?.state || "not_configured";
     const gates = Array.isArray(payload?.gates) ? payload.gates : [];
     const blockedGate = gates.find((gate) => gate && gate.required !== false && gate.blocking_reason);
-    const cards = renderMetricCards([
-      ["State", state],
-      ["Version", payload?.target_version || "Unknown"],
-      ["Blocked gate", blockedGate?.id || "None"],
-      ["Evidence", `${gates.filter((gate) => gate?.evidence).length}/${gates.length}`]
-    ]);
     const orderedGates = blockedGate ? [blockedGate, ...gates.filter((gate) => gate !== blockedGate)] : gates;
     const gateRows = gates.length ? orderedGates.map((gate) => renderReleaseGate(gate, { blocking: gate === blockedGate })).join("") : `
       <div class="viewer-ci__empty">${escapeHtml(payload?.next_action || "Add logics/release/contract.json to configure release workflow state.")}</div>
@@ -2518,19 +2516,17 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         return { tone: "unknown", sentence: "No release contract is configured, so nothing can be checked." };
       }
       if (blockedGate) {
-        const reason = String(blockedGate.blocking_reason || "").trim();
         const counts = gates.length ? ` ${evidenceCount} of ${gates.length} gates have evidence.` : "";
-        return {
-          tone: "fail",
-          sentence: `Blocked by ${blockedGate.id}${reason ? `: ${reason}` : "."}${counts}`
-        };
+        return { tone: "fail", sentence: `Blocked by ${blockedGate.id}.${counts}` };
       }
       if (String(state).toLowerCase() === "ready" || String(state).toLowerCase() === "pass") {
         return { tone: "passing", sentence: `Ready to release ${payload?.target_version || "this version"}. All ${gates.length} gates pass.` };
       }
       return { tone: releaseBadgeTone(state), sentence: `Release state is ${state}. ${evidenceCount} of ${gates.length} gates have evidence.` };
     })();
-    const nextAction = String(payload?.next_action || "").trim();
+    const rawNextAction = String(payload?.next_action || "").trim();
+    const blockingReason = String(blockedGate?.blocking_reason || "").trim();
+    const nextAction = blockingReason && rawNextAction.includes(blockingReason) ? "" : rawNextAction;
     const verdictHtml = `
       <section class="viewer-release__verdict viewer-release__verdict--${escapeHtml(releaseVerdict.tone)}" role="status">
         <p class="viewer-release__verdict-text">${escapeHtml(releaseVerdict.sentence)}</p>
@@ -2541,11 +2537,11 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       <div class="viewer-release">
         ${renderCiModeSwitcher("release")}
         ${verdictHtml}
-        <div class="viewer-ci__summary viewer-ci__summary--strip">${cards}</div>
         <div class="viewer-ci__workspace viewer-release__workspace">
           <section class="viewer-ci__section">
             <div class="viewer-ci__heading"><h2>Release state</h2><span class="viewer-ci__badge viewer-ci__badge--${escapeHtml(releaseBadgeTone(state))}">${escapeHtml(state)}</span></div>
             <ul class="viewer-ci__list">
+              <li class="viewer-ci__row"><span>Version</span><strong>${escapeHtml(payload?.target_version || "Unknown")}</strong></li>
               <li class="viewer-ci__row"><span>Contract</span><strong>${escapeHtml(payload?.configured ? payload.contract_path || "configured" : "not configured")}</strong></li>
               <li class="viewer-ci__row"><span>Commit</span><strong>${escapeHtml(payload?.commit ? String(payload.commit).slice(0, 12) : "unknown")}</strong></li>
             </ul>

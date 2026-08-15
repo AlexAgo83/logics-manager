@@ -3533,7 +3533,9 @@ def test_viewer_mcp_connector_reports_the_child_s_own_reason(tmp_path: Path, mon
     monkeypatch.setattr(viewer_module.subprocess, "Popen", lambda *_args, **_kwargs: DyingProcess())
     server = create_viewer_server_or_skip(tmp_path)
     try:
-        server.start_mcp_connector()
+        # item_850: the tunnel transport is the default now; these two cover the
+        # localtunnel path, which stays reachable by asking for it by name.
+        server.start_mcp_connector("localtunnel")
         for _ in range(100):
             payload = server.mcp_connector_payload()
             if payload["error"]:
@@ -3579,7 +3581,9 @@ def test_viewer_mcp_connector_captures_url_and_token(tmp_path: Path, monkeypatch
 
     server = create_viewer_server_or_skip(tmp_path)
     try:
-        server.start_mcp_connector()
+        # item_850: the tunnel transport is the default now; these two cover the
+        # localtunnel path, which stays reachable by asking for it by name.
+        server.start_mcp_connector("localtunnel")
         for _ in range(50):
             payload = server.mcp_connector_payload()
             if payload["url"] and payload["token"]:

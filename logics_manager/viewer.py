@@ -31,7 +31,7 @@ from collections.abc import Callable
 from typing import Any
 from urllib.parse import parse_qs, quote, unquote, urlparse
 from .audit import audit_payload
-from . import viewer_cdx_routes, viewer_diagnostics, viewer_workshop_routes
+from . import mcp_tunnel, viewer_cdx_routes, viewer_diagnostics, viewer_workshop_routes
 from .bootstrap import bootstrap_payload
 from .cdx_memory import cdx_memory_payload
 from .chain_graph import resolve_request_chain, resolve_runbook_library_graph
@@ -342,6 +342,13 @@ DEMO_PROJECT_OPT_IN_ENV = "LOGICS_MANAGER_DEMO_BOARD"
 
 # Enough of the child's output to explain why it stopped, without holding a whole log.
 MCP_CONNECTOR_TAIL_LINES = 20
+
+# Long enough for tunnel-client to reach the control plane and be refused, short enough
+# that saving a key does not feel like it hung.
+MCP_TUNNEL_KEY_PROBE_SECONDS = 8
+
+# Printed by `logics_manager mcp serve` on the first client request (mcp.py).
+MCP_FIRST_REQUEST_MARKER = "Logics MCP: first client request served."
 
 
 def _mcp_connector_failure_reason(returncode: int | None, tail: Iterable[str]) -> str:
@@ -1830,6 +1837,13 @@ class LogicsViewerServer(ThreadingHTTPServer):
         self.mcp_connector_url = ""
         self.mcp_connector_token = ""
         self.mcp_connector_error = ""
+        self.mcp_connector_reason = ""
+        # item_851: the last prerequisite row flips on the first request ChatGPT makes,
+        # which is the moment the operator learns it worked rather than hoping.
+        self.mcp_connector_connected = False
+        # item_850/adr_031: ChatGPT rides OpenAI's Secure MCP Tunnel by default. The
+        # localtunnel path stays reachable by asking for it, for everything else.
+        self.mcp_connector_mode = "tunnel"
         self.mcp_connector_lock = threading.RLock()
         # Cache of (monotonic_ts, etag, body_bytes) keyed by "<route>::<repo_root>".
         self.status_cache: dict[str, tuple[float, str, bytes]] = {}
@@ -1928,17 +1942,165 @@ class LogicsViewerServer(ThreadingHTTPServer):
     def mcp_connector_payload(self) -> dict[str, Any]:
         with self.mcp_connector_lock:
             running = self.mcp_connector is not None and self.mcp_connector.poll() is None
-            return {"running": running, "url": self.mcp_connector_url if running else "", "token": self.mcp_connector_token if running else "", "error": self.mcp_connector_error if not running else ""}
+            # item_850: the Secure MCP Tunnel publishes no URL -- there is nothing to
+            # copy, which is the point -- so `ready` is what the screen reads, and
+            # `url`/`token` stay meaningful only on the localtunnel path.
+            # A refused key is reported while the child is still up: the process runs,
+            # the tunnel carries nothing, and "running" alone would read as working.
+            refused = self.mcp_connector_reason == mcp_tunnel.REASON_API_KEY_REJECTED
+            ready = running and not refused and (bool(self.mcp_connector_url) or self.mcp_connector_mode == "tunnel")
+            return {
+                "running": running,
+                "ready": ready,
+                "mode": self.mcp_connector_mode,
+                "url": self.mcp_connector_url if running else "",
+                "token": self.mcp_connector_token if running else "",
+                "error": self.mcp_connector_error if not running or refused else "",
+                "reason": self.mcp_connector_reason if not running or refused else "",
+                "connected": self.mcp_connector_connected,
+            }
 
-    def start_mcp_connector(self) -> dict[str, Any]:
+    def mcp_tunnel_prerequisites(self) -> dict[str, Any]:
+        """What `tunnel-client` needs and does not have, named one cause at a time."""
+        settings = mcp_tunnel.tunnel_settings()
+        mcp_tunnel.ensure_config_file(settings["config_path"])
+        status = mcp_tunnel.check_prerequisites(settings, run_doctor=self._run_tunnel_doctor)
+        with self.mcp_connector_lock:
+            running = self.mcp_connector is not None and self.mcp_connector.poll() is None
+            connected = self.mcp_connector_connected
+        profile_exists = status["reason"] not in {mcp_tunnel.REASON_BINARY_MISSING, mcp_tunnel.REASON_PROFILE_MISSING}
+        rows = mcp_tunnel.prerequisite_rows(settings, status, profile_exists=profile_exists, running=running, connected=connected)
+        return {
+            **status,
+            "profile": settings["profile"],
+            "config_path": str(settings["config_path"]),
+            "rows": rows,
+            "stdio_command": f"logics-manager mcp serve --repo-root {self.repo_root.as_posix()}",
+        }
+
+    def save_mcp_tunnel_key(self, api_key: str) -> dict[str, Any]:
+        """Store the key, then find out whether the control plane accepts it.
+
+        `tunnel-client doctor` only checks that the variable is set: a wrong or
+        unscoped key passes it and then repeats a 401 for as long as the daemon runs,
+        which reads as a connector that started. Saving is the moment to learn that.
+        """
+        settings = mcp_tunnel.tunnel_settings()
+        mcp_tunnel.write_api_key(settings["config_path"], api_key)
+        probed = self._probe_tunnel_key(mcp_tunnel.tunnel_settings())
+        return {"ok": probed["ok"], "message": probed["message"]}
+
+    def _probe_tunnel_key(self, settings: dict[str, Any]) -> dict[str, Any]:
+        """Run the tunnel briefly and read the control plane's own answer.
+
+        ponytail: a short supervised run rather than a control-plane API client --
+        `tunnel-client` is the thing that authenticates, and its 401 is the verdict.
+        Ceiling: it needs a profile, and it costs the probe window. If OpenAI publishes
+        a key-introspection endpoint, this becomes one request.
+        """
+        if not mcp_tunnel.binary_installed():
+            return {"ok": True, "message": "Key saved. It is checked once tunnel-client is installed."}
+        command = mcp_tunnel.build_run_command(settings["profile"])
+        try:
+            completed = subprocess.run(
+                command,
+                cwd=self.repo_root,
+                capture_output=True,
+                text=True,
+                timeout=MCP_TUNNEL_KEY_PROBE_SECONDS,
+                check=False,
+                env=mcp_tunnel.child_environment(settings),
+            )
+        except subprocess.TimeoutExpired as expired:
+            # Still up when the window closed: nothing refused it.
+            output = f"{expired.stdout or ''}{expired.stderr or ''}"
+            if isinstance(output, bytes):
+                output = output.decode("utf-8", "replace")
+            if any(mcp_tunnel.is_rejected_key(line) for line in output.splitlines()):
+                return {"ok": False, "message": mcp_tunnel.explain(mcp_tunnel.REASON_API_KEY_REJECTED, settings)}
+            return {"ok": True, "message": "Key saved and accepted by the control plane."}
+        except (OSError, subprocess.SubprocessError) as exc:
+            return {"ok": True, "message": f"Key saved. It could not be checked now: {exc}"}
+        combined = f"{completed.stdout}\n{completed.stderr}"
+        if any(mcp_tunnel.is_rejected_key(line) for line in combined.splitlines()):
+            return {"ok": False, "message": mcp_tunnel.explain(mcp_tunnel.REASON_API_KEY_REJECTED, settings)}
+        return {"ok": True, "message": "Key saved. The connector will use it on the next start."}
+
+    def _run_tunnel_doctor(self, command: list[str]) -> tuple[int, str]:
+        try:
+            completed = subprocess.run(command, cwd=self.repo_root, capture_output=True, text=True, timeout=30, check=False)
+        except (OSError, subprocess.SubprocessError) as exc:
+            return 2, str(exc)
+        return completed.returncode, f"{completed.stdout}\n{completed.stderr}"
+
+    def install_mcp_tunnel_binary(self) -> dict[str, Any]:
+        """Install `tunnel-client` on the operator's confirmation, never on its own.
+
+        Delegated to the official Homebrew tap: writing our own downloader (arch
+        detection, signature checking, PATH placement, updates) is work the tap already
+        owns and does better.
+        """
+        if mcp_tunnel.binary_installed():
+            return {"ok": True, "message": "tunnel-client is already installed."}
+        if shutil.which("brew") is None:
+            return {"ok": False, "message": mcp_tunnel.INSTALL_FALLBACK}
+        try:
+            completed = subprocess.run(mcp_tunnel.INSTALL_COMMAND, capture_output=True, text=True, timeout=900, check=False)
+        except (OSError, subprocess.SubprocessError) as exc:
+            return {"ok": False, "message": str(exc)}
+        if completed.returncode != 0:
+            tail = (completed.stderr or completed.stdout or "").strip().splitlines()
+            return {"ok": False, "message": tail[-1] if tail else f"`brew install` exited {completed.returncode}."}
+        return {"ok": True, "message": "tunnel-client installed."}
+
+    def init_mcp_tunnel_profile(self, tunnel_id: str) -> dict[str, Any]:
+        """Create the tunnel-client profile from the viewer, rather than assuming one.
+
+        The profile owns the `tunnel_id` -- it is never written to a project file, a
+        versioned file, or a viewer screen.
+        """
+        tunnel_id = tunnel_id.strip()
+        if not tunnel_id:
+            raise ValueError("A tunnel_id is required to create the tunnel-client profile.")
+        settings = mcp_tunnel.tunnel_settings()
+        if not mcp_tunnel.binary_installed():
+            return {"ok": False, "message": mcp_tunnel.explain(mcp_tunnel.REASON_BINARY_MISSING, settings)}
+        command = mcp_tunnel.build_init_command(settings["profile"], tunnel_id, self.repo_root)
+        try:
+            completed = subprocess.run(command, cwd=self.repo_root, capture_output=True, text=True, timeout=120, check=False)
+        except (OSError, subprocess.SubprocessError) as exc:
+            return {"ok": False, "message": str(exc)}
+        if completed.returncode != 0:
+            tail = (completed.stderr or completed.stdout or "").strip().splitlines()
+            return {"ok": False, "message": tail[-1] if tail else f"`tunnel-client init` exited {completed.returncode}."}
+        return {"ok": True, "message": f"Profile '{settings['profile']}' created.", "profile": settings["profile"]}
+
+    def start_mcp_connector(self, mode: str = "") -> dict[str, Any]:
         with self.mcp_connector_lock:
             if self.mcp_connector is not None and self.mcp_connector.poll() is None:
                 return self.mcp_connector_payload()
             self.mcp_connector_url = ""
             self.mcp_connector_token = ""
             self.mcp_connector_error = ""
-            command = [sys.executable, "-m", "logics_manager", "mcp", "tunnel", "--repo-root", self.repo_root.as_posix()]
-            self.mcp_connector = subprocess.Popen(command, cwd=self.repo_root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            self.mcp_connector_reason = ""
+            self.mcp_connector_connected = False
+            self.mcp_connector_mode = mode or self.mcp_connector_mode
+            environment: dict[str, str] | None = None
+            if self.mcp_connector_mode == "tunnel":
+                settings = mcp_tunnel.tunnel_settings()
+                mcp_tunnel.ensure_config_file(settings["config_path"])
+                status = mcp_tunnel.check_prerequisites(settings, run_doctor=self._run_tunnel_doctor)
+                if not status["ok"]:
+                    # Each missing prerequisite is its own outcome the operator can act
+                    # on, not one generic "the connector did not start".
+                    self.mcp_connector_error = status["message"]
+                    self.mcp_connector_reason = status["reason"]
+                    return self.mcp_connector_payload()
+                command = mcp_tunnel.build_run_command(settings["profile"])
+                environment = mcp_tunnel.child_environment(settings)
+            else:
+                command = [sys.executable, "-m", "logics_manager", "mcp", "tunnel", "--repo-root", self.repo_root.as_posix()]
+            self.mcp_connector = subprocess.Popen(command, cwd=self.repo_root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=environment)
             process = self.mcp_connector
         def capture() -> None:
             # item_741: the child's own words are the most valuable thing this thread
@@ -1964,6 +2126,17 @@ class LogicsViewerServer(ThreadingHTTPServer):
                 token_match = re.search(r"Authorization header:.*Bearer\s+(\S+)", line)
                 if token_match:
                     with self.mcp_connector_lock: self.mcp_connector_token = token_match.group(1)
+                # item_850: `doctor` only checks the key is set, so a wrong or unscoped
+                # one passes every prerequisite and then repeats a 401 -- a connector
+                # that is running and connected to nothing. Say the key was refused.
+                # item_851: our own stdio server says when a client first reaches it, so
+                # the last row states a fact instead of inferring one from the transport.
+                if stripped and MCP_FIRST_REQUEST_MARKER in stripped:
+                    with self.mcp_connector_lock: self.mcp_connector_connected = True
+                if stripped and mcp_tunnel.is_rejected_key(stripped):
+                    with self.mcp_connector_lock:
+                        self.mcp_connector_reason = mcp_tunnel.REASON_API_KEY_REJECTED
+                        self.mcp_connector_error = mcp_tunnel.explain(mcp_tunnel.REASON_API_KEY_REJECTED, mcp_tunnel.tunnel_settings())
             # item_741: stdout closing does not set `returncode`; only `wait()` or
             # `poll()` does. The old guard read `process.returncode` here, found `None`,
             # and never set an error -- which is why a stopped connector reported an
@@ -1982,6 +2155,8 @@ class LogicsViewerServer(ThreadingHTTPServer):
             self.mcp_connector_url = ""
             self.mcp_connector_token = ""
             self.mcp_connector_error = ""
+            self.mcp_connector_reason = ""
+            self.mcp_connector_connected = False
         if process is not None and process.poll() is None:
             process.terminate()
 
@@ -2917,14 +3092,25 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             # a failure, which wiped the error it was probing for. Stopping is destructive
             # and must be asked for by name.
             if action == "start":
-                payload = self.server.start_mcp_connector()
+                payload = self.server.start_mcp_connector(str(body.get("mode") or ""))
             elif action == "stop":
                 self.server.stop_mcp_connector()
                 payload = self.server.mcp_connector_payload()
             elif action in {"", "status"}:
                 payload = self.server.mcp_connector_payload()
+            # item_850: every step between a bare machine and a working connector belongs
+            # to the operator's flow. Install and profile creation are confirmed actions --
+            # the viewer never installs anything on its own.
+            elif action == "prerequisites":
+                payload = self.server.mcp_tunnel_prerequisites()
+            elif action == "install":
+                payload = self.server.install_mcp_tunnel_binary()
+            elif action == "save-key":
+                payload = self.server.save_mcp_tunnel_key(str(body.get("api_key") or ""))
+            elif action == "init-profile":
+                payload = self.server.init_mcp_tunnel_profile(str(body.get("tunnel_id") or ""))
             else:
-                raise ValueError(f"Unknown MCP connector action: {action!r}. Use 'start', 'stop' or 'status'.")
+                raise ValueError(f"Unknown MCP connector action: {action!r}. Use 'start', 'stop', 'status', 'prerequisites', 'install', 'save-key' or 'init-profile'.")
             self._send_json({"ok": True, "payload": payload})
         except (ValueError, OSError) as exc:
             self._send_error_json(HTTPStatus.BAD_REQUEST, str(exc))

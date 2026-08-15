@@ -1989,6 +1989,188 @@ describe("local viewer browser host", () => {
     }
   });
 
+  it("resolves the missing prerequisite from the screen instead of offering a start that cannot work", async () => {
+    // item_850/AC3+AC5: a bare machine reaches a running connector without leaving the
+    // viewer -- the missing binary is offered for install, right where the operator is.
+    const { dom } = createViewerDom();
+    const originalFetch = dom.window.fetch;
+    let installed = false;
+    const posted: Array<Record<string, unknown>> = [];
+    Object.defineProperty(dom.window, "fetch", {
+      configurable: true,
+      value: async (url: string, init?: { method?: string; body?: string }) => {
+        if (String(url).startsWith("/api/mcp-connector")) {
+          const body = init?.body ? JSON.parse(init.body) : {};
+          if (init?.method === "POST") posted.push(body);
+          if (body.action === "prerequisites") {
+            return {
+              ok: true,
+              status: 200,
+              json: async () => ({
+                ok: true,
+                payload: installed
+                  ? { ok: true, reason: "", message: "", profile: "logics-manager", stdio_command: "logics-manager mcp serve --repo-root /repo", rows: [
+                      { id: "binary", label: "tunnel-client installed", met: true, actionable: false, action: "install", action_label: "Install tunnel-client", detail: "" },
+                      { id: "api_key", label: "Control-plane API key", met: true, actionable: false, action: "save-key", action_label: "Save the key", detail: "" },
+                      { id: "tunnel", label: "Tunnel created on OpenAI", met: true, actionable: false, action: "open-console", action_label: "Open the tunnel console", detail: "", url: "https://platform.openai.com/x" },
+                      { id: "profile", label: "tunnel-client profile", met: true, actionable: false, action: "init-profile", action_label: "Create the profile", detail: "" },
+                      { id: "plugin", label: "ChatGPT reaching this repository", met: true, actionable: false, action: "", action_label: "", detail: "" }
+                    ] }
+                  : { ok: false, reason: "binary_missing", message: "tunnel-client is not installed. Install it with `brew install openai/tools/tunnel-client`.", profile: "logics-manager", stdio_command: "logics-manager mcp serve --repo-root /repo", rows: [
+                      { id: "binary", label: "tunnel-client installed", met: false, actionable: true, action: "install", action_label: "Install tunnel-client", detail: "tunnel-client is not installed." },
+                      { id: "api_key", label: "Control-plane API key", met: false, actionable: false, action: "save-key", action_label: "Save the key", detail: "" },
+                      { id: "tunnel", label: "Tunnel created on OpenAI", met: false, actionable: false, action: "open-console", action_label: "Open the tunnel console", detail: "", url: "https://platform.openai.com/x" },
+                      { id: "profile", label: "tunnel-client profile", met: false, actionable: false, action: "init-profile", action_label: "Create the profile", detail: "" },
+                      { id: "plugin", label: "ChatGPT reaching this repository", met: false, actionable: false, action: "", action_label: "", detail: "" }
+                    ] }
+              })
+            };
+          }
+          if (body.action === "install") {
+            installed = true;
+            return { ok: true, status: 200, json: async () => ({ ok: true, payload: { ok: true, message: "tunnel-client installed." } }) };
+          }
+          return { ok: true, status: 200, json: async () => ({ ok: true, payload: { running: false, ready: false, mode: "tunnel", url: "", token: "", error: "", reason: "" } }) };
+        }
+        return originalFetch(String(url), init as never);
+      }
+    });
+
+    dom.window.acquireVsCodeApi().postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const open = dom.window.document.createElement("button");
+    open.setAttribute("data-viewer-settings-action", "mcp");
+    dom.window.document.body.appendChild(open);
+    open.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const content = () => dom.window.document.getElementById("viewer-document-content");
+    expect(content()?.textContent).toContain("tunnel-client is not installed");
+    // Nothing to press but the thing that unblocks it: a Start that cannot work is worse
+    // than no Start at all.
+    expect(content()?.querySelector('[data-viewer-mcp-action="start"]')).toBeNull();
+    const install = content()?.querySelector('[data-viewer-mcp-action="install"]') as HTMLElement | null;
+    expect(install).toBeTruthy();
+
+    install!.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    for (let tick = 0; tick < 6; tick += 1) await flushViewerAsync();
+
+    expect(posted.some((body) => body.action === "install")).toBe(true);
+    // Once the prerequisite is met the block is gone and starting is the only step left.
+    expect(content()?.textContent).not.toContain("tunnel-client is not installed");
+    expect(content()?.querySelector('[data-viewer-mcp-action="start"]')).toBeTruthy();
+
+    // item_851: the screen names the transport per client class rather than leaving it
+    // to be discovered by trying.
+    expect(content()?.textContent).toContain("OpenAI Secure MCP Tunnel");
+    // The stdio command is copy-ready and names this repository, whether or not
+    // anything is running here.
+    expect(content()?.textContent).toContain("logics-manager mcp serve --repo-root /repo");
+    expect(content()?.querySelector('[data-viewer-mcp-copy-kind="command"]')).toBeTruthy();
+    // Hosted web clients are named as unsupported with the request that would change
+    // that, rather than being silently absent.
+    expect(content()?.textContent).toContain("Hosted web clients other than ChatGPT");
+    expect(content()?.textContent).toContain("req_377");
+  });
+
+  it("offers exactly one setup step at a time and never renders the key back", async () => {
+    // item_851: the steps have a forced order, so later rows render reachable-but-
+    // inactive rather than hidden, and the key is typed into a masked field that is
+    // never re-rendered -- the row says configured and offers replacing it.
+    const { dom } = createViewerDom();
+    const originalFetch = dom.window.fetch;
+    const posted: Array<Record<string, unknown>> = [];
+    const rows = [
+      { id: "binary", label: "tunnel-client installed", met: true, actionable: false, action: "install", action_label: "Install tunnel-client", detail: "" },
+      { id: "api_key", label: "Control-plane API key", met: false, actionable: true, action: "save-key", action_label: "Save the key", detail: "Stored owner-only in /home/x/.config/logics-manager/tunnel.env." },
+      { id: "tunnel", label: "Tunnel created on OpenAI", met: false, actionable: false, action: "open-console", action_label: "Open the tunnel console", detail: "", url: "https://platform.openai.com/x" },
+      { id: "profile", label: "tunnel-client profile 'logics-manager'", met: false, actionable: false, action: "init-profile", action_label: "Create the profile", detail: "" },
+      { id: "plugin", label: "ChatGPT reaching this repository", met: false, actionable: false, action: "", action_label: "", detail: "" }
+    ];
+    Object.defineProperty(dom.window, "fetch", {
+      configurable: true,
+      value: async (url: string, init?: { method?: string; body?: string }) => {
+        if (String(url).startsWith("/api/mcp-connector")) {
+          const body = init?.body ? JSON.parse(init.body) : {};
+          if (init?.method === "POST") posted.push(body);
+          if (body.action === "prerequisites") {
+            return { ok: true, status: 200, json: async () => ({ ok: true, payload: { ok: false, reason: "api_key_missing", message: "No control-plane API key.", rows, stdio_command: "logics-manager mcp serve --repo-root /repo" } }) };
+          }
+          if (body.action === "save-key") {
+            return { ok: true, status: 200, json: async () => ({ ok: true, payload: { ok: true, message: "Key saved and accepted by the control plane." } }) };
+          }
+          return { ok: true, status: 200, json: async () => ({ ok: true, payload: { running: false, ready: false, mode: "tunnel", url: "", token: "", error: "", reason: "" } }) };
+        }
+        return originalFetch(String(url), init as never);
+      }
+    });
+
+    dom.window.acquireVsCodeApi().postMessage({ type: "ready" });
+    await flushViewerAsync();
+    const open = dom.window.document.createElement("button");
+    open.setAttribute("data-viewer-settings-action", "mcp");
+    dom.window.document.body.appendChild(open);
+    open.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const content = dom.window.document.getElementById("viewer-document-content");
+    // Every row is visible, in order; only the one that is next carries a control.
+    expect(content?.textContent).toContain("Tunnel created on OpenAI");
+    expect(content?.textContent).toContain("ChatGPT reaching this repository");
+    const actions = Array.from(content?.querySelectorAll("[data-viewer-mcp-action]") || [])
+      .map((node) => (node as HTMLElement).dataset.viewerMcpAction)
+      .filter((action) => action !== "prerequisites" && action !== "start" && action !== "stop");
+    expect(actions).toEqual(["save-key"]);
+
+    const key = content?.querySelector("[data-viewer-mcp-api-key]") as HTMLInputElement | null;
+    expect(key?.type).toBe("password");
+    key!.value = "sk-secret-key";
+    (content?.querySelector('[data-viewer-mcp-action="save-key"]') as HTMLElement).dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    for (let tick = 0; tick < 6; tick += 1) await flushViewerAsync();
+
+    expect(posted.some((body) => body.action === "save-key" && body.api_key === "sk-secret-key")).toBe(true);
+    // AC5: no secret reaches the rendered output, on any render.
+    expect(dom.window.document.body.innerHTML).not.toContain("sk-secret-key");
+  });
+
+  it("says a refused key is refused rather than showing a connector that started", async () => {
+    // item_850/AC6: doctor only checks the key is set, so a wrong one passes every
+    // prerequisite and repeats a 401 while the process stays up.
+    const { dom } = createViewerDom();
+    const originalFetch = dom.window.fetch;
+    Object.defineProperty(dom.window, "fetch", {
+      configurable: true,
+      value: async (url: string, init?: { method?: string; body?: string }) => {
+        if (String(url).startsWith("/api/mcp-connector")) {
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({
+              ok: true,
+              payload: { running: true, ready: false, mode: "tunnel", url: "", token: "", error: "The control plane refused the API key (401).", reason: "api_key_rejected" }
+            })
+          };
+        }
+        return originalFetch(String(url), init as never);
+      }
+    });
+
+    dom.window.acquireVsCodeApi().postMessage({ type: "ready" });
+    await flushViewerAsync();
+    const open = dom.window.document.createElement("button");
+    open.setAttribute("data-viewer-settings-action", "mcp");
+    dom.window.document.body.appendChild(open);
+    open.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    const content = dom.window.document.getElementById("viewer-document-content");
+    expect(content?.textContent).toContain("refused the API key (401)");
+    expect(content?.textContent).not.toContain("Connector ON");
+  });
+
   it("checks the connector POST response instead of rendering a refusal as done", () => {
     // item_742/item_745. This was `.then(() => showChatgptMcp())`, checking neither the
     // HTTP status nor the body's ok, so a refusal re-rendered unchanged state.

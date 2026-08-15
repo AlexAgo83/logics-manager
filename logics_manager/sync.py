@@ -15,6 +15,7 @@ from .help_flags import flag_lines, subparser_for
 from .lint import REVIEWED_INDICATOR, expected_workflow_mermaid_signature
 from .statuses import canonical_status, transition_error
 from .path_utils import canonical_workflow_path, resolve_repo_output_path
+from .provenance import request_issue_urls
 from .release import release_context_pack_payload
 from .i18n import i18n_plan_payload
 from .termstyle import colorize_help
@@ -569,7 +570,7 @@ def read_logics_doc_payload(repo_root: Path, source: str, *, max_chars: int = 40
         if heading in doc.sections
     }
     text = _read_text(repo_root, path)
-    return {
+    payload: dict[str, object] = {
         "ref": doc.ref,
         "kind": doc.kind,
         "path": doc.path,
@@ -583,6 +584,14 @@ def read_logics_doc_payload(repo_root: Path, source: str, *, max_chars: int = 40
         "truncated": len(text) > max_chars,
         "max_chars": max_chars,
     }
+    # item_836 AC3: read_logics_doc is one of the two callers meant to read the
+    # provenance answer rather than parsing the section again -- the other is the
+    # reconciliation report. Absent, not empty, when the request names no issue.
+    if doc.kind == "request":
+        issues = request_issue_urls(repo_root, doc.path)
+        if issues:
+            payload["provenance_issues"] = issues
+    return payload
 
 
 def _doc_age_fields(repo_root: Path, path: str, times: dict[str, int] | None = None) -> dict[str, object]:

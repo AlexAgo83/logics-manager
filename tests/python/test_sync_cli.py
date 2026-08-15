@@ -211,6 +211,41 @@ def test_sync_read_doc_text_includes_bounded_content(
     assert "Agents need useful body text." in captured.out
 
 
+def test_read_logics_doc_payload_carries_provenance_issues_for_a_request(tmp_path: Path) -> None:
+    """item_836 AC3: read_logics_doc is one of the two callers meant to read the
+    provenance answer, absent (not empty) for a request naming none."""
+    from logics_manager.sync import read_logics_doc_payload
+
+    request_dir = tmp_path / "logics" / "request"
+    request_dir.mkdir(parents=True)
+    (request_dir / "req_001_demo.md").write_text(
+        "\n".join(
+            [
+                "## req_001_demo - Demo Request",
+                "> Status: Ready",
+                "> Schema version: 1.0",
+                "# Needs",
+                "- n",
+                "",
+                "# Provenance",
+                "- External issue: https://github.com/acme/demo/issues/20",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (request_dir / "req_002_bare.md").write_text(
+        "## req_002_bare - Bare Request\n> Status: Ready\n> Schema version: 1.0\n# Needs\n- n\n",
+        encoding="utf-8",
+    )
+
+    with_issue = read_logics_doc_payload(tmp_path, "req_001_demo")
+    assert with_issue["provenance_issues"] == ["https://github.com/acme/demo/issues/20"]
+
+    without_issue = read_logics_doc_payload(tmp_path, "req_002_bare")
+    assert "provenance_issues" not in without_issue
+
+
 def test_sync_update_indicators_canonicalizes_status_alias(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

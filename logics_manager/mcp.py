@@ -28,6 +28,7 @@ from .doctor import doctor_payload
 from .flow import flow_list_payload, roadmap_validate_payload, validate_closeout_payload
 from .insights import followups_payload, health_payload, product_consistency_payload, status_payload
 from .lint import expected_workflow_mermaid_signature, lint_payload
+from .github_bridge import closeout_notice_payload, reconciliation_report_payload
 from .mcp_request import attach_issue, update_created_request
 from .mcp_tool_definitions import TOOL_DEFINITIONS
 from .path_utils import PathEscapesRoot, has_symlink_segment, relative_to_root
@@ -105,6 +106,7 @@ TOOL_CAPABILITIES: dict[str, str] = {
     "roadmap_validate": READ_ONLY,
     "validate_closeout": READ_ONLY,
     "get_logics_doctor": READ_ONLY,
+    "report_issue_drift": READ_ONLY,
     # mutating: creates or edits documents, never removes or restructures them
     "create_request": MUTATING,
     "promote_request_to_backlog": MUTATING,
@@ -129,6 +131,7 @@ TOOL_CAPABILITIES: dict[str, str] = {
     "repair_gates": MUTATING,
     "repair_links": MUTATING,
     "attach_github_issue": MUTATING,
+    "tell_issues_at_closeout": MUTATING,
     # destructive: removes a document, or restructures the corpus around it
     "delete_logics_file": DESTRUCTIVE,
     "rename_logics_file": DESTRUCTIVE,
@@ -965,6 +968,23 @@ def _tool_show_git_diff(root: Path, args: dict[str, Any], name: str) -> dict[str
     paths = [str(path) for path in raw_paths] if isinstance(raw_paths, list) else None
     return _show_git_diff(root, paths)
 
+def _tool_report_issue_drift(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    return reconciliation_report_payload(root)
+
+def _tool_tell_issues_at_closeout(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    # Unlike every other mutating tool, dry_run defaults true here: the dry statement is
+    # the default (item_837 AC2), so an operator has to say dry_run=false to post.
+    source = str(args.get("source") or "")
+    state = str(args.get("state") or "")
+    dry_run = bool(args.get("dry_run", True))
+    rel_path = _workflow_doc_path_for_source(root, source)
+    ref = Path(rel_path).stem
+    try:
+        payload = closeout_notice_payload(root, ref, state=state, post=not dry_run)
+    except ValueError as exc:
+        raise McpToolError("invalid_argument_value", str(exc), details={"argument": "state"}) from exc
+    return {**payload, "dry_run": dry_run}
+
 # req_318/item_655: the MCP surface used to have no tool for these nine CLI
 # commands at all - an MCP-only agent was capped below what the CLI could do,
 # regardless of any skill written for them. Each one follows the same shape
@@ -1360,6 +1380,8 @@ _TOOL_HANDLERS: dict[str, Any] = {
     "get_logics_doctor": _tool_get_logics_doctor,
     "create_request": _tool_create_request,
     "attach_github_issue": _tool_attach_github_issue,
+    "report_issue_drift": _tool_report_issue_drift,
+    "tell_issues_at_closeout": _tool_tell_issues_at_closeout,
     "promote_request_to_backlog": _tool_promote_request_to_backlog,
     "promote_backlog_to_task": _tool_promote_backlog_to_task,
     "create_product_brief": _tool_create_product_brief,

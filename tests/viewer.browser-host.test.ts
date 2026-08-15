@@ -1965,6 +1965,27 @@ describe("local viewer browser host", () => {
     }
   });
 
+  it("gives Settings real switches, a refresh readout, and a destructive Stop", () => {
+    // item_796/AC4. The switches already carried `role="switch"` while the browser drew a
+    // checkbox, so the control announced one thing and looked like another; Restart and Stop
+    // shared one cautionary colour though only Stop needs a terminal to undo.
+    const host = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/index.js"), "utf8");
+    const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
+
+    expect(host).toContain("data-viewer-settings-mcp");
+    expect(host).toContain("viewer-settings-card__readout");
+    expect(host).toMatch(/data-viewer-settings-action="copy-diagnostics"/);
+    expect(host).toMatch(/class="btn viewer-settings-quiet" type="button" data-viewer-settings-action="copy-diagnostics"/);
+    expect(host).toMatch(/viewer-settings-danger--destructive[^>]*data-viewer-settings-action="stop"/);
+
+    // The switch has to actually stop being a checkbox, which is an `appearance` reset.
+    const knob = css.match(/\.viewer-settings-toggle input\[type="checkbox"\]\s*\{[^}]+\}/)?.[0] || "";
+    expect(knob).toContain("appearance: none");
+    expect(knob).toContain("border-radius: 999px");
+    // Stop is red where Restart stays amber: same card, different consequence.
+    expect(css).toMatch(/\.viewer-settings-danger--destructive\s*\{[^}]*editorError-foreground/);
+  });
+
   it("leads the Corpus navigation and switcher with Getting Started", () => {
     // It is the one Corpus entry written for someone who does not yet know what Insights,
     // Health or Runbooks are, so it cannot be third. Both surfaces are checked: the menu

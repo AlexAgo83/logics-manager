@@ -1346,6 +1346,7 @@
 | [item_817_let_a_runbook_be_a_document_and_retire_its_screen](backlog/item_817_let_a_runbook_be_a_document_and_retire_its_screen.md) | Let a runbook be a document, and retire its screen | Ready |  | 0% | backlog/item_817_let_a_runbook_be_a_document_and_retire_its_screen.md |
 | [item_818_collapse_a_reference_category_on_its_own](backlog/item_818_collapse_a_reference_category_on_its_own.md) | Collapse a reference category on its own | Ready |  | 0% | backlog/item_818_collapse_a_reference_category_on_its_own.md |
 | [item_819_make_getting_started_s_stage_list_say_something](backlog/item_819_make_getting_started_s_stage_list_say_something.md) | Make Getting Started's stage list say something | Ready |  | 0% | backlog/item_819_make_getting_started_s_stage_list_say_something.md |
+| [item_820_retire_the_corpus_menu_into_a_settings_section](backlog/item_820_retire_the_corpus_menu_into_a_settings_section.md) | Retire the Corpus menu into a Settings section | Ready |  | 0% | backlog/item_820_retire_the_corpus_menu_into_a_settings_section.md |
 
 ## Tasks
 

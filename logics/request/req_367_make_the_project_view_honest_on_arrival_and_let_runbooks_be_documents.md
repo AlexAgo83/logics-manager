@@ -7,7 +7,7 @@
 > Complexity: Medium
 > Theme: Viewer polish
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 13:14:00
+> Indicators reviewed: 2026-08-15 13:32:41
 
 # AI Context
 - Summary: The board shows its empty-state placeholder while the first payload is still in flight, so the screen an operator reaches first asserts the project holds nothing at the moment nothing is known. Runbooks are already documents in the payload with their own colour, but have no stage heading, never reach the reference index, and carry a screen of their own that no other companion kind needs.
@@ -27,6 +27,7 @@
 - Runbooks also have a screen of their own, moved under Corpus by item_792 and given a loading state by a later wave. Neither was wrong at the time; the screen itself is what should not exist, since every other companion kind is read the same way as the rest of the corpus.
 - The bounded, ranked runbook lookup (the runbooks route, the `match_runbooks` MCP tool) answers a different question and is used by agents rather than by this screen. It stays.
 - The reference index collapses as a whole (`companionIndexOpen` in renderBoardApp.js) but its per-category groups do not, so a reader who wants one category still scrolls past all of them.
+- The Corpus menu holds Getting Started, Insights and Health, and Runbooks until this request removes it -- three entries for a top-level menu. item_737 deliberately moved those three *out* of Settings and into navigation, on the grounds that they were "navigation dressed as settings". Linking to them from Settings rather than embedding them there keeps that distinction: Settings is where something is changed, those screens are where something is read. The cost to accept is that the two most-consulted diagnostics move to two clicks, which the in-screen Corpus switcher already softens once the operator is inside.
 - Getting Started's stage nav lists four totals -- 471, 815, 371, 30 -- with no scale and no action attached. item_753 added them to orient rather than to grade, and as bare numbers they do neither: a reader cannot tell whether 815 is a lot, and the count spans a stage boundary the label does not name.
 
 # Acceptance criteria
@@ -36,6 +37,7 @@
 - AC4: The Runbooks screen and its navigation entries are gone, and nothing in the viewer still routes to them; the bounded runbook lookup used by agents is unaffected.
 - AC5: Each category of the reference index can be collapsed and expanded on its own, by the same affordance the index itself uses.
 - AC6: Getting Started's stage list states something a reader can act on rather than a bare total per stage.
+- AC7: The Corpus menu is gone from the header, and the screens it held are reached from a section of Settings that links to them -- they remain screens, and moving between them stays one click once inside.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.
@@ -59,3 +61,4 @@
 - `item_817_let_a_runbook_be_a_document_and_retire_its_screen`
 - `item_818_collapse_a_reference_category_on_its_own`
 - `item_819_make_getting_started_s_stage_list_say_something`
+- `item_820_retire_the_corpus_menu_into_a_settings_section`

@@ -2270,19 +2270,19 @@ describe("local viewer browser host", () => {
     expect(css).toMatch(/\.viewer-topbar\[data-loading\] \.viewer-topbar__sheen::after \{[^}]*animation: viewer-topbar-sheen/);
   });
 
-  it("leads the Corpus navigation and switcher with Getting Started", () => {
-    // It is the one Corpus entry written for someone who does not yet know what Insights,
-    // Health or Runbooks are, so it cannot be third. Both surfaces are checked: the menu
-    // and the in-screen switcher are separate lists that can drift apart.
-    const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
-    const menu = html.match(/aria-label="Corpus sections"[\s\S]*?<\/div>/)?.[0] || "";
-    const menuOrder = [...menu.matchAll(/data-viewer-nav-target="corpus:([a-z-]+)"/g)].map((m) => m[1]);
-    expect(menuOrder).toEqual(["getting-started", "insights", "health", "runbooks"]);
-
+  it("leads the Corpus switcher with Getting Started", () => {
+    // It is the one entry written for someone who does not yet know what Insights and
+    // Health are, so it cannot be last. item_820 removed the header menu that carried the
+    // same order, leaving the in-screen switcher as the only list of the three.
     const util = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/util.js"), "utf8");
     const switcher = util.match(/aria-label="Corpus views"[\s\S]*?<\/div>/)?.[0] || "";
-    const switcherOrder = [...switcher.matchAll(/data-viewer-corpus-mode="([a-z-]+)"/g)].map((m) => m[1]);
-    expect(switcherOrder).toEqual(menuOrder);
+    const order = [...switcher.matchAll(/data-viewer-corpus-mode="([a-z-]+)"/g)].map((m) => m[1]);
+    expect(order[0]).toBe("getting-started");
+
+    const host = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/index.js"), "utf8");
+    const card = host.match(/<h3>This corpus<\/h3>[\s\S]*?<\/section>/)?.[0] || "";
+    const cardOrder = [...card.matchAll(/data-viewer-nav-target="corpus:([a-z-]+)"/g)].map((m) => m[1]);
+    expect(cardOrder[0]).toBe("getting-started");
   });
 
   it("pins both reading-grid children to row 1 so the contents nav cannot fall below the prose", () => {
@@ -2327,10 +2327,9 @@ describe("local viewer browser host", () => {
     const labels = Array.from(dom.window.document.querySelectorAll(".viewer-topbar__actions > button, .viewer-topbar__actions > .viewer-nav-menu > button, .viewer-topbar__actions > .viewer-refresh-menu > button"))
       .map((node) => node.textContent?.trim().replace(/\s+/g, " "));
 
-    // item_737: Corpus joins the row. It is where Insights, Health and Getting Started live
-    // now -- they were only in the settings dropdown, which the gear stopped opening, so
-    // removing them from the Settings screen left them unreachable.
-    expect(labels).toEqual(["Workshop", "Corpus", "Remote", "CDX", "Settings"]);
+    // item_820: Corpus leaves the row again. It held three links, which did not earn a
+    // top-level entry; they are launched from Settings, and the screens are unchanged.
+    expect(labels).toEqual(["Workshop", "Remote", "CDX", "Settings"]);
     expect(dom.window.document.getElementById("viewer-getting-started")?.textContent).toContain("Getting Started");
     const settingsHeadings = Array.from(dom.window.document.querySelectorAll("#viewer-refresh-menu .viewer-settings-menu__heading"))
       .map((node) => node.textContent?.trim());
@@ -5462,10 +5461,13 @@ describe("local viewer browser host", () => {
     const open = async (target: string) => {
       document.getElementById("viewer-document-close")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
       await flushViewerAsync();
-      document.getElementById("viewer-corpus")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-      await flushViewerAsync();
-      const entry = document.querySelector(`[data-viewer-nav-target="${target}"]`);
-      expect(entry).not.toBeNull();
+      // item_820: the Corpus menu is gone and the three are launched from Settings. The
+      // guarantee this test exists for is unchanged -- reachable by clicking -- so it
+      // follows the route rather than being deleted with the menu.
+      document.getElementById("viewer-refresh-menu-button")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+      for (let turn = 0; turn < 6; turn += 1) await flushViewerAsync();
+      const entry = document.querySelector(`.viewer-settings-card [data-viewer-nav-target="${target}"]`);
+      expect(entry, `no Settings entry for ${target}`).not.toBeNull();
       entry?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
       for (let turn = 0; turn < 6; turn += 1) await flushViewerAsync();
       return document.getElementById("viewer-document-title")?.textContent || "";
@@ -5476,13 +5478,16 @@ describe("local viewer browser host", () => {
     expect(await open("corpus:getting-started")).toBe("Getting Started");
 
     // The harness builds its own DOM, so the behaviour above is proved against the fixture.
-    // The route only exists if the product's markup carries it too: removing the menu from
-    // index.html leaves the test above green, which is exactly how this defect shipped.
+    // The route only exists if the product carries it too: removing the entries leaves the
+    // test above green, which is exactly how this defect shipped the first time.
+    const host = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/index.js"), "utf8");
+    const card = host.match(/<h3>This corpus<\/h3>[\s\S]*?<\/section>/)?.[0] || "";
+    for (const target of ["corpus:getting-started", "corpus:insights", "corpus:health"]) {
+      expect(card).toContain(`data-viewer-nav-target="${target}"`);
+    }
+    // And they are links to screens, not panels inside Settings.
     const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
-    expect(html).toMatch(/data-viewer-nav="corpus"/);
-    expect(html).toMatch(/data-viewer-nav-target="corpus:insights"/);
-    expect(html).toMatch(/data-viewer-nav-target="corpus:health"/);
-    expect(html).toMatch(/data-viewer-nav-target="corpus:getting-started"/);
+    expect(html).not.toMatch(/data-viewer-nav="corpus"/);
   });
 
   it("says what this viewer is, and does not dress navigation as settings", async () => {

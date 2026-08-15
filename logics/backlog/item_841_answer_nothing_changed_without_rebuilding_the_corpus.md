@@ -1,14 +1,14 @@
 ## item_841_answer_nothing_changed_without_rebuilding_the_corpus - Answer 'nothing changed' without rebuilding the corpus
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 40%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Cheap enough to ask often
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:29:35
+> Indicators reviewed: 2026-08-15 17:28:49
 
 # AI Context
 - Summary: A 304 on /api/items costs 0.156s because the 6.17 MB payload is rebuilt and hashed to discover nothing changed; corpus_signature answers that in 6ms.
@@ -55,3 +55,9 @@
 
 # Validation
 - Measured over this repo's own corpus (6.19 MB payload): cold call (payload rebuild) 1.568s; warm call (corpus_signature match, cached body/etag reused) 0.0102s. AC1 and AC2 covered by test_viewer_items_body_is_cached_until_the_corpus_changes (tests/python/test_viewer_cli.py), which also asserts the changed-corpus response is byte-identical to an uncached rebuild.
+
+# Tasks
+- `task_384_orchestrate_the_auto_refresh_cost_work`
+
+# Notes
+- Task `task_384_orchestrate_the_auto_refresh_cost_work` was finished via `logics-manager flow finish task` on 2026-08-15.

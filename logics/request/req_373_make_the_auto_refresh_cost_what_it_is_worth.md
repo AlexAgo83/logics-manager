@@ -1,13 +1,13 @@
 ## req_373_make_the_auto_refresh_cost_what_it_is_worth - Make the auto-refresh cost what it is worth
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium
 > Theme: Viewer responsiveness on a large corpus
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:21:52
+> Indicators reviewed: 2026-08-15 17:28:49
 
 # AI Context
 - Summary: An open viewer spends about 3.1s of every 15s answering questions nothing asked. Three quarters of it is one cache that can never hit.

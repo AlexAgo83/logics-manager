@@ -1,12 +1,12 @@
 ## prod_104_a_poll_that_costs_what_it_is_worth - A poll that costs what it is worth
 > Date: 2026-08-15
-> Status: Proposed
+> Status: Settled
 > Related request: `req_373_make_the_auto_refresh_cost_what_it_is_worth`
-> Related backlog: `item_839_stop_paying_for_a_cache_that_can_never_hit`, `item_840_warm_the_badge_components_off_the_request_path`, `item_841_answer_nothing_changed_without_rebuilding_the_corpus`, `item_842_re_measure_the_tick_and_record_what_it_is_made_of`
+> Related backlog: `item_839_stop_paying_for_a_cache_that_can_never_hit`
 > Related task: `task_384_orchestrate_the_auto_refresh_cost_work`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:21:53
+> Indicators reviewed: 2026-08-15 17:28:49
 
 # Overview
 Make an idle viewer idle: pay for what changed, not for asking whether anything did.
@@ -50,5 +50,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_373_make_the_auto_refresh_cost_what_it_is_worth`
+- Product back-reference: `item_839_stop_paying_for_a_cache_that_can_never_hit`
 - Task back-reference: `task_384_orchestrate_the_auto_refresh_cost_work`

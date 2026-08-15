@@ -6,9 +6,21 @@
 > Related task: `task_378_orchestrate_the_board_arrival_and_runbook_document_work`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-15 15:05:12
 
 # Overview
 Make the first screen an operator sees state what it knows, treat every companion document the same way, and let the reference index be read a category at a time.
+
+```mermaid
+flowchart LR
+    Arrive[Operator arrives on a project] --> Payload{Has a payload arrived?}
+    Payload -- no --> Skeleton[Columns and cards at the size they will arrive in]
+    Payload -- "yes, and it is empty" --> Empty[The project holds no documents]
+    Payload -- "yes, with documents" --> Board[The board]
+    Skeleton --> Board
+    Board --> Index[Reference index, one category at a time]
+    Index -.- Kinds[Every companion kind read the same way, runbooks included]
+```
 
 # Goals
 - Never assert 'empty' when the answer is 'not yet known'.

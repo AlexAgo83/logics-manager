@@ -6,9 +6,23 @@
 > Related task: `task_376_orchestrate_the_loading_feedback_and_navigation_polish`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-15 15:05:12
 
 # Overview
 Make the viewer's own state legible without reading it: whether it is working, on which screen, and for how long -- through motion that marks events rather than motion that runs while nothing is known.
+
+```mermaid
+flowchart LR
+    Load[A load starts] --> Wait{Longer than the threshold?}
+    Wait -- no --> Silent[Nothing appears at all]
+    Wait -- yes --> Where{Is a document screen open?}
+    Where -- yes --> Ring[Ring travels the screen header]
+    Where -- no --> Bar[Spinner beside the status text, sheen across the app bar]
+    Threshold[One constant, read by all three] -.- Wait
+    Ring --> Reduced{prefers-reduced-motion}
+    Bar --> Reduced
+    Reduced -- reduce --> Still[Travel removed, not slowed]
+```
 
 # Goals
 - A visible answer to 'is it working' wherever the operator is looking.

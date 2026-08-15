@@ -6,9 +6,20 @@
 > Related task: `task_357_orchestrate_flow_traceability_and_self_consistency_fixes_gh_20_21`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-15 15:05:12
 
 # Overview
 flow's validation and self-generated writes agree on what counts as a valid, reviewed document.
+
+```mermaid
+flowchart LR
+    Write[Agent writes a proof line] --> Check{Flow traceability check}
+    Check -- "self-authored" --> Reject[Not evidence: the writer is the claimant]
+    Check -- "independent" --> Accept[Counts as proof]
+    Reject -.- Why[A check that trusts its own output checks nothing]
+    Accept --> Close[Closeout can proceed]
+    Close -.- Gate[Blocking, not advisory]
+```
 
 # Goals
 - A passed traceability check means the cited proof actually supports the cited acceptance criterion.

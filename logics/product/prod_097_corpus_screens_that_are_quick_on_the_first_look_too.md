@@ -6,9 +6,24 @@
 > Related task: `task_377_orchestrate_the_second_look_at_insights_and_health`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-15 15:05:12
 
 # Overview
 Extend the caching req_364 built for the audit to the two costs it measured wrongly, warm them off the request path, and let a returning operator read the previous answer while the new one is computed.
+
+```mermaid
+flowchart LR
+    Start[Viewer starts] --> Warm[Background pass computes lint, audit, health]
+    Warm --> Cache[(Corpus-signature cache)]
+    Open[Operator opens Insights or Health] --> Kept{Answer kept from last visit?}
+    Kept -- yes --> Show[Show it at once, marked as previous]
+    Kept -- no --> Placeholder[Loading placeholder]
+    Show --> Revalidate[Ask again behind it]
+    Placeholder --> Revalidate
+    Revalidate --> Cache
+    Cache --> Fresh[Fresh answer replaces it, marked as current]
+    Lock[One lock per report] -.- Cache
+```
 
 # Goals
 - One caching mechanism behind every expensive corpus report, not one of the three.

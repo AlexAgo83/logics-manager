@@ -1,10 +1,10 @@
 ## item_809_show_a_load_that_has_no_screen_to_draw_on - Show a load that has no screen to draw on
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Loading feedback
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -68,3 +68,6 @@
 # Priority
 - Priority: High - the case with no signal at all today
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_376_orchestrate_the_loading_feedback_and_navigation_polish` was finished via `logics-manager flow finish task` on 2026-08-15.

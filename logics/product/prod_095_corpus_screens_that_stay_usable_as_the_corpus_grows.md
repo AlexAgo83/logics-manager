@@ -6,9 +6,22 @@
 > Related task: `task_375_orchestrate_the_audit_cost_work_behind_insights_and_health`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-15 15:05:12
 
 # Overview
 Keep the viewer's reading screens -- Corpus insights and Validation health -- answering in about a second whatever the corpus size, by removing the work that grows faster than the corpus, reusing answers that have not changed, and sending only what the screens display.
+
+```mermaid
+flowchart LR
+    Open[Operator opens Insights or Health] --> Ask{Has the corpus changed?}
+    Ask -- no --> Cached[Serve the cached audit: 12ms]
+    Ask -- yes --> Build[Audit the corpus: ~1s]
+    Build --> Cached
+    Sig[Corpus signature: count, newest mtime] -.- Ask
+    Cached --> Send[Send only what the screens display]
+    Send -.- Size[0.479 MB to 0.190 MB]
+    Scan[Link index, cached source blob] -.- Build
+```
 
 # Goals
 - Cost that grows in step with the corpus, not faster.

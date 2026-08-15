@@ -149,7 +149,7 @@
 | [prod_105_one_step_not_two_for_a_status_change_that_should_be_committed](product/prod_105_one_step_not_two_for_a_status_change_that_should_be_committed.md) | One step, not two, for a status change that should be committed | Settled |  |  | product/prod_105_one_step_not_two_for_a_status_change_that_should_be_committed.md |
 | [prod_106_an_editor_that_stays_in_the_browser_it_is_already_in](product/prod_106_an_editor_that_stays_in_the_browser_it_is_already_in.md) | An editor that stays in the browser it is already in | Settled |  |  | product/prod_106_an_editor_that_stays_in_the_browser_it_is_already_in.md |
 | [prod_107_a_connector_configured_once_then_just_on_off](product/prod_107_a_connector_configured_once_then_just_on_off.md) | A connector configured once, then just ON/OFF | Settled |  |  | product/prod_107_a_connector_configured_once_then_just_on_off.md |
-| [prod_108_checks_that_read_the_corpus_the_way_it_is_written](product/prod_108_checks_that_read_the_corpus_the_way_it_is_written.md) | Checks that read the corpus the way it is written | Proposed |  |  | product/prod_108_checks_that_read_the_corpus_the_way_it_is_written.md |
+| [prod_108_checks_that_read_the_corpus_the_way_it_is_written](product/prod_108_checks_that_read_the_corpus_the_way_it_is_written.md) | Checks that read the corpus the way it is written | Settled |  |  | product/prod_108_checks_that_read_the_corpus_the_way_it_is_written.md |
 
 ## Roadmaps
 
@@ -544,7 +544,7 @@
 | [req_375_edit_documents_in_the_browser_viewer](request/req_375_edit_documents_in_the_browser_viewer.md) | Edit documents in the browser viewer | Done |  |  | request/req_375_edit_documents_in_the_browser_viewer.md |
 | [req_376_make_the_chatgpt_mcp_connector_plug_and_play](request/req_376_make_the_chatgpt_mcp_connector_plug_and_play.md) | Make the ChatGPT MCP connector plug-and-play | Done |  |  | request/req_376_make_the_chatgpt_mcp_connector_plug_and_play.md |
 | [req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door](request/req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door.md) | Expose the MCP surface to hosted web clients through a public HTTPS door | Draft |  |  | request/req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door.md |
-| [req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects](request/req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects.md) | Stop reporting a deferred request and a prose mention as corpus defects | Draft |  |  | request/req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects.md |
+| [req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects](request/req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects.md) | Stop reporting a deferred request and a prose mention as corpus defects | Done |  |  | request/req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects.md |
 
 ## Backlog
 
@@ -1401,8 +1401,8 @@
 | [item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive](backlog/item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive.md) | Fix the Settings Connector toggle and make the connector screen reactive | Done |  | 100% | backlog/item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive.md |
 | [item_850_run_chatgpt_through_openais_secure_mcp_tunnel](backlog/item_850_run_chatgpt_through_openais_secure_mcp_tunnel.md) | Run ChatGPT through OpenAI's Secure MCP Tunnel | Done |  | 100% | backlog/item_850_run_chatgpt_through_openais_secure_mcp_tunnel.md |
 | [item_851_tell_the_operator_which_transport_their_client_needs](backlog/item_851_tell_the_operator_which_transport_their_client_needs.md) | Tell the operator which transport their client needs | Done |  | 100% | backlog/item_851_tell_the_operator_which_transport_their_client_needs.md |
-| [item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain](backlog/item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain.md) | Let a Draft request hold acceptance criteria without a chain | Ready |  | 0% | backlog/item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain.md |
-| [item_853_tell_a_delivery_link_from_a_mention_at_closeout](backlog/item_853_tell_a_delivery_link_from_a_mention_at_closeout.md) | Tell a delivery link from a mention at closeout | Ready |  | 0% | backlog/item_853_tell_a_delivery_link_from_a_mention_at_closeout.md |
+| [item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain](backlog/item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain.md) | Let a Draft request hold acceptance criteria without a chain | Done |  | 100% | backlog/item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain.md |
+| [item_853_tell_a_delivery_link_from_a_mention_at_closeout](backlog/item_853_tell_a_delivery_link_from_a_mention_at_closeout.md) | Tell a delivery link from a mention at closeout | Done |  | 100% | backlog/item_853_tell_a_delivery_link_from_a_mention_at_closeout.md |
 
 ## Tasks
 
@@ -1789,7 +1789,7 @@
 | [task_385_orchestrate_the_status_confirm_and_commit_work](tasks/task_385_orchestrate_the_status_confirm_and_commit_work.md) | Orchestrate the status-confirm-and-commit work | Done | claude | 100% | tasks/task_385_orchestrate_the_status_confirm_and_commit_work.md |
 | [task_386_orchestrate_the_in_browser_document_editor_work](tasks/task_386_orchestrate_the_in_browser_document_editor_work.md) | Orchestrate the in-browser document editor work | Done | claude | 100% | tasks/task_386_orchestrate_the_in_browser_document_editor_work.md |
 | [task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector](tasks/task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector.md) | Deliver the ChatGPT connector over Secure MCP Tunnel | Done |  | 100% | tasks/task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector.md |
-| [task_388_make_both_checks_read_the_corpus_as_written](tasks/task_388_make_both_checks_read_the_corpus_as_written.md) | Make both checks read the corpus as written | Ready |  | 0% | tasks/task_388_make_both_checks_read_the_corpus_as_written.md |
+| [task_388_make_both_checks_read_the_corpus_as_written](tasks/task_388_make_both_checks_read_the_corpus_as_written.md) | Make both checks read the corpus as written | Done |  | 100% | tasks/task_388_make_both_checks_read_the_corpus_as_written.md |
 
 ## Runbooks
 

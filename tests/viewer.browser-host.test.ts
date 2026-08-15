@@ -2833,6 +2833,37 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Focused logics/tasks/task_001_blocked.md");
   });
 
+  it("lets the timer poll the badges without forcing a recomputation", async () => {
+    // item_839: `cache: "no-store"` on the badge poll means "recompute every component" on
+    // the server -- a contract aa5a5a72 added deliberately so an operator asking for a
+    // refresh gets one. Measured, forcing it on every tick cost 8.85s / 5.37s / 4.87s on
+    // consecutive polls and four GitHub API calls each time, unasked, 240 times an hour.
+    //
+    // Asserted on the source: the timer is a `setTimeout` several layers below the fetch,
+    // and a jsdom test that cannot reach it would assert nothing while looking like it did.
+    const { dom, fetchCalls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    // Every operator-driven status poll still forces, which is what aa5a5a72 protected.
+    const statusCalls = fetchCalls.filter((call) => call.url === "/api/status");
+    expect(statusCalls.length).toBeGreaterThan(0);
+    expect(
+      statusCalls.every((call) => (call.options as { cache?: string } | undefined)?.cache === "no-store")
+    ).toBe(true);
+
+    const source = fs.readFileSync(
+      path.resolve(process.cwd(), "clients/viewer/src/browser-host/index.js"),
+      "utf8"
+    );
+    // The badge poll decides per call, and the timer is the one path that says so.
+    expect(source).toMatch(/fetch\("\/api\/status", options\.periodic \? undefined : \{ cache: "no-store" \}\)/);
+    expect(source).toMatch(/refreshViewer\("POST", \{ silent: true, periodic: true \}\)/);
+    // An unconditional no-store here is the defect returning.
+    expect(source).not.toMatch(/fetch\("\/api\/status", \{ cache: "no-store" \}\)/);
+  });
+
   it("focuses a corpus item from its short id, or from nothing when it is ambiguous", async () => {
     // item_825: the shortest working link carried the whole slug, which is why `?focus=`
     // went unused -- nobody writes 76 characters of slug in a sentence.

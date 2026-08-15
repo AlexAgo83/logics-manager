@@ -9961,10 +9961,10 @@ ${line}` : line;
         updateMainCiBadge({ visible: false, badgeState: "unknown", message: "CI status unavailable." });
       }
     }
-    async function refreshBadgeCounters() {
+    async function refreshBadgeCounters(options = {}) {
       let payload;
       try {
-        const response = await fetch("/api/status", { cache: "no-store" });
+        const response = await fetch("/api/status", options.periodic ? void 0 : { cache: "no-store" });
         if (response.status === 404) {
           refreshCiBadgeCounters();
           refreshReleaseBadgeCounters();
@@ -10844,7 +10844,7 @@ ${line}` : line;
           await showCdxHistory({ silent: Boolean(options.silent) });
         }
       } else if (method === "POST") {
-        await refreshBadgeCounters();
+        await refreshBadgeCounters({ periodic: Boolean(options.periodic) });
       }
       if (!changed && !options.silent && !options.force) {
         setMeta(`Checked just now \xB7 no viewer changes (${(/* @__PURE__ */ new Date()).toLocaleTimeString()})`);
@@ -10905,7 +10905,7 @@ ${line}` : line;
         return;
       }
       const startedAt = Date.now();
-      refreshViewer("POST", { silent: true }).then(() => {
+      refreshViewer("POST", { silent: true, periodic: true }).then(() => {
         lastAutoRefreshMs = Date.now() - startedAt;
       }).catch((error) => {
         lastAutoRefreshMs = Date.now() - startedAt;

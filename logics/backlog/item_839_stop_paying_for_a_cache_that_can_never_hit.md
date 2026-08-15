@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: A lifetime that matches its poll
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:29:35
+> Indicators reviewed: 2026-08-15 16:58:45
 
 # AI Context
 - Summary: cdx-status costs 2.3s and its cache lives 2s under a 15s poll, so every tick misses. Lifetimes decided against the poll that consumes them.
@@ -19,6 +19,9 @@
 # Problem
 - the CDX status component costs 2.3s and its cache lives 2s, under a poll that runs every 15s. Every tick misses, measured four times in a row with no hit, so the cache is pure overhead and the poll pays full price.
 - the git status component shares the same 2s lifetime. At 0.11s the waste is smaller, but the rule it breaks is the same one.
+
+- Found while implementing, and not visible from the measurements the request carries: the badge poll fetches with `cache: "no-store"`, which the server reads as "recompute every component". That contract was added deliberately in `aa5a5a72` so that an operator asking for a refresh gets one. Forced polls measured 8.85s, 5.37s and 4.87s consecutively with four GitHub API calls each, against 0.117s then 0.0005s unforced -- so the lifetime was never even consulted on that route.
+- The resolution keeps the contract and changes who invokes it: every operator-driven path still forces, and only the timer does not. A poll running 240 times an hour is not an operator asking.
 
 # Scope
 - In:

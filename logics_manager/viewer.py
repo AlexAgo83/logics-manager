@@ -1635,8 +1635,20 @@ VIEWER_EVENT_DUTY_DIVISOR = 10
 VIEWER_EVENT_REMOTE_POLL_SECONDS = 5.0
 
 
-def _status_cache_ttl_seconds(name: str) -> float:
+def _status_cache_ttl_seconds(name: str, *, poll_seconds: float = 0.0) -> float:
+    """How long an answer stays good, never less than the poll that consumes it.
+
+    item_839: a lifetime shorter than the interval polling it is not a cache -- every tick
+    misses and the poll pays full price. `cdx-status` costs 2.3s with a 2s lifetime under a
+    15s poll; measured four times three seconds apart, it never once hit.
+    """
     if name in {"ci", "ci-status", "releaseRuns", "release-runs"}:
+        return REMOTE_STATUS_CACHE_TTL_SECONDS
+    if name in {"cdx", "cdx-status", "cdxRuns", "cdx-runs"}:
+        # item_839: `cdx status --json` is a 2.0s subprocess, and what it feeds is a badge
+        # counting running missions -- something an operator watches on the CDX screen,
+        # which forces, rather than second by second in the corner of another one. Priced
+        # like the remote reports because it costs like them, not because it is remote.
         return REMOTE_STATUS_CACHE_TTL_SECONDS
     if name in {"cdxDisk", "cdx-disk"}:
         # Disk scans walk every profile directory; don't redo them on every poll.
@@ -1645,7 +1657,16 @@ def _status_cache_ttl_seconds(name: str) -> float:
         # Scanning every sibling corpus takes seconds; the switcher opens often
         # and the numbers move on the scale of a commit, not a keystroke.
         return 120.0
-    return STATUS_CACHE_TTL_SECONDS
+    # Strictly longer than the poll, not equal to it: a lifetime of exactly the interval
+    # expires just before each tick arrives, which is the same miss with extra steps. Half
+    # again buys real hits for both consumers -- the badge poll at the auto-refresh interval
+    # and the event stream at 5s.
+    #
+    # The trade this makes, stated because it is one: a change is noticed a lifetime later
+    # rather than 5s later. For `cdx status --json` at 2.0s a call, being told about a
+    # mission within one poll instead of within five seconds is worth not spending 15% of
+    # the viewer's existence asking.
+    return max(STATUS_CACHE_TTL_SECONDS, poll_seconds * 1.5)
 
 
 VIEWER_MUTATING_ROUTES = frozenset(
@@ -2001,7 +2022,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
         if not force:
             with self.status_cache_lock:
                 entry = self.status_components.get(key)
-                if entry is not None and (now - entry[0]) < _status_cache_ttl_seconds(name):
+                if entry is not None and (now - entry[0]) < _status_cache_ttl_seconds(name, poll_seconds=self.auto_refresh_interval_seconds):
                     return entry[1]
         value = producer()
         with self.status_cache_lock:
@@ -2278,7 +2299,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         if not force:
             with server.status_cache_lock:
                 entry = server.status_cache.get(full_key)
-                if entry is not None and (now - entry[0]) < _status_cache_ttl_seconds(cache_key):
+                if entry is not None and (now - entry[0]) < _status_cache_ttl_seconds(cache_key, poll_seconds=server.auto_refresh_interval_seconds):
                     cached = entry
         if cached is None:
             body = _json_bytes({"ok": True, "payload": producer(force=force)})

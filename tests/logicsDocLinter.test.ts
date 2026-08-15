@@ -98,23 +98,37 @@ afterEach(() => {
 });
 
 describe("logics-doc-linter", () => {
-  it("allows non-semantic workflow edits when explicitly marked as maintenance", () => {
-    const { root } = initRepoWithRequestDoc(true);
+  // Each of these spawns a real Python process (scripts/run-python.mjs -> logics-manager.py
+  // -> the logics_manager package). The first spawn in the file pays cold interpreter
+  // startup and import cost, which the default 5000ms test timeout has clipped on a loaded
+  // Windows CI runner while running comfortably under it locally -- a slow-but-correct
+  // external process, not a product defect. Both get the same explicit timeout so which one
+  // happens to run first does not decide which one is at risk.
+  it(
+    "allows non-semantic workflow edits when explicitly marked as maintenance",
+    () => {
+      const { root } = initRepoWithRequestDoc(true);
 
-    const result = runLinter(root);
-    expect(result.status).toBe(0);
-    const payload = JSON.parse(result.stdout || "{}") as { ok?: boolean; issues?: Array<{ message: string }> };
-    expect(payload.ok).toBe(true);
-    expect(payload.issues || []).toHaveLength(0);
-  });
+      const result = runLinter(root);
+      expect(result.status).toBe(0);
+      const payload = JSON.parse(result.stdout || "{}") as { ok?: boolean; issues?: Array<{ message: string }> };
+      expect(payload.ok).toBe(true);
+      expect(payload.issues || []).toHaveLength(0);
+    },
+    30_000
+  );
 
-  it("still requires indicator updates for modified workflow docs without a maintenance marker", () => {
-    const { root } = initRepoWithRequestDoc(false);
+  it(
+    "still requires indicator updates for modified workflow docs without a maintenance marker",
+    () => {
+      const { root } = initRepoWithRequestDoc(false);
 
-    const result = runLinter(root);
-    expect(result.status).not.toBe(0);
-    const payload = JSON.parse(result.stdout || "{}") as { ok?: boolean; issues?: Array<{ message: string }> };
-    expect(payload.ok).toBe(false);
-    expect(payload.issues?.some((issue) => issue.message.includes("modified without updating indicators"))).toBe(true);
-  });
+      const result = runLinter(root);
+      expect(result.status).not.toBe(0);
+      const payload = JSON.parse(result.stdout || "{}") as { ok?: boolean; issues?: Array<{ message: string }> };
+      expect(payload.ok).toBe(false);
+      expect(payload.issues?.some((issue) => issue.message.includes("modified without updating indicators"))).toBe(true);
+    },
+    30_000
+  );
 });

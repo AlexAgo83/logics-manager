@@ -50,7 +50,9 @@ const allowedOversizedFiles = new Map(
     // 1973: req_371 carried the viewer link onto the MCP tools that read/list Logics
     // docs, and req_372 added the GitHub issue bridge's three tools (attach_github_issue,
     // report_issue_drift, tell_issues_at_closeout) beside the handlers already here.
-    "logics_manager/mcp.py": { maxLines: 1973, ref: "req_372" },
+    // 1974: launch_tunnel's server_command override, added so its own test could stop
+    // depending on a real subprocess import (one parameter beside tunnel_command's own).
+    "logics_manager/mcp.py": { maxLines: 1974, ref: "req_372" },
     // 1029: item_674 added the install-identity helpers (_install_root, _shim_target,
     // _executable_identity) that let doctor tell one install from two. They sit beside
     // running_executable_path/shadowing_executables, the only callers and the only other

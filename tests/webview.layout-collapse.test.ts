@@ -643,16 +643,26 @@ describe("the board's Group choice is a segmented control", () => {
     expect(css).toMatch(/\.toolbar__segment\.is-active\s*\{/);
   });
 
-  it("groups by theme and by nothing, off one keyed table", () => {
-    // `status` used to be the only alternative to `stage`, as an inverted special case;
-    // theme and none are the same operation over a different key, so they are one function.
+  it("groups by theme and by nothing, off one keyed table per surface", () => {
+    // `status` used to be the only alternative to `stage` on both surfaces, written inline
+    // as an inverted special case; theme and none are the same operation over a different
+    // key. Both are checked because grouping actually applies in list mode
+    // (webviewSelectors.getListGroups) -- extending only the column path would have left
+    // the segmented control switching a mode nothing read, which is how this first shipped.
     const board = fs.readFileSync(path.resolve(process.cwd(), "clients/shared-web/media/renderBoardApp.js"), "utf8");
-    const table = board.match(/const BOARD_GROUP_KEYS = \{[\s\S]*?\};/)?.[0] || "";
-    expect(table).toContain("status:");
-    expect(table).toContain("theme:");
-    expect(table).toContain("none:");
+    const boardTable = board.match(/const BOARD_GROUP_KEYS = \{[\s\S]*?\};/)?.[0] || "";
+    const selectors = fs.readFileSync(path.resolve(process.cwd(), "clients/shared-web/media/webviewSelectors.js"), "utf8");
+    const listTable = selectors.match(/const LIST_GROUP_HEADINGS = \{[\s\S]*?\};/)?.[0] || "";
+
+    for (const table of [boardTable, listTable]) {
+      expect(table).toContain("status:");
+      expect(table).toContain("theme:");
+      expect(table).toContain("none:");
+    }
     // Columns for a keyed grouping are whatever the corpus holds, not the stage list.
     expect(board).toMatch(/if \(BOARD_GROUP_KEYS\[boardGroupMode\(\)\]\)/);
+    // Statuses keep their lifecycle order; the others have no order to claim but the label.
+    expect(selectors).toMatch(/if \(mode === "status"\)/);
   });
 });
 

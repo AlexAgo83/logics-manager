@@ -1,0 +1,549 @@
+{
+  "budgets": {
+    "max_docs": 28,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_364_make_insights_and_health_answer_quickly_on_a_large_corpus item_804_index_the_backlog_to_task_links_instead_of_re_scanning_for_each_item item_805_serve_the_audit_answer_from_a_cache_keyed_on_the_corpus_not_on_a_timer item_806_send_the_screens_the_findings_they_display_not_all_of_them item_807_stop_rebuilding_the_repository_wide_source_blob_on_every_audit item_808_memoise_the_remaining_reference_extraction task_375_orchestrate_the_audit_cost_work_behind_insights_and_health --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_365_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "prod": [
+          "prod_005_logics_corpus_navigation_views",
+          "prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api",
+          "prod_015_cli_product_maturity_roadmap",
+          "prod_020_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "req": [
+          "req_201_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "task": [
+          "task_166_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ]
+      },
+      "path": "logics/product/prod_020_local_web_viewer_for_cli_driven_logics_work.md",
+      "ref": "prod_020_local_web_viewer_for_cli_driven_logics_work",
+      "sections": {
+        "Goals": [
+          "- Add a CLI-launched local viewer command, for example `logics-manager view` or `logics-manager serve-view`.",
+          "- Open a browser page that shows the Logics board, document details, relationships, status indicators, and markdown content.",
+          "- Reuse the existing webview assets and behavior where practical instead of creating a separate UI model.",
+          "- Introduce a clean host adapter boundary so the same UI can run under VS Code or under a local browser server.",
+          "- Keep the first version read-only by default so the feature is useful without creating mutation risk.",
+          "- Expose simple local API endpoints for corpus data, document reads, lint/audit summaries, and refresh signals."
+        ],
+        "Key product decisions": [
+          "- Treat the viewer as a visual companion to the CLI, not a replacement for either CLI or VS Code.",
+          "- Start read-only, then add bounded actions only after the host adapter and API boundary are stable.",
+          "- Keep dangerous or mutating work in the terminal for the first version.",
+          "- Prefer a browser local server over a rich terminal TUI because document navigation, board scanning, and markdown reading benefit from real layout, links, and persistent UI state.",
+          "- Reuse the existing webview implementation through a browser host adapter instead of maintaining a parallel UI.",
+          "- Keep the local API intentionally small: corpus data, document content, validation summaries, and refresh."
+        ],
+        "Overview": [
+          "Logics has become usable from the CLI, but the operator still loses the visual scanability that makes the VS Code webview useful.",
+          "The product opportunity is a local browser viewer launched from the CLI: a lightweight, local-only web surface that lets an operator inspect the Logics corpus, board, details, links, audits, and document content without opening VS Code.",
+          "The direction is not to recreate VS Code in the browser.",
+          "It is to make the existing webview experience portable through a small host adapter and a local server.",
+          "The CLI remains the canonical command surface, while the browser viewer becomes a visual companion for reading, scanning, and eventually triggering bounded actions.",
+          "The intended product feeling is: the operator keeps using the CLI, but can open a local visual cockpit when the workflow becomes too document-heavy for terminal output alone."
+        ],
+        "References": [
+          "- `logics/request/req_201_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/backlog/item_365_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/tasks/task_166_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/product/prod_005_logics_corpus_navigation_views.md`",
+          "- `logics/product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md`",
+          "- `logics/product/prod_015_cli_product_maturity_roadmap.md`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Local web viewer for CLI-driven Logics work"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_804_index_the_backlog_to_task_links_instead_of_re_scanning_for_each_item",
+          "item_805_serve_the_audit_answer_from_a_cache_keyed_on_the_corpus_not_on_a_timer",
+          "item_806_send_the_screens_the_findings_they_display_not_all_of_them",
+          "item_807_stop_rebuilding_the_repository_wide_source_blob_on_every_audit",
+          "item_808_memoise_the_remaining_reference_extraction"
+        ],
+        "prod": [
+          "prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows"
+        ],
+        "req": [
+          "req_364_make_insights_and_health_answer_quickly_on_a_large_corpus"
+        ],
+        "task": [
+          "task_375_orchestrate_the_audit_cost_work_behind_insights_and_health"
+        ]
+      },
+      "path": "logics/product/prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows.md",
+      "ref": "prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows",
+      "sections": {
+        "Goals": [
+          "- Cost that grows in step with the corpus, not faster.",
+          "- An answer computed once and reused until the corpus actually changes.",
+          "- A payload sized by what the screen shows, not by what the scan found.",
+          "- The same findings as today: faster, not fewer."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Keep the viewer's reading screens -- Corpus insights and Validation health -- answering in about a second whatever the corpus size, by removing the work that grows faster than the corpus, reusing answers that have not changed, and sending only what the screens display."
+        ],
+        "References": [
+          "- Product back-reference: `req_364_make_insights_and_health_answer_quickly_on_a_large_corpus`",
+          "- Task back-reference: `task_375_orchestrate_the_audit_cost_work_behind_insights_and_health`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Corpus screens that stay usable as the corpus grows"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "insights, health, answer, quickly, large, corpus",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_804_index_the_backlog_to_task_links_instead_of_re_scanning_for_each_item",
+          "item_805_serve_the_audit_answer_from_a_cache_keyed_on_the_corpus_not_on_a_timer",
+          "item_806_send_the_screens_the_findings_they_display_not_all_of_them",
+          "item_807_stop_rebuilding_the_repository_wide_source_blob_on_every_audit",
+          "item_808_memoise_the_remaining_reference_extraction"
+        ],
+        "prod": [
+          "prod_020_local_web_viewer_for_cli_driven_logics_work",
+          "prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows"
+        ],
+        "req": [
+          "req_364_make_insights_and_health_answer_quickly_on_a_large_corpus"
+        ]
+      },
+      "path": "logics/request/req_364_make_insights_and_health_answer_quickly_on_a_large_corpus.md",
+      "ref": "req_364_make_insights_and_health_answer_quickly_on_a_large_corpus",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: An audit of a corpus contains no per-document scan of all documents of another kind; its measured cost grows in step with the document count rather than faster, demonstrated on at least two corpus sizes.",
+          "- AC2: Re-opening Insights or Health, or letting the auto-refresh run, reuses the previously computed audit instead of recomputing it, and a document edited on disk is reflected in the next answer rather than after a delay.",
+          "- AC3: The audit response carries the counts and groupings the screens display plus a bounded number of findings, with the remainder reachable on demand; no screen loses information it previously showed.",
+          "- AC4: The repository-wide source scan behind code-anchor checking is not rebuilt on every audit.",
+          "- AC5: Insights and Health answer in about a second on this repository's corpus, measured over HTTP against a running viewer, and the audit payload is byte-identical in its findings to the current implementation for the same corpus."
+        ],
+        "Needs": [
+          "- As an operator on a large corpus, I need Corpus insights and Validation health to answer in about a second, so that reading the corpus is not a decision about whether it is worth waiting.",
+          "- As an operator, I need the cost of those screens to grow in step with the corpus rather than faster than it, so that a corpus twice the size does not cost four times the wait.",
+          "- As an operator, I need a screen re-opened or auto-refreshed to reuse the answer it already computed, while still reflecting a document I have just edited."
+        ]
+      },
+      "status": "Draft",
+      "title": "Make Insights and Health answer quickly on a large corpus"
+    },
+    {
+      "ai_context": {
+        "keywords": "index, backlog, task, links, instead, scanning, each, item",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_804_index_the_backlog_to_task_links_instead_of_re_scanning_for_each_item"
+        ],
+        "prod": [
+          "prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows"
+        ],
+        "req": [
+          "req_364_make_insights_and_health_answer_quickly_on_a_large_corpus"
+        ],
+        "task": [
+          "task_375_orchestrate_the_audit_cost_work_behind_insights_and_health"
+        ]
+      },
+      "path": "logics/backlog/item_804_index_the_backlog_to_task_links_instead_of_re_scanning_for_each_item.md",
+      "ref": "item_804_index_the_backlog_to_task_links_instead_of_re_scanning_for_each_item",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Resolving a backlog item's tasks does not iterate over all documents; the reverse map is built once per audit run.",
+          "- AC2: Audit time measured on two corpus sizes grows in step with the document count rather than with its square.",
+          "- AC3: The audit payload for this repository's corpus is byte-identical to the current implementation's."
+        ],
+        "Problem": [
+          "- `_linked_tasks_for_item` answers 'which tasks implement this backlog item' by scanning every task document and asking each one which backlog items it declares. Called once per backlog item, that is the product of the two counts.",
+          "- On this corpus it costs 0.21s of a 1.39s audit, which is why it has gone unnoticed. It is the one term whose cost is quadratic, so it overtakes everything else as a corpus grows, and it is the reason a large corpus feels disproportionately worse rather than proportionally slower."
+        ]
+      },
+      "status": "Ready",
+      "title": "Index the backlog-to-task links instead of re-scanning for each item"
+    },
+    {
+      "ai_context": {
+        "keywords": "serve, audit, answer, cache, keyed, corpus, not, timer",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_805_serve_the_audit_answer_from_a_cache_keyed_on_the_corpus_not_on_a_timer"
+        ],
+        "prod": [
+          "prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows"
+        ],
+        "req": [
+          "req_364_make_insights_and_health_answer_quickly_on_a_large_corpus"
+        ],
+        "task": [
+          "task_375_orchestrate_the_audit_cost_work_behind_insights_and_health"
+        ]
+      },
+      "path": "logics/backlog/item_805_serve_the_audit_answer_from_a_cache_keyed_on_the_corpus_not_on_a_timer.md",
+      "ref": "item_805_serve_the_audit_answer_from_a_cache_keyed_on_the_corpus_not_on_a_timer",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A second request for the audit with the corpus unchanged returns without recomputing, measured over HTTP.",
+          "- AC2: Editing a workflow document changes the next audit answer, with no wait beyond the recomputation itself.",
+          "- AC3: Opening Insights and then Health computes the audit once, not twice."
+        ],
+        "Problem": [
+          "- Nothing caches the audit. Opening Insights and then Health computes the same answer twice, and the viewer's 15-second auto-refresh computes it again on each tick.",
+          "- The viewer's existing `status_component` cache expires on a time-to-live, which is the wrong invalidation for this: it would both serve a stale answer after an edit and recompute an unchanged corpus once the timer lapses. What decides whether the answer is still good is whether the corpus changed."
+        ]
+      },
+      "status": "Ready",
+      "title": "Serve the audit answer from a cache keyed on the corpus, not on a timer"
+    },
+    {
+      "ai_context": {
+        "keywords": "send, screens, findings, they, display, not, all, them",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_806_send_the_screens_the_findings_they_display_not_all_of_them"
+        ],
+        "prod": [
+          "prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows"
+        ],
+        "req": [
+          "req_364_make_insights_and_health_answer_quickly_on_a_large_corpus"
+        ],
+        "task": [
+          "task_375_orchestrate_the_audit_cost_work_behind_insights_and_health"
+        ]
+      },
+      "path": "logics/backlog/item_806_send_the_screens_the_findings_they_display_not_all_of_them.md",
+      "ref": "item_806_send_the_screens_the_findings_they_display_not_all_of_them",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The audit response for this repository's corpus is materially smaller than 0.46 MB while the counts and groupings both screens display are unchanged.",
+          "- AC2: Findings beyond the bound are reachable, and a bounded list says that it is bounded.",
+          "- AC3: Neither screen loses information it previously showed."
+        ],
+        "Problem": [
+          "- The audit response carries every finding: 449 of them and 0.46 MB on this corpus, on every call from either screen.",
+          "- Both screens render counts, groupings, and a bounded list. The difference between 1.39s in-process and about 2.2s over HTTP is request handling and serialising a payload most of which is never shown."
+        ]
+      },
+      "status": "Ready",
+      "title": "Send the screens the findings they display, not all of them"
+    },
+    {
+      "ai_context": {
+        "keywords": "orchestrate, audit, cost, work, behind, insights, health",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_804_index_the_backlog_to_task_links_instead_of_re_scanning_for_each_item",
+          "item_805_serve_the_audit_answer_from_a_cache_keyed_on_the_corpus_not_on_a_timer",
+          "item_806_send_the_screens_the_findings_they_display_not_all_of_them",
+          "item_807_stop_rebuilding_the_repository_wide_source_blob_on_every_audit",
+          "item_808_memoise_the_remaining_reference_extraction"
+        ],
+        "prod": [
+          "prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows"
+        ],
+        "req": [
+          "req_364_make_insights_and_health_answer_quickly_on_a_large_corpus"
+        ],
+        "task": [
+          "task_375_orchestrate_the_audit_cost_work_behind_insights_and_health"
+        ]
+      },
+      "path": "logics/tasks/task_375_orchestrate_the_audit_cost_work_behind_insights_and_health.md",
+      "ref": "task_375_orchestrate_the_audit_cost_work_behind_insights_and_health",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the audit cost work behind Insights and Health"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_804_index_the_backlog_to_task_links_instead_of_re_scanning_for_each_item",
+          "item_805_serve_the_audit_answer_from_a_cache_keyed_on_the_corpus_not_on_a_timer",
+          "item_806_send_the_screens_the_findings_they_display_not_all_of_them",
+          "item_807_stop_rebuilding_the_repository_wide_source_blob_on_every_audit",
+          "item_808_memoise_the_remaining_reference_extraction"
+        ],
+        "prod": [
+          "prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows"
+        ],
+        "req": [
+          "req_364_make_insights_and_health_answer_quickly_on_a_large_corpus"
+        ],
+        "task": [
+          "task_375_orchestrate_the_audit_cost_work_behind_insights_and_health"
+        ]
+      },
+      "path": "logics/product/prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows.md",
+      "ref": "prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Corpus screens that stay usable as the corpus grows"
+    },
+    {
+      "ai_context": {
+        "keywords": "rebuilding, repository, wide, source, blob, audit",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_807_stop_rebuilding_the_repository_wide_source_blob_on_every_audit"
+        ],
+        "prod": [
+          "prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows"
+        ],
+        "req": [
+          "req_364_make_insights_and_health_answer_quickly_on_a_large_corpus"
+        ],
+        "task": [
+          "task_375_orchestrate_the_audit_cost_work_behind_insights_and_health"
+        ]
+      },
+      "path": "logics/backlog/item_807_stop_rebuilding_the_repository_wide_source_blob_on_every_audit.md",
+      "ref": "item_807_stop_rebuilding_the_repository_wide_source_blob_on_every_audit",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Two consecutive audits with unchanged source read the repository's files once, not twice.",
+          "- AC2: The unresolved-anchor findings for this repository's corpus are unchanged."
+        ],
+        "Problem": [
+          "- `_repo_blob` reads every source file in the repository into one 44 MB string on each audit, to answer whether a backticked symbol appears anywhere. It costs 0.25s here and is paid again on every run.",
+          "- Its cost tracks the size of the repository, not the size of the corpus, so it is charged in full even when nothing about the corpus has changed."
+        ]
+      },
+      "status": "Ready",
+      "title": "Stop rebuilding the repository-wide source blob on every audit"
+    },
+    {
+      "ai_context": {
+        "keywords": "memoise, remaining, reference, extraction",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_808_memoise_the_remaining_reference_extraction"
+        ],
+        "prod": [
+          "prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows"
+        ],
+        "req": [
+          "req_364_make_insights_and_health_answer_quickly_on_a_large_corpus"
+        ],
+        "task": [
+          "task_375_orchestrate_the_audit_cost_work_behind_insights_and_health"
+        ]
+      },
+      "path": "logics/backlog/item_808_memoise_the_remaining_reference_extraction.md",
+      "ref": "item_808_memoise_the_remaining_reference_extraction",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A document's text is scanned at most once per target prefix per audit run.",
+          "- AC2: The audit payload for this repository's corpus is unchanged."
+        ],
+        "Problem": [
+          "- `_extract_refs` is called 8127 times per audit for 0.38s. The memo added in an earlier wave covers `_declared_refs`; the calls that remain come from `_prose_only_refs`, which scans a document's whole text for every target kind.",
+          "- The same document's text is scanned repeatedly for the same prefix, which is the same defect the earlier memo fixed one level up."
+        ]
+      },
+      "status": "Ready",
+      "title": "Memoise the remaining reference extraction"
+    }
+  ],
+  "estimates": {
+    "char_count": 18557,
+    "companion_doc_count": 2,
+    "doc_count": 8
+  },
+  "generated_at": "2026-08-15T02:59:59Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_364_make_insights_and_health_answer_quickly_on_a_large_corpus",
+      "item_804_index_the_backlog_to_task_links_instead_of_re_scanning_for_each_item",
+      "item_805_serve_the_audit_answer_from_a_cache_keyed_on_the_corpus_not_on_a_timer",
+      "item_806_send_the_screens_the_findings_they_display_not_all_of_them",
+      "item_807_stop_rebuilding_the_repository_wide_source_blob_on_every_audit",
+      "item_808_memoise_the_remaining_reference_extraction",
+      "task_375_orchestrate_the_audit_cost_work_behind_insights_and_health"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_364_make_insights_and_health_answer_quickly_on_a_large_corpus,item_804_index_the_backlog_to_task_links_instead_of_re_scanning_for_each_item,item_805_serve_the_audit_answer_from_a_cache_keyed_on_the_corpus_not_on_a_timer,item_806_send_the_screens_the_findings_they_display_not_all_of_them,item_807_stop_rebuilding_the_repository_wide_source_blob_on_every_audit,item_808_memoise_the_remaining_reference_extraction,task_375_orchestrate_the_audit_cost_work_behind_insights_and_health",
+  "refs": [
+    "req_364_make_insights_and_health_answer_quickly_on_a_large_corpus",
+    "item_804_index_the_backlog_to_task_links_instead_of_re_scanning_for_each_item",
+    "item_805_serve_the_audit_answer_from_a_cache_keyed_on_the_corpus_not_on_a_timer",
+    "item_806_send_the_screens_the_findings_they_display_not_all_of_them",
+    "item_807_stop_rebuilding_the_repository_wide_source_blob_on_every_audit",
+    "item_808_memoise_the_remaining_reference_extraction",
+    "task_375_orchestrate_the_audit_cost_work_behind_insights_and_health"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_375_orchestrate_the_audit_cost_work_behind_insights_and_health.md",
+      "ref": "task_375_orchestrate_the_audit_cost_work_behind_insights_and_health"
+    }
+  ]
+}

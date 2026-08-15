@@ -7,7 +7,7 @@
 > Complexity: Medium
 > Theme: Viewer polish
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 13:13:44
+> Indicators reviewed: 2026-08-15 13:14:00
 
 # AI Context
 - Summary: The board shows its empty-state placeholder while the first payload is still in flight, so the screen an operator reaches first asserts the project holds nothing at the moment nothing is known. Runbooks are already documents in the payload with their own colour, but have no stage heading, never reach the reference index, and carry a screen of their own that no other companion kind needs.
@@ -23,9 +23,9 @@
 
 # Context
 - The board renders an empty-state placeholder while the first payload is still in flight, so arriving on a project states that it holds no documents at the moment nothing is known about it. It is the screen an operator reaches first and most often, and the one place the viewer currently asserts something false rather than saying it does not know yet.
-- Runbooks are already documents in the payload -- `/api/items` returns them with `stage: "runbook"`, and this corpus has two -- and the stage already has a colour token that the card accent picks up since item_811. What is missing is that `getStageHeading` has no `runbook` case, so the heading falls back to the raw stage name, and the stage is not treated as a companion, so it never reaches the reference index.
+- Runbooks are already documents in the payload -- the items route returns them with `stage: "runbook"`, and this corpus has two -- and the stage already has a colour token that the card accent picks up since item_811. What is missing is that `getStageHeading` has no `runbook` case, so the heading falls back to the raw stage name, and the stage is not treated as a companion, so it never reaches the reference index.
 - Runbooks also have a screen of their own, moved under Corpus by item_792 and given a loading state by a later wave. Neither was wrong at the time; the screen itself is what should not exist, since every other companion kind is read the same way as the rest of the corpus.
-- The bounded, ranked runbook lookup (`/api/runbooks`, the `match_runbooks` MCP tool) answers a different question and is used by agents rather than by this screen. It stays.
+- The bounded, ranked runbook lookup (the runbooks route, the `match_runbooks` MCP tool) answers a different question and is used by agents rather than by this screen. It stays.
 - The reference index collapses as a whole (`companionIndexOpen` in renderBoardApp.js) but its per-category groups do not, so a reader who wants one category still scrolls past all of them.
 - Getting Started's stage nav lists four totals -- 471, 815, 371, 30 -- with no scale and no action attached. item_753 added them to orient rather than to grade, and as bare numbers they do neither: a reader cannot tell whether 815 is a lot, and the count spans a stage boundary the label does not name.
 

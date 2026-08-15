@@ -857,6 +857,13 @@
   color: var(--vscode-descriptionForeground, #9da5b4);
 }
 
+/* Reported by the operator: the chevron turned but the list stayed. `display: grid` on the
+   element beats the UA stylesheet's `[hidden] { display: none }`, so the attribute was set
+   and had no effect. */
+.companion-index__list[hidden] {
+  display: none;
+}
+
 .companion-index__list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));

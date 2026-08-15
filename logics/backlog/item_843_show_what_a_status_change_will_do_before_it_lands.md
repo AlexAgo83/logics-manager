@@ -1,14 +1,14 @@
 ## item_843_show_what_a_status_change_will_do_before_it_lands - Show what a status change will do before it lands
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 95%
 > Progress: 100%
 > Complexity: Low
 > Theme: See it before it lands
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 18:40:09
+> Indicators reviewed: 2026-08-15 18:51:19
 
 # AI Context
 - Summary: The existing status choice modal states the document, its current status, and the requested status before applying anything -- one modal, not a choice modal plus a second confirm.
@@ -54,3 +54,9 @@
 
 # Validation
 - Extended the existing status choice modal (showStatusChangeModal in render.js) with a live preview line -- "<doc>: <old> → <new>" -- updated on select change, instead of adding a second modal. Covered by test_shows_the_status_change_preview_live_and_updates_the_default_commit_message and the existing changes-status test, which still exercises the same .viewer-themed-modal__select control; cancel/escape behavior unchanged.
+
+# Tasks
+- `task_385_orchestrate_the_status_confirm_and_commit_work`
+
+# Notes
+- Task `task_385_orchestrate_the_status_confirm_and_commit_work` was finished via `logics-manager flow finish task` on 2026-08-15.

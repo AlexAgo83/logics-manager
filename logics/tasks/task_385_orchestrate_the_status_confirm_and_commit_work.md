@@ -1,15 +1,15 @@
 ## task_385_orchestrate_the_status_confirm_and_commit_work - Orchestrate the status-confirm-and-commit work
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 > Owner: claude
-> Indicators reviewed: 2026-08-15 18:51:14
+> Indicators reviewed: 2026-08-15 18:51:18
 
 # AI Context
 - Summary: Sequences the status-confirm-and-commit work: state the change before it lands, then offer to commit it.
@@ -54,9 +54,15 @@
 
 # Validation
 - (no validation recorded yet)
+- vitest: 967 passed on 2026-08-15
+- Finish workflow executed on 2026-08-15.
+- Linked backlog/request close verification passed.
 
 # Report
 - Both backlog slices landed: item_843 (the existing status choice modal now states doc/old status/new status live, one modal, no second confirm) and item_844 (the same modal offers to commit through the existing /api/git-commit route, defaulting on, with a decline or a failed commit never touching the status change already applied). The withPrimaryAction gate around the status button is untouched. vitest: 967 passed.
+- Finished on 2026-08-15.
+- Linked backlog item(s): `item_843_show_what_a_status_change_will_do_before_it_lands`, `item_844_offer_to_commit_the_status_change_right_there`
+- Related request(s): `req_374_confirm_the_status_change_offer_to_commit_it`
 
 # Links
 - Request: `req_374_confirm_the_status_change_offer_to_commit_it`

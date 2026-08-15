@@ -1,12 +1,13 @@
 ## req_374_confirm_the_status_change_offer_to_commit_it - Confirm the status change, offer to commit it
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium
 > Theme: One deliberate step instead of two
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-15 18:51:18
 
 # AI Context
 - Summary: A status change and its commit are one operator intent most of the time; the status modal states what will change and offers to commit it right there, wired to the git-commit route that already exists.

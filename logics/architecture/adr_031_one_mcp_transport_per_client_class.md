@@ -1,6 +1,6 @@
 ## adr_031_one_mcp_transport_per_client_class - One MCP transport per client class
 > Date: 2026-08-15
-> Status: Proposed
+> Status: Settled
 > Related request: `req_376_make_the_chatgpt_mcp_connector_plug_and_play`
 > Related backlog: (none yet)
 > Related task: `task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector`

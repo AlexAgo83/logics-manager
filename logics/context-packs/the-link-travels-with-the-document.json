@@ -1,0 +1,497 @@
+{
+  "budgets": {
+    "max_docs": 24,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_371_put_the_viewer_link_where_every_assistant_already_looks item_830_one_reader_for_where_the_viewer_is item_831_carry_the_link_in_the_mcp_responses item_832_print_the_link_from_the_cli item_833_state_the_convention_where_an_assistant_reads_its_instructions task_382_orchestrate_the_link_travels_with_the_document_work --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_825_resolve_a_document_from_its_short_id",
+          "item_826_select_a_project_by_the_name_the_switcher_shows",
+          "item_827_write_down_the_link_forms_where_a_writer_will_look"
+        ],
+        "prod": [
+          "prod_100_a_viewer_link_worth_writing"
+        ],
+        "req": [
+          "req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence"
+        ],
+        "task": [
+          "task_380_orchestrate_the_short_viewer_link_work"
+        ]
+      },
+      "path": "logics/product/prod_100_a_viewer_link_worth_writing.md",
+      "ref": "prod_100_a_viewer_link_worth_writing",
+      "sections": {
+        "Goals": [
+          "- The link an operator would write by hand is the link that works.",
+          "- Short means unambiguous or nothing -- never a guess at which document was meant.",
+          "- Nothing that works today stops working.",
+          "- The form is written down where it will be read."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the address of a document short enough that naming it and linking to it are the same act.",
+          "```mermaid",
+          "flowchart LR",
+          "    Name[An answer names a document] --> Form{Which address?}",
+          "    Form -- \"full id, 76 chars of slug\" --> Unwritten[Never written: the link crowds out the answer]",
+          "    Form -- \"req_368\" --> Short[Short enough to write in a sentence]"
+        ],
+        "References": [
+          "- Product back-reference: `req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence`",
+          "- Task back-reference: `task_380_orchestrate_the_short_viewer_link_work`"
+        ]
+      },
+      "status": "Settled",
+      "title": "A viewer link worth writing"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_830_one_reader_for_where_the_viewer_is",
+          "item_831_carry_the_link_in_the_mcp_responses",
+          "item_832_print_the_link_from_the_cli",
+          "item_833_state_the_convention_where_an_assistant_reads_its_instructions"
+        ],
+        "prod": [
+          "prod_102_the_link_travels_with_the_document"
+        ],
+        "req": [
+          "req_371_put_the_viewer_link_where_every_assistant_already_looks"
+        ],
+        "task": [
+          "task_382_orchestrate_the_link_travels_with_the_document_work"
+        ]
+      },
+      "path": "logics/product/prod_102_the_link_travels_with_the_document.md",
+      "ref": "prod_102_the_link_travels_with_the_document",
+      "sections": {
+        "Goals": [
+          "- One answer to where the viewer is, read by every surface.",
+          "- The link arrives as data, not as a convention to remember.",
+          "- Absent rather than wrong when there is no viewer.",
+          "- No surface pays for the link by the row."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the viewer address arrive with every document any assistant reads, so that naming a document and linking to it are the same act for all of them, not a habit one of them holds."
+        ],
+        "References": [
+          "- Product back-reference: `req_371_put_the_viewer_link_where_every_assistant_already_looks`",
+          "- Task back-reference: `task_382_orchestrate_the_link_travels_with_the_document_work`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "The link travels with the document"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "put, viewer, link, assistant, already, looks",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_830_one_reader_for_where_the_viewer_is",
+          "item_831_carry_the_link_in_the_mcp_responses",
+          "item_832_print_the_link_from_the_cli",
+          "item_833_state_the_convention_where_an_assistant_reads_its_instructions"
+        ],
+        "prod": [
+          "prod_100_a_viewer_link_worth_writing",
+          "prod_102_the_link_travels_with_the_document"
+        ],
+        "req": [
+          "req_371_put_the_viewer_link_where_every_assistant_already_looks"
+        ]
+      },
+      "path": "logics/request/req_371_put_the_viewer_link_where_every_assistant_already_looks.md",
+      "ref": "req_371_put_the_viewer_link_where_every_assistant_already_looks",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: One reader answers 'is a viewer running, and at what address', and every surface here uses it rather than deriving it again.",
+          "- AC2: A single-document MCP response carries that document's viewer link; a multi-document response carries what is needed to build one without repeating it per row.",
+          "- AC3: The CLI commands that show or list documents print the link for what they showed.",
+          "- AC4: When no viewer is running, no surface emits a link, and nothing fails because of it.",
+          "- AC5: The convention is stated in `logics/instructions.md` and in the bundled skills, for the case where an assistant names a document it did not fetch.",
+          "- AC6: The added payload is measured, not assumed: the multi-document responses do not grow per row."
+        ],
+        "Needs": [
+          "- As an operator reading any assistant's answer, I need the documents it names to be links I can open, whichever assistant wrote it and whichever surface it read the document through.",
+          "- As an assistant naming a document, I need its link to arrive with the document, so that linking costs nothing and needs no convention I have to remember.",
+          "- As an operator, I need a link that is absent rather than wrong when no viewer is running."
+        ]
+      },
+      "status": "Draft",
+      "title": "Put the viewer link where every assistant already looks"
+    },
+    {
+      "ai_context": {
+        "keywords": "reader, viewer",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_830_one_reader_for_where_the_viewer_is"
+        ],
+        "prod": [
+          "prod_102_the_link_travels_with_the_document"
+        ],
+        "req": [
+          "req_371_put_the_viewer_link_where_every_assistant_already_looks"
+        ],
+        "task": [
+          "task_382_orchestrate_the_link_travels_with_the_document_work"
+        ]
+      },
+      "path": "logics/backlog/item_830_one_reader_for_where_the_viewer_is.md",
+      "ref": "item_830_one_reader_for_where_the_viewer_is",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: With a viewer running, the reader returns its scheme, host and port.",
+          "- AC2: With no viewer, or a claim whose port answers nothing, it returns nothing rather than a default.",
+          "- AC3: The call is bounded in time even when the registry names a port that will never answer."
+        ],
+        "Problem": [
+          "- `viewer_registry.py` can claim a port and probe a claim, but exposes nothing that answers 'is a viewer running for this repository, and at what address'.",
+          "- Four surfaces are about to need that answer. Built per surface, they will drift -- the same shape of defect as the loading threshold req_365 had to collapse into one constant."
+        ]
+      },
+      "status": "Ready",
+      "title": "One reader for where the viewer is"
+    },
+    {
+      "ai_context": {
+        "keywords": "carry, link, mcp, responses",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_831_carry_the_link_in_the_mcp_responses"
+        ],
+        "prod": [
+          "prod_102_the_link_travels_with_the_document"
+        ],
+        "req": [
+          "req_371_put_the_viewer_link_where_every_assistant_already_looks"
+        ],
+        "task": [
+          "task_382_orchestrate_the_link_travels_with_the_document_work"
+        ]
+      },
+      "path": "logics/backlog/item_831_carry_the_link_in_the_mcp_responses.md",
+      "ref": "item_831_carry_the_link_in_the_mcp_responses",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `read_logics_doc` returns a link that opens that document.",
+          "- AC2: `list_logics_docs`, `search_logics_docs`, `list_active_work` and `list_companion_docs` carry one template each, not one URL per row.",
+          "- AC3: With no viewer running the field is absent and every tool still answers.",
+          "- AC4: The payload growth is measured on this corpus and does not scale with the number of rows."
+        ],
+        "Problem": [
+          "- Every assistant reading a Logics document through MCP receives its ref, title and content, and nothing that says where to open it.",
+          "- So linking requires knowing a convention, and an assistant that never read one names the document in plain text."
+        ]
+      },
+      "status": "Ready",
+      "title": "Carry the link in the MCP responses"
+    },
+    {
+      "ai_context": {
+        "keywords": "print, link, cli",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_832_print_the_link_from_the_cli"
+        ],
+        "prod": [
+          "prod_102_the_link_travels_with_the_document"
+        ],
+        "req": [
+          "req_371_put_the_viewer_link_where_every_assistant_already_looks"
+        ],
+        "task": [
+          "task_382_orchestrate_the_link_travels_with_the_document_work"
+        ]
+      },
+      "path": "logics/backlog/item_832_print_the_link_from_the_cli.md",
+      "ref": "item_832_print_the_link_from_the_cli",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `flow show <ref>` prints a link that opens that document.",
+          "- AC2: A listing prints the form once, not per row.",
+          "- AC3: With no viewer running the output is exactly what it is today."
+        ],
+        "Problem": [
+          "- `flow show`, `sync list-docs` and `sync search-docs` are how an assistant working in a terminal reads the corpus, and none of them says where to open what it printed.",
+          "- The MCP work does not reach them: they never call a tool."
+        ]
+      },
+      "status": "Ready",
+      "title": "Print the link from the CLI"
+    },
+    {
+      "ai_context": {
+        "keywords": "orchestrate, link, travels, document, work",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_830_one_reader_for_where_the_viewer_is",
+          "item_831_carry_the_link_in_the_mcp_responses",
+          "item_832_print_the_link_from_the_cli",
+          "item_833_state_the_convention_where_an_assistant_reads_its_instructions"
+        ],
+        "prod": [
+          "prod_102_the_link_travels_with_the_document"
+        ],
+        "req": [
+          "req_371_put_the_viewer_link_where_every_assistant_already_looks"
+        ],
+        "task": [
+          "task_382_orchestrate_the_link_travels_with_the_document_work"
+        ]
+      },
+      "path": "logics/tasks/task_382_orchestrate_the_link_travels_with_the_document_work.md",
+      "ref": "task_382_orchestrate_the_link_travels_with_the_document_work",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the link-travels-with-the-document work"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_830_one_reader_for_where_the_viewer_is",
+          "item_831_carry_the_link_in_the_mcp_responses",
+          "item_832_print_the_link_from_the_cli",
+          "item_833_state_the_convention_where_an_assistant_reads_its_instructions"
+        ],
+        "prod": [
+          "prod_102_the_link_travels_with_the_document"
+        ],
+        "req": [
+          "req_371_put_the_viewer_link_where_every_assistant_already_looks"
+        ],
+        "task": [
+          "task_382_orchestrate_the_link_travels_with_the_document_work"
+        ]
+      },
+      "path": "logics/product/prod_102_the_link_travels_with_the_document.md",
+      "ref": "prod_102_the_link_travels_with_the_document",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "The link travels with the document"
+    },
+    {
+      "ai_context": {
+        "keywords": "state, convention, assistant, reads, instructions",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_833_state_the_convention_where_an_assistant_reads_its_instructions"
+        ],
+        "prod": [
+          "prod_102_the_link_travels_with_the_document"
+        ],
+        "req": [
+          "req_371_put_the_viewer_link_where_every_assistant_already_looks"
+        ],
+        "task": [
+          "task_382_orchestrate_the_link_travels_with_the_document_work"
+        ]
+      },
+      "path": "logics/backlog/item_833_state_the_convention_where_an_assistant_reads_its_instructions.md",
+      "ref": "item_833_state_the_convention_where_an_assistant_reads_its_instructions",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `logics/instructions.md` states the convention and where the address comes from.",
+          "- AC2: The bundled skills state it where they describe reporting.",
+          "- AC3: Neither restates the URL grammar; both point at the one place that holds it."
+        ],
+        "Problem": [
+          "- The three slices above cover a document an assistant fetched. They do not cover naming one it already knows about, which is most of what an answer does.",
+          "- `logics/instructions.md` and the bundled skills are where this repository already puts its agent conventions, and neither mentions the viewer link."
+        ]
+      },
+      "status": "Ready",
+      "title": "State the convention where an assistant reads its instructions"
+    }
+  ],
+  "estimates": {
+    "char_count": 12687,
+    "companion_doc_count": 2,
+    "doc_count": 7
+  },
+  "generated_at": "2026-08-15T13:59:09Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_371_put_the_viewer_link_where_every_assistant_already_looks",
+      "item_830_one_reader_for_where_the_viewer_is",
+      "item_831_carry_the_link_in_the_mcp_responses",
+      "item_832_print_the_link_from_the_cli",
+      "item_833_state_the_convention_where_an_assistant_reads_its_instructions",
+      "task_382_orchestrate_the_link_travels_with_the_document_work"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_371_put_the_viewer_link_where_every_assistant_already_looks,item_830_one_reader_for_where_the_viewer_is,item_831_carry_the_link_in_the_mcp_responses,item_832_print_the_link_from_the_cli,item_833_state_the_convention_where_an_assistant_reads_its_instructions,task_382_orchestrate_the_link_travels_with_the_document_work",
+  "refs": [
+    "req_371_put_the_viewer_link_where_every_assistant_already_looks",
+    "item_830_one_reader_for_where_the_viewer_is",
+    "item_831_carry_the_link_in_the_mcp_responses",
+    "item_832_print_the_link_from_the_cli",
+    "item_833_state_the_convention_where_an_assistant_reads_its_instructions",
+    "task_382_orchestrate_the_link_travels_with_the_document_work"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_382_orchestrate_the_link_travels_with_the_document_work.md",
+      "ref": "task_382_orchestrate_the_link_travels_with_the_document_work"
+    }
+  ]
+}

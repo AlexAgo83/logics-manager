@@ -2,9 +2,9 @@
 > From version: 2.21.9
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 95%
+> Confidence: 90%
+> Progress: 60%
 > Complexity: Medium
 > Theme: Cheap enough to ask often
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -52,3 +52,6 @@
 # Priority
 - Priority: Medium
 - Rationale: 5% of the measured tick against 74% for item_839, so it follows it -- and it is the slice that makes a file watcher unnecessary.
+
+# Validation
+- Measured over this repo's own corpus (6.19 MB payload): cold call (payload rebuild) 1.568s; warm call (corpus_signature match, cached body/etag reused) 0.0102s. AC1 and AC2 covered by test_viewer_items_body_is_cached_until_the_corpus_changes (tests/python/test_viewer_cli.py), which also asserts the changed-corpus response is byte-identical to an uncached rebuild.

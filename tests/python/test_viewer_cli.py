@@ -3070,6 +3070,44 @@ def test_viewer_items_endpoint_revalidates_with_etag(tmp_path: Path) -> None:
         thread.join(timeout=5)
 
 
+def test_viewer_items_body_is_cached_until_the_corpus_changes(tmp_path: Path) -> None:
+    """item_841: a 304 rebuilt and hashed the whole payload merely to learn nothing had
+    changed -- 0.156s to say no. corpus_signature answers that without a rebuild, and a
+    changed corpus still gets the new payload, byte-identical to an uncached request."""
+    import time as _time
+
+    from logics_manager.viewer import corpus_signature
+
+    root = tmp_path / "project"
+    (root / "logics" / "request").mkdir(parents=True)
+    (root / "logics" / "request" / "req_001_one.md").write_text(
+        "## req_001_one - One\n> Status: Ready\n", encoding="utf-8"
+    )
+
+    server = create_viewer_server_or_skip(root)
+    try:
+        first_etag, first_body = server.cached_items_body(fleet_home=False)
+        second_etag, second_body = server.cached_items_body(fleet_home=False)
+        assert second_body is first_body, "an unchanged corpus rebuilt the items payload"
+        assert second_etag == first_etag
+
+        before = corpus_signature(root)
+        _time.sleep(0.01)
+        (root / "logics" / "request" / "req_002_two.md").write_text(
+            "## req_002_two - Two\n> Status: Ready\n", encoding="utf-8"
+        )
+        assert corpus_signature(root) != before
+
+        third_etag, third_body = server.cached_items_body(fleet_home=False)
+        assert third_body is not first_body, "an edited corpus returned the previous body"
+        assert third_etag != first_etag
+        # And it matches what an uncached rebuild produces for the same state.
+        uncached = viewer_module._json_bytes({"ok": True, "payload": server.viewer_payload(fleet_home=False)})
+        assert third_body == uncached
+    finally:
+        server.server_close()
+
+
 def test_viewer_static_asset_gzips_when_accepted(tmp_path: Path) -> None:
     # viewer.css (~150KB) is comfortably above the compression threshold,
     # unlike /api/items' payload on a near-empty test corpus.

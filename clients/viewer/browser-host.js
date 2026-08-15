@@ -2268,6 +2268,18 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       </div>
     `;
   }
+  function renderDocEditorScreen({ path, content }) {
+    return `
+      <div class="viewer-doc-editor">
+        <p class="viewer-doc-editor__path">${escapeHtml(path)}</p>
+        <textarea class="viewer-doc-editor__textarea" spellcheck="false">${escapeHtml(content)}</textarea>
+        <div class="viewer-doc-editor__actions">
+          <button class="btn" type="button" data-viewer-editor-action="cancel">Cancel</button>
+          <button class="btn primary" type="button" data-viewer-editor-action="save">Save</button>
+        </div>
+      </div>
+    `;
+  }
   function renderHealthSummary(lintData, auditData, healthData = null, knownPaths = null) {
     const lintPayload = lintData.payload || {};
     const auditPayload = auditData.payload || {};
@@ -2858,6 +2870,28 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       window.setTimeout(() => {
         select.focus();
       }, 0);
+    });
+  }
+  function showCommitOfferModal({ title = "Commit this change?", message, defaultMessage }) {
+    return new Promise((resolve) => {
+      const modal = createThemedModal({ title, message, submitLabel: "Commit", cancelLabel: "Not now" });
+      const body = modal.querySelector(".viewer-themed-modal__body");
+      const commitMessage = document.createElement("textarea");
+      commitMessage.className = "viewer-themed-modal__input viewer-status-confirm__message";
+      commitMessage.rows = 2;
+      commitMessage.value = defaultMessage || "";
+      body?.appendChild(commitMessage);
+      const done = (result) => {
+        closeThemedModal(modal);
+        resolve(result);
+      };
+      modal.querySelector(".viewer-themed-modal__submit")?.addEventListener("click", () => done({ commit: true, message: commitMessage.value.trim() }));
+      modal.querySelector(".viewer-themed-modal__cancel")?.addEventListener("click", () => done({ commit: false, message: "" }));
+      modal.querySelector(".viewer-themed-modal__close")?.addEventListener("click", () => done({ commit: false, message: "" }));
+      modal.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") done({ commit: false, message: "" });
+      });
+      window.setTimeout(() => commitMessage.focus(), 0);
     });
   }
   function showThemedConfirmModal({ title, message, submitLabel = "Confirm", cancelLabel = "Cancel" }) {
@@ -11527,6 +11561,10 @@ ${line}` : line;
         setMeta("Select a document to edit.");
         return;
       }
+      if (embeddedHost !== "vscode") {
+        await openDocEditorScreen(item);
+        return;
+      }
       setMeta("Opening document in system editor...");
       const response = await fetch(`/api/edit?path=${encodeURIComponent(item.relPath)}`, { method: "POST" });
       const data = await response.json();
@@ -11537,6 +11575,83 @@ ${line}` : line;
         throw new Error(data.error || "Unable to open document editor.");
       }
       setMeta(`Opened ${data.document.path} in system editor.`);
+    }
+    let activeEditSession = null;
+    async function openDocEditorScreen(item) {
+      setMeta("Opening editor...");
+      const response = await fetch(`/api/doc?path=${encodeURIComponent(item.relPath)}`);
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || "Unable to load document for editing.");
+      }
+      const content = String(data.document?.content || "");
+      const label = item.id || item.relPath;
+      activeEditSession = { item, originalContent: content };
+      setDocument(`Edit ${label}`, renderDocEditorScreen({ path: item.relPath, content }), { eyebrow: item.relPath, item });
+      setMeta(`Editing ${label}.`);
+      window.setTimeout(() => {
+        const textarea = documentContent()?.querySelector(".viewer-doc-editor__textarea");
+        if (textarea instanceof HTMLTextAreaElement) textarea.focus();
+      }, 0);
+    }
+    async function cancelDocEditorScreen() {
+      const session = activeEditSession;
+      activeEditSession = null;
+      if (!session) return;
+      await showDocumentByPath(session.item.relPath);
+      setMeta("Edit cancelled.");
+    }
+    async function saveDocEditorScreen() {
+      const session = activeEditSession;
+      if (!session) return;
+      const textarea = documentContent()?.querySelector(".viewer-doc-editor__textarea");
+      const content = textarea instanceof HTMLTextAreaElement ? textarea.value : session.originalContent;
+      const label = session.item.id || session.item.relPath;
+      const response = await viewerFetch("/api/save-doc", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path: session.item.relPath, content })
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || "Unable to save the document.");
+      }
+      activeEditSession = null;
+      const savedPath = data.payload?.path || session.item.relPath;
+      if (data.payload?.changed === false) {
+        await showDocumentByPath(savedPath);
+        setMeta(`${label} was already saved.`);
+        return;
+      }
+      await loadItems("POST", { force: true });
+      await showDocumentByPath(savedPath);
+      const requested = await showCommitOfferModal({
+        message: `Commit the saved change to ${label}?`,
+        defaultMessage: `${label}: edited`
+      });
+      if (!requested.commit) {
+        setMeta(`Saved ${label}.`);
+        return;
+      }
+      try {
+        const payload = await commitFiles([savedPath], requested.message || `${label}: edited`);
+        setMeta(`Saved ${label}. Committed${payload?.shortHash ? `: ${payload.shortHash}` : "."}`);
+      } catch (err) {
+        setMeta(`Saved ${label}. Commit failed: ${err?.message || "unknown error"}.`);
+      }
+    }
+    async function commitFiles(files, message) {
+      const response = await fetch("/api/git-commit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ files, message })
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || data.payload?.message || "Git commit failed.");
+      }
+      recordGitActivity("Commit", `Created commit ${data.payload?.shortHash || ""}`.trim());
+      return data.payload;
     }
     async function changeCurrentDocumentStatus() {
       const item = currentDocumentItem;
@@ -11592,17 +11707,8 @@ ${line}` : line;
       }
       try {
         const commitMessage = requested.message || `${label}: status -> ${normalized}`;
-        const commitResponse = await fetch("/api/git-commit", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ files: [changedPath], message: commitMessage })
-        });
-        const commitData = await commitResponse.json();
-        if (!commitResponse.ok || !commitData.ok) {
-          throw new Error(commitData.error || commitData.payload?.message || "Git commit failed.");
-        }
-        recordGitActivity("Commit", `Created commit ${commitData.payload?.shortHash || ""}`.trim());
-        setMeta(`${applied} Committed${commitData.payload?.shortHash ? `: ${commitData.payload.shortHash}` : "."}`);
+        const payload = await commitFiles([changedPath], commitMessage);
+        setMeta(`${applied} Committed${payload?.shortHash ? `: ${payload.shortHash}` : "."}`);
       } catch (err) {
         setMeta(`${applied} Commit failed: ${err?.message || "unknown error"}.`);
       }
@@ -12078,6 +12184,13 @@ ${shown.join("\n")}${files.length > shown.length ? `
           withPrimaryAction("edit-document", "Opening document", () => editDocument(selectedItem()));
         });
       }
+      document.addEventListener("click", (event) => {
+        const target = event.target instanceof Element ? event.target.closest("[data-viewer-editor-action]") : null;
+        if (!(target instanceof HTMLElement)) return;
+        const action = target.dataset.viewerEditorAction;
+        if (action === "cancel") withPrimaryAction("doc-editor-cancel", "Cancelling", cancelDocEditorScreen);
+        if (action === "save") withPrimaryAction("doc-editor-save", "Saving", saveDocEditorScreen);
+      });
       setupProjectToolInteractions(setDocument, setMeta);
       document.addEventListener("change", (event) => {
         const sessionTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-session]") : null;

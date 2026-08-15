@@ -1,13 +1,14 @@
 ## item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged - An in-viewer editor screen for the browser, VS Code unchanged
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Medium
 > Theme: Edit here, not in another program
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-15 18:51:46
 
 # AI Context
 - Summary: The edit action routes on the existing embeddedHost signal: VS Code keeps opening its own editor, the browser opens an in-viewer screen with Save/Cancel and a new write route.

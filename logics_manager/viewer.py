@@ -593,6 +593,20 @@ def read_doc_payload(repo_root: Path, rel_path: str) -> dict[str, Any]:
     }
 
 
+def save_doc_payload(repo_root: Path, rel_path: str, content: str) -> dict[str, Any]:
+    """item_845: the write path a free-form browser edit needs, validated the same way
+    the read/edit routes already validate a path. item_846 AC2: identical content writes
+    nothing, so a no-op save can tell the caller not to offer a commit either."""
+    normalized, absolute = _resolve_repo_doc_path(repo_root, rel_path)
+    changed = _read_text(absolute) != content
+    if changed:
+        absolute.write_text(content, encoding="utf-8")
+    return {
+        "path": normalized,
+        "changed": changed,
+    }
+
+
 def _resolve_repo_doc_path(repo_root: Path, rel_path: str) -> tuple[str, Path]:
     normalized = unquote(rel_path).replace("\\", "/").lstrip("/")
     root = repo_root.resolve()
@@ -1694,6 +1708,7 @@ def _status_cache_ttl_seconds(name: str, *, poll_seconds: float = 0.0) -> float:
 VIEWER_MUTATING_ROUTES = frozenset(
     {
         "/api/edit",
+        "/api/save-doc",
         "/api/git-commit",
         "/api/git-fetch",
         "/api/open-file",
@@ -3382,6 +3397,18 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             rel_path = parse_qs(parsed.query).get("path", [""])[0]
             try:
                 self._send_json({"ok": True, "document": edit_doc_payload(self.server.repo_root, rel_path)})
+            except (FileNotFoundError, ValueError) as exc:
+                self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
+            except OSError as exc:
+                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+            return
+        if parsed.path == "/api/save-doc":
+            try:
+                body = self._read_json_body_strict()
+                payload = save_doc_payload(self.server.repo_root, str(body.get("path") or ""), str(body.get("content") or ""))
+                self._send_json({"ok": True, "payload": payload})
+            except json.JSONDecodeError:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
             except (FileNotFoundError, ValueError) as exc:
                 self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
             except OSError as exc:

@@ -1,13 +1,15 @@
 ## task_386_orchestrate_the_in_browser_document_editor_work - Orchestrate the in-browser document editor work
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Owner: claude
+> Indicators reviewed: 2026-08-15 18:51:46
 
 # AI Context
 - Summary: Sequences the in-browser editor work: build the screen and its write route, then wire a real save to the existing commit-offer mechanism.

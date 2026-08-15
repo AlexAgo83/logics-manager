@@ -67,6 +67,7 @@ from logics_manager.viewer import (
     open_repo_folder_payload,
     open_system_terminal_payload,
     read_doc_payload,
+    save_doc_payload,
     viewer_project_registry,
     viewer_project_capabilities,
     VIEWER_MUTATING_ROUTES,
@@ -212,6 +213,27 @@ def test_viewer_read_doc_rejects_paths_outside_repo(tmp_path: Path) -> None:
     assert "Demo" in payload["content"]
     with pytest.raises(ValueError):
         read_doc_payload(repo_root, "../outside.md")
+
+
+def test_viewer_save_doc_writes_changed_content_and_rejects_paths_outside_repo(tmp_path: Path) -> None:
+    """item_845 AC5/item_846 AC2: the write route validates a path the same way read/edit
+    already do, and reports whether anything actually changed so a no-op save can skip
+    the commit offer."""
+    repo_root = tmp_path
+    (repo_root / "logics" / "request").mkdir(parents=True)
+    doc_path = repo_root / "logics" / "request" / "req_001_demo.md"
+    doc_path.write_text("## req_001_demo - Demo\n", encoding="utf-8")
+
+    changed = save_doc_payload(repo_root, "logics/request/req_001_demo.md", "## req_001_demo - Demo\nEdited.\n")
+    assert changed == {"path": "logics/request/req_001_demo.md", "changed": True}
+    assert doc_path.read_text(encoding="utf-8") == "## req_001_demo - Demo\nEdited.\n"
+
+    # item_846 AC2: identical content is a no-op, not a rewrite.
+    no_op = save_doc_payload(repo_root, "logics/request/req_001_demo.md", "## req_001_demo - Demo\nEdited.\n")
+    assert no_op["changed"] is False
+
+    with pytest.raises(ValueError):
+        save_doc_payload(repo_root, "../outside.md", "anything")
 
 
 def test_viewer_edit_doc_launches_system_editor_for_repo_file(tmp_path: Path) -> None:
@@ -578,6 +600,7 @@ def test_fleet_capability_and_launch_intent_are_separate(tmp_path: Path) -> None
 def test_viewer_mutating_routes_registry_covers_every_state_changing_post() -> None:
     must_be_gated = {
         "/api/edit",
+        "/api/save-doc",
         "/api/open-file",
         "/api/open-repo-folder",
         "/api/bootstrap-logics",
@@ -3304,6 +3327,45 @@ def test_viewer_update_status_accepts_absolute_repo_path(tmp_path: Path) -> None
         assert payload["payload"]["path"] == "logics/request/req_001_demo.md"
         assert payload["payload"]["updated_indicators"] == {"Status": "Done"}
         assert "> Status: Done" in request_path.read_text(encoding="utf-8")
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
+def test_viewer_save_doc_route_writes_content_and_rejects_escaping_paths(tmp_path: Path) -> None:
+    """item_845: the write route the in-browser editor's Save action needs."""
+    request_path = tmp_path / "logics" / "request" / "req_001_demo.md"
+    request_path.parent.mkdir(parents=True)
+    request_path.write_text("## req_001_demo - Demo\n", encoding="utf-8")
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request(
+            "POST",
+            "/api/save-doc",
+            body=json.dumps({"path": "logics/request/req_001_demo.md", "content": "## req_001_demo - Demo\nEdited.\n"}),
+            headers={"Content-Type": "application/json"},
+        )
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+
+        assert response.status == 200
+        assert payload["ok"] is True
+        assert payload["payload"] == {"path": "logics/request/req_001_demo.md", "changed": True}
+        assert request_path.read_text(encoding="utf-8") == "## req_001_demo - Demo\nEdited.\n"
+
+        conn.request(
+            "POST",
+            "/api/save-doc",
+            body=json.dumps({"path": "../outside.md", "content": "anything"}),
+            headers={"Content-Type": "application/json"},
+        )
+        escape_response = conn.getresponse()
+        escape_response.read()
+        assert escape_response.status == 404
     finally:
         server.shutdown()
         server.server_close()

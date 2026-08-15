@@ -4462,6 +4462,38 @@
   resize: vertical;
 }
 
+.viewer-doc-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+}
+
+.viewer-doc-editor__path {
+  margin: 0;
+  color: var(--vscode-descriptionForeground, #999999);
+  font-family: var(--vscode-editor-font-family, ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+
+.viewer-doc-editor__textarea {
+  flex: 1;
+  min-height: 50vh;
+  resize: vertical;
+  font-family: var(--vscode-editor-font-family, ui-monospace, SFMono-Regular, Menlo, monospace);
+  white-space: pre;
+  padding: 10px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: var(--vscode-editor-background, #1e1e1e);
+  color: var(--vscode-editor-foreground, #d4d4d4);
+}
+
+.viewer-doc-editor__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .viewer-git-commit__error {
   color: var(--vscode-errorForeground, #f85149);
   font-size: 12px;

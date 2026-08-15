@@ -4,11 +4,11 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 60%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-15 01:42:32
+> Indicators reviewed: 2026-08-15 02:16:03
 > Owner: assistant
 
 # AI Context
@@ -18,10 +18,10 @@
 - Skip when: Any specific screen's internal content — this is navigation placement only.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
-- [ ] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
+- [x] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
 
 # Backlog
 - `item_792_move_runbooks_under_corpus_add_the_header_switch_to_corpus_screens`
@@ -31,15 +31,16 @@
 - AC2: Every Corpus screen carries the same header selection switch present on other top-level screens (e.g. Activity/Project).
 
 # Plan
-- [ ] Use `python3 -m logics_manager flow progress task task_363_move_runbooks_under_corpus_add_the_header_switch_to_corpus_screens.md --progress <n>%` during multi-wave work.
-- [ ] Run `python3 -m logics_manager flow finish task task_363_move_runbooks_under_corpus_add_the_header_switch_to_corpus_screens.md` after implementation.
+- [x] Use `python3 -m logics_manager flow progress task task_363_move_runbooks_under_corpus_add_the_header_switch_to_corpus_screens.md --progress <n>%` during multi-wave work.
+- [x] Run `python3 -m logics_manager flow finish task task_363_move_runbooks_under_corpus_add_the_header_switch_to_corpus_screens.md` after implementation.
 
 # Validation
-- `npx vitest run tests/viewer.browser-host.test.ts tests/webview.selectors.test.ts`: 229/229 passed, including 3 updated/new regression tests for the Runbooks move.
+- `npx vitest run tests/viewer.browser-host.test.ts tests/webview.selectors.test.ts`: 230/230 passed, including 4 updated/new regression tests for the Runbooks move and the Corpus mode switcher.
+- Visual confirmation via headless Chrome: the switcher renders at the top of Getting Started (and, by the same code path, Insights/Health/Runbooks), styled identically to the Git/CI/Release and CDX switchers, active tab highlighted.
 
 # Report
-- AC1 done: removed `runbooks` from `workshopTabs` (`clients/viewer/src/browser-host/constants.js`) so it drops out of the Workshop tab bar and nav menu automatically; added a `corpus:runbooks` entry to the Corpus nav group (`clients/viewer/index.html`) and a matching dispatcher branch (`clients/viewer/src/browser-host/index.js`). Added `showCorpusRunbooks()` (`clients/viewer/src/browser-host/workshop.js`), reusing `renderWorkshopPanel("runbooks")`/`loadWorkshopRunbooks` unchanged -- only the Workshop tab-bar wrapper is skipped.
-- AC2 (header selection switch on Corpus screens) not yet implemented: investigation found the Activity/Project switch (`#activity-toggle`) lives in the board's own toolbar row, which sits *behind* any open document panel (Settings, Getting Started, Insights, Health, and now Runbooks) at a lower z-index -- so it isn't that Corpus screens lack their own switch, it's that the one switch that exists is visually covered whenever any document panel is open, Corpus or not. Building a per-screen instance is a real design decision (what does toggling it do from inside Insights/Health/Runbooks?), not a mechanical copy -- flagged for the operator rather than guessed at.
+- AC1: removed `runbooks` from `workshopTabs` (`clients/viewer/src/browser-host/constants.js`) so it drops out of the Workshop tab bar and nav menu automatically; added a `corpus:runbooks` entry to the Corpus nav group (`clients/viewer/index.html`) and a matching dispatcher branch (`clients/viewer/src/browser-host/index.js`). Added `showCorpusRunbooks()` (`clients/viewer/src/browser-host/workshop.js`), reusing `renderWorkshopPanel("runbooks")`/`loadWorkshopRunbooks` unchanged -- only the Workshop tab-bar wrapper is skipped.
+- AC2: clarified directly by the operator -- the switch isn't the Activity/Project toggle, it's the same segmented mode-switcher pattern already used by Git/CI/Release (`renderCiModeSwitcher`) and CDX (`renderCdxModeSwitcher`), letting an operator move between a screen family's own sibling screens. Added `renderCorpusModeSwitcher(active)` (`clients/viewer/src/browser-host/util.js`), inserted at the top of each of the 4 Corpus screens' own markup (`buildCorpusInsights`/`renderHealthSummary`/`renderViewerOnboarding` in `index.js`/`render.js`, `showCorpusRunbooks` in `workshop.js`), and wired via a `data-viewer-corpus-mode` delegated click handler in `index.js`, mirroring `data-viewer-ci-mode`/`data-viewer-cdx-mode` exactly.
 
 # Links
 - Request: `req_359_viewer_redesign_mockups_gap_review_across_all_screens`
@@ -47,4 +48,4 @@
 - Architecture decision(s): (none yet)
 
 # AC Traceability
-- request-AC4 -> This task. Proof (AC1 half only): Runbooks reachable via `corpus:runbooks`, no longer via `workshop:runbooks`; verified by the regression tests "opens Runbooks from the Corpus menu as its own screen (task_363)", "no longer shows Runbooks in the Workshop tab bar (task_363)", and "opens Runbooks from Corpus and searches" in `tests/viewer.browser-host.test.ts`. AC2 (header switch) proof pending a design decision -- see Report.
+- request-AC4 -> This task. Proof: Runbooks reachable via `corpus:runbooks`, no longer via `workshop:runbooks` (regression tests "opens Runbooks from the Corpus menu as its own screen (task_363)", "no longer shows Runbooks in the Workshop tab bar (task_363)", "opens Runbooks from Corpus and searches"). The Corpus mode switcher lets an operator move between all 4 screens from any one of them (regression test "moves between Corpus screens via their shared header switch (task_363)"), mirroring the existing Git/CI/Release and CDX switcher pattern -- confirmed live via headless-Chrome screenshot.

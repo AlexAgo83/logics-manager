@@ -35,6 +35,7 @@ import {
   fetchWorkspacePreview,
   fetchWorkspaceTree,
   releaseWorkshopTerminalObserver,
+  renderCorpusModeSwitcher,
   workshopTerminalListNode,
   workshopTerminalPreferredFontSize,
   workshopTerminalStageNode,
@@ -1468,7 +1469,7 @@ export function createWorkshopScreen(host) {
   // renderWorkshopPanel("runbooks")/loadWorkshopRunbooks unchanged -- only the tab
   // bar wrapper (renderWorkshop) and the Workshop-specific dispatch are skipped.
   async function showCorpusRunbooks() {
-    host.setDocument("Runbooks", `<div class="viewer-workshop">${renderWorkshopPanel("runbooks")}</div>`);
+    host.setDocument("Runbooks", `<div class="viewer-workshop">${renderCorpusModeSwitcher("runbooks")}${renderWorkshopPanel("runbooks")}</div>`);
     host.setMeta("Runbooks: loading...");
     workshopRunbookState.includeHidden = workshopRunbookShowsHidden();
     await loadWorkshopRunbooks();

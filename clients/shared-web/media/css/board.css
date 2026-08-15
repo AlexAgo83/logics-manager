@@ -233,11 +233,21 @@
   width: calc(100% * var(--progress-ratio, 0));
   height: 3px;
   border-radius: 2px;
-  /* A calm teal "active" fill, not an orange flood that reads as a warning. Orange and red
-     stay reserved for health alerts. */
-  background: rgba(20, 184, 166, 0.85);
+  /* item_790 follow-up (reported directly by the operator, explicitly confirmed): the fill
+     was a flat teal regardless of the card's type -- originally deliberate, to keep a
+     request card's progress from reading as a health alert (orange/red are reserved for
+     that elsewhere). Now stage-coloured to match the accent and badges above, same tokens;
+     the teal here is only the fallback for a card with no known stage. */
+  background: color-mix(in srgb, var(--card-progress-color, #14b8a6) 85%, transparent);
   pointer-events: none;
 }
+
+.card[data-stage="request"] .card__title, .list-row[data-stage="request"] .card__title { --card-progress-color: var(--stage-color-request); }
+.card[data-stage="backlog"] .card__title, .list-row[data-stage="backlog"] .card__title { --card-progress-color: var(--stage-color-backlog); }
+.card[data-stage="task"] .card__title, .list-row[data-stage="task"] .card__title { --card-progress-color: var(--stage-color-task); }
+.card[data-stage="product"] .card__title, .list-row[data-stage="product"] .card__title { --card-progress-color: var(--stage-color-product); }
+.card[data-stage="architecture"] .card__title, .list-row[data-stage="architecture"] .card__title { --card-progress-color: var(--stage-color-architecture); }
+.card[data-stage="spec"] .card__title, .list-row[data-stage="spec"] .card__title { --card-progress-color: var(--stage-color-spec); }
 
 /* In a list row the bar sits inline with the title rather than under it: the row is 33px
    tall and has no space below the text to put it in. Right-aligned within the title's own
@@ -311,6 +321,27 @@
 .card__title-prefix[data-stage="product"] { color: var(--stage-color-product); }
 .card__title-prefix[data-stage="architecture"] { color: var(--stage-color-architecture); }
 .card__title-prefix[data-stage="spec"] { color: var(--stage-color-spec); }
+
+/* item_790 follow-up (reported directly by the operator): the complexity/date metric pill
+   was a flat grey regardless of the card's own type, on both card and list-row layouts.
+   Same stage tokens as the id prefix above. `.card__badge-metric-value`/`--complexity`/
+   `-prefix`/`-separator` each carry their own explicit colour already (needed here since
+   overriding only the pill's own `.card__badge--metric` does nothing -- colour is
+   inherited, and every one of those is a more specific rule that already wins). The age
+   segment (`.card__badge-age`) is deliberately excluded: its own greyed/amber-when-stale
+   colouring is a distinct, valuable signal that would be lost if this repainted it too. */
+.card[data-stage="request"] .card__badge-metric-value, .card[data-stage="request"] .card__badge-metric-value--complexity, .card[data-stage="request"] .card__badge-metric-prefix, .card[data-stage="request"] .card__badge-metric-separator,
+.list-row[data-stage="request"] .card__badge-metric-value, .list-row[data-stage="request"] .card__badge-metric-value--complexity, .list-row[data-stage="request"] .card__badge-metric-prefix, .list-row[data-stage="request"] .card__badge-metric-separator { color: var(--stage-color-request); }
+.card[data-stage="backlog"] .card__badge-metric-value, .card[data-stage="backlog"] .card__badge-metric-value--complexity, .card[data-stage="backlog"] .card__badge-metric-prefix, .card[data-stage="backlog"] .card__badge-metric-separator,
+.list-row[data-stage="backlog"] .card__badge-metric-value, .list-row[data-stage="backlog"] .card__badge-metric-value--complexity, .list-row[data-stage="backlog"] .card__badge-metric-prefix, .list-row[data-stage="backlog"] .card__badge-metric-separator { color: var(--stage-color-backlog); }
+.card[data-stage="task"] .card__badge-metric-value, .card[data-stage="task"] .card__badge-metric-value--complexity, .card[data-stage="task"] .card__badge-metric-prefix, .card[data-stage="task"] .card__badge-metric-separator,
+.list-row[data-stage="task"] .card__badge-metric-value, .list-row[data-stage="task"] .card__badge-metric-value--complexity, .list-row[data-stage="task"] .card__badge-metric-prefix, .list-row[data-stage="task"] .card__badge-metric-separator { color: var(--stage-color-task); }
+.card[data-stage="product"] .card__badge-metric-value, .card[data-stage="product"] .card__badge-metric-value--complexity, .card[data-stage="product"] .card__badge-metric-prefix, .card[data-stage="product"] .card__badge-metric-separator,
+.list-row[data-stage="product"] .card__badge-metric-value, .list-row[data-stage="product"] .card__badge-metric-value--complexity, .list-row[data-stage="product"] .card__badge-metric-prefix, .list-row[data-stage="product"] .card__badge-metric-separator { color: var(--stage-color-product); }
+.card[data-stage="architecture"] .card__badge-metric-value, .card[data-stage="architecture"] .card__badge-metric-value--complexity, .card[data-stage="architecture"] .card__badge-metric-prefix, .card[data-stage="architecture"] .card__badge-metric-separator,
+.list-row[data-stage="architecture"] .card__badge-metric-value, .list-row[data-stage="architecture"] .card__badge-metric-value--complexity, .list-row[data-stage="architecture"] .card__badge-metric-prefix, .list-row[data-stage="architecture"] .card__badge-metric-separator { color: var(--stage-color-architecture); }
+.card[data-stage="spec"] .card__badge-metric-value, .card[data-stage="spec"] .card__badge-metric-value--complexity, .card[data-stage="spec"] .card__badge-metric-prefix, .card[data-stage="spec"] .card__badge-metric-separator,
+.list-row[data-stage="spec"] .card__badge-metric-value, .list-row[data-stage="spec"] .card__badge-metric-value--complexity, .list-row[data-stage="spec"] .card__badge-metric-prefix, .list-row[data-stage="spec"] .card__badge-metric-separator { color: var(--stage-color-spec); }
 
 .card__title-text {
   min-width: 0;
@@ -685,43 +716,47 @@
   border-color: var(--vscode-focusBorder, #0e639c);
 }
 
-/* item_719/item_767: status on the accent, carried by shape as well as colour so the
-   ordering survives greyscale. The stage stays on the coloured ref prefix, which already
-   encodes it -- the column the card sits in says the stage anyway. */
-/* Captured at 1440x900 against the real corpus, a 3px accent lost to the progress fill,
-   which is a wide coloured block starting at the same edge. The accent is widened until it
-   reads beside that fill; the shapes below stay distinct so the ordering survives greyscale. */
+/* item_719/item_767: status on the accent, originally carried by shape AND colour so the
+   ordering survived greyscale, with stage left to the coloured ref prefix alone.
+   item_790 follow-up (reported directly by the operator, explicitly confirmed): the accent
+   was read as "just grey" on Draft cards -- the majority of a fresh board -- because status
+   owned the colour there and stage didn't reach it. Colour now carries the stage instead
+   (via the `data-stage` rules below, the same tokens as the ref prefix and the metric
+   badges); status keeps its own signal through the border's width/style only, which is
+   still enough to tell blocked/in-progress/ready/draft/done apart at a glance, greyscale or
+   not -- it just no longer also carries a colour of its own. Captured at 1440x900 against
+   the real corpus, a 3px accent lost to the progress fill, which is a wide coloured block
+   starting at the same edge; the widths below stay as they were for that reason. */
 .card[class*="card--status-"] {
   border-left-width: 5px;
   border-left-style: solid;
   border-left-color: var(--vscode-descriptionForeground, #6e7681);
 }
 
-.card--status-blocked {
-  border-left-color: var(--vscode-editorError-foreground, #f85149);
-}
-
 .card--status-progress {
-  border-left-color: var(--vscode-charts-blue, #58a6ff);
   border-left-style: double;
   border-left-width: 6px;
 }
 
 .card--status-ready {
-  border-left-color: var(--vscode-testing-iconPassed, #3fb950);
   border-left-style: dotted;
   border-left-width: 6px;
 }
 
 .card--status-draft {
-  border-left-color: var(--vscode-descriptionForeground, #6e7681);
   border-left-style: dashed;
 }
 
 .card--status-done {
-  border-left-color: var(--vscode-testing-iconPassed, #3fb950);
   border-left-width: 2px;
 }
+
+.card[data-stage="request"] { border-left-color: var(--stage-color-request); }
+.card[data-stage="backlog"] { border-left-color: var(--stage-color-backlog); }
+.card[data-stage="task"] { border-left-color: var(--stage-color-task); }
+.card[data-stage="product"] { border-left-color: var(--stage-color-product); }
+.card[data-stage="architecture"] { border-left-color: var(--stage-color-architecture); }
+.card[data-stage="spec"] { border-left-color: var(--stage-color-spec); }
 
 /* Age replaces the near-constant understanding/confidence pair on the card face. */
 .card__badge-age {

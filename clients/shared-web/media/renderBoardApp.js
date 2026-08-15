@@ -1048,6 +1048,7 @@
         card.style.setProperty("--progress-value", String(Math.round(clamped)));
       }
       card.dataset.id = item.id;
+      card.dataset.stage = item.stage;
       card.setAttribute("role", "button");
       card.tabIndex = 0;
       // item_719/AC6: the status accent is a colour and a border shape on the card's edge.
@@ -1312,6 +1313,7 @@
       // into rows the keyboard could not reach, which the existing tests caught.
       row.className = "card list-row" + (statusKey ? ` card--status-${statusKey}` : "") + (item.id === getSelectedId() ? " card--selected" : "");
       row.dataset.id = item.id;
+      row.dataset.stage = item.stage;
       row.setAttribute("role", "button");
       row.tabIndex = 0;
       const statusText = String((item.indicators && item.indicators.Status) || "").trim();

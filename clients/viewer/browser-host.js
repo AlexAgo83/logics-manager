@@ -898,6 +898,16 @@ ${entry?.message || ""}`;
       </div>
     `;
   }
+  function renderCorpusModeSwitcher(active) {
+    return `
+      <div class="viewer-cdx__modes viewer-corpus__modes" role="tablist" aria-label="Corpus views">
+        <button class="viewer-cdx__mode${active === "insights" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="insights" aria-selected="${active === "insights" ? "true" : "false"}">Insights</button>
+        <button class="viewer-cdx__mode${active === "health" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="health" aria-selected="${active === "health" ? "true" : "false"}">Health</button>
+        <button class="viewer-cdx__mode${active === "getting-started" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="getting-started" aria-selected="${active === "getting-started" ? "true" : "false"}">Getting Started</button>
+        <button class="viewer-cdx__mode${active === "runbooks" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="runbooks" aria-selected="${active === "runbooks" ? "true" : "false"}">Runbooks</button>
+      </div>
+    `;
+  }
   var ENVIRONMENT_WARNING_DISMISS_KEY = "logics.viewer.environmentWarningDismissed";
   function environmentWarningSignature(warning) {
     return `${warning.title || ""}::${warning.message || ""}`;
@@ -2290,6 +2300,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     const unavailable = healthData && healthData.ok === false ? `<section class="viewer-health__section"><div class="viewer-health__meta">Workflow health is unavailable: ${escapeHtml(healthData.error || "unknown error")}</div></section>` : "";
     return `
       <div class="viewer-health">
+        ${renderCorpusModeSwitcher("health")}
         ${verdictHtml}
         <div class="viewer-health__summary viewer-health__summary--strip">${cards}</div>
         <section class="viewer-health__section">
@@ -2998,6 +3009,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     `).join("");
     return `
       <div class="viewer-onboarding">
+        ${renderCorpusModeSwitcher("getting-started")}
         <header class="viewer-onboarding__header">
           <h1>Logics workflow map</h1>
           <p>Four stages, from the reason for the work to settling the documents it leaves behind. Read the one where this project has nothing yet.</p>
@@ -7398,7 +7410,7 @@ ${line}` : line;
       }
     }
     async function showCorpusRunbooks() {
-      host.setDocument("Runbooks", `<div class="viewer-workshop">${renderWorkshopPanel("runbooks")}</div>`);
+      host.setDocument("Runbooks", `<div class="viewer-workshop">${renderCorpusModeSwitcher("runbooks")}${renderWorkshopPanel("runbooks")}</div>`);
       host.setMeta("Runbooks: loading...");
       workshopRunbookState.includeHidden = workshopRunbookShowsHidden();
       await loadWorkshopRunbooks();
@@ -11156,6 +11168,7 @@ ${line}` : line;
       const primaryState = needsAttention > 0 ? `${needsAttention} signals need attention` : "No immediate workflow risk detected";
       return `
       <div class="viewer-insights">
+        ${renderCorpusModeSwitcher("insights")}
         <section class="viewer-insights__hero">
           <div>
             <h2>Overview</h2>
@@ -12040,6 +12053,7 @@ ${shown.join("\n")}${files.length > shown.length ? `
         const projectPickTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-pick]") : null;
         const ciModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-ci-mode]") : null;
         const cdxModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mode]") : null;
+        const corpusModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-corpus-mode]") : null;
         const cdxMemoryScopeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-memory-scope]") : null;
         const cdxMemoryViewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-memory-view]") : null;
         const cdxBackRunsTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-back-runs]") : null;
@@ -12192,6 +12206,19 @@ ${shown.join("\n")}${files.length > shown.length ? `
             withPrimaryAction("ci-runs", "Checking CI status", showCiStatus);
           } else {
             withPrimaryAction("ci-git", "Checking Git status", () => showGitStatus());
+          }
+          return;
+        }
+        if (corpusModeTarget instanceof HTMLElement) {
+          const mode = corpusModeTarget.getAttribute("data-viewer-corpus-mode") || "insights";
+          if (mode === "health") {
+            withPrimaryAction("corpus-health", "Checking health", showHealth);
+          } else if (mode === "getting-started") {
+            showGettingStarted();
+          } else if (mode === "runbooks") {
+            withPrimaryAction("corpus-runbooks", "Loading runbooks", showCorpusRunbooks);
+          } else {
+            withPrimaryAction("corpus-insights", "Loading insights", showCorpusInsights);
           }
           return;
         }

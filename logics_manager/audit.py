@@ -16,6 +16,7 @@ from .doc_parsing import extract_refs, indicator_value, progress_value, section_
 from .flow_evidence import (
     has_ac_proof as _has_ac_with_proof,
     has_ac_traceability_line as _has_ac_traceability_line,
+    SHARED_PROOF_MARKER,
     duplicate_proof_ac_groups as _duplicate_proof_ac_groups,
     invalid_backs_references as _invalid_backs_references,
     unbacked_local_ac_ids as _unbacked_local_ac_ids,
@@ -925,7 +926,9 @@ def _duplicate_proof_issues(docs: dict[str, DocMeta], cutoff) -> list[AuditIssue
                     path=doc.path,
                     message=(
                         f"{len(group)} criteria cite the same proof text ({named}) -- "
-                        "confirm this is a shared implementation wave, not a shifted or copy-pasted proof"
+                        "confirm this is a shared implementation wave, not a shifted or copy-pasted proof "
+                        f"(if it is deliberate, record it once with `{SHARED_PROOF_MARKER} "
+                        f"{', '.join(group)}`)"
                     ),
                     severity="warning",
                 )

@@ -807,8 +807,6 @@ def test_flow_show_prints_a_link_when_a_viewer_is_running(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     """item_832 AC1: `flow show <ref>` prints a link that opens that document."""
-    from types import SimpleNamespace
-
     from logics_manager import viewer_docs
 
     repo_root = tmp_path / "logics-repo"

@@ -496,8 +496,6 @@ def test_previewing_fixes_reports_what_would_change_and_writes_nothing(tmp_path:
     button actually does, so `audit_payload` takes a dry-run flag: the same walk, reporting
     instead of writing.
     """
-    from logics_manager.audit import audit_payload
-
     repo = tmp_path
     (repo / "logics" / "request").mkdir(parents=True)
     doc = repo / "logics" / "request" / "req_001_thing.md"

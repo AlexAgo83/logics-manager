@@ -12,6 +12,57 @@
   box-sizing: border-box;
 }
 
+/* item_803: every scrollable region rendered the browser/OS default scrollbar, so the look
+   -- and whether a track was painted at all -- changed with the platform, on a surface that
+   otherwise paints all of its own chrome.
+
+   Declared once here rather than per scrollable region: this file is the only stylesheet
+   both hosts load (the standalone viewer's index.html and clients/vscode's webview HTML),
+   and `*` reaches containers added later without anyone remembering to opt them in.
+
+   Both mechanisms are declared on purpose, and they do not stack: Chromium 121+ ignores the
+   `::-webkit-scrollbar` pseudo-elements once `scrollbar-width`/`scrollbar-color` are set, so
+   modern Chrome and the VS Code webview take the standard properties while older Chromium
+   and Safari take the -webkit- block. Both paths land on the same result -- a thin thumb and
+   a track that paints nothing.
+
+   The colours prefer VS Code's own slider tokens, which are already theme-correct and
+   translucent; the fallback is a neutral grey at low alpha, which reads on a light and a
+   dark background alike, since a standalone browser defines no such token. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--vscode-scrollbarSlider-background, rgba(128, 128, 128, 0.35)) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* AC2: the track, its corner, and the buttons all paint nothing. Without the button rule
+   Chromium reserves and draws the little stepper arrows at each end. */
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-button {
+  display: none;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--vscode-scrollbarSlider-background, rgba(128, 128, 128, 0.35));
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--vscode-scrollbarSlider-hoverBackground, rgba(128, 128, 128, 0.55));
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: var(--vscode-scrollbarSlider-activeBackground, rgba(128, 128, 128, 0.7));
+}
+
 html {
   height: 100%;
   max-height: 100%;

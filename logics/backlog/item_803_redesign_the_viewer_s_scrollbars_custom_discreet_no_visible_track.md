@@ -1,10 +1,10 @@
 ## item_803_redesign_the_viewer_s_scrollbars_custom_discreet_no_visible_track - Redesign the viewer's scrollbars: custom, discreet, no visible track
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -60,6 +60,7 @@ As an operator, I need the scrollbar's track to never show its own background --
 - Hybrid rationale: Derived from request `req_363_redesign_the_viewer_s_scrollbars_custom_discreet_no_visible_track` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_363_redesign_the_viewer_s_scrollbars_custom_discreet_no_visible_track.md`.
 - Generated locally by logics-manager.
+- Task `task_374_redesign_the_viewer_s_scrollbars_custom_discreet_no_visible_track` was finished via `logics-manager flow finish task` on 2026-08-15.
 
 # Tasks
 - `task_374_redesign_the_viewer_s_scrollbars_custom_discreet_no_visible_track`

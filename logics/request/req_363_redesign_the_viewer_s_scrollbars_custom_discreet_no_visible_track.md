@@ -1,7 +1,7 @@
 ## req_363_redesign_the_viewer_s_scrollbars_custom_discreet_no_visible_track - Redesign the viewer's scrollbars: custom, discreet, no visible track
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 85%
 > Confidence: 80%
 > Complexity: Medium

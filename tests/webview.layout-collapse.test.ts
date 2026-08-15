@@ -400,19 +400,22 @@ describe("webview collapsed details layout behavior", () => {
     const boardRules = css.match(/\.board\s*\{[^}]+\}/g) || [];
     const boardRule = boardRules.find((rule) => rule.includes("overflow-x: auto;")) || "";
     const hiddenBoardRule = getCssRule(css, ".board[hidden]");
-    const boardListRule = css.match(/\.board--list\s*\{[^}]+\}/)?.[0] || "";
-    const columnRule = css.match(/\.column\s*\{[^}]+\}/)?.[0] || "";
-    const cardRule = css.match(/\.card\s*\{[^}]+\}/)?.[0] || "";
-    const titleRule = css.match(/\.card__title\s*\{[^}]+\}/)?.[0] || "";
+    // Anchored to the start of a line: unanchored, `.card__title` also matches the tail of
+    // `.card--progress-bar .card__title`, and once item_790 added that rule above the bare
+    // one this test read the wrong body and failed on CSS that was never touched.
+    const boardListRule = css.match(/^\.board--list\s*\{[^}]+\}/m)?.[0] || "";
+    const columnRule = css.match(/^\.column\s*\{[^}]+\}/m)?.[0] || "";
+    const cardRule = css.match(/^\.card\s*\{[^}]+\}/m)?.[0] || "";
+    const titleRule = css.match(/^\.card__title\s*\{[^}]+\}/m)?.[0] || "";
     // item_720 retired the inline preview whose value rows this used to check. Supporting-doc
     // text now lands in the reference index, which is the surface that must not widen.
-    const indexRule = css.match(/\.companion-index__list\s*\{[^}]+\}/)?.[0] || "";
+    const indexRule = css.match(/^\.companion-index__list\s*\{[^}]+\}/m)?.[0] || "";
     // Reported by the operator: entries ran off the bottom of the reference index with no
     // way to follow them. It shipped with `grid-column: 1 / -1` and .board is a flex row,
     // so the rule did nothing, the index sized to its content, and .board's
     // `overflow-y: hidden` clipped the rest away without a scrollbar.
-    const indexBodyRule = css.match(/\.companion-index__body\s*\{[^}]+\}/)?.[0] || "";
-    const indexRootRule = css.match(/\.companion-index\s*\{[^}]+\}/)?.[0] || "";
+    const indexBodyRule = css.match(/^\.companion-index__body\s*\{[^}]+\}/m)?.[0] || "";
+    const indexRootRule = css.match(/^\.companion-index\s*\{[^}]+\}/m)?.[0] || "";
 
     expect(boardRule.includes("overflow-x: auto;")).toBe(true);
     expect(boardRule.includes("overflow-y: hidden;")).toBe(true);
@@ -559,5 +562,37 @@ describe("webview collapsed details layout behavior", () => {
     expect(details?.classList.contains("details--collapsed")).toBe(true);
     expect(splitter?.getAttribute("aria-disabled")).toBe("true");
     expect(splitter?.tabIndex).toBe(-1);
+  });
+});
+
+describe("the scrollbar is the viewer's own, on every host", () => {
+  const css = readCssBundle("clients/shared-web/media/main.css");
+
+  it("declares the scrollbar once, globally, in the stylesheet both hosts load", () => {
+    // item_803: declared on `*` in main.css rather than per scrollable region, because this
+    // is the only stylesheet loaded by both the standalone viewer (clients/viewer/index.html)
+    // and the VS Code webview (clients/vscode/src/logicsWebviewHtml.ts) -- which is what AC3
+    // asks for. A per-screen rule would leave whichever host or container was forgotten on
+    // the browser default.
+    expect(css).toMatch(/\*\s*\{[^}]*scrollbar-width:\s*thin/);
+    expect(css).toMatch(/\*::-webkit-scrollbar\s*\{/);
+
+    const viewerHtml = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
+    const webviewHtml = fs.readFileSync(path.resolve(process.cwd(), "clients/vscode/src/logicsWebviewHtml.ts"), "utf8");
+    expect(viewerHtml).toContain("/media/main.css");
+    expect(webviewHtml).toContain('mediaUri("main.css")');
+  });
+
+  it("paints a thumb and never a track", () => {
+    // AC2. `scrollbar-color` takes `<thumb> <track>`: the second value is the one that must
+    // stay transparent, and a rule that sets only the thumb reads as done.
+    const standard = css.match(/scrollbar-color:\s*([^;]+);/)?.[1] || "";
+    expect(standard).toContain("transparent");
+
+    // The track shares a grouped selector with the corner, so the rule is matched from the
+    // selector list rather than looked up by an exact single selector.
+    const track = css.match(/\*::-webkit-scrollbar-track[^{]*\{([^}]+)\}/)?.[1] || "";
+    expect(track).toContain("transparent");
+    expect(css).toMatch(/\*::-webkit-scrollbar-thumb\s*\{[^}]*background:/);
   });
 });

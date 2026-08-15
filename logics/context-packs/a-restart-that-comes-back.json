@@ -1,0 +1,615 @@
+{
+  "budgets": {
+    "max_docs": 16,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_370_make_settings_restart_bring_the_viewer_back item_828_let_the_restart_rebind_its_own_port item_829_stop_the_registry_advertising_a_viewer_that_is_gone task_381_orchestrate_the_restart_fix --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_365_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "prod": [
+          "prod_005_logics_corpus_navigation_views",
+          "prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api",
+          "prod_015_cli_product_maturity_roadmap",
+          "prod_020_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "req": [
+          "req_201_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "task": [
+          "task_166_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ]
+      },
+      "path": "logics/product/prod_020_local_web_viewer_for_cli_driven_logics_work.md",
+      "ref": "prod_020_local_web_viewer_for_cli_driven_logics_work",
+      "sections": {
+        "Goals": [
+          "- Add a CLI-launched local viewer command, for example `logics-manager view` or `logics-manager serve-view`.",
+          "- Open a browser page that shows the Logics board, document details, relationships, status indicators, and markdown content.",
+          "- Reuse the existing webview assets and behavior where practical instead of creating a separate UI model.",
+          "- Introduce a clean host adapter boundary so the same UI can run under VS Code or under a local browser server.",
+          "- Keep the first version read-only by default so the feature is useful without creating mutation risk.",
+          "- Expose simple local API endpoints for corpus data, document reads, lint/audit summaries, and refresh signals."
+        ],
+        "Key product decisions": [
+          "- Treat the viewer as a visual companion to the CLI, not a replacement for either CLI or VS Code.",
+          "- Start read-only, then add bounded actions only after the host adapter and API boundary are stable.",
+          "- Keep dangerous or mutating work in the terminal for the first version.",
+          "- Prefer a browser local server over a rich terminal TUI because document navigation, board scanning, and markdown reading benefit from real layout, links, and persistent UI state.",
+          "- Reuse the existing webview implementation through a browser host adapter instead of maintaining a parallel UI.",
+          "- Keep the local API intentionally small: corpus data, document content, validation summaries, and refresh."
+        ],
+        "Overview": [
+          "Logics has become usable from the CLI, but the operator still loses the visual scanability that makes the VS Code webview useful.",
+          "The product opportunity is a local browser viewer launched from the CLI: a lightweight, local-only web surface that lets an operator inspect the Logics corpus, board, details, links, audits, and document content without opening VS Code.",
+          "The direction is not to recreate VS Code in the browser.",
+          "It is to make the existing webview experience portable through a small host adapter and a local server.",
+          "The CLI remains the canonical command surface, while the browser viewer becomes a visual companion for reading, scanning, and eventually triggering bounded actions.",
+          "The intended product feeling is: the operator keeps using the CLI, but can open a local visual cockpit when the workflow becomes too document-heavy for terminal output alone."
+        ],
+        "References": [
+          "- `logics/request/req_201_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/backlog/item_365_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/tasks/task_166_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/product/prod_005_logics_corpus_navigation_views.md`",
+          "- `logics/product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md`",
+          "- `logics/product/prod_015_cli_product_maturity_roadmap.md`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Local web viewer for CLI-driven Logics work"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_828_let_the_restart_rebind_its_own_port",
+          "item_829_stop_the_registry_advertising_a_viewer_that_is_gone"
+        ],
+        "prod": [
+          "prod_101_a_restart_that_comes_back"
+        ],
+        "req": [
+          "req_370_make_settings_restart_bring_the_viewer_back"
+        ],
+        "task": [
+          "task_381_orchestrate_the_restart_fix"
+        ]
+      },
+      "path": "logics/product/prod_101_a_restart_that_comes_back.md",
+      "ref": "prod_101_a_restart_that_comes_back",
+      "sections": {
+        "Goals": [
+          "- A control in the product does what it says or is not there.",
+          "- The one-viewer-per-port guarantee holds on every platform, for the reason it was made.",
+          "- The registry describes what is running, not what was."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the restart control in Settings do what its label says, without giving up the guarantee that one port carries one viewer."
+        ],
+        "References": [
+          "- Product back-reference: `req_370_make_settings_restart_bring_the_viewer_back`",
+          "- Task back-reference: `task_381_orchestrate_the_restart_fix`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "A restart that comes back"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "adr": [
+          "adr_016_use_generated_corpus_index_and_relationship_views_for_logics_navigation"
+        ],
+        "item": [
+          "item_257_generated_corpus_index_and_relationship_views"
+        ],
+        "prod": [
+          "prod_005_logics_corpus_navigation_views"
+        ],
+        "req": [
+          "req_134_generated_corpus_index_and_relationship_views"
+        ],
+        "task": [
+          "task_117_generated_corpus_index_and_relationship_views"
+        ]
+      },
+      "path": "logics/product/prod_005_logics_corpus_navigation_views.md",
+      "ref": "prod_005_logics_corpus_navigation_views",
+      "sections": {
+        "Goals": [
+          "- Make the corpus easier to browse than a raw directory tree",
+          "- Surface the most important relationships and clusters at a glance",
+          "- Preserve the repo as the source of truth while making discovery cheaper"
+        ],
+        "Key product decisions": [
+          "- Prefer generated views over manually curated navigation pages",
+          "- Keep the surface repo-native and diffable instead of introducing a hidden index store",
+          "- Optimize for scanability and trust, not for visual complexity"
+        ],
+        "Overview": [
+          "The Logics corpus has outgrown ad hoc directory browsing.",
+          "The product direction is a generated navigation layer that makes the corpus feel searchable, inspectable, and connected from one maintained surface.",
+          "The user value is faster discovery of the right doc, fewer context switches, and less time spent reconstructing relationships manually.",
+          "The expected outcome is a corpus navigation experience that scales with repo growth instead of becoming a maintenance tax.",
+          "```mermaid",
+          "flowchart LR"
+        ],
+        "References": [
+          "- `logics/request/req_134_generated_corpus_index_and_relationship_views.md`",
+          "- `logics/backlog/item_257_generated_corpus_index_and_relationship_views.md`",
+          "- `logics/tasks/task_117_generated_corpus_index_and_relationship_views.md`",
+          "- `logics/architecture/adr_016_use_generated_corpus_index_and_relationship_views_for_logics_navigation.md`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Logics corpus navigation views"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "adr": [
+          "adr_012_keep_the_vs_code_plugin_as_a_thin_client_over_shared_hybrid_runtime_commands",
+          "adr_013_replace_repo_local_codex_workspace_overlays_with_a_global_published_logics_kit"
+        ],
+        "item": [
+          "item_339_integrate_the_runtime_into_cdx_logics_vscode_and_remove_the_skills_checkout",
+          "item_340_package_logics_manager_as_a_polished_installable_cli",
+          "item_341_generate_assistant_bridges_and_instructions_from_the_integrated_runtime",
+          "item_342_remove_the_legacy_logics_skills_submodule_and_manual_bootstrap_path",
+          "item_343_eliminate_legacy_cdx_logics_kit_compatibility_surfaces_from_the_extension_runtime",
+          "item_344_add_an_npm_distribution_surface_for_logics_manager"
+        ],
+        "prod": [
+          "prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api"
+        ],
+        "req": [
+          "req_069_add_an_operator_facing_logics_codex_workspace_manager_cli",
+          "req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit",
+          "req_095_adapt_the_vs_code_logics_plugin_to_expose_hybrid_assist_runtime_status_actions_audit_and_cross_agent_messaging",
+          "req_188_unify_logics_into_a_bundled_cli_and_integrated_runtime"
+        ],
+        "task": [
+          "task_148_integrate_the_runtime_into_cdx_logics_vscode_and_remove_the_skills_checkout",
+          "task_149_package_logics_manager_as_a_polished_installable_cli",
+          "task_150_generate_assistant_bridges_and_instructions_from_the_integrated_runtime"
+        ]
+      },
+      "path": "logics/product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md",
+      "ref": "prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api",
+      "sections": {
+        "Goals": [
+          "- Provide a CLI that can do everything the plugin can do today, without requiring the plugin.",
+          "- Make the CLI the canonical place for workflow and runtime behavior, not a second implementation.",
+          "- Expose a stable, machine-readable contract so the plugin can delegate to the CLI instead of mirroring logic in TypeScript.",
+          "- Support the full Logics kit surface through the same CLI contract, including repo bootstrap, validation, workflow operations, runtime diagnostics, release-oriented actions, and every other supported kit capability.",
+          "- Eliminate the standalone `cdx-logics-kit` dependency by integrating the runtime into `cdx-logics-vscode` directly.",
+          "- Preserve behavior across the migration so the new integrated runtime is a drop-in replacement, not a partial port."
+        ],
+        "Key product decisions": [
+          "- The CLI is the source of truth for Logics operations.",
+          "- The VS Code plugin should remain a full UX client over the CLI, not a second workflow engine.",
+          "- Every user-facing Logics capability should be reachable from the CLI, even when a plugin surface also exists.",
+          "- The CLI must include all kit maintenance and repair commands, not only day-to-day workflow actions.",
+          "- CLI commands should favor stable verbs, structured outputs, and clear failure modes so they can be embedded by other tools.",
+          "- The CLI should support both human-readable text and stable JSON output everywhere that automation needs it."
+        ],
+        "Overview": [
+          "Logics should have one stable CLI that can be used with or without the VS Code plugin.",
+          "The CLI should become the canonical operator API for the Logics runtime, with the plugin acting as a full UX client that delegates runtime execution instead of reimplementing workflow logic.",
+          "The target binary name is `logics-manager`.",
+          "In the final state, the Logics runtime code should live directly inside `cdx-logics-vscode`, and the standalone `cdx-logics-kit` dependency should no longer be required as a separate repo boundary for normal usage.",
+          "The repository should be able to function without `cdx-logics-kit` at all once the migration is complete.",
+          "Once functional, `logics-manager` should be distributable through both `pip` and `npm`."
+        ],
+        "References": [
+          "- `README.md`",
+          "- `logics/request/req_069_add_an_operator_facing_logics_codex_workspace_manager_cli.md`",
+          "- `logics/request/req_085_add_repo_config_runtime_entrypoints_and_transactional_scaling_primitives_to_the_logics_kit.md`",
+          "- `logics/request/req_095_adapt_the_vs_code_logics_plugin_to_expose_hybrid_assist_runtime_status_actions_audit_and_cross_agent_messaging.md`",
+          "- `logics/architecture/adr_012_keep_the_vs_code_plugin_as_a_thin_client_over_shared_hybrid_runtime_commands.md`",
+          "- `logics/architecture/adr_013_replace_repo_local_codex_workspace_overlays_with_a_global_published_logics_kit.md`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Logics CLI as the primary operator surface and unified runtime API"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_361_mature_cli_product_contracts"
+        ],
+        "prod": [
+          "prod_013_cli_primary_usage_audit_and_hardening",
+          "prod_014_cli_mutation_safety_and_automation_contract",
+          "prod_015_cli_product_maturity_roadmap"
+        ],
+        "req": [
+          "req_197_mature_cli_product_contracts"
+        ],
+        "task": [
+          "task_162_mature_cli_product_contracts"
+        ]
+      },
+      "path": "logics/product/prod_015_cli_product_maturity_roadmap.md",
+      "ref": "prod_015_cli_product_maturity_roadmap",
+      "sections": {
+        "Goals": [
+          "- Define the official `--format json` contract across all commands: JSON only on stdout, human diagnostics elsewhere.",
+          "- Centralize CLI output rendering so future commands do not reintroduce mixed stdout or duplicated side effects.",
+          "- Document supported input forms for workflow targets: ref, repo-relative path, and absolute path inside the repo.",
+          "- Decide and enforce policy for configured paths in `logics.yaml`, especially cache and log destinations.",
+          "- Add subprocess-level tests for the npm wrapper and installed-style CLI execution.",
+          "- Create linked request, backlog, and task docs for CLI hardening so the product briefs are traceable."
+        ],
+        "Key product decisions": [
+          "- Treat `--format json` as a stable automation API, not a best-effort display mode.",
+          "- Prefer one shared renderer for command payloads and one shared path policy helper for file boundaries.",
+          "- Keep absolute paths supported only when they resolve inside the current repository.",
+          "- Make configured external paths explicit product decisions rather than accidental behavior.",
+          "- Use transaction-like mutation planning for multi-file writes: validate all targets first, then write.",
+          "- Make ID allocation collision-aware so concurrent CLI or agent calls cannot silently overwrite each other."
+        ],
+        "Overview": [
+          "The CLI hardening work closed the immediate safety and automation gaps. The next product step is to make the CLI mature as a long-lived primary surface: documented contracts, shared rendering primitives, stronger mutation guarantees, and traceable Logics planning.",
+          "This brief captures the roadmap after the urgent fixes. The intent is to move from \"the CLI is safe enough to use\" to \"the CLI is predictable, documented, testable, and resilient under repeated manual, scripted, and agent-driven use.\"",
+          "```mermaid",
+          "%% logics-kind: product",
+          "%% logics-signature: product|cli-maturity|roadmap",
+          "flowchart TD"
+        ],
+        "References": [
+          "- Product back-reference: `item_361_mature_cli_product_contracts`",
+          "- Task back-reference: `task_162_mature_cli_product_contracts`",
+          "- Builds on `prod_013_cli_primary_usage_audit_and_hardening`.",
+          "- Builds on `prod_014_cli_mutation_safety_and_automation_contract`.",
+          "- Follow-up area: shared CLI renderer and stdout policy.",
+          "- Follow-up area: configured path policy for logs and caches."
+        ]
+      },
+      "status": "Settled",
+      "title": "CLI product maturity roadmap"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "settings, restart, bring, viewer, back",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_828_let_the_restart_rebind_its_own_port",
+          "item_829_stop_the_registry_advertising_a_viewer_that_is_gone"
+        ],
+        "prod": [
+          "prod_020_local_web_viewer_for_cli_driven_logics_work",
+          "prod_101_a_restart_that_comes_back"
+        ],
+        "req": [
+          "req_370_make_settings_restart_bring_the_viewer_back"
+        ]
+      },
+      "path": "logics/request/req_370_make_settings_restart_bring_the_viewer_back.md",
+      "ref": "req_370_make_settings_restart_bring_the_viewer_back",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Restarting from Settings brings the viewer back on the same address, and a request made after the restart is answered.",
+          "- AC2: A second viewer on a port that already has a live listener is still refused, on POSIX and on Windows.",
+          "- AC3: A registry entry naming a viewer that is gone does not survive as a live claim.",
+          "- AC4: The restart behaviour is covered by a test that fails if the viewer stops coming back, rather than by a note."
+        ],
+        "Needs": [
+          "- As an operator pressing Restart in Settings, I need the viewer to come back on the address I am already looking at, not to disappear.",
+          "- As an operator, I need the viewer registry to stop advertising a viewer that is no longer there."
+        ]
+      },
+      "status": "Draft",
+      "title": "Make Settings' restart bring the viewer back"
+    },
+    {
+      "ai_context": {
+        "keywords": "let, restart, rebind, own, port",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_828_let_the_restart_rebind_its_own_port"
+        ],
+        "prod": [
+          "prod_101_a_restart_that_comes_back"
+        ],
+        "req": [
+          "req_370_make_settings_restart_bring_the_viewer_back"
+        ],
+        "task": [
+          "task_381_orchestrate_the_restart_fix"
+        ]
+      },
+      "path": "logics/backlog/item_828_let_the_restart_rebind_its_own_port.md",
+      "ref": "item_828_let_the_restart_rebind_its_own_port",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: After a restart, a request to the same address is answered.",
+          "- AC2: Starting a second viewer on a port with a live listener still fails with the same message.",
+          "- AC3: The platform difference is stated where the value is set, so the next reader does not undo it."
+        ],
+        "Problem": [
+          "- `allow_reuse_address = False` on every platform also refuses the one case SO_REUSEADDR exists for: rebinding a port whose only occupant is the TIME_WAIT of the connection that just asked for the restart.",
+          "- So Settings' Restart re-execs into an EADDRINUSE exit and the viewer is gone, on the address the operator is looking at."
+        ]
+      },
+      "status": "Ready",
+      "title": "Let the restart rebind its own port"
+    },
+    {
+      "ai_context": {
+        "keywords": "registry, advertising, viewer, gone",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_829_stop_the_registry_advertising_a_viewer_that_is_gone"
+        ],
+        "prod": [
+          "prod_101_a_restart_that_comes_back"
+        ],
+        "req": [
+          "req_370_make_settings_restart_bring_the_viewer_back"
+        ],
+        "task": [
+          "task_381_orchestrate_the_restart_fix"
+        ]
+      },
+      "path": "logics/backlog/item_829_stop_the_registry_advertising_a_viewer_that_is_gone.md",
+      "ref": "item_829_stop_the_registry_advertising_a_viewer_that_is_gone",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A claim naming a port that answers nothing is not treated as a running viewer.",
+          "- AC2: The behaviour is covered by a test rather than by a probe timeout nobody reads."
+        ],
+        "Problem": [
+          "- A viewer that dies on a failed rebind leaves its claim in `viewers.json`, so the file names a port with nothing behind it.",
+          "- That file is what `view` reads to reuse a running viewer and what an assistant reads to write a link, so a stale claim produces a dead link and a reuse message for a viewer that is not there."
+        ]
+      },
+      "status": "Ready",
+      "title": "Stop the registry advertising a viewer that is gone"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_365_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "prod": [
+          "prod_005_logics_corpus_navigation_views",
+          "prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api",
+          "prod_015_cli_product_maturity_roadmap",
+          "prod_020_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "req": [
+          "req_201_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "task": [
+          "task_166_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ]
+      },
+      "path": "logics/product/prod_020_local_web_viewer_for_cli_driven_logics_work.md",
+      "ref": "prod_020_local_web_viewer_for_cli_driven_logics_work",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Settled",
+      "title": "Local web viewer for CLI-driven Logics work"
+    },
+    {
+      "ai_context": {
+        "keywords": "orchestrate, restart, fix",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_828_let_the_restart_rebind_its_own_port",
+          "item_829_stop_the_registry_advertising_a_viewer_that_is_gone"
+        ],
+        "prod": [
+          "prod_101_a_restart_that_comes_back"
+        ],
+        "req": [
+          "req_370_make_settings_restart_bring_the_viewer_back"
+        ],
+        "task": [
+          "task_381_orchestrate_the_restart_fix"
+        ]
+      },
+      "path": "logics/tasks/task_381_orchestrate_the_restart_fix.md",
+      "ref": "task_381_orchestrate_the_restart_fix",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the restart fix"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_828_let_the_restart_rebind_its_own_port",
+          "item_829_stop_the_registry_advertising_a_viewer_that_is_gone"
+        ],
+        "prod": [
+          "prod_101_a_restart_that_comes_back"
+        ],
+        "req": [
+          "req_370_make_settings_restart_bring_the_viewer_back"
+        ],
+        "task": [
+          "task_381_orchestrate_the_restart_fix"
+        ]
+      },
+      "path": "logics/product/prod_101_a_restart_that_comes_back.md",
+      "ref": "prod_101_a_restart_that_comes_back",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "A restart that comes back"
+    }
+  ],
+  "estimates": {
+    "char_count": 20580,
+    "companion_doc_count": 5,
+    "doc_count": 6
+  },
+  "generated_at": "2026-08-15T13:52:47Z",
+  "handoff": {
+    "companion_doc_count": 5,
+    "enabled": true,
+    "source_refs": [
+      "req_370_make_settings_restart_bring_the_viewer_back",
+      "item_828_let_the_restart_rebind_its_own_port",
+      "item_829_stop_the_registry_advertising_a_viewer_that_is_gone",
+      "task_381_orchestrate_the_restart_fix"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_370_make_settings_restart_bring_the_viewer_back,item_828_let_the_restart_rebind_its_own_port,item_829_stop_the_registry_advertising_a_viewer_that_is_gone,task_381_orchestrate_the_restart_fix",
+  "refs": [
+    "req_370_make_settings_restart_bring_the_viewer_back",
+    "item_828_let_the_restart_rebind_its_own_port",
+    "item_829_stop_the_registry_advertising_a_viewer_that_is_gone",
+    "task_381_orchestrate_the_restart_fix"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_381_orchestrate_the_restart_fix.md",
+      "ref": "task_381_orchestrate_the_restart_fix"
+    }
+  ]
+}

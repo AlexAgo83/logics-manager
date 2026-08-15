@@ -29,6 +29,28 @@ def test_viewer_bind_collision_raises_a_clear_actionable_error(tmp_path: Path) -
         blocker.server_close()
 
 
+def test_a_viewer_can_rebind_the_port_its_own_restart_released(tmp_path: Path) -> None:
+    """item_828: `allow_reuse_address = False` on every platform also refused the one case
+    SO_REUSEADDR exists for.
+
+    Settings' Restart re-execs while the connection that carried the restart request is
+    still in TIME_WAIT on that port, so the bind failed and the viewer died instead of
+    coming back -- reproduced over HTTP on ports 8793 and 8794. On POSIX, SO_REUSEADDR does
+    not let a second process bind a port with a live listener, so the collision guarantee
+    above does not depend on refusing this.
+    """
+    first = create_viewer_server(tmp_path, host="127.0.0.1", port=0)
+    port = first.server_port
+    first.server_close()
+
+    # The same process the re-exec becomes, taking the port it just released.
+    second = create_viewer_server(tmp_path, host="127.0.0.1", port=port)
+    try:
+        assert second.server_port == port
+    finally:
+        second.server_close()
+
+
 def test_mcp_serve_http_bind_collision_raises_a_clear_actionable_error(tmp_path: Path) -> None:
     (tmp_path / "logics").mkdir()
     blocker, port = _bind_a_blocking_listener()

@@ -1706,7 +1706,13 @@ class LogicsViewerServer(ThreadingHTTPServer):
     # at all there, so the EADDRINUSE handling below never ran. Disabling it
     # trades away instant-restart-after-crash convenience for the one-viewer-
     # per-port guarantee actually holding on every platform.
-    allow_reuse_address = False
+    # item_828: `False` everywhere also refused the one case SO_REUSEADDR exists for, and
+    # the price turned out to be a button in the product: Settings' "Restart viewer"
+    # re-execs while the connection that requested the restart is still in TIME_WAIT on
+    # this port, the bind fails, and the viewer dies instead of coming back. On POSIX
+    # SO_REUSEADDR does not let a second process bind a port with a live listener, so the
+    # guarantee above is not what it costs -- only Windows needs the refusal.
+    allow_reuse_address = os.name != "nt"
 
     def __init__(
         self,

@@ -720,6 +720,21 @@ export function renderGitSummarySegments(label, segments) {
     `;
   }
 
+//: item_845: a plain editable text view, not a rich or WYSIWYG editor -- that is out of
+//: scope, upgrade if a bare textarea ever proves not enough.
+export function renderDocEditorScreen({ path, content }) {
+    return `
+      <div class="viewer-doc-editor">
+        <p class="viewer-doc-editor__path">${escapeHtml(path)}</p>
+        <textarea class="viewer-doc-editor__textarea" spellcheck="false">${escapeHtml(content)}</textarea>
+        <div class="viewer-doc-editor__actions">
+          <button class="btn" type="button" data-viewer-editor-action="cancel">Cancel</button>
+          <button class="btn primary" type="button" data-viewer-editor-action="save">Save</button>
+        </div>
+      </div>
+    `;
+  }
+
 export function renderHealthSummary(lintData, auditData, healthData = null, knownPaths = null) {
     const lintPayload = lintData.payload || {};
     const auditPayload = auditData.payload || {};
@@ -1460,6 +1475,32 @@ export function showStatusChangeModal({ title, message, options, value, submitLa
       window.setTimeout(() => {
         select.focus();
       }, 0);
+    });
+  }
+
+//: item_846: the same commit-offer shape item_843/item_844 built for a status change --
+//: a proposed default message, declining leaves whatever already happened (there, the
+//: status change; here, the save) untouched.
+export function showCommitOfferModal({ title = "Commit this change?", message, defaultMessage }) {
+    return new Promise((resolve) => {
+      const modal = createThemedModal({ title, message, submitLabel: "Commit", cancelLabel: "Not now" });
+      const body = modal.querySelector(".viewer-themed-modal__body");
+      const commitMessage = document.createElement("textarea");
+      commitMessage.className = "viewer-themed-modal__input viewer-status-confirm__message";
+      commitMessage.rows = 2;
+      commitMessage.value = defaultMessage || "";
+      body?.appendChild(commitMessage);
+      const done = (result) => {
+        closeThemedModal(modal);
+        resolve(result);
+      };
+      modal.querySelector(".viewer-themed-modal__submit")?.addEventListener("click", () => done({ commit: true, message: commitMessage.value.trim() }));
+      modal.querySelector(".viewer-themed-modal__cancel")?.addEventListener("click", () => done({ commit: false, message: "" }));
+      modal.querySelector(".viewer-themed-modal__close")?.addEventListener("click", () => done({ commit: false, message: "" }));
+      modal.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") done({ commit: false, message: "" });
+      });
+      window.setTimeout(() => commitMessage.focus(), 0);
     });
   }
 

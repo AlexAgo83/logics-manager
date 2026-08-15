@@ -1,13 +1,14 @@
 ## item_846_offer_to_commit_a_save_the_way_a_status_change_already_does - Offer to commit a save the way a status change already does
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Low
 > Theme: One commit-offer mechanism, not two
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-15 18:51:46
 
 # AI Context
 - Summary: A save that actually changes the file offers the same commit step item_844 built for status changes; a no-op save writes nothing and offers no commit.

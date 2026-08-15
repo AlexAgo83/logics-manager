@@ -51,6 +51,7 @@ function createViewerDom(options: {
   gitDiffResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   gitCommitDiffResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   gitCommitResponse?: { ok: boolean; status?: number; body?: unknown };
+  saveDocResponse?: { ok: boolean; status?: number; body?: unknown };
   gitPreviewResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   gitResponseFactory?: () => { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   gitResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
@@ -646,6 +647,24 @@ function createViewerDom(options: {
           json: async () => ({
             ok: true,
             document: { path: "logics/request/req_001_demo.md", content: markdown }
+          })
+        };
+      }
+      if (url === "/api/save-doc") {
+        if (options.saveDocResponse) {
+          return {
+            ok: options.saveDocResponse.ok,
+            status: options.saveDocResponse.status ?? (options.saveDocResponse.ok ? 200 : 400),
+            json: async () => options.saveDocResponse?.body || {}
+          };
+        }
+        const body = JSON.parse(String(fetchOptions?.body || "{}"));
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            payload: { path: body.path, changed: String(body.content || "") !== markdown }
           })
         };
       }
@@ -2893,10 +2912,13 @@ describe("local viewer browser host", () => {
     expect(headers?.get("Authorization")).toBe("Bearer device-token");
   });
 
-  it("opens the selected document through the local edit endpoint", async () => {
-    const { dom, calls } = createViewerDom();
+  it("opens the selected document through the local edit endpoint when embedded in VS Code", async () => {
+    // item_845: VS Code keeps this path unchanged -- only the standalone browser gets
+    // the in-viewer editor screen.
+    const { dom, calls } = createViewerDom({ embeddedInVsCode: true });
     const api = dom.window.acquireVsCodeApi();
 
+    dom.window.dispatchEvent(new dom.window.MessageEvent("message", { data: { type: "viewer-embed-host", host: "vscode" } }));
     api.setState({ selectedId: "req_001_demo" });
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -2908,6 +2930,110 @@ describe("local viewer browser host", () => {
 
     expect(calls).toContain("/api/edit?path=logics%2Frequest%2Freq_001_demo.md");
     expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Opened logics/request/req_001_demo.md");
+  });
+
+  it("opens the in-viewer editor screen for the edit action in the standalone browser", async () => {
+    // item_845: no VS Code embedding here, so the edit action must not shell out.
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.setState({ selectedId: "req_001_demo" });
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const edit = dom.window.document.querySelector('[data-viewer-action="edit-document"]') as HTMLButtonElement | null;
+    edit?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(calls).not.toContain("/api/edit?path=logics%2Frequest%2Freq_001_demo.md");
+    expect(calls).toContain("/api/doc?path=logics%2Frequest%2Freq_001_demo.md");
+    const textarea = dom.window.document.querySelector(".viewer-doc-editor__textarea") as HTMLTextAreaElement | null;
+    expect(textarea).not.toBeNull();
+    expect(textarea?.value).toContain("req_001_demo");
+    expect(dom.window.document.querySelectorAll("[data-viewer-editor-action]").length).toBe(2);
+  });
+
+  it("cancelling the in-viewer editor writes nothing and returns to the document view", async () => {
+    const { dom, fetchCalls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.setState({ selectedId: "req_001_demo" });
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-action="edit-document"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const textarea = dom.window.document.querySelector(".viewer-doc-editor__textarea") as HTMLTextAreaElement | null;
+    if (textarea) textarea.value = "changed but never saved";
+    dom.window.document.querySelector('[data-viewer-editor-action="cancel"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(fetchCalls.find((call) => call.url === "/api/save-doc")).toBeUndefined();
+    expect(dom.window.document.querySelector(".viewer-doc-editor__textarea")).toBeNull();
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Edit cancelled.");
+  });
+
+  it("saving the in-viewer editor writes the content and offers to commit it", async () => {
+    const { dom, fetchCalls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.setState({ selectedId: "req_001_demo" });
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-action="edit-document"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const textarea = dom.window.document.querySelector(".viewer-doc-editor__textarea") as HTMLTextAreaElement | null;
+    if (textarea) textarea.value = "edited content";
+    dom.window.document.querySelector('[data-viewer-editor-action="save"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const saveCall = fetchCalls.find((call) => call.url === "/api/save-doc");
+    expect(saveCall).toBeTruthy();
+    expect(JSON.parse(String(saveCall?.options?.body || "{}"))).toMatchObject({
+      path: "logics/request/req_001_demo.md",
+      content: "edited content"
+    });
+
+    const modal = dom.window.document.querySelector(".viewer-themed-modal") as HTMLElement | null;
+    expect(modal?.textContent).toContain("Commit this change?");
+    (modal?.querySelector(".viewer-themed-modal__submit") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const commitCall = fetchCalls.find((call) => call.url === "/api/git-commit");
+    expect(commitCall).toBeTruthy();
+    expect(JSON.parse(String(commitCall?.options?.body || "{}"))).toMatchObject({
+      files: ["logics/request/req_001_demo.md"]
+    });
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Saved req_001_demo. Committed: fedcba9");
+  });
+
+  it("a no-op save writes nothing extra and offers no commit", async () => {
+    const { dom, fetchCalls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.setState({ selectedId: "req_001_demo" });
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-action="edit-document"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    // Saved unchanged, exactly as loaded.
+    dom.window.document.querySelector('[data-viewer-editor-action="save"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(fetchCalls.find((call) => call.url === "/api/save-doc")).toBeTruthy();
+    expect(fetchCalls.find((call) => call.url === "/api/git-commit")).toBeUndefined();
+    expect(dom.window.document.querySelector(".viewer-themed-modal")).toBeNull();
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("was already saved");
   });
 
   it("focuses a corpus item from the viewer URL query", async () => {
@@ -3183,10 +3309,12 @@ describe("local viewer browser host", () => {
 
   it("explains stale viewer servers that do not expose the edit endpoint", async () => {
     const { dom } = createViewerDom({
+      embeddedInVsCode: true,
       editResponse: { ok: false, status: 404, body: { ok: false, error: "Not found" } }
     });
     const api = dom.window.acquireVsCodeApi();
 
+    dom.window.dispatchEvent(new dom.window.MessageEvent("message", { data: { type: "viewer-embed-host", host: "vscode" } }));
     api.setState({ selectedId: "req_001_demo" });
     api.postMessage({ type: "ready" });
     await new Promise((resolve) => setTimeout(resolve, 0));

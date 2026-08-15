@@ -242,12 +242,19 @@
   pointer-events: none;
 }
 
-.card[data-stage="request"] .card__title, .list-row[data-stage="request"] .card__title { --card-progress-color: var(--stage-color-request); }
-.card[data-stage="backlog"] .card__title, .list-row[data-stage="backlog"] .card__title { --card-progress-color: var(--stage-color-backlog); }
-.card[data-stage="task"] .card__title, .list-row[data-stage="task"] .card__title { --card-progress-color: var(--stage-color-task); }
-.card[data-stage="product"] .card__title, .list-row[data-stage="product"] .card__title { --card-progress-color: var(--stage-color-product); }
-.card[data-stage="architecture"] .card__title, .list-row[data-stage="architecture"] .card__title { --card-progress-color: var(--stage-color-architecture); }
-.card[data-stage="spec"] .card__title, .list-row[data-stage="spec"] .card__title { --card-progress-color: var(--stage-color-spec); }
+/* Set on the card rather than on its title: a custom property inherits, so the progress bar
+   below still reads it, and anything else about the card that should carry the stage colour
+   -- the selected outline, for one -- can read the same value instead of repeating this
+   table. Roadmap and runbook were missing here while their tokens existed, so those two
+   stages fell back to the generic teal. */
+.card[data-stage="request"], .list-row[data-stage="request"] { --card-progress-color: var(--stage-color-request); }
+.card[data-stage="backlog"], .list-row[data-stage="backlog"] { --card-progress-color: var(--stage-color-backlog); }
+.card[data-stage="task"], .list-row[data-stage="task"] { --card-progress-color: var(--stage-color-task); }
+.card[data-stage="product"], .list-row[data-stage="product"] { --card-progress-color: var(--stage-color-product); }
+.card[data-stage="roadmap"], .list-row[data-stage="roadmap"] { --card-progress-color: var(--stage-color-roadmap); }
+.card[data-stage="architecture"], .list-row[data-stage="architecture"] { --card-progress-color: var(--stage-color-architecture); }
+.card[data-stage="spec"], .list-row[data-stage="spec"] { --card-progress-color: var(--stage-color-spec); }
+.card[data-stage="runbook"], .list-row[data-stage="runbook"] { --card-progress-color: var(--stage-color-runbook); }
 
 /* In a list row the bar sits inline with the title rather than under it: the row is 33px
    tall and has no space below the text to put it in. Right-aligned within the title's own
@@ -525,7 +532,12 @@
    outline is drawn outside the box, so it cannot be mistaken for either and costs no
    layout -- the card does not move, and neither do the cards below it. */
 .card--selected {
-  outline: 2px solid var(--vscode-focusBorder, var(--vscode-button-background, #0e639c));
+  /* Reported by the operator: the outline was one focus-blue whatever the card was, so a
+     selected request and a selected task looked alike while every other mark on the card
+     said otherwise. It takes the stage colour the card already carries, falling back to
+     focus blue for a card with no known stage. The tint behind it stays neutral -- two
+     stage-coloured surfaces on one card is the body-tint mistake item_719 removed. */
+  outline: 2px solid var(--card-progress-color, var(--vscode-focusBorder, var(--vscode-button-background, #0e639c)));
   outline-offset: 2px;
   background-color: var(--vscode-list-activeSelectionBackground, rgba(14, 99, 156, 0.18));
 }

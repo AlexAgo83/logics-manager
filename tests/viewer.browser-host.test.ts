@@ -3049,6 +3049,31 @@ describe("local viewer browser host", () => {
     expect(calls).toContain("/api/doc?path=logics%2Ftasks%2Ftask_001_blocked.md");
   });
 
+  it("copies a link to the document, not the bare path", async () => {
+    // item_830: a copy of just `logics/request/req_001_demo.md` is not something an
+    // operator can paste anywhere useful -- this viewer's own address is known at copy
+    // time, so the clipboard gets a link back instead.
+    const { dom } = createViewerDom({
+      url: "http://127.0.0.1:8765/?focus=logics%2Frequest%2Freq_001_demo.md&read=1"
+    });
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(dom.window, "isSecureContext", { configurable: true, value: true });
+    Object.defineProperty(dom.window.navigator, "clipboard", { configurable: true, value: { writeText } });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    dom.window.document.getElementById("viewer-document-path-copy")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(writeText.mock.calls[0][0]).toBe("http://127.0.0.1:8765/?focus=req_001_demo");
+    expect(dom.window.document.getElementById("viewer-meta")?.textContent).toContain("Copied http://127.0.0.1:8765/?focus=req_001_demo");
+  });
+
   it("reports invalid or missing viewer focus targets without blocking corpus load", async () => {
     const invalid = createViewerDom({ url: "http://127.0.0.1:8765/?focus=..%2Foutside.md" });
     invalid.dom.window.acquireVsCodeApi().postMessage({ type: "ready" });

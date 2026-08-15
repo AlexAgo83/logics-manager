@@ -4844,13 +4844,18 @@ describe("local viewer browser host", () => {
     expect(document.querySelectorAll(".viewer-onboarding__holding--empty").length).toBeGreaterThan(0);
     expect(document.querySelectorAll(".viewer-onboarding__stage")).toHaveLength(4);
 
-    // item_752: every stage ends in an action, and no action is offered twice.
+    // item_752: every stage ends in an action. item_797 pairs each one -- somewhere to act
+    // and somewhere to look -- so the old "no action appears twice on the screen" rule no
+    // longer holds: the board is legitimately the look-destination of more than one stage.
+    // What must still hold is that a stage never offers the same button to itself twice.
     const stages = Array.from(document.querySelectorAll(".viewer-onboarding__stage"));
-    expect(stages.every((stage) => stage.querySelector("[data-viewer-onboarding-action]"))).toBe(true);
-    const actions = Array.from(document.querySelectorAll("[data-viewer-onboarding-action]")).map(
-      (node) => (node as HTMLElement).dataset.viewerOnboardingAction
-    );
-    expect(new Set(actions).size).toBe(actions.length);
+    expect(stages.every((stage) => stage.querySelectorAll("[data-viewer-onboarding-action]").length >= 2)).toBe(true);
+    for (const stage of stages) {
+      const own = Array.from(stage.querySelectorAll("[data-viewer-onboarding-action]")).map(
+        (node) => (node as HTMLElement).dataset.viewerOnboardingAction
+      );
+      expect(new Set(own).size).toBe(own.length);
+    }
   });
 
   it("leads validation health with its own verdict and groups findings by file", async () => {

@@ -1620,7 +1620,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       ],
       mapping: "Maps to logics/request/, logics/product/, and logics/roadmap/.",
       corpusStages: ["request", "product", "roadmap"],
-      actions: [{ label: "New Request", action: "new-request" }]
+      actions: [{ label: "New Request", action: "new-request" }, { label: "Open the board", action: "board" }]
     },
     {
       label: "Delivery Slices",
@@ -1635,7 +1635,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       // item_752: this stage ended in nothing while the others ended in an action, so the
       // guide stopped being a sequence at its second step. The board is where the slices it
       // describes actually appear.
-      actions: [{ label: "Open the board", action: "board" }]
+      actions: [{ label: "Open the board", action: "board" }, { label: "Open Insights", action: "open-logics-insights" }]
     },
     {
       label: "Execution",
@@ -1647,7 +1647,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       ],
       mapping: "Maps to task execution, commits, checks, and activity in the viewer.",
       corpusStages: ["task"],
-      actions: [{ label: "CDX Missions", action: "cdx-missions" }]
+      actions: [{ label: "CDX Missions", action: "cdx-missions" }, { label: "Open the board", action: "board" }]
     },
     {
       label: "Closeout",
@@ -1659,7 +1659,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       ],
       mapping: "Maps to statuses across request, backlog, task, product, roadmap, ADR, and spec docs.",
       corpusStages: ["architecture", "spec"],
-      actions: [{ label: "Open Health", action: "health" }]
+      actions: [{ label: "Open Health", action: "health" }, { label: "Open Insights", action: "open-logics-insights" }]
     }
   ];
   var onboardingDocGuide = [
@@ -2245,6 +2245,10 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     const blocking = countPayloadEntries(lintPayload, ["issue_count", "issues"]) + countPayloadEntries(auditPayload, ["issue_count", "issues"]);
     const warnings = countPayloadEntries(lintPayload, ["warning_count", "warnings"]) + countPayloadEntries(auditPayload, ["warning_count", "warnings"]);
     const findings = collectHealthFindings(lintData, auditData);
+    const autofixCodes = new Set(Array.isArray(auditData?.payload?.autofix_codes) ? auditData.payload.autofix_codes : []);
+    const fixable = autofixCodes.size ? findings.filter((finding) => autofixCodes.has(finding?.code)) : [];
+    const fixableCount = fixable.length;
+    const fixableCodes = [...new Set(fixable.map((finding) => String(finding?.code || "")))].filter(Boolean).sort();
     const healthPayload = healthData && healthData.ok !== false ? healthData.payload || {} : null;
     const workflowIssues = healthPayload?.issues || {};
     const staleDocs = Array.isArray(healthPayload?.stale_docs) ? healthPayload.stale_docs : [];
@@ -2341,7 +2345,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         <section class="viewer-health__section">
           <div class="viewer-health__section-header">
             <h2 class="viewer-health__heading">Validation findings</h2>
-            <button class="viewer-health__apply-fixes" type="button" data-viewer-apply-fixes title="Shows which documents would be edited before applying anything">Apply fixes\u2026</button>
+            <button class="viewer-health__apply-fixes" type="button" data-viewer-apply-fixes${fixableCount ? "" : " disabled"} title="${fixableCount ? `Repairs ${fixableCount} finding${fixableCount === 1 ? "" : "s"}: ${escapeHtml(fixableCodes.join(", "))}. Shows which documents would be edited before applying anything` : "No finding on this screen can be repaired automatically"}">Apply fixes\u2026${fixableCount ? ` (${fixableCount})` : ""}</button>
           </div>
           <ul class="viewer-health__list">${list}</ul>
         </section>
@@ -11202,15 +11206,18 @@ ${line}` : line;
       const needsAttention = blocked.length + chainsOverdue.length + brokenRefs.length + missingStatus.length + qualityTotal;
       const activeQuiet = Math.max(0, open.length - recentlyModified.length - staleActive.length);
       const primaryState = needsAttention > 0 ? `${needsAttention} signals need attention` : "No immediate workflow risk detected";
+      const insightsTone = qualityTotal > 0 ? "bad" : needsAttention > 0 ? "warn" : "ok";
+      const insightsAction = qualityTotal > 0 ? { label: `Open Health (${qualityTotal} finding${qualityTotal === 1 ? "" : "s"})`, action: "health" } : null;
       return `
       <div class="viewer-insights">
         ${renderCorpusModeSwitcher("insights")}
-        <section class="viewer-insights__hero">
+        <section class="viewer-insights__hero viewer-insights__hero--${escapeHtml(insightsTone)}">
           <div>
             <h2>Overview</h2>
             <p>${escapeHtml(primaryState)} across ${escapeHtml(docs.length)} workflow docs.</p>
+            ${insightsAction ? `<button class="btn viewer-insights__hero-action" type="button" data-viewer-onboarding-action="${escapeHtml(insightsAction.action)}">${escapeHtml(insightsAction.label)}</button>` : ""}
           </div>
-          <div class="viewer-insights__summary">${renderMetricCards([
+          <div class="viewer-insights__summary viewer-insights__summary--strip">${renderMetricCards([
         // item_747/AC3: `Needs attention` is the sum of the signals reported below it,
         // so it is labelled as a total rather than sitting beside its own components as
         // if it were one more of them.
@@ -11239,15 +11246,20 @@ ${line}` : line;
           </section>
           <section class="viewer-insights__section">
             <h2>Flow health</h2>
+            <!-- item_747 split these rows by the rule that decides whether they are defects,
+                 but left them in one list where only a tone told them apart. item_797 makes
+                 the split structural: what needs a decision, then what is merely the shape of
+                 work in progress -- dimmed, because reading it as a problem is the mistake
+                 this grouping exists to prevent. -->
+            <h3 class="viewer-insights__subhead">Needs a decision</h3>
             <ul class="viewer-insights__signals">${renderSignalRows([
-        // item_747: the two rows the headline used to count are split by the same rule
-        // that decides whether they are defects. An in-flight chain is not hidden --
-        // it is reported as what it is, so a reader can see the queue without the
-        // headline claiming it needs a decision.
         [`Chains untouched for ${IN_FLIGHT_GRACE_DAYS}+ days`, chainsOverdue.length, chainsOverdue.length ? "warning" : "ok"],
-        ["Chains in flight", chainsInFlight.length, "muted"],
-        ["Orphan or unlinked docs", unlinked.length, unlinked.length ? "muted" : "ok"],
         ["Broken reference risks", brokenRefs.length, brokenRefs.length ? "warning" : "ok"]
+      ])}</ul>
+            <h3 class="viewer-insights__subhead viewer-insights__subhead--muted">Expected while work is in flight</h3>
+            <ul class="viewer-insights__signals viewer-insights__signals--muted">${renderSignalRows([
+        ["Chains in flight", chainsInFlight.length, "muted"],
+        ["Orphan or unlinked docs", unlinked.length, "muted"]
       ])}</ul>
             <ul class="viewer-insights__rows">${renderDocRows(
         chainsOverdue.length ? chainsOverdue : chainsInFlight,

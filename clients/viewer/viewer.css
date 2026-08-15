@@ -6831,3 +6831,32 @@
   background: currentColor;
   opacity: 0.7;
 }
+
+/* item_797: the Insights summary was the same neutral grey whether nothing was flagged or
+   forty things were. The verdict is carried on the left edge, the way Health and Release
+   already carry theirs, rather than by a colour across the card body. */
+.viewer-insights__hero--ok,
+.viewer-insights__hero--warn,
+.viewer-insights__hero--bad {
+  border-left: 3px solid var(--vscode-panel-border, #333333);
+  padding-left: 12px;
+}
+
+.viewer-insights__hero--ok { border-left-color: var(--vscode-testing-iconPassed, #3fb950); }
+.viewer-insights__hero--warn { border-left-color: var(--vscode-editorWarning-foreground, #d29922); }
+.viewer-insights__hero--bad { border-left-color: var(--vscode-editorError-foreground, #f14c4c); }
+
+.viewer-insights__hero-action {
+  margin-top: 8px;
+}
+
+/* The same thin-strip treatment Git, CI and Health already use for their stat rows. */
+.viewer-insights__summary--strip .viewer-insights__card { padding: 6px 10px; }
+.viewer-insights__summary--strip .viewer-insights__value { font-size: 14px; }
+
+/* Dimmed, not hidden: the queue is worth seeing, and reading it as a problem is the mistake
+   the grouping exists to prevent. */
+.viewer-insights__subhead--muted,
+.viewer-insights__signals--muted {
+  opacity: 0.72;
+}

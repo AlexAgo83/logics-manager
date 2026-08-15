@@ -35,7 +35,7 @@
 | [adr_028_scope_the_fleet_viewer_registry_to_the_operator_profile_and_resolve_project_context_per_request](architecture/adr_028_scope_the_fleet_viewer_registry_to_the_operator_profile_and_resolve_project_context_per_request.md) | Scope the fleet viewer registry to the operator profile and resolve project context per request | Settled |  |  | architecture/adr_028_scope_the_fleet_viewer_registry_to_the_operator_profile_and_resolve_project_context_per_request.md |
 | [adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points](architecture/adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points.md) | Land the viewer redesigns on the shared declaration points | Settled |  |  | architecture/adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points.md |
 | [adr_030_decide_when_a_fix_needs_a_logics_chain_and_when_a_comment_is_the_record](architecture/adr_030_decide_when_a_fix_needs_a_logics_chain_and_when_a_comment_is_the_record.md) | Decide when a fix needs a Logics chain and when a comment is the record | Settled |  |  | architecture/adr_030_decide_when_a_fix_needs_a_logics_chain_and_when_a_comment_is_the_record.md |
-| [adr_031_one_mcp_transport_per_client_class](architecture/adr_031_one_mcp_transport_per_client_class.md) | One MCP transport per client class | Proposed |  |  | architecture/adr_031_one_mcp_transport_per_client_class.md |
+| [adr_031_one_mcp_transport_per_client_class](architecture/adr_031_one_mcp_transport_per_client_class.md) | One MCP transport per client class | Settled |  |  | architecture/adr_031_one_mcp_transport_per_client_class.md |
 
 ## Product briefs
 

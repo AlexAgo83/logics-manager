@@ -9367,8 +9367,8 @@ ${line}` : line;
         <span class="viewer-project-switcher__item-path">Discover immediate project folders</span>
       </button>
     ` : "";
-      const fleetRoots = latestFleetRoots.map((root) => `<div class="viewer-project-switcher__row" role="none"><span class="viewer-project-switcher__item"><span class="viewer-project-switcher__item-name">Fleet root</span><span class="viewer-project-switcher__item-path">${escapeHtml(root)}</span></span><button class="viewer-project-switcher__favorite" type="button" data-viewer-fleet-root-remove="${escapeHtml(root)}" aria-label="Remove fleet root" data-viewer-hint="Remove fleet root">\xD7</button></div>`).join("");
-      menu.innerHTML = `${fleetHomeRow}${fleetRoots}${projectRows}${pickerRow}${fleetRootRow}`;
+      const fleetRoots = latestFleetRoots.map((root) => `<div class="viewer-project-switcher__row" role="none"><button class="viewer-project-switcher__favorite" type="button" data-viewer-fleet-root-remove="${escapeHtml(root)}" aria-label="Remove fleet root ${escapeHtml(root)}" data-viewer-hint="Remove fleet root">\xD7</button><span class="viewer-project-switcher__item"><span class="viewer-project-switcher__item-name">Fleet root</span><span class="viewer-project-switcher__item-path">${escapeHtml(root)}</span></span></div>`).join("");
+      menu.innerHTML = `${fleetHomeRow}${projectRows}${pickerRow}${fleetRootRow}${fleetRoots}`;
     }
     let latestProjectState = {};
     function fleetProjectState(project, state) {

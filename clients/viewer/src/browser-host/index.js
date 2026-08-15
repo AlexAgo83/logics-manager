@@ -1064,8 +1064,15 @@ import {
         <span class="viewer-project-switcher__item-path">Discover immediate project folders</span>
       </button>
     ` : "";
-    const fleetRoots = latestFleetRoots.map((root) => `<div class="viewer-project-switcher__row" role="none"><span class="viewer-project-switcher__item"><span class="viewer-project-switcher__item-name">Fleet root</span><span class="viewer-project-switcher__item-path">${escapeHtml(root)}</span></span><button class="viewer-project-switcher__favorite" type="button" data-viewer-fleet-root-remove="${escapeHtml(root)}" aria-label="Remove fleet root" data-viewer-hint="Remove fleet root">×</button></div>`).join("");
-    menu.innerHTML = `${fleetHomeRow}${fleetRoots}${projectRows}${pickerRow}${fleetRootRow}`;
+    // Reported by the operator with a screenshot: this row rendered as a blank line above
+    // "/..". `.viewer-project-switcher__row` is a `24px minmax(0, 1fr)` grid whose first
+    // column is the icon button -- a project row puts its star there and its text second.
+    // This row had them the other way round, so the whole label was squeezed into 24px and
+    // `/Users/alexandreagostini/Documents` ellipsised down to `/..`. Same order as a project
+    // row now, and the roots sit beside "Add fleet root..." rather than between Fleet home
+    // and the projects: they are the configuration behind that entry, not projects to open.
+    const fleetRoots = latestFleetRoots.map((root) => `<div class="viewer-project-switcher__row" role="none"><button class="viewer-project-switcher__favorite" type="button" data-viewer-fleet-root-remove="${escapeHtml(root)}" aria-label="Remove fleet root ${escapeHtml(root)}" data-viewer-hint="Remove fleet root">×</button><span class="viewer-project-switcher__item"><span class="viewer-project-switcher__item-name">Fleet root</span><span class="viewer-project-switcher__item-path">${escapeHtml(root)}</span></span></div>`).join("");
+    menu.innerHTML = `${fleetHomeRow}${projectRows}${pickerRow}${fleetRootRow}${fleetRoots}`;
   }
 
   let latestProjectState = {};

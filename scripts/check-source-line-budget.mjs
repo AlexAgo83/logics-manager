@@ -117,7 +117,11 @@ const allowedOversizedFiles = new Map(
     // 1536: req_364/req_366's Insights/Health speed work (caching the source blob,
     // memoising prose refs, a backlog-to-task index) and req_368's actionable
     // duplicate-proof check all extend audit_payload's own findings/caching machinery.
-    "logics_manager/audit.py": { maxLines: 1536, ref: "req_364" },
+    // 1560: req_378/item_852 stopped three findings from reading a status back as a
+    // defect -- a Draft request has no chain by definition, and a chain through an
+    // abandoned slice delivered nothing. Both are guards inside the AC sweep, which
+    // needs the doc graph this file builds.
+    "logics_manager/audit.py": { maxLines: 1560, ref: "req_378" },
     // 1117: req_317 added the per-gate release/branch comparison (resolving the
     // tagged commit, choosing which commit each gate is judged against, and
     // naming the comparison in stale reasons and status output). The new logic
@@ -217,7 +221,10 @@ const allowedOversizedFiles = new Map(
     // logics_manager/mcp_tunnel.py, along with item_851's setup rows; what stays here is
     // the process supervision and the key probe, which need
     // the connector state (`mcp_connector*`, its lock, its capture thread) this file owns.
-    "logics_manager/viewer.py": { maxLines: 4380, ref: "req_376" },
+    // 4400: req_378 also lands here -- prerequisites are not asked of a connector that
+    // is already running, because `tunnel-client doctor` binds the health port that
+    // running connector owns and then reports it as a missing prerequisite.
+    "logics_manager/viewer.py": { maxLines: 4400, ref: "req_378" },
     // 1545: item_743 keys the cdx update cache on a fingerprint of the installed
     // executable, so running the update the banner asks for ends the banner. The
     // helper is 8 lines; the rest is the docstring stating why it stats rather than
@@ -273,7 +280,9 @@ const allowedOversizedFiles = new Map(
     // orchestration (the sibling-slice AC check that closeout_payload and
     // validate_closeout_payload both needed; its own two helpers split out this
     // release when the function-length gate flagged their growth).
-    "logics_manager/flow/__init__.py": { maxLines: 3400, ref: "req_372" },
+    // 3425: req_378/item_853 reads closeout's request refs from the declared link
+    // sections instead of from any mention, reusing the audit's own map.
+    "logics_manager/flow/__init__.py": { maxLines: 3425, ref: "req_378" },
     // 1429: req_324 added resolve_ref_slug/resolve_ref_slugs (the short-ref expansion the
     // generators needed and _resolve_doc_path already did privately, per kind) plus the
     // rejoin loop in _bullet_values. Both are document vocabulary, so this is where they
@@ -413,7 +422,7 @@ const allowedOversizedFiles = new Map(
     // three are showChatgptMcp's own markup and its own re-render loop, which read the
     // document panel state this file owns; a separate module would import setDocument,
     // beginView, documentPanel and escapeHtml back out of it.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 5545, ref: "req_376" },
+    "clients/viewer/src/browser-host/index.js": { maxLines: 5550, ref: "req_376" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

@@ -1965,10 +1965,17 @@ class LogicsViewerServer(ThreadingHTTPServer):
         """What `tunnel-client` needs and does not have, named one cause at a time."""
         settings = mcp_tunnel.tunnel_settings()
         mcp_tunnel.ensure_config_file(settings["config_path"])
-        status = mcp_tunnel.check_prerequisites(settings, run_doctor=self._run_tunnel_doctor)
         with self.mcp_connector_lock:
             running = self.mcp_connector is not None and self.mcp_connector.poll() is None
             connected = self.mcp_connector_connected
+        if running:
+            # Nothing to pre-check on a connector that is already up -- and asking anyway
+            # is actively wrong: `doctor` binds the health port the running connector
+            # already owns, fails on it, and the screen reports a prerequisite problem
+            # for the thing working in front of the operator.
+            status = {"ok": True, "reason": "", "message": "", "failed_checks": []}
+        else:
+            status = mcp_tunnel.check_prerequisites(settings, run_doctor=self._run_tunnel_doctor)
         profile_exists = status["reason"] not in {mcp_tunnel.REASON_BINARY_MISSING, mcp_tunnel.REASON_PROFILE_MISSING}
         rows = mcp_tunnel.prerequisite_rows(settings, status, profile_exists=profile_exists, running=running, connected=connected)
         return {

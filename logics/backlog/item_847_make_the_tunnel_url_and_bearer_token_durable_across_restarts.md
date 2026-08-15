@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Connector durability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-16 00:28:32
+> Indicators reviewed: 2026-08-16 00:47:42
 
 # AI Context
 - Summary: launch_tunnel picks a random localtunnel subdomain and a fresh bearer token on every launch, so every stop/start invalidates whatever the operator already gave ChatGPT -- observed directly this session across three consecutive restarts of the same repo.
@@ -45,8 +45,8 @@
 - Product brief(s): `prod_107_a_connector_configured_once_then_just_on_off`
 - Architecture decision(s): (none yet)
 - Request: `req_376_make_the_chatgpt_mcp_connector_plug_and_play`
-- Primary task(s): (none — obsoleted by `adr_031_one_mcp_transport_per_client_class` before any of it was built. Keeping the old link would make this Obsolete slice report a Done task to the Draft request that inherited its research, and put that request's ACs due.)
-- Superseded by: the public-HTTPS-door request named in `adr_031_one_mcp_transport_per_client_class` (supersession, not delivery: linking the slug here would tie that Draft request's ACs to this Done task)
+- Primary task(s): `task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector` (the task this slice was scaffolded under, before `adr_031_one_mcp_transport_per_client_class` obsoleted it)
+- Superseded by: `req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door`
 
 # Priority
 - Priority: High

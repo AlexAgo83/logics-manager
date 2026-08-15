@@ -319,6 +319,19 @@ def _is_abandoned(doc: DocMeta) -> bool:
     return doc.status is not None and doc.status in STATUS_ABANDONED
 
 
+def _is_unsliced_draft(doc: DocMeta) -> bool:
+    """Not started yet: no implementation chain is owed either, for the opposite reason.
+
+    item_852. A request is Draft precisely because nobody has sliced it. Reporting
+    `has ACs but no linked backlog items` against that is reporting the status back as
+    a defect -- found on `req_377`, which `adr_031` parked on purpose, with its research
+    and acceptance criteria written down and nothing built. The findings stay exactly as
+    they are for every other status: promoting a request to Ready is what makes the
+    chain due.
+    """
+    return doc.status is not None and doc.status.strip().casefold() == "draft"
+
+
 def _is_delivered(doc: DocMeta) -> bool:
     return _is_done(doc) and not _is_abandoned(doc)
 
@@ -1206,15 +1219,23 @@ def audit_payload(
 
             linked_items = _linked_items_for_request(request, all_docs)
             if not linked_items:
-                issues.append(AuditIssue(code="ac_no_linked_backlog", path=request.path, message="request has ACs but no linked backlog items"))
+                if not _is_unsliced_draft(request):
+                    issues.append(AuditIssue(code="ac_no_linked_backlog", path=request.path, message="request has ACs but no linked backlog items"))
                 continue
 
+            # item_852: a chain running through an abandoned slice delivered nothing.
+            # `req_377` inherited the research of two Obsolete items, which still name
+            # the task they were scaffolded under -- and that Done task made six
+            # acceptance criteria due on a request nobody had started building.
             linked_tasks: list[DocMeta] = []
             for item in linked_items:
+                if _is_abandoned(item):
+                    continue
                 linked_tasks.extend(_linked_tasks_for_item(item, all_docs))
 
             if not linked_tasks:
-                issues.append(AuditIssue(code="ac_no_linked_tasks", path=request.path, message="request has ACs but no linked tasks"))
+                if not _is_unsliced_draft(request):
+                    issues.append(AuditIssue(code="ac_no_linked_tasks", path=request.path, message="request has ACs but no linked tasks"))
                 continue
 
             any_task_done = any(_is_done(task) for task in linked_tasks)

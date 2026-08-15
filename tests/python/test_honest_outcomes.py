@@ -335,6 +335,33 @@ def test_an_abandoned_request_is_not_asked_for_a_backlog(tmp_path: Path) -> None
         assert "ac_no_linked_backlog" not in codes, status
 
 
+def test_a_draft_request_is_not_asked_for_a_chain_it_has_not_been_given(tmp_path: Path) -> None:
+    """item_852: Draft is 'nobody has sliced this yet', not 'this is broken'.
+
+    Found on `req_377`, parked on purpose by `adr_031` with its research and
+    acceptance criteria written down and nothing built: the audit reported the status
+    back as a blocking defect, and kept the whole corpus red until someone sliced work
+    nobody had decided to do.
+    """
+    root = tmp_path / "logics-repo"
+    (root / "logics").mkdir(parents=True)
+    _write_request(root, "req_001_parked", "Draft")
+
+    codes = _audit_codes(root, "req_001_parked")
+    assert "ac_no_linked_backlog" not in codes
+    assert "ac_no_linked_tasks" not in codes
+
+
+def test_a_ready_request_is_asked_for_its_chain(tmp_path: Path) -> None:
+    """The finding is unchanged for every status that is not Draft: promoting is what
+    makes the chain due."""
+    root = tmp_path / "logics-repo"
+    (root / "logics").mkdir(parents=True)
+    _write_request(root, "req_001_ready", "Ready")
+
+    assert "ac_no_linked_backlog" in _audit_codes(root, "req_001_ready")
+
+
 def test_a_delivered_request_still_requires_its_backlog(tmp_path: Path) -> None:
     root = tmp_path / "logics-repo"
     (root / "logics").mkdir(parents=True)

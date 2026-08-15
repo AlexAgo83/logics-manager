@@ -8,13 +8,13 @@
 > Complexity: Medium
 > Theme: ChatGPT developer-mode MCP operations
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-16 00:27:12
+> Indicators reviewed: 2026-08-16 00:47:42
 
 # AI Context
 - Summary: Replace the public-URL connector path for ChatGPT with OpenAI's Secure MCP Tunnel: `tunnel-client` runs locally, connects outbound, and drives `logics-manager mcp serve` -- no public URL, no bearer token in the loop, and a `tunnel_id` that never changes.
 - Keywords: tunnel-client, tunnel_id, secure mcp tunnel, mcp serve, stdio, outbound only, CONTROL_PLANE_API_KEY
 - Use when: Starting or stopping the ChatGPT connector, or touching how the viewer launches it.
-- Skip when: Anything about the public HTTPS door for hosted web clients -- `adr_031_one_mcp_transport_per_client_class` names the request holding it.
+- Skip when: Anything about the public HTTPS door -- see `req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door`.
 
 # Problem
 - The viewer starts the ChatGPT connector by running `logics_manager mcp tunnel` (logics_manager/viewer.py:1940), which launches an HTTP server plus a localtunnel process and hands the operator a public URL and a bearer token to paste into ChatGPT. Every restart changes both, and the machine is publicly reachable for as long as it runs.

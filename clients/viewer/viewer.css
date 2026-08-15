@@ -1514,19 +1514,11 @@
   line-height: 1.55;
 }
 
-/* item_762: the reader set its prose across the whole window -- about 150 characters a
-   line against the 45-75 that reads comfortably -- on the screen in the product most made
-   of prose. The measure below is the fix; the column it frees carries the contents list,
-   which is the navigation this screen did not have.
-
-   item_793: the two tracks were assigned backwards -- the fixed/narrow (72ch) track held
-   the prose and the flexible (1fr) track held the contents nav, so the nav ended up wider
-   than the content and sitting on the right, mismatching every other nav-plus-content
-   screen in this file (e.g. Getting Started's `.viewer-onboarding__layout`: nav first/
-   narrow/left, content second/flexible). The nav is track 1 (narrow, fixed) now; the prose
-   is track 2 (flexible), with its own 72ch measure enforced as a `max-width` on the prose
-   element itself rather than as the track's own size, so the track can still fill the
-   viewport for the non-prose children below that opt out of the measure. */
+/* item_762 gave the reader a contents rail on the left and capped the prose at a 72ch
+   reading measure. The rail stays -- it is the navigation this screen did not have -- but
+   the measure is gone at the operator's call: these documents are as much tables, mermaid
+   chains and code blocks as prose, and a 72ch column left most of a wide window empty. The
+   prose fills whatever the rail does not take. */
 .markdown-preview--reading {
   display: grid;
   grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
@@ -1543,16 +1535,6 @@
   grid-column: 2;
   grid-row: 1;
   min-width: 0;
-  max-width: 72ch;
-}
-
-/* Tables, diagrams and code are not prose and are unreadable when squeezed to a prose
-   measure, so they take the width the grid gives them rather than the measure. */
-.markdown-preview--reading .markdown-preview__prose > table,
-.markdown-preview--reading .markdown-preview__prose > pre,
-.markdown-preview--reading .markdown-preview__prose > .mermaid,
-.markdown-preview--reading .markdown-preview__prose > .viewer-chain-graph {
-  max-width: none;
 }
 
 .markdown-preview__contents {
@@ -1567,11 +1549,11 @@
   border-right: 1px solid var(--vscode-panel-border, #333333);
 }
 
-/* Below the width where a 72ch measure and a rail both fit, the measure wins and the
-   list goes: a contents column squeezed to nothing is worse than no column. */
+/* Below the width where the rail and a usable content column both fit, the content wins
+   and the list goes: a contents column squeezed to nothing is worse than no column. */
 @media (max-width: 1100px) {
   .markdown-preview--reading {
-    grid-template-columns: minmax(0, 72ch);
+    grid-template-columns: minmax(0, 1fr);
   }
 
   /* Only one track exists now (see above): the prose reclaims it. */

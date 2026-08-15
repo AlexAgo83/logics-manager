@@ -51,11 +51,17 @@ describe("the reader identifies a document", () => {
 });
 
 describe("the reader is a place to read", () => {
-  it("sets a measure on the prose", () => {
-    // The measure is the point of the layout: 72ch against the ~150 characters a line the
-    // reader set before. A rule that keeps the grid but drops the ch cap reads as done.
-    const rule = viewerCss.slice(viewerCss.indexOf(".markdown-preview--reading {"));
-    expect(rule.slice(0, rule.indexOf("}"))).toContain("72ch");
+  it("gives the contents rail a fixed track and the content everything else", () => {
+    // item_762 capped the prose at a 72ch measure. Dropped at the operator's call: these
+    // documents are as much tables, mermaid chains and code blocks as prose, and the cap
+    // left most of a wide window empty. What still has to hold is the split -- a fixed
+    // rail, and content that takes the rest rather than a width of its own.
+    const grid = viewerCss.slice(viewerCss.indexOf(".markdown-preview--reading {"));
+    const gridBody = grid.slice(0, grid.indexOf("}"));
+    expect(gridBody).toContain("minmax(0, 260px) minmax(0, 1fr)");
+
+    const prose = viewerCss.slice(viewerCss.indexOf(".markdown-preview--reading .markdown-preview__prose {"));
+    expect(prose.slice(0, prose.indexOf("}"))).not.toContain("max-width");
   });
 
   it("lists the sections and says how many there are", () => {

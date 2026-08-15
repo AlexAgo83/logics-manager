@@ -1,10 +1,10 @@
 ## item_820_retire_the_corpus_menu_into_a_settings_section - Retire the Corpus menu into a Settings section
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -43,6 +43,9 @@ item_737 deliberately moved those three *out* of Settings and into navigation, r
 - Measured live: no `data-viewer-nav="corpus"` in the header, the Settings section lists the three in that order, clicking Validation health renders the real screen (its verdict text is present, not the loading panel), and the switcher still offers all of them.
 - Three tests followed the route rather than being deleted with the menu. The one that matters is "reachable by clicking": item_737 broke exactly that, and the test exists because of it, so it now opens Settings and clicks the entries there.
 
+# AC Traceability
+- request-AC7 -> This backlog slice. Proof: the Corpus menu is gone from the app bar and Getting Started, Corpus insights and Validation health are reached from a Settings section that links to them; they remain full screens, and the corpus mode switcher still carries a reader between them in one click.
+
 # Decision framing
 - Product framing: Not needed
 - Product signals: (none detected)
@@ -65,3 +68,4 @@ item_737 deliberately moved those three *out* of Settings and into navigation, r
 - Hybrid rationale: Derived from request `req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents.md`.
 - Generated locally by logics-manager.
+- Task `task_378_orchestrate_the_board_arrival_and_runbook_document_work` was finished via `logics-manager flow finish task` on 2026-08-15.

@@ -2069,10 +2069,11 @@ describe("local viewer browser host", () => {
     // anything is running here.
     expect(content()?.textContent).toContain("logics-manager mcp serve --repo-root /repo");
     expect(content()?.querySelector('[data-viewer-mcp-copy-kind="command"]')).toBeTruthy();
-    // Hosted web clients are named as unsupported with the request that would change
-    // that, rather than being silently absent.
+    // Hosted web clients are named as unsupported rather than being silently absent.
+    // The pointer to the request that would change that was dropped on the operator's
+    // call 2026-08-16: the ref read as noise on a screen nobody reads for corpus refs.
     expect(content()?.textContent).toContain("Hosted web clients other than ChatGPT");
-    expect(content()?.textContent).toContain("req_377");
+    expect(content()?.textContent).toContain("not supported yet");
   });
 
   it("offers exactly one setup step at a time and never renders the key back", async () => {

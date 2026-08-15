@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Viewer MCP connector UX
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-16 00:27:12
+> Indicators reviewed: 2026-08-16 00:45:03
 
 # AI Context
 - Summary: The connector screen names the transport for the client at hand and, for the ChatGPT path, walks the operator from a bare machine to a connected plugin. It is a self-repairing diagnostic, not a wizard: `tunnel-client doctor` already names every check, so the screen renders that output as rows with one action each, and disappears once everything is met.
@@ -58,6 +58,7 @@
 # Decision framing
 - Product framing: Not needed
 - Architecture framing: `adr_031_one_mcp_transport_per_client_class`
+- 2026-08-16: the hosted-web-clients row states 'not supported yet' with no explanation. AC7 asked for a pointer to the request that would change that; the operator removed it on sight -- a corpus ref reads as noise on a connector screen. The pointer survives in adr_031_one_mcp_transport_per_client_class, which is where someone asking why would look.
 
 # Links
 - Product brief(s): `prod_107_a_connector_configured_once_then_just_on_off`

@@ -1,11 +1,12 @@
 ## prod_105_one_step_not_two_for_a_status_change_that_should_be_committed - One step, not two, for a status change that should be committed
 > Date: 2026-08-15
-> Status: Proposed
+> Status: Settled
 > Related request: `req_374_confirm_the_status_change_offer_to_commit_it`
-> Related backlog: `item_843_show_what_a_status_change_will_do_before_it_lands`, `item_844_offer_to_commit_the_status_change_right_there`
+> Related backlog: `item_843_show_what_a_status_change_will_do_before_it_lands`
 > Related task: `task_385_orchestrate_the_status_confirm_and_commit_work`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-15 18:51:19
 
 # Overview
 Applying a status change and committing it are the same operator intent most of the time; make that the default path instead of two separate actions.
@@ -45,5 +46,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_374_confirm_the_status_change_offer_to_commit_it`
+- Product back-reference: `item_843_show_what_a_status_change_will_do_before_it_lands`
 - Task back-reference: `task_385_orchestrate_the_status_confirm_and_commit_work`

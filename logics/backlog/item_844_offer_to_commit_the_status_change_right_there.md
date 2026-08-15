@@ -1,14 +1,14 @@
 ## item_844_offer_to_commit_the_status_change_right_there - Offer to commit the status change right there
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 95%
 > Progress: 100%
 > Complexity: Medium
 > Theme: The commit is offered, not a separate errand
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 18:40:09
+> Indicators reviewed: 2026-08-15 18:51:19
 
 # AI Context
 - Summary: The status-change flow offers to commit the change immediately through the existing git-commit route, with a default message; declining still applies the status change.
@@ -58,3 +58,9 @@
 
 # Validation
 - changeCurrentDocumentStatus wires the same modal's commit checkbox to the existing /api/git-commit route with a default message ("<doc>: status -> <status>"), defaulting to commit-on. Declining the checkbox skips the commit call entirely (test_declining_the_commit_still_applies_the_status_change_and_commits_nothing). A failed commit reports why and the status change stays applied -- the /api/update-status call already completed before the commit is attempted, so nothing rolls back (test_reports_a_failed_commit_without_touching_the_status_change_already_applied). The existing withPrimaryAction gate around the status button is untouched.
+
+# Tasks
+- `task_385_orchestrate_the_status_confirm_and_commit_work`
+
+# Notes
+- Task `task_385_orchestrate_the_status_confirm_and_commit_work` was finished via `logics-manager flow finish task` on 2026-08-15.

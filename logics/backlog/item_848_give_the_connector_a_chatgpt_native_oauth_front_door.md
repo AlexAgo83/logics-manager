@@ -8,7 +8,7 @@
 > Complexity: High
 > Theme: ChatGPT developer-mode MCP operations
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-16 00:20:00
+> Indicators reviewed: 2026-08-16 00:28:32
 
 # AI Context
 - Summary: ChatGPT's own connector-creation screen only offered OAuth (or a Mixte option that also only exposes OAuth fields) or no authentication in the flow an operator actually went through this session -- getting a working connector required --no-bearer, an insecure workaround with no real place in normal use.
@@ -50,8 +50,8 @@
 - Product brief(s): `prod_107_a_connector_configured_once_then_just_on_off`
 - Architecture decision(s): (none yet)
 - Request: `req_376_make_the_chatgpt_mcp_connector_plug_and_play`
-- Primary task(s): `task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector`
-- Superseded by: `req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door`
+- Primary task(s): (none — obsoleted by `adr_031_one_mcp_transport_per_client_class` before any of it was built. Keeping the old link would make this Obsolete slice report a Done task to the Draft request that inherited its research, and put that request's ACs due.)
+- Superseded by: the public-HTTPS-door request named in `adr_031_one_mcp_transport_per_client_class` (supersession, not delivery: linking the slug here would tie that Draft request's ACs to this Done task)
 
 # Priority
 - Priority: High

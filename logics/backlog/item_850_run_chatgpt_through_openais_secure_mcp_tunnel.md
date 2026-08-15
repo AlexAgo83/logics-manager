@@ -1,20 +1,20 @@
 ## item_850_run_chatgpt_through_openais_secure_mcp_tunnel - Run ChatGPT through OpenAI's Secure MCP Tunnel
 > From version: 2.22.0
 > Schema version: 1.0
-> Status: In progress
-> Understanding: 85%
-> Confidence: 80%
-> Progress: 33%
+> Status: Done
+> Understanding: 95%
+> Confidence: 85%
+> Progress: 100%
 > Complexity: Medium
 > Theme: ChatGPT developer-mode MCP operations
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-16 01:15:00
+> Indicators reviewed: 2026-08-16 00:27:12
 
 # AI Context
 - Summary: Replace the public-URL connector path for ChatGPT with OpenAI's Secure MCP Tunnel: `tunnel-client` runs locally, connects outbound, and drives `logics-manager mcp serve` -- no public URL, no bearer token in the loop, and a `tunnel_id` that never changes.
 - Keywords: tunnel-client, tunnel_id, secure mcp tunnel, mcp serve, stdio, outbound only, CONTROL_PLANE_API_KEY
 - Use when: Starting or stopping the ChatGPT connector, or touching how the viewer launches it.
-- Skip when: Anything about the public HTTPS door -- see `req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door`.
+- Skip when: Anything about the public HTTPS door for hosted web clients -- `adr_031_one_mcp_transport_per_client_class` names the request holding it.
 
 # Problem
 - The viewer starts the ChatGPT connector by running `logics_manager mcp tunnel` (logics_manager/viewer.py:1940), which launches an HTTP server plus a localtunnel process and hands the operator a public URL and a bearer token to paste into ChatGPT. Every restart changes both, and the machine is publicly reachable for as long as it runs.
@@ -63,9 +63,17 @@
 - Product brief(s): `prod_107_a_connector_configured_once_then_just_on_off`
 - Architecture decision(s): `adr_031_one_mcp_transport_per_client_class`
 - Request: `req_376_make_the_chatgpt_mcp_connector_plug_and_play`
-- Related request(s): `req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door`
 - Primary task(s): `task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector`
 
 # Priority
 - Priority: High
 - Rationale: Carries the request's whole reason for existing, and removes the public exposure the old approach required.
+
+# Validation
+- 2026-08-16: pytest tests/python -- 1442 passed; npx vitest run -- 976 passed. tests/python/test_mcp_tunnel.py covers the run/init commands built from configuration (AC1/AC2), the owner-only config file with environment-over-file precedence (AC4), each of the three missing prerequisites reporting its own cause (AC3), no message carrying the key (AC7), and the viewer spawning no child when a prerequisite is missing (AC3/AC5). A refused key is read as refused rather than as a started connector (AC6). The localtunnel path stays covered in test_viewer_cli.py, now selecting it by name (AC8). tunnel-client is never invoked by the suite. Commit 36f327c2.
+
+# Tasks
+- `task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector`
+
+# Notes
+- Task `task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector` was finished via `logics-manager flow finish task` on 2026-08-16.

@@ -1,14 +1,29 @@
 ## prod_107_a_connector_configured_once_then_just_on_off - A connector configured once, then just ON/OFF
 > Date: 2026-08-15
-> Status: Proposed
+> Status: Settled
 > Related request: `req_376_make_the_chatgpt_mcp_connector_plug_and_play`
-> Related backlog: `item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts`, `item_848_give_the_connector_a_chatgpt_native_oauth_front_door`, `item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive`
+> Related backlog: `item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive`
 > Related task: `task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector`
-> Related architecture: (none yet)
+> Related architecture: `adr_031_one_mcp_transport_per_client_class`
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-16 00:27:12
 
 # Overview
-The ChatGPT MCP connector already works once it starts, but every restart forces a full reconfiguration in ChatGPT, and ChatGPT's own setup screen has no simple slot for the bearer auth this tool uses. This makes the connector durable across restarts, gives it a real OAuth front door ChatGPT's screen actually supports, and makes the viewer's own controls (the toggle, the detail screen) tell the truth about what is running.
+The ChatGPT MCP connector worked once it started, but every restart published a new URL and a new bearer token to paste into ChatGPT, and the machine was publicly reachable for as long as it ran. `adr_031_one_mcp_transport_per_client_class` replaced that with one transport per client class: ChatGPT rides OpenAI's Secure MCP Tunnel, which connects outbound and keeps a tunnel ID that never changes; local clients speak stdio and need no connector at all; hosted web clients are named as unsupported rather than half-served. What is left in the viewer is setup that happens once and then a switch, with controls that tell the truth about what is running.
+
+```mermaid
+flowchart LR
+    Op[Operator opens the connector screen] --> Class{Which client?}
+    Class -- "ChatGPT" --> Steps[Five setup steps, one actionable at a time]
+    Steps --> Met{All met?}
+    Met -- no --> Steps
+    Met -- yes --> Switch[Setup disappears: just ON/OFF]
+    Switch --> Tunnel[tunnel-client runs outbound, no URL published]
+    Tunnel --> First[First real request: connected]
+    Class -- "local client" --> Stdio[Copy the stdio command, no connector]
+    Class -- "other hosted web client" --> Not[Named unsupported, pointing at the deferred public-door request]
+    Key[(Machine config: owner-only, never rendered)] -.- Steps
+```
 
 # Goals
 - One-time ChatGPT configuration that survives every future stop/start.
@@ -34,5 +49,5 @@ The ChatGPT MCP connector already works once it starts, but every restart forces
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_376_make_the_chatgpt_mcp_connector_plug_and_play`
+- Product back-reference: `item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive`
 - Task back-reference: `task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector`

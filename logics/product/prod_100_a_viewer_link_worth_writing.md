@@ -1,6 +1,6 @@
 ## prod_100_a_viewer_link_worth_writing - A viewer link worth writing
 > Date: 2026-08-15
-> Status: Proposed
+> Status: Settled
 > Related request: `req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence`
 > Related backlog: `item_825_resolve_a_document_from_its_short_id`, `item_826_select_a_project_by_the_name_the_switcher_shows`, `item_827_write_down_the_link_forms_where_a_writer_will_look`
 > Related task: `task_380_orchestrate_the_short_viewer_link_work`
@@ -9,6 +9,18 @@
 
 # Overview
 Make the address of a document short enough that naming it and linking to it are the same act.
+
+```mermaid
+flowchart LR
+    Name[An answer names a document] --> Form{Which address?}
+    Form -- "full id, 76 chars of slug" --> Unwritten[Never written: the link crowds out the answer]
+    Form -- "req_368" --> Short[Short enough to write in a sentence]
+    Short --> Resolve{Names exactly one document?}
+    Resolve -- yes --> Open[The viewer opens on it]
+    Resolve -- "no, req_36" --> Nothing[Found nothing, and says so]
+    Registry[(viewers.json: port and scheme)] -.- Short
+    Registry -.- Absent[No entry: nothing to link to]
+```
 
 # Goals
 - The link an operator would write by hand is the link that works.

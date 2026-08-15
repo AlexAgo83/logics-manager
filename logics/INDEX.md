@@ -139,7 +139,7 @@
 | [prod_097_corpus_screens_that_are_quick_on_the_first_look_too](product/prod_097_corpus_screens_that_are_quick_on_the_first_look_too.md) | Corpus screens that are quick on the first look too | Settled |  |  | product/prod_097_corpus_screens_that_are_quick_on_the_first_look_too.md |
 | [prod_098_a_board_that_tells_the_truth_while_it_is_still_loading](product/prod_098_a_board_that_tells_the_truth_while_it_is_still_loading.md) | A board that tells the truth while it is still loading | Settled |  |  | product/prod_098_a_board_that_tells_the_truth_while_it_is_still_loading.md |
 | [prod_099_an_audit_worth_reading](product/prod_099_an_audit_worth_reading.md) | An audit worth reading | Settled |  |  | product/prod_099_an_audit_worth_reading.md |
-| [prod_100_a_viewer_link_worth_writing](product/prod_100_a_viewer_link_worth_writing.md) | A viewer link worth writing | Proposed |  |  | product/prod_100_a_viewer_link_worth_writing.md |
+| [prod_100_a_viewer_link_worth_writing](product/prod_100_a_viewer_link_worth_writing.md) | A viewer link worth writing | Settled |  |  | product/prod_100_a_viewer_link_worth_writing.md |
 
 ## Roadmaps
 
@@ -525,7 +525,7 @@
 | [req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong](request/req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong.md) | Finish the Insights and Health work the first measurement got wrong | Done |  |  | request/req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong.md |
 | [req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents](request/req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents.md) | Make the project view honest on arrival, and let runbooks be documents | Done |  |  | request/req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents.md |
 | [req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on](request/req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on.md) | Make the duplicate-proof check say something a reader can act on | Done |  |  | request/req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on.md |
-| [req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence](request/req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence.md) | Make a viewer link short enough to write in a sentence | Draft |  |  | request/req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence.md |
+| [req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence](request/req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence.md) | Make a viewer link short enough to write in a sentence | Done |  |  | request/req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence.md |
 
 ## Backlog
 
@@ -1355,9 +1355,9 @@
 | [item_822_let_a_document_settle_a_deliberate_shared_proof](backlog/item_822_let_a_document_settle_a_deliberate_shared_proof.md) | Let a document settle a deliberate shared proof | Done |  | 100% | backlog/item_822_let_a_document_settle_a_deliberate_shared_proof.md |
 | [item_823_prove_the_check_still_finds_what_it_was_built_for](backlog/item_823_prove_the_check_still_finds_what_it_was_built_for.md) | Prove the check still finds what it was built for | Done |  | 100% | backlog/item_823_prove_the_check_still_finds_what_it_was_built_for.md |
 | [item_824_say_what_the_audit_s_remaining_warnings_are](backlog/item_824_say_what_the_audit_s_remaining_warnings_are.md) | Say what the audit's remaining warnings are | Done |  | 100% | backlog/item_824_say_what_the_audit_s_remaining_warnings_are.md |
-| [item_825_resolve_a_document_from_its_short_id](backlog/item_825_resolve_a_document_from_its_short_id.md) | Resolve a document from its short id | Ready |  | 0% | backlog/item_825_resolve_a_document_from_its_short_id.md |
-| [item_826_select_a_project_by_the_name_the_switcher_shows](backlog/item_826_select_a_project_by_the_name_the_switcher_shows.md) | Select a project by the name the switcher shows | Ready |  | 0% | backlog/item_826_select_a_project_by_the_name_the_switcher_shows.md |
-| [item_827_write_down_the_link_forms_where_a_writer_will_look](backlog/item_827_write_down_the_link_forms_where_a_writer_will_look.md) | Write down the link forms where a writer will look | Ready |  | 0% | backlog/item_827_write_down_the_link_forms_where_a_writer_will_look.md |
+| [item_825_resolve_a_document_from_its_short_id](backlog/item_825_resolve_a_document_from_its_short_id.md) | Resolve a document from its short id | Done |  | 100% | backlog/item_825_resolve_a_document_from_its_short_id.md |
+| [item_826_select_a_project_by_the_name_the_switcher_shows](backlog/item_826_select_a_project_by_the_name_the_switcher_shows.md) | Select a project by the name the switcher shows | Done |  | 100% | backlog/item_826_select_a_project_by_the_name_the_switcher_shows.md |
+| [item_827_write_down_the_link_forms_where_a_writer_will_look](backlog/item_827_write_down_the_link_forms_where_a_writer_will_look.md) | Write down the link forms where a writer will look | Done |  | 100% | backlog/item_827_write_down_the_link_forms_where_a_writer_will_look.md |
 
 ## Tasks
 
@@ -1736,7 +1736,7 @@
 | [task_377_orchestrate_the_second_look_at_insights_and_health](tasks/task_377_orchestrate_the_second_look_at_insights_and_health.md) | Orchestrate the second look at Insights and Health | Done |  | 100% | tasks/task_377_orchestrate_the_second_look_at_insights_and_health.md |
 | [task_378_orchestrate_the_board_arrival_and_runbook_document_work](tasks/task_378_orchestrate_the_board_arrival_and_runbook_document_work.md) | Orchestrate the board arrival and runbook document work | Done |  | 100% | tasks/task_378_orchestrate_the_board_arrival_and_runbook_document_work.md |
 | [task_379_orchestrate_the_audit_signal_work](tasks/task_379_orchestrate_the_audit_signal_work.md) | Orchestrate the audit signal work | Done |  | 100% | tasks/task_379_orchestrate_the_audit_signal_work.md |
-| [task_380_orchestrate_the_short_viewer_link_work](tasks/task_380_orchestrate_the_short_viewer_link_work.md) | Orchestrate the short viewer link work | Ready |  | 0% | tasks/task_380_orchestrate_the_short_viewer_link_work.md |
+| [task_380_orchestrate_the_short_viewer_link_work](tasks/task_380_orchestrate_the_short_viewer_link_work.md) | Orchestrate the short viewer link work | Done |  | 100% | tasks/task_380_orchestrate_the_short_viewer_link_work.md |
 
 ## Runbooks
 

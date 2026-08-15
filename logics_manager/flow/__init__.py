@@ -28,6 +28,7 @@ from ..lint import expected_workflow_mermaid_signature, lint_payload
 from ..path_utils import ensure_relative_to, resolve_repo_output_path
 from ..statuses import transition_error
 from ..sync import build_context_pack_payload, read_logics_doc_payload, update_workflow_indicators_payload
+from ..viewer_docs import viewer_url_for_ref
 from ..termstyle import colorize_help
 from .help_text import (
     _build_close_help,
@@ -1523,6 +1524,11 @@ def cmd_show(args: argparse.Namespace) -> dict[str, object]:
         print(f"- path: {payload['path']}")
         print(f"- status: {payload['status']}")
         print(f"- truncated: {payload['truncated']}")
+        # item_832: no viewer, no line -- a "no viewer running" line is noise in a
+        # command about a document, not information.
+        link = viewer_url_for_ref(repo_root, str(payload["ref"]))
+        if link:
+            print(f"- link: {link}")
         print("")
         print(str(payload["content"]).rstrip())
     return payload

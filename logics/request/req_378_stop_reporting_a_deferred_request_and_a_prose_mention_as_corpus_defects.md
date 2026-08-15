@@ -1,12 +1,13 @@
 ## req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects - Stop reporting a deferred request and a prose mention as corpus defects
 > From version: 2.22.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Low
 > Theme: Audit and closeout signal accuracy
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-16 00:52:57
 
 # AI Context
 - Summary: (unfilled: replace before this doc is used)

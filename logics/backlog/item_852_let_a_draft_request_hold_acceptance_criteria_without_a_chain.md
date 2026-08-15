@@ -8,6 +8,7 @@
 > Complexity: Low
 > Theme: Audit scope
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-16 00:52:58
 
 # AI Context
 - Summary: (unfilled: replace before this doc is used)
@@ -53,3 +54,9 @@
 
 # Validation
 - 2026-08-16: tests/python/test_honest_outcomes.py -- a Draft request with ACs and no chain reports neither ac_no_linked_backlog nor ac_no_linked_tasks (AC1); the same request in Ready still reports ac_no_linked_backlog (AC2). A third case surfaced while restoring the pointers: a chain running through an Obsolete slice was reporting a Done task to the request that inherited its research, putting six ACs due on work nobody had started -- abandoned items no longer contribute linked tasks. req_377 now audits clean with its links intact (AC3): 0 blocking findings.
+
+# Tasks
+- `task_388_make_both_checks_read_the_corpus_as_written`
+
+# Notes
+- Task `task_388_make_both_checks_read_the_corpus_as_written` was finished via `logics-manager flow finish task` on 2026-08-16.

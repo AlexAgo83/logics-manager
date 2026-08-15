@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Closeout ref collection
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-16 00:52:58
 
 # AI Context
 - Summary: (unfilled: replace before this doc is used)
@@ -56,3 +57,9 @@
 
 # Validation
 - 2026-08-16: closeout now reads request refs from the declared link sections, reusing the audit's own DECLARED_LINK_SECTIONS map (req_337) rather than a second implementation. The four documents edited around the finding name their refs again -- item_850 and item_851 point at req_377 in prose, item_847 and item_848 declare both their superseding request and the task they were scaffolded under -- and task_387's closeout preflight passes with no blocking issues (AC1, AC2, AC3).
+
+# Tasks
+- `task_388_make_both_checks_read_the_corpus_as_written`
+
+# Notes
+- Task `task_388_make_both_checks_read_the_corpus_as_written` was finished via `logics-manager flow finish task` on 2026-08-16.

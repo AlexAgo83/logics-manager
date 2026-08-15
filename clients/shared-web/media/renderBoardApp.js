@@ -593,6 +593,11 @@
       // position. Only the board's *horizontal* offset and the columns' own were kept, so
       // any vertical offset of the board itself -- which is what list mode and the reference
       // index below the columns scroll -- was lost on the re-render a selection causes.
+      // Still reported after the board's own offsets were kept: the reference index is not
+      // scrolled by the board, it has its own `overflow-y: auto` body, and that was the one
+      // offset nothing captured -- so clicking a reference card sent its list back to the top.
+      const indexBody = board.querySelector(".companion-index__body");
+      const indexScrollTop = indexBody ? indexBody.scrollTop : null;
       const scrollLeft = board.scrollLeft;
       const scrollTop = board.scrollTop;
       const columnScroll = new Map();
@@ -603,7 +608,7 @@
           columnScroll.set(stage, body.scrollTop);
         }
       });
-      return { scrollLeft, scrollTop, columnScroll };
+      return { scrollLeft, scrollTop, indexScrollTop, columnScroll };
     }
 
     function restoreBoardScroll(state) {
@@ -613,6 +618,12 @@
       board.scrollLeft = state.scrollLeft;
       if (typeof state.scrollTop === "number") {
         board.scrollTop = state.scrollTop;
+      }
+      if (typeof state.indexScrollTop === "number") {
+        const indexBody = board.querySelector(".companion-index__body");
+        if (indexBody) {
+          indexBody.scrollTop = state.indexScrollTop;
+        }
       }
       board.querySelectorAll(".column").forEach((column) => {
         const stage = column.dataset.stage;

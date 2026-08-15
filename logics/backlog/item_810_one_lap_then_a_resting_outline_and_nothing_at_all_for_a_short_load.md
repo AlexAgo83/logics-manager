@@ -34,6 +34,13 @@
 - AC2: A load that resolves faster than the threshold shows no ring, no spinner and no sheen.
 - AC3: The threshold is one value read by all three affordances, not three that can drift.
 
+# Report
+- The ring's rotation is `1 forwards` with an eased curve instead of `infinite` linear, handing over to `.viewer-document__ring-rest` -- a steady dimmed inset outline that holds until the load ends. Motion marks the start; the outline carries the wait without competing for attention.
+- Under reduced motion the resting outline is `display: none`: no lap runs, so there is nothing to hand over to, and a second static outline over the breathing glow would only mute it.
+- The threshold is one constant read by all three affordances (`LOADING_AFFORDANCE_DELAY_MS`), because three thresholds are three things that come to disagree. The colour is set immediately and the attribute after the delay: a surface that changes colour as it appears reads as two events rather than one.
+- The timer re-reads the surfaces when it fires rather than closing over them: a screen change between the click and the threshold replaces the header it was about to light.
+- Measured live: at 120ms after a click neither surface is lit; at 520ms both are; the state clears about a second later; and a now-cached Insights load never lights anything at all while still opening the screen.
+
 # AC Traceability
 - request-AC2 -> This backlog slice. Proof: AC1: The ring completes one lap and then holds a steady dimmed outline for the rest of the load.
 - request-AC3 -> This backlog slice. Proof: AC2: A load that resolves faster than the threshold shows no ring, no spinner and no sheen.

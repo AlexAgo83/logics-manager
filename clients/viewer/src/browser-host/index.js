@@ -626,11 +626,66 @@ import {
   //: neutral, which is deliberately none of the four.
   const LOADING_RING_STAGES = new Set(["request", "backlog", "task", "product"]);
 
+  //: item_810: nothing is shown below this. req_364's cache made most loads answer in
+  //: about 12ms, so every affordance here was being shown and hidden inside a single
+  //: frame -- an appearance the eye catches only as a glitch. One value, read by the ring,
+  //: the status spinner and the header sheen alike, because three thresholds are three
+  //: things that come to disagree.
+  const LOADING_AFFORDANCE_DELAY_MS = 250;
+
+  let loadingAffordanceTimer = null;
+
+  /**
+   * item_812: the phone header's one control, opening the screen buttons as a sheet.
+   *
+   * The buttons are the same elements the desktop header shows -- only their presentation
+   * changes -- so choosing one runs the handler it already had. Closing on that click is
+   * what makes it a menu rather than a panel that has to be dismissed twice.
+   */
+  function installTopbarMenu() {
+    const topbar = document.querySelector(".viewer-topbar");
+    const button = document.getElementById("viewer-topbar-menu");
+    const actions = document.getElementById("viewer-topbar-actions");
+    if (!(topbar instanceof HTMLElement) || !(button instanceof HTMLElement) || !(actions instanceof HTMLElement)) return;
+
+    const setOpen = (open) => {
+      topbar.toggleAttribute("data-menu-open", open);
+      button.setAttribute("aria-expanded", open ? "true" : "false");
+    };
+
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      setOpen(!topbar.hasAttribute("data-menu-open"));
+    });
+    // A screen chosen from the sheet closes it; the nav menus it opens are their own.
+    actions.addEventListener("click", (event) => {
+      if (event.target instanceof Element && event.target.closest("button") !== null) setOpen(false);
+    });
+    document.addEventListener("click", (event) => {
+      if (!topbar.hasAttribute("data-menu-open")) return;
+      const inside = event.target instanceof Node && (actions.contains(event.target) || button.contains(event.target));
+      if (!inside) setOpen(false);
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") setOpen(false);
+    });
+  }
+
+  function loadingSurfaces() {
+    return [
+      document.querySelector(".viewer-document__header"),
+      document.querySelector(".viewer-topbar")
+    ].filter((node) => node instanceof HTMLElement);
+  }
+
   function applyLoadingRing(busy, screenChange = false) {
-    const header = document.querySelector(".viewer-document__header");
-    if (!(header instanceof HTMLElement)) return;
+    if (loadingAffordanceTimer !== null) {
+      window.clearTimeout(loadingAffordanceTimer);
+      loadingAffordanceTimer = null;
+    }
+    const surfaces = loadingSurfaces();
     if (!busy) {
-      header.removeAttribute("data-loading");
+      surfaces.forEach((node) => node.removeAttribute("data-loading"));
       return;
     }
     // What is loading is not known when the load starts -- `currentDocumentItem` is still
@@ -638,11 +693,18 @@ import {
     // is the wrong one, and navigation already declares itself as one (`supersede`), so the
     // ring reads neutral there rather than colouring a Settings load like a request.
     const stage = screenChange ? "" : String(currentDocumentItem?.stage || "");
-    header.style.setProperty(
-      "--loading-color",
-      LOADING_RING_STAGES.has(stage) ? `var(--stage-color-${stage})` : "var(--viewer-loading-neutral)"
-    );
-    header.setAttribute("data-loading", "");
+    const colour = LOADING_RING_STAGES.has(stage)
+      ? `var(--stage-color-${stage})`
+      : "var(--viewer-loading-neutral)";
+    // The colour is set now and the attribute later: a surface that changes colour as it
+    // appears reads as two events rather than one.
+    surfaces.forEach((node) => node.style.setProperty("--loading-color", colour));
+    loadingAffordanceTimer = window.setTimeout(() => {
+      loadingAffordanceTimer = null;
+      // Re-read rather than closing over the list: a screen change between the click and
+      // the threshold replaces the header this was about to light.
+      loadingSurfaces().forEach((node) => node.setAttribute("data-loading", ""));
+    }, LOADING_AFFORDANCE_DELAY_MS);
   }
 
   function setPrimaryActionBusy(actionKey, label = "", options = {}) {
@@ -5125,6 +5187,7 @@ import {
       });
     });
     installViewerHints();
+    installTopbarMenu();
     startAutoRefresh();
   });
 })();

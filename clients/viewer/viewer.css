@@ -377,6 +377,15 @@
   overflow-wrap: anywhere;
 }
 
+/* item_812: only the phone breakpoint has a button grid to replace, so this control exists
+   only there. Declared here rather than after that breakpoint: the two rules have the same
+   specificity, so whichever comes last wins, and appended at the end this one hid the
+   button at every width. */
+.viewer-topbar__menu {
+  display: none;
+  margin-left: auto;
+}
+
 .viewer-topbar__actions {
   display: flex;
   align-items: center;
@@ -5396,15 +5405,42 @@
     padding: 8px 10px;
   }
 
+  /* item_812: the same buttons, as a sheet under one control, rather than a grid of them
+     across the viewport. Same markup -- this is a presentation of the navigation the
+     viewer already has, not a second copy of it. */
+  .viewer-topbar__menu {
+    display: inline-flex;
+  }
+
   .viewer-topbar__actions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    position: absolute;
+    top: calc(100% - 4px);
+    right: 10px;
+    left: 10px;
+    z-index: 70;
+    display: none;
+    grid-template-columns: minmax(0, 1fr);
     gap: 4px;
-    width: 100%;
+    padding: 6px;
+    border: 1px solid var(--vscode-panel-border, #333333);
+    border-radius: 6px;
+    background: var(--vscode-dropdown-background, var(--vscode-editorWidget-background, #202020));
+    box-shadow: 0 12px 28px rgb(0 0 0 / 28%);
+  }
+
+  .viewer-topbar[data-menu-open] .viewer-topbar__actions {
+    display: grid;
   }
 
   .viewer-topbar__actions button {
-    padding: 4px 8px;
-    font-size: 11px;
+    padding: 6px 8px;
+    font-size: 12px;
+    text-align: left;
+  }
+
+  /* The sheet is the topbar's own child, so the topbar cannot clip it. */
+  .viewer-topbar {
+    overflow: visible;
   }
 
   .viewer-topbar__identity {
@@ -6991,7 +7027,26 @@
     var(--loading-color, var(--viewer-loading-neutral)) 356deg,
     transparent 360deg
   );
-  animation: viewer-loading-ring-spin 1.8s linear infinite;
+  /* item_810: one lap, not a rotation for the load's whole duration. A spinner that never
+     stops is a clock the operator cannot read -- it says "still going" and nothing they can
+     act on, and on a four-second screen it holds the eye for four seconds to say it. Eased
+     out so the comet lands rather than being cut off, and handed over to the resting
+     outline below. */
+  animation: viewer-loading-ring-spin 1.15s cubic-bezier(0.36, 0.06, 0.2, 1) 1 forwards;
+}
+
+/* What carries the wait once the lap is done: the same colour, steady, dimmed enough not to
+   compete with the screen it frames. */
+.viewer-document__ring-rest {
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 2px var(--loading-color, var(--viewer-loading-neutral));
+  opacity: 0;
+  transition: opacity 0.35s ease 0.95s;
+}
+
+.viewer-document__header[data-loading] .viewer-document__ring-rest {
+  opacity: 0.5;
 }
 
 .viewer-document__ring::after {
@@ -7017,6 +7072,12 @@
     inset: 0;
   }
 
+  /* No lap runs, so there is nothing to hand over to: the breathing glow is the whole
+     signal, and a second static outline over it would only mute it. */
+  .viewer-document__ring-rest {
+    display: none;
+  }
+
   .viewer-document__header[data-loading] .viewer-document__ring {
     opacity: 0.55;
     animation: viewer-loading-ring-breathe 2.4s ease-in-out infinite;
@@ -7032,3 +7093,103 @@
     opacity: 0.65;
   }
 }
+
+/* item_809: a load with no document screen open had no signal at all -- the status line's
+   text changed and that was the whole of it. The spinner sits in its own slot beside the
+   message rather than replacing it, so the line does not reflow as it appears and clears. */
+.viewer-topbar__status {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  min-width: 0;
+}
+
+.viewer-topbar__spinner {
+  flex: none;
+  align-self: center;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  /* One quadrant in the loading colour: at 12px a full ring reads as a dot, and the
+     rotation has to be legible for the spin to mean anything. */
+  border: 2px solid color-mix(in srgb, var(--loading-color, var(--viewer-loading-neutral)) 28%, transparent);
+  border-top-color: var(--loading-color, var(--viewer-loading-neutral));
+  animation: viewer-topbar-spin 0.7s linear infinite;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.viewer-topbar[data-loading] .viewer-topbar__spinner {
+  opacity: 1;
+}
+
+@keyframes viewer-topbar-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* item_809: the header's own surface says it is working too. A slow sheen crossing it,
+   in the loading colour at very low alpha. Deliberately not a progress bar: nothing here
+   knows a proportion, and a bar filling at an invented rate is a claim the operator
+   calibrates against and is wrong about. */
+.viewer-topbar {
+  position: relative;
+  overflow: hidden;
+}
+
+.viewer-topbar > * {
+  position: relative;
+  z-index: 1;
+}
+
+.viewer-topbar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    transparent 35%,
+    color-mix(in srgb, var(--loading-color, var(--viewer-loading-neutral)) 14%, transparent) 50%,
+    transparent 65%,
+    transparent 100%
+  );
+  background-size: 220% 100%;
+  background-position: 120% 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.viewer-topbar[data-loading]::after {
+  opacity: 1;
+  animation: viewer-topbar-sheen 2.1s ease-in-out infinite;
+}
+
+@keyframes viewer-topbar-sheen {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -60% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The spinner's travel goes; it still marks the state, as a filled dot. */
+  .viewer-topbar__spinner {
+    animation: none;
+    border-color: transparent;
+    background: var(--loading-color, var(--viewer-loading-neutral));
+  }
+
+  /* The sheen stops crossing and holds a flat tint: the surface still says it is busy
+     without anything moving across it. */
+  .viewer-topbar[data-loading]::after {
+    animation: none;
+    background: color-mix(in srgb, var(--loading-color, var(--viewer-loading-neutral)) 9%, transparent);
+  }
+}
+

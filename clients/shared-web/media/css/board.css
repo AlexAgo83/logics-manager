@@ -773,12 +773,13 @@
   border-left-width: 2px;
 }
 
-.card[data-stage="request"] { border-left-color: var(--stage-color-request); }
-.card[data-stage="backlog"] { border-left-color: var(--stage-color-backlog); }
-.card[data-stage="task"] { border-left-color: var(--stage-color-task); }
-.card[data-stage="product"] { border-left-color: var(--stage-color-product); }
-.card[data-stage="architecture"] { border-left-color: var(--stage-color-architecture); }
-.card[data-stage="spec"] { border-left-color: var(--stage-color-spec); }
+/* item_811: this was a second copy of the stage list, and it had fallen two stages behind
+   the first -- `roadmap` and `runbook` have colour tokens and were drawing the neutral base
+   here, so a roadmap card looked like a card whose stage is unknown. The list that item_795
+   moved onto the card already resolves every stage into `--card-progress-color`, so the
+   accent reads that instead of enumerating them again: adding a stage now colours both
+   surfaces or neither, and cannot colour one. */
+.card[data-stage] { border-left-color: var(--card-progress-color, var(--vscode-descriptionForeground, #6e7681)); }
 
 /* Age replaces the near-constant understanding/confidence pair on the card face. */
 .card__badge-age {

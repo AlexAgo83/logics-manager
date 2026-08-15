@@ -33,6 +33,11 @@
 - AC2: The menu opens the same navigation entries the desktop header offers, from the same markup.
 - AC3: Desktop widths are unchanged.
 
+# Report
+- At phone widths the screen buttons become a sheet under one Menu button on the project selector's own row. Same markup: the sheet is `.viewer-topbar__actions` presented differently, so choosing an entry runs the handler it already had and no second navigation exists to drift.
+- Measured live at a 390px emulated viewport: the Menu button sits at y=8 with the selector at y=10 -- one row -- the actions are hidden at rest, and opening yields the real entries (Workshop, Terminals, Commands, Explorer, Corpus, Getting Started).
+- Caught by driving it rather than reading the rule: the base `display: none` had been appended at the end of the stylesheet, after the breakpoint that reveals the button. Same specificity, so the later rule won and the button was hidden at every width, including the one it exists for. Declared with the other topbar rules now, and a test asserts that order.
+
 # AC Traceability
 - request-AC5 -> This backlog slice. Proof: AC1: At phone widths the header shows the selector and one menu button on one row, and no grid of screen buttons.
 

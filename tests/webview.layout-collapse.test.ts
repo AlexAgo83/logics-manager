@@ -596,3 +596,32 @@ describe("the scrollbar is the viewer's own, on every host", () => {
     expect(css).toMatch(/\*::-webkit-scrollbar-thumb\s*\{[^}]*background:/);
   });
 });
+
+
+describe("a selected card is marked in its own stage colour", () => {
+  const css = readCssBundle("clients/shared-web/media/main.css");
+
+  it("draws the selection outline from the card's stage token", () => {
+    // Reported by the operator: the outline was one focus-blue whatever the card was, so a
+    // selected request and a selected task looked alike while every other mark on the card
+    // said otherwise.
+    const rule = css.match(/^\.card--selected\s*\{[^}]+\}/m)?.[0] || "";
+    expect(rule).toMatch(/outline:[^;]*var\(--card-progress-color/);
+    // The fallback matters: a card with no known stage must still be visibly selected.
+    expect(rule).toMatch(/--card-progress-color,\s*var\(--vscode-focusBorder/);
+    // The tint behind it stays neutral -- two stage-coloured surfaces on one card is the
+    // body-tint mistake item_719 removed.
+    expect(rule).toContain("--vscode-list-activeSelectionBackground");
+  });
+
+  it("maps every stage that has a colour token, on the card rather than its title", () => {
+    // Set on the card so the property inherits: the progress bar reads it from the title and
+    // the outline reads it from the card, off one table. Roadmap and runbook had tokens but
+    // no mapping, so those two stages fell back to the generic teal.
+    const tokens = [...css.matchAll(/--stage-color-([a-z]+):/g)].map((m) => m[1]);
+    expect(tokens.length).toBeGreaterThan(0);
+    for (const stage of tokens) {
+      expect(css).toContain(`.card[data-stage="${stage}"], .list-row[data-stage="${stage}"] { --card-progress-color: var(--stage-color-${stage}); }`);
+    }
+  });
+});

@@ -2969,11 +2969,11 @@ import {
     return `<div class="viewer-settings-screen">
       ${renderSettingsIdentity(info, mcpState)}
       <div class="viewer-settings-screen__grid">
-        <section class="viewer-settings-card"><h3>Refresh</h3><label class="viewer-auto-refresh viewer-settings-toggle"><input type="checkbox" role="switch" aria-checked="${autoRefreshEnabled ? "true" : "false"}" data-viewer-settings-auto-refresh ${autoRefreshEnabled ? "checked" : ""} /><span>Automatic refresh</span><em class="viewer-settings-toggle__state">${autoRefreshEnabled ? "On" : "Off"}</em></label><label class="viewer-refresh-menu__interval"><span>Interval</span><select data-viewer-settings-interval aria-label="Automatic refresh interval"><option value="5">5 sec</option><option value="10">10 sec</option><option value="15">15 sec</option><option value="30">30 sec</option><option value="60">60 sec</option></select></label><button class="btn" type="button" data-viewer-settings-action="refresh">Refresh now</button></section>
-        <section class="viewer-settings-card"><h3>ChatGPT Developer Mode</h3><p>Start a temporary HTTPS MCP connector only when you choose ON.</p><button class="btn" type="button" data-viewer-settings-action="mcp">Open MCP controls</button></section>
-        <section class="viewer-settings-card"><h3>Server</h3><button class="btn" type="button" data-viewer-settings-action="copy-diagnostics">Copy diagnostics</button>
+        <section class="viewer-settings-card"><h3>Refresh</h3><label class="viewer-auto-refresh viewer-settings-toggle"><input type="checkbox" role="switch" aria-checked="${autoRefreshEnabled ? "true" : "false"}" data-viewer-settings-auto-refresh ${autoRefreshEnabled ? "checked" : ""} /><span>Automatic refresh</span><em class="viewer-settings-toggle__state">${autoRefreshEnabled ? "On" : "Off"}</em></label><label class="viewer-refresh-menu__interval"><span>Interval</span><select data-viewer-settings-interval aria-label="Automatic refresh interval"><option value="5">5 sec</option><option value="10">10 sec</option><option value="15">15 sec</option><option value="30">30 sec</option><option value="60">60 sec</option></select></label><button class="btn" type="button" data-viewer-settings-action="refresh">Refresh now</button><p class="viewer-settings-card__readout">${lastSuccessfulSyncAt ? `Last refreshed ${escapeHtml(new Date(lastSuccessfulSyncAt).toLocaleTimeString())}` : "Not refreshed yet this session"}</p></section>
+        <section class="viewer-settings-card"><h3>ChatGPT Developer Mode</h3><label class="viewer-settings-toggle"><input type="checkbox" role="switch" aria-checked="${mcpState === "On" ? "true" : "false"}" data-viewer-settings-mcp ${mcpState === "On" ? "checked" : ""} /><span>Connector</span><em class="viewer-settings-toggle__state">${escapeHtml(mcpState)}</em></label><p>Starts a temporary HTTPS MCP connector. Nothing is exposed until this is on.</p><button class="btn viewer-settings-quiet" type="button" data-viewer-settings-action="mcp">${mcpState === "On" ? "Show URL and token" : "Open MCP controls"}</button></section>
+        <section class="viewer-settings-card"><h3>Server</h3><button class="btn viewer-settings-quiet" type="button" data-viewer-settings-action="copy-diagnostics">Copy diagnostics</button>
           <button class="btn viewer-settings-danger" type="button" data-viewer-settings-action="restart">Restart viewer<small>Reconnects this page automatically</small></button>
-          <button class="btn viewer-settings-danger" type="button" data-viewer-settings-action="stop">Stop viewer<small>This page stops working until you restart it from a terminal</small></button>
+          <button class="btn viewer-settings-danger viewer-settings-danger--destructive" type="button" data-viewer-settings-action="stop">Stop viewer<small>This page stops working until you restart it from a terminal</small></button>
         </section>
         ${vscode ? '<section class="viewer-settings-card"><h3>VS Code panel</h3><button class="btn" type="button" data-viewer-settings-action="vscode-reload">Reload</button><button class="btn viewer-settings-danger" type="button" data-viewer-settings-action="vscode-restart">Restart panel<small>Discards this panel\'s open screens</small></button><button class="btn" type="button" data-viewer-settings-action="vscode-external">Open externally</button></section>' : ""}
       </div>
@@ -4001,6 +4001,28 @@ import {
       }
       if (target instanceof HTMLSelectElement && target.matches("[data-viewer-settings-interval]")) {
         setAutoRefreshIntervalSeconds(target.value, { user: true });
+      }
+      // item_796: the connector used to be reachable only by leaving Settings for a screen
+      // of its own. It flips here now; that screen still owns the URL and token, which is
+      // the part a toggle cannot carry. Settings is re-rendered rather than navigated away
+      // from, so the operator stays where they made the change -- and a refusal puts the
+      // switch back, because a switch left ON over a connector that never started lies.
+      if (target instanceof HTMLInputElement && target.matches("[data-viewer-settings-mcp]")) {
+        const wanted = target.checked;
+        const value = wanted ? "start" : "stop";
+        withPrimaryAction(`mcp-${value}`, wanted ? "Starting connector" : "Stopping connector", async () => {
+          const response = await fetch("/api/mcp-connector", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: value })
+          });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok || !data.ok) {
+            target.checked = !wanted;
+            throw new Error(data.error || `Unable to ${value} the MCP connector.`);
+          }
+          await showSettings();
+        });
       }
     });
     document.addEventListener("click", (event) => {

@@ -193,9 +193,15 @@ def parse_workflow_doc(path: Path, *, repo_root: Path | None = None) -> Workflow
     )
 
 
-def _load_workflow_docs(repo_root: Path) -> dict[str, WorkflowDocModel]:
+def _load_workflow_docs(repo_root: Path, *, only_kinds: tuple[str, ...] | None = None) -> dict[str, WorkflowDocModel]:
+    # ponytail: `only_kinds` is a directory filter, not a cache. Parsing all ~1700 docs to
+    # return 2 runbooks cost the viewer 8s per /api/runbooks call; skipping the directories
+    # the caller already filtered out afterwards is the whole fix. Add caching only if a
+    # caller that genuinely needs every kind becomes the slow one.
     docs: dict[str, WorkflowDocModel] = {}
-    for kind in INDICATOR_TARGET_KINDS.values():
+    for name, kind in INDICATOR_TARGET_KINDS.items():
+        if only_kinds is not None and name not in only_kinds:
+            continue
         directory = repo_root / kind["directory"]
         if not directory.is_dir():
             continue
@@ -598,7 +604,7 @@ def list_logics_docs_payload(
     open_only: bool = False,
     changed: bool = False,
 ) -> dict[str, object]:
-    docs = sorted(_load_workflow_docs(repo_root).values(), key=lambda doc: doc.path)
+    docs = sorted(_load_workflow_docs(repo_root, only_kinds=None if kind == "all" else (kind,)).values(), key=lambda doc: doc.path)
     changed_paths = set(_git_changed_paths(repo_root)) if changed else set()
     change_times = git_last_change_times(repo_root)
     if kind != "all":
@@ -723,7 +729,7 @@ def match_runbooks_payload(repo_root: Path, query: str, *, limit: int = RUNBOOK_
     if not normalized:
         raise SystemExit("Match query is required.")
     docs_payload = list_logics_docs_payload(repo_root, kind="runbook", status=None if include_hidden else "Active", limit=10000)
-    docs_by_ref = _load_workflow_docs(repo_root)
+    docs_by_ref = _load_workflow_docs(repo_root, only_kinds=("runbook",))
     scored: list[tuple[int, str, dict[str, object]]] = []
     for item in docs_payload["items"]:
         ref = str(item["ref"])
@@ -782,7 +788,7 @@ def list_active_runbooks_payload(repo_root: Path, *, limit: int = 10, include_hi
     a no-match search result.
     """
     listed = list_logics_docs_payload(repo_root, kind="runbook", status=None if include_hidden else "Active", limit=10000, recent=True)
-    docs_by_ref = _load_workflow_docs(repo_root)
+    docs_by_ref = _load_workflow_docs(repo_root, only_kinds=("runbook",))
     items: list[dict[str, object]] = []
     for item in listed["items"][:limit]:
         doc = docs_by_ref.get(str(item["ref"]))

@@ -588,7 +588,12 @@
       if (!board) {
         return null;
       }
+      // Reported by the operator: clicking an item in the reference index resets the scroll
+      // position. Only the board's *horizontal* offset and the columns' own were kept, so
+      // any vertical offset of the board itself -- which is what list mode and the reference
+      // index below the columns scroll -- was lost on the re-render a selection causes.
       const scrollLeft = board.scrollLeft;
+      const scrollTop = board.scrollTop;
       const columnScroll = new Map();
       board.querySelectorAll(".column").forEach((column) => {
         const stage = column.dataset.stage;
@@ -597,7 +602,7 @@
           columnScroll.set(stage, body.scrollTop);
         }
       });
-      return { scrollLeft, columnScroll };
+      return { scrollLeft, scrollTop, columnScroll };
     }
 
     function restoreBoardScroll(state) {
@@ -605,6 +610,9 @@
         return;
       }
       board.scrollLeft = state.scrollLeft;
+      if (typeof state.scrollTop === "number") {
+        board.scrollTop = state.scrollTop;
+      }
       board.querySelectorAll(".column").forEach((column) => {
         const stage = column.dataset.stage;
         const body = column.querySelector(".column__body");

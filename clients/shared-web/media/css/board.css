@@ -166,10 +166,19 @@
 }
 
 .card {
+  /* item_817, reported on runbook cells and true of every card whose status is not one of
+     the five `cardStatusKey` recognises: the 5px accent came only from
+     `.card[class*="card--status-"]`, so an `Active` document kept the 1px base border while
+     its neighbours carried an accent. The accent belongs to the stage -- which every
+     document has -- and the status varies its *shape* on top. Declared here rather than on
+     `.card[data-stage]`, whose higher specificity would have flattened those shapes. */
   margin: 6px 10px;
   padding: 8px 10px;
   background: var(--vscode-editorWidget-background, #202020);
   border: 1px solid var(--vscode-panel-border, #333333);
+  /* After the shorthand, which would otherwise reset the width back to 1px. */
+  border-left-style: solid;
+  border-left-width: 5px;
   border-radius: 6px;
   cursor: pointer;
   display: flex;
@@ -779,6 +788,12 @@
    moved onto the card already resolves every stage into `--card-progress-color`, so the
    accent reads that instead of enumerating them again: adding a stage now colours both
    surfaces or neither, and cannot colour one. */
+/* item_817, reported on runbook cells and true of every card with an unrecognised status:
+   the 5px accent came only from `.card[class*="card--status-"]`, and `cardStatusKey` maps
+   just blocked/in progress/ready/draft/done. An `Active` document matched none of them, so
+   it kept the 1px base border while its neighbours carried an accent. The accent belongs to
+   the stage -- which every document has -- and the status varies its *shape* on top, which
+   is what the rules above already do. */
 .card[data-stage] { border-left-color: var(--card-progress-color, var(--vscode-descriptionForeground, #6e7681)); }
 
 /* Age replaces the near-constant understanding/confidence pair on the card face. */

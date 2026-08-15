@@ -6369,10 +6369,14 @@
   font-size: 13px;
 }
 
+/* Three columns at most: `auto-fit` alone laid the six identity rows out in a single
+   six-across strip once the Settings width cap was removed. Raising the minimum track to a
+   third of the row (minus the two gaps) caps the count without freezing it -- the layout
+   still falls back to two, then one, as the panel narrows. */
 .viewer-settings-identity__list {
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(max(240px, (100% - 40px) / 3), 1fr));
   gap: 6px 20px;
 }
 

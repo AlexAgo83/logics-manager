@@ -142,6 +142,7 @@
 | [prod_100_a_viewer_link_worth_writing](product/prod_100_a_viewer_link_worth_writing.md) | A viewer link worth writing | Settled |  |  | product/prod_100_a_viewer_link_worth_writing.md |
 | [prod_101_a_restart_that_comes_back](product/prod_101_a_restart_that_comes_back.md) | A restart that comes back | Settled |  |  | product/prod_101_a_restart_that_comes_back.md |
 | [prod_102_the_link_travels_with_the_document](product/prod_102_the_link_travels_with_the_document.md) | The link travels with the document | Proposed |  |  | product/prod_102_the_link_travels_with_the_document.md |
+| [prod_103_an_issue_bridge_on_the_path_people_walk](product/prod_103_an_issue_bridge_on_the_path_people_walk.md) | An issue bridge on the path people walk | Proposed |  |  | product/prod_103_an_issue_bridge_on_the_path_people_walk.md |
 
 ## Roadmaps
 
@@ -530,6 +531,7 @@
 | [req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence](request/req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence.md) | Make a viewer link short enough to write in a sentence | Done |  |  | request/req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence.md |
 | [req_370_make_settings_restart_bring_the_viewer_back](request/req_370_make_settings_restart_bring_the_viewer_back.md) | Make Settings' restart bring the viewer back | Done |  |  | request/req_370_make_settings_restart_bring_the_viewer_back.md |
 | [req_371_put_the_viewer_link_where_every_assistant_already_looks](request/req_371_put_the_viewer_link_where_every_assistant_already_looks.md) | Put the viewer link where every assistant already looks | Draft |  |  | request/req_371_put_the_viewer_link_where_every_assistant_already_looks.md |
+| [req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes](request/req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes.md) | Put the GitHub issue bridge on the path the work actually takes | Draft |  |  | request/req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes.md |
 
 ## Backlog
 
@@ -1368,6 +1370,11 @@
 | [item_831_carry_the_link_in_the_mcp_responses](backlog/item_831_carry_the_link_in_the_mcp_responses.md) | Carry the link in the MCP responses | Ready |  | 0% | backlog/item_831_carry_the_link_in_the_mcp_responses.md |
 | [item_832_print_the_link_from_the_cli](backlog/item_832_print_the_link_from_the_cli.md) | Print the link from the CLI | Ready |  | 0% | backlog/item_832_print_the_link_from_the_cli.md |
 | [item_833_state_the_convention_where_an_assistant_reads_its_instructions](backlog/item_833_state_the_convention_where_an_assistant_reads_its_instructions.md) | State the convention where an assistant reads its instructions | Ready |  | 0% | backlog/item_833_state_the_convention_where_an_assistant_reads_its_instructions.md |
+| [item_834_report_where_the_corpus_and_the_tracker_disagree](backlog/item_834_report_where_the_corpus_and_the_tracker_disagree.md) | Report where the corpus and the tracker disagree | Ready |  | 0% | backlog/item_834_report_where_the_corpus_and_the_tracker_disagree.md |
+| [item_835_attach_an_issue_to_a_request_that_already_exists](backlog/item_835_attach_an_issue_to_a_request_that_already_exists.md) | Attach an issue to a request that already exists | Ready |  | 0% | backlog/item_835_attach_an_issue_to_a_request_that_already_exists.md |
+| [item_836_make_provenance_answerable](backlog/item_836_make_provenance_answerable.md) | Make provenance answerable | Ready |  | 0% | backlog/item_836_make_provenance_answerable.md |
+| [item_837_tell_the_issues_when_the_request_is_delivered](backlog/item_837_tell_the_issues_when_the_request_is_delivered.md) | Tell the issues when the request is delivered | Ready |  | 0% | backlog/item_837_tell_the_issues_when_the_request_is_delivered.md |
+| [item_838_close_the_drift_this_request_was_opened_over](backlog/item_838_close_the_drift_this_request_was_opened_over.md) | Close the drift this request was opened over | Ready |  | 0% | backlog/item_838_close_the_drift_this_request_was_opened_over.md |
 
 ## Tasks
 
@@ -1749,6 +1756,7 @@
 | [task_380_orchestrate_the_short_viewer_link_work](tasks/task_380_orchestrate_the_short_viewer_link_work.md) | Orchestrate the short viewer link work | Done |  | 100% | tasks/task_380_orchestrate_the_short_viewer_link_work.md |
 | [task_381_orchestrate_the_restart_fix](tasks/task_381_orchestrate_the_restart_fix.md) | Orchestrate the restart fix | Done |  | 100% | tasks/task_381_orchestrate_the_restart_fix.md |
 | [task_382_orchestrate_the_link_travels_with_the_document_work](tasks/task_382_orchestrate_the_link_travels_with_the_document_work.md) | Orchestrate the link-travels-with-the-document work | Ready |  | 0% | tasks/task_382_orchestrate_the_link_travels_with_the_document_work.md |
+| [task_383_orchestrate_the_issue_bridge_work](tasks/task_383_orchestrate_the_issue_bridge_work.md) | Orchestrate the issue bridge work | Ready |  | 0% | tasks/task_383_orchestrate_the_issue_bridge_work.md |
 
 ## Runbooks
 

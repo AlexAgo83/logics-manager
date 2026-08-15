@@ -147,6 +147,7 @@
 | [prod_104_a_poll_that_costs_what_it_is_worth](product/prod_104_a_poll_that_costs_what_it_is_worth.md) | A poll that costs what it is worth | Settled |  |  | product/prod_104_a_poll_that_costs_what_it_is_worth.md |
 | [prod_105_one_step_not_two_for_a_status_change_that_should_be_committed](product/prod_105_one_step_not_two_for_a_status_change_that_should_be_committed.md) | One step, not two, for a status change that should be committed | Settled |  |  | product/prod_105_one_step_not_two_for_a_status_change_that_should_be_committed.md |
 | [prod_106_an_editor_that_stays_in_the_browser_it_is_already_in](product/prod_106_an_editor_that_stays_in_the_browser_it_is_already_in.md) | An editor that stays in the browser it is already in | Settled |  |  | product/prod_106_an_editor_that_stays_in_the_browser_it_is_already_in.md |
+| [prod_107_a_connector_configured_once_then_just_on_off](product/prod_107_a_connector_configured_once_then_just_on_off.md) | A connector configured once, then just ON/OFF | Proposed |  |  | product/prod_107_a_connector_configured_once_then_just_on_off.md |
 
 ## Roadmaps
 
@@ -539,6 +540,7 @@
 | [req_373_make_the_auto_refresh_cost_what_it_is_worth](request/req_373_make_the_auto_refresh_cost_what_it_is_worth.md) | Make the auto-refresh cost what it is worth | Done |  |  | request/req_373_make_the_auto_refresh_cost_what_it_is_worth.md |
 | [req_374_confirm_the_status_change_offer_to_commit_it](request/req_374_confirm_the_status_change_offer_to_commit_it.md) | Confirm the status change, offer to commit it | Done |  |  | request/req_374_confirm_the_status_change_offer_to_commit_it.md |
 | [req_375_edit_documents_in_the_browser_viewer](request/req_375_edit_documents_in_the_browser_viewer.md) | Edit documents in the browser viewer | Done |  |  | request/req_375_edit_documents_in_the_browser_viewer.md |
+| [req_376_make_the_chatgpt_mcp_connector_plug_and_play](request/req_376_make_the_chatgpt_mcp_connector_plug_and_play.md) | Make the ChatGPT MCP connector plug-and-play | Draft |  |  | request/req_376_make_the_chatgpt_mcp_connector_plug_and_play.md |
 
 ## Backlog
 
@@ -1390,6 +1392,9 @@
 | [item_844_offer_to_commit_the_status_change_right_there](backlog/item_844_offer_to_commit_the_status_change_right_there.md) | Offer to commit the status change right there | Done |  | 100% | backlog/item_844_offer_to_commit_the_status_change_right_there.md |
 | [item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged](backlog/item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged.md) | An in-viewer editor screen for the browser, VS Code unchanged | Done |  | 100% | backlog/item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged.md |
 | [item_846_offer_to_commit_a_save_the_way_a_status_change_already_does](backlog/item_846_offer_to_commit_a_save_the_way_a_status_change_already_does.md) | Offer to commit a save the way a status change already does | Done |  | 100% | backlog/item_846_offer_to_commit_a_save_the_way_a_status_change_already_does.md |
+| [item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts](backlog/item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts.md) | Make the tunnel URL and bearer token durable across restarts | Ready |  | 0% | backlog/item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts.md |
+| [item_848_give_the_connector_a_chatgpt_native_oauth_front_door](backlog/item_848_give_the_connector_a_chatgpt_native_oauth_front_door.md) | Give the connector a ChatGPT-native OAuth front door | Ready |  | 0% | backlog/item_848_give_the_connector_a_chatgpt_native_oauth_front_door.md |
+| [item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive](backlog/item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive.md) | Fix the Settings Connector toggle and make the connector screen reactive | Ready |  | 0% | backlog/item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive.md |
 
 ## Tasks
 
@@ -1775,6 +1780,7 @@
 | [task_384_orchestrate_the_auto_refresh_cost_work](tasks/task_384_orchestrate_the_auto_refresh_cost_work.md) | Orchestrate the auto-refresh cost work | Done |  | 100% | tasks/task_384_orchestrate_the_auto_refresh_cost_work.md |
 | [task_385_orchestrate_the_status_confirm_and_commit_work](tasks/task_385_orchestrate_the_status_confirm_and_commit_work.md) | Orchestrate the status-confirm-and-commit work | Done | claude | 100% | tasks/task_385_orchestrate_the_status_confirm_and_commit_work.md |
 | [task_386_orchestrate_the_in_browser_document_editor_work](tasks/task_386_orchestrate_the_in_browser_document_editor_work.md) | Orchestrate the in-browser document editor work | Done | claude | 100% | tasks/task_386_orchestrate_the_in_browser_document_editor_work.md |
+| [task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector](tasks/task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector.md) | Deliver a durable, ChatGPT-native, reactive MCP connector | Ready |  | 0% | tasks/task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector.md |
 
 ## Runbooks
 

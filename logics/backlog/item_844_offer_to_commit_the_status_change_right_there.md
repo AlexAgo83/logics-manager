@@ -2,9 +2,9 @@
 > From version: 2.21.9
 > Schema version: 1.0
 > Status: In progress
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 10%
+> Understanding: 95%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Medium
 > Theme: The commit is offered, not a separate errand
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -55,3 +55,6 @@
 # Priority
 - Priority: High - the commit offer is the second half of the same interaction
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Validation
+- changeCurrentDocumentStatus wires the same modal's commit checkbox to the existing /api/git-commit route with a default message ("<doc>: status -> <status>"), defaulting to commit-on. Declining the checkbox skips the commit call entirely (test_declining_the_commit_still_applies_the_status_change_and_commits_nothing). A failed commit reports why and the status change stays applied -- the /api/update-status call already completed before the commit is attempted, so nothing rolls back (test_reports_a_failed_commit_without_touching_the_status_change_already_applied). The existing withPrimaryAction gate around the status button is untouched.

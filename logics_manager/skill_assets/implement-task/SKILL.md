@@ -62,6 +62,12 @@ first if the task does not exist yet — this skill implements, it does not scop
      --validation-result passed --lint --audit
    ```
 
+When naming the task, backlog item, or request in your final report, include its
+viewer link if one is running for this repository -- `flow show` and MCP's
+`read_logics_doc`/`list_active_work` already carry it; pass it along rather than
+building one by hand, and say nothing about it if none is running. `docs/cli.md`
+holds the URL grammar.
+
 ## Gotchas
 
 - Closeout preflight blocks on missing AC traceability proof. Supply it through

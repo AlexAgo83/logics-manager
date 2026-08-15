@@ -73,6 +73,10 @@ TEMPLATE_PLACEHOLDER_SNIPPETS = (
 NON_SEMANTIC_EDIT_MARKERS = (
     "> Maintenance edit:",
     "> Non-semantic edit:",
+    # item_822: recording that a shared proof is deliberate is a review being written down,
+    # not work changing. Without this the operator settling 127 groups pays an indicator
+    # re-baseline per document for saying "I looked, and it is fine".
+    "> Shared proof:",
 )
 BLOCKING_TRACEABILITY_PLACEHOLDER_SNIPPETS = (
     "Proof: TODO",

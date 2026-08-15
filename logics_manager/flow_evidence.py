@@ -155,6 +155,25 @@ def ac_proofs_by_id(text: str) -> dict[str, tuple[str, str]]:
     return entries
 
 
+#: item_822: how a document states that a shared proof is deliberate, and over which
+#: criteria. The check exists to ask a human to confirm, and offered no way to record the
+#: answer, so the same confirmation was asked on every audit for ever. Written as an
+#: indicator line, the shape this corpus already uses for `> Non-semantic edit:`.
+SHARED_PROOF_MARKER = "> Shared proof:"
+_SHARED_PROOF_LINE = re.compile(r"^>\s*Shared proof:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
+_AC_ID = re.compile(r"AC\d+", re.IGNORECASE)
+
+
+def declared_shared_proof_groups(text: str) -> list[set[str]]:
+    """The criteria each `> Shared proof:` line says share a proof on purpose."""
+    groups: list[set[str]] = []
+    for raw in _SHARED_PROOF_LINE.findall(text):
+        ids = {match.upper() for match in _AC_ID.findall(raw)}
+        if len(ids) > 1:
+            groups.append(ids)
+    return groups
+
+
 def duplicate_proof_ac_groups(text: str) -> list[list[str]]:
     """Pairs of AC ids in this document whose proof text is identical once whitespace
     is normalized -- item_784/GH#20: a proof block shifted or copy-pasted across
@@ -191,7 +210,15 @@ def duplicate_proof_ac_groups(text: str) -> list[list[str]]:
             grouped[key] = []
             order.append(key)
         grouped[key].append(ac_id)
-    return [grouped[key] for key in order if len(grouped[key]) > 1]
+    declared = declared_shared_proof_groups(text)
+    # Settled only when a declaration covers the whole group: adding a criterion to a
+    # shared proof without adding it to the declaration is a change nobody confirmed, and
+    # is exactly the shape the check was built to catch.
+    return [
+        grouped[key]
+        for key in order
+        if len(grouped[key]) > 1 and not any(set(grouped[key]) <= names for names in declared)
+    ]
 
 
 # --- Local-AC-to-request-AC mapping (item_784 AC2/AC3, revised) -------------------

@@ -24,6 +24,7 @@ from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
 from logics_manager.flow import evidence_add_payload, repair_ac_traceability_payload
 from logics_manager.flow_evidence import (
+    declared_shared_proof_groups,
     duplicate_proof_ac_groups,
     has_adopted_backs_annotation,
     invalid_backs_references,
@@ -246,6 +247,38 @@ def test_duplicate_proof_ac_groups_reports_a_shared_proof_once() -> None:
 
     # One group per shared proof, naming every criterion it covers -- not four pairs.
     assert duplicate_proof_ac_groups(text) == [["AC1", "AC2", "AC3"], ["AC4", "AC5"]]
+
+
+def test_a_declared_shared_proof_settles_that_group_only() -> None:
+    """item_822: the check asked a human to confirm and had nowhere to record the answer.
+
+    A declaration settles the group it names. It does not settle a different group, and it
+    does not settle its own group once a criterion has been added to the proof without
+    being added to the declaration -- which is the shape item_784 was built to catch.
+    """
+    body = [
+        "# AC Traceability",
+        "- request-AC1 -> This task. Proof: one wave, one test run.",
+        "- request-AC2 -> This task. Proof: one wave, one test run.",
+        "- request-AC4 -> This task. Proof: a different wave entirely.",
+        "- request-AC5 -> This task. Proof: a different wave entirely.",
+    ]
+    declared = "> Shared proof: AC1, AC2\n" + "\n".join(body)
+
+    assert declared_shared_proof_groups(declared) == [{"AC1", "AC2"}]
+    # The declared group is settled; the undeclared one is still reported.
+    assert duplicate_proof_ac_groups(declared) == [["AC4", "AC5"]]
+
+    # A third criterion joins the declared proof without joining the declaration.
+    widened = declared.replace(
+        "- request-AC4 -> This task. Proof: a different wave entirely.",
+        "- request-AC3 -> This task. Proof: one wave, one test run.\n"
+        "- request-AC4 -> This task. Proof: a different wave entirely.",
+    )
+    assert ["AC1", "AC2", "AC3"] in duplicate_proof_ac_groups(widened)
+
+    # A document that never writes the line behaves exactly as it did before.
+    assert duplicate_proof_ac_groups("\n".join(body)) == [["AC1", "AC2"], ["AC4", "AC5"]]
 
 
 def test_duplicate_proof_ac_groups_ignores_orchestration_redirects() -> None:

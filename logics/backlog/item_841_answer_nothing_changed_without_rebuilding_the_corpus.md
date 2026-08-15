@@ -1,10 +1,10 @@
 ## item_841_answer_nothing_changed_without_rebuilding_the_corpus - Answer 'nothing changed' without rebuilding the corpus
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 60%
+> Progress: 40%
 > Complexity: Medium
 > Theme: Cheap enough to ask often
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

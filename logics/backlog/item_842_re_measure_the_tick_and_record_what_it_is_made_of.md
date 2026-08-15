@@ -1,10 +1,10 @@
 ## item_842_re_measure_the_tick_and_record_what_it_is_made_of - Re-measure the tick and record what it is made of
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 40%
 > Complexity: Low
 > Theme: Measured the way an operator experiences it
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

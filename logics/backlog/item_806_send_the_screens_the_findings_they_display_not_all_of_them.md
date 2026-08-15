@@ -1,10 +1,10 @@
 ## item_806_send_the_screens_the_findings_they_display_not_all_of_them - Send the screens the findings they display, not all of them
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: A payload sized by the screen
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -56,3 +56,6 @@
 # Priority
 - Priority: Medium - removes the gap between computing and delivering
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_375_orchestrate_the_audit_cost_work_behind_insights_and_health` was finished via `logics-manager flow finish task` on 2026-08-15.

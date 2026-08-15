@@ -1,10 +1,10 @@
 ## item_805_serve_the_audit_answer_from_a_cache_keyed_on_the_corpus_not_on_a_timer - Serve the audit answer from a cache keyed on the corpus, not on a timer
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Reusing an answer that has not changed
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -59,3 +59,6 @@
 # Priority
 - Priority: High - the largest gain an operator actually feels
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_375_orchestrate_the_audit_cost_work_behind_insights_and_health` was finished via `logics-manager flow finish task` on 2026-08-15.

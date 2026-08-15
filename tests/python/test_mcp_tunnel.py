@@ -9,6 +9,7 @@ machine (or a CI runner) where the binary is not installed.
 from __future__ import annotations
 
 import stat
+import sys
 from pathlib import Path
 
 import pytest
@@ -38,7 +39,10 @@ def test_environment_beats_the_file_and_the_file_is_owner_only(tmp_path: Path) -
     """AC4: the config file is created with owner-only permissions when missing."""
     path = tmp_path / "nested" / "tunnel.env"
     mcp_tunnel.ensure_config_file(path)
-    assert stat.S_IMODE(path.stat().st_mode) == 0o600
+    # POSIX-only: Windows keeps no owner/group/other bits, so `chmod` leaves 0o666
+    # there -- see `ensure_config_file` for what restricting it on Windows would take.
+    if sys.platform != "win32":
+        assert stat.S_IMODE(path.stat().st_mode) == 0o600
     path.write_text(f"{mcp_tunnel.PROFILE_ENV_VAR}=from-file\n{mcp_tunnel.API_KEY_ENV_VAR}=file-key\n", encoding="utf-8")
 
     from_file = mcp_tunnel.tunnel_settings({mcp_tunnel.CONFIG_ENV_VAR: str(path)})
@@ -195,8 +199,9 @@ def test_saving_the_key_writes_it_owner_only_and_reports_a_refusal(tmp_path: Pat
         assert outcome["ok"] is False
         assert "refused" in outcome["message"].lower()
         assert "sk-wrong-key" not in outcome["message"]
-        # The key is stored where the operator was told it would be, owner-only.
-        assert stat.S_IMODE(config.stat().st_mode) == 0o600
+        # The key is stored where the operator was told it would be, owner-only on POSIX.
+        if sys.platform != "win32":
+            assert stat.S_IMODE(config.stat().st_mode) == 0o600
         assert "sk-wrong-key" in config.read_text(encoding="utf-8")
     finally:
         server.server_close()

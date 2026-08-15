@@ -27,6 +27,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from collections import deque
 from collections.abc import Iterable, Mapping
+from collections.abc import Callable
 from typing import Any
 from urllib.parse import parse_qs, quote, unquote, urlparse
 from .audit import audit_payload
@@ -1777,7 +1778,14 @@ class LogicsViewerServer(ThreadingHTTPServer):
         #: item_805: the last audit per project, with the corpus signature it was computed
         #: from. Insights and Health both wait on the audit, and the 15-second auto-refresh
         #: asks again, so the same answer was computed three times over for one look.
-        self.audit_cache: dict[Path, tuple[tuple[int, int], dict[str, Any]]] = {}
+        # item_813: keyed by (report name, project root). req_364 built this for the audit
+        # alone, on a lint measurement taken in a process that had already run one -- so lint
+        # read 0.16s warm and was left uncached, while over HTTP against a fresh viewer it is
+        # the dominant cost of both screens. Nothing about the mechanism was audit-specific.
+        self.report_cache: dict[tuple[str, Path], tuple[tuple[int, int], Any]] = {}
+        # item_814: one lock per report, so a request arriving while the warm-up is computing
+        # that report waits for the answer already being built instead of starting a second.
+        self.report_locks: dict[tuple[str, Path], threading.Lock] = {}
         self.event_seq = 0
         super().__init__(server_address, LogicsViewerRequestHandler)
         if tls_context is not None:
@@ -1963,23 +1971,61 @@ class LogicsViewerServer(ThreadingHTTPServer):
             self.status_components[key] = (time.monotonic(), value)
         return value
 
-    def cached_audit_payload(self) -> dict[str, Any]:
-        """The audit for the active project, recomputed only when the corpus has changed.
+    def cached_report(self, name: str, producer: Callable[[Path], Any]) -> Any:
+        """An expensive corpus report, recomputed only when the corpus has changed.
 
-        The lock is not held across the computation: an audit takes about a second on a
+        The lock is not held across the computation: these take about a second each on a
         large corpus, and holding it there would queue every other consumer behind the
         first one rather than merely letting two of them race to the same answer.
         """
         repo_root = self.repo_root
         signature = corpus_signature(repo_root)
+        key = (name, repo_root)
         with self.status_cache_lock:
-            entry = self.audit_cache.get(repo_root)
+            entry = self.report_cache.get(key)
+            lock = self.report_locks.setdefault(key, threading.Lock())
         if entry is not None and entry[0] == signature:
             return entry[1]
-        payload = audit_payload(repo_root)
-        with self.status_cache_lock:
-            self.audit_cache[repo_root] = (signature, payload)
-        return payload
+        with lock:
+            # Whoever held the lock may have computed exactly this answer while we waited.
+            with self.status_cache_lock:
+                entry = self.report_cache.get(key)
+            if entry is not None and entry[0] == signature:
+                return entry[1]
+            payload = producer(repo_root)
+            with self.status_cache_lock:
+                self.report_cache[key] = (signature, payload)
+            return payload
+
+    def cached_audit_payload(self) -> dict[str, Any]:
+        return self.cached_report("audit", audit_payload)
+
+    def cached_lint_payload(self) -> dict[str, Any]:
+        return self.cached_report("lint", lint_payload)
+
+    def cached_health_payload(self) -> dict[str, Any]:
+        return self.cached_report("health", health_payload)
+
+    def warm_corpus_reports(self) -> None:
+        """Pay for the expensive reports before an operator asks for them.
+
+        item_814: nothing was computed until it was asked for, so the first operator to open
+        Insights or Health after a viewer start paid the whole cold cost -- about thirteen
+        seconds on a large corpus -- on the request path. The viewer is usually started well
+        before either screen is opened, and that time was going unused.
+
+        A failure here is not worth reporting: this is an optimisation, and the request path
+        computes the same answer if the warm-up never produced one.
+        """
+
+        def run() -> None:
+            for produce in (self.cached_lint_payload, self.cached_audit_payload, self.cached_health_payload):
+                try:
+                    produce()
+                except Exception:  # noqa: BLE001 - a warm-up must never take the viewer down
+                    return
+
+        threading.Thread(target=run, daemon=True, name="logics-warm-reports").start()
 
     def invalidate_status_components(self, names: set[str] | None = None) -> None:
         with self.status_cache_lock:
@@ -2864,7 +2910,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
             return
         if route == "/api/lint":
-            self._send_json({"ok": True, "payload": lint_payload(self.server.repo_root)})
+            self._send_json({"ok": True, "payload": self.server.cached_lint_payload()})
             return
         if route == "/api/audit":
             self._send_json({"ok": True, "payload": _viewer_audit_payload(self.server.cached_audit_payload())})
@@ -2874,7 +2920,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             # documents, backlog items with no task, and stale documents were
             # reported by the CLI and invisible here.
             try:
-                payload = health_payload(self.server.repo_root)
+                payload = self.server.cached_health_payload()
             except (ConfigError, OSError, ValueError) as exc:
                 self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
                 return
@@ -3866,6 +3912,8 @@ def main(argv: list[str]) -> int:
         webbrowser.open(url)
 
     _install_shutdown_handlers(server)
+    # After the banner and the browser launch, so neither waits on it.
+    server.warm_corpus_reports()
     try:
         server.serve_forever()
     except KeyboardInterrupt:

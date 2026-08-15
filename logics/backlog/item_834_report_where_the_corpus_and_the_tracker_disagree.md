@@ -1,7 +1,7 @@
 ## item_834_report_where_the_corpus_and_the_tracker_disagree - Report where the corpus and the tracker disagree
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 95%
 > Progress: 100%

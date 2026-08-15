@@ -1,7 +1,7 @@
 ## item_836_make_provenance_answerable - Make provenance answerable
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 95%
 > Progress: 100%

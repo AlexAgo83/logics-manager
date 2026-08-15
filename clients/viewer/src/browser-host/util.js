@@ -1390,3 +1390,68 @@ export function previewRequestPath({ title, intent, nextNumber }) {
     const ref = number ? `req_${number}_${slugifyViewerDoc(effectiveTitle)}` : `req_<next>_${slugifyViewerDoc(effectiveTitle)}`;
     return `logics/request/${ref}.md`;
   }
+
+/**
+ * Themed hover/focus hints for icon-only buttons, replacing the native `title` tooltip.
+ *
+ * item_799: the switcher's star and "x" buttons carried their hint in `title`, so the
+ * browser drew and placed it -- a differently-shaded rectangle with no awareness of the
+ * dropdown's own theme or layout, landing over the row's path text.
+ *
+ * One bubble, reused, positioned from the trigger's rect on `position: fixed`. Fixed
+ * rather than absolute because the dropdown that holds these buttons scrolls
+ * (`.viewer-project-switcher__menu` is `overflow: auto`), and an absolutely positioned
+ * bubble is clipped by a scroll container whatever its containing block -- which is the
+ * overflow constraint req_361 raised against a styled replacement.
+ *
+ * `aria-label` stays on the triggers and the bubble is `aria-hidden`: this adds a visual
+ * hint for sighted operators and changes nothing for a screen reader, which already had
+ * the better label (AC3).
+ */
+export function installViewerHints(root = document) {
+    let bubble = null;
+    const GAP = 6;
+
+    const hide = () => bubble?.classList.remove("is-visible");
+
+    const show = (trigger) => {
+      const text = trigger.getAttribute("data-viewer-hint") || "";
+      if (!text) return;
+      if (!bubble) {
+        bubble = document.createElement("div");
+        bubble.className = "viewer-hint";
+        bubble.setAttribute("aria-hidden", "true");
+        document.body.appendChild(bubble);
+      }
+      bubble.textContent = text;
+      // Measured while visible but not yet placed: an unplaced bubble still has to be laid
+      // out for its own width to be readable, and reading it at opacity 0 gives a stale one.
+      bubble.classList.add("is-visible");
+      bubble.style.left = "0px";
+      bubble.style.top = "0px";
+      const anchor = trigger.getBoundingClientRect();
+      const box = bubble.getBoundingClientRect();
+      // Below the trigger by default, flipped above when there is no room -- so the hint
+      // never covers the control the operator is pointing at, and never leaves the window.
+      const below = anchor.bottom + GAP;
+      const top = below + box.height > window.innerHeight - GAP ? anchor.top - box.height - GAP : below;
+      const left = Math.min(Math.max(GAP, anchor.left), window.innerWidth - box.width - GAP);
+      bubble.style.left = `${Math.round(left)}px`;
+      bubble.style.top = `${Math.round(Math.max(GAP, top))}px`;
+    };
+
+    const triggerFrom = (target) => (target instanceof Element ? target.closest("[data-viewer-hint]") : null);
+
+    root.addEventListener("pointerover", (event) => {
+      const trigger = triggerFrom(event.target);
+      if (trigger) show(trigger); else hide();
+    });
+    root.addEventListener("pointerdown", hide);
+    root.addEventListener("focusin", (event) => {
+      const trigger = triggerFrom(event.target);
+      if (trigger) show(trigger); else hide();
+    });
+    root.addEventListener("focusout", hide);
+    // A hint pinned to a rect that has moved is worse than no hint.
+    window.addEventListener("scroll", hide, true);
+  }

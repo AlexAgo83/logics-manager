@@ -1,7 +1,7 @@
 ## req_361_fleet_project_switcher_icon_buttons_show_a_clashing_native_browser_tooltip - Fleet project switcher: icon buttons show a clashing native browser tooltip
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Low

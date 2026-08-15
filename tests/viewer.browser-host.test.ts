@@ -2224,6 +2224,19 @@ describe("local viewer browser host", () => {
     expect(phone).toMatch(/\.viewer-topbar__menu \{[^}]*display: inline-flex/);
     expect(phone).not.toMatch(/\.viewer-topbar__actions \{[^}]*repeat\(2/);
 
+    // Reported by the operator: opening the menu grew the bar to 239px and dropped the
+    // sheet below the toolbar. `.viewer-topbar > *` was appended after this breakpoint and
+    // put the sheet back to `position: relative` at equal specificity -- the third time in
+    // this slice that a rule declared after a breakpoint won over it. Every base rule the
+    // phone block overrides has to come before it.
+    for (const base of [".viewer-topbar > * {", ".viewer-topbar__menu {"]) {
+      expect(css.indexOf(base)).toBeGreaterThan(-1);
+      expect(css.indexOf(base)).toBeLessThan(phoneStart);
+    }
+    expect(phone).toMatch(/\.viewer-topbar__actions \{[^}]*position: absolute/);
+    // The 900px block sets `width: 100%`, which wins over the left/right pair.
+    expect(phone).toMatch(/\.viewer-topbar__actions \{[^}]*width: auto/);
+
     // The sheet is the desktop navigation, presented differently -- not a second copy.
     expect(host).toContain("installTopbarMenu");
     expect(host).toMatch(/getElementById\("viewer-topbar-actions"\)/);

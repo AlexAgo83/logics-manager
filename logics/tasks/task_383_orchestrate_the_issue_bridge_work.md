@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-15 19:24:58
+> Indicators reviewed: 2026-08-15 20:03:29
 > Owner: claude
 
 # AI Context
@@ -21,14 +21,14 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Make provenance answerable first: two later slices need that answer, and each deriving it separately is how they drift.
-- [ ] 2. Add the attach command, which is the direction the real flow needs.
-- [ ] 3. Build the reconciliation report, and run it before anything is fixed so the starting state is recorded.
-- [ ] 4. Add the closeout notice, explicit by construction.
-- [ ] 5. Close the #20/#21 drift using what was built, not by hand, and re-run the report.
-- [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
-- [ ] Keep commit creation under operator control; do not force one commit per micro-step.
-- [ ] GATE: do not close until lint, audit, and scaffold validation pass.
+- [x] 1. Make provenance answerable first: two later slices need that answer, and each deriving it separately is how they drift.
+- [x] 2. Add the attach command, which is the direction the real flow needs.
+- [x] 3. Build the reconciliation report, and run it before anything is fixed so the starting state is recorded.
+- [x] 4. Add the closeout notice, explicit by construction.
+- [x] 5. Close the #20/#21 drift using what was built, not by hand, and re-run the report.
+- [x] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
+- [x] Keep commit creation under operator control; do not force one commit per micro-step.
+- [x] GATE: do not close until lint, audit, and scaffold validation pass.
 
 # Backlog
 - `item_834_report_where_the_corpus_and_the_tracker_disagree`
@@ -38,10 +38,10 @@
 - `item_838_close_the_drift_this_request_was_opened_over`
 
 # Definition of Done (DoD)
-- [ ] Generated request, product, backlog, and task docs are present.
-- [ ] Context-pack handoff is available when requested.
-- [ ] Validation passes.
-- [ ] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
+- [x] Generated request, product, backlog, and task docs are present.
+- [x] Context-pack handoff is available when requested.
+- [x] Validation passes.
+- [x] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
 
 # AC Traceability
 - request-AC1 -> `item_834_report_where_the_corpus_and_the_tracker_disagree`. Proof deferred to slice closeout.

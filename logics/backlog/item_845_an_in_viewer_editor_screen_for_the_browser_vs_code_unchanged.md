@@ -2,9 +2,9 @@
 > From version: 2.21.9
 > Schema version: 1.0
 > Status: In progress
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 10%
+> Understanding: 95%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Edit here, not in another program
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -58,3 +58,6 @@
 # Priority
 - Priority: High - the screen and the write path are the feature
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Validation
+- editDocument branches on the existing embeddedHost signal: VS Code keeps calling /api/edit unchanged (test_opens_the_selected_document_through_the_local_edit_endpoint_when_embedded_in_vs_code, updated to simulate the embedding it now actually requires). The standalone browser opens renderDocEditorScreen (Save/Cancel over a plain textarea) instead (test_opens_the_in_viewer_editor_screen_for_the_edit_action_in_the_standalone_browser). Cancel discards the edit and returns to the read view without writing (test_cancelling_the_in_viewer_editor_writes_nothing_and_returns_to_the_document_view). The write route (save_doc_payload/POST /api/save-doc) validates a path the same way edit/read already do and rejects an escaping path with 404 (test_viewer_save_doc_writes_changed_content_and_rejects_paths_outside_repo, test_viewer_save_doc_route_writes_content_and_rejects_escaping_paths); it is registered in VIEWER_MUTATING_ROUTES.

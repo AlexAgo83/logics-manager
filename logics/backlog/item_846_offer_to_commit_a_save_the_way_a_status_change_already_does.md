@@ -2,9 +2,9 @@
 > From version: 2.21.9
 > Schema version: 1.0
 > Status: In progress
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 10%
+> Understanding: 95%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Low
 > Theme: One commit-offer mechanism, not two
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -48,3 +48,6 @@
 # Priority
 - Priority: Medium - reuses item_844's mechanism rather than adding a second one
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Validation
+- A save that actually changes the file offers the same commit step item_844 built -- showCommitOfferModal and commitFiles (the fetch/error-handling/recordGitActivity logic extracted out of changeCurrentDocumentStatus so both flows call the same function) -- with a proposed default message (test_saving_the_in_viewer_editor_writes_the_content_and_offers_to_commit_it). A no-op save (identical content) writes nothing extra and shows no commit offer at all (test_a_no_op_save_writes_nothing_extra_and_offers_no_commit), matching save_doc_payload's changed:false response.

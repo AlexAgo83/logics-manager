@@ -2012,6 +2012,23 @@ describe("local viewer browser host", () => {
     expect(css).toMatch(/\.viewer-release__gate--blocking\s*\{[^}]*grid-column: 1 \/ -1/);
   });
 
+  it("lays a fleet-root row out like a project row, and keeps it out of the project list", () => {
+    // Reported by the operator with a screenshot: the row rendered as a blank line above
+    // "/..". `.viewer-project-switcher__row` is a `24px minmax(0, 1fr)` grid whose first
+    // column is the icon button; this row had button and label the other way round, so the
+    // label was squeezed into 24px and a real path ellipsised down to two characters.
+    const host = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/index.js"), "utf8");
+    const row = host.match(/const fleetRoots = latestFleetRoots\.map\(\(root\) => `([^`]+)`/)?.[1] || "";
+    expect(row).toContain("data-viewer-fleet-root-remove");
+    expect(row.indexOf("data-viewer-fleet-root-remove")).toBeLessThan(row.indexOf("viewer-project-switcher__item-name"));
+
+    // The roots are the configuration behind "Add fleet root...", not projects to open, so
+    // they follow it rather than sitting between Fleet home and the projects.
+    const order = host.match(/menu\.innerHTML = `([^`]+)`/)?.[1] || "";
+    expect(order.indexOf("${fleetRoots}")).toBeGreaterThan(order.indexOf("${projectRows}"));
+    expect(order.indexOf("${fleetRoots}")).toBeGreaterThan(order.indexOf("${fleetRootRow}"));
+  });
+
   it("leads the Corpus navigation and switcher with Getting Started", () => {
     // It is the one Corpus entry written for someone who does not yet know what Insights,
     // Health or Runbooks are, so it cannot be third. Both surfaces are checked: the menu

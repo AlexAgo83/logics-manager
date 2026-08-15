@@ -105,6 +105,36 @@ def test_no_message_ever_carries_the_key_or_the_tunnel_id(tmp_path: Path) -> Non
     assert all(message for message in messages)
 
 
+def test_a_deliberate_stop_is_not_reported_as_a_failure() -> None:
+    """The tunnel's last lines are always shutdown hooks, whatever happened."""
+    hooks = [
+        '{"time":"2026-08-16T00:40:44Z","level":"INFO","msg":"OnStop hook executed","callee":"metrics.NewMeterProvider.func1()"}',
+        '{"time":"2026-08-16T00:40:44Z","level":"INFO","msg":"OnStop hook executing"}',
+    ]
+    assert mcp_tunnel.readable_failure(hooks) == ""
+
+    # A real failure before the logger starts comes out as a plain line.
+    plain = ['configure tunnel-client: parse config file logics-manager.yaml: invalid control_plane.api_key reference', *hooks]
+    assert "parse config file" in mcp_tunnel.readable_failure(plain)
+
+    # And a levelled one is read for its message, not for the noise after it.
+    levelled = ['{"level":"ERROR","msg":"tunnel handshake failed","error":"context deadline exceeded"}', *hooks]
+    assert mcp_tunnel.readable_failure(levelled) == "tunnel handshake failed: context deadline exceeded"
+
+
+def test_a_configured_key_can_still_be_replaced(tmp_path: Path) -> None:
+    """A key that is set but wrong must be replaceable without a terminal."""
+    rows = mcp_tunnel.prerequisite_rows(
+        _settings(tmp_path, api_key="sk-set"),
+        {"ok": True, "reason": "", "message": "", "failed_checks": []},
+        profile_exists=True,
+    )
+    key_row = next(row for row in rows if row["id"] == "api_key")
+    assert key_row["met"] is True and key_row["replaceable"] is True
+    assert key_row["action_label"] == "Replace the key"
+    assert "sk-set" not in repr(key_row)
+
+
 @pytest.mark.parametrize("line", ["control plane returned 401", "Unauthorized: invalid api key"])
 def test_a_refused_key_is_read_as_refused(line: str) -> None:
     """AC6: doctor only checks the key is set; a rejected one repeats a 401."""

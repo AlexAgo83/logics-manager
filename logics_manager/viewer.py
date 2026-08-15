@@ -1841,6 +1841,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
         # item_851: the last prerequisite row flips on the first request ChatGPT makes,
         # which is the moment the operator learns it worked rather than hoping.
         self.mcp_connector_connected = False
+        self.mcp_connector_stopping = False
         # item_850/adr_031: ChatGPT rides OpenAI's Secure MCP Tunnel by default. The
         # localtunnel path stays reachable by asking for it, for everything else.
         self.mcp_connector_mode = "tunnel"
@@ -2087,6 +2088,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
             self.mcp_connector_error = ""
             self.mcp_connector_reason = ""
             self.mcp_connector_connected = False
+            self.mcp_connector_stopping = False
             self.mcp_connector_mode = mode or self.mcp_connector_mode
             environment: dict[str, str] | None = None
             if self.mcp_connector_mode == "tunnel":
@@ -2146,13 +2148,21 @@ class LogicsViewerServer(ThreadingHTTPServer):
             # empty one. Establish the exit status before judging the outcome.
             process.wait()
             with self.mcp_connector_lock:
-                if not self.mcp_connector_url:
+                if self.mcp_connector_stopping:
+                    return
+                if self.mcp_connector_mode == "tunnel":
+                    self.mcp_connector_error = mcp_tunnel.readable_failure(tail)
+                elif not self.mcp_connector_url:
                     self.mcp_connector_error = _mcp_connector_failure_reason(process.returncode, tail)
         threading.Thread(target=capture, daemon=True).start()
         return self.mcp_connector_payload()
 
     def stop_mcp_connector(self) -> None:
         with self.mcp_connector_lock:
+            # item_850: the capture thread reports why the child died. A child we killed
+            # on purpose -- Stop, or the viewer shutting down -- did not die of anything,
+            # and its shutdown-hook log lines are not a reason to show anyone.
+            self.mcp_connector_stopping = True
             process = self.mcp_connector
             self.mcp_connector = None
             self.mcp_connector_url = ""

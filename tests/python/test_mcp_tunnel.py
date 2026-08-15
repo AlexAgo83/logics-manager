@@ -92,6 +92,21 @@ def test_each_missing_prerequisite_reports_its_own_cause(tmp_path: Path) -> None
     assert ok["ok"] is True and ok["reason"] == ""
 
 
+def test_an_unrouted_doctor_failure_is_named_not_guessed(tmp_path: Path) -> None:
+    """Reported 2026-08-16: 'Check again' said the profile was missing when the real
+    failure was `health_listener` -- the port the running connector already owns. A
+    check we cannot route is doctor's to explain, not ours to invent a cause for."""
+    installed = lambda _name: "/usr/local/bin/tunnel-client"  # noqa: E731
+    status = mcp_tunnel.check_prerequisites(
+        _settings(tmp_path, api_key="set"),
+        run_doctor=lambda _c: (2, "CHECK health_listener FAIL bind: address already in use\nFAILED_CHECKS health_listener"),
+        which=installed,
+    )
+    assert status["reason"] == mcp_tunnel.REASON_DOCTOR_FAILED
+    assert "health_listener" in status["message"]
+    assert "profile" not in status["message"].lower()
+
+
 def test_no_message_ever_carries_the_key_or_the_tunnel_id(tmp_path: Path) -> None:
     """AC7: the credentials appear in no screen and no log line."""
     settings = _settings(tmp_path, api_key="super-secret-key")

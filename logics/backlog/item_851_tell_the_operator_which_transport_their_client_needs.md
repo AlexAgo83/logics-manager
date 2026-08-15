@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Viewer MCP connector UX
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-16 00:45:03
+> Indicators reviewed: 2026-08-16 00:47:42
 
 # AI Context
 - Summary: The connector screen names the transport for the client at hand and, for the ChatGPT path, walks the operator from a bare machine to a connected plugin. It is a self-repairing diagnostic, not a wizard: `tunnel-client doctor` already names every check, so the screen renders that output as rows with one action each, and disappears once everything is met.
@@ -23,7 +23,7 @@
 
 # Scope
 - In:
-  - The connector card naming the transport per client class: stdio for clients that launch the server themselves, Secure MCP Tunnel for ChatGPT, and an explicit "not supported yet" for hosted web clients, pointing at the public-HTTPS-door request that `adr_031_one_mcp_transport_per_client_class` names.
+  - The connector card naming the transport per client class: stdio for clients that launch the server themselves, Secure MCP Tunnel for ChatGPT, and an explicit "not supported yet" for hosted web clients, pointing at `req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door`.
   - A copy-ready stdio command for local clients (`logics-manager mcp serve --repo-root <root>`), correct whether or not anything is running here.
   - A tunnel row that takes a pasted `tunnel_id` (with a link to the page that creates one), the dropdown being a later refinement rather than a prerequisite for shipping this slice.
   - A prerequisite list for the ChatGPT path -- binary, API key, tunnel, profile, plugin -- each row carrying its state and at most one action, rendered from `tunnel-client doctor --profile <profile>` rather than from a state machine of our own. Nothing about the operator's progress is persisted: an operator who completes a step by hand in a terminal sees the screen agree on its next read.

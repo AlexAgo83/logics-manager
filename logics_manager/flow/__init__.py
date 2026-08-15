@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
-from ..audit import audit_payload
+from ..audit import DECLARED_LINK_SECTIONS, audit_payload
 from ..cli_output import print_payload
 from ..config import ConfigError, find_repo_root
 from ..doc_parsing import extract_refs, progress_value, section_lines
@@ -457,6 +457,15 @@ def _sibling_slice_ac_issues(
     return issues
 
 
+def _declared_request_refs(kind: str, text: str) -> set[str]:
+    """Request refs `kind` declares in its link sections, ignoring prose mentions."""
+    lines = text.splitlines()
+    refs: set[str] = set()
+    for heading in DECLARED_LINK_SECTIONS.get((kind, "request"), ()):
+        refs.update(_extract_refs("\n".join(section_lines(lines, heading)), DOC_KINDS["request"].prefix))
+    return refs
+
+
 def validate_closeout_payload(repo_root: Path, source: str) -> dict[str, object]:
     task_path = _resolve_workflow_source(repo_root, DOC_KINDS["task"], source)
     task_ref = task_path.stem
@@ -509,7 +518,12 @@ def validate_closeout_payload(repo_root: Path, source: str) -> dict[str, object]
     if not item_refs:
         issues.append(_closeout_issue(task_path.relative_to(repo_root), "task_missing_backlog", "task has no linked backlog item reference"))
 
-    request_refs: set[str] = set(_extract_refs(task_text, DOC_KINDS["request"].prefix))
+    # item_853: read the request a task delivers where links are declared, not from
+    # anywhere in the text. A prose sentence naming another request -- `see req_377 for
+    # the public door` -- used to put that request's acceptance criteria due at this
+    # closeout, for work nobody had started. `DECLARED_LINK_SECTIONS` is the same map
+    # the audit already uses for lineage (req_337); prose is not lineage there either.
+    request_refs: set[str] = _declared_request_refs("task", task_text)
     item_paths: list[Path] = []
     for item_ref in item_refs:
         item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
@@ -519,7 +533,7 @@ def validate_closeout_payload(repo_root: Path, source: str) -> dict[str, object]
         item_paths.append(item_path)
         related_paths.append(item_path.relative_to(repo_root).as_posix())
         item_text = _strip_mermaid_blocks(item_path.read_text(encoding="utf-8"))
-        request_refs.update(_extract_refs(item_text, DOC_KINDS["request"].prefix))
+        request_refs.update(_declared_request_refs("backlog", item_text))
         if task_ref not in item_text:
             issues.append(
                 _closeout_issue(
@@ -637,7 +651,12 @@ def repair_gates_payload(repo_root: Path, source: str, *, dry_run: bool) -> dict
     planned_paths: set[Path] = set()
     task_text = _strip_mermaid_blocks(task_path.read_text(encoding="utf-8"))
     item_refs = sorted(_extract_refs(task_text, DOC_KINDS["backlog"].prefix))
-    request_refs: set[str] = set(_extract_refs(task_text, DOC_KINDS["request"].prefix))
+    # item_853: read the request a task delivers where links are declared, not from
+    # anywhere in the text. A prose sentence naming another request -- `see req_377 for
+    # the public door` -- used to put that request's acceptance criteria due at this
+    # closeout, for work nobody had started. `DECLARED_LINK_SECTIONS` is the same map
+    # the audit already uses for lineage (req_337); prose is not lineage there either.
+    request_refs: set[str] = _declared_request_refs("task", task_text)
 
     before = task_path.read_text(encoding="utf-8")
     if _section_has_unchecked_checkbox(before, "Plan") or _section_has_unchecked_checkbox(before, "Definition of Done (DoD)"):

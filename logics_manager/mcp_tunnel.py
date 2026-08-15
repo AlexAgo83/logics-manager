@@ -48,6 +48,7 @@ REASON_BINARY_MISSING = "binary_missing"
 REASON_PROFILE_MISSING = "profile_missing"
 REASON_API_KEY_MISSING = "api_key_missing"
 REASON_API_KEY_REJECTED = "api_key_rejected"
+REASON_DOCTOR_FAILED = "doctor_failed"
 
 # `tunnel-client doctor` names each failed check; these are the ones we can route.
 _PROFILE_CHECKS = ("profile", "tunnel_id", "mcp_command", "config")
@@ -170,7 +171,8 @@ def parse_doctor_output(returncode: int, output: str) -> dict[str, Any]:
     culprit; nothing this module could invent would be more accurate than that.
     """
     failed: list[str] = []
-    match = re.search(r"FAILED_CHECKS[:=]\s*(.+)", output)
+    # The real line is `FAILED_CHECKS health_listener` -- space-separated, no colon.
+    match = re.search(r"FAILED_CHECKS[:=]?\s+(.+)", output)
     if match:
         failed = [name.strip() for name in re.split(r"[,\s]+", match.group(1)) if name.strip()]
     ok = returncode == 0 and not failed
@@ -199,6 +201,9 @@ def explain(reason: str, settings: Mapping[str, Any]) -> str:
         return f"No control-plane API key. Put it in {path} as {API_KEY_ENV_VAR}=<key>, or export {API_KEY_ENV_VAR}."
     if reason == REASON_API_KEY_REJECTED:
         return f"The control plane refused the API key (401). Replace {API_KEY_ENV_VAR} in {path} with a key scoped to this tunnel."
+    if reason == REASON_DOCTOR_FAILED:
+        checks = ", ".join(settings.get("failed_checks") or []) or "an unnamed check"
+        return f"`tunnel-client doctor` failed on {checks}. Its own output is the reason; nothing here can improve on it."
     return ""
 
 
@@ -355,9 +360,12 @@ def check_prerequisites(
     verdict = parse_doctor_output(returncode, output)
     if verdict["ok"]:
         return {"ok": True, "reason": "", "message": "", "failed_checks": []}
-    # An unset key is ours to route even when doctor did not name it: doctor reads the
-    # process environment, and the file we read is not in it until we pass it through.
     reason = doctor_reason(verdict["failed_checks"])
     if not reason:
-        reason = REASON_API_KEY_MISSING if not settings.get("has_api_key") else REASON_PROFILE_MISSING
-    return {"ok": False, "reason": reason, "message": explain(reason, settings), "failed_checks": verdict["failed_checks"]}
+        # An unset key is ours to name even when doctor did not: doctor reads the process
+        # environment, and the file we read is not in it until we pass it through. Beyond
+        # that, say which check failed rather than guessing which one it meant -- guessing
+        # produced "no tunnel-client profile named ..." for a port already in use.
+        reason = REASON_API_KEY_MISSING if not settings.get("has_api_key") else REASON_DOCTOR_FAILED
+    detail = {**settings, "failed_checks": verdict["failed_checks"]}
+    return {"ok": False, "reason": reason, "message": explain(reason, detail), "failed_checks": verdict["failed_checks"]}

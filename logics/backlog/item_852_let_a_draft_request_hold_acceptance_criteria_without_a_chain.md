@@ -1,10 +1,10 @@
 ## item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain - Let a Draft request hold acceptance criteria without a chain
 > From version: 2.22.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: Low
 > Theme: Audit scope
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -50,3 +50,6 @@
 # Priority
 - Priority: Medium - one blocking finding today, on a request that is correct as written
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Validation
+- 2026-08-16: tests/python/test_honest_outcomes.py -- a Draft request with ACs and no chain reports neither ac_no_linked_backlog nor ac_no_linked_tasks (AC1); the same request in Ready still reports ac_no_linked_backlog (AC2). A third case surfaced while restoring the pointers: a chain running through an Obsolete slice was reporting a Done task to the request that inherited its research, putting six ACs due on work nobody had started -- abandoned items no longer contribute linked tasks. req_377 now audits clean with its links intact (AC3): 0 blocking findings.

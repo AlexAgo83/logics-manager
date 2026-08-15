@@ -1,10 +1,10 @@
 ## item_853_tell_a_delivery_link_from_a_mention_at_closeout - Tell a delivery link from a mention at closeout
 > From version: 2.22.0
 > Schema version: 1.0
-> Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Status: Done
+> Understanding: 100%
+> Confidence: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Closeout ref collection
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -53,3 +53,6 @@
 # Priority
 - Priority: Medium - it made proofs due for work nobody started
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Validation
+- 2026-08-16: closeout now reads request refs from the declared link sections, reusing the audit's own DECLARED_LINK_SECTIONS map (req_337) rather than a second implementation. The four documents edited around the finding name their refs again -- item_850 and item_851 point at req_377 in prose, item_847 and item_848 declare both their superseding request and the task they were scaffolded under -- and task_387's closeout preflight passes with no blocking issues (AC1, AC2, AC3).

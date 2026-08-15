@@ -4538,6 +4538,27 @@ def test_a_report_is_computed_once_even_when_two_callers_race(tmp_path: Path) ->
         server.server_close()
 
 
+def test_a_status_lifetime_is_never_shorter_than_the_poll_consuming_it() -> None:
+    """item_839: a lifetime shorter than the interval polling it is not a cache.
+
+    `cdx-status` costs 2.3s with a 2s lifetime under a 15s poll; measured four times three
+    seconds apart it never hit once. Equal to the interval is the same miss with extra
+    steps, since it expires just before each tick arrives.
+    """
+    from logics_manager.viewer import _status_cache_ttl_seconds
+
+    for poll in (5.0, 15.0, 60.0):
+        # Strictly longer: equal to the interval expires just before each tick arrives,
+        # which is the same miss with extra steps.
+        assert _status_cache_ttl_seconds("git", poll_seconds=poll) > poll
+        assert _status_cache_ttl_seconds("projectTools", poll_seconds=poll) > poll
+
+    # Components that declare their own life keep it, priced by what they cost.
+    assert _status_cache_ttl_seconds("cdxDisk", poll_seconds=15.0) == 300.0
+    assert _status_cache_ttl_seconds("ci", poll_seconds=15.0) == 60.0
+    assert _status_cache_ttl_seconds("cdx", poll_seconds=15.0) == 60.0
+
+
 def test_a_project_can_be_selected_by_its_name(tmp_path: Path) -> None:
     """item_826: `?project=` took twelve characters of a SHA-1 of the resolved path.
 

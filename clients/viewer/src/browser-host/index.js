@@ -1930,10 +1930,18 @@ import {
   // request instead of firing ci-status + cdx-status + cdx-runs (+ git-status)
   // separately on every auto-refresh tick. Falls back to the legacy per-badge
   // refreshers when talking to an older backend without /api/status.
-  async function refreshBadgeCounters() {
+  // item_839: `no-store` here means "recompute every component", a contract added
+  // deliberately so that an operator asking for a refresh gets one. The periodic tick is
+  // not an operator asking. Measured on the status route, forcing on every tick cost
+  // 8.85s / 5.37s / 4.87s on consecutive polls and four GitHub API calls each time, against
+  // 0.117s then 0.0005s unforced -- 240 forced recomputations an hour for a badge nobody
+  // requested. A refresh the operator triggered, or one following a mutation, still forces.
+  async function refreshBadgeCounters(options = {}) {
     let payload;
     try {
-      const response = await fetch("/api/status", { cache: "no-store" });
+      // Forced unless this is the timer: every operator-driven path -- the Refresh button,
+      // Settings' Refresh now, a reload after a mutation -- keeps what aa5a5a72 gave it.
+      const response = await fetch("/api/status", options.periodic ? undefined : { cache: "no-store" });
       if (response.status === 404) {
         refreshCiBadgeCounters();
         refreshReleaseBadgeCounters();
@@ -2970,8 +2978,9 @@ import {
     } else if (method === "POST") {
       // Background tick with no screen open: refresh the unified status badges
       // (git + CI + CDX) rather than git alone, so the CI/CDX badges no longer
-      // go stale until their screen is opened.
-      await refreshBadgeCounters();
+      // go stale until their screen is opened. The timer does not force; everything
+      // else does -- see refreshBadgeCounters.
+      await refreshBadgeCounters({ periodic: Boolean(options.periodic) });
     }
     if (!changed && !options.silent && !options.force) {
       setMeta(`Checked just now · no viewer changes (${new Date().toLocaleTimeString()})`);
@@ -3047,7 +3056,7 @@ import {
       return;
     }
     const startedAt = Date.now();
-    refreshViewer("POST", { silent: true })
+    refreshViewer("POST", { silent: true, periodic: true })
       .then(() => { lastAutoRefreshMs = Date.now() - startedAt; })
       .catch((error) => {
         // A failed refresh is still time the viewer spent, and pacing off a cost of zero

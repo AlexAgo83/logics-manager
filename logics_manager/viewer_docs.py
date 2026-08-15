@@ -15,6 +15,7 @@ from typing import Any
 from urllib.parse import quote, unquote, urlencode
 
 from .doc_parsing import age_in_days, git_last_change_times, last_change_time, priority_tier
+from .viewer_registry import running_viewer
 
 
 @dataclass(frozen=True)
@@ -187,6 +188,26 @@ def build_viewer_url(host: str, port: int, *, focus: str | None = None, read: bo
     if query:
         url = f"{url}?{urlencode(query, quote_via=quote)}"
     return url
+
+
+def viewer_url_for_ref(repo_root: Path, ref: str) -> str | None:
+    """item_830/831/832: the one link a single document gets, read at call time -- absent
+    entirely when nothing is running, rather than a guessed default. Shared by the MCP
+    tools and the CLI so both derive it the same way instead of drifting."""
+    running = running_viewer(repo_root)
+    if running is None:
+        return None
+    return build_viewer_url(running.host, running.port, focus=ref, read=True, scheme=running.scheme)
+
+
+def viewer_url_template(repo_root: Path) -> str | None:
+    """item_831/832: one template for a listing, not one URL per row -- a caller
+    substitutes `{ref}` with each row's own ref. Hand-built rather than through
+    `build_viewer_url`'s querystring encoder, which would percent-escape the braces."""
+    running = running_viewer(repo_root)
+    if running is None:
+        return None
+    return f"{running.scheme}://{running.host}:{running.port}?focus={{ref}}&read=1"
 
 
 def _section_links(content: str, section_title: str) -> list[str]:

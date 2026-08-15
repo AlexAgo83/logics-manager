@@ -2,9 +2,9 @@
 > From version: 2.21.9
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 95%
+> Confidence: 90%
+> Progress: 60%
 > Complexity: Medium
 > Theme: The link arrives as data
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -56,3 +56,6 @@
 # Priority
 - Priority: High
 - Rationale: The surface that reaches assistants who read no instructions
+
+# Validation
+- read_logics_doc returns viewer_url (a full URL with ?focus=<ref>&read=1); list_logics_docs, search_logics_docs, list_active_work and list_companion_docs each return one viewer_url_template (?focus={ref}&read=1) instead of a URL per row. Both read running_viewer() at response-build time -- never stored -- and the field is absent (not null) when nothing is running. Measured on this repo's corpus: list_logics_docs at limit=200 grew by 67 bytes total (one template field), not per-row. Covered by test_mcp_read_and_list_tools_carry_the_viewer_link_when_one_is_running and the existing read/list/search test's absence assertions in tests/python/test_logics_manager_mcp.py.

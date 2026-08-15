@@ -5017,6 +5017,16 @@ describe("local viewer browser host", () => {
 
     // The screen says how many stages there are, and each stage says which one it is.
     expect(document.querySelector(".viewer-onboarding__nav-title")?.textContent).toContain("4 stages");
+
+    // item_819: each nav entry said a bare total, over kinds its label did not name. It now
+    // says what the number counts, and marks the empty stage as the one to read.
+    const navCounts = Array.from(document.querySelectorAll(".viewer-onboarding__nav-count")).map(
+      (node) => (node.textContent || "").trim()
+    );
+    expect(navCounts[0]).toBe("2 documents: requests, product briefs and roadmaps");
+    expect(navCounts[1]).toBe("no backlog items yet \u2014 start here");
+    expect(navCounts[2]).toBe("1 document: tasks");
+    expect(document.querySelector(".viewer-onboarding__nav-legend")?.textContent).toContain("already holds");
     const numbers = Array.from(document.querySelectorAll(".viewer-onboarding__stage-number")).map((node) => node.textContent);
     expect(numbers).toEqual(["1 of 4", "2 of 4", "3 of 4", "4 of 4"]);
 

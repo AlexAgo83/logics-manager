@@ -92,6 +92,9 @@ export const onboardingStages = [
       ],
       mapping: "Maps to logics/request/, logics/product/, and logics/roadmap/.",
       corpusStages: ["request", "product", "roadmap"],
+      // item_819: the nav counted these and named the stage, so the number covered more
+      // than its label did. This is what the count is over.
+      covers: "requests, product briefs and roadmaps",
       actions: [{ label: "New Request", action: "new-request" }, { label: "Open the board", action: "board" }]
     },
     {
@@ -104,6 +107,9 @@ export const onboardingStages = [
       ],
       mapping: "Maps to logics/backlog/ and logics/tasks/.",
       corpusStages: ["backlog"],
+      // item_819: the nav counted these and named the stage, so the number covered more
+      // than its label did. This is what the count is over.
+      covers: "backlog items",
       // item_752: this stage ended in nothing while the others ended in an action, so the
       // guide stopped being a sequence at its second step. The board is where the slices it
       // describes actually appear.
@@ -119,6 +125,9 @@ export const onboardingStages = [
       ],
       mapping: "Maps to task execution, commits, checks, and activity in the viewer.",
       corpusStages: ["task"],
+      // item_819: the nav counted these and named the stage, so the number covered more
+      // than its label did. This is what the count is over.
+      covers: "tasks",
       actions: [{ label: "CDX Missions", action: "cdx-missions" }, { label: "Open the board", action: "board" }]
     },
     {
@@ -131,6 +140,9 @@ export const onboardingStages = [
       ],
       mapping: "Maps to statuses across request, backlog, task, product, roadmap, ADR, and spec docs.",
       corpusStages: ["architecture", "spec"],
+      // item_819: the nav counted these and named the stage, so the number covered more
+      // than its label did. This is what the count is over.
+      covers: "architecture decisions and specs",
       actions: [{ label: "Open Health", action: "health" }, { label: "Open Insights", action: "open-logics-insights" }]
     }
   ];

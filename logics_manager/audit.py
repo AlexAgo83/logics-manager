@@ -4,7 +4,7 @@ import argparse
 import json
 import re
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable
 
@@ -128,6 +128,14 @@ class DocMeta:
     progress: int | None
     from_version: tuple[int, int, int] | None
     text: str
+    #: Memo for `_declared_refs`, which is a pure function of (this doc, target kind) but
+    #: was re-splitting and re-scanning `text` on every call. `_linked_tasks_for_item`
+    #: alone asked it once per (backlog item x task) pair: 305k calls and 40 of the 47
+    #: seconds an audit of a 1700-doc corpus took. Lives on the instance, and the
+    #: instances are rebuilt by `_collect_docs` on every run, so nothing outlives an edit.
+    #: ponytail: a memo, not an index -- the (item x task) sweep in `_linked_tasks_for_item`
+    #: is still quadratic. Invert it into a task->backlog map if corpora get much larger.
+    declared_refs_memo: dict[str, frozenset[str]] = field(default_factory=dict, compare=False, repr=False)
 
 
 @dataclass(frozen=True)
@@ -399,12 +407,16 @@ DECLARED_LINK_SECTIONS: dict[tuple[str, str], tuple[str, ...]] = {
 
 def _declared_refs(doc: DocMeta, target_kind: str) -> set[str]:
     """Refs `doc` declares to `target_kind`, read only from its link sections."""
+    memo = doc.declared_refs_memo.get(target_kind)
+    if memo is not None:
+        return set(memo)
     sections = DECLARED_LINK_SECTIONS.get((doc.kind.kind, target_kind), ())
     prefix = DOC_KIND_OBJECTS[target_kind].prefix
     refs: set[str] = set()
     lines = doc.text.splitlines()
     for heading in sections:
         refs |= _extract_refs("\n".join(section_lines(lines, heading)), prefix)
+    doc.declared_refs_memo[target_kind] = frozenset(refs)
     return refs
 
 

@@ -44,6 +44,7 @@ import {
   releaseBadgeTone,
   renderCdxModeSwitcher,
   renderCiModeSwitcher,
+  renderCorpusModeSwitcher,
   scrollableAncestor,
   setNavMenuOpen,
   showCdxFormStatus,
@@ -858,6 +859,7 @@ export function renderHealthSummary(lintData, auditData, healthData = null, know
 
     return `
       <div class="viewer-health">
+        ${renderCorpusModeSwitcher("health")}
         ${verdictHtml}
         <div class="viewer-health__summary viewer-health__summary--strip">${cards}</div>
         <section class="viewer-health__section">
@@ -1669,6 +1671,7 @@ export function renderViewerOnboarding(items = []) {
     `).join("");
     return `
       <div class="viewer-onboarding">
+        ${renderCorpusModeSwitcher("getting-started")}
         <header class="viewer-onboarding__header">
           <h1>Logics workflow map</h1>
           <p>Four stages, from the reason for the work to settling the documents it leaves behind. Read the one where this project has nothing yet.</p>

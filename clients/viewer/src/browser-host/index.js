@@ -53,6 +53,7 @@ import {
   releaseWorkshopTerminalObserver,
   renderCdxModeSwitcher,
   renderCiModeSwitcher,
+  renderCorpusModeSwitcher,
   dismissEnvironmentWarning,
   dismissUpdateWarning,
   updateWarningIsDismissed,
@@ -3276,6 +3277,7 @@ import {
       : "No immediate workflow risk detected";
     return `
       <div class="viewer-insights">
+        ${renderCorpusModeSwitcher("insights")}
         <section class="viewer-insights__hero">
           <div>
             <h2>Overview</h2>
@@ -4347,6 +4349,7 @@ import {
       const projectPickTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-pick]") : null;
       const ciModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-ci-mode]") : null;
       const cdxModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-mode]") : null;
+      const corpusModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-corpus-mode]") : null;
       const cdxMemoryScopeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-memory-scope]") : null;
       const cdxMemoryViewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-memory-view]") : null;
       const cdxBackRunsTarget = event.target instanceof Element ? event.target.closest("[data-viewer-cdx-back-runs]") : null;
@@ -4498,6 +4501,19 @@ import {
           withPrimaryAction("ci-runs", "Checking CI status", showCiStatus);
         } else {
           withPrimaryAction("ci-git", "Checking Git status", () => showGitStatus());
+        }
+        return;
+      }
+      if (corpusModeTarget instanceof HTMLElement) {
+        const mode = corpusModeTarget.getAttribute("data-viewer-corpus-mode") || "insights";
+        if (mode === "health") {
+          withPrimaryAction("corpus-health", "Checking health", showHealth);
+        } else if (mode === "getting-started") {
+          showGettingStarted();
+        } else if (mode === "runbooks") {
+          withPrimaryAction("corpus-runbooks", "Loading runbooks", showCorpusRunbooks);
+        } else {
+          withPrimaryAction("corpus-insights", "Loading insights", showCorpusInsights);
         }
         return;
       }

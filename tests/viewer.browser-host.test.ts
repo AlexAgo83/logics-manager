@@ -3332,6 +3332,38 @@ describe("local viewer browser host", () => {
     expect(tabIds).toEqual(["terminals", "commands", "explorer"]);
   });
 
+  it("moves between Corpus screens via their shared header switch (task_363)", async () => {
+    // item_792: mirrors the Git/CI/Release and CDX screens' own mode switcher -- Corpus
+    // screens previously had no way to move between each other short of closing the panel.
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    dom.window.document.querySelector('[data-viewer-nav-target="corpus:insights"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Corpus insights");
+    let modes = Array.from(dom.window.document.querySelectorAll("[data-viewer-corpus-mode]"));
+    expect(modes.map((node) => node.getAttribute("data-viewer-corpus-mode"))).toEqual(["insights", "health", "getting-started", "runbooks"]);
+    expect(dom.window.document.querySelector('[data-viewer-corpus-mode="insights"]')?.getAttribute("aria-selected")).toBe("true");
+
+    dom.window.document.querySelector('[data-viewer-corpus-mode="runbooks"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Runbooks");
+    expect(dom.window.document.querySelector('[data-viewer-corpus-mode="runbooks"]')?.getAttribute("aria-selected")).toBe("true");
+
+    dom.window.document.querySelector('[data-viewer-corpus-mode="getting-started"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Getting Started");
+
+    dom.window.document.querySelector('[data-viewer-corpus-mode="health"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Validation health");
+  });
+
   it("opens Runbooks from Corpus and searches", async () => {
     const { dom, calls } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();

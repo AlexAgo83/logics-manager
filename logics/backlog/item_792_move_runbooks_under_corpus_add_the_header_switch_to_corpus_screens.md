@@ -4,11 +4,11 @@
 > Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 60%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer redesign follow-through
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 01:48:38
+> Indicators reviewed: 2026-08-15 02:13:54
 
 # AI Context
 - Summary: Runbooks is currently under Workshop; it belongs under Corpus. Corpus screens are also missing the header selection switch every other top-level screen already carries.
@@ -32,7 +32,7 @@ Reported directly by the operator, not found by the mockup review: Runbooks shou
 - AC2: Every Corpus screen carries the same header selection switch present on other top-level screens (e.g. Activity/Project).
 
 # AC Traceability
-- request-AC4 -> This backlog slice. Proof: AC4: Runbooks appear under the Corpus section of the viewer's navigation, not under Workshop, and every Corpus screen carries the same header selection switch present on other top-level screens.
+- request-AC4 -> This backlog slice. Proof: Runbooks moved to the Corpus nav group (`corpus:runbooks`, no longer `workshop:runbooks`). Every Corpus screen (Insights, Health, Getting Started, Runbooks) now carries `renderCorpusModeSwitcher()`, the same segmented mode-switcher pattern already used by Git/CI/Release and CDX -- confirmed the operator's intent directly (it lets an operator move between the 4 Corpus screens, not the Activity/Project toggle). Verified by 4 regression tests in `tests/viewer.browser-host.test.ts` and a headless-Chrome screenshot.
 
 # Decision framing
 - Product framing: Not needed

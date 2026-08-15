@@ -1005,6 +1005,20 @@ export function renderCiModeSwitcher(active) {
     `;
   }
 
+// item_792: Corpus screens (Insights/Health/Getting Started/Runbooks) had no way to move
+// between each other short of closing the panel and reopening the Corpus menu -- every
+// other merged screen family (Git/CI/Release, CDX) already carries this same switcher.
+export function renderCorpusModeSwitcher(active) {
+    return `
+      <div class="viewer-cdx__modes viewer-corpus__modes" role="tablist" aria-label="Corpus views">
+        <button class="viewer-cdx__mode${active === "insights" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="insights" aria-selected="${active === "insights" ? "true" : "false"}">Insights</button>
+        <button class="viewer-cdx__mode${active === "health" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="health" aria-selected="${active === "health" ? "true" : "false"}">Health</button>
+        <button class="viewer-cdx__mode${active === "getting-started" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="getting-started" aria-selected="${active === "getting-started" ? "true" : "false"}">Getting Started</button>
+        <button class="viewer-cdx__mode${active === "runbooks" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="runbooks" aria-selected="${active === "runbooks" ? "true" : "false"}">Runbooks</button>
+      </div>
+    `;
+  }
+
 //: A dismissal lasts a session, and is keyed on what the warning says. Session storage is
 //: exactly that lifetime, and keying on the message means a warning about something new
 //: comes back immediately rather than hiding behind a decision made about something else.

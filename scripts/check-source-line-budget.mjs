@@ -56,7 +56,10 @@ const allowedOversizedFiles = new Map(
     // (exactly how the viewer's Settings screen reads this command) defaults to full
     // block buffering in Python, so the connector plan's URL line could sit unflushed
     // for as long as the tunnel stays up, which is forever once it succeeds.
-    "logics_manager/mcp.py": { maxLines: 1983, ref: "req_372" },
+    // 1990: item_851 has serve_stdio announce the first client request, so the connector
+    // screen's last row states that ChatGPT reached us instead of inferring it. The
+    // marker has to be printed where the requests are read.
+    "logics_manager/mcp.py": { maxLines: 1990, ref: "req_376" },
     // 1029: item_674 added the install-identity helpers (_install_root, _shim_target,
     // _executable_identity) that let doctor tell one install from two. They sit beside
     // running_executable_path/shadowing_executables, the only callers and the only other
@@ -208,7 +211,13 @@ const allowedOversizedFiles = new Map(
     // modal (req_374) and the in-browser editor's /api/save-doc (req_375). Splitting
     // this file further is its own decision, tracked separately, not a defect-repair
     // side effect during a release with 33 requests already in flight.
-    "logics_manager/viewer.py": { maxLines: 4185, ref: "req_375" },
+    // 4300: req_376/item_850 added the Secure MCP Tunnel connector path -- prerequisite
+    // check, confirmed install, profile creation, and the run command's environment.
+    // The command-building and the reading of `tunnel-client doctor` went to
+    // logics_manager/mcp_tunnel.py, along with item_851's setup rows; what stays here is
+    // the process supervision and the key probe, which need
+    // the connector state (`mcp_connector*`, its lock, its capture thread) this file owns.
+    "logics_manager/viewer.py": { maxLines: 4380, ref: "req_376" },
     // 1545: item_743 keys the cdx update cache on a fingerprint of the installed
     // executable, so running the update the banner asks for ends the banner. The
     // helper is 8 lines; the rest is the docstring stating why it stats rather than
@@ -398,7 +407,13 @@ const allowedOversizedFiles = new Map(
     // (req_360/365), Workshop/CDX finish (req_359), the viewer link (req_371), the
     // status-confirm modal and in-browser editor (req_374/375) -- the same file every
     // prior browser-host feature in this budget has landed in.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 5443, ref: "req_375" },
+    // 5525: req_376 made the connector screen poll itself until the tunnel reports its
+    // outcome (item_849), render each missing prerequisite with the one action that
+    // resolves it (item_850), and name the transport per client class (item_851). All
+    // three are showChatgptMcp's own markup and its own re-render loop, which read the
+    // document panel state this file owns; a separate module would import setDocument,
+    // beginView, documentPanel and escapeHtml back out of it.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 5545, ref: "req_376" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

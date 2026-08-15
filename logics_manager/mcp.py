@@ -1503,10 +1503,16 @@ def _print_surface_banner() -> None:
 def serve_stdio(*, repo_root: Path | None = None) -> int:
     root = _repo_root(repo_root)
     _print_surface_banner()
+    # item_851: the connector screen's last row waits for this. A client that has been
+    # configured is not yet a client that reached us; the first real request is.
+    first_request = True
     for line in sys.stdin:
         stripped = line.strip()
         if not stripped:
             continue
+        if first_request:
+            first_request = False
+            print("Logics MCP: first client request served.", file=sys.stderr, flush=True)
         try:
             message = json.loads(stripped)
             if not isinstance(message, dict):

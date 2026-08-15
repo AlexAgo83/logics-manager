@@ -3214,6 +3214,41 @@ import {
     setMeta("Settings loaded.");
   }
 
+  // item_850/item_851: the ChatGPT path as rows, each with its state and at most one
+  // action, in the order the steps actually have. An unmet row later in the order stays
+  // visible but inactive, so the remaining path is legible and the wrong order is never
+  // offered. The whole block is gone once every row is met -- setup is scaffolding, and
+  // it is also why no screen is left that could render a tunnel ID or a key.
+  function renderMcpPrerequisiteRow(row) {
+    const state = row.met ? "met" : row.actionable ? "next" : "waiting";
+    const mark = row.met ? "✓" : row.actionable ? "→" : "·";
+    let control = "";
+    if (!row.met && row.actionable) {
+      if (row.id === "api_key") {
+        control = '<label class="viewer-settings-field"><span>Control-plane API key</span><input type="password" data-viewer-mcp-api-key autocomplete="off" /></label>';
+      } else if (row.id === "profile") {
+        control = '<label class="viewer-settings-field"><span>Tunnel ID from the console</span><input type="text" data-viewer-mcp-tunnel-id placeholder="tun_…" autocomplete="off" /></label>';
+      }
+      control += row.url
+        ? `<a class="btn" href="${escapeHtml(row.url)}" target="_blank" rel="noreferrer noopener">${escapeHtml(row.action_label)}</a>`
+        : `<button class="btn" type="button" data-viewer-mcp-action="${escapeHtml(row.action)}">${escapeHtml(row.action_label)}</button>`;
+    }
+    return `<li class="viewer-mcp-step viewer-mcp-step--${state}"><strong>${mark} ${escapeHtml(row.label)}</strong><br /><span class="viewer-settings-screen__hint">${escapeHtml(row.detail || "")}</span>${control}</li>`;
+  }
+
+  function renderMcpPrerequisites(prerequisites) {
+    const rows = prerequisites && Array.isArray(prerequisites.rows) ? prerequisites.rows : [];
+    if (!rows.length || rows.every((row) => row.met)) return "";
+    return `<section class="viewer-settings-card"><h3>Getting ChatGPT connected</h3><p>${escapeHtml(prerequisites.message || "One step at a time, in this order.")}</p><ul class="viewer-settings-list">${rows.map(renderMcpPrerequisiteRow).join("")}</ul><button class="btn viewer-settings-quiet" type="button" data-viewer-mcp-action="prerequisites">Check again</button></section>`;
+  }
+
+  // item_851: which transport a client needs is a property of the client, not something
+  // to discover by trying. adr_031 fixes one per class; this is that table, on screen.
+  function renderMcpTransports(stdioCommand) {
+    const command = String(stdioCommand || "logics-manager mcp serve");
+    return `<section class="viewer-settings-card"><h3>Which transport your client needs</h3><ul class="viewer-settings-list"><li><strong>ChatGPT (developer mode)</strong> — OpenAI Secure MCP Tunnel<br /><span class="viewer-settings-screen__hint">Set up above. tunnel-client runs here, outbound only: nothing is published and the tunnel ID never changes.</span></li><li><strong>Claude Code, Claude Desktop, any client that launches the server itself</strong> — stdio<br /><span class="viewer-settings-screen__hint">No connector at all. Point the client at this command:</span><code class="viewer-mcp-url">${escapeHtml(command)}</code><button class="btn" type="button" data-viewer-mcp-copy="${escapeHtml(command)}" data-viewer-mcp-copy-kind="command">Copy command</button></li><li><strong>Hosted web clients other than ChatGPT</strong> — not supported yet<br /><span class="viewer-settings-screen__hint">They need a public HTTPS door, which is <code>req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door</code>. The localtunnel path still starts when selected, with a new URL and token every time.</span></li></ul></section>`;
+  }
+
   async function showChatgptMcp(options = {}) {
     // item_775/AC3: same shape as the fleet home -- fetch, then commit whatever came back
     // over whatever screen is now on. The guard covers every screen that loads
@@ -3222,11 +3257,35 @@ import {
     const response = await fetch("/api/mcp-connector");
     const data = await response.json().catch(() => ({}));
     const state = data.payload || {};
-    const ready = state.running && state.url;
+    const tunnel = state.mode !== "localtunnel";
+    // item_850: `ready` is the payload's own word for it. The Secure MCP Tunnel
+    // publishes no URL -- there is nothing to copy, which is the point -- so a screen
+    // waiting for one would wait forever.
+    const ready = state.ready !== undefined ? Boolean(state.ready) : Boolean(state.running && state.url);
     const token = String(state.token || "");
+    let prerequisites = null;
+    if (tunnel) {
+      const probe = await fetch("/api/mcp-connector", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "prerequisites" }) });
+      const probed = await probe.json().catch(() => ({}));
+      if (probe.ok && probed.ok) prerequisites = probed.payload;
+    }
     if (isViewStale(view)) return;
-    setDocument("ChatGPT Developer Mode", `<div class="viewer-settings-screen"><section class="viewer-settings-screen__hero"><p class="viewer-settings-screen__eyebrow">Per-project MCP connector</p><h2>${state.running ? "Connector ON" : "Connector OFF"}</h2><p>${ready ? "Copy the HTTPS /mcp URL and bearer token into ChatGPT developer mode. Stop it when you are done." : state.running ? "Starting the secure tunnel… the URL will appear here shortly." : "Nothing is exposed until you turn this connector on."}</p></section><section class="viewer-settings-card"><h3>ChatGPT connection</h3>${ready ? `<code class="viewer-mcp-url">${escapeHtml(state.url)}</code><button class="btn" type="button" data-viewer-mcp-copy="${escapeHtml(state.url)}">Copy URL</button>${token ? `<button class="btn" type="button" data-viewer-mcp-copy="${escapeHtml(token)}" data-viewer-mcp-copy-kind="token">Copy token</button>` : ""}` : ""}${state.error ? `<p class="viewer-settings-screen__error"><strong>The connector stopped.</strong> ${escapeHtml(state.error)}</p>` : ""}<button class="btn" type="button" data-viewer-mcp-action="${state.running ? "stop" : "start"}">${state.running ? "Stop the connector" : "Start the connector"}</button>${state.running && !ready ? '<button class="btn" type="button" data-viewer-mcp-action="refresh">Refresh status</button>' : ""}</section></div>`, { eyebrow: "Settings / ChatGPT Developer Mode" });
-    setMeta(ready ? "MCP connector ready." : state.running ? "MCP connector starting." : "MCP connector is off.");
+    // Blocked means the connector cannot start yet -- the rows that remain are setup, not
+    // the plugin row, which only resolves once it is running.
+    const blocked = Boolean(prerequisites && !prerequisites.ok);
+    const setup = renderMcpPrerequisites(prerequisites);
+    const headline = ready ? "Connector ON" : state.running ? "Connector starting" : "Connector OFF";
+    const lede = ready
+      ? tunnel
+        ? "ChatGPT reaches this repository through OpenAI's Secure MCP Tunnel. Nothing is published, and there is nothing to paste."
+        : "Copy the HTTPS /mcp URL and bearer token into ChatGPT developer mode. Stop it when you are done."
+      : state.running
+        ? "Starting the secure tunnel… the outcome will appear here."
+        : blocked
+          ? "One prerequisite is missing. Resolve it below and the connector will start."
+          : "Nothing is exposed until you turn this connector on.";
+    setDocument("ChatGPT Developer Mode", `<div class="viewer-settings-screen"><section class="viewer-settings-screen__hero"><p class="viewer-settings-screen__eyebrow">Per-project MCP connector</p><h2>${headline}</h2><p>${lede}</p></section>${setup}<section class="viewer-settings-card"><h3>ChatGPT connection</h3>${ready && state.url ? `<code class="viewer-mcp-url">${escapeHtml(state.url)}</code><button class="btn" type="button" data-viewer-mcp-copy="${escapeHtml(state.url)}">Copy URL</button>${token ? `<button class="btn" type="button" data-viewer-mcp-copy="${escapeHtml(token)}" data-viewer-mcp-copy-kind="token">Copy token</button>` : ""}` : ""}${state.error ? `<p class="viewer-settings-screen__error"><strong>${state.running ? "The connector is not carrying anything." : "The connector stopped."}</strong> ${escapeHtml(state.error)}</p>` : ""}${blocked ? "" : `<button class="btn" type="button" data-viewer-mcp-action="${state.running ? "stop" : "start"}">${state.running ? "Stop the connector" : "Start the connector"}</button>`}${state.running && !ready ? '<button class="btn" type="button" data-viewer-mcp-action="refresh">Refresh status</button>' : ""}</section>${renderMcpTransports(prerequisites && prerequisites.stdio_command)}</div>`, { eyebrow: "Settings / ChatGPT Developer Mode" });
+    setMeta(ready ? "MCP connector ready." : state.running ? "MCP connector starting." : blocked ? "MCP connector is not ready to start." : "MCP connector is off.");
     // item_849: while the tunnel is establishing there is nothing to click but
     // 'Refresh status'. Poll ourselves until the outcome lands -- ready, stopped, or
     // errored. The view token cannot carry the loop: setDocument invalidates every
@@ -4481,19 +4540,42 @@ import {
       if (!(action instanceof HTMLElement)) return;
       const value = action.dataset.viewerMcpAction;
       if (value === "refresh") return void showChatgptMcp();
+      // item_850: every step between a bare machine and a working connector is a button
+      // here -- install the binary, create the profile -- so nobody is handed a shell
+      // command to run by hand. The tunnel_id is read from the field and posted; it is
+      // never rendered back, logged, or stored anywhere but the tunnel-client profile.
+      const labels = { stop: "Stopping connector", install: "Installing tunnel-client", "init-profile": "Creating the tunnel profile", "save-key": "Saving the API key", prerequisites: "Checking prerequisites" };
+      const field = (selector) => {
+        const node = documentContent()?.querySelector(selector);
+        return node instanceof HTMLInputElement ? node.value.trim() : "";
+      };
+      const body = { action: value };
+      if (value === "init-profile") {
+        const tunnelId = field("[data-viewer-mcp-tunnel-id]");
+        if (!tunnelId) return void setMeta("Paste the tunnel ID from the console first.");
+        body.tunnel_id = tunnelId;
+      }
+      if (value === "save-key") {
+        const apiKey = field("[data-viewer-mcp-api-key]");
+        if (!apiKey) return void setMeta("Enter the control-plane API key first.");
+        body.api_key = apiKey;
+      }
       // item_742: this used to be `.then(() => showChatgptMcp())`, checking neither the
       // HTTP status nor the body's `ok`. A refusal resolved the promise, the screen
       // re-rendered unchanged, and the operator read a stated failure as nothing
       // happening. Route it through the same path every other primary action's failure
       // takes, so it surfaces wherever those surface.
-      withPrimaryAction(`mcp-${value}`, value === "stop" ? "Stopping connector" : "Starting connector", async () => {
+      withPrimaryAction(`mcp-${value}`, labels[value] || "Starting connector", async () => {
         const response = await fetch("/api/mcp-connector", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: value })
+          body: JSON.stringify(body)
         });
         const data = await response.json().catch(() => ({}));
         if (!response.ok || !data.ok) throw new Error(data.error || `Unable to ${value} the MCP connector.`);
+        // install and init-profile report their own outcome in the payload: the request
+        // succeeded, the step it asked for may still not have.
+        if (data.payload && data.payload.ok === false) throw new Error(data.payload.message || `Unable to ${value}.`);
         await showChatgptMcp();
       });
     });

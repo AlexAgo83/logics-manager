@@ -7169,3 +7169,49 @@
 .viewer-screen-freshness--stale {
   color: var(--vscode-editorWarning-foreground, #d29922);
 }
+
+/* item_850/item_851: the connector screen's prerequisite field and the transport table.
+   Both live inside .viewer-settings-card, so they only need what the card does not give. */
+.viewer-settings-field {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.viewer-settings-field input {
+  padding: 6px 8px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 4px;
+  background: var(--vscode-input-background, rgb(255 255 255 / 4%));
+  color: var(--vscode-foreground, #d4d4d4);
+  font: inherit;
+}
+
+.viewer-settings-list {
+  margin: 0;
+  padding-left: 16px;
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.viewer-settings-screen__hint {
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+/* item_851: the setup rows have a forced order, so a step that is not next reads as
+   reachable-but-inactive rather than being hidden -- the remaining path stays legible. */
+.viewer-mcp-step {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+}
+
+.viewer-mcp-step--waiting {
+  opacity: 0.55;
+}
+
+.viewer-mcp-step--met strong {
+  color: var(--vscode-testing-iconPassed, #4ec9b0);
+}

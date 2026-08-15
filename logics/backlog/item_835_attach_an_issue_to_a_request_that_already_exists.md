@@ -2,9 +2,9 @@
 > From version: 2.21.9
 > Schema version: 1.0
 > Status: In progress
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 10%
+> Understanding: 95%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Low
 > Theme: The link can be made when it is noticed
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -52,3 +52,6 @@
 # Priority
 - Priority: High
 - Rationale: The direction the real flow needs and the only one missing
+
+# Validation
+- attach_issue (mcp_request.py, exposed as the attach_github_issue MCP tool) writes the same '# Provenance' shape create_request produces on a first attach (Origin/External id/External issue/Approval), and appends another id/issue bullet pair on a second attach rather than replacing the section -- Approval stays the single trailing line. A non-issue URL is refused with the same rule create_request enforces. Reachable from the CLI today through the existing `mcp call` passthrough (verified end-to-end against a real repo), so no new CLI surface was needed. dry_run writes nothing. 4 new tests in tests/python/test_logics_manager_mcp.py.

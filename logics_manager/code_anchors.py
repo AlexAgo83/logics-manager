@@ -33,6 +33,13 @@ SKIP_DIRS = {".git", "node_modules", "logics", "dist", "out", "__pycache__", ".v
 SOURCE_SUFFIXES = {".py", ".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx", ".json", ".md", ".html", ".css", ".sh", ".yml", ".yaml", ".toml"}
 
 _BACKTICKED = re.compile(r"`([^`\n]+)`")
+#: A Logics document reference, which is lineage rather than a code citation. `SKIP_DIRS`
+#: excludes `logics` from the blob on purpose -- the check is about citations *into the
+#: codebase* -- so asking the codebase whether `req_367_...` exists asks the one place it
+#: never will, and every brief that cites its own request was reported as stale. Whether
+#: these resolve is already the corpus's own question, answered by the link and lineage
+#: checks in audit.py.
+_WORKFLOW_REF = re.compile(r"^(?:req|item|task|prod|road|adr|spec|run)_\d+_")
 #: A symbol: an identifier, optionally dotted or ending in (). Not a path, not prose.
 _SYMBOL = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*(?:\(\))?$")
 
@@ -58,6 +65,8 @@ def anchors(text: str) -> tuple[set[str], set[str]]:
                 continue
             if "/" in token:
                 paths.add(token.rstrip("/"))
+            elif _WORKFLOW_REF.match(token):
+                continue
             elif _SYMBOL.match(token) and "." not in token and not token.endswith("()"):
                 # A bare dotted name is ambiguous with a filename, and `foo()` reads as
                 # prose more often than as a grep target; both are left alone.

@@ -807,7 +807,18 @@ def test_audit_reports_code_anchors_that_no_longer_resolve(tmp_path: Path) -> No
         repo_root,
         "anchors",
         status="Ready",
-        references=["`src/real.py`", "`src/gone.py`", "`kept_symbol`", "`vanished_symbol`", "`only_in_a_comment`", "`src/real.py:9999`"],
+        references=[
+            "`src/real.py`",
+            "`src/gone.py`",
+            "`kept_symbol`",
+            "`vanished_symbol`",
+            "`only_in_a_comment`",
+            "`src/real.py:9999`",
+            # A Logics ref is lineage, not a code citation: `SKIP_DIRS` excludes `logics`
+            # from the blob on purpose, so asking the codebase whether this exists asks the
+            # one place it never will.
+            "`req_999_a_document_this_repository_does_not_hold`",
+        ],
     )
 
     payload = audit_payload(repo_root, skip_ac_traceability=True, skip_gates=True)
@@ -824,6 +835,8 @@ def test_audit_reports_code_anchors_that_no_longer_resolve(tmp_path: Path) -> No
     assert [f["message"].split("`")[1] for f in symbol_findings] == ["vanished_symbol"]
     assert "a hint that the citation is stale, not a fact" in symbol_findings[0]["message"]
     assert symbol_findings[0]["deferred"] is True
+    # ...and a Logics document reference is never asked of the codebase at all.
+    assert not any("req_999" in message for _, message in findings)
     # A symbol that exists only inside a comment still exists.
     assert not any("only_in_a_comment" in message for _, message in findings)
     # AC5: warnings only, so the audit still passes and the default report stays quiet.

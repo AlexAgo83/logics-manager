@@ -1,0 +1,354 @@
+{
+  "budgets": {
+    "max_docs": 16,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain item_853_tell_a_delivery_link_from_a_mention_at_closeout task_388_make_both_checks_read_the_corpus_as_written --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain",
+          "item_853_tell_a_delivery_link_from_a_mention_at_closeout"
+        ],
+        "prod": [
+          "prod_108_checks_that_read_the_corpus_the_way_it_is_written"
+        ],
+        "req": [
+          "req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects"
+        ],
+        "task": [
+          "task_388_make_both_checks_read_the_corpus_as_written"
+        ]
+      },
+      "path": "logics/product/prod_108_checks_that_read_the_corpus_the_way_it_is_written.md",
+      "ref": "prod_108_checks_that_read_the_corpus_the_way_it_is_written",
+      "status": "Proposed",
+      "title": "Checks that read the corpus the way it is written"
+    },
+    {
+      "kind": "architecture",
+      "linked_refs": {
+        "adr": [
+          "adr_031_one_mcp_transport_per_client_class"
+        ],
+        "item": [
+          "item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts",
+          "item_848_give_the_connector_a_chatgpt_native_oauth_front_door",
+          "item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive"
+        ],
+        "req": [
+          "req_376_make_the_chatgpt_mcp_connector_plug_and_play",
+          "req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door"
+        ],
+        "task": [
+          "task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector"
+        ]
+      },
+      "path": "logics/architecture/adr_031_one_mcp_transport_per_client_class.md",
+      "ref": "adr_031_one_mcp_transport_per_client_class",
+      "status": "Proposed",
+      "title": "One MCP transport per client class"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "reporting, deferred, request, prose, mention, corpus, defects",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "adr": [
+          "adr_031_one_mcp_transport_per_client_class"
+        ],
+        "item": [
+          "item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain",
+          "item_853_tell_a_delivery_link_from_a_mention_at_closeout"
+        ],
+        "prod": [
+          "prod_108_checks_that_read_the_corpus_the_way_it_is_written"
+        ],
+        "req": [
+          "req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door",
+          "req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects"
+        ]
+      },
+      "path": "logics/request/req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects.md",
+      "ref": "req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Stop reporting a deferred request and a prose mention as corpus defects"
+    },
+    {
+      "ai_context": {
+        "keywords": "oauth 2.1, pkce, rfc 9728 protected resource metadata, rfc 8414, rfc 7591 dynamic client registration, client id metadata document, rfc 8707 resource, tailscale funnel, localtunnel",
+        "skip when": "The client can run a local process (use stdio) or is ChatGPT (use OpenAI's Secure MCP Tunnel, `req_376_make_the_chatgpt_mcp_connector_plug_and_play`).",
+        "summary": "Deliberately deferred. Holds the OAuth-front-door and tunnel-provider research from 2026-08-15 for the day a hosted web client that cannot spawn a local process needs to reach this MCP surface; nothing needs it today, so nothing is being built.",
+        "use when": "A hosted web client (claude.ai connector or equivalent) actually requires a public HTTPS entry point, or someone proposes exposing the MCP surface publicly."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "adr": [
+          "adr_031_one_mcp_transport_per_client_class"
+        ],
+        "item": [
+          "item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts",
+          "item_848_give_the_connector_a_chatgpt_native_oauth_front_door"
+        ],
+        "req": [
+          "req_376_make_the_chatgpt_mcp_connector_plug_and_play",
+          "req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door"
+        ]
+      },
+      "path": "logics/request/req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door.md",
+      "ref": "req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Expose the MCP surface to hosted web clients through a public HTTPS door"
+    },
+    {
+      "ai_context": {
+        "keywords": "let, draft, request, hold, acceptance, criteria, chain",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain"
+        ],
+        "prod": [
+          "prod_108_checks_that_read_the_corpus_the_way_it_is_written"
+        ],
+        "req": [
+          "req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects"
+        ],
+        "task": [
+          "task_388_make_both_checks_read_the_corpus_as_written"
+        ]
+      },
+      "path": "logics/backlog/item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain.md",
+      "ref": "item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Let a Draft request hold acceptance criteria without a chain"
+    },
+    {
+      "ai_context": {
+        "keywords": "tell, delivery, link, mention, closeout",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_853_tell_a_delivery_link_from_a_mention_at_closeout"
+        ],
+        "prod": [
+          "prod_108_checks_that_read_the_corpus_the_way_it_is_written"
+        ],
+        "req": [
+          "req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects"
+        ],
+        "task": [
+          "task_388_make_both_checks_read_the_corpus_as_written"
+        ]
+      },
+      "path": "logics/backlog/item_853_tell_a_delivery_link_from_a_mention_at_closeout.md",
+      "ref": "item_853_tell_a_delivery_link_from_a_mention_at_closeout",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Tell a delivery link from a mention at closeout"
+    },
+    {
+      "ai_context": {
+        "keywords": "both, checks, read, corpus, written",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain",
+          "item_853_tell_a_delivery_link_from_a_mention_at_closeout"
+        ],
+        "prod": [
+          "prod_108_checks_that_read_the_corpus_the_way_it_is_written"
+        ],
+        "req": [
+          "req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects"
+        ],
+        "task": [
+          "task_388_make_both_checks_read_the_corpus_as_written"
+        ]
+      },
+      "path": "logics/tasks/task_388_make_both_checks_read_the_corpus_as_written.md",
+      "ref": "task_388_make_both_checks_read_the_corpus_as_written",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Make both checks read the corpus as written"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain",
+          "item_853_tell_a_delivery_link_from_a_mention_at_closeout"
+        ],
+        "prod": [
+          "prod_108_checks_that_read_the_corpus_the_way_it_is_written"
+        ],
+        "req": [
+          "req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects"
+        ],
+        "task": [
+          "task_388_make_both_checks_read_the_corpus_as_written"
+        ]
+      },
+      "path": "logics/product/prod_108_checks_that_read_the_corpus_the_way_it_is_written.md",
+      "ref": "prod_108_checks_that_read_the_corpus_the_way_it_is_written",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "Checks that read the corpus the way it is written"
+    }
+  ],
+  "estimates": {
+    "char_count": 7347,
+    "companion_doc_count": 2,
+    "doc_count": 6
+  },
+  "generated_at": "2026-08-15T22:36:43Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects",
+      "item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain",
+      "item_853_tell_a_delivery_link_from_a_mention_at_closeout",
+      "task_388_make_both_checks_read_the_corpus_as_written"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects,item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain,item_853_tell_a_delivery_link_from_a_mention_at_closeout,task_388_make_both_checks_read_the_corpus_as_written",
+  "refs": [
+    "req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects",
+    "item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain",
+    "item_853_tell_a_delivery_link_from_a_mention_at_closeout",
+    "task_388_make_both_checks_read_the_corpus_as_written"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "version_metadata: evidence targets a different version",
+      "changelog: evidence targets a different version",
+      "local_validation: evidence targets a different version",
+      "git_push: evidence targets a different version",
+      "ci: evidence targets a different version",
+      "github_release: evidence targets a different version",
+      "issue_closure: evidence targets a different version"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "version_metadata: evidence targets a different version",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": "evidence targets a different version",
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "stale"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.22.0"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_388_make_both_checks_read_the_corpus_as_written.md",
+      "ref": "task_388_make_both_checks_read_the_corpus_as_written"
+    }
+  ]
+}

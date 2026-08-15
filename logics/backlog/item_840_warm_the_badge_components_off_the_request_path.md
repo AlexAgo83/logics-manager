@@ -1,14 +1,14 @@
 ## item_840_warm_the_badge_components_off_the_request_path - Warm the badge components off the request path
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 40%
+> Progress: 100%
 > Complexity: Low
 > Theme: Paying before being asked
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:29:35
+> Indicators reviewed: 2026-08-15 17:28:49
 
 # AI Context
 - Summary: The first /api/status after a start costs 9.07s on the request path; req_366's warm-up already exists and does not cover the badges.
@@ -51,3 +51,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Nine seconds, once, exactly where the operator is watching
+
+# Tasks
+- `task_384_orchestrate_the_auto_refresh_cost_work`
+
+# Notes
+- Task `task_384_orchestrate_the_auto_refresh_cost_work` was finished via `logics-manager flow finish task` on 2026-08-15.

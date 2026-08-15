@@ -1,14 +1,14 @@
 ## item_842_re_measure_the_tick_and_record_what_it_is_made_of - Re-measure the tick and record what it is made of
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 90%
+> Progress: 100%
 > Complexity: Low
 > Theme: Measured the way an operator experiences it
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:29:35
+> Indicators reviewed: 2026-08-15 17:28:49
 
 # AI Context
 - Summary: Re-measure per component the way the 3.1s baseline was taken, and write the breakdown where the lifetimes are set.
@@ -54,3 +54,9 @@
 
 # Validation
 - Re-measured over HTTP against this repo's own corpus, after item_839/840/841 (same method as the 3.1s baseline: an isolated viewer, real subprocess/gh calls, no mocks). Steady-state tick: /api/status all-cache-hit 0.001s + /api/items 304 0.009s = ~0.01s, down from 3.1s. Cold first poll (racing the warm-up): 6.093s, down from 9.07s -- not zero because the warm-up pays for Insights/Health's corpus reports first on this corpus. Forced (no-store) poll: 4.833s, deliberately unchanged. GitHub call pattern confirmed unchanged by inspection: none of the three fixes touch ci_status_payload/release_status_payload or their call sites, only cache lifetimes and warm-up order. Breakdown recorded in logics_manager/viewer.py next to _status_cache_ttl_seconds, where the next component's lifetime gets decided.
+
+# Tasks
+- `task_384_orchestrate_the_auto_refresh_cost_work`
+
+# Notes
+- Task `task_384_orchestrate_the_auto_refresh_cost_work` was finished via `logics-manager flow finish task` on 2026-08-15.

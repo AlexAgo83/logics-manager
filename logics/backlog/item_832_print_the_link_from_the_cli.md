@@ -2,9 +2,9 @@
 > From version: 2.21.9
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 95%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Low
 > Theme: The link arrives as data
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -51,3 +51,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Most coding agents shell out rather than speak MCP
+
+# Validation
+- flow show prints a `- link:` line using viewer_url_for_ref; sync list-docs and search-docs each print a single `- open with:` line using viewer_url_template, in the same place the listing already states its bounds. Both are silent (no line at all) when no viewer is running -- verified against the unchanged-output case, not just a null field. Covered by test_flow_show_prints_a_link_when_a_viewer_is_running and test_sync_list_and_search_docs_print_the_viewer_link_once, plus absence assertions added to the existing flow-show/list-docs tests. Full suite: 1405 passed.

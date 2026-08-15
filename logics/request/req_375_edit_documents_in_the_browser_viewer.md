@@ -7,6 +7,7 @@
 > Complexity: Medium
 > Theme: Edit where you already are, not in a separate program
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-15 18:25:03
 
 # AI Context
 - Summary: The standalone browser viewer edits documents in-place with Save/Cancel instead of shelling out to a system editor; VS Code's embedded panel keeps opening its own editor unchanged. A real save offers the same commit step item_844 built for status changes.
@@ -23,7 +24,7 @@
 - `editDocument` in `clients/viewer/src/browser-host/index.js` calls the edit route, which shells out to the OS's system editor command (`edit_doc_payload` in `logics_manager/viewer.py`). That is the right answer in the VS Code embedded panel, where the editor is already open and one message away; it is the wrong one in a standalone browser tab, where there may be no configured editor at all, or opening one takes the operator out of the browser entirely.
 - The viewer already knows when it is embedded in VS Code: a `postMessage` handshake (`viewer-embed-host`, `host: 'vscode'`) sets `embeddedHost` once the panel loads. That is the existing signal to route on, not a new detection mechanism.
 - There is no server route today that writes a document's full content back to disk from the viewer -- only structured mutations (status, indicators, note appends) exist. This request adds the one write path a free-form markdown edit needs, path-validated the same way the edit route and the read routes already are.
-- req_374 (`confirm_the_status_change_offer_to_commit_it`) builds a confirm-and-commit step for status changes, wired to the existing git-commit route. This request reuses that same mechanism for a saved edit rather than building a second one.
+- `req_374_confirm_the_status_change_offer_to_commit_it` builds a confirm-and-commit step for status changes, wired to the existing git-commit route. This request reuses that same mechanism for a saved edit rather than building a second one.
 - The viewer already has themed modal primitives (`showThemedConfirmModal`, `showThemedInputModal` in `clients/viewer/src/browser-host/render.js`) and a single-action gate (`withPrimaryAction`) already wrapping the edit button's click handler.
 
 # Acceptance criteria

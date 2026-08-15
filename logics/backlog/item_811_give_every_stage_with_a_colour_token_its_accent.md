@@ -32,6 +32,11 @@
 - AC2: No stage with a colour token is left drawing the neutral base.
 - AC3: A test fails if a token is added without its accent, rather than the omission being noticed on a screenshot.
 
+# Report
+- The accent kept a second copy of the stage list and had fallen two stages behind: `roadmap` and `runbook` have colour tokens and were drawing the neutral base, so a roadmap card looked like a card whose stage is unknown.
+- Rather than adding the two missing lines, the copy is gone: the accent reads `--card-progress-color`, the property item_795 already sets per stage on the card itself. One table now feeds the accent, the progress fill and the selection outline, so a stage added colours all three or none -- it cannot colour one and not the others, which is how this happened.
+- A test walks the declared `--stage-color-*` tokens and fails if any lacks its mapping, so the omission is caught by the suite rather than noticed on a screenshot.
+
 # AC Traceability
 - request-AC4 -> This backlog slice. Proof: AC1: A roadmap card and a runbook card each draw their own stage colour on the accent.
 

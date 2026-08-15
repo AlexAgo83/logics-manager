@@ -686,3 +686,25 @@ describe("a document is named the same way on the board and in its reader", () =
     expect(reader).toEqual(board);
   });
 });
+
+
+describe("every stage with a colour token carries it", () => {
+  const css = readCssBundle("clients/shared-web/media/main.css");
+
+  it("resolves the card accent from the one stage table, not a second copy of it", () => {
+    // item_811: the accent kept its own list of stages and had fallen two behind -- roadmap
+    // and runbook have colour tokens and were drawing the neutral base, so a roadmap card
+    // looked like a card whose stage is unknown. The same omission was already found and
+    // fixed for the progress bar; the accent's copy was missed, which is the shape of the
+    // defect rather than an accident. One table now feeds accent, progress fill and
+    // selection outline: a stage added colours all three or none.
+    expect(css).toMatch(/\.card\[data-stage\] \{[^}]*var\(--card-progress-color/);
+    expect(css).not.toMatch(/\.card\[data-stage="request"\] \{ border-left-color/);
+
+    const tokens = [...css.matchAll(/--stage-color-([a-z]+):/g)].map((match) => match[1]);
+    expect(tokens.length).toBeGreaterThan(0);
+    for (const stage of tokens) {
+      expect(css).toContain(`.card[data-stage="${stage}"], .list-row[data-stage="${stage}"] { --card-progress-color: var(--stage-color-${stage}); }`);
+    }
+  });
+});

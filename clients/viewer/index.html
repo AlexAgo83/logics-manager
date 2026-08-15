@@ -56,10 +56,21 @@
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 6.5h6l2 2H20.5v9a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" /><path d="M3.5 8.5h17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
           </button>
         </span>
+        <!-- item_812: at phone widths the screen buttons became a two-column grid taking a
+             block of the viewport that can least afford one, pushed off the selector's own
+             row. This opens the same buttons as a sheet instead. Hidden at every width the
+             grid was not a problem at. -->
+        <button class="btn viewer-topbar__menu" id="viewer-topbar-menu" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="viewer-topbar-actions">Menu</button>
       </div>
-      <div class="viewer-topbar__meta" id="viewer-meta">Read-only local viewer</div>
+      <!-- item_809: the status line is where a load with no screen open was announced by
+           its text quietly changing, and nothing else. The spinner is a sibling of the
+           text rather than a child: renderMeta writes textContent, which would erase it. -->
+      <div class="viewer-topbar__status">
+        <span class="viewer-topbar__spinner" aria-hidden="true"></span>
+        <div class="viewer-topbar__meta" id="viewer-meta">Read-only local viewer</div>
+      </div>
     </div>
-    <div class="viewer-topbar__actions">
+    <div class="viewer-topbar__actions" id="viewer-topbar-actions">
       <div class="viewer-nav-menu" data-viewer-nav="workshop">
         <button class="btn" id="viewer-workshop" type="button" title="Show Workshop and project tools" aria-haspopup="menu" hidden>Workshop</button>
         <div class="viewer-nav-menu__panel" role="menu" aria-label="Workshop sections">
@@ -374,7 +385,7 @@
            middle, leaving only the 2px rim lit. The clipping cannot move up onto the header
            itself -- the header holds the Git actions menu, and `overflow: hidden` there
            would clip the menu open. -->
-      <div class="viewer-document__ring" aria-hidden="true"></div>
+      <div class="viewer-document__ring" aria-hidden="true"><span class="viewer-document__ring-rest"></span></div>
       <div class="viewer-document__heading">
         <div class="viewer-document__eyebrow" id="viewer-document-eyebrow"></div>
         <div class="viewer-document__title-row">

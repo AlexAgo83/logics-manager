@@ -2144,10 +2144,19 @@ describe("local viewer browser host", () => {
     expect(css).not.toMatch(/viewer-document__ring[^}]*mask-composite/);
     // AC3: it fades on opacity, so the comet is never seen appearing mid-travel.
     expect(css).toMatch(/\.viewer-document__ring \{[^}]*transition: opacity 0\.45s/);
+    // item_810: one lap, then a resting outline carries the wait -- not a rotation that
+    // runs for the load's whole duration saying "still going".
+    expect(css).toMatch(/animation: viewer-loading-ring-spin [^;]*\b1 forwards/);
+    expect(css).toMatch(/\.viewer-document__ring-rest \{[^}]*box-shadow: inset/);
     // AC4: a real media query, not a setting of our own.
-    const reduced = css.slice(css.indexOf("@media (prefers-reduced-motion: reduce)", css.indexOf(".viewer-document__ring")));
-    expect(reduced.slice(0, 400)).toContain("viewer-loading-ring-breathe");
-    expect(reduced.slice(0, 400)).toMatch(/animation: none/);
+    // Sliced to the block, not to a character count: item_810 added the resting outline's
+    // own rule inside it, and a fixed 400-character window stopped reaching the end.
+    const reducedStart = css.indexOf("@media (prefers-reduced-motion: reduce)", css.indexOf(".viewer-document__ring"));
+    const reduced = css.slice(reducedStart, css.indexOf("\n}", css.indexOf("viewer-loading-ring-breathe", reducedStart)));
+    expect(reduced).toContain("viewer-loading-ring-breathe");
+    expect(reduced).toMatch(/animation: none/);
+    // No lap runs, so there is nothing for the resting outline to take over from.
+    expect(reduced).toMatch(/\.viewer-document__ring-rest \{[^}]*display: none/);
     // AC2: the neutral is declared once, and is none of the stage colours.
     expect(css).toMatch(/--viewer-loading-neutral:/);
 
@@ -2155,6 +2164,38 @@ describe("local viewer browser host", () => {
     // AC6: driven by the existing busy signal rather than a second loading tracker.
     expect(host).toMatch(/function setPrimaryActionBusy\([^)]*\) \{[\s\S]{0,400}applyLoadingRing\(/);
     expect(host).toMatch(/screenChange \? "" : String\(currentDocumentItem\?\.stage/);
+    // item_810: and nothing at all below the threshold, which every affordance reads --
+    // one value, since three would come to disagree.
+    expect(host).toContain("LOADING_AFFORDANCE_DELAY_MS");
+    expect(host).toMatch(/loadingSurfaces\(\)\.forEach\(\(node\) => node\.setAttribute\("data-loading"/);
+  });
+
+  it("gives the phone header one menu button on the selector's row", () => {
+    // item_812: at 420px and below the screen buttons were a two-column grid, spending a
+    // block of the viewport that can least afford one and pushed off the selector's row.
+    const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
+    const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
+    const host = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/index.js"), "utf8");
+
+    // The button rides on the identity row, which is where the selector is.
+    const identity = html.match(/<div class="viewer-topbar__identity">[\s\S]*?<\/div>\s*<!-- item_809/)?.[0] || "";
+    expect(identity).toContain('id="viewer-topbar-menu"');
+    expect(identity).toContain('aria-controls="viewer-topbar-actions"');
+
+    // It exists only at the breakpoint that has a grid to replace. The base rule has to be
+    // declared before that breakpoint: same specificity, so the later one wins.
+    // The stylesheet has several phone blocks; this is the one that owns the header, found
+    // by what it declares rather than by being the first of its kind.
+    const phoneStart = css.lastIndexOf("@media (max-width: 420px)", css.indexOf(".viewer-topbar__menu {\n    display: inline-flex"));
+    const phone = css.slice(phoneStart, css.indexOf("\n}\n", css.indexOf(".viewer-topbar__actions", phoneStart)));
+    expect(phoneStart).toBeGreaterThan(-1);
+    expect(css.indexOf(".viewer-topbar__menu {")).toBeLessThan(phoneStart);
+    expect(phone).toMatch(/\.viewer-topbar__menu \{[^}]*display: inline-flex/);
+    expect(phone).not.toMatch(/\.viewer-topbar__actions \{[^}]*repeat\(2/);
+
+    // The sheet is the desktop navigation, presented differently -- not a second copy.
+    expect(host).toContain("installTopbarMenu");
+    expect(host).toMatch(/getElementById\("viewer-topbar-actions"\)/);
   });
 
   it("leads the Corpus navigation and switcher with Getting Started", () => {

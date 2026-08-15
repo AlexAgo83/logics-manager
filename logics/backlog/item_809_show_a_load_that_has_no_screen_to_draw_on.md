@@ -34,6 +34,12 @@
 - AC2: The status line's text is unchanged, and its layout does not shift when the spinner appears or clears.
 - AC3: Under `prefers-reduced-motion: reduce` neither the spinner nor the sheen travels.
 
+# Report
+- The spinner is a sibling of the status text, not a child: `renderMeta` writes `textContent`, which would have erased a child on the next tick. It sits in its own slot so the line does not reflow as it appears and clears.
+- The header's own surface carries a slow sheen in the loading colour at 14% alpha. Deliberately not a progress bar -- nothing in these loads knows a proportion, and a bar filling at an invented rate is a claim the operator calibrates against and is wrong about.
+- Both are lit by the same call as the ring, so a load cannot light one surface and not the other.
+- Reduced motion: the spinner stops turning and becomes a filled dot; the sheen stops crossing and holds a flat tint. The state is still stated, nothing travels.
+
 # AC Traceability
 - request-AC1 -> This backlog slice. Proof: AC1: While the viewer is busy with no document screen open, the status line shows a spinner beside its message and the header background carries the sheen.
 - request-AC6 -> This backlog slice. Proof: AC2: The status line's text is unchanged, and its layout does not shift when the spinner appears or clears.

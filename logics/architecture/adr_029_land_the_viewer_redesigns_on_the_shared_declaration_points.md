@@ -1,6 +1,6 @@
 ## adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points - Land the viewer redesigns on the shared declaration points
 > Date: 2026-08-13
-> Status: Proposed
+> Status: Settled
 > Related request: `req_345_make_the_project_view_lead_with_the_work_that_is_live`
 > Related backlog: (none yet)
 > Related task: (none yet)

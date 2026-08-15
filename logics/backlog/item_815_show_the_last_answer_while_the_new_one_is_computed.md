@@ -1,10 +1,10 @@
 ## item_815_show_the_last_answer_while_the_new_one_is_computed - Show the last answer while the new one is computed
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: A screen that keeps what it said
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -50,3 +50,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_377_orchestrate_the_second_look_at_insights_and_health` was finished via `logics-manager flow finish task` on 2026-08-15.

@@ -324,8 +324,37 @@ def _find_repo_root_from(start: Path) -> Path:
         raise SystemExit(str(exc)) from exc
 
 
+class DocIndex(dict):
+    """The corpus mapping, able to carry indexes derived from itself.
+
+    item_804: `_linked_tasks_for_item` answered "which tasks implement this backlog item"
+    by scanning every task for every item -- the product of the two counts, and the one
+    term in an audit that grows faster than the corpus. The reverse map is built once and
+    kept here rather than threaded through the three call sites, so nothing outside this
+    module has to know the index exists. A plain dict cannot hold an attribute; this can,
+    and `_apply_scope` returns one too, so a scoped run indexes its own scope.
+    """
+
+    task_refs_by_backlog: dict[str, set[str]] | None = None
+
+
+def _task_refs_by_backlog(docs: dict[str, DocMeta]) -> dict[str, set[str]]:
+    cached = getattr(docs, "task_refs_by_backlog", None)
+    if cached is not None:
+        return cached
+    index: dict[str, set[str]] = {}
+    for doc in docs.values():
+        if doc.kind.kind != "task":
+            continue
+        for backlog_ref in _declared_refs(doc, "backlog"):
+            index.setdefault(backlog_ref, set()).add(doc.ref)
+    if isinstance(docs, DocIndex):
+        docs.task_refs_by_backlog = index
+    return index
+
+
 def _collect_docs(repo_root: Path) -> dict[str, DocMeta]:
-    docs: dict[str, DocMeta] = {}
+    docs: DocIndex = DocIndex()
     for kind in DOC_KIND_OBJECTS.values():
         directory = repo_root / kind.directory
         if not directory.is_dir():
@@ -401,7 +430,9 @@ def _apply_scope(
             for ref, doc in docs.items()
             if doc.from_version is not None and doc.from_version >= scope_since_version
         }
-    return {ref: doc for ref, doc in docs.items() if ref in allowed_refs}
+    # A DocIndex, not a plain dict: a scoped run indexes its own scope rather than
+    # inheriting an index built over documents it excluded.
+    return DocIndex((ref, doc) for ref, doc in docs.items() if ref in allowed_refs)
 
 
 #: Where each kind *declares* a link to each other kind. Lineage used to be a scan
@@ -461,13 +492,11 @@ def _linked_items_for_request(request: DocMeta, docs: dict[str, DocMeta]) -> lis
 
 def _linked_tasks_for_item(item: DocMeta, docs: dict[str, DocMeta]) -> list[DocMeta]:
     # Both directions count: the item may list its tasks, or a task may declare the
-    # item it implements. Either is a declaration; neither is a substring match.
+    # item it implements. Either is a declaration; neither is a substring match. The
+    # second direction is read from an index built once per corpus (item_804) rather than
+    # by re-scanning every task for every item.
     refs = _declared_refs(item, "task")
-    refs |= {
-        doc.ref
-        for doc in docs.values()
-        if doc.kind.kind == "task" and item.ref in _declared_refs(doc, "backlog")
-    }
+    refs |= _task_refs_by_backlog(docs).get(item.ref, set())
     return _resolve(refs, docs, "task")
 
 

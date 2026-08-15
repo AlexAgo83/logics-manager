@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Viewer MCP connector UX
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-16 00:20:00
+> Indicators reviewed: 2026-08-16 01:05:00
 
 # AI Context
 - Summary: The connector screen names the transport for the client at hand and, for the ChatGPT path, walks the operator from a bare machine to a connected plugin. It is a self-repairing diagnostic, not a wizard: `tunnel-client doctor` already names every check, so the screen renders that output as rows with one action each, and disappears once everything is met.
@@ -25,6 +25,7 @@
 - In:
   - The connector card naming the transport per client class: stdio for clients that launch the server themselves, Secure MCP Tunnel for ChatGPT, and an explicit "not supported yet" for hosted web clients, pointing at `req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door`.
   - A copy-ready stdio command for local clients (`logics-manager mcp serve --repo-root <root>`), correct whether or not anything is running here.
+  - A tunnel row that takes a pasted `tunnel_id` (with a link to the page that creates one), the dropdown being a later refinement rather than a prerequisite for shipping this slice.
   - A prerequisite list for the ChatGPT path -- binary, API key, tunnel, profile, plugin -- each row carrying its state and at most one action, rendered from `tunnel-client doctor --profile <profile>` rather than from a state machine of our own. Nothing about the operator's progress is persisted: an operator who completes a step by hand in a terminal sees the screen agree on its next read.
   - Exactly one actionable row at a time. The steps have a forced order, so later rows render reachable-but-inactive rather than hidden: the remaining path stays visible, the wrong order is not offered.
   - The whole prerequisite block disappearing once every row is met, leaving the ON/OFF toggle and a live state line. Setup is scaffolding; it is also why no screen is left that could render a `tunnel_id` or a key.
@@ -48,7 +49,7 @@
 - Hosted web clients are named as unsupported with a pointer to the request that would change that, instead of being silently absent.
 
 # Open questions
-- Can the tunnel list be read from the API with a Tunnels Read key? If so, asking for the key first turns tunnel selection into a dropdown and drops the `tunnel_id` paste entirely -- seven steps become five. Unverified as of 2026-08-15; settle it before building the tunnel row.
+- Can the tunnel list be read from the API with a Tunnels Read key? Unverified as of 2026-08-15, and deliberately off the critical path: the tunnel row ships as a pasted `tunnel_id`, which works whatever the answer and stays the fallback when the key lacks the scope or the API is unreachable. If the endpoint exists, the same row gains a dropdown later without changing anything around it -- seven steps become five. Worth ten minutes during `item_850_run_chatgpt_through_openais_secure_mcp_tunnel`, not a gate on starting.
 
 # AC Traceability
 - request-The connector screen names the transport for the client the operator is connecting and gives that client's setup verbatim -- the stdio command for local clients, the tunnel steps for ChatGPT -- and says plainly that hosted web clients are not supported yet. -> This backlog slice. Proof: The connector card presents the three client classes and gives each the setup it actually needs, with the stdio command copy-ready and correct for this repository.

@@ -1,13 +1,13 @@
 ## req_376_make_the_chatgpt_mcp_connector_plug_and_play - Make the ChatGPT MCP connector plug-and-play
 > From version: 2.22.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Ready
 > Understanding: 95%
 > Confidence: 85%
 > Complexity: Medium
 > Theme: ChatGPT developer-mode MCP connector operations
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-16 00:20:00
+> Indicators reviewed: 2026-08-16 01:05:00
 
 # AI Context
 - Summary: ChatGPT reaches this repository's MCP surface through OpenAI's Secure MCP Tunnel -- outbound only, stable `tunnel_id`, server stays on localhost -- so there is no public URL, no bearer token to re-paste, and no OAuth front door to build. What remains is the viewer: a Connector toggle that reads a field the API never sends, a detail screen that never re-fetches, and a screen that must tell the operator what to do for the transport their client actually uses.

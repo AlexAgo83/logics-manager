@@ -1,4 +1,4 @@
-## task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector - Deliver a durable, ChatGPT-native, reactive MCP connector
+## task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector - Deliver the ChatGPT connector over Secure MCP Tunnel
 > From version: 2.22.0
 > Schema version: 1.0
 > Status: Ready
@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-16 00:20:00
+> Indicators reviewed: 2026-08-16 01:05:00
 
 # AI Context
 - Summary: Orchestrates the three surviving slices: ChatGPT over OpenAI's Secure MCP Tunnel, the two viewer bugs (toggle field mismatch, no auto-refresh), and the screen that tells an operator which transport their client needs.
@@ -18,6 +18,7 @@
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
+- The reference keeps its original slug (`...durable_chatgpt_native_reactive...`) on purpose: a ref is an address, not a description, and renaming it would churn the slug through nine linked documents for a cosmetic gain. The readable title above is the one kept accurate.
 - Proven manually end to end 2026-08-15 on the operator's mac: tunnel-client 0.0.11 from the Homebrew tap, a profile for this repository, a runtime key, the daemon up with `profile=full tools=49/49`, and ChatGPT's plugin discovering the surface (four dispatcher-forwarded commands, no error). The remaining work is making that reachable without a terminal.
 - Re-scoped 2026-08-15 by `adr_031_one_mcp_transport_per_client_class`: the durable-public-URL and OAuth-front-door slices are Obsolete, replaced by OpenAI's Secure MCP Tunnel for ChatGPT plus transport guidance in the viewer.
 

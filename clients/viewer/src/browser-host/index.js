@@ -633,7 +633,15 @@ import {
   //: things that come to disagree.
   const LOADING_AFFORDANCE_DELAY_MS = 250;
 
+  //: How long the ring's lap takes, matching `viewer-loading-ring-spin` in the stylesheet.
+  //: Once the affordance is shown it stays for at least this long: reported by the operator
+  //: as "the ring does not go round", which is what a lap looks like when the payload lands
+  //: halfway through it and the comet is cut off mid-travel. A gesture that marks a
+  //: beginning has to be allowed to finish, or it reads as a fault rather than as feedback.
+  const LOADING_AFFORDANCE_LAP_MS = 1150;
+
   let loadingAffordanceTimer = null;
+  let loadingAffordanceShownAt = 0;
 
   /**
    * item_812: the phone header's one control, opening the screen buttons as a sheet.
@@ -678,6 +686,11 @@ import {
     ].filter((node) => node instanceof HTMLElement);
   }
 
+  function clearLoadingAffordances() {
+    loadingAffordanceShownAt = 0;
+    loadingSurfaces().forEach((node) => node.removeAttribute("data-loading"));
+  }
+
   function applyLoadingRing(busy, screenChange = false) {
     if (loadingAffordanceTimer !== null) {
       window.clearTimeout(loadingAffordanceTimer);
@@ -685,7 +698,23 @@ import {
     }
     const surfaces = loadingSurfaces();
     if (!busy) {
-      surfaces.forEach((node) => node.removeAttribute("data-loading"));
+      if (!loadingAffordanceShownAt) {
+        // Never shown -- the load finished inside the threshold, so there is nothing to
+        // take away and nothing was ever seen.
+        clearLoadingAffordances();
+        return;
+      }
+      const remaining = LOADING_AFFORDANCE_LAP_MS - (Date.now() - loadingAffordanceShownAt);
+      if (remaining <= 0) {
+        clearLoadingAffordances();
+        return;
+      }
+      // The payload landed mid-lap. Let the lap finish rather than cutting the comet off
+      // where it happens to be; a new load starting in the meantime cancels this.
+      loadingAffordanceTimer = window.setTimeout(() => {
+        loadingAffordanceTimer = null;
+        clearLoadingAffordances();
+      }, remaining);
       return;
     }
     // What is loading is not known when the load starts -- `currentDocumentItem` is still
@@ -701,6 +730,7 @@ import {
     surfaces.forEach((node) => node.style.setProperty("--loading-color", colour));
     loadingAffordanceTimer = window.setTimeout(() => {
       loadingAffordanceTimer = null;
+      loadingAffordanceShownAt = Date.now();
       // Re-read rather than closing over the list: a screen change between the click and
       // the threshold replaces the header this was about to light.
       loadingSurfaces().forEach((node) => node.setAttribute("data-loading", ""));

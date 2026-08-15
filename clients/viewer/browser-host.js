@@ -9045,7 +9045,9 @@ ${line}` : line;
     let latestEnvironmentWarning = null;
     const LOADING_RING_STAGES = /* @__PURE__ */ new Set(["request", "backlog", "task", "product"]);
     const LOADING_AFFORDANCE_DELAY_MS = 250;
+    const LOADING_AFFORDANCE_LAP_MS = 1150;
     let loadingAffordanceTimer = null;
+    let loadingAffordanceShownAt = 0;
     function installTopbarMenu() {
       const topbar = document.querySelector(".viewer-topbar");
       const button = document.getElementById("viewer-topbar-menu");
@@ -9077,6 +9079,10 @@ ${line}` : line;
         document.querySelector(".viewer-topbar")
       ].filter((node) => node instanceof HTMLElement);
     }
+    function clearLoadingAffordances() {
+      loadingAffordanceShownAt = 0;
+      loadingSurfaces().forEach((node) => node.removeAttribute("data-loading"));
+    }
     function applyLoadingRing(busy, screenChange = false) {
       if (loadingAffordanceTimer !== null) {
         window.clearTimeout(loadingAffordanceTimer);
@@ -9084,7 +9090,19 @@ ${line}` : line;
       }
       const surfaces = loadingSurfaces();
       if (!busy) {
-        surfaces.forEach((node) => node.removeAttribute("data-loading"));
+        if (!loadingAffordanceShownAt) {
+          clearLoadingAffordances();
+          return;
+        }
+        const remaining = LOADING_AFFORDANCE_LAP_MS - (Date.now() - loadingAffordanceShownAt);
+        if (remaining <= 0) {
+          clearLoadingAffordances();
+          return;
+        }
+        loadingAffordanceTimer = window.setTimeout(() => {
+          loadingAffordanceTimer = null;
+          clearLoadingAffordances();
+        }, remaining);
         return;
       }
       const stage = screenChange ? "" : String(currentDocumentItem?.stage || "");
@@ -9092,6 +9110,7 @@ ${line}` : line;
       surfaces.forEach((node) => node.style.setProperty("--loading-color", colour));
       loadingAffordanceTimer = window.setTimeout(() => {
         loadingAffordanceTimer = null;
+        loadingAffordanceShownAt = Date.now();
         loadingSurfaces().forEach((node) => node.setAttribute("data-loading", ""));
       }, LOADING_AFFORDANCE_DELAY_MS);
     }

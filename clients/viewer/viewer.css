@@ -31,6 +31,10 @@
 
 .viewer-topbar {
   flex: 0 0 auto;
+  /* item_809: the loading sheen positions against this. Declared here rather than in a
+     second `.viewer-topbar` rule further down, which is one selector described in two
+     places and the reason the next reader has to find both. */
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -5438,10 +5442,6 @@
     text-align: left;
   }
 
-  /* The sheet is the topbar's own child, so the topbar cannot clip it. */
-  .viewer-topbar {
-    overflow: visible;
-  }
 
   .viewer-topbar__identity {
     flex-wrap: wrap;
@@ -7027,11 +7027,20 @@
     var(--loading-color, var(--viewer-loading-neutral)) 356deg,
     transparent 360deg
   );
-  /* item_810: one lap, not a rotation for the load's whole duration. A spinner that never
-     stops is a clock the operator cannot read -- it says "still going" and nothing they can
-     act on, and on a four-second screen it holds the eye for four seconds to say it. Eased
-     out so the comet lands rather than being cut off, and handed over to the resting
-     outline below. */
+}
+
+/* item_810: one lap, not a rotation for the load's whole duration. A spinner that never
+   stops is a clock the operator cannot read -- it says "still going" and nothing they can
+   act on, and on a four-second screen it holds the eye for four seconds to say it. Eased
+   out so the comet lands rather than being cut off, and handed over to the resting outline
+   below.
+
+   Reported by the operator as "the ring no longer goes round": declared on the ring itself,
+   a one-shot animation runs once when the element is created -- at page load, before any
+   loading -- and `forwards` then holds it at the end for ever, so it never played again.
+   Applied only while loading, it starts when the attribute is set and restarts on the next
+   load, which is the whole point of a gesture that marks a beginning. */
+.viewer-document__header[data-loading] .viewer-document__ring::before {
   animation: viewer-loading-ring-spin 1.15s cubic-bezier(0.36, 0.06, 0.2, 1) 1 forwards;
 }
 
@@ -7066,7 +7075,8 @@
 /* AC4: no travel at all under reduced motion -- the same colour, breathing. A media query,
    not a setting of our own: the operator has already answered this question once. */
 @media (prefers-reduced-motion: reduce) {
-  .viewer-document__ring::before {
+  .viewer-document__ring::before,
+  .viewer-document__header[data-loading] .viewer-document__ring::before {
     animation: none;
     background: var(--loading-color, var(--viewer-loading-neutral));
     inset: 0;
@@ -7132,22 +7142,34 @@
 /* item_809: the header's own surface says it is working too. A slow sheen crossing it,
    in the loading colour at very low alpha. Deliberately not a progress bar: nothing here
    knows a proportion, and a bar filling at an invented rate is a claim the operator
-   calibrates against and is wrong about. */
-.viewer-topbar {
-  position: relative;
-  overflow: hidden;
-}
+   calibrates against and is wrong about.
 
+   Reported by the operator, and the same trap req_360 avoided on the document header and
+   this then walked into here: the sheen has to be clipped to the bar, but `overflow:
+   hidden` on the bar itself clips the navigation menus that hang out of its bottom edge.
+   The clipping lives on a dedicated child, which is exactly what the ring does. */
+/* Reported by the operator, twice: first the sheen clipped the menus, then this lifted the
+   topbar's children into stacking contexts of their own, capped at 1 -- so the menus that
+   hang below the bar were painted under the toolbar beneath it. Positioned but with
+   `z-index: auto`, which creates no context: the sheen is the first child and everything
+   after it in the document paints over it, which is all this needed. */
 .viewer-topbar > * {
   position: relative;
-  z-index: 1;
 }
 
-.viewer-topbar::after {
-  content: "";
+.viewer-topbar__sheen {
   position: absolute;
   inset: 0;
   z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.viewer-topbar__sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
   pointer-events: none;
   background: linear-gradient(
     100deg,
@@ -7163,7 +7185,7 @@
   transition: opacity 0.3s ease;
 }
 
-.viewer-topbar[data-loading]::after {
+.viewer-topbar[data-loading] .viewer-topbar__sheen::after {
   opacity: 1;
   animation: viewer-topbar-sheen 2.1s ease-in-out infinite;
 }
@@ -7187,7 +7209,7 @@
 
   /* The sheen stops crossing and holds a flat tint: the surface still says it is busy
      without anything moving across it. */
-  .viewer-topbar[data-loading]::after {
+  .viewer-topbar[data-loading] .viewer-topbar__sheen::after {
     animation: none;
     background: color-mix(in srgb, var(--loading-color, var(--viewer-loading-neutral)) 9%, transparent);
   }

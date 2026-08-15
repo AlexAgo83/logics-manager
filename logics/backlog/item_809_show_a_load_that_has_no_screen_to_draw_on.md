@@ -40,6 +40,12 @@
 - Both are lit by the same call as the ring, so a load cannot light one surface and not the other.
 - Reduced motion: the spinner stops turning and becomes a filled dot; the sheen stops crossing and holds a flat tint. The state is still stated, nothing travels.
 
+# Follow-up
+- Reported by the operator twice on this slice, both times by using it rather than reading it, and both times the same class of mistake: a visual effect reaching for a property that belongs to the whole bar.
+  - `overflow: hidden` on the topbar clipped the sheen *and* the navigation panels that hang below the bar's bottom edge. req_360 had identified exactly this on the document header -- "the header holds the Git actions menu" -- and this walked into it on the topbar. The clipping moved to a dedicated child, which is what the ring already does.
+  - Lifting the bar's children with `z-index: 1` then put each of them in a stacking context capped at 1, so the menus were painted under the toolbar below. `position: relative` with `z-index: auto` creates no context, and the sheen being the first child is enough for everything after it to paint on top.
+- Both are pinned by a test that reads the two rules rather than trusting the effect, and both were confirmed live with `elementFromPoint` at the open menu's own coordinates -- which answers "is this the thing actually painted here", where a screenshot only answers "does this look right".
+
 # AC Traceability
 - request-AC1 -> This backlog slice. Proof: AC1: While the viewer is busy with no document screen open, the status line shows a spinner beside its message and the header background carries the sheen.
 - request-AC6 -> This backlog slice. Proof: AC2: The status line's text is unchanged, and its layout does not shift when the spinner appears or clears.

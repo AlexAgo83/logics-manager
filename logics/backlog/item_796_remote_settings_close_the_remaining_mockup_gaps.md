@@ -1,10 +1,10 @@
 ## item_796_remote_settings_close_the_remaining_mockup_gaps - Remote/Settings: close the remaining mockup gaps
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer redesign follow-through
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -54,3 +54,6 @@ The mockup review found Git/CI/Release/Settings had each already shipped substan
 
 # Tasks
 - `task_367_remote_settings_close_the_remaining_mockup_gaps`
+
+# Notes
+- Task `task_367_remote_settings_close_the_remaining_mockup_gaps` was finished via `logics-manager flow finish task` on 2026-08-15.

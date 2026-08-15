@@ -51,3 +51,6 @@
 # Priority
 - Priority: Medium
 - Rationale: The work is not proven until it fixes the case that motivated it
+
+# Validation
+- Attached #20/#21 to req_357 via item_835's attach command (94e3a902, 12786498) -- AC1 met. Told both via item_837's closeout notice, `post=True`: posted `logics:delivered` label + "Logics lifecycle update: **delivered** -- linked workflow: `req_357_...`." Verified live with `gh issue view --json number,state,labels,comments`: both carry it, state stays OPEN (closing is a human act, out of scope). AC2 met. Before (attached, not yet told), issues still flagged: `done_requests_with_open_issues: [{"issue":"21",...,"request_status":"done"}, {"issue":"20",...,"request_status":"done"}]` This exposed a real gap in item_834's design: an OPEN issue against a Done request was flagged with no way to tell "already told, awaiting a human close" from "never told" -- identical shape. Fixed in a3b68575: the report now checks whether the issue already carries the label item_837 would post and excludes it if so. After the fix + real posts: `{"open_issues_with_no_request": [], "done_requests_with_open_issues": [], "closed_issues_with_open_request": []}` #20/#21 no longer appear anywhere. AC3 met. Full suite re-run: pytest 1431 passed; vitest 971 passed (87 files) + known pre-existing jsdom teardown noise, unrelated.

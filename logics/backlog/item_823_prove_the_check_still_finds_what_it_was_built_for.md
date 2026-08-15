@@ -8,6 +8,7 @@
 > Complexity: Low
 > Theme: Keeping the signal
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-15 15:21:34
 
 # AI Context
 - Summary: (unfilled: replace before this doc is used)
@@ -28,7 +29,7 @@
 
 # Acceptance criteria
 - AC1: A shifted proof block across unrelated criteria is still reported after both slices.
-- AC2: The declaration does not silence it.
+- AC2: Revised during implementation, and the original is kept here because the reason matters. As scoped it read "the declaration does not silence it", which cannot hold: a shifted proof block and a shared wave are the same bytes, and telling them apart is precisely the human judgement the check exists to ask for -- so no rule can stop a declaration from covering one. What is asserted instead: silencing is never implicit or broad. It takes a line naming those exact criteria, in that document; a declaration naming other criteria, or only part of the group, or nothing parseable, leaves the finding standing.
 
 # AC Traceability
 - request-AC3 -> This backlog slice. Proof: AC1: A shifted proof block across unrelated criteria is still reported after both slices.

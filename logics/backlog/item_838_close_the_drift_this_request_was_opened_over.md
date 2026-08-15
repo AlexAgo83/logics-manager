@@ -1,14 +1,14 @@
 ## item_838_close_the_drift_this_request_was_opened_over - Close the drift this request was opened over
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Low
 > Theme: Proven on the case that motivated it
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:30:01
+> Indicators reviewed: 2026-08-15 19:24:58
 
 # AI Context
 - Summary: Issues #20 and #21, open against a delivered req_357, closed using what this chain builds rather than by hand.

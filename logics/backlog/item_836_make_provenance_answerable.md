@@ -1,14 +1,14 @@
 ## item_836_make_provenance_answerable - Make provenance answerable
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Low
 > Theme: Provenance is data
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:29:34
+> Indicators reviewed: 2026-08-15 19:24:58
 
 # AI Context
 - Summary: One reader for which issues a request names and which requests cover an issue, so the report and the closeout notice do not each parse the section.

@@ -146,7 +146,7 @@
 | [prod_103_an_issue_bridge_on_the_path_people_walk](product/prod_103_an_issue_bridge_on_the_path_people_walk.md) | An issue bridge on the path people walk | Proposed |  |  | product/prod_103_an_issue_bridge_on_the_path_people_walk.md |
 | [prod_104_a_poll_that_costs_what_it_is_worth](product/prod_104_a_poll_that_costs_what_it_is_worth.md) | A poll that costs what it is worth | Settled |  |  | product/prod_104_a_poll_that_costs_what_it_is_worth.md |
 | [prod_105_one_step_not_two_for_a_status_change_that_should_be_committed](product/prod_105_one_step_not_two_for_a_status_change_that_should_be_committed.md) | One step, not two, for a status change that should be committed | Settled |  |  | product/prod_105_one_step_not_two_for_a_status_change_that_should_be_committed.md |
-| [prod_106_an_editor_that_stays_in_the_browser_it_is_already_in](product/prod_106_an_editor_that_stays_in_the_browser_it_is_already_in.md) | An editor that stays in the browser it is already in | Proposed |  |  | product/prod_106_an_editor_that_stays_in_the_browser_it_is_already_in.md |
+| [prod_106_an_editor_that_stays_in_the_browser_it_is_already_in](product/prod_106_an_editor_that_stays_in_the_browser_it_is_already_in.md) | An editor that stays in the browser it is already in | Settled |  |  | product/prod_106_an_editor_that_stays_in_the_browser_it_is_already_in.md |
 
 ## Roadmaps
 
@@ -538,7 +538,7 @@
 | [req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes](request/req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes.md) | Put the GitHub issue bridge on the path the work actually takes | Draft |  |  | request/req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes.md |
 | [req_373_make_the_auto_refresh_cost_what_it_is_worth](request/req_373_make_the_auto_refresh_cost_what_it_is_worth.md) | Make the auto-refresh cost what it is worth | Done |  |  | request/req_373_make_the_auto_refresh_cost_what_it_is_worth.md |
 | [req_374_confirm_the_status_change_offer_to_commit_it](request/req_374_confirm_the_status_change_offer_to_commit_it.md) | Confirm the status change, offer to commit it | Done |  |  | request/req_374_confirm_the_status_change_offer_to_commit_it.md |
-| [req_375_edit_documents_in_the_browser_viewer](request/req_375_edit_documents_in_the_browser_viewer.md) | Edit documents in the browser viewer | Draft |  |  | request/req_375_edit_documents_in_the_browser_viewer.md |
+| [req_375_edit_documents_in_the_browser_viewer](request/req_375_edit_documents_in_the_browser_viewer.md) | Edit documents in the browser viewer | Done |  |  | request/req_375_edit_documents_in_the_browser_viewer.md |
 
 ## Backlog
 
@@ -1377,19 +1377,19 @@
 | [item_831_carry_the_link_in_the_mcp_responses](backlog/item_831_carry_the_link_in_the_mcp_responses.md) | Carry the link in the MCP responses | Done |  | 100% | backlog/item_831_carry_the_link_in_the_mcp_responses.md |
 | [item_832_print_the_link_from_the_cli](backlog/item_832_print_the_link_from_the_cli.md) | Print the link from the CLI | Done |  | 100% | backlog/item_832_print_the_link_from_the_cli.md |
 | [item_833_state_the_convention_where_an_assistant_reads_its_instructions](backlog/item_833_state_the_convention_where_an_assistant_reads_its_instructions.md) | State the convention where an assistant reads its instructions | Done |  | 100% | backlog/item_833_state_the_convention_where_an_assistant_reads_its_instructions.md |
-| [item_834_report_where_the_corpus_and_the_tracker_disagree](backlog/item_834_report_where_the_corpus_and_the_tracker_disagree.md) | Report where the corpus and the tracker disagree | Ready |  | 0% | backlog/item_834_report_where_the_corpus_and_the_tracker_disagree.md |
-| [item_835_attach_an_issue_to_a_request_that_already_exists](backlog/item_835_attach_an_issue_to_a_request_that_already_exists.md) | Attach an issue to a request that already exists | Ready |  | 0% | backlog/item_835_attach_an_issue_to_a_request_that_already_exists.md |
-| [item_836_make_provenance_answerable](backlog/item_836_make_provenance_answerable.md) | Make provenance answerable | Ready |  | 0% | backlog/item_836_make_provenance_answerable.md |
-| [item_837_tell_the_issues_when_the_request_is_delivered](backlog/item_837_tell_the_issues_when_the_request_is_delivered.md) | Tell the issues when the request is delivered | Ready |  | 0% | backlog/item_837_tell_the_issues_when_the_request_is_delivered.md |
-| [item_838_close_the_drift_this_request_was_opened_over](backlog/item_838_close_the_drift_this_request_was_opened_over.md) | Close the drift this request was opened over | Ready |  | 0% | backlog/item_838_close_the_drift_this_request_was_opened_over.md |
+| [item_834_report_where_the_corpus_and_the_tracker_disagree](backlog/item_834_report_where_the_corpus_and_the_tracker_disagree.md) | Report where the corpus and the tracker disagree | In progress |  | 10% | backlog/item_834_report_where_the_corpus_and_the_tracker_disagree.md |
+| [item_835_attach_an_issue_to_a_request_that_already_exists](backlog/item_835_attach_an_issue_to_a_request_that_already_exists.md) | Attach an issue to a request that already exists | In progress |  | 10% | backlog/item_835_attach_an_issue_to_a_request_that_already_exists.md |
+| [item_836_make_provenance_answerable](backlog/item_836_make_provenance_answerable.md) | Make provenance answerable | In progress |  | 10% | backlog/item_836_make_provenance_answerable.md |
+| [item_837_tell_the_issues_when_the_request_is_delivered](backlog/item_837_tell_the_issues_when_the_request_is_delivered.md) | Tell the issues when the request is delivered | In progress |  | 10% | backlog/item_837_tell_the_issues_when_the_request_is_delivered.md |
+| [item_838_close_the_drift_this_request_was_opened_over](backlog/item_838_close_the_drift_this_request_was_opened_over.md) | Close the drift this request was opened over | In progress |  | 10% | backlog/item_838_close_the_drift_this_request_was_opened_over.md |
 | [item_839_stop_paying_for_a_cache_that_can_never_hit](backlog/item_839_stop_paying_for_a_cache_that_can_never_hit.md) | Stop paying for a cache that can never hit | Done |  | 100% | backlog/item_839_stop_paying_for_a_cache_that_can_never_hit.md |
 | [item_840_warm_the_badge_components_off_the_request_path](backlog/item_840_warm_the_badge_components_off_the_request_path.md) | Warm the badge components off the request path | Done |  | 100% | backlog/item_840_warm_the_badge_components_off_the_request_path.md |
 | [item_841_answer_nothing_changed_without_rebuilding_the_corpus](backlog/item_841_answer_nothing_changed_without_rebuilding_the_corpus.md) | Answer 'nothing changed' without rebuilding the corpus | Done |  | 100% | backlog/item_841_answer_nothing_changed_without_rebuilding_the_corpus.md |
 | [item_842_re_measure_the_tick_and_record_what_it_is_made_of](backlog/item_842_re_measure_the_tick_and_record_what_it_is_made_of.md) | Re-measure the tick and record what it is made of | Done |  | 100% | backlog/item_842_re_measure_the_tick_and_record_what_it_is_made_of.md |
 | [item_843_show_what_a_status_change_will_do_before_it_lands](backlog/item_843_show_what_a_status_change_will_do_before_it_lands.md) | Show what a status change will do before it lands | Done |  | 100% | backlog/item_843_show_what_a_status_change_will_do_before_it_lands.md |
 | [item_844_offer_to_commit_the_status_change_right_there](backlog/item_844_offer_to_commit_the_status_change_right_there.md) | Offer to commit the status change right there | Done |  | 100% | backlog/item_844_offer_to_commit_the_status_change_right_there.md |
-| [item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged](backlog/item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged.md) | An in-viewer editor screen for the browser, VS Code unchanged | In progress |  | 10% | backlog/item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged.md |
-| [item_846_offer_to_commit_a_save_the_way_a_status_change_already_does](backlog/item_846_offer_to_commit_a_save_the_way_a_status_change_already_does.md) | Offer to commit a save the way a status change already does | In progress |  | 10% | backlog/item_846_offer_to_commit_a_save_the_way_a_status_change_already_does.md |
+| [item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged](backlog/item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged.md) | An in-viewer editor screen for the browser, VS Code unchanged | Done |  | 100% | backlog/item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged.md |
+| [item_846_offer_to_commit_a_save_the_way_a_status_change_already_does](backlog/item_846_offer_to_commit_a_save_the_way_a_status_change_already_does.md) | Offer to commit a save the way a status change already does | Done |  | 100% | backlog/item_846_offer_to_commit_a_save_the_way_a_status_change_already_does.md |
 
 ## Tasks
 
@@ -1771,10 +1771,10 @@
 | [task_380_orchestrate_the_short_viewer_link_work](tasks/task_380_orchestrate_the_short_viewer_link_work.md) | Orchestrate the short viewer link work | Done |  | 100% | tasks/task_380_orchestrate_the_short_viewer_link_work.md |
 | [task_381_orchestrate_the_restart_fix](tasks/task_381_orchestrate_the_restart_fix.md) | Orchestrate the restart fix | Done |  | 100% | tasks/task_381_orchestrate_the_restart_fix.md |
 | [task_382_orchestrate_the_link_travels_with_the_document_work](tasks/task_382_orchestrate_the_link_travels_with_the_document_work.md) | Orchestrate the link-travels-with-the-document work | Done |  | 100% | tasks/task_382_orchestrate_the_link_travels_with_the_document_work.md |
-| [task_383_orchestrate_the_issue_bridge_work](tasks/task_383_orchestrate_the_issue_bridge_work.md) | Orchestrate the issue bridge work | Ready |  | 0% | tasks/task_383_orchestrate_the_issue_bridge_work.md |
+| [task_383_orchestrate_the_issue_bridge_work](tasks/task_383_orchestrate_the_issue_bridge_work.md) | Orchestrate the issue bridge work | In progress | claude | 0% | tasks/task_383_orchestrate_the_issue_bridge_work.md |
 | [task_384_orchestrate_the_auto_refresh_cost_work](tasks/task_384_orchestrate_the_auto_refresh_cost_work.md) | Orchestrate the auto-refresh cost work | Done |  | 100% | tasks/task_384_orchestrate_the_auto_refresh_cost_work.md |
 | [task_385_orchestrate_the_status_confirm_and_commit_work](tasks/task_385_orchestrate_the_status_confirm_and_commit_work.md) | Orchestrate the status-confirm-and-commit work | Done | claude | 100% | tasks/task_385_orchestrate_the_status_confirm_and_commit_work.md |
-| [task_386_orchestrate_the_in_browser_document_editor_work](tasks/task_386_orchestrate_the_in_browser_document_editor_work.md) | Orchestrate the in-browser document editor work | In progress | claude | 0% | tasks/task_386_orchestrate_the_in_browser_document_editor_work.md |
+| [task_386_orchestrate_the_in_browser_document_editor_work](tasks/task_386_orchestrate_the_in_browser_document_editor_work.md) | Orchestrate the in-browser document editor work | Done | claude | 100% | tasks/task_386_orchestrate_the_in_browser_document_editor_work.md |
 
 ## Runbooks
 

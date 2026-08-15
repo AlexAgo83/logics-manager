@@ -1,0 +1,445 @@
+{
+  "budgets": {
+    "max_docs": 16,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_375_edit_documents_in_the_browser_viewer item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged item_846_offer_to_commit_a_save_the_way_a_status_change_already_does task_386_orchestrate_the_in_browser_document_editor_work --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged",
+          "item_846_offer_to_commit_a_save_the_way_a_status_change_already_does"
+        ],
+        "prod": [
+          "prod_106_an_editor_that_stays_in_the_browser_it_is_already_in"
+        ],
+        "req": [
+          "req_375_edit_documents_in_the_browser_viewer"
+        ],
+        "task": [
+          "task_386_orchestrate_the_in_browser_document_editor_work"
+        ]
+      },
+      "path": "logics/product/prod_106_an_editor_that_stays_in_the_browser_it_is_already_in.md",
+      "ref": "prod_106_an_editor_that_stays_in_the_browser_it_is_already_in",
+      "sections": {
+        "Goals": [
+          "- Editing a document in the browser viewer never leaves the browser.",
+          "- VS Code's embedded panel is untouched: it keeps opening VS Code's own editor.",
+          "- A save that changes the file offers the same commit step a status change offers, not a second mechanism.",
+          "- A save that changes nothing writes nothing and offers nothing."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "The standalone browser viewer currently hands editing off to a system editor; give it its own editor screen instead, and let VS Code keep doing what it already does best."
+        ],
+        "References": [
+          "- Product back-reference: `req_375_edit_documents_in_the_browser_viewer`",
+          "- Task back-reference: `task_386_orchestrate_the_in_browser_document_editor_work`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "An editor that stays in the browser it is already in"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_843_show_what_a_status_change_will_do_before_it_lands",
+          "item_844_offer_to_commit_the_status_change_right_there"
+        ],
+        "prod": [
+          "prod_105_one_step_not_two_for_a_status_change_that_should_be_committed"
+        ],
+        "req": [
+          "req_374_confirm_the_status_change_offer_to_commit_it"
+        ],
+        "task": [
+          "task_385_orchestrate_the_status_confirm_and_commit_work"
+        ]
+      },
+      "path": "logics/product/prod_105_one_step_not_two_for_a_status_change_that_should_be_committed.md",
+      "ref": "prod_105_one_step_not_two_for_a_status_change_that_should_be_committed",
+      "sections": {
+        "Goals": [
+          "- The operator sees what is about to change before it lands.",
+          "- Committing the change is offered right where the decision is made, with a default message that needs no thought.",
+          "- Declining to commit never blocks or reverts the status change itself.",
+          "- Reuse the existing themed modal and git-commit mechanisms rather than building new ones."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Applying a status change and committing it are the same operator intent most of the time; make that the default path instead of two separate actions.",
+          "```mermaid",
+          "flowchart LR",
+          "    Pick[Status modal: pick new status] --> Show[Same modal states doc, old status, new status]",
+          "    Show --> Decide{Commit it too?}",
+          "    Decide -- Yes --> Commit[git-commit route, default message]"
+        ],
+        "References": [
+          "- Product back-reference: `req_374_confirm_the_status_change_offer_to_commit_it`",
+          "- Task back-reference: `task_385_orchestrate_the_status_confirm_and_commit_work`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "One step, not two, for a status change that should be committed"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "edit, documents, browser, viewer",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged",
+          "item_846_offer_to_commit_a_save_the_way_a_status_change_already_does"
+        ],
+        "prod": [
+          "prod_106_an_editor_that_stays_in_the_browser_it_is_already_in"
+        ],
+        "req": [
+          "req_374_confirm_the_status_change_offer_to_commit_it",
+          "req_375_edit_documents_in_the_browser_viewer"
+        ]
+      },
+      "path": "logics/request/req_375_edit_documents_in_the_browser_viewer.md",
+      "ref": "req_375_edit_documents_in_the_browser_viewer",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: In the standalone browser viewer, the edit action opens an in-viewer editor screen instead of opening a system editor.",
+          "- AC2: In the VS Code embedded panel, the edit action is unchanged: it still opens VS Code's own editor.",
+          "- AC3: The editor screen offers Save and Cancel.",
+          "- AC4: Cancel discards the edit and returns to the document view without writing anything to disk.",
+          "- AC5: Save writes the edited content to the document's file, validated the same way the existing edit and read routes validate a path.",
+          "- AC6: When a save actually changes the file, the operator is offered the same confirm-and-commit step item_844 built for status changes, with a proposed default message."
+        ],
+        "Needs": [
+          "- As an operator in the standalone browser viewer, I need to edit a document's markdown inline, instead of the viewer shelling out to a system editor I may not have open or configured.",
+          "- As an operator in the VS Code embedded panel, I need editing to keep opening VS Code's own editor exactly as it does today -- that is already the best editor available there.",
+          "- As an operator editing in the browser, I need Save and Cancel, and when a save actually changes the file I need the same confirm-and-commit offer the status change already has, so editing and committing are one flow too, not two unrelated ones."
+        ]
+      },
+      "status": "Draft",
+      "title": "Edit documents in the browser viewer"
+    },
+    {
+      "ai_context": {
+        "keywords": "confirm, status, change, offer, commit",
+        "skip when": "The confirmation is for something other than a document status change, or a CLI/MCP surface.",
+        "summary": "A status change and its commit are one operator intent most of the time; the status modal states what will change and offers to commit it right there, wired to the git-commit route that already exists.",
+        "use when": "Touching the status control's modal flow or its wiring to git commit."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_843_show_what_a_status_change_will_do_before_it_lands",
+          "item_844_offer_to_commit_the_status_change_right_there"
+        ],
+        "prod": [
+          "prod_105_one_step_not_two_for_a_status_change_that_should_be_committed"
+        ],
+        "req": [
+          "req_374_confirm_the_status_change_offer_to_commit_it"
+        ]
+      },
+      "path": "logics/request/req_374_confirm_the_status_change_offer_to_commit_it.md",
+      "ref": "req_374_confirm_the_status_change_offer_to_commit_it",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Before a status change is applied, the operator sees the document, its current status, and the status it would become.",
+          "- AC2: From that same step, the operator can commit the change immediately with a proposed default commit message, or apply without committing.",
+          "- AC3: Declining to commit still applies the status change; it only skips the commit.",
+          "- AC4: The status pick and the commit decision are one modal flow, not a status modal followed by a second confirmation modal.",
+          "- AC5: A commit that fails (e.g. nothing staged, git error) reports why and leaves the status change applied -- a failed commit does not roll back a status that already changed.",
+          "- AC6: The existing single-action gate around the status control still holds: the flow cannot be triggered twice concurrently."
+        ],
+        "Needs": [
+          "- As an operator changing a document's status from the viewer, I need to see what will change -- which document, old status, new status -- before it lands, not after.",
+          "- As an operator, I need to commit that status change right from the same confirmation, with a sensible default message, or decline and leave it uncommitted for a later batched commit.",
+          "- As an operator, I need this to feel like one deliberate step, not a status pick followed by a separate trip to the git panel to commit it."
+        ]
+      },
+      "status": "Draft",
+      "title": "Confirm the status change, offer to commit it"
+    },
+    {
+      "ai_context": {
+        "keywords": "viewer, editor, screen, browser, code, unchanged",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged"
+        ],
+        "prod": [
+          "prod_106_an_editor_that_stays_in_the_browser_it_is_already_in"
+        ],
+        "req": [
+          "req_375_edit_documents_in_the_browser_viewer"
+        ],
+        "task": [
+          "task_386_orchestrate_the_in_browser_document_editor_work"
+        ]
+      },
+      "path": "logics/backlog/item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged.md",
+      "ref": "item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: In the browser viewer, the edit action opens the in-viewer editor screen, not a system editor.",
+          "- AC2: In the VS Code embedded panel, the edit action is unchanged.",
+          "- AC3: Save and Cancel are both present and work as their names say.",
+          "- AC4: The write route rejects a path the same way the existing edit/read routes already do."
+        ],
+        "Problem": [
+          "- The edit action always shells out to a system editor via `/api/edit`; in the standalone browser viewer that can mean no editor opens at all, or the operator's attention leaves the browser for a separate program.",
+          "- There is no route today that writes a document's edited content back to disk -- only structured mutations exist, none of them a free-form save."
+        ]
+      },
+      "status": "Ready",
+      "title": "An in-viewer editor screen for the browser, VS Code unchanged"
+    },
+    {
+      "ai_context": {
+        "keywords": "offer, commit, save, way, status, change, already, does",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_846_offer_to_commit_a_save_the_way_a_status_change_already_does"
+        ],
+        "prod": [
+          "prod_106_an_editor_that_stays_in_the_browser_it_is_already_in"
+        ],
+        "req": [
+          "req_375_edit_documents_in_the_browser_viewer"
+        ],
+        "task": [
+          "task_386_orchestrate_the_in_browser_document_editor_work"
+        ]
+      },
+      "path": "logics/backlog/item_846_offer_to_commit_a_save_the_way_a_status_change_already_does.md",
+      "ref": "item_846_offer_to_commit_a_save_the_way_a_status_change_already_does",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A save that changes the file offers the same commit step item_844 built for status changes.",
+          "- AC2: A no-op save (identical content) writes nothing and offers no commit."
+        ],
+        "Problem": [
+          "- Saving an edited document and committing it are the same operator intent most of the time, the same shape of problem req_374/item_844 already solved for a status change -- without reuse, this would grow a second confirm-and-commit mechanism doing the same thing."
+        ]
+      },
+      "status": "Ready",
+      "title": "Offer to commit a save the way a status change already does"
+    },
+    {
+      "ai_context": {
+        "keywords": "orchestrate, browser, document, editor, work",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged",
+          "item_846_offer_to_commit_a_save_the_way_a_status_change_already_does"
+        ],
+        "prod": [
+          "prod_106_an_editor_that_stays_in_the_browser_it_is_already_in"
+        ],
+        "req": [
+          "req_375_edit_documents_in_the_browser_viewer"
+        ],
+        "task": [
+          "task_386_orchestrate_the_in_browser_document_editor_work"
+        ]
+      },
+      "path": "logics/tasks/task_386_orchestrate_the_in_browser_document_editor_work.md",
+      "ref": "task_386_orchestrate_the_in_browser_document_editor_work",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the in-browser document editor work"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged",
+          "item_846_offer_to_commit_a_save_the_way_a_status_change_already_does"
+        ],
+        "prod": [
+          "prod_106_an_editor_that_stays_in_the_browser_it_is_already_in"
+        ],
+        "req": [
+          "req_375_edit_documents_in_the_browser_viewer"
+        ],
+        "task": [
+          "task_386_orchestrate_the_in_browser_document_editor_work"
+        ]
+      },
+      "path": "logics/product/prod_106_an_editor_that_stays_in_the_browser_it_is_already_in.md",
+      "ref": "prod_106_an_editor_that_stays_in_the_browser_it_is_already_in",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "An editor that stays in the browser it is already in"
+    }
+  ],
+  "estimates": {
+    "char_count": 12695,
+    "companion_doc_count": 2,
+    "doc_count": 6
+  },
+  "generated_at": "2026-08-15T16:22:34Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_375_edit_documents_in_the_browser_viewer",
+      "item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged",
+      "item_846_offer_to_commit_a_save_the_way_a_status_change_already_does",
+      "task_386_orchestrate_the_in_browser_document_editor_work"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_375_edit_documents_in_the_browser_viewer,item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged,item_846_offer_to_commit_a_save_the_way_a_status_change_already_does,task_386_orchestrate_the_in_browser_document_editor_work",
+  "refs": [
+    "req_375_edit_documents_in_the_browser_viewer",
+    "item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged",
+    "item_846_offer_to_commit_a_save_the_way_a_status_change_already_does",
+    "task_386_orchestrate_the_in_browser_document_editor_work"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_386_orchestrate_the_in_browser_document_editor_work.md",
+      "ref": "task_386_orchestrate_the_in_browser_document_editor_work"
+    }
+  ]
+}

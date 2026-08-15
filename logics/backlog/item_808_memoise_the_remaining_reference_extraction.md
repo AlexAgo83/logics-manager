@@ -31,6 +31,10 @@
 - AC1: A document's text is scanned at most once per target prefix per audit run.
 - AC2: The audit payload for this repository's corpus is unchanged.
 
+# Report
+- `_prose_only_refs` scanned a document's whole text once per target kind, and is asked for several kinds per document -- 8127 calls to `_extract_refs` per audit for 0.38s. The result is memoised per prefix on the same per-run `DocMeta` instance the declared-refs memo uses, so it cannot outlive the read of the file it describes.
+- With item_807, the audit went 1.03s to 0.91s on this repository's corpus, payload byte-identical.
+
 # AC Traceability
 - request-AC5 -> This backlog slice. Proof: AC1: A document's text is scanned at most once per target prefix per audit run.
 

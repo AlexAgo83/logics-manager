@@ -31,6 +31,10 @@
 - AC1: Two consecutive audits with unchanged source read the repository's files once, not twice.
 - AC2: The unresolved-anchor findings for this repository's corpus are unchanged.
 
+# Report
+- `_repo_blob` caches its result per repository against a (file count, newest mtime) signature gathered during the same walk it already performs. The walk still happens -- it is what produces the signature, and it is cheap -- and only the 44 MB of reading is skipped: 0.199s to 0.095s on this repository.
+- Kept as one string rather than replaced by a set of identifiers, deliberately. The check is a substring test, so `foo` is satisfied by `foobar`; splitting into tokens would report more symbols as missing, which is a change to what an audit finds rather than to what it costs.
+
 # AC Traceability
 - request-AC4 -> This backlog slice. Proof: AC1: Two consecutive audits with unchanged source read the repository's files once, not twice.
 

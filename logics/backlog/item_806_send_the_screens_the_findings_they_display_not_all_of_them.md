@@ -33,6 +33,12 @@
 - AC2: Findings beyond the bound are reachable, and a bounded list says that it is bounded.
 - AC3: Neither screen loses information it previously showed.
 
+# Report
+- Measured before deciding what to cut: 96% of the 0.48 MB response was the same 449 findings three times over -- `findings` (31%), `warnings` (31%, the same list filtered by severity) and `findings_by_doc` (34%, the same list regrouped).
+- The viewer reads none of the derived views: `collectHealthFindings` takes `findings`, falls back to `issues` + `warnings` only for an older server, and groups them itself. So the derived keys are dropped from the HTTP response and nothing on either screen changes. 0.479 MB to 0.190 MB, a 60% cut.
+- Dropped from the response, not from `audit_payload`: the CLI and the MCP surface share that function and do read those keys. The fallback path is preserved -- a payload without a canonical `findings` list is sent whole, since the client would otherwise have nothing to read.
+- The findings list itself is not truncated. Insights derives its category and doc-type counts from that list, so a bounded list would silently corrupt numbers the screen presents as totals. Sending the aggregates from the server first is the prerequisite, and at 0.19 MB over loopback it is not currently worth the change.
+
 # AC Traceability
 - request-AC3 -> This backlog slice. Proof: AC1: The audit response for this repository's corpus is materially smaller than 0.46 MB while the counts and groupings both screens display are unchanged.
 - request-AC5 -> This backlog slice. Proof: AC2: Findings beyond the bound are reachable, and a bounded list says that it is bounded.

@@ -276,6 +276,24 @@ def viewer_project_entry(repo_root: Path, *, active_root: Path | None = None) ->
     }
 
 
+#: item_806: what the audit reports three times over. `findings` is the canonical list;
+#: `warnings` and `issues` are it filtered by severity, and `findings_by_doc` and
+#: `issues_by_doc` are it regrouped. On this repository that is 96% of a 0.48 MB response,
+#: and the viewer reads none of the derived views -- `collectHealthFindings` takes
+#: `findings` (falling back to `issues` + `warnings` for an older server) and groups them
+#: itself. Dropped from the HTTP response only: `audit_payload` is shared with the CLI and
+#: the MCP surface, which do read them.
+VIEWER_AUDIT_DERIVED_KEYS = ("issues", "warnings", "issues_by_doc", "findings_by_doc")
+
+
+def _viewer_audit_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(payload.get("findings"), list):
+        # An older or partial payload has no canonical list, so the fallback the client
+        # relies on is the only thing it can read. Send it whole.
+        return payload
+    return {key: value for key, value in payload.items() if key not in VIEWER_AUDIT_DERIVED_KEYS}
+
+
 def corpus_signature(repo_root: Path) -> tuple[int, int]:
     """How many workflow documents there are, and when the newest one changed.
 
@@ -2847,7 +2865,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self._send_json({"ok": True, "payload": lint_payload(self.server.repo_root)})
             return
         if route == "/api/audit":
-            self._send_json({"ok": True, "payload": self.server.cached_audit_payload()})
+            self._send_json({"ok": True, "payload": _viewer_audit_payload(self.server.cached_audit_payload())})
             return
         if route == "/api/health":
             # The health screen was built from lint and audit alone, so blocked

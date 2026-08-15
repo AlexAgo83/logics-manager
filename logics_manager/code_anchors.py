@@ -65,13 +65,27 @@ def anchors(text: str) -> tuple[set[str], set[str]]:
     return paths, symbols
 
 
+#: item_807: the last blob per repository, with the (file count, newest mtime) it was read
+#: at. The blob is 44 MB on this repository and was re-read on every audit, at a cost priced
+#: by the size of the *repository* rather than of the corpus -- so it was charged in full
+#: even when nothing about the corpus had changed. The walk still happens (it is what
+#: produces the signature, and it is cheap); only the reading is skipped.
+_REPO_BLOB_CACHE: dict[Path, tuple[tuple[int, int], str]] = {}
+
+
 def _repo_blob(repo_root: Path) -> str:
     """The repository's source, once, as one string.
 
     Built only when a symbol actually needs checking, and only for open docs, so the
     candidate set is a handful of documents rather than the whole corpus.
+
+    Kept as one string rather than a set of identifiers on purpose: the check is a
+    substring test, so `foo` is satisfied by `foobar`. Splitting into tokens would report
+    more symbols as missing, which is a change to what an audit finds, not to its cost.
     """
-    chunks: list[str] = []
+    paths: list[Path] = []
+    count = 0
+    newest = 0
     # `rglob` descends into a skipped directory and only then discards what it found there,
     # so `node_modules` alone accounted for most of the 43k entries this walk yielded on a
     # repo whose source is a few thousand files. `os.walk` prunes in place, before descending.
@@ -82,10 +96,27 @@ def _repo_blob(repo_root: Path) -> str:
             if path.suffix not in SOURCE_SUFFIXES:
                 continue
             try:
-                chunks.append(path.read_text(encoding="utf-8", errors="ignore"))
+                stat = path.stat()
             except OSError:
                 continue
-    return "\n".join(chunks)
+            paths.append(path)
+            count += 1
+            newest = max(newest, stat.st_mtime_ns)
+
+    signature = (count, newest)
+    cached = _REPO_BLOB_CACHE.get(repo_root)
+    if cached is not None and cached[0] == signature:
+        return cached[1]
+
+    chunks: list[str] = []
+    for path in paths:
+        try:
+            chunks.append(path.read_text(encoding="utf-8", errors="ignore"))
+        except OSError:
+            continue
+    blob = "\n".join(chunks)
+    _REPO_BLOB_CACHE[repo_root] = (signature, blob)
+    return blob
 
 
 def unresolved_anchors(repo_root: Path, text: str, *, blob: list[str | None] | None = None) -> tuple[list[str], list[str]]:

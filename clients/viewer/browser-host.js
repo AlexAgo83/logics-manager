@@ -10356,14 +10356,13 @@ ${line}` : line;
       if (gitActions) gitActions.hidden = !isGit;
       if (!isGit) setGitActionsMenuOpen(false);
       if (releaseReset) releaseReset.hidden = !isRelease;
-      const root = isRootScreen(titleText);
       const close = document.getElementById("viewer-document-close");
       if (close instanceof HTMLButtonElement) {
-        close.hidden = root;
-        close.disabled = root;
+        close.hidden = false;
+        close.disabled = false;
       }
       if (minimize instanceof HTMLButtonElement) {
-        minimize.hidden = root || !titleText || !desktopScreensCanMinimize();
+        minimize.hidden = !titleText || !desktopScreensCanMinimize();
         minimize.disabled = minimize.hidden;
       }
       if (status instanceof HTMLButtonElement) {
@@ -10500,13 +10499,6 @@ ${line}` : line;
       }
       return view.userSeq !== userViewSeq;
     }
-    let rootScreenTitle = "";
-    function isRootScreen(titleText) {
-      return Boolean(rootScreenTitle) && titleText === rootScreenTitle;
-    }
-    function applyRootScreenChrome(titleText) {
-      document.body.classList.toggle("viewer-shell--root-screen", isRootScreen(titleText));
-    }
     let detachReadingPosition = null;
     function setDocument(titleText, html, options = {}) {
       invalidatePendingViews();
@@ -10517,7 +10509,6 @@ ${line}` : line;
         renderMinimizedDock();
       }
       currentDocumentItem = options.item || null;
-      applyRootScreenChrome(titleText);
       const panel = documentPanel();
       const title = documentTitle();
       const content = documentContent();
@@ -10745,10 +10736,7 @@ ${line}` : line;
         dispatchViewerActivityUpdate();
       }
       if (payload.fleetHome) {
-        rootScreenTitle = "Fleet";
         void showFleetHome({ silent: Boolean(options.silent) });
-      } else {
-        rootScreenTitle = "";
       }
       return true;
     }

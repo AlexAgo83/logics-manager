@@ -2955,12 +2955,12 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.querySelector('.viewer-fleet [data-viewer-project-favorite="project-cdx"]')?.getAttribute("aria-pressed")).toBe("true");
   });
 
-  it("restores Close/Minimize when Fleet home is reopened after a project is active (task_371)", async () => {
-    // item_800/task_371: rootScreenTitle used to be set to "Fleet" on the true
-    // first-boot case and never cleared, so every later reopening of Fleet home
-    // (via the switcher's Fleet entry) kept Close/Minimize hidden even with a
-    // real project active behind it -- a genuine dead end.
-    const { dom, calls } = createViewerDom({
+  it("gives Fleet home the same Close and Minimize as every other screen", async () => {
+    // item_711 withheld both from Fleet home ("a root screen has nowhere to be dismissed
+    // to"); item_800 then found the latch never cleared and patched it. Both are gone at
+    // the operator's call -- Fleet is a screen like any other, including on first boot,
+    // where closing it lands on the repository the viewer was started in.
+    const { dom } = createViewerDom({
       fleet: true,
       fleetHome: true,
       projects: [
@@ -2973,21 +2973,17 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
 
     const document = dom.window.document;
-    // True first boot: Fleet is the root screen, Close/Minimize are withheld.
-    expect((document.getElementById("viewer-document-close") as HTMLButtonElement | null)?.hidden).toBe(true);
+    expect(document.getElementById("viewer-document-title")?.textContent).toBe("Fleet");
+    const close = document.getElementById("viewer-document-close") as HTMLButtonElement | null;
+    expect(close?.hidden).toBe(false);
+    expect(close?.disabled).toBe(false);
+    // The board is no longer suppressed behind it either: that was the same decision.
+    expect(document.body.classList.contains("viewer-shell--root-screen")).toBe(false);
 
-    const open = document.querySelector('.viewer-fleet [data-viewer-project-id="project-cdx"]') as HTMLButtonElement | null;
-    open?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    for (let turn = 0; turn < 6; turn += 1) await flushViewerAsync();
-    expect(calls).toContain("/api/switch-project");
-
-    document.getElementById("viewer-repo-pill")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    // And it actually closes.
+    close?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
-    document.querySelector("[data-viewer-fleet-home]")?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
-    await flushViewerAsync();
-
-    expect((document.getElementById("viewer-document-close") as HTMLButtonElement | null)?.hidden).toBe(false);
-    expect((document.getElementById("viewer-document-close") as HTMLButtonElement | null)?.disabled).toBe(false);
+    expect((document.getElementById("viewer-document") as HTMLElement | null)?.hidden).toBe(true);
   });
 
   it("groups Fleet home rows under Favorites/All projects section labels (task_362)", async () => {

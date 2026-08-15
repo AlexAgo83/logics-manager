@@ -1609,8 +1609,15 @@ function createViewerDom(options: {
 }
 
 describe("local viewer browser host", () => {
-  afterEach(() => {
+  afterEach(async () => {
     vi.useRealTimers();
+    // A fetch/timer callback already queued at the moment the test body returned is not
+    // cancelled by close()'s stopAllTimers() -- it fires on the next tick regardless, and
+    // if that tick lands after close() has already deleted window._document, it throws
+    // reading a now-null internal state (jsdom Window.js's `location` getter) instead of
+    // running harmlessly against a still-live window. Flushing once before closing lets
+    // it settle while the window still answers, so close() has nothing left to race.
+    await flushViewerAsync();
     for (const dom of openBrowserHostDoms.splice(0)) {
       dom.window.close();
     }

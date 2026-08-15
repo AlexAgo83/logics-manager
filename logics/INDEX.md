@@ -140,6 +140,7 @@
 | [prod_098_a_board_that_tells_the_truth_while_it_is_still_loading](product/prod_098_a_board_that_tells_the_truth_while_it_is_still_loading.md) | A board that tells the truth while it is still loading | Settled |  |  | product/prod_098_a_board_that_tells_the_truth_while_it_is_still_loading.md |
 | [prod_099_an_audit_worth_reading](product/prod_099_an_audit_worth_reading.md) | An audit worth reading | Settled |  |  | product/prod_099_an_audit_worth_reading.md |
 | [prod_100_a_viewer_link_worth_writing](product/prod_100_a_viewer_link_worth_writing.md) | A viewer link worth writing | Settled |  |  | product/prod_100_a_viewer_link_worth_writing.md |
+| [prod_101_a_restart_that_comes_back](product/prod_101_a_restart_that_comes_back.md) | A restart that comes back | Settled |  |  | product/prod_101_a_restart_that_comes_back.md |
 
 ## Roadmaps
 
@@ -526,6 +527,7 @@
 | [req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents](request/req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents.md) | Make the project view honest on arrival, and let runbooks be documents | Done |  |  | request/req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents.md |
 | [req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on](request/req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on.md) | Make the duplicate-proof check say something a reader can act on | Done |  |  | request/req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on.md |
 | [req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence](request/req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence.md) | Make a viewer link short enough to write in a sentence | Done |  |  | request/req_369_make_a_viewer_link_short_enough_to_write_in_a_sentence.md |
+| [req_370_make_settings_restart_bring_the_viewer_back](request/req_370_make_settings_restart_bring_the_viewer_back.md) | Make Settings' restart bring the viewer back | Done |  |  | request/req_370_make_settings_restart_bring_the_viewer_back.md |
 
 ## Backlog
 
@@ -1358,6 +1360,8 @@
 | [item_825_resolve_a_document_from_its_short_id](backlog/item_825_resolve_a_document_from_its_short_id.md) | Resolve a document from its short id | Done |  | 100% | backlog/item_825_resolve_a_document_from_its_short_id.md |
 | [item_826_select_a_project_by_the_name_the_switcher_shows](backlog/item_826_select_a_project_by_the_name_the_switcher_shows.md) | Select a project by the name the switcher shows | Done |  | 100% | backlog/item_826_select_a_project_by_the_name_the_switcher_shows.md |
 | [item_827_write_down_the_link_forms_where_a_writer_will_look](backlog/item_827_write_down_the_link_forms_where_a_writer_will_look.md) | Write down the link forms where a writer will look | Done |  | 100% | backlog/item_827_write_down_the_link_forms_where_a_writer_will_look.md |
+| [item_828_let_the_restart_rebind_its_own_port](backlog/item_828_let_the_restart_rebind_its_own_port.md) | Let the restart rebind its own port | Done |  | 100% | backlog/item_828_let_the_restart_rebind_its_own_port.md |
+| [item_829_stop_the_registry_advertising_a_viewer_that_is_gone](backlog/item_829_stop_the_registry_advertising_a_viewer_that_is_gone.md) | Stop the registry advertising a viewer that is gone | Done |  | 100% | backlog/item_829_stop_the_registry_advertising_a_viewer_that_is_gone.md |
 
 ## Tasks
 
@@ -1737,6 +1741,7 @@
 | [task_378_orchestrate_the_board_arrival_and_runbook_document_work](tasks/task_378_orchestrate_the_board_arrival_and_runbook_document_work.md) | Orchestrate the board arrival and runbook document work | Done |  | 100% | tasks/task_378_orchestrate_the_board_arrival_and_runbook_document_work.md |
 | [task_379_orchestrate_the_audit_signal_work](tasks/task_379_orchestrate_the_audit_signal_work.md) | Orchestrate the audit signal work | Done |  | 100% | tasks/task_379_orchestrate_the_audit_signal_work.md |
 | [task_380_orchestrate_the_short_viewer_link_work](tasks/task_380_orchestrate_the_short_viewer_link_work.md) | Orchestrate the short viewer link work | Done |  | 100% | tasks/task_380_orchestrate_the_short_viewer_link_work.md |
+| [task_381_orchestrate_the_restart_fix](tasks/task_381_orchestrate_the_restart_fix.md) | Orchestrate the restart fix | Done |  | 100% | tasks/task_381_orchestrate_the_restart_fix.md |
 
 ## Runbooks
 

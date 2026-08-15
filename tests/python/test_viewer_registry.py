@@ -87,6 +87,33 @@ def test_fleet_projects_are_shared_across_the_singleton_claim(tmp_path: Path) ->
     assert fleet_projects() == [first.resolve(), second.resolve()]
 
 
+def test_a_claim_whose_viewer_is_gone_is_not_reused(tmp_path: Path) -> None:
+    """item_829: a viewer that dies leaves its claim behind, and that file is what `view`
+    reads to reuse a running viewer and what a link is written against.
+
+    Checked before writing anything: the registry already probes and never returns a claim
+    it could not reach -- the startup grace loop waits, it does not assume. This is the case
+    that fails if that stops being true.
+    """
+    real_server, thread = _start_real_status_server()
+    port = real_server.server_address[1]
+    # Register the claim while the viewer is alive, then take the viewer away.
+    claim_or_reuse(tmp_path, "127.0.0.1", bind=lambda: _FakeServer(("127.0.0.1", port)))
+    real_server.shutdown()
+    real_server.server_close()
+    thread.join(timeout=5)
+
+    calls = []
+
+    def bind() -> _FakeServer:
+        calls.append(1)
+        return _FakeServer(server_address=("127.0.0.1", port))
+
+    claim = claim_or_reuse(tmp_path, "127.0.0.1", bind=bind)
+    assert claim.reused is False, "a claim naming a port that answers nothing was treated as live"
+    assert calls == [1], "the dead claim was reused instead of rebinding"
+
+
 def test_second_claim_reuses_a_live_first_claim(tmp_path: Path) -> None:
     real_server, thread = _start_real_status_server()
     try:

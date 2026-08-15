@@ -148,7 +148,7 @@
 | [prod_104_a_poll_that_costs_what_it_is_worth](product/prod_104_a_poll_that_costs_what_it_is_worth.md) | A poll that costs what it is worth | Settled |  |  | product/prod_104_a_poll_that_costs_what_it_is_worth.md |
 | [prod_105_one_step_not_two_for_a_status_change_that_should_be_committed](product/prod_105_one_step_not_two_for_a_status_change_that_should_be_committed.md) | One step, not two, for a status change that should be committed | Settled |  |  | product/prod_105_one_step_not_two_for_a_status_change_that_should_be_committed.md |
 | [prod_106_an_editor_that_stays_in_the_browser_it_is_already_in](product/prod_106_an_editor_that_stays_in_the_browser_it_is_already_in.md) | An editor that stays in the browser it is already in | Settled |  |  | product/prod_106_an_editor_that_stays_in_the_browser_it_is_already_in.md |
-| [prod_107_a_connector_configured_once_then_just_on_off](product/prod_107_a_connector_configured_once_then_just_on_off.md) | A connector configured once, then just ON/OFF | Proposed |  |  | product/prod_107_a_connector_configured_once_then_just_on_off.md |
+| [prod_107_a_connector_configured_once_then_just_on_off](product/prod_107_a_connector_configured_once_then_just_on_off.md) | A connector configured once, then just ON/OFF | Settled |  |  | product/prod_107_a_connector_configured_once_then_just_on_off.md |
 
 ## Roadmaps
 
@@ -1397,8 +1397,8 @@
 | [item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts](backlog/item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts.md) | Make the tunnel URL and bearer token durable across restarts | Obsolete |  | 0% | backlog/item_847_make_the_tunnel_url_and_bearer_token_durable_across_restarts.md |
 | [item_848_give_the_connector_a_chatgpt_native_oauth_front_door](backlog/item_848_give_the_connector_a_chatgpt_native_oauth_front_door.md) | Give the connector a ChatGPT-native OAuth front door | Obsolete |  | 0% | backlog/item_848_give_the_connector_a_chatgpt_native_oauth_front_door.md |
 | [item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive](backlog/item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive.md) | Fix the Settings Connector toggle and make the connector screen reactive | Done |  | 100% | backlog/item_849_fix_the_settings_connector_toggle_and_make_the_connector_screen_reactive.md |
-| [item_850_run_chatgpt_through_openais_secure_mcp_tunnel](backlog/item_850_run_chatgpt_through_openais_secure_mcp_tunnel.md) | Run ChatGPT through OpenAI's Secure MCP Tunnel | In progress |  | 33% | backlog/item_850_run_chatgpt_through_openais_secure_mcp_tunnel.md |
-| [item_851_tell_the_operator_which_transport_their_client_needs](backlog/item_851_tell_the_operator_which_transport_their_client_needs.md) | Tell the operator which transport their client needs | In progress |  | 33% | backlog/item_851_tell_the_operator_which_transport_their_client_needs.md |
+| [item_850_run_chatgpt_through_openais_secure_mcp_tunnel](backlog/item_850_run_chatgpt_through_openais_secure_mcp_tunnel.md) | Run ChatGPT through OpenAI's Secure MCP Tunnel | Done |  | 100% | backlog/item_850_run_chatgpt_through_openais_secure_mcp_tunnel.md |
+| [item_851_tell_the_operator_which_transport_their_client_needs](backlog/item_851_tell_the_operator_which_transport_their_client_needs.md) | Tell the operator which transport their client needs | Done |  | 100% | backlog/item_851_tell_the_operator_which_transport_their_client_needs.md |
 
 ## Tasks
 
@@ -1784,7 +1784,7 @@
 | [task_384_orchestrate_the_auto_refresh_cost_work](tasks/task_384_orchestrate_the_auto_refresh_cost_work.md) | Orchestrate the auto-refresh cost work | Done |  | 100% | tasks/task_384_orchestrate_the_auto_refresh_cost_work.md |
 | [task_385_orchestrate_the_status_confirm_and_commit_work](tasks/task_385_orchestrate_the_status_confirm_and_commit_work.md) | Orchestrate the status-confirm-and-commit work | Done | claude | 100% | tasks/task_385_orchestrate_the_status_confirm_and_commit_work.md |
 | [task_386_orchestrate_the_in_browser_document_editor_work](tasks/task_386_orchestrate_the_in_browser_document_editor_work.md) | Orchestrate the in-browser document editor work | Done | claude | 100% | tasks/task_386_orchestrate_the_in_browser_document_editor_work.md |
-| [task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector](tasks/task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector.md) | Deliver the ChatGPT connector over Secure MCP Tunnel | Ready |  | 33% | tasks/task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector.md |
+| [task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector](tasks/task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector.md) | Deliver the ChatGPT connector over Secure MCP Tunnel | Done |  | 100% | tasks/task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector.md |
 
 ## Runbooks
 

@@ -1,14 +1,14 @@
 ## item_851_tell_the_operator_which_transport_their_client_needs - Tell the operator which transport their client needs
 > From version: 2.22.0
 > Schema version: 1.0
-> Status: In progress
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 33%
+> Status: Done
+> Understanding: 95%
+> Confidence: 80%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer MCP connector UX
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-16 01:05:00
+> Indicators reviewed: 2026-08-16 00:27:12
 
 # AI Context
 - Summary: The connector screen names the transport for the client at hand and, for the ChatGPT path, walks the operator from a bare machine to a connected plugin. It is a self-repairing diagnostic, not a wizard: `tunnel-client doctor` already names every check, so the screen renders that output as rows with one action each, and disappears once everything is met.
@@ -23,7 +23,7 @@
 
 # Scope
 - In:
-  - The connector card naming the transport per client class: stdio for clients that launch the server themselves, Secure MCP Tunnel for ChatGPT, and an explicit "not supported yet" for hosted web clients, pointing at `req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door`.
+  - The connector card naming the transport per client class: stdio for clients that launch the server themselves, Secure MCP Tunnel for ChatGPT, and an explicit "not supported yet" for hosted web clients, pointing at the public-HTTPS-door request that `adr_031_one_mcp_transport_per_client_class` names.
   - A copy-ready stdio command for local clients (`logics-manager mcp serve --repo-root <root>`), correct whether or not anything is running here.
   - A tunnel row that takes a pasted `tunnel_id` (with a link to the page that creates one), the dropdown being a later refinement rather than a prerequisite for shipping this slice.
   - A prerequisite list for the ChatGPT path -- binary, API key, tunnel, profile, plugin -- each row carrying its state and at most one action, rendered from `tunnel-client doctor --profile <profile>` rather than from a state machine of our own. Nothing about the operator's progress is persisted: an operator who completes a step by hand in a terminal sees the screen agree on its next read.
@@ -63,9 +63,17 @@
 - Product brief(s): `prod_107_a_connector_configured_once_then_just_on_off`
 - Architecture decision(s): `adr_031_one_mcp_transport_per_client_class`
 - Request: `req_376_make_the_chatgpt_mcp_connector_plug_and_play`
-- Related request(s): `req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door`
 - Primary task(s): `task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector`
 
 # Priority
 - Priority: High
 - Rationale: Without it the ChatGPT path is only reachable by an operator willing to run seven manual steps in a terminal.
+
+# Validation
+- 2026-08-16: npx vitest run -- 976 passed; pytest -- 1442 passed. tests/viewer.browser-host.test.ts covers the three client classes with the stdio command copy-ready for this repository (AC1), the five setup rows in order with exactly one actionable and the masked key never rendered back (AC5), the block disappearing once every row is met, and hosted web clients named as unsupported with req_377 (AC7). tests/python/test_mcp_tunnel.py covers the row ordering and a key the control plane refuses being reported as refused at save time (AC4). AC6's connected flip is driven by the marker serve_stdio prints on the first client request; it is asserted at the viewer boundary only -- confirming it end to end needs tunnel-client on the machine, which the suite deliberately does not require. Commit 36f327c2.
+
+# Tasks
+- `task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector`
+
+# Notes
+- Task `task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector` was finished via `logics-manager flow finish task` on 2026-08-16.

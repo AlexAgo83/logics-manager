@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: Viewer MCP connector UX
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-16 00:20:00
+> Indicators reviewed: 2026-08-16 00:27:12
 
 # AI Context
 - Summary: Root-caused this session -- Settings' toggle reads a `state` field /api/mcp-connector never sends (it sends `running`), so the switch always renders unchecked regardless of real state; the detail screen reads the right fields but only ever fetches once, so an operator has to click Refresh to see a connector that already finished starting.
@@ -55,3 +55,9 @@
 
 # Validation
 - 2026-08-16: `npx vitest run tests/viewer.browser-host.test.ts` -- 237 passed. Two new tests: Settings renders the toggle checked/"On" from a payload reporting `running: true` (AC1), and the connector screen picks up a URL arriving after the initial fetch with no manual click, then stops polling once ready (AC3). The stale `state: "off"` fixture that had agreed with the bug now mirrors viewer.py's real payload. Commit 3a1d171f.
+
+# Tasks
+- `task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector`
+
+# Notes
+- Task `task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector` was finished via `logics-manager flow finish task` on 2026-08-16.

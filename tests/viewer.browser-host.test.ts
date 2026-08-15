@@ -2137,17 +2137,25 @@ describe("local viewer browser host", () => {
     const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
 
     expect(html).toContain('<div class="viewer-document__ring" aria-hidden="true">');
-    // The reveal is a punch-through: the ring clips the sweep and covers the middle itself.
-    // A mask is what the prototype tried first, and it rendered invisible.
+    // The ring clips its own lights to the header box. It needs no cover over the middle
+    // and no mask: the lights are 2px bars on the edges, so there is nothing in the middle
+    // to hide. The prototype's first attempt was a mask, and it rendered invisible.
     expect(css).toMatch(/\.viewer-document__ring \{[^}]*overflow: hidden/);
-    expect(css).toMatch(/\.viewer-document__ring::after \{[^}]*inset: 2px/);
     expect(css).not.toMatch(/viewer-document__ring[^}]*mask-composite/);
+    expect(css).toMatch(/\.viewer-document__ring::before[\s\S]{0,40}\.viewer-document__ring::after \{[^}]*height: 2px/);
     // AC3: it fades on opacity, so the comet is never seen appearing mid-travel.
     expect(css).toMatch(/\.viewer-document__ring \{[^}]*transition: opacity 0\.45s/);
     // item_810: one lap, then a resting outline carries the wait -- not a rotation that
     // runs for the load's whole duration saying "still going".
-    expect(css).toMatch(/animation: viewer-loading-ring-spin [^;]*\b1 forwards/);
+    expect(css).toMatch(/animation: viewer-loading-ring-top [^;]*\b1 forwards/);
+    expect(css).toMatch(/animation: viewer-loading-ring-bottom [^;]*\b1 forwards/);
     expect(css).toMatch(/\.viewer-document__ring-rest \{[^}]*box-shadow: inset/);
+    // Reported by the operator as the ring being broken, and it was: a conic gradient maps
+    // angle to rim position, and this header is about 25:1, so nearly the whole perimeter
+    // fell into a sliver of the angular range and the light never travelled. The edges are
+    // walked directly now, which is uniform at any width.
+    expect(css).not.toContain("conic-gradient");
+    expect(css).toMatch(/@keyframes viewer-loading-ring-top \{[\s\S]*?translateX\(calc\(100vw/);
     // AC4: a real media query, not a setting of our own.
     // Sliced to the block, not to a character count: item_810 added the resting outline's
     // own rule inside it, and a fixed 400-character window stopped reaching the end.
@@ -2176,7 +2184,7 @@ describe("local viewer browser host", () => {
     // And the animation is declared only while loading: on the element itself a one-shot
     // animation runs once when the element is created -- at page load -- and `forwards`
     // then holds it at the end for ever, so it never played again.
-    expect(css).toMatch(/\.viewer-document__header\[data-loading\] \.viewer-document__ring::before \{[^}]*animation: viewer-loading-ring-spin/);
+    expect(css).toMatch(/\.viewer-document__header\[data-loading\] \.viewer-document__ring::before \{[^}]*animation: viewer-loading-ring-top/);
   });
 
   it("gives the phone header one menu button on the selector's row", () => {

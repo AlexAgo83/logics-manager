@@ -6977,12 +6977,23 @@
   color: var(--vscode-descriptionForeground, #9da5b4);
 }
 
-/* req_360: the loading ring -- a comet travelling the header's rim while a screen loads,
+/* req_360: the loading ring -- a light travelling the header's rim while a screen loads,
    beside the existing loading text rather than instead of it.
-   Ported from logics/external/mockup/loading_border_trace_proto.html. The reveal is a
-   punch-through, not a CSS mask: the prototype's first pass used `mask-composite: exclude`
-   and the ring was invisible in every engine tried. `.viewer-document__ring` clips the
-   sweep, and its own ::after covers everything but the 2px rim. */
+
+   The prototype (logics/external/mockup/loading_border_trace_proto.html) rotated a conic
+   gradient, and that is what shipped first. It does not work here, and the prototype said
+   why without either of us checking it: "the trade-off to watch on a very wide, short
+   header". A conic gradient maps *angle* to rim position, and this header is about 1560x62
+   -- 25:1 -- so nearly the whole perimeter falls into a sliver of the angular range. What
+   the operator saw was a short bright blob near the middle of the bottom edge that never
+   travelled. `inset: -60%` did not save it either: percentages resolve against width and
+   height separately, so that box keeps the header's own aspect ratio rather than becoming
+   the square the comment claimed.
+
+   So the light travels the edges directly instead of being projected onto them: left to
+   right along the top, then right to left along the bottom, then it stops. The two short
+   62px sides are crossed by the same motion at the ends of each run. This is uniform by
+   construction at any width, which is what the conic version could never be. */
 .viewer-document__header {
   position: relative;
 }
@@ -7002,7 +7013,7 @@
   overflow: hidden;
   pointer-events: none;
   opacity: 0;
-  /* Fades on opacity alone, so the comet is never seen appearing or vanishing mid-travel. */
+  /* Fades on opacity alone, so the light is never seen appearing or vanishing mid-travel. */
   transition: opacity 0.45s ease;
 }
 
@@ -7010,38 +7021,65 @@
   opacity: 1;
 }
 
-.viewer-document__ring::before {
+/* The two travelling lights: the top edge, then the bottom. */
+.viewer-document__ring::before,
+.viewer-document__ring::after {
   content: "";
   position: absolute;
-  /* Square and larger than the header, so the conic gradient's angular maths runs against
-     a square rather than the header's own wide box -- otherwise the comet sprints along the
-     long edges and crawls on the short ones. */
-  inset: -60%;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0deg,
-    transparent 268deg,
-    color-mix(in srgb, var(--loading-color, var(--viewer-loading-neutral)) 0%, transparent) 292deg,
-    var(--loading-color, var(--viewer-loading-neutral)) 322deg,
-    #ffffff 344deg,
-    var(--loading-color, var(--viewer-loading-neutral)) 356deg,
-    transparent 360deg
+  left: 0;
+  width: 22%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--loading-color, var(--viewer-loading-neutral)) 45%,
+    #ffffff 62%,
+    var(--loading-color, var(--viewer-loading-neutral)) 78%,
+    transparent 100%
   );
+  /* Parked off the left edge until its half of the lap. */
+  transform: translateX(-110%);
+}
+
+.viewer-document__ring::before {
+  top: 0;
+}
+
+.viewer-document__ring::after {
+  bottom: 0;
 }
 
 /* item_810: one lap, not a rotation for the load's whole duration. A spinner that never
    stops is a clock the operator cannot read -- it says "still going" and nothing they can
-   act on, and on a four-second screen it holds the eye for four seconds to say it. Eased
-   out so the comet lands rather than being cut off, and handed over to the resting outline
-   below.
-
-   Reported by the operator as "the ring no longer goes round": declared on the ring itself,
-   a one-shot animation runs once when the element is created -- at page load, before any
-   loading -- and `forwards` then holds it at the end for ever, so it never played again.
-   Applied only while loading, it starts when the attribute is set and restarts on the next
-   load, which is the whole point of a gesture that marks a beginning. */
+   act on. Declared only while loading: on the element itself a one-shot animation runs once
+   when that element is created -- at page load, before any load -- and `forwards` then holds
+   it at the end for ever, so it never played again. */
 .viewer-document__header[data-loading] .viewer-document__ring::before {
-  animation: viewer-loading-ring-spin 1.15s cubic-bezier(0.36, 0.06, 0.2, 1) 1 forwards;
+  animation: viewer-loading-ring-top 1.15s ease-in-out 1 forwards;
+}
+
+.viewer-document__header[data-loading] .viewer-document__ring::after {
+  animation: viewer-loading-ring-bottom 1.15s ease-in-out 1 forwards;
+}
+
+@keyframes viewer-loading-ring-top {
+  0% {
+    transform: translateX(-110%);
+  }
+  50%,
+  100% {
+    transform: translateX(calc(100vw + 110%));
+  }
+}
+
+@keyframes viewer-loading-ring-bottom {
+  0%,
+  50% {
+    transform: translateX(calc(100vw + 110%));
+  }
+  100% {
+    transform: translateX(-110%);
+  }
 }
 
 /* What carries the wait once the lap is done: the same colour, steady, dimmed enough not to
@@ -7058,39 +7096,26 @@
   opacity: 0.5;
 }
 
-.viewer-document__ring::after {
-  content: "";
-  position: absolute;
-  /* The rim's thickness. Everything inside is covered by the header's own colour. */
-  inset: 2px;
-  background: var(--vscode-sideBar-background, #252526);
-}
-
-@keyframes viewer-loading-ring-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 /* AC4: no travel at all under reduced motion -- the same colour, breathing. A media query,
    not a setting of our own: the operator has already answered this question once. */
 @media (prefers-reduced-motion: reduce) {
-  .viewer-document__ring::before,
-  .viewer-document__header[data-loading] .viewer-document__ring::before {
+  .viewer-document__header[data-loading] .viewer-document__ring::before,
+  .viewer-document__header[data-loading] .viewer-document__ring::after {
     animation: none;
+    transform: none;
+    width: 100%;
     background: var(--loading-color, var(--viewer-loading-neutral));
-    inset: 0;
-  }
-
-  /* No lap runs, so there is nothing to hand over to: the breathing glow is the whole
-     signal, and a second static outline over it would only mute it. */
-  .viewer-document__ring-rest {
-    display: none;
   }
 
   .viewer-document__header[data-loading] .viewer-document__ring {
     opacity: 0.55;
     animation: viewer-loading-ring-breathe 2.4s ease-in-out infinite;
+  }
+
+  /* No lap runs, so there is nothing to hand over to: the breathing edges are the whole
+     signal, and a static outline over them would only mute it. */
+  .viewer-document__ring-rest {
+    display: none;
   }
 }
 

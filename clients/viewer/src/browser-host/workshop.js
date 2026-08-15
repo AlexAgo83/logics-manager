@@ -1469,9 +1469,13 @@ export function createWorkshopScreen(host) {
   // renderWorkshopPanel("runbooks")/loadWorkshopRunbooks unchanged -- only the tab
   // bar wrapper (renderWorkshop) and the Workshop-specific dispatch are skipped.
   async function showCorpusRunbooks() {
-    host.setDocument("Runbooks", `<div class="viewer-workshop">${renderCorpusModeSwitcher("runbooks")}${renderWorkshopPanel("runbooks")}</div>`);
-    host.setMeta("Runbooks: loading...");
+    // Reported by the operator as a long wait with nothing to read. This screen arrived in
+    // Corpus after item_770 gave the other three a loading state, so it was the one still
+    // mounting an empty panel and leaving the meta line to explain itself. It says what it
+    // is waiting for and how long it has been waiting, like its siblings.
+    host.showScreenLoading("Runbooks", "the runbook library");
     workshopRunbookState.includeHidden = workshopRunbookShowsHidden();
+    host.setDocument("Runbooks", `<div class="viewer-workshop">${renderCorpusModeSwitcher("runbooks")}${renderWorkshopPanel("runbooks")}</div>`);
     await loadWorkshopRunbooks();
     host.setMeta("Runbooks loaded.");
   }

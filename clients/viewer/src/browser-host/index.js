@@ -362,6 +362,7 @@ import {
     isViewStale,
     setDocument,
     setMeta,
+    showScreenLoading,
     updateViewerPreferences,
     meta,
     renderMermaidDiagrams,
@@ -3382,8 +3383,25 @@ import {
       `<div class="viewer-screen-loading" data-viewer-screen-loading role="status" aria-live="polite">
         <p class="viewer-screen-loading__title">Working on ${escapeHtml(title)}</p>
         <p class="viewer-screen-loading__detail">Waiting for ${escapeHtml(waitingFor)}. On a corpus this size that takes a few seconds.</p>
+        <p class="viewer-screen-loading__elapsed" data-viewer-screen-loading-elapsed>0.0s</p>
       </div>`
     );
+    // item_770 said these screens should measure themselves and say so; the panel it left
+    // says "a few seconds" whatever the wait actually is, so a screen that takes twenty
+    // still reads as one that takes three -- and an operator reporting "it is slow" has no
+    // number to report, which is exactly the position this counter is here to end.
+    const elapsed = document.querySelector("[data-viewer-screen-loading-elapsed]");
+    if (!(elapsed instanceof HTMLElement)) return;
+    const startedAt = Date.now();
+    const timer = window.setInterval(() => {
+      // The node leaves the DOM when the real screen replaces it, which is also the signal
+      // to stop: no separate teardown to forget at one of the call sites.
+      if (!elapsed.isConnected) {
+        window.clearInterval(timer);
+        return;
+      }
+      elapsed.textContent = `${((Date.now() - startedAt) / 1000).toFixed(1)}s`;
+    }, 100);
   }
 
   async function showCorpusInsights(options = {}) {

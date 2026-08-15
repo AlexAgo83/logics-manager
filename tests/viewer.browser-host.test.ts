@@ -2029,6 +2029,23 @@ describe("local viewer browser host", () => {
     expect(order.indexOf("${fleetRoots}")).toBeGreaterThan(order.indexOf("${fleetRootRow}"));
   });
 
+  it("tells a slow screen's operator how long it has actually been waiting", async () => {
+    // item_770 gave Insights, Health and Getting Started a loading panel, but its wording is
+    // "a few seconds" whatever the wait turns out to be -- so a screen taking twenty reads
+    // like one taking three, and an operator reporting "it is slow" has no figure to report.
+    // Runbooks arrived in Corpus after that item and had no loading panel at all.
+    const host = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/index.js"), "utf8");
+    const workshop = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/workshop.js"), "utf8");
+
+    expect(host).toContain("data-viewer-screen-loading-elapsed");
+    // The counter stops when the real screen replaces the panel, rather than needing a
+    // teardown call every caller could forget.
+    expect(host).toMatch(/if \(!elapsed\.isConnected\)[\s\S]{0,80}clearInterval/);
+    // Runbooks announces itself like its Corpus siblings.
+    expect(workshop).toContain('host.showScreenLoading("Runbooks", "the runbook library")');
+    expect(host).toMatch(/setDocument,\n\s+setMeta,\n\s+showScreenLoading,/);
+  });
+
   it("leads the Corpus navigation and switcher with Getting Started", () => {
     // It is the one Corpus entry written for someone who does not yet know what Insights,
     // Health or Runbooks are, so it cannot be third. Both surfaces are checked: the menu

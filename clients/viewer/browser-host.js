@@ -11338,8 +11338,29 @@ ${line}` : line;
       window.clearInterval(screenLoadingTimer);
       screenLoadingTimer = null;
     }
+    const screenAnswers = /* @__PURE__ */ new Map();
+    function rememberScreenAnswer(title, html) {
+      screenAnswers.set(title, { projectId: activeProjectId, html });
+    }
+    function recallScreenAnswer(title) {
+      const entry = screenAnswers.get(title);
+      if (!entry || entry.projectId !== activeProjectId) return "";
+      return entry.html;
+    }
+    function withFreshness(html, stale) {
+      const note = stale ? '<p class="viewer-screen-freshness viewer-screen-freshness--stale">Showing the previous answer while the corpus is rechecked.</p>' : '<p class="viewer-screen-freshness">Checked just now.</p>';
+      return note + html;
+    }
+    function showKeptAnswerOrLoading(title, waitingFor) {
+      const previous = recallScreenAnswer(title);
+      if (previous) {
+        setDocument(title, withFreshness(previous, true));
+        return;
+      }
+      showScreenLoading(title, waitingFor);
+    }
     async function showCorpusInsights(options = {}) {
-      if (!options.view) showScreenLoading("Corpus insights", "the corpus lint and audit scans");
+      if (!options.view) showKeptAnswerOrLoading("Corpus insights", "the corpus lint and audit scans");
       const view = options.view || beginView();
       try {
         const [lintResponse, auditResponse] = await Promise.all([
@@ -11350,7 +11371,9 @@ ${line}` : line;
         if (isViewStale(view)) {
           return;
         }
-        setDocument("Corpus insights", buildCorpusInsights(lintData, auditData));
+        const insightsHtml = buildCorpusInsights(lintData, auditData);
+        rememberScreenAnswer("Corpus insights", insightsHtml);
+        setDocument("Corpus insights", withFreshness(insightsHtml, false));
         setMeta("Corpus insights loaded.");
       } catch (error) {
         if (isAbortError(error)) {
@@ -11479,7 +11502,7 @@ ${line}` : line;
       setMeta(data.payload?.changed === false ? `${item.id || item.relPath} was already ${normalized}.` : `Updated ${item.id || item.relPath} to ${normalized}.`);
     }
     async function showHealth(options = {}) {
-      if (!options.view) showScreenLoading("Validation health", "the corpus lint, audit and workflow health reports");
+      if (!options.view) showKeptAnswerOrLoading("Validation health", "the corpus lint, audit and workflow health reports");
       const view = options.view || beginView();
       setMeta("Checking health...");
       try {
@@ -11495,10 +11518,14 @@ ${line}` : line;
         if (isViewStale(view)) {
           return;
         }
-        setDocument(
-          "Validation health",
-          renderHealthSummary(lintData, auditData, healthData, new Set(latestItems.map((item) => item.relPath).filter(Boolean)))
+        const healthHtml = renderHealthSummary(
+          lintData,
+          auditData,
+          healthData,
+          new Set(latestItems.map((item) => item.relPath).filter(Boolean))
         );
+        rememberScreenAnswer("Validation health", healthHtml);
+        setDocument("Validation health", withFreshness(healthHtml, false));
         setMeta("Health loaded.");
       } catch (error) {
         if (isAbortError(error)) {

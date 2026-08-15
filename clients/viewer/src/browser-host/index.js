@@ -3586,11 +3586,46 @@ import {
     screenLoadingTimer = null;
   }
 
+  // item_815: Insights and Health were rebuilt from nothing on every visit, even when the
+  // corpus had not changed since the last one, so the operator watched a placeholder to be
+  // shown what they had already been shown. What is kept is the rendered answer, per screen,
+  // for the session -- and it is kept with the project it describes, because another
+  // project's answer is not a stale answer, it is the wrong one.
+  const screenAnswers = new Map();
+
+  function rememberScreenAnswer(title, html) {
+    screenAnswers.set(title, { projectId: activeProjectId, html });
+  }
+
+  function recallScreenAnswer(title) {
+    const entry = screenAnswers.get(title);
+    if (!entry || entry.projectId !== activeProjectId) return "";
+    return entry.html;
+  }
+
+  /** Says which of the two answers is on screen, so a kept one is never read as current. */
+  function withFreshness(html, stale) {
+    const note = stale
+      ? '<p class="viewer-screen-freshness viewer-screen-freshness--stale">Showing the previous answer while the corpus is rechecked.</p>'
+      : '<p class="viewer-screen-freshness">Checked just now.</p>';
+    return note + html;
+  }
+
+  /** The kept answer, shown at once, or the loading placeholder when there is none. */
+  function showKeptAnswerOrLoading(title, waitingFor) {
+    const previous = recallScreenAnswer(title);
+    if (previous) {
+      setDocument(title, withFreshness(previous, true));
+      return;
+    }
+    showScreenLoading(title, waitingFor);
+  }
+
   async function showCorpusInsights(options = {}) {
     // The placeholder goes up *before* the view token is taken: setDocument invalidates
     // pending views, so announcing the load after beginView() cancelled the very load it
     // was announcing, and the screen stayed on the placeholder for ever.
-    if (!options.view) showScreenLoading("Corpus insights", "the corpus lint and audit scans");
+    if (!options.view) showKeptAnswerOrLoading("Corpus insights", "the corpus lint and audit scans");
     const view = options.view || beginView();
     try {
       const [lintResponse, auditResponse] = await Promise.all([
@@ -3601,7 +3636,9 @@ import {
       if (isViewStale(view)) {
         return;
       }
-      setDocument("Corpus insights", buildCorpusInsights(lintData, auditData));
+      const insightsHtml = buildCorpusInsights(lintData, auditData);
+      rememberScreenAnswer("Corpus insights", insightsHtml);
+      setDocument("Corpus insights", withFreshness(insightsHtml, false));
       setMeta("Corpus insights loaded.");
     } catch (error) {
       if (isAbortError(error)) {
@@ -3750,7 +3787,7 @@ import {
 
   async function showHealth(options = {}) {
     // Before beginView(), for the reason recorded in showCorpusInsights.
-    if (!options.view) showScreenLoading("Validation health", "the corpus lint, audit and workflow health reports");
+    if (!options.view) showKeptAnswerOrLoading("Validation health", "the corpus lint, audit and workflow health reports");
     const view = options.view || beginView();
     setMeta("Checking health...");
     try {
@@ -3770,10 +3807,14 @@ import {
       }
       // item_750: the corpus the viewer is showing is what can contradict a finding that claims
       // a document is absent, so the known paths travel with the report.
-      setDocument(
-        "Validation health",
-        renderHealthSummary(lintData, auditData, healthData, new Set(latestItems.map((item) => item.relPath).filter(Boolean)))
+      const healthHtml = renderHealthSummary(
+        lintData,
+        auditData,
+        healthData,
+        new Set(latestItems.map((item) => item.relPath).filter(Boolean))
       );
+      rememberScreenAnswer("Validation health", healthHtml);
+      setDocument("Validation health", withFreshness(healthHtml, false));
       setMeta("Health loaded.");
     } catch (error) {
       if (isAbortError(error)) {

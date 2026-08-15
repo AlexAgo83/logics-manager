@@ -1,7 +1,7 @@
 ## req_359_viewer_redesign_mockups_gap_review_across_all_screens - Viewer redesign mockups: gap review across all screens
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High

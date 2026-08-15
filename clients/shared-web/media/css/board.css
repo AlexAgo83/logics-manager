@@ -745,6 +745,16 @@
   border-left-color: var(--vscode-descriptionForeground, #6e7681);
 }
 
+/* item_798 follow-up: `blocked` lost its rule when ab60da2b moved the accent's colour to
+   the stage -- the rule it had said only `border-left-color`, so removing the colour
+   removed the whole entry. It then fell back to the base solid 5px, which is also what an
+   unknown status draws: the one state worth spotting looked like the state that means
+   nothing is known. Given a shape rather than a colour, like its four siblings. */
+.card--status-blocked {
+  border-left-style: solid;
+  border-left-width: 9px;
+}
+
 .card--status-progress {
   border-left-style: double;
   border-left-width: 6px;

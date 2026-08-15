@@ -1,10 +1,10 @@
 ## item_798_regenerate_the_readme_captures_once_the_fixes_above_land - Regenerate the README captures once the fixes above land
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Viewer redesign follow-through
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -55,3 +55,6 @@ Two additional gaps reported directly by the operator, not tied to any of the ot
 
 # Tasks
 - `task_369_regenerate_the_readme_captures_once_the_fixes_above_land`
+
+# Notes
+- Task `task_369_regenerate_the_readme_captures_once_the_fixes_above_land` was finished via `logics-manager flow finish task` on 2026-08-15.

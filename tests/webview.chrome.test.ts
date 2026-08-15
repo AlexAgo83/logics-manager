@@ -112,16 +112,23 @@ describe("webview chrome toolbar and filter behavior", () => {
     const filterToggle = dom.window.document.getElementById("filter-toggle");
     filterToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
-    const groupBySelect = dom.window.document.getElementById("group-by") as HTMLSelectElement | null;
-    // In board mode, groupBy should be disabled
-    expect(groupBySelect?.disabled).toBe(true);
+    // item_795: `group-by` is a segmented control now, so the disabled state it syncs is
+    // its segments' rather than a select's. The rule itself is unchanged -- grouping
+    // applies in list mode, and item_764 already established that saying so beats a
+    // greyed control with its reason in a tooltip.
+    const segments = () => Array.from(
+      dom.window.document.querySelectorAll("#group-by [value]")
+    ) as HTMLButtonElement[];
+    expect(segments().length).toBeGreaterThan(0);
+    // In board mode, grouping should be disabled
+    expect(segments().every((segment) => segment.disabled)).toBe(true);
 
     // Switch to list mode
     const viewModeToggle = dom.window.document.querySelector('[data-action="toggle-view-mode"]');
     viewModeToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
-    // Now group-by should be enabled
-    expect(groupBySelect?.disabled).toBe(false);
+    // Now grouping should be enabled
+    expect(segments().some((segment) => segment.disabled)).toBe(false);
   });
 
   it("toggles attention mode and reflects button state", () => {

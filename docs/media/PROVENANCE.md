@@ -22,8 +22,8 @@ node scripts/dev/capture-readme-media.mjs
 
 - `viewer-board.png` — The board: the flow columns and the reference index beneath them.
 - `viewer-document.png` — The reader: a request opened from the details panel, with its contents list.
-- `viewer-health.png` — Validation health: lint, audit and workflow findings from this repository.
 - `viewer-insights.png` — Corpus insights: the shape of the corpus and the signals worth acting on.
+- `viewer-board-list.png` — The board in list mode: one row per document, grouped and sortable, with age.
 
 ## Why this is not a CI job
 

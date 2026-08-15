@@ -191,12 +191,17 @@ import {
   // URL is regenerated.
   captureLanTokenFromUrl();
   const originalFetch = window.fetch.bind(window);
+  // Reported by the operator: changing a status in a project other than the launch one
+  // failed with "Could not resolve workflow doc target". The project was carried by
+  // `window.fetch` alone, and `viewerFetch` is the inner layer -- so any call site reaching
+  // for it directly, as the status update did, sent the request with no project and the
+  // server resolved it against the launch repository. The context belongs on the layer
+  // every request passes through, not on one of the two.
   function viewerFetch(input, init) {
-    return originalFetch(input, withLanAuthorization(input, init));
+    const target = withProjectContext(input);
+    return originalFetch(target, withLanAuthorization(target, init));
   }
-  window.fetch = (input, init) => {
-    return viewerFetch(withProjectContext(input), init);
-  };
+  window.fetch = (input, init) => viewerFetch(input, init);
   if (typeof window.EventSource === "function") {
     const NativeEventSource = window.EventSource;
     window.EventSource = function PatchedEventSource(url, init) {

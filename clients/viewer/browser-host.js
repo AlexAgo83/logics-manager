@@ -8510,11 +8510,10 @@ ${line}` : line;
     captureLanTokenFromUrl();
     const originalFetch = window.fetch.bind(window);
     function viewerFetch(input, init) {
-      return originalFetch(input, withLanAuthorization(input, init));
+      const target = withProjectContext(input);
+      return originalFetch(target, withLanAuthorization(target, init));
     }
-    window.fetch = (input, init) => {
-      return viewerFetch(withProjectContext(input), init);
-    };
+    window.fetch = (input, init) => viewerFetch(input, init);
     if (typeof window.EventSource === "function") {
       const NativeEventSource = window.EventSource;
       window.EventSource = function PatchedEventSource(url, init) {

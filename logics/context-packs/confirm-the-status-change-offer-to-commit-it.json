@@ -1,0 +1,359 @@
+{
+  "budgets": {
+    "max_docs": 16,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_374_confirm_the_status_change_offer_to_commit_it item_843_show_what_a_status_change_will_do_before_it_lands item_844_offer_to_commit_the_status_change_right_there task_385_orchestrate_the_status_confirm_and_commit_work --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_843_show_what_a_status_change_will_do_before_it_lands",
+          "item_844_offer_to_commit_the_status_change_right_there"
+        ],
+        "prod": [
+          "prod_105_one_step_not_two_for_a_status_change_that_should_be_committed"
+        ],
+        "req": [
+          "req_374_confirm_the_status_change_offer_to_commit_it"
+        ],
+        "task": [
+          "task_385_orchestrate_the_status_confirm_and_commit_work"
+        ]
+      },
+      "path": "logics/product/prod_105_one_step_not_two_for_a_status_change_that_should_be_committed.md",
+      "ref": "prod_105_one_step_not_two_for_a_status_change_that_should_be_committed",
+      "sections": {
+        "Goals": [
+          "- The operator sees what is about to change before it lands.",
+          "- Committing the change is offered right where the decision is made, with a default message that needs no thought.",
+          "- Declining to commit never blocks or reverts the status change itself.",
+          "- Reuse the existing themed modal and git-commit mechanisms rather than building new ones."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Applying a status change and committing it are the same operator intent most of the time; make that the default path instead of two separate actions."
+        ],
+        "References": [
+          "- Product back-reference: `req_374_confirm_the_status_change_offer_to_commit_it`",
+          "- Task back-reference: `task_385_orchestrate_the_status_confirm_and_commit_work`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "One step, not two, for a status change that should be committed"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "confirm, status, change, offer, commit",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_843_show_what_a_status_change_will_do_before_it_lands",
+          "item_844_offer_to_commit_the_status_change_right_there"
+        ],
+        "prod": [
+          "prod_105_one_step_not_two_for_a_status_change_that_should_be_committed"
+        ],
+        "req": [
+          "req_374_confirm_the_status_change_offer_to_commit_it"
+        ]
+      },
+      "path": "logics/request/req_374_confirm_the_status_change_offer_to_commit_it.md",
+      "ref": "req_374_confirm_the_status_change_offer_to_commit_it",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Before a status change is applied, the operator sees the document, its current status, and the status it would become.",
+          "- AC2: From that same step, the operator can commit the change immediately with a proposed default commit message, or apply without committing.",
+          "- AC3: Declining to commit still applies the status change; it only skips the commit.",
+          "- AC4: The status pick and the commit decision are one modal flow, not a status modal followed by a second confirmation modal.",
+          "- AC5: A commit that fails (e.g. nothing staged, git error) reports why and leaves the status change applied -- a failed commit does not roll back a status that already changed.",
+          "- AC6: The existing single-action gate around the status control still holds: the flow cannot be triggered twice concurrently."
+        ],
+        "Needs": [
+          "- As an operator changing a document's status from the viewer, I need to see what will change -- which document, old status, new status -- before it lands, not after.",
+          "- As an operator, I need to commit that status change right from the same confirmation, with a sensible default message, or decline and leave it uncommitted for a later batched commit.",
+          "- As an operator, I need this to feel like one deliberate step, not a status pick followed by a separate trip to the git panel to commit it."
+        ]
+      },
+      "status": "Draft",
+      "title": "Confirm the status change, offer to commit it"
+    },
+    {
+      "ai_context": {
+        "keywords": "show, status, change, before, lands",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_843_show_what_a_status_change_will_do_before_it_lands"
+        ],
+        "prod": [
+          "prod_105_one_step_not_two_for_a_status_change_that_should_be_committed"
+        ],
+        "req": [
+          "req_374_confirm_the_status_change_offer_to_commit_it"
+        ],
+        "task": [
+          "task_385_orchestrate_the_status_confirm_and_commit_work"
+        ]
+      },
+      "path": "logics/backlog/item_843_show_what_a_status_change_will_do_before_it_lands.md",
+      "ref": "item_843_show_what_a_status_change_will_do_before_it_lands",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The document, its current status, and the requested status are all visible before the change is applied.",
+          "- AC2: This is the same modal flow the status picker already uses, not an added second modal.",
+          "- AC3: Cancelling at this step leaves the status unchanged, exactly as today."
+        ],
+        "Problem": [
+          "- `changeCurrentDocumentStatus` picks a new status via `showThemedChoiceModal` and applies it immediately through `/api/update-status` -- there is no step where the operator confirms the document, old status, and new status before it changes.",
+          "- Adding a second, separate confirmation modal after the choice would turn one status change into two clicks through two modals, which is the opposite of what this request is for."
+        ]
+      },
+      "status": "Ready",
+      "title": "Show what a status change will do before it lands"
+    },
+    {
+      "ai_context": {
+        "keywords": "offer, commit, status, change, right",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_844_offer_to_commit_the_status_change_right_there"
+        ],
+        "prod": [
+          "prod_105_one_step_not_two_for_a_status_change_that_should_be_committed"
+        ],
+        "req": [
+          "req_374_confirm_the_status_change_offer_to_commit_it"
+        ],
+        "task": [
+          "task_385_orchestrate_the_status_confirm_and_commit_work"
+        ]
+      },
+      "path": "logics/backlog/item_844_offer_to_commit_the_status_change_right_there.md",
+      "ref": "item_844_offer_to_commit_the_status_change_right_there",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Choosing to commit calls the existing `/api/git-commit` route with the changed document and a default message.",
+          "- AC2: Declining to commit still applies the status change; nothing is committed and no error is shown.",
+          "- AC3: A failed commit reports why, and the status change remains applied.",
+          "- AC4: The whole flow (status pick through commit decision) is still guarded by the existing single-action gate."
+        ],
+        "Problem": [
+          "- `/api/git-commit` exists and already commits a document by path and message elsewhere in the viewer, but the status-change flow does not offer it: applying a status change and committing it are two unrelated trips through the UI today.",
+          "- A commit can fail (nothing staged, a git error) after the status change has already been written to disk; the flow must say why it failed without implying the status change itself failed."
+        ]
+      },
+      "status": "Ready",
+      "title": "Offer to commit the status change right there"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_843_show_what_a_status_change_will_do_before_it_lands",
+          "item_844_offer_to_commit_the_status_change_right_there"
+        ],
+        "prod": [
+          "prod_105_one_step_not_two_for_a_status_change_that_should_be_committed"
+        ],
+        "req": [
+          "req_374_confirm_the_status_change_offer_to_commit_it"
+        ],
+        "task": [
+          "task_385_orchestrate_the_status_confirm_and_commit_work"
+        ]
+      },
+      "path": "logics/product/prod_105_one_step_not_two_for_a_status_change_that_should_be_committed.md",
+      "ref": "prod_105_one_step_not_two_for_a_status_change_that_should_be_committed",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "One step, not two, for a status change that should be committed"
+    },
+    {
+      "ai_context": {
+        "keywords": "orchestrate, status, confirm, commit, work",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_843_show_what_a_status_change_will_do_before_it_lands",
+          "item_844_offer_to_commit_the_status_change_right_there"
+        ],
+        "prod": [
+          "prod_105_one_step_not_two_for_a_status_change_that_should_be_committed"
+        ],
+        "req": [
+          "req_374_confirm_the_status_change_offer_to_commit_it"
+        ],
+        "task": [
+          "task_385_orchestrate_the_status_confirm_and_commit_work"
+        ]
+      },
+      "path": "logics/tasks/task_385_orchestrate_the_status_confirm_and_commit_work.md",
+      "ref": "task_385_orchestrate_the_status_confirm_and_commit_work",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the status-confirm-and-commit work"
+    }
+  ],
+  "estimates": {
+    "char_count": 8818,
+    "companion_doc_count": 1,
+    "doc_count": 5
+  },
+  "generated_at": "2026-08-15T16:16:40Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_374_confirm_the_status_change_offer_to_commit_it",
+      "item_843_show_what_a_status_change_will_do_before_it_lands",
+      "item_844_offer_to_commit_the_status_change_right_there",
+      "task_385_orchestrate_the_status_confirm_and_commit_work"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_374_confirm_the_status_change_offer_to_commit_it,item_843_show_what_a_status_change_will_do_before_it_lands,item_844_offer_to_commit_the_status_change_right_there,task_385_orchestrate_the_status_confirm_and_commit_work",
+  "refs": [
+    "req_374_confirm_the_status_change_offer_to_commit_it",
+    "item_843_show_what_a_status_change_will_do_before_it_lands",
+    "item_844_offer_to_commit_the_status_change_right_there",
+    "task_385_orchestrate_the_status_confirm_and_commit_work"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_385_orchestrate_the_status_confirm_and_commit_work.md",
+      "ref": "task_385_orchestrate_the_status_confirm_and_commit_work"
+    }
+  ]
+}

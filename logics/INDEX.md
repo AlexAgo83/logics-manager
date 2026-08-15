@@ -145,6 +145,7 @@
 | [prod_102_the_link_travels_with_the_document](product/prod_102_the_link_travels_with_the_document.md) | The link travels with the document | Proposed |  |  | product/prod_102_the_link_travels_with_the_document.md |
 | [prod_103_an_issue_bridge_on_the_path_people_walk](product/prod_103_an_issue_bridge_on_the_path_people_walk.md) | An issue bridge on the path people walk | Proposed |  |  | product/prod_103_an_issue_bridge_on_the_path_people_walk.md |
 | [prod_104_a_poll_that_costs_what_it_is_worth](product/prod_104_a_poll_that_costs_what_it_is_worth.md) | A poll that costs what it is worth | Settled |  |  | product/prod_104_a_poll_that_costs_what_it_is_worth.md |
+| [prod_105_one_step_not_two_for_a_status_change_that_should_be_committed](product/prod_105_one_step_not_two_for_a_status_change_that_should_be_committed.md) | One step, not two, for a status change that should be committed | Proposed |  |  | product/prod_105_one_step_not_two_for_a_status_change_that_should_be_committed.md |
 
 ## Roadmaps
 
@@ -535,6 +536,7 @@
 | [req_371_put_the_viewer_link_where_every_assistant_already_looks](request/req_371_put_the_viewer_link_where_every_assistant_already_looks.md) | Put the viewer link where every assistant already looks | Draft |  |  | request/req_371_put_the_viewer_link_where_every_assistant_already_looks.md |
 | [req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes](request/req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes.md) | Put the GitHub issue bridge on the path the work actually takes | Draft |  |  | request/req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes.md |
 | [req_373_make_the_auto_refresh_cost_what_it_is_worth](request/req_373_make_the_auto_refresh_cost_what_it_is_worth.md) | Make the auto-refresh cost what it is worth | Done |  |  | request/req_373_make_the_auto_refresh_cost_what_it_is_worth.md |
+| [req_374_confirm_the_status_change_offer_to_commit_it](request/req_374_confirm_the_status_change_offer_to_commit_it.md) | Confirm the status change, offer to commit it | Draft |  |  | request/req_374_confirm_the_status_change_offer_to_commit_it.md |
 
 ## Backlog
 
@@ -1382,6 +1384,8 @@
 | [item_840_warm_the_badge_components_off_the_request_path](backlog/item_840_warm_the_badge_components_off_the_request_path.md) | Warm the badge components off the request path | Done |  | 100% | backlog/item_840_warm_the_badge_components_off_the_request_path.md |
 | [item_841_answer_nothing_changed_without_rebuilding_the_corpus](backlog/item_841_answer_nothing_changed_without_rebuilding_the_corpus.md) | Answer 'nothing changed' without rebuilding the corpus | Done |  | 100% | backlog/item_841_answer_nothing_changed_without_rebuilding_the_corpus.md |
 | [item_842_re_measure_the_tick_and_record_what_it_is_made_of](backlog/item_842_re_measure_the_tick_and_record_what_it_is_made_of.md) | Re-measure the tick and record what it is made of | Done |  | 100% | backlog/item_842_re_measure_the_tick_and_record_what_it_is_made_of.md |
+| [item_843_show_what_a_status_change_will_do_before_it_lands](backlog/item_843_show_what_a_status_change_will_do_before_it_lands.md) | Show what a status change will do before it lands | Ready |  | 0% | backlog/item_843_show_what_a_status_change_will_do_before_it_lands.md |
+| [item_844_offer_to_commit_the_status_change_right_there](backlog/item_844_offer_to_commit_the_status_change_right_there.md) | Offer to commit the status change right there | Ready |  | 0% | backlog/item_844_offer_to_commit_the_status_change_right_there.md |
 
 ## Tasks
 
@@ -1765,6 +1769,7 @@
 | [task_382_orchestrate_the_link_travels_with_the_document_work](tasks/task_382_orchestrate_the_link_travels_with_the_document_work.md) | Orchestrate the link-travels-with-the-document work | Ready |  | 0% | tasks/task_382_orchestrate_the_link_travels_with_the_document_work.md |
 | [task_383_orchestrate_the_issue_bridge_work](tasks/task_383_orchestrate_the_issue_bridge_work.md) | Orchestrate the issue bridge work | Ready |  | 0% | tasks/task_383_orchestrate_the_issue_bridge_work.md |
 | [task_384_orchestrate_the_auto_refresh_cost_work](tasks/task_384_orchestrate_the_auto_refresh_cost_work.md) | Orchestrate the auto-refresh cost work | Done |  | 100% | tasks/task_384_orchestrate_the_auto_refresh_cost_work.md |
+| [task_385_orchestrate_the_status_confirm_and_commit_work](tasks/task_385_orchestrate_the_status_confirm_and_commit_work.md) | Orchestrate the status-confirm-and-commit work | Ready |  | 0% | tasks/task_385_orchestrate_the_status_confirm_and_commit_work.md |
 
 ## Runbooks
 

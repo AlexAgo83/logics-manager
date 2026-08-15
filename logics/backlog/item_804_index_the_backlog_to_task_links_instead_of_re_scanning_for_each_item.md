@@ -1,10 +1,10 @@
 ## item_804_index_the_backlog_to_task_links_instead_of_re_scanning_for_each_item - Index the backlog-to-task links instead of re-scanning for each item
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Cost that grows with the corpus
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -55,3 +55,6 @@
 # Priority
 - Priority: High - the only cost that grows faster than the corpus
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_375_orchestrate_the_audit_cost_work_behind_insights_and_health` was finished via `logics-manager flow finish task` on 2026-08-15.

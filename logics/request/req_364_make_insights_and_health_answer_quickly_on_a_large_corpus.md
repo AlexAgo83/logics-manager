@@ -1,7 +1,7 @@
 ## req_364_make_insights_and_health_answer_quickly_on_a_large_corpus - Make Insights and Health answer quickly on a large corpus
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

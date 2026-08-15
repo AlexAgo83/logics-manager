@@ -1,10 +1,10 @@
 ## item_808_memoise_the_remaining_reference_extraction - Memoise the remaining reference extraction
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Not re-reading what was just read
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -51,3 +51,6 @@
 # Priority
 - Priority: Low - a real cost, and the smallest of them
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_375_orchestrate_the_audit_cost_work_behind_insights_and_health` was finished via `logics-manager flow finish task` on 2026-08-15.

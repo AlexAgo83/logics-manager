@@ -3215,6 +3215,18 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         )
         return False
 
+    def _handle_save_doc_post(self) -> None:
+        try:
+            body = self._read_json_body_strict()
+            payload = save_doc_payload(self.server.repo_root, str(body.get("path") or ""), str(body.get("content") or ""))
+            self._send_json({"ok": True, "payload": payload})
+        except json.JSONDecodeError:
+            self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+        except (FileNotFoundError, ValueError) as exc:
+            self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
+        except OSError as exc:
+            self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
         if not self._origin_check_passes():
@@ -3403,16 +3415,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
             return
         if parsed.path == "/api/save-doc":
-            try:
-                body = self._read_json_body_strict()
-                payload = save_doc_payload(self.server.repo_root, str(body.get("path") or ""), str(body.get("content") or ""))
-                self._send_json({"ok": True, "payload": payload})
-            except json.JSONDecodeError:
-                self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-            except (FileNotFoundError, ValueError) as exc:
-                self._send_error_json(HTTPStatus.NOT_FOUND, str(exc))
-            except OSError as exc:
-                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+            self._handle_save_doc_post()
             return
         if parsed.path == "/api/open-file":
             try:

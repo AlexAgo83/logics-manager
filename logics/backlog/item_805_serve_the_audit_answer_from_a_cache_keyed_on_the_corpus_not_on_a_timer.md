@@ -35,6 +35,13 @@
 - AC2: Editing a workflow document changes the next audit answer, with no wait beyond the recomputation itself.
 - AC3: Opening Insights and then Health computes the audit once, not twice.
 
+# Report
+- `/api/audit` is served from `LogicsViewerServer.cached_audit_payload`, keyed on a corpus signature: the number of workflow documents and the newest modification time across the workflow directories, read by `stat` rather than by parsing. The signature costs 6.4ms against the ~1s audit it guards.
+- Deliberately not the existing `status_component` time-to-live cache. A TTL is wrong in both directions here: it serves a stale verdict to an operator who has just edited a document, and it recomputes an unchanged corpus when a timer happens to lapse. What makes an audit stale is the corpus changing, so that is what is measured.
+- The lock is not held across the computation. Two concurrent first-requests may both compute; holding the lock would instead queue every consumer behind the first audit, which is a worse failure than a duplicated one.
+- Measured over HTTP on this repository's corpus: first audit 1.17s, next 12ms (about 95x), 0.95s again immediately after touching a document, then 12ms. Insights and Health share the same cached answer, so opening one after the other now computes once.
+- Left alone on purpose: lint (0.34s) and workflow health (0.12s), neither of which is a cost worth guarding.
+
 # AC Traceability
 - request-AC2 -> This backlog slice. Proof: AC1: A second request for the audit with the corpus unchanged returns without recomputing, measured over HTTP.
 - request-AC5 -> This backlog slice. Proof: AC2: Editing a workflow document changes the next audit answer, with no wait beyond the recomputation itself.

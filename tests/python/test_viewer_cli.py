@@ -4472,3 +4472,41 @@ def test_switching_project_stops_the_viewer_claiming_fleet_home(tmp_path: Path) 
         assert server.viewer_payload(fleet_home=bool(server.launch_fleet_home))["fleetHome"] is False
     finally:
         server.server_close()
+
+
+def test_audit_is_cached_until_the_corpus_changes(tmp_path: Path) -> None:
+    """item_805: Insights and Health both wait on the audit, and so does every refresh tick.
+
+    Measured over HTTP on this repository's corpus: 1.17s cold, 12ms on the next look, and
+    0.95s again after a document was touched. Deliberately not a time-to-live -- a TTL both
+    serves a stale verdict to an operator who has just edited a document and recomputes an
+    unchanged corpus when a timer lapses.
+    """
+    import time as _time
+
+    from logics_manager.viewer import corpus_signature
+
+    root = tmp_path / "project"
+    (root / "logics" / "request").mkdir(parents=True)
+    doc = root / "logics" / "request" / "req_001_one.md"
+    doc.write_text("## req_001_one - One\n> Status: Ready\n", encoding="utf-8")
+
+    server = create_viewer_server_or_skip(root)
+    try:
+        first = server.cached_audit_payload()
+        assert server.cached_audit_payload() is first, "an unchanged corpus was audited twice"
+
+        before = corpus_signature(root)
+        # A second document changes both halves of the signature; the sleep is only so the
+        # mtime is distinguishable on a filesystem with coarse timestamps.
+        _time.sleep(0.01)
+        (root / "logics" / "request" / "req_002_two.md").write_text(
+            "## req_002_two - Two\n> Status: Ready\n", encoding="utf-8"
+        )
+        assert corpus_signature(root) != before
+
+        second = server.cached_audit_payload()
+        assert second is not first, "an edited corpus returned the previous audit"
+        assert second["finding_count"] != first["finding_count"] or second != first
+    finally:
+        server.server_close()

@@ -39,7 +39,13 @@ from .insights import health_payload, status_payload
 from .lint import lint_payload
 from .path_utils import PathEscapesRoot, has_symlink_segment, relative_to_root
 from .release import load_release_context, release_reset_payload, release_status_payload
-from .sync import RUNBOOK_MATCH_LIMIT, list_active_runbooks_payload, match_runbooks_payload, update_workflow_indicators_payload
+from .sync import (
+    INDICATOR_TARGET_KINDS,
+    RUNBOOK_MATCH_LIMIT,
+    list_active_runbooks_payload,
+    match_runbooks_payload,
+    update_workflow_indicators_payload,
+)
 from .viewer_preferences import (
     fleet_roots,
     read_preferences as read_viewer_preferences,
@@ -268,6 +274,34 @@ def viewer_project_entry(repo_root: Path, *, active_root: Path | None = None) ->
         "hasLogics": has_logics,
         "message": "Logics corpus found." if has_logics else "No Logics corpus found.",
     }
+
+
+def corpus_signature(repo_root: Path) -> tuple[int, int]:
+    """How many workflow documents there are, and when the newest one changed.
+
+    item_805: the cheap question that decides whether a cached audit is still the answer.
+    Deliberately not a time-to-live: a TTL both serves a stale verdict to an operator who
+    has just edited a document and recomputes an unchanged corpus when a timer lapses.
+    What makes an audit stale is the corpus changing, so that is what is measured -- by
+    `stat`, not by reading, which is why it costs a fraction of the audit it guards.
+
+    A file edited twice within the same nanosecond timestamp *and* leaving the count
+    unchanged would be missed; that is not reachable at filesystem resolution.
+    """
+    count = 0
+    newest = 0
+    for kind in INDICATOR_TARGET_KINDS.values():
+        directory = repo_root / str(kind["directory"])
+        if not directory.is_dir():
+            continue
+        for path in directory.glob("*.md"):
+            try:
+                stat = path.stat()
+            except OSError:
+                continue
+            count += 1
+            newest = max(newest, stat.st_mtime_ns)
+    return (count, newest)
 
 
 def viewer_project_registry(repo_root: Path, *, project_roots: list[Path] | None = None) -> list[dict[str, Any]]:
@@ -1720,6 +1754,10 @@ class LogicsViewerServer(ThreadingHTTPServer):
         # do not each recompute the same component.
         self.status_components: dict[str, tuple[float, Any]] = {}
         self.status_cache_lock = threading.Lock()
+        #: item_805: the last audit per project, with the corpus signature it was computed
+        #: from. Insights and Health both wait on the audit, and the 15-second auto-refresh
+        #: asks again, so the same answer was computed three times over for one look.
+        self.audit_cache: dict[Path, tuple[tuple[int, int], dict[str, Any]]] = {}
         self.event_seq = 0
         super().__init__(server_address, LogicsViewerRequestHandler)
         if tls_context is not None:
@@ -1904,6 +1942,24 @@ class LogicsViewerServer(ThreadingHTTPServer):
         with self.status_cache_lock:
             self.status_components[key] = (time.monotonic(), value)
         return value
+
+    def cached_audit_payload(self) -> dict[str, Any]:
+        """The audit for the active project, recomputed only when the corpus has changed.
+
+        The lock is not held across the computation: an audit takes about a second on a
+        large corpus, and holding it there would queue every other consumer behind the
+        first one rather than merely letting two of them race to the same answer.
+        """
+        repo_root = self.repo_root
+        signature = corpus_signature(repo_root)
+        with self.status_cache_lock:
+            entry = self.audit_cache.get(repo_root)
+        if entry is not None and entry[0] == signature:
+            return entry[1]
+        payload = audit_payload(repo_root)
+        with self.status_cache_lock:
+            self.audit_cache[repo_root] = (signature, payload)
+        return payload
 
     def invalidate_status_components(self, names: set[str] | None = None) -> None:
         with self.status_cache_lock:
@@ -2791,7 +2847,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self._send_json({"ok": True, "payload": lint_payload(self.server.repo_root)})
             return
         if route == "/api/audit":
-            self._send_json({"ok": True, "payload": audit_payload(self.server.repo_root)})
+            self._send_json({"ok": True, "payload": self.server.cached_audit_payload()})
             return
         if route == "/api/health":
             # The health screen was built from lint and audit alone, so blocked

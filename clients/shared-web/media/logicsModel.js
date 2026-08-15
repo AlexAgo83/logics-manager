@@ -468,7 +468,13 @@
       });
     }
 
-    if (!isPrimaryFlowStage(item.stage) && insights.linkedWorkflow.length === 0) {
+    // Reported by the operator: a runbook was flagged as orphaned, and a runbook is not
+    // attached to anything by nature -- it is a procedure, not the framing of a piece of
+    // work. These three are the kinds that document a decision made for some work, which is
+    // the same set the server-side audit checks for a primary link; specs and runbooks are
+    // outside it there too.
+    const linkableCompanionStages = ["product", "roadmap", "architecture"];
+    if (linkableCompanionStages.indexOf(item.stage) !== -1 && insights.linkedWorkflow.length === 0) {
       reasons.push({
         key: "orphaned",
         label: "Orphaned",

@@ -4474,6 +4474,84 @@ def test_switching_project_stops_the_viewer_claiming_fleet_home(tmp_path: Path) 
         server.server_close()
 
 
+def test_a_report_is_computed_once_even_when_two_callers_race(tmp_path: Path) -> None:
+    """item_814: the warm-up runs off the request path, so a request can arrive mid-warm-up.
+
+    Without a per-report lock that request starts a second computation of the answer already
+    being built -- which is the cost the warm-up exists to avoid, paid twice.
+    """
+    import threading as _threading
+
+    root = tmp_path / "project"
+    (root / "logics" / "request").mkdir(parents=True)
+    (root / "logics" / "request" / "req_001_one.md").write_text(
+        "## req_001_one - One\n> Status: Ready\n", encoding="utf-8"
+    )
+
+    server = create_viewer_server_or_skip(root)
+    try:
+        calls: list[str] = []
+        started = _threading.Event()
+
+        def slow(_repo_root: Path) -> dict[str, object]:
+            calls.append("computed")
+            started.set()
+            time.sleep(0.2)
+            return {"value": len(calls)}
+
+        results: list[object] = []
+
+        def ask() -> None:
+            results.append(server.cached_report("slow", slow))
+
+        first = _threading.Thread(target=ask)
+        first.start()
+        assert started.wait(2), "the first computation never started"
+        second = _threading.Thread(target=ask)
+        second.start()
+        first.join(5)
+        second.join(5)
+
+        assert calls == ["computed"], f"the report was computed {len(calls)} times"
+        assert results[0] is results[1], "the second caller did not get the first answer"
+    finally:
+        server.server_close()
+
+
+def test_lint_and_health_are_cached_until_the_corpus_changes(tmp_path: Path) -> None:
+    """item_813: req_364 cached the audit alone, on a lint timing taken in a warm process.
+
+    Over HTTP against a freshly started viewer lint reads 4.18s cold and 0.97s warm -- the
+    dominant cost of both screens -- and the health report 0.69s / 0.39s. Neither was behind
+    the corpus signature the audit already used, and nothing about that mechanism was
+    specific to auditing.
+    """
+    import time as _time
+
+    root = tmp_path / "project"
+    (root / "logics" / "request").mkdir(parents=True)
+    (root / "logics" / "request" / "req_001_one.md").write_text(
+        "## req_001_one - One\n> Status: Ready\n", encoding="utf-8"
+    )
+
+    server = create_viewer_server_or_skip(root)
+    try:
+        lint_first = server.cached_lint_payload()
+        health_first = server.cached_health_payload()
+        assert server.cached_lint_payload() is lint_first, "an unchanged corpus was linted twice"
+        assert server.cached_health_payload() is health_first, "an unchanged corpus was checked twice"
+
+        _time.sleep(0.01)
+        (root / "logics" / "request" / "req_002_two.md").write_text(
+            "## req_002_two - Two\n> Status: Ready\n", encoding="utf-8"
+        )
+
+        assert server.cached_lint_payload() is not lint_first, "an edited corpus returned the previous lint"
+        assert server.cached_health_payload() is not health_first, "an edited corpus returned the previous report"
+    finally:
+        server.server_close()
+
+
 def test_audit_is_cached_until_the_corpus_changes(tmp_path: Path) -> None:
     """item_805: Insights and Health both wait on the audit, and so does every refresh tick.
 

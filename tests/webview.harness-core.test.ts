@@ -1219,4 +1219,29 @@ describe("webview harness core behaviors", () => {
     expect(panel).toContain("Link flow");
   });
 
+  it("does not call a runbook orphaned for not being attached to anything", () => {
+    // Reported by the operator once runbooks became documents: a runbook is a procedure,
+    // not the framing of a piece of work, so having no primary link is its normal state.
+    const runbook = {
+      ...productItem,
+      id: "run_001_recover_the_viewer",
+      title: "Recover the viewer",
+      stage: "runbook",
+      relPath: "logics/runbooks/run_001_recover_the_viewer.md",
+      path: "/workspace/mock/logics/runbooks/run_001_recover_the_viewer.md",
+      references: [],
+      usedBy: []
+    };
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, { root: "/workspace/mock", items: [runbook] });
+
+    const document = dom.window.document;
+    const card = document.querySelector('.card[data-id="run_001_recover_the_viewer"]');
+    expect(card).not.toBeNull();
+    expect(card?.classList.contains("card--health-alert")).toBe(false);
+
+    (card as HTMLElement | null)?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    expect(document.getElementById("details")?.textContent || "").not.toContain("Orphaned");
+  });
+
 });

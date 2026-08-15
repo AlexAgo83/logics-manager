@@ -1,14 +1,14 @@
 ## item_834_report_where_the_corpus_and_the_tracker_disagree - Report where the corpus and the tracker disagree
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Medium
 > Theme: Drift is reported, not remembered
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:29:34
+> Indicators reviewed: 2026-08-15 19:24:58
 
 # AI Context
 - Summary: Three questions answered in one report: issues with no request, Done requests whose issues are open, closed issues whose request is open.

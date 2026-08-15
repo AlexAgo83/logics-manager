@@ -1,14 +1,15 @@
 ## task_383_orchestrate_the_issue_bridge_work - Orchestrate the issue bridge work
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:05:08
+> Indicators reviewed: 2026-08-15 19:24:58
+> Owner: claude
 
 # AI Context
 - Summary: Sequences the bridge work: provenance answerable, then attach, then the report, then the closeout notice, then close the #20/#21 drift with what was built.

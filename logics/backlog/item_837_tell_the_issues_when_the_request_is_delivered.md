@@ -1,14 +1,14 @@
 ## item_837_tell_the_issues_when_the_request_is_delivered - Tell the issues when the request is delivered
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 10%
 > Complexity: Medium
 > Theme: Telling the tracker is part of finishing
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:29:34
+> Indicators reviewed: 2026-08-15 19:24:58
 
 # AI Context
 - Summary: Closeout states what would be posted and to which issues; posting happens only on an explicit action, never as a side effect.

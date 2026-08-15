@@ -6684,3 +6684,34 @@
   color: var(--vscode-descriptionForeground, #9da5b4);
   white-space: nowrap;
 }
+
+/* item_799: the themed replacement for the native `title` tooltip on icon-only buttons.
+   Placed by installViewerHints (browser-host/util.js) on `position: fixed`, so a scroll
+   container between the trigger and the viewport cannot clip it. */
+.viewer-hint {
+  position: fixed;
+  z-index: 200;
+  max-width: min(280px, calc(100vw - 24px));
+  padding: 4px 8px;
+  border: 1px solid var(--vscode-editorHoverWidget-border, var(--vscode-panel-border, #454545));
+  border-radius: 4px;
+  background: var(--vscode-editorHoverWidget-background, var(--vscode-editorWidget-background, #202020));
+  color: var(--vscode-editorHoverWidget-foreground, var(--vscode-foreground, #cccccc));
+  box-shadow: 0 6px 16px rgb(0 0 0 / 32%);
+  font-size: 11px;
+  line-height: 1.4;
+  /* The hint is a label, not a paragraph: it sits on one line beside a dense row. */
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.viewer-hint.is-visible {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .viewer-hint {
+    transition: opacity 90ms ease-out;
+  }
+}

@@ -21,6 +21,7 @@ import {
   cdxStateClass,
   closeCdxMenus,
   closeThemedModal,
+  installViewerHints,
   collectHealthFindings,
   copyTextToClipboard,
   countBy,
@@ -1025,7 +1026,7 @@ import {
       const preferenceId = projectPreferenceId(project);
       return `
         <div class="viewer-project-switcher__row${project.active ? " is-active" : ""}${favorite ? " is-favorite" : ""}" role="none">
-          <button class="viewer-project-switcher__favorite" type="button" aria-label="${favorite ? "Remove favorite" : "Add favorite"} ${escapeHtml(project.name || "project")}" aria-pressed="${favorite ? "true" : "false"}" data-viewer-project-favorite="${escapeHtml(preferenceId)}" title="${favorite ? "Remove favorite" : "Add favorite"}">
+          <button class="viewer-project-switcher__favorite" type="button" aria-label="${favorite ? "Remove favorite" : "Add favorite"} ${escapeHtml(project.name || "project")}" aria-pressed="${favorite ? "true" : "false"}" data-viewer-project-favorite="${escapeHtml(preferenceId)}" data-viewer-hint="${favorite ? "Remove favorite" : "Add favorite"}">
             <span aria-hidden="true">${favorite ? "★" : "☆"}</span>
           </button>
           <button class="viewer-project-switcher__item${project.active ? " is-active" : ""}" type="button" role="menuitem" data-viewer-project-id="${escapeHtml(project.id || "")}" title="${escapeHtml(project.root || project.name || "")}">
@@ -1063,7 +1064,7 @@ import {
         <span class="viewer-project-switcher__item-path">Discover immediate project folders</span>
       </button>
     ` : "";
-    const fleetRoots = latestFleetRoots.map((root) => `<div class="viewer-project-switcher__row" role="none"><span class="viewer-project-switcher__item"><span class="viewer-project-switcher__item-name">Fleet root</span><span class="viewer-project-switcher__item-path">${escapeHtml(root)}</span></span><button class="viewer-project-switcher__favorite" type="button" data-viewer-fleet-root-remove="${escapeHtml(root)}" aria-label="Remove fleet root" title="Remove fleet root">×</button></div>`).join("");
+    const fleetRoots = latestFleetRoots.map((root) => `<div class="viewer-project-switcher__row" role="none"><span class="viewer-project-switcher__item"><span class="viewer-project-switcher__item-name">Fleet root</span><span class="viewer-project-switcher__item-path">${escapeHtml(root)}</span></span><button class="viewer-project-switcher__favorite" type="button" data-viewer-fleet-root-remove="${escapeHtml(root)}" aria-label="Remove fleet root" data-viewer-hint="Remove fleet root">×</button></div>`).join("");
     menu.innerHTML = `${fleetHomeRow}${fleetRoots}${projectRows}${pickerRow}${fleetRootRow}`;
   }
 
@@ -1099,7 +1100,7 @@ import {
     return `
       <div class="viewer-fleet__row viewer-fleet__row--${escapeHtml(projectState.key)}" data-viewer-fleet-state="${escapeHtml(projectState.key)}">
         <span class="viewer-fleet__accent" aria-hidden="true"></span>
-        <button class="viewer-project-switcher__favorite viewer-fleet__favorite${favorite ? " is-on" : ""}" type="button" aria-label="${favorite ? "Remove favorite" : "Add favorite"} ${escapeHtml(project.name || "project")}" aria-pressed="${favorite ? "true" : "false"}" data-viewer-project-favorite="${escapeHtml(projectPreferenceId(project))}" title="${favorite ? "Remove favorite" : "Add favorite"}">
+        <button class="viewer-project-switcher__favorite viewer-fleet__favorite${favorite ? " is-on" : ""}" type="button" aria-label="${favorite ? "Remove favorite" : "Add favorite"} ${escapeHtml(project.name || "project")}" aria-pressed="${favorite ? "true" : "false"}" data-viewer-project-favorite="${escapeHtml(projectPreferenceId(project))}" data-viewer-hint="${favorite ? "Remove favorite" : "Add favorite"}">
           <span aria-hidden="true">${favorite ? "\u2605" : "\u2606"}</span>
         </button>
         <span class="viewer-fleet__identity">
@@ -1141,7 +1142,7 @@ import {
     const rootChips = latestFleetRoots.map((root) => `
       <span class="viewer-fleet__root-chip" title="${escapeHtml(root)}">
         <span>${escapeHtml(root.split(/[\\/]/).filter(Boolean).pop() || root)}</span>
-        <button type="button" data-viewer-fleet-root-remove="${escapeHtml(root)}" aria-label="Remove fleet root ${escapeHtml(root)}" title="Remove fleet root">&times;</button>
+        <button type="button" data-viewer-fleet-root-remove="${escapeHtml(root)}" aria-label="Remove fleet root ${escapeHtml(root)}" data-viewer-hint="Remove fleet root">&times;</button>
       </span>
     `).join("");
     const attention = all.filter(({ key }) => key === "issues" || key === "unreadable").length;
@@ -5028,6 +5029,7 @@ import {
         if (await fetchGitRemote()) await refreshCurrentScreen();
       });
     });
+    installViewerHints();
     startAutoRefresh();
   });
 })();

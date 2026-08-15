@@ -1,10 +1,10 @@
 ## item_799_fleet_project_switcher_icon_buttons_show_a_clashing_native_browser_tooltip - Fleet project switcher: icon buttons show a clashing native browser tooltip
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Viewer polish
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -59,6 +59,7 @@ Reported directly by the operator with a screenshot: hovering the "×" remove-fl
 - Hybrid rationale: Derived from request `req_361_fleet_project_switcher_icon_buttons_show_a_clashing_native_browser_tooltip` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_361_fleet_project_switcher_icon_buttons_show_a_clashing_native_browser_tooltip.md`.
 - Generated locally by logics-manager.
+- Task `task_370_fleet_project_switcher_icon_buttons_show_a_clashing_native_browser_tooltip` was finished via `logics-manager flow finish task` on 2026-08-15.
 
 # Tasks
 - `task_370_fleet_project_switcher_icon_buttons_show_a_clashing_native_browser_tooltip`

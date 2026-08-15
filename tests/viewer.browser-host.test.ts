@@ -1922,6 +1922,49 @@ describe("local viewer browser host", () => {
     expect(joined).toContain(".viewer-insights__summary");
   });
 
+  it("hints icon-only buttons with a themed bubble instead of the native title tooltip", async () => {
+    // item_799: the switcher's star and "x" carried their hint in `title`, so the browser
+    // drew it -- a differently-shaded rectangle placed over the row's path text. Driven
+    // through the real listener rather than asserted against the source, because what broke
+    // was the rendering, not the attribute.
+    const { dom } = createViewerDom();
+    dom.window.acquireVsCodeApi().postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const button = dom.window.document.createElement("button");
+    button.setAttribute("data-viewer-hint", "Remove fleet root");
+    button.setAttribute("aria-label", "Remove fleet root /tmp/roots");
+    dom.window.document.body.appendChild(button);
+
+    expect(dom.window.document.querySelector(".viewer-hint")).toBeNull();
+    button.dispatchEvent(new dom.window.Event("pointerover", { bubbles: true }));
+
+    const bubble = dom.window.document.querySelector(".viewer-hint") as HTMLElement | null;
+    expect(bubble?.textContent).toBe("Remove fleet root");
+    expect(bubble?.classList.contains("is-visible")).toBe(true);
+    // The bubble is decoration: the label a screen reader reads stays on the button (AC3).
+    expect(bubble?.getAttribute("aria-hidden")).toBe("true");
+    expect(button.getAttribute("aria-label")).toBe("Remove fleet root /tmp/roots");
+    expect(button.hasAttribute("title")).toBe(false);
+    // Appended to the body, which is what keeps the scrolling dropdown from clipping it.
+    expect(bubble?.parentElement).toBe(dom.window.document.body);
+
+    dom.window.document.body.dispatchEvent(new dom.window.Event("pointerover", { bubbles: true }));
+    expect(bubble?.classList.contains("is-visible")).toBe(false);
+  });
+
+  it("leaves no native title on the switcher's icon-only buttons", () => {
+    // The root cause was the attribute itself: one left behind is one button still drawing
+    // the browser's own tooltip next to three themed ones.
+    const host = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/index.js"), "utf8");
+    const iconButtons = host.split("\n").filter((line) => /data-viewer-project-favorite=|data-viewer-fleet-root-remove=/.test(line));
+    expect(iconButtons.length).toBe(4);
+    for (const line of iconButtons) {
+      expect(line).toContain("data-viewer-hint=");
+      expect(line).not.toMatch(/\stitle="/);
+    }
+  });
+
   it("leads the Corpus navigation and switcher with Getting Started", () => {
     // It is the one Corpus entry written for someone who does not yet know what Insights,
     // Health or Runbooks are, so it cannot be third. Both surfaces are checked: the menu

@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Viewer redesign follow-through
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 01:40:22
+> Indicators reviewed: 2026-08-15 03:22:45
 
 # AI Context
 - Summary: Several screens cap content to a fixed width instead of using available space — on a task/reader screen this pushes the side menu to the right instead of the left; on Getting Started it leaves a dead column on the right of every stage card.

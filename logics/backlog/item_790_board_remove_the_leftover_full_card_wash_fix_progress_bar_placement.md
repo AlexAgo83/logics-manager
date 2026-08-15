@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: Viewer redesign follow-through
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 02:13:53
+> Indicators reviewed: 2026-08-15 03:22:44
 
 # AI Context
 - Summary: `.card--used` still washes a promoted request card's whole body yellow, and the progress bar sits behind the footer row instead of under the title — both against the approved board mockup.

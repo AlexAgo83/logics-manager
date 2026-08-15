@@ -2,9 +2,9 @@
 > From version: 2.21.9
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 40%
+> Understanding: 95%
+> Confidence: 90%
+> Progress: 90%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -55,7 +55,7 @@
 - (no validation recorded yet)
 
 # Report
-- Not started.
+- All four backlog slices landed: item_839 (cache lifetimes floored at 1.5x the poll interval), item_840 (badge components warmed off the request path, same mechanism as req_366), item_841 (the /api/items 304 decided from corpus_signature instead of a rebuild), item_842 (re-measured: steady tick ~0.01s, was 3.1s; cold first poll 6.093s, was 9.07s; forced poll 4.833s, unchanged). File watcher stays closed (prod_104 non-goal): the items route no longer dominates the tick (0.009s of ~0.01s), so the condition that would reopen it -- the corpus rebuild dominating a measured tick -- does not hold.
 
 # Links
 - Request: `req_373_make_the_auto_refresh_cost_what_it_is_worth`

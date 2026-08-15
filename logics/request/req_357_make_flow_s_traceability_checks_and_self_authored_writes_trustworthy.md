@@ -58,4 +58,6 @@
 - Origin: `human`
 - External id: `#20`
 - External issue: https://github.com/AlexAgo83/logics-manager/issues/20
+- External id: `#21`
+- External issue: https://github.com/AlexAgo83/logics-manager/issues/21
 - Approval: required before implementation starts.

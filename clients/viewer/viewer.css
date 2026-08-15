@@ -4462,26 +4462,31 @@
   resize: vertical;
 }
 
+/* Same rhythm as .viewer-git/.viewer-cdx/.viewer-insights/.viewer-health: one grid,
+   14px between blocks, so this screen reads as part of the same app instead of a
+   bolted-on control. */
 .viewer-doc-editor {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  /* Without this, the two auto rows share the leftover height 100% frees up (grid's
+     default align-content stretches every row), and the actions row -- a flex
+     container with default stretch -- inflated the buttons along with it. The
+     textarea's row takes all of it; the actions row stays exactly button-sized. */
+  grid-template-rows: 1fr auto;
+  gap: 14px;
   height: 100%;
 }
 
-.viewer-doc-editor__path {
-  margin: 0;
-  color: var(--vscode-descriptionForeground, #999999);
-  font-family: var(--vscode-editor-font-family, ui-monospace, SFMono-Regular, Menlo, monospace);
-}
-
 .viewer-doc-editor__textarea {
-  flex: 1;
   min-height: 50vh;
   resize: vertical;
   font-family: var(--vscode-editor-font-family, ui-monospace, SFMono-Regular, Menlo, monospace);
-  white-space: pre;
-  padding: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  /* Soft-wrap long prose lines instead of forcing horizontal scroll for every one --
+     no character is inserted into the value, so the saved content is unaffected. */
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 12px;
   border: 1px solid var(--vscode-panel-border, #333333);
   border-radius: 6px;
   background: var(--vscode-editor-background, #1e1e1e);
@@ -4492,6 +4497,13 @@
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+}
+
+/* .viewer-document__content sets line-height: 1.55 for prose; .btn never resets it, so
+   nested here (unlike every other .btn, which sits outside that container or carries
+   .viewer-document__btn's own reset) it inflated to a noticeably taller button. */
+.viewer-doc-editor__actions .btn {
+  line-height: 1.2;
 }
 
 .viewer-git-commit__error {

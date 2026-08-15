@@ -327,7 +327,7 @@
   --stage-color-roadmap: #0ea5e9;
   --stage-color-architecture: #fb7185;
   --stage-color-spec: #22c55e;
-  --stage-color-runbook: #d1a24a;
+  --stage-color-runbook: #8db600;
 }
 
 /* Per-stage tint so the compact id prefix is distinguishable and decodable. */

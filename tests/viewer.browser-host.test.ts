@@ -2952,6 +2952,10 @@ describe("local viewer browser host", () => {
     expect(textarea).not.toBeNull();
     expect(textarea?.value).toContain("req_001_demo");
     expect(dom.window.document.querySelectorAll("[data-viewer-editor-action]").length).toBe(2);
+    // Same header shape the read view uses (item_761): a real title, and reference +
+    // status in the eyebrow, not the raw path repeated.
+    expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Edit Demo");
+    expect(dom.window.document.getElementById("viewer-document-eyebrow")?.textContent).toBe("R001 • Ready");
   });
 
   it("cancelling the in-viewer editor writes nothing and returns to the document view", async () => {

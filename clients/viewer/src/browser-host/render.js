@@ -722,10 +722,11 @@ export function renderGitSummarySegments(label, segments) {
 
 //: item_845: a plain editable text view, not a rich or WYSIWYG editor -- that is out of
 //: scope, upgrade if a bare textarea ever proves not enough.
-export function renderDocEditorScreen({ path, content }) {
+export function renderDocEditorScreen({ content }) {
+    // No path line here: the eyebrow above this screen already names the document, and
+    // repeating it inside the content was the same information twice on one screen.
     return `
       <div class="viewer-doc-editor">
-        <p class="viewer-doc-editor__path">${escapeHtml(path)}</p>
         <textarea class="viewer-doc-editor__textarea" spellcheck="false">${escapeHtml(content)}</textarea>
         <div class="viewer-doc-editor__actions">
           <button class="btn" type="button" data-viewer-editor-action="cancel">Cancel</button>

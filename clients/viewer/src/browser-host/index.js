@@ -3809,7 +3809,19 @@ import {
     const content = String(data.document?.content || "");
     const label = item.id || item.relPath;
     activeEditSession = { item, originalContent: content };
-    setDocument(`Edit ${label}`, renderDocEditorScreen({ path: item.relPath, content }), { eyebrow: item.relPath, item });
+    // Same header shape the read view uses (item_761): the title names the document,
+    // the eyebrow is reference + status, not the path -- that stays behind the copy
+    // control on the read view, which this screen does not show.
+    const panelTitle = String(item.title || "").trim() || item.relPath;
+    const reference = shortDocumentRef(item.id, item.stage) || String(item.id || "").trim();
+    const documentStatus = String(item.indicators?.Status || "").trim();
+    const eyebrowText = [reference, documentStatus].filter(Boolean).join(" • ") || item.relPath;
+    // ponytail: item is deliberately not passed here -- setDocument's reading layout
+    // (a headings-derived two-column grid) only makes sense for rendered markdown, and
+    // applying it to a bare textarea squeezed the whole editor into its narrow rail
+    // column. Passing no item also correctly hides the status/edit controls, which
+    // read against nothing while this screen is open.
+    setDocument(`Edit ${panelTitle}`, renderDocEditorScreen({ content }), { eyebrow: eyebrowText });
     setMeta(`Editing ${label}.`);
     window.setTimeout(() => {
       const textarea = documentContent()?.querySelector(".viewer-doc-editor__textarea");

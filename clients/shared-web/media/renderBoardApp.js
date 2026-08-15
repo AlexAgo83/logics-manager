@@ -1167,6 +1167,10 @@
     // would trade a clipped sixth column for an empty right half. The control is there for
     // an operator who wants the queue alone.
     let companionIndexOpen = true;
+    // item_818: the index collapsed as a whole but its categories did not, so a reader who
+    // wanted one scrolled past all of them. Session-scoped, like the index's own state --
+    // collapsed rather than open, so the default stays what it is today.
+    const collapsedCompanionStages = new Set();
 
     // Deliberately status, not progress. `isComplete` reads Progress >= 100 and is right
     // for the card's progress wash -- but requests carry no Progress indicator at all, so
@@ -1343,12 +1347,28 @@
         const group = document.createElement("div");
         group.className = "companion-index__group";
         group.dataset.stage = stage;
+        const stageOpen = !collapsedCompanionStages.has(stage);
         const heading = document.createElement("h3");
         heading.className = "companion-index__heading";
-        heading.textContent = `${getStageHeading(stage)} (${stageItems.length})`;
+        // The heading keeps its level for structure; the control inside it is the same
+        // affordance the index header uses, so the gesture the index teaches works here too.
+        const headingToggle = document.createElement("button");
+        headingToggle.type = "button";
+        headingToggle.className = "companion-index__heading-toggle";
+        headingToggle.setAttribute("aria-expanded", stageOpen ? "true" : "false");
+        headingToggle.setAttribute("aria-controls", `companion-index-group-${stage}`);
+        headingToggle.textContent = `${stageOpen ? "\u25be" : "\u25b8"} ${getStageHeading(stage)} (${stageItems.length})`;
+        headingToggle.addEventListener("click", () => {
+          if (stageOpen) collapsedCompanionStages.add(stage);
+          else collapsedCompanionStages.delete(stage);
+          render();
+        });
+        heading.appendChild(headingToggle);
         group.appendChild(heading);
         const list = document.createElement("div");
         list.className = "companion-index__list";
+        list.id = `companion-index-group-${stage}`;
+        list.hidden = !stageOpen;
         const slice = visibleSliceForGroup(`companion::${stage}`, stageItems);
         slice.items.forEach((item) => list.appendChild(createItemCard(item, true)));
         if (slice.truncated) {

@@ -994,3 +994,21 @@
     background: var(--vscode-editorWidget-background, #2a2d2e);
   }
 }
+
+/* item_818: the control is the heading -- it inherits the heading's type so collapsing a
+   category does not add a second visual element to the index. */
+.companion-index__heading-toggle {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.companion-index__heading-toggle:hover {
+  color: var(--vscode-foreground, #d4d4d4);
+}

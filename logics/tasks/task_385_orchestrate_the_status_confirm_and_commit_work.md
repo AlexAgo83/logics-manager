@@ -2,9 +2,9 @@
 > From version: 2.21.9
 > Schema version: 1.0
 > Status: In progress
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 95%
+> Confidence: 90%
+> Progress: 90%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -21,9 +21,9 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Show what a status change will do before it lands, in the same modal flow the status picker already uses.
-- [ ] 2. Offer to commit it right there, wired to the existing git-commit route, without blocking a declined commit from applying the status change.
-- [ ] 3. Verify the single-action gate still holds across the combined flow.
+- [x] 1. Show what a status change will do before it lands, in the same modal flow the status picker already uses.
+- [x] 2. Offer to commit it right there, wired to the existing git-commit route, without blocking a declined commit from applying the status change.
+- [x] 3. Verify the single-action gate still holds across the combined flow.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.

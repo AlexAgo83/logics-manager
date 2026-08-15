@@ -932,3 +932,65 @@
     text-align: left;
   }
 }
+
+/* item_816: the board's loading state. Drawn at the geometry the payload will arrive in --
+   same column width, same gap, same card metrics -- so the real content replaces it without
+   the layout jumping. */
+
+.board-skeleton {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  min-width: 0;
+}
+
+.board-skeleton__column {
+  flex: 0 0 var(--board-column-width);
+  width: var(--board-column-width);
+  background: var(--vscode-sideBar-background, #252526);
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 10px 12px 10px;
+}
+
+.board-skeleton__heading {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  opacity: 0.65;
+  padding-left: 2px;
+}
+
+.board-skeleton__card {
+  height: 64px;
+  border-radius: 6px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-left: 5px solid var(--vscode-panel-border, #333333);
+  background: linear-gradient(
+    100deg,
+    var(--vscode-editorWidget-background, #2a2d2e) 30%,
+    var(--vscode-list-hoverBackground, #3a3d41) 50%,
+    var(--vscode-editorWidget-background, #2a2d2e) 70%
+  );
+  background-size: 300% 100%;
+  animation: board-skeleton-sweep 1.8s linear infinite;
+  animation-delay: var(--skeleton-delay, 0ms);
+}
+
+@keyframes board-skeleton-sweep {
+  from { background-position: 150% 0; }
+  to { background-position: -150% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Removes the travel rather than slowing it: the flat tint still reads as "not yet a card". */
+  .board-skeleton__card {
+    animation: none;
+    background: var(--vscode-editorWidget-background, #2a2d2e);
+  }
+}

@@ -96,6 +96,7 @@
       hostApi,
       getItems,
       getTotalItemCount,
+      getHasPayload,
       getSelectedId,
       setSelectedId,
       isListMode,
@@ -624,6 +625,43 @@
           body.scrollTop = scrollTop;
         }
       });
+    }
+
+    /**
+     * What is coming, drawn at the size it will arrive in.
+     *
+     * item_816: a small indicator in a large blank says the same "working" a spinner says,
+     * and then the real content lands somewhere else and the layout jumps. Drawing the
+     * columns and rows the payload will fill costs nothing extra and keeps the arrival
+     * still. Deliberately not a count -- how many documents there are is exactly what is
+     * not known yet -- so the rows are a fixed few per column.
+     */
+    function createBoardSkeleton() {
+      const skeleton = document.createElement("div");
+      skeleton.className = "board-skeleton";
+      skeleton.setAttribute("role", "status");
+      skeleton.setAttribute("aria-label", "Loading this project's documents");
+      const stages = typeof getVisibleStages === "function" ? getVisibleStages() : [];
+      const columns = (stages.length ? stages : ["request", "backlog", "task"]).filter((stage) => isPrimaryFlowStage(stage));
+      columns.forEach((stage) => {
+        const column = document.createElement("div");
+        column.className = "board-skeleton__column";
+        column.dataset.stage = stage;
+        const heading = document.createElement("div");
+        heading.className = "board-skeleton__heading";
+        heading.textContent = getStageHeading(stage);
+        column.appendChild(heading);
+        for (let row = 0; row < 4; row += 1) {
+          const card = document.createElement("div");
+          card.className = "board-skeleton__card";
+          // Staggered so the shimmer reads as one sweep across the board rather than as
+          // every card pulsing in unison, which reads as a fault.
+          card.style.setProperty("--skeleton-delay", `${row * 90}ms`);
+          column.appendChild(card);
+        }
+        skeleton.appendChild(column);
+      });
+      return skeleton;
     }
 
     function getEmptyBoardMessage() {
@@ -1507,6 +1545,15 @@
       activeTaskColorMap = buildTaskColorMap(visibleItems);
       activeRequestColorMap = buildRequestColorMap(visibleItems);
       if (!visibleItems.length) {
+        // item_816: the empty state is an answer, and before the first payload there is no
+        // answer to give. This is the screen an operator reaches first and returns to most,
+        // so it was also the viewer's most-seen statement -- and the one place it asserted
+        // something false rather than saying it did not know yet.
+        const awaitingPayload = typeof getHasPayload === "function" && !getHasPayload();
+        if (awaitingPayload) {
+          board.appendChild(createBoardSkeleton());
+          return;
+        }
         const empty = document.createElement("div");
         empty.className = "state-message";
         empty.textContent = getEmptyBoardMessage();

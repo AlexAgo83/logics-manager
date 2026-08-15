@@ -825,6 +825,65 @@ describe("webview board renderer behavior", () => {
     expect(badge?.textContent).toContain("H");
   });
 
+  it("draws the loading skeleton before a payload and the empty state only after one", () => {
+    // item_816: the board used to state "no documents" while the first payload was still in
+    // flight, so arriving on a project asserted something it did not know.
+    const { dom } = bootstrapWebview();
+    const board = dom.window.document.getElementById("board");
+    const deps = (hasPayload: boolean) => ({
+      board,
+      hostApi: {},
+      getItems: () => [],
+      getTotalItemCount: () => 0,
+      getHasPayload: () => hasPayload,
+      getSelectedId: () => null,
+      setSelectedId: () => undefined,
+      isListMode: () => false,
+      getVisibleStages: () => ["request", "backlog", "task"],
+      groupByStage: () => ({}),
+      getListGroups: () => [],
+      isVisible: () => true,
+      isPrimaryFlowStage: () => true,
+      isRequestProcessed: () => false,
+      getStageHeading: (stage: string) => stage.toUpperCase(),
+      getStageLabel: (stage: string) => stage,
+      collectCompanionDocs: () => [],
+      collectSpecs: () => [],
+      collectPrimaryFlowItems: () => [],
+      getAttentionReasons: () => [],
+      getHealthSignals: () => [],
+      getSuggestedActions: () => [],
+      progressState: () => "",
+      getProgressValue: () => 0,
+      isComplete: () => false,
+      render: () => undefined,
+      openSelectedItem: () => undefined,
+      closeColumnMenu: () => undefined,
+      toggleColumnMenu: () => undefined,
+      persistState: () => undefined,
+      getCollapsedListStages: () => new Set<string>(),
+      getHideCompleted: () => false,
+      getHideProcessedRequests: () => false,
+      getHideSpec: () => false,
+      getShowCompanionDocs: () => true,
+      getHideEmptyColumns: () => false,
+      getSearchQuery: () => "",
+      getAttentionOnly: () => false
+    });
+
+    dom.window.createCdxLogicsBoardRenderer(deps(false)).renderBoard();
+    const skeleton = dom.window.document.querySelector(".board-skeleton");
+    expect(skeleton).not.toBeNull();
+    expect(skeleton?.getAttribute("role")).toBe("status");
+    expect(skeleton?.querySelectorAll(".board-skeleton__column").length).toBe(3);
+    expect(skeleton?.querySelectorAll(".board-skeleton__card").length).toBeGreaterThan(0);
+    expect(board?.querySelector(".state-message")).toBeNull();
+
+    dom.window.createCdxLogicsBoardRenderer(deps(true)).renderBoard();
+    expect(dom.window.document.querySelector(".board-skeleton")).toBeNull();
+    expect(board?.querySelector(".state-message")).not.toBeNull();
+  });
+
   it("renders task coverage dots for active tasks only in board and list views", () => {
     const { dom } = bootstrapWebview();
 

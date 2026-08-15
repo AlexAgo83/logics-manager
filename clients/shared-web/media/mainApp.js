@@ -80,6 +80,10 @@
   const filterStateVersion = 2;
 
   let items = [];
+  // item_816: "no payload yet" and "a payload that is empty" are different answers, and the
+  // board stated the second for both -- so arriving on a project asserted it held nothing at
+  // the moment nothing was known about it.
+  let hasPayload = false;
   let selectedId = null;
   let changedPaths = [];
   let activityEvents = [];
@@ -407,6 +411,7 @@
   const state = {};
   Object.defineProperties(state, {
     items: { get: () => items, set: (value) => { items = value; } },
+    hasPayload: { get: () => hasPayload, set: (value) => { hasPayload = Boolean(value); } },
     selectedId: { get: () => selectedId, set: (value) => { selectedId = value; } },
     changedPaths: { get: () => changedPaths, set: (value) => { changedPaths = value; } },
     activityEvents: { get: () => activityEvents, set: (value) => { activityEvents = value; } },
@@ -706,6 +711,7 @@
         hostApi,
         getItems: () => items,
         getTotalItemCount: () => items.length,
+        getHasPayload: () => hasPayload,
         getSelectedId: () => selectedId,
         setSelectedId(value) {
           selectedId = value;

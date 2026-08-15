@@ -2168,6 +2168,15 @@ describe("local viewer browser host", () => {
     // one value, since three would come to disagree.
     expect(host).toContain("LOADING_AFFORDANCE_DELAY_MS");
     expect(host).toMatch(/loadingSurfaces\(\)\.forEach\(\(node\) => node\.setAttribute\("data-loading"/);
+    // Reported by the operator as "the ring does not go round": that is what a lap looks
+    // like when the payload lands halfway through it and the comet is cut off mid-travel.
+    // Once shown, the affordance stays for at least one lap.
+    expect(host).toContain("LOADING_AFFORDANCE_LAP_MS");
+    expect(host).toMatch(/const remaining = LOADING_AFFORDANCE_LAP_MS - \(Date\.now\(\) - loadingAffordanceShownAt\)/);
+    // And the animation is declared only while loading: on the element itself a one-shot
+    // animation runs once when the element is created -- at page load -- and `forwards`
+    // then holds it at the end for ever, so it never played again.
+    expect(css).toMatch(/\.viewer-document__header\[data-loading\] \.viewer-document__ring::before \{[^}]*animation: viewer-loading-ring-spin/);
   });
 
   it("gives the phone header one menu button on the selector's row", () => {
@@ -2196,6 +2205,34 @@ describe("local viewer browser host", () => {
     // The sheet is the desktop navigation, presented differently -- not a second copy.
     expect(host).toContain("installTopbarMenu");
     expect(host).toMatch(/getElementById\("viewer-topbar-actions"\)/);
+  });
+
+  it("clips the topbar's loading sheen without clipping the menus that hang out of it", () => {
+    // Reported by the operator: the header's action menus went behind the rest of the
+    // screen. The sheen has to be clipped to the bar, and `overflow: hidden` on the bar
+    // itself also clips the navigation panels that hang below its bottom edge. req_360
+    // avoided exactly this on the document header -- "the header holds the Git actions
+    // menu" -- and item_809 then walked into it on the topbar. The clipping belongs on a
+    // dedicated child, which is what the ring already does.
+    const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
+    const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
+
+    const bar = css.match(/^\.viewer-topbar \{[^}]+\}/m)?.[0] || "";
+    expect(bar).toContain("position: relative");
+    expect(bar).not.toContain("overflow: hidden");
+
+    // Second report on the same change: lifting the bar's children with a z-index put them
+    // in stacking contexts capped at 1, so the menus hanging below it were painted under
+    // the toolbar. Positioned with `z-index: auto` creates no context, and the sheen being
+    // the first child is enough to put everything after it on top.
+    const children = css.match(/\.viewer-topbar > \* \{[^}]+\}/)?.[0] || "";
+    expect(children).toContain("position: relative");
+    expect(children).not.toMatch(/z-index/);
+
+    // The child that does the clipping, and the animation that needs it.
+    expect(html).toContain('<div class="viewer-topbar__sheen" aria-hidden="true">');
+    expect(css).toMatch(/\.viewer-topbar__sheen \{[^}]*overflow: hidden/);
+    expect(css).toMatch(/\.viewer-topbar\[data-loading\] \.viewer-topbar__sheen::after \{[^}]*animation: viewer-topbar-sheen/);
   });
 
   it("leads the Corpus navigation and switcher with Getting Started", () => {

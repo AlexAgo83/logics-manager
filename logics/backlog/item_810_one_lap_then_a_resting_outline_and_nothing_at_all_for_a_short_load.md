@@ -41,6 +41,12 @@
 - The timer re-reads the surfaces when it fires rather than closing over them: a screen change between the click and the threshold replaces the header it was about to light.
 - Measured live: at 120ms after a click neither surface is lit; at 520ms both are; the state clears about a second later; and a now-cached Insights load never lights anything at all while still opening the screen.
 
+# Follow-up
+- Reported by the operator: "the ring still does not go round". Two causes, both found by sampling the rotation over time rather than by reading the rule.
+  - Declared on the ring itself, a one-shot animation runs once when the element is created -- at page load, before any loading -- and `forwards` then holds it at its end state for ever. It never played again. Applied only while `data-loading` is set, it starts with the load and restarts on the next one.
+  - Once it ran, it was still cut off: Health warm answers in about 600ms and the lap is 1150ms, so the comet vanished half way round. A gesture that marks a beginning has to be allowed to finish or it reads as a fault. Once shown, the affordance now stays for at least one lap; a new load starting in the tail cancels it.
+- Measured after the fix by sampling the computed transform every 150ms: the rotation sweeps the full circle and lands on the identity matrix at 1200ms, then clears at 1350ms -- with the underlying load having finished well before.
+
 # AC Traceability
 - request-AC2 -> This backlog slice. Proof: AC1: The ring completes one lap and then holds a steady dimmed outline for the rest of the load.
 - request-AC3 -> This backlog slice. Proof: AC2: A load that resolves faster than the threshold shows no ring, no spinner and no sheen.

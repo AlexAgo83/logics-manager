@@ -1,14 +1,14 @@
 ## item_830_one_reader_for_where_the_viewer_is - One reader for where the viewer is
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: One answer, read by everything
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:29:33
+> Indicators reviewed: 2026-08-15 18:31:49
 
 # AI Context
 - Summary: One function answers whether a viewer is running for a repository and at what address; four surfaces read it instead of deriving it four times.
@@ -52,3 +52,9 @@
 # Priority
 - Priority: High
 - Rationale: Four surfaces deriving it separately is how they disagree
+
+# Tasks
+- `task_382_orchestrate_the_link_travels_with_the_document_work`
+
+# Notes
+- Task `task_382_orchestrate_the_link_travels_with_the_document_work` was finished via `logics-manager flow finish task` on 2026-08-15.

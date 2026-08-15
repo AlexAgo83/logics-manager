@@ -1,13 +1,13 @@
 ## req_371_put_the_viewer_link_where_every_assistant_already_looks - Put the viewer link where every assistant already looks
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:28:38
+> Indicators reviewed: 2026-08-15 18:31:48
 
 # AI Context
 - Summary: req_369 made the link writable and taught one assistant the habit. This makes it arrive with the document, for all of them.

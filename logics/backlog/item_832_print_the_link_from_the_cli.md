@@ -1,14 +1,14 @@
 ## item_832_print_the_link_from_the_cli - Print the link from the CLI
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 95%
 > Progress: 100%
 > Complexity: Low
 > Theme: The link arrives as data
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:29:34
+> Indicators reviewed: 2026-08-15 18:31:49
 
 # AI Context
 - Summary: `flow show` and the listing commands print where to open what they printed, for assistants that shell out instead of calling a tool.
@@ -54,3 +54,9 @@
 
 # Validation
 - flow show prints a `- link:` line using viewer_url_for_ref; sync list-docs and search-docs each print a single `- open with:` line using viewer_url_template, in the same place the listing already states its bounds. Both are silent (no line at all) when no viewer is running -- verified against the unchanged-output case, not just a null field. Covered by test_flow_show_prints_a_link_when_a_viewer_is_running and test_sync_list_and_search_docs_print_the_viewer_link_once, plus absence assertions added to the existing flow-show/list-docs tests. Full suite: 1405 passed.
+
+# Tasks
+- `task_382_orchestrate_the_link_travels_with_the_document_work`
+
+# Notes
+- Task `task_382_orchestrate_the_link_travels_with_the_document_work` was finished via `logics-manager flow finish task` on 2026-08-15.

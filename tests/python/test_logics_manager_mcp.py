@@ -207,6 +207,86 @@ def test_mcp_rejects_non_issue_url_for_github_provenance(tmp_path: Path) -> None
     assert exc.value.code == "invalid_argument_value"
 
 
+def test_mcp_attach_github_issue_writes_the_same_shape_intake_produces(tmp_path: Path) -> None:
+    """item_835 AC1: a request written before anyone thought about the issue gets the
+    same Provenance shape create_request already writes."""
+    repo_root = _repo(tmp_path)
+    created = call_tool(
+        "create_request",
+        {"title": "Written first", "needs": ["n"], "context": ["c"], "acceptance_criteria": ["a"]},
+        repo_root=repo_root,
+    )
+
+    attached = call_tool(
+        "attach_github_issue",
+        {"source": created["ref"], "issue_url": "https://github.com/acme/demo/issues/20"},
+        repo_root=repo_root,
+    )
+
+    assert attached["ok"] is True
+    text = (repo_root / created["path"]).read_text(encoding="utf-8")
+    assert "# Provenance" in text
+    assert "- Origin: `human`" in text
+    assert "- External id: `#20`" in text
+    assert "https://github.com/acme/demo/issues/20" in text
+    assert "Approval: required before implementation starts." in text
+
+
+def test_mcp_attach_github_issue_twice_keeps_both(tmp_path: Path) -> None:
+    """item_835 AC2: attaching a second issue to the same request keeps the first."""
+    repo_root = _repo(tmp_path)
+    created = call_tool(
+        "create_request",
+        {"title": "Two issues", "needs": ["n"], "context": ["c"], "acceptance_criteria": ["a"]},
+        repo_root=repo_root,
+    )
+
+    call_tool("attach_github_issue", {"source": created["ref"], "issue_url": "https://github.com/acme/demo/issues/20"}, repo_root=repo_root)
+    call_tool("attach_github_issue", {"source": created["ref"], "issue_url": "https://github.com/acme/demo/issues/21"}, repo_root=repo_root)
+
+    text = (repo_root / created["path"]).read_text(encoding="utf-8")
+    assert text.count("# Provenance") == 1
+    assert "https://github.com/acme/demo/issues/20" in text
+    assert "https://github.com/acme/demo/issues/21" in text
+    provenance_lines = [line for line in text.splitlines() if line.startswith("- ")]
+    approval_lines = [line for line in provenance_lines if "Approval:" in line]
+    assert len(approval_lines) == 1, "Approval must stay a single trailing line, not one per attach"
+
+
+def test_mcp_attach_github_issue_refuses_a_non_issue_url(tmp_path: Path) -> None:
+    """item_835 AC3: refused with the reason, the same rule create_request uses."""
+    repo_root = _repo(tmp_path)
+    created = call_tool(
+        "create_request",
+        {"title": "Bad attach", "needs": ["n"], "context": ["c"], "acceptance_criteria": ["a"]},
+        repo_root=repo_root,
+    )
+
+    with pytest.raises(McpToolError) as exc:
+        call_tool("attach_github_issue", {"source": created["ref"], "issue_url": "https://example.com/not-an-issue"}, repo_root=repo_root)
+
+    assert exc.value.code == "invalid_argument_value"
+
+
+def test_mcp_attach_github_issue_dry_run_writes_nothing(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    created = call_tool(
+        "create_request",
+        {"title": "Dry attach", "needs": ["n"], "context": ["c"], "acceptance_criteria": ["a"]},
+        repo_root=repo_root,
+    )
+    before = (repo_root / created["path"]).read_text(encoding="utf-8")
+
+    result = call_tool(
+        "attach_github_issue",
+        {"source": created["ref"], "issue_url": "https://github.com/acme/demo/issues/20", "dry_run": True},
+        repo_root=repo_root,
+    )
+
+    assert result["dry_run"] is True
+    assert (repo_root / created["path"]).read_text(encoding="utf-8") == before
+
+
 def test_mcp_command_errors_scrub_raw_output_details(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     repo_root = _repo(tmp_path)
 

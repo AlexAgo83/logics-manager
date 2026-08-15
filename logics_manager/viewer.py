@@ -2028,7 +2028,10 @@ class LogicsViewerServer(ThreadingHTTPServer):
 
     def _run_tunnel_doctor(self, command: list[str]) -> tuple[int, str]:
         try:
-            completed = subprocess.run(command, cwd=self.repo_root, capture_output=True, text=True, timeout=30, check=False)
+            # Same environment the connector itself will run under, or doctor would
+            # check a different machine's profile than the one we are about to use.
+            environment = mcp_tunnel.child_environment(mcp_tunnel.tunnel_settings())
+            completed = subprocess.run(command, cwd=self.repo_root, capture_output=True, text=True, timeout=30, check=False, env=environment)
         except (OSError, subprocess.SubprocessError) as exc:
             return 2, str(exc)
         return completed.returncode, f"{completed.stdout}\n{completed.stderr}"
@@ -2067,7 +2070,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
             return {"ok": False, "message": mcp_tunnel.explain(mcp_tunnel.REASON_BINARY_MISSING, settings)}
         command = mcp_tunnel.build_init_command(settings["profile"], tunnel_id, self.repo_root)
         try:
-            completed = subprocess.run(command, cwd=self.repo_root, capture_output=True, text=True, timeout=120, check=False)
+            completed = subprocess.run(command, cwd=self.repo_root, capture_output=True, text=True, timeout=120, check=False, env=mcp_tunnel.child_environment(settings))
         except (OSError, subprocess.SubprocessError) as exc:
             return {"ok": False, "message": str(exc)}
         if completed.returncode != 0:

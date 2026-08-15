@@ -50,6 +50,22 @@ def test_environment_beats_the_file_and_the_file_is_owner_only(tmp_path: Path) -
     assert overridden["api_key"] == "env-key"
 
 
+def test_the_config_lives_in_the_account_home_not_the_sessions(tmp_path: Path, monkeypatch) -> None:
+    """One connector per machine: a sandboxed session must not get its own key file.
+
+    Reported by the operator 2026-08-16 -- run from a CDX session, the screen named a
+    path inside the session profile, so the key saved there would be invisible to
+    every other session on the same machine.
+    """
+    monkeypatch.setenv("HOME", str(tmp_path / "session-profile"))
+    monkeypatch.delenv(mcp_tunnel.CONFIG_ENV_VAR, raising=False)
+    resolved = mcp_tunnel.config_path({})
+    assert "session-profile" not in resolved.as_posix()
+    assert resolved == mcp_tunnel.machine_home() / ".config" / "logics-manager" / "tunnel.env"
+    # The explicit override still wins, for tests and for anyone who means it.
+    assert mcp_tunnel.config_path({mcp_tunnel.CONFIG_ENV_VAR: str(tmp_path / "x.env")}) == tmp_path / "x.env"
+
+
 def test_each_missing_prerequisite_reports_its_own_cause(tmp_path: Path) -> None:
     """AC3: a missing binary, a missing profile and a missing key are three outcomes."""
     settings = _settings(tmp_path)

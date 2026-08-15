@@ -54,13 +54,30 @@ _PROFILE_CHECKS = ("profile", "tunnel_id", "mcp_command", "config")
 _API_KEY_CHECKS = ("control_plane_api_key", "api_key")
 
 
+def machine_home() -> Path:
+    """The account's real home, not whatever `$HOME` currently points at.
+
+    One connector serves every project on the machine, so its credentials belong to
+    the operator's account -- not to a session. `Path.home()` reads `$HOME`, and a
+    sandboxed session (a CDX profile, a container, a service unit) moves it: the key
+    would land in that profile, and the next session would be told it has no key.
+    The passwd entry is the account, whoever moved the variable.
+    """
+    try:
+        import pwd  # POSIX only; Windows has no passwd database to consult.
+
+        return Path(pwd.getpwuid(os.getuid()).pw_dir)
+    except (ImportError, KeyError, AttributeError):
+        return Path.home()
+
+
 def config_path(env: Mapping[str, str] | None = None) -> Path:
     """Where the machine's tunnel credentials live."""
     environ = os.environ if env is None else env
     override = environ.get(CONFIG_ENV_VAR)
     if override:
         return Path(override).expanduser()
-    return Path.home() / ".config" / "logics-manager" / "tunnel.env"
+    return machine_home() / ".config" / "logics-manager" / "tunnel.env"
 
 
 def ensure_config_file(path: Path) -> Path:
@@ -102,8 +119,15 @@ def tunnel_settings(env: Mapping[str, str] | None = None) -> dict[str, Any]:
 
 
 def child_environment(settings: Mapping[str, Any], env: Mapping[str, str] | None = None) -> dict[str, str]:
-    """The environment `tunnel-client` runs under, with the key passed through."""
+    """The environment `tunnel-client` runs under, with the key passed through.
+
+    `HOME` is pinned to the account's home for the same reason our own config is
+    (`machine_home`): tunnel-client keeps its profile under `$HOME/.config/tunnel-client`,
+    so a viewer started from a sandboxed session would create the profile inside that
+    session and lose it -- one machine, one profile, whoever started the viewer.
+    """
     environ = dict(os.environ if env is None else env)
+    environ["HOME"] = machine_home().as_posix()
     api_key = str(settings.get("api_key") or "")
     if api_key:
         environ[API_KEY_ENV_VAR] = api_key
@@ -187,7 +211,8 @@ def is_rejected_key(line: str) -> bool:
     return bool(_REJECTED_KEY.search(line))
 
 
-TUNNEL_CONSOLE_URL = "https://platform.openai.com/settings/organization/mcp-tunnels"
+# The URL `tunnel-client doctor` itself prints as tunnels_management_url.
+TUNNEL_CONSOLE_URL = "https://platform.openai.com/settings/organization/tunnels"
 
 
 def write_api_key(path: Path, api_key: str) -> Path:

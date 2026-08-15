@@ -1,10 +1,10 @@
 ## item_839_stop_paying_for_a_cache_that_can_never_hit - Stop paying for a cache that can never hit
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 40%
 > Complexity: Low
 > Theme: A lifetime that matches its poll
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

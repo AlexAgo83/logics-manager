@@ -1639,6 +1639,24 @@ VIEWER_EVENT_DUTY_DIVISOR = 10
 VIEWER_EVENT_REMOTE_POLL_SECONDS = 5.0
 
 
+#: item_842: the tick re-measured over HTTP against this repo's own corpus, after
+#: item_839/840/841, the same way the 3.1s baseline (req_373) was taken. Add a
+#: component's cost here too, so the next one is compared against this instead of
+#: rediscovered by hand.
+#:
+#: Steady state, tab visible, nothing changed since the last poll:
+#:   /api/status (git, ci, releaseRuns, cdx, cdxRuns -- all cache hits): 0.001s
+#:   /api/items (304, corpus_signature match):                          0.009s
+#:   total per 15s tick:                                                ~0.01s, was 3.1s
+#: First poll after a viewer start (racing the background warm-up):
+#:   /api/status: 6.093s, down from 9.07s -- not zero, because the warm-up pays for
+#:   Insights/Health's corpus reports first and this corpus's audit/lint/health take
+#:   seconds; a poll landing before they finish still waits on them.
+#: Forced (`Cache-Control: no-store`, an operator opening a screen): 4.833s -- deliberately
+#:   unchanged; item_839 kept this contract so a forced refresh is never stale.
+#: GitHub call pattern: unchanged in what is called and how often -- none of item_839,
+#: 840 or 841 touch `ci_status_payload`, `release_status_payload`, or their call sites,
+#: only the lifetimes and warm-up around them.
 def _status_cache_ttl_seconds(name: str, *, poll_seconds: float = 0.0) -> float:
     """How long an answer stays good, never less than the poll that consumes it.
 

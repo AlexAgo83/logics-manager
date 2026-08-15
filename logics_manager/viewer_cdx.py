@@ -62,6 +62,13 @@ CDX_WRITABLE_MISSION_MIN_TIMEOUT_SECONDS = 600
 
 
 CDX_UPDATE_CHECK_INTERVAL_SECONDS = 24 * 60 * 60
+#: item_841: how long a *failed* check is remembered. Only the successful answers were
+#: cached, so on a machine where `cdx update --check --json` exits non-zero -- no network,
+#: a rate limit, a tool mid-upgrade -- every payload build spawned it again. Measured at
+#: 0.159s a call inside a payload the viewer rebuilds on every poll, about 240 times an
+#: hour. Much shorter than a success: a failure is usually the network, and item_743 was
+#: about a cached answer outliving its truth.
+CDX_UPDATE_CHECK_FAILURE_INTERVAL_SECONDS = 60
 
 
 CDX_MISSION_CATALOG = {
@@ -279,16 +286,21 @@ def cdx_update_info_payload(repo_root: Path, *, runner: Any | None = None, which
     cached = _CDX_UPDATE_INFO_CACHE.get(cache_key)
     if cached and cached[0] > now:
         return dict(cached[1])
+    def remember_failure() -> dict[str, Any]:
+        # A check that could not answer is still an answer about the next minute.
+        _CDX_UPDATE_INFO_CACHE[cache_key] = (now + CDX_UPDATE_CHECK_FAILURE_INTERVAL_SECONDS, {})
+        return {}
+
     try:
         result = _run_read_only_cdx(repo_root, ["update", "--check", "--json"], runner=runner)
     except (OSError, subprocess.SubprocessError, subprocess.TimeoutExpired):
-        return {}
+        return remember_failure()
     if result.returncode != 0:
-        return {}
+        return remember_failure()
     try:
         parsed = json.loads(result.stdout or "{}")
     except json.JSONDecodeError:
-        return {}
+        return remember_failure()
     if not isinstance(parsed, dict) or parsed.get("update_available") is not True:
         _CDX_UPDATE_INFO_CACHE[cache_key] = (now + CDX_UPDATE_CHECK_INTERVAL_SECONDS, {})
         return {}

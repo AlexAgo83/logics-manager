@@ -642,6 +642,40 @@ describe("webview harness filters, details, and docs", () => {
     ).toBe(true);
   });
 
+  it("collapses one reference category without touching the others", () => {
+    // item_818: the index collapsed as a whole but its categories did not, so a reader who
+    // wanted one scrolled past all of them.
+    const { dom } = bootstrapWebview({ harness: true });
+    pushData(dom, {
+      root: "/workspace/mock",
+      items: [baseItem, productItem, architectureItem]
+    });
+
+    const document = dom.window.document;
+    const groupList = (stage: string) =>
+      document.querySelector(`.companion-index__group[data-stage="${stage}"] .companion-index__list`) as HTMLElement | null;
+    const groupToggle = (stage: string) =>
+      document.querySelector(
+        `.companion-index__group[data-stage="${stage}"] .companion-index__heading-toggle`
+      ) as HTMLButtonElement | null;
+
+    expect(groupToggle("product")?.getAttribute("aria-expanded")).toBe("true");
+    expect(groupList("product")?.hidden).toBe(false);
+
+    groupToggle("product")?.click();
+
+    expect(groupToggle("product")?.getAttribute("aria-expanded")).toBe("false");
+    expect(groupList("product")?.hidden).toBe(true);
+    // The neighbour is untouched: this is the whole point of the change.
+    expect(groupToggle("architecture")?.getAttribute("aria-expanded")).toBe("true");
+    expect(groupList("architecture")?.hidden).toBe(false);
+    // AC2: the state is read from the collapsed set on every render, so it survives one.
+    expect(groupToggle("product")?.getAttribute("aria-controls")).toBe("companion-index-group-product");
+
+    groupToggle("product")?.click();
+    expect(groupList("product")?.hidden).toBe(false);
+  });
+
   it("shows companion docs by default and can hide them with the toggle", () => {
     const { dom, persistedStates } = bootstrapWebview({ harness: true });
     pushData(dom, {

@@ -688,8 +688,14 @@ import {
     if (nodes.banner instanceof HTMLElement) nodes.banner.hidden = true;
   }
 
-  function withPrimaryAction(actionKey, label, action) {
-    if (primaryActionBusyKey) {
+  function withPrimaryAction(actionKey, label, action, options = {}) {
+    // Refusing a second action while one runs is right for a mutation -- two writes racing
+    // is worse than one refused. It is wrong for navigation: opening another screen *is*
+    // superseding the one that is loading, and refusing it dropped the click with no trace.
+    // The refusal is announced through setMeta, which the running action then overwrites
+    // with its own "loaded" line, so the operator was left on the old screen being told the
+    // old screen had loaded. Reported as "Runbooks takes a long time": it was never opened.
+    if (primaryActionBusyKey && !options.supersede) {
       setMeta("Action unavailable while another viewer action is running.");
       return Promise.resolve(false);
     }
@@ -2434,7 +2440,11 @@ import {
   // the first one's listener marking headings that are no longer on the screen.
   let detachReadingPosition = null;
 
+  //: The loading panel's elapsed counter, cleared whenever a document replaces it.
+  let screenLoadingTimer = null;
+
   function setDocument(titleText, html, options = {}) {
+    stopScreenLoadingTimer();
     invalidatePendingViews();
     cdxState.cdxCloseTarget = null;
     const screenId = documentScreenId(titleText);
@@ -3393,15 +3403,27 @@ import {
     const elapsed = document.querySelector("[data-viewer-screen-loading-elapsed]");
     if (!(elapsed instanceof HTMLElement)) return;
     const startedAt = Date.now();
-    const timer = window.setInterval(() => {
-      // The node leaves the DOM when the real screen replaces it, which is also the signal
-      // to stop: no separate teardown to forget at one of the call sites.
+    // Stopped by `setDocument`, which is what replaces this panel -- rather than by the
+    // node noticing it has been detached. A screen whose load never resolves keeps its
+    // panel mounted, so a self-detaching check would leave the timer running for ever;
+    // that is what a leaked interval past the end of a test was pointing at.
+    screenLoadingTimer = window.setInterval(() => {
+      // Two stops, for two different ways the panel can go. `setDocument` covers the normal
+      // one -- the screen finished and replaced it. This covers the panel being detached
+      // without that call, which is any teardown of the page around it; without it a timer
+      // outlives the window it draws into and throws into an empty document.
       if (!elapsed.isConnected) {
-        window.clearInterval(timer);
+        stopScreenLoadingTimer();
         return;
       }
       elapsed.textContent = `${((Date.now() - startedAt) / 1000).toFixed(1)}s`;
     }, 100);
+  }
+
+  function stopScreenLoadingTimer() {
+    if (screenLoadingTimer === null) return;
+    window.clearInterval(screenLoadingTimer);
+    screenLoadingTimer = null;
   }
 
   async function showCorpusInsights(options = {}) {
@@ -4432,40 +4454,40 @@ import {
         // Collapse the menu once a sub-section is chosen.
         closeNavMenus();
         if (screen === "project") {
-          withPrimaryAction(`project-${section}`, `Opening project ${section}`, () => openProjectTool(section === "theme" ? "theme" : "i18n", { beginView, isViewStale, setDocument, setMeta }));
+          withPrimaryAction(`project-${section}`, `Opening project ${section}`, () => openProjectTool(section === "theme" ? "theme" : "i18n", { beginView, isViewStale, setDocument, setMeta }), { supersede: true });
         } else if (screen === "workshop") {
-          withPrimaryAction("workshop-nav", `Opening Workshop ${section}`, () => showWorkshop({ tab: section }));
+          withPrimaryAction("workshop-nav", `Opening Workshop ${section}`, () => showWorkshop({ tab: section }), { supersede: true });
         } else if (screen === "remote") {
           if (section === "release") {
-            withPrimaryAction("remote-release", "Checking release workflow", showReleaseStatus);
+            withPrimaryAction("remote-release", "Checking release workflow", showReleaseStatus, { supersede: true });
           } else if (section === "runs") {
-            withPrimaryAction("remote-runs", "Checking CI status", showCiStatus);
+            withPrimaryAction("remote-runs", "Checking CI status", showCiStatus, { supersede: true });
           } else {
-            withPrimaryAction("remote-git", "Checking Git status", () => showGitStatus());
+            withPrimaryAction("remote-git", "Checking Git status", () => showGitStatus(), { supersede: true });
           }
         } else if (screen === "corpus") {
           if (section === "health") {
-            withPrimaryAction("corpus-health", "Checking health", showHealth);
+            withPrimaryAction("corpus-health", "Checking health", showHealth, { supersede: true });
           } else if (section === "getting-started") {
             showGettingStarted();
           } else if (section === "runbooks") {
-            withPrimaryAction("corpus-runbooks", "Loading runbooks", showCorpusRunbooks);
+            withPrimaryAction("corpus-runbooks", "Loading runbooks", showCorpusRunbooks, { supersede: true });
           } else {
-            withPrimaryAction("corpus-insights", "Loading insights", showCorpusInsights);
+            withPrimaryAction("corpus-insights", "Loading insights", showCorpusInsights, { supersede: true });
           }
         } else if (screen === "cdx") {
           if (section === "runs") {
-            withPrimaryAction("cdx-runs", "Loading CDX reports", showCdxRuns);
+            withPrimaryAction("cdx-runs", "Loading CDX reports", showCdxRuns, { supersede: true });
           } else if (section === "missions") {
-            withPrimaryAction("cdx-missions", "Loading CDX missions", showCdxMissions);
+            withPrimaryAction("cdx-missions", "Loading CDX missions", showCdxMissions, { supersede: true });
           } else if (section === "history") {
-            withPrimaryAction("cdx-history", "Loading CDX history", showCdxHistory);
+            withPrimaryAction("cdx-history", "Loading CDX history", showCdxHistory, { supersede: true });
           } else if (section === "memory") {
-            withPrimaryAction("cdx-memory", "Loading CDX memory", showCdxMemory);
+            withPrimaryAction("cdx-memory", "Loading CDX memory", showCdxMemory, { supersede: true });
           } else if (section === "disk") {
-            withPrimaryAction("cdx-disk", "Loading CDX disk usage", showCdxDisk);
+            withPrimaryAction("cdx-disk", "Loading CDX disk usage", showCdxDisk, { supersede: true });
           } else {
-            withPrimaryAction("cdx", "Checking CDX status", showCdxStatus);
+            withPrimaryAction("cdx", "Checking CDX status", showCdxStatus, { supersede: true });
           }
         }
         return;
@@ -4552,13 +4574,13 @@ import {
       if (corpusModeTarget instanceof HTMLElement) {
         const mode = corpusModeTarget.getAttribute("data-viewer-corpus-mode") || "insights";
         if (mode === "health") {
-          withPrimaryAction("corpus-health", "Checking health", showHealth);
+          withPrimaryAction("corpus-health", "Checking health", showHealth, { supersede: true });
         } else if (mode === "getting-started") {
           showGettingStarted();
         } else if (mode === "runbooks") {
-          withPrimaryAction("corpus-runbooks", "Loading runbooks", showCorpusRunbooks);
+          withPrimaryAction("corpus-runbooks", "Loading runbooks", showCorpusRunbooks, { supersede: true });
         } else {
-          withPrimaryAction("corpus-insights", "Loading insights", showCorpusInsights);
+          withPrimaryAction("corpus-insights", "Loading insights", showCorpusInsights, { supersede: true });
         }
         return;
       }

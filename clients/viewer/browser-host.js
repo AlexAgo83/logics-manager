@@ -10105,17 +10105,27 @@ ${line}` : line;
       const normalized = String(relPath || "").replace(/\\/g, "/").replace(/^\//, "");
       return latestItems.find((entry) => entry.relPath === normalized || entry.path === normalized) || null;
     }
+    const SHORT_DOCUMENT_ID = /^[a-z]+_\d+$/i;
     function findFocusItem(target) {
       const normalized = normalizeFocusTarget(target);
       if (!normalized) {
         return null;
       }
       const bare = normalized.endsWith(".md") ? normalized.slice(0, -3).split("/").pop() : normalized;
-      return latestItems.find((entry) => {
+      const exact = latestItems.find((entry) => {
         const relPath = String(entry.relPath || "").replace(/\\/g, "/");
         const fullPath = String(entry.path || "").replace(/\\/g, "/");
         return entry.id === normalized || entry.id === bare || entry.filename === normalized || relPath === normalized || fullPath.endsWith(`/${normalized}`);
-      }) || null;
+      });
+      if (exact) {
+        return exact;
+      }
+      if (!SHORT_DOCUMENT_ID.test(bare)) {
+        return null;
+      }
+      const prefix = `${bare.toLowerCase()}_`;
+      const matches = latestItems.filter((entry) => String(entry.id || "").toLowerCase().startsWith(prefix));
+      return matches.length === 1 ? matches[0] : null;
     }
     function persistSelectedItem(id) {
       const storedState = readStoredState();

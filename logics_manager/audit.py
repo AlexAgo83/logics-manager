@@ -151,6 +151,11 @@ class DocMeta:
     #: ponytail: a memo, not an index -- the (item x task) sweep in `_linked_tasks_for_item`
     #: is still quadratic. Invert it into a task->backlog map if corpora get much larger.
     declared_refs_memo: dict[str, frozenset[str]] = field(default_factory=dict, compare=False, repr=False)
+    #: item_808: the same memo one level up. `_prose_only_refs` scans the document's whole
+    #: text once per target kind, and is asked for several kinds per document -- 8127 calls
+    #: to `_extract_refs` per audit, for 0.38s. Keyed by prefix, on the same per-run
+    #: instance, so it cannot outlive the read of the file it describes.
+    prose_refs_memo: dict[str, frozenset[str]] = field(default_factory=dict, compare=False, repr=False)
 
 
 @dataclass(frozen=True)
@@ -474,7 +479,12 @@ def _prose_only_refs(doc: DocMeta, target_kind: str, docs: dict[str, DocMeta]) -
     """
     if (doc.kind.kind, target_kind) not in DECLARED_LINK_SECTIONS:
         return set()
-    mentioned = _extract_refs(doc.text, DOC_KIND_OBJECTS[target_kind].prefix)
+    prefix = DOC_KIND_OBJECTS[target_kind].prefix
+    memo = doc.prose_refs_memo.get(prefix)
+    if memo is None:
+        memo = frozenset(_extract_refs(doc.text, prefix))
+        doc.prose_refs_memo[prefix] = memo
+    mentioned = set(memo)
     return {
         ref
         for ref in mentioned - _declared_refs(doc, target_kind)

@@ -53,3 +53,9 @@
 # Backlog
 - `item_784_validate_traceability_proof_content_and_fix_the_runtime_drift_false_positive`
 - `item_785_stop_flow_s_own_writes_from_tripping_its_own_checks`
+
+# Provenance
+- Origin: `human`
+- External id: `#20`
+- External issue: https://github.com/AlexAgo83/logics-manager/issues/20
+- Approval: required before implementation starts.

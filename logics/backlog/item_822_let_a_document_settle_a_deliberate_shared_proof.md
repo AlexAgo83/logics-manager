@@ -1,19 +1,19 @@
 ## item_822_let_a_document_settle_a_deliberate_shared_proof - Let a document settle a deliberate shared proof
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Confirm once
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
 
 # AI Context
-- Summary: (unfilled: replace before this doc is used)
-- Keywords: let, document, settle, deliberate, shared, proof
-- Use when: (unfilled: replace before this doc is used)
-- Skip when: (unfilled: replace before this doc is used)
+- Summary: `> Shared proof: AC1, AC2` records that a shared proof is deliberate, settling that group and nothing else.
+- Keywords: shared proof declaration, indicator marker, audit noise
+- Use when: Adding or reading the declaration, or wondering why a group stopped being reported.
+- Skip when: Looking for a way to disable the check for a document or the corpus -- there is none, on purpose.
 
 # Problem
 - The check asks a human to confirm, and offers no way to record the answer, so the same confirmation is asked on every audit for ever.
@@ -50,3 +50,6 @@
 # Priority
 - Priority: High - without it the remaining findings are still never actioned
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_379_orchestrate_the_audit_signal_work` was finished via `logics-manager flow finish task` on 2026-08-15.

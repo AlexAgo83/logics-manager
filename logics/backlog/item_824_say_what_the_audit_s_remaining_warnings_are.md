@@ -1,19 +1,19 @@
 ## item_824_say_what_the_audit_s_remaining_warnings_are - Say what the audit's remaining warnings are
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: A count that means something
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
 
 # AI Context
-- Summary: (unfilled: replace before this doc is used)
-- Keywords: say, audit, remaining, warnings
-- Use when: (unfilled: replace before this doc is used)
-- Skip when: (unfilled: replace before this doc is used)
+- Summary: Records what the audit's warnings are made of, and scopes the duplicate-proof check to open documents -- all 127 findings were on Done ones.
+- Keywords: audit breakdown, open documents only, closed is history
+- Use when: Asking whether this corpus is clean, or why a check reports nothing on a Done document.
+- Skip when: Changing what any check looks for.
 
 # Problem
 - With 437 of 437 warnings coming from one check, the summary line's count says nothing about the corpus, and no one can tell whether the number moving is good or bad.
@@ -50,3 +50,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_379_orchestrate_the_audit_signal_work` was finished via `logics-manager flow finish task` on 2026-08-15.

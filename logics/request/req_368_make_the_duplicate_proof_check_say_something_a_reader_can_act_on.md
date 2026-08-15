@@ -1,18 +1,19 @@
 ## req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on - Make the duplicate-proof check say something a reader can act on
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium
 > Theme: Audit signal quality
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-15 15:27:56
 
 # AI Context
-- Summary: (unfilled: replace before this doc is used)
-- Keywords: duplicate, proof, check, say, something, reader, can, act
-- Use when: (unfilled: replace before this doc is used)
-- Skip when: (unfilled: replace before this doc is used)
+- Summary: `ac_duplicate_proof` was all 437 of the audit's warnings, on 122 documents, every one of them closed. Keep the signal, stop paying for it.
+- Keywords: audit signal, duplicate proof, false positives, warning fatigue
+- Use when: A check reports the normal case and the report stops being read.
+- Skip when: The check finds real defects at a rate worth its volume.
 
 # Needs
 - As an operator running an audit, I need its warnings to be findings I can act on, so that a report with warnings in it is worth opening.

@@ -1,20 +1,20 @@
 ## item_823_prove_the_check_still_finds_what_it_was_built_for - Prove the check still finds what it was built for
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: Keeping the signal
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
 > Indicators reviewed: 2026-08-15 15:21:34
 
 # AI Context
-- Summary: (unfilled: replace before this doc is used)
-- Keywords: prove, check, still, finds, built
-- Use when: (unfilled: replace before this doc is used)
-- Skip when: (unfilled: replace before this doc is used)
+- Summary: The regression case for the item_784/GH#20 shift shape, and the reason its second criterion was revised rather than met.
+- Keywords: item_784, regression, shifted proof, declaration limits
+- Use when: Making this check quieter, in any way, and needing the case that proves it still fires.
+- Skip when: Broadening what the check looks at.
 
 # Problem
 - Both slices above make the check quieter, and the way to make a check quiet by accident is to make it quiet on purpose without a case that proves it still fires.
@@ -47,3 +47,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_379_orchestrate_the_audit_signal_work` was finished via `logics-manager flow finish task` on 2026-08-15.

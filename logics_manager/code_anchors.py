@@ -17,6 +17,7 @@ Two tiers, and deliberately not a third:
 
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 
@@ -71,15 +72,19 @@ def _repo_blob(repo_root: Path) -> str:
     candidate set is a handful of documents rather than the whole corpus.
     """
     chunks: list[str] = []
-    for path in repo_root.rglob("*"):
-        if not path.is_file() or path.suffix not in SOURCE_SUFFIXES:
-            continue
-        if any(part in SKIP_DIRS for part in path.relative_to(repo_root).parts):
-            continue
-        try:
-            chunks.append(path.read_text(encoding="utf-8", errors="ignore"))
-        except OSError:
-            continue
+    # `rglob` descends into a skipped directory and only then discards what it found there,
+    # so `node_modules` alone accounted for most of the 43k entries this walk yielded on a
+    # repo whose source is a few thousand files. `os.walk` prunes in place, before descending.
+    for current, dirnames, filenames in os.walk(repo_root):
+        dirnames[:] = [name for name in dirnames if name not in SKIP_DIRS]
+        for name in filenames:
+            path = Path(current) / name
+            if path.suffix not in SOURCE_SUFFIXES:
+                continue
+            try:
+                chunks.append(path.read_text(encoding="utf-8", errors="ignore"))
+            except OSError:
+                continue
     return "\n".join(chunks)
 
 

@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-15 13:13:45
+> Indicators reviewed: 2026-08-15 13:32:41
 
 # AI Context
 - Summary: Sequences four slices: retire the Runbooks screen first so the board is taught about a document kind rather than a kind and a screen, then the board's loading state, the collapsible reference categories, and Getting Started's counts.
@@ -34,6 +34,7 @@
 - `item_817_let_a_runbook_be_a_document_and_retire_its_screen`
 - `item_818_collapse_a_reference_category_on_its_own`
 - `item_819_make_getting_started_s_stage_list_say_something`
+- `item_820_retire_the_corpus_menu_into_a_settings_section`
 
 # Definition of Done (DoD)
 - [ ] Generated request, product, backlog, and task docs are present.
@@ -48,6 +49,7 @@
 - request-AC4 -> `item_817_let_a_runbook_be_a_document_and_retire_its_screen`. Proof deferred to slice closeout.
 - request-AC5 -> `item_818_collapse_a_reference_category_on_its_own`. Proof deferred to slice closeout.
 - request-AC6 -> `item_819_make_getting_started_s_stage_list_say_something`. Proof deferred to slice closeout.
+- request-AC7 -> `item_820_retire_the_corpus_menu_into_a_settings_section`. Proof deferred to slice closeout.
 
 # Validation
 - (no validation recorded yet)

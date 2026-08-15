@@ -11087,6 +11087,18 @@ ${line}` : line;
       return `<div class="viewer-settings-screen">
       ${renderSettingsIdentity(info, mcpState)}
       <div class="viewer-settings-screen__grid">
+        <!-- item_820: the Corpus menu was a top-level header entry holding three links, so
+             it is gone and the links live here. item_737 had moved these three out of
+             Settings, recording that they were "navigation dressed as settings" -- that
+             reasoning still holds and is why these are links to the screens rather than the
+             screens themselves. Settings is where something is changed; those are where
+             something is read, and they stay screens of their own. Moving between them is
+             still one click once inside, through the switcher they already carry. -->
+        <section class="viewer-settings-card"><h3>This corpus</h3><p>Read what this project holds, and whether anything blocks.</p>
+          <button class="btn viewer-settings-quiet" type="button" data-viewer-nav-target="corpus:getting-started">Getting Started</button>
+          <button class="btn viewer-settings-quiet" type="button" data-viewer-nav-target="corpus:insights">Corpus insights</button>
+          <button class="btn viewer-settings-quiet" type="button" data-viewer-nav-target="corpus:health">Validation health</button>
+        </section>
         <section class="viewer-settings-card"><h3>Refresh</h3><label class="viewer-auto-refresh viewer-settings-toggle"><input type="checkbox" role="switch" aria-checked="${autoRefreshEnabled ? "true" : "false"}" data-viewer-settings-auto-refresh ${autoRefreshEnabled ? "checked" : ""} /><span>Automatic refresh</span><em class="viewer-settings-toggle__state">${autoRefreshEnabled ? "On" : "Off"}</em></label><label class="viewer-refresh-menu__interval"><span>Interval</span><select data-viewer-settings-interval aria-label="Automatic refresh interval"><option value="5">5 sec</option><option value="10">10 sec</option><option value="15">15 sec</option><option value="30">30 sec</option><option value="60">60 sec</option></select></label><button class="btn" type="button" data-viewer-settings-action="refresh">Refresh now</button><p class="viewer-settings-card__readout">${lastSuccessfulSyncAt ? `Last refreshed ${escapeHtml(new Date(lastSuccessfulSyncAt).toLocaleTimeString())}` : "Not refreshed yet this session"}</p></section>
         <section class="viewer-settings-card"><h3>ChatGPT Developer Mode</h3><label class="viewer-settings-toggle"><input type="checkbox" role="switch" aria-checked="${mcpState === "On" ? "true" : "false"}" data-viewer-settings-mcp ${mcpState === "On" ? "checked" : ""} /><span>Connector</span><em class="viewer-settings-toggle__state">${escapeHtml(mcpState)}</em></label><p>Starts a temporary HTTPS MCP connector. Nothing is exposed until this is on.</p><button class="btn viewer-settings-quiet" type="button" data-viewer-settings-action="mcp">${mcpState === "On" ? "Show URL and token" : "Open MCP controls"}</button></section>
         <section class="viewer-settings-card"><h3>Server</h3><button class="btn viewer-settings-quiet" type="button" data-viewer-settings-action="copy-diagnostics">Copy diagnostics</button>

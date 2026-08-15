@@ -146,6 +146,7 @@
 | [prod_103_an_issue_bridge_on_the_path_people_walk](product/prod_103_an_issue_bridge_on_the_path_people_walk.md) | An issue bridge on the path people walk | Proposed |  |  | product/prod_103_an_issue_bridge_on_the_path_people_walk.md |
 | [prod_104_a_poll_that_costs_what_it_is_worth](product/prod_104_a_poll_that_costs_what_it_is_worth.md) | A poll that costs what it is worth | Settled |  |  | product/prod_104_a_poll_that_costs_what_it_is_worth.md |
 | [prod_105_one_step_not_two_for_a_status_change_that_should_be_committed](product/prod_105_one_step_not_two_for_a_status_change_that_should_be_committed.md) | One step, not two, for a status change that should be committed | Proposed |  |  | product/prod_105_one_step_not_two_for_a_status_change_that_should_be_committed.md |
+| [prod_106_an_editor_that_stays_in_the_browser_it_is_already_in](product/prod_106_an_editor_that_stays_in_the_browser_it_is_already_in.md) | An editor that stays in the browser it is already in | Proposed |  |  | product/prod_106_an_editor_that_stays_in_the_browser_it_is_already_in.md |
 
 ## Roadmaps
 
@@ -537,6 +538,7 @@
 | [req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes](request/req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes.md) | Put the GitHub issue bridge on the path the work actually takes | Draft |  |  | request/req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes.md |
 | [req_373_make_the_auto_refresh_cost_what_it_is_worth](request/req_373_make_the_auto_refresh_cost_what_it_is_worth.md) | Make the auto-refresh cost what it is worth | Done |  |  | request/req_373_make_the_auto_refresh_cost_what_it_is_worth.md |
 | [req_374_confirm_the_status_change_offer_to_commit_it](request/req_374_confirm_the_status_change_offer_to_commit_it.md) | Confirm the status change, offer to commit it | Draft |  |  | request/req_374_confirm_the_status_change_offer_to_commit_it.md |
+| [req_375_edit_documents_in_the_browser_viewer](request/req_375_edit_documents_in_the_browser_viewer.md) | Edit documents in the browser viewer | Draft |  |  | request/req_375_edit_documents_in_the_browser_viewer.md |
 
 ## Backlog
 
@@ -1386,6 +1388,8 @@
 | [item_842_re_measure_the_tick_and_record_what_it_is_made_of](backlog/item_842_re_measure_the_tick_and_record_what_it_is_made_of.md) | Re-measure the tick and record what it is made of | Done |  | 100% | backlog/item_842_re_measure_the_tick_and_record_what_it_is_made_of.md |
 | [item_843_show_what_a_status_change_will_do_before_it_lands](backlog/item_843_show_what_a_status_change_will_do_before_it_lands.md) | Show what a status change will do before it lands | Ready |  | 0% | backlog/item_843_show_what_a_status_change_will_do_before_it_lands.md |
 | [item_844_offer_to_commit_the_status_change_right_there](backlog/item_844_offer_to_commit_the_status_change_right_there.md) | Offer to commit the status change right there | Ready |  | 0% | backlog/item_844_offer_to_commit_the_status_change_right_there.md |
+| [item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged](backlog/item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged.md) | An in-viewer editor screen for the browser, VS Code unchanged | Ready |  | 0% | backlog/item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged.md |
+| [item_846_offer_to_commit_a_save_the_way_a_status_change_already_does](backlog/item_846_offer_to_commit_a_save_the_way_a_status_change_already_does.md) | Offer to commit a save the way a status change already does | Ready |  | 0% | backlog/item_846_offer_to_commit_a_save_the_way_a_status_change_already_does.md |
 
 ## Tasks
 
@@ -1770,6 +1774,7 @@
 | [task_383_orchestrate_the_issue_bridge_work](tasks/task_383_orchestrate_the_issue_bridge_work.md) | Orchestrate the issue bridge work | Ready |  | 0% | tasks/task_383_orchestrate_the_issue_bridge_work.md |
 | [task_384_orchestrate_the_auto_refresh_cost_work](tasks/task_384_orchestrate_the_auto_refresh_cost_work.md) | Orchestrate the auto-refresh cost work | Done |  | 100% | tasks/task_384_orchestrate_the_auto_refresh_cost_work.md |
 | [task_385_orchestrate_the_status_confirm_and_commit_work](tasks/task_385_orchestrate_the_status_confirm_and_commit_work.md) | Orchestrate the status-confirm-and-commit work | Ready |  | 0% | tasks/task_385_orchestrate_the_status_confirm_and_commit_work.md |
+| [task_386_orchestrate_the_in_browser_document_editor_work](tasks/task_386_orchestrate_the_in_browser_document_editor_work.md) | Orchestrate the in-browser document editor work | Ready |  | 0% | tasks/task_386_orchestrate_the_in_browser_document_editor_work.md |
 
 ## Runbooks
 

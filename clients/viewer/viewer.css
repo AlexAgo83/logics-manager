@@ -6834,3 +6834,13 @@
 .viewer-insights__signals--muted {
   opacity: 0.72;
 }
+
+/* item_770 follow-up: the panel said "a few seconds" whatever the wait was. The number is
+   the point -- a screen that takes twenty seconds should not read like one that takes three,
+   and an operator reporting "it is slow" should have a figure to report. */
+.viewer-screen-loading__elapsed {
+  margin: 4px 0 0;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}

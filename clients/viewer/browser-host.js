@@ -7467,9 +7467,9 @@ ${line}` : line;
       }
     }
     async function showCorpusRunbooks() {
-      host.setDocument("Runbooks", `<div class="viewer-workshop">${renderCorpusModeSwitcher("runbooks")}${renderWorkshopPanel("runbooks")}</div>`);
-      host.setMeta("Runbooks: loading...");
+      host.showScreenLoading("Runbooks", "the runbook library");
       workshopRunbookState.includeHidden = workshopRunbookShowsHidden();
+      host.setDocument("Runbooks", `<div class="viewer-workshop">${renderCorpusModeSwitcher("runbooks")}${renderWorkshopPanel("runbooks")}</div>`);
       await loadWorkshopRunbooks();
       host.setMeta("Runbooks loaded.");
     }
@@ -8775,6 +8775,7 @@ ${line}` : line;
       isViewStale,
       setDocument,
       setMeta,
+      showScreenLoading,
       updateViewerPreferences,
       meta,
       renderMermaidDiagrams,
@@ -11311,8 +11312,19 @@ ${line}` : line;
         `<div class="viewer-screen-loading" data-viewer-screen-loading role="status" aria-live="polite">
         <p class="viewer-screen-loading__title">Working on ${escapeHtml(title)}</p>
         <p class="viewer-screen-loading__detail">Waiting for ${escapeHtml(waitingFor)}. On a corpus this size that takes a few seconds.</p>
+        <p class="viewer-screen-loading__elapsed" data-viewer-screen-loading-elapsed>0.0s</p>
       </div>`
       );
+      const elapsed = document.querySelector("[data-viewer-screen-loading-elapsed]");
+      if (!(elapsed instanceof HTMLElement)) return;
+      const startedAt = Date.now();
+      const timer = window.setInterval(() => {
+        if (!elapsed.isConnected) {
+          window.clearInterval(timer);
+          return;
+        }
+        elapsed.textContent = `${((Date.now() - startedAt) / 1e3).toFixed(1)}s`;
+      }, 100);
     }
     async function showCorpusInsights(options = {}) {
       if (!options.view) showScreenLoading("Corpus insights", "the corpus lint and audit scans");

@@ -1,7 +1,7 @@
 ## req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong - Finish the Insights and Health work the first measurement got wrong
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

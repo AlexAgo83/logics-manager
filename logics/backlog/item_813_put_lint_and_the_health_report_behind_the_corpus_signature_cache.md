@@ -1,10 +1,10 @@
 ## item_813_put_lint_and_the_health_report_behind_the_corpus_signature_cache - Put lint and the health report behind the corpus-signature cache
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Low
 > Theme: One cache for every expensive report
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -36,6 +36,7 @@
 # AC Traceability
 - request-AC1 -> This backlog slice. Proof: AC1: A second request for lint or the health report with the corpus unchanged returns without recomputing.
 - request-AC4 -> This backlog slice. Proof: AC2: Editing a workflow document changes the next answer from both.
+- request-AC5 -> This backlog slice. Proof: the timings that justified caching lint and health were taken with `curl` against a viewer started from the working tree for the measurement, not in a process that had already run an audit -- 9ms on a second look, 0.17s and 0.12s after touching one document. The first attempt measured the npm-installed copy of the package and read an 8.5s audit that had been cached weeks earlier, which is the same error req_364 made in another form.
 
 # Decision framing
 - Product framing: Not needed
@@ -50,3 +51,6 @@
 # Priority
 - Priority: High - the dominant cost of both screens
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Notes
+- Task `task_377_orchestrate_the_second_look_at_insights_and_health` was finished via `logics-manager flow finish task` on 2026-08-15.

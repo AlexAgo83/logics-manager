@@ -2103,6 +2103,32 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
   });
 
+  it("gives Commands prefix chips and a state accent, and Missions the facts a launch needs", () => {
+    // item_794/AC1+AC2+AC4+AC5.
+    const workshop = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/workshop.js"), "utf8");
+    const cdx = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/cdx.js"), "utf8");
+    const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
+
+    // The chips are derived from the prefixes present, not the four the mockup's own
+    // repository happened to have -- a chip that filters to nothing is worse than no chip.
+    expect(workshop).toContain("data-viewer-workshop-command-prefix");
+    expect(workshop).toMatch(/prefixCounts\.set\(group/);
+    expect(workshop).not.toMatch(/\["view", "build", "check", "test"\]/);
+    // The prefix is its own state: "test" as free text also matches `latest`.
+    expect(workshop).toMatch(/workshopCommandState\.prefix/);
+
+    // The accent says what the row is doing, derived past `state`, which stops at running.
+    expect(workshop).toContain("data-viewer-workshop-command-accent");
+    expect(css).toMatch(/data-viewer-workshop-command-accent="failed"\]\s*\{[^}]*editorError-foreground/);
+
+    // Missions' strip carries the two facts a launch depends on.
+    expect(cdx).toMatch(/\["Selected", selectedMissionLabel\]/);
+    expect(cdx).toMatch(/\["Session", selectedSessionLabel\]/);
+    expect(cdx).not.toContain('["Strengths", String(strengths.length)]');
+    // And the command is beside the button that runs it, not behind a panel switch.
+    expect(cdx).toContain("data-viewer-cdx-command-preview");
+  });
+
   it("leads the Corpus navigation and switcher with Getting Started", () => {
     // It is the one Corpus entry written for someone who does not yet know what Insights,
     // Health or Runbooks are, so it cannot be third. Both surfaces are checked: the menu

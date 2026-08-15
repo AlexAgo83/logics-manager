@@ -6844,3 +6844,93 @@
   font-variant-numeric: tabular-nums;
   color: var(--vscode-descriptionForeground, #9da5b4);
 }
+
+/* item_794: quick filters for the command list, derived from the prefixes the repository
+   actually uses. Above the free-text field because they are the coarser question: which
+   family of scripts, before which script. */
+.viewer-workshop__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.viewer-workshop__chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 3px 9px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--vscode-foreground, #d4d4d4);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.viewer-workshop__chip span {
+  color: var(--vscode-descriptionForeground, #9da5b4);
+  font-variant-numeric: tabular-nums;
+}
+
+.viewer-workshop__chip:hover {
+  background: var(--vscode-list-hoverBackground, rgb(255 255 255 / 6%));
+}
+
+.viewer-workshop__chip.is-active {
+  border-color: var(--vscode-focusBorder, #4ea1ff);
+  background: color-mix(in srgb, var(--vscode-focusBorder, #4ea1ff) 18%, transparent);
+}
+
+.viewer-workshop__chip.is-active span {
+  color: inherit;
+}
+
+/* item_794/AC2: the left accent the mockup gives each command row. A bar that is the same
+   colour whatever the row is doing is decoration; this one says what the state badge says,
+   at the edge of the row, where it can be read down a list without reading each badge. */
+.viewer-workshop__command {
+  border-left: 3px solid var(--vscode-panel-border, #333333);
+}
+
+.viewer-workshop__command[data-viewer-workshop-command-accent="running"] {
+  border-left-color: var(--vscode-focusBorder, #4ea1ff);
+}
+
+.viewer-workshop__command[data-viewer-workshop-command-accent="failed"] {
+  border-left-color: var(--vscode-editorError-foreground, #f14c4c);
+}
+
+.viewer-workshop__command[data-viewer-workshop-command-accent="passed"] {
+  border-left-color: var(--vscode-testing-iconPassed, #3fb950);
+}
+
+/* item_794: the command the launch button would run, kept beside it rather than behind a
+   panel switch. Dimmed on purpose -- it is there to be checked before pressing, not read. */
+.viewer-cdx__command-preview {
+  display: grid;
+  gap: 3px;
+  margin: 8px 0;
+  padding: 6px 8px;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 4px;
+  background: var(--vscode-textCodeBlock-background, #161616);
+  opacity: 0.78;
+}
+
+.viewer-cdx__command-preview-label {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.viewer-cdx__command-preview code {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.viewer-cdx__command-preview-empty {
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}

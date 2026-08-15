@@ -5037,11 +5037,14 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       ${run?.stdout ? `<pre class="viewer-cdx__code">${escapeHtml(run.stdout)}</pre>` : ""}
       ${run?.stderr ? `<pre class="viewer-cdx__code viewer-cdx__code--error">${escapeHtml(run.stderr)}</pre>` : ""}
     `;
+      const selectedMissionLabel = selectedMission ? String(selectedMission.title || selectedMission.id || "Mission") : "None yet";
+      const sessionRemaining = renderTextRemaining(selectedSessionItem);
+      const selectedSessionLabel = selectedSession ? [selectedSession, sessionRemaining].filter(Boolean).join(" \xB7 ") : "None yet";
       const cards = [
         ["Missions", String(missions.length)],
         ["Sessions", String(sessions.length)],
-        ["Strengths", String(strengths.length)],
-        ["Corpus actions", String(parsedActions.length)]
+        ["Selected", selectedMissionLabel],
+        ["Session", selectedSessionLabel]
       ].map(([label, value]) => `
       <div class="viewer-cdx__card">
         <div class="viewer-cdx__label">${escapeHtml(label)}</div>
@@ -5074,6 +5077,14 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
                 <option value="background"${runMode === "terminal" ? "" : " selected"}>Background runner (Experimental)</option>
               </select>
             </label>
+            <!-- item_794: what will run, beside the button that runs it. It was readable
+                 only by switching the output panel to "Plan preview", so the control that
+                 launches a command and the statement of that command were never on screen
+                 together. Dimmed, because it is there to be checked rather than read. -->
+            <div class="viewer-cdx__command-preview" data-viewer-cdx-command-preview>
+              <span class="viewer-cdx__command-preview-label">Will run</span>
+              ${command ? `<code>${escapeHtml(command)}</code>` : '<span class="viewer-cdx__command-preview-empty">Preview to see the exact command.</span>'}
+            </div>
             <div class="viewer-cdx__actions">
               <button class="btn" type="button" data-viewer-cdx-plan>Preview</button>
               <button class="btn" type="button" data-viewer-cdx-run${canRun ? "" : " disabled"} title="${escapeHtml(canRun ? "Launch this mission" : cdxRunBlockedReason(planPayload, plan))}">${runMode === "terminal" ? "Launch in terminal" : "Launch run"}</button>
@@ -6378,7 +6389,11 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
       streams: /* @__PURE__ */ new Map(),
       // item_756: what the filter box holds, kept out of the DOM so a re-render caused by
       // a running script's log arriving does not throw away what the operator typed.
-      query: ""
+      query: "",
+      // item_794: the chip narrowing to one prefix. Separate from `query` rather than
+      // typed into it: the prefix is an exact match on a group, and "test" as free text
+      // also matches `latest` and every command whose body mentions it.
+      prefix: ""
     };
     function renderWorkshopCommandRunMenu(entry) {
       const id = escapeHtml(entry.id);
@@ -6403,9 +6418,10 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
       const state2 = session?.state || "idle";
       const running = state2 === "running" || state2 === "starting";
       const exitBadge = session && session.exitCode !== null && session.exitCode !== void 0 ? `<span class="viewer-workshop__exit viewer-workshop__exit--${session.exitCode === 0 ? "ok" : "fail"}">exit ${escapeHtml(String(session.exitCode))}</span>` : "";
+      const accent = running ? "running" : session && session.exitCode !== null && session.exitCode !== void 0 ? session.exitCode === 0 ? "passed" : "failed" : "idle";
       const stateBadge = state2 === "idle" ? "" : `<span class="viewer-workshop__state viewer-workshop__state--${escapeHtml(state2)}">${escapeHtml(state2)}${running ? escapeHtml(formatCommandDuration(session?.startedAt)) : ""}</span>`;
       return `
-      <li class="viewer-workshop__command" data-viewer-workshop-command="${escapeHtml(entry.id)}">
+      <li class="viewer-workshop__command" data-viewer-workshop-command="${escapeHtml(entry.id)}" data-viewer-workshop-command-accent="${escapeHtml(accent)}">
         <div class="viewer-workshop__command-header">
           <div class="viewer-workshop__command-name">
             <strong>${escapeHtml(entry.name)}</strong>
@@ -6443,7 +6459,19 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
         return `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">\xB7</span><span>${escapeHtml(catalog.message || "No commands discovered.")}</span></div>`;
       }
       const query = String(workshopCommandState.query || "").trim().toLowerCase();
-      const matching = query ? commands.filter((entry) => `${entry.name} ${entry.command}`.toLowerCase().includes(query)) : commands;
+      const prefix = String(workshopCommandState.prefix || "");
+      const matching = commands.filter((entry) => {
+        if (prefix && workshopCommandGroup(entry) !== prefix) return false;
+        if (!query) return true;
+        return `${entry.name} ${entry.command}`.toLowerCase().includes(query);
+      });
+      const prefixCounts = /* @__PURE__ */ new Map();
+      commands.forEach((entry) => {
+        const group = workshopCommandGroup(entry);
+        prefixCounts.set(group, (prefixCounts.get(group) || 0) + 1);
+      });
+      const chips = [...prefixCounts.entries()].filter(([, count]) => count > 1).sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0])).slice(0, 6).map(([group, count]) => `<button class="viewer-workshop__chip${group === prefix ? " is-active" : ""}" type="button" data-viewer-workshop-command-prefix="${escapeHtml(group)}" aria-pressed="${group === prefix ? "true" : "false"}">${escapeHtml(group)} <span>${count}</span></button>`).join("");
+      const chipBar = chips ? `<div class="viewer-workshop__chips" role="group" aria-label="Filter commands by prefix">${chips}${prefix ? `<button class="viewer-workshop__chip viewer-workshop__chip--clear" type="button" data-viewer-workshop-command-prefix="">All</button>` : ""}</div>` : "";
       const groups = /* @__PURE__ */ new Map();
       matching.forEach((entry) => {
         const group = workshopCommandGroup(entry);
@@ -6458,8 +6486,9 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
         </ul>
       </section>
     `).join("");
-      const summary = query ? `<p class="viewer-workshop__command-summary">${matching.length} of ${commands.length} commands match \u201C${escapeHtml(query)}\u201D</p>` : `<p class="viewer-workshop__command-summary">${commands.length} commands from ${escapeHtml(commands[0]?.source || "this repository")}</p>`;
+      const summary = query || prefix ? `<p class="viewer-workshop__command-summary">${matching.length} of ${commands.length} commands${prefix ? ` under ${escapeHtml(prefix)}` : ""}${query ? ` match \u201C${escapeHtml(query)}\u201D` : ""}</p>` : `<p class="viewer-workshop__command-summary">${commands.length} commands from ${escapeHtml(commands[0]?.source || "this repository")}</p>`;
       return `
+      ${chipBar}
       <div class="viewer-workshop__command-filter">
         <input type="search" placeholder="Filter by name or command..." aria-label="Filter commands"
                data-viewer-workshop-command-query value="${escapeHtml(workshopCommandState.query || "")}" />
@@ -6480,6 +6509,15 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
           workshopCommandState.query = filter.value;
           renderWorkshopCommands();
         });
+      }
+      container.querySelectorAll("[data-viewer-workshop-command-prefix]").forEach((chip) => {
+        chip.addEventListener("click", () => {
+          const next = chip.getAttribute("data-viewer-workshop-command-prefix") || "";
+          workshopCommandState.prefix = next === workshopCommandState.prefix ? "" : next;
+          renderWorkshopCommands();
+        });
+      });
+      if (filter instanceof HTMLInputElement) {
         if (focused) {
           filter.focus();
           if (caret !== null) filter.setSelectionRange(caret, caret);

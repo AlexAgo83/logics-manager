@@ -1,10 +1,10 @@
 ## item_794_workshop_cdx_close_the_remaining_mockup_gaps - Workshop/CDX: close the remaining mockup gaps
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer redesign follow-through
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -55,3 +55,6 @@ The mockup review found most of Workshop/CDX's approved redesign already impleme
 
 # Tasks
 - `task_365_workshop_cdx_close_the_remaining_mockup_gaps`
+
+# Notes
+- Task `task_365_workshop_cdx_close_the_remaining_mockup_gaps` was finished via `logics-manager flow finish task` on 2026-08-15.

@@ -1146,7 +1146,9 @@ def _directory_preview_payload(repo_root: Path, target: Path, normalized: str) -
         "path": normalized,
         "name": target.name or repo_root.resolve().name,
         "kind": "directory",
-        "message": f"{count} item(s)",
+        # item_794: `N item(s)` is the parenthesised plural the review flagged. The reader
+        # knows whether one is plural; the parentheses only ask them to.
+        "message": f"{count} item" if count == 1 else f"{count} items",
         "entries": entries,
         # Stated so the list never implies it is complete when it is not.
         "entriesTruncated": count > len(entries),

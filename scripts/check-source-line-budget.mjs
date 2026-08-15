@@ -47,7 +47,10 @@ const allowedOversizedFiles = new Map(
     // 1896: req_330 added the match_runbooks MCP tool and its ALLOWED_WRITE_DIRS/
     // companion-doc entries, following the exact shape search_logics_docs and the
     // other companion kinds already use in this file.
-    "logics_manager/mcp.py": { maxLines: 1896, ref: "req_330" },
+    // 1973: req_371 carried the viewer link onto the MCP tools that read/list Logics
+    // docs, and req_372 added the GitHub issue bridge's three tools (attach_github_issue,
+    // report_issue_drift, tell_issues_at_closeout) beside the handlers already here.
+    "logics_manager/mcp.py": { maxLines: 1973, ref: "req_372" },
     // 1029: item_674 added the install-identity helpers (_install_root, _shim_target,
     // _executable_identity) that let doctor tell one install from two. They sit beside
     // running_executable_path/shadowing_executables, the only callers and the only other
@@ -70,7 +73,9 @@ const allowedOversizedFiles = new Map(
     // list_logics_docs_payload, the doc-loading primitives they're thin wrappers over.
     // 1699: req_335 canonicalises the target path in _resolve_target_docs, the one
     // seam every sync command resolves through.
-    "logics_manager/sync.py": { maxLines: 1699, ref: "req_335" },
+    // 1723: req_371 prints the viewer link once from list-docs/search-docs, and req_372's
+    // provenance module reads the same `# Provenance` section this file already parses.
+    "logics_manager/sync.py": { maxLines: 1723, ref: "req_372" },
     // 1145: req_321 added `_reposition_ai_context()`, sitting beside the other
     // deterministic `_autofix_structure()` repairs (Status/Schema version) it extends.
     // 1169: req_330 added the runbook companion-kind entries (DOC_KINDS/REF_PREFIXES/
@@ -100,7 +105,10 @@ const allowedOversizedFiles = new Map(
     // no count of what it would touch and no way to look first; a separate implementation
     // for the count would be free to disagree with what the button does, so the preview is
     // the same walk taking a flag rather than a twin.
-    "logics_manager/audit.py": { maxLines: 1390, ref: "req_349" },
+    // 1536: req_364/req_366's Insights/Health speed work (caching the source blob,
+    // memoising prose refs, a backlog-to-task index) and req_368's actionable
+    // duplicate-proof check all extend audit_payload's own findings/caching machinery.
+    "logics_manager/audit.py": { maxLines: 1536, ref: "req_364" },
     // 1117: req_317 added the per-gate release/branch comparison (resolving the
     // tagged commit, choosing which commit each gate is judged against, and
     // naming the comparison in stale reasons and status output). The new logic
@@ -113,7 +121,9 @@ const allowedOversizedFiles = new Map(
     "logics_manager/release.py": { maxLines: 1121, ref: "req_323" },
     // 1482: req_330 added the runbook discovery paragraph to the generated Claude
     // instructions, beside the other CLI-command bullets it follows the shape of.
-    "logics_manager/assist_support.py": { maxLines: 1482, ref: "req_330" },
+    // 1493: req_371 added the viewer-link convention paragraph, backfilled here so the
+    // generator stays the source of truth for logics/instructions.md.
+    "logics_manager/assist_support.py": { maxLines: 1493, ref: "req_371" },
     // 5833: banked CDX reset endpoint (/api/cdx-reset); 5879: cdx disk payload/route;
     // 5927: release prep baseline; 5937: CDX memory read-only endpoint.
     // req_311 lifted cdx and git out of viewer.py: 5692 -> 3330. Each sub-system now
@@ -185,20 +195,30 @@ const allowedOversizedFiles = new Map(
     // is that same knowledge -- moving it out would mean resolving the path twice.
     // req_356: +10 more for the event stream measuring its own snapshot cost, which has to
     // be timed where the snapshot is taken.
-    "logics_manager/viewer.py": { maxLines: 3845, ref: "req_356" },
+    // 4185: 2.22.0's redesign wave landed most of its routes/payload builders here --
+    // Fleet home (req_344/346), Git/CI/Release/Settings/MCP-connector diagnostics
+    // (req_347/348), Insights/Health speed and correctness (req_349/364/366/368), the
+    // auto-refresh cost fix (req_373), the viewer link (req_371), the status-confirm
+    // modal (req_374) and the in-browser editor's /api/save-doc (req_375). Splitting
+    // this file further is its own decision, tracked separately, not a defect-repair
+    // side effect during a release with 33 requests already in flight.
+    "logics_manager/viewer.py": { maxLines: 4185, ref: "req_375" },
     // 1545: item_743 keys the cdx update cache on a fingerprint of the installed
     // executable, so running the update the banner asks for ends the banner. The
     // helper is 8 lines; the rest is the docstring stating why it stats rather than
     // running `cdx --version` (this runs on every payload build) and where the
     // approach stops working (a launcher shim that never moves).
-    "logics_manager/viewer_cdx.py": { maxLines: 1545, ref: "req_348" },
+    // 1557: req_348's CDX update-banner staleness fix and req_373's auto-refresh cost
+    // work (caching a failed `cdx update --check` briefly instead of re-spawning it
+    // every poll) both extend the same cdx-status caching this file already owns.
+    "logics_manager/viewer_cdx.py": { maxLines: 1557, ref: "req_373" },
     // 1069: req_323 threaded repo_root through _normalize_git_file_path so it
     // could route through the shared path_utils containment check, and removed
     // git_file_preview_payload's own now-redundant duplicate of the same check.
     // 1090: item_732 gives git_diff_payload the `full` escape hatch git_file_preview_payload
     // in the same module has always had, plus the forced ceiling it is held to. A truncated
     // diff previously reported the word "truncated" and offered no way past it.
-    "logics_manager/viewer_git.py": { maxLines: 1090, ref: "req_347" },
+    "logics_manager/viewer_git.py": { maxLines: 1084, ref: "req_347" },
     // 4909: release prep baseline.
     // req_311 lifted the document vocabulary into flow/docs.py: 4725 -> 3627. What is left
     // is the verbs and the CLI wiring, sitting on top of primitives that know nothing of them.
@@ -234,7 +254,11 @@ const allowedOversizedFiles = new Map(
     // *scaffolded* task, whose criteria already carry a generated deferred line.
     // Replacing only that generated wording needs a line-locator and a rewriter,
     // both beside the repair loop that is their only caller.
-    "logics_manager/flow/__init__.py": { maxLines: 3311, ref: "req_341" },
+    // 3400: req_357's traceability/self-write trust fixes and req_372's issue-bridge
+    // orchestration (the sibling-slice AC check that closeout_payload and
+    // validate_closeout_payload both needed; its own two helpers split out this
+    // release when the function-length gate flagged their growth).
+    "logics_manager/flow/__init__.py": { maxLines: 3400, ref: "req_372" },
     // 1429: req_324 added resolve_ref_slug/resolve_ref_slugs (the short-ref expansion the
     // generators needed and _resolve_doc_path already did privately, per kind) plus the
     // rejoin loop in _bullet_values. Both are document vocabulary, so this is where they
@@ -364,7 +388,11 @@ const allowedOversizedFiles = new Map(
     // itself went to util.js, where the DOM helpers already live; what stays here is the
     // wiring -- the eyebrow, the copy-path control, and the listener handle -- which has
     // to be beside setDocument because that is what owns the document's DOM.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 4990, ref: "req_356" },
+    // 5443: 2.22.0's redesign wave landed here too -- Fleet home, the loading ring
+    // (req_360/365), Workshop/CDX finish (req_359), the viewer link (req_371), the
+    // status-confirm modal and in-browser editor (req_374/375) -- the same file every
+    // prior browser-host feature in this budget has landed in.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 5443, ref: "req_375" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },
@@ -384,10 +412,12 @@ const allowedOversizedFiles = new Map(
     // in workshop.js because each is the rendering of one of this screen's own tabs --
     // splitting a tab's markup from the tab that owns it would mean two files to read to
     // answer one question about one panel.
-    "clients/viewer/src/browser-host/workshop.js": { maxLines: 1540, ref: "req_350" },
+    "clients/viewer/src/browser-host/workshop.js": { maxLines: 1441, ref: "req_350" },
     // req_350: +25 for item_759's blocked-launch reason and the tiles it emptied. The
     // reason has to read the plan payload the button already reads, so it stays beside it.
-    "clients/viewer/src/browser-host/cdx.js": { maxLines: 3085, ref: "req_350" },
+    // 3106: req_359's Workshop/CDX mockup-gap finish (Commands, Runbooks, Explorer,
+    // CDX missions metric tiles).
+    "clients/viewer/src/browser-host/cdx.js": { maxLines: 3106, ref: "req_359" },
     // De-monolith passes 1-3: pure helpers/data extracted out of index.js. May
     // be split by domain (cdx/git/dom) in later passes as they grow.
     // 1151: req_314 put the environment warning's dismissal beside the renderer that reads
@@ -407,7 +437,8 @@ const allowedOversizedFiles = new Map(
     // req_352: +30 for item_768's focus return and Tab confinement, which belong in
     // createThemedModal/closeThemedModal because those are what open and close the modal
     // -- focus management put anywhere else is management the modal can forget to call.
-    "clients/viewer/src/browser-host/util.js": { maxLines: 1380, ref: "req_352" },
+    // 1490: req_365's loading-indicator plumbing and req_367's runbook-as-document work.
+    "clients/viewer/src/browser-host/util.js": { maxLines: 1490, ref: "req_365" },
     // 2546: req_305 added the workflow-health sections (blocked docs, stale docs)
     // to the health screen, which previously showed lint and audit only.
     // req_312 moved the rendering whose only consumer is the cdx screen into that screen:
@@ -444,7 +475,9 @@ const allowedOversizedFiles = new Map(
     // Kept in the modal builder rather than split out: the three parts item_763 adds
     // all read the same field controls, and separating them would mean handing that
     // map across a boundary to save nothing.
-    "clients/viewer/src/browser-host/render.js": { maxLines: 2010, ref: "req_350" },
+    // 2160: req_359's Workshop/CDX/Insights/Health rendering finish, plus the
+    // status-confirm and in-browser editor screens (req_374/375).
+    "clients/viewer/src/browser-host/render.js": { maxLines: 2160, ref: "req_375" },
     // 1353: req_314 taught the board to group by status, which is what its control always
     // claimed to do. The grouping itself is eleven lines; the rest is the heading element
     // the accessibility slice needed.
@@ -476,7 +509,10 @@ const allowedOversizedFiles = new Map(
     // cardStatusKey, which is what keeps AC17 true.
     // 1510: item_740 gave the list row the same progress encoding as a card, which it had
     // none of. Seven lines, and the alternative was a second encoding that would drift.
-    "clients/shared-web/media/renderBoardApp.js": { maxLines: 1510, ref: "req_345" },
+    // 1610: req_367's runbook-as-document work and the board-loading-state fix (the
+    // empty state no longer asserting a project holds nothing while its first payload
+    // is still in flight).
+    "clients/shared-web/media/renderBoardApp.js": { maxLines: 1610, ref: "req_367" },
     // 1050 -> 1040: item_720 makes selecting a card open the panel it fills (setSelectedId is
     // the single point selection is set from the board, so it is where the two halves of
     // "select and open" stay together), and item_721 replaced this file's copy of the
@@ -486,7 +522,8 @@ const allowedOversizedFiles = new Map(
     // details renderer. Resolving which workflow chain a changed document belongs to needs
     // both, and this file is the one place that holds them -- the resolution itself lives in
     // logicsModel.js so the feed and the panel answer it the same way.
-    "clients/shared-web/media/mainApp.js": { maxLines: 1045, ref: "req_345" },
+    // 1050: req_367's board-loading-state fix, same reasoning as renderBoardApp.js above.
+    "clients/shared-web/media/mainApp.js": { maxLines: 1050, ref: "req_367" },
     // 1009: req_322 added stopViewerServers(), the explicit deactivate() path
     // redundant with (not a replacement for) the subscription-disposal path
     // the constructor already registers.

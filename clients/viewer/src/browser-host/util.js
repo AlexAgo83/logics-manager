@@ -1011,9 +1011,9 @@ export function renderCiModeSwitcher(active) {
 export function renderCorpusModeSwitcher(active) {
     return `
       <div class="viewer-cdx__modes viewer-corpus__modes" role="tablist" aria-label="Corpus views">
+        <button class="viewer-cdx__mode${active === "getting-started" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="getting-started" aria-selected="${active === "getting-started" ? "true" : "false"}">Getting Started</button>
         <button class="viewer-cdx__mode${active === "insights" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="insights" aria-selected="${active === "insights" ? "true" : "false"}">Insights</button>
         <button class="viewer-cdx__mode${active === "health" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="health" aria-selected="${active === "health" ? "true" : "false"}">Health</button>
-        <button class="viewer-cdx__mode${active === "getting-started" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="getting-started" aria-selected="${active === "getting-started" ? "true" : "false"}">Getting Started</button>
         <button class="viewer-cdx__mode${active === "runbooks" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="runbooks" aria-selected="${active === "runbooks" ? "true" : "false"}">Runbooks</button>
       </div>
     `;

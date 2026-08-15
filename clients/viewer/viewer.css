@@ -884,8 +884,10 @@
   padding: 14px;
 }
 
+/* The 32px track dates from when this cell held a single digit. It now reads "1 of 4" at
+   22px, which wrapped to one word per line -- a three-line column of "1 / of / 4". */
 .viewer-onboarding__stage {
-  grid-template-columns: 32px minmax(0, 1fr);
+  grid-template-columns: max-content minmax(0, 1fr);
 }
 
 .viewer-onboarding__stage-number {

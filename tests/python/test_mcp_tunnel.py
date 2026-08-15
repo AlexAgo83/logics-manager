@@ -29,7 +29,9 @@ def test_run_command_targets_the_configured_profile_and_creates_no_public_url() 
     assert mcp_tunnel.build_run_command("logics-manager") == ["tunnel-client", "run", "--profile", "logics-manager"]
     init = mcp_tunnel.build_init_command("logics-manager", "tun_123", "/repo")
     assert init[:6] == ["tunnel-client", "init", "--profile", "logics-manager", "--tunnel-id", "tun_123"]
-    assert init[-1] == "logics-manager mcp serve --repo-root /repo"
+    # item_850: the capability profile is chosen here, not inherited from mcp serve's
+    # default -- which is `full`, and would hand a chat client delete_logics_file.
+    assert init[-1] == "logics-manager mcp serve --repo-root /repo --profile curated"
 
 
 def test_environment_beats_the_file_and_the_file_is_owner_only(tmp_path: Path) -> None:

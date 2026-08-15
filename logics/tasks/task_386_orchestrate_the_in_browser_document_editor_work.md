@@ -2,9 +2,9 @@
 > From version: 2.21.9
 > Schema version: 1.0
 > Status: In progress
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 95%
+> Confidence: 90%
+> Progress: 90%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
@@ -21,8 +21,8 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Build the in-viewer editor screen and its write route for the browser viewer, leaving VS Code's own editor untouched.
-- [ ] 2. Wire a real save to the same confirm-and-commit step item_844 already built, skipping it entirely for a no-op save.
+- [x] 1. Build the in-viewer editor screen and its write route for the browser viewer, leaving VS Code's own editor untouched.
+- [x] 2. Wire a real save to the same confirm-and-commit step item_844 already built, skipping it entirely for a no-op save.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.

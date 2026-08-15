@@ -1,12 +1,12 @@
 ## prod_102_the_link_travels_with_the_document - The link travels with the document
 > Date: 2026-08-15
-> Status: Proposed
+> Status: Settled
 > Related request: `req_371_put_the_viewer_link_where_every_assistant_already_looks`
-> Related backlog: `item_830_one_reader_for_where_the_viewer_is`, `item_831_carry_the_link_in_the_mcp_responses`, `item_832_print_the_link_from_the_cli`, `item_833_state_the_convention_where_an_assistant_reads_its_instructions`
+> Related backlog: `item_830_one_reader_for_where_the_viewer_is`
 > Related task: `task_382_orchestrate_the_link_travels_with_the_document_work`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:28:38
+> Indicators reviewed: 2026-08-15 18:31:49
 
 # Overview
 Make the viewer address arrive with every document any assistant reads, so that naming a document and linking to it are the same act for all of them, not a habit one of them holds.
@@ -51,5 +51,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_371_put_the_viewer_link_where_every_assistant_already_looks`
+- Product back-reference: `item_830_one_reader_for_where_the_viewer_is`
 - Task back-reference: `task_382_orchestrate_the_link_travels_with_the_document_work`

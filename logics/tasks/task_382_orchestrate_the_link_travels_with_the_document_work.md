@@ -1,14 +1,14 @@
 ## task_382_orchestrate_the_link_travels_with_the_document_work - Orchestrate the link-travels-with-the-document work
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-15 18:31:44
+> Indicators reviewed: 2026-08-15 18:31:48
 
 # AI Context
 - Summary: Sequences the four surfaces: one address reader, then MCP, then CLI, then the written convention for what neither covers.
@@ -61,9 +61,15 @@
 
 # Validation
 - (no validation recorded yet)
+- tests/python (1406 passed) + vitest (235 passed) on 2026-08-15
+- Finish workflow executed on 2026-08-15.
+- Linked backlog/request close verification passed.
 
 # Report
 - All four backlog slices landed: item_830 (running_viewer() reader in viewer_registry.py, bounded at 0.3s, never guesses a default port), item_831 (read_logics_doc carries viewer_url; list_logics_docs/search_logics_docs/list_active_work/list_companion_docs each carry one viewer_url_template, measured at +67 bytes total for 200 rows, not per row), item_832 (flow show/sync list-docs/search-docs print the same link/template, silent when no viewer runs), item_833 (the convention stated in logics/instructions.md and the implement-task skill, both pointing at docs/cli.md for the URL grammar rather than restating it). Every surface tested both with a viewer running and with none. Full suite: 1406 passed.
+- Finished on 2026-08-15.
+- Linked backlog item(s): `item_830_one_reader_for_where_the_viewer_is`, `item_831_carry_the_link_in_the_mcp_responses`, `item_832_print_the_link_from_the_cli`, `item_833_state_the_convention_where_an_assistant_reads_its_instructions`
+- Related request(s): `req_371_put_the_viewer_link_where_every_assistant_already_looks`
 
 # Links
 - Request: `req_371_put_the_viewer_link_where_every_assistant_already_looks`

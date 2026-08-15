@@ -1,14 +1,14 @@
 ## item_833_state_the_convention_where_an_assistant_reads_its_instructions - State the convention where an assistant reads its instructions
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 95%
 > Progress: 100%
 > Complexity: Low
 > Theme: For the documents nobody fetched
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:29:34
+> Indicators reviewed: 2026-08-15 18:31:49
 
 # AI Context
 - Summary: The convention in words, for the case the payloads cannot cover: a document named rather than fetched.
@@ -53,3 +53,9 @@
 
 # Validation
 - logics/instructions.md and logics_manager/skill_assets/implement-task/SKILL.md both state the convention (viewer link travels with a named document) and point at docs/cli.md for the URL grammar rather than restating it. Regenerated from the source of truth (_build_claude_instructions in assist_support.py) rather than hand-edited only in the checked-out copy -- confirmed byte-identical between the generator's output and the committed logics/instructions.md. Also folded in ADR 030's paragraph, which the checked-out file had carried since 5355df41 without the generator being updated to match.
+
+# Tasks
+- `task_382_orchestrate_the_link_travels_with_the_document_work`
+
+# Notes
+- Task `task_382_orchestrate_the_link_travels_with_the_document_work` was finished via `logics-manager flow finish task` on 2026-08-15.

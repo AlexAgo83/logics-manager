@@ -124,6 +124,48 @@ class RegistryClaim:
     server: Any | None  # the freshly bound server, or None when reused
 
 
+@dataclass(frozen=True)
+class RunningViewer:
+    scheme: str
+    host: str
+    port: int
+
+
+#: item_830: a probe against a dead port on loopback fails almost instantly (connection
+#: refused, not a timeout); this bounds the rare case -- something answering but not
+#: replying -- without making every MCP response or CLI print wait on it.
+RUNNING_VIEWER_PROBE_TIMEOUT_SECONDS = 0.3
+
+
+def running_viewer(repo_root: Path, *, host: str = "127.0.0.1") -> RunningViewer | None:
+    """Is a viewer running for `repo_root`, and at what address -- nothing else.
+
+    item_830: four surfaces (MCP, CLI, the bundled skills, instructions.md) are about to
+    need this same answer. Built per surface, they drift, the way req_365 found the
+    loading threshold had. This does not start or claim a viewer -- that is
+    `claim_or_reuse` -- and it does not wait for one that is only starting: a passive
+    reader either finds a live address or returns nothing, on this call, bounded.
+    """
+    try:
+        raw = _registry_path().read_text(encoding="utf-8")
+    except OSError:
+        return None
+    try:
+        registry = json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+    existing = registry.get(str(Path(repo_root).resolve())) if isinstance(registry, dict) else None
+    if not isinstance(existing, dict):
+        return None
+    port = existing.get("port")
+    if not isinstance(port, int):
+        return None
+    scheme = str(existing.get("scheme", "http"))
+    if not _is_alive(host, port, scheme, timeout=RUNNING_VIEWER_PROBE_TIMEOUT_SECONDS):
+        return None
+    return RunningViewer(scheme=scheme, host=host, port=port)
+
+
 def register_fleet_project(repo_root: Path) -> None:
     """Record a CLI-selected project for the fleet server; browsers cannot add paths."""
     path = _registry_path()

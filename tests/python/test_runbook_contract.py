@@ -271,3 +271,46 @@ def test_kind_filter_pushed_into_loading_matches_filtering_afterwards(tmp_path: 
         assert {item["ref"] for item in list_logics_docs_payload(repo_root, kind=name)["items"]} == refs, name
         seen |= refs
     assert seen == set(everything)
+
+
+def test_backlog_to_task_links_are_indexed_once_not_re_scanned(tmp_path: Path) -> None:
+    """item_804: the one audit term that grew faster than the corpus.
+
+    `_linked_tasks_for_item` answered "which tasks implement this item" by scanning every
+    task for every item -- the product of the two counts. Measured over synthetic corpora,
+    quadrupling the corpus took the sweep from 0.015s to 0.202s (13.5x) where the index
+    took 0.001s to 0.006s.
+
+    Timing is not asserted here (it would be flaky); what is pinned is the shape that made
+    it quadratic -- the reverse map is built once per corpus mapping and reused -- and that
+    both link directions still resolve, since collapsing to one direction would be a much
+    faster wrong answer.
+    """
+    from logics_manager.audit import _collect_docs, _linked_tasks_for_item, _task_refs_by_backlog
+
+    (tmp_path / "logics" / "backlog").mkdir(parents=True)
+    (tmp_path / "logics" / "tasks").mkdir(parents=True)
+    # item_001 names its task; item_002 is named *by* its task. Both count.
+    (tmp_path / "logics" / "backlog" / "item_001_named.md").write_text(
+        "## item_001_named - Named\n> Status: Ready\n\n# Tasks\n- `task_001_declared_by_item`\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "logics" / "backlog" / "item_002_naming.md").write_text(
+        "## item_002_naming - Naming\n> Status: Ready\n", encoding="utf-8"
+    )
+    (tmp_path / "logics" / "tasks" / "task_001_declared_by_item.md").write_text(
+        "## task_001_declared_by_item - One\n> Status: Ready\n", encoding="utf-8"
+    )
+    (tmp_path / "logics" / "tasks" / "task_002_declaring_item.md").write_text(
+        "## task_002_declaring_item - Two\n> Status: Ready\n\n# Backlog\n- `item_002_naming`\n",
+        encoding="utf-8",
+    )
+
+    docs = _collect_docs(tmp_path)
+    first = _task_refs_by_backlog(docs)
+    assert _task_refs_by_backlog(docs) is first, "the reverse map is rebuilt on every lookup"
+
+    named = [doc.ref for doc in _linked_tasks_for_item(docs["item_001_named"], docs)]
+    naming = [doc.ref for doc in _linked_tasks_for_item(docs["item_002_naming"], docs)]
+    assert named == ["task_001_declared_by_item"]
+    assert naming == ["task_002_declaring_item"]

@@ -52,7 +52,11 @@ const allowedOversizedFiles = new Map(
     // report_issue_drift, tell_issues_at_closeout) beside the handlers already here.
     // 1974: launch_tunnel's server_command override, added so its own test could stop
     // depending on a real subprocess import (one parameter beside tunnel_command's own).
-    "logics_manager/mcp.py": { maxLines: 1974, ref: "req_372" },
+    // 1983: launch_tunnel now reconfigures its own stdout for line buffering -- a pipe
+    // (exactly how the viewer's Settings screen reads this command) defaults to full
+    // block buffering in Python, so the connector plan's URL line could sit unflushed
+    // for as long as the tunnel stays up, which is forever once it succeeds.
+    "logics_manager/mcp.py": { maxLines: 1983, ref: "req_372" },
     // 1029: item_674 added the install-identity helpers (_install_root, _shim_target,
     // _executable_identity) that let doctor tell one install from two. They sit beside
     // running_executable_path/shadowing_executables, the only callers and the only other

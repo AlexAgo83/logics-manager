@@ -982,6 +982,63 @@ def test_launch_tunnel_times_out_instead_of_hanging_on_a_silent_child(tmp_path: 
     assert elapsed < 3, f"the timeout should bound the wait near 0.5s, took {elapsed:.2f}s"
 
 
+def test_launch_tunnel_flushes_the_connector_plan_through_a_pipe(tmp_path: Path) -> None:
+    """The viewer's Settings screen reads this command's stdout over a pipe
+    (subprocess.Popen(..., stdout=subprocess.PIPE)) to learn the tunnel's URL, the exact
+    way this test spawns it. A pipe is not a tty: Python defaults to full block buffering
+    on one rather than the line buffering an interactive terminal gets, so a connector
+    plan printed here could sit in the child's internal buffer forever once the tunnel is
+    up and the process settles into serving indefinitely -- the reader waits on a line
+    that was already printed, just never actually delivered. Real reconciliation of this:
+    the connector stayed on 'Starting the secure tunnel...' for 9 minutes in the real
+    viewer while the tunnel itself had connected within seconds."""
+    repo_root = _repo(tmp_path)
+    port = _free_port()
+    # Neither side needs to be real: the server just needs to outlive the 0.8s startup
+    # check, and the "tunnel" only needs to print a URL-shaped line and then behave like
+    # the real steady state -- alive, quiet, serving -- which is exactly the state that
+    # never flushed a buffered line before this fix.
+    silent_server = [sys.executable, "-c", "import time; time.sleep(30)"]
+    # -u: this fake tunnel's own stdout would otherwise hit the exact same buffering this
+    # test exists to catch, just one process further down -- masking whether launch_tunnel
+    # itself flushes by never letting it see the URL line to react to in the first place.
+    fake_tunnel = [sys.executable, "-u", "-c", "print('your url is: https://fake-tunnel.example.test'); import time; time.sleep(30)"]
+
+    script = (
+        "import sys\n"
+        f"sys.path.insert(0, {str(Path(__file__).resolve().parents[2])!r})\n"
+        "from pathlib import Path\n"
+        "from logics_manager import mcp as mcp_module\n"
+        "mcp_module.launch_tunnel(\n"
+        f"    repo_root=Path({str(repo_root)!r}),\n"
+        "    host='127.0.0.1',\n"
+        f"    port={port},\n"
+        "    no_bearer=True,\n"
+        f"    server_command={silent_server!r},\n"
+        f"    tunnel_command={fake_tunnel!r},\n"
+        "    wait_seconds=20,\n"
+        ")\n"
+    )
+    process = subprocess.Popen([sys.executable, "-c", script], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    found = threading.Event()
+
+    def watch() -> None:
+        assert process.stdout is not None
+        for line in process.stdout:
+            if "ChatGPT developer-mode MCP URL" in line:
+                found.set()
+                return
+
+    watcher = threading.Thread(target=watch, daemon=True)
+    watcher.start()
+    try:
+        delivered = found.wait(timeout=10)
+        assert delivered, "the connector plan's URL line never reached the pipe within 10s"
+    finally:
+        process.terminate()
+        process.wait(timeout=5)
+
+
 def test_mcp_connector_plan_generates_chatgpt_setup(tmp_path: Path) -> None:
     repo_root = _repo(tmp_path)
 

@@ -1776,6 +1776,15 @@ def launch_tunnel(
     server_command: list[str] | None = None,
     wait_seconds: float = 30,
 ) -> int:
+    # The viewer's Settings screen runs this over a pipe (subprocess.Popen(...,
+    # stdout=subprocess.PIPE)) so it can read the connector plan's URL/token lines as
+    # they're printed below. A pipe is not a tty, so Python's stdio defaults to full
+    # block buffering rather than the line buffering an interactive terminal gets --
+    # everything this function prints sits unflushed until the buffer fills or the
+    # process exits, and this process runs forever once the tunnel is up. The reader
+    # then waits on a URL that was already printed, just never actually delivered.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(line_buffering=True)
     token = None if no_bearer else bearer_token or secrets.token_urlsafe(32)
     server_command = server_command or [sys.executable, "-m", "logics_manager", "mcp", "serve-http", "--repo-root", repo_root.as_posix(), "--host", host, "--port", str(port)]
     env = os.environ.copy()

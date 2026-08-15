@@ -1,7 +1,7 @@
 ## task_361_board_remove_the_leftover_full_card_wash_fix_progress_bar_placement - Board: remove the leftover full-card wash, fix progress bar placement
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 100%
@@ -41,6 +41,8 @@
 # Validation
 - `npx vitest run tests/webview.selectors.test.ts`: 17/17 passed (unaffected: these tests only assert the `card--progress-bar`/`card--used` classes are applied, not their CSS).
 - Visual confirmation via headless Chrome (`--use-mock-keychain`) against a live `--fleet` server: board card mode and list mode both screenshotted after the fix. Card mode: the progress bar renders directly under the card title, clearly separated from the priority/complexity badge row below it. List mode: the bar renders confined to the title's own grid column, well clear of the Status/linked-count/date columns to its right.
+- Finish workflow executed on 2026-08-15.
+- Linked backlog/request close verification passed.
 
 # Report
 - `.card--used`'s full-card yellow wash (`background: rgba(234, 179, 8, 0.18)`) removed from `clients/shared-web/media/css/board.css`, mirroring the stage-tint removal already done for `.card--status-*`.
@@ -51,6 +53,9 @@
   - Left accent: `.card--status-*` rules now carry border-style/width only (status signal); colour comes from `.card[data-stage="..."]` (stage signal) -- confirmed with the operator this replaces the prior status-colour encoding (item_719/767), trading it for two independent signals (colour = stage, shape = status) instead of one redundant one.
   - Progress fill: `--card-progress-color` custom property set per stage on `.card__title`, fill uses `color-mix(in srgb, var(--card-progress-color) 85%, transparent)` -- confirmed with the operator this replaces the prior "calm teal, avoid orange/red" decision.
 - Ran `npm run build:assets` to regenerate `viewer_assets/`.
+- Finished on 2026-08-15.
+- Linked backlog item(s): `item_790_board_remove_the_leftover_full_card_wash_fix_progress_bar_placement`
+- Related request(s): `req_359_viewer_redesign_mockups_gap_review_across_all_screens`
 
 # Links
 - Request: `req_359_viewer_redesign_mockups_gap_review_across_all_screens`

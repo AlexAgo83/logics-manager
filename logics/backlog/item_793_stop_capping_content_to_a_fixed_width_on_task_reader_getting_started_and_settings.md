@@ -1,7 +1,7 @@
 ## item_793_stop_capping_content_to_a_fixed_width_on_task_reader_getting_started_and_settings - Stop capping content to a fixed width on task/reader, Getting Started, and Settings
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 100%
@@ -52,3 +52,6 @@ Reported directly by the operator and independently corroborated by the mockup r
 
 # Tasks
 - `task_364_stop_capping_content_to_a_fixed_width_on_task_reader_getting_started_and_settings`
+
+# Notes
+- Task `task_364_stop_capping_content_to_a_fixed_width_on_task_reader_getting_started_and_settings` was finished via `logics-manager flow finish task` on 2026-08-15.

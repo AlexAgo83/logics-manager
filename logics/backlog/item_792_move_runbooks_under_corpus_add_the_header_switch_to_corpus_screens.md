@@ -1,7 +1,7 @@
 ## item_792_move_runbooks_under_corpus_add_the_header_switch_to_corpus_screens - Move Runbooks under Corpus, add the header switch to Corpus screens
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 100%
@@ -50,6 +50,7 @@ Reported directly by the operator, not found by the mockup review: Runbooks shou
 
 # Notes
 - Runbooks also has two independent, unrelated fixes tracked in req_362 (item_801: persist "Show hidden"; item_802: remove the "View graph" button), currently cited against `clients/viewer/src/browser-host/workshop.js`. If this slice relocates Runbooks' rendering code out of `workshop.js` (rather than only its nav placement), whichever of these three slices lands second should update the other two's file citations rather than assume they're stale.
+- Task `task_363_move_runbooks_under_corpus_add_the_header_switch_to_corpus_screens` was finished via `logics-manager flow finish task` on 2026-08-15.
 
 # Tasks
 - `task_363_move_runbooks_under_corpus_add_the_header_switch_to_corpus_screens`

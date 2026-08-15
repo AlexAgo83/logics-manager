@@ -58,18 +58,26 @@ const CAPTURES = [
     settle: ".markdown-preview--reading .markdown-preview__prose"
   },
   {
-    file: "viewer-health.png",
-    what: "Validation health: lint, audit and workflow findings from this repository.",
-    steps: ["#viewer-corpus", "[data-viewer-nav-target='corpus:health']"],
-    settle: ".viewer-health__section, .viewer-health__empty"
-  },
-  {
     file: "viewer-insights.png",
     what: "Corpus insights: the shape of the corpus and the signals worth acting on.",
     steps: ["#viewer-corpus", "[data-viewer-nav-target='corpus:insights']"],
     settle: ".viewer-insights__section, .viewer-insights__empty"
+  },
+  {
+    // item_798/AC3: the board's other half. A reader who has only ever seen the columns
+    // does not know the list exists, and it is where grouping, sorting and the age column
+    // live. Last in the list on purpose: it leaves the board in list mode, and every other
+    // capture assumes the columns.
+    file: "viewer-board-list.png",
+    what: "The board in list mode: one row per document, grouped and sortable, with age.",
+    steps: ["[data-action='toggle-view-mode']"],
+    settle: ".list-view__section .list-view__header"
   }
 ];
+
+// item_798/AC4: the Validation health capture is gone rather than regenerated. Reported
+// directly by the operator as deceptive: it was taken on a corpus whose findings bore no
+// relation to what a reader would see, so it advertised a verdict rather than a screen.
 
 const viewer = await startViewer();
 if (viewer.skipped) {

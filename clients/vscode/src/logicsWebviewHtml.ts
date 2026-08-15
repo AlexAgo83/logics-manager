@@ -383,7 +383,9 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
         />
       </div>
       <div class="toolbar__ordering">
-        <label class="toolbar__select">
+        <!-- Not a <label>: it wrapped a select, and a label wrapping buttons makes clicking
+             the word "Group" press the first segment. The group names itself instead. -->
+        <div class="toolbar__select">
           <span>Group</span>
           <div class="toolbar__segmented" id="group-by" role="group" aria-label="Group items">
             <button class="toolbar__segment" type="button" value="stage" aria-pressed="true">Type</button>
@@ -391,7 +393,7 @@ export function buildLogicsWebviewHtml(extensionUri: vscode.Uri, webview: vscode
             <button class="toolbar__segment" type="button" value="theme" aria-pressed="false">Theme</button>
             <button class="toolbar__segment" type="button" value="none" aria-pressed="false">None</button>
           </div>
-        </label>
+        </div>
         <label class="toolbar__select">
           <span>Sort</span>
           <select id="sort-by" aria-label="Sort items">

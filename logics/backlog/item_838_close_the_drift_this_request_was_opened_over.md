@@ -1,10 +1,10 @@
 ## item_838_close_the_drift_this_request_was_opened_over - Close the drift this request was opened over
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 10%
+> Status: Done
+> Understanding: 100%
+> Confidence: 100%
+> Progress: 100%
 > Complexity: Low
 > Theme: Proven on the case that motivated it
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

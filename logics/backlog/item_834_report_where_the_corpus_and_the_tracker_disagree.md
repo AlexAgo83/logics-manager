@@ -2,9 +2,9 @@
 > From version: 2.21.9
 > Schema version: 1.0
 > Status: In progress
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 10%
+> Understanding: 95%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Drift is reported, not remembered
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -53,3 +53,6 @@
 # Priority
 - Priority: High
 - Rationale: It makes the drift visible instead of requiring discipline
+
+# Validation
+- reconciliation_report_payload names each of the three disagreements separately (issue number, url, request ref, request status) -- test_reconciliation_report_names_all_three_disagreements exercises all three plus the settled/closed case that must report nothing. No GitHub remote or a failing `gh` returns {"ok": false, "reachable": false, "message": ...} rather than an empty report. The gh call requests only number/state/labels/url -- never body -- asserted directly in the test. Verified live against this repo's real corpus and remote: issues #20 and #21 show up exactly as open_issues_with_no_request, the drift this request exists to close. 3 tests in tests/python/test_github_bridge.py, plus report_issue_drift MCP tool wiring tested in test_logics_manager_mcp.py.

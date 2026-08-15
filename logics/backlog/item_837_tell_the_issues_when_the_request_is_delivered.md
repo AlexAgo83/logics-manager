@@ -2,9 +2,9 @@
 > From version: 2.21.9
 > Schema version: 1.0
 > Status: In progress
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 10%
+> Understanding: 95%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Telling the tracker is part of finishing
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -52,3 +52,6 @@
 # Priority
 - Priority: Medium
 - Rationale: The half that closes the loop, and the only outward write here: worth doing carefully rather than early.
+
+# Validation
+- closeout_notice_payload states the label ("logics:<state>") and comment ("Logics lifecycle update: **<state>** — linked workflow: `<ref>`.") for every issue a request names, matching .github/workflows/logics-issue-update.yml's own wording exactly. Nothing is posted unless post=True is passed explicitly; the MCP tool (tell_issues_at_closeout) inverts this to dry_run defaulting true, so the dry statement stays the default while still satisfying the project's "every mutating tool declares dry_run" contract. A failed gh call is reported in errors[] without raising, and posted stays false. Verified live (dry only) against req_302/#9 -- the notice text matches exactly what the real workflow would post. 4 tests in tests/python/test_github_bridge.py, 2 MCP-level tests in test_logics_manager_mcp.py.

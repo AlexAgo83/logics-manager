@@ -13,6 +13,7 @@ import re
 import subprocess
 import sys
 import threading
+import time
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
@@ -20,7 +21,7 @@ from pathlib import Path
 import pytest
 
 from logics_manager import viewer_registry
-from logics_manager.viewer_registry import claim_or_reuse, fleet_projects, register_fleet_project
+from logics_manager.viewer_registry import claim_or_reuse, fleet_projects, register_fleet_project, running_viewer
 from process_fixtures import read_subprocess_line
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -158,6 +159,41 @@ def test_stale_entry_is_replaced_not_trusted_blindly(tmp_path: Path) -> None:
     assert second.reused is False
     assert second.port == 2
     assert len(calls) == 1
+
+
+def test_running_viewer_reports_scheme_host_and_port(tmp_path: Path) -> None:
+    """item_830 AC1: with a viewer running, the reader returns its address."""
+    real_server, thread = _start_real_status_server()
+    try:
+        port = real_server.server_address[1]
+        claim_or_reuse(tmp_path, "127.0.0.1", bind=lambda: _FakeServer(("127.0.0.1", port)))
+
+        found = running_viewer(tmp_path, host="127.0.0.1")
+        assert found is not None
+        assert found.scheme == "http"
+        assert found.host == "127.0.0.1"
+        assert found.port == port
+    finally:
+        real_server.shutdown()
+        thread.join(timeout=2)
+
+
+def test_running_viewer_is_absent_with_no_registry_or_a_dead_claim(tmp_path: Path) -> None:
+    """item_830 AC2: no viewer, or a claim naming a port that answers nothing, is nothing
+    rather than a default -- never a guessed address."""
+    assert running_viewer(tmp_path, host="127.0.0.1") is None
+
+    claim_or_reuse(tmp_path, "127.0.0.1", bind=lambda: _FakeServer(("127.0.0.1", 1)))
+    assert running_viewer(tmp_path, host="127.0.0.1") is None
+
+
+def test_running_viewer_is_bounded_against_a_port_that_never_answers(tmp_path: Path) -> None:
+    """item_830 AC3: a registry naming a port nothing listens on must not hang the caller."""
+    claim_or_reuse(tmp_path, "127.0.0.1", bind=lambda: _FakeServer(("127.0.0.1", 1)))
+
+    start = time.monotonic()
+    assert running_viewer(tmp_path, host="127.0.0.1") is None
+    assert time.monotonic() - start < 2.0, "a dead claim's probe was not bounded"
 
 
 def test_different_repo_roots_each_get_their_own_claim(tmp_path: Path) -> None:

@@ -7,6 +7,7 @@ import threading
 from http.client import HTTPConnection
 from http.server import ThreadingHTTPServer
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -344,15 +345,19 @@ def test_mcp_read_list_search_and_context_tools(tmp_path: Path) -> None:
     assert read["status"] == "Draft"
     assert "Needs" in read["sections"]
     assert len(read["content"]) <= 300
+    # item_831 AC3: no viewer is running in this test, so the field is absent entirely.
+    assert "viewer_url" not in read
 
     listed = call_tool("list_logics_docs", {"kind": "request", "status": "Draft", "ref_prefix": "req_", "limit": 5}, repo_root=repo_root)
     assert listed["ok"] is True
     assert any(item["ref"] == created["ref"] for item in listed["items"])
+    assert "viewer_url_template" not in listed
 
     searched = call_tool("search_logics_docs", {"query": "bounded-context-marker", "kind": "request"}, repo_root=repo_root)
     assert searched["ok"] is True
     assert searched["matches"][0]["ref"] == created["ref"]
     assert "bounded-context-marker" in searched["matches"][0]["snippet"]
+    assert "viewer_url_template" not in searched
 
     pack = call_tool("build_context_pack", {"ref": created["ref"], "mode": "summary-only", "profile": "tiny"}, repo_root=repo_root)
     assert pack["ok"] is True
@@ -400,6 +405,51 @@ def test_mcp_read_list_search_and_context_tools(tmp_path: Path) -> None:
     assert [step["kind"] for step in release_plan["steps"] if step.get("publication_action")] == ["github_release"]
     assert release_pack["release"]["target_version"] == "4.5.6"
     assert "Release readiness must come from project-owned evidence, not conversational memory." in release_pack["release"]["guidance"]
+
+
+def test_mcp_read_and_list_tools_carry_the_viewer_link_when_one_is_running(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """item_831: a single-document response carries that document's own link; a listing
+    carries one template, not one URL per row -- and both read the running viewer fresh
+    rather than trusting anything stored."""
+    from logics_manager import viewer_docs
+
+    repo_root = _repo(tmp_path)
+    monkeypatch.setattr(
+        viewer_docs,
+        "running_viewer",
+        lambda root, **kwargs: SimpleNamespace(scheme="http", host="127.0.0.1", port=4321),
+    )
+
+    created = call_tool(
+        "create_request",
+        {
+            "title": "Linked MCP context",
+            "needs": ["Let agents read a bounded Logics document."],
+            "context": ["Search should find this unique marker: linked-mcp-context-marker."],
+            "acceptance_criteria": ["The document can be read and searched."],
+        },
+        repo_root=repo_root,
+    )
+
+    read = call_tool("read_logics_doc", {"source": created["ref"]}, repo_root=repo_root)
+    assert read["viewer_url"] == f"http://127.0.0.1:4321?focus={created['ref']}&read=1"
+
+    template = "http://127.0.0.1:4321?focus={ref}&read=1"
+
+    listed = call_tool("list_logics_docs", {"kind": "request", "ref_prefix": "req_"}, repo_root=repo_root)
+    assert listed["viewer_url_template"] == template
+    # AC4: one template regardless of how many rows matched, not one URL per row.
+    assert listed["items"]
+    assert all("viewer_url" not in item for item in listed["items"])
+
+    searched = call_tool("search_logics_docs", {"query": "linked-mcp-context-marker"}, repo_root=repo_root)
+    assert searched["viewer_url_template"] == template
+
+    active = call_tool("list_active_work", {}, repo_root=repo_root)
+    assert active["viewer_url_template"] == template
+
+    companions = call_tool("list_companion_docs", {}, repo_root=repo_root)
+    assert companions["viewer_url_template"] == template
 
 
 def test_mcp_operator_signal_tools(tmp_path: Path) -> None:

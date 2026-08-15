@@ -40,6 +40,7 @@ from .sync import (
     search_logics_docs_payload,
     update_workflow_indicators_payload,
 )
+from .viewer_docs import viewer_url_for_ref, viewer_url_template
 
 
 ALLOWED_WRITE_DIRS = (
@@ -609,6 +610,23 @@ def _list_companion_docs(repo_root: Path, *, kind: str = "all", limit: int = 50)
     return {"kind": kind, "limit": limit, "count": len(bounded_items), "total_count": len(items), "items": bounded_items}
 
 
+def _with_viewer_url(root: Path, ref: str, payload: dict[str, Any]) -> dict[str, Any]:
+    """item_831 AC1/AC3/AC5: read at response time -- never stored -- and absent entirely
+    when nothing is running, rather than a guessed default."""
+    link = viewer_url_for_ref(root, ref)
+    if link:
+        payload["viewer_url"] = link
+    return payload
+
+
+def _with_viewer_url_template(root: Path, payload: dict[str, Any]) -> dict[str, Any]:
+    """item_831 AC2/AC5: one template per listing, not one URL per row."""
+    template = viewer_url_template(root)
+    if template:
+        payload["viewer_url_template"] = template
+    return payload
+
+
 def _bounded_int(value: Any, *, default: int, maximum: int) -> int:
     if not isinstance(value, int) or isinstance(value, bool):
         return default
@@ -687,18 +705,18 @@ def _tool_list_active_work(root: Path, args: dict[str, Any], name: str) -> dict[
     kind = str(args.get("kind") or "all")
     if kind not in {"all", "request", "backlog", "task"}:
         raise McpToolError("invalid_argument_value", "Unsupported list kind.", details={"kind": kind, "allowed": ["all", "request", "backlog", "task"]})
-    return {"ok": True, "items": flow_list_payload(root, kind=kind)["entries"]}
+    return _with_viewer_url_template(root, {"ok": True, "items": flow_list_payload(root, kind=kind)["entries"]})
 
 def _tool_list_companion_docs(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     payload = _list_companion_docs(root, kind=str(args.get("kind") or "all"), limit=_bounded_int(args.get("limit"), default=50, maximum=200))
-    return {"ok": True, **payload}
+    return _with_viewer_url_template(root, {"ok": True, **payload})
 
 def _tool_read_logics_doc(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     try:
         payload = read_logics_doc_payload(root, str(args.get("source") or ""), max_chars=_bounded_int(args.get("max_chars"), default=4000, maximum=12000), sections=args.get("sections") if isinstance(args.get("sections"), list) else None)
     except SystemExit as exc:
         raise _mcp_read_error(exc) from exc
-    return {"ok": True, **payload}
+    return _with_viewer_url(root, str(payload["ref"]), {"ok": True, **payload})
 
 def _tool_build_context_pack(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     try:
@@ -724,7 +742,7 @@ def _tool_list_logics_docs(root: Path, args: dict[str, Any], name: str) -> dict[
         ref_prefix=str(args["ref_prefix"]) if args.get("ref_prefix") else None,
         limit=_bounded_int(args.get("limit"), default=50, maximum=200),
     )
-    return {"ok": True, **payload}
+    return _with_viewer_url_template(root, {"ok": True, **payload})
 
 def _tool_search_logics_docs(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     try:
@@ -738,7 +756,7 @@ def _tool_search_logics_docs(root: Path, args: dict[str, Any], name: str) -> dic
         )
     except SystemExit as exc:
         raise _mcp_read_error(exc) from exc
-    return {"ok": True, **payload}
+    return _with_viewer_url_template(root, {"ok": True, **payload})
 
 def _tool_match_runbooks(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     try:

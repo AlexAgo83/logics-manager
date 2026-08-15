@@ -1767,6 +1767,35 @@ describe("local viewer browser host", () => {
     expect(modal?.textContent).toContain("fallback folder browser");
   });
 
+  it("asks before running git push, and does nothing if the operator cancels", async () => {
+    // Push and Pull moved the repository against a remote from one click in a menu, with no
+    // undo on the far side of a push. Driven through the real button rather than asserted
+    // against the source: what matters is that no terminal is spawned before the answer.
+    const { dom, calls } = createViewerDom();
+    dom.window.acquireVsCodeApi().postMessage({ type: "ready" });
+    await flushViewerAsync();
+
+    const push = dom.window.document.getElementById("viewer-git-push") as HTMLButtonElement | null;
+    expect(push).not.toBeNull();
+    push!.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    // Picked by its own title: the harness has other modals open, so "the first modal on the
+    // page" would not say which one this assertion is about.
+    const modal = [...dom.window.document.querySelectorAll(".viewer-themed-modal")]
+      .find((node) => node.querySelector(".viewer-themed-modal__title")?.textContent === "Push to the remote?") as HTMLElement | undefined;
+    expect(modal).toBeDefined();
+    expect(modal?.textContent).toContain("git push");
+    expect(calls).not.toContain("/api/workshop-terminal-start");
+
+    (modal!.querySelector(".viewer-themed-modal__cancel") as HTMLButtonElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(modal!.isConnected).toBe(false);
+    expect(calls).not.toContain("/api/workshop-terminal-start");
+  });
+
   it("shows a failed action's reason to the operator, and lets the next attempt supersede it", async () => {
     // item_727/item_730. Failures used to go through setMeta, into the small grey subtitle
     // beside the document count -- and scheduleNextAutoRefresh calls renderMeta on every

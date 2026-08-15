@@ -12681,8 +12681,22 @@ ${shown.join("\n")}${files.length > shown.length ? `
         const panel = document.getElementById("viewer-git-actions-menu");
         setGitActionsMenuOpen(Boolean(panel?.hidden));
       });
-      document.getElementById("viewer-git-pull")?.addEventListener("click", () => {
+      function confirmGitRemoteAction({ title, verb, submitLabel }) {
+        const payload = gitState.latestGitStatusPayload || {};
+        const branch = payload.branch || "the current branch";
+        const tracking = payload.tracking ? ` (tracking ${payload.tracking})` : "";
+        const ahead = Number(payload.ahead || 0);
+        const behind = Number(payload.behind || 0);
+        const counts = verb === "push" ? `${ahead} commit${ahead === 1 ? "" : "s"} ahead` : `${behind} commit${behind === 1 ? "" : "s"} behind`;
+        return showThemedConfirmModal({
+          title,
+          message: `Run \`git ${verb}\` on ${branch}${tracking}: ${counts}. It runs in a Workshop terminal.`,
+          submitLabel
+        });
+      }
+      document.getElementById("viewer-git-pull")?.addEventListener("click", async () => {
         setGitActionsMenuOpen(false);
+        if (!await confirmGitRemoteAction({ title: "Pull from the remote?", verb: "pull", submitLabel: "Pull" })) return;
         recordGitActivity("Pull", "Git pull started in a Workshop terminal");
         spawnWorkshopTerminal({ command: ["git", "pull"], label: "git pull" });
       });
@@ -12690,8 +12704,9 @@ ${shown.join("\n")}${files.length > shown.length ? `
         setGitActionsMenuOpen(false);
         openGitCommitModal().catch((error) => setMeta(error?.message || "Git commit failed."));
       });
-      document.getElementById("viewer-git-push")?.addEventListener("click", () => {
+      document.getElementById("viewer-git-push")?.addEventListener("click", async () => {
         setGitActionsMenuOpen(false);
+        if (!await confirmGitRemoteAction({ title: "Push to the remote?", verb: "push", submitLabel: "Push" })) return;
         recordGitActivity("Push", "Git push started in a Workshop terminal");
         spawnWorkshopTerminal({ command: ["git", "push"], label: "git push" });
       });

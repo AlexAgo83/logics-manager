@@ -173,6 +173,12 @@ def _fake_server(builder):
         status_components={},
         status_cache={},
         status_cache_lock=Lock(),
+        # item_840: status_component now takes a per-key lock so a poll racing the
+        # warm-up waits on the computation already running instead of starting a second.
+        report_locks={},
+        # item_839: the lifetime is floored at 1.5x the poll interval, so the TTL lookup
+        # needs one to compare against.
+        auto_refresh_interval_seconds=15,
         _build_project_state=builder,
     )
 

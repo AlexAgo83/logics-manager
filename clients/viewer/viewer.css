@@ -7096,3 +7096,14 @@
   }
 }
 
+
+/* item_815: a kept answer and a fresh one look identical, so the screen says which it is. */
+.viewer-screen-freshness {
+  margin: 0 0 12px;
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
+.viewer-screen-freshness--stale {
+  color: var(--vscode-editorWarning-foreground, #d29922);
+}

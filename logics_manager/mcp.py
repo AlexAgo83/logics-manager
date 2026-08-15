@@ -7,11 +7,13 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import io
 import json
 import os
+import queue
 import re
 import secrets
 import signal
 import subprocess
 import sys
+import threading
 import time
 from fnmatch import fnmatch
 from pathlib import Path
@@ -1732,6 +1734,7 @@ def launch_tunnel(
     bearer_token: str | None = None,
     no_bearer: bool = False,
     tunnel_command: list[str] | None = None,
+    wait_seconds: float = 30,
 ) -> int:
     token = None if no_bearer else bearer_token or secrets.token_urlsafe(32)
     server_command = [sys.executable, "-m", "logics_manager", "mcp", "serve-http", "--repo-root", repo_root.as_posix(), "--host", host, "--port", str(port)]
@@ -1756,14 +1759,31 @@ def launch_tunnel(
         if server.poll() is not None:
             return server.returncode or 1
         tunnel = subprocess.Popen(tunnel_command, cwd=repo_root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        # The 30s cap below only holds if reading a line can never itself block past it.
+        # `tunnel.stdout.readline()` on the main thread can: a stuck `npx` install or a
+        # tunnel host that never answers produces no line at all, and readline() has no
+        # timeout of its own -- the wall-clock check between reads never gets a turn.
+        # A daemon thread pumps lines into a queue instead, so the main thread's `get`
+        # timeout is what actually bounds the wait, not the child's willingness to speak.
+        lines: queue.Queue[str | None] = queue.Queue()
+
+        def pump() -> None:
+            if tunnel.stdout is not None:
+                for line in tunnel.stdout:
+                    lines.put(line)
+            lines.put(None)
+
+        threading.Thread(target=pump, daemon=True).start()
         public_url = None
         start = time.monotonic()
-        while time.monotonic() - start < 30:
+        while time.monotonic() - start < wait_seconds:
             if tunnel.poll() is not None:
                 return tunnel.returncode or 1
-            line = tunnel.stdout.readline() if tunnel.stdout else ""
-            if not line:
-                time.sleep(0.1)
+            try:
+                line = lines.get(timeout=0.1)
+            except queue.Empty:
+                continue
+            if line is None:
                 continue
             print(line.rstrip())
             match = re.search(r"https://\S+", line)
@@ -1771,7 +1791,7 @@ def launch_tunnel(
                 public_url = match.group(0).rstrip("/")
                 break
         if not public_url:
-            raise McpToolError("command_failed", "Tunnel command did not print a public HTTPS URL within 30 seconds.", details={"command": tunnel_command})
+            raise McpToolError("command_failed", f"Tunnel command did not print a public HTTPS URL within {wait_seconds:g} seconds.", details={"command": tunnel_command})
         plan = connector_plan(repo_root=repo_root, host=host, port=port, bearer_token=token, public_url=public_url, no_bearer=no_bearer, project_binary=_project_binary_path(repo_root))
         _print_connector_plan(plan)
         print("Processes are running. Press Ctrl-C to stop server and tunnel.")

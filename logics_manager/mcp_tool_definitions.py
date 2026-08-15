@@ -408,4 +408,21 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
         "description": "Check required workflow directories and schema metadata.",
         "inputSchema": _tool_schema({}),
     },
+    {
+        "name": "report_issue_drift",
+        "description": "Report where the corpus and the GitHub issue tracker disagree: open issues with no linked request, Done requests whose issues are still open, and closed issues whose request is still open. Reads issue state only, never a body.",
+        "inputSchema": _tool_schema({}),
+    },
+    {
+        "name": "tell_issues_at_closeout",
+        "description": "State what would be posted to the GitHub issues a request names (label + lifecycle comment), matching the existing Logics issue update workflow's wording. Unlike every other mutating tool, dry_run defaults true here -- an explicit dry_run=false posts.",
+        "inputSchema": _tool_schema(
+            {
+                "source": {"type": "string"},
+                "state": {"type": "string", "enum": ["accepted", "in-progress", "delivered", "declined"]},
+                "dry_run": {"type": "boolean"},
+            },
+            ["source", "state"],
+        ),
+    },
 ]

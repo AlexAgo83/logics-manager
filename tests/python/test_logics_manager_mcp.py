@@ -287,6 +287,60 @@ def test_mcp_attach_github_issue_dry_run_writes_nothing(tmp_path: Path) -> None:
     assert (repo_root / created["path"]).read_text(encoding="utf-8") == before
 
 
+def test_mcp_report_issue_drift_degrades_cleanly_with_no_remote(tmp_path: Path) -> None:
+    """item_834 AC2, wired through the MCP tool: a repo with no GitHub remote reports
+    that the tracker could not be read, never an empty (falsely clean) disagreement."""
+    repo_root = _repo(tmp_path)
+
+    result = call_tool("report_issue_drift", {}, repo_root=repo_root)
+
+    assert result["ok"] is False
+    assert result["reachable"] is False
+    assert result["message"]
+
+
+def test_mcp_tell_issues_at_closeout_is_a_dry_statement_by_default(tmp_path: Path) -> None:
+    """item_837 AC1/AC2, wired through the MCP tool: what would be posted, not posted."""
+    repo_root = _repo(tmp_path)
+    created = call_tool(
+        "create_request",
+        {
+            "title": "Delivered thing",
+            "needs": ["n"],
+            "context": ["c"],
+            "acceptance_criteria": ["a"],
+        },
+        repo_root=repo_root,
+    )
+    call_tool("attach_github_issue", {"source": created["ref"], "issue_url": "https://github.com/acme/demo/issues/20"}, repo_root=repo_root)
+
+    result = call_tool("tell_issues_at_closeout", {"source": created["ref"], "state": "delivered"}, repo_root=repo_root)
+
+    assert result["ok"] is True
+    assert result["posted"] is False
+    assert result["notices"] == [
+        {
+            "issue_url": "https://github.com/acme/demo/issues/20",
+            "label": "logics:delivered",
+            "comment": f"Logics lifecycle update: **delivered** — linked workflow: `{created['ref']}`.",
+        }
+    ]
+
+
+def test_mcp_tell_issues_at_closeout_rejects_an_unsupported_state(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    created = call_tool(
+        "create_request",
+        {"title": "Bad state", "needs": ["n"], "context": ["c"], "acceptance_criteria": ["a"]},
+        repo_root=repo_root,
+    )
+
+    with pytest.raises(McpToolError) as exc:
+        call_tool("tell_issues_at_closeout", {"source": created["ref"], "state": "bogus"}, repo_root=repo_root)
+
+    assert exc.value.code in ("invalid_argument_value", "unsupported_argument")
+
+
 def test_mcp_command_errors_scrub_raw_output_details(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     repo_root = _repo(tmp_path)
 

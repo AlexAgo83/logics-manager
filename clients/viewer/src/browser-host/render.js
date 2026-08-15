@@ -728,6 +728,15 @@ export function renderHealthSummary(lintData, auditData, healthData = null, know
     const warnings = countPayloadEntries(lintPayload, ["warning_count", "warnings"]) +
       countPayloadEntries(auditPayload, ["warning_count", "warnings"]);
     const findings = collectHealthFindings(lintData, auditData);
+    // item_797: "Apply fixes..." said neither how many findings it would touch nor which, so
+    // the only way to find out was to press it. The set of repairable codes travels in the
+    // audit payload (`autofix_codes`), so this counts against the repair's own declaration
+    // rather than a copy of it kept here -- a copy would drift the first time a repair is
+    // added and quietly under-report.
+    const autofixCodes = new Set(Array.isArray(auditData?.payload?.autofix_codes) ? auditData.payload.autofix_codes : []);
+    const fixable = autofixCodes.size ? findings.filter((finding) => autofixCodes.has(finding?.code)) : [];
+    const fixableCount = fixable.length;
+    const fixableCodes = [...new Set(fixable.map((finding) => String(finding?.code || "")))].filter(Boolean).sort();
     // Workflow health is a separate report from lint and audit: blocked docs,
     // backlog items with no task, and stale docs are only reported there, so
     // this screen showed none of them.
@@ -863,7 +872,7 @@ export function renderHealthSummary(lintData, auditData, healthData = null, know
         <section class="viewer-health__section">
           <div class="viewer-health__section-header">
             <h2 class="viewer-health__heading">Validation findings</h2>
-            <button class="viewer-health__apply-fixes" type="button" data-viewer-apply-fixes title="Shows which documents would be edited before applying anything">Apply fixes\u2026</button>
+            <button class="viewer-health__apply-fixes" type="button" data-viewer-apply-fixes${fixableCount ? "" : " disabled"} title="${fixableCount ? `Repairs ${fixableCount} finding${fixableCount === 1 ? "" : "s"}: ${escapeHtml(fixableCodes.join(", "))}. Shows which documents would be edited before applying anything` : "No finding on this screen can be repaired automatically"}">Apply fixes\u2026${fixableCount ? ` (${fixableCount})` : ""}</button>
           </div>
           <ul class="viewer-health__list">${list}</ul>
         </section>

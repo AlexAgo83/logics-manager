@@ -92,7 +92,7 @@ export const onboardingStages = [
       ],
       mapping: "Maps to logics/request/, logics/product/, and logics/roadmap/.",
       corpusStages: ["request", "product", "roadmap"],
-      actions: [{ label: "New Request", action: "new-request" }]
+      actions: [{ label: "New Request", action: "new-request" }, { label: "Open the board", action: "board" }]
     },
     {
       label: "Delivery Slices",
@@ -107,7 +107,7 @@ export const onboardingStages = [
       // item_752: this stage ended in nothing while the others ended in an action, so the
       // guide stopped being a sequence at its second step. The board is where the slices it
       // describes actually appear.
-      actions: [{ label: "Open the board", action: "board" }]
+      actions: [{ label: "Open the board", action: "board" }, { label: "Open Insights", action: "open-logics-insights" }]
     },
     {
       label: "Execution",
@@ -119,7 +119,7 @@ export const onboardingStages = [
       ],
       mapping: "Maps to task execution, commits, checks, and activity in the viewer.",
       corpusStages: ["task"],
-      actions: [{ label: "CDX Missions", action: "cdx-missions" }]
+      actions: [{ label: "CDX Missions", action: "cdx-missions" }, { label: "Open the board", action: "board" }]
     },
     {
       label: "Closeout",
@@ -131,7 +131,7 @@ export const onboardingStages = [
       ],
       mapping: "Maps to statuses across request, backlog, task, product, roadmap, ADR, and spec docs.",
       corpusStages: ["architecture", "spec"],
-      actions: [{ label: "Open Health", action: "health" }]
+      actions: [{ label: "Open Health", action: "health" }, { label: "Open Insights", action: "open-logics-insights" }]
     }
   ];
 

@@ -99,6 +99,21 @@ GOVERNANCE_PROFILES = {
     },
 }
 
+#: The finding codes `--apply-fixes` can actually repair, split by which repair does it.
+#: item_797: the viewer's "Apply fixes..." button said neither how many findings it would
+#: touch nor which. It can count them itself now instead of the count being re-derived (and
+#: drifting) on the client -- the repair and the claim about the repair read one list.
+AUTOFIX_STRUCTURE_CODES = (
+    "request_missing_dor",
+    "task_missing_dod",
+    "token_hygiene_missing_ai_context",
+)
+AUTOFIX_AC_TRACEABILITY_CODES = (
+    "ac_missing_item_traceability",
+    "ac_missing_task_traceability",
+)
+AUTOFIX_ISSUE_CODES = (*AUTOFIX_STRUCTURE_CODES, *AUTOFIX_AC_TRACEABILITY_CODES)
+
 HYBRID_CACHE_JSONL_FILES = (
     Path("logics/.cache/hybrid_assist_audit.jsonl"),
     Path("logics/.cache/hybrid_assist_measurements.jsonl"),
@@ -1258,12 +1273,7 @@ def audit_payload(
         if autofix_modified and not autofix_dry_run:
             all_docs = _collect_docs(repo_root)
             docs = _apply_scope(all_docs, repo_root, paths or [], refs or [], scope_since)
-            structure_issue_codes = {
-                "request_missing_dor",
-                "task_missing_dod",
-                "token_hygiene_missing_ai_context",
-            }
-            issues = [issue for issue in issues if issue.code not in structure_issue_codes]
+            issues = [issue for issue in issues if issue.code not in set(AUTOFIX_STRUCTURE_CODES)]
 
     issues.extend(_scan_hybrid_cache_for_credentials(repo_root))
     sorted_issues = _sorted_issues(issues, repo_root)
@@ -1310,6 +1320,8 @@ def audit_payload(
         "findings": serialized_findings,
         "issues_by_doc": dict(sorted(issues_by_doc.items())),
         "findings_by_doc": dict(sorted(findings_by_doc.items())),
+        #: What `--apply-fixes` is able to repair, so a caller can say so before running it.
+        "autofix_codes": list(AUTOFIX_ISSUE_CODES),
         "counts": {
             "by_code": dict(sorted(by_code.items())),
             "by_path": dict(sorted(by_path.items())),

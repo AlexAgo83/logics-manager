@@ -3276,15 +3276,24 @@ import {
     const primaryState = needsAttention > 0
       ? `${needsAttention} signals need attention`
       : "No immediate workflow risk detected";
+    // item_797: the summary said how many signals needed attention and stopped there, in the
+    // same neutral grey whether the answer was none or forty. The tone is the answer, and the
+    // action beside it is the one place that answer leads -- quality findings are Health's,
+    // and everything else on this screen is a list you read rather than a thing you do.
+    const insightsTone = qualityTotal > 0 ? "bad" : needsAttention > 0 ? "warn" : "ok";
+    const insightsAction = qualityTotal > 0
+      ? { label: `Open Health (${qualityTotal} finding${qualityTotal === 1 ? "" : "s"})`, action: "health" }
+      : null;
     return `
       <div class="viewer-insights">
         ${renderCorpusModeSwitcher("insights")}
-        <section class="viewer-insights__hero">
+        <section class="viewer-insights__hero viewer-insights__hero--${escapeHtml(insightsTone)}">
           <div>
             <h2>Overview</h2>
             <p>${escapeHtml(primaryState)} across ${escapeHtml(docs.length)} workflow docs.</p>
+            ${insightsAction ? `<button class="btn viewer-insights__hero-action" type="button" data-viewer-onboarding-action="${escapeHtml(insightsAction.action)}">${escapeHtml(insightsAction.label)}</button>` : ""}
           </div>
-          <div class="viewer-insights__summary">${renderMetricCards([
+          <div class="viewer-insights__summary viewer-insights__summary--strip">${renderMetricCards([
             // item_747/AC3: `Needs attention` is the sum of the signals reported below it,
             // so it is labelled as a total rather than sitting beside its own components as
             // if it were one more of them.
@@ -3313,15 +3322,20 @@ import {
           </section>
           <section class="viewer-insights__section">
             <h2>Flow health</h2>
+            <!-- item_747 split these rows by the rule that decides whether they are defects,
+                 but left them in one list where only a tone told them apart. item_797 makes
+                 the split structural: what needs a decision, then what is merely the shape of
+                 work in progress -- dimmed, because reading it as a problem is the mistake
+                 this grouping exists to prevent. -->
+            <h3 class="viewer-insights__subhead">Needs a decision</h3>
             <ul class="viewer-insights__signals">${renderSignalRows([
-              // item_747: the two rows the headline used to count are split by the same rule
-              // that decides whether they are defects. An in-flight chain is not hidden --
-              // it is reported as what it is, so a reader can see the queue without the
-              // headline claiming it needs a decision.
               [`Chains untouched for ${IN_FLIGHT_GRACE_DAYS}+ days`, chainsOverdue.length, chainsOverdue.length ? "warning" : "ok"],
-              ["Chains in flight", chainsInFlight.length, "muted"],
-              ["Orphan or unlinked docs", unlinked.length, unlinked.length ? "muted" : "ok"],
               ["Broken reference risks", brokenRefs.length, brokenRefs.length ? "warning" : "ok"]
+            ])}</ul>
+            <h3 class="viewer-insights__subhead viewer-insights__subhead--muted">Expected while work is in flight</h3>
+            <ul class="viewer-insights__signals viewer-insights__signals--muted">${renderSignalRows([
+              ["Chains in flight", chainsInFlight.length, "muted"],
+              ["Orphan or unlinked docs", unlinked.length, "muted"]
             ])}</ul>
             <ul class="viewer-insights__rows">${renderDocRows(
               chainsOverdue.length ? chainsOverdue : chainsInFlight,

@@ -1,0 +1,508 @@
+{
+  "budgets": {
+    "max_docs": 24,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents item_816_say_the_board_is_loading_instead_of_saying_the_project_is_empty item_817_let_a_runbook_be_a_document_and_retire_its_screen item_818_collapse_a_reference_category_on_its_own item_819_make_getting_started_s_stage_list_say_something task_378_orchestrate_the_board_arrival_and_runbook_document_work --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_365_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "prod": [
+          "prod_005_logics_corpus_navigation_views",
+          "prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api",
+          "prod_015_cli_product_maturity_roadmap",
+          "prod_020_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "req": [
+          "req_201_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ],
+        "task": [
+          "task_166_add_a_local_web_viewer_for_cli_driven_logics_work"
+        ]
+      },
+      "path": "logics/product/prod_020_local_web_viewer_for_cli_driven_logics_work.md",
+      "ref": "prod_020_local_web_viewer_for_cli_driven_logics_work",
+      "sections": {
+        "Goals": [
+          "- Add a CLI-launched local viewer command, for example `logics-manager view` or `logics-manager serve-view`.",
+          "- Open a browser page that shows the Logics board, document details, relationships, status indicators, and markdown content.",
+          "- Reuse the existing webview assets and behavior where practical instead of creating a separate UI model.",
+          "- Introduce a clean host adapter boundary so the same UI can run under VS Code or under a local browser server.",
+          "- Keep the first version read-only by default so the feature is useful without creating mutation risk.",
+          "- Expose simple local API endpoints for corpus data, document reads, lint/audit summaries, and refresh signals."
+        ],
+        "Key product decisions": [
+          "- Treat the viewer as a visual companion to the CLI, not a replacement for either CLI or VS Code.",
+          "- Start read-only, then add bounded actions only after the host adapter and API boundary are stable.",
+          "- Keep dangerous or mutating work in the terminal for the first version.",
+          "- Prefer a browser local server over a rich terminal TUI because document navigation, board scanning, and markdown reading benefit from real layout, links, and persistent UI state.",
+          "- Reuse the existing webview implementation through a browser host adapter instead of maintaining a parallel UI.",
+          "- Keep the local API intentionally small: corpus data, document content, validation summaries, and refresh."
+        ],
+        "Overview": [
+          "Logics has become usable from the CLI, but the operator still loses the visual scanability that makes the VS Code webview useful.",
+          "The product opportunity is a local browser viewer launched from the CLI: a lightweight, local-only web surface that lets an operator inspect the Logics corpus, board, details, links, audits, and document content without opening VS Code.",
+          "The direction is not to recreate VS Code in the browser.",
+          "It is to make the existing webview experience portable through a small host adapter and a local server.",
+          "The CLI remains the canonical command surface, while the browser viewer becomes a visual companion for reading, scanning, and eventually triggering bounded actions.",
+          "The intended product feeling is: the operator keeps using the CLI, but can open a local visual cockpit when the workflow becomes too document-heavy for terminal output alone."
+        ],
+        "References": [
+          "- `logics/request/req_201_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/backlog/item_365_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/tasks/task_166_add_a_local_web_viewer_for_cli_driven_logics_work.md`",
+          "- `logics/product/prod_005_logics_corpus_navigation_views.md`",
+          "- `logics/product/prod_009_logics_cli_as_the_primary_operator_surface_and_unified_runtime_api.md`",
+          "- `logics/product/prod_015_cli_product_maturity_roadmap.md`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Local web viewer for CLI-driven Logics work"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_816_say_the_board_is_loading_instead_of_saying_the_project_is_empty",
+          "item_817_let_a_runbook_be_a_document_and_retire_its_screen",
+          "item_818_collapse_a_reference_category_on_its_own",
+          "item_819_make_getting_started_s_stage_list_say_something"
+        ],
+        "prod": [
+          "prod_098_a_board_that_tells_the_truth_while_it_is_still_loading"
+        ],
+        "req": [
+          "req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents"
+        ],
+        "task": [
+          "task_378_orchestrate_the_board_arrival_and_runbook_document_work"
+        ]
+      },
+      "path": "logics/product/prod_098_a_board_that_tells_the_truth_while_it_is_still_loading.md",
+      "ref": "prod_098_a_board_that_tells_the_truth_while_it_is_still_loading",
+      "sections": {
+        "Goals": [
+          "- Never assert 'empty' when the answer is 'not yet known'.",
+          "- One way to read a document, whatever kind it is.",
+          "- A reference index that can be narrowed to what is being looked for.",
+          "- Counts that say something, or no counts."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the first screen an operator sees state what it knows, treat every companion document the same way, and let the reference index be read a category at a time."
+        ],
+        "References": [
+          "- Product back-reference: `req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents`",
+          "- Task back-reference: `task_378_orchestrate_the_board_arrival_and_runbook_document_work`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "A board that tells the truth while it is still loading"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "project, view, honest, arrival, let, runbooks, documents",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_816_say_the_board_is_loading_instead_of_saying_the_project_is_empty",
+          "item_817_let_a_runbook_be_a_document_and_retire_its_screen",
+          "item_818_collapse_a_reference_category_on_its_own",
+          "item_819_make_getting_started_s_stage_list_say_something"
+        ],
+        "prod": [
+          "prod_020_local_web_viewer_for_cli_driven_logics_work",
+          "prod_098_a_board_that_tells_the_truth_while_it_is_still_loading"
+        ],
+        "req": [
+          "req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents"
+        ]
+      },
+      "path": "logics/request/req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents.md",
+      "ref": "req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: While the first payload is in flight the board says it is loading and does not claim the project is empty; the empty state appears only once a payload has arrived and is genuinely empty.",
+          "- AC2: The loading state uses the space the board has rather than a small indicator in a large blank, and does not shift the layout when the real content replaces it.",
+          "- AC3: A runbook appears on the board and in the list as a document of its own kind, with its own heading and colour, alongside the other companion kinds.",
+          "- AC4: The Runbooks screen and its navigation entries are gone, and nothing in the viewer still routes to them; the bounded runbook lookup used by agents is unaffected.",
+          "- AC5: Each category of the reference index can be collapsed and expanded on its own, by the same affordance the index itself uses.",
+          "- AC6: Getting Started's stage list states something a reader can act on rather than a bare total per stage."
+        ],
+        "Needs": [
+          "- As an operator arriving on a project, I need the board to say it is loading rather than to say the project is empty, and to use the space it has while it does.",
+          "- As an operator, I need a runbook to be a document among the others -- on the board and in the list, beside product briefs, roadmaps and architecture decisions -- rather than a screen of its own.",
+          "- As an operator reading the reference index, I need to collapse a category I am not looking at, the way the index itself already collapses.",
+          "- As an operator reading Getting Started, I need its stage list to say something I can act on rather than four bare totals."
+        ]
+      },
+      "status": "Draft",
+      "title": "Make the project view honest on arrival, and let runbooks be documents"
+    },
+    {
+      "ai_context": {
+        "keywords": "say, board, loading, instead, saying, project, empty",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_816_say_the_board_is_loading_instead_of_saying_the_project_is_empty"
+        ],
+        "prod": [
+          "prod_098_a_board_that_tells_the_truth_while_it_is_still_loading"
+        ],
+        "req": [
+          "req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents"
+        ],
+        "task": [
+          "task_378_orchestrate_the_board_arrival_and_runbook_document_work"
+        ]
+      },
+      "path": "logics/backlog/item_816_say_the_board_is_loading_instead_of_saying_the_project_is_empty.md",
+      "ref": "item_816_say_the_board_is_loading_instead_of_saying_the_project_is_empty",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Before any payload arrives the board states that it is loading and never that the project is empty.",
+          "- AC2: The real content replaces the loading state without the layout shifting.",
+          "- AC3: A project that genuinely holds no documents still reaches the empty state it has today.",
+          "- AC4: Under `prefers-reduced-motion: reduce` the loading state does not animate."
+        ],
+        "Problem": [
+          "- The board shows its empty-state placeholder while the first payload is still in flight, so arriving on a project asserts that it holds no documents at the moment nothing is known about it.",
+          "- This is the screen an operator reaches first and returns to most, so it is also the viewer's most-seen statement -- and it is the one place the viewer says something false rather than saying it does not know yet."
+        ]
+      },
+      "status": "Ready",
+      "title": "Say the board is loading instead of saying the project is empty"
+    },
+    {
+      "ai_context": {
+        "keywords": "let, runbook, document, retire, screen",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_817_let_a_runbook_be_a_document_and_retire_its_screen"
+        ],
+        "prod": [
+          "prod_098_a_board_that_tells_the_truth_while_it_is_still_loading"
+        ],
+        "req": [
+          "req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents"
+        ],
+        "task": [
+          "task_378_orchestrate_the_board_arrival_and_runbook_document_work"
+        ]
+      },
+      "path": "logics/backlog/item_817_let_a_runbook_be_a_document_and_retire_its_screen.md",
+      "ref": "item_817_let_a_runbook_be_a_document_and_retire_its_screen",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A runbook appears on the board and in the list with its own heading and its own stage colour.",
+          "- AC2: No route, navigation entry or switcher entry reaches a Runbooks screen, and none of its rendering code is left behind unused.",
+          "- AC3: The bounded runbook lookup still answers, and its tests still pass unchanged."
+        ],
+        "Problem": [
+          "- Runbooks are already documents in the payload and already have a stage colour, but `getStageHeading` has no case for them -- so a runbook group is headed by the raw stage name -- and the stage is not treated as a companion, so runbooks never reach the reference index.",
+          "- They also have a screen of their own. item_792 moved it under Corpus and a later wave gave it a loading state; neither was wrong at the time, but the screen is what should not exist. Every other companion kind is read the same way as the rest of the corpus."
+        ]
+      },
+      "status": "Ready",
+      "title": "Let a runbook be a document, and retire its screen"
+    },
+    {
+      "ai_context": {
+        "keywords": "collapse, reference, category, own",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_818_collapse_a_reference_category_on_its_own"
+        ],
+        "prod": [
+          "prod_098_a_board_that_tells_the_truth_while_it_is_still_loading"
+        ],
+        "req": [
+          "req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents"
+        ],
+        "task": [
+          "task_378_orchestrate_the_board_arrival_and_runbook_document_work"
+        ]
+      },
+      "path": "logics/backlog/item_818_collapse_a_reference_category_on_its_own.md",
+      "ref": "item_818_collapse_a_reference_category_on_its_own",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Each reference category collapses and expands independently of the others.",
+          "- AC2: The state survives a re-render of the board within the session.",
+          "- AC3: The control is reachable and announced the way the index header is."
+        ],
+        "Problem": [
+          "- The reference index collapses as a whole but its per-category groups do not, so a reader who wants one category scrolls past all of them.",
+          "- The affordance already exists one level up, so the index teaches a gesture it then refuses at the level where it is most useful."
+        ]
+      },
+      "status": "Ready",
+      "title": "Collapse a reference category on its own"
+    },
+    {
+      "ai_context": {
+        "keywords": "orchestrate, board, arrival, runbook, document, work",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_816_say_the_board_is_loading_instead_of_saying_the_project_is_empty",
+          "item_817_let_a_runbook_be_a_document_and_retire_its_screen",
+          "item_818_collapse_a_reference_category_on_its_own",
+          "item_819_make_getting_started_s_stage_list_say_something"
+        ],
+        "prod": [
+          "prod_098_a_board_that_tells_the_truth_while_it_is_still_loading"
+        ],
+        "req": [
+          "req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents"
+        ],
+        "task": [
+          "task_378_orchestrate_the_board_arrival_and_runbook_document_work"
+        ]
+      },
+      "path": "logics/tasks/task_378_orchestrate_the_board_arrival_and_runbook_document_work.md",
+      "ref": "task_378_orchestrate_the_board_arrival_and_runbook_document_work",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the board arrival and runbook document work"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_816_say_the_board_is_loading_instead_of_saying_the_project_is_empty",
+          "item_817_let_a_runbook_be_a_document_and_retire_its_screen",
+          "item_818_collapse_a_reference_category_on_its_own",
+          "item_819_make_getting_started_s_stage_list_say_something"
+        ],
+        "prod": [
+          "prod_098_a_board_that_tells_the_truth_while_it_is_still_loading"
+        ],
+        "req": [
+          "req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents"
+        ],
+        "task": [
+          "task_378_orchestrate_the_board_arrival_and_runbook_document_work"
+        ]
+      },
+      "path": "logics/product/prod_098_a_board_that_tells_the_truth_while_it_is_still_loading.md",
+      "ref": "prod_098_a_board_that_tells_the_truth_while_it_is_still_loading",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "A board that tells the truth while it is still loading"
+    },
+    {
+      "ai_context": {
+        "keywords": "getting, started, stage, list, say, something",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_819_make_getting_started_s_stage_list_say_something"
+        ],
+        "prod": [
+          "prod_098_a_board_that_tells_the_truth_while_it_is_still_loading"
+        ],
+        "req": [
+          "req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents"
+        ],
+        "task": [
+          "task_378_orchestrate_the_board_arrival_and_runbook_document_work"
+        ]
+      },
+      "path": "logics/backlog/item_819_make_getting_started_s_stage_list_say_something.md",
+      "ref": "item_819_make_getting_started_s_stage_list_say_something",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Each entry states what its number measures, and covers exactly what its label names.",
+          "- AC2: A reader can tell from the entry whether it is worth opening, without opening it."
+        ],
+        "Problem": [
+          "- The stage nav lists four bare totals -- 471, 815, 371, 30 -- with no scale and no action attached. A reader cannot tell whether 815 is a lot, and one of the counts spans a stage boundary its label does not name.",
+          "- item_753 added them to orient rather than to grade, and as bare numbers they do neither."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make Getting Started's stage list say something"
+    }
+  ],
+  "estimates": {
+    "char_count": 16330,
+    "companion_doc_count": 2,
+    "doc_count": 7
+  },
+  "generated_at": "2026-08-15T11:13:28Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents",
+      "item_816_say_the_board_is_loading_instead_of_saying_the_project_is_empty",
+      "item_817_let_a_runbook_be_a_document_and_retire_its_screen",
+      "item_818_collapse_a_reference_category_on_its_own",
+      "item_819_make_getting_started_s_stage_list_say_something",
+      "task_378_orchestrate_the_board_arrival_and_runbook_document_work"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents,item_816_say_the_board_is_loading_instead_of_saying_the_project_is_empty,item_817_let_a_runbook_be_a_document_and_retire_its_screen,item_818_collapse_a_reference_category_on_its_own,item_819_make_getting_started_s_stage_list_say_something,task_378_orchestrate_the_board_arrival_and_runbook_document_work",
+  "refs": [
+    "req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents",
+    "item_816_say_the_board_is_loading_instead_of_saying_the_project_is_empty",
+    "item_817_let_a_runbook_be_a_document_and_retire_its_screen",
+    "item_818_collapse_a_reference_category_on_its_own",
+    "item_819_make_getting_started_s_stage_list_say_something",
+    "task_378_orchestrate_the_board_arrival_and_runbook_document_work"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_378_orchestrate_the_board_arrival_and_runbook_document_work.md",
+      "ref": "task_378_orchestrate_the_board_arrival_and_runbook_document_work"
+    }
+  ]
+}

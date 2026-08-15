@@ -137,6 +137,7 @@
 | [prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows](product/prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows.md) | Corpus screens that stay usable as the corpus grows | Proposed |  |  | product/prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows.md |
 | [prod_096_a_viewer_that_says_what_it_is_doing](product/prod_096_a_viewer_that_says_what_it_is_doing.md) | A viewer that says what it is doing | Proposed |  |  | product/prod_096_a_viewer_that_says_what_it_is_doing.md |
 | [prod_097_corpus_screens_that_are_quick_on_the_first_look_too](product/prod_097_corpus_screens_that_are_quick_on_the_first_look_too.md) | Corpus screens that are quick on the first look too | Proposed |  |  | product/prod_097_corpus_screens_that_are_quick_on_the_first_look_too.md |
+| [prod_098_a_board_that_tells_the_truth_while_it_is_still_loading](product/prod_098_a_board_that_tells_the_truth_while_it_is_still_loading.md) | A board that tells the truth while it is still loading | Proposed |  |  | product/prod_098_a_board_that_tells_the_truth_while_it_is_still_loading.md |
 
 ## Roadmaps
 
@@ -520,6 +521,7 @@
 | [req_364_make_insights_and_health_answer_quickly_on_a_large_corpus](request/req_364_make_insights_and_health_answer_quickly_on_a_large_corpus.md) | Make Insights and Health answer quickly on a large corpus | Done |  |  | request/req_364_make_insights_and_health_answer_quickly_on_a_large_corpus.md |
 | [req_365_say_the_viewer_is_working_wherever_the_operator_is_looking](request/req_365_say_the_viewer_is_working_wherever_the_operator_is_looking.md) | Say the viewer is working, wherever the operator is looking | Draft |  |  | request/req_365_say_the_viewer_is_working_wherever_the_operator_is_looking.md |
 | [req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong](request/req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong.md) | Finish the Insights and Health work the first measurement got wrong | Draft |  |  | request/req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong.md |
+| [req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents](request/req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents.md) | Make the project view honest on arrival, and let runbooks be documents | Draft |  |  | request/req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents.md |
 
 ## Backlog
 
@@ -1340,6 +1342,10 @@
 | [item_813_put_lint_and_the_health_report_behind_the_corpus_signature_cache](backlog/item_813_put_lint_and_the_health_report_behind_the_corpus_signature_cache.md) | Put lint and the health report behind the corpus-signature cache | Ready |  | 0% | backlog/item_813_put_lint_and_the_health_report_behind_the_corpus_signature_cache.md |
 | [item_814_warm_the_corpus_reports_off_the_request_path](backlog/item_814_warm_the_corpus_reports_off_the_request_path.md) | Warm the corpus reports off the request path | Ready |  | 0% | backlog/item_814_warm_the_corpus_reports_off_the_request_path.md |
 | [item_815_show_the_last_answer_while_the_new_one_is_computed](backlog/item_815_show_the_last_answer_while_the_new_one_is_computed.md) | Show the last answer while the new one is computed | Ready |  | 0% | backlog/item_815_show_the_last_answer_while_the_new_one_is_computed.md |
+| [item_816_say_the_board_is_loading_instead_of_saying_the_project_is_empty](backlog/item_816_say_the_board_is_loading_instead_of_saying_the_project_is_empty.md) | Say the board is loading instead of saying the project is empty | Ready |  | 0% | backlog/item_816_say_the_board_is_loading_instead_of_saying_the_project_is_empty.md |
+| [item_817_let_a_runbook_be_a_document_and_retire_its_screen](backlog/item_817_let_a_runbook_be_a_document_and_retire_its_screen.md) | Let a runbook be a document, and retire its screen | Ready |  | 0% | backlog/item_817_let_a_runbook_be_a_document_and_retire_its_screen.md |
+| [item_818_collapse_a_reference_category_on_its_own](backlog/item_818_collapse_a_reference_category_on_its_own.md) | Collapse a reference category on its own | Ready |  | 0% | backlog/item_818_collapse_a_reference_category_on_its_own.md |
+| [item_819_make_getting_started_s_stage_list_say_something](backlog/item_819_make_getting_started_s_stage_list_say_something.md) | Make Getting Started's stage list say something | Ready |  | 0% | backlog/item_819_make_getting_started_s_stage_list_say_something.md |
 
 ## Tasks
 
@@ -1716,6 +1722,7 @@
 | [task_375_orchestrate_the_audit_cost_work_behind_insights_and_health](tasks/task_375_orchestrate_the_audit_cost_work_behind_insights_and_health.md) | Orchestrate the audit cost work behind Insights and Health | Done |  | 100% | tasks/task_375_orchestrate_the_audit_cost_work_behind_insights_and_health.md |
 | [task_376_orchestrate_the_loading_feedback_and_navigation_polish](tasks/task_376_orchestrate_the_loading_feedback_and_navigation_polish.md) | Orchestrate the loading feedback and navigation polish | Ready |  | 0% | tasks/task_376_orchestrate_the_loading_feedback_and_navigation_polish.md |
 | [task_377_orchestrate_the_second_look_at_insights_and_health](tasks/task_377_orchestrate_the_second_look_at_insights_and_health.md) | Orchestrate the second look at Insights and Health | Ready |  | 0% | tasks/task_377_orchestrate_the_second_look_at_insights_and_health.md |
+| [task_378_orchestrate_the_board_arrival_and_runbook_document_work](tasks/task_378_orchestrate_the_board_arrival_and_runbook_document_work.md) | Orchestrate the board arrival and runbook document work | Ready |  | 0% | tasks/task_378_orchestrate_the_board_arrival_and_runbook_document_work.md |
 
 ## Runbooks
 

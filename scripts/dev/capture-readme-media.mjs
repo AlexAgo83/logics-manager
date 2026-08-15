@@ -60,7 +60,7 @@ const CAPTURES = [
   {
     file: "viewer-insights.png",
     what: "Corpus insights: the shape of the corpus and the signals worth acting on.",
-    steps: ["#viewer-corpus", "[data-viewer-nav-target='corpus:insights']"],
+    steps: ["#viewer-insights"],
     settle: ".viewer-insights__section, .viewer-insights__empty"
   },
   {

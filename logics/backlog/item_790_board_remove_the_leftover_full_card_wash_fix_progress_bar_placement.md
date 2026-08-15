@@ -1,7 +1,7 @@
 ## item_790_board_remove_the_leftover_full_card_wash_fix_progress_bar_placement - Board: remove the leftover full-card wash, fix progress bar placement
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Progress: 100%
@@ -65,3 +65,6 @@ Local AC4/AC5/AC6 (no request-level AC of their own -- reported directly by the 
 
 # Tasks
 - `task_361_board_remove_the_leftover_full_card_wash_fix_progress_bar_placement`
+
+# Notes
+- Task `task_361_board_remove_the_leftover_full_card_wash_fix_progress_bar_placement` was finished via `logics-manager flow finish task` on 2026-08-15.

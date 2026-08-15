@@ -9284,6 +9284,15 @@ ${line}` : line;
       }
       renderMeta();
     }
+    function buildFocusLink(id) {
+      const url = new URL(window.location.href);
+      url.search = "";
+      if (activeProjectId) {
+        url.searchParams.set("project", activeProjectId);
+      }
+      url.searchParams.set("focus", id);
+      return url.toString();
+    }
     function updateRepositoryIdentity(payload) {
       const url = new URL(window.location.href);
       if (payload.fleetHome) {
@@ -10553,9 +10562,10 @@ ${line}` : line;
           const documentPath = String(options.path || "");
           pathCopy.hidden = !documentPath;
           pathCopy.dataset.path = documentPath;
+          pathCopy.dataset.focusId = String(currentDocumentItem?.id || "");
           if (documentPath) {
-            pathCopy.title = `Copy the file path: ${documentPath}`;
-            pathCopy.setAttribute("aria-label", `Copy the file path: ${documentPath}`);
+            pathCopy.title = `Copy a link to ${documentPath}`;
+            pathCopy.setAttribute("aria-label", `Copy a link to ${documentPath}`);
           }
         }
         updateDocumentBadge(options.badgeStage);
@@ -12757,9 +12767,11 @@ ${shown.join("\n")}${files.length > shown.length ? `
       document.getElementById("viewer-document-path-copy")?.addEventListener("click", async (event) => {
         const control = event.currentTarget;
         const documentPath = control instanceof HTMLElement ? control.dataset.path || "" : "";
+        const focusId = control instanceof HTMLElement ? control.dataset.focusId || "" : "";
         if (!documentPath) return;
-        const copied = await copyTextToClipboard(documentPath);
-        setMeta(copied ? `Copied ${documentPath}` : "Clipboard access was refused.");
+        const text = focusId ? buildFocusLink(focusId) : documentPath;
+        const copied = await copyTextToClipboard(text);
+        setMeta(copied ? `Copied ${text}` : "Clipboard access was refused.");
       });
       document.getElementById("viewer-document-refresh")?.addEventListener("click", () => {
         withPrimaryAction("refresh-document", "Refreshing", refreshCurrentScreen);

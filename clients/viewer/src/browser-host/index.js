@@ -1109,6 +1109,19 @@ import {
     renderMeta();
   }
 
+  //: item_830: this code is served by the viewer it would link to, so the origin an
+  //: operator would otherwise have to know is just `window.location` -- read at copy time,
+  //: never stored, so a link never outlives the address it was built from.
+  function buildFocusLink(id) {
+    const url = new URL(window.location.href);
+    url.search = "";
+    if (activeProjectId) {
+      url.searchParams.set("project", activeProjectId);
+    }
+    url.searchParams.set("focus", id);
+    return url.toString();
+  }
+
   function updateRepositoryIdentity(payload) {
     const url = new URL(window.location.href);
     if (payload.fleetHome) {
@@ -2655,12 +2668,16 @@ import {
         const documentPath = String(options.path || "");
         pathCopy.hidden = !documentPath;
         pathCopy.dataset.path = documentPath;
+        // item_830: the id this screen is open on, so the click handler can build a link
+        // an operator can actually paste somewhere -- this viewer's own address plus
+        // `?focus=`, not the bare repo-relative path a copy used to hand over on its own.
+        pathCopy.dataset.focusId = String(currentDocumentItem?.id || "");
         // The path is named in the tooltip rather than only in the aria-label: a control
         // whose only statement of what it copies is invisible offers the path on demand
         // to a screen reader and to nobody else.
         if (documentPath) {
-          pathCopy.title = `Copy the file path: ${documentPath}`;
-          pathCopy.setAttribute("aria-label", `Copy the file path: ${documentPath}`);
+          pathCopy.title = `Copy a link to ${documentPath}`;
+          pathCopy.setAttribute("aria-label", `Copy a link to ${documentPath}`);
         }
       }
       updateDocumentBadge(options.badgeStage);
@@ -5220,9 +5237,11 @@ import {
       // screen is already holding.
       const control = event.currentTarget;
       const documentPath = control instanceof HTMLElement ? control.dataset.path || "" : "";
+      const focusId = control instanceof HTMLElement ? control.dataset.focusId || "" : "";
       if (!documentPath) return;
-      const copied = await copyTextToClipboard(documentPath);
-      setMeta(copied ? `Copied ${documentPath}` : "Clipboard access was refused.");
+      const text = focusId ? buildFocusLink(focusId) : documentPath;
+      const copied = await copyTextToClipboard(text);
+      setMeta(copied ? `Copied ${text}` : "Clipboard access was refused.");
     });
     document.getElementById("viewer-document-refresh")?.addEventListener("click", () => {
       withPrimaryAction("refresh-document", "Refreshing", refreshCurrentScreen);

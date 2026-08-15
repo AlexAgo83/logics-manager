@@ -1532,8 +1532,14 @@
   align-items: start;
 }
 
+/* Both children pin their row as well as their column. `applyReadingLayout` appends the
+   contents nav *after* the prose, and grid auto-placement never moves backwards: with the
+   row left implicit, the prose took row 1 / column 2 and the nav could only land on row 2,
+   below the whole document -- present, 260px wide, in the right column, and 2500px down the
+   page. Checking `x` alone reads that as correct, which is how item_793 shipped it. */
 .markdown-preview--reading .markdown-preview__prose {
   grid-column: 2;
+  grid-row: 1;
   min-width: 0;
   max-width: 72ch;
 }
@@ -1549,6 +1555,7 @@
 
 .markdown-preview__contents {
   grid-column: 1;
+  grid-row: 1;
   position: sticky;
   top: 0;
   max-height: calc(100vh - 160px);

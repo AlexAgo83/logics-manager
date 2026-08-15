@@ -1893,6 +1893,21 @@ describe("local viewer browser host", () => {
     expect(joined).toContain(".viewer-insights__summary");
   });
 
+  it("pins both reading-grid children to row 1 so the contents nav cannot fall below the prose", () => {
+    // item_793 swapped the reader's two tracks but left the rows implicit. The contents nav
+    // is appended after the prose, and grid auto-placement never moves backwards, so the
+    // prose took row 1 / column 2 and the nav could only land on row 2 -- correct column,
+    // correct width, 2500px below the document. Measuring `x` alone reads that as fixed.
+    const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
+    const prose = css.match(/\.markdown-preview--reading \.markdown-preview__prose\s*\{[^}]+\}/)?.[0] || "";
+    const contents = css.match(/\.markdown-preview__contents\s*\{[^}]+\}/)?.[0] || "";
+
+    expect(prose).toMatch(/grid-column:\s*2/);
+    expect(prose).toMatch(/grid-row:\s*1/);
+    expect(contents).toMatch(/grid-column:\s*1/);
+    expect(contents).toMatch(/grid-row:\s*1/);
+  });
+
   it("declares the local viewer favicon from packaged app assets", () => {
     const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
     const dom = new JSDOM(html);

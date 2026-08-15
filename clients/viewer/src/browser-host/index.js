@@ -2231,18 +2231,18 @@ import {
     if (gitActions) gitActions.hidden = !isGit;
     if (!isGit) setGitActionsMenuOpen(false);
     if (releaseReset) releaseReset.hidden = !isRelease;
-    // item_711: a root screen has nowhere to be dismissed to, so it gives up both
-    // dismiss controls. Decided here because this function already owns whether the
-    // minimize button is shown -- a second opinion elsewhere would win or lose by
-    // ordering.
-    const root = isRootScreen(titleText);
+    // item_711 withheld Close and Minimize from Fleet home on the grounds that a root
+    // screen has nowhere to be dismissed to. item_800 then found the latch never cleared,
+    // and patched it. Both are gone at the operator's call: Fleet is a screen like any
+    // other, and closing it lands on the board of whichever project is active -- at first
+    // boot, the repository the viewer was started in, which is not nowhere.
     const close = document.getElementById("viewer-document-close");
     if (close instanceof HTMLButtonElement) {
-      close.hidden = root;
-      close.disabled = root;
+      close.hidden = false;
+      close.disabled = false;
     }
     if (minimize instanceof HTMLButtonElement) {
-      minimize.hidden = root || !titleText || !desktopScreensCanMinimize();
+      minimize.hidden = !titleText || !desktopScreensCanMinimize();
       minimize.disabled = minimize.hidden;
     }
     if (status instanceof HTMLButtonElement) {
@@ -2421,16 +2421,6 @@ import {
   // chose. A root view is the same panel with the dismiss chrome withheld and nothing
   // rendered behind it; the panel mechanism itself is unchanged, which is what keeps
   // `screenRegistry` the single declaration point req_313 made it.
-  let rootScreenTitle = "";
-
-  function isRootScreen(titleText) {
-    return Boolean(rootScreenTitle) && titleText === rootScreenTitle;
-  }
-
-  function applyRootScreenChrome(titleText) {
-    document.body.classList.toggle("viewer-shell--root-screen", isRootScreen(titleText));
-  }
-
   // The scroll listener the contents list installs, so a second document does not leave
   // the first one's listener marking headings that are no longer on the screen.
   let detachReadingPosition = null;
@@ -2444,7 +2434,6 @@ import {
       renderMinimizedDock();
     }
     currentDocumentItem = options.item || null;
-    applyRootScreenChrome(titleText);
     const panel = documentPanel();
     const title = documentTitle();
     const content = documentContent();
@@ -2702,14 +2691,7 @@ import {
       dispatchViewerActivityUpdate();
     }
     if (payload.fleetHome) {
-      // Declared before the screen renders so its first paint already has root chrome.
-      rootScreenTitle = "Fleet";
       void showFleetHome({ silent: Boolean(options.silent) });
-    } else {
-      // A project is active behind any later "Fleet home" reopen: it is no longer
-      // a true root screen, so Close/Minimize must stay available (ponytail: this
-      // was the actual dead-end bug -- the latch used to never clear).
-      rootScreenTitle = "";
     }
     return true;
   }

@@ -23,6 +23,15 @@ from typing import Any
 TUNNEL_BINARY = "tunnel-client"
 DEFAULT_PROFILE = "logics-manager"
 
+#: The capability profile the tunnel serves. item_850 asked for this to be a choice at
+#: launch rather than whatever `mcp serve` happens to default to -- and it defaults to
+#: `full`, which hands a chat client `delete_logics_file` and `rename_logics_file`.
+#: `curated` is read plus write: everything needed to scope, build and close work, and
+#: nothing that removes a document. A wrong ref then costs an edit, not a file.
+#: To widen it, change this and re-create the profile; `--allow-tools split_*` adds the
+#: two splitting tools back without the deletions.
+SERVED_TOOL_PROFILE = "curated"
+
 # The API key is machine-level, not per-repository: one connector serves every
 # project on the machine, so its credentials never live in a project file.
 CONFIG_ENV_VAR = "LOGICS_MANAGER_TUNNEL_CONFIG"
@@ -154,7 +163,7 @@ def build_init_command(profile: str, tunnel_id: str, repo_root: Path | str) -> l
         "--tunnel-id",
         tunnel_id,
         "--mcp-command",
-        f"logics-manager mcp serve --repo-root {root}",
+        f"logics-manager mcp serve --repo-root {root} --profile {SERVED_TOOL_PROFILE}",
     ]
 
 

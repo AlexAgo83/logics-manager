@@ -2,8 +2,8 @@
 > From version: 2.22.0
 > Schema version: 1.0
 > Status: Done
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 100%
+> Confidence: 95%
 > Progress: 100%
 > Complexity: Low
 > Theme: Viewer MCP connector UX
@@ -52,3 +52,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Validation
+- 2026-08-16: `npx vitest run tests/viewer.browser-host.test.ts` -- 237 passed. Two new tests: Settings renders the toggle checked/"On" from a payload reporting `running: true` (AC1), and the connector screen picks up a URL arriving after the initial fetch with no manual click, then stops polling once ready (AC3). The stale `state: "off"` fixture that had agreed with the bug now mirrors viewer.py's real payload. Commit 3a1d171f.

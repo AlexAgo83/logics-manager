@@ -1,6 +1,6 @@
 ## prod_094_loading_border_trace - Loading border trace
 > Date: 2026-08-15
-> Status: Proposed
+> Status: Settled
 > Related request: `req_360_loading_border_trace_an_animated_ring_on_the_header_while_a_screen_loads`
 > Related backlog: `item_788_build_the_reusable_loading_ring_css_mechanism_and_decide_the_neutral_colour`, `item_789_wire_the_loading_ring_into_the_real_viewer_screens`
 > Related task: `task_360_orchestrate_the_loading_border_trace_feature`

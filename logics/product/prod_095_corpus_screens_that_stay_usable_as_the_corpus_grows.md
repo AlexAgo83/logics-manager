@@ -1,6 +1,6 @@
 ## prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows - Corpus screens that stay usable as the corpus grows
 > Date: 2026-08-15
-> Status: Proposed
+> Status: Settled
 > Related request: `req_364_make_insights_and_health_answer_quickly_on_a_large_corpus`
 > Related backlog: `item_804_index_the_backlog_to_task_links_instead_of_re_scanning_for_each_item`, `item_805_serve_the_audit_answer_from_a_cache_keyed_on_the_corpus_not_on_a_timer`, `item_806_send_the_screens_the_findings_they_display_not_all_of_them`, `item_807_stop_rebuilding_the_repository_wide_source_blob_on_every_audit`, `item_808_memoise_the_remaining_reference_extraction`
 > Related task: `task_375_orchestrate_the_audit_cost_work_behind_insights_and_health`

@@ -1,6 +1,6 @@
 ## prod_099_an_audit_worth_reading - An audit worth reading
 > Date: 2026-08-15
-> Status: Proposed
+> Status: Settled
 > Related request: `req_368_make_the_duplicate_proof_check_say_something_a_reader_can_act_on`
 > Related backlog: `item_821_report_a_shared_proof_once_not_once_per_pair`, `item_822_let_a_document_settle_a_deliberate_shared_proof`, `item_823_prove_the_check_still_finds_what_it_was_built_for`, `item_824_say_what_the_audit_s_remaining_warnings_are`
 > Related task: `task_379_orchestrate_the_audit_signal_work`

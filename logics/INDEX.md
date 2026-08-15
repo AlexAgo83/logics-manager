@@ -33,7 +33,7 @@
 | [adr_026_embed_the_canonical_local_viewer_in_the_vs_code_panel](architecture/adr_026_embed_the_canonical_local_viewer_in_the_vs_code_panel.md) | Embed the canonical local viewer in the VS Code panel | Settled |  |  | architecture/adr_026_embed_the_canonical_local_viewer_in_the_vs_code_panel.md |
 | [adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime](architecture/adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime.md) | Use the installed CLI as the only VS Code Logics runtime | Settled |  |  | architecture/adr_027_use_the_installed_cli_as_the_only_vs_code_logics_runtime.md |
 | [adr_028_scope_the_fleet_viewer_registry_to_the_operator_profile_and_resolve_project_context_per_request](architecture/adr_028_scope_the_fleet_viewer_registry_to_the_operator_profile_and_resolve_project_context_per_request.md) | Scope the fleet viewer registry to the operator profile and resolve project context per request | Settled |  |  | architecture/adr_028_scope_the_fleet_viewer_registry_to_the_operator_profile_and_resolve_project_context_per_request.md |
-| [adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points](architecture/adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points.md) | Land the viewer redesigns on the shared declaration points | Proposed |  |  | architecture/adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points.md |
+| [adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points](architecture/adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points.md) | Land the viewer redesigns on the shared declaration points | Settled |  |  | architecture/adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points.md |
 
 ## Product briefs
 
@@ -132,13 +132,13 @@
 | [prod_090_a_viewer_that_knows_which_screen_you_are_on](product/prod_090_a_viewer_that_knows_which_screen_you_are_on.md) | A viewer that knows which screen you are on | Settled |  |  | product/prod_090_a_viewer_that_knows_which_screen_you_are_on.md |
 | [prod_091_a_readme_that_shows_the_product_a_reader_will_get](product/prod_091_a_readme_that_shows_the_product_a_reader_will_get.md) | A README that shows the product a reader will get | Settled |  |  | product/prod_091_a_readme_that_shows_the_product_a_reader_will_get.md |
 | [prod_092_a_viewer_that_stays_as_fast_as_it_started](product/prod_092_a_viewer_that_stays_as_fast_as_it_started.md) | A viewer that stays as fast as it started | Settled |  |  | product/prod_092_a_viewer_that_stays_as_fast_as_it_started.md |
-| [prod_093_trustworthy_flow_checks](product/prod_093_trustworthy_flow_checks.md) | Trustworthy flow checks | Proposed |  |  | product/prod_093_trustworthy_flow_checks.md |
-| [prod_094_loading_border_trace](product/prod_094_loading_border_trace.md) | Loading border trace | Proposed |  |  | product/prod_094_loading_border_trace.md |
-| [prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows](product/prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows.md) | Corpus screens that stay usable as the corpus grows | Proposed |  |  | product/prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows.md |
-| [prod_096_a_viewer_that_says_what_it_is_doing](product/prod_096_a_viewer_that_says_what_it_is_doing.md) | A viewer that says what it is doing | Proposed |  |  | product/prod_096_a_viewer_that_says_what_it_is_doing.md |
-| [prod_097_corpus_screens_that_are_quick_on_the_first_look_too](product/prod_097_corpus_screens_that_are_quick_on_the_first_look_too.md) | Corpus screens that are quick on the first look too | Proposed |  |  | product/prod_097_corpus_screens_that_are_quick_on_the_first_look_too.md |
-| [prod_098_a_board_that_tells_the_truth_while_it_is_still_loading](product/prod_098_a_board_that_tells_the_truth_while_it_is_still_loading.md) | A board that tells the truth while it is still loading | Proposed |  |  | product/prod_098_a_board_that_tells_the_truth_while_it_is_still_loading.md |
-| [prod_099_an_audit_worth_reading](product/prod_099_an_audit_worth_reading.md) | An audit worth reading | Proposed |  |  | product/prod_099_an_audit_worth_reading.md |
+| [prod_093_trustworthy_flow_checks](product/prod_093_trustworthy_flow_checks.md) | Trustworthy flow checks | Settled |  |  | product/prod_093_trustworthy_flow_checks.md |
+| [prod_094_loading_border_trace](product/prod_094_loading_border_trace.md) | Loading border trace | Settled |  |  | product/prod_094_loading_border_trace.md |
+| [prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows](product/prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows.md) | Corpus screens that stay usable as the corpus grows | Settled |  |  | product/prod_095_corpus_screens_that_stay_usable_as_the_corpus_grows.md |
+| [prod_096_a_viewer_that_says_what_it_is_doing](product/prod_096_a_viewer_that_says_what_it_is_doing.md) | A viewer that says what it is doing | Settled |  |  | product/prod_096_a_viewer_that_says_what_it_is_doing.md |
+| [prod_097_corpus_screens_that_are_quick_on_the_first_look_too](product/prod_097_corpus_screens_that_are_quick_on_the_first_look_too.md) | Corpus screens that are quick on the first look too | Settled |  |  | product/prod_097_corpus_screens_that_are_quick_on_the_first_look_too.md |
+| [prod_098_a_board_that_tells_the_truth_while_it_is_still_loading](product/prod_098_a_board_that_tells_the_truth_while_it_is_still_loading.md) | A board that tells the truth while it is still loading | Settled |  |  | product/prod_098_a_board_that_tells_the_truth_while_it_is_still_loading.md |
+| [prod_099_an_audit_worth_reading](product/prod_099_an_audit_worth_reading.md) | An audit worth reading | Settled |  |  | product/prod_099_an_audit_worth_reading.md |
 
 ## Roadmaps
 
@@ -151,7 +151,7 @@
 | [road_005_2_19_the_operator_surface](roadmap/road_005_2_19_the_operator_surface.md) | 2.19: the operator surface | Settled |  |  | roadmap/road_005_2_19_the_operator_surface.md |
 | [road_006_2_20_any_repo_any_agent](roadmap/road_006_2_20_any_repo_any_agent.md) | 2.20: any repo, any agent | Settled |  |  | roadmap/road_006_2_20_any_repo_any_agent.md |
 | [road_007_2_21_evidence_over_assertion](roadmap/road_007_2_21_evidence_over_assertion.md) | 2.21: evidence over assertion | Settled |  |  | roadmap/road_007_2_21_evidence_over_assertion.md |
-| [road_008_viewer_work_in_lots](roadmap/road_008_viewer_work_in_lots.md) | Viewer work in lots | Proposed |  |  | roadmap/road_008_viewer_work_in_lots.md |
+| [road_008_viewer_work_in_lots](roadmap/road_008_viewer_work_in_lots.md) | Viewer work in lots | Settled |  |  | roadmap/road_008_viewer_work_in_lots.md |
 
 ## Requests
 

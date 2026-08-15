@@ -1,6 +1,6 @@
 ## prod_097_corpus_screens_that_are_quick_on_the_first_look_too - Corpus screens that are quick on the first look too
 > Date: 2026-08-15
-> Status: Proposed
+> Status: Settled
 > Related request: `req_366_finish_the_insights_and_health_work_the_first_measurement_got_wrong`
 > Related backlog: `item_813_put_lint_and_the_health_report_behind_the_corpus_signature_cache`, `item_814_warm_the_corpus_reports_off_the_request_path`, `item_815_show_the_last_answer_while_the_new_one_is_computed`
 > Related task: `task_377_orchestrate_the_second_look_at_insights_and_health`

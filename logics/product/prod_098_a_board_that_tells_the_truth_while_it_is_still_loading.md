@@ -1,6 +1,6 @@
 ## prod_098_a_board_that_tells_the_truth_while_it_is_still_loading - A board that tells the truth while it is still loading
 > Date: 2026-08-15
-> Status: Proposed
+> Status: Settled
 > Related request: `req_367_make_the_project_view_honest_on_arrival_and_let_runbooks_be_documents`
 > Related backlog: `item_816_say_the_board_is_loading_instead_of_saying_the_project_is_empty`, `item_817_let_a_runbook_be_a_document_and_retire_its_screen`, `item_818_collapse_a_reference_category_on_its_own`, `item_819_make_getting_started_s_stage_list_say_something`
 > Related task: `task_378_orchestrate_the_board_arrival_and_runbook_document_work`

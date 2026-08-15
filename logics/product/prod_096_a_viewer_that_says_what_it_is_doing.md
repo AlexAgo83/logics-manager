@@ -1,6 +1,6 @@
 ## prod_096_a_viewer_that_says_what_it_is_doing - A viewer that says what it is doing
 > Date: 2026-08-15
-> Status: Proposed
+> Status: Settled
 > Related request: `req_365_say_the_viewer_is_working_wherever_the_operator_is_looking`
 > Related backlog: `item_809_show_a_load_that_has_no_screen_to_draw_on`, `item_810_one_lap_then_a_resting_outline_and_nothing_at_all_for_a_short_load`, `item_811_give_every_stage_with_a_colour_token_its_accent`, `item_812_one_menu_button_on_the_phone_header`
 > Related task: `task_376_orchestrate_the_loading_feedback_and_navigation_polish`

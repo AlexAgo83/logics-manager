@@ -1,6 +1,6 @@
 ## prod_093_trustworthy_flow_checks - Trustworthy flow checks
 > Date: 2026-08-14
-> Status: Proposed
+> Status: Settled
 > Related request: `req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy`
 > Related backlog: `item_784_validate_traceability_proof_content_and_fix_the_runtime_drift_false_positive`, `item_785_stop_flow_s_own_writes_from_tripping_its_own_checks`
 > Related task: `task_357_orchestrate_flow_traceability_and_self_consistency_fixes_gh_20_21`

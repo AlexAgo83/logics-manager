@@ -381,6 +381,21 @@
   overflow-wrap: anywhere;
 }
 
+/* Reported by the operator, three times on this one change, and the third was the same
+   mistake as the second: a rule appended after the breakpoints, at equal specificity, wins
+   over the breakpoint that needs it. This one made the phone sheet `position: relative`
+   again, so the actions stayed in the flow, grew the bar to 239px and pushed the sheet
+   below the toolbar. Declared before the breakpoints, with the other topbar rules.
+
+   Why it exists at all: the sheen is absolutely positioned, so without this the bar's
+   content paints under it. `z-index: auto` on purpose -- lifting these into stacking
+   contexts of their own is what put the navigation menus under the toolbar the time before.
+   The sheen is the first child, so everything after it in the document already paints
+   over it. */
+.viewer-topbar > * {
+  position: relative;
+}
+
 /* item_812: only the phone breakpoint has a button grid to replace, so this control exists
    only there. Declared here rather than after that breakpoint: the two rules have the same
    specificity, so whichever comes last wins, and appended at the end this one hid the
@@ -5421,6 +5436,9 @@
     top: calc(100% - 4px);
     right: 10px;
     left: 10px;
+    /* The 900px block sets `width: 100%`, which wins over the left/right pair and pushed
+       the sheet 10px off the right edge. */
+    width: auto;
     z-index: 70;
     display: none;
     grid-template-columns: minmax(0, 1fr);
@@ -7159,16 +7177,8 @@
    this then walked into here: the sheen has to be clipped to the bar, but `overflow:
    hidden` on the bar itself clips the navigation menus that hang out of its bottom edge.
    The clipping lives on a dedicated child, which is exactly what the ring does. */
-/* Reported by the operator, twice: first the sheen clipped the menus, then this lifted the
-   topbar's children into stacking contexts of their own, capped at 1 -- so the menus that
-   hang below the bar were painted under the toolbar beneath it. Positioned but with
-   `z-index: auto`, which creates no context: the sheen is the first child and everything
-   after it in the document paints over it, which is all this needed. */
-.viewer-topbar > * {
-  position: relative;
-}
-
 .viewer-topbar__sheen {
+  /* Overrides the `> *` rule above: this one is meant to be behind. */
   position: absolute;
   inset: 0;
   z-index: 0;

@@ -1,7 +1,7 @@
 ## req_365_say_the_viewer_is_working_wherever_the_operator_is_looking - Say the viewer is working, wherever the operator is looking
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium

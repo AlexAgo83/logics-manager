@@ -3869,6 +3869,11 @@ def test_viewer_main_stops_cleanly_on_keyboard_interrupt(
         def serve_forever(self) -> None:
             raise KeyboardInterrupt
 
+        def warm_corpus_reports(self) -> None:
+            # item_814: main() warms the corpus reports after the banner. A fake standing in
+            # for the server carries the method; there is nothing to warm here.
+            return None
+
         def server_close(self) -> None:
             self.closed = True
 
@@ -3970,6 +3975,11 @@ def test_viewer_main_proceeds_without_corpus_when_yes_flag(
         def serve_forever(self) -> None:
             raise KeyboardInterrupt
 
+        def warm_corpus_reports(self) -> None:
+            # item_814: main() warms the corpus reports after the banner. A fake standing in
+            # for the server carries the method; there is nothing to warm here.
+            return None
+
         def server_close(self) -> None:
             return
 
@@ -4009,6 +4019,11 @@ def test_viewer_main_ignores_repeated_keyboard_interrupt_during_close(
         def serve_forever(self) -> None:
             raise KeyboardInterrupt
 
+        def warm_corpus_reports(self) -> None:
+            # item_814: main() warms the corpus reports after the banner. A fake standing in
+            # for the server carries the method; there is nothing to warm here.
+            return None
+
         def server_close(self) -> None:
             raise KeyboardInterrupt
 
@@ -4036,6 +4051,11 @@ def test_viewer_main_execs_after_restart_request(
 
         def serve_forever(self) -> None:
             return
+
+        def warm_corpus_reports(self) -> None:
+            # item_814: main() warms the corpus reports after the banner. A fake standing in
+            # for the server carries the method; there is nothing to warm here.
+            return None
 
         def server_close(self) -> None:
             self.closed = True

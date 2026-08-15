@@ -227,6 +227,46 @@ def test_duplicate_proof_ac_groups_flags_the_ac6_ac7_shift_shape() -> None:
     assert duplicate_proof_ac_groups(text) == [["AC6", "AC7"]]
 
 
+def test_duplicate_proof_is_reported_on_open_documents_only(tmp_path: Path) -> None:
+    """item_824: every one of the 127 findings this check produced on this corpus was on a
+    Done document -- 91% of the whole report, and unactionable by construction: the proof
+    was accepted at closeout.
+
+    `_lineage_issues` and `_code_anchor_issues` already skip closed documents for the same
+    reason, stated in their own docstrings. This one did not, which is why it was the
+    report.
+    """
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "logics" / "tasks").mkdir(parents=True)
+    body = "\n".join(
+        [
+            "# AC Traceability",
+            "- request-AC6 -> This task. Proof: token aggregation is non-zero, asserted by test_token_totals.",
+            "- request-AC7 -> This task. Proof: token aggregation is non-zero, asserted by test_token_totals.",
+        ]
+    )
+    for index, (slug, status) in enumerate((("open", "In progress"), ("closed", "Done")), start=1):
+        name = f"task_00{index}_{slug}"
+        (repo_root / "logics" / "tasks" / f"{name}.md").write_text(
+            "\n".join(
+                [
+                    f"## {name} - {slug}",
+                    "> From version: 2.11.6",
+                    f"> Status: {status}",
+                    "> Schema version: 1.0",
+                    body,
+                ]
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+    payload = audit_payload(repo_root)
+    reported = [f["path"] for f in payload["findings"] if f["code"] == "ac_duplicate_proof"]
+    assert any("open" in path for path in reported), "the open document should still be asked about"
+    assert not any("closed" in path for path in reported), "a closed document's proof is history"
+
+
 def test_the_item_784_shape_survives_the_grouping_and_the_declaration() -> None:
     """item_823: both slices above make the check quieter, and the way to make a check
     quiet by accident is to make it quiet on purpose without a case that proves it fires.
@@ -359,8 +399,11 @@ def test_audit_reports_duplicate_proof_as_a_warning_not_blocking(tmp_path: Path)
             [
                 "## item_001_demo - Demo backlog",
                 "> From version: 2.11.6",
-                "> Status: Done",
-                "> Progress: 100%",
+                # item_824: open, since the check no longer asks about a closed document's
+                # proof. What this test guards -- warning, not gate -- is unchanged; only the
+                # document it guards it on had to be one the check still looks at.
+                "> Status: In progress",
+                "> Progress: 40%",
                 "> Schema version: 1.0",
                 "# Links",
                 "- `req_001_demo`",

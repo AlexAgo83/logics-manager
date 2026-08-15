@@ -16,7 +16,7 @@ from .doc_parsing import extract_refs, indicator_value, progress_value, section_
 from .flow_evidence import (
     has_ac_proof as _has_ac_with_proof,
     has_ac_traceability_line as _has_ac_traceability_line,
-    duplicate_proof_ac_ids as _duplicate_proof_ac_ids,
+    duplicate_proof_ac_groups as _duplicate_proof_ac_groups,
     invalid_backs_references as _invalid_backs_references,
     unbacked_local_ac_ids as _unbacked_local_ac_ids,
 )
@@ -911,19 +911,20 @@ def _duplicate_proof_issues(docs: dict[str, DocMeta], cutoff) -> list[AuditIssue
     both cited the same proof, one of them necessarily wrong). A warning, not blocking:
     identical proof text is also the correct, common shape of an orchestration
     delegation or a single implementation wave that legitimately closes several ACs at
-    once -- see `duplicate_proof_ac_ids`'s docstring for the corpus evidence.
+    once -- see `duplicate_proof_ac_groups`'s docstring for the corpus evidence.
     """
     issues: list[AuditIssue] = []
     for doc in docs.values():
         if doc.kind.kind not in {"backlog", "task"} or not _is_strict_scope(doc, cutoff):
             continue
-        for first_id, second_id in _duplicate_proof_ac_ids(doc.text):
+        for group in _duplicate_proof_ac_groups(doc.text):
+            named = ", ".join(f"`request-{ac_id}`" for ac_id in group)
             issues.append(
                 AuditIssue(
                     code="ac_duplicate_proof",
                     path=doc.path,
                     message=(
-                        f"`request-{first_id}` and `request-{second_id}` cite the same proof text -- "
+                        f"{len(group)} criteria cite the same proof text ({named}) -- "
                         "confirm this is a shared implementation wave, not a shifted or copy-pasted proof"
                     ),
                     severity="warning",

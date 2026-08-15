@@ -155,10 +155,16 @@ def ac_proofs_by_id(text: str) -> dict[str, tuple[str, str]]:
     return entries
 
 
-def duplicate_proof_ac_ids(text: str) -> list[tuple[str, str]]:
+def duplicate_proof_ac_groups(text: str) -> list[list[str]]:
     """Pairs of AC ids in this document whose proof text is identical once whitespace
     is normalized -- item_784/GH#20: a proof block shifted or copy-pasted across
     criteria leaves two different `request-ACn` lines carrying the same sentence.
+
+    item_821: returned as one group per shared proof rather than as pairs. On this
+    corpus the pair shape turned 127 groups into 437 findings -- a wave that
+    legitimately closed twelve criteria was reported eleven times, and no single one
+    of those lines said how many criteria were involved, which is exactly what
+    decides whether it is a wave or a mistake.
 
     Deliberately a *signal to check*, not a verdict: this repository's own corpus
     (1497 docs, 350+ Done tasks) has two entirely legitimate patterns that produce the
@@ -173,19 +179,19 @@ def duplicate_proof_ac_ids(text: str) -> list[tuple[str, str]]:
     """
     entries = ac_proofs_by_id(text)
     placeholder_marker = AC_PROOF_PLACEHOLDER.split(" --")[0]
-    seen: dict[str, str] = {}
-    pairs: list[tuple[str, str]] = []
+    grouped: dict[str, list[str]] = {}
+    order: list[str] = []
     for ac_id, (target, proof) in sorted(entries.items()):
         if target.strip().lower() not in _SELF_PROOF_TARGETS:
             continue
         if not proof or placeholder_marker in proof or proof == AC_DEFERRED_PLACEHOLDER:
             continue
         key = " ".join(proof.split()).lower()
-        if key in seen:
-            pairs.append((seen[key], ac_id))
-        else:
-            seen[key] = ac_id
-    return pairs
+        if key not in grouped:
+            grouped[key] = []
+            order.append(key)
+        grouped[key].append(ac_id)
+    return [grouped[key] for key in order if len(grouped[key]) > 1]
 
 
 # --- Local-AC-to-request-AC mapping (item_784 AC2/AC3, revised) -------------------

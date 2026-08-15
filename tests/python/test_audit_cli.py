@@ -24,7 +24,7 @@ from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.cli import main
 from logics_manager.flow import evidence_add_payload, repair_ac_traceability_payload
 from logics_manager.flow_evidence import (
-    duplicate_proof_ac_ids,
+    duplicate_proof_ac_groups,
     has_adopted_backs_annotation,
     invalid_backs_references,
     local_ac_backs,
@@ -213,7 +213,7 @@ def test_ac_proof_requires_same_line_for_matching_ac() -> None:
     assert has_ac_proof("- request-AC10 -> This task. Proof: validates AC10.", "AC1") is False
 
 
-def test_duplicate_proof_ac_ids_flags_the_ac6_ac7_shift_shape() -> None:
+def test_duplicate_proof_ac_groups_flags_the_ac6_ac7_shift_shape() -> None:
     """item_784/GH#20: the concrete original bug -- two request-ACn lines, both
     self-referential (`This task.`), carrying the exact same proof sentence."""
     text = "\n".join(
@@ -223,10 +223,32 @@ def test_duplicate_proof_ac_ids_flags_the_ac6_ac7_shift_shape() -> None:
             "- request-AC7 -> This task. Proof: token aggregation is non-zero, asserted by test_token_totals.",
         ]
     )
-    assert duplicate_proof_ac_ids(text) == [("AC6", "AC7")]
+    assert duplicate_proof_ac_groups(text) == [["AC6", "AC7"]]
 
 
-def test_duplicate_proof_ac_ids_ignores_orchestration_redirects() -> None:
+def test_duplicate_proof_ac_groups_reports_a_shared_proof_once() -> None:
+    """item_821: the pair shape turned 127 groups into 437 findings on this corpus.
+
+    A wave that legitimately closed twelve criteria was reported eleven times, and no
+    one of those lines said how many criteria were involved -- which is what decides
+    whether it is a wave or a mistake.
+    """
+    text = "\n".join(
+        [
+            "# AC Traceability",
+            "- request-AC1 -> This task. Proof: one wave, one test run.",
+            "- request-AC2 -> This task. Proof: one wave, one test run.",
+            "- request-AC3 -> This task. Proof: one wave, one test run.",
+            "- request-AC4 -> This task. Proof: a different wave entirely.",
+            "- request-AC5 -> This task. Proof: a different wave entirely.",
+        ]
+    )
+
+    # One group per shared proof, naming every criterion it covers -- not four pairs.
+    assert duplicate_proof_ac_groups(text) == [["AC1", "AC2", "AC3"], ["AC4", "AC5"]]
+
+
+def test_duplicate_proof_ac_groups_ignores_orchestration_redirects() -> None:
     """An orchestration task delegating several ACs to the same child item repeats the
     same redirect sentence on purpose -- its target is the child ref, not a
     self-reference, so it is out of scope for this check."""
@@ -237,10 +259,10 @@ def test_duplicate_proof_ac_ids_ignores_orchestration_redirects() -> None:
             "- request-AC2 -> `item_596_demo`. Proof deferred to slice closeout.",
         ]
     )
-    assert duplicate_proof_ac_ids(text) == []
+    assert duplicate_proof_ac_groups(text) == []
 
 
-def test_duplicate_proof_ac_ids_ignores_placeholders() -> None:
+def test_duplicate_proof_ac_groups_ignores_placeholders() -> None:
     text = "\n".join(
         [
             "# AC Traceability",
@@ -248,10 +270,10 @@ def test_duplicate_proof_ac_ids_ignores_placeholders() -> None:
             "- request-AC2 -> This task. Proof: TODO -- state how this was verified",
         ]
     )
-    assert duplicate_proof_ac_ids(text) == []
+    assert duplicate_proof_ac_groups(text) == []
 
 
-def test_duplicate_proof_ac_ids_allows_distinct_proofs() -> None:
+def test_duplicate_proof_ac_groups_allows_distinct_proofs() -> None:
     text = "\n".join(
         [
             "# AC Traceability",
@@ -259,7 +281,7 @@ def test_duplicate_proof_ac_ids_allows_distinct_proofs() -> None:
             "- request-AC2 -> This task. Proof: implemented in abc123, per test_two.",
         ]
     )
-    assert duplicate_proof_ac_ids(text) == []
+    assert duplicate_proof_ac_groups(text) == []
 
 
 def test_audit_reports_duplicate_proof_as_a_warning_not_blocking(tmp_path: Path) -> None:

@@ -1816,7 +1816,11 @@ class LogicsViewerServer(ThreadingHTTPServer):
         self.report_cache: dict[tuple[str, Path], tuple[tuple[int, int], Any]] = {}
         # item_814: one lock per report, so a request arriving while the warm-up is computing
         # that report waits for the answer already being built instead of starting a second.
-        self.report_locks: dict[tuple[str, Path], threading.Lock] = {}
+        self.report_locks: dict[tuple[Any, ...], threading.Lock] = {}
+        #: item_841: the /api/items ETag and body, keyed by corpus signature instead of
+        #: rebuilt every poll to learn a 304 is due. Same mechanism as report_cache above,
+        #: applied where a 6+ MB payload was rebuilt and hashed just to say no (0.156s).
+        self.items_response_cache: dict[tuple[Path, bool], tuple[tuple[int, int], str, bytes]] = {}
         self.event_seq = 0
         super().__init__(server_address, LogicsViewerRequestHandler)
         if tls_context is not None:
@@ -2088,6 +2092,37 @@ class LogicsViewerServer(ThreadingHTTPServer):
                 self.report_cache[key] = (signature, payload)
             return payload
 
+    def cached_items_body(self, *, fleet_home: bool) -> tuple[str, bytes]:
+        """The /api/items ETag and JSON body, rebuilt only when the corpus signature moves.
+
+        item_841: a 304 rebuilt and sha1'd the whole payload merely to learn nothing had
+        changed -- 0.156s to say no, nearly all of it the rebuild. corpus_signature answers
+        the same question for a fraction of a percent of that cost, the mechanism
+        item_805/item_840 already use for the audit and status caches.
+        """
+        # ponytail: gated on this project's corpus signature alone, so a fleet-registry
+        # change (a project added/removed elsewhere) with this corpus untouched will not
+        # invalidate it -- rare enough next to the poll this guards. Widen the signature if
+        # that proves wrong.
+        repo_root = self.repo_root
+        signature = corpus_signature(repo_root)
+        key = (repo_root, fleet_home)
+        with self.status_cache_lock:
+            entry = self.items_response_cache.get(key)
+            lock = self.report_locks.setdefault(("items", repo_root, fleet_home), threading.Lock())
+        if entry is not None and entry[0] == signature:
+            return entry[1], entry[2]
+        with lock:
+            with self.status_cache_lock:
+                entry = self.items_response_cache.get(key)
+            if entry is not None and entry[0] == signature:
+                return entry[1], entry[2]
+            body = _json_bytes({"ok": True, "payload": self.viewer_payload(fleet_home=fleet_home)})
+            etag = '"%s"' % hashlib.sha1(body).hexdigest()
+            with self.status_cache_lock:
+                self.items_response_cache[key] = (signature, etag, body)
+            return etag, body
+
     def cached_audit_payload(self) -> dict[str, Any]:
         return self.cached_report("audit", audit_payload)
 
@@ -2299,17 +2334,6 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
 
     def _send_json(self, payload: Any, *, status: int = 200) -> None:
         self._send_bytes(_json_bytes(payload), status=status, content_type="application/json; charset=utf-8")
-
-    def _send_json_cacheable(self, payload: Any) -> None:
-        """Serve JSON with an ETag over the exact bytes sent, gzipped when the
-        client allows it -- item_786: /api/items polled every 15s previously
-        re-transferred the full body even when nothing had changed."""
-        body = _json_bytes(payload)
-        etag = '"%s"' % hashlib.sha1(body).hexdigest()
-        if self._etag_fresh(etag):
-            self._send_not_modified(etag)
-            return
-        self._send_bytes(body, content_type="application/json; charset=utf-8", etag=etag, compress=True)
 
     def _status_component(self, name: str, *, force: bool = False) -> Any:
         return self.server.status_component_by_name(name, force=force)
@@ -2973,12 +2997,13 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/items":
             project_id = parse_qs(parsed.query).get("project", [""])[0]
-            self._send_json_cacheable(
-                {
-                    "ok": True,
-                    "payload": self.server.viewer_payload(fleet_home=bool(self.server.launch_fleet_home and not project_id)),
-                }
+            etag, body = self.server.cached_items_body(
+                fleet_home=bool(self.server.launch_fleet_home and not project_id)
             )
+            if self._etag_fresh(etag):
+                self._send_not_modified(etag)
+                return
+            self._send_bytes(body, content_type="application/json; charset=utf-8", etag=etag, compress=True)
             return
         if route == "/api/projects":
             self._send_json({"ok": True, "payload": {"projects": self.server.project_registry_payload()}})

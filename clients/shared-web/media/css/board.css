@@ -887,6 +887,14 @@
   text-align: left;
   padding: 8px 10px;
   border: 1px solid transparent;
+  /* Reported on runbook rows: `.card` declares the 5px accent, but this shorthand comes
+     later in the file and reset it to 1px. Rows whose status `cardStatusKey` recognises got
+     it back from `.card[class*="card--status-"]`, which outranks a bare class -- a runbook
+     is `Active`, matches none of the five, and was left with a 1px line. Same fix as on the
+     card: the longhands after the shorthand, so the accent belongs to the stage and the
+     status only varies its shape. */
+  border-left-style: solid;
+  border-left-width: 5px;
   border-radius: 6px;
   background: transparent;
   color: var(--vscode-foreground, #d4d4d4);

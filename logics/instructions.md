@@ -18,6 +18,8 @@ Operational runbooks live in `logics/runbook/` (`run_*.md`, Draft/Active/Archive
 
 Bundled agent skills (e.g. `/corpus` for scaffolding a full request chain) can be installed once per machine with `logics-manager skills install`.
 
+When naming a Logics document in a response, give its viewer link too if one is running for this repository: `read_logics_doc` and the CLI's `flow show`/`sync list-docs`/`sync search-docs` already carry it, so this usually means passing along what they returned rather than building a link by hand. The address always comes from the running viewer, never a guessed default port; see `docs/cli.md` for the URL grammar.
+
 Claude runtime artifacts are generated outside the repository from the integrated runtime.
 Do not edit generated runtime artifacts by hand unless you are deliberately repairing a generated artifact.
 

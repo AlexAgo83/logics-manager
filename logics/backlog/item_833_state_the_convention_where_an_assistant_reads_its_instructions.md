@@ -2,9 +2,9 @@
 > From version: 2.21.9
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 95%
+> Confidence: 95%
+> Progress: 100%
 > Complexity: Low
 > Theme: For the documents nobody fetched
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -50,3 +50,6 @@
 # Priority
 - Priority: Medium
 - Rationale: Weakest of the four surfaces and the only one that covers a document named rather than fetched; three lines, and useless before the other three land.
+
+# Validation
+- logics/instructions.md and logics_manager/skill_assets/implement-task/SKILL.md both state the convention (viewer link travels with a named document) and point at docs/cli.md for the URL grammar rather than restating it. Regenerated from the source of truth (_build_claude_instructions in assist_support.py) rather than hand-edited only in the checked-out copy -- confirmed byte-identical between the generator's output and the committed logics/instructions.md. Also folded in ADR 030's paragraph, which the checked-out file had carried since 5355df41 without the generator being updated to match.

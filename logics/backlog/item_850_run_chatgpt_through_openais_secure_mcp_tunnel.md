@@ -1,10 +1,10 @@
 ## item_850_run_chatgpt_through_openais_secure_mcp_tunnel - Run ChatGPT through OpenAI's Secure MCP Tunnel
 > From version: 2.22.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 85%
 > Confidence: 80%
-> Progress: 0%
+> Progress: 33%
 > Complexity: Medium
 > Theme: ChatGPT developer-mode MCP operations
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

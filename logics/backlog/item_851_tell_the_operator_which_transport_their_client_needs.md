@@ -1,10 +1,10 @@
 ## item_851_tell_the_operator_which_transport_their_client_needs - Tell the operator which transport their client needs
 > From version: 2.22.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 33%
 > Complexity: Medium
 > Theme: Viewer MCP connector UX
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.

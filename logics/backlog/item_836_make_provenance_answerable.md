@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: Provenance is data
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 19:24:58
+> Indicators reviewed: 2026-08-15 20:04:46
 
 # AI Context
 - Summary: One reader for which issues a request names and which requests cover an issue, so the report and the closeout notice do not each parse the section.
@@ -53,3 +53,9 @@
 
 # Validation
 - request_issue_urls(repo_root, "logics/request/req_302_...md") returns req_302's issue (https://github.com/AlexAgo83/logics-manager/issues/9) from what is already written, no change to that document -- verified interactively against the real doc. A request with no Provenance section returns [] rather than raising. read_logics_doc now carries provenance_issues (absent when empty) so it and the future reconciliation report/closeout notice read the same module instead of each parsing the section again. 7 new tests in tests/python/test_provenance.py and tests/python/test_sync_cli.py.
+
+# Tasks
+- `task_383_orchestrate_the_issue_bridge_work`
+
+# Notes
+- Task `task_383_orchestrate_the_issue_bridge_work` was finished via `logics-manager flow finish task` on 2026-08-15.

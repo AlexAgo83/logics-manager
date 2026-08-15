@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Drift is reported, not remembered
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 19:24:58
+> Indicators reviewed: 2026-08-15 20:04:46
 
 # AI Context
 - Summary: Three questions answered in one report: issues with no request, Done requests whose issues are open, closed issues whose request is open.
@@ -56,3 +56,9 @@
 
 # Validation
 - reconciliation_report_payload names each of the three disagreements separately (issue number, url, request ref, request status) -- test_reconciliation_report_names_all_three_disagreements exercises all three plus the settled/closed case that must report nothing. No GitHub remote or a failing `gh` returns {"ok": false, "reachable": false, "message": ...} rather than an empty report. The gh call requests only number/state/labels/url -- never body -- asserted directly in the test. Verified live against this repo's real corpus and remote: issues #20 and #21 show up exactly as open_issues_with_no_request, the drift this request exists to close. 3 tests in tests/python/test_github_bridge.py, plus report_issue_drift MCP tool wiring tested in test_logics_manager_mcp.py.
+
+# Tasks
+- `task_383_orchestrate_the_issue_bridge_work`
+
+# Notes
+- Task `task_383_orchestrate_the_issue_bridge_work` was finished via `logics-manager flow finish task` on 2026-08-15.

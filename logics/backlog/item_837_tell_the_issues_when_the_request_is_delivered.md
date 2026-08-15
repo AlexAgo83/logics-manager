@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Telling the tracker is part of finishing
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 19:24:58
+> Indicators reviewed: 2026-08-15 20:04:46
 
 # AI Context
 - Summary: Closeout states what would be posted and to which issues; posting happens only on an explicit action, never as a side effect.
@@ -55,3 +55,9 @@
 
 # Validation
 - closeout_notice_payload states the label ("logics:<state>") and comment ("Logics lifecycle update: **<state>** — linked workflow: `<ref>`.") for every issue a request names, matching .github/workflows/logics-issue-update.yml's own wording exactly. Nothing is posted unless post=True is passed explicitly; the MCP tool (tell_issues_at_closeout) inverts this to dry_run defaulting true, so the dry statement stays the default while still satisfying the project's "every mutating tool declares dry_run" contract. A failed gh call is reported in errors[] without raising, and posted stays false. Verified live (dry only) against req_302/#9 -- the notice text matches exactly what the real workflow would post. 4 tests in tests/python/test_github_bridge.py, 2 MCP-level tests in test_logics_manager_mcp.py.
+
+# Tasks
+- `task_383_orchestrate_the_issue_bridge_work`
+
+# Notes
+- Task `task_383_orchestrate_the_issue_bridge_work` was finished via `logics-manager flow finish task` on 2026-08-15.

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "logics-manager"
-version = "2.22.0"
+version = "2.22.1"
 description = "Canonical Logics CLI"
 # item_678: without this the PyPI page carries no description and no history at all.
 readme = "README.md"

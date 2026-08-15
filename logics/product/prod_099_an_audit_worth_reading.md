@@ -6,9 +6,22 @@
 > Related task: `task_379_orchestrate_the_audit_signal_work`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-15 15:27:19
 
 # Overview
 Keep every check that finds real defects, and stop the ones that report the normal case, so that a report with warnings in it is a reason to look.
+
+```mermaid
+flowchart LR
+    Run[Audit runs] --> Same{Two criteria, same proof text?}
+    Same -- no --> Quiet[Nothing said]
+    Same -- yes --> Open{Is the document still open?}
+    Open -- "no, closed" --> History[History: the proof was accepted at closeout]
+    Open -- yes --> Declared{Declared deliberate?}
+    Declared -- yes --> Settled[Settled, once, by name]
+    Declared -- no --> Ask[One finding naming every criterion in the group]
+    Ask -.- Signal[The shift item_784 found]
+```
 
 # Goals
 - One finding per thing to look at, not per pair of things.

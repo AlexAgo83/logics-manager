@@ -1,0 +1,581 @@
+{
+  "budgets": {
+    "max_docs": 28,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes item_834_report_where_the_corpus_and_the_tracker_disagree item_835_attach_an_issue_to_a_request_that_already_exists item_836_make_provenance_answerable item_837_tell_the_issues_when_the_request_is_delivered item_838_close_the_drift_this_request_was_opened_over task_383_orchestrate_the_issue_bridge_work --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_834_report_where_the_corpus_and_the_tracker_disagree",
+          "item_835_attach_an_issue_to_a_request_that_already_exists",
+          "item_836_make_provenance_answerable",
+          "item_837_tell_the_issues_when_the_request_is_delivered",
+          "item_838_close_the_drift_this_request_was_opened_over"
+        ],
+        "prod": [
+          "prod_103_an_issue_bridge_on_the_path_people_walk"
+        ],
+        "req": [
+          "req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes"
+        ],
+        "task": [
+          "task_383_orchestrate_the_issue_bridge_work"
+        ]
+      },
+      "path": "logics/product/prod_103_an_issue_bridge_on_the_path_people_walk.md",
+      "ref": "prod_103_an_issue_bridge_on_the_path_people_walk",
+      "sections": {
+        "Goals": [
+          "- Drift is reported, not remembered.",
+          "- The link can be made whenever it is noticed, not only at intake.",
+          "- Telling the tracker is part of finishing, and always deliberate.",
+          "- Provenance is data."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Make the tracker and the corpus disagree visibly, and make closing the gap a step in the work rather than an errand after it."
+        ],
+        "References": [
+          "- Product back-reference: `req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes`",
+          "- Task back-reference: `task_383_orchestrate_the_issue_bridge_work`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "An issue bridge on the path people walk"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_784_validate_traceability_proof_content_and_fix_the_runtime_drift_false_positive",
+          "item_785_stop_flow_s_own_writes_from_tripping_its_own_checks"
+        ],
+        "prod": [
+          "prod_093_trustworthy_flow_checks"
+        ],
+        "req": [
+          "req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy"
+        ],
+        "task": [
+          "task_357_orchestrate_flow_traceability_and_self_consistency_fixes_gh_20_21"
+        ]
+      },
+      "path": "logics/product/prod_093_trustworthy_flow_checks.md",
+      "ref": "prod_093_trustworthy_flow_checks",
+      "sections": {
+        "Goals": [
+          "- A passed traceability check means the cited proof actually supports the cited acceptance criterion.",
+          "- A finding an operator cannot act on (false drift warning, a repair the tool itself refuses, a lint flag on the tool's own write) says so plainly or stops firing."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "flow's validation and self-generated writes agree on what counts as a valid, reviewed document.",
+          "```mermaid",
+          "flowchart LR",
+          "    Write[Agent writes a proof line] --> Check{Flow traceability check}",
+          "    Check -- \"self-authored\" --> Reject[Not evidence: the writer is the claimant]",
+          "    Check -- \"independent\" --> Accept[Counts as proof]"
+        ],
+        "References": [
+          "- Product back-reference: `req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy`",
+          "- Task back-reference: `task_357_orchestrate_flow_traceability_and_self_consistency_fixes_gh_20_21`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Trustworthy flow checks"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "put, github, issue, bridge, path, work, actually, takes",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_834_report_where_the_corpus_and_the_tracker_disagree",
+          "item_835_attach_an_issue_to_a_request_that_already_exists",
+          "item_836_make_provenance_answerable",
+          "item_837_tell_the_issues_when_the_request_is_delivered",
+          "item_838_close_the_drift_this_request_was_opened_over"
+        ],
+        "prod": [
+          "prod_103_an_issue_bridge_on_the_path_people_walk"
+        ],
+        "req": [
+          "req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy",
+          "req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes"
+        ]
+      },
+      "path": "logics/request/req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes.md",
+      "ref": "req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A report states where the corpus and the issue tracker disagree: issues with no request, requests that are Done whose issues are still open, and issues closed while their request is still open.",
+          "- AC2: An issue can be attached to a request that already exists, without hand-editing the document.",
+          "- AC3: Finishing a request that names issues offers to tell them, as an explicit step that never fires on its own.",
+          "- AC4: Provenance is queryable: which issues the corpus covers, and which request covers a given issue, answered from data rather than by grepping prose.",
+          "- AC5: Nothing in this work reads an issue body, and the untrusted-content rule stays stated where it is stated today.",
+          "- AC6: The drift this request was opened over -- issues #20 and #21 open against a delivered req_357 -- is closed by using what this work builds, not by hand."
+        ],
+        "Needs": [
+          "- As a maintainer, I need to see where the corpus and the issue tracker have drifted apart, rather than having to remember to keep them together.",
+          "- As a maintainer, I need to attach an issue to a request that already exists, because the request is usually written before anyone thinks about the issue.",
+          "- As a maintainer, I need delivering a request to be the moment its issues are told, instead of a form I have to fill in by hand afterwards.",
+          "- As an operator or an agent, I need to ask which issues this corpus covers and get an answer from data rather than from prose."
+        ]
+      },
+      "status": "Draft",
+      "title": "Put the GitHub issue bridge on the path the work actually takes"
+    },
+    {
+      "ai_context": {
+        "keywords": "flow, traceability proof, ac_proof_state, runtime-drift, indicator rebaseline, companion_doc_missing_mermaid",
+        "skip when": "Anything about the viewer server or client performance \u2014 that's req_358.",
+        "summary": "`flow` validates traceability by presence only (a wrong or duplicated proof passes) and its own write commands (`start`/`repair`/`closeout`) trip lint's own indicator check on their own output \u2014 two GitHub issues (#20, #21) about the checking half and the writing half disagreeing on what a valid document is.",
+        "use when": "Changing traceability validation/repair logic, the runtime-drift version check, or how flow's own write commands leave a document's indicators."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_784_validate_traceability_proof_content_and_fix_the_runtime_drift_false_positive",
+          "item_785_stop_flow_s_own_writes_from_tripping_its_own_checks"
+        ],
+        "prod": [
+          "prod_093_trustworthy_flow_checks"
+        ],
+        "req": [
+          "req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy"
+        ]
+      },
+      "path": "logics/request/req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy.md",
+      "ref": "req_357_make_flow_s_traceability_checks_and_self_authored_writes_trustworthy",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: flow validate/repair reject or flag a request-ACn proof line whose text is identical to another request-ACn proof line in the same document (anti copy-paste), as a blocking finding.",
+          "- AC2: flow validate/repair reject or flag a request-ACn proof line whose proof text does not correspond to any acceptance criterion actually declared by the citing document, as a blocking finding.",
+          "- AC3: flow validate warns (non-blocking) when a slice's own acceptance criterion backs no request AC (orphaned slice AC).",
+          "- AC4: the runtime-drift notice compares the running version against a version logics-manager itself recorded (e.g. in logics.yaml), and stays silent when no such version is recorded, instead of reading the consumer repo's own VERSION/package version.",
+          "- AC5: flow start, flow repair, and flow closeout re-baseline the Confidence/Progress/Understanding indicators of every document they write, so a subsequent lint --require-status run does not flag that document as modified without updating indicators.",
+          "- AC6: the companion_doc_missing_mermaid audit finding, when raised against a product document, states that the diagram is authored by hand and that flow repair mermaid does not generate it."
+        ],
+        "Needs": [
+          "- As an operator running flow validate/lint/audit, I need traceability content to be checked, not just its presence, so a closeout gate cannot certify fictional proof.",
+          "- As an operator running flow in a consumer repo, I need the runtime-drift notice to compare against a version logics-manager itself recorded, so it stops firing falsely against the consumer's own package version.",
+          "- As an operator running flow start/repair/closeout, I need those commands to re-baseline the indicators they just wrote, so lint does not flag the tool's own output as an unreviewed hand edit.",
+          "- As an operator reading an audit finding about a missing product Mermaid diagram, I need the finding to say the diagram is hand-authored, so I do not go looking for a repair command that will refuse it."
+        ]
+      },
+      "status": "Done",
+      "title": "Make flow's traceability checks and self-authored writes trustworthy"
+    },
+    {
+      "ai_context": {
+        "keywords": "report, corpus, tracker, disagree",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_834_report_where_the_corpus_and_the_tracker_disagree"
+        ],
+        "prod": [
+          "prod_103_an_issue_bridge_on_the_path_people_walk"
+        ],
+        "req": [
+          "req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes"
+        ],
+        "task": [
+          "task_383_orchestrate_the_issue_bridge_work"
+        ]
+      },
+      "path": "logics/backlog/item_834_report_where_the_corpus_and_the_tracker_disagree.md",
+      "ref": "item_834_report_where_the_corpus_and_the_tracker_disagree",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The report names each of the three disagreements separately, with the issue numbers and the Logics refs involved.",
+          "- AC2: With no network or no `gh`, it says the tracker could not be read rather than reporting that nothing is wrong.",
+          "- AC3: No issue body is read, and nothing in the output can be influenced by one."
+        ],
+        "Problem": [
+          "- Nothing compares the two, so the only way to notice that issues #20 and #21 are open against a delivered request is to go and look, which is what did not happen.",
+          "- Ten issues closed carrying no Logics link at all, and nothing said so at any point."
+        ]
+      },
+      "status": "Ready",
+      "title": "Report where the corpus and the tracker disagree"
+    },
+    {
+      "ai_context": {
+        "keywords": "attach, issue, request, already, exists",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_835_attach_an_issue_to_a_request_that_already_exists"
+        ],
+        "prod": [
+          "prod_103_an_issue_bridge_on_the_path_people_walk"
+        ],
+        "req": [
+          "req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes"
+        ],
+        "task": [
+          "task_383_orchestrate_the_issue_bridge_work"
+        ]
+      },
+      "path": "logics/backlog/item_835_attach_an_issue_to_a_request_that_already_exists.md",
+      "ref": "item_835_attach_an_issue_to_a_request_that_already_exists",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Attaching an issue to an existing request produces the same `# Provenance` shape intake produces.",
+          "- AC2: Attaching a second issue to the same request keeps both.",
+          "- AC3: A non-issue URL is refused with the reason, by the same rule `create_request` uses."
+        ],
+        "Problem": [
+          "- Provenance can only be declared when a request is created, and the request is almost always written first -- from a conversation, not from a triaged issue.",
+          "- So req_357's two issues live in `# References` as URLs, and req_302 is the only request in the corpus carrying a `# Provenance` section."
+        ]
+      },
+      "status": "Ready",
+      "title": "Attach an issue to a request that already exists"
+    },
+    {
+      "ai_context": {
+        "keywords": "orchestrate, issue, bridge, work",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_834_report_where_the_corpus_and_the_tracker_disagree",
+          "item_835_attach_an_issue_to_a_request_that_already_exists",
+          "item_836_make_provenance_answerable",
+          "item_837_tell_the_issues_when_the_request_is_delivered",
+          "item_838_close_the_drift_this_request_was_opened_over"
+        ],
+        "prod": [
+          "prod_103_an_issue_bridge_on_the_path_people_walk"
+        ],
+        "req": [
+          "req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes"
+        ],
+        "task": [
+          "task_383_orchestrate_the_issue_bridge_work"
+        ]
+      },
+      "path": "logics/tasks/task_383_orchestrate_the_issue_bridge_work.md",
+      "ref": "task_383_orchestrate_the_issue_bridge_work",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Orchestrate the issue bridge work"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_834_report_where_the_corpus_and_the_tracker_disagree",
+          "item_835_attach_an_issue_to_a_request_that_already_exists",
+          "item_836_make_provenance_answerable",
+          "item_837_tell_the_issues_when_the_request_is_delivered",
+          "item_838_close_the_drift_this_request_was_opened_over"
+        ],
+        "prod": [
+          "prod_103_an_issue_bridge_on_the_path_people_walk"
+        ],
+        "req": [
+          "req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes"
+        ],
+        "task": [
+          "task_383_orchestrate_the_issue_bridge_work"
+        ]
+      },
+      "path": "logics/product/prod_103_an_issue_bridge_on_the_path_people_walk.md",
+      "ref": "prod_103_an_issue_bridge_on_the_path_people_walk",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "An issue bridge on the path people walk"
+    },
+    {
+      "ai_context": {
+        "keywords": "provenance, answerable",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_836_make_provenance_answerable"
+        ],
+        "prod": [
+          "prod_103_an_issue_bridge_on_the_path_people_walk"
+        ],
+        "req": [
+          "req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes"
+        ],
+        "task": [
+          "task_383_orchestrate_the_issue_bridge_work"
+        ]
+      },
+      "path": "logics/backlog/item_836_make_provenance_answerable.md",
+      "ref": "item_836_make_provenance_answerable",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The reader returns req_302's issue from what is already written, with no change to that document.",
+          "- AC2: It returns nothing, not an error, for a request with no provenance.",
+          "- AC3: The reconciliation report and the closeout notice both read it rather than parsing the section again."
+        ],
+        "Problem": [
+          "- `# Provenance` is prose bullets, so 'which issues does this corpus cover' and 'which request covers issue 20' can only be answered by grepping.",
+          "- The reconciliation report and the closeout notice both need that answer, and each deriving it separately is how they come to disagree."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make provenance answerable"
+    },
+    {
+      "ai_context": {
+        "keywords": "tell, issues, request, delivered",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_837_tell_the_issues_when_the_request_is_delivered"
+        ],
+        "prod": [
+          "prod_103_an_issue_bridge_on_the_path_people_walk"
+        ],
+        "req": [
+          "req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes"
+        ],
+        "task": [
+          "task_383_orchestrate_the_issue_bridge_work"
+        ]
+      },
+      "path": "logics/backlog/item_837_tell_the_issues_when_the_request_is_delivered.md",
+      "ref": "item_837_tell_the_issues_when_the_request_is_delivered",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Finishing a request that names issues reports which issues would be told and what would be said.",
+          "- AC2: Nothing is posted without an explicit action, and the dry statement is the default.",
+          "- AC3: What is posted matches the lifecycle states the existing workflow already uses."
+        ],
+        "Problem": [
+          "- Lifecycle feedback is a `workflow_dispatch` with three inputs, one of them a Logics ref the maintainer must look up. It has run once, for issue #9.",
+          "- Finishing a request is the moment when what the issue needs to hear is known and nobody has to look anything up."
+        ]
+      },
+      "status": "Ready",
+      "title": "Tell the issues when the request is delivered"
+    },
+    {
+      "ai_context": {
+        "keywords": "close, drift, request, opened, over",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_838_close_the_drift_this_request_was_opened_over"
+        ],
+        "prod": [
+          "prod_103_an_issue_bridge_on_the_path_people_walk"
+        ],
+        "req": [
+          "req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes"
+        ],
+        "task": [
+          "task_383_orchestrate_the_issue_bridge_work"
+        ]
+      },
+      "path": "logics/backlog/item_838_close_the_drift_this_request_was_opened_over.md",
+      "ref": "item_838_close_the_drift_this_request_was_opened_over",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: req_357 names both issues, written by the command rather than by hand.",
+          "- AC2: Both issues carry the lifecycle update, posted by the mechanism.",
+          "- AC3: The reconciliation report no longer lists them, and the before and after are recorded."
+        ],
+        "Problem": [
+          "- Issues #20 and #21 are open against a req_357 that is Done, which is the observation this request exists because of.",
+          "- Fixing it by hand would leave the mechanism unproven on the only case anyone has actually met."
+        ]
+      },
+      "status": "Ready",
+      "title": "Close the drift this request was opened over"
+    }
+  ],
+  "estimates": {
+    "char_count": 18044,
+    "companion_doc_count": 2,
+    "doc_count": 9
+  },
+  "generated_at": "2026-08-15T14:04:43Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes",
+      "item_834_report_where_the_corpus_and_the_tracker_disagree",
+      "item_835_attach_an_issue_to_a_request_that_already_exists",
+      "item_836_make_provenance_answerable",
+      "item_837_tell_the_issues_when_the_request_is_delivered",
+      "item_838_close_the_drift_this_request_was_opened_over",
+      "task_383_orchestrate_the_issue_bridge_work"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes,item_834_report_where_the_corpus_and_the_tracker_disagree,item_835_attach_an_issue_to_a_request_that_already_exists,item_836_make_provenance_answerable,item_837_tell_the_issues_when_the_request_is_delivered,item_838_close_the_drift_this_request_was_opened_over,task_383_orchestrate_the_issue_bridge_work",
+  "refs": [
+    "req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes",
+    "item_834_report_where_the_corpus_and_the_tracker_disagree",
+    "item_835_attach_an_issue_to_a_request_that_already_exists",
+    "item_836_make_provenance_answerable",
+    "item_837_tell_the_issues_when_the_request_is_delivered",
+    "item_838_close_the_drift_this_request_was_opened_over",
+    "task_383_orchestrate_the_issue_bridge_work"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.21.9"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_383_orchestrate_the_issue_bridge_work.md",
+      "ref": "task_383_orchestrate_the_issue_bridge_work"
+    }
+  ]
+}

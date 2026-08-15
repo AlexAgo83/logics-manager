@@ -1,15 +1,15 @@
 ## task_386_orchestrate_the_in_browser_document_editor_work - Orchestrate the in-browser document editor work
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 > Owner: claude
-> Indicators reviewed: 2026-08-15 19:07:23
+> Indicators reviewed: 2026-08-15 19:07:27
 
 # AI Context
 - Summary: Sequences the in-browser editor work: build the screen and its write route, then wire a real save to the existing commit-offer mechanism.
@@ -55,9 +55,15 @@
 
 # Validation
 - (no validation recorded yet)
+- 1408 python + 971 vitest passed on 2026-08-15
+- Finish workflow executed on 2026-08-15.
+- Linked backlog/request close verification passed.
 
 # Report
 - Both backlog slices landed: item_845 (editDocument routes on the existing embeddedHost signal; VS Code keeps calling /api/edit unchanged, the browser opens an in-viewer editor screen with Save/Cancel over a new /api/save-doc write route, path-validated the same way edit/read already are) and item_846 (a real save offers the same commit step item_844 built -- commitFiles extracted so both flows share it -- skipped entirely for a no-op save). 6 new tests. Full suite: 1408 python + 971 vitest passed.
+- Finished on 2026-08-15.
+- Linked backlog item(s): `item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged`, `item_846_offer_to_commit_a_save_the_way_a_status_change_already_does`
+- Related request(s): `req_375_edit_documents_in_the_browser_viewer`
 
 # Links
 - Request: `req_375_edit_documents_in_the_browser_viewer`

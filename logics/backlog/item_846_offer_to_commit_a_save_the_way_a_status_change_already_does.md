@@ -1,14 +1,14 @@
 ## item_846_offer_to_commit_a_save_the_way_a_status_change_already_does - Offer to commit a save the way a status change already does
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 95%
 > Progress: 100%
 > Complexity: Low
 > Theme: One commit-offer mechanism, not two
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 18:51:46
+> Indicators reviewed: 2026-08-15 19:07:28
 
 # AI Context
 - Summary: A save that actually changes the file offers the same commit step item_844 built for status changes; a no-op save writes nothing and offers no commit.
@@ -51,3 +51,9 @@
 
 # Validation
 - A save that actually changes the file offers the same commit step item_844 built -- showCommitOfferModal and commitFiles (the fetch/error-handling/recordGitActivity logic extracted out of changeCurrentDocumentStatus so both flows call the same function) -- with a proposed default message (test_saving_the_in_viewer_editor_writes_the_content_and_offers_to_commit_it). A no-op save (identical content) writes nothing extra and shows no commit offer at all (test_a_no_op_save_writes_nothing_extra_and_offers_no_commit), matching save_doc_payload's changed:false response.
+
+# Tasks
+- `task_386_orchestrate_the_in_browser_document_editor_work`
+
+# Notes
+- Task `task_386_orchestrate_the_in_browser_document_editor_work` was finished via `logics-manager flow finish task` on 2026-08-15.

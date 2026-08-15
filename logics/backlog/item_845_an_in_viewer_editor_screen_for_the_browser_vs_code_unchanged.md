@@ -1,14 +1,14 @@
 ## item_845_an_in_viewer_editor_screen_for_the_browser_vs_code_unchanged - An in-viewer editor screen for the browser, VS Code unchanged
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 95%
 > Progress: 100%
 > Complexity: Medium
 > Theme: Edit here, not in another program
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 18:51:46
+> Indicators reviewed: 2026-08-15 19:07:28
 
 # AI Context
 - Summary: The edit action routes on the existing embeddedHost signal: VS Code keeps opening its own editor, the browser opens an in-viewer screen with Save/Cancel and a new write route.
@@ -61,3 +61,9 @@
 
 # Validation
 - editDocument branches on the existing embeddedHost signal: VS Code keeps calling /api/edit unchanged (test_opens_the_selected_document_through_the_local_edit_endpoint_when_embedded_in_vs_code, updated to simulate the embedding it now actually requires). The standalone browser opens renderDocEditorScreen (Save/Cancel over a plain textarea) instead (test_opens_the_in_viewer_editor_screen_for_the_edit_action_in_the_standalone_browser). Cancel discards the edit and returns to the read view without writing (test_cancelling_the_in_viewer_editor_writes_nothing_and_returns_to_the_document_view). The write route (save_doc_payload/POST /api/save-doc) validates a path the same way edit/read already do and rejects an escaping path with 404 (test_viewer_save_doc_writes_changed_content_and_rejects_paths_outside_repo, test_viewer_save_doc_route_writes_content_and_rejects_escaping_paths); it is registered in VIEWER_MUTATING_ROUTES.
+
+# Tasks
+- `task_386_orchestrate_the_in_browser_document_editor_work`
+
+# Notes
+- Task `task_386_orchestrate_the_in_browser_document_editor_work` was finished via `logics-manager flow finish task` on 2026-08-15.

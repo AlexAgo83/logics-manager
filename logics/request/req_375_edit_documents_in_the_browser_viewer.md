@@ -1,13 +1,13 @@
 ## req_375_edit_documents_in_the_browser_viewer - Edit documents in the browser viewer
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium
 > Theme: Edit where you already are, not in a separate program
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 18:25:03
+> Indicators reviewed: 2026-08-15 19:07:27
 
 # AI Context
 - Summary: The standalone browser viewer edits documents in-place with Save/Cancel instead of shelling out to a system editor; VS Code's embedded panel keeps opening its own editor unchanged. A real save offers the same commit step item_844 built for status changes.

@@ -8,7 +8,7 @@
 > Complexity: Low
 > Theme: The link can be made when it is noticed
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 19:24:58
+> Indicators reviewed: 2026-08-15 20:04:46
 
 # AI Context
 - Summary: Declare provenance after the fact, because the request is almost always written before anyone thinks about the issue.
@@ -55,3 +55,9 @@
 
 # Validation
 - attach_issue (mcp_request.py, exposed as the attach_github_issue MCP tool) writes the same '# Provenance' shape create_request produces on a first attach (Origin/External id/External issue/Approval), and appends another id/issue bullet pair on a second attach rather than replacing the section -- Approval stays the single trailing line. A non-issue URL is refused with the same rule create_request enforces. Reachable from the CLI today through the existing `mcp call` passthrough (verified end-to-end against a real repo), so no new CLI surface was needed. dry_run writes nothing. 4 new tests in tests/python/test_logics_manager_mcp.py.
+
+# Tasks
+- `task_383_orchestrate_the_issue_bridge_work`
+
+# Notes
+- Task `task_383_orchestrate_the_issue_bridge_work` was finished via `logics-manager flow finish task` on 2026-08-15.

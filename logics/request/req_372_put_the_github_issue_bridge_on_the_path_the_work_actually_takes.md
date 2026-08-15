@@ -1,13 +1,13 @@
 ## req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes - Put the GitHub issue bridge on the path the work actually takes
 > From version: 2.21.9
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium
 > Theme: GitHub issue intake
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:28:38
+> Indicators reviewed: 2026-08-15 20:04:45
 
 # AI Context
 - Summary: The bridge works and is unused: it assumes an issue is triaged before the work starts, and the work starts in a conversation. Three uses in its first week, none since.

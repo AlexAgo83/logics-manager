@@ -1,12 +1,12 @@
 ## prod_103_an_issue_bridge_on_the_path_people_walk - An issue bridge on the path people walk
 > Date: 2026-08-15
-> Status: Proposed
+> Status: Settled
 > Related request: `req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes`
-> Related backlog: `item_834_report_where_the_corpus_and_the_tracker_disagree`, `item_835_attach_an_issue_to_a_request_that_already_exists`, `item_836_make_provenance_answerable`, `item_837_tell_the_issues_when_the_request_is_delivered`, `item_838_close_the_drift_this_request_was_opened_over`
+> Related backlog: `item_834_report_where_the_corpus_and_the_tracker_disagree`
 > Related task: `task_383_orchestrate_the_issue_bridge_work`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
-> Indicators reviewed: 2026-08-15 16:28:39
+> Indicators reviewed: 2026-08-15 20:04:46
 
 # Overview
 Make the tracker and the corpus disagree visibly, and make closing the gap a step in the work rather than an errand after it.
@@ -51,5 +51,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_372_put_the_github_issue_bridge_on_the_path_the_work_actually_takes`
+- Product back-reference: `item_834_report_where_the_corpus_and_the_tracker_disagree`
 - Task back-reference: `task_383_orchestrate_the_issue_bridge_work`

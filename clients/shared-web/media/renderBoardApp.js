@@ -774,7 +774,11 @@
         product: "P",
         roadmap: "M",
         architecture: "A",
-        spec: "S"
+        spec: "S",
+        // item_817: runbooks are on the board now, and `run_002` fell through to its own
+        // first letter -- the same "R" a request already uses, so R002 and R365 read as the
+        // same kind. Roadmap solved this the same way when it could not have "R" either.
+        runbook: "N"
       };
       const prefix = prefixByStage[stage] || (stage ? stage.slice(0, 1).toUpperCase() : "");
       const match = String(item?.id || "").match(/^[a-z]+_(\d+)/i) || String(item?.id || "").match(/(\d+)/);

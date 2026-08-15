@@ -10,11 +10,18 @@ import { matchesFilterState } from "../clients/viewer/src/browser-host/filters.j
 const baseFilterState = { focus: "all", type: "all", status: "any", relation: "any", activity: "any" };
 
 describe("matchesFilterState", () => {
-  it("excludes runbooks from every filter, since the board never renders them", () => {
+  it("counts a runbook like any other companion document", () => {
+    // This asserted the opposite until item_817: runbooks were dropped here outright,
+    // reasoned as "the board never renders them". The board renders them now -- they are
+    // documents with their own heading, colour and prefix -- and a filter that silently
+    // returned false was why they stayed invisible after the board had learned about them.
     const runbook = { stage: "runbook", indicators: { Status: "Active" } };
 
-    expect(matchesFilterState(runbook, baseFilterState)).toBe(false);
-    expect(matchesFilterState(runbook, { ...baseFilterState, status: "active" })).toBe(false);
+    expect(matchesFilterState(runbook, baseFilterState)).toBe(true);
+    expect(matchesFilterState(runbook, { ...baseFilterState, status: "active" })).toBe(true);
+    expect(matchesFilterState(runbook, { ...baseFilterState, type: "companion" })).toBe(true);
+    // And it is a companion, not workflow: the flow columns stay requests, backlog, tasks.
+    expect(matchesFilterState(runbook, { ...baseFilterState, type: "workflow" })).toBe(false);
   });
 
   it("still counts a board-eligible item with the same status", () => {

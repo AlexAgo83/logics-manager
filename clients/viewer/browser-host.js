@@ -901,7 +901,6 @@ ${entry?.message || ""}`;
         <button class="viewer-cdx__mode${active === "getting-started" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="getting-started" aria-selected="${active === "getting-started" ? "true" : "false"}">Getting Started</button>
         <button class="viewer-cdx__mode${active === "insights" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="insights" aria-selected="${active === "insights" ? "true" : "false"}">Insights</button>
         <button class="viewer-cdx__mode${active === "health" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="health" aria-selected="${active === "health" ? "true" : "false"}">Health</button>
-        <button class="viewer-cdx__mode${active === "runbooks" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="runbooks" aria-selected="${active === "runbooks" ? "true" : "false"}">Runbooks</button>
       </div>
     `;
   }
@@ -1224,7 +1223,11 @@ ${entry?.message || ""}`;
       product: "P",
       roadmap: "M",
       architecture: "A",
-      spec: "S"
+      spec: "S",
+      // item_817: runbooks are on the board now, and `run_002` fell through to its own
+      // first letter -- the same "R" a request already uses, so R002 and R365 read as the
+      // same kind. Roadmap solved this the same way when it could not have "R" either.
+      runbook: "N"
     };
     const key = String(stage || "").trim();
     const prefix = prefixByStage[key] || (key ? key.slice(0, 1).toUpperCase() : "");
@@ -6221,9 +6224,6 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
     function workshopUsesSystemTerminal() {
       return host.shared.viewerPreferences.workshopUseSystemTerminal === true || window.parent !== window;
     }
-    function workshopRunbookShowsHidden() {
-      return host.shared.viewerPreferences.workshopRunbookShowHidden !== false;
-    }
     function syncWorkshopSystemTerminalControls() {
       document.querySelectorAll("[data-viewer-workshop-system-terminal]").forEach((node) => {
         if (node instanceof HTMLInputElement) {
@@ -6335,33 +6335,6 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
           <div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty">
             <span class="viewer-workspace__placeholder-icon" aria-hidden="true">\xB7</span>
             <span>Discovering commands...</span>
-          </div>
-        </div>
-      `;
-      }
-      if (tabId === "runbooks") {
-        return `
-        <div class="viewer-workshop__panel viewer-workshop__panel--runbooks" role="tabpanel" data-viewer-workshop-panel="runbooks">
-          <div class="viewer-workshop__runbook-search">
-            <input type="search" placeholder="Search by intent, symptom, path, or category..." data-viewer-workshop-runbook-query aria-label="Search runbooks" />
-            <label class="viewer-workshop__runbook-toggle"><input type="checkbox" data-viewer-workshop-runbook-hidden${workshopRunbookShowsHidden() ? " checked" : ""} /> Show hidden</label>
-          </div>
-          <div data-viewer-workshop-runbooks>
-            <div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty">
-              <span class="viewer-workspace__placeholder-icon" aria-hidden="true">\xB7</span>
-              <span>Loading runbooks...</span>
-            </div>
-          </div>
-        </div>
-      `;
-      }
-      const terminalsAvailable = Boolean(host.capability("workshop").detail?.terminalsAvailable);
-      if (!terminalsAvailable) {
-        return `
-        <div class="viewer-workshop__panel viewer-workshop__panel--terminals" role="tabpanel" data-viewer-workshop-panel="terminals">
-          <div class="viewer-workspace__placeholder viewer-workspace__placeholder--unavailable">
-            <span class="viewer-workspace__placeholder-icon" aria-hidden="true">!</span>
-            <span>In-app terminals require a Unix host with stdlib pty support (macOS or Linux). Use the Commands tab to run discovered scripts in the meantime.</span>
           </div>
         </div>
       `;
@@ -6533,96 +6506,6 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
         workshopCommandState.catalog = { state: "unavailable", commands: [], message: String(error?.message || error) };
       }
       renderWorkshopCommands();
-    }
-    const workshopRunbookState = { payload: null, showingGraph: false, includeHidden: workshopRunbookShowsHidden() };
-    function renderWorkshopRunbookCards(payload) {
-      if (!payload || payload.no_match) {
-        return `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">\xB7</span><span>${payload?.query ? `No Active runbook matched "${escapeHtml(payload.query)}".` : "No Active runbooks yet."}</span></div>`;
-      }
-      const byCategory = /* @__PURE__ */ new Map();
-      payload.matches.forEach((entry) => {
-        const category = entry.category || "uncategorized";
-        if (!byCategory.has(category)) byCategory.set(category, []);
-        byCategory.get(category).push(entry);
-      });
-      const card = (entry) => `
-      <li>
-        <a class="viewer-workshop__runbook-card" href="#" data-viewer-workshop-runbook-open="${escapeHtml(entry.path)}">
-          <div class="viewer-workshop__runbook-title"><strong>${escapeHtml(entry.title || entry.ref)}</strong></div>
-          <div class="viewer-workshop__runbook-meta">${escapeHtml(entry.reason || "")}${renderRunbookVerification(entry)}</div>
-        </a>
-      </li>
-    `;
-      const sections = [...byCategory.entries()].map(([category, entries]) => `
-      <section class="viewer-workshop__runbook-group" id="runbook-category-${escapeHtml(category)}">
-        <h3 class="viewer-workshop__runbook-group-title">${escapeHtml(category)} <span class="viewer-workshop__group-count">${entries.length}</span></h3>
-        <ul class="viewer-workshop__runbook-list">${entries.map(card).join("")}</ul>
-      </section>
-    `).join("");
-      const unverified = payload.matches.filter((entry) => !entry.verified).length;
-      const rail = `
-      <nav class="viewer-workshop__runbook-rail" aria-label="Runbook categories">
-        <div class="viewer-workshop__runbook-rail-title">${payload.matches.length} runbooks</div>
-        ${unverified ? `<p class="viewer-workshop__runbook-due">${unverified} never verified</p>` : ""}
-        <ul>${[...byCategory.entries()].map(
-        ([category, entries]) => `<li><a href="#runbook-category-${escapeHtml(category)}">${escapeHtml(category)} <span class="viewer-workshop__group-count">${entries.length}</span></a></li>`
-      ).join("")}</ul>
-      </nav>
-    `;
-      return `<div class="viewer-workshop__runbook-layout">${rail}<div class="viewer-workshop__runbook-results">${sections}</div></div>`;
-    }
-    function renderRunbookVerification(entry) {
-      if (!entry.verified) return ' \xB7 <span class="viewer-workshop__runbook-unverified">never verified</span>';
-      const days = Math.floor((Date.now() - Date.parse(entry.verified)) / 864e5);
-      if (!Number.isFinite(days)) return ` \xB7 verified ${escapeHtml(entry.verified)}`;
-      const stale = days > 180 ? " viewer-workshop__runbook-stale" : "";
-      return ` \xB7 <span class="viewer-workshop__runbook-verified${stale}">verified ${escapeHtml(entry.verified)}${days > 180 ? ` (${days} days ago)` : ""}</span>`;
-    }
-    function renderWorkshopRunbooks() {
-      const container = document.querySelector("[data-viewer-workshop-runbooks]");
-      if (!(container instanceof HTMLElement)) return;
-      container.innerHTML = renderWorkshopRunbookCards(workshopRunbookState.payload);
-    }
-    async function loadWorkshopRunbooks(query = "", includeHidden = workshopRunbookState.includeHidden) {
-      try {
-        const params = new URLSearchParams();
-        if (query) params.set("q", query);
-        if (includeHidden) params.set("includeHidden", "1");
-        const response = await fetch(`/api/runbooks${params.size ? `?${params}` : ""}`);
-        const data = await response.json();
-        workshopRunbookState.payload = data?.payload || null;
-      } catch (error) {
-        workshopRunbookState.payload = { matches: [], no_match: true, query };
-      }
-      workshopRunbookState.showingGraph = false;
-      renderWorkshopRunbooks();
-    }
-    function setWorkshopRunbooksIncludeHidden(includeHidden, query = "") {
-      workshopRunbookState.includeHidden = Boolean(includeHidden);
-      return loadWorkshopRunbooks(query);
-    }
-    async function showWorkshopRunbookGraph() {
-      const container = document.querySelector("[data-viewer-workshop-runbooks]");
-      if (!(container instanceof HTMLElement)) return;
-      container.innerHTML = `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span>Loading graph...</span></div>`;
-      try {
-        const response = await fetch("/api/runbook-graph");
-        const data = await response.json();
-        if (!response.ok || !data.ok) {
-          container.innerHTML = `<p>Unable to load the runbook graph.</p>`;
-          return;
-        }
-        window.__logicsGraphNodeClick = (nodeRef) => {
-          if (!String(nodeRef).startsWith("category_")) {
-            host.openDoc(nodeRef);
-          }
-        };
-        container.innerHTML = renderChainGraph(data.payload, { inline: true, open: true });
-        host.renderMermaidDiagrams();
-        workshopRunbookState.showingGraph = true;
-      } catch {
-        container.innerHTML = `<p>Unable to load the runbook graph.</p>`;
-      }
     }
     function updateWorkshopCommandSession(commandId, patch) {
       const previous = workshopCommandState.sessions.get(commandId) || { logText: "" };
@@ -7473,10 +7356,6 @@ ${line}` : line;
       } else if (activeTab === "commands") {
         await loadWorkshopCommands();
         host.setMeta(`Workshop / ${activeTab} loaded.`);
-      } else if (activeTab === "runbooks") {
-        workshopRunbookState.includeHidden = workshopRunbookShowsHidden();
-        await loadWorkshopRunbooks();
-        host.setMeta(`Workshop / ${activeTab} loaded.`);
       } else if (activeTab === "terminals") {
         host.setMeta("Workshop / terminals ready.");
         for (const entry of workshopTerminalState.sessions.values()) {
@@ -7500,13 +7379,6 @@ ${line}` : line;
         }
         host.setMeta(`Workshop / ${activeTab} loaded.`);
       }
-    }
-    async function showCorpusRunbooks() {
-      host.showScreenLoading("Runbooks", "the runbook library");
-      workshopRunbookState.includeHidden = workshopRunbookShowsHidden();
-      host.setDocument("Runbooks", `<div class="viewer-workshop">${renderCorpusModeSwitcher("runbooks")}${renderWorkshopPanel("runbooks")}</div>`);
-      await loadWorkshopRunbooks();
-      host.setMeta("Runbooks loaded.");
     }
     const state = {};
     Object.defineProperties(state, {
@@ -7541,7 +7413,6 @@ ${line}` : line;
       hydrateWorkshopTerminals,
       loadWorkshopCommands,
       loadWorkshopExplorer,
-      loadWorkshopRunbooks,
       measureWorkshopTerminalGrid,
       mountWorkshopTerminalEmulator,
       moveWorkshopTerminalBefore,
@@ -7562,7 +7433,6 @@ ${line}` : line;
       renderWorkshopCommandRunMenu,
       renderWorkshopCommands,
       renderWorkshopPanel,
-      renderWorkshopRunbooks,
       renderWorkshopTerminalList,
       reopenWorkshopTerminalStreamSoon,
       repaintAllWorkshopTerminals,
@@ -7570,11 +7440,8 @@ ${line}` : line;
       setActiveWorkshopTerminal,
       setCustomTerminalBusy,
       setWorkshopActiveTab,
-      showCorpusRunbooks,
       showCustomTerminalModal,
       showWorkshop,
-      showWorkshopRunbookGraph,
-      setWorkshopRunbooksIncludeHidden,
       spawnCustomWorkshopTerminal,
       spawnSystemWorkshopTerminal,
       spawnWorkshopTerminal,
@@ -8431,9 +8298,6 @@ ${line}` : line;
     if (!item) {
       return false;
     }
-    if (item.stage === "runbook") {
-      return false;
-    }
     const status = statusValue(item);
     if (viewerFilterState.focus === "active" && isClosed(item)) {
       return false;
@@ -8450,7 +8314,7 @@ ${line}` : line;
     if (viewerFilterState.type === "workflow" && !["request", "backlog", "task"].includes(item.stage)) {
       return false;
     }
-    if (viewerFilterState.type === "companion" && !["product", "roadmap", "architecture", "spec"].includes(item.stage)) {
+    if (viewerFilterState.type === "companion" && !["product", "roadmap", "architecture", "spec", "runbook"].includes(item.stage)) {
       return false;
     }
     if (!["all", "workflow", "companion"].includes(viewerFilterState.type) && item.stage !== viewerFilterState.type) {
@@ -8756,7 +8620,6 @@ ${line}` : line;
       hydrateWorkshopTerminals,
       loadWorkshopCommands,
       loadWorkshopExplorer,
-      loadWorkshopRunbooks,
       measureWorkshopTerminalGrid,
       mountWorkshopTerminalEmulator,
       moveWorkshopTerminalBefore,
@@ -8784,10 +8647,8 @@ ${line}` : line;
       setActiveWorkshopTerminal,
       setCustomTerminalBusy,
       setWorkshopActiveTab,
-      showCorpusRunbooks,
       showCustomTerminalModal,
       showWorkshop,
-      setWorkshopRunbooksIncludeHidden,
       spawnCustomWorkshopTerminal,
       spawnSystemWorkshopTerminal,
       spawnWorkshopTerminal,
@@ -12241,9 +12102,6 @@ ${shown.join("\n")}${files.length > shown.length ? `
         const workspacePreviewFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview-full]") : null;
         const workshopTabTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-tab]") : null;
         const workshopRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run]") : null;
-        const workshopRunbookOpenTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-open]") : null;
-        const workshopRunbookSearchTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-search]") : null;
-        const workshopRunbookHiddenTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-hidden]") : null;
         const fleetHomeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-fleet-home]") : null;
         if (fleetHomeTarget instanceof HTMLElement) {
           event.preventDefault();
@@ -12322,8 +12180,6 @@ ${shown.join("\n")}${files.length > shown.length ? `
               withPrimaryAction("corpus-health", "Checking health", showHealth, { supersede: true });
             } else if (section === "getting-started") {
               showGettingStarted();
-            } else if (section === "runbooks") {
-              withPrimaryAction("corpus-runbooks", "Loading runbooks", showCorpusRunbooks, { supersede: true });
             } else {
               withPrimaryAction("corpus-insights", "Loading insights", showCorpusInsights, { supersede: true });
             }
@@ -12431,8 +12287,6 @@ ${shown.join("\n")}${files.length > shown.length ? `
             withPrimaryAction("corpus-health", "Checking health", showHealth, { supersede: true });
           } else if (mode === "getting-started") {
             showGettingStarted();
-          } else if (mode === "runbooks") {
-            withPrimaryAction("corpus-runbooks", "Loading runbooks", showCorpusRunbooks, { supersede: true });
           } else {
             withPrimaryAction("corpus-insights", "Loading insights", showCorpusInsights, { supersede: true });
           }
@@ -12579,26 +12433,6 @@ ${shown.join("\n")}${files.length > shown.length ? `
           event.preventDefault();
           const tab = workshopTabTarget.getAttribute("data-viewer-workshop-tab") || "terminals";
           withPrimaryAction("workshop-tab", `Switching to ${tab}`, () => showWorkshop({ tab }));
-          return;
-        }
-        if (workshopRunbookOpenTarget instanceof HTMLElement) {
-          event.preventDefault();
-          const path2 = workshopRunbookOpenTarget.getAttribute("data-viewer-workshop-runbook-open") || "";
-          if (path2) withPrimaryAction("runbook-open", "Loading runbook", () => showDocumentByPath(path2));
-          return;
-        }
-        if (workshopRunbookSearchTarget instanceof HTMLElement) {
-          event.preventDefault();
-          const input = workshopRunbookSearchTarget.parentElement?.querySelector("[data-viewer-workshop-runbook-query]");
-          const query = input instanceof HTMLInputElement ? input.value.trim() : "";
-          withPrimaryAction("runbook-search", "Searching runbooks", () => loadWorkshopRunbooks(query));
-          return;
-        }
-        if (workshopRunbookHiddenTarget instanceof HTMLInputElement) {
-          const input = workshopRunbookHiddenTarget.parentElement?.parentElement?.querySelector("[data-viewer-workshop-runbook-query]");
-          const query = input instanceof HTMLInputElement ? input.value.trim() : "";
-          updateViewerPreferences({ workshopRunbookShowHidden: workshopRunbookHiddenTarget.checked });
-          withPrimaryAction("runbook-hidden", "Loading runbooks", () => setWorkshopRunbooksIncludeHidden(workshopRunbookHiddenTarget.checked, query));
           return;
         }
         if (fleetRootPickTarget instanceof HTMLElement) {
@@ -12872,16 +12706,6 @@ ${shown.join("\n")}${files.length > shown.length ? `
         if (!documentPath) return;
         const copied = await copyTextToClipboard(documentPath);
         setMeta(copied ? `Copied ${documentPath}` : "Clipboard access was refused.");
-      });
-      let runbookSearchTimer = 0;
-      document.addEventListener("input", (event) => {
-        const field = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-runbook-query]") : null;
-        if (!(field instanceof HTMLInputElement)) return;
-        window.clearTimeout(runbookSearchTimer);
-        const query = field.value.trim();
-        runbookSearchTimer = window.setTimeout(() => {
-          void loadWorkshopRunbooks(query);
-        }, 250);
       });
       document.getElementById("viewer-document-refresh")?.addEventListener("click", () => {
         withPrimaryAction("refresh-document", "Refreshing", refreshCurrentScreen);

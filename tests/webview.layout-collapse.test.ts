@@ -708,3 +708,29 @@ describe("every stage with a colour token carries it", () => {
     }
   });
 });
+
+
+describe("a runbook is a document like the others", () => {
+  const css = readCssBundle("clients/shared-web/media/main.css");
+
+  it("names the stage, groups it with the companions, and gives it its own prefix", () => {
+    // item_817: runbooks were already in the payload with their own colour, but nothing
+    // named the stage -- so the heading fell through to the raw string -- and the board's
+    // filter dropped them outright, on the reasoning that "the board has no column for
+    // them". It has one now.
+    const model = fs.readFileSync(path.resolve(process.cwd(), "clients/shared-web/media/logicsModel.js"), "utf8");
+    const app = fs.readFileSync(path.resolve(process.cwd(), "clients/shared-web/media/mainApp.js"), "utf8");
+    const filters = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/filters.js"), "utf8");
+
+    expect(model).toMatch(/case "runbook":\s*\n\s*return "Runbooks"/);
+    const companion = model.match(/function isCompanionStage[\s\S]*?\n  \}/)?.[0] || "";
+    expect(companion).toContain('stage === "runbook"');
+    expect(app).toContain('["product", "roadmap", "architecture", "runbook"]');
+    // The filter is the board's authority in the viewer, so a stage the board knows about
+    // is invisible until this list does too.
+    expect(filters).toMatch(/type === "companion"[\s\S]{0,160}"runbook"/);
+    expect(filters).not.toMatch(/if \(item\.stage === "runbook"\) \{\s*\n\s*return false/);
+    // `run_002` fell through to "R", the letter a request already uses.
+    expect(css).toMatch(/--stage-color-runbook:/);
+  });
+});

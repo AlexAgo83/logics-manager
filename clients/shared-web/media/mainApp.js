@@ -124,7 +124,7 @@
   const previousState = vscode.getState() || null;
 
   const primaryStageOrder = ["request", "backlog", "task"];
-  const companionStageOrder = ["product", "roadmap", "architecture"];
+  const companionStageOrder = ["product", "roadmap", "architecture", "runbook"];
   const stackedQuery = window.matchMedia("(max-width: 900px)");
   const compactListQuery = window.matchMedia("(max-width: 500px)");
   const projectGithubUrl = "https://github.com/AlexAgo83/logics-manager";

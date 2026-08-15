@@ -1011,7 +1011,6 @@ export function renderCorpusModeSwitcher(active) {
         <button class="viewer-cdx__mode${active === "getting-started" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="getting-started" aria-selected="${active === "getting-started" ? "true" : "false"}">Getting Started</button>
         <button class="viewer-cdx__mode${active === "insights" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="insights" aria-selected="${active === "insights" ? "true" : "false"}">Insights</button>
         <button class="viewer-cdx__mode${active === "health" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="health" aria-selected="${active === "health" ? "true" : "false"}">Health</button>
-        <button class="viewer-cdx__mode${active === "runbooks" ? " is-active" : ""}" type="button" data-viewer-corpus-mode="runbooks" aria-selected="${active === "runbooks" ? "true" : "false"}">Runbooks</button>
       </div>
     `;
   }
@@ -1476,7 +1475,11 @@ export function shortDocumentRef(id, stage) {
       product: "P",
       roadmap: "M",
       architecture: "A",
-      spec: "S"
+      spec: "S",
+      // item_817: runbooks are on the board now, and `run_002` fell through to its own
+      // first letter -- the same "R" a request already uses, so R002 and R365 read as the
+      // same kind. Roadmap solved this the same way when it could not have "R" either.
+      runbook: "N"
     };
     const key = String(stage || "").trim();
     const prefix = prefixByStage[key] || (key ? key.slice(0, 1).toUpperCase() : "");

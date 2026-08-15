@@ -720,7 +720,12 @@
 /* item_718: the Done fold. It carries its own count, so hiding finished work reads as a
    choice rather than as a truncation. */
 .column__done-fold {
-  width: 100%;
+  /* Reported by the operator: this said `width: 100%` while keeping the 10px side margins
+     it inherits from `.group-show-more`, so it was 20px wider than the column body it sits
+     in. `.column__body` is `overflow: auto`, so every column carried a horizontal scrollbar
+     and 20px of scrollable width for a control that was never meant to stick out. The base
+     class already sizes itself against those margins -- `calc(100% - 20px)`, the same
+     gutter the cards use -- so the override was the whole defect. */
   text-align: left;
   border: 1px dashed var(--vscode-panel-border, #333333);
   background: transparent;

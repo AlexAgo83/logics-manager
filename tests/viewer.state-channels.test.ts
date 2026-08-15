@@ -198,3 +198,25 @@ describe("focus moves in, returns out, and is visible", () => {
     expect(css).not.toMatch(/(^|\n):focus \{/);
   });
 });
+
+describe("a control sized against its own margins", () => {
+  it("does not let the Done fold outgrow the column it sits in", () => {
+    // Reported by the operator: the fold overflowed to the right and gave every column a
+    // horizontal scrollbar. `.group-show-more` sizes itself as `calc(100% - 20px)` against
+    // the 10px side margins it also sets; `.column__done-fold` re-declared `width: 100%`
+    // and kept the margins, so it was 20px wider than `.column__body`, which is
+    // `overflow: auto` and duly scrolled.
+    //
+    // Asserted on the stylesheet: jsdom lays nothing out, so a width measured there would
+    // pass against a product that had gone back to overflowing.
+    const base = /(^|\n)\.group-show-more \{([^}]*)\}/.exec(boardCss);
+    expect(base, "no .group-show-more rule").not.toBeNull();
+    expect(base![2]).toMatch(/width:\s*calc\(100% - 20px\)/);
+    expect(base![2]).toMatch(/margin:\s*6px 10px/);
+
+    const fold = /(^|\n)\.column__done-fold \{([^}]*)\}/.exec(boardCss);
+    expect(fold, "no .column__done-fold rule").not.toBeNull();
+    // It may set anything but its own width: the base already accounts for the gutter.
+    expect(fold![2]).not.toMatch(/(^|;|\n)\s*width\s*:/);
+  });
+});

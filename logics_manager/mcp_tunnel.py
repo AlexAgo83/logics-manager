@@ -94,6 +94,11 @@ def ensure_config_file(path: Path) -> Path:
     """Create the credentials file, owner-only, so there is somewhere to put the key.
 
     Telling an operator to fill a file that does not exist is telling them nothing.
+
+    ponytail: `chmod` is the POSIX answer and only the read-only bit survives on
+    Windows -- restricting this file there needs an ACL (`icacls`), which is real work
+    for a path this connector has never run on. If a Windows operator ever uses the
+    tunnel, that is what to add here.
     """
     if not path.exists():
         path.parent.mkdir(parents=True, exist_ok=True)

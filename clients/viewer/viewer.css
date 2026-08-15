@@ -6511,6 +6511,15 @@
   color: var(--vscode-descriptionForeground, #9da5b4);
 }
 
+/* item_819: the counts needed a sentence saying what they measure; the title alone read as
+   a bare header over bare numbers. */
+.viewer-onboarding__nav-legend {
+  margin: 0 0 10px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--vscode-descriptionForeground, #9da5b4);
+}
+
 .viewer-onboarding__nav-list {
   margin: 0;
   padding-left: 20px;
@@ -6532,6 +6541,7 @@
 .viewer-onboarding__nav-count {
   display: block;
   font-size: 11px;
+  line-height: 1.4;
   color: var(--vscode-descriptionForeground, #9da5b4);
   font-variant-numeric: tabular-nums;
 }

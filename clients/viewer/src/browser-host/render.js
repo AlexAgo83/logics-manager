@@ -1704,13 +1704,24 @@ export function renderViewerOnboarding(items = []) {
         </header>
         <div class="viewer-onboarding__layout">
           <nav class="viewer-onboarding__nav" aria-label="Workflow stages">
-            <p class="viewer-onboarding__nav-title">${escapeHtml(onboardingStages.length)} stages</p>
+            <p class="viewer-onboarding__nav-title">The ${escapeHtml(onboardingStages.length)} stages, in order</p>
+            <p class="viewer-onboarding__nav-legend">Each count is what this project already holds at that stage. A stage holding nothing is the one worth reading.</p>
             <ol class="viewer-onboarding__nav-list">
               ${onboardingStages.map((stage, index) => {
+                // item_819: the entry used to be a bare total -- 815 with no scale and no
+                // scope, over kinds the label did not name. It now says what it counts and
+                // what the count is over, so the list can be acted on without opening it.
                 const holding = stageHolding(stage);
-                return `<li><a href="#onboarding-stage-${index + 1}">${escapeHtml(stage.label)}</a>${
-                  holding ? `<span class="viewer-onboarding__nav-count${holding.total ? "" : " viewer-onboarding__nav-count--empty"}">${holding.total ? escapeHtml(holding.total) : "none yet"}</span>` : ""
-                }</li>`;
+                const covers = stage.covers ? escapeHtml(stage.covers) : "";
+                if (!holding) {
+                  return `<li><a href="#onboarding-stage-${index + 1}">${escapeHtml(stage.label)}</a></li>`;
+                }
+                const count = holding.total
+                  ? `${escapeHtml(holding.total)} document${holding.total === 1 ? "" : "s"}: ${covers || "any kind"}`
+                  : `no ${covers || "documents"} yet \u2014 start here`;
+                return `<li><a href="#onboarding-stage-${index + 1}">${escapeHtml(stage.label)}</a><span class="viewer-onboarding__nav-count${
+                  holding.total ? "" : " viewer-onboarding__nav-count--empty"
+                }">${count}</span></li>`;
               }).join("")}
             </ol>
           </nav>

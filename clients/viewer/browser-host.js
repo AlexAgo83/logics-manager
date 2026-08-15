@@ -1637,6 +1637,9 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       ],
       mapping: "Maps to logics/request/, logics/product/, and logics/roadmap/.",
       corpusStages: ["request", "product", "roadmap"],
+      // item_819: the nav counted these and named the stage, so the number covered more
+      // than its label did. This is what the count is over.
+      covers: "requests, product briefs and roadmaps",
       actions: [{ label: "New Request", action: "new-request" }, { label: "Open the board", action: "board" }]
     },
     {
@@ -1649,6 +1652,9 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       ],
       mapping: "Maps to logics/backlog/ and logics/tasks/.",
       corpusStages: ["backlog"],
+      // item_819: the nav counted these and named the stage, so the number covered more
+      // than its label did. This is what the count is over.
+      covers: "backlog items",
       // item_752: this stage ended in nothing while the others ended in an action, so the
       // guide stopped being a sequence at its second step. The board is where the slices it
       // describes actually appear.
@@ -1664,6 +1670,9 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       ],
       mapping: "Maps to task execution, commits, checks, and activity in the viewer.",
       corpusStages: ["task"],
+      // item_819: the nav counted these and named the stage, so the number covered more
+      // than its label did. This is what the count is over.
+      covers: "tasks",
       actions: [{ label: "CDX Missions", action: "cdx-missions" }, { label: "Open the board", action: "board" }]
     },
     {
@@ -1676,6 +1685,9 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       ],
       mapping: "Maps to statuses across request, backlog, task, product, roadmap, ADR, and spec docs.",
       corpusStages: ["architecture", "spec"],
+      // item_819: the nav counted these and named the stage, so the number covered more
+      // than its label did. This is what the count is over.
+      covers: "architecture decisions and specs",
       actions: [{ label: "Open Health", action: "health" }, { label: "Open Insights", action: "open-logics-insights" }]
     }
   ];
@@ -3073,11 +3085,17 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
         </header>
         <div class="viewer-onboarding__layout">
           <nav class="viewer-onboarding__nav" aria-label="Workflow stages">
-            <p class="viewer-onboarding__nav-title">${escapeHtml(onboardingStages.length)} stages</p>
+            <p class="viewer-onboarding__nav-title">The ${escapeHtml(onboardingStages.length)} stages, in order</p>
+            <p class="viewer-onboarding__nav-legend">Each count is what this project already holds at that stage. A stage holding nothing is the one worth reading.</p>
             <ol class="viewer-onboarding__nav-list">
               ${onboardingStages.map((stage, index) => {
       const holding = stageHolding(stage);
-      return `<li><a href="#onboarding-stage-${index + 1}">${escapeHtml(stage.label)}</a>${holding ? `<span class="viewer-onboarding__nav-count${holding.total ? "" : " viewer-onboarding__nav-count--empty"}">${holding.total ? escapeHtml(holding.total) : "none yet"}</span>` : ""}</li>`;
+      const covers = stage.covers ? escapeHtml(stage.covers) : "";
+      if (!holding) {
+        return `<li><a href="#onboarding-stage-${index + 1}">${escapeHtml(stage.label)}</a></li>`;
+      }
+      const count = holding.total ? `${escapeHtml(holding.total)} document${holding.total === 1 ? "" : "s"}: ${covers || "any kind"}` : `no ${covers || "documents"} yet \u2014 start here`;
+      return `<li><a href="#onboarding-stage-${index + 1}">${escapeHtml(stage.label)}</a><span class="viewer-onboarding__nav-count${holding.total ? "" : " viewer-onboarding__nav-count--empty"}">${count}</span></li>`;
     }).join("")}
             </ol>
           </nav>

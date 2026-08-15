@@ -9046,8 +9046,6 @@ ${line}` : line;
     const LOADING_RING_STAGES = /* @__PURE__ */ new Set(["request", "backlog", "task", "product"]);
     const LOADING_AFFORDANCE_DELAY_MS = 250;
     const LOADING_AFFORDANCE_LAP_MS = 1150;
-    let loadingAffordanceTimer = null;
-    let loadingAffordanceShownAt = 0;
     function installTopbarMenu() {
       const topbar = document.querySelector(".viewer-topbar");
       const button = document.getElementById("viewer-topbar-menu");
@@ -9073,46 +9071,54 @@ ${line}` : line;
         if (event.key === "Escape") setOpen(false);
       });
     }
-    function loadingSurfaces() {
-      return [
-        document.querySelector(".viewer-document__header"),
-        document.querySelector(".viewer-topbar")
-      ].filter((node) => node instanceof HTMLElement);
+    function createLoadingAffordance(findNode) {
+      let timer = null;
+      let shownAt = 0;
+      const clear = () => {
+        shownAt = 0;
+        findNode()?.removeAttribute("data-loading");
+      };
+      return (busy, colour) => {
+        if (timer !== null) {
+          window.clearTimeout(timer);
+          timer = null;
+        }
+        if (!busy) {
+          if (!shownAt) {
+            clear();
+            return;
+          }
+          const remaining = LOADING_AFFORDANCE_LAP_MS - (Date.now() - shownAt);
+          if (remaining <= 0) {
+            clear();
+            return;
+          }
+          timer = window.setTimeout(() => {
+            timer = null;
+            clear();
+          }, remaining);
+          return;
+        }
+        const node = findNode();
+        if (!node) return;
+        if (colour) node.style.setProperty("--loading-color", colour);
+        timer = window.setTimeout(() => {
+          timer = null;
+          shownAt = Date.now();
+          findNode()?.setAttribute("data-loading", "");
+        }, LOADING_AFFORDANCE_DELAY_MS);
+      };
     }
-    function clearLoadingAffordances() {
-      loadingAffordanceShownAt = 0;
-      loadingSurfaces().forEach((node) => node.removeAttribute("data-loading"));
+    const setDocumentHeaderLoading = createLoadingAffordance(() => document.querySelector(".viewer-document__header"));
+    const setTopbarLoading = createLoadingAffordance(() => document.querySelector(".viewer-topbar"));
+    function loadingColourFor(screenChange) {
+      const stage = screenChange ? "" : String(currentDocumentItem?.stage || "");
+      return LOADING_RING_STAGES.has(stage) ? `var(--stage-color-${stage})` : "var(--viewer-loading-neutral)";
     }
     function applyLoadingRing(busy, screenChange = false) {
-      if (loadingAffordanceTimer !== null) {
-        window.clearTimeout(loadingAffordanceTimer);
-        loadingAffordanceTimer = null;
-      }
-      const surfaces = loadingSurfaces();
-      if (!busy) {
-        if (!loadingAffordanceShownAt) {
-          clearLoadingAffordances();
-          return;
-        }
-        const remaining = LOADING_AFFORDANCE_LAP_MS - (Date.now() - loadingAffordanceShownAt);
-        if (remaining <= 0) {
-          clearLoadingAffordances();
-          return;
-        }
-        loadingAffordanceTimer = window.setTimeout(() => {
-          loadingAffordanceTimer = null;
-          clearLoadingAffordances();
-        }, remaining);
-        return;
-      }
-      const stage = screenChange ? "" : String(currentDocumentItem?.stage || "");
-      const colour = LOADING_RING_STAGES.has(stage) ? `var(--stage-color-${stage})` : "var(--viewer-loading-neutral)";
-      surfaces.forEach((node) => node.style.setProperty("--loading-color", colour));
-      loadingAffordanceTimer = window.setTimeout(() => {
-        loadingAffordanceTimer = null;
-        loadingAffordanceShownAt = Date.now();
-        loadingSurfaces().forEach((node) => node.setAttribute("data-loading", ""));
-      }, LOADING_AFFORDANCE_DELAY_MS);
+      const colour = busy ? loadingColourFor(screenChange) : "";
+      setDocumentHeaderLoading(busy, colour);
+      setTopbarLoading(busy, colour);
     }
     function setPrimaryActionBusy(actionKey, label = "", options = {}) {
       primaryActionBusyKey = actionKey || "";
@@ -10896,6 +10902,7 @@ ${line}` : line;
         return false;
       }
       itemsLoadInFlight = true;
+      setTopbarLoading(true, "var(--viewer-loading-neutral)");
       try {
         if (!options.silent) {
           setMeta("Refreshing...");
@@ -10915,6 +10922,7 @@ ${line}` : line;
         throw error;
       } finally {
         itemsLoadInFlight = false;
+        setTopbarLoading(false);
       }
     }
     function isWorkspaceOpen() {

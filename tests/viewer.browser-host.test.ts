@@ -2145,11 +2145,13 @@ describe("local viewer browser host", () => {
     expect(css).toMatch(/\.viewer-document__ring::before[\s\S]{0,40}\.viewer-document__ring::after \{[^}]*height: 2px/);
     // AC3: it fades on opacity, so the comet is never seen appearing mid-travel.
     expect(css).toMatch(/\.viewer-document__ring \{[^}]*transition: opacity 0\.45s/);
-    // item_810: one lap, then a resting outline carries the wait -- not a rotation that
-    // runs for the load's whole duration saying "still going".
-    expect(css).toMatch(/animation: viewer-loading-ring-top [^;]*\b1 forwards/);
-    expect(css).toMatch(/animation: viewer-loading-ring-bottom [^;]*\b1 forwards/);
-    expect(css).toMatch(/\.viewer-document__ring-rest \{[^}]*box-shadow: inset/);
+    // item_810 proposed one lap and a resting outline; seen running, the operator asked for
+    // continuous travel instead, and the outline went with it -- it existed only to carry
+    // the wait after the lap ended. Linear rather than eased: each half is one leg of a
+    // circuit, and easing each leg separately stutters at both seams.
+    expect(css).toMatch(/animation: viewer-loading-ring-top [^;]*linear infinite/);
+    expect(css).toMatch(/animation: viewer-loading-ring-bottom [^;]*linear infinite/);
+    expect(css).not.toContain("viewer-document__ring-rest");
     // Reported by the operator as the ring being broken, and it was: a conic gradient maps
     // angle to rim position, and this header is about 25:1, so nearly the whole perimeter
     // fell into a sliver of the angular range and the light never travelled. The edges are
@@ -2163,8 +2165,9 @@ describe("local viewer browser host", () => {
     const reduced = css.slice(reducedStart, css.indexOf("\n}", css.indexOf("viewer-loading-ring-breathe", reducedStart)));
     expect(reduced).toContain("viewer-loading-ring-breathe");
     expect(reduced).toMatch(/animation: none/);
-    // No lap runs, so there is nothing for the resting outline to take over from.
-    expect(reduced).toMatch(/\.viewer-document__ring-rest \{[^}]*display: none/);
+    // The lights stop travelling and hold the edges instead: the state is still stated,
+    // nothing moves.
+    expect(reduced).toMatch(/transform: none/);
     // AC2: the neutral is declared once, and is none of the stage colours.
     expect(css).toMatch(/--viewer-loading-neutral:/);
 
@@ -2175,12 +2178,18 @@ describe("local viewer browser host", () => {
     // item_810: and nothing at all below the threshold, which every affordance reads --
     // one value, since three would come to disagree.
     expect(host).toContain("LOADING_AFFORDANCE_DELAY_MS");
-    expect(host).toMatch(/loadingSurfaces\(\)\.forEach\(\(node\) => node\.setAttribute\("data-loading"/);
+    // Two affordances, because the two surfaces answer different questions: the document
+    // header says "this screen is loading", the app header says "the viewer is fetching".
+    expect(host).toContain("const setDocumentHeaderLoading = createLoadingAffordance(");
+    expect(host).toContain("const setTopbarLoading = createLoadingAffordance(");
+    // A refresh with no action wrapping it -- the initial load after a restart, an
+    // auto-refresh tick -- still lights the app header.
+    expect(host).toMatch(/itemsLoadInFlight = true;[\s\S]{0,400}setTopbarLoading\(true/);
     // Reported by the operator as "the ring does not go round": that is what a lap looks
     // like when the payload lands halfway through it and the comet is cut off mid-travel.
     // Once shown, the affordance stays for at least one lap.
     expect(host).toContain("LOADING_AFFORDANCE_LAP_MS");
-    expect(host).toMatch(/const remaining = LOADING_AFFORDANCE_LAP_MS - \(Date\.now\(\) - loadingAffordanceShownAt\)/);
+    expect(host).toMatch(/const remaining = LOADING_AFFORDANCE_LAP_MS - \(Date\.now\(\) - shownAt\)/);
     // And the animation is declared only while loading: on the element itself a one-shot
     // animation runs once when the element is created -- at page load -- and `forwards`
     // then holds it at the end for ever, so it never played again.

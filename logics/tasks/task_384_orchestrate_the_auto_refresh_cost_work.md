@@ -20,11 +20,11 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Fix the lifetime that can never hit first: it is three quarters of the tick and the smallest change here.
-- [ ] 2. Warm the badge components with the mechanism req_366 already built, rather than a second one.
+- [x] 1. Fix the lifetime that can never hit first: it is three quarters of the tick and the smallest change here.
+- [x] 2. Warm the badge components with the mechanism req_366 already built, rather than a second one.
 - [x] 3. Decide the corpus 304 from the signature instead of from a rebuild.
-- [ ] 4. Re-measure the whole tick the way the baseline was taken, and record the breakdown where the lifetimes are set.
-- [ ] 5. Leave the file watcher closed, and record the measurement that would reopen it.
+- [x] 4. Re-measure the whole tick the way the baseline was taken, and record the breakdown where the lifetimes are set.
+- [x] 5. Leave the file watcher closed, and record the measurement that would reopen it.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.

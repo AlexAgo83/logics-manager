@@ -2,9 +2,9 @@
 > From version: 2.21.9
 > Schema version: 1.0
 > Status: In progress
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 40%
+> Understanding: 95%
+> Confidence: 90%
+> Progress: 90%
 > Complexity: Low
 > Theme: Measured the way an operator experiences it
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -51,3 +51,6 @@
 # Priority
 - Priority: Medium
 - Rationale: The first pass at this kind of work got its numbers from the wrong place twice
+
+# Validation
+- Re-measured over HTTP against this repo's own corpus, after item_839/840/841 (same method as the 3.1s baseline: an isolated viewer, real subprocess/gh calls, no mocks). Steady-state tick: /api/status all-cache-hit 0.001s + /api/items 304 0.009s = ~0.01s, down from 3.1s. Cold first poll (racing the warm-up): 6.093s, down from 9.07s -- not zero because the warm-up pays for Insights/Health's corpus reports first on this corpus. Forced (no-store) poll: 4.833s, deliberately unchanged. GitHub call pattern confirmed unchanged by inspection: none of the three fixes touch ci_status_payload/release_status_payload or their call sites, only cache lifetimes and warm-up order. Breakdown recorded in logics_manager/viewer.py next to _status_cache_ttl_seconds, where the next component's lifetime gets decided.

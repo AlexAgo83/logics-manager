@@ -47,6 +47,12 @@
   - Once it ran, it was still cut off: Health warm answers in about 600ms and the lap is 1150ms, so the comet vanished half way round. A gesture that marks a beginning has to be allowed to finish or it reads as a fault. Once shown, the affordance now stays for at least one lap; a new load starting in the tail cancels it.
 - Measured after the fix by sampling the computed transform every 150ms: the rotation sweeps the full circle and lands on the identity matrix at 1200ms, then clears at 1350ms -- with the underlying load having finished well before.
 
+# Follow-up, third report
+- The operator kept reporting the ring as broken after two fixes that both measured clean. The measurements were the problem: sampling the computed transform proved the element was rotating, which is not the same claim as the light travelling the header. Capturing the header itself at points around the lap showed what they were seeing -- a short bright blob near the middle of the bottom edge that never moved along an edge.
+- Cause: a conic gradient maps *angle* to rim position, and this header is about 1560x62 -- 25:1 -- so nearly the whole perimeter falls into a sliver of the angular range. The prototype had warned about exactly this ("the trade-off to watch on a very wide, short header") and req_360's report claimed the oversized square sweep box answered it. That claim was wrong twice over: `inset: -60%` resolves percentages against width and height separately, so the box keeps the header's own aspect ratio and is not square at all, and a square box would not have helped either, since a conic gradient's angles are angles whatever shape the box is.
+- Replaced rather than tuned: two 2px lights walk the edges directly, left to right along the top for the first half of the lap and right to left along the bottom for the second. Uniform by construction at any width, which the conic version could never be at this aspect ratio. It also needs no cover over the middle and no mask -- there is nothing in the middle to hide.
+- Verified by capturing the header at points around the lap: at 15% the light is on the top edge toward the left, at 80% on the bottom edge travelling back.
+
 # AC Traceability
 - request-AC2 -> This backlog slice. Proof: AC1: The ring completes one lap and then holds a steady dimmed outline for the rest of the load.
 - request-AC3 -> This backlog slice. Proof: AC2: A load that resolves faster than the threshold shows no ring, no spinner and no sheen.

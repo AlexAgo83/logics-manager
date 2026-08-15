@@ -6,7 +6,7 @@
 > Confidence: 85%
 > Complexity: High
 > Theme: MCP transport and authentication
-> Indicators reviewed: 2026-08-16 00:20:00
+> Indicators reviewed: 2026-08-16 00:56:34
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
 
 # AI Context
@@ -60,3 +60,6 @@
 - Origin: `agent`
 - Actor: `operator`
 - Approval: required before implementation starts.
+
+# Notes
+- 2026-08-16: parked indefinitely, not pending. adr_031 routes every client class we actually have -- ChatGPT over the Secure MCP Tunnel, local clients over stdio -- so this request serves no client today, and the operator confirmed it is not planned for a long while. It stays Draft as the record of a decision: the research it inherited from item_847 and item_848 is written down, and promoting it to Ready is all it takes if a hosted web client other than ChatGPT ever needs this corpus. Until then, nothing here is owed -- item_852 stopped the audit from reporting a parked Draft as a defect, which is what made keeping it honest possible.

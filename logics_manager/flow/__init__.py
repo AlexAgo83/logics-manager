@@ -405,6 +405,58 @@ def _closeout_issue(path: Path, code: str, message: str, repair_command: str | N
         issue["repair_command"] = repair_command
     return issue
 
+def _sibling_slice_ac_issues(
+    repo_root: Path,
+    request_ref: str,
+    request_path: Path,
+    request_text: str,
+    item_paths: list[Path],
+    task_path: Path,
+) -> list[dict[str, str]]:
+    """A request split into several backlog slices (the corpus skill's own
+    recommendation) has each AC owned by whichever slice's scope names it, not by every
+    slice. Checking only *this* task's own item/task-pair against *every* request AC meant
+    no task in a multi-slice request could ever close, regardless of how completely its
+    sibling slices had proven the other ACs -- so the sibling item(s) declared in the
+    request's own `# Backlog`, and the task(s) each of them declares, are read here too,
+    proof-only (they are not otherwise validated by this task's closeout).
+    """
+    sibling_item_paths = list(item_paths)
+    sibling_task_paths = [task_path]
+    for sibling_ref in _extract_refs(request_text, DOC_KINDS["backlog"].prefix):
+        sibling_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], sibling_ref)
+        if sibling_path is None or sibling_path in sibling_item_paths:
+            continue
+        sibling_item_paths.append(sibling_path)
+        sibling_item_text = _strip_mermaid_blocks(sibling_path.read_text(encoding="utf-8"))
+        for sibling_task_ref in _extract_refs(sibling_item_text, DOC_KINDS["task"].prefix):
+            sibling_task_path = _resolve_doc_path(repo_root, DOC_KINDS["task"], sibling_task_ref)
+            if sibling_task_path is not None and sibling_task_path not in sibling_task_paths:
+                sibling_task_paths.append(sibling_task_path)
+
+    issues: list[dict[str, str]] = []
+    for ac_id in _request_ac_ids(request_text):
+        if sibling_item_paths and not any(_has_ac_proof(path.read_text(encoding="utf-8"), ac_id) for path in sibling_item_paths):
+            issues.append(
+                _closeout_issue(
+                    request_path.relative_to(repo_root),
+                    "ac_missing_item_traceability",
+                    _ac_proof_message(ac_id, "backlog-level", sibling_item_paths, target="item"),
+                    f"python3 -m logics_manager flow repair ac-traceability {request_ref}",
+                )
+            )
+        if not any(_has_ac_proof(path.read_text(encoding="utf-8"), ac_id) for path in sibling_task_paths):
+            issues.append(
+                _closeout_issue(
+                    request_path.relative_to(repo_root),
+                    "ac_missing_task_traceability",
+                    _ac_proof_message(ac_id, "task-level", sibling_task_paths, target="task"),
+                    f"python3 -m logics_manager flow repair ac-traceability {request_ref}",
+                )
+            )
+    return issues
+
+
 def validate_closeout_payload(repo_root: Path, source: str) -> dict[str, object]:
     task_path = _resolve_workflow_source(repo_root, DOC_KINDS["task"], source)
     task_ref = task_path.stem
@@ -514,46 +566,7 @@ def validate_closeout_payload(repo_root: Path, source: str) -> dict[str, object]
                     f"python3 -m logics_manager flow repair mermaid --refs {request_ref}",
                 )
             )
-        # A request split into several backlog slices (the corpus skill's own
-        # recommendation) has each AC owned by whichever slice's scope names it, not by
-        # every slice. Checking only *this* task's own item/task-pair against *every*
-        # request AC meant no task in a multi-slice request could ever close, regardless
-        # of how completely its sibling slices had proven the other ACs -- so the sibling
-        # item(s) declared in the request's own `# Backlog`, and the task(s) each of them
-        # declares, are read here too, proof-only (they are not otherwise validated by
-        # this task's closeout).
-        sibling_item_paths = list(item_paths)
-        sibling_task_paths = [task_path]
-        for sibling_ref in _extract_refs(request_text, DOC_KINDS["backlog"].prefix):
-            sibling_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], sibling_ref)
-            if sibling_path is None or sibling_path in sibling_item_paths:
-                continue
-            sibling_item_paths.append(sibling_path)
-            sibling_item_text = _strip_mermaid_blocks(sibling_path.read_text(encoding="utf-8"))
-            for sibling_task_ref in _extract_refs(sibling_item_text, DOC_KINDS["task"].prefix):
-                sibling_task_path = _resolve_doc_path(repo_root, DOC_KINDS["task"], sibling_task_ref)
-                if sibling_task_path is not None and sibling_task_path not in sibling_task_paths:
-                    sibling_task_paths.append(sibling_task_path)
-
-        for ac_id in _request_ac_ids(request_text):
-            if sibling_item_paths and not any(_has_ac_proof(path.read_text(encoding="utf-8"), ac_id) for path in sibling_item_paths):
-                issues.append(
-                    _closeout_issue(
-                        request_path.relative_to(repo_root),
-                        "ac_missing_item_traceability",
-                        _ac_proof_message(ac_id, "backlog-level", sibling_item_paths, target="item"),
-                        f"python3 -m logics_manager flow repair ac-traceability {request_ref}",
-                    )
-                )
-            if not any(_has_ac_proof(path.read_text(encoding="utf-8"), ac_id) for path in sibling_task_paths):
-                issues.append(
-                    _closeout_issue(
-                        request_path.relative_to(repo_root),
-                        "ac_missing_task_traceability",
-                        _ac_proof_message(ac_id, "task-level", sibling_task_paths, target="task"),
-                        f"python3 -m logics_manager flow repair ac-traceability {request_ref}",
-                    )
-                )
+        issues.extend(_sibling_slice_ac_issues(repo_root, request_ref, request_path, request_text, item_paths, task_path))
 
     product_refs = sorted(_extract_refs(raw_task_text, "prod"))
     for product_ref in product_refs:
@@ -2183,6 +2196,29 @@ def _closeout_outcome(ok: bool, dry_run: bool) -> tuple[bool, bool]:
     return closed, closed and not ok
 
 
+def _repair_ac_traceability_for_task(
+    repo_root: Path,
+    task_path: Path,
+    *,
+    dry_run: bool,
+    changed_files: set[str],
+    steps: list[dict[str, object]],
+) -> None:
+    """Every request this task closes out against, directly or via a linked backlog
+    item, gets its AC traceability repaired -- not only the task's own primary request.
+    """
+    request_refs = sorted(_extract_refs(_strip_mermaid_blocks(task_path.read_text(encoding="utf-8")), DOC_KINDS["request"].prefix))
+    item_refs = sorted(_extract_refs(_strip_mermaid_blocks(task_path.read_text(encoding="utf-8")), DOC_KINDS["backlog"].prefix))
+    for item_ref in item_refs:
+        item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
+        if item_path is not None:
+            request_refs.extend(_extract_refs(_strip_mermaid_blocks(item_path.read_text(encoding="utf-8")), DOC_KINDS["request"].prefix))
+    for request_ref in sorted(set(request_refs)):
+        ac_payload = repair_ac_traceability_payload(repo_root, request_ref, dry_run=dry_run)
+        changed_files.update(ac_payload["changed_files"])
+        steps.append(ac_payload)
+
+
 def closeout_payload(
     repo_root: Path,
     source: str,
@@ -2218,16 +2254,7 @@ def closeout_payload(
     changed_files.update(link_payload["changed_files"])
     steps.extend([gate_payload, link_payload])
 
-    request_refs = sorted(_extract_refs(_strip_mermaid_blocks(task_path.read_text(encoding="utf-8")), DOC_KINDS["request"].prefix))
-    item_refs = sorted(_extract_refs(_strip_mermaid_blocks(task_path.read_text(encoding="utf-8")), DOC_KINDS["backlog"].prefix))
-    for item_ref in item_refs:
-        item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
-        if item_path is not None:
-            request_refs.extend(_extract_refs(_strip_mermaid_blocks(item_path.read_text(encoding="utf-8")), DOC_KINDS["request"].prefix))
-    for request_ref in sorted(set(request_refs)):
-        ac_payload = repair_ac_traceability_payload(repo_root, request_ref, dry_run=dry_run)
-        changed_files.update(ac_payload["changed_files"])
-        steps.append(ac_payload)
+    _repair_ac_traceability_for_task(repo_root, task_path, dry_run=dry_run, changed_files=changed_files, steps=steps)
 
     mermaid_refs = _closeout_refs(repo_root, task_path)
     mermaid_payload = repair_mermaid_payload(repo_root, mermaid_refs, dry_run=dry_run)

@@ -260,6 +260,8 @@
     }
 
     function setState(nextItems, nextSelectedId) {
+      // The first payload is what turns "not known yet" into an answer, empty or not.
+      state.hasPayload = true;
       state.items = Array.isArray(nextItems) ? nextItems : [];
       if (typeof nextSelectedId === "string") {
         state.selectedId = nextSelectedId;

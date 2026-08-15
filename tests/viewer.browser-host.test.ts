@@ -124,9 +124,9 @@ function createViewerDom(options: {
     <div class="viewer-nav-menu" data-viewer-nav="corpus">
       <button id="viewer-corpus" type="button">Corpus</button>
       <div class="viewer-nav-menu__panel" role="menu">
+        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="corpus:getting-started">Getting Started</button>
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="corpus:insights">Insights</button>
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="corpus:health">Health</button>
-        <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="corpus:getting-started">Getting Started</button>
         <button class="viewer-nav-menu__item" type="button" data-viewer-nav-target="corpus:runbooks">Runbooks</button>
       </div>
     </div>
@@ -1922,6 +1922,21 @@ describe("local viewer browser host", () => {
     expect(joined).toContain(".viewer-insights__summary");
   });
 
+  it("leads the Corpus navigation and switcher with Getting Started", () => {
+    // It is the one Corpus entry written for someone who does not yet know what Insights,
+    // Health or Runbooks are, so it cannot be third. Both surfaces are checked: the menu
+    // and the in-screen switcher are separate lists that can drift apart.
+    const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
+    const menu = html.match(/aria-label="Corpus sections"[\s\S]*?<\/div>/)?.[0] || "";
+    const menuOrder = [...menu.matchAll(/data-viewer-nav-target="corpus:([a-z-]+)"/g)].map((m) => m[1]);
+    expect(menuOrder).toEqual(["getting-started", "insights", "health", "runbooks"]);
+
+    const util = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/util.js"), "utf8");
+    const switcher = util.match(/aria-label="Corpus views"[\s\S]*?<\/div>/)?.[0] || "";
+    const switcherOrder = [...switcher.matchAll(/data-viewer-corpus-mode="([a-z-]+)"/g)].map((m) => m[1]);
+    expect(switcherOrder).toEqual(menuOrder);
+  });
+
   it("pins both reading-grid children to row 1 so the contents nav cannot fall below the prose", () => {
     // item_793 swapped the reader's two tracks but left the rows implicit. The contents nav
     // is appended after the prose, and grid auto-placement never moves backwards, so the
@@ -3389,7 +3404,7 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
     expect(dom.window.document.getElementById("viewer-document-title")?.textContent).toBe("Corpus insights");
     let modes = Array.from(dom.window.document.querySelectorAll("[data-viewer-corpus-mode]"));
-    expect(modes.map((node) => node.getAttribute("data-viewer-corpus-mode"))).toEqual(["insights", "health", "getting-started", "runbooks"]);
+    expect(modes.map((node) => node.getAttribute("data-viewer-corpus-mode"))).toEqual(["getting-started", "insights", "health", "runbooks"]);
     expect(dom.window.document.querySelector('[data-viewer-corpus-mode="insights"]')?.getAttribute("aria-selected")).toBe("true");
 
     dom.window.document.querySelector('[data-viewer-corpus-mode="runbooks"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));

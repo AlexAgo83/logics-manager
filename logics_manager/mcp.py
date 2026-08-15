@@ -1773,10 +1773,11 @@ def launch_tunnel(
     bearer_token: str | None = None,
     no_bearer: bool = False,
     tunnel_command: list[str] | None = None,
+    server_command: list[str] | None = None,
     wait_seconds: float = 30,
 ) -> int:
     token = None if no_bearer else bearer_token or secrets.token_urlsafe(32)
-    server_command = [sys.executable, "-m", "logics_manager", "mcp", "serve-http", "--repo-root", repo_root.as_posix(), "--host", host, "--port", str(port)]
+    server_command = server_command or [sys.executable, "-m", "logics_manager", "mcp", "serve-http", "--repo-root", repo_root.as_posix(), "--host", host, "--port", str(port)]
     env = os.environ.copy()
     if token:
         env[AUTH_ENV_VAR] = token

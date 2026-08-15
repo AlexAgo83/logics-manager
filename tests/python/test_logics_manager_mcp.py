@@ -966,6 +966,13 @@ def test_launch_tunnel_times_out_instead_of_hanging_on_a_silent_child(tmp_path: 
             host="127.0.0.1",
             port=_free_port(),
             no_bearer=True,
+            # A real `python -m logics_manager mcp serve-http` depends on the package
+            # being importable in whatever environment runs this test -- true for this
+            # developer's install, not guaranteed for a CI job that only installs test
+            # tooling. This test is about the tunnel side timing out, not the server
+            # side actually serving, so the server just needs to outlive the 0.8s
+            # startup check; a second silent sleep does that without the dependency.
+            server_command=silent_command,
             tunnel_command=silent_command,
             wait_seconds=0.5,
         )

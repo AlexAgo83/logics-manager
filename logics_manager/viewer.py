@@ -1623,6 +1623,10 @@ def _tree_latest_mtime_ns(root: Path, *, suffixes: tuple[str, ...] = (".md",)) -
 
 def _stable_json_signature(value: Any) -> str:
     return hashlib.sha1(json.dumps(value, sort_keys=True, default=str).encode("utf-8")).hexdigest()
+#: What the status route aggregates, and therefore what the first badge poll would
+#: otherwise discover the cost of, on the request path.
+WARMED_STATUS_COMPONENTS = ("git", "ci", "releaseRuns", "cdx", "cdxRuns")
+
 STATUS_CACHE_TTL_SECONDS = 2.0
 REMOTE_STATUS_CACHE_TTL_SECONDS = 60.0
 VIEWER_EVENT_POLL_SECONDS = 1.0
@@ -2011,6 +2015,26 @@ class LogicsViewerServer(ThreadingHTTPServer):
             }
         return {"projects": projects}
 
+    def status_component_by_name(self, name: str, *, force: bool = False) -> Any:
+        """The named status component, computed at most once per lifetime.
+
+        item_840: the producers used to live on the request handler, which meant only a
+        request could ask for one -- so the first poll after a start paid every cold cost.
+        """
+        repo_root = self.repo_root
+        producers = {
+            "git": lambda: git_status_payload(repo_root),
+            "ci": lambda: ci_status_payload(repo_root),
+            "release": lambda: release_status_payload(repo_root),
+            "releaseRuns": lambda: release_runs_payload(repo_root),
+            "cdx": lambda: cdx_status_payload(repo_root),
+            "cdxRuns": lambda: cdx_runs_payload(repo_root),
+            "cdxHistory": lambda: cdx_history_payload(repo_root),
+            "cdxDisk": lambda: cdx_disk_payload(repo_root),
+            "cdxMemory": lambda: cdx_memory_payload(repo_root),
+        }
+        return self.status_component(name, producers[name], force=force)
+
     def status_component(self, name: str, producer: Any, *, force: bool = False) -> Any:
         """Return a status component payload, recomputing at most once per TTL.
 
@@ -2019,15 +2043,24 @@ class LogicsViewerServer(ThreadingHTTPServer):
         """
         key = f"{name}::{self.repo_root}"
         now = time.monotonic()
-        if not force:
-            with self.status_cache_lock:
-                entry = self.status_components.get(key)
-                if entry is not None and (now - entry[0]) < _status_cache_ttl_seconds(name, poll_seconds=self.auto_refresh_interval_seconds):
-                    return entry[1]
-        value = producer()
         with self.status_cache_lock:
-            self.status_components[key] = (time.monotonic(), value)
-        return value
+            entry = self.status_components.get(key)
+            lock = self.report_locks.setdefault(f"component::{key}", threading.Lock())
+        if not force and entry is not None and (now - entry[0]) < _status_cache_ttl_seconds(name, poll_seconds=self.auto_refresh_interval_seconds):
+            return entry[1]
+        with lock:
+            # item_840: whoever held this may have computed exactly what we came for --
+            # the warm-up, or another poll. Without it a request arriving mid-warm-up pays
+            # the cost the warm-up exists to have already paid.
+            if not force:
+                with self.status_cache_lock:
+                    entry = self.status_components.get(key)
+                if entry is not None and (time.monotonic() - entry[0]) < _status_cache_ttl_seconds(name, poll_seconds=self.auto_refresh_interval_seconds):
+                    return entry[1]
+            value = producer()
+            with self.status_cache_lock:
+                self.status_components[key] = (time.monotonic(), value)
+            return value
 
     def cached_report(self, name: str, producer: Callable[[Path], Any]) -> Any:
         """An expensive corpus report, recomputed only when the corpus has changed.
@@ -2077,10 +2110,20 @@ class LogicsViewerServer(ThreadingHTTPServer):
         """
 
         def run() -> None:
+            # item_840: the badge poll fires on the first tick, seconds after the page
+            # opens, and used to pay every cold cost there -- 9.07s on the status route.
+            # Insights and Health need a deliberate navigation, so they are warmed second:
+            # this pass is sequential, and warming them first left the badge cold for as
+            # long as they took.
+            for name in WARMED_STATUS_COMPONENTS:
+                try:
+                    self.status_component_by_name(name)
+                except Exception:  # noqa: BLE001 - a warm-up must never take the viewer down
+                    return
             for produce in (self.cached_lint_payload, self.cached_audit_payload, self.cached_health_payload):
                 try:
                     produce()
-                except Exception:  # noqa: BLE001 - a warm-up must never take the viewer down
+                except Exception:  # noqa: BLE001 - same reason
                     return
 
         threading.Thread(target=run, daemon=True, name="logics-warm-reports").start()
@@ -2269,19 +2312,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         self._send_bytes(body, content_type="application/json; charset=utf-8", etag=etag, compress=True)
 
     def _status_component(self, name: str, *, force: bool = False) -> Any:
-        repo_root = self.server.repo_root
-        producers = {
-            "git": lambda: git_status_payload(repo_root),
-            "ci": lambda: ci_status_payload(repo_root),
-            "release": lambda: release_status_payload(repo_root),
-            "releaseRuns": lambda: release_runs_payload(repo_root),
-            "cdx": lambda: cdx_status_payload(repo_root),
-            "cdxRuns": lambda: cdx_runs_payload(repo_root),
-            "cdxHistory": lambda: cdx_history_payload(repo_root),
-            "cdxDisk": lambda: cdx_disk_payload(repo_root),
-            "cdxMemory": lambda: cdx_memory_payload(repo_root),
-        }
-        return self.server.status_component(name, producers[name], force=force)
+        return self.server.status_component_by_name(name, force=force)
 
     def _send_status_json(self, cache_key: str, producer: Any) -> None:
         """Serve a status payload with a short TTL cache and ETag revalidation.

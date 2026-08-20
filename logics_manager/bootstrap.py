@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 
 from .assist import _build_claude_instructions
+from .assist_support import CLAUDE_BRIDGE_VARIANTS
 from .harness_mcp import wire_harness_mcp_configs
 from .skills import resync_all_harnesses
 
@@ -22,7 +23,16 @@ def _workflow_directories(repo_root: Path) -> list[Path]:
 
 
 def _legacy_runtime_paths(repo_root: Path) -> list[Path]:
-    return [repo_root / ".claude", repo_root / "logics" / "skills"]
+    # Only paths Logics itself generated. `.claude/` as a whole belongs to the
+    # user (settings.json, their own agents/commands, worktrees) -- never wipe it.
+    claude = repo_root / ".claude"
+    paths = [
+        claude / str(variant[key]).split("/", 1)[1]
+        for variant in CLAUDE_BRIDGE_VARIANTS
+        for key in ("command_path", "agent_path")
+    ]
+    paths.append(repo_root / "logics" / "skills")
+    return paths
 
 
 def _remove_legacy_runtime_paths(repo_root: Path, *, check: bool) -> list[str]:
@@ -36,6 +46,12 @@ def _remove_legacy_runtime_paths(repo_root: Path, *, check: bool) -> list[str]:
                 shutil.rmtree(target)
             else:
                 target.unlink()
+    if not check:
+        # ponytail: prune only the dirs we emptied, and only if empty.
+        for parent in (repo_root / ".claude" / "commands", repo_root / ".claude" / "agents", repo_root / ".claude"):
+            if parent.is_dir() and not any(parent.iterdir()):
+                parent.rmdir()
+                removed_paths.append(parent.relative_to(repo_root).as_posix() + "/")
     return removed_paths
 
 

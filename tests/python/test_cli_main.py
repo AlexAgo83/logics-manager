@@ -3473,6 +3473,9 @@ def test_main_runs_native_bootstrap_cleans_legacy_runtime_artifacts(
     repo_root.mkdir()
     (repo_root / ".claude" / "commands").mkdir(parents=True)
     (repo_root / ".claude" / "agents").mkdir(parents=True)
+    (repo_root / ".claude" / "commands" / "logics-assist.md").write_text("# legacy\n", encoding="utf-8")
+    (repo_root / ".claude" / "settings.json").write_text("{}\n", encoding="utf-8")
+    (repo_root / ".claude" / "agents" / "my-own-agent.md").write_text("# mine\n", encoding="utf-8")
     (repo_root / "logics" / "skills" / "legacy-skill").mkdir(parents=True)
     (repo_root / "logics" / "skills" / "legacy-skill" / "SKILL.md").write_text("# legacy\n", encoding="utf-8")
     monkeypatch.chdir(repo_root)
@@ -3482,8 +3485,11 @@ def test_main_runs_native_bootstrap_cleans_legacy_runtime_artifacts(
 
     assert exit_code == 0
     assert "Bootstrap: OK" in captured.out
-    assert not (repo_root / ".claude").exists()
+    assert not (repo_root / ".claude" / "commands" / "logics-assist.md").exists()
     assert not (repo_root / "logics" / "skills").exists()
+    # User-owned files under .claude/ must survive bootstrap.
+    assert (repo_root / ".claude" / "settings.json").is_file()
+    assert (repo_root / ".claude" / "agents" / "my-own-agent.md").is_file()
 
 
 def test_main_runs_native_bootstrap_repairs_stale_instructions(

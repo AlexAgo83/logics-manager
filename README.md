@@ -133,6 +133,12 @@ Initialize or check a repository:
 logics-manager bootstrap --check
 ```
 
+`bootstrap` writes the `logics/` tree and the managed section of
+`AGENTS.md`/`LOGICS.md`; the only things it removes are the bridge files older
+versions generated (`.claude/commands/logics-*.md`, `.claude/agents/logics-*.md`,
+`logics/skills/`). Your own `.claude/` settings and files are untouched --
+see [docs/cli.md](docs/cli.md) for the full list.
+
 Create the first workflow document:
 
 ```bash

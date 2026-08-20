@@ -138,6 +138,24 @@ for a duplicate even when nothing needs updating, and can be dismissed for the
 session; it returns on the next one, or sooner if the duplicates on PATH change.
 An actual update notice is never suppressed by that dismissal.
 
+## What `bootstrap` touches
+
+`bootstrap` creates the `logics/` tree, refreshes the managed section of
+`AGENTS.md`/`LOGICS.md`, and regenerates `logics/instructions.md`. It also
+removes the bridge files older versions generated into the repository:
+`.claude/commands/logics-*.md`, `.claude/agents/logics-*.md`, and
+`logics/skills/`.
+
+It removes nothing else under `.claude/`. Your `settings.json`,
+`settings.local.json`, `projects/`, `worktrees/`, and your own agents and
+commands are left alone; `.claude/commands/` or `.claude/agents/` are pruned
+only when removing a generated file leaves them empty.
+
+Everything `bootstrap` writes stays inside the repository, unless you pass
+`--sync-harnesses`, which is the one flag that touches `~/.claude`, `~/.codex`,
+`~/.hermes`, and `~/.gemini`. Use `bootstrap --check` to see the planned
+creations and removals without applying them.
+
 ## Targeting a repository explicitly
 
 Every command accepts `--repo-root DIR`, in any position, and operates on that

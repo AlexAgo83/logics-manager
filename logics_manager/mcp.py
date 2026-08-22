@@ -732,13 +732,13 @@ def _tool_build_context_pack(root: Path, args: dict[str, Any], name: str) -> dic
     return {"ok": True, **payload}
 
 def _tool_get_release_status(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
-    return release_status_payload(root)
+    return release_status_payload(root, target=str(args.get("target") or "").strip() or None)
 
 def _tool_get_release_plan(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     version = str(args.get("version") or "").strip()
     if not version:
         raise McpToolError("missing_required_argument", "version is required.", details={"argument": "version"})
-    return release_plan_payload(root, version)
+    return release_plan_payload(root, version, target=str(args.get("target") or "").strip() or None)
 
 def _tool_list_logics_docs(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     payload = list_logics_docs_payload(

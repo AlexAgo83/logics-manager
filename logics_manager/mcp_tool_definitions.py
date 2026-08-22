@@ -158,12 +158,12 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
     {
         "name": "get_release_status",
         "description": "Read project-owned release workflow status without publishing or mutating files.",
-        "inputSchema": _tool_schema({}),
+        "inputSchema": _tool_schema({"target": {"type": "string"}}),
     },
     {
         "name": "get_release_plan",
         "description": "Build a non-mutating release plan for a target version; publication steps are explicitly marked.",
-        "inputSchema": _tool_schema({"version": {"type": "string"}}, ["version"]),
+        "inputSchema": _tool_schema({"version": {"type": "string"}, "target": {"type": "string"}}, ["version"]),
     },
     {
         "name": "list_logics_docs",

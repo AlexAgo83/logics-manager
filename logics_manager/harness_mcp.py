@@ -6,12 +6,11 @@ Code project scope `.mcp.json`, Antigravity `~/.gemini/config/mcp_config.json`),
 and never overwrites a differing existing entry under the `logics-manager`
 key. Codex's `~/.codex/config.toml` gets a safe plain-text table append -
 TOML tables are additive by dotted path, so this cannot collide with or
-shadow an existing one, the same append-only idiom `bootstrap`'s
-`_ensure_line()` already uses for `.gitignore`. Hermes's `~/.hermes/config.yaml`
-is YAML, where the same trick is unsafe (a second top-level key silently
-shadows an earlier one in most parsers) - it only ever gets a printed
-snippet, never a write. A missing JSON file gets a printed snippet too:
-never create a new global config file or directory on the operator's behalf.
+shadow an existing one. Hermes's `~/.hermes/config.yaml` is YAML, where the
+same trick is unsafe (a second top-level key silently shadows an earlier one in
+most parsers) - it only ever gets a printed snippet, never a write. A missing
+JSON file gets a printed snippet too: never create a new global config file or
+directory on the operator's behalf.
 """
 
 from __future__ import annotations

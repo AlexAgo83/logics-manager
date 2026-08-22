@@ -3523,7 +3523,6 @@ def test_main_runs_native_bootstrap_creates_local_assistant_bridge(
     assert payload["ok"] is True
     logics_text = (repo_root / "LOGICS.md").read_text(encoding="utf-8")
     agents_text = (repo_root / "AGENTS.md").read_text(encoding="utf-8")
-    gitignore_text = (repo_root / ".gitignore").read_text(encoding="utf-8")
     assert "logics-manager:managed:start" in logics_text
     assert "Canonical generated instructions live in `logics/instructions.md`." in logics_text
     assert "If unmanaged notes in this file conflict with this section" in logics_text
@@ -3540,8 +3539,21 @@ def test_main_runs_native_bootstrap_creates_local_assistant_bridge(
     assert "logics-manager view" in logics_text
     assert "repo-relative, never absolute filesystem paths" in logics_text
     assert "@LOGICS.md" in agents_text
-    assert "LOGICS.md" in gitignore_text
-    assert "AGENTS.md" in gitignore_text
+    assert not (repo_root / ".gitignore").exists()
+
+
+def test_main_runs_native_bootstrap_leaves_gitignore_policy_to_the_user(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    repo_root.mkdir()
+    gitignore = repo_root / ".gitignore"
+    gitignore.write_text("node_modules/\n", encoding="utf-8")
+
+    payload = bootstrap_payload(repo_root, check=False)
+
+    assert payload["ok"] is True
+    assert ".gitignore" not in payload["created_paths"]
+    assert ".gitignore" not in payload["updated_paths"]
+    assert gitignore.read_text(encoding="utf-8") == "node_modules/\n"
 
 
 def test_main_runs_native_bootstrap_refreshes_managed_bridge_without_overwriting_local_notes(

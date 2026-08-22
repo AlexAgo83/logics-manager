@@ -1,6 +1,6 @@
 ## adr_032_release_target_contract_v2_boundaries - Release target contract v2 boundaries
 > Date: 2026-08-22
-> Status: Proposed
+> Status: Settled
 > Related request: `req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets`
 > Related backlog: `item_855_add_target_scoped_release_contracts_and_evidence`
 > Related task: `task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts`

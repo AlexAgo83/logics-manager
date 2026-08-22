@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import argparse
 import contextlib
 import json
 import re
@@ -13,6 +12,18 @@ from typing import Any
 
 from .config import ConfigError, find_repo_root
 from .cli_output import render_payload
+from .release_cli_support import (
+    release_parser,
+    release_main_help,
+    release_subcommand_help,
+    render_release_discover,
+    render_release_evidence_add,
+    render_release_evidence_reset,
+    render_release_plan,
+    render_release_status,
+    render_release_validate,
+)
+from .release_targets import release_targets, target_evidence
 
 
 try:
@@ -377,13 +388,16 @@ def release_add_evidence_payload(
     url: str | None = None,
     command: str | None = None,
     run_id: str | None = None,
+    target: str | None = None,
 ) -> dict[str, Any]:
     context = load_release_context(repo_root)
     if context.contract is None:
         payload = _not_configured_payload(repo_root)
         payload.update({"command": "release-evidence-add", "recorded": False})
         return payload
-    contract = context.contract
+    root_contract = context.contract
+    release_target = release_targets(root_contract, target, require_selected=True)[0]
+    contract = release_target.contract
     gate = _contract_gate(contract, gate_id)
     if gate is None:
         raise ConfigError(f"Unknown release gate: {gate_id}")
@@ -407,6 +421,8 @@ def release_add_evidence_payload(
         "target_version": resolved_version,
         "summary": summary.strip(),
     }
+    if release_target.id is not None:
+        entry["target_id"] = release_target.id
     if resolved_commit and kind in SOURCE_EVIDENCE_KINDS | {"ci"}:
         entry["commit"] = resolved_commit
     resolved_tag = tag or (_expected_tag(contract, resolved_version) if kind in PUBLICATION_EVIDENCE_KINDS else None)
@@ -421,8 +437,8 @@ def release_add_evidence_payload(
     if run_id:
         entry["run_id"] = run_id
 
-    evidence_path = _write_evidence_entry(repo_root, contract, entry)
-    status_payload = release_status_payload(repo_root)
+    evidence_path = _write_evidence_entry(repo_root, root_contract, entry)
+    status_payload = release_status_payload(repo_root, target=release_target.id)
     return {
         "ok": True,
         "configured": True,
@@ -449,16 +465,63 @@ def release_reset_payload(repo_root: Path) -> dict[str, Any]:
         payload.update({"command": "release-evidence-reset", "reset": False, "cleared": 0})
         return payload
     contract = context.contract
+    release_target = release_targets(contract, None, require_selected="targets" in contract)[0]
     evidence_path = _evidence_store_path(repo_root, contract)
     cleared = len(_load_evidence(repo_root, contract)) if evidence_path.is_file() else 0
     if evidence_path.is_file():
         evidence_path.unlink()
-    status_payload = release_status_payload(repo_root)
+    status_payload = release_status_payload(repo_root, target=release_target.id)
     return {
         "ok": True,
         "configured": True,
         "command": "release-evidence-reset",
         "reset": True,
+        "cleared": cleared,
+        "evidence_path": _rel(evidence_path, repo_root),
+        "state": status_payload.get("state"),
+        "next_action": status_payload.get("next_action"),
+        "generated_at": _now_iso(),
+        "repo_root": repo_root.as_posix(),
+    }
+
+
+def release_reset_target_payload(repo_root: Path, target: str | None = None) -> dict[str, Any]:
+    context = load_release_context(repo_root)
+    if context.contract is None:
+        payload = _not_configured_payload(repo_root)
+        payload.update({"command": "release-evidence-reset", "reset": False, "cleared": 0})
+        return payload
+    contract = context.contract
+    release_target = release_targets(contract, target, require_selected="targets" in contract)[0]
+    if release_target.id is None:
+        return release_reset_payload(repo_root)
+
+    evidence_path = _evidence_store_path(repo_root, contract)
+    if not evidence_path.is_file():
+        cleared = 0
+    else:
+        kept: list[str] = []
+        cleared = 0
+        for raw in evidence_path.read_text(encoding="utf-8").splitlines():
+            try:
+                entry = json.loads(raw)
+            except json.JSONDecodeError:
+                kept.append(raw)
+                continue
+            if isinstance(entry, dict) and entry.get("target_id") == release_target.id:
+                cleared += 1
+            else:
+                kept.append(raw)
+        tmp = evidence_path.with_suffix(evidence_path.suffix + ".tmp")
+        tmp.write_text(("\n".join(kept) + "\n") if kept else "", encoding="utf-8")
+        tmp.replace(evidence_path)
+    status_payload = release_status_payload(repo_root, target=release_target.id)
+    return {
+        "ok": True,
+        "configured": True,
+        "command": "release-evidence-reset",
+        "reset": True,
+        "target_id": release_target.id,
         "cleared": cleared,
         "evidence_path": _rel(evidence_path, repo_root),
         "state": status_payload.get("state"),
@@ -577,15 +640,45 @@ def _state_from_gates(gates: list[dict[str, Any]]) -> str:
     return "planning"
 
 
-def release_status_payload(repo_root: Path) -> dict[str, Any]:
+def release_status_payload(repo_root: Path, *, target: str | None = None) -> dict[str, Any]:
     context = load_release_context(repo_root)
     if context.contract is None:
         return _not_configured_payload(repo_root)
-    contract = context.contract
+    root_contract = context.contract
+    targets = release_targets(root_contract, target)
+    if len(targets) > 1:
+        target_payloads = [release_status_payload(repo_root, target=release_target.id) for release_target in targets]
+        blocking = [f"{item['target_id']}: {reason}" for item in target_payloads for reason in item.get("blocking_reasons", [])]
+        ok = all(bool(item.get("ok")) for item in target_payloads)
+        return {
+            "ok": ok,
+            "configured": True,
+            "state": "ready" if ok else "blocked",
+            "target_version": None,
+            "contract_path": CONTRACT_PATH.as_posix(),
+            "targets": [
+                {
+                    "id": item.get("target_id"),
+                    "state": item.get("state"),
+                    "ok": item.get("ok"),
+                    "target_version": item.get("target_version"),
+                    "blocking_reasons": item.get("blocking_reasons", []),
+                }
+                for item in target_payloads
+            ],
+            "gates": [],
+            "blocking_reasons": blocking,
+            "next_action": "All release targets are ready." if ok else (blocking[0] if blocking else "Collect evidence for each target."),
+            "evidence": _load_evidence(repo_root, root_contract),
+            "generated_at": _now_iso(),
+            "repo_root": repo_root.as_posix(),
+        }
+    release_target = targets[0]
+    contract = release_target.contract
     target_version, version_sources = _current_version(repo_root, contract)
     commit = _current_commit(repo_root)
     release_commit = _release_commit(repo_root, contract, target_version, commit)
-    evidence = _load_evidence(repo_root, contract)
+    evidence = target_evidence(_load_evidence(repo_root, root_contract), release_target.id)
     raw_gates = contract.get("gates") if isinstance(contract.get("gates"), list) else []
     gates = [_gate_payload(gate, evidence, target_version, commit, release_commit, contract) for gate in raw_gates if isinstance(gate, dict)]
     version_blocking_reasons = _version_source_blocking_reasons(version_sources)
@@ -600,6 +693,7 @@ def release_status_payload(repo_root: Path) -> dict[str, Any]:
         "configured": True,
         "state": state,
         "target_version": target_version,
+        "target_id": release_target.id,
         "commit": commit,
         "release_commit": release_commit,
         "contract_path": CONTRACT_PATH.as_posix(),
@@ -613,8 +707,8 @@ def release_status_payload(repo_root: Path) -> dict[str, Any]:
     }
 
 
-def release_context_pack_payload(repo_root: Path) -> dict[str, Any]:
-    status = release_status_payload(repo_root)
+def release_context_pack_payload(repo_root: Path, *, target: str | None = None) -> dict[str, Any]:
+    status = release_status_payload(repo_root, target=target)
     gates = [
         {
             "id": gate.get("id"),
@@ -629,6 +723,8 @@ def release_context_pack_payload(repo_root: Path) -> dict[str, Any]:
     return {
         "configured": bool(status.get("configured")),
         "target_version": status.get("target_version"),
+        "target_id": status.get("target_id"),
+        "targets": status.get("targets", []),
         "state": status.get("state"),
         "next_action": status.get("next_action"),
         "contract_path": status.get("contract_path"),
@@ -651,13 +747,15 @@ def release_context_pack_payload(repo_root: Path) -> dict[str, Any]:
     }
 
 
-def release_plan_payload(repo_root: Path, version: str) -> dict[str, Any]:
+def release_plan_payload(repo_root: Path, version: str, *, target: str | None = None) -> dict[str, Any]:
     context = load_release_context(repo_root)
     if context.contract is None:
         payload = _not_configured_payload(repo_root)
         payload.update({"command": "release-plan", "target_version": version, "steps": []})
         return payload
-    contract = context.contract
+    root_contract = context.contract
+    release_target = release_targets(root_contract, target, require_selected=True)[0]
+    contract = release_target.contract
     steps: list[dict[str, Any]] = []
     for source in contract.get("version_sources", []):
         if isinstance(source, dict):
@@ -682,6 +780,7 @@ def release_plan_payload(repo_root: Path, version: str) -> dict[str, Any]:
         "configured": True,
         "command": "release-plan",
         "target_version": version,
+        "target_id": release_target.id,
         "contract_path": CONTRACT_PATH.as_posix(),
         "steps": steps,
         "safe_read_validate_actions": ["release status", "release plan", "release validate"],
@@ -897,8 +996,8 @@ def release_discover_payload(repo_root: Path, *, write: bool = False, force: boo
     }
 
 
-def release_validate_payload(repo_root: Path, version: str) -> dict[str, Any]:
-    status = release_status_payload(repo_root)
+def release_validate_payload(repo_root: Path, version: str, *, target: str | None = None) -> dict[str, Any]:
+    status = release_status_payload(repo_root, target=target)
     checks: list[dict[str, Any]] = []
     if not status.get("configured"):
         return {**status, "command": "release-validate", "target_version": version, "checks": [{"id": "config", "status": "failed", "message": "release contract is missing"}]}
@@ -933,90 +1032,11 @@ def release_validate_payload(repo_root: Path, version: str) -> dict[str, Any]:
     }
 
 
-def render_release_status(payload: dict[str, Any]) -> str:
-    lines = [
-        f"Release state: {payload['state']}",
-        f"Configured: {'yes' if payload.get('configured') else 'no'}",
-        f"Target version: {payload.get('target_version') or '<unknown>'}",
-        f"Next action: {payload.get('next_action')}",
-    ]
-    gates = payload.get("gates") if isinstance(payload.get("gates"), list) else []
-    if gates:
-        lines.append("Gates:")
-        for gate in gates:
-            lines.append(
-                f"- {gate['id']} [{gate.get('comparison', DEFAULT_GATE_COMPARISON)}]: {gate['status']}"
-                + (f" ({gate['blocking_reason']})" if gate.get("blocking_reason") else "")
-            )
-    return "\n".join(lines)
-
-
-def render_release_plan(payload: dict[str, Any]) -> str:
-    lines = [f"Release plan for {payload.get('target_version')}", f"Configured: {'yes' if payload.get('configured') else 'no'}"]
-    steps = payload.get("steps") if isinstance(payload.get("steps"), list) else []
-    for step in steps:
-        label = step.get("id") or step.get("path") or step.get("kind")
-        lines.append(f"- {step.get('kind')}: {label}")
-    lines.append(f"Next action: {payload.get('next_action')}")
-    return "\n".join(lines)
-
-
-def render_release_discover(payload: dict[str, Any]) -> str:
-    lines = [
-        f"Release contract configured: {'yes' if payload.get('configured') else 'no'}",
-        f"Draft path: {payload.get('draft_path') or '<none>'}",
-        f"Draft written: {'yes' if payload.get('draft_written') else 'no'}",
-        f"Next action: {payload.get('next_action')}",
-    ]
-    draft = payload.get("draft") if isinstance(payload.get("draft"), dict) else {}
-    commands = draft.get("validation_commands") if isinstance(draft.get("validation_commands"), list) else []
-    if commands:
-        lines.append("Validation commands:")
-        for command in commands:
-            lines.append(f"- {command.get('id')}: {' '.join(command.get('command') or [])}")
-    return "\n".join(lines)
-
-
-def render_release_validate(payload: dict[str, Any]) -> str:
-    lines = [f"Release validation: {'passed' if payload.get('ok') else 'failed'}", f"Target version: {payload.get('target_version') or '<unknown>'}"]
-    for check in payload.get("checks", []) if isinstance(payload.get("checks"), list) else []:
-        lines.append(f"- {check['id']}: {check['status']} ({check['message']})")
-    lines.append(f"Next action: {payload.get('next_action')}")
-    return "\n".join(lines)
-
-
-def render_release_evidence_add(payload: dict[str, Any]) -> str:
-    entry = payload.get("entry") if isinstance(payload.get("entry"), dict) else {}
-    return "\n".join(
-        [
-            f"Release evidence recorded: {'yes' if payload.get('recorded') else 'no'}",
-            f"Gate: {entry.get('gate_id') or '<unknown>'}",
-            f"Status: {entry.get('status') or '<unknown>'}",
-            f"Evidence store: {payload.get('evidence_path') or '<unknown>'}",
-            f"Next action: {payload.get('next_action')}",
-        ]
-    )
-
-
 def main(argv: list[str] | None = None) -> int:
     if argv is None:
         argv = []
     if argv in (["-h"], ["--help"]):
-        print(
-            "\n".join(
-                [
-                    "Logics Release CLI",
-                    "Plan, inspect, and validate project-owned release workflow state.",
-                    "",
-                    "Usage:",
-                    "  logics-manager release status [--format text|json]",
-                    "  logics-manager release discover [--write] [--force] [--format text|json]",
-                    "  logics-manager release plan <version> [--format text|json]",
-                    "  logics-manager release validate <version> [--format text|json]",
-                    "  logics-manager release evidence add <gate> --kind <kind> --status <status> --summary <text> [--format text|json]",
-                ]
-            )
-        )
+        print(release_main_help())
         return 0
     if argv[:3] == ["evidence", "add", "--help"] or argv[:3] == ["evidence", "add", "-h"]:
         print(
@@ -1034,47 +1054,11 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 0
     if len(argv) >= 2 and argv[1] in {"-h", "--help"}:
-        help_text = {
-            "status": "Usage: logics-manager release status [--format text|json]",
-            "discover": "Usage: logics-manager release discover [--write] [--force] [--format text|json]",
-            "plan": "Usage: logics-manager release plan <version> [--format text|json]",
-            "validate": "Usage: logics-manager release validate <version> [--format text|json]",
-            "evidence": "Usage: logics-manager release evidence add <gate> --kind <kind> --status <status> --summary <text> [--format text|json]\nExample:\n  "
-            + release_evidence_add_example(),
-        }.get(argv[0])
+        help_text = release_subcommand_help(argv[0], release_evidence_add_example())
         if help_text:
             print(help_text)
             return 0
-    parser = argparse.ArgumentParser(prog="logics-manager release", add_help=False)
-    sub = parser.add_subparsers(dest="command")
-    status = sub.add_parser("status")
-    status.add_argument("--format", choices=("text", "json"), default="text")
-    discover = sub.add_parser("discover")
-    discover.add_argument("--write", action="store_true")
-    discover.add_argument("--force", action="store_true")
-    discover.add_argument("--format", choices=("text", "json"), default="text")
-    plan = sub.add_parser("plan")
-    plan.add_argument("version")
-    plan.add_argument("--format", choices=("text", "json"), default="text")
-    validate = sub.add_parser("validate")
-    validate.add_argument("version")
-    validate.add_argument("--format", choices=("text", "json"), default="text")
-    evidence = sub.add_parser("evidence")
-    evidence_sub = evidence.add_subparsers(dest="evidence_command")
-    evidence_add = evidence_sub.add_parser("add")
-    evidence_add.add_argument("gate_id")
-    evidence_add.add_argument("--kind", required=True, choices=sorted(EVIDENCE_KINDS))
-    evidence_add.add_argument("--status", required=True, choices=sorted(GATE_STATUSES))
-    evidence_add.add_argument("--summary", required=True)
-    evidence_add.add_argument("--target-version")
-    evidence_add.add_argument("--commit")
-    evidence_add.add_argument("--tag")
-    evidence_add.add_argument("--observed-at")
-    evidence_add.add_argument("--path")
-    evidence_add.add_argument("--url")
-    evidence_add.add_argument("--command", dest="evidence_command_text")
-    evidence_add.add_argument("--run-id")
-    evidence_add.add_argument("--format", choices=("text", "json"), default="text")
+    parser = release_parser(EVIDENCE_KINDS, GATE_STATUSES)
     try:
         parsed = parser.parse_args(argv)
     except SystemExit as exc:
@@ -1085,7 +1069,7 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("Usage: logics-manager release <plan|status|validate> [args...]")
     repo_root = find_repo_root(Path.cwd())
     if parsed.command == "status":
-        payload = release_status_payload(repo_root)
+        payload = release_status_payload(repo_root, target=parsed.target)
         print(render_payload(payload, parsed.format, lambda: render_release_status(payload)))
         return 0 if payload.get("configured") else 1
     if parsed.command == "discover":
@@ -1093,10 +1077,14 @@ def main(argv: list[str] | None = None) -> int:
         print(render_payload(payload, parsed.format, lambda: render_release_discover(payload)))
         return 0 if payload.get("ok") else 1
     if parsed.command == "plan":
-        payload = release_plan_payload(repo_root, parsed.version)
+        payload = release_plan_payload(repo_root, parsed.version, target=parsed.target)
         print(render_payload(payload, parsed.format, lambda: render_release_plan(payload)))
         return 0 if payload.get("configured") else 1
     if parsed.command == "evidence":
+        if parsed.evidence_command == "reset":
+            payload = release_reset_target_payload(repo_root, target=parsed.target)
+            print(render_payload(payload, parsed.format, lambda: render_release_evidence_reset(payload)))
+            return 0 if payload.get("ok") else 1
         if parsed.evidence_command != "add":
             raise SystemExit("Usage: logics-manager release evidence add <gate> --kind <kind> --status <status> --summary <text>")
         payload = release_add_evidence_payload(
@@ -1113,9 +1101,10 @@ def main(argv: list[str] | None = None) -> int:
             url=parsed.url,
             command=parsed.evidence_command_text,
             run_id=parsed.run_id,
+            target=parsed.target,
         )
         print(render_payload(payload, parsed.format, lambda: render_release_evidence_add(payload)))
         return 0 if payload.get("ok") else 1
-    payload = release_validate_payload(repo_root, parsed.version)
+    payload = release_validate_payload(repo_root, parsed.version, target=parsed.target)
     print(render_payload(payload, parsed.format, lambda: render_release_validate(payload)))
     return 0 if payload.get("ok") else 1

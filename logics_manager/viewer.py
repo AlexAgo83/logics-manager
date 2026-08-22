@@ -26,12 +26,11 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from collections import deque
-from collections.abc import Iterable, Mapping
-from collections.abc import Callable
+from collections.abc import Callable, Iterable, Mapping
 from typing import Any
 from urllib.parse import parse_qs, quote, unquote, urlparse
 from .audit import audit_payload
-from . import mcp_tunnel, viewer_cdx_routes, viewer_diagnostics, viewer_workshop_routes
+from . import mcp_tunnel, viewer_cdx_routes, viewer_diagnostics, viewer_release, viewer_workshop_routes
 from .bootstrap import bootstrap_payload
 from .cdx_memory import cdx_memory_payload
 from .chain_graph import resolve_request_chain, resolve_runbook_library_graph
@@ -39,7 +38,7 @@ from .config import ConfigError, find_repo_root, holds_corpus
 from .insights import health_payload, status_payload
 from .lint import lint_payload
 from .path_utils import PathEscapesRoot, has_symlink_segment, relative_to_root
-from .release import load_release_context, release_reset_payload, release_status_payload
+from .release import load_release_context, release_status_payload
 from .sync import (
     INDICATOR_TARGET_KINDS,
     RUNBOOK_MATCH_LIMIT,
@@ -139,7 +138,6 @@ def _resolve_asset_root(repo_candidate: Path, packaged_candidate: Path, marker: 
     tree) serves the packaged mirror."""
     probe = repo_candidate / marker if marker else repo_candidate
     return repo_candidate if probe.exists() else packaged_candidate
-
 
 VIEWER_ROOT = _resolve_asset_root(
     REPO_ROOT / "clients" / "viewer", PACKAGE_VIEWER_ASSETS_ROOT / "viewer", marker="index.html"
@@ -2504,8 +2502,6 @@ class LogicsViewerServer(ThreadingHTTPServer):
         # serve_forever returns and main exits instead of re-exec'ing.
         self._shutdown_soon()
 
-
-# Status GET routes: path -> (response label, status component name).
 _STATUS_ROUTE_TABLE: dict[str, tuple[str, str]] = {
     "/api/git-status": ("git-status", "git"),
     "/api/ci-status": ("ci-status", "ci"),
@@ -2517,8 +2513,6 @@ _STATUS_ROUTE_TABLE: dict[str, tuple[str, str]] = {
     "/api/cdx-disk": ("cdx-disk", "cdxDisk"),
     "/api/cdx-memory": ("cdx-memory", "cdxMemory"),
 }
-
-
 class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
     server: LogicsViewerServer
 
@@ -2591,7 +2585,12 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 if entry is not None and (now - entry[0]) < _status_cache_ttl_seconds(cache_key, poll_seconds=server.auto_refresh_interval_seconds):
                     cached = entry
         if cached is None:
-            body = _json_bytes({"ok": True, "payload": producer(force=force)})
+            try:
+                payload = producer(force=force)
+            except ConfigError as exc:
+                self._send_error_json(HTTPStatus.BAD_REQUEST, str(exc))
+                return
+            body = _json_bytes({"ok": True, "payload": payload})
             etag = '"%s"' % hashlib.sha1(body).hexdigest()
             with server.status_cache_lock:
                 server.status_cache[full_key] = (now, etag, body)
@@ -3223,6 +3222,14 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return True
         return False
 
+    def _handle_status_route_get(self, route: str) -> bool:
+        status_route = _STATUS_ROUTE_TABLE.get(route)
+        if status_route is None:
+            return False
+        label, component = status_route
+        self._send_status_json(label, lambda *, force=False: self._status_component(component, force=force))
+        return True
+
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
         if not self._lan_auth_passes(parsed, method="GET"):
@@ -3303,10 +3310,9 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             return
         if viewer_cdx_routes.handle_get(self, route, parsed):
             return
-        status_route = _STATUS_ROUTE_TABLE.get(route)
-        if status_route is not None:
-            label, component = status_route
-            self._send_status_json(label, lambda *, force=False: self._status_component(component, force=force))
+        if viewer_release.handle_get(self, route, parsed):
+            return
+        if self._handle_status_route_get(route):
             return
         if route == "/api/status":
             self._send_status_json(
@@ -3473,11 +3479,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 }
             )
             return
-        if parsed.path == "/api/release-reset":
-            try:
-                self._send_json({"ok": True, "payload": release_reset_payload(self.server.repo_root)})
-            except (OSError, ValueError) as exc:
-                self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, f"Unable to reset release evidence: {exc}")
+        if viewer_release.handle_post(self, parsed):
             return
         if parsed.path == "/api/git-commit":
             try:

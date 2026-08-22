@@ -59,7 +59,7 @@ const allowedOversizedFiles = new Map(
     // 1990: item_851 has serve_stdio announce the first client request, so the connector
     // screen's last row states that ChatGPT reached us instead of inferring it. The
     // marker has to be printed where the requests are read.
-    "logics_manager/mcp.py": { maxLines: 1990, ref: "req_376" },
+    "logics_manager/mcp.py": { maxLines: 1989, ref: "req_376" },
     // 1029: item_674 added the install-identity helpers (_install_root, _shim_target,
     // _executable_identity) that let doctor tell one install from two. They sit beside
     // running_executable_path/shadowing_executables, the only callers and the only other
@@ -135,7 +135,7 @@ const allowedOversizedFiles = new Map(
     // beside the two lines each existing source already takes in this same list.
     // 1121: req_323 added `package-lock.json` as one more version source, the same
     // shape as every entry already in this same list.
-    "logics_manager/release.py": { maxLines: 1121, ref: "req_323" },
+    "logics_manager/release.py": { maxLines: 1110, ref: "req_323" },
     // 1482: req_330 added the runbook discovery paragraph to the generated Claude
     // instructions, beside the other CLI-command bullets it follows the shape of.
     // 1493: req_371 added the viewer-link convention paragraph, backfilled here so the
@@ -228,7 +228,7 @@ const allowedOversizedFiles = new Map(
     // 4400: req_378 also lands here -- prerequisites are not asked of a connector that
     // is already running, because `tunnel-client doctor` binds the health port that
     // running connector owns and then reports it as a missing prerequisite.
-    "logics_manager/viewer.py": { maxLines: 4400, ref: "req_378" },
+    "logics_manager/viewer.py": { maxLines: 4399, ref: "req_378" },
     // 1545: item_743 keys the cdx update cache on a fingerprint of the installed
     // executable, so running the update the banner asks for ends the banner. The
     // helper is 8 lines; the rest is the docstring stating why it stats rather than
@@ -430,7 +430,7 @@ const allowedOversizedFiles = new Map(
     // three are showChatgptMcp's own markup and its own re-render loop, which read the
     // document panel state this file owns; a separate module would import setDocument,
     // beginView, documentPanel and escapeHtml back out of it.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 5550, ref: "req_376" },
+    "clients/viewer/src/browser-host/index.js": { maxLines: 5546, ref: "req_376" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },

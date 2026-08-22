@@ -14,6 +14,7 @@ from logics_manager.release import (
     release_discover_payload,
     release_plan_payload,
     release_reset_payload,
+    release_reset_target_payload,
     release_status_payload,
     release_validate_payload,
 )
@@ -738,3 +739,152 @@ def test_a_stale_package_lock_version_is_caught_as_a_blocking_disagreement(tmp_p
     assert target_version is None
     blocking_reasons = _version_source_blocking_reasons(version_sources)
     assert any("disagree" in reason for reason in blocking_reasons)
+
+
+def _write_multi_target_repo(tmp_path: Path) -> tuple[Path, str]:
+    repo_root = tmp_path / "repo"
+    release_dir = repo_root / "logics" / "release"
+    release_dir.mkdir(parents=True)
+    (repo_root / "package.json").write_text(json.dumps({"version": "1.0.0"}), encoding="utf-8")
+    (repo_root / "worker").mkdir()
+    (repo_root / "worker" / "VERSION").write_text("2026.08.22\n", encoding="utf-8")
+    contract = {
+        "schema_version": "1.0",
+        "project": {"id": "demo", "display_name": "Demo"},
+        "version_sources": [{"path": "package.json", "format": "json", "selector": "version", "required": True}],
+        "changelog": {"required": False, "paths": [{"path": "CHANGELOG.md", "format": "markdown", "required": False}]},
+        "state_machine": EXPECTED_STATES,
+        "gates": [{"id": "local_validation", "state": "local_validation", "required": True, "evidence_kinds": ["command"]}],
+        "evidence": {
+            "store": {"path": "logics/release/evidence.jsonl", "format": "jsonl", "required": True},
+            "freshness": {
+                "match_target_version": True,
+                "match_commit_for_source_gates": True,
+                "match_tag_for_publication_gates": True,
+            },
+        },
+        "git": {
+            "release_branch_policy": "current_branch",
+            "tag_policy": {"required": True, "pattern": "v{version}"},
+            "require_clean_worktree": False,
+            "require_pushed_commit": False,
+        },
+        "github_release": {"required": False, "mode": "manual"},
+        "assistant_readiness": {
+            "must_inspect_status_before_claiming_ready": True,
+            "readiness_source": "project_owned_evidence",
+        },
+        "targets": [
+            {
+                "id": "dashboard",
+                "version_sources": [{"path": "package.json", "format": "json", "selector": "version", "required": True}],
+                "gates": [{"id": "local_validation", "state": "local_validation", "required": True, "evidence_kinds": ["command"]}],
+                "validation_commands": [{"id": "dashboard_test", "command": ["npm", "test"], "required": True, "evidence_kind": "command"}],
+                "git": {"release_branch_policy": "current_branch", "tag_policy": {"required": True, "pattern": "dashboard-v{version}"}, "require_clean_worktree": False},
+                "github_release": {"required": True, "mode": "manual"},
+            },
+            {
+                "id": "worker",
+                "version_sources": [{"path": "worker/VERSION", "format": "plain_text", "required": True}],
+                "gates": [{"id": "deploy", "state": "external_publication", "required": True, "evidence_kinds": ["external"]}],
+                "gates_excluded": [{"id": "changelog", "reason": "The worker has no user-facing release notes."}],
+                "validation_commands": [{"id": "worker_smoke", "command": ["worker", "smoke"], "required": True, "evidence_kind": "command"}],
+                "git": {"release_branch_policy": "current_branch", "tag_policy": {"required": True, "pattern": "worker-v{version}"}, "require_clean_worktree": False},
+                "github_release": {"required": False, "mode": "not_applicable"},
+            },
+        ],
+    }
+    (release_dir / "contract.json").write_text(json.dumps(contract, indent=2), encoding="utf-8")
+    subprocess.run(["git", "init"], cwd=repo_root, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=repo_root, check=True)
+    subprocess.run(["git", "config", "user.name", "Test User"], cwd=repo_root, check=True)
+    subprocess.run(["git", "add", "."], cwd=repo_root, check=True)
+    subprocess.run(["git", "commit", "-m", "initial"], cwd=repo_root, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo_root, check=True, stdout=subprocess.PIPE, text=True).stdout.strip()
+    return repo_root, commit
+
+
+def test_multi_target_status_plan_and_evidence_are_target_scoped(tmp_path: Path) -> None:
+    repo_root, commit = _write_multi_target_repo(tmp_path)
+    (repo_root / "logics" / "release" / "evidence.jsonl").write_text(
+        json.dumps(
+            {
+                "target_id": "dashboard",
+                "gate_id": "local_validation",
+                "kind": "command",
+                "status": "passed",
+                "observed_at": "2026-08-22T10:00:00Z",
+                "target_version": "1.0.0",
+                "commit": commit,
+                "summary": "dashboard tests passed",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    overview = release_status_payload(repo_root)
+    dashboard = release_status_payload(repo_root, target="dashboard")
+    worker_plan = release_plan_payload(repo_root, "2026.08.22", target="worker")
+
+    assert overview["state"] == "blocked"
+    assert {target["id"] for target in overview["targets"]} == {"dashboard", "worker"}
+    assert dashboard["state"] == "ready"
+    assert dashboard["target_id"] == "dashboard"
+    assert worker_plan["target_id"] == "worker"
+    assert next(step for step in worker_plan["steps"] if step["kind"] == "git")["tag"] == "worker-v2026.08.22"
+    assert next(step for step in worker_plan["steps"] if step["kind"] == "validation_command")["id"] == "worker_smoke"
+
+    release_add_evidence_payload(
+        repo_root,
+        gate_id="deploy",
+        kind="external",
+        status="passed",
+        summary="worker deployed",
+        target_version="2026.08.22",
+        target="worker",
+    )
+
+    worker = release_status_payload(repo_root, target="worker")
+    assert worker["state"] == "ready"
+    assert all(entry.get("target_id") == "worker" for entry in worker["evidence"])
+
+
+def test_multi_target_commands_reject_missing_unknown_and_bad_targets(tmp_path: Path) -> None:
+    repo_root, _commit = _write_multi_target_repo(tmp_path)
+
+    with pytest.raises(SystemExit):
+        release_plan_payload(repo_root, "1.0.0")
+    with pytest.raises(SystemExit, match="Unknown release target"):
+        release_validate_payload(repo_root, "1.0.0", target="api")
+
+    contract_path = repo_root / "logics" / "release" / "contract.json"
+    contract = json.loads(contract_path.read_text(encoding="utf-8"))
+    contract["targets"][1]["id"] = "../worker"
+    contract_path.write_text(json.dumps(contract), encoding="utf-8")
+    with pytest.raises(SystemExit, match="Unsafe release target id"):
+        release_status_payload(repo_root)
+
+
+def test_multi_target_reset_preserves_other_targets_and_malformed_lines(tmp_path: Path) -> None:
+    repo_root, commit = _write_multi_target_repo(tmp_path)
+    evidence_path = repo_root / "logics" / "release" / "evidence.jsonl"
+    evidence_path.write_text(
+        "\n".join(
+            [
+                json.dumps({"target_id": "dashboard", "gate_id": "local_validation", "kind": "command", "status": "passed", "observed_at": "2026-08-22T10:00:00Z", "target_version": "1.0.0", "commit": commit, "summary": "ok"}),
+                "{not json",
+                json.dumps({"target_id": "worker", "gate_id": "deploy", "kind": "external", "status": "passed", "observed_at": "2026-08-22T10:01:00Z", "target_version": "2026.08.22", "summary": "ok"}),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    result = release_reset_target_payload(repo_root, target="worker")
+    lines = evidence_path.read_text(encoding="utf-8").splitlines()
+
+    assert result["cleared"] == 1
+    assert len(lines) == 2
+    assert "dashboard" in lines[0]
+    assert lines[1] == "{not json"

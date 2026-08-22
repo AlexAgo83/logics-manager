@@ -8,7 +8,7 @@
 > Complexity: High
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-22 17:28:38
+> Indicators reviewed: 2026-08-22 17:34:02
 
 # AI Context
 - Summary: Builds the Review viewer slot with a horizontal burst rail, vertical file list, diff pane, and arrow-key navigation.
@@ -19,17 +19,22 @@
 # Problem
 - Project and Activity answer what exists and what happened, but neither gives a focused review path through the actual changed files.
 - The Git cockpit groups data by Git operation, while the requested workflow is a spatial review: bursts over time horizontally, files vertically, diff as the reading surface.
+- The existing viewer already has a compact Activity/Project surface switcher and a visual campaign that catches layout failures. Review needs to join both, otherwise it will be reachable but not integrated into the viewer's actual operating surface.
 
 # Scope
 - In:
-  - Add a `Review` primary navigation slot and route it through the existing browser-host screen system.
+  - Expand the existing Activity/Project surface switcher into Activity/Project/Review and route Review through the existing browser-host screen system.
   - Render a horizontal burst rail with stable selected state, concise metadata, and badges for file/change counts.
   - Render a vertical file list for the selected burst with path, change kind, and additions/deletions where available.
   - Render the selected file's diff in the main pane, reusing the existing diff/code viewer classes and load-more behavior where applicable.
+  - Use a desktop layout with burst rail on top, file list on the left, and diff pane as the dominant region; adapt tablet and phone to one page scroll axis with internal horizontal scrolling only for the burst rail.
+  - Keep row heights and controls stable across loading, hover, active, and truncated states.
+  - Add non-colour selected/focus cues and `aria-current` or equivalent state for both the active burst and active file.
   - Support left/right burst navigation and up/down file navigation without trapping focus or requiring a mouse.
   - Select the first useful burst and file on initial load, with clean/empty states when there is nothing to review.
   - Refresh Review from the existing viewer refresh path so changed Git status updates the screen without a separate live watcher.
   - Add only the CSS needed for the three-pane Review layout and reuse existing tokens, buttons, badges, and code viewer styles.
+  - Add Review to the existing local viewer visual campaign or equivalent layout harness.
 - Out:
   - A new design system for Review.
   - A full-screen editor or inline file editing.
@@ -37,7 +42,7 @@
   - Changing the existing Git cockpit's actions or commit workflow.
 
 # Acceptance criteria
-- AC1: `Review` appears as a primary viewer slot and existing slots remain reachable.
+- AC1: The Activity/Project control becomes Activity/Project/Review and existing topbar/menu slots remain reachable.
 - AC2: The burst rail shows the working tree first when dirty and then recent commits in reverse chronological order.
 - AC3: Selecting a burst updates the vertical file list without a page navigation.
 - AC4: Selecting a dirty working-tree file loads the existing working-tree/staged diff or file preview.
@@ -46,11 +51,12 @@
 - AC7: Clean, empty, unavailable, error, and truncated states are readable and do not throw uncaught browser errors.
 - AC8: Review refreshes through the existing viewer refresh path and does not add another interval timer.
 - AC9: The layout has no overlap, clipped labels, or horizontal page scroll at 1440x900, 820x1180, and 390x844.
-- AC10: Browser-host tests cover rendering, selection, keyboard movement, diff loading, and unavailable states.
-- AC11: The viewer bundle is regenerated and the standard viewer checks pass.
+- AC10: The visual campaign or equivalent layout harness exercises Review and covers blank surfaces, sibling-control overlap, viewport clipping, horizontal page scroll, heading structure, disabled reasons, and colour-only state.
+- AC11: Browser-host tests cover rendering, selection, keyboard movement, diff loading, and unavailable states.
+- AC12: The viewer bundle is regenerated and the standard viewer checks pass.
 
 # AC Traceability
-- request-AC1 -> This backlog slice. Proof: AC1: `Review` appears as a primary viewer slot and existing slots remain reachable.
+- request-AC1 -> This backlog slice. Proof: AC1: The Activity/Project control becomes Activity/Project/Review and existing topbar/menu slots remain reachable.
 - request-AC2 -> This backlog slice. Proof: AC2: The burst rail shows the working tree first when dirty and then recent commits in reverse chronological order.
 - request-AC3 -> This backlog slice. Proof: AC3: Selecting a burst updates the vertical file list without a page navigation.
 - request-AC4 -> This backlog slice. Proof: AC4: Selecting a dirty working-tree file loads the existing working-tree/staged diff or file preview.
@@ -59,8 +65,9 @@
 - request-AC7 -> This backlog slice. Proof: AC7: Clean, empty, unavailable, error, and truncated states are readable and do not throw uncaught browser errors.
 - request-AC8 -> This backlog slice. Proof: AC8: Review refreshes through the existing viewer refresh path and does not add another interval timer.
 - request-AC9 -> This backlog slice. Proof: AC9: The layout has no overlap, clipped labels, or horizontal page scroll at 1440x900, 820x1180, and 390x844.
-- request-AC10 -> This backlog slice. Proof: AC10: Browser-host tests cover rendering, selection, keyboard movement, diff loading, and unavailable states.
-- request-AC11 -> This backlog slice. Proof: AC11: The viewer bundle is regenerated and the standard viewer checks pass.
+- request-AC10 -> This backlog slice. Proof: AC10: The visual campaign or equivalent layout harness exercises Review and covers blank surfaces, sibling-control overlap, viewport clipping, horizontal page scroll, heading structure, disabled reasons, and colour-only state.
+- request-AC11 -> This backlog slice. Proof: AC11: Browser-host tests cover rendering, selection, keyboard movement, diff loading, and unavailable states.
+- request-AC12 -> This backlog slice. Proof: AC12: The viewer bundle is regenerated and the standard viewer checks pass.
 
 # Decision framing
 - Product framing: Not needed

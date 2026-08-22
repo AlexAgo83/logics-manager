@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-22 17:28:38
+> Indicators reviewed: 2026-08-22 17:34:02
 
 # AI Context
 - Summary: Shapes existing local Git status and history into Review bursts, then adds the missing committed-file diff payload.
@@ -40,7 +40,7 @@
 - AC5: A committed-file diff endpoint returns the selected file diff for a selected commit, bounded and rendered from a structured payload.
 - AC7: Missing Git, non-repository roots, invalid refs, unsafe paths, Git errors, empty histories, and oversized diffs return structured states/messages.
 - AC8: Review uses the existing Git refresh data or one bounded read-only endpoint, not a new polling or persistence mechanism.
-- AC10: Python tests cover burst construction and committed-file diff success/failure cases.
+- AC11: Python tests cover burst construction and committed-file diff success/failure cases.
 
 # AC Traceability
 - request-AC2 -> This backlog slice. Proof: AC2: The payload orders `Uncommitted changes` before recent commits when dirty and omits it when clean.
@@ -48,7 +48,7 @@
 - request-AC5 -> This backlog slice. Proof: AC5: A committed-file diff endpoint returns the selected file diff for a selected commit, bounded and rendered from a structured payload.
 - request-AC7 -> This backlog slice. Proof: AC7: Missing Git, non-repository roots, invalid refs, unsafe paths, Git errors, empty histories, and oversized diffs return structured states/messages.
 - request-AC8 -> This backlog slice. Proof: AC8: Review uses the existing Git refresh data or one bounded read-only endpoint, not a new polling or persistence mechanism.
-- request-AC10 -> This backlog slice. Proof: AC10: Python tests cover burst construction and committed-file diff success/failure cases.
+- request-AC11 -> This backlog slice. Proof: AC11: Python tests cover burst construction and committed-file diff success/failure cases.
 
 # Decision framing
 - Product framing: Not needed

@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-22 17:28:38
+> Indicators reviewed: 2026-08-22 17:34:02
 
 # AI Context
 - Summary: Coordinates backend Review burst data, frontend Review slot delivery, focused tests, bundle rebuild, and Logics validation.
@@ -23,9 +23,11 @@
 - [ ] 1. Start with the backend Review payload and committed-file diff endpoint, reusing `viewer_git.py` safety and truncation helpers.
 - [ ] 2. Add focused Python coverage for review burst construction and committed-file diff edge cases.
 - [ ] 3. Wire the `Review` slot into the existing viewer navigation and browser-host screen router.
-- [ ] 4. Build the burst rail, file list, diff pane, and arrow-key selection in the shared viewer source with the smallest CSS needed.
-- [ ] 5. Add browser-host tests for render states, selection, keyboard navigation, and diff fetches.
-- [ ] 6. Regenerate the browser host bundle, run targeted checks, then validate the Logics docs and close out.
+- [ ] 4. Expand the Activity/Project surface switcher into Activity/Project/Review, with a phone fallback that uses the existing compact menu/sheet behavior instead of wrapping controls.
+- [ ] 5. Build the burst rail, file list, diff pane, responsive layout, empty states, and arrow-key selection in the shared viewer source with the smallest CSS needed.
+- [ ] 6. Add browser-host tests for render states, selection, keyboard navigation, and diff fetches.
+- [ ] 7. Add Review to the existing visual campaign or equivalent layout harness at desktop, tablet, and phone widths.
+- [ ] 8. Regenerate the browser host bundle, run targeted checks, then validate the Logics docs and close out.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.
@@ -58,6 +60,7 @@
 - request-AC9 -> `item_858_build_the_review_slot_timeline_ui`. Proof deferred to slice closeout.
 - request-AC10 -> `item_858_build_the_review_slot_timeline_ui`. Proof deferred to slice closeout.
 - request-AC11 -> `item_858_build_the_review_slot_timeline_ui`. Proof deferred to slice closeout.
+- request-AC12 -> `item_858_build_the_review_slot_timeline_ui`. Proof deferred to slice closeout.
 
 # Validation
 - (no validation recorded yet)

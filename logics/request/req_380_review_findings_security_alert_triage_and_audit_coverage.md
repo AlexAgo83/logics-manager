@@ -2,8 +2,8 @@
 > From version: 2.22.2
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 95%
+> Confidence: 90%
 > Complexity: Medium
 > Theme: Security alert hygiene
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -22,7 +22,7 @@
 - Three high-severity CodeQL alerts remain open: #54 (path injection) and #55/#56 (clear-text sensitive-data storage). They are not confirmed vulnerabilities yet.
 - Alert #54 reaches viewer filesystem/fleet-root handling. Existing code resolves paths and checks the workspace or configured-root allow-list; this needs adversarial regression coverage and a CodeQL disposition.
 - Alerts #55/#56 cover the required machine-level tunnel API key. The config file is rewritten with POSIX mode `0600`; Windows ACL behavior is an acknowledged boundary. Existing tests cover POSIX mode and secret-free messages, but the security decision needs to be explicit.
-- `pyproject.toml` declares no project Python dependencies. `python3 -m pip check` failed only for the ambient interpreter (`httpx2` requires `idna>=3.18`, installed `idna 3.11`), so it must not be attributed to this repository without an isolated install.
+- `pyproject.toml` declares no project Python dependencies. The interpreter's dependency check reported a mismatch in ambient packages, so it must not be attributed to this repository without an isolated install.
 
 # Acceptance criteria
 - AC1: Alerts #54, #55, and #56 each have a documented evidence-backed disposition: a tested fix or a GitHub dismissal linked to the guard and threat-model rationale.

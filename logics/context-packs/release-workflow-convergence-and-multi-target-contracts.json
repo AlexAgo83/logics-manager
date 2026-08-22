@@ -1,10 +1,10 @@
 {
   "budgets": {
-    "max_docs": 40,
+    "max_docs": 48,
     "max_docs_per_ref": 8
   },
   "changed_paths": [],
-  "command": "logics-manager sync context-pack req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets item_854_make_generated_ac_traceability_promotable_at_closeout item_855_add_target_scoped_release_contracts_and_evidence task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts task_390_make_generated_ac_traceability_promotable_at_closeout --mode full --profile deep --handoff",
+  "command": "logics-manager sync context-pack req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets item_854_make_generated_ac_traceability_promotable_at_closeout item_855_add_target_scoped_release_contracts_and_evidence task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts task_390_make_generated_ac_traceability_promotable_at_closeout task_391_add_target_scoped_release_contracts_and_evidence --mode full --profile deep --handoff",
   "companion_docs": [
     {
       "kind": "product",
@@ -32,11 +32,17 @@
           "- Provide target-scoped release state and evidence while retaining zero-migration support for single-target projects."
         ],
         "Key product decisions": [
-          "- Use structured input as the source of truth for generated docs.",
-          "- Keep generated write paths local and repo-bounded."
+          "- Proof repair may promote only the exact generated placeholder and only when the caller supplies or has recorded evidence; it never invents proof.",
+          "- Release v2 is additive: v1 remains a single implicit target, while mutations in a multi-target contract select an explicit target.",
+          "- Target status and evidence are isolated across CLI, context packs, MCP, and viewer surfaces."
         ],
         "Overview": [
-          "The workflow must converge from its generated documents and command guidance to a valid closeout, and it must represent every releasable artefact a project actually ships. A gate that cannot be satisfied through its own supported path is a production defect; a single-target release model must not make an additional artefact invisible."
+          "The workflow must converge from its generated documents and command guidance to a valid closeout, and it must represent every releasable artefact a project actually ships. A gate that cannot be satisfied through its own supported path is a production defect; a single-target release model must not make an additional artefact invisible.",
+          "```mermaid",
+          "flowchart LR",
+          "  Deferred[Generated deferred proof] --> Evidence[Explicit evidence]",
+          "  Evidence --> Closeout[Valid closeout]",
+          "  V1[Release contract v1] --> Normalized[One implicit target]"
         ],
         "References": [
           "- Product back-reference: `req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets`",
@@ -66,7 +72,12 @@
       "ref": "adr_032_release_target_contract_v2_boundaries",
       "sections": {
         "Overview": [
-          "- Release contract v2 represents each independently releasable artefact as an explicit target while preserving the single-target v1 contract unchanged."
+          "- Release contract v2 represents each independently releasable artefact as an explicit target while preserving the single-target v1 contract unchanged.",
+          "```mermaid",
+          "flowchart LR",
+          "  V1[v1 contract] --> Implicit[Implicit target]",
+          "  V2[v2 contract] --> TargetA[Target A]",
+          "  V2 --> TargetB[Target B]"
         ],
         "References": [
           "- Related request: `req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets`",
@@ -82,9 +93,9 @@
     {
       "ai_context": {
         "keywords": "release, closeout, workflow, contracts, convergent, across, targets",
-        "skip when": "(unfilled: replace before this doc is used)",
-        "summary": "(unfilled: replace before this doc is used)",
-        "use when": "(unfilled: replace before this doc is used)"
+        "skip when": "changing one existing single-target gate without changing proof repair or release-target boundaries.",
+        "summary": "Repair the generated-proof path without fabricating evidence, then add independently selectable release targets without breaking v1 projects.",
+        "use when": "closeout repair guidance cannot reach a valid proof, or a repository has independently gated release artefacts."
       },
       "kind": "request",
       "linked_refs": {
@@ -180,7 +191,8 @@
           "req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets"
         ],
         "task": [
-          "task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts"
+          "task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts",
+          "task_391_add_target_scoped_release_contracts_and_evidence"
         ]
       },
       "path": "logics/backlog/item_855_add_target_scoped_release_contracts_and_evidence.md",
@@ -230,12 +242,15 @@
     {
       "ai_context": {
         "keywords": "deliver, convergent, closeout, repair, multi, target, release, contracts",
-        "skip when": "(unfilled: replace before this doc is used)",
-        "summary": "(unfilled: replace before this doc is used)",
-        "use when": "(unfilled: replace before this doc is used)"
+        "skip when": "implementing either slice in isolation.",
+        "summary": "Coordinate the independent closeout hotfix and multi-target release task, preserving a clean v1 compatibility boundary.",
+        "use when": "sequencing the two delivery slices and their shared request-level validation."
       },
       "kind": "task",
       "linked_refs": {
+        "adr": [
+          "adr_032_release_target_contract_v2_boundaries"
+        ],
         "item": [
           "item_854_make_generated_ac_traceability_promotable_at_closeout",
           "item_855_add_target_scoped_release_contracts_and_evidence"
@@ -296,6 +311,37 @@
       "title": "Make generated AC traceability promotable at closeout"
     },
     {
+      "ai_context": {
+        "keywords": "add, target, scoped, release, contracts, evidence",
+        "skip when": "changing an existing single-target gate without changing release-target boundaries.",
+        "summary": "Introduce a self-contained v2 target model and target-isolated evidence while normalizing v1 contracts to one implicit target.",
+        "use when": "a repository releases more than one independently gated artefact."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_855_add_target_scoped_release_contracts_and_evidence"
+        ],
+        "req": [
+          "req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets"
+        ],
+        "task": [
+          "task_391_add_target_scoped_release_contracts_and_evidence"
+        ]
+      },
+      "path": "logics/tasks/task_391_add_target_scoped_release_contracts_and_evidence.md",
+      "ref": "task_391_add_target_scoped_release_contracts_and_evidence",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Add target-scoped release contracts and evidence"
+    },
+    {
       "ai_context": {},
       "kind": "architecture",
       "linked_refs": {
@@ -321,11 +367,11 @@
     }
   ],
   "estimates": {
-    "char_count": 13010,
+    "char_count": 15088,
     "companion_doc_count": 2,
-    "doc_count": 7
+    "doc_count": 8
   },
-  "generated_at": "2026-08-22T10:51:50Z",
+  "generated_at": "2026-08-22T11:06:52Z",
   "handoff": {
     "companion_doc_count": 2,
     "enabled": true,
@@ -334,9 +380,10 @@
       "item_854_make_generated_ac_traceability_promotable_at_closeout",
       "item_855_add_target_scoped_release_contracts_and_evidence",
       "task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts",
-      "task_390_make_generated_ac_traceability_promotable_at_closeout"
+      "task_390_make_generated_ac_traceability_promotable_at_closeout",
+      "task_391_add_target_scoped_release_contracts_and_evidence"
     ],
-    "validation_summary_count": 2
+    "validation_summary_count": 3
   },
   "i18n": {
     "actions": [
@@ -354,13 +401,14 @@
   },
   "mode": "full",
   "profile": "deep",
-  "ref": "req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets,item_854_make_generated_ac_traceability_promotable_at_closeout,item_855_add_target_scoped_release_contracts_and_evidence,task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts,task_390_make_generated_ac_traceability_promotable_at_closeout",
+  "ref": "req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets,item_854_make_generated_ac_traceability_promotable_at_closeout,item_855_add_target_scoped_release_contracts_and_evidence,task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts,task_390_make_generated_ac_traceability_promotable_at_closeout,task_391_add_target_scoped_release_contracts_and_evidence",
   "refs": [
     "req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets",
     "item_854_make_generated_ac_traceability_promotable_at_closeout",
     "item_855_add_target_scoped_release_contracts_and_evidence",
     "task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts",
-    "task_390_make_generated_ac_traceability_promotable_at_closeout"
+    "task_390_make_generated_ac_traceability_promotable_at_closeout",
+    "task_391_add_target_scoped_release_contracts_and_evidence"
   ],
   "release": {
     "blocking_reasons": [
@@ -451,6 +499,13 @@
       ],
       "path": "logics/tasks/task_390_make_generated_ac_traceability_promotable_at_closeout.md",
       "ref": "task_390_make_generated_ac_traceability_promotable_at_closeout"
+    },
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_391_add_target_scoped_release_contracts_and_evidence.md",
+      "ref": "task_391_add_target_scoped_release_contracts_and_evidence"
     }
   ]
 }

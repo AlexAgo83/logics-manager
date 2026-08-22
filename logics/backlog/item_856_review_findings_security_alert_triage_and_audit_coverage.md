@@ -1,14 +1,14 @@
 ## item_856_review_findings_security_alert_triage_and_audit_coverage - Review findings: security alert triage and audit coverage
 > From version: 2.22.2
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 75%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-22 14:43:05
+> Indicators reviewed: 2026-08-22 14:45:50
 
 # AI Context
 - Summary: Resolve the three open high-severity CodeQL alerts and leave a reproducible shipped-dependency audit path that does not confuse host Python packages with project dependencies.

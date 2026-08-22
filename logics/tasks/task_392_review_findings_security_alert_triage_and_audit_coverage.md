@@ -1,14 +1,15 @@
 ## task_392_review_findings_security_alert_triage_and_audit_coverage - Review findings: security alert triage and audit coverage
 > From version: 2.22.2
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 75%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-22 14:42:48
+> Indicators reviewed: 2026-08-22 14:45:50
+> Owner: codex
 
 # AI Context
 - Summary: Implement the security-alert triage slice: prove or fix viewer path boundaries, settle tunnel key storage alerts, and leave one shipped-dependency audit command.

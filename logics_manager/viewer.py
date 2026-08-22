@@ -149,7 +149,6 @@ DIST_VENDOR_ROOT = REPO_ROOT / "dist" / "vendor"
 PACKAGE_VENDOR_ROOT = PACKAGE_VIEWER_ASSETS_ROOT / "vendor"
 NODE_MERMAID_ROOT = REPO_ROOT / "node_modules" / "mermaid" / "dist"
 
-
 def _current_version() -> str:
     return package_current_version()
 
@@ -196,7 +195,6 @@ def viewer_data_payload(
         "bootstrapWarning": bootstrap_warning,
         "environmentWarning": viewer_environment_warning(active_root),
     }
-
 
 def _viewer_update_info() -> dict[str, Any]:
     """Update state, plus which install the viewer is actually running.
@@ -3548,11 +3546,11 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         if parsed.path == "/api/remove-fleet-root":
             try:
                 body = self._read_json_body_strict()
-                self.server.remove_fleet_root(Path(str(body.get("root") or "")).expanduser())
+                self.server.remove_fleet_root(next(item for item in fleet_roots() if str(body.get("root") or "").strip() == str(item)))
                 self._send_json({"ok": True, "payload": self.server.viewer_payload(fleet_home=True)})
             except json.JSONDecodeError:
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
-            except ValueError as exc:
+            except (StopIteration, ValueError) as exc:
                 self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
             return
         if parsed.path == "/api/select-project-root-path":

@@ -645,6 +645,35 @@ def test_fleet_root_browser_fallback_adds_a_root_and_refuses_an_escape(tmp_path:
         server.server_close()
 
 
+def test_remove_fleet_root_accepts_only_a_published_root_value(tmp_path: Path) -> None:
+    """CodeQL #54: request JSON is matched as a known value before any path resolve."""
+    base = tmp_path / "base"
+    root = (base / "alpha").resolve()
+    root.mkdir(parents=True)
+    server = create_viewer_server_or_skip(root)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        server.add_fleet_root(root)
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+
+        conn.request("POST", "/api/remove-fleet-root", body=json.dumps({"root": str(root / ".." / "alpha")}), headers={"Content-Type": "application/json"})
+        assert conn.getresponse().status == 403
+        assert root in viewer_module.fleet_roots()
+
+        conn.request("POST", "/api/remove-fleet-root", body=json.dumps({"root": str(root)}), headers={"Content-Type": "application/json"})
+        assert conn.getresponse().status == 200
+        assert root not in viewer_module.fleet_roots()
+    finally:
+        try:
+            server.remove_fleet_root(root)
+        except ValueError:
+            pass
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
 def test_create_request_from_viewer_draft_writes_request_doc(tmp_path: Path) -> None:
     repo_root = tmp_path / "repo"
     created = create_request_from_viewer_draft(

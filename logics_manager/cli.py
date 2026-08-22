@@ -692,8 +692,8 @@ def _dispatch(argv: list[str] | None = None) -> int:
             action="store_true",
             help=(
                 "req_331: refresh only generated files and marked managed regions "
-                "(logics/instructions.md, LOGICS.md's managed block, AGENTS.md/"
-                ".gitignore idempotent lines, workflow directory scaffolding) for an "
+                "(logics/instructions.md, LOGICS.md's managed block, AGENTS.md, "
+                "workflow directory scaffolding) for an "
                 "EXISTING corpus. Never creates a new logics/ corpus -- combine with "
                 "--check to preview, without it to apply. Safe to call unattended."
             ),

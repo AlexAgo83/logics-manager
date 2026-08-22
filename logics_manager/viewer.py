@@ -890,7 +890,6 @@ def viewer_bootstrap_warning(repo_root: Path) -> dict[str, object] | None:
     local_instruction_paths = {
         "LOGICS.md",
         "AGENTS.md",
-        ".gitignore",
         "logics/instructions.md",
     }
     stale_paths = [path for path in paths if path in local_instruction_paths]

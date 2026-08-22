@@ -15,7 +15,6 @@ from .path_utils import WORKFLOW_DIRS  # noqa: F401  (re-exported: callers impor
 MANAGED_LOGICS_START = "<!-- logics-manager:managed:start -->"
 MANAGED_LOGICS_END = "<!-- logics-manager:managed:end -->"
 AGENTS_LOGICS_REFERENCE = "@LOGICS.md"
-LOCAL_ASSISTANT_GITIGNORE_ENTRIES = ("AGENTS.md", "LOGICS.md")
 
 
 def _workflow_directories(repo_root: Path) -> list[Path]:
@@ -264,24 +263,6 @@ def bootstrap_payload(
             next_agents = _ensure_line(agents_text, AGENTS_LOGICS_REFERENCE)
             agents_path.write_text(next_agents, encoding="utf-8")
             (created_paths if agents_missing else updated_paths).append("AGENTS.md")
-
-    gitignore_path = repo_root / ".gitignore"
-    gitignore_missing = not gitignore_path.exists()
-    gitignore_text = ""
-    gitignore_next = ""
-    if not gitignore_missing:
-        try:
-            gitignore_text = gitignore_path.read_text(encoding="utf-8")
-        except Exception:
-            gitignore_text = ""
-    gitignore_next = gitignore_text
-    for entry in LOCAL_ASSISTANT_GITIGNORE_ENTRIES:
-        gitignore_next = _ensure_line(gitignore_next, entry)
-    if gitignore_missing or gitignore_next != gitignore_text:
-        missing_paths.append(".gitignore")
-        if not check:
-            gitignore_path.write_text(gitignore_next, encoding="utf-8")
-            (created_paths if gitignore_missing else updated_paths).append(".gitignore")
 
     # req_318/item_657: leave every detected harness ready to use, not just
     # this repo's own logics/ scaffolding - reuses the same drift-aware skill

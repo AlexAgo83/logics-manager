@@ -1,14 +1,14 @@
 ## item_856_review_findings_security_alert_triage_and_audit_coverage - Review findings: security alert triage and audit coverage
 > From version: 2.22.2
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 75%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-22 14:45:50
+> Indicators reviewed: 2026-08-22 14:55:44
 
 # AI Context
 - Summary: Resolve the three open high-severity CodeQL alerts and leave a reproducible shipped-dependency audit path that does not confuse host Python packages with project dependencies.
@@ -68,6 +68,7 @@ Make the open security-alert list trustworthy: every current CodeQL alert must h
 - Generated locally by logics-manager.
 - Verification snapshot 2026-08-22: GitHub CodeQL open alerts are #54 `py/path-injection`, #55 `py/clear-text-storage-sensitive-data`, and #56 `py/clear-text-storage-sensitive-data`; Dependabot and secret-scanning open-alert API queries returned no rows.
 - Local audit snapshot 2026-08-22: `npm run audit:ci` passed and `npm audit --omit=dev --json` reported zero production vulnerabilities.
+- Task `task_392_review_findings_security_alert_triage_and_audit_coverage` was finished via `logics-manager flow finish task` on 2026-08-22.
 
 # Tasks
 - `task_392_review_findings_security_alert_triage_and_audit_coverage`

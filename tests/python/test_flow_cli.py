@@ -638,6 +638,22 @@ def test_closeout_allows_a_completed_task_to_leave_a_sibling_open(
     assert "> Status: In progress" in paths["backlog"].read_text(encoding="utf-8")
 
 
+def test_closeout_checks_only_the_acs_declared_by_its_backlog_slice(tmp_path: Path) -> None:
+    repo_root = tmp_path / "logics-repo"
+    paths = write_ac_traceability_chain(repo_root)
+    paths["request"].write_text(paths["request"].read_text(encoding="utf-8").replace("# Backlog", "- AC2: Deliver the other slice.\n# Backlog\n- `item_002_other`"), encoding="utf-8")
+    paths["backlog"].write_text(paths["backlog"].read_text(encoding="utf-8").replace("# Links", "# AC Traceability\n- request-AC1 -> This backlog slice. Proof: covered.\n# Links"), encoding="utf-8")
+    paths["task"].write_text(paths["task"].read_text(encoding="utf-8").replace("# Links", "# AC Traceability\n- request-AC1 -> This task. Proof: covered.\n# Links"), encoding="utf-8")
+    other_item = repo_root / "logics" / "backlog" / "item_002_other.md"
+    other_task = repo_root / "logics" / "tasks" / "task_002_other.md"
+    other_item.write_text("## item_002_other - Other\n> Status: Ready\n# AC Traceability\n- request-AC2 -> This backlog slice. Proof: deferred.\n# Links\n- Request: `req_001_demo`\n- Primary task(s): `task_002_other`\n", encoding="utf-8")
+    other_task.write_text("## task_002_other - Other\n> Status: Ready\n# Backlog\n- `item_002_other`\n# AC Traceability\n- request-AC2 -> This task. Proof deferred to slice closeout.\n", encoding="utf-8")
+
+    payload = validate_closeout_payload(repo_root, "task_001_demo")
+
+    assert payload["ok"] is True
+
+
 def test_repair_ac_traceability_verify_rolls_back_without_proof(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

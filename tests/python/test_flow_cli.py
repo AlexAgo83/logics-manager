@@ -684,7 +684,7 @@ def test_repair_ac_traceability_verify_rolls_back_without_proof(
 
     assert payload["rolled_back"] is True
     assert payload["changed_files"] == []
-    assert payload["attempted_changed_files"] == []
+    assert "logics/backlog/item_001_demo.md" in payload["attempted_changed_files"]
     assert backlog_path.read_text(encoding="utf-8") == original_backlog_text
     assert task_path.read_text(encoding="utf-8") == original_task_text
 

@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-22 13:45:53
 
 # Definition of Done (DoD)
 - [x] The backlog scope is implemented.
@@ -48,3 +49,9 @@
 - Request: `req_249_improve_logics_workflow_scaffolding_validation_agent_docs`
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
+
+# AC Traceability
+- request-AC3 -> This task. Proof: Implemented deterministic validation repair and covered by the completed task validation. Source: `task_230_add_deterministic_validation_repair_and_fixable_diagnostics`
+- request-AC6 -> This task. Proof: Implemented deterministic validation repair and covered by the completed task validation. Source: `task_230_add_deterministic_validation_repair_and_fixable_diagnostics`
+- request-AC7 -> This task. Proof: Implemented deterministic validation repair and covered by the completed task validation. Source: `task_230_add_deterministic_validation_repair_and_fixable_diagnostics`
+- request-AC8 -> This task. Proof: Implemented deterministic validation repair and covered by the completed task validation. Source: `task_230_add_deterministic_validation_repair_and_fixable_diagnostics`

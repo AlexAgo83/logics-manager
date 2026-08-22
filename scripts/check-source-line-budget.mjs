@@ -121,7 +121,11 @@ const allowedOversizedFiles = new Map(
     // defect -- a Draft request has no chain by definition, and a chain through an
     // abandoned slice delivered nothing. Both are guards inside the AC sweep, which
     // needs the doc graph this file builds.
-    "logics_manager/audit.py": { maxLines: 1560, ref: "req_378" },
+    // 1565: req_379/item_854 scopes AC coverage to the task slice that actually
+    // declares an AC, so finishing one slice no longer makes another slice's deferred
+    // proof block it. This stays in the audit graph walk instead of a helper module
+    // because it shares the same item/task/request indexes as the surrounding checks.
+    "logics_manager/audit.py": { maxLines: 1565, ref: "req_379" },
     // 1117: req_317 added the per-gate release/branch comparison (resolving the
     // tagged commit, choosing which commit each gate is judged against, and
     // naming the comparison in stale reasons and status output). The new logic
@@ -282,7 +286,11 @@ const allowedOversizedFiles = new Map(
     // release when the function-length gate flagged their growth).
     // 3425: req_378/item_853 reads closeout's request refs from the declared link
     // sections instead of from any mention, reusing the audit's own map.
-    "logics_manager/flow/__init__.py": { maxLines: 3425, ref: "req_378" },
+    // 3446: req_379/item_854 adds the task-scoped repair path and sibling-slice
+    // closeout check that prevent generated proof from leaking across split work.
+    // Pulling it out would split the closeout/repair state machine from its parser
+    // and payload code, so the budget records the kept-local fix.
+    "logics_manager/flow/__init__.py": { maxLines: 3446, ref: "req_379" },
     // 1429: req_324 added resolve_ref_slug/resolve_ref_slugs (the short-ref expansion the
     // generators needed and _resolve_doc_path already did privately, per kind) plus the
     // rejoin loop in _bullet_values. Both are document vocabulary, so this is where they

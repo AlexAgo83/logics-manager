@@ -1,13 +1,13 @@
 ## req_380_review_findings_security_alert_triage_and_audit_coverage - Review findings: security alert triage and audit coverage
 > From version: 2.22.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Complexity: Medium
 > Theme: Security alert hygiene
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-22 14:43:49
+> Indicators reviewed: 2026-08-22 14:55:44
 
 # AI Context
 - Summary: Triage the current high-severity CodeQL findings and make the shipped-dependency audit repeatable without treating host Python packages as project dependencies.

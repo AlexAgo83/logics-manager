@@ -1,0 +1,293 @@
+{
+  "budgets": {
+    "max_docs": 16,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_381_add_a_review_slot_for_project_change_timelines item_857_expose_review_bursts_from_local_git item_858_build_the_review_slot_timeline_ui task_393_orchestrate_the_review_slot_change_timeline --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_857_expose_review_bursts_from_local_git",
+          "item_858_build_the_review_slot_timeline_ui"
+        ],
+        "prod": [
+          "prod_110_a_review_slot_for_project_change_timelines"
+        ],
+        "req": [
+          "req_381_add_a_review_slot_for_project_change_timelines"
+        ],
+        "task": [
+          "task_393_orchestrate_the_review_slot_change_timeline"
+        ]
+      },
+      "path": "logics/product/prod_110_a_review_slot_for_project_change_timelines.md",
+      "ref": "prod_110_a_review_slot_for_project_change_timelines",
+      "status": "Proposed",
+      "title": "A Review slot for project change timelines"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "add, review, slot, project, change, timelines",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_857_expose_review_bursts_from_local_git",
+          "item_858_build_the_review_slot_timeline_ui"
+        ],
+        "prod": [
+          "prod_110_a_review_slot_for_project_change_timelines"
+        ],
+        "req": [
+          "req_381_add_a_review_slot_for_project_change_timelines"
+        ]
+      },
+      "path": "logics/request/req_381_add_a_review_slot_for_project_change_timelines.md",
+      "ref": "req_381_add_a_review_slot_for_project_change_timelines",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Add a Review slot for project change timelines"
+    },
+    {
+      "ai_context": {
+        "keywords": "expose, review, bursts, local, git",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_857_expose_review_bursts_from_local_git"
+        ],
+        "prod": [
+          "prod_110_a_review_slot_for_project_change_timelines"
+        ],
+        "req": [
+          "req_381_add_a_review_slot_for_project_change_timelines"
+        ],
+        "task": [
+          "task_393_orchestrate_the_review_slot_change_timeline"
+        ]
+      },
+      "path": "logics/backlog/item_857_expose_review_bursts_from_local_git.md",
+      "ref": "item_857_expose_review_bursts_from_local_git",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Expose review bursts from local Git"
+    },
+    {
+      "ai_context": {
+        "keywords": "build, review, slot, timeline",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_858_build_the_review_slot_timeline_ui"
+        ],
+        "prod": [
+          "prod_110_a_review_slot_for_project_change_timelines"
+        ],
+        "req": [
+          "req_381_add_a_review_slot_for_project_change_timelines"
+        ],
+        "task": [
+          "task_393_orchestrate_the_review_slot_change_timeline"
+        ]
+      },
+      "path": "logics/backlog/item_858_build_the_review_slot_timeline_ui.md",
+      "ref": "item_858_build_the_review_slot_timeline_ui",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Build the Review slot timeline UI"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_857_expose_review_bursts_from_local_git",
+          "item_858_build_the_review_slot_timeline_ui"
+        ],
+        "prod": [
+          "prod_110_a_review_slot_for_project_change_timelines"
+        ],
+        "req": [
+          "req_381_add_a_review_slot_for_project_change_timelines"
+        ],
+        "task": [
+          "task_393_orchestrate_the_review_slot_change_timeline"
+        ]
+      },
+      "path": "logics/product/prod_110_a_review_slot_for_project_change_timelines.md",
+      "ref": "prod_110_a_review_slot_for_project_change_timelines",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "A Review slot for project change timelines"
+    },
+    {
+      "ai_context": {
+        "keywords": "orchestrate, review, slot, change, timeline",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_857_expose_review_bursts_from_local_git",
+          "item_858_build_the_review_slot_timeline_ui"
+        ],
+        "prod": [
+          "prod_110_a_review_slot_for_project_change_timelines"
+        ],
+        "req": [
+          "req_381_add_a_review_slot_for_project_change_timelines"
+        ],
+        "task": [
+          "task_393_orchestrate_the_review_slot_change_timeline"
+        ]
+      },
+      "path": "logics/tasks/task_393_orchestrate_the_review_slot_change_timeline.md",
+      "ref": "task_393_orchestrate_the_review_slot_change_timeline",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrate the Review slot change timeline"
+    }
+  ],
+  "estimates": {
+    "char_count": 4266,
+    "companion_doc_count": 1,
+    "doc_count": 5
+  },
+  "generated_at": "2026-08-22T15:27:31Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_381_add_a_review_slot_for_project_change_timelines",
+      "item_857_expose_review_bursts_from_local_git",
+      "item_858_build_the_review_slot_timeline_ui",
+      "task_393_orchestrate_the_review_slot_change_timeline"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_381_add_a_review_slot_for_project_change_timelines,item_857_expose_review_bursts_from_local_git,item_858_build_the_review_slot_timeline_ui,task_393_orchestrate_the_review_slot_change_timeline",
+  "refs": [
+    "req_381_add_a_review_slot_for_project_change_timelines",
+    "item_857_expose_review_bursts_from_local_git",
+    "item_858_build_the_review_slot_timeline_ui",
+    "task_393_orchestrate_the_review_slot_change_timeline"
+  ],
+  "release": {
+    "blocking_reasons": [],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "Release evidence is complete.",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "ready",
+    "target_id": null,
+    "target_version": "2.22.4",
+    "targets": []
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_393_orchestrate_the_review_slot_change_timeline.md",
+      "ref": "task_393_orchestrate_the_review_slot_change_timeline"
+    }
+  ]
+}

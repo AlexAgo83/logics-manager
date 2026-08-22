@@ -1,10 +1,10 @@
 {
   "budgets": {
-    "max_docs": 16,
-    "max_docs_per_ref": 4
+    "max_docs": 32,
+    "max_docs_per_ref": 8
   },
   "changed_paths": [],
-  "command": "logics-manager sync context-pack req_381_add_a_review_slot_for_project_change_timelines item_857_expose_review_bursts_from_local_git item_858_build_the_review_slot_timeline_ui task_393_orchestrate_the_review_slot_change_timeline --mode summary-only --profile normal --handoff",
+  "command": "logics-manager sync context-pack req_381_add_a_review_slot_for_project_change_timelines item_857_expose_review_bursts_from_local_git item_858_build_the_review_slot_timeline_ui task_393_orchestrate_the_review_slot_change_timeline --mode summary-only --profile deep --handoff",
   "companion_docs": [
     {
       "kind": "product",
@@ -33,9 +33,9 @@
     {
       "ai_context": {
         "keywords": "add, review, slot, project, change, timelines",
-        "skip when": "(unfilled: replace before this doc is used)",
-        "summary": "(unfilled: replace before this doc is used)",
-        "use when": "(unfilled: replace before this doc is used)"
+        "skip when": "changing Git mutation actions, remote provider integrations, or the existing Activity feed without adding the Review slot.",
+        "summary": "Adds a Review viewer slot that turns local Git changes into a horizontal burst timeline with vertical per-file review and a shared diff pane.",
+        "use when": "planning or implementing the dedicated Review surface for working-tree and commit-file diffs in the viewer."
       },
       "kind": "request",
       "linked_refs": {
@@ -59,9 +59,9 @@
     {
       "ai_context": {
         "keywords": "expose, review, bursts, local, git",
-        "skip when": "(unfilled: replace before this doc is used)",
-        "summary": "(unfilled: replace before this doc is used)",
-        "use when": "(unfilled: replace before this doc is used)"
+        "skip when": "working only on Review layout, keyboard behavior, or CSS after the payload contract already exists.",
+        "summary": "Shapes existing local Git status and history into Review bursts, then adds the missing committed-file diff payload.",
+        "use when": "implementing backend data for the Review timeline or testing Git burst/file-diff edge cases."
       },
       "kind": "backlog",
       "linked_refs": {
@@ -87,9 +87,9 @@
     {
       "ai_context": {
         "keywords": "build, review, slot, timeline",
-        "skip when": "(unfilled: replace before this doc is used)",
-        "summary": "(unfilled: replace before this doc is used)",
-        "use when": "(unfilled: replace before this doc is used)"
+        "skip when": "changing only backend Git payload construction before the Review route consumes it.",
+        "summary": "Builds the Review viewer slot with a horizontal burst rail, vertical file list, diff pane, and arrow-key navigation.",
+        "use when": "implementing the browser-host Review screen, navigation entry, layout, selection, or frontend tests."
       },
       "kind": "backlog",
       "linked_refs": {
@@ -139,9 +139,9 @@
     {
       "ai_context": {
         "keywords": "orchestrate, review, slot, change, timeline",
-        "skip when": "(unfilled: replace before this doc is used)",
-        "summary": "(unfilled: replace before this doc is used)",
-        "use when": "(unfilled: replace before this doc is used)"
+        "skip when": "grooming unrelated viewer Git cockpit improvements outside the Review slot.",
+        "summary": "Coordinates backend Review burst data, frontend Review slot delivery, focused tests, bundle rebuild, and Logics validation.",
+        "use when": "starting or sequencing the implementation work for `req_381`."
       },
       "kind": "task",
       "linked_refs": {
@@ -167,11 +167,11 @@
     }
   ],
   "estimates": {
-    "char_count": 4266,
+    "char_count": 4984,
     "companion_doc_count": 1,
     "doc_count": 5
   },
-  "generated_at": "2026-08-22T15:27:31Z",
+  "generated_at": "2026-08-22T15:34:34Z",
   "handoff": {
     "companion_doc_count": 1,
     "enabled": true,
@@ -198,7 +198,7 @@
     "state": "absent"
   },
   "mode": "summary-only",
-  "profile": "normal",
+  "profile": "deep",
   "ref": "req_381_add_a_review_slot_for_project_change_timelines,item_857_expose_review_bursts_from_local_git,item_858_build_the_review_slot_timeline_ui,task_393_orchestrate_the_review_slot_change_timeline",
   "refs": [
     "req_381_add_a_review_slot_for_project_change_timelines",
@@ -207,7 +207,9 @@
     "task_393_orchestrate_the_review_slot_change_timeline"
   ],
   "release": {
-    "blocking_reasons": [],
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
     "configured": true,
     "contract_path": "logics/release/contract.json",
     "guidance": [
@@ -215,7 +217,7 @@
       "Use release status or validate before preparing or claiming release readiness.",
       "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
     ],
-    "next_action": "Release evidence is complete.",
+    "next_action": "git_push: evidence targets a different commit (branch)",
     "publication_actions": [
       "GitHub release publication",
       "external publication"
@@ -243,11 +245,11 @@
         "status": "passed"
       },
       {
-        "blocking_reason": null,
+        "blocking_reason": "evidence targets a different commit (branch)",
         "id": "git_push",
         "required": true,
         "state": "pushed",
-        "status": "passed"
+        "status": "stale"
       },
       {
         "blocking_reason": null,
@@ -276,7 +278,7 @@
       "logics-manager release plan <version>",
       "logics-manager release validate <version>"
     ],
-    "state": "ready",
+    "state": "blocked",
     "target_id": null,
     "target_version": "2.22.4",
     "targets": []

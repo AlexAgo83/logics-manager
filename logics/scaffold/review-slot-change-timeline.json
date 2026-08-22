@@ -16,7 +16,8 @@
       "The Review slot should show change bursts over time horizontally, starting with the working tree and recent Git commits.",
       "Selecting a burst should show the files changed in that burst vertically, and selecting a file should show the relevant diff in the main pane.",
       "Keyboard navigation should match the mental model: left and right move across bursts; up and down move across files inside the selected burst.",
-      "The first version should reuse local Git data and existing diff rendering rather than introducing a custom change event store."
+      "The first version should reuse local Git data and existing diff rendering rather than introducing a custom change event store.",
+      "The UI must make the review path obvious without instructional copy: timeline position, selected burst, selected file, and diff context should be visible from structure and labels."
     ],
     "context": [
       "The Git cockpit already has most of the raw behavior: the `git-status` viewer route returns dirty working-tree groups and recent commits, `git-diff` returns bounded file diffs, `git-file-preview` handles no-diff previews, and `git-commit-diff` returns bounded commit diffs.",
@@ -24,10 +25,14 @@
       "The first burst should be a synthetic `Uncommitted changes` item whenever the working tree is dirty. Later bursts should be recent commits from the current local repository.",
       "For the MVP, a burst is either the working tree or one commit. Session-level live batches, filesystem watchers, branch graphs, PR review, remote provider APIs, and persistent review history are explicitly later work.",
       "The implementation should keep all Git operations read-only, bounded, and safe for non-repository projects, matching `viewer_git.py` conventions.",
-      "The shared viewer host serves both the standalone viewer and the VS Code embedded viewer, so source changes must be made under `clients/viewer/src/browser-host/` and rebuilt."
+      "The shared viewer host serves both the standalone viewer and the VS Code embedded viewer, so source changes must be made under `clients/viewer/src/browser-host/` and rebuilt.",
+      "UX decision: `Review` belongs with the Activity/Project surface switcher, expanding the current two-state control into a three-choice surface control. If the phone breakpoint cannot fit all three choices inline, it should use the existing topbar menu/sheet pattern rather than wrapping into a bulky grid.",
+      "UI decision: desktop Review is a three-region work surface: a horizontal burst rail at the top, a vertical file column at the left, and the diff pane as the primary reading area. Tablet keeps the rail on top and stacks the file list beside/above the diff only as far as space allows. Mobile keeps one page scroll axis, with the burst rail horizontally scrollable inside its own region and files above the diff.",
+      "Selection decision: the selected burst and selected file must each have a visible non-colour cue, `aria-current` or equivalent state, and stable dimensions so badges, long paths, hover states, or loading text do not resize the layout.",
+      "Empty-state decision: clean repositories should show a compact `Nothing to review` state with the latest commit context if available; unavailable Git and non-repository projects should name the unavailable capability, not render an empty pane."
     ],
     "acceptance_criteria": [
-      "AC1: A `Review` slot is reachable from the viewer's primary navigation without displacing existing Project, Activity, Workshop, Remote, CDX, Corpus, Settings, or Diagnostics access.",
+      "AC1: The existing Activity/Project surface switcher becomes an Activity/Project/Review control, with Review reachable at desktop, tablet, and phone widths without displacing Workshop, Remote, CDX, Corpus, Settings, or Diagnostics access.",
       "AC2: Opening Review in a Git repository shows a horizontal burst timeline with `Uncommitted changes` first when the working tree is dirty, followed by recent commits in reverse chronological order.",
       "AC3: Selecting a burst shows a vertical list of files changed in that burst, including path, change kind, and line change counts when Git reports them.",
       "AC4: Selecting a working-tree file renders the existing bounded working-tree or staged diff/file preview in the main diff pane.",
@@ -36,8 +41,9 @@
       "AC7: Empty, clean, missing Git, non-repository, Git command failure, and oversized diff states render concise messages without breaking the viewer.",
       "AC8: Review data refreshes when the existing viewer refresh path updates Git status, and it does not add a second polling loop or a custom persistence layer.",
       "AC9: The Review layout holds at 1440x900, 820x1180, and 390x844 without overlap, clipped labels, or horizontal page scroll.",
-      "AC10: Backend and browser-host tests cover burst construction, committed-file diff payloads, working-tree selection, keyboard navigation, and unavailable-state rendering.",
-      "AC11: The generated browser host bundle is updated and `npm run bundle:viewer-host`, `npm run check:viewer-host`, targeted vitest/pytest checks, and `logics-manager lint --require-status` pass."
+      "AC10: Review is included in the local viewer visual campaign or equivalent layout harness, proving no blank surface, sibling-control overlap, viewport clipping, horizontal page scroll, missing heading structure, silent disabled action, or colour-only state at 1440x900, 820x1180, and 390x844.",
+      "AC11: Backend and browser-host tests cover burst construction, committed-file diff payloads, working-tree selection, keyboard navigation, and unavailable-state rendering.",
+      "AC12: The generated browser host bundle is updated and `npm run bundle:viewer-host`, `npm run check:viewer-host`, targeted vitest/pytest checks, the visual campaign target, and `logics-manager lint --require-status` pass."
     ]
   },
   "product": {
@@ -47,7 +53,8 @@
       "Make project change review a first-class viewer workflow instead of a hidden part of the Git cockpit.",
       "Let operators navigate changes spatially: time left-to-right, files top-to-bottom, diff in the main pane.",
       "Reuse local Git and existing diff rendering for the first version.",
-      "Keep the surface read-only, bounded, keyboard-reachable, and responsive."
+      "Keep the surface read-only, bounded, keyboard-reachable, and responsive.",
+      "Prove the Review screen with the viewer's existing layout checks at desktop, tablet, and phone widths."
     ],
     "non_goals": [
       "A custom filesystem watcher, persistent event store, or live session recorder.",
@@ -63,7 +70,7 @@
       "priority": "High",
       "complexity": "Medium",
       "theme": "Viewer review",
-      "request_acs": ["AC2", "AC3", "AC5", "AC7", "AC8", "AC10"],
+      "request_acs": ["AC2", "AC3", "AC5", "AC7", "AC8", "AC11"],
       "problem": [
         "The viewer can list working-tree files and recent commits, but Review needs one shaped payload: bursts over time, each with the files changed inside it.",
         "The existing commit diff endpoint returns a whole patch, which is enough for the Git History pane but too coarse for vertical per-file navigation inside Review."
@@ -88,7 +95,7 @@
         "AC5: A committed-file diff endpoint returns the selected file diff for a selected commit, bounded and rendered from a structured payload.",
         "AC7: Missing Git, non-repository roots, invalid refs, unsafe paths, Git errors, empty histories, and oversized diffs return structured states/messages.",
         "AC8: Review uses the existing Git refresh data or one bounded read-only endpoint, not a new polling or persistence mechanism.",
-        "AC10: Python tests cover burst construction and committed-file diff success/failure cases."
+        "AC11: Python tests cover burst construction and committed-file diff success/failure cases."
       ]
     },
     {
@@ -96,20 +103,25 @@
       "priority": "High",
       "complexity": "High",
       "theme": "Viewer review",
-      "request_acs": ["AC1", "AC2", "AC3", "AC4", "AC5", "AC6", "AC7", "AC8", "AC9", "AC10", "AC11"],
+      "request_acs": ["AC1", "AC2", "AC3", "AC4", "AC5", "AC6", "AC7", "AC8", "AC9", "AC10", "AC11", "AC12"],
       "problem": [
         "Project and Activity answer what exists and what happened, but neither gives a focused review path through the actual changed files.",
-        "The Git cockpit groups data by Git operation, while the requested workflow is a spatial review: bursts over time horizontally, files vertically, diff as the reading surface."
+        "The Git cockpit groups data by Git operation, while the requested workflow is a spatial review: bursts over time horizontally, files vertically, diff as the reading surface.",
+        "The existing viewer already has a compact Activity/Project surface switcher and a visual campaign that catches layout failures. Review needs to join both, otherwise it will be reachable but not integrated into the viewer's actual operating surface."
       ],
       "scope_in": [
-        "Add a `Review` primary navigation slot and route it through the existing browser-host screen system.",
+        "Expand the existing Activity/Project surface switcher into Activity/Project/Review and route Review through the existing browser-host screen system.",
         "Render a horizontal burst rail with stable selected state, concise metadata, and badges for file/change counts.",
         "Render a vertical file list for the selected burst with path, change kind, and additions/deletions where available.",
         "Render the selected file's diff in the main pane, reusing the existing diff/code viewer classes and load-more behavior where applicable.",
+        "Use a desktop layout with burst rail on top, file list on the left, and diff pane as the dominant region; adapt tablet and phone to one page scroll axis with internal horizontal scrolling only for the burst rail.",
+        "Keep row heights and controls stable across loading, hover, active, and truncated states.",
+        "Add non-colour selected/focus cues and `aria-current` or equivalent state for both the active burst and active file.",
         "Support left/right burst navigation and up/down file navigation without trapping focus or requiring a mouse.",
         "Select the first useful burst and file on initial load, with clean/empty states when there is nothing to review.",
         "Refresh Review from the existing viewer refresh path so changed Git status updates the screen without a separate live watcher.",
-        "Add only the CSS needed for the three-pane Review layout and reuse existing tokens, buttons, badges, and code viewer styles."
+        "Add only the CSS needed for the three-pane Review layout and reuse existing tokens, buttons, badges, and code viewer styles.",
+        "Add Review to the existing local viewer visual campaign or equivalent layout harness."
       ],
       "scope_out": [
         "A new design system for Review.",
@@ -118,7 +130,7 @@
         "Changing the existing Git cockpit's actions or commit workflow."
       ],
       "acceptance_criteria": [
-        "AC1: `Review` appears as a primary viewer slot and existing slots remain reachable.",
+        "AC1: The Activity/Project control becomes Activity/Project/Review and existing topbar/menu slots remain reachable.",
         "AC2: The burst rail shows the working tree first when dirty and then recent commits in reverse chronological order.",
         "AC3: Selecting a burst updates the vertical file list without a page navigation.",
         "AC4: Selecting a dirty working-tree file loads the existing working-tree/staged diff or file preview.",
@@ -127,8 +139,9 @@
         "AC7: Clean, empty, unavailable, error, and truncated states are readable and do not throw uncaught browser errors.",
         "AC8: Review refreshes through the existing viewer refresh path and does not add another interval timer.",
         "AC9: The layout has no overlap, clipped labels, or horizontal page scroll at 1440x900, 820x1180, and 390x844.",
-        "AC10: Browser-host tests cover rendering, selection, keyboard movement, diff loading, and unavailable states.",
-        "AC11: The viewer bundle is regenerated and the standard viewer checks pass."
+        "AC10: The visual campaign or equivalent layout harness exercises Review and covers blank surfaces, sibling-control overlap, viewport clipping, horizontal page scroll, heading structure, disabled reasons, and colour-only state.",
+        "AC11: Browser-host tests cover rendering, selection, keyboard movement, diff loading, and unavailable states.",
+        "AC12: The viewer bundle is regenerated and the standard viewer checks pass."
       ]
     }
   ],
@@ -138,8 +151,10 @@
       "Start with the backend Review payload and committed-file diff endpoint, reusing `viewer_git.py` safety and truncation helpers.",
       "Add focused Python coverage for review burst construction and committed-file diff edge cases.",
       "Wire the `Review` slot into the existing viewer navigation and browser-host screen router.",
-      "Build the burst rail, file list, diff pane, and arrow-key selection in the shared viewer source with the smallest CSS needed.",
+      "Expand the Activity/Project surface switcher into Activity/Project/Review, with a phone fallback that uses the existing compact menu/sheet behavior instead of wrapping controls.",
+      "Build the burst rail, file list, diff pane, responsive layout, empty states, and arrow-key selection in the shared viewer source with the smallest CSS needed.",
       "Add browser-host tests for render states, selection, keyboard navigation, and diff fetches.",
+      "Add Review to the existing visual campaign or equivalent layout harness at desktop, tablet, and phone widths.",
       "Regenerate the browser host bundle, run targeted checks, then validate the Logics docs and close out."
     ]
   },

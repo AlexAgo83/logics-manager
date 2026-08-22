@@ -2094,7 +2094,8 @@ def cmd_repair_gates(args: argparse.Namespace) -> dict[str, object]:
 
 def _line_is_generated_placeholder(text: str, ac_id: str, item_refs: list[str]) -> bool:
     """True when `ac_id`'s traceability line is still the scaffold's generated wording."""
-    expected = {f"- request-{ac_id} -> `{item_ref}`. {AC_DEFERRED_PLACEHOLDER}" for item_ref in item_refs}
+    expected = {f"- request-{ac_id} -> This task. {AC_DEFERRED_PLACEHOLDER}"}
+    expected.update(f"- request-{ac_id} -> `{item_ref}`. {AC_DEFERRED_PLACEHOLDER}" for item_ref in item_refs)
     return any(line.strip() in expected for line in text.splitlines())
 
 
@@ -2102,7 +2103,8 @@ def _replace_ac_traceability_lines(path: Path, entries: dict[str, str], item_ref
     lines = path.read_text(encoding="utf-8").splitlines()
     for index, line in enumerate(lines):
         for ac_id, rendered in entries.items():
-            expected = {f"- request-{ac_id} -> `{item_ref}`. {AC_DEFERRED_PLACEHOLDER}" for item_ref in item_refs}
+            expected = {f"- request-{ac_id} -> This task. {AC_DEFERRED_PLACEHOLDER}"}
+            expected.update(f"- request-{ac_id} -> `{item_ref}`. {AC_DEFERRED_PLACEHOLDER}" for item_ref in item_refs)
             if line.strip() in expected:
                 lines[index] = f"- {rendered}"
                 break

@@ -548,6 +548,7 @@
 | [req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door](request/req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door.md) | Expose the MCP surface to hosted web clients through a public HTTPS door | Archived |  |  | request/req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door.md |
 | [req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects](request/req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects.md) | Stop reporting a deferred request and a prose mention as corpus defects | Done |  |  | request/req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects.md |
 | [req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets](request/req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets.md) | Make release and closeout workflow contracts convergent across targets | Draft |  |  | request/req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets.md |
+| [req_380_review_findings_security_alert_triage_and_audit_coverage](request/req_380_review_findings_security_alert_triage_and_audit_coverage.md) | Review findings: security alert triage and audit coverage | Draft |  |  | request/req_380_review_findings_security_alert_triage_and_audit_coverage.md |
 
 ## Backlog
 

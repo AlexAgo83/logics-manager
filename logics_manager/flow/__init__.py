@@ -757,8 +757,8 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
                 skipped.append(f"{item_rel}: {ac_id} already has a traceability line")
             elif declares:
                 skipped.append(f"{item_rel}: {ac_id} is not declared by this slice")
-            elif proof and not ambiguous_explicit_proof:
-                item_missing.append(_ac_traceability_entry(ac_id, "This backlog slice", text, proof, proof_source))
+            elif not ambiguous_explicit_proof:
+                item_missing.append(_ac_traceability_entry(ac_id, "This backlog slice", text, proof, proof_source) if proof else f"request-{ac_id} -> This backlog slice. {AC_DEFERRED_PLACEHOLDER}")
         if _append_doc_section_bullets_changed(item_path, "AC Traceability", item_missing, dry_run=dry_run):
             changed_paths.add(item_path.relative_to(repo_root))
 
@@ -783,8 +783,9 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
             changed_paths.add(task_path.relative_to(repo_root))
         task_missing = [
             _ac_traceability_entry(ac_id, "This task", text, _composed_ac_proof(task_before, ac_id) or proof, proof_source)
+            if _composed_ac_proof(task_before, ac_id) or proof else f"request-{ac_id} -> This task. {AC_DEFERRED_PLACEHOLDER}"
             for ac_id, text in ac_entries
-            if proof and not ambiguous_explicit_proof and not _has_ac_traceability_line(task_before, ac_id)
+            if not ambiguous_explicit_proof and not _has_ac_traceability_line(task_before, ac_id)
         ]
         skipped.extend(
             f"{task_path.relative_to(repo_root).as_posix()}: {ac_id} already has a traceability line"

@@ -1,0 +1,225 @@
+{
+  "budgets": {
+    "max_docs": 12,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_380_review_findings_security_alert_triage_and_audit_coverage item_856_review_findings_security_alert_triage_and_audit_coverage task_392_review_findings_security_alert_triage_and_audit_coverage --mode full --profile normal",
+  "companion_docs": [],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "review, findings, security, alert, triage, audit, coverage",
+        "skip when": "implementing an already-triaged security fix.",
+        "summary": "Triage the current high-severity CodeQL findings and make the shipped-dependency audit repeatable without treating host Python packages as project dependencies.",
+        "use when": "deciding whether an open security alert is a defect or an intentional, constrained design."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_856_review_findings_security_alert_triage_and_audit_coverage"
+        ],
+        "req": [
+          "req_380_review_findings_security_alert_triage_and_audit_coverage"
+        ]
+      },
+      "path": "logics/request/req_380_review_findings_security_alert_triage_and_audit_coverage.md",
+      "ref": "req_380_review_findings_security_alert_triage_and_audit_coverage",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Alerts #54, #55, and #56 each have a documented evidence-backed disposition: a tested fix or a GitHub dismissal linked to the guard and threat-model rationale.",
+          "- AC2: Filesystem/fleet-root handling has regression coverage proving untrusted paths cannot escape the configured workspace or root allow-list.",
+          "- AC3: Tunnel credential persistence is verified owner-only on supported POSIX platforms, and its Windows ACL limitation is documented or remediated before any CodeQL dismissal.",
+          "- AC4: The repository provides one reproducible audit command for shipped dependencies; it distinguishes project-owned dependency state from the host Python environment."
+        ],
+        "Needs": [
+          "- Make the open security-alert list trustworthy: every current CodeQL alert must have an evidence-backed remediation or dismissal, and shipped dependencies must have a reproducible audit command."
+        ]
+      },
+      "status": "Ready",
+      "title": "Review findings: security alert triage and audit coverage"
+    },
+    {
+      "ai_context": {
+        "keywords": "review, findings, security, alert, triage, audit, coverage",
+        "skip when": "fixing unrelated CI, release, or dependency-refresh work that is not needed to close the current security-alert evidence gap.",
+        "summary": "Resolve the three open high-severity CodeQL alerts and leave a reproducible shipped-dependency audit path that does not confuse host Python packages with project dependencies.",
+        "use when": "preparing the security-alert remediation/dismissal implementation for CodeQL #54, #55, #56, npm audit policy, or shipped Python dependency claims."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_856_review_findings_security_alert_triage_and_audit_coverage"
+        ],
+        "req": [
+          "req_380_review_findings_security_alert_triage_and_audit_coverage"
+        ],
+        "task": [
+          "task_392_review_findings_security_alert_triage_and_audit_coverage"
+        ]
+      },
+      "path": "logics/backlog/item_856_review_findings_security_alert_triage_and_audit_coverage.md",
+      "ref": "item_856_review_findings_security_alert_triage_and_audit_coverage",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: Alerts #54, #55, and #56 each have a documented evidence-backed disposition: a tested fix or a GitHub dismissal linked to the guard and threat-model rationale.",
+          "- AC2: Filesystem/fleet-root handling has regression coverage proving untrusted paths cannot escape the configured workspace or root allow-list.",
+          "- AC3: Tunnel credential persistence is verified owner-only on supported POSIX platforms, and its Windows ACL limitation is documented or remediated before any CodeQL dismissal.",
+          "- AC4: The repository provides one reproducible audit command for shipped dependencies; it distinguishes project-owned dependency state from the host Python environment."
+        ],
+        "Problem": [
+          "Make the open security-alert list trustworthy: every current CodeQL alert must have an evidence-backed remediation or dismissal, and shipped dependencies must have a reproducible audit command."
+        ]
+      },
+      "status": "Ready",
+      "title": "Review findings: security alert triage and audit coverage"
+    },
+    {
+      "ai_context": {
+        "keywords": "review, findings, security, alert, triage, audit, coverage",
+        "skip when": "working on unrelated release, CI, or feature tasks that do not affect current security alerts.",
+        "summary": "Implement the security-alert triage slice: prove or fix viewer path boundaries, settle tunnel key storage alerts, and leave one shipped-dependency audit command.",
+        "use when": "starting work on GitHub CodeQL #54, #55, #56, dependency audit policy, or the security-alert disposition evidence."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_856_review_findings_security_alert_triage_and_audit_coverage"
+        ],
+        "req": [
+          "req_380_review_findings_security_alert_triage_and_audit_coverage"
+        ],
+        "task": [
+          "task_392_review_findings_security_alert_triage_and_audit_coverage"
+        ]
+      },
+      "path": "logics/tasks/task_392_review_findings_security_alert_triage_and_audit_coverage.md",
+      "ref": "task_392_review_findings_security_alert_triage_and_audit_coverage",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Review findings: security alert triage and audit coverage"
+    }
+  ],
+  "estimates": {
+    "char_count": 5027,
+    "companion_doc_count": 0,
+    "doc_count": 3
+  },
+  "generated_at": "2026-08-22T12:43:37Z",
+  "handoff": {
+    "companion_doc_count": 0,
+    "enabled": false,
+    "source_refs": [
+      "req_380_review_findings_security_alert_triage_and_audit_coverage",
+      "item_856_review_findings_security_alert_triage_and_audit_coverage",
+      "task_392_review_findings_security_alert_triage_and_audit_coverage"
+    ],
+    "validation_summary_count": 0
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_380_review_findings_security_alert_triage_and_audit_coverage,item_856_review_findings_security_alert_triage_and_audit_coverage,task_392_review_findings_security_alert_triage_and_audit_coverage",
+  "refs": [
+    "req_380_review_findings_security_alert_triage_and_audit_coverage",
+    "item_856_review_findings_security_alert_triage_and_audit_coverage",
+    "task_392_review_findings_security_alert_triage_and_audit_coverage"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_version": "2.22.3"
+  },
+  "validation_summary": []
+}

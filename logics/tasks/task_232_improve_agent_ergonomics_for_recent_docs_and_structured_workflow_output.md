@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-22 13:45:53
 
 # Definition of Done (DoD)
 - [x] The backlog scope is implemented.
@@ -50,3 +51,9 @@
 - Request: `req_249_improve_logics_workflow_scaffolding_validation_agent_docs`
 - Product brief(s): (none yet)
 - Architecture decision(s): (none yet)
+
+# AC Traceability
+- request-AC5 -> This task. Proof: Implemented structured agent-facing next actions and covered by the completed task validation. Source: `task_232_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output`
+- request-AC6 -> This task. Proof: Implemented structured agent-facing next actions and covered by the completed task validation. Source: `task_232_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output`
+- request-AC7 -> This task. Proof: Implemented structured agent-facing next actions and covered by the completed task validation. Source: `task_232_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output`
+- request-AC8 -> This task. Proof: Implemented structured agent-facing next actions and covered by the completed task validation. Source: `task_232_improve_agent_ergonomics_for_recent_docs_and_structured_workflow_output`

@@ -150,6 +150,7 @@
 | [prod_106_an_editor_that_stays_in_the_browser_it_is_already_in](product/prod_106_an_editor_that_stays_in_the_browser_it_is_already_in.md) | An editor that stays in the browser it is already in | Settled |  |  | product/prod_106_an_editor_that_stays_in_the_browser_it_is_already_in.md |
 | [prod_107_a_connector_configured_once_then_just_on_off](product/prod_107_a_connector_configured_once_then_just_on_off.md) | A connector configured once, then just ON/OFF | Settled |  |  | product/prod_107_a_connector_configured_once_then_just_on_off.md |
 | [prod_108_checks_that_read_the_corpus_the_way_it_is_written](product/prod_108_checks_that_read_the_corpus_the_way_it_is_written.md) | Checks that read the corpus the way it is written | Settled |  |  | product/prod_108_checks_that_read_the_corpus_the_way_it_is_written.md |
+| [prod_109_trustworthy_closeout_and_release_contracts](product/prod_109_trustworthy_closeout_and_release_contracts.md) | Trustworthy closeout and release contracts | Proposed |  |  | product/prod_109_trustworthy_closeout_and_release_contracts.md |
 
 ## Roadmaps
 
@@ -545,6 +546,7 @@
 | [req_376_make_the_chatgpt_mcp_connector_plug_and_play](request/req_376_make_the_chatgpt_mcp_connector_plug_and_play.md) | Make the ChatGPT MCP connector plug-and-play | Done |  |  | request/req_376_make_the_chatgpt_mcp_connector_plug_and_play.md |
 | [req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door](request/req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door.md) | Expose the MCP surface to hosted web clients through a public HTTPS door | Archived |  |  | request/req_377_expose_the_mcp_surface_to_hosted_web_clients_through_a_public_https_door.md |
 | [req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects](request/req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects.md) | Stop reporting a deferred request and a prose mention as corpus defects | Done |  |  | request/req_378_stop_reporting_a_deferred_request_and_a_prose_mention_as_corpus_defects.md |
+| [req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets](request/req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets.md) | Make release and closeout workflow contracts convergent across targets | Draft |  |  | request/req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets.md |
 
 ## Backlog
 
@@ -1403,6 +1405,8 @@
 | [item_851_tell_the_operator_which_transport_their_client_needs](backlog/item_851_tell_the_operator_which_transport_their_client_needs.md) | Tell the operator which transport their client needs | Done |  | 100% | backlog/item_851_tell_the_operator_which_transport_their_client_needs.md |
 | [item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain](backlog/item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain.md) | Let a Draft request hold acceptance criteria without a chain | Done |  | 100% | backlog/item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain.md |
 | [item_853_tell_a_delivery_link_from_a_mention_at_closeout](backlog/item_853_tell_a_delivery_link_from_a_mention_at_closeout.md) | Tell a delivery link from a mention at closeout | Done |  | 100% | backlog/item_853_tell_a_delivery_link_from_a_mention_at_closeout.md |
+| [item_854_make_generated_ac_traceability_promotable_at_closeout](backlog/item_854_make_generated_ac_traceability_promotable_at_closeout.md) | Make generated AC traceability promotable at closeout | Ready |  | 0% | backlog/item_854_make_generated_ac_traceability_promotable_at_closeout.md |
+| [item_855_add_target_scoped_release_contracts_and_evidence](backlog/item_855_add_target_scoped_release_contracts_and_evidence.md) | Add target-scoped release contracts and evidence | Ready |  | 0% | backlog/item_855_add_target_scoped_release_contracts_and_evidence.md |
 
 ## Tasks
 
@@ -1790,6 +1794,7 @@
 | [task_386_orchestrate_the_in_browser_document_editor_work](tasks/task_386_orchestrate_the_in_browser_document_editor_work.md) | Orchestrate the in-browser document editor work | Done | claude | 100% | tasks/task_386_orchestrate_the_in_browser_document_editor_work.md |
 | [task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector](tasks/task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector.md) | Deliver the ChatGPT connector over Secure MCP Tunnel | Done |  | 100% | tasks/task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector.md |
 | [task_388_make_both_checks_read_the_corpus_as_written](tasks/task_388_make_both_checks_read_the_corpus_as_written.md) | Make both checks read the corpus as written | Done |  | 100% | tasks/task_388_make_both_checks_read_the_corpus_as_written.md |
+| [task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts](tasks/task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts.md) | Deliver convergent closeout repair and multi-target release contracts | Ready |  | 0% | tasks/task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts.md |
 
 ## Runbooks
 

@@ -36,6 +36,7 @@
 | [adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points](architecture/adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points.md) | Land the viewer redesigns on the shared declaration points | Settled |  |  | architecture/adr_029_land_the_viewer_redesigns_on_the_shared_declaration_points.md |
 | [adr_030_decide_when_a_fix_needs_a_logics_chain_and_when_a_comment_is_the_record](architecture/adr_030_decide_when_a_fix_needs_a_logics_chain_and_when_a_comment_is_the_record.md) | Decide when a fix needs a Logics chain and when a comment is the record | Settled |  |  | architecture/adr_030_decide_when_a_fix_needs_a_logics_chain_and_when_a_comment_is_the_record.md |
 | [adr_031_one_mcp_transport_per_client_class](architecture/adr_031_one_mcp_transport_per_client_class.md) | One MCP transport per client class | Settled |  |  | architecture/adr_031_one_mcp_transport_per_client_class.md |
+| [adr_032_release_target_contract_v2_boundaries](architecture/adr_032_release_target_contract_v2_boundaries.md) | Release target contract v2 boundaries | Proposed |  |  | architecture/adr_032_release_target_contract_v2_boundaries.md |
 
 ## Product briefs
 
@@ -1795,6 +1796,7 @@
 | [task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector](tasks/task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector.md) | Deliver the ChatGPT connector over Secure MCP Tunnel | Done |  | 100% | tasks/task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector.md |
 | [task_388_make_both_checks_read_the_corpus_as_written](tasks/task_388_make_both_checks_read_the_corpus_as_written.md) | Make both checks read the corpus as written | Done |  | 100% | tasks/task_388_make_both_checks_read_the_corpus_as_written.md |
 | [task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts](tasks/task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts.md) | Deliver convergent closeout repair and multi-target release contracts | Ready |  | 0% | tasks/task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts.md |
+| [task_390_make_generated_ac_traceability_promotable_at_closeout](tasks/task_390_make_generated_ac_traceability_promotable_at_closeout.md) | Make generated AC traceability promotable at closeout | Ready |  | 0% | tasks/task_390_make_generated_ac_traceability_promotable_at_closeout.md |
 
 ## Runbooks
 

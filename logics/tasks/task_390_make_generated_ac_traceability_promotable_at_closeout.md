@@ -1,14 +1,14 @@
 ## task_390_make_generated_ac_traceability_promotable_at_closeout - Make generated AC traceability promotable at closeout
 > From version: 2.22.2
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 80%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-22 13:12:48
+> Indicators reviewed: 2026-08-22 13:26:56
 > Owner: Codex
 
 # AI Context
@@ -18,10 +18,10 @@
 - Skip when: The work is the separate release-target contract migration.
 
 # Definition of Done (DoD)
-- [ ] The backlog scope is implemented.
-- [ ] Acceptance criteria are covered.
-- [ ] Validation passes.
-- [ ] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
+- [x] The backlog scope is implemented.
+- [x] Acceptance criteria are covered.
+- [x] Validation passes.
+- [x] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
 
 # Backlog
 - `item_854_make_generated_ac_traceability_promotable_at_closeout`
@@ -33,21 +33,27 @@
 - AC4: A repair preserves sibling tasks and any human-authored traceability line, even when it includes wording similar to the generated placeholder.
 
 # Plan
-- [ ] Use `python3 -m logics_manager flow progress task task_390_make_generated_ac_traceability_promotable_at_closeout.md --progress <n>%` during multi-wave work.
-- [ ] Reproduce the explicit `--proof` path with a generated line, then cover sibling-task isolation and exact placeholder recognition.
-- [ ] Make proofless audit/MCP autofix report the evidence boundary without writing a rejected placeholder.
-- [ ] Run `python3 -m logics_manager flow finish task task_390_make_generated_ac_traceability_promotable_at_closeout.md` after implementation.
+- [x] Use `python3 -m logics_manager flow progress task task_390_make_generated_ac_traceability_promotable_at_closeout.md --progress <n>%` during multi-wave work.
+- [x] Reproduce the explicit `--proof` path with a generated line, then cover sibling-task isolation and exact placeholder recognition.
+- [x] Make proofless audit/MCP autofix report the evidence boundary without writing a rejected placeholder.
+- [x] Run `python3 -m logics_manager flow finish task task_390_make_generated_ac_traceability_promotable_at_closeout.md` after implementation.
 
 # Validation
 - (no validation recorded yet)
+- python3.11 -m pytest -q: 1456 passed
+- Finish workflow executed on 2026-08-22.
+- Linked backlog/request close verification passed.
 
 # AC Traceability
-- request-AC1 -> This task. Proof deferred to slice closeout.
-- request-AC2 -> This task. Proof deferred to slice closeout.
-- request-AC3 -> This task. Proof deferred to slice closeout.
+- request-AC1 -> This task. Proof: Implemented in 181ebb2 and 42592c2; 1456 tests passed with python3.11 -m pytest -q. Source: `42592c2`
+- request-AC2 -> This task. Proof: Implemented in 181ebb2 and 42592c2; 1456 tests passed with python3.11 -m pytest -q. Source: `42592c2`
+- request-AC3 -> This task. Proof: Implemented in 181ebb2 and 42592c2; 1456 tests passed with python3.11 -m pytest -q. Source: `42592c2`
 
 # Report
 - Not started.
+- Finished on 2026-08-22.
+- Linked backlog item(s): `item_854_make_generated_ac_traceability_promotable_at_closeout`
+- Related request(s): `req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets`
 
 # Links
 - Request: `req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets`

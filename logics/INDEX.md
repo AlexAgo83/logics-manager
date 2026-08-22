@@ -1407,7 +1407,7 @@
 | [item_851_tell_the_operator_which_transport_their_client_needs](backlog/item_851_tell_the_operator_which_transport_their_client_needs.md) | Tell the operator which transport their client needs | Done |  | 100% | backlog/item_851_tell_the_operator_which_transport_their_client_needs.md |
 | [item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain](backlog/item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain.md) | Let a Draft request hold acceptance criteria without a chain | Done |  | 100% | backlog/item_852_let_a_draft_request_hold_acceptance_criteria_without_a_chain.md |
 | [item_853_tell_a_delivery_link_from_a_mention_at_closeout](backlog/item_853_tell_a_delivery_link_from_a_mention_at_closeout.md) | Tell a delivery link from a mention at closeout | Done |  | 100% | backlog/item_853_tell_a_delivery_link_from_a_mention_at_closeout.md |
-| [item_854_make_generated_ac_traceability_promotable_at_closeout](backlog/item_854_make_generated_ac_traceability_promotable_at_closeout.md) | Make generated AC traceability promotable at closeout | In progress |  | 40% | backlog/item_854_make_generated_ac_traceability_promotable_at_closeout.md |
+| [item_854_make_generated_ac_traceability_promotable_at_closeout](backlog/item_854_make_generated_ac_traceability_promotable_at_closeout.md) | Make generated AC traceability promotable at closeout | In progress |  | 50% | backlog/item_854_make_generated_ac_traceability_promotable_at_closeout.md |
 | [item_855_add_target_scoped_release_contracts_and_evidence](backlog/item_855_add_target_scoped_release_contracts_and_evidence.md) | Add target-scoped release contracts and evidence | Ready |  | 0% | backlog/item_855_add_target_scoped_release_contracts_and_evidence.md |
 
 ## Tasks
@@ -1797,7 +1797,7 @@
 | [task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector](tasks/task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector.md) | Deliver the ChatGPT connector over Secure MCP Tunnel | Done |  | 100% | tasks/task_387_deliver_a_durable_chatgpt_native_reactive_mcp_connector.md |
 | [task_388_make_both_checks_read_the_corpus_as_written](tasks/task_388_make_both_checks_read_the_corpus_as_written.md) | Make both checks read the corpus as written | Done |  | 100% | tasks/task_388_make_both_checks_read_the_corpus_as_written.md |
 | [task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts](tasks/task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts.md) | Deliver convergent closeout repair and multi-target release contracts | Ready |  | 0% | tasks/task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts.md |
-| [task_390_make_generated_ac_traceability_promotable_at_closeout](tasks/task_390_make_generated_ac_traceability_promotable_at_closeout.md) | Make generated AC traceability promotable at closeout | In progress | Codex | 80% | tasks/task_390_make_generated_ac_traceability_promotable_at_closeout.md |
+| [task_390_make_generated_ac_traceability_promotable_at_closeout](tasks/task_390_make_generated_ac_traceability_promotable_at_closeout.md) | Make generated AC traceability promotable at closeout | Done | Codex | 100% | tasks/task_390_make_generated_ac_traceability_promotable_at_closeout.md |
 | [task_391_add_target_scoped_release_contracts_and_evidence](tasks/task_391_add_target_scoped_release_contracts_and_evidence.md) | Add target-scoped release contracts and evidence | Ready |  | 0% | tasks/task_391_add_target_scoped_release_contracts_and_evidence.md |
 
 ## Runbooks

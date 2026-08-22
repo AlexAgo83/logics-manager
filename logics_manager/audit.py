@@ -1050,7 +1050,8 @@ def audit_payload(
             if item_doc is None or item_doc.kind.kind != "backlog":
                 issues.append(AuditIssue(code="task_refs_missing_backlog", path=doc.path, message=f"references missing backlog item `{item_ref}`"))
                 continue
-            if not _is_done(item_doc):
+            linked_tasks = _linked_tasks_for_item(item_doc, all_docs)
+            if linked_tasks and all(_is_done(task) for task in linked_tasks) and not _is_done(item_doc):
                 issues.append(AuditIssue(code="task_links_open_backlog", path=doc.path, message=f"done task linked to backlog item not closed `{item_ref}`"))
             for request_doc in _linked_requests_for_item(item_doc, all_docs):
                 request_items = _linked_items_for_request(request_doc, all_docs)
@@ -1241,19 +1242,21 @@ def audit_payload(
                     issues.append(AuditIssue(code="ac_no_linked_tasks", path=request.path, message="request has ACs but no linked tasks"))
                 continue
 
-            any_task_done = any(_is_done(task) for task in linked_tasks)
             for ac_id in ac_ids:
-                item_has_mapping = any(_doc_has_ac_with_proof(item, ac_id) for item in linked_items)
+                owning_items = [item for item in linked_items if _has_ac_traceability_line(item.text, ac_id)] or linked_items
+                owning_tasks = [task for item in owning_items for task in _linked_tasks_for_item(item, all_docs)]
+                any_task_done = any(_is_done(task) for task in owning_tasks)
+                item_has_mapping = any(_doc_has_ac_with_proof(item, ac_id) for item in owning_items)
                 if not item_has_mapping:
-                    if autofix_ac_traceability and linked_items:
-                        autofix_targets.setdefault(linked_items[0].path, set()).add(ac_id)
+                    if autofix_ac_traceability and owning_items:
+                        autofix_targets.setdefault(owning_items[0].path, set()).add(ac_id)
                     else:
                         issues.append(_ac_traceability_issue("ac_missing_item_traceability", request, ac_id, "item", deferred=not any_task_done))
 
-                task_has_mapping = any(_doc_has_ac_with_proof(task, ac_id) for task in linked_tasks)
+                task_has_mapping = any(_doc_has_ac_with_proof(task, ac_id) for task in owning_tasks)
                 if not task_has_mapping:
-                    if autofix_ac_traceability and linked_tasks:
-                        autofix_targets.setdefault(linked_tasks[0].path, set()).add(ac_id)
+                    if autofix_ac_traceability and owning_tasks:
+                        autofix_targets.setdefault(owning_tasks[0].path, set()).add(ac_id)
                     else:
                         issues.append(_ac_traceability_issue("ac_missing_task_traceability", request, ac_id, "task", deferred=not any_task_done))
 
@@ -1330,11 +1333,13 @@ def audit_payload(
                 linked_tasks: list[DocMeta] = []
                 for item in linked_items:
                     linked_tasks.extend(_linked_tasks_for_item(item, all_docs))
-                any_task_done = any(_is_done(task) for task in linked_tasks)
                 for ac_id in ac_ids:
-                    if linked_items and not any(_doc_has_ac_with_proof(item, ac_id) for item in linked_items):
+                    owning_items = [item for item in linked_items if _has_ac_traceability_line(item.text, ac_id)] or linked_items
+                    owning_tasks = [task for item in owning_items for task in _linked_tasks_for_item(item, all_docs)]
+                    any_task_done = any(_is_done(task) for task in owning_tasks)
+                    if owning_items and not any(_doc_has_ac_with_proof(item, ac_id) for item in owning_items):
                         issues.append(_ac_traceability_issue("ac_missing_item_traceability", request, ac_id, "item", deferred=not any_task_done))
-                    if linked_tasks and not any(_doc_has_ac_with_proof(task, ac_id) for task in linked_tasks):
+                    if owning_tasks and not any(_doc_has_ac_with_proof(task, ac_id) for task in owning_tasks):
                         issues.append(_ac_traceability_issue("ac_missing_task_traceability", request, ac_id, "task", deferred=not any_task_done))
 
     if autofix_structure:

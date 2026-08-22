@@ -7,6 +7,7 @@
 > Complexity: High
 > Theme: Workflow contract convergence and multi-target releases
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-22 13:26:56
 
 # AI Context
 - Summary: Repair the generated-proof path without fabricating evidence, then add independently selectable release targets without breaking v1 projects.

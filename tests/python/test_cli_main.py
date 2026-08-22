@@ -2585,10 +2585,8 @@ def test_main_runs_native_flow_repair_closeout_helpers(
     task_text = task_path.read_text(encoding="utf-8")
     product_text = product_path.read_text(encoding="utf-8")
     assert "- [x] Ready." in request_text
-    # req_316: the placeholder now uses the keyword the gate reads, and is recognisable as
-    # unfilled rather than restating the criterion verbatim.
-    assert "request-AC1 -> This backlog slice. Proof: TODO -- state how this was verified" in backlog_text
-    assert "request-AC1 -> This task. Proof: TODO -- state how this was verified" in task_text
+    assert "request-AC1 -> This backlog slice. Proof deferred to slice closeout." in backlog_text
+    assert "request-AC1 -> This task. Proof deferred to slice closeout." in task_text
     preflight = validate_closeout_payload(repo_root, "task_001_demo")
     assert "ac_missing_item_traceability" in {issue["code"] for issue in preflight["issues"]}
     assert "ac_missing_task_traceability" in {issue["code"] for issue in preflight["issues"]}

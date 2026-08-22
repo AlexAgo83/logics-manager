@@ -1,12 +1,12 @@
 ## prod_109_trustworthy_closeout_and_release_contracts - Trustworthy closeout and release contracts
 > Date: 2026-08-22
-> Status: Proposed
+> Status: Settled
 > Related request: `req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets`
-> Related backlog: `item_854_make_generated_ac_traceability_promotable_at_closeout`, `item_855_add_target_scoped_release_contracts_and_evidence`
+> Related backlog: `item_854_make_generated_ac_traceability_promotable_at_closeout`
 > Related task: `task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
-> Indicators reviewed: 2026-08-22 13:06:50
+> Indicators reviewed: 2026-08-22 14:37:48
 
 # Overview
 The workflow must converge from its generated documents and command guidance to a valid closeout, and it must represent every releasable artefact a project actually ships. A gate that cannot be satisfied through its own supported path is a production defect; a single-target release model must not make an additional artefact invisible.
@@ -44,5 +44,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets`
+- Product back-reference: `item_854_make_generated_ac_traceability_promotable_at_closeout`
 - Task back-reference: `task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts`

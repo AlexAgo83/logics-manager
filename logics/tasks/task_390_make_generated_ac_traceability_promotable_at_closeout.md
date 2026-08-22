@@ -1,14 +1,15 @@
 ## task_390_make_generated_ac_traceability_promotable_at_closeout - Make generated AC traceability promotable at closeout
 > From version: 2.22.2
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 80%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-22 12:51:48
+> Indicators reviewed: 2026-08-22 13:12:48
+> Owner: Codex
 
 # AI Context
 - Summary: Hotfix the shared AC repair so explicit evidence replaces only the exact generated placeholder in its owning task.

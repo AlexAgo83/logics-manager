@@ -1,0 +1,357 @@
+{
+  "budgets": {
+    "max_docs": 32,
+    "max_docs_per_ref": 8
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets item_854_make_generated_ac_traceability_promotable_at_closeout item_855_add_target_scoped_release_contracts_and_evidence task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts --mode full --profile deep --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_854_make_generated_ac_traceability_promotable_at_closeout",
+          "item_855_add_target_scoped_release_contracts_and_evidence"
+        ],
+        "prod": [
+          "prod_109_trustworthy_closeout_and_release_contracts"
+        ],
+        "req": [
+          "req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets"
+        ],
+        "task": [
+          "task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts"
+        ]
+      },
+      "path": "logics/product/prod_109_trustworthy_closeout_and_release_contracts.md",
+      "ref": "prod_109_trustworthy_closeout_and_release_contracts",
+      "sections": {
+        "Goals": [
+          "- Make the existing AC proof repair path safe and usable at closeout.",
+          "- Preserve authored proof and avoid fabricated validation evidence.",
+          "- Provide target-scoped release state and evidence while retaining zero-migration support for single-target projects."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "The workflow must converge from its generated documents and command guidance to a valid closeout, and it must represent every releasable artefact a project actually ships. A gate that cannot be satisfied through its own supported path is a production defect; a single-target release model must not make an additional artefact invisible."
+        ],
+        "References": [
+          "- Product back-reference: `req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets`",
+          "- Task back-reference: `task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Trustworthy closeout and release contracts"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "release, closeout, workflow, contracts, convergent, across, targets",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_854_make_generated_ac_traceability_promotable_at_closeout",
+          "item_855_add_target_scoped_release_contracts_and_evidence"
+        ],
+        "prod": [
+          "prod_109_trustworthy_closeout_and_release_contracts"
+        ],
+        "req": [
+          "req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets"
+        ]
+      },
+      "path": "logics/request/req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets.md",
+      "ref": "req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: `flow repair ac-traceability --proof` replaces a scaffold-generated deferred task line with exactly one valid task-level proof line and allows closeout traceability validation to pass.",
+          "- AC2: The same repair is idempotent and never overwrites a non-placeholder proof authored in a task document.",
+          "- AC3: Audit and MCP AC-traceability autofix do not convert a generated deferred line into a `TODO` proof; an explicit-proof requirement is reported instead.",
+          "- AC4: A v2 release contract can define named release targets with independently evaluated version policy, tag policy, gates, validation, and publication requirements.",
+          "- AC5: Each target records explicit reasons for excluded gates, and release evidence is attributed to a target so one target cannot affect another target's state.",
+          "- AC6: Status reports per-target release state; plan, validate, evidence add, and reset select a target explicitly for multi-target contracts and reject missing or unknown targets."
+        ],
+        "Needs": [
+          "- A generated AC traceability line must be promotable to the task-level proof required by closeout through the repair command the tool recommends.",
+          "- An automatic repair must never turn a valid deferred state into a lint-blocking TODO proof.",
+          "- One project must be able to model, validate, and record evidence for several independently released artefacts without their state leaking into one another."
+        ]
+      },
+      "status": "Draft",
+      "title": "Make release and closeout workflow contracts convergent across targets"
+    },
+    {
+      "ai_context": {
+        "keywords": "generated, traceability, promotable, closeout",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_854_make_generated_ac_traceability_promotable_at_closeout"
+        ],
+        "prod": [
+          "prod_109_trustworthy_closeout_and_release_contracts"
+        ],
+        "req": [
+          "req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets"
+        ],
+        "task": [
+          "task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts"
+        ]
+      },
+      "path": "logics/backlog/item_854_make_generated_ac_traceability_promotable_at_closeout.md",
+      "ref": "item_854_make_generated_ac_traceability_promotable_at_closeout",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A deferred generated line becomes `request-ACn -> This task. Proof: ...` when `flow repair ac-traceability --proof` is run, without creating a duplicate line.",
+          "- AC2: A second identical repair changes no files, and a manually authored proof remains byte-for-byte unchanged.",
+          "- AC3: `audit --autofix-ac-traceability` and the MCP autofix leave deferred entries valid and make clear that an explicit proof is required."
+        ],
+        "Problem": [
+          "- The generated deferred line is deliberately not a proof, yet it prevents the command that receives an explicit proof from writing the required proof line.",
+          "- The automatic audit/MCP route cannot know real evidence and currently writes a placeholder that lint rejects."
+        ]
+      },
+      "status": "Ready",
+      "title": "Make generated AC traceability promotable at closeout"
+    },
+    {
+      "ai_context": {
+        "keywords": "add, target, scoped, release, contracts, evidence",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_855_add_target_scoped_release_contracts_and_evidence"
+        ],
+        "prod": [
+          "prod_109_trustworthy_closeout_and_release_contracts"
+        ],
+        "req": [
+          "req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets"
+        ],
+        "task": [
+          "task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts"
+        ]
+      },
+      "path": "logics/backlog/item_855_add_target_scoped_release_contracts_and_evidence.md",
+      "ref": "item_855_add_target_scoped_release_contracts_and_evidence",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A v2 fixture with two named targets evaluates each target's own version policy, tag pattern, gates, validation commands, and publication requirements.",
+          "- AC2: Every excluded target gate has a non-empty reason, and contract validation rejects an exclusion without one.",
+          "- AC3: Evidence carries `target_id`; status, validation, and reset isolate evidence and state to the selected target.",
+          "- AC4: Multi-target plan, validate, evidence add, and reset reject a missing or unknown target, while status offers an explicit all-target overview or a selected target detail.",
+          "- AC5: Existing v1 fixtures and calls without `--target` retain their current behavior."
+        ],
+        "Problem": [
+          "- The current contract and status evaluator model exactly one version, tag policy, gate set, and evidence state for a repository.",
+          "- A project with distinct release trains needs separate gate decisions and evidence; a global reset or evidence entry must not alter another artefact's readiness."
+        ]
+      },
+      "status": "Ready",
+      "title": "Add target-scoped release contracts and evidence"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_854_make_generated_ac_traceability_promotable_at_closeout",
+          "item_855_add_target_scoped_release_contracts_and_evidence"
+        ],
+        "prod": [
+          "prod_109_trustworthy_closeout_and_release_contracts"
+        ],
+        "req": [
+          "req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets"
+        ],
+        "task": [
+          "task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts"
+        ]
+      },
+      "path": "logics/product/prod_109_trustworthy_closeout_and_release_contracts.md",
+      "ref": "prod_109_trustworthy_closeout_and_release_contracts",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Trustworthy closeout and release contracts"
+    },
+    {
+      "ai_context": {
+        "keywords": "deliver, convergent, closeout, repair, multi, target, release, contracts",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_854_make_generated_ac_traceability_promotable_at_closeout",
+          "item_855_add_target_scoped_release_contracts_and_evidence"
+        ],
+        "prod": [
+          "prod_109_trustworthy_closeout_and_release_contracts"
+        ],
+        "req": [
+          "req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets"
+        ],
+        "task": [
+          "task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts"
+        ]
+      },
+      "path": "logics/tasks/task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts.md",
+      "ref": "task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Deliver convergent closeout repair and multi-target release contracts"
+    }
+  ],
+  "estimates": {
+    "char_count": 9480,
+    "companion_doc_count": 1,
+    "doc_count": 5
+  },
+  "generated_at": "2026-08-22T10:26:02Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets",
+      "item_854_make_generated_ac_traceability_promotable_at_closeout",
+      "item_855_add_target_scoped_release_contracts_and_evidence",
+      "task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "deep",
+  "ref": "req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets,item_854_make_generated_ac_traceability_promotable_at_closeout,item_855_add_target_scoped_release_contracts_and_evidence,task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts",
+  "refs": [
+    "req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets",
+    "item_854_make_generated_ac_traceability_promotable_at_closeout",
+    "item_855_add_target_scoped_release_contracts_and_evidence",
+    "task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts"
+  ],
+  "release": {
+    "blocking_reasons": [],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "Release evidence is complete.",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "ready",
+    "target_version": "2.22.2"
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts.md",
+      "ref": "task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts"
+    }
+  ]
+}

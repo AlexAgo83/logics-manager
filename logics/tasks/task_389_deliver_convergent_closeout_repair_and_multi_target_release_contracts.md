@@ -1,13 +1,14 @@
 ## task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts - Deliver convergent closeout repair and multi-target release contracts
 > From version: 2.22.2
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Indicators reviewed: 2026-08-22 14:37:48
 
 # AI Context
 - Summary: Coordinate the independent closeout hotfix and multi-target release task, preserving a clean v1 compatibility boundary.
@@ -19,22 +20,22 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Deliver task_390's deferred-proof repair and proofless-autofix boundary.
-- [ ] 2. Deliver task_391's v2 release contract following `adr_032_release_target_contract_v2_boundaries`.
-- [ ] 3. Run focused tests, full release-contract checks, workflow validation, lint, and audit; record closeout evidence.
-- [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
-- [ ] Keep commit creation under operator control; do not force one commit per micro-step.
-- [ ] GATE: do not close until lint, audit, and scaffold validation pass.
+- [x] 1. Deliver task_390's deferred-proof repair and proofless-autofix boundary.
+- [x] 2. Deliver task_391's v2 release contract following `adr_032_release_target_contract_v2_boundaries`.
+- [x] 3. Run focused tests, full release-contract checks, workflow validation, lint, and audit; record closeout evidence.
+- [x] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
+- [x] Keep commit creation under operator control; do not force one commit per micro-step.
+- [x] GATE: do not close until lint, audit, and scaffold validation pass.
 
 # Backlog
 - `item_854_make_generated_ac_traceability_promotable_at_closeout`
 - `item_855_add_target_scoped_release_contracts_and_evidence`
 
 # Definition of Done (DoD)
-- [ ] Generated request, product, backlog, and task docs are present.
-- [ ] Context-pack handoff is available when requested.
-- [ ] Validation passes.
-- [ ] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
+- [x] Generated request, product, backlog, and task docs are present.
+- [x] Context-pack handoff is available when requested.
+- [x] Validation passes.
+- [x] Meaningful waves followed ADR 009: affected docs updated and the repo left commit-ready without automatic commits.
 
 # AC Traceability
 - request-AC1 -> `item_854_make_generated_ac_traceability_promotable_at_closeout`. Proof deferred to slice closeout.
@@ -47,9 +48,15 @@
 
 # Validation
 - (no validation recorded yet)
+- command: `node scripts/ci-check.mjs --update` | result: passed | date: 2026-08-22
+- Finish workflow executed on 2026-08-22.
+- Linked backlog/request close verification passed.
 
 # Report
 - Not started.
+- Finished on 2026-08-22.
+- Linked backlog item(s): `item_854_make_generated_ac_traceability_promotable_at_closeout`, `item_855_add_target_scoped_release_contracts_and_evidence`
+- Related request(s): `req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets`
 
 # Links
 - Request: `req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets`

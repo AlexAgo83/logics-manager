@@ -1,13 +1,13 @@
 ## req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets - Make release and closeout workflow contracts convergent across targets
 > From version: 2.22.2
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Complexity: High
 > Theme: Workflow contract convergence and multi-target releases
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-22 13:26:56
+> Indicators reviewed: 2026-08-22 14:37:47
 
 # AI Context
 - Summary: Repair the generated-proof path without fabricating evidence, then add independently selectable release targets without breaking v1 projects.
@@ -23,7 +23,7 @@
 # Context
 - Issue #24 reproduces on 2.22.2: scaffolding writes `Proof deferred to slice closeout.`, closeout requires `This task. Proof: ...`, and `flow repair ac-traceability --proof` skips the generated line instead of promoting it.
 - The repair already replaces that generated line when a per-criterion evidence record exists. Its replacement map currently excludes the explicit shared `--proof` fallback, so the documented remediation remains non-convergent for the normal closeout path.
-- The audit/MCP autofix appends `Proof: TODO.` to a deferred line even though lint rejects that placeholder. It cannot invent verification evidence and must preserve the deferred state or explain that explicit proof is required.
+- The audit/MCP autofix appends a placeholder proof to a deferred line even though lint rejects that placeholder. It cannot invent verification evidence and must preserve the deferred state or explain that explicit proof is required.
 - Issue #22 documents a real two-artefact release where the single global release state left one artefact outside all gates. Current release code reads one version source set, gate set, tag policy, evidence ledger, and status state machine per repository.
 - A backwards-compatible v2 release contract should normalize a v1 contract to one implicit target. Multi-target commands must require an explicit target when selecting or mutating one target, while status without a target may present a non-mutating overview of all targets.
 

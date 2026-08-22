@@ -1,14 +1,14 @@
 ## item_855_add_target_scoped_release_contracts_and_evidence - Add target-scoped release contracts and evidence
 > From version: 2.22.2
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 28%
+> Progress: 100%
 > Complexity: High
 > Theme: Multi-target release contract
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-22 14:13:59
+> Indicators reviewed: 2026-08-22 14:37:48
 
 # AI Context
 - Summary: Normalize legacy release contracts to one target while isolating contract validation, evidence, reset, and status for every v2 target.
@@ -63,3 +63,8 @@
 
 # Tasks
 - `task_391_add_target_scoped_release_contracts_and_evidence`
+- `task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts`
+
+# Notes
+- Task `task_391_add_target_scoped_release_contracts_and_evidence` was finished via `logics-manager flow finish task` on 2026-08-22.
+- Task `task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts` was finished via `logics-manager flow finish task` on 2026-08-22.

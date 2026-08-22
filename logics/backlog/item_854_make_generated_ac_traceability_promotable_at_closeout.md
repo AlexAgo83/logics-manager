@@ -1,14 +1,14 @@
 ## item_854_make_generated_ac_traceability_promotable_at_closeout - Make generated AC traceability promotable at closeout
 > From version: 2.22.2
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 50%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Closeout proof convergence
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-22 13:26:56
+> Indicators reviewed: 2026-08-22 14:37:48
 
 # AI Context
 - Summary: Promote the scaffold's deferred AC line only with recorded or supplied evidence, without changing sibling or authored proof.
@@ -51,7 +51,7 @@
 - Product brief(s): `prod_109_trustworthy_closeout_and_release_contracts`
 - Architecture decision(s): (none yet)
 - Request: `req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets`
-- Primary task(s): `task_390_make_generated_ac_traceability_promotable_at_closeout`
+- Primary task(s): `task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts`
 
 # Priority
 - Priority: High - the prescribed closeout repair cannot clear a blocking finding in the normal scaffolded workflow
@@ -59,6 +59,8 @@
 
 # Tasks
 - `task_390_make_generated_ac_traceability_promotable_at_closeout`
+- `task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts`
 
 # Notes
 - Task `task_390_make_generated_ac_traceability_promotable_at_closeout` was finished via `logics-manager flow finish task` on 2026-08-22.
+- Task `task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts` was finished via `logics-manager flow finish task` on 2026-08-22.

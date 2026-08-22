@@ -2,17 +2,17 @@
 > From version: 2.22.2
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 95%
+> Confidence: 90%
 > Complexity: High
 > Theme: Workflow contract convergence and multi-target releases
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
 
 # AI Context
-- Summary: (unfilled: replace before this doc is used)
+- Summary: Repair the generated-proof path without fabricating evidence, then add independently selectable release targets without breaking v1 projects.
 - Keywords: release, closeout, workflow, contracts, convergent, across, targets
-- Use when: (unfilled: replace before this doc is used)
-- Skip when: (unfilled: replace before this doc is used)
+- Use when: closeout repair guidance cannot reach a valid proof, or a repository has independently gated release artefacts.
+- Skip when: changing one existing single-target gate without changing proof repair or release-target boundaries.
 
 # Needs
 - A generated AC traceability line must be promotable to the task-level proof required by closeout through the repair command the tool recommends.

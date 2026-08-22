@@ -1798,6 +1798,7 @@
 | [task_388_make_both_checks_read_the_corpus_as_written](tasks/task_388_make_both_checks_read_the_corpus_as_written.md) | Make both checks read the corpus as written | Done |  | 100% | tasks/task_388_make_both_checks_read_the_corpus_as_written.md |
 | [task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts](tasks/task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts.md) | Deliver convergent closeout repair and multi-target release contracts | Ready |  | 0% | tasks/task_389_deliver_convergent_closeout_repair_and_multi_target_release_contracts.md |
 | [task_390_make_generated_ac_traceability_promotable_at_closeout](tasks/task_390_make_generated_ac_traceability_promotable_at_closeout.md) | Make generated AC traceability promotable at closeout | Ready |  | 0% | tasks/task_390_make_generated_ac_traceability_promotable_at_closeout.md |
+| [task_391_add_target_scoped_release_contracts_and_evidence](tasks/task_391_add_target_scoped_release_contracts_and_evidence.md) | Add target-scoped release contracts and evidence | Ready |  | 0% | tasks/task_391_add_target_scoped_release_contracts_and_evidence.md |
 
 ## Runbooks
 

@@ -2,28 +2,26 @@
 > From version: 2.22.2
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 95%
+> Confidence: 90%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
 
 # AI Context
-- Summary: (unfilled: replace before this doc is used)
+- Summary: Coordinate the independent closeout hotfix and multi-target release task, preserving a clean v1 compatibility boundary.
 - Keywords: deliver, convergent, closeout, repair, multi, target, release, contracts
-- Use when: (unfilled: replace before this doc is used)
-- Skip when: (unfilled: replace before this doc is used)
+- Use when: sequencing the two delivery slices and their shared request-level validation.
+- Skip when: implementing either slice in isolation.
 
 # Context
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. 1. Reproduce the deferred-proof failure and implement the smallest safe repair promotion with regression coverage.
-- [ ] 2. 2. Make proofless audit and MCP autofix preserve deferred state and report the required evidence boundary.
-- [ ] 3. 3. Define the v2 target contract and normalize v1 contracts to one implicit target.
-- [ ] 4. 4. Scope release state, evidence, CLI selection, and reset behavior by target, then validate with v1 and two-target fixtures.
-- [ ] 5. 5. Run focused tests, full release contract checks, workflow validation, lint, audit, and record closeout evidence.
+- [ ] 1. Deliver task_390's deferred-proof repair and proofless-autofix boundary.
+- [ ] 2. Deliver task_391's v2 release contract following `adr_032_release_target_contract_v2_boundaries`.
+- [ ] 3. Run focused tests, full release-contract checks, workflow validation, lint, and audit; record closeout evidence.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.

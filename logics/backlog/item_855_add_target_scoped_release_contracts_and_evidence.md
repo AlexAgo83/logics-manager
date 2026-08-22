@@ -8,6 +8,7 @@
 > Complexity: High
 > Theme: Multi-target release contract
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-22 13:06:17
 
 # AI Context
 - Summary: Normalize legacy release contracts to one target while isolating contract validation, evidence, reset, and status for every v2 target.
@@ -59,3 +60,6 @@
 # Priority
 - Priority: High - an artefact can currently be tagged and deployed outside every declared release gate
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_391_add_target_scoped_release_contracts_and_evidence`

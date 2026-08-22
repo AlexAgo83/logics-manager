@@ -602,9 +602,10 @@ def test_repair_ac_traceability_replaces_only_the_selected_generated_placeholder
     task_path = paths["task"]
     sibling_path = repo_root / "logics" / "tasks" / "task_002_sibling.md"
     generated = "- request-AC1 -> `item_001_demo`. Proof deferred to slice closeout."
+    paths["request"].write_text(paths["request"].read_text(encoding="utf-8").replace("# Backlog", "- AC2: Leave sibling scope alone.\n# Backlog"), encoding="utf-8")
     task_path.write_text(task_path.read_text(encoding="utf-8").replace("# Links", "# AC Traceability\n" + generated + "\n- request-AC1 -> This task. Proof deferred to slice closeout. (operator note)\n# Links"), encoding="utf-8")
     sibling_path.write_text(task_path.read_text(encoding="utf-8").replace("task_001_demo", "task_002_sibling"), encoding="utf-8")
-    paths["backlog"].write_text(paths["backlog"].read_text(encoding="utf-8").replace("`task_001_demo`", "`task_001_demo`, `task_002_sibling`"), encoding="utf-8")
+    paths["backlog"].write_text(paths["backlog"].read_text(encoding="utf-8").replace("# Links", "# AC Traceability\n- request-AC1 -> This backlog slice. Proof: owned.\n# Links").replace("`task_001_demo`", "`task_001_demo`, `task_002_sibling`"), encoding="utf-8")
     monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
 
     assert main(["flow", "repair", "ac-traceability", "req_001_demo", "--proof", "covered by regression"]) == 0
@@ -616,7 +617,25 @@ def test_repair_ac_traceability_replaces_only_the_selected_generated_placeholder
     repaired = task_path.read_text(encoding="utf-8")
     assert "request-AC1 -> This task. Proof: covered by regression" in repaired
     assert "This task. Proof deferred to slice closeout. (operator note)" in repaired
+    assert "request-AC2" not in repaired
     assert sibling_path.read_text(encoding="utf-8").count(generated) == 1
+
+
+def test_closeout_allows_a_completed_task_to_leave_a_sibling_open(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    paths = write_ac_traceability_chain(repo_root)
+    task_path = paths["task"]
+    sibling_path = repo_root / "logics" / "tasks" / "task_002_sibling.md"
+    paths["backlog"].write_text(paths["backlog"].read_text(encoding="utf-8").replace("# Links", "# AC Traceability\n- request-AC1 -> This backlog slice. Proof: covered.\n# Links").replace("`task_001_demo`", "`task_001_demo`, `task_002_sibling`"), encoding="utf-8")
+    task_path.write_text(task_path.read_text(encoding="utf-8").replace("# Links", "# AC Traceability\n- request-AC1 -> This task. Proof: covered.\n# Links"), encoding="utf-8")
+    sibling_path.write_text(task_path.read_text(encoding="utf-8").replace("task_001_demo", "task_002_sibling"), encoding="utf-8")
+
+    payload = closeout_payload(repo_root, "task_001_demo", validations=["pytest passed"], run_index=False, run_lint=False, run_audit=False, dry_run=False)
+
+    assert payload["closed"] is True
+    assert "> Status: In progress" in paths["backlog"].read_text(encoding="utf-8")
 
 
 def test_repair_ac_traceability_verify_rolls_back_without_proof(
@@ -649,7 +668,7 @@ def test_repair_ac_traceability_verify_rolls_back_without_proof(
 
     assert payload["rolled_back"] is True
     assert payload["changed_files"] == []
-    assert "logics/backlog/item_001_demo.md" in payload["attempted_changed_files"]
+    assert payload["attempted_changed_files"] == []
     assert backlog_path.read_text(encoding="utf-8") == original_backlog_text
     assert task_path.read_text(encoding="utf-8") == original_task_text
 

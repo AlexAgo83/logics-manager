@@ -724,6 +724,18 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
             for item_path in linked_items
             if selected_task.stem in _extract_refs(_strip_mermaid_blocks(item_path.read_text(encoding="utf-8")), DOC_KINDS["task"].prefix)
         ]
+        declared_ac_ids = {
+            ac_id
+            for item_path in linked_items
+            for ac_id, _text in ac_entries
+            if _has_ac_traceability_line(item_path.read_text(encoding="utf-8"), ac_id)
+        }
+        if declared_ac_ids:
+            ac_entries = [(ac_id, text) for ac_id, text in ac_entries if ac_id in declared_ac_ids]
+
+    ambiguous_explicit_proof = bool(proof and not selected_task and len(linked_task_paths) > 1)
+    if ambiguous_explicit_proof:
+        skipped.append(f"{request_ref}: explicit proof needs --task because {len(linked_task_paths)} tasks are linked")
 
     for item_path in linked_items:
         item_before = item_path.read_text(encoding="utf-8")
@@ -745,14 +757,10 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
                 skipped.append(f"{item_rel}: {ac_id} already has a traceability line")
             elif declares:
                 skipped.append(f"{item_rel}: {ac_id} is not declared by this slice")
-            else:
+            elif proof and not ambiguous_explicit_proof:
                 item_missing.append(_ac_traceability_entry(ac_id, "This backlog slice", text, proof, proof_source))
         if _append_doc_section_bullets_changed(item_path, "AC Traceability", item_missing, dry_run=dry_run):
             changed_paths.add(item_path.relative_to(repo_root))
-
-    ambiguous_explicit_proof = bool(proof and not selected_task and len(linked_task_paths) > 1)
-    if ambiguous_explicit_proof:
-        skipped.append(f"{request_ref}: explicit proof needs --task because {len(linked_task_paths)} tasks are linked")
 
     for task_path in sorted({selected_task} if selected_task else linked_task_paths):
         task_before = task_path.read_text(encoding="utf-8")
@@ -776,7 +784,7 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
         task_missing = [
             _ac_traceability_entry(ac_id, "This task", text, _composed_ac_proof(task_before, ac_id) or proof, proof_source)
             for ac_id, text in ac_entries
-            if not ambiguous_explicit_proof and not _has_ac_traceability_line(task_before, ac_id)
+            if proof and not ambiguous_explicit_proof and not _has_ac_traceability_line(task_before, ac_id)
         ]
         skipped.extend(
             f"{task_path.relative_to(repo_root).as_posix()}: {ac_id} already has a traceability line"
@@ -2250,7 +2258,7 @@ def _repair_ac_traceability_for_task(
         if item_path is not None:
             request_refs.extend(_extract_refs(_strip_mermaid_blocks(item_path.read_text(encoding="utf-8")), DOC_KINDS["request"].prefix))
     for request_ref in sorted(set(request_refs)):
-        ac_payload = repair_ac_traceability_payload(repo_root, request_ref, dry_run=dry_run)
+        ac_payload = repair_ac_traceability_payload(repo_root, request_ref, dry_run=dry_run, task=task_path.stem)
         changed_files.update(ac_payload["changed_files"])
         steps.append(ac_payload)
 
@@ -3204,7 +3212,8 @@ def _verify_finished_task_chain(repo_root: Path, task_path: Path) -> list[str]:
         if item_path is None:
             issues.append(f"task `{task_ref}` references missing backlog item `{item_ref}`")
             continue
-        if not _is_doc_done(item_path, DOC_KINDS["backlog"]):
+        linked_tasks = _collect_docs_linking_ref(repo_root, DOC_KINDS["task"], item_ref)
+        if linked_tasks and all(_is_doc_done(linked_task, DOC_KINDS["task"]) for linked_task in linked_tasks) and not _is_doc_done(item_path, DOC_KINDS["backlog"]):
             issues.append(f"linked backlog item `{item_ref}` is not closed after finishing task `{task_ref}`")
 
         item_text = _strip_mermaid_blocks(item_path.read_text(encoding="utf-8"))

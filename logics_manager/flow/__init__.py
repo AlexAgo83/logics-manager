@@ -697,7 +697,7 @@ def repair_gates_payload(repo_root: Path, source: str, *, dry_run: bool) -> dict
 
 
 
-def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: bool, proof: str | None = None, proof_source: str | None = None) -> dict[str, object]:
+def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: bool, proof: str | None = None, proof_source: str | None = None, task: str | None = None) -> dict[str, object]:
     request_path = _resolve_workflow_source(repo_root, DOC_KINDS["request"], source)
     request_ref = request_path.stem
     ac_entries = _request_ac_entries(request_path)
@@ -708,6 +708,22 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
         path
         for path in _collect_docs_linking_ref(repo_root, DOC_KINDS["task"], request_ref)
     }
+
+    for item_path in linked_items:
+        for task_ref in _extract_refs(_strip_mermaid_blocks(item_path.read_text(encoding="utf-8")), DOC_KINDS["task"].prefix):
+            if task_path := _resolve_doc_path(repo_root, DOC_KINDS["task"], task_ref):
+                linked_task_paths.add(task_path)
+
+    selected_task = None
+    if task:
+        selected_task = _resolve_workflow_source(repo_root, DOC_KINDS["task"], task)
+        if selected_task not in linked_task_paths:
+            raise SystemExit(f"Task `{task}` is not linked to `{request_ref}`.")
+        linked_items = [
+            item_path
+            for item_path in linked_items
+            if selected_task.stem in _extract_refs(_strip_mermaid_blocks(item_path.read_text(encoding="utf-8")), DOC_KINDS["task"].prefix)
+        ]
 
     for item_path in linked_items:
         item_before = item_path.read_text(encoding="utf-8")
@@ -734,14 +750,11 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
         if _append_doc_section_bullets_changed(item_path, "AC Traceability", item_missing, dry_run=dry_run):
             changed_paths.add(item_path.relative_to(repo_root))
 
-        item_text = _strip_mermaid_blocks(item_path.read_text(encoding="utf-8") if not dry_run else item_before)
-        for task_ref in sorted(_extract_refs(item_text, DOC_KINDS["task"].prefix)):
-            task_path = _resolve_doc_path(repo_root, DOC_KINDS["task"], task_ref)
-            if task_path is None:
-                continue
-            linked_task_paths.add(task_path)
+    ambiguous_explicit_proof = bool(proof and not selected_task and len(linked_task_paths) > 1)
+    if ambiguous_explicit_proof:
+        skipped.append(f"{request_ref}: explicit proof needs --task because {len(linked_task_paths)} tasks are linked")
 
-    for task_path in sorted(linked_task_paths):
+    for task_path in sorted({selected_task} if selected_task else linked_task_paths):
         task_before = task_path.read_text(encoding="utf-8")
         # Recorded proof wins over the shared --proof string: it was written when the
         # thing was true, and it is about this criterion rather than about all of them.
@@ -750,19 +763,20 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
         # per criterion, and skipping anything that exists meant recorded proof never
         # composed into a task that had been scaffolded -- the common case. Generated
         # wording is replaced; anything authored is still left strictly alone.
+        item_refs = _extract_refs(task_before, DOC_KINDS["backlog"].prefix)
         composable = {
-            ac_id: _ac_traceability_entry(ac_id, "This task", text, composed, proof_source)
+            ac_id: _ac_traceability_entry(ac_id, "This task", text, composed or proof, proof_source)
             for ac_id, text in ac_entries
-            if (composed := _composed_ac_proof(task_before, ac_id))
-            and _line_is_generated_placeholder(task_before, ac_id)
+            if ((composed := _composed_ac_proof(task_before, ac_id)) or (proof and not ambiguous_explicit_proof))
+            and _line_is_generated_placeholder(task_before, ac_id, item_refs)
         }
         if composable and not dry_run:
-            task_before = _replace_ac_traceability_lines(task_path, composable)
+            task_before = _replace_ac_traceability_lines(task_path, composable, item_refs)
             changed_paths.add(task_path.relative_to(repo_root))
         task_missing = [
             _ac_traceability_entry(ac_id, "This task", text, _composed_ac_proof(task_before, ac_id) or proof, proof_source)
             for ac_id, text in ac_entries
-            if not _has_ac_traceability_line(task_before, ac_id)
+            if not ambiguous_explicit_proof and not _has_ac_traceability_line(task_before, ac_id)
         ]
         skipped.extend(
             f"{task_path.relative_to(repo_root).as_posix()}: {ac_id} already has a traceability line"
@@ -1311,6 +1325,7 @@ def build_parser() -> argparse.ArgumentParser:
     repair_ac.add_argument("source")
     repair_ac.add_argument("--proof")
     repair_ac.add_argument("--proof-source")
+    repair_ac.add_argument("--task", help="Task that owns an explicit proof when a request has sibling tasks.")
     repair_ac.add_argument("--verify-closeout")
     repair_ac.add_argument("--format", choices=("text", "json"), default="text")
     repair_ac.add_argument("--dry-run", action="store_true")
@@ -2077,18 +2092,18 @@ def cmd_repair_gates(args: argparse.Namespace) -> dict[str, object]:
     return payload
 
 
-def _line_is_generated_placeholder(text: str, ac_id: str) -> bool:
+def _line_is_generated_placeholder(text: str, ac_id: str, item_refs: list[str]) -> bool:
     """True when `ac_id`'s traceability line is still the scaffold's generated wording."""
-    pattern = re.compile(rf"^\s*-\s*request-{re.escape(ac_id)}\b.*$", re.IGNORECASE | re.MULTILINE)
-    match = pattern.search(text)
-    return bool(match) and AC_DEFERRED_PLACEHOLDER in match.group(0)
+    expected = {f"- request-{ac_id} -> `{item_ref}`. {AC_DEFERRED_PLACEHOLDER}" for item_ref in item_refs}
+    return any(line.strip() in expected for line in text.splitlines())
 
 
-def _replace_ac_traceability_lines(path: Path, entries: dict[str, str]) -> str:
+def _replace_ac_traceability_lines(path: Path, entries: dict[str, str], item_refs: list[str]) -> str:
     lines = path.read_text(encoding="utf-8").splitlines()
     for index, line in enumerate(lines):
         for ac_id, rendered in entries.items():
-            if re.match(rf"^\s*-\s*request-{re.escape(ac_id)}\b", line, flags=re.IGNORECASE):
+            expected = {f"- request-{ac_id} -> `{item_ref}`. {AC_DEFERRED_PLACEHOLDER}" for item_ref in item_refs}
+            if line.strip() in expected:
                 lines[index] = f"- {rendered}"
                 break
     text = "\n".join(lines).rstrip() + "\n"
@@ -2145,7 +2160,7 @@ def cmd_evidence_add(args: argparse.Namespace) -> dict[str, object]:
 def cmd_repair_ac_traceability(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
     snapshot = _repair_verify_snapshot(repo_root, args.verify_closeout, args.dry_run)
-    payload = repair_ac_traceability_payload(repo_root, args.source, dry_run=args.dry_run, proof=args.proof, proof_source=args.proof_source)
+    payload = repair_ac_traceability_payload(repo_root, args.source, dry_run=args.dry_run, proof=args.proof, proof_source=args.proof_source, task=args.task)
     payload = _finalize_repair_verify(repo_root, payload, args.verify_closeout, snapshot)
     _print_repair_payload(payload, args.format)
     return payload

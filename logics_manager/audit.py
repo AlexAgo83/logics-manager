@@ -732,6 +732,9 @@ def _autofix_ac_traceability(path: Path, ac_ids: set[str], *, dry_run: bool = Fa
             line = lines[idx]
             if ac_id not in line.upper():
                 continue
+            if "proof deferred to slice closeout." in line.lower():
+                handled = True
+                break
             if "proof:" in line.lower():
                 handled = True
                 break

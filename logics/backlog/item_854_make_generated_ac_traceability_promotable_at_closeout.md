@@ -1,13 +1,14 @@
 ## item_854_make_generated_ac_traceability_promotable_at_closeout - Make generated AC traceability promotable at closeout
 > From version: 2.22.2
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 40%
 > Complexity: Medium
 > Theme: Closeout proof convergence
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-22 13:12:48
 
 # AI Context
 - Summary: Promote the scaffold's deferred AC line only with recorded or supplied evidence, without changing sibling or authored proof.

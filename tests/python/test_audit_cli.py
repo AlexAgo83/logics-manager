@@ -375,6 +375,17 @@ def test_duplicate_proof_ac_groups_ignores_placeholders() -> None:
     assert duplicate_proof_ac_groups(text) == []
 
 
+def test_traceability_autofix_preserves_a_deferred_placeholder(tmp_path: Path) -> None:
+    from logics_manager.audit import _autofix_ac_traceability
+
+    path = tmp_path / "task.md"
+    deferred = "- request-AC1 -> `item_001_demo`. Proof deferred to slice closeout."
+    path.write_text(f"# AC Traceability\n{deferred}\n", encoding="utf-8")
+
+    assert _autofix_ac_traceability(path, {"AC1"}) is False
+    assert path.read_text(encoding="utf-8") == f"# AC Traceability\n{deferred}\n"
+
+
 def test_duplicate_proof_ac_groups_allows_distinct_proofs() -> None:
     text = "\n".join(
         [

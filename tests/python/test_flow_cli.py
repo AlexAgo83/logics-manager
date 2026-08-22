@@ -593,6 +593,32 @@ def test_repair_ac_traceability_records_explicit_proof(
     assert "ac_missing_task_traceability" not in issue_codes
 
 
+def test_repair_ac_traceability_replaces_only_the_selected_generated_placeholder(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = tmp_path / "logics-repo"
+    paths = write_ac_traceability_chain(repo_root)
+    task_path = paths["task"]
+    sibling_path = repo_root / "logics" / "tasks" / "task_002_sibling.md"
+    generated = "- request-AC1 -> `item_001_demo`. Proof deferred to slice closeout."
+    task_path.write_text(task_path.read_text(encoding="utf-8").replace("# Links", "# AC Traceability\n" + generated + "\n- request-AC1 -> This task. Proof deferred to slice closeout. (operator note)\n# Links"), encoding="utf-8")
+    sibling_path.write_text(task_path.read_text(encoding="utf-8").replace("task_001_demo", "task_002_sibling"), encoding="utf-8")
+    paths["backlog"].write_text(paths["backlog"].read_text(encoding="utf-8").replace("`task_001_demo`", "`task_001_demo`, `task_002_sibling`"), encoding="utf-8")
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _cwd: repo_root)
+
+    assert main(["flow", "repair", "ac-traceability", "req_001_demo", "--proof", "covered by regression"]) == 0
+    assert task_path.read_text(encoding="utf-8").count(generated) == 1
+    assert sibling_path.read_text(encoding="utf-8").count(generated) == 1
+
+    assert main(["flow", "repair", "ac-traceability", "req_001_demo", "--proof", "covered by regression", "--task", "task_001_demo"]) == 0
+
+    repaired = task_path.read_text(encoding="utf-8")
+    assert "request-AC1 -> This task. Proof: covered by regression" in repaired
+    assert "This task. Proof deferred to slice closeout. (operator note)" in repaired
+    assert sibling_path.read_text(encoding="utf-8").count(generated) == 1
+
+
 def test_repair_ac_traceability_verify_rolls_back_without_proof(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

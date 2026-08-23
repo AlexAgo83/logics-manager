@@ -2430,6 +2430,10 @@
    pane scrolls vertically; wide content scrolls inside its own block. */
 .viewer-workspace__preview {
   display: grid;
+  /* An implicit `auto` column grows to the widest child, so a long code line widened the
+     whole pane and pushed the header controls past the viewport even with the overflow
+     hidden. `minmax(0, 1fr)` holds the track to the pane. */
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr);
   align-content: stretch;
   gap: 0;
@@ -2437,8 +2441,12 @@
   overflow-x: hidden;
 }
 
-.viewer-workspace__preview .viewer-code,
-.viewer-workspace__preview .viewer-workspace__code,
+.viewer-workspace__preview > *,
+.viewer-workspace__preview-body {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .viewer-workspace__preview .viewer-workspace__markdown {
   max-width: 100%;
   overflow-x: auto;

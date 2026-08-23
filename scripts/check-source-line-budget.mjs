@@ -438,7 +438,10 @@ const allowedOversizedFiles = new Map(
     // 5583: req_381 adds only host wiring for the third surface: two factory exports,
     // the surface buttons, and delegated Review burst/file clicks. The screen renderer
     // itself stays in git.js with the Git content loaders.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 5583, ref: "req_381" },
+    // 5638: req_383 keeps Explorer's directory-tree cache and file-only detail refresh in
+    // the host because this is where file/tree clicks already dispatch and where the live
+    // meta line is announced. A separate module would still need these closures.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 5638, ref: "req_383" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     // 1114: req_381 adds the Review timeline to the Git screen because it is a Git-only
@@ -530,7 +533,10 @@ const allowedOversizedFiles = new Map(
     // status-confirm and in-browser editor screens (req_374/375).
     // 2163: req_381 makes returnToProjectSurface write the tri-state surface directly
     // instead of clicking the old Activity toggle.
-    "clients/viewer/src/browser-host/render.js": { maxLines: 2163, ref: "req_381" },
+    // 2182: req_383 adds the Explorer markdown Raw/Preview rendering at the existing
+    // preview renderer, reusing markdownApi/renderCodeViewer instead of introducing a
+    // second renderer path.
+    "clients/viewer/src/browser-host/render.js": { maxLines: 2182, ref: "req_383" },
     // 1353: req_314 taught the board to group by status, which is what its control always
     // claimed to do. The grouping itself is eleven lines; the rest is the heading element
     // the accessibility slice needed.

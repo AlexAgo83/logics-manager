@@ -3795,6 +3795,20 @@ def test_update_does_not_print_the_deprecation_notice(
     assert "deprecated alias" not in captured.err
 
 
+def test_update_check_does_not_treat_stale_latest_as_available(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.setattr("logics_manager.cli.get_cli_version", lambda: "2.23.0")
+    monkeypatch.setattr("logics_manager.cli.latest_available_version", lambda: "2.22.4")
+
+    exit_code = main(["update", "--check", "--format", "json"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert json.loads(captured.out)["update_available"] is False
+
+
 def test_self_update_check_skips_the_notice_under_json_format(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],

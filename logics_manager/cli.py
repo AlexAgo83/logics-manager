@@ -26,7 +26,7 @@ from .sync import search_logics_docs_payload
 from .doctor import doctor_packaging_payload, doctor_payload, render_doctor, render_doctor_payload
 from .termstyle import colorize_help
 from .skills import resync_all_harnesses
-from .update_check import current_version as package_current_version, get_update_info, get_update_notice
+from .update_check import current_version as package_current_version, get_update_info, get_update_notice, is_newer_version
 
 
 DEFAULT_SELF_UPDATE_PY_PACKAGE = "logics-manager"
@@ -776,9 +776,7 @@ def _dispatch(argv: list[str] | None = None) -> int:
 
         if parsed.check:
             state["latest_version"] = latest_available_version()
-            state["update_available"] = bool(
-                state["latest_version"] and state["latest_version"] != state["current_version"]
-            )
+            state["update_available"] = is_newer_version(str(state["latest_version"] or ""), str(state["current_version"]))
             _print_update_state(state, parsed.format)
             return 0
 

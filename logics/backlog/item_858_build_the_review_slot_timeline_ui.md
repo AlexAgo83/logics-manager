@@ -2,8 +2,8 @@
 > From version: 2.22.4
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92%
+> Confidence: 88%
 > Progress: 0%
 > Complexity: High
 > Theme: Viewer review
@@ -30,7 +30,7 @@
   - Use a desktop layout with burst rail on top, file list on the left, and diff pane as the dominant region; adapt tablet and phone to one page scroll axis with internal horizontal scrolling only for the burst rail.
   - Keep row heights and controls stable across loading, hover, active, and truncated states.
   - Add non-colour selected/focus cues and `aria-current` or equivalent state for both the active burst and active file.
-  - Support left/right burst navigation and up/down file navigation without trapping focus or requiring a mouse.
+  - Support left/right burst navigation and up/down file navigation without trapping focus or requiring a mouse, scoped so the four existing document-level keydown handlers and open modals keep their keys.
   - Select the first useful burst and file on initial load, with clean/empty states when there is nothing to review.
   - Refresh Review from the existing viewer refresh path so changed Git status updates the screen without a separate live watcher.
   - Add only the CSS needed for the three-pane Review layout and reuse existing tokens, buttons, badges, and code viewer styles.
@@ -54,6 +54,7 @@
 - AC10: The visual campaign or equivalent layout harness exercises Review and covers blank surfaces, sibling-control overlap, viewport clipping, horizontal page scroll, heading structure, disabled reasons, and colour-only state.
 - AC11: Browser-host tests cover rendering, selection, keyboard movement, diff loading, and unavailable states.
 - AC12: The viewer bundle is regenerated and the standard viewer checks pass.
+- AC13: The Review key handler ignores keys while a modal is open or a text field has focus, and the other document-level keydown handlers in the browser host still receive their keys.
 
 # AC Traceability
 - request-AC1 -> This backlog slice. Proof: AC1: The Activity/Project control becomes Activity/Project/Review and existing topbar/menu slots remain reachable.
@@ -68,6 +69,7 @@
 - request-AC10 -> This backlog slice. Proof: AC10: The visual campaign or equivalent layout harness exercises Review and covers blank surfaces, sibling-control overlap, viewport clipping, horizontal page scroll, heading structure, disabled reasons, and colour-only state.
 - request-AC11 -> This backlog slice. Proof: AC11: Browser-host tests cover rendering, selection, keyboard movement, diff loading, and unavailable states.
 - request-AC12 -> This backlog slice. Proof: AC12: The viewer bundle is regenerated and the standard viewer checks pass.
+- request-AC13 -> This backlog slice. Proof: AC13: The Review key handler ignores keys while a modal is open or a text field has focus, and the other document-level keydown handlers in the browser host still receive their keys.
 
 # Decision framing
 - Product framing: Not needed

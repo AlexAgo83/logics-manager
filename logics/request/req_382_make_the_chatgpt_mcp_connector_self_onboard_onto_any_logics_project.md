@@ -2,8 +2,8 @@
 > From version: 2.22.4
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92%
+> Confidence: 88%
 > Complexity: High
 > Theme: Connector onboarding
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -39,6 +39,7 @@
 - AC7: The tool definitions and docs make the intended model protocol explicit: first call onboarding, trust only returned tool evidence, then call search/read resources as needed; no response should imply a project is visible without a successful tool result.
 - AC8: Tests cover the happy path, no-Logics/no-Git degraded states, project targeting, source-pointer shape, MCP tool schema exposure, and the transcript regression where `list_active_work` is reachable through onboarding without extra user-pasted context.
 - AC9: Validation passes through focused Python tests for MCP/project context plus `logics-manager lint --require-status` and `logics-manager audit --group-by-doc` on the generated corpus.
+- AC10: Every new connector tool is registered in the MCP tool-capability map as read-only and is exposed by the profile the tunnel actually serves (`curated`), with a test asserting the tool names appear in `select_tools` for that profile; tools missing from the map are served by no profile at all, so the connector would never see them.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

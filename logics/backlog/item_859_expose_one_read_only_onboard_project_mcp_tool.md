@@ -2,8 +2,8 @@
 > From version: 2.22.4
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92%
+> Confidence: 88%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Connector onboarding
@@ -26,6 +26,7 @@
   - Return explicit state fields for connector/tool/project availability instead of soft text: for example `available`, `project_selected`, `corpus_present`, `degraded`, and `messages`.
   - Return repo-relative paths or refs only; do not expose absolute local filesystem paths in the model-facing payload.
   - Document the intended model protocol in the tool description and nearby connector docs: call onboarding first, then trust only tool evidence.
+  - Register the new tool names in `TOOL_CAPABILITIES` as read-only so the tunnel's served profile exposes them; an unregistered name is selected by no profile, not even `full`.
 - Out:
   - Project switching and registry listing (sibling slice).
   - Detailed Git/recent activity aggregation (sibling slice).
@@ -37,6 +38,7 @@
 - AC3: A no-Logics repository or missing project produces an explicit degraded payload or clear MCP error without a traceback.
 - AC4: Returned paths are repo-relative or refs; tests fail if an absolute repo path appears in the model-facing fields.
 - AC5: Tool schema exposure and handler-table coverage include `onboard_project`.
+- AC5: `onboard_project` and every sibling connector tool are entered in the MCP tool-capability map as read-only, and a test asserts they resolve through `select_tools(profile="curated")` and `profile="read-only"`.
 
 # AC Traceability
 - request-AC1 -> This backlog slice. Proof: AC1: `call_tool('onboard_project', {})` returns a structured project/corpus/work payload in a bootstrapped repository.
@@ -44,6 +46,7 @@
 - request-AC5 -> This backlog slice. Proof: AC3: A no-Logics repository or missing project produces an explicit degraded payload or clear MCP error without a traceback.
 - request-AC7 -> This backlog slice. Proof: AC4: Returned paths are repo-relative or refs; tests fail if an absolute repo path appears in the model-facing fields.
 - request-AC8 -> This backlog slice. Proof: AC5: Tool schema exposure and handler-table coverage include `onboard_project`.
+- request-AC10 -> This backlog slice. Proof: AC5: `onboard_project` and every sibling connector tool are entered in the MCP tool-capability map as read-only, and a test asserts they resolve through `select_tools(profile="curated")` and `profile="read-only"`.
 
 # Decision framing
 - Product framing: Not needed

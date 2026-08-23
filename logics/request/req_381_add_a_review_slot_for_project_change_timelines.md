@@ -2,8 +2,8 @@
 > From version: 2.22.4
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92%
+> Confidence: 88%
 > Complexity: High
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -48,6 +48,7 @@
 - AC10: Review is included in the local viewer visual campaign or equivalent layout harness, proving no blank surface, sibling-control overlap, viewport clipping, horizontal page scroll, missing heading structure, silent disabled action, or colour-only state at 1440x900, 820x1180, and 390x844.
 - AC11: Backend and browser-host tests cover burst construction, committed-file diff payloads, working-tree selection, keyboard navigation, and unavailable-state rendering.
 - AC12: The generated browser host bundle is updated and `npm run bundle:viewer-host`, `npm run check:viewer-host`, targeted vitest/pytest checks, the visual campaign target, and `logics-manager lint --require-status` pass.
+- AC13: Review arrow-key navigation is scoped to the active Review screen: it does not fire while a modal is open or while focus is in a text field, and the existing document-level viewer keyboard shortcuts keep working.
 
 # Definition of Ready (DoR)
 - [x] Problem statement is explicit and user impact is clear.

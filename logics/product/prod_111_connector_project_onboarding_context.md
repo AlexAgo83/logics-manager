@@ -1,11 +1,12 @@
 ## prod_111_connector_project_onboarding_context - Connector project onboarding context
 > Date: 2026-08-23
-> Status: Proposed
+> Status: Settled
 > Related request: `req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project`
-> Related backlog: `item_859_expose_one_read_only_onboard_project_mcp_tool`, `item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions`, `item_861_aggregate_recent_logics_and_git_activity_for_onboarding`, `item_862_expose_source_backed_project_context_search_and_resource_reads`
+> Related backlog: `item_859_expose_one_read_only_onboard_project_mcp_tool`
 > Related task: `task_394_orchestrate_connector_project_onboarding_context`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-23 12:58:13
 
 # Overview
 Give the ChatGPT MCP connector a small, reliable project-onboarding surface: one read-only call tells the model where it is, what Logics work is active, what changed recently, what it can read next, and how to target another project. The context stays derived from Logics and Git instead of becoming a manually maintained assistant summary.
@@ -45,5 +46,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project`
+- Product back-reference: `item_859_expose_one_read_only_onboard_project_mcp_tool`
 - Task back-reference: `task_394_orchestrate_connector_project_onboarding_context`

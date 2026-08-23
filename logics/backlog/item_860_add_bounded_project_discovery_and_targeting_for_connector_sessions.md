@@ -1,14 +1,14 @@
 ## item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions - Add bounded project discovery and targeting for connector sessions
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Connector onboarding
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 12:40:54
+> Indicators reviewed: 2026-08-23 12:58:13
 
 # AI Context
 - Summary: Let connector clients list, identify, and target known Logics projects through bounded registry rules instead of arbitrary paths.
@@ -53,3 +53,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_394_orchestrate_connector_project_onboarding_context`
+
+# Notes
+- Task `task_394_orchestrate_connector_project_onboarding_context` was finished via `logics-manager flow finish task` on 2026-08-23.

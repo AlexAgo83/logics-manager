@@ -380,14 +380,15 @@ describe("webview chrome toolbar and filter behavior", () => {
 
     expect(activityPanel?.hidden).toBe(false);
     expect(board?.hidden).toBe(true);
-    expect(activityToggle?.getAttribute("aria-pressed")).toBe("true");
-    expect(activityToggle?.getAttribute("aria-label")).toContain("Hide");
+    expect(activityToggle?.dataset.currentMode).toBe("activity");
+    expect(activityToggle?.getAttribute("aria-pressed")).toBeNull();
+    expect(activityToggle?.getAttribute("aria-label")).toContain("Show");
 
     activityToggle?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 
     expect(activityPanel?.hidden).toBe(true);
     expect(board?.hidden).toBe(false);
-    expect(activityToggle?.getAttribute("aria-pressed")).toBe("false");
+    expect(activityToggle?.dataset.currentMode).toBe("project");
     expect(activityToggle?.getAttribute("aria-label")).toContain("Show");
   });
 
@@ -407,7 +408,7 @@ describe("webview chrome toolbar and filter behavior", () => {
 
     expect(dom.window.document.getElementById("activity-panel")?.hidden).toBe(true);
     expect(dom.window.document.getElementById("board")?.hidden).toBe(false);
-    expect(dom.window.document.getElementById("activity-toggle")?.getAttribute("aria-pressed")).toBe("false");
+    expect((dom.window.document.getElementById("activity-toggle") as HTMLElement | null)?.dataset.currentMode).toBe("project");
   });
 
   it("req_332: does not repeatedly reset to Activity on every refresh after one real workspace-root mismatch", () => {
@@ -438,7 +439,7 @@ describe("webview chrome toolbar and filter behavior", () => {
     // Activity on every single refresh.
     pushData(dom, { root: "/workspace/mock", items: [baseItem] });
     expect(activityPanel?.hidden).toBe(true);
-    expect(activityToggle?.getAttribute("aria-pressed")).toBe("false");
+    expect(activityToggle?.dataset.currentMode).toBe("project");
 
     pushData(dom, { root: "/workspace/mock", items: [baseItem] });
     expect(activityPanel?.hidden).toBe(true);

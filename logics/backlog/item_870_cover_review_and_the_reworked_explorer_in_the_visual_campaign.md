@@ -1,13 +1,14 @@
 ## item_870_cover_review_and_the_reworked_explorer_in_the_visual_campaign - Cover Review and the reworked Explorer in the visual campaign
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 92%
 > Confidence: 88%
-> Progress: 0%
+> Progress: 90%
 > Complexity: Medium
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-23 14:51:20
 
 # AI Context
 - Summary: Puts Review and the reworked Explorer under the visual campaign the closed criteria said judged them.

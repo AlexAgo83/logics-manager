@@ -1,13 +1,14 @@
 ## item_867_make_the_review_bursts_payload_lazy_refreshable_and_failure_safe - Make the Review bursts payload lazy, refreshable, and failure-safe
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 92%
 > Confidence: 88%
-> Progress: 0%
+> Progress: 90%
 > Complexity: High
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-23 14:51:20
 
 # AI Context
 - Summary: Makes the Review bursts payload cheap enough to refresh: counts up front, a burst's files on selection, and failures returned rather than raised.

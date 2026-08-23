@@ -209,7 +209,7 @@ def _parse_git_numstat(output: str) -> dict[str, dict[str, int]]:
         parts = line.split("\t")
         if len(parts) < 3:
             continue
-        raw_additions, raw_deletions, raw_path = parts[:3]
+        raw_additions, raw_deletions, raw_path = parts[0], parts[1], parts[-1]
         try:
             additions = int(raw_additions)
             deletions = int(raw_deletions)
@@ -217,7 +217,8 @@ def _parse_git_numstat(output: str) -> dict[str, dict[str, int]]:
             continue
         path = raw_path.strip()
         if " => " in path:
-            path = path.split(" => ", 1)[1].strip("{}")
+            match = re.match(r"^(.*)\{[^{}]* => ([^{}]*)\}(.*)$", path)
+            path = "".join(match.groups()) if match else path.split(" => ", 1)[1].strip("{}")
         if path:
             stats[path] = {"additions": additions, "deletions": deletions}
     return stats
@@ -264,7 +265,8 @@ def _commit_review_files(repo_root: Path, ref: str, *, runner: Any | None = None
     stats = _run_read_only_git(repo_root, ["show", "--no-ext-diff", "--format=", "--numstat", "--find-renames", ref], runner=runner)
     names = _run_read_only_git(repo_root, ["show", "--no-ext-diff", "--format=", "--name-status", "--find-renames", ref], runner=runner)
     if stats.returncode != 0 and names.returncode != 0:
-        return []
+        message = (names.stderr or stats.stderr or names.stdout or stats.stdout or "Git show failed.").strip().splitlines()[0]
+        raise subprocess.SubprocessError(message)
     by_path = _parse_git_numstat(stats.stdout if stats.returncode == 0 else "")
     rows: list[dict[str, Any]] = []
     for line in (names.stdout if names.returncode == 0 else "").splitlines():
@@ -285,6 +287,14 @@ def _commit_review_files(repo_root: Path, ref: str, *, runner: Any | None = None
         if len(rows) >= 200:
             break
     return rows
+
+
+def _review_file_totals(files: list[dict[str, Any]]) -> dict[str, int]:
+    return {
+        "fileCount": len(files),
+        "additions": sum(int(item.get("additions", 0) or 0) for item in files),
+        "deletions": sum(int(item.get("deletions", 0) or 0) for item in files),
+    }
 
 
 def _git_unpushed_commit_count(repo_root: Path, *, runner: Any | None = None) -> dict[str, Any]:
@@ -407,13 +417,14 @@ def review_bursts_payload(repo_root: Path, *, runner: Any | None = None, which: 
                 seen.add(key)
                 dirty_files.append(item)
     if dirty_files:
+        totals = _review_file_totals(dirty_files)
         bursts.append({
             "id": "working-tree",
             "kind": "working-tree",
             "label": "Working tree",
             "title": "Uncommitted changes",
-            "meta": f"{len(dirty_files)} files",
-            "files": dirty_files,
+            "meta": f"{totals['fileCount']} files",
+            **totals,
         })
 
     commits = status.get("recentCommits") if isinstance(status.get("recentCommits"), list) else []
@@ -430,9 +441,35 @@ def review_bursts_payload(repo_root: Path, *, runner: Any | None = None, which: 
             "label": ref[:7],
             "title": str(commit.get("subject") or "Untitled commit")[:240],
             "meta": " · ".join(str(commit.get(key) or "").strip() for key in ("author", "date") if str(commit.get(key) or "").strip()),
-            "files": _commit_review_files(repo_root, ref, runner=runner),
+            "fileCount": 0,
+            "additions": 0,
+            "deletions": 0,
         })
     return {"state": "ok", "message": "" if bursts else "No Git changes or recent commits are available.", "bursts": bursts}
+
+
+def review_burst_files_payload(repo_root: Path, *, kind: str = "", ref: str = "", runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
+    git_which = which or shutil.which
+    if not git_which("git"):
+        return {"state": "unavailable", "message": "Git is not available on PATH.", "files": []}
+    if kind == "working-tree":
+        status = git_status_payload(repo_root, runner=runner, which=which)
+        if status.get("state") != "ok":
+            return {"state": status.get("state", "error"), "message": status.get("message", "Unable to inspect Git status."), "files": []}
+        files: list[dict[str, Any]] = []
+        for group, entries in (status.get("groups") if isinstance(status.get("groups"), dict) else {}).items():
+            for entry in entries if isinstance(entries, list) else []:
+                if isinstance(entry, dict):
+                    files.append(_review_file_entry(entry, str(group)))
+        return {"state": "ok", "files": files, **_review_file_totals(files)}
+    normalized = str(ref or "").strip()
+    if not re.fullmatch(r"[0-9a-fA-F]{4,40}", normalized):
+        return {"state": "error", "message": "Unsafe Git commit ref.", "files": []}
+    try:
+        files = _commit_review_files(repo_root, normalized, runner=runner)
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"state": "error", "message": f"Unable to collect Git review files: {exc}", "files": []}
+    return {"state": "ok", "ref": normalized, "files": files, **_review_file_totals(files)}
 
 
 def _run_git_mutation(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:

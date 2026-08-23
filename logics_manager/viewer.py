@@ -3212,6 +3212,14 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         if route == "/api/review-bursts":
             self._send_json({"ok": True, "payload": review_bursts_payload(self.server.repo_root)})
             return True
+        if route == "/api/review-burst-files":
+            params = parse_qs(parsed.query)
+            self._send_json({"ok": True, "payload": review_burst_files_payload(
+                self.server.repo_root,
+                kind=params.get("kind", [""])[0],
+                ref=params.get("ref", [""])[0],
+            )})
+            return True
         if route == "/api/git-file-preview":
             params = parse_qs(parsed.query)
             payload = git_file_preview_payload(
@@ -4397,5 +4405,6 @@ from .viewer_git import (  # noqa: E402,F401  (re-exported for backward compatib
     git_status_payload,
     github_repo_url,
     gitlab_repo_url,
+    review_burst_files_payload,
     review_bursts_payload,
 )

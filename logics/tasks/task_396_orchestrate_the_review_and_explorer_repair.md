@@ -1,13 +1,15 @@
 ## task_396_orchestrate_the_review_and_explorer_repair - Orchestrate the Review and Explorer repair
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 92%
 > Confidence: 88%
-> Progress: 0%
+> Progress: 90%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Owner: codex
+> Indicators reviewed: 2026-08-23 14:51:20
 
 # AI Context
 - Summary: Sequences the five repair slices, ending with the campaign once the surfaces are stable.

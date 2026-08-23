@@ -70,6 +70,7 @@ from logics_manager.viewer import (
     save_doc_payload,
     viewer_project_registry,
     viewer_project_capabilities,
+    review_burst_files_payload,
     review_bursts_payload,
     VIEWER_MUTATING_ROUTES,
     WorkshopSessionRegistry,
@@ -1589,7 +1590,7 @@ def test_viewer_git_commit_diff_payload_can_scope_to_one_file(tmp_path: Path) ->
     assert git_commit_diff_payload(tmp_path, "abc1234", path="../outside.ts", which=lambda _name: "/usr/bin/git")["state"] == "error"
 
 
-def test_viewer_review_bursts_payload_reuses_status_and_commit_stats(tmp_path: Path) -> None:
+def test_viewer_review_bursts_payload_is_not_per_commit(tmp_path: Path) -> None:
     calls: list[list[str]] = []
 
     def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
@@ -1611,22 +1612,49 @@ def test_viewer_review_bursts_payload_reuses_status_and_commit_stats(tmp_path: P
             return subprocess.CompletedProcess(args, 0, "0\n", "")
         if tail == ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"]:
             return subprocess.CompletedProcess(args, 0, "origin/main\n", "")
-        if tail == ["show", "--no-ext-diff", "--format=", "--numstat", "--find-renames", "abc1234"]:
-            return subprocess.CompletedProcess(args, 0, "4\t2\tsrc/commit.ts\n", "")
-        if tail == ["show", "--no-ext-diff", "--format=", "--name-status", "--find-renames", "abc1234"]:
-            return subprocess.CompletedProcess(args, 0, "M\tsrc/commit.ts\n", "")
         raise AssertionError(args)
 
     payload = review_bursts_payload(tmp_path, runner=runner, which=lambda _name: "/usr/bin/git")
 
     assert payload["state"] == "ok"
     assert [burst["kind"] for burst in payload["bursts"]] == ["working-tree", "commit"]
-    assert payload["bursts"][0]["files"][0]["path"] == "docs/new.md"
-    assert payload["bursts"][0]["files"][0]["cached"] is True
+    assert payload["bursts"][0]["fileCount"] == 2
+    assert payload["bursts"][0]["additions"] == 4
     assert payload["bursts"][1]["ref"] == "abc1234"
-    assert payload["bursts"][1]["files"][0]["path"] == "src/commit.ts"
-    assert payload["bursts"][1]["files"][0]["additions"] == 4
+    assert "files" not in payload["bursts"][1]
+    assert not any(call[1] == "show" for call in calls)
     assert not any("push" in call or "fetch" in call or "pull" in call for call in calls for _ in [call])
+
+
+def test_viewer_review_burst_files_payload_loads_commit_files_and_errors(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        tail = args[1:]
+        if tail == ["show", "--no-ext-diff", "--format=", "--numstat", "--find-renames", "abc1234"]:
+            return subprocess.CompletedProcess(args, 0, "4\t2\tsrc/{old.ts => new.ts}\n", "")
+        if tail == ["show", "--no-ext-diff", "--format=", "--name-status", "--find-renames", "abc1234"]:
+            return subprocess.CompletedProcess(args, 0, "R100\tsrc/old.ts\tsrc/new.ts\n", "")
+        if tail == ["show", "--no-ext-diff", "--format=", "--numstat", "--find-renames", "badc0de"]:
+            return subprocess.CompletedProcess(args, 128, "", "fatal: bad object")
+        if tail == ["show", "--no-ext-diff", "--format=", "--name-status", "--find-renames", "badc0de"]:
+            return subprocess.CompletedProcess(args, 128, "", "fatal: bad object")
+        raise AssertionError(args)
+
+    payload = review_burst_files_payload(tmp_path, kind="commit", ref="abc1234", runner=runner, which=lambda _name: "/usr/bin/git")
+    error = review_burst_files_payload(tmp_path, kind="commit", ref="badc0de", runner=runner, which=lambda _name: "/usr/bin/git")
+    os_error = review_burst_files_payload(tmp_path, kind="commit", ref="feed123", runner=lambda *_args, **_kwargs: (_ for _ in ()).throw(OSError("boom")), which=lambda _name: "/usr/bin/git")
+
+    assert payload["state"] == "ok"
+    assert payload["files"][0]["path"] == "src/new.ts"
+    assert payload["files"][0]["additions"] == 4
+    assert payload["files"][0]["deletions"] == 2
+    assert payload["fileCount"] == 1
+    assert error["state"] == "error"
+    assert "bad object" in error["message"]
+    assert os_error["state"] == "error"
+    assert "boom" in os_error["message"]
 
 
 def test_viewer_git_file_preview_payload_is_read_only_bounded_and_path_safe(tmp_path: Path) -> None:

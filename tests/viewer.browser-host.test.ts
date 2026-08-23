@@ -3,6 +3,7 @@ import * as path from "path";
 import * as vm from "vm";
 import { JSDOM } from "jsdom";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { renderWorkspacePreview } from "../clients/viewer/src/browser-host/render.js";
 
 // Browser-host JSDOMs left open keep their diagnostics heartbeat/blank-ui
 // intervals firing for the rest of the file; a console.error landing during
@@ -1246,7 +1247,9 @@ function createViewerDom(options: {
                   label: "Working tree",
                   title: "Uncommitted changes",
                   meta: "1 file",
-                  files: [{ path: "logics/request/req_001_demo.md", kind: "modified", additions: 3, deletions: 1, cached: true }]
+                  fileCount: 1,
+                  additions: 3,
+                  deletions: 1
                 },
                 {
                   id: "commit:abc1234",
@@ -1255,11 +1258,24 @@ function createViewerDom(options: {
                   label: "abc1234",
                   title: "Demo commit",
                   meta: "Alex · 2026-08-23",
-                  files: [{ path: "src/demo.ts", kind: "M", additions: 2, deletions: 0 }]
+                  fileCount: 1,
+                  additions: 2,
+                  deletions: 0
                 }
               ]
             }
           })
+        };
+      }
+      if (String(url).startsWith("/api/review-burst-files")) {
+        const requestUrl = new URL(String(url), "http://127.0.0.1:8765");
+        const kind = requestUrl.searchParams.get("kind") || "";
+        const files = kind === "commit"
+          ? [{ path: "src/demo.ts", kind: "M", additions: 2, deletions: 0 }]
+          : [{ path: "logics/request/req_001_demo.md", kind: "modified", additions: 3, deletions: 1, cached: true }];
+        return {
+          ok: true,
+          json: async () => ({ ok: true, payload: { state: "ok", files, fileCount: files.length, additions: files.reduce((sum, item) => sum + item.additions, 0), deletions: files.reduce((sum, item) => sum + item.deletions, 0) } })
         };
       }
       if (String(url).startsWith("/api/git-diff")) {
@@ -1479,6 +1495,10 @@ function createViewerDom(options: {
           ? { state: "unsupported", path: "src/binary.dat", name: "binary.dat", size: 7, message: "Binary or unsupported file content cannot be previewed." }
           : previewPath === "README.md"
           ? { state: "ok", path: "README.md", name: "README.md", kind: "file", size: 18, contentType: "text/markdown", content: "# Demo\nRead me\n", truncated: false, lineCount: 2 }
+          : previewPath === "docs/note.markdown"
+          ? { state: "ok", path: "docs/note.markdown", name: "note.markdown", kind: "file", size: 15, contentType: "text/plain", content: "# Note\nBody\n", truncated: false, lineCount: 2 }
+          : previewPath === "docs/plain.txt"
+          ? { state: "ok", path: "docs/plain.txt", name: "plain.txt", kind: "file", size: 6, contentType: "text/plain", content: "# Text\n", truncated: false, lineCount: 1 }
           : previewPath === "docs/long.md"
           ? { state: "ok", path: "docs/long.md", name: "long.md", kind: "file", size: 120000, contentType: "text/markdown", content: "# Long\nRaw default\n", truncated: true, canForce: true, lineCount: 2 }
           : { state: "directory", path: previewPath, name: previewPath || "logics-manager", kind: "directory", message: "3 item(s)", childrenAvailable: true };
@@ -2172,7 +2192,7 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
     await flushViewerAsync();
 
-    const content = dom.window.document.getElementById("viewer-document-content");
+    let content = dom.window.document.getElementById("viewer-document-content");
     // Every row is visible, in order; only the one that is next carries a control.
     expect(content?.textContent).toContain("Tunnel created on OpenAI");
     expect(content?.textContent).toContain("ChatGPT reaching this repository");
@@ -2222,7 +2242,7 @@ describe("local viewer browser host", () => {
     open.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
     await flushViewerAsync();
 
-    const content = dom.window.document.getElementById("viewer-document-content");
+    let content = dom.window.document.getElementById("viewer-document-content");
     expect(content?.textContent).toContain("refused the API key (401)");
     expect(content?.textContent).not.toContain("Connector ON");
   });
@@ -2253,12 +2273,17 @@ describe("local viewer browser host", () => {
 
   it("syncs Activity/Project/Review surface state from the shared chrome", () => {
     const source = fs.readFileSync(path.resolve(process.cwd(), "clients/shared-web/media/webviewChrome.js"), "utf8");
+    const app = fs.readFileSync(path.resolve(process.cwd(), "clients/shared-web/media/mainApp.js"), "utf8");
+    const interactions = fs.readFileSync(path.resolve(process.cwd(), "clients/shared-web/media/mainInteractions.js"), "utf8");
     const host = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/browser-host.js"), "utf8");
     expect(source).toContain('const currentSurface = document.body?.dataset.viewerSurface || (activityOpen ? "activity" : "project")');
     expect(source).toContain('document.body?.classList.toggle("viewer-screen-activity", surface === "activity")');
     expect(source).toContain('document.body?.classList.toggle("viewer-screen-project", surface === "project")');
     expect(source).toContain('document.body?.classList.toggle("viewer-screen-review", surface === "review")');
     expect(source).toContain('document.querySelectorAll("[data-viewer-surface]")');
+    expect(app).toContain('window.addEventListener("viewer-surface-change"');
+    expect(interactions).toContain('!activityToggle.hasAttribute("data-viewer-surface")');
+    expect(host).toContain("if (current === next)");
     expect(host).toContain('document.body?.classList.toggle("viewer-screen-document", Boolean(open))');
     expect(source).toContain("Hide recent activity");
     expect(source).toContain("Show recent activity");
@@ -4183,7 +4208,7 @@ describe("local viewer browser host", () => {
   });
 
   it("renders markdown previews in Explorer and lets Raw override persist", async () => {
-    const { dom } = createViewerDom();
+    const { dom, fetchCalls } = createViewerDom();
     const api = dom.window.acquireVsCodeApi();
 
     api.postMessage({ type: "ready" });
@@ -4203,11 +4228,11 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
     await flushViewerAsync();
     explorer = dom.window.document.querySelector("[data-viewer-workshop-explorer]") as HTMLElement;
-    expect(dom.window.localStorage.getItem("logics.workspaceMarkdownMode")).toBe("raw");
+    const preferenceCall = fetchCalls.findLast((call) => call.url === "/api/preferences");
+    expect(JSON.parse(String(preferenceCall?.options?.body || "{}")).preferences.workspaceMarkdownMode).toBe("raw");
     expect(explorer.querySelector("[data-viewer-workspace-markdown-mode='raw']")?.classList.contains("is-active")).toBe(true);
     expect(explorer.querySelector(".viewer-code")?.textContent).toContain("# Demo");
 
-    dom.window.localStorage.removeItem("logics.workspaceMarkdownMode");
     const trigger = dom.window.document.createElement("button");
     trigger.setAttribute("data-viewer-workspace-preview", "docs/long.md");
     explorer.appendChild(trigger);
@@ -4217,6 +4242,46 @@ describe("local viewer browser host", () => {
     explorer = dom.window.document.querySelector("[data-viewer-workshop-explorer]") as HTMLElement;
     expect(explorer.querySelector("[data-viewer-workspace-markdown-mode='raw']")?.classList.contains("is-active")).toBe(true);
     expect(explorer.querySelector("[data-viewer-workspace-preview-full]")?.textContent).toContain("Load anyway");
+
+    (explorer.querySelector("[data-viewer-workspace-markdown-mode='preview']") as HTMLElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+    explorer = dom.window.document.querySelector("[data-viewer-workshop-explorer]") as HTMLElement;
+    expect(explorer.querySelector(".viewer-workspace__preview-notice")?.textContent).toContain("Preview is truncated.");
+    expect(explorer.querySelector("[data-viewer-workspace-preview-full]")?.textContent).toContain("Load anyway");
+  });
+
+  it("treats .markdown as Markdown in Explorer", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-workshop-tab="explorer"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+
+    const explorer = dom.window.document.querySelector("[data-viewer-workshop-explorer]") as HTMLElement;
+    const trigger = dom.window.document.createElement("button");
+    explorer.appendChild(trigger);
+    trigger.setAttribute("data-viewer-workspace-preview", "docs/note.markdown");
+    trigger.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+    expect(explorer.querySelector("[data-viewer-workspace-markdown-mode='preview']")).toBeTruthy();
+
+  });
+
+  it("leaves .txt raw and falls back to the code viewer when Markdown rendering is unavailable", () => {
+    const previousWindow = (globalThis as unknown as { window?: unknown }).window;
+    (globalThis as unknown as { window?: unknown }).window = { createCdxLogicsMarkdownApi: () => ({}) };
+    const markdownHtml = renderWorkspacePreview({ state: "ok", path: "docs/note.markdown", name: "note.markdown", kind: "file", size: 15, contentType: "text/plain", content: "# Note\nBody\n", truncated: false, lineCount: 2 });
+    const textHtml = renderWorkspacePreview({ state: "ok", path: "docs/plain.txt", name: "plain.txt", kind: "file", size: 6, contentType: "text/plain", content: "# Text\n", truncated: false, lineCount: 1 });
+    (globalThis as unknown as { window?: unknown }).window = previousWindow;
+    expect(markdownHtml).toContain("viewer-code");
+    expect(markdownHtml).toContain("# Note");
+    expect(textHtml).not.toContain("data-viewer-workspace-markdown-mode");
   });
 
   it("renders the shared code viewer with inline line numbers, line count, and force-load", async () => {
@@ -5634,7 +5699,7 @@ describe("local viewer browser host", () => {
     // replacement takes. Measured at 7.5-8.3s against a real corpus; here it is one tick.
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    const content = dom.window.document.getElementById("viewer-document-content");
+    let content = dom.window.document.getElementById("viewer-document-content");
     expect(content?.textContent).toContain("Overview");
     expect(content?.textContent).toContain("5 signals need attention");
     expect(content?.textContent).toContain("Needs attention");
@@ -6606,18 +6671,21 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
     await flushViewerAsync();
 
-    const content = dom.window.document.getElementById("viewer-document-content");
+    let content = dom.window.document.getElementById("viewer-document-content");
     expect(calls).toContain("/api/review-bursts");
     expect(dom.window.document.body.classList.contains("viewer-screen-review")).toBe(true);
     expect(dom.window.document.querySelector('[data-viewer-surface="review"]')?.getAttribute("aria-pressed")).toBe("true");
     expect(content?.textContent).toContain("Working tree");
     expect(content?.textContent).toContain("Demo commit");
+    expect(calls).toContain("/api/review-burst-files?kind=working-tree");
     expect(calls.some((call) => call.startsWith("/api/git-diff?"))).toBe(true);
 
     (content?.querySelector('[data-viewer-review-burst="commit:abc1234"]') as HTMLElement | null)?.click();
     await flushViewerAsync();
     await flushViewerAsync();
 
+    content = dom.window.document.getElementById("viewer-document-content");
+    expect(calls).toContain("/api/review-burst-files?kind=commit&ref=abc1234");
     expect(calls).toContain("/api/git-commit-diff?ref=abc1234&path=src%2Fdemo.ts");
     expect(content?.querySelector(".viewer-git__diff-meta")?.textContent).toContain("src/demo.ts");
     expect(content?.querySelector(".viewer-git__diff-line--add")?.textContent).toContain("+Review demo");
@@ -6626,6 +6694,45 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
     const refreshedContent = dom.window.document.getElementById("viewer-document-content");
     expect((refreshedContent?.querySelector('[data-viewer-review-burst="working-tree"]') as HTMLElement | null)?.classList.contains("is-active")).toBe(true);
+  });
+
+  it("keeps Review keyboard focus moving across repeated arrows", async () => {
+    const { dom } = createViewerDom({
+      reviewBurstsResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            bursts: [
+              { id: "working-tree", kind: "working-tree", label: "Working tree", title: "Uncommitted changes", fileCount: 1, additions: 1, deletions: 0 },
+              { id: "commit:abc1234", kind: "commit", ref: "abc1234", label: "abc1234", title: "First commit", fileCount: 1, additions: 1, deletions: 0 },
+              { id: "commit:def5678", kind: "commit", ref: "def5678", label: "def5678", title: "Second commit", fileCount: 1, additions: 1, deletions: 0 },
+              { id: "commit:fed9876", kind: "commit", ref: "fed9876", label: "fed9876", title: "Third commit", fileCount: 1, additions: 1, deletions: 0 }
+            ]
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    (dom.window.document.querySelector('[data-viewer-surface="review"]') as HTMLElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    let current = dom.window.document.querySelector('[data-viewer-review-burst="working-tree"]') as HTMLElement;
+    current.focus();
+    for (let index = 0; index < 3; index += 1) {
+      current.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+      await flushViewerAsync();
+      await flushViewerAsync();
+      current = dom.window.document.activeElement as HTMLElement;
+    }
+
+    expect(current.getAttribute("data-viewer-review-burst")).toBe("commit:fed9876");
+    expect(current.classList.contains("is-active")).toBe(true);
   });
 
   it("opens a Git commit modal and submits selected files with a message", async () => {

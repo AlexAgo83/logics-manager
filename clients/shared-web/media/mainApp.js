@@ -458,6 +458,13 @@
 
   let mainCore;
 
+  window.addEventListener("viewer-surface-change", (event) => {
+    const surface = event?.detail?.surface === "activity" ? "activity" : "project";
+    activityPanelOpen = surface === "activity";
+    persistState();
+    render();
+  });
+
   const chrome =
     typeof chromeFactory === "function"
       ? chromeFactory({

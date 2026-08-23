@@ -1,13 +1,14 @@
 ## item_869_finish_the_explorer_markdown_switch_and_pane_sizing - Finish the Explorer markdown switch and pane sizing
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 92%
 > Confidence: 88%
-> Progress: 0%
+> Progress: 90%
 > Complexity: Medium
 > Theme: Viewer explorer
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-23 14:51:20
 
 # AI Context
 - Summary: Closes the gaps left in the Explorer markdown switch: file types, truncation, fallback, persistence, stale payloads, and pane height.

@@ -454,9 +454,10 @@ const allowedOversizedFiles = new Map(
     // Explorer Markdown mode through viewer preferences, both in the host dispatcher.
     // 5667: req_384's generated host coordinator ceiling was stale after the surface
     // follow-up; this task does not add index.js code, it records the measured baseline.
-    // 5668: req_386 routes the shared "load rest of diff" button to either worktree or
-    // commit diff based on an existing data attribute, keeping one dispatcher branch.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 5668, ref: "req_386" },
+    // 5669: req_386 routes the shared "load rest of diff" button to either worktree or
+    // commit diff based on existing data attributes, preserving the commit title without
+    // adding a second dispatcher branch.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 5669, ref: "req_386" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     // 1114: req_381 adds the Review timeline to the Git screen because it is a Git-only
@@ -466,9 +467,9 @@ const allowedOversizedFiles = new Map(
     // the Git diff loaders they call.
     // 1157: req_386 keeps Review ordering, relative-time meta, filename-first rows and
     // diff scroll reset beside the Review renderer and Git diff loaders they call.
-    // 1193: req_386 derives displayed diff line numbers from hunk headers and marks
-    // repeated hunks so Git and Review stay in sync with the shorter server context.
-    "clients/viewer/src/browser-host/git.js": { maxLines: 1193, ref: "req_386" },
+    // 1194: req_386 derives displayed diff line numbers from hunk headers, marks
+    // repeated hunks, and reuses the selected commit subject as the diff title.
+    "clients/viewer/src/browser-host/git.js": { maxLines: 1194, ref: "req_386" },
     // req_312: the workshop screen, on the same factory-and-accessor seam as cdx.
     // 1311: 2.21.4 adds the terminal tab's explicit ready meta so the visual
     // smoke can distinguish a settled tab from a silent busy state.

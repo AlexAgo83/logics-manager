@@ -1,0 +1,183 @@
+{
+  "title": "Make the ChatGPT MCP connector self-onboard onto any Logics project",
+  "references": [
+    "`logics_manager/mcp_tool_definitions.py` exposes the current read-only MCP tools: `list_active_work`, `get_logics_status`, `list_logics_docs`, `search_logics_docs`, `read_logics_doc`, and `build_context_pack`, but no single project-onboarding probe.",
+    "`logics_manager/mcp.py` dispatches MCP tools through `_TOOL_HANDLERS` and already attaches viewer URL templates to bounded document responses.",
+    "`logics_manager/insights.py` builds the open-work signal used by `logics-manager status`, including active tasks, draft requests, priorities, and next actions.",
+    "`logics_manager/sync.py` owns bounded document discovery and context-pack construction through `list-docs`, `search-docs`, `read-doc`, and `context-pack` payload builders.",
+    "`logics_manager/viewer_git.py` already computes Git branch/status/history/change data for the viewer without mutating the repository.",
+    "`logics_manager/viewer_project_tools.py` detects project-level capabilities, proving the repo already has a place for bounded project capability probes."
+  ],
+  "request": {
+    "complexity": "High",
+    "theme": "Connector onboarding",
+    "needs": [
+      "A model connected through the ChatGPT MCP connector can verify which Logics project and corpus it is actually looking at before answering operator questions.",
+      "The connector exposes one read-only onboarding command that returns the current project identity, active work, key Logics documents, recent activity, available navigation commands, and explicit unavailable/error states.",
+      "The model can switch or target projects through a bounded project-selection surface instead of relying on the user to paste context or assert that the plugin is connected.",
+      "Project context is derived from existing sources of truth (Logics docs, status/health, context packs, viewer project metadata, and Git when available) rather than from a manually maintained assistant summary.",
+      "Every important onboarding claim is sourced enough for the model to drill down with `search_project_context` or `read_project_resource` instead of receiving an opaque generated summary."
+    ],
+    "context": [
+      "A real ChatGPT connector dogfood session showed the model repeatedly saying it could not see the active corpus, even while the operator expected the connector to expose it. Once the plugin surface was actually reachable, `list_active_work` returned the active request/backlog/task chain, proving the missing piece is a reliable first probe and semantic project context, not raw MCP connectivity alone.",
+      "The existing connector already has useful primitives (`list_active_work`, `get_logics_status`, `list_logics_docs`, `search_logics_docs`, `read_logics_doc`, `build_context_pack`), but a model has to guess which sequence to call and cannot clearly distinguish connector-installed, connector-available, project-selected, and tool-response states.",
+      "The transcript showed the product risk: the model used soft language such as 'I look' or 'I try' without tool evidence. The connector should make the correct behavior cheap: call one bootstrap tool, inspect the explicit state, then read only the bounded resources needed.",
+      "Recent Git and Logics activity are already present in separate runtime surfaces (viewer Git/status/activity and Logics status/context packs). The first version should aggregate these signals; it should not invent a broad repository summarizer or scan arbitrary source files.",
+      "The useful target is project onboarding, not a permanent hand-written project memory. Cache may be used, but invalidation should follow Git head/status and Logics index/document timestamps so stale summaries do not become a hidden source of truth."
+    ],
+    "acceptance_criteria": [
+      "AC1: A new read-only MCP tool, named `onboard_project` or equivalent, returns a structured payload with project identity, repository root/name, active corpus/doc counts, current Logics status summary, active work, key companion docs, recent activity, available follow-up tools, source pointers, and explicit unavailable/error states.",
+      "AC2: The onboarding tool can be called safely in a fresh ChatGPT connector conversation without arguments; it never mutates files, never returns absolute filesystem paths to the remote model, and never requires the user to paste command output.",
+      "AC3: The connector exposes bounded project navigation: list known/available projects, report the active project, and target or select a project using the same project registry/resolution rules the viewer already uses.",
+      "AC4: Recent activity combines Logics workflow changes and Git signals when Git is available: current branch, dirty/unpushed counts, recent commit summaries, recently changed Logics docs, and graceful degraded messages when Git or history is unavailable.",
+      "AC5: Project context is source-backed: each high-level item includes a `source` or `sources` field pointing to a Logics ref/path, Git commit/path, status payload section, or context-pack document entry, and follow-up tools can read that resource boundedly.",
+      "AC6: `search_project_context` and `read_project_resource` wrap existing `search_logics_docs`, `read_logics_doc`, context-pack, and safe source-preview primitives so the model can deepen context without broad repository access.",
+      "AC7: The tool definitions and docs make the intended model protocol explicit: first call onboarding, trust only returned tool evidence, then call search/read resources as needed; no response should imply a project is visible without a successful tool result.",
+      "AC8: Tests cover the happy path, no-Logics/no-Git degraded states, project targeting, source-pointer shape, MCP tool schema exposure, and the transcript regression where `list_active_work` is reachable through onboarding without extra user-pasted context.",
+      "AC9: Validation passes through focused Python tests for MCP/project context plus `logics-manager lint --require-status` and `logics-manager audit --group-by-doc` on the generated corpus."
+    ]
+  },
+  "product": {
+    "title": "Connector project onboarding context",
+    "overview": "Give the ChatGPT MCP connector a small, reliable project-onboarding surface: one read-only call tells the model where it is, what Logics work is active, what changed recently, what it can read next, and how to target another project. The context stays derived from Logics and Git instead of becoming a manually maintained assistant summary.",
+    "goals": [
+      "Make the first connector call answer 'what project and active work can I actually see?' with evidence.",
+      "Expose semantic project context without giving the model broad, unbounded repository access.",
+      "Let the model navigate projects and deepen context through sourced, bounded follow-up calls.",
+      "Keep implementation on existing Logics Manager primitives: status, sync/context-pack, viewer project registry, MCP dispatch, and Git viewer helpers."
+    ],
+    "non_goals": [
+      "A free-form AI-written project encyclopedia.",
+      "A full source-code indexing engine or vector database.",
+      "New authentication behavior for the connector; durability/OAuth/toggle work belongs to the existing connector request.",
+      "Mutating workflow docs, changing active tasks, or editing project files from onboarding tools.",
+      "Guaranteeing perfect architecture understanding from one call; the first version provides enough sourced context to ask and answer responsibly."
+    ]
+  },
+  "backlog_items": [
+    {
+      "title": "Expose one read-only onboard_project MCP tool",
+      "complexity": "Medium",
+      "theme": "Connector onboarding",
+      "request_acs": ["AC1", "AC2", "AC5", "AC7", "AC8"],
+      "problem": [
+        "The connector already exposes useful low-level read tools, but a model in a fresh conversation has no obvious first call that proves the active project, corpus, and work state. This leads to guesses and user-pasted context."
+      ],
+      "scope_in": [
+        "Add a read-only MCP tool definition for `onboard_project` with no required arguments and optional bounded fields such as `project`, `profile`, or `include_recent_activity` if existing patterns require them.",
+        "Implement the handler by composing existing payload builders: repo identity, `status_payload`, `flow_list_payload`/active work, companion doc listing, viewer URL template, and context-pack seed metadata.",
+        "Return explicit state fields for connector/tool/project availability instead of soft text: for example `available`, `project_selected`, `corpus_present`, `degraded`, and `messages`.",
+        "Return repo-relative paths or refs only; do not expose absolute local filesystem paths in the model-facing payload.",
+        "Document the intended model protocol in the tool description and nearby connector docs: call onboarding first, then trust only tool evidence."
+      ],
+      "scope_out": [
+        "Project switching and registry listing (sibling slice).",
+        "Detailed Git/recent activity aggregation (sibling slice).",
+        "Broad source-file scanning or AI-generated architecture summaries."
+      ],
+      "acceptance_criteria": [
+        "AC1: `call_tool('onboard_project', {})` returns a structured project/corpus/work payload in a bootstrapped repository.",
+        "AC2: The payload includes active requests/backlog/tasks equivalent to what `list_active_work` would expose, plus `get_logics_status` summary fields.",
+        "AC3: A no-Logics repository or missing project produces an explicit degraded payload or clear MCP error without a traceback.",
+        "AC4: Returned paths are repo-relative or refs; tests fail if an absolute repo path appears in the model-facing fields.",
+        "AC5: Tool schema exposure and handler-table coverage include `onboard_project`."
+      ]
+    },
+    {
+      "title": "Add bounded project discovery and targeting for connector sessions",
+      "complexity": "Medium",
+      "theme": "Connector onboarding",
+      "request_acs": ["AC3", "AC8"],
+      "problem": [
+        "The dogfood transcript assumed the connector could 'go see another project', but the MCP surface does not currently provide a clear project registry/current-project/selection protocol for a model to use."
+      ],
+      "scope_in": [
+        "Expose read-only `list_projects` and `get_active_project` MCP tools, or equivalent fields on onboarding plus a focused target argument, using the same registry/resolution source as the viewer where possible.",
+        "Allow `onboard_project` and project-context tools to target a known project by stable id/name/path alias without making arbitrary filesystem paths available to the model.",
+        "Report unavailable registry/ambiguous target/unknown project states with machine-readable errors and short human-readable messages.",
+        "Keep selection session-local or explicit-per-call unless an existing viewer registry already persists the active project safely."
+      ],
+      "scope_out": [
+        "Creating new projects.",
+        "Editing viewer favorites or operator preferences unless existing project selection already requires it.",
+        "Accepting arbitrary absolute paths from remote clients."
+      ],
+      "acceptance_criteria": [
+        "AC1: The connector can list known Logics-capable projects through a bounded payload with stable ids/names and no secret local details.",
+        "AC2: A targeted onboarding call resolves a known project and returns that project's context.",
+        "AC3: Ambiguous or unknown project targets fail with an explicit error listing safe candidate ids/names.",
+        "AC4: Tests cover current-project reporting and targeted onboarding without relying on global machine state."
+      ]
+    },
+    {
+      "title": "Aggregate recent Logics and Git activity for onboarding",
+      "complexity": "Medium",
+      "theme": "Connector onboarding",
+      "request_acs": ["AC4", "AC5", "AC8"],
+      "problem": [
+        "The model needs the 'film' of the project, not just the open-work photo. Existing Git and Logics signals are split across viewer helpers and workflow docs, so connector clients do not get a compact recent-activity view."
+      ],
+      "scope_in": [
+        "Build a small read-only recent-activity payload from existing Logics document metadata and viewer Git helpers.",
+        "Include branch, dirty/unpushed counts, recent commit summaries, and recently changed Logics docs when available.",
+        "Degrade gracefully when Git is missing, the repo has no history, or provider-specific CI/GitHub tools are unavailable.",
+        "Attach source pointers to each activity item: Logics ref/path for workflow activity and commit hash/path for Git activity.",
+        "Feed a bounded summary of this activity into `onboard_project`."
+      ],
+      "scope_out": [
+        "A new timeline UI.",
+        "CI provider deep dives beyond already available viewer payloads.",
+        "A persistent activity database."
+      ],
+      "acceptance_criteria": [
+        "AC1: On a Git repository, onboarding includes branch/status counts and recent commit summaries.",
+        "AC2: On a repository without Git or without commits, onboarding includes a degraded recent-activity message and still returns Logics context.",
+        "AC3: Recently changed Logics docs are included with refs/paths and bounded snippets or titles.",
+        "AC4: Tests cover Git-present and Git-unavailable paths with injected runners or temporary repositories."
+      ]
+    },
+    {
+      "title": "Expose source-backed project context search and resource reads",
+      "complexity": "Medium",
+      "theme": "Connector onboarding",
+      "request_acs": ["AC5", "AC6", "AC7", "AC8", "AC9"],
+      "problem": [
+        "A one-call onboarding payload cannot include every detail. The model needs a safe way to deepen one topic and read the exact resource behind an onboarding claim without asking the operator to paste files."
+      ],
+      "scope_in": [
+        "Expose `search_project_context` as a semantic wrapper over existing Logics search/context-pack primitives, returning bounded snippets and source pointers.",
+        "Expose `read_project_resource` for approved resource types: Logics refs/docs, context-pack entries, recent-activity source pointers, and safe repo-relative source previews if an existing safe preview primitive is available.",
+        "Keep all reads bounded by max chars and existing repo-root/path traversal protections.",
+        "Make onboarding advertise these follow-up commands with short descriptions and expected arguments.",
+        "Add focused MCP tests proving a model can search, read a returned source pointer, and stay within bounds."
+      ],
+      "scope_out": [
+        "Unbounded arbitrary file reads.",
+        "Vector search or a new indexing backend.",
+        "Writing, deleting, renaming, or lifecycle-changing documents."
+      ],
+      "acceptance_criteria": [
+        "AC1: `search_project_context` returns bounded, source-backed results for a query over Logics docs/context packs.",
+        "AC2: `read_project_resource` can read a source pointer returned by onboarding/search with max-char bounds.",
+        "AC3: Path traversal, absolute paths, and unsupported resource types are rejected with existing MCP error patterns.",
+        "AC4: The docs/tool descriptions tell connector clients to deepen context through search/read rather than claiming unsupported visibility.",
+        "AC5: Focused MCP tests and corpus validation pass."
+      ]
+    }
+  ],
+  "orchestration_task": {
+    "title": "Orchestrate connector project onboarding context",
+    "plan": [
+      "Slice A: add the minimal read-only `onboard_project` MCP tool by composing existing status, active-work, companion-doc, and context-pack metadata. Prove no absolute paths leak and the tool appears in schema/handler coverage.",
+      "Slice B: add project discovery/targeting using the existing viewer project registry or the smallest shared resolver that matches it. Keep targets bounded and explicit; avoid arbitrary path inputs.",
+      "Slice C: aggregate recent activity from Logics metadata and existing Git viewer helpers, then feed the bounded summary into onboarding with degraded states for no-Git/no-history cases.",
+      "Slice D: add `search_project_context` and `read_project_resource` as wrappers over existing safe Logics search/read/context-pack paths, with source-pointer round-trip tests.",
+      "Closeout proof: replay the transcript scenario in tests: a fresh MCP client calls onboarding, receives the active work without user-pasted output, can target another known project, can inspect recent activity, and can read a cited resource. Finish with focused Python MCP tests plus `logics-manager lint --require-status` and `logics-manager audit --group-by-doc`."
+    ]
+  },
+  "context_pack": {
+    "out": "logics/context-packs/connector-project-onboarding-context.json",
+    "mode": "summary-only",
+    "profile": "normal"
+  }
+}

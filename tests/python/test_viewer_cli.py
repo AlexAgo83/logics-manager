@@ -70,6 +70,7 @@ from logics_manager.viewer import (
     save_doc_payload,
     viewer_project_registry,
     viewer_project_capabilities,
+    review_bursts_payload,
     VIEWER_MUTATING_ROUTES,
     WorkshopSessionRegistry,
     WorkshopTerminalRegistry,
@@ -1566,6 +1567,66 @@ def test_viewer_git_commit_diff_payload_is_read_only_bounded_and_ref_safe(tmp_pa
     assert not any("push" in call or "fetch" in call or "pull" in call for call in calls for _ in [call])
     assert git_commit_diff_payload(tmp_path, "HEAD~1", which=lambda _name: "/usr/bin/git")["state"] == "error"
     assert git_commit_diff_payload(tmp_path, "abc1234", which=lambda _name: "")["state"] == "unavailable"
+
+
+def test_viewer_git_commit_diff_payload_can_scope_to_one_file(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        if args[1:] == ["rev-parse", "--is-inside-work-tree"]:
+            return subprocess.CompletedProcess(args, 0, "true\n", "")
+        if args[1:] == ["show", "--no-ext-diff", "--format=medium", "--stat", "--patch", "--find-renames", "--unified=80", "abc1234", "--", "src/demo.ts"]:
+            return subprocess.CompletedProcess(args, 0, "commit abc1234\n\ndiff --git a/src/demo.ts b/src/demo.ts\n+demo", "")
+        raise AssertionError(args)
+
+    payload = git_commit_diff_payload(tmp_path, "abc1234", path="src/demo.ts", runner=runner, which=lambda _name: "/usr/bin/git")
+
+    assert payload["state"] == "ok"
+    assert payload["path"] == "src/demo.ts"
+    assert payload["diff"].endswith("+demo")
+    assert ["git", "show", "--no-ext-diff", "--format=medium", "--stat", "--patch", "--find-renames", "--unified=80", "abc1234", "--", "src/demo.ts"] in calls
+    assert git_commit_diff_payload(tmp_path, "abc1234", path="../outside.ts", which=lambda _name: "/usr/bin/git")["state"] == "error"
+
+
+def test_viewer_review_bursts_payload_reuses_status_and_commit_stats(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        tail = args[1:]
+        if tail == ["rev-parse", "--is-inside-work-tree"]:
+            return subprocess.CompletedProcess(args, 0, "true\n", "")
+        if tail == ["status", "--porcelain=v1", "-b"]:
+            return subprocess.CompletedProcess(args, 0, "## main...origin/main\n M src/demo.ts\nA  docs/new.md\n", "")
+        if tail == ["diff", "--no-ext-diff", "--numstat", "--cached"]:
+            return subprocess.CompletedProcess(args, 0, "1\t0\tdocs/new.md\n", "")
+        if tail == ["diff", "--no-ext-diff", "--numstat"]:
+            return subprocess.CompletedProcess(args, 0, "3\t1\tsrc/demo.ts\n", "")
+        if tail == ["log", "-1", "--pretty=format:%h %s"]:
+            return subprocess.CompletedProcess(args, 0, "abc1234 Demo commit", "")
+        if tail[:2] == ["log", "-51"]:
+            return subprocess.CompletedProcess(args, 0, "abc1234\x1fDemo commit\x1fAlex\x1f2026-08-23T10:00:00+02:00\x1fHEAD -> main\n", "")
+        if tail == ["rev-list", "--count", "@{u}..HEAD"]:
+            return subprocess.CompletedProcess(args, 0, "0\n", "")
+        if tail == ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"]:
+            return subprocess.CompletedProcess(args, 0, "origin/main\n", "")
+        if tail == ["show", "--no-ext-diff", "--format=", "--numstat", "--find-renames", "abc1234"]:
+            return subprocess.CompletedProcess(args, 0, "4\t2\tsrc/commit.ts\n", "")
+        if tail == ["show", "--no-ext-diff", "--format=", "--name-status", "--find-renames", "abc1234"]:
+            return subprocess.CompletedProcess(args, 0, "M\tsrc/commit.ts\n", "")
+        raise AssertionError(args)
+
+    payload = review_bursts_payload(tmp_path, runner=runner, which=lambda _name: "/usr/bin/git")
+
+    assert payload["state"] == "ok"
+    assert [burst["kind"] for burst in payload["bursts"]] == ["working-tree", "commit"]
+    assert payload["bursts"][0]["files"][0]["path"] == "docs/new.md"
+    assert payload["bursts"][0]["files"][0]["cached"] is True
+    assert payload["bursts"][1]["ref"] == "abc1234"
+    assert payload["bursts"][1]["files"][0]["path"] == "src/commit.ts"
+    assert payload["bursts"][1]["files"][0]["additions"] == 4
+    assert not any("push" in call or "fetch" in call or "pull" in call for call in calls for _ in [call])
 
 
 def test_viewer_git_file_preview_payload_is_read_only_bounded_and_path_safe(tmp_path: Path) -> None:

@@ -234,6 +234,22 @@ def _attach_git_change_stats(groups: dict[str, list[dict[str, Any]]], staged_sta
                 entry["deletions"] = stats["deletions"]
 
 
+def _review_file_entry(entry: dict[str, Any], group: str) -> dict[str, Any]:
+    path = str(entry.get("path") or "")
+    item: dict[str, Any] = {
+        "path": path,
+        "kind": str(entry.get("status") or group),
+        "group": group,
+        "additions": int(entry.get("additions", 0) or 0),
+        "deletions": int(entry.get("deletions", 0) or 0),
+    }
+    if entry.get("from"):
+        item["from"] = str(entry.get("from"))
+    if group == "staged":
+        item["cached"] = True
+    return item
+
+
 def _count_unique_git_status_paths(groups: dict[str, list[dict[str, Any]]]) -> int:
     paths: set[str] = set()
     for entries in groups.values():
@@ -242,6 +258,33 @@ def _count_unique_git_status_paths(groups: dict[str, list[dict[str, Any]]]) -> i
             if path:
                 paths.add(path)
     return len(paths)
+
+
+def _commit_review_files(repo_root: Path, ref: str, *, runner: Any | None = None) -> list[dict[str, Any]]:
+    stats = _run_read_only_git(repo_root, ["show", "--no-ext-diff", "--format=", "--numstat", "--find-renames", ref], runner=runner)
+    names = _run_read_only_git(repo_root, ["show", "--no-ext-diff", "--format=", "--name-status", "--find-renames", ref], runner=runner)
+    if stats.returncode != 0 and names.returncode != 0:
+        return []
+    by_path = _parse_git_numstat(stats.stdout if stats.returncode == 0 else "")
+    rows: list[dict[str, Any]] = []
+    for line in (names.stdout if names.returncode == 0 else "").splitlines():
+        parts = line.split("\t")
+        if len(parts) < 2:
+            continue
+        code = parts[0].strip()
+        path = parts[-1].strip()
+        if not path:
+            continue
+        stat = by_path.get(path) or {}
+        rows.append({
+            "path": path,
+            "kind": code[:1].upper() or "M",
+            "additions": int(stat.get("additions", 0)),
+            "deletions": int(stat.get("deletions", 0)),
+        })
+        if len(rows) >= 200:
+            break
+    return rows
 
 
 def _git_unpushed_commit_count(repo_root: Path, *, runner: Any | None = None) -> dict[str, Any]:
@@ -341,6 +384,55 @@ def git_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any
         "recentCommits": parsed_recent_commits[:GIT_HISTORY_DISPLAY_LIMIT],
         "recentCommitsHasMore": len(parsed_recent_commits) > GIT_HISTORY_DISPLAY_LIMIT,
     }
+
+
+def review_bursts_payload(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
+    status = git_status_payload(repo_root, runner=runner, which=which)
+    if status.get("state") != "ok":
+        return {"state": status.get("state", "error"), "message": status.get("message", "Unable to inspect Git status."), "bursts": []}
+
+    bursts: list[dict[str, Any]] = []
+    groups = status.get("groups") if isinstance(status.get("groups"), dict) else {}
+    dirty_files: list[dict[str, Any]] = []
+    seen: set[tuple[str, bool]] = set()
+    for group, entries in groups.items():
+        if not isinstance(entries, list):
+            continue
+        for entry in entries:
+            if not isinstance(entry, dict):
+                continue
+            item = _review_file_entry(entry, str(group))
+            key = (item.get("path", ""), bool(item.get("cached")))
+            if item.get("path") and key not in seen:
+                seen.add(key)
+                dirty_files.append(item)
+    if dirty_files:
+        bursts.append({
+            "id": "working-tree",
+            "kind": "working-tree",
+            "label": "Working tree",
+            "title": "Uncommitted changes",
+            "meta": f"{len(dirty_files)} files",
+            "files": dirty_files,
+        })
+
+    commits = status.get("recentCommits") if isinstance(status.get("recentCommits"), list) else []
+    for commit in commits:
+        if not isinstance(commit, dict):
+            continue
+        ref = str(commit.get("hash") or "").strip()
+        if not re.fullmatch(r"[0-9a-fA-F]{4,40}", ref):
+            continue
+        bursts.append({
+            "id": f"commit:{ref}",
+            "kind": "commit",
+            "ref": ref,
+            "label": ref[:7],
+            "title": str(commit.get("subject") or "Untitled commit")[:240],
+            "meta": " · ".join(str(commit.get(key) or "").strip() for key in ("author", "date") if str(commit.get(key) or "").strip()),
+            "files": _commit_review_files(repo_root, ref, runner=runner),
+        })
+    return {"state": "ok", "message": "" if bursts else "No Git changes or recent commits are available.", "bursts": bursts}
 
 
 def _run_git_mutation(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
@@ -549,6 +641,7 @@ def git_commit_diff_payload(
     repo_root: Path,
     ref: str,
     *,
+    path: str = "",
     max_chars: int = 20000,
     runner: Any | None = None,
     which: Any | None = None,
@@ -559,6 +652,11 @@ def git_commit_diff_payload(
     normalized = str(ref or "").strip()
     if not re.fullmatch(r"[0-9a-fA-F]{4,40}", normalized):
         return {"state": "error", "message": "Unsafe Git commit ref."}
+    normalized_path = ""
+    if path:
+        normalized_path = _normalize_git_file_path(repo_root, path) or ""
+        if not normalized_path:
+            return {"state": "error", "message": "Unsafe Git path."}
     try:
         inside = _run_read_only_git(repo_root, ["rev-parse", "--is-inside-work-tree"], runner=runner)
     except (OSError, subprocess.SubprocessError) as exc:
@@ -567,6 +665,8 @@ def git_commit_diff_payload(
         return {"state": "not-repository", "message": "This folder is not inside a Git worktree."}
 
     args = ["show", "--no-ext-diff", "--format=medium", "--stat", "--patch", "--find-renames", "--unified=80", normalized]
+    if normalized_path:
+        args.extend(["--", normalized_path])
     try:
         diff = _run_read_only_git(repo_root, args, runner=runner)
     except (OSError, subprocess.SubprocessError) as exc:
@@ -581,6 +681,7 @@ def git_commit_diff_payload(
     return {
         "state": "ok",
         "ref": normalized,
+        "path": normalized_path,
         "mode": "commit",
         "diff": content,
         "truncated": truncated,

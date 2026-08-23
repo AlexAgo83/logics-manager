@@ -1,13 +1,14 @@
 ## item_865_migrate_the_viewer_surface_state_from_a_boolean_to_a_tri_state - Migrate the viewer surface state from a boolean to a tri-state
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 92
 > Confidence: 88
-> Progress: 0
+> Progress: 35%
 > Complexity: Medium
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-23 13:40:03
 
 # AI Context
 - Summary: Replaces the two-state surface slider and its boolean with a control and a state that can hold three surfaces, before any third surface exists.

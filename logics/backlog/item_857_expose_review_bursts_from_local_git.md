@@ -1,14 +1,14 @@
 ## item_857_expose_review_bursts_from_local_git - Expose review bursts from local Git
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 92%
 > Confidence: 88%
-> Progress: 0%
+> Progress: 35%
 > Complexity: Medium
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-22 17:34:02
+> Indicators reviewed: 2026-08-23 13:40:03
 
 # AI Context
 - Summary: Shapes existing local Git status and history into Review bursts, then adds the missing committed-file diff payload.

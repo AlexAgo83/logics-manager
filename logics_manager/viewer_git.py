@@ -616,6 +616,8 @@ def _normalize_git_file_path(repo_root: Path, rel_path: str) -> str | None:
 # the rest is worth doing, bounded so one enormous diff cannot be used to exhaust the
 # viewer's memory.
 GIT_DIFF_FORCE_MAX_CHARS = 400000
+GIT_DIFF_CONTEXT_LINES = 5
+GIT_DIFF_FULL_CONTEXT_LINES = 80
 
 
 def git_diff_payload(
@@ -641,7 +643,8 @@ def git_diff_payload(
     if inside.returncode != 0 or inside.stdout.strip().lower() != "true":
         return {"state": "not-repository", "message": "This folder is not inside a Git worktree."}
 
-    args = ["diff", "--no-ext-diff", "--unified=80"]
+    context_lines = GIT_DIFF_FULL_CONTEXT_LINES if full else GIT_DIFF_CONTEXT_LINES
+    args = ["diff", "--no-ext-diff", f"--unified={context_lines}"]
     if cached:
         args.append("--cached")
     args.extend(["--", normalized])
@@ -681,6 +684,7 @@ def git_commit_diff_payload(
     *,
     path: str = "",
     max_chars: int = 20000,
+    full: bool = False,
     runner: Any | None = None,
     which: Any | None = None,
 ) -> dict[str, Any]:
@@ -702,7 +706,8 @@ def git_commit_diff_payload(
     if inside.returncode != 0 or inside.stdout.strip().lower() != "true":
         return {"state": "not-repository", "message": "This folder is not inside a Git worktree."}
 
-    args = ["show", "--no-ext-diff", "--format=medium", "--stat", "--patch", "--find-renames", "--unified=80", normalized]
+    context_lines = GIT_DIFF_FULL_CONTEXT_LINES if full else GIT_DIFF_CONTEXT_LINES
+    args = ["show", "--no-ext-diff", "--format=medium", "--stat", "--patch", "--find-renames", f"--unified={context_lines}", normalized]
     if normalized_path:
         args.extend(["--", normalized_path])
     try:
@@ -713,6 +718,8 @@ def git_commit_diff_payload(
         message = (diff.stderr or diff.stdout or "Git show failed.").strip().splitlines()[0]
         return {"state": "error", "message": message}
     content = diff.stdout
+    if full:
+        max_chars = GIT_DIFF_FORCE_MAX_CHARS
     truncated = len(content) > max_chars
     if truncated:
         content = content[:max_chars]
@@ -723,6 +730,7 @@ def git_commit_diff_payload(
         "mode": "commit",
         "diff": content,
         "truncated": truncated,
+        "canForce": (not full) and truncated,
         "message": "" if content else "No diff is available for this commit.",
     }
 

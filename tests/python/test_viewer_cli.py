@@ -557,9 +557,11 @@ def test_a_truncated_diff_says_the_rest_can_be_asked_for(tmp_path: Path) -> None
         stdout = "true"
 
     calls = {"n": 0}
+    git_calls: list[list[str]] = []
 
     def sequenced_runner(*args, **kwargs):
         calls["n"] += 1
+        git_calls.append(list(args[0]))
         return _InsideResult() if calls["n"] == 1 else _Result()
 
     capped = git_diff_payload(repo, "x", runner=sequenced_runner, which=which)
@@ -570,6 +572,8 @@ def test_a_truncated_diff_says_the_rest_can_be_asked_for(tmp_path: Path) -> None
     forced = git_diff_payload(repo, "x", full=True, runner=sequenced_runner, which=which)
     assert len(forced["diff"]) > len(capped["diff"]), "full must return more than the capped read"
     assert forced["canForce"] is False, "once forced, the control must not offer the same thing again"
+    assert ["git", "diff", "--no-ext-diff", "--unified=5", "--", "x"] in git_calls
+    assert ["git", "diff", "--no-ext-diff", "--unified=80", "--", "x"] in git_calls
 
 
 def test_fleet_capability_and_launch_intent_are_separate(tmp_path: Path) -> None:
@@ -1522,7 +1526,7 @@ def test_viewer_git_diff_payload_is_read_only_bounded_and_path_safe(tmp_path: Pa
         calls.append(args)
         if args[1:] == ["rev-parse", "--is-inside-work-tree"]:
             return subprocess.CompletedProcess(args, 0, "true\n", "")
-        if args[1:] == ["diff", "--no-ext-diff", "--unified=80", "--cached", "--", "logics/request/req_001_demo.md"]:
+        if args[1:] == ["diff", "--no-ext-diff", "--unified=5", "--cached", "--", "logics/request/req_001_demo.md"]:
             return subprocess.CompletedProcess(args, 0, "diff --git a/logics/request/req_001_demo.md b/logics/request/req_001_demo.md\n+" + ("x" * 20), "")
         raise AssertionError(args)
 
@@ -1541,7 +1545,7 @@ def test_viewer_git_diff_payload_is_read_only_bounded_and_path_safe(tmp_path: Pa
     assert payload["logicsType"] == "request"
     assert payload["truncated"] is True
     assert len(payload["diff"]) == 32
-    assert ["git", "diff", "--no-ext-diff", "--unified=80", "--cached", "--", "logics/request/req_001_demo.md"] in calls
+    assert ["git", "diff", "--no-ext-diff", "--unified=5", "--cached", "--", "logics/request/req_001_demo.md"] in calls
     assert not any("push" in call or "fetch" in call or "pull" in call for call in calls for _ in [call])
     assert git_diff_payload(tmp_path, "../outside.md", which=lambda _name: "/usr/bin/git")["state"] == "error"
 
@@ -1553,7 +1557,7 @@ def test_viewer_git_commit_diff_payload_is_read_only_bounded_and_ref_safe(tmp_pa
         calls.append(args)
         if args[1:] == ["rev-parse", "--is-inside-work-tree"]:
             return subprocess.CompletedProcess(args, 0, "true\n", "")
-        if args[1:] == ["show", "--no-ext-diff", "--format=medium", "--stat", "--patch", "--find-renames", "--unified=80", "abc1234"]:
+        if args[1:] == ["show", "--no-ext-diff", "--format=medium", "--stat", "--patch", "--find-renames", "--unified=5", "abc1234"]:
             return subprocess.CompletedProcess(args, 0, "commit abc1234\n\ndiff --git a/a.md b/a.md\n+" + ("x" * 40), "")
         raise AssertionError(args)
 
@@ -1564,10 +1568,29 @@ def test_viewer_git_commit_diff_payload_is_read_only_bounded_and_ref_safe(tmp_pa
     assert payload["ref"] == "abc1234"
     assert payload["truncated"] is True
     assert len(payload["diff"]) == 48
-    assert ["git", "show", "--no-ext-diff", "--format=medium", "--stat", "--patch", "--find-renames", "--unified=80", "abc1234"] in calls
+    assert ["git", "show", "--no-ext-diff", "--format=medium", "--stat", "--patch", "--find-renames", "--unified=5", "abc1234"] in calls
     assert not any("push" in call or "fetch" in call or "pull" in call for call in calls for _ in [call])
     assert git_commit_diff_payload(tmp_path, "HEAD~1", which=lambda _name: "/usr/bin/git")["state"] == "error"
     assert git_commit_diff_payload(tmp_path, "abc1234", which=lambda _name: "")["state"] == "unavailable"
+
+
+def test_viewer_git_commit_diff_payload_can_load_full_context(tmp_path: Path) -> None:
+    calls: list[list[str]] = []
+
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        if args[1:] == ["rev-parse", "--is-inside-work-tree"]:
+            return subprocess.CompletedProcess(args, 0, "true\n", "")
+        if args[1:] == ["show", "--no-ext-diff", "--format=medium", "--stat", "--patch", "--find-renames", "--unified=80", "abc1234"]:
+            return subprocess.CompletedProcess(args, 0, "commit abc1234\n\ndiff --git a/a.md b/a.md\n+full", "")
+        raise AssertionError(args)
+
+    payload = git_commit_diff_payload(tmp_path, "abc1234", full=True, runner=runner, which=lambda _name: "/usr/bin/git")
+
+    assert payload["state"] == "ok"
+    assert payload["canForce"] is False
+    assert payload["diff"].endswith("+full")
+    assert ["git", "show", "--no-ext-diff", "--format=medium", "--stat", "--patch", "--find-renames", "--unified=80", "abc1234"] in calls
 
 
 def test_viewer_git_commit_diff_payload_can_scope_to_one_file(tmp_path: Path) -> None:
@@ -1577,7 +1600,7 @@ def test_viewer_git_commit_diff_payload_can_scope_to_one_file(tmp_path: Path) ->
         calls.append(args)
         if args[1:] == ["rev-parse", "--is-inside-work-tree"]:
             return subprocess.CompletedProcess(args, 0, "true\n", "")
-        if args[1:] == ["show", "--no-ext-diff", "--format=medium", "--stat", "--patch", "--find-renames", "--unified=80", "abc1234", "--", "src/demo.ts"]:
+        if args[1:] == ["show", "--no-ext-diff", "--format=medium", "--stat", "--patch", "--find-renames", "--unified=5", "abc1234", "--", "src/demo.ts"]:
             return subprocess.CompletedProcess(args, 0, "commit abc1234\n\ndiff --git a/src/demo.ts b/src/demo.ts\n+demo", "")
         raise AssertionError(args)
 
@@ -1586,7 +1609,7 @@ def test_viewer_git_commit_diff_payload_can_scope_to_one_file(tmp_path: Path) ->
     assert payload["state"] == "ok"
     assert payload["path"] == "src/demo.ts"
     assert payload["diff"].endswith("+demo")
-    assert ["git", "show", "--no-ext-diff", "--format=medium", "--stat", "--patch", "--find-renames", "--unified=80", "abc1234", "--", "src/demo.ts"] in calls
+    assert ["git", "show", "--no-ext-diff", "--format=medium", "--stat", "--patch", "--find-renames", "--unified=5", "abc1234", "--", "src/demo.ts"] in calls
     assert git_commit_diff_payload(tmp_path, "abc1234", path="../outside.ts", which=lambda _name: "/usr/bin/git")["state"] == "error"
 
 

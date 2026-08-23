@@ -255,7 +255,10 @@ const allowedOversizedFiles = new Map(
     // reuses the same bounded Git runner/path parsing this module already owns.
     // 1224: req_386 adds author and timestamp fields to the Review burst payload so the
     // client can render compact relative time without reparsing a joined meta string.
-    "logics_manager/viewer_git.py": { maxLines: 1224, ref: "req_386" },
+    // 1231: req_386 keeps Git and Review diffs on one bounded payload path: default
+    // context is five lines, while the existing forced-load escape hatch still asks Git
+    // for the larger context instead of introducing a second endpoint.
+    "logics_manager/viewer_git.py": { maxLines: 1231, ref: "req_386" },
     // 4909: release prep baseline.
     // req_311 lifted the document vocabulary into flow/docs.py: 4725 -> 3627. What is left
     // is the verbs and the CLI wiring, sitting on top of primitives that know nothing of them.
@@ -451,7 +454,9 @@ const allowedOversizedFiles = new Map(
     // Explorer Markdown mode through viewer preferences, both in the host dispatcher.
     // 5667: req_384's generated host coordinator ceiling was stale after the surface
     // follow-up; this task does not add index.js code, it records the measured baseline.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 5667, ref: "req_384" },
+    // 5668: req_386 routes the shared "load rest of diff" button to either worktree or
+    // commit diff based on an existing data attribute, keeping one dispatcher branch.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 5668, ref: "req_386" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     // 1114: req_381 adds the Review timeline to the Git screen because it is a Git-only
@@ -461,7 +466,9 @@ const allowedOversizedFiles = new Map(
     // the Git diff loaders they call.
     // 1157: req_386 keeps Review ordering, relative-time meta, filename-first rows and
     // diff scroll reset beside the Review renderer and Git diff loaders they call.
-    "clients/viewer/src/browser-host/git.js": { maxLines: 1157, ref: "req_386" },
+    // 1193: req_386 derives displayed diff line numbers from hunk headers and marks
+    // repeated hunks so Git and Review stay in sync with the shorter server context.
+    "clients/viewer/src/browser-host/git.js": { maxLines: 1193, ref: "req_386" },
     // req_312: the workshop screen, on the same factory-and-accessor seam as cdx.
     // 1311: 2.21.4 adds the terminal tab's explicit ready meta so the visual
     // smoke can distinguish a settled tab from a silent busy state.
@@ -552,7 +559,9 @@ const allowedOversizedFiles = new Map(
     // 2182: req_383 adds the Explorer markdown Raw/Preview rendering at the existing
     // preview renderer, reusing markdownApi/renderCodeViewer instead of introducing a
     // second renderer path.
-    "clients/viewer/src/browser-host/render.js": { maxLines: 2182, ref: "req_383" },
+    // 2194: req_386 lets the shared code viewer accept caller-provided line numbers and
+    // row classes, so diff line sync/hunk breaks reuse the existing renderer.
+    "clients/viewer/src/browser-host/render.js": { maxLines: 2194, ref: "req_386" },
     // 1353: req_314 taught the board to group by status, which is what its control always
     // claimed to do. The grouping itself is eleven lines; the rest is the heading element
     // the accessibility slice needed.

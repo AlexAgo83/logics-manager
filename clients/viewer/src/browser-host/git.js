@@ -630,10 +630,40 @@ export function createGitScreen(host) {
     return kept.join("\n");
   }
 
+  function gitDiffLineRows(content) {
+    let oldLine = 0;
+    let newLine = 0;
+    let hunkCount = 0;
+    return String(content || "").split("\n").map((line) => {
+      const kind = gitDiffLineKind(line);
+      if (kind === "hunk") {
+        const match = line.match(/^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
+        oldLine = Number(match?.[1] || 0);
+        newLine = Number(match?.[2] || 0);
+        hunkCount += 1;
+        return { line, number: "", rowClass: hunkCount > 1 ? "viewer-code__row--diff-hunk-break" : "" };
+      }
+      if (kind === "add") {
+        return { line, number: newLine++ || "" };
+      }
+      if (kind === "delete") {
+        return { line, number: oldLine++ || "" };
+      }
+      const number = newLine || oldLine || "";
+      if (oldLine) oldLine += 1;
+      if (newLine) newLine += 1;
+      return { line, number };
+    });
+  }
+
   function renderGitDiffPreview(content) {
-    return renderCodeViewer(stripGitDiffHeader(content), {
+    const diff = stripGitDiffHeader(content);
+    const rows = gitDiffLineRows(diff);
+    return renderCodeViewer(diff, {
       language: "diff",
       lineClassName: (line) => `viewer-git__diff-line viewer-git__diff-line--${gitDiffLineKind(line)}`,
+      rowClassName: (_line, index) => rows[index]?.rowClass || "",
+      lineNumbers: rows.map((row) => row.number),
       renderLineHtml: (line) => escapeHtml(line || " ")
     });
   }
@@ -708,6 +738,9 @@ export function createGitScreen(host) {
     if (options.path) {
       params.set("path", options.path);
     }
+    if (options.full) {
+      params.set("full", "1");
+    }
     const response = await fetch(`/api/git-commit-diff?${params.toString()}`);
     const data = await response.json();
     const payload = data.payload || {};
@@ -721,7 +754,10 @@ export function createGitScreen(host) {
       return;
     }
     const label = payload.path ? `${payload.path} · ${payload.ref || ref}` : `${payload.ref || ref}`;
-    diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(label)} · commit${payload.truncated ? " · truncated" : ""}</div>${renderGitDiffPreview(content)}`;
+    const more = payload.canForce
+      ? `<button class="btn viewer-git__diff-more" type="button" data-viewer-git-diff-full="${escapeHtml(payload.path || "")}" data-viewer-git-diff-ref="${escapeHtml(payload.ref || ref)}">Load the rest of this diff</button>`
+      : "";
+    diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(label)} · commit${payload.truncated ? " · truncated" : ""}</div>${renderGitDiffPreview(content)}${more}`;
   }
 
   function reviewBursts() {

@@ -1,12 +1,12 @@
 ## prod_112_an_anchored_explorer_with_a_readable_detail_pane - An anchored Explorer with a readable detail pane
 > Date: 2026-08-23
-> Status: Proposed
+> Status: Settled
 > Related request: `req_383_rework_the_explorer_screen_into_an_anchored_file_list_with_an_independent_detail_pane`
-> Related backlog: `item_863_anchor_the_explorer_list_and_split_its_scroll_from_the_detail`, `item_864_add_a_markdown_raw_and_preview_switch_to_the_explorer_detail_header`
+> Related backlog: `item_863_anchor_the_explorer_list_and_split_its_scroll_from_the_detail`
 > Related task: `task_395_orchestrate_the_explorer_layout_and_markdown_preview_rework`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
-> Indicators reviewed: 2026-08-23 13:12:19
+> Indicators reviewed: 2026-08-23 14:05:36
 
 # Overview
 Make the Explorer behave like a file browser rather than a page that reloads: a list anchored to the left that stays put while the operator reads, a detail pane that owns its own scroll and starts each file at the top, and a rendered view for the markdown files most of this repository is written in.
@@ -45,5 +45,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_383_rework_the_explorer_screen_into_an_anchored_file_list_with_an_independent_detail_pane`
+- Product back-reference: `item_863_anchor_the_explorer_list_and_split_its_scroll_from_the_detail`
 - Task back-reference: `task_395_orchestrate_the_explorer_layout_and_markdown_preview_rework`

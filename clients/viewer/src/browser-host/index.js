@@ -385,6 +385,10 @@ import {
     cdxSessionUsage: (...args) => cdxSessionUsage(...args),
     loadCdxSessionsForCustomTerminal: (...args) => loadCdxSessionsForCustomTerminal(...args),
     shared: readerFor(viewerState),
+    onWorkspaceExplorerLoaded: (tree, preview) => {
+      latestWorkspaceTreePayload = tree;
+      latestWorkspacePreviewPayload = preview;
+    },
   });
 
   const autoRefreshControl = () => document.getElementById("viewer-auto-refresh");
@@ -933,12 +937,18 @@ import {
   function setViewerSurface(surface) {
     const next = ["activity", "project", "review"].includes(surface) ? surface : "project";
     const activityPanel = document.getElementById("activity-panel");
+    const current = document.body?.dataset.viewerSurface || (activityPanelIsOpen() ? "activity" : "project");
+    if (current === next) {
+      if (next === "activity") dispatchViewerActivityUpdate();
+      return;
+    }
     if (document.body) {
       document.body.dataset.viewerSurface = next;
       document.body.classList.toggle("viewer-screen-activity", next === "activity");
       document.body.classList.toggle("viewer-screen-project", next === "project");
       document.body.classList.toggle("viewer-screen-review", next === "review");
     }
+    window.dispatchEvent(new CustomEvent("viewer-surface-change", { detail: { surface: next } }));
     if (activityPanel instanceof HTMLElement) {
       activityPanel.hidden = next !== "activity";
     }
@@ -3000,6 +3010,10 @@ import {
     return Boolean(panel && !panel.hidden && document.querySelector("[data-viewer-workshop-explorer]"));
   }
 
+  function isReviewOpen() {
+    return document.body?.dataset.viewerSurface === "review" && documentTitle()?.textContent === "Review";
+  }
+
   async function refreshViewer(method = "POST", options = {}) {
     const changed = await loadItems(method, options);
     if (isFleetHomeOpen()) {
@@ -3008,6 +3022,8 @@ import {
       if (changed || options.force) {
         await showWorkspace({ silent: Boolean(options.silent) });
       }
+    } else if (isReviewOpen()) {
+      await showReviewTimeline({ silent: Boolean(options.silent), force: Boolean(options.force) });
     } else if (isGitCiScreenOpen()) {
       if (gitState.latestCiScreenMode === "release") {
         await showReleaseStatus({ silent: Boolean(options.silent), force: Boolean(options.force) });
@@ -4289,6 +4305,7 @@ import {
     const [tree, preview] = await Promise.all([fetchWorkspaceTree(path), fetchWorkspacePreview(path)]);
     const container = document.querySelector("[data-viewer-workshop-explorer]");
     if (container instanceof HTMLElement) {
+      window.__logicsWorkspaceMarkdownMode = String(viewerState.viewerPreferences.workspaceMarkdownMode || "");
       container.innerHTML = renderWorkspace(tree, preview);
       latestWorkspaceTreePayload = tree;
       latestWorkspacePreviewPayload = preview;
@@ -4317,6 +4334,7 @@ import {
     latestWorkspacePreviewPayload = preview;
     const pane = document.querySelector(".viewer-workspace__preview");
     if (pane instanceof HTMLElement) {
+      window.__logicsWorkspaceMarkdownMode = String(viewerState.viewerPreferences.workspaceMarkdownMode || "");
       pane.innerHTML = renderWorkspacePreview(preview);
       pane.scrollTop = 0;
     }
@@ -4336,6 +4354,7 @@ import {
     const [tree, preview] = await Promise.all([fetchWorkspaceTree(treePath), fetchWorkspacePreview(path, { full })]);
     const container = document.querySelector("[data-viewer-workshop-explorer]");
     if (container instanceof HTMLElement) {
+      window.__logicsWorkspaceMarkdownMode = String(viewerState.viewerPreferences.workspaceMarkdownMode || "");
       container.innerHTML = renderWorkspace(tree, preview);
       latestWorkspaceTreePayload = tree;
       latestWorkspacePreviewPayload = preview;
@@ -5394,11 +5413,7 @@ import {
       }
       if (workspaceMarkdownModeTarget instanceof HTMLElement) {
         event.preventDefault();
-        try {
-          window.localStorage.setItem("logics.workspaceMarkdownMode", workspaceMarkdownModeTarget.getAttribute("data-viewer-workspace-markdown-mode") || "preview");
-        } catch {
-          // Ignore private-mode storage failures; the current click still rerenders.
-        }
+        updateViewerPreferences({ workspaceMarkdownMode: workspaceMarkdownModeTarget.getAttribute("data-viewer-workspace-markdown-mode") || "preview" });
         const currentPath = document.querySelector("[data-viewer-workspace-preview-path]")?.getAttribute("data-viewer-workspace-preview-path") || "";
         withPrimaryAction("workspace-markdown-mode", "Switching Markdown view", async () => {
           const preview = latestWorkspacePreviewPayload || (currentPath ? await fetchWorkspacePreview(currentPath) : null);

@@ -1904,14 +1904,8 @@ export function renderWorkspacePreview(previewPayload) {
     const name = previewPayload.name || path || "/";
     const state = previewPayload.state || "unknown";
     if (state === "ok") {
-      const isMarkdown = String(previewPayload.contentType || "").includes("markdown") || /\.md(?:own)?$/i.test(path);
-      const storedMode = (() => {
-        try {
-          return window.localStorage.getItem("logics.workspaceMarkdownMode") || "";
-        } catch {
-          return "";
-        }
-      })();
+      const isMarkdown = String(previewPayload.contentType || "").includes("markdown") || /\.(?:md|mdown|markdown)$/i.test(path);
+      const storedMode = String(window.__logicsWorkspaceMarkdownMode || "");
       const defaultMode = Number(previewPayload.size || 0) >= 100 * 1024 ? "raw" : "preview";
       const markdownMode = storedMode === "raw" || storedMode === "preview" ? storedMode : defaultMode;
       const forceButtonHtml = previewPayload.canForce
@@ -1923,15 +1917,19 @@ export function renderWorkspacePreview(previewPayload) {
           </div>`
         : "";
       const api = markdownApi();
-      const body = isMarkdown && markdownMode === "preview"
-        ? `<div class="viewer-workspace__markdown markdown-preview">${api && typeof api.renderMarkdownToHtml === "function" ? api.renderMarkdownToHtml(previewPayload.content || "") : `<pre>${escapeHtml(previewPayload.content || "")}</pre>`}${forceButtonHtml}</div>`
-        : renderCodeViewer(previewPayload.content || "", {
+      const codeBody = () => renderCodeViewer(previewPayload.content || "", {
           language: detectHljsLanguage(path),
           lineCount: previewPayload.lineCount,
           truncated: Boolean(previewPayload.truncated),
           hardCapHit: Boolean(previewPayload.hardCapHit),
           forceButtonHtml
         });
+      const truncatedNotice = previewPayload.truncated
+        ? `<div class="viewer-workspace__preview-notice viewer-workspace__preview-notice--warn"><span>Preview is truncated.</span>${forceButtonHtml}</div>`
+        : "";
+      const body = isMarkdown && markdownMode === "preview" && api && typeof api.renderMarkdownToHtml === "function"
+        ? `<div class="viewer-workspace__markdown markdown-preview">${api.renderMarkdownToHtml(previewPayload.content || "")}${truncatedNotice}</div>`
+        : codeBody();
       return `
         <div class="viewer-workspace__preview-header" data-viewer-workspace-preview-path="${escapeHtml(path)}">
           <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>

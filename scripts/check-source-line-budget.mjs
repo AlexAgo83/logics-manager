@@ -230,7 +230,9 @@ const allowedOversizedFiles = new Map(
     // running connector owns and then reports it as a missing prerequisite.
     // 4401: req_381 adds one content route for the Review slot; the payload lives in
     // viewer_git.py and only this route wire stays here.
-    "logics_manager/viewer.py": { maxLines: 4401, ref: "req_381" },
+    // 4410: req_384 adds one lazy Review-burst files route beside the Review route it
+    // serves; the payload stays in viewer_git.py and this file keeps only the URL wire.
+    "logics_manager/viewer.py": { maxLines: 4410, ref: "req_384" },
     // 1545: item_743 keys the cdx update cache on a fingerprint of the installed
     // executable, so running the update the banner asks for ends the banner. The
     // helper is 8 lines; the rest is the docstring stating why it stats rather than
@@ -249,7 +251,9 @@ const allowedOversizedFiles = new Map(
     // 1185: req_381 adds the read-only Review burst payload beside the Git status/diff
     // payloads it reuses; splitting it would import the same Git-safe path and runner
     // helpers back out for one endpoint.
-    "logics_manager/viewer_git.py": { maxLines: 1185, ref: "req_381" },
+    // 1222: req_384 makes Review burst files lazy and structured on Git failure. It
+    // reuses the same bounded Git runner/path parsing this module already owns.
+    "logics_manager/viewer_git.py": { maxLines: 1222, ref: "req_384" },
     // 4909: release prep baseline.
     // req_311 lifted the document vocabulary into flow/docs.py: 4725 -> 3627. What is left
     // is the verbs and the CLI wiring, sitting on top of primitives that know nothing of them.
@@ -441,13 +445,17 @@ const allowedOversizedFiles = new Map(
     // 5638: req_383 keeps Explorer's directory-tree cache and file-only detail refresh in
     // the host because this is where file/tree clicks already dispatch and where the live
     // meta line is announced. A separate module would still need these closures.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 5638, ref: "req_383" },
+    // 5653: req_384 unifies the Review surface with the shared surface state and routes
+    // Explorer Markdown mode through viewer preferences, both in the host dispatcher.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 5653, ref: "req_384" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     // 1114: req_381 adds the Review timeline to the Git screen because it is a Git-only
     // projection over the same status, diff and commit-diff endpoints. A separate Review
     // module would re-export those private loaders or duplicate their error handling.
-    "clients/viewer/src/browser-host/git.js": { maxLines: 1114, ref: "req_381" },
+    // 1134: req_384 keeps Review selection, keyboard focus, and lazy file loading beside
+    // the Git diff loaders they call.
+    "clients/viewer/src/browser-host/git.js": { maxLines: 1134, ref: "req_384" },
     // req_312: the workshop screen, on the same factory-and-accessor seam as cdx.
     // 1311: 2.21.4 adds the terminal tab's explicit ready meta so the visual
     // smoke can distinguish a settled tab from a silent busy state.
@@ -464,7 +472,9 @@ const allowedOversizedFiles = new Map(
     // in workshop.js because each is the rendering of one of this screen's own tabs --
     // splitting a tab's markup from the tab that owns it would mean two files to read to
     // answer one question about one panel.
-    "clients/viewer/src/browser-host/workshop.js": { maxLines: 1441, ref: "req_350" },
+    // 1445: req_384 hydrates the shared Explorer cache when the Workshop tab owns the
+    // first render, so mode switches and later previews repaint the selected file.
+    "clients/viewer/src/browser-host/workshop.js": { maxLines: 1445, ref: "req_384" },
     // req_350: +25 for item_759's blocked-launch reason and the tiles it emptied. The
     // reason has to read the plan payload the button already reads, so it stays beside it.
     // 3106: req_359's Workshop/CDX mockup-gap finish (Commands, Runbooks, Explorer,
@@ -582,7 +592,9 @@ const allowedOversizedFiles = new Map(
     // both, and this file is the one place that holds them -- the resolution itself lives in
     // logicsModel.js so the feed and the panel answer it the same way.
     // 1050: req_367's board-loading-state fix, same reasoning as renderBoardApp.js above.
-    "clients/shared-web/media/mainApp.js": { maxLines: 1050, ref: "req_367" },
+    // 1057: req_384 lets the viewer host drive Activity/Project/Review through the shared
+    // app state instead of maintaining a second Activity boolean.
+    "clients/shared-web/media/mainApp.js": { maxLines: 1057, ref: "req_384" },
     // 1009: req_322 added stopViewerServers(), the explicit deactivate() path
     // redundant with (not a replacement for) the subscription-disposal path
     // the constructor already registers.

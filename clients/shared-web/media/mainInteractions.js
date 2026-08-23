@@ -257,7 +257,7 @@
       if (attentionToggle) {
         attentionToggle.addEventListener("click", () => onToggleAttention());
       }
-      if (activityToggle) {
+      if (activityToggle && !activityToggle.hasAttribute("data-viewer-surface")) {
         activityToggle.addEventListener("click", () => onActivityToggle());
       }
       if (helpBannerDismiss) {

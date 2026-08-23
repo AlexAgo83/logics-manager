@@ -677,6 +677,12 @@ function browserExerciseScript(name) {
           skipReason: "details.css hides the panel below 900px on purpose"
         },
         { name: "activity feed", steps: ["#activity-toggle"], proof: ".activity-panel__list" },
+        {
+          name: "review timeline",
+          steps: ["[data-viewer-surface='review']"],
+          proof: "[data-viewer-review]",
+          timeoutMs: 90000
+        },
 
         // item_766 covered the reader and the modal below and NOT the filter panel, which
         // is stated rather than left as a gap somebody has to notice. Its behaviour is
@@ -748,6 +754,18 @@ function browserExerciseScript(name) {
           name: "workshop explorer",
           steps: ["#viewer-workshop", "[data-viewer-nav-target='workshop:explorer']"],
           proof: ".viewer-workspace__preview",
+          timeoutMs: 90000
+        },
+        {
+          name: "workshop explorer markdown preview",
+          steps: ["#viewer-workshop", "[data-viewer-nav-target='workshop:explorer']", "[data-viewer-workspace-markdown-mode='preview']"],
+          proof: ".viewer-workspace__markdown",
+          timeoutMs: 90000
+        },
+        {
+          name: "workshop explorer markdown raw",
+          steps: ["#viewer-workshop", "[data-viewer-nav-target='workshop:explorer']", "[data-viewer-workspace-markdown-mode='raw']"],
+          proof: ".viewer-code",
           timeoutMs: 90000
         },
         {

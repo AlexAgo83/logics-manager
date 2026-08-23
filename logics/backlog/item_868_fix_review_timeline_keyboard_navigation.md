@@ -1,13 +1,14 @@
 ## item_868_fix_review_timeline_keyboard_navigation - Fix Review timeline keyboard navigation
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 92%
 > Confidence: 88%
-> Progress: 0%
+> Progress: 90%
 > Complexity: Medium
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-23 14:51:20
 
 # AI Context
 - Summary: Makes Review's arrow keys work past the first press and follow focus rather than selection.

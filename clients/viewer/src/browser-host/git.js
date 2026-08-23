@@ -753,7 +753,7 @@ export function createGitScreen(host) {
     const burstRows = bursts.map((burst) => `<button class="viewer-review__burst${burst === active ? " is-active" : ""}" type="button" data-viewer-review-burst="${escapeHtml(String(burst?.id || ""))}" aria-pressed="${burst === active ? "true" : "false"}">
       <span class="viewer-review__burst-label">${escapeHtml(String(burst?.label || burst?.ref || "Change"))}</span>
       <span class="viewer-review__burst-title">${escapeHtml(String(burst?.title || ""))}</span>
-      <span class="viewer-review__burst-meta">${escapeHtml(String(burst?.meta || ""))}</span>
+      <span class="viewer-review__burst-meta">${escapeHtml(String(burst?.meta || ""))}${Number(burst?.additions || 0) || Number(burst?.deletions || 0) ? ` · +${Number(burst?.additions || 0)}-${Number(burst?.deletions || 0)}` : ""}</span>
     </button>`).join("");
     const files = Array.isArray(active?.files) ? active.files : [];
     return `<section class="viewer-review" data-viewer-review>
@@ -775,7 +775,9 @@ export function createGitScreen(host) {
   function moveReviewButton(selector, current, delta) {
     const nodes = Array.from(document.querySelectorAll(selector)).filter((node) => node instanceof HTMLElement);
     if (!nodes.length) return;
-    const index = Math.max(0, nodes.findIndex((node) => node === current || node.classList.contains("is-active") || node.getAttribute("aria-pressed") === "true"));
+    const focusedIndex = current instanceof HTMLElement ? nodes.indexOf(current) : -1;
+    const selectedIndex = nodes.findIndex((node) => node instanceof HTMLElement && (node.classList.contains("is-active") || node.getAttribute("aria-pressed") === "true"));
+    const index = focusedIndex >= 0 ? focusedIndex : Math.max(0, selectedIndex);
     const next = nodes[(index + delta + nodes.length) % nodes.length];
     if (next instanceof HTMLElement) {
       next.focus();
@@ -800,8 +802,27 @@ export function createGitScreen(host) {
 
   async function selectReviewBurst(id) {
     latestReviewBurstId = id;
+    const burst = activeReviewBurst();
+    if (burst && !Array.isArray(burst.files)) {
+      const params = new URLSearchParams({ kind: String(burst.kind || "") });
+      if (burst.ref) params.set("ref", String(burst.ref));
+      const response = await fetch(`/api/review-burst-files?${params.toString()}`);
+      const data = await response.json();
+      const payload = data.payload || {};
+      if (!response.ok || !data.ok || payload.state !== "ok") {
+        latestReviewPayload = { state: "error", message: payload.message || data.error || "Unable to load Review files.", bursts: reviewBursts() };
+      } else {
+        burst.files = Array.isArray(payload.files) ? payload.files : [];
+        burst.fileCount = payload.fileCount ?? burst.files.length;
+        burst.additions = payload.additions ?? burst.additions ?? 0;
+        burst.deletions = payload.deletions ?? burst.deletions ?? 0;
+      }
+    }
     host.setDocument("Review", renderReviewTimeline());
     bindReviewKeyboard();
+    Array.from(document.querySelectorAll("[data-viewer-review-burst]"))
+      .find((node) => node instanceof HTMLElement && node.getAttribute("data-viewer-review-burst") === id)
+      ?.focus();
     const firstFile = firstReviewFileButton();
     if (firstFile instanceof HTMLElement) {
       await loadReviewFile(firstFile);
@@ -849,9 +870,8 @@ export function createGitScreen(host) {
     latestReviewBurstId = String(reviewBursts()[0]?.id || "");
     host.setDocument("Review", renderReviewTimeline());
     bindReviewKeyboard();
-    const firstFile = firstReviewFileButton();
-    if (firstFile instanceof HTMLElement) {
-      await loadReviewFile(firstFile);
+    if (latestReviewBurstId) {
+      await selectReviewBurst(latestReviewBurstId);
     }
     host.setMeta(latestReviewPayload.message || "Review timeline ready.");
   }

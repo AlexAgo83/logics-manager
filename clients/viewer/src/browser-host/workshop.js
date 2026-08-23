@@ -136,7 +136,11 @@ export function createWorkshopScreen(host) {
     }
     const fresh = document.querySelector("[data-viewer-workshop-explorer]");
     if (fresh instanceof HTMLElement) {
+      window.__logicsWorkspaceMarkdownMode = String(host.shared.viewerPreferences.workspaceMarkdownMode || "");
       fresh.innerHTML = renderWorkspace(tree, preview);
+      if (typeof host.onWorkspaceExplorerLoaded === "function") {
+        host.onWorkspaceExplorerLoaded(tree, preview);
+      }
     }
     host.setMeta(options.silent ? "Explorer refreshed." : "Explorer loaded.");
   }

@@ -3252,14 +3252,8 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     const name = previewPayload.name || path || "/";
     const state = previewPayload.state || "unknown";
     if (state === "ok") {
-      const isMarkdown = String(previewPayload.contentType || "").includes("markdown") || /\.md(?:own)?$/i.test(path);
-      const storedMode = (() => {
-        try {
-          return window.localStorage.getItem("logics.workspaceMarkdownMode") || "";
-        } catch {
-          return "";
-        }
-      })();
+      const isMarkdown = String(previewPayload.contentType || "").includes("markdown") || /\.(?:md|mdown|markdown)$/i.test(path);
+      const storedMode = String(window.__logicsWorkspaceMarkdownMode || "");
       const defaultMode = Number(previewPayload.size || 0) >= 100 * 1024 ? "raw" : "preview";
       const markdownMode = storedMode === "raw" || storedMode === "preview" ? storedMode : defaultMode;
       const forceButtonHtml = previewPayload.canForce ? `<button class="btn viewer-code__force" type="button" data-viewer-workspace-preview-full="${escapeHtml(path)}">Load anyway</button>` : "";
@@ -3267,13 +3261,15 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
             ${["preview", "raw"].map((mode) => `<button class="viewer-cdx__mode${markdownMode === mode ? " is-active" : ""}" type="button" data-viewer-workspace-markdown-mode="${mode}" aria-pressed="${markdownMode === mode ? "true" : "false"}">${mode === "preview" ? "Preview" : "Raw"}</button>`).join("")}
           </div>` : "";
       const api = markdownApi();
-      const body = isMarkdown && markdownMode === "preview" ? `<div class="viewer-workspace__markdown markdown-preview">${api && typeof api.renderMarkdownToHtml === "function" ? api.renderMarkdownToHtml(previewPayload.content || "") : `<pre>${escapeHtml(previewPayload.content || "")}</pre>`}${forceButtonHtml}</div>` : renderCodeViewer(previewPayload.content || "", {
+      const codeBody = () => renderCodeViewer(previewPayload.content || "", {
         language: detectHljsLanguage(path),
         lineCount: previewPayload.lineCount,
         truncated: Boolean(previewPayload.truncated),
         hardCapHit: Boolean(previewPayload.hardCapHit),
         forceButtonHtml
       });
+      const truncatedNotice = previewPayload.truncated ? `<div class="viewer-workspace__preview-notice viewer-workspace__preview-notice--warn"><span>Preview is truncated.</span>${forceButtonHtml}</div>` : "";
+      const body = isMarkdown && markdownMode === "preview" && api && typeof api.renderMarkdownToHtml === "function" ? `<div class="viewer-workspace__markdown markdown-preview">${api.renderMarkdownToHtml(previewPayload.content || "")}${truncatedNotice}</div>` : codeBody();
       return `
         <div class="viewer-workspace__preview-header" data-viewer-workspace-preview-path="${escapeHtml(path)}">
           <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
@@ -6429,7 +6425,11 @@ ${node.kind} \xB7 ${node.status || "unknown"}`);
       }
       const fresh = document.querySelector("[data-viewer-workshop-explorer]");
       if (fresh instanceof HTMLElement) {
+        window.__logicsWorkspaceMarkdownMode = String(host.shared.viewerPreferences.workspaceMarkdownMode || "");
         fresh.innerHTML = renderWorkspace(tree, preview);
+        if (typeof host.onWorkspaceExplorerLoaded === "function") {
+          host.onWorkspaceExplorerLoaded(tree, preview);
+        }
       }
       host.setMeta(options.silent ? "Explorer refreshed." : "Explorer loaded.");
     }
@@ -8207,7 +8207,7 @@ ${line}` : line;
       const burstRows = bursts.map((burst) => `<button class="viewer-review__burst${burst === active ? " is-active" : ""}" type="button" data-viewer-review-burst="${escapeHtml(String(burst?.id || ""))}" aria-pressed="${burst === active ? "true" : "false"}">
       <span class="viewer-review__burst-label">${escapeHtml(String(burst?.label || burst?.ref || "Change"))}</span>
       <span class="viewer-review__burst-title">${escapeHtml(String(burst?.title || ""))}</span>
-      <span class="viewer-review__burst-meta">${escapeHtml(String(burst?.meta || ""))}</span>
+      <span class="viewer-review__burst-meta">${escapeHtml(String(burst?.meta || ""))}${Number(burst?.additions || 0) || Number(burst?.deletions || 0) ? ` \xB7 +${Number(burst?.additions || 0)}-${Number(burst?.deletions || 0)}` : ""}</span>
     </button>`).join("");
       const files = Array.isArray(active?.files) ? active.files : [];
       return `<section class="viewer-review" data-viewer-review>
@@ -8227,7 +8227,9 @@ ${line}` : line;
     function moveReviewButton(selector, current, delta) {
       const nodes = Array.from(document.querySelectorAll(selector)).filter((node) => node instanceof HTMLElement);
       if (!nodes.length) return;
-      const index = Math.max(0, nodes.findIndex((node) => node === current || node.classList.contains("is-active") || node.getAttribute("aria-pressed") === "true"));
+      const focusedIndex = current instanceof HTMLElement ? nodes.indexOf(current) : -1;
+      const selectedIndex = nodes.findIndex((node) => node instanceof HTMLElement && (node.classList.contains("is-active") || node.getAttribute("aria-pressed") === "true"));
+      const index = focusedIndex >= 0 ? focusedIndex : Math.max(0, selectedIndex);
       const next = nodes[(index + delta + nodes.length) % nodes.length];
       if (next instanceof HTMLElement) {
         next.focus();
@@ -8250,8 +8252,25 @@ ${line}` : line;
     }
     async function selectReviewBurst(id) {
       latestReviewBurstId = id;
+      const burst = activeReviewBurst();
+      if (burst && !Array.isArray(burst.files)) {
+        const params = new URLSearchParams({ kind: String(burst.kind || "") });
+        if (burst.ref) params.set("ref", String(burst.ref));
+        const response = await fetch(`/api/review-burst-files?${params.toString()}`);
+        const data = await response.json();
+        const payload = data.payload || {};
+        if (!response.ok || !data.ok || payload.state !== "ok") {
+          latestReviewPayload = { state: "error", message: payload.message || data.error || "Unable to load Review files.", bursts: reviewBursts() };
+        } else {
+          burst.files = Array.isArray(payload.files) ? payload.files : [];
+          burst.fileCount = payload.fileCount ?? burst.files.length;
+          burst.additions = payload.additions ?? burst.additions ?? 0;
+          burst.deletions = payload.deletions ?? burst.deletions ?? 0;
+        }
+      }
       host.setDocument("Review", renderReviewTimeline());
       bindReviewKeyboard();
+      Array.from(document.querySelectorAll("[data-viewer-review-burst]")).find((node) => node instanceof HTMLElement && node.getAttribute("data-viewer-review-burst") === id)?.focus();
       const firstFile = firstReviewFileButton();
       if (firstFile instanceof HTMLElement) {
         await loadReviewFile(firstFile);
@@ -8297,9 +8316,8 @@ ${line}` : line;
       latestReviewBurstId = String(reviewBursts()[0]?.id || "");
       host.setDocument("Review", renderReviewTimeline());
       bindReviewKeyboard();
-      const firstFile = firstReviewFileButton();
-      if (firstFile instanceof HTMLElement) {
-        await loadReviewFile(firstFile);
+      if (latestReviewBurstId) {
+        await selectReviewBurst(latestReviewBurstId);
       }
       host.setMeta(latestReviewPayload.message || "Review timeline ready.");
     }
@@ -8949,7 +8967,11 @@ ${line}` : line;
       cdxSessionForTerminal: (...args) => cdxSessionForTerminal(...args),
       cdxSessionUsage: (...args) => cdxSessionUsage(...args),
       loadCdxSessionsForCustomTerminal: (...args) => loadCdxSessionsForCustomTerminal(...args),
-      shared: readerFor(viewerState)
+      shared: readerFor(viewerState),
+      onWorkspaceExplorerLoaded: (tree, preview) => {
+        latestWorkspaceTreePayload = tree;
+        latestWorkspacePreviewPayload = preview;
+      }
     });
     const autoRefreshControl = () => document.getElementById("viewer-auto-refresh");
     const refreshIntervalControl = () => document.getElementById("viewer-refresh-interval");
@@ -9382,12 +9404,18 @@ ${line}` : line;
     function setViewerSurface(surface) {
       const next = ["activity", "project", "review"].includes(surface) ? surface : "project";
       const activityPanel = document.getElementById("activity-panel");
+      const current = document.body?.dataset.viewerSurface || (activityPanelIsOpen() ? "activity" : "project");
+      if (current === next) {
+        if (next === "activity") dispatchViewerActivityUpdate();
+        return;
+      }
       if (document.body) {
         document.body.dataset.viewerSurface = next;
         document.body.classList.toggle("viewer-screen-activity", next === "activity");
         document.body.classList.toggle("viewer-screen-project", next === "project");
         document.body.classList.toggle("viewer-screen-review", next === "review");
       }
+      window.dispatchEvent(new CustomEvent("viewer-surface-change", { detail: { surface: next } }));
       if (activityPanel instanceof HTMLElement) {
         activityPanel.hidden = next !== "activity";
       }
@@ -11101,6 +11129,9 @@ ${line}` : line;
       const panel = documentPanel();
       return Boolean(panel && !panel.hidden && document.querySelector("[data-viewer-workshop-explorer]"));
     }
+    function isReviewOpen() {
+      return document.body?.dataset.viewerSurface === "review" && documentTitle()?.textContent === "Review";
+    }
     async function refreshViewer(method = "POST", options = {}) {
       const changed = await loadItems(method, options);
       if (isFleetHomeOpen()) {
@@ -11109,6 +11140,8 @@ ${line}` : line;
         if (changed || options.force) {
           await showWorkspace({ silent: Boolean(options.silent) });
         }
+      } else if (isReviewOpen()) {
+        await showReviewTimeline({ silent: Boolean(options.silent), force: Boolean(options.force) });
       } else if (isGitCiScreenOpen()) {
         if (gitState.latestCiScreenMode === "release") {
           await showReleaseStatus({ silent: Boolean(options.silent), force: Boolean(options.force) });
@@ -12047,6 +12080,7 @@ ${shown.join("\n")}${files.length > shown.length ? `
       const [tree, preview] = await Promise.all([fetchWorkspaceTree(path), fetchWorkspacePreview(path)]);
       const container = document.querySelector("[data-viewer-workshop-explorer]");
       if (container instanceof HTMLElement) {
+        window.__logicsWorkspaceMarkdownMode = String(viewerState.viewerPreferences.workspaceMarkdownMode || "");
         container.innerHTML = renderWorkspace(tree, preview);
         latestWorkspaceTreePayload = tree;
         latestWorkspacePreviewPayload = preview;
@@ -12072,6 +12106,7 @@ ${shown.join("\n")}${files.length > shown.length ? `
       latestWorkspacePreviewPayload = preview;
       const pane = document.querySelector(".viewer-workspace__preview");
       if (pane instanceof HTMLElement) {
+        window.__logicsWorkspaceMarkdownMode = String(viewerState.viewerPreferences.workspaceMarkdownMode || "");
         pane.innerHTML = renderWorkspacePreview(preview);
         pane.scrollTop = 0;
       }
@@ -12090,6 +12125,7 @@ ${shown.join("\n")}${files.length > shown.length ? `
       const [tree, preview] = await Promise.all([fetchWorkspaceTree(treePath), fetchWorkspacePreview(path, { full })]);
       const container = document.querySelector("[data-viewer-workshop-explorer]");
       if (container instanceof HTMLElement) {
+        window.__logicsWorkspaceMarkdownMode = String(viewerState.viewerPreferences.workspaceMarkdownMode || "");
         container.innerHTML = renderWorkspace(tree, preview);
         latestWorkspaceTreePayload = tree;
         latestWorkspacePreviewPayload = preview;
@@ -13103,10 +13139,7 @@ ${shown.join("\n")}${files.length > shown.length ? `
         }
         if (workspaceMarkdownModeTarget instanceof HTMLElement) {
           event.preventDefault();
-          try {
-            window.localStorage.setItem("logics.workspaceMarkdownMode", workspaceMarkdownModeTarget.getAttribute("data-viewer-workspace-markdown-mode") || "preview");
-          } catch {
-          }
+          updateViewerPreferences({ workspaceMarkdownMode: workspaceMarkdownModeTarget.getAttribute("data-viewer-workspace-markdown-mode") || "preview" });
           const currentPath = document.querySelector("[data-viewer-workspace-preview-path]")?.getAttribute("data-viewer-workspace-preview-path") || "";
           withPrimaryAction("workspace-markdown-mode", "Switching Markdown view", async () => {
             const preview = latestWorkspacePreviewPayload || (currentPath ? await fetchWorkspacePreview(currentPath) : null);

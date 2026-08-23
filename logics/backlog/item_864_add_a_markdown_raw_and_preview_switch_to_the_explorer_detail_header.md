@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 90%
-> Confidence: 85%
+> Confidence: 88%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Viewer explorer
@@ -42,13 +42,15 @@
 - AC5: Non-markdown files, directories, images, oversized files, and unavailable states show no control and keep their current rendering.
 - AC6: A truncated markdown file keeps its truncation notice and its load-anyway control in both modes.
 - AC7: With no markdown API present, the pane falls back to the code viewer instead of rendering an empty body.
+- AC8: Browser-host tests cover both modes, the size-based default, the remembered choice, the truncation notice, the absent control, and the missing-renderer fallback.
+- AC9: The bundle is regenerated and `npm run check:viewer-host`, the targeted vitest checks, and `npm run test:viewer-smoke` pass for this slice.
 
 # AC Traceability
 - request-AC7 -> This backlog slice. Proof: AC1: A markdown file shows a Raw/Preview control at the top right of the detail header, and the header stays visible while the body scrolls.
-- request-AC8 -> This backlog slice. Proof: AC2: Preview renders through the existing markdown API; Raw renders the current code viewer unchanged.
-- request-AC9 -> This backlog slice. Proof: AC3: The default mode is Preview below 100 KB and Raw at or above it.
-- request-AC11 -> This backlog slice. Proof: AC4: An explicit choice overrides the default, survives switching files, and survives a reload.
-- request-AC12 -> This backlog slice. Proof: AC5: Non-markdown files, directories, images, oversized files, and unavailable states show no control and keep their current rendering.
+- request-AC8 -> This backlog slice. Proof: AC3: The default mode is Preview below 100 KB and Raw at or above it, and AC4: an explicit choice overrides it and survives a reload.
+- request-AC9 -> This backlog slice. Proof: AC5: Non-markdown files, directories, images, oversized files, and unavailable states show no control and keep their current rendering.
+- request-AC11 -> This backlog slice. Proof: AC8: Browser-host tests cover both modes, the size-based default, the remembered choice, the truncation notice, the absent control, and the missing-renderer fallback.
+- request-AC12 -> This backlog slice. Proof: AC9: The bundle is regenerated and `npm run check:viewer-host`, the targeted vitest checks, and `npm run test:viewer-smoke` pass for this slice.
 
 # Decision framing
 - Product framing: Not needed

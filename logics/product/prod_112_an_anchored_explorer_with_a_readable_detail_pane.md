@@ -6,9 +6,18 @@
 > Related task: `task_395_orchestrate_the_explorer_layout_and_markdown_preview_rework`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-08-23 13:12:19
 
 # Overview
 Make the Explorer behave like a file browser rather than a page that reloads: a list anchored to the left that stays put while the operator reads, a detail pane that owns its own scroll and starts each file at the top, and a rendered view for the markdown files most of this repository is written in.
+
+```mermaid
+flowchart LR
+  Click[File click] --> Detail[Detail pane only]
+  Detail --> Top[Scroll reset, focus kept]
+  List[Anchored list] --> OwnScroll[Own scroll container]
+  Md[Markdown file] --> Switch[Raw / Preview switch]
+```
 
 # Goals
 - Keep the operator's place in the file list across every file they open.

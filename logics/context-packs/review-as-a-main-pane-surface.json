@@ -1,0 +1,329 @@
+{
+  "budgets": {
+    "max_docs": 20,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control item_871_move_review_from_the_screen_overlay_into_the_main_pane item_872_repair_the_explorer_selected_row_and_detail_pane_scrolling item_873_turn_the_surface_buttons_into_one_segmented_control task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_871_move_review_from_the_screen_overlay_into_the_main_pane",
+          "item_872_repair_the_explorer_selected_row_and_detail_pane_scrolling",
+          "item_873_turn_the_surface_buttons_into_one_segmented_control"
+        ],
+        "prod": [
+          "prod_114_review_as_a_real_viewer_surface"
+        ],
+        "req": [
+          "req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control"
+        ],
+        "task": [
+          "task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs"
+        ]
+      },
+      "path": "logics/product/prod_114_review_as_a_real_viewer_surface.md",
+      "ref": "prod_114_review_as_a_real_viewer_surface",
+      "status": "Proposed",
+      "title": "Review as a real viewer surface"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "render, review, main, pane, repair, explorer, detail, surface, control",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_871_move_review_from_the_screen_overlay_into_the_main_pane",
+          "item_872_repair_the_explorer_selected_row_and_detail_pane_scrolling",
+          "item_873_turn_the_surface_buttons_into_one_segmented_control"
+        ],
+        "prod": [
+          "prod_114_review_as_a_real_viewer_surface"
+        ],
+        "req": [
+          "req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control"
+        ]
+      },
+      "path": "logics/request/req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control.md",
+      "ref": "req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Render Review in the main pane and repair the Explorer detail pane and surface control"
+    },
+    {
+      "ai_context": {
+        "keywords": "move, review, screen, overlay, main, pane",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_871_move_review_from_the_screen_overlay_into_the_main_pane"
+        ],
+        "prod": [
+          "prod_114_review_as_a_real_viewer_surface"
+        ],
+        "req": [
+          "req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control"
+        ],
+        "task": [
+          "task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs"
+        ]
+      },
+      "path": "logics/backlog/item_871_move_review_from_the_screen_overlay_into_the_main_pane.md",
+      "ref": "item_871_move_review_from_the_screen_overlay_into_the_main_pane",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Move Review from the screen overlay into the main pane"
+    },
+    {
+      "ai_context": {
+        "keywords": "repair, explorer, selected, row, detail, pane, scrolling",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_872_repair_the_explorer_selected_row_and_detail_pane_scrolling"
+        ],
+        "prod": [
+          "prod_114_review_as_a_real_viewer_surface"
+        ],
+        "req": [
+          "req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control"
+        ],
+        "task": [
+          "task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs"
+        ]
+      },
+      "path": "logics/backlog/item_872_repair_the_explorer_selected_row_and_detail_pane_scrolling.md",
+      "ref": "item_872_repair_the_explorer_selected_row_and_detail_pane_scrolling",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Repair the Explorer selected row and detail pane scrolling"
+    },
+    {
+      "ai_context": {
+        "keywords": "turn, surface, buttons, segmented, control",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_873_turn_the_surface_buttons_into_one_segmented_control"
+        ],
+        "prod": [
+          "prod_114_review_as_a_real_viewer_surface"
+        ],
+        "req": [
+          "req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control"
+        ],
+        "task": [
+          "task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs"
+        ]
+      },
+      "path": "logics/backlog/item_873_turn_the_surface_buttons_into_one_segmented_control.md",
+      "ref": "item_873_turn_the_surface_buttons_into_one_segmented_control",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Turn the surface buttons into one segmented control"
+    },
+    {
+      "ai_context": {
+        "keywords": "orchestrate, review, main, pane, move, explorer, control, repairs",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_871_move_review_from_the_screen_overlay_into_the_main_pane",
+          "item_872_repair_the_explorer_selected_row_and_detail_pane_scrolling",
+          "item_873_turn_the_surface_buttons_into_one_segmented_control"
+        ],
+        "prod": [
+          "prod_114_review_as_a_real_viewer_surface"
+        ],
+        "req": [
+          "req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control"
+        ],
+        "task": [
+          "task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs"
+        ]
+      },
+      "path": "logics/tasks/task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs.md",
+      "ref": "task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrate the Review main-pane move and the Explorer and control repairs"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_871_move_review_from_the_screen_overlay_into_the_main_pane",
+          "item_872_repair_the_explorer_selected_row_and_detail_pane_scrolling",
+          "item_873_turn_the_surface_buttons_into_one_segmented_control"
+        ],
+        "prod": [
+          "prod_114_review_as_a_real_viewer_surface"
+        ],
+        "req": [
+          "req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control"
+        ],
+        "task": [
+          "task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs"
+        ]
+      },
+      "path": "logics/product/prod_114_review_as_a_real_viewer_surface.md",
+      "ref": "prod_114_review_as_a_real_viewer_surface",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "Review as a real viewer surface"
+    }
+  ],
+  "estimates": {
+    "char_count": 6319,
+    "companion_doc_count": 1,
+    "doc_count": 6
+  },
+  "generated_at": "2026-08-23T13:39:50Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control",
+      "item_871_move_review_from_the_screen_overlay_into_the_main_pane",
+      "item_872_repair_the_explorer_selected_row_and_detail_pane_scrolling",
+      "item_873_turn_the_surface_buttons_into_one_segmented_control",
+      "task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control,item_871_move_review_from_the_screen_overlay_into_the_main_pane,item_872_repair_the_explorer_selected_row_and_detail_pane_scrolling,item_873_turn_the_surface_buttons_into_one_segmented_control,task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs",
+  "refs": [
+    "req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control",
+    "item_871_move_review_from_the_screen_overlay_into_the_main_pane",
+    "item_872_repair_the_explorer_selected_row_and_detail_pane_scrolling",
+    "item_873_turn_the_surface_buttons_into_one_segmented_control",
+    "task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_id": null,
+    "target_version": "2.22.4",
+    "targets": []
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs.md",
+      "ref": "task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs"
+    }
+  ]
+}

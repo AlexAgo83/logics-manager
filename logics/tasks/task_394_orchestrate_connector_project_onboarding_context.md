@@ -1,14 +1,15 @@
 ## task_394_orchestrate_connector_project_onboarding_context - Orchestrate connector project onboarding context
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 92%
 > Confidence: 88%
-> Progress: 0%
+> Progress: 40%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-23 11:56:04
+> Indicators reviewed: 2026-08-23 12:40:54
+> Owner: codex
 
 # AI Context
 - Summary: Coordinate the connector onboarding delivery across initial probe, project targeting, recent activity, and source-backed follow-up reads.

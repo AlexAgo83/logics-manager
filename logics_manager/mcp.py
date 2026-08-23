@@ -27,6 +27,7 @@ from .config import ConfigError, find_repo_root, holds_corpus
 from .doctor import doctor_payload
 from .flow import flow_list_payload, roadmap_validate_payload, validate_closeout_payload
 from .insights import followups_payload, health_payload, product_consistency_payload, status_payload
+from .insights import collect_logics_docs
 from .lint import expected_workflow_mermaid_signature, lint_payload
 from .github_bridge import closeout_notice_payload, reconciliation_report_payload
 from .mcp_request import attach_issue, update_created_request
@@ -44,6 +45,7 @@ from .sync import (
     update_workflow_indicators_payload,
 )
 from .viewer_docs import viewer_url_for_ref, viewer_url_template
+from .viewer_git import git_status_payload
 
 
 ALLOWED_WRITE_DIRS = (
@@ -88,6 +90,11 @@ TOOL_CAPABILITIES: dict[str, str] = {
     # read-only
     "list_companion_docs": READ_ONLY,
     "list_active_work": READ_ONLY,
+    "onboard_project": READ_ONLY,
+    "list_projects": READ_ONLY,
+    "get_active_project": READ_ONLY,
+    "search_project_context": READ_ONLY,
+    "read_project_resource": READ_ONLY,
     "read_logics_doc": READ_ONLY,
     "build_context_pack": READ_ONLY,
     "get_release_status": READ_ONLY,
@@ -633,6 +640,148 @@ def _with_viewer_url_template(root: Path, payload: dict[str, Any]) -> dict[str, 
     return payload
 
 
+def _public_project_entry(root: Path, *, active_root: Path) -> dict[str, Any]:
+    from .viewer import _viewer_project_id
+
+    resolved = root.resolve()
+    return {
+        "id": _viewer_project_id(resolved),
+        "name": resolved.name,
+        "active": resolved == active_root.resolve(),
+        "available": resolved.is_dir(),
+        "hasLogics": holds_corpus(resolved),
+        "source": {"type": "project", "id": _viewer_project_id(resolved), "name": resolved.name},
+    }
+
+
+def _project_entries(root: Path, *, limit: int = 40) -> list[dict[str, Any]]:
+    from .viewer import discover_viewer_project_roots
+
+    roots = discover_viewer_project_roots(root, max_projects=limit)
+    return [
+        _public_project_entry(project, active_root=root)
+        for project in roots
+        if holds_corpus(project)
+    ]
+
+
+def _resolve_project_root(root: Path, project: str | None) -> Path:
+    target = (project or "").strip()
+    if not target:
+        return root
+    from .viewer import _viewer_project_id, discover_viewer_project_roots
+
+    roots = [candidate for candidate in discover_viewer_project_roots(root) if holds_corpus(candidate)]
+    by_id = { _viewer_project_id(candidate): candidate for candidate in roots }
+    if target in by_id:
+        return by_id[target].resolve()
+    name_matches = [candidate for candidate in roots if candidate.name == target]
+    if len(name_matches) == 1:
+        return name_matches[0].resolve()
+    candidates = [
+        {"id": _viewer_project_id(candidate), "name": candidate.name}
+        for candidate in roots
+        if candidate.name == target or target.lower() in candidate.name.lower()
+    ]
+    raise McpToolError(
+        "unknown_project" if not candidates else "ambiguous_project",
+        "Unknown project target." if not candidates else "Project target is ambiguous.",
+        details={"project": target, "candidates": candidates},
+    )
+
+
+def _source_for_doc(item: dict[str, Any]) -> dict[str, str]:
+    return {"type": "logics_doc", "ref": str(item.get("ref") or ""), "path": str(item.get("path") or "")}
+
+
+def _with_doc_sources(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [{**item, "source": _source_for_doc(item)} for item in items]
+
+
+def _recent_logics_activity(root: Path, *, limit: int) -> list[dict[str, Any]]:
+    docs = collect_logics_docs(root)
+    docs = sorted(docs, key=lambda doc: doc.path.stat().st_mtime_ns if doc.path.exists() else 0, reverse=True)
+    return [
+        {
+            "kind": doc.kind,
+            "ref": doc.ref,
+            "title": doc.title,
+            "status": doc.status,
+            "path": doc.rel_path,
+            "source": {"type": "logics_doc", "ref": doc.ref, "path": doc.rel_path},
+        }
+        for doc in docs[:limit]
+    ]
+
+
+def _recent_activity(root: Path, *, limit: int) -> dict[str, Any]:
+    git = git_status_payload(root)
+    commits = [
+        {
+            "hash": str(commit.get("hash") or ""),
+            "subject": str(commit.get("subject") or ""),
+            "date": str(commit.get("date") or ""),
+            "source": {"type": "git_commit", "hash": str(commit.get("hash") or "")},
+        }
+        for commit in (git.get("recentCommits") if isinstance(git.get("recentCommits"), list) else [])[:limit]
+    ]
+    return {
+        "git": {
+            "state": git.get("state"),
+            "message": git.get("message", ""),
+            "branch": git.get("branch", ""),
+            "clean": git.get("clean"),
+            "dirty": git.get("dirty"),
+            "counts": git.get("counts", {}),
+            "badgeCounts": git.get("badgeCounts", {}),
+            "latestCommit": git.get("latestCommit", ""),
+            "recentCommits": commits,
+        },
+        "logics": _recent_logics_activity(root, limit=limit),
+    }
+
+
+def _onboard_payload(root: Path, *, project: str | None = None, include_recent_activity: bool = True, limit: int = 10) -> dict[str, Any]:
+    target = _resolve_project_root(root, project)
+    status = status_payload(target, limit=limit)
+    active = flow_list_payload(target, kind="all")["entries"]
+    companions = _list_companion_docs(target, kind="all", limit=limit)
+    project_entry = _public_project_entry(target, active_root=root)
+    payload: dict[str, Any] = {
+        "ok": True,
+        "available": True,
+        "project_selected": True,
+        "corpus_present": holds_corpus(target),
+        "degraded": [],
+        "messages": [],
+        "project": {
+            **project_entry,
+            "rootName": target.name,
+        },
+        "active_project": _public_project_entry(root, active_root=root),
+        "projects": _project_entries(root, limit=limit),
+        "status": status,
+        "active_work": _with_doc_sources(active[:limit]),
+        "key_docs": _with_doc_sources(companions["items"][:limit]),
+        "sources": [
+            {"type": "status", "section": "status"},
+            *[_source_for_doc(item) for item in active[:limit]],
+            *[_source_for_doc(item) for item in companions["items"][:limit]],
+        ],
+        "follow_up_tools": [
+            {"name": "search_project_context", "description": "Search bounded Logics docs for a specific topic."},
+            {"name": "read_project_resource", "description": "Read one source pointer returned by onboarding or search."},
+            {"name": "list_projects", "description": "List other known Logics projects that can be targeted."},
+        ],
+    }
+    if include_recent_activity:
+        payload["recent_activity"] = _recent_activity(target, limit=limit)
+        git_state = payload["recent_activity"]["git"].get("state")
+        if git_state != "ok":
+            payload["degraded"].append({"component": "git", "state": git_state, "message": payload["recent_activity"]["git"].get("message", "")})
+    return _with_viewer_url_template(target, payload)
+
+
 def _bounded_int(value: Any, *, default: int, maximum: int) -> int:
     if not isinstance(value, int) or isinstance(value, bool):
         return default
@@ -712,6 +861,67 @@ def _tool_list_active_work(root: Path, args: dict[str, Any], name: str) -> dict[
     if kind not in {"all", "request", "backlog", "task"}:
         raise McpToolError("invalid_argument_value", "Unsupported list kind.", details={"kind": kind, "allowed": ["all", "request", "backlog", "task"]})
     return _with_viewer_url_template(root, {"ok": True, "items": flow_list_payload(root, kind=kind)["entries"]})
+
+def _tool_onboard_project(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    return _onboard_payload(
+        root,
+        project=str(args.get("project") or "") or None,
+        include_recent_activity=bool(args.get("include_recent_activity", True)),
+        limit=_bounded_int(args.get("limit"), default=10, maximum=50),
+    )
+
+def _tool_list_projects(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    limit = _bounded_int(args.get("limit"), default=40, maximum=100)
+    projects = _project_entries(root, limit=limit)
+    return {"ok": True, "active_project": _public_project_entry(root, active_root=root), "count": len(projects), "projects": projects}
+
+def _tool_get_active_project(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    return {"ok": True, "project": _public_project_entry(root, active_root=root)}
+
+def _tool_search_project_context(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    target = _resolve_project_root(root, str(args.get("project") or "") or None)
+    try:
+        payload = search_logics_docs_payload(
+            target,
+            str(args.get("query") or ""),
+            kind=str(args.get("kind") or "all"),
+            limit=_bounded_int(args.get("limit"), default=20, maximum=100),
+            max_snippet_chars=_bounded_int(args.get("max_snippet_chars"), default=240, maximum=1000),
+        )
+    except SystemExit as exc:
+        raise _mcp_read_error(exc) from exc
+    matches = [{**item, "source": _source_for_doc(item)} for item in payload.get("matches", [])]
+    return _with_viewer_url_template(target, {"ok": True, **payload, "matches": matches})
+
+def _normalize_project_resource(source: str) -> tuple[str, str]:
+    raw = source.strip()
+    if raw.startswith("logics:"):
+        return "logics", raw.removeprefix("logics:").strip()
+    if raw.startswith("git:"):
+        return "git", raw.removeprefix("git:").strip()
+    if raw.startswith("git_commit:"):
+        return "git", raw.removeprefix("git_commit:").strip()
+    if raw.startswith("logics/") or re.match(r"^(req|item|task|prod|road|adr|spec|run)_", raw):
+        return "logics", raw
+    return "unsupported", raw
+
+def _tool_read_project_resource(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    target = _resolve_project_root(root, str(args.get("project") or "") or None)
+    max_chars = _bounded_int(args.get("max_chars"), default=4000, maximum=12000)
+    kind, value = _normalize_project_resource(str(args.get("source") or ""))
+    if kind == "logics":
+        try:
+            payload = read_logics_doc_payload(target, value, max_chars=max_chars, sections=None)
+        except SystemExit as exc:
+            raise _mcp_read_error(exc) from exc
+        return _with_viewer_url(target, str(payload["ref"]), {"ok": True, "resource_type": "logics_doc", "source": _source_for_doc(payload), **payload})
+    if kind == "git":
+        if not re.fullmatch(r"[A-Fa-f0-9]{4,40}", value):
+            raise McpToolError("invalid_reference", "Git commit resources must be short or full hex hashes.", details={"source": args.get("source")})
+        result = _run_git(target, ["show", "--no-ext-diff", "--stat", "--format=medium", value])
+        text = result.stdout[:max_chars]
+        return {"ok": True, "resource_type": "git_commit", "source": {"type": "git_commit", "hash": value}, "content": text, "truncated": len(result.stdout) > max_chars}
+    raise McpToolError("unsupported_resource", "Unsupported project resource source.", details={"source": args.get("source"), "supported": ["logics:<ref-or-path>", "git:<hex-commit>"]})
 
 def _tool_list_companion_docs(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     payload = _list_companion_docs(root, kind=str(args.get("kind") or "all"), limit=_bounded_int(args.get("limit"), default=50, maximum=200))
@@ -1341,6 +1551,11 @@ _TOOL_HANDLERS: dict[str, Any] = {
     "run_logics_lint": _tool_run_logics_lint,
     "run_logics_audit": _tool_run_logics_audit,
     "list_active_work": _tool_list_active_work,
+    "onboard_project": _tool_onboard_project,
+    "list_projects": _tool_list_projects,
+    "get_active_project": _tool_get_active_project,
+    "search_project_context": _tool_search_project_context,
+    "read_project_resource": _tool_read_project_resource,
     "list_companion_docs": _tool_list_companion_docs,
     "read_logics_doc": _tool_read_logics_doc,
     "build_context_pack": _tool_build_context_pack,

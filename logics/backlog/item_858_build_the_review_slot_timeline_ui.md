@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 94%
-> Confidence: 80%
+> Confidence: 88%
 > Progress: 0%
 > Complexity: High
 > Theme: Viewer review
@@ -23,8 +23,7 @@
 
 # Scope
 - In:
-  - Replace the `#activity-toggle` two-state pill slider with a segmented Activity/Project/Review control, and route Review through the existing browser-host screen system.
-  - Migrate the boolean surface state (`activityPanelIsOpen()`, `viewer-screen-activity`/`viewer-screen-project` body classes) to a tri-state across its seventeen call sites in `index.js`, `render.js`, `git.js`, `util.js`, and `viewer.css`, `returnToProjectSurface()` included.
+  - Add `Review` as the third choice of the segmented surface control `item_865` delivers, and route Review through the existing browser-host screen system.
   - Render a horizontal burst rail with stable selected state, concise metadata, and badges for file/change counts.
   - Render a vertical file list for the selected burst with path, change kind, and additions/deletions where available.
   - Render the selected file's diff in the main pane, reusing the existing diff/code viewer classes and load-more behavior where applicable.
@@ -37,13 +36,14 @@
   - Add only the CSS needed for the three-pane Review layout and reuse existing tokens, buttons, badges, and code viewer styles.
   - Add Review to the existing local viewer visual campaign or equivalent layout harness.
 - Out:
+  - Replacing the surface control and migrating the boolean surface state: `item_865` does that first.
   - A new design system for Review.
   - A full-screen editor or inline file editing.
   - Drag, timeline zoom, branch graph, or animated playback.
   - Changing the existing Git cockpit's actions or commit workflow.
 
 # Acceptance criteria
-- AC1: The slider is replaced by a three-choice control, no reader of the old boolean surface state is left behind, and existing topbar/menu slots remain reachable.
+- AC1: `Review` is the third choice of the segmented surface control, reachable at every breakpoint, and existing topbar/menu slots remain reachable.
 - AC2: The burst rail shows the working tree first when dirty and then recent commits in reverse chronological order.
 - AC3: Selecting a burst updates the vertical file list without a page navigation.
 - AC4: Selecting a dirty working-tree file loads the existing working-tree/staged diff or file preview.
@@ -84,4 +84,4 @@
 
 # Priority
 - Priority: High
-- Rationale: This is the user-visible delivery slice for the new Review slot and depends on the Git burst payload.
+- Rationale: This is the user-visible delivery slice for the new Review slot. It depends on the Git burst payload from `item_857` and on the tri-state surface control from `item_865`.

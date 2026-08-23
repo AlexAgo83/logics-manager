@@ -2,8 +2,8 @@
 > From version: 2.22.4
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 94%
-> Confidence: 82%
+> Understanding: 95%
+> Confidence: 86%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Implementation delivery
@@ -23,18 +23,20 @@
 - [ ] 1. Start with the backend Review payload and committed-file diff endpoint, reusing `viewer_git.py` safety and truncation helpers.
 - [ ] 2. Add focused Python coverage for review burst construction and committed-file diff edge cases.
 - [ ] 3. Wire the `Review` slot into the existing viewer navigation and browser-host screen router.
-- [ ] 4. Replace the `#activity-toggle` pill slider with a segmented Activity/Project/Review control and migrate the boolean surface state to a tri-state across its seventeen call sites, with a phone fallback that uses the existing compact menu/sheet behavior instead of wrapping controls.
+- [ ] 4. `item_865` first: replace the `#activity-toggle` pill slider with a segmented surface control and migrate the boolean surface state across its seventeen call sites, still shipping only Activity and Project, with the phone fallback using the existing compact menu/sheet behavior instead of wrapping controls.
+- [ ] 4b. Then add `Review` as that control's third choice.
 - [ ] 5. Build the burst rail, file list, diff pane, responsive layout, empty states, and arrow-key selection in the shared viewer source with the smallest CSS needed.
 - [ ] 6. Add browser-host tests for render states, selection, keyboard navigation, diff fetches, and key-handler scoping against modals, text inputs, and the existing document-level shortcuts.
 - [ ] 7. Add Review to the existing visual campaign or equivalent layout harness at desktop, tablet, and phone widths.
 - [ ] 8. Regenerate the browser host bundle, run targeted checks, then validate the Logics docs and close out.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
-- [ ] Sequencing: `task_395` edits the same four files (`browser-host/index.js`, `render.js`, `viewer.css`, and the generated `clients/viewer/browser-host.js`). Run the two tasks one after the other, not in parallel; the generated bundle conflicts on every concurrent rebuild.
+- [ ] Sequencing: `task_395` edits the same four files (`browser-host/index.js`, `render.js`, `viewer.css`, and the generated `clients/viewer/browser-host.js`). It runs second: `task_395` ships first. Never run them in parallel; the generated bundle conflicts on every concurrent rebuild.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.
 
 # Backlog
 - `item_857_expose_review_bursts_from_local_git`
+- `item_865_migrate_the_viewer_surface_state_from_a_boolean_to_a_tri_state`
 - `item_858_build_the_review_slot_timeline_ui`
 
 # Definition of Done (DoD)
@@ -50,6 +52,10 @@
 - request-AC7 -> `item_857_expose_review_bursts_from_local_git`. Proof deferred to slice closeout.
 - request-AC8 -> `item_857_expose_review_bursts_from_local_git`. Proof deferred to slice closeout.
 - request-AC10 -> `item_857_expose_review_bursts_from_local_git`. Proof deferred to slice closeout.
+- request-AC1 -> `item_865_migrate_the_viewer_surface_state_from_a_boolean_to_a_tri_state`. Proof deferred to slice closeout.
+- request-AC9 -> `item_865_migrate_the_viewer_surface_state_from_a_boolean_to_a_tri_state`. Proof deferred to slice closeout.
+- request-AC11 -> `item_865_migrate_the_viewer_surface_state_from_a_boolean_to_a_tri_state`. Proof deferred to slice closeout.
+- request-AC12 -> `item_865_migrate_the_viewer_surface_state_from_a_boolean_to_a_tri_state`. Proof deferred to slice closeout.
 - request-AC1 -> `item_858_build_the_review_slot_timeline_ui`. Proof deferred to slice closeout.
 - request-AC2 -> `item_858_build_the_review_slot_timeline_ui`. Proof deferred to slice closeout.
 - request-AC3 -> `item_858_build_the_review_slot_timeline_ui`. Proof deferred to slice closeout.

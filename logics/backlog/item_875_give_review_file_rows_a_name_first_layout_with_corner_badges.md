@@ -1,14 +1,14 @@
 ## item_875_give_review_file_rows_a_name_first_layout_with_corner_badges - Give Review file rows a name-first layout with corner badges
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 94%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 90%
 > Complexity: Medium
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 16:25:10
+> Indicators reviewed: 2026-08-23 16:32:15
 
 # AI Context
 - Summary: Turns a file row into a name-first layout with the kind and line counts pinned to its corners.

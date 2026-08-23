@@ -2319,6 +2319,18 @@
   overflow: hidden;
 }
 
+.viewer-split {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.viewer-split__list,
+.viewer-split__detail {
+  min-width: 0;
+  min-height: 0;
+}
+
 /* item_758: a directory's preview is a listing now, not a count. Directories first,
    then files -- the order the eye needs to decide where to go next. */
 /* item_759: the mission form's two checkboxes were the browser's own, which item_755
@@ -4831,8 +4843,12 @@
 
 .viewer-review {
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 12px;
+  height: 100%;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .viewer-review__bursts {
@@ -4857,10 +4873,23 @@
 
 .viewer-review__burst {
   display: grid;
-  gap: 4px;
-  min-height: 86px;
-  padding: 9px;
+  gap: 2px;
+  min-height: 58px;
+  padding: 6px 8px;
   text-align: left;
+}
+
+.viewer-review__burst--ghost {
+  cursor: default;
+  opacity: 0.38;
+  border-style: dashed;
+}
+
+.viewer-review__burst--working .viewer-review__burst-label::after {
+  content: " in progress";
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font-family: inherit;
+  font-weight: 600;
 }
 
 .viewer-review__burst.is-active,
@@ -4884,9 +4913,17 @@
 }
 
 .viewer-review__burst-title,
-.viewer-review__file-path {
+.viewer-review__file-name {
   min-width: 0;
-  overflow-wrap: anywhere;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viewer-review__burst-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
 }
 
 .viewer-review__burst-meta,
@@ -4900,6 +4937,7 @@
   grid-template-columns: minmax(190px, 280px) minmax(0, 1fr);
   gap: 12px;
   min-width: 0;
+  min-height: 0;
 }
 
 .viewer-review__files {
@@ -4907,20 +4945,68 @@
   align-content: start;
   gap: 6px;
   min-width: 0;
+  overflow: auto;
 }
 
 .viewer-review__file {
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px;
-  min-height: 34px;
-  padding: 7px 8px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "name kind"
+    "dir stat";
+  align-items: start;
+  gap: 2px 8px;
+  min-height: 42px;
+  padding: 6px 8px;
   text-align: left;
 }
 
-.viewer-review__detail {
+.viewer-review__file-name {
+  grid-area: name;
+  font-weight: 600;
+}
+
+.viewer-review__file-directory {
+  grid-area: dir;
   min-width: 0;
+  overflow: hidden;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viewer-review__file-kind {
+  grid-area: kind;
+  justify-self: end;
+}
+
+.viewer-review__file-stat {
+  grid-area: stat;
+  justify-self: end;
+}
+
+.viewer-review__detail {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.viewer-review__detail .viewer-git__diff {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.viewer-review__detail .viewer-code,
+.viewer-review__detail .viewer-code__scroll {
+  max-height: none;
+}
+
+.viewer-review__detail .viewer-code__scroll {
+  overflow-x: auto;
+  overflow-y: visible;
 }
 
 .viewer-git__diff pre {
@@ -7403,7 +7489,7 @@
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
-  overflow: auto;
+  overflow: hidden;
   padding: 12px;
   display: none;
 }

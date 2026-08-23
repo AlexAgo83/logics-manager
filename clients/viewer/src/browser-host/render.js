@@ -1877,11 +1877,11 @@ export function renderWorkshopTabs(activeTab) {
 export function renderWorkspace(treePayload, previewPayload) {
     const selectedPath = previewPayload?.path || "";
     return `
-      <div class="viewer-workspace">
-        <aside class="viewer-workspace__tree" aria-label="Workspace files">
+      <div class="viewer-workspace viewer-split">
+        <aside class="viewer-workspace__tree viewer-split__list" aria-label="Workspace files">
           ${renderWorkspaceTree(treePayload, selectedPath)}
         </aside>
-        <section class="viewer-workspace__preview" aria-label="Workspace preview">
+        <section class="viewer-workspace__preview viewer-split__detail" aria-label="Workspace preview">
           ${renderWorkspacePreview(previewPayload)}
         </section>
       </div>

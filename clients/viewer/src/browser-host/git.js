@@ -40,6 +40,7 @@ import {
   currentGitViewState,
   findGitFileButton,
   formatGitHistoryCount,
+  formatRelativeTime,
   gitCommitModalEntries,
   isAbortError,
   normalizeGitBadgeCounts,
@@ -732,14 +733,33 @@ export function createGitScreen(host) {
     return bursts.find((burst) => burst?.id === latestReviewBurstId) || bursts[0] || null;
   }
 
+  function reviewTimelineBursts() {
+    const bursts = reviewBursts();
+    const working = bursts.find((burst) => burst?.kind === "working-tree");
+    const commits = bursts.filter((burst) => burst?.kind !== "working-tree").reverse();
+    return working ? [...commits, working] : commits;
+  }
+
+  function reviewBurstMeta(burst) {
+    const timestamp = String(burst?.timestamp || "").trim();
+    const stamp = Date.parse(timestamp);
+    const relative = Number.isFinite(stamp) ? formatRelativeTime(stamp) : "";
+    const stat = Number(burst?.additions || 0) || Number(burst?.deletions || 0) ? `+${Number(burst?.additions || 0)}-${Number(burst?.deletions || 0)}` : "";
+    return [relative || String(burst?.meta || "").trim() || "No timestamp", stat].filter(Boolean).join(" · ");
+  }
+
   function renderReviewFileButton(file, burst) {
     const path = String(file?.path || "");
+    const parts = path.split("/");
+    const name = parts.pop() || path;
+    const directory = parts.join("/");
     const additions = Number(file?.additions || 0);
     const deletions = Number(file?.deletions || 0);
     const stat = additions || deletions ? `<span class="viewer-review__file-stat">+${additions}-${deletions}</span>` : "";
-    return `<button class="viewer-review__file" type="button" data-viewer-review-file="${escapeHtml(path)}" data-viewer-review-burst-id="${escapeHtml(String(burst?.id || ""))}" data-viewer-review-kind="${escapeHtml(String(burst?.kind || ""))}" data-viewer-review-ref="${escapeHtml(String(burst?.ref || ""))}" data-viewer-review-cached="${file?.cached ? "1" : "0"}">
+    return `<button class="viewer-review__file" type="button" title="${escapeHtml(path)}" data-viewer-review-file="${escapeHtml(path)}" data-viewer-review-burst-id="${escapeHtml(String(burst?.id || ""))}" data-viewer-review-kind="${escapeHtml(String(burst?.kind || ""))}" data-viewer-review-ref="${escapeHtml(String(burst?.ref || ""))}" data-viewer-review-cached="${file?.cached ? "1" : "0"}">
+      <span class="viewer-review__file-name">${escapeHtml(name)}</span>
+      <span class="viewer-review__file-directory">${escapeHtml(directory || ".")}</span>
       <span class="viewer-review__file-kind">${escapeHtml(String(file?.kind || "M"))}</span>
-      <span class="viewer-review__file-path">${escapeHtml(path)}</span>
       ${stat}
     </button>`;
   }
@@ -748,19 +768,20 @@ export function createGitScreen(host) {
     if (!payload || payload.state !== "ok") {
       return `<section class="viewer-review"><p class="viewer-git__state">${escapeHtml(payload?.message || "Review timeline is unavailable.")}</p></section>`;
     }
-    const bursts = reviewBursts();
+    const bursts = reviewTimelineBursts();
     const active = activeReviewBurst();
-    const burstRows = bursts.map((burst) => `<button class="viewer-review__burst${burst === active ? " is-active" : ""}" type="button" data-viewer-review-burst="${escapeHtml(String(burst?.id || ""))}" aria-pressed="${burst === active ? "true" : "false"}">
+    const ghostRows = Array.from({ length: 5 }, () => '<span class="viewer-review__burst viewer-review__burst--ghost" aria-hidden="true"><span class="viewer-review__burst-label">Future</span></span>').join("");
+    const burstRows = bursts.map((burst) => `<button class="viewer-review__burst${burst === active ? " is-active" : ""}${burst?.kind === "working-tree" ? " viewer-review__burst--working" : ""}" type="button" data-viewer-review-burst="${escapeHtml(String(burst?.id || ""))}" aria-pressed="${burst === active ? "true" : "false"}">
       <span class="viewer-review__burst-label">${escapeHtml(String(burst?.label || burst?.ref || "Change"))}</span>
       <span class="viewer-review__burst-title">${escapeHtml(String(burst?.title || ""))}</span>
-      <span class="viewer-review__burst-meta">${escapeHtml(String(burst?.meta || ""))}${Number(burst?.additions || 0) || Number(burst?.deletions || 0) ? ` · +${Number(burst?.additions || 0)}-${Number(burst?.deletions || 0)}` : ""}</span>
+      <span class="viewer-review__burst-meta">${escapeHtml(reviewBurstMeta(burst))}</span>
     </button>`).join("");
     const files = Array.isArray(active?.files) ? active.files : [];
     return `<section class="viewer-review" data-viewer-review>
-      <div class="viewer-review__bursts" role="listbox" aria-label="Review timeline">${burstRows || '<p class="viewer-git__state">No changes are available.</p>'}</div>
-      <div class="viewer-review__body">
-        <div class="viewer-review__files" role="listbox" aria-label="Changed files">${files.map((file) => renderReviewFileButton(file, active)).join("") || '<p class="viewer-git__state">No files for this change.</p>'}</div>
-        <div class="viewer-git__detail viewer-review__detail" data-viewer-git-detail>
+      <div class="viewer-review__bursts" role="listbox" aria-label="Review timeline">${burstRows ? burstRows + ghostRows : '<p class="viewer-git__state">No changes are available.</p>'}</div>
+      <div class="viewer-review__body viewer-split">
+        <div class="viewer-review__files viewer-split__list" role="listbox" aria-label="Changed files">${files.map((file) => renderReviewFileButton(file, active)).join("") || '<p class="viewer-git__state">No files for this change.</p>'}</div>
+        <div class="viewer-git__detail viewer-review__detail viewer-split__detail" data-viewer-git-detail>
           <div class="viewer-git__detail-title">File diff</div>
           <div class="viewer-git__diff" data-viewer-git-diff data-viewer-review-diff>Select a file to preview its change.</div>
         </div>
@@ -842,9 +863,11 @@ export function createGitScreen(host) {
     const kind = button.getAttribute("data-viewer-review-kind") || "";
     if (kind === "commit") {
       await loadGitCommitDiff(button.getAttribute("data-viewer-review-ref") || "", null, { path });
+      document.querySelector("[data-viewer-review-diff]")?.scrollTo?.(0, 0);
       return;
     }
     await loadGitDiff(path, button.getAttribute("data-viewer-review-cached") === "1", null);
+    document.querySelector("[data-viewer-review-diff]")?.scrollTo?.(0, 0);
   }
 
   async function showReviewTimeline(options = {}) {
@@ -867,7 +890,7 @@ export function createGitScreen(host) {
       throw new Error(data.error || "Unable to load Review timeline.");
     }
     latestReviewPayload = data.payload || {};
-    latestReviewBurstId = String(reviewBursts()[0]?.id || "");
+    latestReviewBurstId = String(reviewTimelineBursts().at(-1)?.id || "");
     host.setSurfacePanel("review-panel", renderReviewTimeline());
     bindReviewKeyboard();
     if (latestReviewBurstId) {

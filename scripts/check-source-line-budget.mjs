@@ -253,7 +253,9 @@ const allowedOversizedFiles = new Map(
     // helpers back out for one endpoint.
     // 1222: req_384 makes Review burst files lazy and structured on Git failure. It
     // reuses the same bounded Git runner/path parsing this module already owns.
-    "logics_manager/viewer_git.py": { maxLines: 1222, ref: "req_384" },
+    // 1224: req_386 adds author and timestamp fields to the Review burst payload so the
+    // client can render compact relative time without reparsing a joined meta string.
+    "logics_manager/viewer_git.py": { maxLines: 1224, ref: "req_386" },
     // 4909: release prep baseline.
     // req_311 lifted the document vocabulary into flow/docs.py: 4725 -> 3627. What is left
     // is the verbs and the CLI wiring, sitting on top of primitives that know nothing of them.
@@ -447,7 +449,9 @@ const allowedOversizedFiles = new Map(
     // meta line is announced. A separate module would still need these closures.
     // 5653: req_384 unifies the Review surface with the shared surface state and routes
     // Explorer Markdown mode through viewer preferences, both in the host dispatcher.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 5653, ref: "req_384" },
+    // 5667: req_384's generated host coordinator ceiling was stale after the surface
+    // follow-up; this task does not add index.js code, it records the measured baseline.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 5667, ref: "req_384" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     // 1114: req_381 adds the Review timeline to the Git screen because it is a Git-only
@@ -455,7 +459,9 @@ const allowedOversizedFiles = new Map(
     // module would re-export those private loaders or duplicate their error handling.
     // 1134: req_384 keeps Review selection, keyboard focus, and lazy file loading beside
     // the Git diff loaders they call.
-    "clients/viewer/src/browser-host/git.js": { maxLines: 1134, ref: "req_384" },
+    // 1157: req_386 keeps Review ordering, relative-time meta, filename-first rows and
+    // diff scroll reset beside the Review renderer and Git diff loaders they call.
+    "clients/viewer/src/browser-host/git.js": { maxLines: 1157, ref: "req_386" },
     // req_312: the workshop screen, on the same factory-and-accessor seam as cdx.
     // 1311: 2.21.4 adds the terminal tab's explicit ready meta so the visual
     // smoke can distinguish a settled tab from a silent busy state.

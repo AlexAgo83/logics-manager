@@ -1258,7 +1258,9 @@ function createViewerDom(options: {
                   ref: "abc1234",
                   label: "abc1234",
                   title: "Demo commit",
-                  meta: "Alex · 2026-08-23",
+                  author: "Alex",
+                  timestamp: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+                  meta: "2026-08-23",
                   fileCount: 1,
                   additions: 2,
                   deletions: 0
@@ -2316,6 +2318,16 @@ describe("local viewer browser host", () => {
     const preview = css.slice(css.indexOf(".viewer-workspace__preview {\n  display: grid;"));
     expect(preview).toContain("overflow-y: auto;");
     expect(preview).toContain("overflow-x: hidden;");
+  });
+
+  it("uses one split-pane rule for Explorer and Review", () => {
+    const renderSource = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/render.js"), "utf8");
+    const gitSource = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/src/browser-host/git.js"), "utf8");
+    const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
+    expect(renderSource).toContain("viewer-workspace viewer-split");
+    expect(gitSource).toContain("viewer-review__body viewer-split");
+    expect(css).toContain(".viewer-split__list");
+    expect(css).toContain(".viewer-split__detail");
   });
 
   it("renders the three surfaces as one segmented tab list", () => {
@@ -6726,6 +6738,15 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent || "").not.toContain("Working tree");
     expect(content?.textContent).toContain("Working tree");
     expect(content?.textContent).toContain("Demo commit");
+    const bursts = Array.from(content?.querySelectorAll("[data-viewer-review-burst]") || []) as HTMLElement[];
+    expect(bursts.map((burst) => burst.getAttribute("data-viewer-review-burst"))).toEqual(["commit:abc1234", "working-tree"]);
+    expect(content?.querySelectorAll(".viewer-review__burst--ghost").length).toBe(5);
+    expect(content?.querySelector(".viewer-review__burst--ghost")?.tagName).toBe("SPAN");
+    expect(content?.querySelector(".viewer-review__burst-meta")?.textContent).not.toContain("Alex");
+    expect(content?.querySelector(".viewer-review__file-name")?.textContent).toBe("req_001_demo.md");
+    expect(content?.querySelector(".viewer-review__file-directory")?.textContent).toBe("logics/request");
+    expect(content?.querySelector(".viewer-review__file-kind")?.textContent).toBe("modified");
+    expect(content?.querySelector(".viewer-review__file-stat")?.textContent).toBe("+3-1");
     expect(calls).toContain("/api/review-burst-files?kind=working-tree");
     expect(calls.some((call) => call.startsWith("/api/git-diff?"))).toBe(true);
 
@@ -6780,7 +6801,7 @@ describe("local viewer browser host", () => {
       current = dom.window.document.activeElement as HTMLElement;
     }
 
-    expect(current.getAttribute("data-viewer-review-burst")).toBe("commit:fed9876");
+    expect(current.getAttribute("data-viewer-review-burst")).toBe("commit:abc1234");
     expect(current.classList.contains("is-active")).toBe(true);
   });
 

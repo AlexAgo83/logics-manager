@@ -1424,6 +1424,7 @@
 | [item_862_expose_source_backed_project_context_search_and_resource_reads](backlog/item_862_expose_source_backed_project_context_search_and_resource_reads.md) | Expose source-backed project context search and resource reads | Done |  | 100% | backlog/item_862_expose_source_backed_project_context_search_and_resource_reads.md |
 | [item_863_anchor_the_explorer_list_and_split_its_scroll_from_the_detail](backlog/item_863_anchor_the_explorer_list_and_split_its_scroll_from_the_detail.md) | Anchor the Explorer list and split its scroll from the detail | Ready |  | 0% | backlog/item_863_anchor_the_explorer_list_and_split_its_scroll_from_the_detail.md |
 | [item_864_add_a_markdown_raw_and_preview_switch_to_the_explorer_detail_header](backlog/item_864_add_a_markdown_raw_and_preview_switch_to_the_explorer_detail_header.md) | Add a markdown raw and preview switch to the Explorer detail header | Ready |  | 0% | backlog/item_864_add_a_markdown_raw_and_preview_switch_to_the_explorer_detail_header.md |
+| [item_865_migrate_the_viewer_surface_state_from_a_boolean_to_a_tri_state](backlog/item_865_migrate_the_viewer_surface_state_from_a_boolean_to_a_tri_state.md) | Migrate the viewer surface state from a boolean to a tri-state | Ready |  | 0 | backlog/item_865_migrate_the_viewer_surface_state_from_a_boolean_to_a_tri_state.md |
 
 ## Tasks
 

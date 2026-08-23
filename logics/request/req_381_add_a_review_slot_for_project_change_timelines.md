@@ -2,12 +2,12 @@
 > From version: 2.22.4
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 94%
-> Confidence: 86%
+> Understanding: 95%
+> Confidence: 88%
 > Complexity: High
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 13:29:27
+> Indicators reviewed: 2026-08-23 13:37:59
 
 # AI Context
 - Summary: Adds a Review viewer slot that turns local Git changes into a horizontal burst timeline with vertical per-file review and a shared diff pane.
@@ -30,7 +30,7 @@
 - For the MVP, a burst is either the working tree or one commit. Session-level live batches, filesystem watchers, branch graphs, PR review, remote provider APIs, and persistent review history are explicitly later work.
 - The implementation should keep all Git operations read-only, bounded, and safe for non-repository projects, matching `viewer_git.py` conventions.
 - The shared viewer host serves both the standalone viewer and the VS Code embedded viewer, so source changes must be made under `clients/viewer/src/browser-host/` and rebuilt.
-- Surface-control reality: what the docs call the Activity/Project switcher is not a multi-choice control. It is a 40x20 pill slider (`#activity-toggle`, `.toolbar__view-slider`) whose knob is a `::after` translated 20px on `data-current-mode="project"`, backed by a boolean: `activityPanelIsOpen()` plus the body classes `viewer-screen-activity` and `viewer-screen-project`. Seventeen call sites across `index.js`, `render.js`, `git.js`, `util.js`, and `viewer.css` read that boolean, including `returnToProjectSurface()`. A third surface therefore replaces the widget with a segmented three-choice control and migrates the boolean to a tri-state; it does not extend anything that already exists.
+- Surface-control reality: what the docs call the Activity/Project switcher is not a multi-choice control. It is a 40x20 pill slider (`#activity-toggle`, `.toolbar__view-slider`) whose knob is a `::after` translated 20px on `data-current-mode="project"`, backed by a boolean: `activityPanelIsOpen()` plus the body classes `viewer-screen-activity` and `viewer-screen-project`. Seventeen call sites across `index.js`, `render.js`, `git.js`, `util.js`, and `viewer.css` read that boolean, including `returnToProjectSurface()`. A third surface therefore replaces the widget with a segmented control and migrates the boolean to a tri-state; it does not extend anything that already exists. That migration is `item_865_migrate_the_viewer_surface_state_from_a_boolean_to_a_tri_state`, delivered before `item_858_build_the_review_slot_timeline_ui` adds `Review` to it, so a five-file refactor is reviewed apart from the new surface.
 - UX decision: `Review` belongs with the Activity/Project surface switcher, expanding the current two-state control into a three-choice surface control. If the phone breakpoint cannot fit all three choices inline, it should use the existing topbar menu/sheet pattern rather than wrapping into a bulky grid.
 - UI decision: desktop Review is a three-region work surface: a horizontal burst rail at the top, a vertical file column at the left, and the diff pane as the primary reading area. Tablet keeps the rail on top and stacks the file list beside/above the diff only as far as space allows. Mobile keeps one page scroll axis, with the burst rail horizontally scrollable inside its own region and files above the diff.
 - Selection decision: the selected burst and selected file must each have a visible non-colour cue, `aria-current` or equivalent state, and stable dimensions so badges, long paths, hover states, or loading text do not resize the layout.
@@ -73,4 +73,5 @@
 
 # Backlog
 - `item_857_expose_review_bursts_from_local_git`
+- `item_865_migrate_the_viewer_surface_state_from_a_boolean_to_a_tri_state`
 - `item_858_build_the_review_slot_timeline_ui`

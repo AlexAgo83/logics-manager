@@ -2,7 +2,7 @@
 > Date: 2026-08-22
 > Status: Proposed
 > Related request: `req_381_add_a_review_slot_for_project_change_timelines`
-> Related backlog: `item_857_expose_review_bursts_from_local_git`, `item_858_build_the_review_slot_timeline_ui`
+> Related backlog: `item_857_expose_review_bursts_from_local_git`, `item_865_migrate_the_viewer_surface_state_from_a_boolean_to_a_tri_state`, `item_858_build_the_review_slot_timeline_ui`
 > Related task: `task_393_orchestrate_the_review_slot_change_timeline`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.

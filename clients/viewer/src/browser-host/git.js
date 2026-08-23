@@ -818,7 +818,7 @@ export function createGitScreen(host) {
         burst.deletions = payload.deletions ?? burst.deletions ?? 0;
       }
     }
-    host.setDocument("Review", renderReviewTimeline());
+    host.setSurfacePanel("review-panel", renderReviewTimeline());
     bindReviewKeyboard();
     Array.from(document.querySelectorAll("[data-viewer-review-burst]"))
       .find((node) => node instanceof HTMLElement && node.getAttribute("data-viewer-review-burst") === id)
@@ -850,7 +850,7 @@ export function createGitScreen(host) {
   async function showReviewTimeline(options = {}) {
     if (!host.isCapabilityAvailable("git")) {
       const message = host.capabilityMessage("git", "Git is not available for this project.");
-      host.setDocument("Review", renderReviewTimeline({ state: host.capability("git").state, message, bursts: [] }));
+      host.setSurfacePanel("review-panel", renderReviewTimeline({ state: host.capability("git").state, message, bursts: [] }));
       host.setMeta(message);
       return;
     }
@@ -868,7 +868,7 @@ export function createGitScreen(host) {
     }
     latestReviewPayload = data.payload || {};
     latestReviewBurstId = String(reviewBursts()[0]?.id || "");
-    host.setDocument("Review", renderReviewTimeline());
+    host.setSurfacePanel("review-panel", renderReviewTimeline());
     bindReviewKeyboard();
     if (latestReviewBurstId) {
       await selectReviewBurst(latestReviewBurstId);

@@ -8268,7 +8268,7 @@ ${line}` : line;
           burst.deletions = payload.deletions ?? burst.deletions ?? 0;
         }
       }
-      host.setDocument("Review", renderReviewTimeline());
+      host.setSurfacePanel("review-panel", renderReviewTimeline());
       bindReviewKeyboard();
       Array.from(document.querySelectorAll("[data-viewer-review-burst]")).find((node) => node instanceof HTMLElement && node.getAttribute("data-viewer-review-burst") === id)?.focus();
       const firstFile = firstReviewFileButton();
@@ -8296,7 +8296,7 @@ ${line}` : line;
     async function showReviewTimeline(options = {}) {
       if (!host.isCapabilityAvailable("git")) {
         const message = host.capabilityMessage("git", "Git is not available for this project.");
-        host.setDocument("Review", renderReviewTimeline({ state: host.capability("git").state, message, bursts: [] }));
+        host.setSurfacePanel("review-panel", renderReviewTimeline({ state: host.capability("git").state, message, bursts: [] }));
         host.setMeta(message);
         return;
       }
@@ -8314,7 +8314,7 @@ ${line}` : line;
       }
       latestReviewPayload = data.payload || {};
       latestReviewBurstId = String(reviewBursts()[0]?.id || "");
-      host.setDocument("Review", renderReviewTimeline());
+      host.setSurfacePanel("review-panel", renderReviewTimeline());
       bindReviewKeyboard();
       if (latestReviewBurstId) {
         await selectReviewBurst(latestReviewBurstId);
@@ -8882,6 +8882,7 @@ ${line}` : line;
       isViewStale,
       meta,
       setDocument,
+      setSurfacePanel,
       setDropdownOpen,
       setMeta,
       updateCapabilityControls,
@@ -9423,7 +9424,8 @@ ${line}` : line;
         if (node instanceof HTMLElement) {
           const active = node.getAttribute("data-viewer-surface") === next;
           node.classList.toggle("is-active", active);
-          node.setAttribute("aria-pressed", String(active));
+          node.setAttribute("aria-selected", String(active));
+          node.removeAttribute("aria-pressed");
         }
       });
       if (next === "activity") {
@@ -10831,6 +10833,12 @@ ${line}` : line;
     }
     let detachReadingPosition = null;
     let screenLoadingTimer = null;
+    function setSurfacePanel(id, html) {
+      const panel = document.getElementById(id);
+      if (!(panel instanceof HTMLElement)) return null;
+      panel.innerHTML = html;
+      return panel;
+    }
     function setDocument(titleText, html, options = {}) {
       stopScreenLoadingTimer();
       invalidatePendingViews();

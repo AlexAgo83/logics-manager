@@ -2,8 +2,8 @@
 > From version: 2.22.4
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92%
+> Confidence: 88%
 > Complexity: Medium
 > Theme: Viewer explorer
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -65,6 +65,7 @@
 - `clients/viewer/src/browser-host/cdx.js` already ships the raw/preview two-mode pattern for the CDX memory pane, including the `markdown-preview` body class.
 - `host.updateViewerPreferences()` already persists per-viewer choices such as `workshopActiveTab`, so a remembered Explorer view mode needs no new storage.
 - `tests/run_local_viewer_visual_smoke.mjs` (npm run test:viewer-smoke) is the local viewer visual campaign that judges layouts at desktop, tablet, and phone widths.
+- `tests/viewer.browser-host.test.ts` and `tests/viewer.render.test.ts` are where the browser-host and renderer tests for this change belong.
 
 # Backlog
 - `item_863_anchor_the_explorer_list_and_split_its_scroll_from_the_detail`

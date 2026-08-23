@@ -2,12 +2,12 @@
 > From version: 2.22.4
 > Schema version: 1.0
 > Status: Draft
-> Understanding: 92%
-> Confidence: 88%
+> Understanding: 94%
+> Confidence: 86%
 > Complexity: High
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-22 17:34:02
+> Indicators reviewed: 2026-08-23 13:29:27
 
 # AI Context
 - Summary: Adds a Review viewer slot that turns local Git changes into a horizontal burst timeline with vertical per-file review and a shared diff pane.
@@ -30,13 +30,14 @@
 - For the MVP, a burst is either the working tree or one commit. Session-level live batches, filesystem watchers, branch graphs, PR review, remote provider APIs, and persistent review history are explicitly later work.
 - The implementation should keep all Git operations read-only, bounded, and safe for non-repository projects, matching `viewer_git.py` conventions.
 - The shared viewer host serves both the standalone viewer and the VS Code embedded viewer, so source changes must be made under `clients/viewer/src/browser-host/` and rebuilt.
+- Surface-control reality: what the docs call the Activity/Project switcher is not a multi-choice control. It is a 40x20 pill slider (`#activity-toggle`, `.toolbar__view-slider`) whose knob is a `::after` translated 20px on `data-current-mode="project"`, backed by a boolean: `activityPanelIsOpen()` plus the body classes `viewer-screen-activity` and `viewer-screen-project`. Seventeen call sites across `index.js`, `render.js`, `git.js`, `util.js`, and `viewer.css` read that boolean, including `returnToProjectSurface()`. A third surface therefore replaces the widget with a segmented three-choice control and migrates the boolean to a tri-state; it does not extend anything that already exists.
 - UX decision: `Review` belongs with the Activity/Project surface switcher, expanding the current two-state control into a three-choice surface control. If the phone breakpoint cannot fit all three choices inline, it should use the existing topbar menu/sheet pattern rather than wrapping into a bulky grid.
 - UI decision: desktop Review is a three-region work surface: a horizontal burst rail at the top, a vertical file column at the left, and the diff pane as the primary reading area. Tablet keeps the rail on top and stacks the file list beside/above the diff only as far as space allows. Mobile keeps one page scroll axis, with the burst rail horizontally scrollable inside its own region and files above the diff.
 - Selection decision: the selected burst and selected file must each have a visible non-colour cue, `aria-current` or equivalent state, and stable dimensions so badges, long paths, hover states, or loading text do not resize the layout.
 - Empty-state decision: clean repositories should show a compact `Nothing to review` state with the latest commit context if available; unavailable Git and non-repository projects should name the unavailable capability, not render an empty pane.
 
 # Acceptance criteria
-- AC1: The existing Activity/Project surface switcher becomes an Activity/Project/Review control, with Review reachable at desktop, tablet, and phone widths without displacing Workshop, Remote, CDX, Corpus, Settings, or Diagnostics access.
+- AC1: The two-state slider is replaced by a three-choice Activity/Project/Review control and every reader of the old boolean surface state moves to the tri-state, with Review reachable at desktop, tablet, and phone widths without displacing Workshop, Remote, CDX, Corpus, Settings, or Diagnostics access.
 - AC2: Opening Review in a Git repository shows a horizontal burst timeline with `Uncommitted changes` first when the working tree is dirty, followed by recent commits in reverse chronological order.
 - AC3: Selecting a burst shows a vertical list of files changed in that burst, including path, change kind, and line change counts when Git reports them.
 - AC4: Selecting a working-tree file renders the existing bounded working-tree or staged diff/file preview in the main diff pane.
@@ -65,6 +66,8 @@
 - `clients/viewer/src/browser-host/index.js` owns the viewer screen router, shared state, activity panel, and capability controls.
 - `clients/viewer/src/browser-host/git.js` already renders Git status, working-tree file diffs, recent commits, commit diff loading, and active file/commit selection.
 - `logics_manager/viewer_git.py` already exposes bounded, read-only Git status, file diff, file preview, and commit diff payloads.
+- `logics_manager/viewer.py` registers the viewer HTTP routes, including the three Git endpoints named in the Context above; a new Review payload route is added to that route table and re-exported the same way.
+- `clients/viewer/index.html` line ~212 holds `#activity-toggle`, and `clients/viewer/viewer.css` line ~632 holds `.toolbar__view-slider`: the widget AC1 replaces.
 - `clients/viewer/src/browser-host/render.js` provides the shared code viewer and activity rendering helpers.
 - `tests/viewer.browser-host.test.ts`, `tests/viewer.render.test.ts`, and `tests/python/test_viewer_cli.py` cover the browser host and viewer Git payloads.
 

@@ -2,8 +2,8 @@
 > From version: 2.22.4
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92%
+> Confidence: 88%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Viewer review
@@ -26,7 +26,7 @@
   - Represent the working tree as a synthetic burst when there are uncommitted changes, reusing the existing status groups and line counts.
   - Represent each recent commit as a burst with commit hash, subject, author/date, refs, and a per-file change list from Git name-status/numstat output.
   - Add a committed-file diff payload that accepts a safe commit ref and safe repo-relative path, runs read-only Git with `--no-ext-diff`, caps output, and returns the same state/message style as existing Git payloads.
-  - Reuse existing path normalization, Git availability checks, worktree checks, timeout scaling, and truncation conventions where possible.
+  - Reuse existing path normalization, Git availability checks, worktree checks, timeout scaling, and truncation conventions where possible, and register the route in the `logics_manager/viewer.py` route table beside `/api/git-status` and `/api/git-commit-diff`.
   - Return concise unavailable, non-repository, error, empty, and truncation states for the Review screen.
 - Out:
   - Persisting review bursts outside Git.

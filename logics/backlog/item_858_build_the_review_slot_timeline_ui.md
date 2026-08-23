@@ -2,8 +2,8 @@
 > From version: 2.22.4
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 92%
-> Confidence: 88%
+> Understanding: 94%
+> Confidence: 80%
 > Progress: 0%
 > Complexity: High
 > Theme: Viewer review
@@ -23,7 +23,8 @@
 
 # Scope
 - In:
-  - Expand the existing Activity/Project surface switcher into Activity/Project/Review and route Review through the existing browser-host screen system.
+  - Replace the `#activity-toggle` two-state pill slider with a segmented Activity/Project/Review control, and route Review through the existing browser-host screen system.
+  - Migrate the boolean surface state (`activityPanelIsOpen()`, `viewer-screen-activity`/`viewer-screen-project` body classes) to a tri-state across its seventeen call sites in `index.js`, `render.js`, `git.js`, `util.js`, and `viewer.css`, `returnToProjectSurface()` included.
   - Render a horizontal burst rail with stable selected state, concise metadata, and badges for file/change counts.
   - Render a vertical file list for the selected burst with path, change kind, and additions/deletions where available.
   - Render the selected file's diff in the main pane, reusing the existing diff/code viewer classes and load-more behavior where applicable.
@@ -42,7 +43,7 @@
   - Changing the existing Git cockpit's actions or commit workflow.
 
 # Acceptance criteria
-- AC1: The Activity/Project control becomes Activity/Project/Review and existing topbar/menu slots remain reachable.
+- AC1: The slider is replaced by a three-choice control, no reader of the old boolean surface state is left behind, and existing topbar/menu slots remain reachable.
 - AC2: The burst rail shows the working tree first when dirty and then recent commits in reverse chronological order.
 - AC3: Selecting a burst updates the vertical file list without a page navigation.
 - AC4: Selecting a dirty working-tree file loads the existing working-tree/staged diff or file preview.

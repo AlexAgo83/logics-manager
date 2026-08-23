@@ -2,8 +2,8 @@
 > From version: 2.22.4
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92%
+> Confidence: 88%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Implementation delivery
@@ -28,6 +28,7 @@
 - [ ] 7. Closeout: regenerate the browser host bundle, then run the targeted vitest checks, `npm run test:viewer-smoke`, `npm run check:viewer-host`, and `logics-manager lint --require-status`.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
+- [ ] Sequencing: `task_393` edits the same four files (`browser-host/index.js`, `render.js`, `viewer.css`, and the generated `clients/viewer/browser-host.js`). Run the two tasks one after the other, not in parallel; the generated bundle conflicts on every concurrent rebuild.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.
 
 # Backlog

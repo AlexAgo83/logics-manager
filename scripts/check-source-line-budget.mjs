@@ -228,7 +228,9 @@ const allowedOversizedFiles = new Map(
     // 4400: req_378 also lands here -- prerequisites are not asked of a connector that
     // is already running, because `tunnel-client doctor` binds the health port that
     // running connector owns and then reports it as a missing prerequisite.
-    "logics_manager/viewer.py": { maxLines: 4399, ref: "req_378" },
+    // 4401: req_381 adds one content route for the Review slot; the payload lives in
+    // viewer_git.py and only this route wire stays here.
+    "logics_manager/viewer.py": { maxLines: 4401, ref: "req_381" },
     // 1545: item_743 keys the cdx update cache on a fingerprint of the installed
     // executable, so running the update the banner asks for ends the banner. The
     // helper is 8 lines; the rest is the docstring stating why it stats rather than
@@ -244,7 +246,10 @@ const allowedOversizedFiles = new Map(
     // 1090: item_732 gives git_diff_payload the `full` escape hatch git_file_preview_payload
     // in the same module has always had, plus the forced ceiling it is held to. A truncated
     // diff previously reported the word "truncated" and offered no way past it.
-    "logics_manager/viewer_git.py": { maxLines: 1084, ref: "req_347" },
+    // 1185: req_381 adds the read-only Review burst payload beside the Git status/diff
+    // payloads it reuses; splitting it would import the same Git-safe path and runner
+    // helpers back out for one endpoint.
+    "logics_manager/viewer_git.py": { maxLines: 1185, ref: "req_381" },
     // 4909: release prep baseline.
     // req_311 lifted the document vocabulary into flow/docs.py: 4725 -> 3627. What is left
     // is the verbs and the CLI wiring, sitting on top of primitives that know nothing of them.
@@ -430,10 +435,16 @@ const allowedOversizedFiles = new Map(
     // three are showChatgptMcp's own markup and its own re-render loop, which read the
     // document panel state this file owns; a separate module would import setDocument,
     // beginView, documentPanel and escapeHtml back out of it.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 5546, ref: "req_376" },
+    // 5583: req_381 adds only host wiring for the third surface: two factory exports,
+    // the surface buttons, and delegated Review burst/file clicks. The screen renderer
+    // itself stays in git.js with the Git content loaders.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 5583, ref: "req_381" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
-    "clients/viewer/src/browser-host/git.js": { maxLines: 885, ref: "req_312" },
+    // 1114: req_381 adds the Review timeline to the Git screen because it is a Git-only
+    // projection over the same status, diff and commit-diff endpoints. A separate Review
+    // module would re-export those private loaders or duplicate their error handling.
+    "clients/viewer/src/browser-host/git.js": { maxLines: 1114, ref: "req_381" },
     // req_312: the workshop screen, on the same factory-and-accessor seam as cdx.
     // 1311: 2.21.4 adds the terminal tab's explicit ready meta so the visual
     // smoke can distinguish a settled tab from a silent busy state.
@@ -476,7 +487,9 @@ const allowedOversizedFiles = new Map(
     // createThemedModal/closeThemedModal because those are what open and close the modal
     // -- focus management put anywhere else is management the modal can forget to call.
     // 1490: req_365's loading-indicator plumbing and req_367's runbook-as-document work.
-    "clients/viewer/src/browser-host/util.js": { maxLines: 1490, ref: "req_365" },
+    // 1495: req_381 names the tri-state surface reader once instead of leaving new
+    // callers to infer Activity/Project/Review from body classes.
+    "clients/viewer/src/browser-host/util.js": { maxLines: 1495, ref: "req_381" },
     // 2546: req_305 added the workflow-health sections (blocked docs, stale docs)
     // to the health screen, which previously showed lint and audit only.
     // req_312 moved the rendering whose only consumer is the cdx screen into that screen:
@@ -515,7 +528,9 @@ const allowedOversizedFiles = new Map(
     // map across a boundary to save nothing.
     // 2160: req_359's Workshop/CDX/Insights/Health rendering finish, plus the
     // status-confirm and in-browser editor screens (req_374/375).
-    "clients/viewer/src/browser-host/render.js": { maxLines: 2160, ref: "req_375" },
+    // 2163: req_381 makes returnToProjectSurface write the tri-state surface directly
+    // instead of clicking the old Activity toggle.
+    "clients/viewer/src/browser-host/render.js": { maxLines: 2163, ref: "req_381" },
     // 1353: req_314 taught the board to group by status, which is what its control always
     // claimed to do. The grouping itself is eleven lines; the rest is the heading element
     // the accessibility slice needed.

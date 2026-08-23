@@ -416,16 +416,15 @@ def review_bursts_payload(repo_root: Path, *, runner: Any | None = None, which: 
             if item.get("path") and key not in seen:
                 seen.add(key)
                 dirty_files.append(item)
-    if dirty_files:
-        totals = _review_file_totals(dirty_files)
-        bursts.append({
-            "id": "working-tree",
-            "kind": "working-tree",
-            "label": "Working tree",
-            "title": "Uncommitted changes",
-            "meta": f"{totals['fileCount']} files",
-            **totals,
-        })
+    totals = _review_file_totals(dirty_files)
+    bursts.append({
+        "id": "working-tree",
+        "kind": "working-tree",
+        "label": "Working tree",
+        "title": "Uncommitted changes" if dirty_files else "No uncommitted changes",
+        "meta": f"{totals['fileCount']} files",
+        **totals,
+    })
 
     commits = status.get("recentCommits") if isinstance(status.get("recentCommits"), list) else []
     for commit in commits:

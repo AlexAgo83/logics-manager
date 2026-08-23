@@ -1,12 +1,13 @@
 ## req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane - Make the Review timeline readable: an anchored rail, denser tiles, and the shared split-pane
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-23 16:40:37
 
 # AI Context
 - Summary: Anchors the Review rail, makes its tiles dense and past-to-future with room for what has not happened yet, and puts the diff on the Explorer's list-and-detail pattern.

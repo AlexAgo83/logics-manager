@@ -1,14 +1,14 @@
 ## item_862_expose_source_backed_project_context_search_and_resource_reads - Expose source-backed project context search and resource reads
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 40%
 > Complexity: Medium
 > Theme: Connector onboarding
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 11:56:04
+> Indicators reviewed: 2026-08-23 12:40:54
 
 # AI Context
 - Summary: Provide bounded follow-up MCP reads so onboarding source pointers can be searched and opened without broad repository access.

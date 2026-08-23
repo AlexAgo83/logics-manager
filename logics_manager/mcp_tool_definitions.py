@@ -132,6 +132,53 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
         "inputSchema": _tool_schema({"kind": {"type": "string", "enum": ["all", "request", "backlog", "task"]}}),
     },
     {
+        "name": "onboard_project",
+        "description": "First read-only connector call: prove the active or targeted Logics project, active work, recent activity, sources, and follow-up tools before answering.",
+        "inputSchema": _tool_schema(
+            {
+                "project": {"type": "string"},
+                "include_recent_activity": {"type": "boolean"},
+                "limit": {"type": "integer"},
+            }
+        ),
+    },
+    {
+        "name": "list_projects",
+        "description": "List known Logics-capable projects that the connector can target by id or unique name.",
+        "inputSchema": _tool_schema({"limit": {"type": "integer"}}),
+    },
+    {
+        "name": "get_active_project",
+        "description": "Report the connector's current Logics project identity without exposing the absolute local path.",
+        "inputSchema": _tool_schema({}),
+    },
+    {
+        "name": "search_project_context",
+        "description": "Search source-backed Logics project context with bounded snippets; use after onboard_project to deepen one topic.",
+        "inputSchema": _tool_schema(
+            {
+                "query": {"type": "string"},
+                "project": {"type": "string"},
+                "kind": {"type": "string", "enum": ["all", "request", "backlog", "task", "product", "roadmap", "architecture", "spec", "runbook"]},
+                "limit": {"type": "integer"},
+                "max_snippet_chars": {"type": "integer"},
+            },
+            ["query"],
+        ),
+    },
+    {
+        "name": "read_project_resource",
+        "description": "Read a bounded resource returned by onboard_project or search_project_context: Logics refs/paths or short Git commit sources.",
+        "inputSchema": _tool_schema(
+            {
+                "source": {"type": "string"},
+                "project": {"type": "string"},
+                "max_chars": {"type": "integer"},
+            },
+            ["source"],
+        ),
+    },
+    {
         "name": "read_logics_doc",
         "description": "Read one approved Logics workflow document by ref or repo-relative path.",
         "inputSchema": _tool_schema(

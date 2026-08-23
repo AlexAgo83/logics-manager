@@ -33,6 +33,19 @@ def _repo(tmp_path: Path) -> Path:
     return repo_root
 
 
+def _commit_all(repo_root: Path, message: str = "initial") -> str:
+    subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=repo_root, check=True)
+    subprocess.run(["git", "config", "user.name", "Test User"], cwd=repo_root, check=True)
+    subprocess.run(["git", "add", "-A"], cwd=repo_root, check=True)
+    subprocess.run(["git", "commit", "-m", message], cwd=repo_root, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    return subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=repo_root, check=True, stdout=subprocess.PIPE, text=True).stdout.strip()
+
+
+def _assert_no_absolute_repo_path(value: object, repo_root: Path) -> None:
+    text = json.dumps(value, sort_keys=True)
+    assert str(repo_root.resolve()) not in text
+
+
 def test_mcp_lists_tools() -> None:
     response = handle_jsonrpc({"jsonrpc": "2.0", "id": 1, "method": "tools/list"})
 
@@ -126,6 +139,132 @@ def test_mcp_create_roadmap_and_context_pack_seed(tmp_path: Path) -> None:
     assert listed["items"][0]["kind"] == "roadmap"
     assert pack["docs"][0]["ref"] == "road_001_demo_roadmap"
     assert pack["docs"][0]["sections"]["Milestones"][0] == "## 0.1 - MVP"
+
+
+def test_mcp_onboard_project_returns_sourced_active_work_without_absolute_paths(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    created = call_tool(
+        "create_request",
+        {"title": "Onboarded work", "needs": ["n"], "context": ["c"], "acceptance_criteria": ["a"]},
+        repo_root=repo_root,
+    )
+
+    payload = call_tool("onboard_project", {"limit": 10}, repo_root=repo_root)
+
+    assert payload["ok"] is True
+    assert payload["project"]["name"] == repo_root.name
+    assert payload["corpus_present"] is True
+    refs = {item["ref"] for item in payload["active_work"]}
+    assert created["ref"] in refs
+    created_item = next(item for item in payload["active_work"] if item["ref"] == created["ref"])
+    assert created_item["source"] == {"type": "logics_doc", "ref": created["ref"], "path": created["path"]}
+    assert any(tool["name"] == "search_project_context" for tool in payload["follow_up_tools"])
+    _assert_no_absolute_repo_path(payload, repo_root)
+
+
+def test_mcp_onboard_project_degrades_when_git_is_absent(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    bootstrap_payload(repo_root, check=False)
+
+    payload = call_tool("onboard_project", {}, repo_root=repo_root)
+
+    assert payload["ok"] is True
+    assert payload["recent_activity"]["git"]["state"] == "not-repository"
+    assert payload["degraded"][0]["component"] == "git"
+
+
+def test_mcp_onboard_project_reports_clear_error_without_logics(tmp_path: Path) -> None:
+    repo_root = tmp_path / "plain"
+    repo_root.mkdir()
+
+    with pytest.raises(McpToolError) as exc:
+        call_tool("onboard_project", {}, repo_root=repo_root)
+
+    assert exc.value.code == "command_failed"
+    assert "no logics directory" in exc.value.message
+
+
+def test_mcp_project_discovery_and_targeted_onboarding_use_bounded_ids(tmp_path: Path) -> None:
+    active = tmp_path / "active"
+    other = tmp_path / "other"
+    active.mkdir()
+    other.mkdir()
+    bootstrap_payload(active, check=False)
+    bootstrap_payload(other, check=False)
+    subprocess.run(["git", "init"], cwd=active, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    subprocess.run(["git", "init"], cwd=other, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    created = call_tool(
+        "create_request",
+        {"title": "Other project work", "needs": ["n"], "context": ["c"], "acceptance_criteria": ["a"]},
+        repo_root=other,
+    )
+
+    projects = call_tool("list_projects", {}, repo_root=active)
+    names = {project["name"]: project for project in projects["projects"]}
+    assert {"active", "other"} <= set(names)
+    assert "root" not in names["other"]
+
+    targeted = call_tool("onboard_project", {"project": names["other"]["id"]}, repo_root=active)
+    assert targeted["project"]["name"] == "other"
+    assert any(item["ref"] == created["ref"] for item in targeted["active_work"])
+
+    by_name = call_tool("onboard_project", {"project": "other"}, repo_root=active)
+    assert by_name["project"]["id"] == names["other"]["id"]
+
+    with pytest.raises(McpToolError) as exc:
+        call_tool("onboard_project", {"project": "missing"}, repo_root=active)
+    assert exc.value.code == "unknown_project"
+
+
+def test_mcp_project_context_search_and_read_round_trip(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    created = call_tool(
+        "create_request",
+        {"title": "Searchable context", "needs": ["unique need"], "context": ["special context"], "acceptance_criteria": ["a"]},
+        repo_root=repo_root,
+    )
+
+    search = call_tool("search_project_context", {"query": "special context", "limit": 5}, repo_root=repo_root)
+    match = next(item for item in search["matches"] if item["ref"] == created["ref"])
+    assert match["source"]["ref"] == created["ref"]
+
+    read = call_tool("read_project_resource", {"source": f"logics:{match['source']['ref']}", "max_chars": 2000}, repo_root=repo_root)
+    assert read["resource_type"] == "logics_doc"
+    assert "special context" in read["content"]
+
+    with pytest.raises(McpToolError) as exc:
+        call_tool("read_project_resource", {"source": "../pyproject.toml"}, repo_root=repo_root)
+    assert exc.value.code == "unsupported_resource"
+
+
+def test_mcp_onboarding_recent_activity_includes_git_commit_sources(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    commit = _commit_all(repo_root)
+
+    payload = call_tool("onboard_project", {}, repo_root=repo_root)
+    commits = payload["recent_activity"]["git"]["recentCommits"]
+
+    assert payload["recent_activity"]["git"]["state"] == "ok"
+    assert commits[0]["hash"] == commit
+    assert commits[0]["source"] == {"type": "git_commit", "hash": commit}
+    read = call_tool("read_project_resource", {"source": f"git:{commit}", "max_chars": 1000}, repo_root=repo_root)
+    assert read["resource_type"] == "git_commit"
+    assert "initial" in read["content"]
+
+
+def test_mcp_project_onboarding_tools_are_read_only_profiles() -> None:
+    expected = {
+        "onboard_project",
+        "list_projects",
+        "get_active_project",
+        "search_project_context",
+        "read_project_resource",
+    }
+
+    assert expected <= set(mcp_module.TOOL_CAPABILITIES)
+    assert expected <= set(mcp_module.select_tools(profile="read-only"))
+    assert expected <= set(mcp_module.select_tools(profile="curated"))
 
 
 def test_mcp_rejects_absolute_paths(tmp_path: Path) -> None:

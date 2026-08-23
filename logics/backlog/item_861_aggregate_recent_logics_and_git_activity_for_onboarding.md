@@ -1,14 +1,14 @@
 ## item_861_aggregate_recent_logics_and_git_activity_for_onboarding - Aggregate recent Logics and Git activity for onboarding
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 40%
 > Complexity: Medium
 > Theme: Connector onboarding
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 11:56:04
+> Indicators reviewed: 2026-08-23 12:40:54
 
 # AI Context
 - Summary: Add a compact recent-activity slice from Logics doc changes and existing Git viewer helpers for connector onboarding.

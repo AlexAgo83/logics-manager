@@ -1,12 +1,13 @@
 ## req_383_rework_the_explorer_screen_into_an_anchored_file_list_with_an_independent_detail_pane - Rework the Explorer screen into an anchored file list with an independent detail pane
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 92%
 > Confidence: 88%
 > Complexity: Medium
 > Theme: Viewer explorer
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-23 14:05:36
 
 # AI Context
 - Summary: Stops the Explorer rebuilding both panes on every file click, gives the list and the detail their own scroll, and adds a Raw/Preview switch for markdown.

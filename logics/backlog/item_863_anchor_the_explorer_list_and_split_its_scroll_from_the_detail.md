@@ -1,14 +1,14 @@
 ## item_863_anchor_the_explorer_list_and_split_its_scroll_from_the_detail - Anchor the Explorer list and split its scroll from the detail
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 88%
-> Progress: 95%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer explorer
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 13:57:23
+> Indicators reviewed: 2026-08-23 14:05:36
 
 # AI Context
 - Summary: Splits the Explorer render path so a file click touches only the detail pane, and gives each pane its own scroll.
@@ -71,3 +71,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_395_orchestrate_the_explorer_layout_and_markdown_preview_rework`
+
+# Notes
+- Task `task_395_orchestrate_the_explorer_layout_and_markdown_preview_rework` was finished via `logics-manager flow finish task` on 2026-08-23.

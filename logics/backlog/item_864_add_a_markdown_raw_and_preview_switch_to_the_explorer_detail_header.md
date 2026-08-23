@@ -1,14 +1,14 @@
 ## item_864_add_a_markdown_raw_and_preview_switch_to_the_explorer_detail_header - Add a markdown raw and preview switch to the Explorer detail header
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 88%
-> Progress: 95%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer explorer
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 13:57:23
+> Indicators reviewed: 2026-08-23 14:05:36
 
 # AI Context
 - Summary: Adds a Raw/Preview control to the Explorer detail header for markdown, reusing the renderer the CDX memory pane already uses.
@@ -66,3 +66,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_395_orchestrate_the_explorer_layout_and_markdown_preview_rework`
+
+# Notes
+- Task `task_395_orchestrate_the_explorer_layout_and_markdown_preview_rework` was finished via `logics-manager flow finish task` on 2026-08-23.

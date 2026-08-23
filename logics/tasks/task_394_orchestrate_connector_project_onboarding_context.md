@@ -8,7 +8,7 @@
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-23 12:58:13
+> Indicators reviewed: 2026-08-23 13:25:13
 > Owner: codex
 
 # AI Context
@@ -70,6 +70,7 @@
 - command: `python3 -m pytest tests/python -q` | result: passed | date: 2026-08-23
 - Finish workflow executed on 2026-08-23.
 - Linked backlog/request close verification passed.
+- Post-closeout review (2026-08-23) found nine defects on paths the closeout tests did not exercise, including `list_projects` returning ids `onboard_project` rejected (AC3), `key_docs` truncating to the oldest product briefs with no ADR or runbook (AC1), commit source pointers that could not be read back (AC5), and git stderr reaching the model with absolute paths (AC2). All nine are fixed with regression coverage; 1471 Python tests pass.
 
 # Report
 - Not started.

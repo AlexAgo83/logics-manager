@@ -15,6 +15,7 @@ from types import SimpleNamespace
 import pytest
 
 import logics_manager.mcp as mcp_module
+import logics_manager.mcp_project_context as mcp_project_context
 from logics_manager.bootstrap import bootstrap_payload
 from logics_manager.mcp import McpToolError, call_tool, connector_plan, handle_jsonrpc, make_http_handler
 
@@ -26,8 +27,11 @@ def _free_port() -> int:
 
 
 def _repo(tmp_path: Path) -> Path:
-    repo_root = tmp_path / "repo"
-    repo_root.mkdir()
+    return _repo_at(tmp_path / "repo")
+
+
+def _repo_at(repo_root: Path) -> Path:
+    repo_root.mkdir(parents=True)
     bootstrap_payload(repo_root, check=False)
     subprocess.run(["git", "init"], cwd=repo_root, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     return repo_root
@@ -157,7 +161,12 @@ def test_mcp_onboard_project_returns_sourced_active_work_without_absolute_paths(
     refs = {item["ref"] for item in payload["active_work"]}
     assert created["ref"] in refs
     created_item = next(item for item in payload["active_work"] if item["ref"] == created["ref"])
-    assert created_item["source"] == {"type": "logics_doc", "ref": created["ref"], "path": created["path"]}
+    assert created_item["source"] == {
+        "type": "logics_doc",
+        "ref": created["ref"],
+        "path": created["path"],
+        "source_id": f"logics:{created['ref']}",
+    }
     assert any(tool["name"] == "search_project_context" for tool in payload["follow_up_tools"])
     _assert_no_absolute_repo_path(payload, repo_root)
 
@@ -247,7 +256,7 @@ def test_mcp_onboarding_recent_activity_includes_git_commit_sources(tmp_path: Pa
 
     assert payload["recent_activity"]["git"]["state"] == "ok"
     assert commits[0]["hash"] == commit
-    assert commits[0]["source"] == {"type": "git_commit", "hash": commit}
+    assert commits[0]["source"] == {"type": "git_commit", "hash": commit, "source_id": f"git:{commit}"}
     read = call_tool("read_project_resource", {"source": f"git:{commit}", "max_chars": 1000}, repo_root=repo_root)
     assert read["resource_type"] == "git_commit"
     assert "initial" in read["content"]
@@ -1401,3 +1410,96 @@ def test_mcp_scaffold_request_chain_requires_input_object(tmp_path: Path) -> Non
     repo_root = _repo(tmp_path)
     with pytest.raises(McpToolError):
         call_tool("scaffold_request_chain", {"input": "not-an-object"}, repo_root=repo_root)
+
+
+def test_mcp_every_listed_project_can_be_targeted(tmp_path: Path) -> None:
+    """`list_projects` used to hand out ids that `onboard_project` rejected: the two
+    discovery caps diverged, and the listing cap was applied before the corpus filter."""
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    for index in range(6):
+        _repo_at(workspace / f"project-{index:02d}")
+    active = workspace / "project-00"
+
+    listed = call_tool("list_projects", {"limit": 100}, repo_root=active)["projects"]
+
+    assert len(listed) == 6
+    for entry in listed:
+        targeted = call_tool("onboard_project", {"project": entry["id"]}, repo_root=active)
+        assert targeted["project"]["id"] == entry["id"]
+
+
+def test_mcp_onboarding_key_docs_cover_every_companion_kind(tmp_path: Path) -> None:
+    """A global truncation across kinds returned only the oldest product briefs."""
+    repo_root = _repo(tmp_path)
+    for index in range(12):
+        (repo_root / "logics" / "product" / f"prod_{index:03d}_brief.md").write_text(
+            f"## prod_{index:03d}_brief - Brief {index}\n> Status: Proposed\n", encoding="utf-8"
+        )
+    (repo_root / "logics" / "architecture" / "adr_001_choice.md").write_text(
+        "## adr_001_choice - A choice\n> Status: Accepted\n", encoding="utf-8"
+    )
+
+    payload = call_tool("onboard_project", {"limit": 6}, repo_root=repo_root)
+
+    assert "architecture" in {doc["kind"] for doc in payload["key_docs"]}
+
+
+def test_mcp_onboarding_project_list_is_not_bounded_by_the_document_limit(tmp_path: Path) -> None:
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    for index in range(4):
+        _repo_at(workspace / f"project-{index:02d}")
+    active = workspace / "project-00"
+
+    payload = call_tool("onboard_project", {"limit": 1}, repo_root=active)
+
+    assert len(payload["projects"]) == 4
+
+
+def test_mcp_read_project_resource_accepts_a_returned_commit_pointer(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    commit = _commit_all(repo_root)
+    source = call_tool("onboard_project", {}, repo_root=repo_root)["recent_activity"]["git"]["recentCommits"][0]["source"]
+
+    for probe in (source["source_id"], source["hash"]):
+        read = call_tool("read_project_resource", {"source": probe, "max_chars": 1000}, repo_root=repo_root)
+        assert read["resource_type"] == "git_commit"
+        assert commit in read["content"] or "initial" in read["content"]
+
+
+def test_mcp_git_resource_errors_do_not_leak_absolute_paths(tmp_path: Path) -> None:
+    repo_root = _repo(tmp_path)
+    _commit_all(repo_root)
+
+    with pytest.raises(McpToolError) as exc:
+        call_tool("read_project_resource", {"source": "git:deadbeef"}, repo_root=repo_root)
+
+    assert exc.value.code == "command_failed"
+    _assert_no_absolute_repo_path(exc.value.details, repo_root)
+
+
+def test_scrub_absolute_paths_keeps_repo_relative_paths(tmp_path: Path) -> None:
+    scrub = mcp_project_context._scrub_absolute_paths
+
+    assert scrub("ownership in repository at '/Users/someone/code/repo'") == "ownership in repository at '<path>'"
+    assert scrub("see logics/product/prod_001.md") == "see logics/product/prod_001.md"
+
+
+def test_mcp_onboarding_reports_a_targeted_project_without_a_corpus(tmp_path: Path) -> None:
+    """`corpus_present` was unreachable-false: a corpus-less project raised
+    `unknown_project` instead of being reported as one without a corpus."""
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    _repo_at(workspace / "project-00")
+    bare = workspace / "project-bare"
+    (bare / ".git").mkdir(parents=True)
+    active = workspace / "project-00"
+    from logics_manager.viewer import _viewer_project_id
+
+    payload = call_tool("onboard_project", {"project": _viewer_project_id(bare.resolve())}, repo_root=active)
+
+    assert payload["corpus_present"] is False
+    assert payload["active_work"] == []
+    assert any(entry["component"] == "logics" for entry in payload["degraded"])
+

@@ -1,12 +1,12 @@
 ## prod_113_one_viewer_surface_state_and_a_review_timeline_that_can_refresh - One viewer surface state and a Review timeline that can refresh
 > Date: 2026-08-23
-> Status: Proposed
+> Status: Settled
 > Related request: `req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on`
-> Related backlog: `item_866_unify_the_viewer_surface_state_across_the_shared_web_client`, `item_867_make_the_review_bursts_payload_lazy_refreshable_and_failure_safe`, `item_868_fix_review_timeline_keyboard_navigation`, `item_869_finish_the_explorer_markdown_switch_and_pane_sizing`, `item_870_cover_review_and_the_reworked_explorer_in_the_visual_campaign`
+> Related backlog: `item_866_unify_the_viewer_surface_state_across_the_shared_web_client`
 > Related task: `task_396_orchestrate_the_review_and_explorer_repair`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
-> Indicators reviewed: 2026-08-23 14:30:21
+> Indicators reviewed: 2026-08-23 15:14:52
 
 # Overview
 The Review slot and the Explorer rework shipped, and both left criteria unmet: the viewer runs two competing surface states, opening Review costs a hundred Git subprocesses so it was never wired to refresh, and the Explorer markdown switch misses file types, states, and the shared preference store. This closes the gap between what those requests promised and what runs.
@@ -45,5 +45,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on`
+- Product back-reference: `item_866_unify_the_viewer_surface_state_across_the_shared_web_client`
 - Task back-reference: `task_396_orchestrate_the_review_and_explorer_repair`

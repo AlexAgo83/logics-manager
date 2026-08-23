@@ -1,13 +1,13 @@
 ## req_381_add_a_review_slot_for_project_change_timelines - Add a Review slot for project change timelines
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 95%
 > Confidence: 88%
 > Complexity: High
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 13:37:59
+> Indicators reviewed: 2026-08-23 13:56:44
 
 # AI Context
 - Summary: Adds a Review viewer slot that turns local Git changes into a horizontal burst timeline with vertical per-file review and a shared diff pane.

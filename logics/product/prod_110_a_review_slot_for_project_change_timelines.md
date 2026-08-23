@@ -1,12 +1,12 @@
 ## prod_110_a_review_slot_for_project_change_timelines - A Review slot for project change timelines
 > Date: 2026-08-22
-> Status: Proposed
+> Status: Settled
 > Related request: `req_381_add_a_review_slot_for_project_change_timelines`
-> Related backlog: `item_857_expose_review_bursts_from_local_git`, `item_865_migrate_the_viewer_surface_state_from_a_boolean_to_a_tri_state`, `item_858_build_the_review_slot_timeline_ui`
+> Related backlog: `item_857_expose_review_bursts_from_local_git`
 > Related task: `task_393_orchestrate_the_review_slot_change_timeline`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
-> Indicators reviewed: 2026-08-22 17:34:05
+> Indicators reviewed: 2026-08-23 13:56:45
 
 # Overview
 Add a dedicated Review surface to the Logics viewer where operators can read project changes as bursts over time: move horizontally through the working tree and recent commits, move vertically through files in the selected burst, and inspect the selected diff without leaving the viewer.
@@ -57,5 +57,5 @@ flowchart LR
 - The desktop, tablet, and phone captures show the selected burst, selected file, and diff context without overlap, clipped controls, or sideways page scroll.
 
 # References
-- Product back-reference: `req_381_add_a_review_slot_for_project_change_timelines`
+- Product back-reference: `item_857_expose_review_bursts_from_local_git`
 - Task back-reference: `task_393_orchestrate_the_review_slot_change_timeline`

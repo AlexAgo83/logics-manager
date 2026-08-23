@@ -5405,9 +5405,10 @@ import {
         // item_732: the same shape as the file preview's own force below, so asking for the
         // rest of a diff and asking for the rest of a file are one pattern.
         const diffPath = gitDiffFullTarget.getAttribute("data-viewer-git-diff-full") || "";
+        const diffRef = gitDiffFullTarget.getAttribute("data-viewer-git-diff-ref") || "";
         const diffCached = gitDiffFullTarget.getAttribute("data-viewer-git-diff-cached") === "1";
         withPrimaryAction("git-diff-full", "Loading the rest of the diff", () =>
-          loadGitDiff(diffPath, diffCached, null, { full: true })
+          diffRef ? loadGitCommitDiff(diffRef, null, { path: diffPath, full: true }) : loadGitDiff(diffPath, diffCached, null, { full: true })
         );
         return;
       }

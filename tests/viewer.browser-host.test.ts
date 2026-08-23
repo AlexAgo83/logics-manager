@@ -6511,10 +6511,12 @@ describe("local viewer browser host", () => {
       "index abc1234..def5678 100644",
       "--- a/file.ts",
       "+++ b/file.ts",
-      "@@ -1,3 +1,3 @@",
+      "@@ -41,3 +81,3 @@",
       " context",
       "-removed",
-      "+added"
+      "+added",
+      "@@ -101,2 +141,2 @@",
+      " second"
     ].join("\n");
 
     const { dom } = createViewerDom({
@@ -6528,8 +6530,10 @@ describe("local viewer browser host", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const lines = Array.from(dom.window.document.querySelectorAll(".viewer-git__diff-line")).map((node) => node.textContent || "");
+    const lineNumbers = Array.from(dom.window.document.querySelectorAll(".viewer-code__line-number")).map((node) => node.textContent || "");
     expect(lines.length).toBeGreaterThan(0);
     expect(lines[0]).toContain("@@");
+    expect(lineNumbers.slice(0, 5)).toEqual(["", "81", "42", "82", ""]);
     expect(lines.join("\n")).not.toContain("diff --git");
     expect(lines.join("\n")).not.toContain("index abc1234");
 
@@ -6537,8 +6541,9 @@ describe("local viewer browser host", () => {
     // colours; the classes are what a test can hold.
     expect(dom.window.document.querySelectorAll(".viewer-git__diff-line--add").length).toBe(1);
     expect(dom.window.document.querySelectorAll(".viewer-git__diff-line--delete").length).toBe(1);
-    expect(dom.window.document.querySelectorAll(".viewer-git__diff-line--hunk").length).toBe(1);
+    expect(dom.window.document.querySelectorAll(".viewer-git__diff-line--hunk").length).toBe(2);
     expect(dom.window.document.querySelectorAll(".viewer-git__diff-line--meta").length).toBe(0);
+    expect(dom.window.document.querySelectorAll(".viewer-code__row--diff-hunk-break").length).toBe(1);
 
     // A diff the server cut short says how to get the rest.
     const more = dom.window.document.querySelector("[data-viewer-git-diff-full]") as HTMLElement | null;
@@ -6676,7 +6681,8 @@ describe("local viewer browser host", () => {
             ref: "abc1234",
             mode: "commit",
             diff: "commit abc1234\n\ndiff --git a/logics/request/req_001_demo.md b/logics/request/req_001_demo.md\n+Commit demo",
-            truncated: false
+            truncated: true,
+            canForce: true
           }
         }
       }
@@ -6702,6 +6708,11 @@ describe("local viewer browser host", () => {
     expect(content?.querySelector(".viewer-git__diff-meta")?.textContent).toContain("abc1234 · commit");
     expect(content?.querySelector(".viewer-git__diff-line--meta")?.textContent).toContain("diff --git");
     expect(content?.querySelector(".viewer-git__diff-line--add")?.textContent).toContain("+Commit demo");
+    expect((content?.querySelector("[data-viewer-git-diff-full]") as HTMLElement | null)?.dataset.viewerGitDiffRef).toBe("abc1234");
+
+    (content?.querySelector("[data-viewer-git-diff-full]") as HTMLElement | null)?.click();
+    await flushViewerAsync();
+    expect(calls).toContain("/api/git-commit-diff?ref=abc1234&full=1");
   });
 
   it("renders the Review surface and scopes committed file diffs", async () => {
@@ -6716,7 +6727,8 @@ describe("local viewer browser host", () => {
             path: "src/demo.ts",
             mode: "commit",
             diff: "commit abc1234\n\ndiff --git a/src/demo.ts b/src/demo.ts\n+Review demo",
-            truncated: false
+            truncated: true,
+            canForce: true
           }
         }
       }
@@ -6759,6 +6771,9 @@ describe("local viewer browser host", () => {
     expect(calls).toContain("/api/git-commit-diff?ref=abc1234&path=src%2Fdemo.ts");
     expect(content?.querySelector(".viewer-git__diff-meta")?.textContent).toContain("src/demo.ts");
     expect(content?.querySelector(".viewer-git__diff-line--add")?.textContent).toContain("+Review demo");
+    (content?.querySelector("[data-viewer-git-diff-full]") as HTMLElement | null)?.click();
+    await flushViewerAsync();
+    expect(calls).toContain("/api/git-commit-diff?ref=abc1234&path=src%2Fdemo.ts&full=1");
 
     (content?.querySelector('[data-viewer-review-burst="commit:abc1234"]') as HTMLElement | null)?.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
     await flushViewerAsync();

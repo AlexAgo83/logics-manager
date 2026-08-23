@@ -623,7 +623,14 @@ export function renderCodeViewer(content, options = {}) {
       ? options.lineCount
       : (text ? text.split("\n").length - (text.endsWith("\n") ? 1 : 0) : 0);
     const visibleLines = text ? text.split("\n").slice(0, text.endsWith("\n") ? -1 : undefined) : [];
-    const lineNumberDigits = Math.max(2, String(Math.max(lineCount, visibleLines.length, 1)).length);
+    const lineNumbers = Array.isArray(options.lineNumbers) ? options.lineNumbers : [];
+    const maxLineNumber = Math.max(
+      lineCount,
+      visibleLines.length,
+      ...lineNumbers.map((value) => Number(value) || 0),
+      1
+    );
+    const lineNumberDigits = Math.max(2, String(maxLineNumber).length);
     const rows = visibleLines.map((line, index) => {
       const body = typeof options.renderLineHtml === "function"
         ? options.renderLineHtml(line, index)
@@ -631,9 +638,16 @@ export function renderCodeViewer(content, options = {}) {
       const extraLineClass = typeof options.lineClassName === "function"
         ? options.lineClassName(line, index)
         : (options.lineClassName || "");
+      const extraRowClass = typeof options.rowClassName === "function"
+        ? options.rowClassName(line, index)
+        : (options.rowClassName || "");
+      const rowClass = ["viewer-code__row", extraRowClass].filter(Boolean).map(escapeHtml).join(" ");
       const lineClass = ["viewer-code__line", extraLineClass].filter(Boolean).map(escapeHtml).join(" ");
-      return `<div class="viewer-code__row">
-        <span class="viewer-code__line-number" aria-hidden="true">${index + 1}</span>
+      const lineNumber = lineNumbers[index] === "" || lineNumbers[index] === null || lineNumbers[index] === undefined
+        ? (lineNumbers.length ? "" : index + 1)
+        : lineNumbers[index];
+      return `<div class="${rowClass}">
+        <span class="viewer-code__line-number" aria-hidden="true">${escapeHtml(String(lineNumber))}</span>
         <span class="${lineClass}"><code>${body}</code></span>
       </div>`;
     }).join("");

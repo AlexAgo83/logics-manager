@@ -2189,13 +2189,23 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     const language = options.language || "";
     const lineCount = Number.isFinite(options.lineCount) ? options.lineCount : text ? text.split("\n").length - (text.endsWith("\n") ? 1 : 0) : 0;
     const visibleLines = text ? text.split("\n").slice(0, text.endsWith("\n") ? -1 : void 0) : [];
-    const lineNumberDigits = Math.max(2, String(Math.max(lineCount, visibleLines.length, 1)).length);
+    const lineNumbers = Array.isArray(options.lineNumbers) ? options.lineNumbers : [];
+    const maxLineNumber = Math.max(
+      lineCount,
+      visibleLines.length,
+      ...lineNumbers.map((value) => Number(value) || 0),
+      1
+    );
+    const lineNumberDigits = Math.max(2, String(maxLineNumber).length);
     const rows = visibleLines.map((line, index) => {
       const body = typeof options.renderLineHtml === "function" ? options.renderLineHtml(line, index) : highlightCode(line || " ", language);
       const extraLineClass = typeof options.lineClassName === "function" ? options.lineClassName(line, index) : options.lineClassName || "";
+      const extraRowClass = typeof options.rowClassName === "function" ? options.rowClassName(line, index) : options.rowClassName || "";
+      const rowClass = ["viewer-code__row", extraRowClass].filter(Boolean).map(escapeHtml).join(" ");
       const lineClass = ["viewer-code__line", extraLineClass].filter(Boolean).map(escapeHtml).join(" ");
-      return `<div class="viewer-code__row">
-        <span class="viewer-code__line-number" aria-hidden="true">${index + 1}</span>
+      const lineNumber = lineNumbers[index] === "" || lineNumbers[index] === null || lineNumbers[index] === void 0 ? lineNumbers.length ? "" : index + 1 : lineNumbers[index];
+      return `<div class="${rowClass}">
+        <span class="viewer-code__line-number" aria-hidden="true">${escapeHtml(String(lineNumber))}</span>
         <span class="${lineClass}"><code>${body}</code></span>
       </div>`;
     }).join("");
@@ -8094,10 +8104,39 @@ ${line}` : line;
       const kept = lines.slice(firstHunk);
       return kept.join("\n");
     }
+    function gitDiffLineRows(content) {
+      let oldLine = 0;
+      let newLine = 0;
+      let hunkCount = 0;
+      return String(content || "").split("\n").map((line) => {
+        const kind = gitDiffLineKind(line);
+        if (kind === "hunk") {
+          const match = line.match(/^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
+          oldLine = Number(match?.[1] || 0);
+          newLine = Number(match?.[2] || 0);
+          hunkCount += 1;
+          return { line, number: "", rowClass: hunkCount > 1 ? "viewer-code__row--diff-hunk-break" : "" };
+        }
+        if (kind === "add") {
+          return { line, number: newLine++ || "" };
+        }
+        if (kind === "delete") {
+          return { line, number: oldLine++ || "" };
+        }
+        const number = newLine || oldLine || "";
+        if (oldLine) oldLine += 1;
+        if (newLine) newLine += 1;
+        return { line, number };
+      });
+    }
     function renderGitDiffPreview(content) {
-      return renderCodeViewer(stripGitDiffHeader(content), {
+      const diff = stripGitDiffHeader(content);
+      const rows = gitDiffLineRows(diff);
+      return renderCodeViewer(diff, {
         language: "diff",
         lineClassName: (line) => `viewer-git__diff-line viewer-git__diff-line--${gitDiffLineKind(line)}`,
+        rowClassName: (_line, index) => rows[index]?.rowClass || "",
+        lineNumbers: rows.map((row) => row.number),
         renderLineHtml: (line) => escapeHtml(line || " ")
       });
     }
@@ -8165,6 +8204,9 @@ ${line}` : line;
       if (options.path) {
         params.set("path", options.path);
       }
+      if (options.full) {
+        params.set("full", "1");
+      }
       const response = await fetch(`/api/git-commit-diff?${params.toString()}`);
       const data = await response.json();
       const payload = data.payload || {};
@@ -8178,7 +8220,8 @@ ${line}` : line;
         return;
       }
       const label = payload.path ? `${payload.path} \xB7 ${payload.ref || ref}` : `${payload.ref || ref}`;
-      diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(label)} \xB7 commit${payload.truncated ? " \xB7 truncated" : ""}</div>${renderGitDiffPreview(content)}`;
+      const more = payload.canForce ? `<button class="btn viewer-git__diff-more" type="button" data-viewer-git-diff-full="${escapeHtml(payload.path || "")}" data-viewer-git-diff-ref="${escapeHtml(payload.ref || ref)}">Load the rest of this diff</button>` : "";
+      diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(label)} \xB7 commit${payload.truncated ? " \xB7 truncated" : ""}</div>${renderGitDiffPreview(content)}${more}`;
     }
     function reviewBursts() {
       return latestReviewPayload && Array.isArray(latestReviewPayload.bursts) ? latestReviewPayload.bursts : [];
@@ -13143,11 +13186,12 @@ ${shown.join("\n")}${files.length > shown.length ? `
         if (gitDiffFullTarget instanceof HTMLElement) {
           event.preventDefault();
           const diffPath = gitDiffFullTarget.getAttribute("data-viewer-git-diff-full") || "";
+          const diffRef = gitDiffFullTarget.getAttribute("data-viewer-git-diff-ref") || "";
           const diffCached = gitDiffFullTarget.getAttribute("data-viewer-git-diff-cached") === "1";
           withPrimaryAction(
             "git-diff-full",
             "Loading the rest of the diff",
-            () => loadGitDiff(diffPath, diffCached, null, { full: true })
+            () => diffRef ? loadGitCommitDiff(diffRef, null, { path: diffPath, full: true }) : loadGitDiff(diffPath, diffCached, null, { full: true })
           );
           return;
         }

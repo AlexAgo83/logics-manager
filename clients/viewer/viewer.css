@@ -2798,6 +2798,12 @@
   min-height: 1.5em;
 }
 
+.viewer-code__row--diff-hunk-break {
+  margin-top: 8px;
+  border-top: 1px solid var(--vscode-panel-border, #333333);
+  padding-top: 6px;
+}
+
 .viewer-code__line-number {
   position: sticky;
   left: 0;

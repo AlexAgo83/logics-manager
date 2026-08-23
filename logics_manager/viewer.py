@@ -3207,7 +3207,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         if route == "/api/git-commit-diff":
             params = parse_qs(parsed.query)
             ref = params.get("ref", [""])[0]
-            self._send_json({"ok": True, "payload": git_commit_diff_payload(self.server.repo_root, ref, path=params.get("path", [""])[0])})
+            self._send_json({"ok": True, "payload": git_commit_diff_payload(self.server.repo_root, ref, path=params.get("path", [""])[0], full=_flag(params, "full"))})
             return True
         if route == "/api/review-bursts":
             self._send_json({"ok": True, "payload": review_bursts_payload(self.server.repo_root)})

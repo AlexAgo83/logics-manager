@@ -1,14 +1,14 @@
 ## item_872_repair_the_explorer_selected_row_and_detail_pane_scrolling - Repair the Explorer selected row and detail pane scrolling
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 93%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer explorer
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 15:40:54
+> Indicators reviewed: 2026-08-23 16:05:27
 
 # AI Context
 - Summary: Fixes the selected row that a grid-placed pseudo-element breaks, and the detail pane that scrolls sideways under its own header.
@@ -61,3 +61,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs`
+
+# Notes
+- Task `task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs` was finished via `logics-manager flow finish task` on 2026-08-23.

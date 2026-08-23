@@ -1,12 +1,13 @@
 ## req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control - Render Review in the main pane and repair the Explorer detail pane and surface control
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Draft
-> Understanding: 90%
-> Confidence: 85%
+> Status: Done
+> Understanding: 97%
+> Confidence: 95%
 > Complexity: Medium
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-23 16:05:27
 
 # AI Context
 - Summary: Moves Review out of the floating screen overlay into the main pane, and repairs the Explorer selected row, the detail pane scrolling and the surface control.

@@ -1,13 +1,14 @@
 ## item_871_move_review_from_the_screen_overlay_into_the_main_pane - Move Review from the screen overlay into the main pane
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 93%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-23 16:05:27
 
 # AI Context
 - Summary: Gives Review its own region in layout__main and stops rendering it through the screen overlay.
@@ -61,3 +62,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs`
+
+# Notes
+- Task `task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs` was finished via `logics-manager flow finish task` on 2026-08-23.

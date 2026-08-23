@@ -1904,21 +1904,40 @@ export function renderWorkspacePreview(previewPayload) {
     const name = previewPayload.name || path || "/";
     const state = previewPayload.state || "unknown";
     if (state === "ok") {
+      const isMarkdown = String(previewPayload.contentType || "").includes("markdown") || /\.md(?:own)?$/i.test(path);
+      const storedMode = (() => {
+        try {
+          return window.localStorage.getItem("logics.workspaceMarkdownMode") || "";
+        } catch {
+          return "";
+        }
+      })();
+      const defaultMode = Number(previewPayload.size || 0) >= 100 * 1024 ? "raw" : "preview";
+      const markdownMode = storedMode === "raw" || storedMode === "preview" ? storedMode : defaultMode;
       const forceButtonHtml = previewPayload.canForce
         ? `<button class="btn viewer-code__force" type="button" data-viewer-workspace-preview-full="${escapeHtml(path)}">Load anyway</button>`
         : "";
-      return `
-        <div class="viewer-workspace__preview-header">
-          <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
-          <em>${escapeHtml(previewPayload.truncated ? "truncated" : `${previewPayload.size || 0} bytes`)}</em>
-        </div>
-        ${renderCodeViewer(previewPayload.content || "", {
+      const modeButtons = isMarkdown
+        ? `<div class="viewer-workspace__preview-modes" role="group" aria-label="Markdown view">
+            ${["preview", "raw"].map((mode) => `<button class="viewer-cdx__mode${markdownMode === mode ? " is-active" : ""}" type="button" data-viewer-workspace-markdown-mode="${mode}" aria-pressed="${markdownMode === mode ? "true" : "false"}">${mode === "preview" ? "Preview" : "Raw"}</button>`).join("")}
+          </div>`
+        : "";
+      const api = markdownApi();
+      const body = isMarkdown && markdownMode === "preview"
+        ? `<div class="viewer-workspace__markdown markdown-preview">${api && typeof api.renderMarkdownToHtml === "function" ? api.renderMarkdownToHtml(previewPayload.content || "") : `<pre>${escapeHtml(previewPayload.content || "")}</pre>`}${forceButtonHtml}</div>`
+        : renderCodeViewer(previewPayload.content || "", {
           language: detectHljsLanguage(path),
           lineCount: previewPayload.lineCount,
           truncated: Boolean(previewPayload.truncated),
           hardCapHit: Boolean(previewPayload.hardCapHit),
           forceButtonHtml
-        })}
+        });
+      return `
+        <div class="viewer-workspace__preview-header" data-viewer-workspace-preview-path="${escapeHtml(path)}">
+          <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
+          <div class="viewer-workspace__preview-actions">${modeButtons}<em>${escapeHtml(previewPayload.truncated ? "truncated" : `${previewPayload.size || 0} bytes`)}</em></div>
+        </div>
+        <div class="viewer-workspace__preview-body">${body}</div>
       `;
     }
     if (state === "oversized") {
@@ -1946,7 +1965,7 @@ export function renderWorkspacePreview(previewPayload) {
       const entries = Array.isArray(previewPayload.entries) ? previewPayload.entries : [];
       const rows = entries.map((entry) => `
         <li class="viewer-workspace__dir-row${entry.ignored ? " viewer-workspace__dir-row--ignored" : ""}">
-          <button type="button" class="viewer-workspace__dir-entry" data-viewer-workspace-select="${escapeHtml(entry.path)}">
+          <button type="button" class="viewer-workspace__dir-entry" data-viewer-workspace-select="${escapeHtml(entry.path)}" data-viewer-workspace-select-kind="${escapeHtml(entry.kind || "file")}">
             <span class="viewer-workspace__dir-kind" aria-hidden="true">${entry.kind === "directory" ? "▸" : "·"}</span>
             <span class="viewer-workspace__dir-name">${escapeHtml(entry.name)}</span>
             <span class="viewer-workspace__dir-size">${entry.kind === "directory" ? "" : formatByteSize(entry.size)}</span>

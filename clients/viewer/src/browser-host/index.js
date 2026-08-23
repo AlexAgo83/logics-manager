@@ -137,6 +137,7 @@ import {
   renderWorkshopMenuItems,
   renderWorkshopTabs,
   renderWorkspace,
+  renderWorkspacePreview,
   resizeWorkshopTerminal,
   returnToProjectSurface,
   runtimeStatusSignature,
@@ -4289,17 +4290,55 @@ import {
     const container = document.querySelector("[data-viewer-workshop-explorer]");
     if (container instanceof HTMLElement) {
       container.innerHTML = renderWorkspace(tree, preview);
+      latestWorkspaceTreePayload = tree;
+      latestWorkspacePreviewPayload = preview;
     }
     setMeta(path ? `Explorer folder ${path}` : "Explorer root.");
+  }
+
+  let latestWorkspaceTreePayload = null;
+  let latestWorkspacePreviewPayload = null;
+
+  function updateWorkspaceSelection(path) {
+    document.querySelectorAll("[data-viewer-workspace-preview]").forEach((node) => {
+      if (node instanceof HTMLElement) {
+        const selected = node.getAttribute("data-viewer-workspace-preview") === path;
+        node.classList.toggle("is-selected", selected);
+        if (selected) {
+          node.setAttribute("aria-current", "true");
+        } else {
+          node.removeAttribute("aria-current");
+        }
+      }
+    });
+  }
+
+  function updateWorkspacePreviewPane(preview) {
+    latestWorkspacePreviewPayload = preview;
+    const pane = document.querySelector(".viewer-workspace__preview");
+    if (pane instanceof HTMLElement) {
+      pane.innerHTML = renderWorkspacePreview(preview);
+      pane.scrollTop = 0;
+    }
   }
 
   async function openWorkspacePreview(path, { full = false } = {}) {
     if (!document.querySelector("[data-viewer-workshop-explorer]")) return;
     const treePath = workspaceParentPath(path);
+    const currentTreePath = String(latestWorkspaceTreePayload?.path || "");
+    if (latestWorkspaceTreePayload && currentTreePath === treePath) {
+      const preview = await fetchWorkspacePreview(path, { full });
+      updateWorkspaceSelection(path);
+      updateWorkspacePreviewPane(preview);
+      setMeta(full ? `Loaded full preview of ${path}.` : `Previewing ${path || "workspace root"}.`);
+      return;
+    }
     const [tree, preview] = await Promise.all([fetchWorkspaceTree(treePath), fetchWorkspacePreview(path, { full })]);
     const container = document.querySelector("[data-viewer-workshop-explorer]");
     if (container instanceof HTMLElement) {
       container.innerHTML = renderWorkspace(tree, preview);
+      latestWorkspaceTreePayload = tree;
+      latestWorkspacePreviewPayload = preview;
     }
     setMeta(full ? `Loaded full preview of ${path}.` : `Previewing ${path || "workspace root"}.`);
   }
@@ -4900,6 +4939,7 @@ import {
       const workspacePreviewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview]") : null;
       const workspaceSelectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-select]") : null;
       const workspacePreviewFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview-full]") : null;
+      const workspaceMarkdownModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-markdown-mode]") : null;
       const workshopTabTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-tab]") : null;
       const workshopRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run]") : null;
       const fleetHomeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-fleet-home]") : null;
@@ -5352,12 +5392,27 @@ import {
         withPrimaryAction("workspace-preview-full", "Loading full file", () => openWorkspacePreview(workspacePreviewFullTarget.getAttribute("data-viewer-workspace-preview-full") || "", { full: true }));
         return;
       }
-      if (workspaceSelectTarget instanceof HTMLElement) {
-        // item_758: a listed entry opens, so the directory preview navigates rather than
-        // merely describing. The preview loader handles both kinds -- it asks the server
-        // what the path is, so a folder listed here opens as a folder.
+      if (workspaceMarkdownModeTarget instanceof HTMLElement) {
         event.preventDefault();
-        withPrimaryAction("workspace-select", "Opening", () => openWorkspacePreview(workspaceSelectTarget.getAttribute("data-viewer-workspace-select") || ""));
+        try {
+          window.localStorage.setItem("logics.workspaceMarkdownMode", workspaceMarkdownModeTarget.getAttribute("data-viewer-workspace-markdown-mode") || "preview");
+        } catch {
+          // Ignore private-mode storage failures; the current click still rerenders.
+        }
+        const currentPath = document.querySelector("[data-viewer-workspace-preview-path]")?.getAttribute("data-viewer-workspace-preview-path") || "";
+        withPrimaryAction("workspace-markdown-mode", "Switching Markdown view", async () => {
+          const preview = latestWorkspacePreviewPayload || (currentPath ? await fetchWorkspacePreview(currentPath) : null);
+          if (preview) updateWorkspacePreviewPane(preview);
+        });
+        return;
+      }
+      if (workspaceSelectTarget instanceof HTMLElement) {
+        // item_758 + req_383: a listed entry opens; folders replace the anchored list,
+        // files only replace the detail pane.
+        event.preventDefault();
+        const path = workspaceSelectTarget.getAttribute("data-viewer-workspace-select") || "";
+        const kind = workspaceSelectTarget.getAttribute("data-viewer-workspace-select-kind") || "file";
+        withPrimaryAction("workspace-select", "Opening", () => kind === "directory" ? openWorkspaceTree(path) : openWorkspacePreview(path));
         return;
       }
       if (workspacePreviewTarget instanceof HTMLElement) {

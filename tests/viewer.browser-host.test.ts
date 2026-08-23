@@ -1478,7 +1478,9 @@ function createViewerDom(options: {
           : previewPath === "src/binary.dat"
           ? { state: "unsupported", path: "src/binary.dat", name: "binary.dat", size: 7, message: "Binary or unsupported file content cannot be previewed." }
           : previewPath === "README.md"
-          ? { state: "ok", path: "README.md", name: "README.md", kind: "file", size: 18, contentType: "text/markdown", content: "# Demo\nRead me\n", truncated: false }
+          ? { state: "ok", path: "README.md", name: "README.md", kind: "file", size: 18, contentType: "text/markdown", content: "# Demo\nRead me\n", truncated: false, lineCount: 2 }
+          : previewPath === "docs/long.md"
+          ? { state: "ok", path: "docs/long.md", name: "long.md", kind: "file", size: 120000, contentType: "text/markdown", content: "# Long\nRaw default\n", truncated: true, canForce: true, lineCount: 2 }
           : { state: "directory", path: previewPath, name: previewPath || "logics-manager", kind: "directory", message: "3 item(s)", childrenAvailable: true };
         return {
           ok: true,
@@ -4139,6 +4141,82 @@ describe("local viewer browser host", () => {
     content = dom.window.document.querySelector("[data-viewer-workshop-explorer]");
     expect(calls).toContain("/api/workspace-preview?path=src%2Fapp.py");
     expect(content?.textContent).toContain("print('ok')");
+  });
+
+  it("updates only the Explorer detail pane when selecting a file in the same directory", async () => {
+    const { dom, calls } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-workshop-tab="explorer"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    let explorer = dom.window.document.querySelector("[data-viewer-workshop-explorer]") as HTMLElement;
+    explorer.querySelector('[data-viewer-workspace-tree="src"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+    explorer = dom.window.document.querySelector("[data-viewer-workshop-explorer]") as HTMLElement;
+    const list = explorer.querySelector(".viewer-workspace__tree-list") as HTMLElement;
+    const fileButton = explorer.querySelector('[data-viewer-workspace-preview="src/app.py"]') as HTMLElement;
+    const callsBefore = calls.filter((call) => call === "/api/workspace-tree?path=src").length;
+    list.scrollTop = 42;
+    fileButton.focus();
+    (explorer.querySelector(".viewer-workspace__preview") as HTMLElement).scrollTop = 99;
+
+    fileButton.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    explorer = dom.window.document.querySelector("[data-viewer-workshop-explorer]") as HTMLElement;
+    expect(calls.filter((call) => call === "/api/workspace-tree?path=src").length).toBe(callsBefore);
+    expect(explorer.querySelector(".viewer-workspace__tree-list")).toBe(list);
+    expect(list.scrollTop).toBe(42);
+    expect(dom.window.document.activeElement).toBe(fileButton);
+    expect(fileButton.getAttribute("aria-current")).toBe("true");
+    expect(fileButton.classList.contains("is-selected")).toBe(true);
+    expect((explorer.querySelector(".viewer-workspace__preview") as HTMLElement).scrollTop).toBe(0);
+    expect(explorer.textContent).toContain("print('ok')");
+  });
+
+  it("renders markdown previews in Explorer and lets Raw override persist", async () => {
+    const { dom } = createViewerDom();
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-nav-target="workshop:terminals"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    dom.window.document.querySelector('[data-viewer-workshop-tab="explorer"]')?.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    let explorer = dom.window.document.querySelector("[data-viewer-workshop-explorer]") as HTMLElement;
+    expect(explorer.querySelector("[data-viewer-workspace-markdown-mode='preview']")?.classList.contains("is-active")).toBe(true);
+    expect(explorer.querySelector(".viewer-workspace__markdown h1")?.textContent).toBe("Demo");
+    expect(explorer.querySelector(".viewer-code")).toBeNull();
+
+    (explorer.querySelector("[data-viewer-workspace-markdown-mode='raw']") as HTMLElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+    explorer = dom.window.document.querySelector("[data-viewer-workshop-explorer]") as HTMLElement;
+    expect(dom.window.localStorage.getItem("logics.workspaceMarkdownMode")).toBe("raw");
+    expect(explorer.querySelector("[data-viewer-workspace-markdown-mode='raw']")?.classList.contains("is-active")).toBe(true);
+    expect(explorer.querySelector(".viewer-code")?.textContent).toContain("# Demo");
+
+    dom.window.localStorage.removeItem("logics.workspaceMarkdownMode");
+    const trigger = dom.window.document.createElement("button");
+    trigger.setAttribute("data-viewer-workspace-preview", "docs/long.md");
+    explorer.appendChild(trigger);
+    trigger.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+    await flushViewerAsync();
+    await flushViewerAsync();
+    explorer = dom.window.document.querySelector("[data-viewer-workshop-explorer]") as HTMLElement;
+    expect(explorer.querySelector("[data-viewer-workspace-markdown-mode='raw']")?.classList.contains("is-active")).toBe(true);
+    expect(explorer.querySelector("[data-viewer-workspace-preview-full]")?.textContent).toContain("Load anyway");
   });
 
   it("renders the shared code viewer with inline line numbers, line count, and force-load", async () => {

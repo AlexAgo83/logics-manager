@@ -71,7 +71,7 @@
             getShouldRecommendCheckEnvironment
           })
         : null;
-    let visibleActivityLimit = 10;
+    let visibleActivityLimit = 20;
 
     function setButtonIcon(button, svgMarkup) {
       if (!button) {

@@ -1628,6 +1628,33 @@ def test_viewer_review_bursts_payload_is_not_per_commit(tmp_path: Path) -> None:
     assert not any("push" in call or "fetch" in call or "pull" in call for call in calls for _ in [call])
 
 
+def test_viewer_review_bursts_payload_keeps_local_tile_when_clean(tmp_path: Path) -> None:
+    def runner(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        tail = args[1:]
+        if tail == ["rev-parse", "--is-inside-work-tree"]:
+            return subprocess.CompletedProcess(args, 0, "true\n", "")
+        if tail == ["status", "--porcelain=v1", "-b"]:
+            return subprocess.CompletedProcess(args, 0, "## main...origin/main\n", "")
+        if tail in (["diff", "--no-ext-diff", "--numstat", "--cached"], ["diff", "--no-ext-diff", "--numstat"]):
+            return subprocess.CompletedProcess(args, 0, "", "")
+        if tail == ["log", "-1", "--pretty=format:%h %s"]:
+            return subprocess.CompletedProcess(args, 0, "abc1234 Demo commit", "")
+        if tail[:2] == ["log", "-51"]:
+            return subprocess.CompletedProcess(args, 0, "abc1234\x1fDemo commit\x1fAlex\x1f2026-08-23T10:00:00+02:00\x1fHEAD -> main\n", "")
+        if tail == ["rev-list", "--count", "@{u}..HEAD"]:
+            return subprocess.CompletedProcess(args, 0, "0\n", "")
+        if tail == ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"]:
+            return subprocess.CompletedProcess(args, 0, "origin/main\n", "")
+        raise AssertionError(args)
+
+    payload = review_bursts_payload(tmp_path, runner=runner, which=lambda _name: "/usr/bin/git")
+
+    assert payload["state"] == "ok"
+    assert payload["bursts"][0]["id"] == "working-tree"
+    assert payload["bursts"][0]["fileCount"] == 0
+    assert payload["bursts"][0]["title"] == "No uncommitted changes"
+
+
 def test_viewer_review_burst_files_payload_loads_commit_files_and_errors(tmp_path: Path) -> None:
     calls: list[list[str]] = []
 

@@ -1,12 +1,12 @@
 ## prod_114_review_as_a_real_viewer_surface - Review as a real viewer surface
 > Date: 2026-08-23
-> Status: Proposed
+> Status: Settled
 > Related request: `req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control`
-> Related backlog: `item_871_move_review_from_the_screen_overlay_into_the_main_pane`, `item_872_repair_the_explorer_selected_row_and_detail_pane_scrolling`, `item_873_turn_the_surface_buttons_into_one_segmented_control`
+> Related backlog: `item_871_move_review_from_the_screen_overlay_into_the_main_pane`
 > Related task: `task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
-> Indicators reviewed: 2026-08-23 15:40:30
+> Indicators reviewed: 2026-08-23 16:05:27
 
 # Overview
 Review shipped as a floating screen because it was wired through the screen renderer instead of the main pane. This puts it where Activity and Project live, and repairs the two Explorer defects and the surface control that operator testing found alongside it.
@@ -43,5 +43,5 @@ flowchart LR
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control`
+- Product back-reference: `item_871_move_review_from_the_screen_overlay_into_the_main_pane`
 - Task back-reference: `task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs`

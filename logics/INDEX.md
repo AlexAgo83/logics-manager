@@ -156,7 +156,7 @@
 | [prod_111_connector_project_onboarding_context](product/prod_111_connector_project_onboarding_context.md) | Connector project onboarding context | Settled |  |  | product/prod_111_connector_project_onboarding_context.md |
 | [prod_112_an_anchored_explorer_with_a_readable_detail_pane](product/prod_112_an_anchored_explorer_with_a_readable_detail_pane.md) | An anchored Explorer with a readable detail pane | Settled |  |  | product/prod_112_an_anchored_explorer_with_a_readable_detail_pane.md |
 | [prod_113_one_viewer_surface_state_and_a_review_timeline_that_can_refresh](product/prod_113_one_viewer_surface_state_and_a_review_timeline_that_can_refresh.md) | One viewer surface state and a Review timeline that can refresh | Settled |  |  | product/prod_113_one_viewer_surface_state_and_a_review_timeline_that_can_refresh.md |
-| [prod_114_review_as_a_real_viewer_surface](product/prod_114_review_as_a_real_viewer_surface.md) | Review as a real viewer surface | Proposed |  |  | product/prod_114_review_as_a_real_viewer_surface.md |
+| [prod_114_review_as_a_real_viewer_surface](product/prod_114_review_as_a_real_viewer_surface.md) | Review as a real viewer surface | Settled |  |  | product/prod_114_review_as_a_real_viewer_surface.md |
 
 ## Roadmaps
 
@@ -558,7 +558,7 @@
 | [req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project](request/req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project.md) | Make the ChatGPT MCP connector self-onboard onto any Logics project | Done |  |  | request/req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project.md |
 | [req_383_rework_the_explorer_screen_into_an_anchored_file_list_with_an_independent_detail_pane](request/req_383_rework_the_explorer_screen_into_an_anchored_file_list_with_an_independent_detail_pane.md) | Rework the Explorer screen into an anchored file list with an independent detail pane | Done |  |  | request/req_383_rework_the_explorer_screen_into_an_anchored_file_list_with_an_independent_detail_pane.md |
 | [req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on](request/req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on.md) | Repair the Review slot and Explorer delivery against the acceptance criteria they closed on | Done |  |  | request/req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on.md |
-| [req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control](request/req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control.md) | Render Review in the main pane and repair the Explorer detail pane and surface control | Draft |  |  | request/req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control.md |
+| [req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control](request/req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control.md) | Render Review in the main pane and repair the Explorer detail pane and surface control | Done |  |  | request/req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control.md |
 
 ## Backlog
 
@@ -1434,9 +1434,9 @@
 | [item_868_fix_review_timeline_keyboard_navigation](backlog/item_868_fix_review_timeline_keyboard_navigation.md) | Fix Review timeline keyboard navigation | Done |  | 100% | backlog/item_868_fix_review_timeline_keyboard_navigation.md |
 | [item_869_finish_the_explorer_markdown_switch_and_pane_sizing](backlog/item_869_finish_the_explorer_markdown_switch_and_pane_sizing.md) | Finish the Explorer markdown switch and pane sizing | Done |  | 100% | backlog/item_869_finish_the_explorer_markdown_switch_and_pane_sizing.md |
 | [item_870_cover_review_and_the_reworked_explorer_in_the_visual_campaign](backlog/item_870_cover_review_and_the_reworked_explorer_in_the_visual_campaign.md) | Cover Review and the reworked Explorer in the visual campaign | Done |  | 100% | backlog/item_870_cover_review_and_the_reworked_explorer_in_the_visual_campaign.md |
-| [item_871_move_review_from_the_screen_overlay_into_the_main_pane](backlog/item_871_move_review_from_the_screen_overlay_into_the_main_pane.md) | Move Review from the screen overlay into the main pane | Ready |  | 0% | backlog/item_871_move_review_from_the_screen_overlay_into_the_main_pane.md |
-| [item_872_repair_the_explorer_selected_row_and_detail_pane_scrolling](backlog/item_872_repair_the_explorer_selected_row_and_detail_pane_scrolling.md) | Repair the Explorer selected row and detail pane scrolling | Ready |  | 0% | backlog/item_872_repair_the_explorer_selected_row_and_detail_pane_scrolling.md |
-| [item_873_turn_the_surface_buttons_into_one_segmented_control](backlog/item_873_turn_the_surface_buttons_into_one_segmented_control.md) | Turn the surface buttons into one segmented control | Ready |  | 0% | backlog/item_873_turn_the_surface_buttons_into_one_segmented_control.md |
+| [item_871_move_review_from_the_screen_overlay_into_the_main_pane](backlog/item_871_move_review_from_the_screen_overlay_into_the_main_pane.md) | Move Review from the screen overlay into the main pane | Done |  | 100% | backlog/item_871_move_review_from_the_screen_overlay_into_the_main_pane.md |
+| [item_872_repair_the_explorer_selected_row_and_detail_pane_scrolling](backlog/item_872_repair_the_explorer_selected_row_and_detail_pane_scrolling.md) | Repair the Explorer selected row and detail pane scrolling | Done |  | 100% | backlog/item_872_repair_the_explorer_selected_row_and_detail_pane_scrolling.md |
+| [item_873_turn_the_surface_buttons_into_one_segmented_control](backlog/item_873_turn_the_surface_buttons_into_one_segmented_control.md) | Turn the surface buttons into one segmented control | Done |  | 100% | backlog/item_873_turn_the_surface_buttons_into_one_segmented_control.md |
 
 ## Tasks
 
@@ -1832,7 +1832,7 @@
 | [task_394_orchestrate_connector_project_onboarding_context](tasks/task_394_orchestrate_connector_project_onboarding_context.md) | Orchestrate connector project onboarding context | Done | codex | 100% | tasks/task_394_orchestrate_connector_project_onboarding_context.md |
 | [task_395_orchestrate_the_explorer_layout_and_markdown_preview_rework](tasks/task_395_orchestrate_the_explorer_layout_and_markdown_preview_rework.md) | Orchestrate the Explorer layout and markdown preview rework | Done | codex | 100% | tasks/task_395_orchestrate_the_explorer_layout_and_markdown_preview_rework.md |
 | [task_396_orchestrate_the_review_and_explorer_repair](tasks/task_396_orchestrate_the_review_and_explorer_repair.md) | Orchestrate the Review and Explorer repair | Done | codex | 100% | tasks/task_396_orchestrate_the_review_and_explorer_repair.md |
-| [task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs](tasks/task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs.md) | Orchestrate the Review main-pane move and the Explorer and control repairs | Ready |  | 0% | tasks/task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs.md |
+| [task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs](tasks/task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs.md) | Orchestrate the Review main-pane move and the Explorer and control repairs | Done |  | 100% | tasks/task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs.md |
 
 ## Runbooks
 

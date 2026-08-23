@@ -1,14 +1,15 @@
 ## task_393_orchestrate_the_review_slot_change_timeline - Orchestrate the Review slot change timeline
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 95%
 > Confidence: 86%
-> Progress: 0%
+> Progress: 35%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-08-22 17:34:02
+> Indicators reviewed: 2026-08-23 13:40:03
+> Owner: codex
 
 # AI Context
 - Summary: Coordinates backend Review burst data, frontend Review slot delivery, focused tests, bundle rebuild, and Logics validation.

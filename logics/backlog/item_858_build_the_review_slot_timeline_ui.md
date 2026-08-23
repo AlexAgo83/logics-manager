@@ -1,14 +1,14 @@
 ## item_858_build_the_review_slot_timeline_ui - Build the Review slot timeline UI
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 94%
 > Confidence: 88%
-> Progress: 0%
+> Progress: 35%
 > Complexity: High
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-22 17:34:02
+> Indicators reviewed: 2026-08-23 13:40:03
 
 # AI Context
 - Summary: Builds the Review viewer slot with a horizontal burst rail, vertical file list, diff pane, and arrow-key navigation.

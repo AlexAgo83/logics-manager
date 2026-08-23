@@ -3205,8 +3205,12 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self._send_json({"ok": True, "payload": payload})
             return True
         if route == "/api/git-commit-diff":
-            ref = parse_qs(parsed.query).get("ref", [""])[0]
-            self._send_json({"ok": True, "payload": git_commit_diff_payload(self.server.repo_root, ref)})
+            params = parse_qs(parsed.query)
+            ref = params.get("ref", [""])[0]
+            self._send_json({"ok": True, "payload": git_commit_diff_payload(self.server.repo_root, ref, path=params.get("path", [""])[0])})
+            return True
+        if route == "/api/review-bursts":
+            self._send_json({"ok": True, "payload": review_bursts_payload(self.server.repo_root)})
             return True
         if route == "/api/git-file-preview":
             params = parse_qs(parsed.query)
@@ -4393,4 +4397,5 @@ from .viewer_git import (  # noqa: E402,F401  (re-exported for backward compatib
     git_status_payload,
     github_repo_url,
     gitlab_repo_url,
+    review_bursts_payload,
 )

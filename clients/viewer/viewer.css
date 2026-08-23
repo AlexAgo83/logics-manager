@@ -4892,6 +4892,10 @@
   font-weight: 600;
 }
 
+.viewer-review__burst--working .viewer-review__burst-label {
+  color: var(--vscode-editorWarning-foreground, #d29922);
+}
+
 .viewer-review__burst.is-active,
 .viewer-review__file.is-active {
   border-color: var(--vscode-focusBorder, #007fd4);

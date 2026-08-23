@@ -659,7 +659,7 @@ function browserExerciseScript(name) {
           name: "board",
           // The SCREENS pass above leaves a document screen open over the board, so the
           // close control runs before the mode toggle.
-          steps: ["#viewer-document-close", "#activity-toggle"],
+          steps: ["#viewer-document-close", "[data-viewer-surface='project']"],
           // At the narrow viewport the board is a list, which is the same surface drawn for
           // the width -- the check must accept either rather than skipping the viewport.
           proof: ".column, .list-view__section"

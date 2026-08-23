@@ -1,12 +1,13 @@
 ## req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on - Repair the Review slot and Explorer delivery against the acceptance criteria they closed on
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: High
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-08-23 15:14:51
 
 # AI Context
 - Summary: Repairs thirteen defects the post-closeout review found in the delivered Review slot and Explorer rework, four of which contradict criteria recorded as proven.

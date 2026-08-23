@@ -1,14 +1,14 @@
 ## item_868_fix_review_timeline_keyboard_navigation - Fix Review timeline keyboard navigation
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 92%
 > Confidence: 88%
-> Progress: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 14:51:20
+> Indicators reviewed: 2026-08-23 15:14:52
 
 # AI Context
 - Summary: Makes Review's arrow keys work past the first press and follow focus rather than selection.
@@ -56,3 +56,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_396_orchestrate_the_review_and_explorer_repair`
+
+# Notes
+- Task `task_396_orchestrate_the_review_and_explorer_repair` was finished via `logics-manager flow finish task` on 2026-08-23.

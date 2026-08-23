@@ -1,14 +1,14 @@
 ## item_866_unify_the_viewer_surface_state_across_the_shared_web_client - Unify the viewer surface state across the shared web client
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 92%
 > Confidence: 88%
-> Progress: 90%
+> Progress: 100%
 > Complexity: High
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 14:51:20
+> Indicators reviewed: 2026-08-23 15:14:52
 
 # AI Context
 - Summary: Unifies the two competing surface states so the Activity panel stops returning over Review on the next render.
@@ -60,3 +60,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_396_orchestrate_the_review_and_explorer_repair`
+
+# Notes
+- Task `task_396_orchestrate_the_review_and_explorer_repair` was finished via `logics-manager flow finish task` on 2026-08-23.

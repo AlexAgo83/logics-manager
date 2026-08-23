@@ -207,10 +207,10 @@
       <div class="toolbar__search">
         <input id="search-input" class="toolbar__search-input" type="search" placeholder="Search docs" aria-label="Search docs" />
       </div>
-      <div class="toolbar__view" role="group" aria-label="Viewer section">
-        <button class="toolbar__view-option" id="activity-toggle" type="button" data-viewer-surface="activity" aria-label="Show recent activity" aria-pressed="false" title="Show recent activity">Activity</button>
-        <button class="toolbar__view-option is-active" type="button" data-viewer-surface="project" aria-label="Show project" aria-pressed="true" title="Show project">Project</button>
-        <button class="toolbar__view-option" type="button" data-viewer-surface="review" aria-label="Show review timeline" aria-pressed="false" title="Show review timeline">Review</button>
+      <div class="toolbar__view" role="tablist" aria-label="Viewer section">
+        <button class="toolbar__view-option" id="activity-toggle" type="button" role="tab" data-viewer-surface="activity" aria-label="Show recent activity" aria-selected="false" title="Show recent activity">Activity</button>
+        <button class="toolbar__view-option is-active" type="button" role="tab" data-viewer-surface="project" aria-label="Show project" aria-selected="true" title="Show project">Project</button>
+        <button class="toolbar__view-option" type="button" role="tab" data-viewer-surface="review" aria-label="Show review timeline" aria-selected="false" title="Show review timeline">Review</button>
       </div>
     </div>
     <div class="filter-panel viewer-filter-panel" id="filter-panel" aria-hidden="true" role="group" aria-label="View controls" hidden>
@@ -334,6 +334,7 @@
     <main class="layout__main" id="layout-main">
       <div class="board" id="board"></div>
       <aside class="activity-panel" id="activity-panel" aria-label="Activity"></aside>
+      <section class="review-panel" id="review-panel" aria-label="Review"></section>
     </main>
     <div class="splitter" id="splitter" role="separator" aria-orientation="horizontal" aria-label="Resize details panel" tabindex="0"></div>
     <aside class="details" id="details">

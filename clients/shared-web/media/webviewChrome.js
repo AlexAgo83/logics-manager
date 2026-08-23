@@ -738,17 +738,15 @@
         document.body?.classList.toggle("viewer-screen-review", surface === "review");
         activityToggle.classList.toggle("btn--active", activityOpen);
         activityToggle.dataset.currentMode = surface;
-        activityToggle.setAttribute("aria-pressed", String(activityOpen));
-        activityToggle.setAttribute(
-          "aria-label",
-          activityOpen ? "Hide recent activity" : "Show recent activity"
-        );
-        activityToggle.title = activityOpen ? "Hide recent activity" : "Show recent activity";
+        activityToggle.setAttribute("aria-label", "Show recent activity");
+        activityToggle.title = "Show recent activity";
         document.querySelectorAll("[data-viewer-surface]").forEach((node) => {
           if (node instanceof HTMLElement) {
             const active = node.getAttribute("data-viewer-surface") === surface;
             node.classList.toggle("is-active", active);
-            node.setAttribute("aria-pressed", String(active));
+            // item_873: one of three, not three toggles.
+            node.setAttribute("aria-selected", String(active));
+            node.removeAttribute("aria-pressed");
           }
         });
       }

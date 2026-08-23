@@ -8,6 +8,7 @@
 > Complexity: Medium
 > Theme: Viewer explorer
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-08-23 15:40:54
 
 # AI Context
 - Summary: Fixes the selected row that a grid-placed pseudo-element breaks, and the detail pane that scrolls sideways under its own header.
@@ -38,13 +39,14 @@
 - AC4: The pane header stays fixed while the body scrolls, in both raw and markdown preview modes.
 - AC5: The layout holds at 1440x900, 820x1180 and 390x844.
 - AC6: Browser-host tests cover the selected-row markup.
+- AC7: The bundle is regenerated and `npm run check:viewer-host`, the targeted vitest checks and `npm run test:viewer-smoke` pass for this slice.
 
 # AC Traceability
 - request-AC4 -> This backlog slice. Proof: AC1: The selected row keeps the icon column, one line, and an ellipsis rather than a wrap. Also: AC2: The selection cue is visible and adds no grid item to the row.
 - request-AC5 -> This backlog slice. Proof: AC3: The detail pane never scrolls horizontally; wide content scrolls inside its own block. Also: AC4: The pane header stays fixed while the body scrolls, in both raw and markdown preview modes.
 - request-AC8 -> This backlog slice. Proof: AC5: The layout holds at 1440x900, 820x1180 and 390x844.
 - request-AC9 -> This backlog slice. Proof: AC6: Browser-host tests cover the selected-row markup.
-- request-AC11 -> This backlog slice. Proof: AC6: Browser-host tests cover the selected-row markup.
+- request-AC11 -> This backlog slice. Proof: AC7: The bundle is regenerated and `npm run check:viewer-host`, the targeted vitest checks and `npm run test:viewer-smoke` pass for this slice.
 
 # Decision framing
 - Product framing: Not needed

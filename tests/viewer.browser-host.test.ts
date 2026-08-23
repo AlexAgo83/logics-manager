@@ -162,9 +162,9 @@ function createViewerDom(options: {
     <button id="activity-clear" type="button">Clear activity</button>
     <button id="filter-toggle" type="button">Filters</button>
     <div class="toolbar__view">
-      <button id="activity-toggle" type="button" data-viewer-surface="activity" aria-pressed="false">Activity</button>
-      <button type="button" data-viewer-surface="project" aria-pressed="true">Project</button>
-      <button type="button" data-viewer-surface="review" aria-pressed="false">Review</button>
+      <button id="activity-toggle" type="button" role="tab" data-viewer-surface="activity" aria-selected="false">Activity</button>
+      <button type="button" role="tab" data-viewer-surface="project" aria-selected="true">Project</button>
+      <button type="button" role="tab" data-viewer-surface="review" aria-selected="false">Review</button>
     </div>
     <div id="focus-menu">
       <button id="focus-menu-toggle" type="button" aria-expanded="false" aria-controls="focus-menu-options"><span id="focus-menu-label">Active work</span></button>
@@ -266,6 +266,7 @@ function createViewerDom(options: {
     </div>
     <div id="viewer-minimized-dock" hidden></div>
     <aside id="activity-panel" hidden></aside>
+      <section id="review-panel"></section>
   </body></html>`;
   const dom = new JSDOM(html, { runScripts: "outside-only", url: options.url || "http://127.0.0.1:8765/" });
   Object.defineProperty(dom.window.document, "hidden", { configurable: true, value: Boolean(options.hidden) });
@@ -2285,8 +2286,53 @@ describe("local viewer browser host", () => {
     expect(interactions).toContain('!activityToggle.hasAttribute("data-viewer-surface")');
     expect(host).toContain("if (current === next)");
     expect(host).toContain('document.body?.classList.toggle("viewer-screen-document", Boolean(open))');
-    expect(source).toContain("Hide recent activity");
     expect(source).toContain("Show recent activity");
+    // item_873: one of three, so the options carry aria-selected, not aria-pressed.
+    expect(source).toContain('node.setAttribute("aria-selected", String(active))');
+    // item_871: Review renders into the main pane, never through the screen overlay.
+    expect(host).toContain('setSurfacePanel("review-panel"');
+    expect(host).not.toContain('setDocument("Review"');
+  });
+
+  it("drives the main-pane regions from the surface body class so a re-render cannot undo them", () => {
+    // item_871: mainCore re-asserts board.hidden and webviewChrome re-asserts
+    // activityPanel.hidden on every render they own, so a JS assignment from the host
+    // would be overwritten. The body class survives those renders; CSS reads it.
+    const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
+    const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
+    expect(html).toContain('<section class="review-panel" id="review-panel"');
+    expect(html.indexOf('id="review-panel"')).toBeGreaterThan(html.indexOf('class="layout__main"'));
+    expect(html.indexOf('id="review-panel"')).toBeLessThan(html.indexOf("</main>"));
+    expect(css).toContain(".viewer-screen-review #review-panel");
+    expect(css).toMatch(/\.viewer-screen-review #board,[\s\S]*?display: none !important/);
+  });
+
+  it("keeps the selected Explorer row on one line and its detail pane on one axis", () => {
+    // item_872: the cue used to be a ::before at grid-column 1, the icon's cell, which
+    // pushed the name onto a clipped second row.
+    const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
+    expect(css).toContain(".viewer-workspace__item.is-selected {\n  box-shadow: inset 3px 0 0 currentColor;");
+    expect(css).not.toContain(".viewer-workspace__item.is-selected::before");
+    const preview = css.slice(css.indexOf(".viewer-workspace__preview {\n  display: grid;"));
+    expect(preview).toContain("overflow-y: auto;");
+    expect(preview).toContain("overflow-x: hidden;");
+  });
+
+  it("renders the three surfaces as one segmented tab list", () => {
+    // item_873: three bordered buttons with the toolbar's primary fill read as three
+    // actions rather than one choice.
+    const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
+    const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
+    expect(html).toContain('<div class="toolbar__view" role="tablist"');
+    expect(html.match(/data-viewer-surface="(activity|project|review)"[^>]*role="tab"|role="tab"[^>]*data-viewer-surface="(activity|project|review)"/g)?.length).toBe(3);
+    expect(html).not.toContain('data-viewer-surface="review" aria-label="Show review timeline" aria-pressed');
+    const group = css.slice(css.indexOf(".toolbar__view {"), css.indexOf(".toolbar__view-label"));
+    expect(group).toContain("border: 1px solid");
+    expect(group).not.toContain("gap: 6px");
+    const activeStart = css.indexOf(".toolbar__view-option.is-active {");
+    const option = css.slice(activeStart, css.indexOf("}", activeStart));
+    expect(option).not.toContain("--vscode-button-background");
+    expect(option).toContain("box-shadow: inset 0 -2px 0");
   });
 
   it("declares the responsive viewer breakpoints and their collapse rules", () => {
@@ -6671,10 +6717,13 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
     await flushViewerAsync();
 
-    let content = dom.window.document.getElementById("viewer-document-content");
+    let content = dom.window.document.getElementById("review-panel");
     expect(calls).toContain("/api/review-bursts");
     expect(dom.window.document.body.classList.contains("viewer-screen-review")).toBe(true);
-    expect(dom.window.document.querySelector('[data-viewer-surface="review"]')?.getAttribute("aria-pressed")).toBe("true");
+    expect(dom.window.document.querySelector('[data-viewer-surface="review"]')?.getAttribute("aria-selected")).toBe("true");
+    // item_871: the screen overlay stays closed; Review is a surface, not a screen.
+    expect((dom.window.document.getElementById("viewer-document") as HTMLElement | null)?.hidden).toBe(true);
+    expect(dom.window.document.getElementById("viewer-document-content")?.textContent || "").not.toContain("Working tree");
     expect(content?.textContent).toContain("Working tree");
     expect(content?.textContent).toContain("Demo commit");
     expect(calls).toContain("/api/review-burst-files?kind=working-tree");
@@ -6684,7 +6733,7 @@ describe("local viewer browser host", () => {
     await flushViewerAsync();
     await flushViewerAsync();
 
-    content = dom.window.document.getElementById("viewer-document-content");
+    content = dom.window.document.getElementById("review-panel");
     expect(calls).toContain("/api/review-burst-files?kind=commit&ref=abc1234");
     expect(calls).toContain("/api/git-commit-diff?ref=abc1234&path=src%2Fdemo.ts");
     expect(content?.querySelector(".viewer-git__diff-meta")?.textContent).toContain("src/demo.ts");
@@ -6692,7 +6741,7 @@ describe("local viewer browser host", () => {
 
     (content?.querySelector('[data-viewer-review-burst="commit:abc1234"]') as HTMLElement | null)?.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
     await flushViewerAsync();
-    const refreshedContent = dom.window.document.getElementById("viewer-document-content");
+    const refreshedContent = dom.window.document.getElementById("review-panel");
     expect((refreshedContent?.querySelector('[data-viewer-review-burst="working-tree"]') as HTMLElement | null)?.classList.contains("is-active")).toBe(true);
   });
 

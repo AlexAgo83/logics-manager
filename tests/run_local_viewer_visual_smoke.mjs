@@ -649,6 +649,18 @@ function browserExerciseScript(name) {
             ? (document.getElementById("viewer-document-title")?.textContent || "").trim()
             : surface.proof
         });
+        // item_871: a surface renders in the main pane. Naming what must NOT be on screen
+        // is how the campaign tells a surface from a screen -- Review shipped inside the
+        // screen overlay and every behavioural check still passed.
+        if (surface.absent) {
+          const intruder = Array.from(document.querySelectorAll(surface.absent))
+            .find((node) => node instanceof HTMLElement && node.offsetParent !== null);
+          checks.push({
+            name: surface.name + ": renders in the main pane",
+            verdict: intruder ? "failed" : "ok",
+            measured: intruder ? "visible " + surface.absent : "no visible " + surface.absent
+          });
+        }
         return true;
       };
 
@@ -680,7 +692,8 @@ function browserExerciseScript(name) {
         {
           name: "review timeline",
           steps: ["[data-viewer-surface='review']"],
-          proof: "[data-viewer-review]",
+          proof: "#review-panel [data-viewer-review]",
+          absent: "#viewer-document",
           timeoutMs: 90000
         },
 

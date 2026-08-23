@@ -617,11 +617,17 @@
 
 /* Activity/Project section toggle rendered as a slider beside the search bar.
    Project still uses the separate board/list mode button in the filter group. */
+/* item_873: three separately bordered buttons with the toolbar's primary fill on the
+   selected one read as three actions, and the current surface read as a call to action.
+   One container, flush options, and a selected surface quieter than a primary button. */
 .toolbar__view {
   display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  align-items: stretch;
   flex: 0 0 auto;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--vscode-input-background, #2a2a2a);
 }
 
 .toolbar__view-label {
@@ -632,25 +638,39 @@
 .toolbar__view-option {
   min-width: 58px;
   height: 24px;
-  border: 1px solid var(--vscode-panel-border, #333333);
-  border-radius: 3px;
-  padding: 0 8px;
-  background: var(--vscode-input-background, #2a2a2a);
-  color: var(--vscode-foreground, #dddddd);
+  border: 0;
+  border-left: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 0;
+  padding: 0 10px;
+  background: transparent;
+  color: var(--vscode-descriptionForeground, #aaaaaa);
   font: inherit;
   font-size: 11px;
   cursor: pointer;
 }
 
+.toolbar__view-option:first-child {
+  border-left: 0;
+}
+
+.toolbar__view-option:hover:not(.is-active) {
+  background: var(--vscode-list-hoverBackground, rgb(255 255 255 / 6%));
+  color: var(--vscode-foreground, #dddddd);
+}
+
+/* The selected option is a raised tab surface, not a primary action: the toolbar's
+   Workshop/Remote/CDX/Settings buttons own that fill. The weight and the inset rule
+   are the non-colour cue. */
 .toolbar__view-option.is-active {
-  border-color: var(--vscode-focusBorder, #007fd4);
-  background: var(--vscode-button-background, #0e639c);
-  color: var(--vscode-button-foreground, #ffffff);
+  background: var(--vscode-tab-activeBackground, var(--vscode-editor-background, #1e1e1e));
+  color: var(--vscode-foreground, #ffffff);
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--vscode-focusBorder, #007fd4);
 }
 
 .toolbar__view-option:focus-visible {
   outline: 1px solid var(--vscode-focusBorder, #007fd4);
-  outline-offset: 1px;
+  outline-offset: -1px;
 }
 
 .toolbar__mode-button {
@@ -2405,12 +2425,23 @@
   overflow: hidden;
 }
 
+/* item_872: `overflow: auto` scrolled both axes while `position: sticky` pins only the
+   vertical one, so a wide line slid the header out from under its own background. The
+   pane scrolls vertically; wide content scrolls inside its own block. */
 .viewer-workspace__preview {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   align-content: stretch;
   gap: 0;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.viewer-workspace__preview .viewer-code,
+.viewer-workspace__preview .viewer-workspace__code,
+.viewer-workspace__preview .viewer-workspace__markdown {
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .viewer-workspace__tree-header {
@@ -2512,15 +2543,11 @@
   color: var(--vscode-list-activeSelectionForeground, #ffffff);
 }
 
-.viewer-workspace__item.is-selected::before {
-  content: "";
-  width: 3px;
-  height: 100%;
-  min-height: 18px;
-  grid-row: 1;
-  grid-column: 1;
-  border-radius: 999px;
-  background: currentColor;
+/* item_872: this cue used to be a ::before placed at grid-column 1, which is the icon's
+   cell. The icon was pushed to column two and the name wrapped to a clipped second row.
+   An inset shadow paints the same bar without adding a grid item. */
+.viewer-workspace__item.is-selected {
+  box-shadow: inset 3px 0 0 currentColor;
 }
 
 .viewer-workspace__item.is-selected .viewer-workspace__item-icon {
@@ -7357,4 +7384,34 @@
 
 .viewer-mcp-step--met strong {
   color: var(--vscode-testing-iconPassed, #4ec9b0);
+}
+
+
+/* item_871: Review is a surface, not a screen. It renders into #review-panel inside
+   layout__main, beside the board and the activity panel. Visibility is driven from the
+   body class rather than from `hidden`, because mainCore re-asserts `board.hidden` and
+   webviewChrome re-asserts `activityPanel.hidden` on every render they own. */
+.review-panel {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px;
+  display: none;
+}
+
+.viewer-screen-review #review-panel {
+  display: block;
+}
+
+.viewer-screen-review #board,
+.viewer-screen-review #activity-panel,
+.viewer-screen-review #details,
+.viewer-screen-review #splitter {
+  display: none !important;
+}
+
+.viewer-screen-activity #review-panel,
+.viewer-screen-project #review-panel {
+  display: none;
 }

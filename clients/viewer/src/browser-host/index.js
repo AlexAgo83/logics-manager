@@ -297,6 +297,7 @@ import {
     isViewStale,
     meta,
     setDocument,
+    setSurfacePanel,
     setDropdownOpen,
     setMeta,
     updateCapabilityControls,
@@ -956,7 +957,10 @@ import {
       if (node instanceof HTMLElement) {
         const active = node.getAttribute("data-viewer-surface") === next;
         node.classList.toggle("is-active", active);
-        node.setAttribute("aria-pressed", String(active));
+        // item_873: three mutually exclusive options are a tab list, so the state is
+        // aria-selected. aria-pressed would announce three independent toggles.
+        node.setAttribute("aria-selected", String(active));
+        node.removeAttribute("aria-pressed");
       }
     });
     if (next === "activity") {
@@ -2664,6 +2668,16 @@ import {
 
   //: The loading panel's elapsed counter, cleared whenever a document replaces it.
   let screenLoadingTimer = null;
+
+  // item_871: Review is a surface, not a screen. `setDocument` fills `.viewer-document`,
+  // the fixed overlay with its own Refresh/Minimize/Close chrome; this fills the region
+  // that sits in `layout__main` beside the board and the activity panel.
+  function setSurfacePanel(id, html) {
+    const panel = document.getElementById(id);
+    if (!(panel instanceof HTMLElement)) return null;
+    panel.innerHTML = html;
+    return panel;
+  }
 
   function setDocument(titleText, html, options = {}) {
     stopScreenLoadingTimer();

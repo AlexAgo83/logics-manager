@@ -2,8 +2,8 @@
 > From version: 2.22.4
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 92%
-> Confidence: 88%
+> Understanding: 94%
+> Confidence: 82%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Implementation delivery
@@ -23,13 +23,14 @@
 - [ ] 1. Start with the backend Review payload and committed-file diff endpoint, reusing `viewer_git.py` safety and truncation helpers.
 - [ ] 2. Add focused Python coverage for review burst construction and committed-file diff edge cases.
 - [ ] 3. Wire the `Review` slot into the existing viewer navigation and browser-host screen router.
-- [ ] 4. Expand the Activity/Project surface switcher into Activity/Project/Review, with a phone fallback that uses the existing compact menu/sheet behavior instead of wrapping controls.
+- [ ] 4. Replace the `#activity-toggle` pill slider with a segmented Activity/Project/Review control and migrate the boolean surface state to a tri-state across its seventeen call sites, with a phone fallback that uses the existing compact menu/sheet behavior instead of wrapping controls.
 - [ ] 5. Build the burst rail, file list, diff pane, responsive layout, empty states, and arrow-key selection in the shared viewer source with the smallest CSS needed.
 - [ ] 6. Add browser-host tests for render states, selection, keyboard navigation, diff fetches, and key-handler scoping against modals, text inputs, and the existing document-level shortcuts.
 - [ ] 7. Add Review to the existing visual campaign or equivalent layout harness at desktop, tablet, and phone widths.
 - [ ] 8. Regenerate the browser host bundle, run targeted checks, then validate the Logics docs and close out.
 - [ ] ADR 009 checkpoint: update affected Logics docs during each meaningful wave and leave the repo commit-ready.
 - [ ] Keep commit creation under operator control; do not force one commit per micro-step.
+- [ ] Sequencing: `task_395` edits the same four files (`browser-host/index.js`, `render.js`, `viewer.css`, and the generated `clients/viewer/browser-host.js`). Run the two tasks one after the other, not in parallel; the generated bundle conflicts on every concurrent rebuild.
 - [ ] GATE: do not close until lint, audit, and scaffold validation pass.
 
 # Backlog

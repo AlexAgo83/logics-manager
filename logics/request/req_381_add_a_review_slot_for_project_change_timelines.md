@@ -7,7 +7,7 @@
 > Complexity: High
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 14:31:21
+> Indicators reviewed: 2026-08-23 16:24:53
 
 # AI Context
 - Summary: Adds a Review viewer slot that turns local Git changes into a horizontal burst timeline with vertical per-file review and a shared diff pane.
@@ -38,7 +38,7 @@
 
 # Acceptance criteria
 - AC1: The two-state slider is replaced by a three-choice Activity/Project/Review control and every reader of the old boolean surface state moves to the tri-state, with Review reachable at desktop, tablet, and phone widths without displacing Workshop, Remote, CDX, Corpus, Settings, or Diagnostics access.
-- AC2: Opening Review in a Git repository shows a horizontal burst timeline with `Uncommitted changes` first when the working tree is dirty, followed by recent commits in reverse chronological order.
+- AC2: (Superseded by `req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane` AC6, which puts the oldest commit leftmost and the working tree between the newest commit and the future placeholders.) Opening Review in a Git repository shows a horizontal burst timeline with `Uncommitted changes` first when the working tree is dirty, followed by recent commits in reverse chronological order.
 - AC3: Selecting a burst shows a vertical list of files changed in that burst, including path, change kind, and line change counts when Git reports them.
 - AC4: Selecting a working-tree file renders the existing bounded working-tree or staged diff/file preview in the main diff pane.
 - AC5: Selecting a committed file renders only that file's diff for the selected commit, not the whole commit patch, using the existing code viewer styling.

@@ -1,0 +1,329 @@
+{
+  "budgets": {
+    "max_docs": 20,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane item_874_anchor_the_review_rail_and_make_its_tiles_a_past_to_future_timeline item_875_give_review_file_rows_a_name_first_layout_with_corner_badges item_876_factor_one_list_and_detail_pattern_and_put_the_review_diff_on_it task_398_orchestrate_the_review_timeline_reading_ergonomics --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_874_anchor_the_review_rail_and_make_its_tiles_a_past_to_future_timeline",
+          "item_875_give_review_file_rows_a_name_first_layout_with_corner_badges",
+          "item_876_factor_one_list_and_detail_pattern_and_put_the_review_diff_on_it"
+        ],
+        "prod": [
+          "prod_115_a_review_timeline_that_reads_like_a_timeline"
+        ],
+        "req": [
+          "req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane"
+        ],
+        "task": [
+          "task_398_orchestrate_the_review_timeline_reading_ergonomics"
+        ]
+      },
+      "path": "logics/product/prod_115_a_review_timeline_that_reads_like_a_timeline.md",
+      "ref": "prod_115_a_review_timeline_that_reads_like_a_timeline",
+      "status": "Proposed",
+      "title": "A Review timeline that reads like a timeline"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "review, timeline, readable, anchored, rail, denser, tiles, shared, split, pane",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_874_anchor_the_review_rail_and_make_its_tiles_a_past_to_future_timeline",
+          "item_875_give_review_file_rows_a_name_first_layout_with_corner_badges",
+          "item_876_factor_one_list_and_detail_pattern_and_put_the_review_diff_on_it"
+        ],
+        "prod": [
+          "prod_115_a_review_timeline_that_reads_like_a_timeline"
+        ],
+        "req": [
+          "req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane"
+        ]
+      },
+      "path": "logics/request/req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane.md",
+      "ref": "req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Make the Review timeline readable: an anchored rail, denser tiles, and the shared split-pane"
+    },
+    {
+      "ai_context": {
+        "keywords": "anchor, review, rail, tiles, past, future, timeline",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_874_anchor_the_review_rail_and_make_its_tiles_a_past_to_future_timeline"
+        ],
+        "prod": [
+          "prod_115_a_review_timeline_that_reads_like_a_timeline"
+        ],
+        "req": [
+          "req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane"
+        ],
+        "task": [
+          "task_398_orchestrate_the_review_timeline_reading_ergonomics"
+        ]
+      },
+      "path": "logics/backlog/item_874_anchor_the_review_rail_and_make_its_tiles_a_past_to_future_timeline.md",
+      "ref": "item_874_anchor_the_review_rail_and_make_its_tiles_a_past_to_future_timeline",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Anchor the Review rail and make its tiles a past-to-future timeline"
+    },
+    {
+      "ai_context": {
+        "keywords": "review, file, rows, name, first, layout, corner, badges",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_875_give_review_file_rows_a_name_first_layout_with_corner_badges"
+        ],
+        "prod": [
+          "prod_115_a_review_timeline_that_reads_like_a_timeline"
+        ],
+        "req": [
+          "req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane"
+        ],
+        "task": [
+          "task_398_orchestrate_the_review_timeline_reading_ergonomics"
+        ]
+      },
+      "path": "logics/backlog/item_875_give_review_file_rows_a_name_first_layout_with_corner_badges.md",
+      "ref": "item_875_give_review_file_rows_a_name_first_layout_with_corner_badges",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Give Review file rows a name-first layout with corner badges"
+    },
+    {
+      "ai_context": {
+        "keywords": "factor, list, detail, pattern, put, review, diff",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_876_factor_one_list_and_detail_pattern_and_put_the_review_diff_on_it"
+        ],
+        "prod": [
+          "prod_115_a_review_timeline_that_reads_like_a_timeline"
+        ],
+        "req": [
+          "req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane"
+        ],
+        "task": [
+          "task_398_orchestrate_the_review_timeline_reading_ergonomics"
+        ]
+      },
+      "path": "logics/backlog/item_876_factor_one_list_and_detail_pattern_and_put_the_review_diff_on_it.md",
+      "ref": "item_876_factor_one_list_and_detail_pattern_and_put_the_review_diff_on_it",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Factor one list-and-detail pattern and put the Review diff on it"
+    },
+    {
+      "ai_context": {
+        "keywords": "orchestrate, review, timeline, reading, ergonomics",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_874_anchor_the_review_rail_and_make_its_tiles_a_past_to_future_timeline",
+          "item_875_give_review_file_rows_a_name_first_layout_with_corner_badges",
+          "item_876_factor_one_list_and_detail_pattern_and_put_the_review_diff_on_it"
+        ],
+        "prod": [
+          "prod_115_a_review_timeline_that_reads_like_a_timeline"
+        ],
+        "req": [
+          "req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane"
+        ],
+        "task": [
+          "task_398_orchestrate_the_review_timeline_reading_ergonomics"
+        ]
+      },
+      "path": "logics/tasks/task_398_orchestrate_the_review_timeline_reading_ergonomics.md",
+      "ref": "task_398_orchestrate_the_review_timeline_reading_ergonomics",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrate the Review timeline reading ergonomics"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_874_anchor_the_review_rail_and_make_its_tiles_a_past_to_future_timeline",
+          "item_875_give_review_file_rows_a_name_first_layout_with_corner_badges",
+          "item_876_factor_one_list_and_detail_pattern_and_put_the_review_diff_on_it"
+        ],
+        "prod": [
+          "prod_115_a_review_timeline_that_reads_like_a_timeline"
+        ],
+        "req": [
+          "req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane"
+        ],
+        "task": [
+          "task_398_orchestrate_the_review_timeline_reading_ergonomics"
+        ]
+      },
+      "path": "logics/product/prod_115_a_review_timeline_that_reads_like_a_timeline.md",
+      "ref": "prod_115_a_review_timeline_that_reads_like_a_timeline",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "A Review timeline that reads like a timeline"
+    }
+  ],
+  "estimates": {
+    "char_count": 6537,
+    "companion_doc_count": 1,
+    "doc_count": 6
+  },
+  "generated_at": "2026-08-23T14:24:10Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane",
+      "item_874_anchor_the_review_rail_and_make_its_tiles_a_past_to_future_timeline",
+      "item_875_give_review_file_rows_a_name_first_layout_with_corner_badges",
+      "item_876_factor_one_list_and_detail_pattern_and_put_the_review_diff_on_it",
+      "task_398_orchestrate_the_review_timeline_reading_ergonomics"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane,item_874_anchor_the_review_rail_and_make_its_tiles_a_past_to_future_timeline,item_875_give_review_file_rows_a_name_first_layout_with_corner_badges,item_876_factor_one_list_and_detail_pattern_and_put_the_review_diff_on_it,task_398_orchestrate_the_review_timeline_reading_ergonomics",
+  "refs": [
+    "req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane",
+    "item_874_anchor_the_review_rail_and_make_its_tiles_a_past_to_future_timeline",
+    "item_875_give_review_file_rows_a_name_first_layout_with_corner_badges",
+    "item_876_factor_one_list_and_detail_pattern_and_put_the_review_diff_on_it",
+    "task_398_orchestrate_the_review_timeline_reading_ergonomics"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_id": null,
+    "target_version": "2.22.4",
+    "targets": []
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_398_orchestrate_the_review_timeline_reading_ergonomics.md",
+      "ref": "task_398_orchestrate_the_review_timeline_reading_ergonomics"
+    }
+  ]
+}

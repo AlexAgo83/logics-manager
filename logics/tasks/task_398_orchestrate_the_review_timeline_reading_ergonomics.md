@@ -1,13 +1,15 @@
 ## task_398_orchestrate_the_review_timeline_reading_ergonomics - Orchestrate the Review timeline reading ergonomics
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 94%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 90%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Owner: codex
+> Indicators reviewed: 2026-08-23 16:32:15
 
 # AI Context
 - Summary: Sequences the rail rebuild, the file rows and the shared split-pane factoring.

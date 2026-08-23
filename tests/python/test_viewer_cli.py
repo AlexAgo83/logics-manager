@@ -1621,6 +1621,8 @@ def test_viewer_review_bursts_payload_is_not_per_commit(tmp_path: Path) -> None:
     assert payload["bursts"][0]["fileCount"] == 2
     assert payload["bursts"][0]["additions"] == 4
     assert payload["bursts"][1]["ref"] == "abc1234"
+    assert payload["bursts"][1]["author"] == "Alex"
+    assert payload["bursts"][1]["timestamp"] == "2026-08-23T10:00:00+02:00"
     assert "files" not in payload["bursts"][1]
     assert not any(call[1] == "show" for call in calls)
     assert not any("push" in call or "fetch" in call or "pull" in call for call in calls for _ in [call])

@@ -1,14 +1,14 @@
 ## item_876_factor_one_list_and_detail_pattern_and_put_the_review_diff_on_it - Factor one list-and-detail pattern and put the Review diff on it
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 94%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 90%
 > Complexity: Medium
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 16:25:10
+> Indicators reviewed: 2026-08-23 16:32:15
 
 # AI Context
 - Summary: Defines the anchored list-and-detail rules once and puts both Review and the Explorer on them.

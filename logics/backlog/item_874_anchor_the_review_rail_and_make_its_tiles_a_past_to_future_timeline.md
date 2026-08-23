@@ -1,14 +1,14 @@
 ## item_874_anchor_the_review_rail_and_make_its_tiles_a_past_to_future_timeline - Anchor the Review rail and make its tiles a past-to-future timeline
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 94%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 90%
 > Complexity: High
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 16:25:10
+> Indicators reviewed: 2026-08-23 16:32:15
 
 # AI Context
 - Summary: Rebuilds the rail as an anchored, dense, oldest-to-newest timeline with ghost tiles and a centred initial scroll.

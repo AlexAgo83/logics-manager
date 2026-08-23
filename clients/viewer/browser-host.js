@@ -3252,19 +3252,34 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     const name = previewPayload.name || path || "/";
     const state = previewPayload.state || "unknown";
     if (state === "ok") {
+      const isMarkdown = String(previewPayload.contentType || "").includes("markdown") || /\.md(?:own)?$/i.test(path);
+      const storedMode = (() => {
+        try {
+          return window.localStorage.getItem("logics.workspaceMarkdownMode") || "";
+        } catch {
+          return "";
+        }
+      })();
+      const defaultMode = Number(previewPayload.size || 0) >= 100 * 1024 ? "raw" : "preview";
+      const markdownMode = storedMode === "raw" || storedMode === "preview" ? storedMode : defaultMode;
       const forceButtonHtml = previewPayload.canForce ? `<button class="btn viewer-code__force" type="button" data-viewer-workspace-preview-full="${escapeHtml(path)}">Load anyway</button>` : "";
-      return `
-        <div class="viewer-workspace__preview-header">
-          <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
-          <em>${escapeHtml(previewPayload.truncated ? "truncated" : `${previewPayload.size || 0} bytes`)}</em>
-        </div>
-        ${renderCodeViewer(previewPayload.content || "", {
+      const modeButtons = isMarkdown ? `<div class="viewer-workspace__preview-modes" role="group" aria-label="Markdown view">
+            ${["preview", "raw"].map((mode) => `<button class="viewer-cdx__mode${markdownMode === mode ? " is-active" : ""}" type="button" data-viewer-workspace-markdown-mode="${mode}" aria-pressed="${markdownMode === mode ? "true" : "false"}">${mode === "preview" ? "Preview" : "Raw"}</button>`).join("")}
+          </div>` : "";
+      const api = markdownApi();
+      const body = isMarkdown && markdownMode === "preview" ? `<div class="viewer-workspace__markdown markdown-preview">${api && typeof api.renderMarkdownToHtml === "function" ? api.renderMarkdownToHtml(previewPayload.content || "") : `<pre>${escapeHtml(previewPayload.content || "")}</pre>`}${forceButtonHtml}</div>` : renderCodeViewer(previewPayload.content || "", {
         language: detectHljsLanguage(path),
         lineCount: previewPayload.lineCount,
         truncated: Boolean(previewPayload.truncated),
         hardCapHit: Boolean(previewPayload.hardCapHit),
         forceButtonHtml
-      })}
+      });
+      return `
+        <div class="viewer-workspace__preview-header" data-viewer-workspace-preview-path="${escapeHtml(path)}">
+          <div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(path)}</span></div>
+          <div class="viewer-workspace__preview-actions">${modeButtons}<em>${escapeHtml(previewPayload.truncated ? "truncated" : `${previewPayload.size || 0} bytes`)}</em></div>
+        </div>
+        <div class="viewer-workspace__preview-body">${body}</div>
       `;
     }
     if (state === "oversized") {
@@ -3290,7 +3305,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       const entries = Array.isArray(previewPayload.entries) ? previewPayload.entries : [];
       const rows = entries.map((entry) => `
         <li class="viewer-workspace__dir-row${entry.ignored ? " viewer-workspace__dir-row--ignored" : ""}">
-          <button type="button" class="viewer-workspace__dir-entry" data-viewer-workspace-select="${escapeHtml(entry.path)}">
+          <button type="button" class="viewer-workspace__dir-entry" data-viewer-workspace-select="${escapeHtml(entry.path)}" data-viewer-workspace-select-kind="${escapeHtml(entry.kind || "file")}">
             <span class="viewer-workspace__dir-kind" aria-hidden="true">${entry.kind === "directory" ? "\u25B8" : "\xB7"}</span>
             <span class="viewer-workspace__dir-name">${escapeHtml(entry.name)}</span>
             <span class="viewer-workspace__dir-size">${entry.kind === "directory" ? "" : formatByteSize(entry.size)}</span>
@@ -12033,16 +12048,51 @@ ${shown.join("\n")}${files.length > shown.length ? `
       const container = document.querySelector("[data-viewer-workshop-explorer]");
       if (container instanceof HTMLElement) {
         container.innerHTML = renderWorkspace(tree, preview);
+        latestWorkspaceTreePayload = tree;
+        latestWorkspacePreviewPayload = preview;
       }
       setMeta(path ? `Explorer folder ${path}` : "Explorer root.");
+    }
+    let latestWorkspaceTreePayload = null;
+    let latestWorkspacePreviewPayload = null;
+    function updateWorkspaceSelection(path) {
+      document.querySelectorAll("[data-viewer-workspace-preview]").forEach((node) => {
+        if (node instanceof HTMLElement) {
+          const selected = node.getAttribute("data-viewer-workspace-preview") === path;
+          node.classList.toggle("is-selected", selected);
+          if (selected) {
+            node.setAttribute("aria-current", "true");
+          } else {
+            node.removeAttribute("aria-current");
+          }
+        }
+      });
+    }
+    function updateWorkspacePreviewPane(preview) {
+      latestWorkspacePreviewPayload = preview;
+      const pane = document.querySelector(".viewer-workspace__preview");
+      if (pane instanceof HTMLElement) {
+        pane.innerHTML = renderWorkspacePreview(preview);
+        pane.scrollTop = 0;
+      }
     }
     async function openWorkspacePreview(path, { full = false } = {}) {
       if (!document.querySelector("[data-viewer-workshop-explorer]")) return;
       const treePath = workspaceParentPath(path);
+      const currentTreePath = String(latestWorkspaceTreePayload?.path || "");
+      if (latestWorkspaceTreePayload && currentTreePath === treePath) {
+        const preview2 = await fetchWorkspacePreview(path, { full });
+        updateWorkspaceSelection(path);
+        updateWorkspacePreviewPane(preview2);
+        setMeta(full ? `Loaded full preview of ${path}.` : `Previewing ${path || "workspace root"}.`);
+        return;
+      }
       const [tree, preview] = await Promise.all([fetchWorkspaceTree(treePath), fetchWorkspacePreview(path, { full })]);
       const container = document.querySelector("[data-viewer-workshop-explorer]");
       if (container instanceof HTMLElement) {
         container.innerHTML = renderWorkspace(tree, preview);
+        latestWorkspaceTreePayload = tree;
+        latestWorkspacePreviewPayload = preview;
       }
       setMeta(full ? `Loaded full preview of ${path}.` : `Previewing ${path || "workspace root"}.`);
     }
@@ -12592,6 +12642,7 @@ ${shown.join("\n")}${files.length > shown.length ? `
         const workspacePreviewTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview]") : null;
         const workspaceSelectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-select]") : null;
         const workspacePreviewFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-preview-full]") : null;
+        const workspaceMarkdownModeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-markdown-mode]") : null;
         const workshopTabTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-tab]") : null;
         const workshopRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workshop-command-run]") : null;
         const fleetHomeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-fleet-home]") : null;
@@ -13050,9 +13101,24 @@ ${shown.join("\n")}${files.length > shown.length ? `
           withPrimaryAction("workspace-preview-full", "Loading full file", () => openWorkspacePreview(workspacePreviewFullTarget.getAttribute("data-viewer-workspace-preview-full") || "", { full: true }));
           return;
         }
+        if (workspaceMarkdownModeTarget instanceof HTMLElement) {
+          event.preventDefault();
+          try {
+            window.localStorage.setItem("logics.workspaceMarkdownMode", workspaceMarkdownModeTarget.getAttribute("data-viewer-workspace-markdown-mode") || "preview");
+          } catch {
+          }
+          const currentPath = document.querySelector("[data-viewer-workspace-preview-path]")?.getAttribute("data-viewer-workspace-preview-path") || "";
+          withPrimaryAction("workspace-markdown-mode", "Switching Markdown view", async () => {
+            const preview = latestWorkspacePreviewPayload || (currentPath ? await fetchWorkspacePreview(currentPath) : null);
+            if (preview) updateWorkspacePreviewPane(preview);
+          });
+          return;
+        }
         if (workspaceSelectTarget instanceof HTMLElement) {
           event.preventDefault();
-          withPrimaryAction("workspace-select", "Opening", () => openWorkspacePreview(workspaceSelectTarget.getAttribute("data-viewer-workspace-select") || ""));
+          const path2 = workspaceSelectTarget.getAttribute("data-viewer-workspace-select") || "";
+          const kind = workspaceSelectTarget.getAttribute("data-viewer-workspace-select-kind") || "file";
+          withPrimaryAction("workspace-select", "Opening", () => kind === "directory" ? openWorkspaceTree(path2) : openWorkspacePreview(path2));
           return;
         }
         if (workspacePreviewTarget instanceof HTMLElement) {

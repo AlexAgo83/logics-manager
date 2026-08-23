@@ -2294,7 +2294,9 @@
   grid-template-columns: minmax(180px, 260px) minmax(0, 1fr);
   gap: 12px;
   align-items: stretch;
-  min-height: 100%;
+  height: min(72vh, 760px);
+  min-height: 420px;
+  overflow: hidden;
 }
 
 /* item_758: a directory's preview is a listing now, not a count. Directories first,
@@ -2391,23 +2393,33 @@
 .viewer-workspace__tree,
 .viewer-workspace__preview {
   min-width: 0;
-  border: 1px solid var(--vscode-panel-border, #333333);
-  border-radius: 6px;
-  background: var(--vscode-editorWidget-background, #202020);
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.viewer-workspace__tree {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
 }
 
 .viewer-workspace__preview {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   align-content: stretch;
-  gap: 10px;
-  padding: 12px;
+  gap: 0;
+  overflow: auto;
 }
 
 .viewer-workspace__tree-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   padding: 6px 8px;
   border-bottom: 1px solid var(--vscode-panel-border, #333333);
-  background: var(--vscode-editorWidget-background, #202020);
+  background: var(--vscode-editor-background, #1e1e1e);
   color: var(--vscode-descriptionForeground, #aaaaaa);
   font-size: 11px;
   overflow-wrap: anywhere;
@@ -2460,8 +2472,10 @@
 
 .viewer-workspace__tree-list {
   display: grid;
+  align-content: start;
   gap: 1px;
   padding: 4px;
+  overflow: auto;
 }
 
 .viewer-workspace__item {
@@ -2496,6 +2510,17 @@
 .viewer-workspace__item.is-selected {
   background: var(--vscode-list-activeSelectionBackground, #094771);
   color: var(--vscode-list-activeSelectionForeground, #ffffff);
+}
+
+.viewer-workspace__item.is-selected::before {
+  content: "";
+  width: 3px;
+  height: 100%;
+  min-height: 18px;
+  grid-row: 1;
+  grid-column: 1;
+  border-radius: 999px;
+  background: currentColor;
 }
 
 .viewer-workspace__item.is-selected .viewer-workspace__item-icon {
@@ -2576,10 +2601,15 @@
 }
 
 .viewer-workspace__preview-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   display: flex;
   justify-content: space-between;
   gap: 12px;
   min-width: 0;
+  padding: 8px 0;
+  background: var(--vscode-editor-background, #1e1e1e);
 }
 
 .viewer-workspace__preview-header > div {
@@ -2600,6 +2630,29 @@
 .viewer-workspace__empty {
   color: var(--vscode-descriptionForeground, #aaaaaa);
   font-size: 12px;
+}
+
+.viewer-workspace__preview-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.viewer-workspace__preview-modes {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.viewer-workspace__preview-body {
+  min-height: 0;
+  overflow: visible;
+  padding-top: 2px;
+}
+
+.viewer-workspace__markdown {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .viewer-workspace__preview-notice {

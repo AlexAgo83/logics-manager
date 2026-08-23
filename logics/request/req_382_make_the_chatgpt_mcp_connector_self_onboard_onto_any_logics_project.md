@@ -1,13 +1,13 @@
 ## req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project - Make the ChatGPT MCP connector self-onboard onto any Logics project
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 92%
 > Confidence: 88%
 > Complexity: High
 > Theme: Connector onboarding
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 11:56:04
+> Indicators reviewed: 2026-08-23 12:58:12
 
 # AI Context
 - Summary: Add a first-call connector probe so ChatGPT can prove the active Logics project, work, recent activity, and readable sources before answering.

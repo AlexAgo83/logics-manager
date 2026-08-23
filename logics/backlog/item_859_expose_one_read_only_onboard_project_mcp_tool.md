@@ -1,14 +1,14 @@
 ## item_859_expose_one_read_only_onboard_project_mcp_tool - Expose one read-only onboard_project MCP tool
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 92%
 > Confidence: 88%
-> Progress: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Connector onboarding
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 12:40:54
+> Indicators reviewed: 2026-08-23 12:58:13
 
 # AI Context
 - Summary: Implement the minimal `onboard_project` MCP call by composing existing status, active-work, companion-doc, and context-pack metadata.
@@ -61,3 +61,9 @@
 # Priority
 - Priority: Medium
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_394_orchestrate_connector_project_onboarding_context`
+
+# Notes
+- Task `task_394_orchestrate_connector_project_onboarding_context` was finished via `logics-manager flow finish task` on 2026-08-23.

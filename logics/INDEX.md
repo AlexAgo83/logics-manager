@@ -153,7 +153,7 @@
 | [prod_108_checks_that_read_the_corpus_the_way_it_is_written](product/prod_108_checks_that_read_the_corpus_the_way_it_is_written.md) | Checks that read the corpus the way it is written | Settled |  |  | product/prod_108_checks_that_read_the_corpus_the_way_it_is_written.md |
 | [prod_109_trustworthy_closeout_and_release_contracts](product/prod_109_trustworthy_closeout_and_release_contracts.md) | Trustworthy closeout and release contracts | Settled |  |  | product/prod_109_trustworthy_closeout_and_release_contracts.md |
 | [prod_110_a_review_slot_for_project_change_timelines](product/prod_110_a_review_slot_for_project_change_timelines.md) | A Review slot for project change timelines | Proposed |  |  | product/prod_110_a_review_slot_for_project_change_timelines.md |
-| [prod_111_connector_project_onboarding_context](product/prod_111_connector_project_onboarding_context.md) | Connector project onboarding context | Proposed |  |  | product/prod_111_connector_project_onboarding_context.md |
+| [prod_111_connector_project_onboarding_context](product/prod_111_connector_project_onboarding_context.md) | Connector project onboarding context | Settled |  |  | product/prod_111_connector_project_onboarding_context.md |
 
 ## Roadmaps
 
@@ -552,7 +552,7 @@
 | [req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets](request/req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets.md) | Make release and closeout workflow contracts convergent across targets | Done |  |  | request/req_379_make_release_and_closeout_workflow_contracts_convergent_across_targets.md |
 | [req_380_review_findings_security_alert_triage_and_audit_coverage](request/req_380_review_findings_security_alert_triage_and_audit_coverage.md) | Review findings: security alert triage and audit coverage | Done |  |  | request/req_380_review_findings_security_alert_triage_and_audit_coverage.md |
 | [req_381_add_a_review_slot_for_project_change_timelines](request/req_381_add_a_review_slot_for_project_change_timelines.md) | Add a Review slot for project change timelines | Draft |  |  | request/req_381_add_a_review_slot_for_project_change_timelines.md |
-| [req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project](request/req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project.md) | Make the ChatGPT MCP connector self-onboard onto any Logics project | Draft |  |  | request/req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project.md |
+| [req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project](request/req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project.md) | Make the ChatGPT MCP connector self-onboard onto any Logics project | Done |  |  | request/req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project.md |
 
 ## Backlog
 
@@ -1416,10 +1416,10 @@
 | [item_856_review_findings_security_alert_triage_and_audit_coverage](backlog/item_856_review_findings_security_alert_triage_and_audit_coverage.md) | Review findings: security alert triage and audit coverage | Done |  | 100% | backlog/item_856_review_findings_security_alert_triage_and_audit_coverage.md |
 | [item_857_expose_review_bursts_from_local_git](backlog/item_857_expose_review_bursts_from_local_git.md) | Expose review bursts from local Git | Ready |  | 0% | backlog/item_857_expose_review_bursts_from_local_git.md |
 | [item_858_build_the_review_slot_timeline_ui](backlog/item_858_build_the_review_slot_timeline_ui.md) | Build the Review slot timeline UI | Ready |  | 0% | backlog/item_858_build_the_review_slot_timeline_ui.md |
-| [item_859_expose_one_read_only_onboard_project_mcp_tool](backlog/item_859_expose_one_read_only_onboard_project_mcp_tool.md) | Expose one read-only onboard_project MCP tool | In progress |  | 40% | backlog/item_859_expose_one_read_only_onboard_project_mcp_tool.md |
-| [item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions](backlog/item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions.md) | Add bounded project discovery and targeting for connector sessions | In progress |  | 40% | backlog/item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions.md |
-| [item_861_aggregate_recent_logics_and_git_activity_for_onboarding](backlog/item_861_aggregate_recent_logics_and_git_activity_for_onboarding.md) | Aggregate recent Logics and Git activity for onboarding | In progress |  | 40% | backlog/item_861_aggregate_recent_logics_and_git_activity_for_onboarding.md |
-| [item_862_expose_source_backed_project_context_search_and_resource_reads](backlog/item_862_expose_source_backed_project_context_search_and_resource_reads.md) | Expose source-backed project context search and resource reads | In progress |  | 40% | backlog/item_862_expose_source_backed_project_context_search_and_resource_reads.md |
+| [item_859_expose_one_read_only_onboard_project_mcp_tool](backlog/item_859_expose_one_read_only_onboard_project_mcp_tool.md) | Expose one read-only onboard_project MCP tool | Done |  | 100% | backlog/item_859_expose_one_read_only_onboard_project_mcp_tool.md |
+| [item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions](backlog/item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions.md) | Add bounded project discovery and targeting for connector sessions | Done |  | 100% | backlog/item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions.md |
+| [item_861_aggregate_recent_logics_and_git_activity_for_onboarding](backlog/item_861_aggregate_recent_logics_and_git_activity_for_onboarding.md) | Aggregate recent Logics and Git activity for onboarding | Done |  | 100% | backlog/item_861_aggregate_recent_logics_and_git_activity_for_onboarding.md |
+| [item_862_expose_source_backed_project_context_search_and_resource_reads](backlog/item_862_expose_source_backed_project_context_search_and_resource_reads.md) | Expose source-backed project context search and resource reads | Done |  | 100% | backlog/item_862_expose_source_backed_project_context_search_and_resource_reads.md |
 
 ## Tasks
 
@@ -1812,7 +1812,7 @@
 | [task_391_add_target_scoped_release_contracts_and_evidence](tasks/task_391_add_target_scoped_release_contracts_and_evidence.md) | Add target-scoped release contracts and evidence | Done | Codex | 100% | tasks/task_391_add_target_scoped_release_contracts_and_evidence.md |
 | [task_392_review_findings_security_alert_triage_and_audit_coverage](tasks/task_392_review_findings_security_alert_triage_and_audit_coverage.md) | Review findings: security alert triage and audit coverage | Done | codex | 100% | tasks/task_392_review_findings_security_alert_triage_and_audit_coverage.md |
 | [task_393_orchestrate_the_review_slot_change_timeline](tasks/task_393_orchestrate_the_review_slot_change_timeline.md) | Orchestrate the Review slot change timeline | Ready |  | 0% | tasks/task_393_orchestrate_the_review_slot_change_timeline.md |
-| [task_394_orchestrate_connector_project_onboarding_context](tasks/task_394_orchestrate_connector_project_onboarding_context.md) | Orchestrate connector project onboarding context | In progress | codex | 40% | tasks/task_394_orchestrate_connector_project_onboarding_context.md |
+| [task_394_orchestrate_connector_project_onboarding_context](tasks/task_394_orchestrate_connector_project_onboarding_context.md) | Orchestrate connector project onboarding context | Done | codex | 100% | tasks/task_394_orchestrate_connector_project_onboarding_context.md |
 
 ## Runbooks
 

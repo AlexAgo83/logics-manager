@@ -154,6 +154,7 @@
 | [prod_109_trustworthy_closeout_and_release_contracts](product/prod_109_trustworthy_closeout_and_release_contracts.md) | Trustworthy closeout and release contracts | Settled |  |  | product/prod_109_trustworthy_closeout_and_release_contracts.md |
 | [prod_110_a_review_slot_for_project_change_timelines](product/prod_110_a_review_slot_for_project_change_timelines.md) | A Review slot for project change timelines | Proposed |  |  | product/prod_110_a_review_slot_for_project_change_timelines.md |
 | [prod_111_connector_project_onboarding_context](product/prod_111_connector_project_onboarding_context.md) | Connector project onboarding context | Settled |  |  | product/prod_111_connector_project_onboarding_context.md |
+| [prod_112_an_anchored_explorer_with_a_readable_detail_pane](product/prod_112_an_anchored_explorer_with_a_readable_detail_pane.md) | An anchored Explorer with a readable detail pane | Proposed |  |  | product/prod_112_an_anchored_explorer_with_a_readable_detail_pane.md |
 
 ## Roadmaps
 
@@ -553,6 +554,7 @@
 | [req_380_review_findings_security_alert_triage_and_audit_coverage](request/req_380_review_findings_security_alert_triage_and_audit_coverage.md) | Review findings: security alert triage and audit coverage | Done |  |  | request/req_380_review_findings_security_alert_triage_and_audit_coverage.md |
 | [req_381_add_a_review_slot_for_project_change_timelines](request/req_381_add_a_review_slot_for_project_change_timelines.md) | Add a Review slot for project change timelines | Draft |  |  | request/req_381_add_a_review_slot_for_project_change_timelines.md |
 | [req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project](request/req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project.md) | Make the ChatGPT MCP connector self-onboard onto any Logics project | Done |  |  | request/req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project.md |
+| [req_383_rework_the_explorer_screen_into_an_anchored_file_list_with_an_independent_detail_pane](request/req_383_rework_the_explorer_screen_into_an_anchored_file_list_with_an_independent_detail_pane.md) | Rework the Explorer screen into an anchored file list with an independent detail pane | Draft |  |  | request/req_383_rework_the_explorer_screen_into_an_anchored_file_list_with_an_independent_detail_pane.md |
 
 ## Backlog
 
@@ -1420,6 +1422,8 @@
 | [item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions](backlog/item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions.md) | Add bounded project discovery and targeting for connector sessions | Done |  | 100% | backlog/item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions.md |
 | [item_861_aggregate_recent_logics_and_git_activity_for_onboarding](backlog/item_861_aggregate_recent_logics_and_git_activity_for_onboarding.md) | Aggregate recent Logics and Git activity for onboarding | Done |  | 100% | backlog/item_861_aggregate_recent_logics_and_git_activity_for_onboarding.md |
 | [item_862_expose_source_backed_project_context_search_and_resource_reads](backlog/item_862_expose_source_backed_project_context_search_and_resource_reads.md) | Expose source-backed project context search and resource reads | Done |  | 100% | backlog/item_862_expose_source_backed_project_context_search_and_resource_reads.md |
+| [item_863_anchor_the_explorer_list_and_split_its_scroll_from_the_detail](backlog/item_863_anchor_the_explorer_list_and_split_its_scroll_from_the_detail.md) | Anchor the Explorer list and split its scroll from the detail | Ready |  | 0% | backlog/item_863_anchor_the_explorer_list_and_split_its_scroll_from_the_detail.md |
+| [item_864_add_a_markdown_raw_and_preview_switch_to_the_explorer_detail_header](backlog/item_864_add_a_markdown_raw_and_preview_switch_to_the_explorer_detail_header.md) | Add a markdown raw and preview switch to the Explorer detail header | Ready |  | 0% | backlog/item_864_add_a_markdown_raw_and_preview_switch_to_the_explorer_detail_header.md |
 
 ## Tasks
 
@@ -1813,6 +1817,7 @@
 | [task_392_review_findings_security_alert_triage_and_audit_coverage](tasks/task_392_review_findings_security_alert_triage_and_audit_coverage.md) | Review findings: security alert triage and audit coverage | Done | codex | 100% | tasks/task_392_review_findings_security_alert_triage_and_audit_coverage.md |
 | [task_393_orchestrate_the_review_slot_change_timeline](tasks/task_393_orchestrate_the_review_slot_change_timeline.md) | Orchestrate the Review slot change timeline | Ready |  | 0% | tasks/task_393_orchestrate_the_review_slot_change_timeline.md |
 | [task_394_orchestrate_connector_project_onboarding_context](tasks/task_394_orchestrate_connector_project_onboarding_context.md) | Orchestrate connector project onboarding context | Done | codex | 100% | tasks/task_394_orchestrate_connector_project_onboarding_context.md |
+| [task_395_orchestrate_the_explorer_layout_and_markdown_preview_rework](tasks/task_395_orchestrate_the_explorer_layout_and_markdown_preview_rework.md) | Orchestrate the Explorer layout and markdown preview rework | Ready |  | 0% | tasks/task_395_orchestrate_the_explorer_layout_and_markdown_preview_rework.md |
 
 ## Runbooks
 

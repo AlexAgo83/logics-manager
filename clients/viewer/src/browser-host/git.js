@@ -544,7 +544,7 @@ export function createGitScreen(host) {
     const historyRows = recentCommits.length
       ? recentCommits.map((commit, index) => `
         <li class="viewer-git__commit-row" ${index >= gitHistoryPageSize ? "hidden data-viewer-git-history-hidden" : ""}>
-          <button class="viewer-git__commit" type="button" data-viewer-git-commit="${escapeHtml(commit.hash || "")}">
+          <button class="viewer-git__commit" type="button" data-viewer-git-commit="${escapeHtml(commit.hash || "")}" data-viewer-git-commit-title="${escapeHtml(commit.subject || "Untitled commit")}">
             <span class="viewer-git__commit-main">
               <code>${escapeHtml(commit.hash || "")}</code>
               <strong>${escapeHtml(commit.subject || "Untitled commit")}</strong>
@@ -730,8 +730,9 @@ export function createGitScreen(host) {
     if (button instanceof HTMLElement) {
       setActiveGitCommit(button);
     }
+    const title = String(options.title || button?.getAttribute("data-viewer-git-commit-title") || button?.querySelector("strong")?.textContent || "").trim();
     if (detailTitle instanceof HTMLElement) {
-      detailTitle.textContent = "Commit diff";
+      detailTitle.textContent = title || "Commit diff";
     }
     diffPanel.textContent = "Loading commit diff...";
     const params = new URLSearchParams({ ref });
@@ -755,7 +756,7 @@ export function createGitScreen(host) {
     }
     const label = payload.path ? `${payload.path} · ${payload.ref || ref}` : `${payload.ref || ref}`;
     const more = payload.canForce
-      ? `<button class="btn viewer-git__diff-more" type="button" data-viewer-git-diff-full="${escapeHtml(payload.path || "")}" data-viewer-git-diff-ref="${escapeHtml(payload.ref || ref)}">Load the rest of this diff</button>`
+      ? `<button class="btn viewer-git__diff-more" type="button" data-viewer-git-diff-full="${escapeHtml(payload.path || "")}" data-viewer-git-diff-ref="${escapeHtml(payload.ref || ref)}" data-viewer-git-diff-title="${escapeHtml(title)}">Load the rest of this diff</button>`
       : "";
     diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(label)} · commit${payload.truncated ? " · truncated" : ""}</div>${renderGitDiffPreview(content)}${more}`;
   }
@@ -898,7 +899,7 @@ export function createGitScreen(host) {
     const path = button.getAttribute("data-viewer-review-file") || "";
     const kind = button.getAttribute("data-viewer-review-kind") || "";
     if (kind === "commit") {
-      await loadGitCommitDiff(button.getAttribute("data-viewer-review-ref") || "", null, { path });
+      await loadGitCommitDiff(button.getAttribute("data-viewer-review-ref") || "", null, { path, title: activeReviewBurst()?.title || "" });
       document.querySelector("[data-viewer-review-diff]")?.scrollTo?.(0, 0);
       return;
     }

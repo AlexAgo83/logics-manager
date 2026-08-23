@@ -1828,6 +1828,9 @@ describe("local viewer browser host", () => {
     expect(css).toMatch(/\.viewer-code__line code\s*\{[^}]*padding: 0;/s);
     expect(css).toMatch(/\.viewer-workspace__preview \.viewer-code__scroll\s*\{[^}]*overflow-x: auto;/s);
     expect(css).toMatch(/\.viewer-workspace__preview \.viewer-code__scroll\s*\{[^}]*overflow-y: visible;/s);
+    expect(css).toMatch(/\.viewer-review__burst--ghost\s*\{[^}]*border-color: color-mix/s);
+    expect(css).toMatch(/\.viewer-review__burst--ghost\s*\{[^}]*background: var\(--vscode-editorWidget-background/s);
+    expect(css).not.toMatch(/\.viewer-review__burst--ghost\s*\{[^}]*opacity:/s);
     expect(css).toMatch(/@media \(max-width: 640px\)/);
   });
 
@@ -6704,7 +6707,7 @@ describe("local viewer browser host", () => {
     const content = dom.window.document.getElementById("viewer-document-content");
     expect(calls).toContain("/api/git-commit-diff?ref=abc1234");
     expect(commitButton?.classList.contains("is-active")).toBe(true);
-    expect(content?.querySelector(".viewer-git__detail-title")?.textContent).toBe("Commit diff");
+    expect(content?.querySelector(".viewer-git__detail-title")?.textContent).toBe("Demo commit");
     expect(content?.querySelector(".viewer-git__diff-meta")?.textContent).toContain("abc1234 · commit");
     expect(content?.querySelector(".viewer-git__diff-line--meta")?.textContent).toContain("diff --git");
     expect(content?.querySelector(".viewer-git__diff-line--add")?.textContent).toContain("+Commit demo");
@@ -6713,6 +6716,7 @@ describe("local viewer browser host", () => {
     (content?.querySelector("[data-viewer-git-diff-full]") as HTMLElement | null)?.click();
     await flushViewerAsync();
     expect(calls).toContain("/api/git-commit-diff?ref=abc1234&full=1");
+    expect(content?.querySelector(".viewer-git__detail-title")?.textContent).toBe("Demo commit");
   });
 
   it("renders the Review surface and scopes committed file diffs", async () => {
@@ -6769,6 +6773,7 @@ describe("local viewer browser host", () => {
     content = dom.window.document.getElementById("review-panel");
     expect(calls).toContain("/api/review-burst-files?kind=commit&ref=abc1234");
     expect(calls).toContain("/api/git-commit-diff?ref=abc1234&path=src%2Fdemo.ts");
+    expect(content?.querySelector(".viewer-git__detail-title")?.textContent).toBe("Demo commit");
     expect(content?.querySelector(".viewer-git__diff-meta")?.textContent).toContain("src/demo.ts");
     expect(content?.querySelector(".viewer-git__diff-line--add")?.textContent).toContain("+Review demo");
     (content?.querySelector("[data-viewer-git-diff-full]") as HTMLElement | null)?.click();

@@ -8026,7 +8026,7 @@ ${line}` : line;
       };
       const historyRows = recentCommits.length ? recentCommits.map((commit, index) => `
         <li class="viewer-git__commit-row" ${index >= gitHistoryPageSize ? "hidden data-viewer-git-history-hidden" : ""}>
-          <button class="viewer-git__commit" type="button" data-viewer-git-commit="${escapeHtml(commit.hash || "")}">
+          <button class="viewer-git__commit" type="button" data-viewer-git-commit="${escapeHtml(commit.hash || "")}" data-viewer-git-commit-title="${escapeHtml(commit.subject || "Untitled commit")}">
             <span class="viewer-git__commit-main">
               <code>${escapeHtml(commit.hash || "")}</code>
               <strong>${escapeHtml(commit.subject || "Untitled commit")}</strong>
@@ -8196,8 +8196,9 @@ ${line}` : line;
       if (button instanceof HTMLElement) {
         setActiveGitCommit(button);
       }
+      const title = String(options.title || button?.getAttribute("data-viewer-git-commit-title") || button?.querySelector("strong")?.textContent || "").trim();
       if (detailTitle instanceof HTMLElement) {
-        detailTitle.textContent = "Commit diff";
+        detailTitle.textContent = title || "Commit diff";
       }
       diffPanel.textContent = "Loading commit diff...";
       const params = new URLSearchParams({ ref });
@@ -8220,7 +8221,7 @@ ${line}` : line;
         return;
       }
       const label = payload.path ? `${payload.path} \xB7 ${payload.ref || ref}` : `${payload.ref || ref}`;
-      const more = payload.canForce ? `<button class="btn viewer-git__diff-more" type="button" data-viewer-git-diff-full="${escapeHtml(payload.path || "")}" data-viewer-git-diff-ref="${escapeHtml(payload.ref || ref)}">Load the rest of this diff</button>` : "";
+      const more = payload.canForce ? `<button class="btn viewer-git__diff-more" type="button" data-viewer-git-diff-full="${escapeHtml(payload.path || "")}" data-viewer-git-diff-ref="${escapeHtml(payload.ref || ref)}" data-viewer-git-diff-title="${escapeHtml(title)}">Load the rest of this diff</button>` : "";
       diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(label)} \xB7 commit${payload.truncated ? " \xB7 truncated" : ""}</div>${renderGitDiffPreview(content)}${more}`;
     }
     function reviewBursts() {
@@ -8349,7 +8350,7 @@ ${line}` : line;
       const path = button.getAttribute("data-viewer-review-file") || "";
       const kind = button.getAttribute("data-viewer-review-kind") || "";
       if (kind === "commit") {
-        await loadGitCommitDiff(button.getAttribute("data-viewer-review-ref") || "", null, { path });
+        await loadGitCommitDiff(button.getAttribute("data-viewer-review-ref") || "", null, { path, title: activeReviewBurst()?.title || "" });
         document.querySelector("[data-viewer-review-diff]")?.scrollTo?.(0, 0);
         return;
       }
@@ -13187,11 +13188,12 @@ ${shown.join("\n")}${files.length > shown.length ? `
           event.preventDefault();
           const diffPath = gitDiffFullTarget.getAttribute("data-viewer-git-diff-full") || "";
           const diffRef = gitDiffFullTarget.getAttribute("data-viewer-git-diff-ref") || "";
+          const diffTitle = gitDiffFullTarget.getAttribute("data-viewer-git-diff-title") || "";
           const diffCached = gitDiffFullTarget.getAttribute("data-viewer-git-diff-cached") === "1";
           withPrimaryAction(
             "git-diff-full",
             "Loading the rest of the diff",
-            () => diffRef ? loadGitCommitDiff(diffRef, null, { path: diffPath, full: true }) : loadGitDiff(diffPath, diffCached, null, { full: true })
+            () => diffRef ? loadGitCommitDiff(diffRef, null, { path: diffPath, full: true, title: diffTitle }) : loadGitDiff(diffPath, diffCached, null, { full: true })
           );
           return;
         }

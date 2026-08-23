@@ -4887,8 +4887,9 @@
 
 .viewer-review__burst--ghost {
   cursor: default;
-  opacity: 0.38;
   border-style: dashed;
+  border-color: color-mix(in srgb, var(--vscode-panel-border, #333333) 52%, transparent);
+  background: var(--vscode-editorWidget-background, #202020);
 }
 
 .viewer-review__burst--working .viewer-review__burst-label::after {

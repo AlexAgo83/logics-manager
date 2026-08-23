@@ -3,7 +3,7 @@
 > Schema version: 1.0
 > Status: Ready
 > Understanding: 90%
-> Confidence: 85%
+> Confidence: 88%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Viewer explorer
@@ -43,6 +43,8 @@
 - AC5: On file change the detail scroll resets to the top and `document.activeElement` is unchanged.
 - AC6: Directory navigation still re-renders the list, resets its scroll, and keeps breadcrumb and parent-row behavior.
 - AC7: The layout holds at 1440x900, 820x1180, and 390x844, with a single scroll axis and a collapsible list at the phone width.
+- AC8: Browser-host tests cover the preserved list state, the skipped refetch, the independent scrollers, the scroll reset without focus theft, and directory navigation.
+- AC9: The bundle is regenerated and `npm run check:viewer-host`, the targeted vitest checks, and `npm run test:viewer-smoke` pass for this slice.
 
 # AC Traceability
 - request-AC1 -> This backlog slice. Proof: AC1: Selecting a file mutates only the detail region; a test asserts the list's rendered nodes and scroll offset survive the selection.
@@ -52,8 +54,8 @@
 - request-AC5 -> This backlog slice. Proof: AC5: On file change the detail scroll resets to the top and `document.activeElement` is unchanged.
 - request-AC6 -> This backlog slice. Proof: AC6: Directory navigation still re-renders the list, resets its scroll, and keeps breadcrumb and parent-row behavior.
 - request-AC10 -> This backlog slice. Proof: AC7: The layout holds at 1440x900, 820x1180, and 390x844, with a single scroll axis and a collapsible list at the phone width.
-- request-AC11 -> This backlog slice. Proof: AC7: The layout holds at 1440x900, 820x1180, and 390x844, with a single scroll axis and a collapsible list at the phone width.
-- request-AC12 -> This backlog slice. Proof: AC7: The layout holds at 1440x900, 820x1180, and 390x844, with a single scroll axis and a collapsible list at the phone width.
+- request-AC11 -> This backlog slice. Proof: AC8: Browser-host tests cover the preserved list state, the skipped refetch, the independent scrollers, the scroll reset without focus theft, and directory navigation.
+- request-AC12 -> This backlog slice. Proof: AC9: The bundle is regenerated and `npm run check:viewer-host`, the targeted vitest checks, and `npm run test:viewer-smoke` pass for this slice.
 
 # Decision framing
 - Product framing: Not needed

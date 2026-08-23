@@ -1,0 +1,330 @@
+{
+  "budgets": {
+    "max_docs": 24,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project item_859_expose_one_read_only_onboard_project_mcp_tool item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions item_861_aggregate_recent_logics_and_git_activity_for_onboarding item_862_expose_source_backed_project_context_search_and_resource_reads task_394_orchestrate_connector_project_onboarding_context --mode summary-only --profile normal",
+  "companion_docs": [],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "chatgpt, mcp, connector, self, onboard, onto, any, logics, project",
+        "skip when": "Working only on connector auth/tunnel durability, viewer-only UI polish, or unrelated Logics workflow document lifecycle changes.",
+        "summary": "Add a first-call connector probe so ChatGPT can prove the active Logics project, work, recent activity, and readable sources before answering.",
+        "use when": "Improving MCP connector project discovery, active-work onboarding, sourced project context, or transcript regressions where the model claims visibility without tool evidence."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_859_expose_one_read_only_onboard_project_mcp_tool",
+          "item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions",
+          "item_861_aggregate_recent_logics_and_git_activity_for_onboarding",
+          "item_862_expose_source_backed_project_context_search_and_resource_reads"
+        ],
+        "prod": [
+          "prod_111_connector_project_onboarding_context"
+        ],
+        "req": [
+          "req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project"
+        ]
+      },
+      "path": "logics/request/req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project.md",
+      "ref": "req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Make the ChatGPT MCP connector self-onboard onto any Logics project"
+    },
+    {
+      "ai_context": {
+        "keywords": "expose, read, only, onboard, project, mcp, tool",
+        "skip when": "Implementing project switching, Git recent activity, or context-resource reads beyond the initial onboarding payload.",
+        "summary": "Implement the minimal `onboard_project` MCP call by composing existing status, active-work, companion-doc, and context-pack metadata.",
+        "use when": "Adding the first connector bootstrap tool or proving a fresh MCP client can see active Logics work without pasted output."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_859_expose_one_read_only_onboard_project_mcp_tool"
+        ],
+        "prod": [
+          "prod_111_connector_project_onboarding_context"
+        ],
+        "req": [
+          "req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project"
+        ],
+        "task": [
+          "task_394_orchestrate_connector_project_onboarding_context"
+        ]
+      },
+      "path": "logics/backlog/item_859_expose_one_read_only_onboard_project_mcp_tool.md",
+      "ref": "item_859_expose_one_read_only_onboard_project_mcp_tool",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Expose one read-only onboard_project MCP tool"
+    },
+    {
+      "ai_context": {
+        "keywords": "add, bounded, project, discovery, targeting, connector, sessions",
+        "skip when": "The task only needs current-repo onboarding with no project navigation or registry lookup.",
+        "summary": "Let connector clients list, identify, and target known Logics projects through bounded registry rules instead of arbitrary paths.",
+        "use when": "Adding `list_projects`, active-project reporting, or safe project targeting for MCP connector sessions."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions"
+        ],
+        "prod": [
+          "prod_111_connector_project_onboarding_context"
+        ],
+        "req": [
+          "req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project"
+        ],
+        "task": [
+          "task_394_orchestrate_connector_project_onboarding_context"
+        ]
+      },
+      "path": "logics/backlog/item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions.md",
+      "ref": "item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Add bounded project discovery and targeting for connector sessions"
+    },
+    {
+      "ai_context": {
+        "keywords": "aggregate, recent, logics, git, activity, onboarding",
+        "skip when": "Building a timeline UI, CI deep dive, or persistent activity database.",
+        "summary": "Add a compact recent-activity slice from Logics doc changes and existing Git viewer helpers for connector onboarding.",
+        "use when": "Surfacing branch/status counts, commits, changed Logics docs, or graceful no-Git degradation in project onboarding."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_861_aggregate_recent_logics_and_git_activity_for_onboarding"
+        ],
+        "prod": [
+          "prod_111_connector_project_onboarding_context"
+        ],
+        "req": [
+          "req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project"
+        ],
+        "task": [
+          "task_394_orchestrate_connector_project_onboarding_context"
+        ]
+      },
+      "path": "logics/backlog/item_861_aggregate_recent_logics_and_git_activity_for_onboarding.md",
+      "ref": "item_861_aggregate_recent_logics_and_git_activity_for_onboarding",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Aggregate recent Logics and Git activity for onboarding"
+    },
+    {
+      "ai_context": {
+        "keywords": "orchestrate, connector, project, onboarding, context",
+        "skip when": "Working one isolated backlog item without updating orchestration progress or request-level proof.",
+        "summary": "Coordinate the connector onboarding delivery across initial probe, project targeting, recent activity, and source-backed follow-up reads.",
+        "use when": "Implementing or closing the full req_382 chain and recording cross-slice proof."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_859_expose_one_read_only_onboard_project_mcp_tool",
+          "item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions",
+          "item_861_aggregate_recent_logics_and_git_activity_for_onboarding",
+          "item_862_expose_source_backed_project_context_search_and_resource_reads"
+        ],
+        "prod": [
+          "prod_111_connector_project_onboarding_context"
+        ],
+        "req": [
+          "req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project"
+        ],
+        "task": [
+          "task_394_orchestrate_connector_project_onboarding_context"
+        ]
+      },
+      "path": "logics/tasks/task_394_orchestrate_connector_project_onboarding_context.md",
+      "ref": "task_394_orchestrate_connector_project_onboarding_context",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrate connector project onboarding context"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_859_expose_one_read_only_onboard_project_mcp_tool",
+          "item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions",
+          "item_861_aggregate_recent_logics_and_git_activity_for_onboarding",
+          "item_862_expose_source_backed_project_context_search_and_resource_reads"
+        ],
+        "prod": [
+          "prod_111_connector_project_onboarding_context"
+        ],
+        "req": [
+          "req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project"
+        ],
+        "task": [
+          "task_394_orchestrate_connector_project_onboarding_context"
+        ]
+      },
+      "path": "logics/product/prod_111_connector_project_onboarding_context.md",
+      "ref": "prod_111_connector_project_onboarding_context",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "Connector project onboarding context"
+    },
+    {
+      "ai_context": {
+        "keywords": "expose, source, backed, project, context, search, resource, reads",
+        "skip when": "The work only changes the initial onboarding payload or project registry.",
+        "summary": "Provide bounded follow-up MCP reads so onboarding source pointers can be searched and opened without broad repository access.",
+        "use when": "Adding `search_project_context`, `read_project_resource`, source-pointer round trips, or bounded project-context reads."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_862_expose_source_backed_project_context_search_and_resource_reads"
+        ],
+        "prod": [
+          "prod_111_connector_project_onboarding_context"
+        ],
+        "req": [
+          "req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project"
+        ],
+        "task": [
+          "task_394_orchestrate_connector_project_onboarding_context"
+        ]
+      },
+      "path": "logics/backlog/item_862_expose_source_backed_project_context_search_and_resource_reads.md",
+      "ref": "item_862_expose_source_backed_project_context_search_and_resource_reads",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Expose source-backed project context search and resource reads"
+    }
+  ],
+  "estimates": {
+    "char_count": 7756,
+    "companion_doc_count": 0,
+    "doc_count": 7
+  },
+  "generated_at": "2026-08-23T09:56:33Z",
+  "handoff": {
+    "companion_doc_count": 0,
+    "enabled": false,
+    "source_refs": [
+      "req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project",
+      "item_859_expose_one_read_only_onboard_project_mcp_tool",
+      "item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions",
+      "item_861_aggregate_recent_logics_and_git_activity_for_onboarding",
+      "item_862_expose_source_backed_project_context_search_and_resource_reads",
+      "task_394_orchestrate_connector_project_onboarding_context"
+    ],
+    "validation_summary_count": 0
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project,item_859_expose_one_read_only_onboard_project_mcp_tool,item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions,item_861_aggregate_recent_logics_and_git_activity_for_onboarding,item_862_expose_source_backed_project_context_search_and_resource_reads,task_394_orchestrate_connector_project_onboarding_context",
+  "refs": [
+    "req_382_make_the_chatgpt_mcp_connector_self_onboard_onto_any_logics_project",
+    "item_859_expose_one_read_only_onboard_project_mcp_tool",
+    "item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions",
+    "item_861_aggregate_recent_logics_and_git_activity_for_onboarding",
+    "item_862_expose_source_backed_project_context_search_and_resource_reads",
+    "task_394_orchestrate_connector_project_onboarding_context"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_id": null,
+    "target_version": "2.22.4",
+    "targets": []
+  },
+  "validation_summary": []
+}

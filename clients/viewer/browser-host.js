@@ -8221,7 +8221,7 @@ ${line}` : line;
       }
       const bursts = reviewTimelineBursts();
       const active = activeReviewBurst();
-      const ghostRows = Array.from({ length: 5 }, () => '<span class="viewer-review__burst viewer-review__burst--ghost" aria-hidden="true"><span class="viewer-review__burst-label">Future</span></span>').join("");
+      const ghostRows = Array.from({ length: 5 }, () => '<span class="viewer-review__burst viewer-review__burst--ghost" aria-hidden="true"></span>').join("");
       const burstRows = bursts.map((burst) => `<button class="viewer-review__burst${burst === active ? " is-active" : ""}${burst?.kind === "working-tree" ? " viewer-review__burst--working" : ""}" type="button" data-viewer-review-burst="${escapeHtml(String(burst?.id || ""))}" aria-pressed="${burst === active ? "true" : "false"}">
       <span class="viewer-review__burst-label">${escapeHtml(String(burst?.label || burst?.ref || "Change"))}</span>
       <span class="viewer-review__burst-title">${escapeHtml(String(burst?.title || ""))}</span>

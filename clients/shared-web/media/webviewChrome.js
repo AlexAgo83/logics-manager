@@ -731,16 +731,26 @@
       }
       if (activityToggle) {
         const activityOpen = options.getActivityPanelOpen();
-        document.body?.classList.toggle("viewer-screen-activity", activityOpen);
-        document.body?.classList.toggle("viewer-screen-project", !activityOpen);
+        const currentSurface = document.body?.dataset.viewerSurface || (activityOpen ? "activity" : "project");
+        const surface = ["activity", "project", "review"].includes(currentSurface) ? currentSurface : "project";
+        document.body?.classList.toggle("viewer-screen-activity", surface === "activity");
+        document.body?.classList.toggle("viewer-screen-project", surface === "project");
+        document.body?.classList.toggle("viewer-screen-review", surface === "review");
         activityToggle.classList.toggle("btn--active", activityOpen);
-        activityToggle.dataset.currentMode = activityOpen ? "activity" : "project";
+        activityToggle.dataset.currentMode = surface;
         activityToggle.setAttribute("aria-pressed", String(activityOpen));
         activityToggle.setAttribute(
           "aria-label",
           activityOpen ? "Hide recent activity" : "Show recent activity"
         );
         activityToggle.title = activityOpen ? "Hide recent activity" : "Show recent activity";
+        document.querySelectorAll("[data-viewer-surface]").forEach((node) => {
+          if (node instanceof HTMLElement) {
+            const active = node.getAttribute("data-viewer-surface") === surface;
+            node.classList.toggle("is-active", active);
+            node.setAttribute("aria-pressed", String(active));
+          }
+        });
       }
       updateActivityFilterToggle();
     }

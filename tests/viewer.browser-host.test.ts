@@ -50,6 +50,7 @@ function createViewerDom(options: {
   editResponse?: { ok: boolean; status?: number; body: unknown };
   gitDiffResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   gitCommitDiffResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
+  reviewBurstsResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
   gitCommitResponse?: { ok: boolean; status?: number; body?: unknown };
   saveDocResponse?: { ok: boolean; status?: number; body?: unknown };
   gitPreviewResponse?: { ok: boolean; status?: number; body?: unknown; rawBody?: string };
@@ -159,7 +160,11 @@ function createViewerDom(options: {
     <a id="viewer-version-link" href="https://github.com/AlexAgo83/logics-manager">v0.0.0</a>
     <button id="activity-clear" type="button">Clear activity</button>
     <button id="filter-toggle" type="button">Filters</button>
-    <button id="activity-toggle" type="button" aria-pressed="false">Activity</button>
+    <div class="toolbar__view">
+      <button id="activity-toggle" type="button" data-viewer-surface="activity" aria-pressed="false">Activity</button>
+      <button type="button" data-viewer-surface="project" aria-pressed="true">Project</button>
+      <button type="button" data-viewer-surface="review" aria-pressed="false">Review</button>
+    </div>
     <div id="focus-menu">
       <button id="focus-menu-toggle" type="button" aria-expanded="false" aria-controls="focus-menu-options"><span id="focus-menu-label">Active work</span></button>
       <div id="focus-menu-options" hidden>
@@ -1214,6 +1219,49 @@ function createViewerDom(options: {
           })
         };
       }
+      if (url === "/api/review-bursts") {
+        if (options.reviewBurstsResponse) {
+          return {
+            ok: options.reviewBurstsResponse.ok,
+            status: options.reviewBurstsResponse.status ?? (options.reviewBurstsResponse.ok ? 200 : 500),
+            json: async () => {
+              if (options.reviewBurstsResponse?.rawBody !== undefined) {
+                throw new Error("Invalid JSON");
+              }
+              return options.reviewBurstsResponse?.body || {};
+            }
+          };
+        }
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            payload: {
+              state: "ok",
+              message: "",
+              bursts: [
+                {
+                  id: "working-tree",
+                  kind: "working-tree",
+                  label: "Working tree",
+                  title: "Uncommitted changes",
+                  meta: "1 file",
+                  files: [{ path: "logics/request/req_001_demo.md", kind: "modified", additions: 3, deletions: 1, cached: true }]
+                },
+                {
+                  id: "commit:abc1234",
+                  kind: "commit",
+                  ref: "abc1234",
+                  label: "abc1234",
+                  title: "Demo commit",
+                  meta: "Alex · 2026-08-23",
+                  files: [{ path: "src/demo.ts", kind: "M", additions: 2, deletions: 0 }]
+                }
+              ]
+            }
+          })
+        };
+      }
       if (String(url).startsWith("/api/git-diff")) {
         if (options.gitDiffResponse) {
           return {
@@ -1711,34 +1759,39 @@ describe("local viewer browser host", () => {
     expect(panel?.querySelector('[data-viewer-filter-group="focus"]')).toBeNull();
   });
 
-  it("places the Activity/Project slider to the right of the search docs bar", () => {
+  it("places the Activity/Project/Review surface control to the right of the search docs bar", () => {
     const html = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/index.html"), "utf8");
     const dom = new JSDOM(html);
     const newRequest = dom.window.document.querySelector('.toolbar__filters .toolbar__new-request[data-action="new-request"]');
     const filters = dom.window.document.querySelector(".toolbar__filters");
     const search = dom.window.document.querySelector(".toolbar__search");
     const view = dom.window.document.querySelector(".toolbar__view");
-    const slider = dom.window.document.querySelector(".toolbar__view-slider#activity-toggle");
+    const activity = dom.window.document.querySelector('[data-viewer-surface="activity"]#activity-toggle');
+    const project = dom.window.document.querySelector('[data-viewer-surface="project"]');
+    const review = dom.window.document.querySelector('[data-viewer-surface="review"]');
     const projectMode = dom.window.document.querySelector('.toolbar__filters [data-action="toggle-view-mode"]');
     expect(newRequest).toBeTruthy();
     expect(filters).toBeTruthy();
     expect(search).toBeTruthy();
     expect(view).toBeTruthy();
-    expect(slider).toBeTruthy();
+    expect(activity).toBeTruthy();
+    expect(project).toBeTruthy();
+    expect(review).toBeTruthy();
     expect(newRequest?.textContent).toBe("+New");
     expect(view?.textContent).toContain("Activity");
     expect(view?.textContent).toContain("Project");
+    expect(view?.textContent).toContain("Review");
     expect(projectMode).toBeTruthy();
     expect(filters?.firstElementChild).toBe(newRequest);
     expect(filters?.compareDocumentPosition(search as Node) & dom.window.Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(search?.compareDocumentPosition(view as Node) & dom.window.Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(projectMode?.classList.contains("toolbar__view-slider")).toBe(false);
+    expect(projectMode?.classList.contains("toolbar__view-option")).toBe(false);
   });
 
-  it("styles the view slider and the mobile search/slider reflow", () => {
+  it("styles the surface control and the mobile search/control reflow", () => {
     const css = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/viewer.css"), "utf8");
-    expect(css).toMatch(/\.toolbar__view-slider\[data-current-mode="project"\]::after/);
-    expect(css).toMatch(/\.viewer-screen-activity #filter-toggle,\s*\.viewer-screen-activity #focus-menu,\s*\.viewer-screen-activity #attention-toggle,\s*\.viewer-screen-activity \.toolbar__mode-button,\s*\.viewer-screen-project #activity-clear\s*\{[^}]*display: none;/s);
+    expect(css).toMatch(/\.toolbar__view-option\.is-active/);
+    expect(css).toMatch(/\.viewer-screen-activity #filter-toggle,\s*\.viewer-screen-activity #focus-menu,\s*\.viewer-screen-activity #attention-toggle,\s*\.viewer-screen-activity \.toolbar__mode-button,\s*\.viewer-screen-review #filter-toggle,\s*\.viewer-screen-review #focus-menu,\s*\.viewer-screen-review #attention-toggle,\s*\.viewer-screen-review \.toolbar__mode-button,\s*\.viewer-screen-project #activity-clear\s*\{[^}]*display: none;/s);
     expect(css).toMatch(/\.viewer-screen-document #filter-toggle/);
     expect(css).not.toMatch(/\.viewer-code__gutter/);
     expect(css).not.toMatch(/\.viewer-code__body/);
@@ -2196,12 +2249,14 @@ describe("local viewer browser host", () => {
     expect(source).not.toMatch(/ON — start connector/);
   });
 
-  it("syncs Activity/Project slider state from the shared chrome", () => {
+  it("syncs Activity/Project/Review surface state from the shared chrome", () => {
     const source = fs.readFileSync(path.resolve(process.cwd(), "clients/shared-web/media/webviewChrome.js"), "utf8");
     const host = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/browser-host.js"), "utf8");
-    expect(source).toContain('activityToggle.dataset.currentMode = activityOpen ? "activity" : "project"');
-    expect(source).toContain('document.body?.classList.toggle("viewer-screen-activity", activityOpen)');
-    expect(source).toContain('document.body?.classList.toggle("viewer-screen-project", !activityOpen)');
+    expect(source).toContain('const currentSurface = document.body?.dataset.viewerSurface || (activityOpen ? "activity" : "project")');
+    expect(source).toContain('document.body?.classList.toggle("viewer-screen-activity", surface === "activity")');
+    expect(source).toContain('document.body?.classList.toggle("viewer-screen-project", surface === "project")');
+    expect(source).toContain('document.body?.classList.toggle("viewer-screen-review", surface === "review")');
+    expect(source).toContain('document.querySelectorAll("[data-viewer-surface]")');
     expect(host).toContain('document.body?.classList.toggle("viewer-screen-document", Boolean(open))');
     expect(source).toContain("Hide recent activity");
     expect(source).toContain("Show recent activity");
@@ -6446,6 +6501,53 @@ describe("local viewer browser host", () => {
     expect(content?.querySelector(".viewer-git__diff-meta")?.textContent).toContain("abc1234 · commit");
     expect(content?.querySelector(".viewer-git__diff-line--meta")?.textContent).toContain("diff --git");
     expect(content?.querySelector(".viewer-git__diff-line--add")?.textContent).toContain("+Commit demo");
+  });
+
+  it("renders the Review surface and scopes committed file diffs", async () => {
+    const { dom, calls } = createViewerDom({
+      gitCommitDiffResponse: {
+        ok: true,
+        body: {
+          ok: true,
+          payload: {
+            state: "ok",
+            ref: "abc1234",
+            path: "src/demo.ts",
+            mode: "commit",
+            diff: "commit abc1234\n\ndiff --git a/src/demo.ts b/src/demo.ts\n+Review demo",
+            truncated: false
+          }
+        }
+      }
+    });
+    const api = dom.window.acquireVsCodeApi();
+
+    api.postMessage({ type: "ready" });
+    await flushViewerAsync();
+    (dom.window.document.querySelector('[data-viewer-surface="review"]') as HTMLElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    const content = dom.window.document.getElementById("viewer-document-content");
+    expect(calls).toContain("/api/review-bursts");
+    expect(dom.window.document.body.classList.contains("viewer-screen-review")).toBe(true);
+    expect(dom.window.document.querySelector('[data-viewer-surface="review"]')?.getAttribute("aria-pressed")).toBe("true");
+    expect(content?.textContent).toContain("Working tree");
+    expect(content?.textContent).toContain("Demo commit");
+    expect(calls.some((call) => call.startsWith("/api/git-diff?"))).toBe(true);
+
+    (content?.querySelector('[data-viewer-review-burst="commit:abc1234"]') as HTMLElement | null)?.click();
+    await flushViewerAsync();
+    await flushViewerAsync();
+
+    expect(calls).toContain("/api/git-commit-diff?ref=abc1234&path=src%2Fdemo.ts");
+    expect(content?.querySelector(".viewer-git__diff-meta")?.textContent).toContain("src/demo.ts");
+    expect(content?.querySelector(".viewer-git__diff-line--add")?.textContent).toContain("+Review demo");
+
+    (content?.querySelector('[data-viewer-review-burst="commit:abc1234"]') as HTMLElement | null)?.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
+    await flushViewerAsync();
+    const refreshedContent = dom.window.document.getElementById("viewer-document-content");
+    expect((refreshedContent?.querySelector('[data-viewer-review-burst="working-tree"]') as HTMLElement | null)?.classList.contains("is-active")).toBe(true);
   });
 
   it("opens a Git commit modal and submits selected files with a message", async () => {

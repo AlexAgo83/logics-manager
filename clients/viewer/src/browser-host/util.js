@@ -20,6 +20,11 @@ export function activityPanelIsOpen() {
     return panel instanceof HTMLElement && !panel.hidden;
   }
 
+export function viewerSurface() {
+    const surface = document.body?.dataset.viewerSurface || "";
+    return ["activity", "project", "review"].includes(surface) ? surface : (activityPanelIsOpen() ? "activity" : "project");
+  }
+
 export function activityRootKey(root = "") {
     return String(root || "default").trim() || "default";
   }

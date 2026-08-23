@@ -2,8 +2,8 @@
 > From version: 2.22.4
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
+> Understanding: 92%
+> Confidence: 88%
 > Progress: 0%
 > Complexity: Medium
 > Theme: Implementation delivery
@@ -20,7 +20,7 @@
 - Orchestrate the scaffolded request chain and keep sibling implementation slices linked.
 
 # Plan
-- [ ] 1. Slice A: add the minimal read-only `onboard_project` MCP tool by composing existing status, active-work, companion-doc, and context-pack metadata. Prove no absolute paths leak and the tool appears in schema/handler coverage.
+- [ ] 1. Slice A: add the minimal read-only `onboard_project` MCP tool by composing existing status, active-work, companion-doc, and context-pack metadata. Prove no absolute paths leak, the tool appears in schema/handler coverage, and its capability entry puts it in the profile the tunnel serves.
 - [ ] 2. Slice B: add project discovery/targeting using the existing viewer project registry or the smallest shared resolver that matches it. Keep targets bounded and explicit; avoid arbitrary path inputs.
 - [ ] 3. Slice C: aggregate recent activity from Logics metadata and existing Git viewer helpers, then feed the bounded summary into onboarding with degraded states for no-Git/no-history cases.
 - [ ] 4. Slice D: add `search_project_context` and `read_project_resource` as wrappers over existing safe Logics search/read/context-pack paths, with source-pointer round-trip tests.
@@ -47,6 +47,7 @@
 - request-AC5 -> `item_859_expose_one_read_only_onboard_project_mcp_tool`. Proof deferred to slice closeout.
 - request-AC7 -> `item_859_expose_one_read_only_onboard_project_mcp_tool`. Proof deferred to slice closeout.
 - request-AC8 -> `item_859_expose_one_read_only_onboard_project_mcp_tool`. Proof deferred to slice closeout.
+- request-AC10 -> `item_859_expose_one_read_only_onboard_project_mcp_tool`. Proof deferred to slice closeout.
 - request-AC3 -> `item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions`. Proof deferred to slice closeout.
 - request-AC8 -> `item_860_add_bounded_project_discovery_and_targeting_for_connector_sessions`. Proof deferred to slice closeout.
 - request-AC4 -> `item_861_aggregate_recent_logics_and_git_activity_for_onboarding`. Proof deferred to slice closeout.

@@ -1,0 +1,397 @@
+{
+  "budgets": {
+    "max_docs": 28,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on item_866_unify_the_viewer_surface_state_across_the_shared_web_client item_867_make_the_review_bursts_payload_lazy_refreshable_and_failure_safe item_868_fix_review_timeline_keyboard_navigation item_869_finish_the_explorer_markdown_switch_and_pane_sizing item_870_cover_review_and_the_reworked_explorer_in_the_visual_campaign task_396_orchestrate_the_review_and_explorer_repair --mode summary-only --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_866_unify_the_viewer_surface_state_across_the_shared_web_client",
+          "item_867_make_the_review_bursts_payload_lazy_refreshable_and_failure_safe",
+          "item_868_fix_review_timeline_keyboard_navigation",
+          "item_869_finish_the_explorer_markdown_switch_and_pane_sizing",
+          "item_870_cover_review_and_the_reworked_explorer_in_the_visual_campaign"
+        ],
+        "prod": [
+          "prod_113_one_viewer_surface_state_and_a_review_timeline_that_can_refresh"
+        ],
+        "req": [
+          "req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on"
+        ],
+        "task": [
+          "task_396_orchestrate_the_review_and_explorer_repair"
+        ]
+      },
+      "path": "logics/product/prod_113_one_viewer_surface_state_and_a_review_timeline_that_can_refresh.md",
+      "ref": "prod_113_one_viewer_surface_state_and_a_review_timeline_that_can_refresh",
+      "status": "Proposed",
+      "title": "One viewer surface state and a Review timeline that can refresh"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "repair, review, slot, explorer, delivery, against, acceptance, criteria, they, closed",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_866_unify_the_viewer_surface_state_across_the_shared_web_client",
+          "item_867_make_the_review_bursts_payload_lazy_refreshable_and_failure_safe",
+          "item_868_fix_review_timeline_keyboard_navigation",
+          "item_869_finish_the_explorer_markdown_switch_and_pane_sizing",
+          "item_870_cover_review_and_the_reworked_explorer_in_the_visual_campaign"
+        ],
+        "prod": [
+          "prod_113_one_viewer_surface_state_and_a_review_timeline_that_can_refresh"
+        ],
+        "req": [
+          "req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on"
+        ]
+      },
+      "path": "logics/request/req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on.md",
+      "ref": "req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on",
+      "schema_version": "1.0",
+      "status": "Draft",
+      "title": "Repair the Review slot and Explorer delivery against the acceptance criteria they closed on"
+    },
+    {
+      "ai_context": {
+        "keywords": "unify, viewer, surface, state, across, shared, web, client",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_866_unify_the_viewer_surface_state_across_the_shared_web_client"
+        ],
+        "prod": [
+          "prod_113_one_viewer_surface_state_and_a_review_timeline_that_can_refresh"
+        ],
+        "req": [
+          "req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on"
+        ],
+        "task": [
+          "task_396_orchestrate_the_review_and_explorer_repair"
+        ]
+      },
+      "path": "logics/backlog/item_866_unify_the_viewer_surface_state_across_the_shared_web_client.md",
+      "ref": "item_866_unify_the_viewer_surface_state_across_the_shared_web_client",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Unify the viewer surface state across the shared web client"
+    },
+    {
+      "ai_context": {
+        "keywords": "review, bursts, payload, lazy, refreshable, failure, safe",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_867_make_the_review_bursts_payload_lazy_refreshable_and_failure_safe"
+        ],
+        "prod": [
+          "prod_113_one_viewer_surface_state_and_a_review_timeline_that_can_refresh"
+        ],
+        "req": [
+          "req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on"
+        ],
+        "task": [
+          "task_396_orchestrate_the_review_and_explorer_repair"
+        ]
+      },
+      "path": "logics/backlog/item_867_make_the_review_bursts_payload_lazy_refreshable_and_failure_safe.md",
+      "ref": "item_867_make_the_review_bursts_payload_lazy_refreshable_and_failure_safe",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Make the Review bursts payload lazy, refreshable, and failure-safe"
+    },
+    {
+      "ai_context": {
+        "keywords": "fix, review, timeline, keyboard, navigation",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_868_fix_review_timeline_keyboard_navigation"
+        ],
+        "prod": [
+          "prod_113_one_viewer_surface_state_and_a_review_timeline_that_can_refresh"
+        ],
+        "req": [
+          "req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on"
+        ],
+        "task": [
+          "task_396_orchestrate_the_review_and_explorer_repair"
+        ]
+      },
+      "path": "logics/backlog/item_868_fix_review_timeline_keyboard_navigation.md",
+      "ref": "item_868_fix_review_timeline_keyboard_navigation",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Fix Review timeline keyboard navigation"
+    },
+    {
+      "ai_context": {
+        "keywords": "orchestrate, review, explorer, repair",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_866_unify_the_viewer_surface_state_across_the_shared_web_client",
+          "item_867_make_the_review_bursts_payload_lazy_refreshable_and_failure_safe",
+          "item_868_fix_review_timeline_keyboard_navigation",
+          "item_869_finish_the_explorer_markdown_switch_and_pane_sizing",
+          "item_870_cover_review_and_the_reworked_explorer_in_the_visual_campaign"
+        ],
+        "prod": [
+          "prod_113_one_viewer_surface_state_and_a_review_timeline_that_can_refresh"
+        ],
+        "req": [
+          "req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on"
+        ],
+        "task": [
+          "task_396_orchestrate_the_review_and_explorer_repair"
+        ]
+      },
+      "path": "logics/tasks/task_396_orchestrate_the_review_and_explorer_repair.md",
+      "ref": "task_396_orchestrate_the_review_and_explorer_repair",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Orchestrate the Review and Explorer repair"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_866_unify_the_viewer_surface_state_across_the_shared_web_client",
+          "item_867_make_the_review_bursts_payload_lazy_refreshable_and_failure_safe",
+          "item_868_fix_review_timeline_keyboard_navigation",
+          "item_869_finish_the_explorer_markdown_switch_and_pane_sizing",
+          "item_870_cover_review_and_the_reworked_explorer_in_the_visual_campaign"
+        ],
+        "prod": [
+          "prod_113_one_viewer_surface_state_and_a_review_timeline_that_can_refresh"
+        ],
+        "req": [
+          "req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on"
+        ],
+        "task": [
+          "task_396_orchestrate_the_review_and_explorer_repair"
+        ]
+      },
+      "path": "logics/product/prod_113_one_viewer_surface_state_and_a_review_timeline_that_can_refresh.md",
+      "ref": "prod_113_one_viewer_surface_state_and_a_review_timeline_that_can_refresh",
+      "schema_version": "1.0",
+      "status": "Proposed",
+      "title": "One viewer surface state and a Review timeline that can refresh"
+    },
+    {
+      "ai_context": {
+        "keywords": "finish, explorer, markdown, switch, pane, sizing",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_869_finish_the_explorer_markdown_switch_and_pane_sizing"
+        ],
+        "prod": [
+          "prod_113_one_viewer_surface_state_and_a_review_timeline_that_can_refresh"
+        ],
+        "req": [
+          "req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on"
+        ],
+        "task": [
+          "task_396_orchestrate_the_review_and_explorer_repair"
+        ]
+      },
+      "path": "logics/backlog/item_869_finish_the_explorer_markdown_switch_and_pane_sizing.md",
+      "ref": "item_869_finish_the_explorer_markdown_switch_and_pane_sizing",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Finish the Explorer markdown switch and pane sizing"
+    },
+    {
+      "ai_context": {
+        "keywords": "cover, review, reworked, explorer, visual, campaign",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_870_cover_review_and_the_reworked_explorer_in_the_visual_campaign"
+        ],
+        "prod": [
+          "prod_113_one_viewer_surface_state_and_a_review_timeline_that_can_refresh"
+        ],
+        "req": [
+          "req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on"
+        ],
+        "task": [
+          "task_396_orchestrate_the_review_and_explorer_repair"
+        ]
+      },
+      "path": "logics/backlog/item_870_cover_review_and_the_reworked_explorer_in_the_visual_campaign.md",
+      "ref": "item_870_cover_review_and_the_reworked_explorer_in_the_visual_campaign",
+      "schema_version": "1.0",
+      "status": "Ready",
+      "title": "Cover Review and the reworked Explorer in the visual campaign"
+    }
+  ],
+  "estimates": {
+    "char_count": 8890,
+    "companion_doc_count": 1,
+    "doc_count": 8
+  },
+  "generated_at": "2026-08-23T12:29:32Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on",
+      "item_866_unify_the_viewer_surface_state_across_the_shared_web_client",
+      "item_867_make_the_review_bursts_payload_lazy_refreshable_and_failure_safe",
+      "item_868_fix_review_timeline_keyboard_navigation",
+      "item_869_finish_the_explorer_markdown_switch_and_pane_sizing",
+      "item_870_cover_review_and_the_reworked_explorer_in_the_visual_campaign",
+      "task_396_orchestrate_the_review_and_explorer_repair"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "summary-only",
+  "profile": "normal",
+  "ref": "req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on,item_866_unify_the_viewer_surface_state_across_the_shared_web_client,item_867_make_the_review_bursts_payload_lazy_refreshable_and_failure_safe,item_868_fix_review_timeline_keyboard_navigation,item_869_finish_the_explorer_markdown_switch_and_pane_sizing,item_870_cover_review_and_the_reworked_explorer_in_the_visual_campaign,task_396_orchestrate_the_review_and_explorer_repair",
+  "refs": [
+    "req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on",
+    "item_866_unify_the_viewer_surface_state_across_the_shared_web_client",
+    "item_867_make_the_review_bursts_payload_lazy_refreshable_and_failure_safe",
+    "item_868_fix_review_timeline_keyboard_navigation",
+    "item_869_finish_the_explorer_markdown_switch_and_pane_sizing",
+    "item_870_cover_review_and_the_reworked_explorer_in_the_visual_campaign",
+    "task_396_orchestrate_the_review_and_explorer_repair"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_id": null,
+    "target_version": "2.22.4",
+    "targets": []
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_396_orchestrate_the_review_and_explorer_repair.md",
+      "ref": "task_396_orchestrate_the_review_and_explorer_repair"
+    }
+  ]
+}

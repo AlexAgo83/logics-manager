@@ -7,7 +7,7 @@
 > Complexity: High
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 13:56:44
+> Indicators reviewed: 2026-08-23 14:31:21
 
 # AI Context
 - Summary: Adds a Review viewer slot that turns local Git changes into a horizontal burst timeline with vertical per-file review and a shared diff pane.
@@ -56,6 +56,8 @@
 - [x] Scope boundaries (in/out) are explicit.
 - [x] Acceptance criteria are testable.
 - [x] Dependencies and known risks are listed.
+
+- Post-closeout: the delivered implementation left AC7 and AC8 unmet and the AC9/AC10 layout proofs unexercised. `req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on` repairs them; this request is not reopened.
 
 # Companion docs
 - Product brief(s): `prod_110_a_review_slot_for_project_change_timelines`

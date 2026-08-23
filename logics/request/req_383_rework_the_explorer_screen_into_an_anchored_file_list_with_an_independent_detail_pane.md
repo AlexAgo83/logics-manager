@@ -7,7 +7,7 @@
 > Complexity: Medium
 > Theme: Viewer explorer
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 14:05:36
+> Indicators reviewed: 2026-08-23 14:31:22
 
 # AI Context
 - Summary: Stops the Explorer rebuilding both panes on every file click, gives the list and the detail their own scroll, and adds a Raw/Preview switch for markdown.
@@ -52,6 +52,8 @@
 - [x] Scope boundaries (in/out) are explicit.
 - [x] Acceptance criteria are testable.
 - [x] Dependencies and known risks are listed.
+
+- Post-closeout: the delivered implementation left AC7, AC8 and the AC10 layout proof unmet. `req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on` repairs them; this request is not reopened.
 
 # Companion docs
 - Product brief(s): `prod_112_an_anchored_explorer_with_a_readable_detail_pane`

@@ -1,14 +1,14 @@
 ## item_857_expose_review_bursts_from_local_git - Expose review bursts from local Git
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 92%
 > Confidence: 88%
-> Progress: 95%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 13:40:03
+> Indicators reviewed: 2026-08-23 13:56:45
 
 # AI Context
 - Summary: Shapes existing local Git status and history into Review bursts, then adds the missing committed-file diff payload.
@@ -63,3 +63,9 @@
 # Priority
 - Priority: High
 - Rationale: Review cannot render the requested timeline safely until the backend exposes bursts and per-file commit diffs.
+
+# Tasks
+- `task_393_orchestrate_the_review_slot_change_timeline`
+
+# Notes
+- Task `task_393_orchestrate_the_review_slot_change_timeline` was finished via `logics-manager flow finish task` on 2026-08-23.

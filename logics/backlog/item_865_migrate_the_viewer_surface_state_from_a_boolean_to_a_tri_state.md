@@ -1,14 +1,14 @@
 ## item_865_migrate_the_viewer_surface_state_from_a_boolean_to_a_tri_state - Migrate the viewer surface state from a boolean to a tri-state
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 92
 > Confidence: 88
-> Progress: 95%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 13:40:03
+> Indicators reviewed: 2026-08-23 13:56:45
 
 # AI Context
 - Summary: Replaces the two-state surface slider and its boolean with a control and a state that can hold three surfaces, before any third surface exists.
@@ -64,3 +64,7 @@
 
 # Notes
 - Split out of `item_858_build_the_review_slot_timeline_ui` before implementation: the refactor and the new surface have different risk profiles and are reviewed separately.
+- Task `task_393_orchestrate_the_review_slot_change_timeline` was finished via `logics-manager flow finish task` on 2026-08-23.
+
+# Tasks
+- `task_393_orchestrate_the_review_slot_change_timeline`

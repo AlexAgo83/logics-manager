@@ -1,14 +1,14 @@
 ## item_858_build_the_review_slot_timeline_ui - Build the Review slot timeline UI
 > From version: 2.22.4
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 94%
 > Confidence: 88%
-> Progress: 95%
+> Progress: 100%
 > Complexity: High
 > Theme: Viewer review
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-08-23 13:40:03
+> Indicators reviewed: 2026-08-23 13:56:45
 
 # AI Context
 - Summary: Builds the Review viewer slot with a horizontal burst rail, vertical file list, diff pane, and arrow-key navigation.
@@ -85,3 +85,9 @@
 # Priority
 - Priority: High
 - Rationale: This is the user-visible delivery slice for the new Review slot. It depends on the Git burst payload from `item_857` and on the tri-state surface control from `item_865`.
+
+# Tasks
+- `task_393_orchestrate_the_review_slot_change_timeline`
+
+# Notes
+- Task `task_393_orchestrate_the_review_slot_change_timeline` was finished via `logics-manager flow finish task` on 2026-08-23.

@@ -139,6 +139,7 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
                 "project": {"type": "string"},
                 "include_recent_activity": {"type": "boolean"},
                 "limit": {"type": "integer"},
+                "project_limit": {"type": "integer"},
             }
         ),
     },

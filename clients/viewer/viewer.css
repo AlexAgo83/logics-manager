@@ -629,39 +629,26 @@
   color: var(--vscode-descriptionForeground, #9da5b4);
 }
 
-.toolbar__view-slider {
-  position: relative;
-  width: 40px;
-  height: 20px;
-  flex: 0 0 auto;
-  padding: 0;
+.toolbar__view-option {
+  min-width: 58px;
+  height: 24px;
   border: 1px solid var(--vscode-panel-border, #333333);
-  border-radius: 10px;
+  border-radius: 3px;
+  padding: 0 8px;
   background: var(--vscode-input-background, #2a2a2a);
+  color: var(--vscode-foreground, #dddddd);
+  font: inherit;
+  font-size: 11px;
   cursor: pointer;
 }
 
-.toolbar__view-slider svg {
-  display: none;
+.toolbar__view-option.is-active {
+  border-color: var(--vscode-focusBorder, #007fd4);
+  background: var(--vscode-button-background, #0e639c);
+  color: var(--vscode-button-foreground, #ffffff);
 }
 
-.toolbar__view-slider::after {
-  content: "";
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--vscode-foreground, #dddddd);
-  transition: transform 0.15s ease;
-}
-
-.toolbar__view-slider[data-current-mode="project"]::after {
-  transform: translateX(20px);
-}
-
-.toolbar__view-slider:focus-visible {
+.toolbar__view-option:focus-visible {
   outline: 1px solid var(--vscode-focusBorder, #007fd4);
   outline-offset: 1px;
 }
@@ -725,6 +712,10 @@
 .viewer-screen-activity #focus-menu,
 .viewer-screen-activity #attention-toggle,
 .viewer-screen-activity .toolbar__mode-button,
+.viewer-screen-review #filter-toggle,
+.viewer-screen-review #focus-menu,
+.viewer-screen-review #attention-toggle,
+.viewer-screen-review .toolbar__mode-button,
 .viewer-screen-project #activity-clear {
   display: none;
 }
@@ -737,7 +728,8 @@
 .viewer-screen-document .toolbar__new-request,
 .viewer-screen-document #activity-clear,
 .viewer-screen-document #filter-panel,
-.viewer-screen-activity #filter-panel {
+.viewer-screen-activity #filter-panel,
+.viewer-screen-review #filter-panel {
   display: none;
 }
 
@@ -4749,6 +4741,100 @@
   font-size: 12px;
 }
 
+.viewer-review {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.viewer-review__bursts {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(160px, 220px);
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.viewer-review__burst,
+.viewer-review__file {
+  min-width: 0;
+  border: 1px solid var(--vscode-panel-border, #333333);
+  border-radius: 6px;
+  background: var(--vscode-editorWidget-background, #202020);
+  color: var(--vscode-foreground, #dddddd);
+  font: inherit;
+  cursor: pointer;
+}
+
+.viewer-review__burst {
+  display: grid;
+  gap: 4px;
+  min-height: 86px;
+  padding: 9px;
+  text-align: left;
+}
+
+.viewer-review__burst.is-active,
+.viewer-review__file.is-active {
+  border-color: var(--vscode-focusBorder, #007fd4);
+  background: color-mix(in srgb, var(--vscode-textLink-foreground, #4ea1ff) 12%, var(--vscode-editorWidget-background, #202020));
+}
+
+.viewer-review__burst:focus-visible,
+.viewer-review__file:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder, #007fd4);
+  outline-offset: 1px;
+}
+
+.viewer-review__burst-label,
+.viewer-review__file-kind {
+  color: var(--vscode-textLink-foreground, #4ea1ff);
+  font-family: var(--vscode-editor-font-family, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.viewer-review__burst-title,
+.viewer-review__file-path {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.viewer-review__burst-meta,
+.viewer-review__file-stat {
+  color: var(--vscode-descriptionForeground, #aaaaaa);
+  font-size: 12px;
+}
+
+.viewer-review__body {
+  display: grid;
+  grid-template-columns: minmax(190px, 280px) minmax(0, 1fr);
+  gap: 12px;
+  min-width: 0;
+}
+
+.viewer-review__files {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-width: 0;
+}
+
+.viewer-review__file {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 7px 8px;
+  text-align: left;
+}
+
+.viewer-review__detail {
+  min-width: 0;
+}
+
 .viewer-git__diff pre {
   max-height: 58vh;
   overflow: auto;
@@ -4813,6 +4899,10 @@
   }
 
   .viewer-git__workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .viewer-review__body {
     grid-template-columns: 1fr;
   }
 

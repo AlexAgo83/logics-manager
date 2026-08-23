@@ -267,6 +267,7 @@ import {
     loadGitCommitDiff,
     loadGitDiff,
     loadGitFilePreview,
+    loadReviewFile,
     openGitCommitModal,
     recordGitActivity,
     refreshGitBadgeCounters,
@@ -278,7 +279,9 @@ import {
     setGitActionsMenuOpen,
     setGitBadgeCountsFromPayload,
     showGitStatus,
+    showReviewTimeline,
     showReleaseStatus,
+    selectReviewBurst,
     syncGitCommitActivity,
     updateMainGitBadges,
     updateMainReleaseBadge,
@@ -923,6 +926,32 @@ import {
     // Re-dispatch so newly fetched CI runs reach the feed; only while the panel is open.
     if (activityPanelIsOpen()) {
       dispatchViewerActivityUpdate();
+    }
+  }
+
+  function setViewerSurface(surface) {
+    const next = ["activity", "project", "review"].includes(surface) ? surface : "project";
+    const activityPanel = document.getElementById("activity-panel");
+    if (document.body) {
+      document.body.dataset.viewerSurface = next;
+      document.body.classList.toggle("viewer-screen-activity", next === "activity");
+      document.body.classList.toggle("viewer-screen-project", next === "project");
+      document.body.classList.toggle("viewer-screen-review", next === "review");
+    }
+    if (activityPanel instanceof HTMLElement) {
+      activityPanel.hidden = next !== "activity";
+    }
+    document.querySelectorAll("[data-viewer-surface]").forEach((node) => {
+      if (node instanceof HTMLElement) {
+        const active = node.getAttribute("data-viewer-surface") === next;
+        node.classList.toggle("is-active", active);
+        node.setAttribute("aria-pressed", String(active));
+      }
+    });
+    if (next === "activity") {
+      dispatchViewerActivityUpdate();
+    } else if (next === "review") {
+      withPrimaryAction("review-timeline", "Loading Review timeline", () => showReviewTimeline(), { supersede: true });
     }
   }
 
@@ -4635,12 +4664,10 @@ import {
     activityClearControl()?.addEventListener("click", () => {
       clearActivityHistory();
     });
-    document.getElementById("activity-toggle")?.addEventListener("click", () => {
-      setTimeout(() => {
-        if (activityPanelIsOpen()) {
-          dispatchViewerActivityUpdate();
-        }
-      }, 0);
+    document.querySelectorAll("[data-viewer-surface]").forEach((node) => {
+      if (node instanceof HTMLElement) {
+        node.addEventListener("click", () => setViewerSurface(node.getAttribute("data-viewer-surface") || "project"));
+      }
     });
     document.querySelectorAll("[data-viewer-filter-group]").forEach((element) => {
       if (element instanceof HTMLSelectElement) {
@@ -4865,6 +4892,8 @@ import {
       const gitVerdictRunTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-run]") : null;
       const gitFileTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-file]") : null;
       const gitCommitTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-commit]") : null;
+      const reviewBurstTarget = event.target instanceof Element ? event.target.closest("[data-viewer-review-burst]") : null;
+      const reviewFileTarget = event.target instanceof Element ? event.target.closest("[data-viewer-review-file]") : null;
       const gitPreviewFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-preview-full]") : null;
       const gitDiffFullTarget = event.target instanceof Element ? event.target.closest("[data-viewer-git-diff-full]") : null;
       const workspaceTreeTarget = event.target instanceof Element ? event.target.closest("[data-viewer-workspace-tree]") : null;
@@ -5420,6 +5449,14 @@ import {
       }
       if (gitCommitTarget instanceof HTMLElement) {
         loadGitCommitDiff(gitCommitTarget.getAttribute("data-viewer-git-commit") || "", gitCommitTarget).catch((error) => setMeta(error.message));
+        return;
+      }
+      if (reviewBurstTarget instanceof HTMLElement) {
+        selectReviewBurst(reviewBurstTarget.getAttribute("data-viewer-review-burst") || "").catch((error) => setMeta(error.message));
+        return;
+      }
+      if (reviewFileTarget instanceof HTMLElement) {
+        loadReviewFile(reviewFileTarget).catch((error) => setMeta(error.message));
         return;
       }
       if (gitFileTarget instanceof HTMLElement) {

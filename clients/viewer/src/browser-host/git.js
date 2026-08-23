@@ -66,6 +66,10 @@ export function createGitScreen(host) {
 
   let latestCiScreenMode = "git";
 
+  let latestReviewPayload = null;
+
+  let latestReviewBurstId = "";
+
   function ciActivityEvents(ciStatus = latestCiStatus) {
     // req_487: reuse the recentRuns the CI badge already fetched (/api/ci-status) as
     // ci-kind activity events. No extra fetch; the shared feed + filter handle kind:"ci".
@@ -686,7 +690,7 @@ export function createGitScreen(host) {
     diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.path || path)} · ${escapeHtml(payload.mode || "worktree")}${payload.truncated ? " · truncated" : ""}</div>${renderGitDiffPreview(content)}${more}`;
   }
 
-  async function loadGitCommitDiff(ref, button = null) {
+  async function loadGitCommitDiff(ref, button = null, options = {}) {
     const diffPanel = document.querySelector("[data-viewer-git-diff]");
     const detailTitle = document.querySelector("[data-viewer-git-detail] .viewer-git__detail-title");
     if (!(diffPanel instanceof HTMLElement) || !ref) {
@@ -699,7 +703,11 @@ export function createGitScreen(host) {
       detailTitle.textContent = "Commit diff";
     }
     diffPanel.textContent = "Loading commit diff...";
-    const response = await fetch(`/api/git-commit-diff?${new URLSearchParams({ ref }).toString()}`);
+    const params = new URLSearchParams({ ref });
+    if (options.path) {
+      params.set("path", options.path);
+    }
+    const response = await fetch(`/api/git-commit-diff?${params.toString()}`);
     const data = await response.json();
     const payload = data.payload || {};
     if (!response.ok || !data.ok || payload.state !== "ok") {
@@ -711,7 +719,141 @@ export function createGitScreen(host) {
       diffPanel.textContent = payload.message || "No diff is available for this commit.";
       return;
     }
-    diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(payload.ref || ref)} · commit${payload.truncated ? " · truncated" : ""}</div>${renderGitDiffPreview(content)}`;
+    const label = payload.path ? `${payload.path} · ${payload.ref || ref}` : `${payload.ref || ref}`;
+    diffPanel.innerHTML = `<div class="viewer-git__diff-meta">${escapeHtml(label)} · commit${payload.truncated ? " · truncated" : ""}</div>${renderGitDiffPreview(content)}`;
+  }
+
+  function reviewBursts() {
+    return latestReviewPayload && Array.isArray(latestReviewPayload.bursts) ? latestReviewPayload.bursts : [];
+  }
+
+  function activeReviewBurst() {
+    const bursts = reviewBursts();
+    return bursts.find((burst) => burst?.id === latestReviewBurstId) || bursts[0] || null;
+  }
+
+  function renderReviewFileButton(file, burst) {
+    const path = String(file?.path || "");
+    const additions = Number(file?.additions || 0);
+    const deletions = Number(file?.deletions || 0);
+    const stat = additions || deletions ? `<span class="viewer-review__file-stat">+${additions}-${deletions}</span>` : "";
+    return `<button class="viewer-review__file" type="button" data-viewer-review-file="${escapeHtml(path)}" data-viewer-review-burst-id="${escapeHtml(String(burst?.id || ""))}" data-viewer-review-kind="${escapeHtml(String(burst?.kind || ""))}" data-viewer-review-ref="${escapeHtml(String(burst?.ref || ""))}" data-viewer-review-cached="${file?.cached ? "1" : "0"}">
+      <span class="viewer-review__file-kind">${escapeHtml(String(file?.kind || "M"))}</span>
+      <span class="viewer-review__file-path">${escapeHtml(path)}</span>
+      ${stat}
+    </button>`;
+  }
+
+  function renderReviewTimeline(payload = latestReviewPayload) {
+    if (!payload || payload.state !== "ok") {
+      return `<section class="viewer-review"><p class="viewer-git__state">${escapeHtml(payload?.message || "Review timeline is unavailable.")}</p></section>`;
+    }
+    const bursts = reviewBursts();
+    const active = activeReviewBurst();
+    const burstRows = bursts.map((burst) => `<button class="viewer-review__burst${burst === active ? " is-active" : ""}" type="button" data-viewer-review-burst="${escapeHtml(String(burst?.id || ""))}" aria-pressed="${burst === active ? "true" : "false"}">
+      <span class="viewer-review__burst-label">${escapeHtml(String(burst?.label || burst?.ref || "Change"))}</span>
+      <span class="viewer-review__burst-title">${escapeHtml(String(burst?.title || ""))}</span>
+      <span class="viewer-review__burst-meta">${escapeHtml(String(burst?.meta || ""))}</span>
+    </button>`).join("");
+    const files = Array.isArray(active?.files) ? active.files : [];
+    return `<section class="viewer-review" data-viewer-review>
+      <div class="viewer-review__bursts" role="listbox" aria-label="Review timeline">${burstRows || '<p class="viewer-git__state">No changes are available.</p>'}</div>
+      <div class="viewer-review__body">
+        <div class="viewer-review__files" role="listbox" aria-label="Changed files">${files.map((file) => renderReviewFileButton(file, active)).join("") || '<p class="viewer-git__state">No files for this change.</p>'}</div>
+        <div class="viewer-git__detail viewer-review__detail" data-viewer-git-detail>
+          <div class="viewer-git__detail-title">File diff</div>
+          <div class="viewer-git__diff" data-viewer-git-diff data-viewer-review-diff>Select a file to preview its change.</div>
+        </div>
+      </div>
+    </section>`;
+  }
+
+  function firstReviewFileButton() {
+    return document.querySelector("[data-viewer-review-file]");
+  }
+
+  function moveReviewButton(selector, current, delta) {
+    const nodes = Array.from(document.querySelectorAll(selector)).filter((node) => node instanceof HTMLElement);
+    if (!nodes.length) return;
+    const index = Math.max(0, nodes.findIndex((node) => node === current || node.classList.contains("is-active") || node.getAttribute("aria-pressed") === "true"));
+    const next = nodes[(index + delta + nodes.length) % nodes.length];
+    if (next instanceof HTMLElement) {
+      next.focus();
+      next.click();
+    }
+  }
+
+  function bindReviewKeyboard() {
+    const root = document.querySelector("[data-viewer-review]");
+    if (!(root instanceof HTMLElement)) return;
+    root.addEventListener("keydown", (event) => {
+      if (!(event.target instanceof Element)) return;
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        event.preventDefault();
+        moveReviewButton("[data-viewer-review-burst]", event.target.closest("[data-viewer-review-burst]"), event.key === "ArrowRight" ? 1 : -1);
+      } else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+        event.preventDefault();
+        moveReviewButton("[data-viewer-review-file]", event.target.closest("[data-viewer-review-file]"), event.key === "ArrowDown" ? 1 : -1);
+      }
+    });
+  }
+
+  async function selectReviewBurst(id) {
+    latestReviewBurstId = id;
+    host.setDocument("Review", renderReviewTimeline());
+    bindReviewKeyboard();
+    const firstFile = firstReviewFileButton();
+    if (firstFile instanceof HTMLElement) {
+      await loadReviewFile(firstFile);
+    }
+  }
+
+  async function loadReviewFile(button) {
+    if (!(button instanceof HTMLElement)) {
+      return;
+    }
+    document.querySelectorAll("[data-viewer-review-file]").forEach((node) => {
+      if (node instanceof HTMLElement) {
+        node.classList.toggle("is-active", node === button);
+      }
+    });
+    const path = button.getAttribute("data-viewer-review-file") || "";
+    const kind = button.getAttribute("data-viewer-review-kind") || "";
+    if (kind === "commit") {
+      await loadGitCommitDiff(button.getAttribute("data-viewer-review-ref") || "", null, { path });
+      return;
+    }
+    await loadGitDiff(path, button.getAttribute("data-viewer-review-cached") === "1", null);
+  }
+
+  async function showReviewTimeline(options = {}) {
+    if (!host.isCapabilityAvailable("git")) {
+      const message = host.capabilityMessage("git", "Git is not available for this project.");
+      host.setDocument("Review", renderReviewTimeline({ state: host.capability("git").state, message, bursts: [] }));
+      host.setMeta(message);
+      return;
+    }
+    if (!options.silent) {
+      host.setMeta("Loading Review timeline...");
+    }
+    const view = options.view || host.beginView({ silent: Boolean(options.silent) });
+    const response = await fetch("/api/review-bursts", { signal: view.signal });
+    const data = await response.json();
+    if (host.isViewStale(view)) {
+      return;
+    }
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Unable to load Review timeline.");
+    }
+    latestReviewPayload = data.payload || {};
+    latestReviewBurstId = String(reviewBursts()[0]?.id || "");
+    host.setDocument("Review", renderReviewTimeline());
+    bindReviewKeyboard();
+    const firstFile = firstReviewFileButton();
+    if (firstFile instanceof HTMLElement) {
+      await loadReviewFile(firstFile);
+    }
+    host.setMeta(latestReviewPayload.message || "Review timeline ready.");
   }
 
   async function loadGitFilePreview(path, diffPanel, detailTitle = null, options = {}) {
@@ -961,6 +1103,9 @@ export function createGitScreen(host) {
     setGitActionsMenuOpen,
     setGitBadgeCountsFromPayload,
     showGitStatus,
+    showReviewTimeline,
+    selectReviewBurst,
+    loadReviewFile,
     showReleaseStatus,
     syncGitCommitActivity,
     updateMainGitBadges,

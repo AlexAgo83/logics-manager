@@ -4,7 +4,6 @@
 import {
   activeCdxInteractionMenu,
   activityMinuteBucket,
-  activityPanelIsOpen,
   activityRootKey,
   asArray,
   cdxField,
@@ -1248,11 +1247,15 @@ export function renderWorkspaceTree(treePayload, selectedPath = "") {
   }
 
 export function returnToProjectSurface() {
-    const activityToggle = document.getElementById("activity-toggle");
-    if (activityPanelIsOpen() && activityToggle instanceof HTMLElement) {
-      activityToggle.click();
+    const activityPanel = document.getElementById("activity-panel");
+    if (activityPanel instanceof HTMLElement) {
+      activityPanel.hidden = true;
+    }
+    if (document.body) {
+      document.body.dataset.viewerSurface = "project";
     }
     document.body?.classList.remove("viewer-screen-activity");
+    document.body?.classList.remove("viewer-screen-review");
     document.body?.classList.add("viewer-screen-project");
   }
 

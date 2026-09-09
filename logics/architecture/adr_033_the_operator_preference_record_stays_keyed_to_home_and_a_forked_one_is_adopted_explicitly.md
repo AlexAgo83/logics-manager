@@ -1,6 +1,6 @@
 ## adr_033_the_operator_preference_record_stays_keyed_to_home_and_a_forked_one_is_adopted_explicitly - The operator preference record stays keyed to HOME, and a forked one is adopted explicitly
 > Date: 2026-09-09
-> Status: Proposed
+> Status: Settled
 > Related request: `req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently`
 > Related backlog: `item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately`
 > Related task: `task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs`

@@ -1,11 +1,12 @@
 ## prod_117_one_operator_record_and_the_viewer_says_which_one_it_opened - One operator record, and the viewer says which one it opened
 > Date: 2026-09-09
-> Status: Proposed
+> Status: Settled
 > Related request: `req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently`
-> Related backlog: `item_885_report_which_preference_store_the_viewer_opened`, `item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately`
+> Related backlog: `item_885_report_which_preference_store_the_viewer_opened`
 > Related task: `task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
+> Indicators reviewed: 2026-09-09 13:23:20
 
 # Overview
 Where the operator's own record lives - favorites, last-used projects, fleet discovery roots, refresh interval - is currently a consequence of the process HOME rather than a decision. Make the store the viewer opened a stated fact, and settle deliberately whether that record should follow HOME or live in one place, without ever merging or overwriting a store behind the operator's back.
@@ -46,5 +47,5 @@ flowchart TD
 - Context-pack output can be handed to an implementation agent directly.
 
 # References
-- Product back-reference: `req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently`
+- Product back-reference: `item_885_report_which_preference_store_the_viewer_opened`
 - Task back-reference: `task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs`

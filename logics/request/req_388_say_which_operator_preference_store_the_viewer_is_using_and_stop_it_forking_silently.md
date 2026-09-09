@@ -1,12 +1,13 @@
 ## req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently - Say which operator preference store the viewer is using, and stop it forking silently
 > From version: 2.23.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
 > Complexity: Medium
 > Theme: Operator preference store identity
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Indicators reviewed: 2026-09-09 13:23:19
 
 # AI Context
 - Summary: The operator record is keyed to the process HOME, so a viewer launched under another HOME opens a different preferences file and favourites, projects and fleet roots appear lost. Make the store in use a stated fact, then settle where it belongs.

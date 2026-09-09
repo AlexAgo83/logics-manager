@@ -740,7 +740,10 @@
         activityToggle.dataset.currentMode = surface;
         activityToggle.setAttribute("aria-label", "Show recent activity");
         activityToggle.title = "Show recent activity";
-        document.querySelectorAll("[data-viewer-surface]").forEach((node) => {
+        // `button[...]`, not `[...]`: the standalone viewer loads this file too and marks
+        // <body data-viewer-surface>, so the bare selector announced the page itself as a
+        // tab. Same scoping as util.syncSurfaceSelector (item_880).
+        document.querySelectorAll("button[data-viewer-surface]").forEach((node) => {
           if (node instanceof HTMLElement) {
             const active = node.getAttribute("data-viewer-surface") === surface;
             node.classList.toggle("is-active", active);

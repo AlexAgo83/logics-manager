@@ -2289,7 +2289,7 @@ describe("local viewer browser host", () => {
     expect(source).toContain('document.body?.classList.toggle("viewer-screen-activity", surface === "activity")');
     expect(source).toContain('document.body?.classList.toggle("viewer-screen-project", surface === "project")');
     expect(source).toContain('document.body?.classList.toggle("viewer-screen-review", surface === "review")');
-    expect(source).toContain('document.querySelectorAll("[data-viewer-surface]")');
+    expect(source).toContain('document.querySelectorAll("button[data-viewer-surface]")');
     expect(app).toContain('window.addEventListener("viewer-surface-change"');
     expect(interactions).toContain('!activityToggle.hasAttribute("data-viewer-surface")');
     expect(host).toContain("if (current === next)");

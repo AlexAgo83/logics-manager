@@ -232,7 +232,10 @@ const allowedOversizedFiles = new Map(
     // viewer_git.py and only this route wire stays here.
     // 4410: req_384 adds one lazy Review-burst files route beside the Review route it
     // serves; the payload stays in viewer_git.py and this file keeps only the URL wire.
-    "logics_manager/viewer.py": { maxLines: 4410, ref: "req_384" },
+    // 4438: req_387 (item_878) validates the repair route's body before it can write --
+    // length, encoding, JSON, object shape and preview type -- and (item_883) marks
+    // hidden folders in the picker tree. Both belong on the routes that already live here.
+    "logics_manager/viewer.py": { maxLines: 4438, ref: "req_387" },
     // 1545: item_743 keys the cdx update cache on a fingerprint of the installed
     // executable, so running the update the banner asks for ends the banner. The
     // helper is 8 lines; the rest is the docstring stating why it stats rather than
@@ -258,7 +261,9 @@ const allowedOversizedFiles = new Map(
     // 1231: req_386 keeps Git and Review diffs on one bounded payload path: default
     // context is five lines, while the existing forced-load escape hatch still asks Git
     // for the larger context instead of introducing a second endpoint.
-    "logics_manager/viewer_git.py": { maxLines: 1231, ref: "req_386" },
+    // 1242: req_387 (item_877) turns every viewer-supplied path into a :(literal)
+    // pathspec next to the path normaliser that already owns Git path safety here.
+    "logics_manager/viewer_git.py": { maxLines: 1242, ref: "req_387" },
     // 4909: release prep baseline.
     // req_311 lifted the document vocabulary into flow/docs.py: 4725 -> 3627. What is left
     // is the verbs and the CLI wiring, sitting on top of primitives that know nothing of them.
@@ -457,7 +462,10 @@ const allowedOversizedFiles = new Map(
     // 5669: req_386 routes the shared "load rest of diff" button to either worktree or
     // commit diff based on existing data attributes, preserving the commit title without
     // adding a second dispatcher branch.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 5669, ref: "req_386" },
+    // 5682: req_387 gives each folder picker its own purpose and confirmation
+    // (item_883) and re-derives the surface selector from the rendered surface
+    // (item_880), both at the picker/surface code this dispatcher already owns.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 5682, ref: "req_387" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     // 1114: req_381 adds the Review timeline to the Git screen because it is a Git-only
@@ -516,7 +524,10 @@ const allowedOversizedFiles = new Map(
     // 1490: req_365's loading-indicator plumbing and req_367's runbook-as-document work.
     // 1495: req_381 names the tri-state surface reader once instead of leaving new
     // callers to infer Activity/Project/Review from body classes.
-    "clients/viewer/src/browser-host/util.js": { maxLines: 1495, ref: "req_381" },
+    // 1513: req_387 (item_880) adds syncSurfaceSelector beside viewerSurface, the
+    // reader it derives from; splitting the pair would leave two files describing one
+    // piece of state.
+    "clients/viewer/src/browser-host/util.js": { maxLines: 1513, ref: "req_387" },
     // 2546: req_305 added the workflow-health sections (blocked docs, stale docs)
     // to the health screen, which previously showed lint and audit only.
     // req_312 moved the rendering whose only consumer is the cdx screen into that screen:
@@ -562,7 +573,9 @@ const allowedOversizedFiles = new Map(
     // second renderer path.
     // 2194: req_386 lets the shared code viewer accept caller-provided line numbers and
     // row classes, so diff line sync/hunk breaks reuse the existing renderer.
-    "clients/viewer/src/browser-host/render.js": { maxLines: 2194, ref: "req_386" },
+    // 2208: req_387 (item_883) gives the shared picker body its purpose line and its
+    // hidden-folder toggle; it is the one renderer both pickers use.
+    "clients/viewer/src/browser-host/render.js": { maxLines: 2208, ref: "req_387" },
     // 1353: req_314 taught the board to group by status, which is what its control always
     // claimed to do. The grouping itself is eleven lines; the rest is the heading element
     // the accessibility slice needed.

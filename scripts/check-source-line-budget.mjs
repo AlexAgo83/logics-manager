@@ -235,7 +235,13 @@ const allowedOversizedFiles = new Map(
     // 4438: req_387 (item_878) validates the repair route's body before it can write --
     // length, encoding, JSON, object shape and preview type -- and (item_883) marks
     // hidden folders in the picker tree. Both belong on the routes that already live here.
-    "logics_manager/viewer.py": { maxLines: 4438, ref: "req_387" },
+    // 4476: req_388 reports which operator preferences record this viewer opened
+    // (item_885) and adds the adoption route for a forked one (item_886/adr_033). Both
+    // are route wires plus one banner line; the resolution and the merge live in
+    // viewer_preferences.py, which owns that record. The adoption route is a handler of
+    // its own rather than another branch in do_POST, which is at its own ceiling -- the
+    // same extraction the neighbouring fleet-root and apply-fixes routes already took.
+    "logics_manager/viewer.py": { maxLines: 4476, ref: "req_388" },
     // 1545: item_743 keys the cdx update cache on a fingerprint of the installed
     // executable, so running the update the banner asks for ends the banner. The
     // helper is 8 lines; the rest is the docstring stating why it stats rather than
@@ -465,7 +471,10 @@ const allowedOversizedFiles = new Map(
     // 5682: req_387 gives each folder picker its own purpose and confirmation
     // (item_883) and re-derives the surface selector from the rendered surface
     // (item_880), both at the picker/surface code this dispatcher already owns.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 5682, ref: "req_387" },
+    // 5715: req_388 names the record in the Settings identity block and offers adoption
+    // beside the warning that reports the fork (item_885/item_886). Both belong to the
+    // Settings screen this dispatcher already renders.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 5715, ref: "req_388" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     // 1114: req_381 adds the Review timeline to the Git screen because it is a Git-only

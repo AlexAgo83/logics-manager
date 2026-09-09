@@ -47,6 +47,7 @@ from .sync import (
     update_workflow_indicators_payload,
 )
 from .viewer_preferences import (
+    adopt_preferences as adopt_viewer_preferences,
     fleet_roots,
     operator_preferences_stores,
     read_preferences as read_viewer_preferences,
@@ -1751,6 +1752,7 @@ VIEWER_MUTATING_ROUTES = frozenset(
         "/api/remove-fleet-root",
         "/api/preferences",
         "/api/select-project-root-path",
+        "/api/adopt-preferences",
         "/api/select-fleet-root-path",
         "/api/cdx-report-request",
         "/api/cdx-mission-run",
@@ -3154,6 +3156,30 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             self._send_error_json(HTTPStatus.BAD_REQUEST, str(exc))
         return True
 
+    def _handle_adopt_preferences_post(self, parsed: Any) -> bool:
+        """Merge a forked operator record into the active one (item_886/adr_033).
+
+        Extracted rather than inlined in do_POST for the reason every sibling route here
+        was: the dispatcher is at its length ceiling, and this route has its own error
+        vocabulary. The path arrives from the client, so only a record this account
+        already has is accepted; the source file is read, never written.
+        """
+        if parsed.path != "/api/adopt-preferences":
+            return False
+        try:
+            body = self._read_json_body_strict()
+            if not isinstance(body, dict):
+                raise ValueError("Adoption request body must be a JSON object.")
+            preferences = adopt_viewer_preferences(self.server.repo_root, Path(str(body.get("path") or "")))
+            self._send_json({"ok": True, "payload": self.server.viewer_payload(), "preferences": preferences})
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
+        except ValueError as exc:
+            self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
+        except OSError as exc:
+            self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
+        return True
+
     def _handle_apply_fixes_post(self, parsed: Any) -> bool:
         if parsed.path != "/api/apply-fixes":
             return False
@@ -3596,6 +3622,8 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
                 self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid JSON body.")
             except (StopIteration, ValueError) as exc:
                 self._send_error_json(HTTPStatus.FORBIDDEN, str(exc))
+            return
+        if self._handle_adopt_preferences_post(parsed):
             return
         if parsed.path == "/api/select-project-root-path":
             try:

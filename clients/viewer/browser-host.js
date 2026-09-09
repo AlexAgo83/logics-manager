@@ -11383,7 +11383,8 @@ ${line}` : line;
         ["Preferences", info?.preferences?.path || "unknown"]
       ];
       const others = Array.isArray(info?.preferences?.others) ? info.preferences.others : [];
-      const forked = others.length ? `<p class="viewer-settings-screen__hint">Another operator preferences file exists for this account: ${others.map((path) => escapeHtml(String(path))).join(", ")}. This viewer reads and writes the one above; favourites and Fleet roots kept in the other are not lost, only elsewhere.</p>` : "";
+      const forked = others.length ? `<p class="viewer-settings-screen__hint">Another operator preferences file exists for this account: ${others.map((path) => escapeHtml(String(path))).join(", ")}. This viewer reads and writes the one above; favourites and Fleet roots kept in the other are not lost, only elsewhere.</p>
+      ${others.map((path) => `<button class="btn viewer-settings-quiet" type="button" data-viewer-settings-action="adopt-preferences" data-viewer-preferences-source="${escapeHtml(String(path))}">Add that file's favourites and Fleet roots to this one</button>`).join("")}` : "";
       return `<section class="viewer-settings-identity">
       <h3>This viewer</h3>
       <dl class="viewer-settings-identity__list">
@@ -12475,6 +12476,28 @@ ${shown.join("\n")}${files.length > shown.length ? `
         if (action === "copy-diagnostics") withPrimaryAction("settings-diagnostics", "Copying diagnostics", copyViewerDiagnostics);
         if (action === "restart") withPrimaryAction("settings-restart", "Restarting server", restartViewerServer);
         if (action === "stop") withPrimaryAction("settings-stop", "Stopping server", stopViewerServer);
+        if (action === "adopt-preferences") {
+          const source = target.dataset.viewerPreferencesSource || "";
+          withPrimaryAction("settings-adopt-preferences", "Adopting the other preferences file", async () => {
+            const confirmed = await showThemedConfirmModal({
+              title: "Adopt the other preferences file",
+              message: `Add the favourites and Fleet roots kept in ${source} to the file this viewer uses. Nothing is removed here, and that file is not changed.`,
+              submitLabel: "Adopt"
+            });
+            if (!confirmed) return void setMeta("Adoption cancelled; nothing changed.");
+            const response = await fetch("/api/adopt-preferences", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ path: source })
+            });
+            const data = await response.json();
+            if (!response.ok || !data.ok) throw new Error(data.error || "Unable to adopt that preferences file.");
+            viewerState.viewerPreferences = data.preferences || viewerState.viewerPreferences;
+            postToApp(data.payload, { force: true });
+            await showSettings();
+            setMeta("Favourites and Fleet roots adopted.");
+          });
+        }
         if (action === "vscode-reload") document.getElementById("viewer-vscode-reload")?.click();
         if (action === "vscode-restart") document.getElementById("viewer-vscode-restart")?.click();
         if (action === "vscode-external") document.getElementById("viewer-vscode-open-external")?.click();

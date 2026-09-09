@@ -23,6 +23,7 @@ import {
   countPayloadEntries,
   createThemedModal,
   previewRequestPath,
+  syncSurfaceSelector,
   downloadBase64File,
   fileToBase64,
   formatCdxTokenUsage,
@@ -1271,6 +1272,7 @@ export function returnToProjectSurface() {
     document.body?.classList.remove("viewer-screen-activity");
     document.body?.classList.remove("viewer-screen-review");
     document.body?.classList.add("viewer-screen-project");
+    syncSurfaceSelector("project");
   }
 
 export function runtimeStatusSignature(payload) {

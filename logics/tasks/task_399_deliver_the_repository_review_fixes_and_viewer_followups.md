@@ -8,7 +8,7 @@
 > Complexity: High
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-09-09 12:39:26
+> Indicators reviewed: 2026-09-09 12:39:56
 > Owner: Claude
 
 # AI Context
@@ -75,6 +75,7 @@
 - command: `python3 -m pytest tests/python/ -q && npm test && npm run lint` | result: passed | date: 2026-09-09
 - Finish workflow executed on 2026-09-09.
 - Linked backlog/request close verification passed.
+- npm run ci:check: every stage before the dependency gate passes (lint, tests, coverage floor, doctor, workflow audit 0 issues, README badges), then audit:ci fails on a pre-existing devDependency chain unrelated to these slices - js-yaml (high) reached through @textlint/linter-formatter and rc-config-loader, plus @vitest/coverage-v8 (moderate). This is the same gate the review baseline stopped at. It is a dependency finding, not a behaviour result, and it means CI and release cannot be called clean; it is not evidence against any AC in this delivery.
 
 # Report
 - All eight slices delivered. item_877 (156f934f): viewer-supplied Git paths become :(literal) pathspecs for add/commit/diff/show; real-repo regressions with part*.txt, part?.txt, part[1].txt and an already-staged unrelated file fail without the fix. item_878 (e087b005): /api/apply-fixes validates length, encoding, JSON, object shape and preview type before any write and answers 400; corpus stays byte-identical, valid preview read-only, valid apply still repairs. item_879 (dcb71766): a list-shaped cache or a nonnumeric checked_at is now a cache miss, not an exception; valid hits keep their behaviour and do not refetch. item_881 (bd1778b9): one unreadable fleet root raised out of the viewer constructor, which is what "everything disappeared" looked like; failures are contained per root, and writes no longer rewrite the saved list from the existence-filtered view, which deleted merely-unmounted roots.

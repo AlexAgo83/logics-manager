@@ -2,6 +2,7 @@ import {
   activeCdxInteractionMenu,
   activityPanelIsOpen,
   syncSurfaceSelector,
+  watchSurfacePanel,
   activityRootKey,
   applyCdxBadge,
   applyGitDomain,
@@ -2953,6 +2954,7 @@ import {
     bindFocusMenuControls();
     // item_880: a repaint can replace the selector nodes, so re-derive their state from
     // the surface that is actually showing.
+    watchSurfacePanel();
     syncSurfaceSelector();
     if (activityPanelIsOpen()) {
       dispatchViewerActivityUpdate();

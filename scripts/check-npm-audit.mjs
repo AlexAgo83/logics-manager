@@ -31,6 +31,10 @@ const allowedPackages = new Map([
     "Tracked by item_203: wrapper package for the same Vitest/Vite dev-server advisory chain."
   ],
   [
+    "@vitest/coverage-v8",
+    "Tracked by item_203: reaches the same Vitest/Vite dev-server advisory only through vitest, which is already accepted here."
+  ],
+  [
     "@vscode/vsce",
     "Temporary exception: release/publish tooling only; not shipped in the extension runtime."
   ],

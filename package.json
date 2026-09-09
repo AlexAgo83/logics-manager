@@ -116,7 +116,7 @@
     "test:npm-cli": "node scripts/npm/logics-manager.mjs --help",
     "test:lifecycle": "node tests/run_plugin_lifecycle_checks.mjs",
     "test:watch": "vitest",
-    "lint": "npm run lint:ts && npm run lint:es && npm run check:line-budget && npm run check:function-length && npm run check:status-constants",
+    "lint": "npm run lint:ts && npm run lint:es && npm run check:viewer-host && npm run check:line-budget && npm run check:function-length && npm run check:status-constants",
     "lint:ts": "tsc -p ./ --noEmit",
     "lint:es": "eslint clients/vscode/src/**/*.ts",
     "lint:logics": "node scripts/run-python.mjs -m logics_manager lint",
@@ -163,7 +163,7 @@
     "minimatch@10.2.6": {
       "brace-expansion": "5.0.9"
     },
-    "js-yaml": "4.3.1",
+    "js-yaml": "4.3.2",
     "linkify-it": "5.0.2",
     "qs": "6.16.0",
     "undici": "7.29.0",

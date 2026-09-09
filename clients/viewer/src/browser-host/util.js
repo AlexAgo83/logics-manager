@@ -21,8 +21,14 @@ export function activityPanelIsOpen() {
   }
 
 export function viewerSurface() {
+    // item_880: the panel wins over the dataset. Activity is the one surface with its own
+    // mounted element, and several paths show or hide it without going through
+    // setViewerSurface -- so the body could say "project" while the Activity feed was the
+    // thing on screen, and the selector faithfully highlighted the wrong tab. What is
+    // rendered decides; the dataset only distinguishes Project from Review.
+    if (activityPanelIsOpen()) return "activity";
     const surface = document.body?.dataset.viewerSurface || "";
-    return ["activity", "project", "review"].includes(surface) ? surface : (activityPanelIsOpen() ? "activity" : "project");
+    return ["project", "review"].includes(surface) ? surface : "project";
   }
 
 // item_880: the selector used to be repainted only by setViewerSurface, so every other

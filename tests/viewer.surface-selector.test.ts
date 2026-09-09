@@ -72,9 +72,35 @@ describe("the surface selector follows the rendered surface", () => {
     expect(selection(dom).filter((entry) => entry.selected === "true").map((entry) => entry.surface)).toEqual(["project"]);
   });
 
+  it("follows the panel that is mounted, not the body's claim about it", () => {
+    // The defect this file failed to catch the first time: the Activity feed was on
+    // screen while the body still said "project", so the selector lit Project over an
+    // Activity screen. Asserting aria-selected alone missed it, because that attribute
+    // was consistent -- with the wrong surface.
+    const dom = selectorDom("activity");
+    dom.window.document.body.dataset.viewerSurface = "project";
+
+    syncSurfaceSelector();
+
+    expect(viewerSurface()).toBe("activity");
+    expect(selection(dom).filter((entry) => entry.active).map((entry) => entry.surface)).toEqual(["activity"]);
+  });
+
+  it("uses the body only once the panel is closed", () => {
+    const dom = selectorDom("activity");
+    dom.window.document.getElementById("activity-panel")!.hidden = true;
+    dom.window.document.body.dataset.viewerSurface = "review";
+
+    syncSurfaceSelector();
+
+    expect(viewerSurface()).toBe("review");
+    expect(selection(dom).filter((entry) => entry.active).map((entry) => entry.surface)).toEqual(["review"]);
+  });
+
   it("derives the highlight from the body when called with no argument", () => {
     const dom = selectorDom("project");
     dom.window.document.body.dataset.viewerSurface = "review";
+    expect(dom.window.document.getElementById("activity-panel")!.hidden).toBe(true);
 
     syncSurfaceSelector();
 

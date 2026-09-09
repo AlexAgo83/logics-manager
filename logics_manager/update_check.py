@@ -126,12 +126,19 @@ def update_cache_path() -> Path:
 def _read_cache(path: Path, now: int) -> dict[str, Any] | None:
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+    except (OSError, json.JSONDecodeError, ValueError):
         return None
-    checked_at = int(payload.get("checked_at") or 0)
+    # item_879: a cache file is untrusted input. A list body or a nonnumeric
+    # checked_at used to raise out of every update check; treat either as a miss.
+    if not isinstance(payload, dict):
+        return None
+    try:
+        checked_at = int(payload.get("checked_at") or 0)
+    except (TypeError, ValueError):
+        return None
     if checked_at <= 0 or now - checked_at > CHECK_INTERVAL_SECONDS:
         return None
-    return payload if isinstance(payload, dict) else None
+    return payload
 
 
 def _write_cache(path: Path, payload: dict[str, Any]) -> None:
@@ -167,7 +174,8 @@ def get_update_info(
     # even on a cache hit, which made /api/items (which embeds this payload)
     # never produce a byte-identical body across two polls, defeating its ETag.
     if cached:
-        latest = str(cached.get("latest_version") or "")
+        raw_latest = cached.get("latest_version")
+        latest = raw_latest.strip() if isinstance(raw_latest, str) else ""
         checked_at = int(cached.get("checked_at") or now_value)
     else:
         latest = (fetch_latest or fetch_latest_npm_version)() or ""

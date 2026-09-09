@@ -392,6 +392,44 @@ def test_update_check_compares_versions_and_uses_cache(tmp_path: Path) -> None:
     assert calls == 1
 
 
+@pytest.mark.parametrize(
+    "body",
+    [
+        "[1, 2, 3]",
+        '"cache"',
+        "null",
+        '{"checked_at": "soon", "latest_version": "9.9.9"}',
+        '{"checked_at": {"at": 100}, "latest_version": "9.9.9"}',
+        '{"checked_at": 100, "latest_version": ["9.9.9"]}',
+        "{not json",
+    ],
+)
+def test_update_check_recovers_from_invalid_caches(tmp_path: Path, body: str) -> None:
+    """item_879: an unreadable cache is a miss, never an exception."""
+    cache_path = tmp_path / "update-check.json"
+    cache_path.write_text(body, encoding="utf-8")
+
+    info = get_update_info("2.2.0", cache_path=cache_path, now=100, fetch_latest=lambda: "2.3.0")
+
+    assert info.latest_version in {"2.3.0", None}
+    assert info.checked_at == 100
+
+
+def test_update_check_keeps_valid_cache_hits(tmp_path: Path) -> None:
+    cache_path = tmp_path / "update-check.json"
+    cache_path.write_text('{"checked_at": 100, "latest_version": "2.3.0"}', encoding="utf-8")
+
+    info = get_update_info("2.2.0", cache_path=cache_path, now=150, fetch_latest=_unreachable_fetch)
+
+    assert info.latest_version == "2.3.0"
+    assert info.update_available is True
+    assert info.checked_at == 100
+
+
+def _unreachable_fetch() -> str | None:
+    raise AssertionError("a valid cache hit must not fetch")
+
+
 def test_update_check_does_not_cache_failed_fetch(tmp_path: Path) -> None:
     cache_path = tmp_path / "update-check.json"
     calls = 0

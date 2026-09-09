@@ -549,3 +549,16 @@ describe("recent activity feed legibility (req_284)", () => {
     expect(metaOf(dom, "git-nobranch")).not.toContain(" @ ");
   });
 });
+
+describe("only one surface tab reads as selected", () => {
+  it("drives the Activity toggle's active class from the surface, not the panel", () => {
+    // item_880: Activity kept btn--active from the panel's hidden state while Project
+    // took is-active from the surface, so two tabs looked selected at the same time.
+    const source = readFileSync("clients/shared-web/media/webviewChrome.js", "utf8");
+    const block = source.slice(source.indexOf("if (activityToggle) {"));
+    const body = block.slice(0, block.indexOf("\n      }"));
+
+    expect(body).toContain('activityToggle.classList.toggle("btn--active", surface === "activity")');
+    expect(body).not.toContain('activityToggle.classList.toggle("btn--active", activityOpen)');
+  });
+});

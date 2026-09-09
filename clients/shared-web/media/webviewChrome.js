@@ -731,12 +731,18 @@
       }
       if (activityToggle) {
         const activityOpen = options.getActivityPanelOpen();
-        const currentSurface = document.body?.dataset.viewerSurface || (activityOpen ? "activity" : "project");
-        const surface = ["activity", "project", "review"].includes(currentSurface) ? currentSurface : "project";
+        // Same rule as util.viewerSurface: an open Activity panel is what is on screen,
+        // whatever the body dataset still says.
+        const currentSurface = document.body?.dataset.viewerSurface || "";
+        const surface = activityOpen ? "activity" : (["project", "review"].includes(currentSurface) ? currentSurface : "project");
         document.body?.classList.toggle("viewer-screen-activity", surface === "activity");
         document.body?.classList.toggle("viewer-screen-project", surface === "project");
         document.body?.classList.toggle("viewer-screen-review", surface === "review");
-        activityToggle.classList.toggle("btn--active", activityOpen);
+        // item_880: this used to follow the activity panel's hidden state, which is not
+        // the same fact as the surface being shown. On Project with the panel still
+        // mounted, Activity kept btn--active while Project took is-active, so two tabs
+        // read as selected at once. One source: the surface.
+        activityToggle.classList.toggle("btn--active", surface === "activity");
         activityToggle.dataset.currentMode = surface;
         activityToggle.setAttribute("aria-label", "Show recent activity");
         activityToggle.title = "Show recent activity";

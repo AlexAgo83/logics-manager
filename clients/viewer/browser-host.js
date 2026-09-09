@@ -15,8 +15,9 @@
     return panel instanceof HTMLElement && !panel.hidden;
   }
   function viewerSurface() {
+    if (activityPanelIsOpen()) return "activity";
     const surface = document.body?.dataset.viewerSurface || "";
-    return ["activity", "project", "review"].includes(surface) ? surface : activityPanelIsOpen() ? "activity" : "project";
+    return ["project", "review"].includes(surface) ? surface : "project";
   }
   function syncSurfaceSelector(surface = viewerSurface()) {
     document.querySelectorAll("button[data-viewer-surface]").forEach((node) => {

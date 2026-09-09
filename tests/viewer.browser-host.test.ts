@@ -2285,7 +2285,9 @@ describe("local viewer browser host", () => {
     const app = fs.readFileSync(path.resolve(process.cwd(), "clients/shared-web/media/mainApp.js"), "utf8");
     const interactions = fs.readFileSync(path.resolve(process.cwd(), "clients/shared-web/media/mainInteractions.js"), "utf8");
     const host = fs.readFileSync(path.resolve(process.cwd(), "clients/viewer/browser-host.js"), "utf8");
-    expect(source).toContain('const currentSurface = document.body?.dataset.viewerSurface || (activityOpen ? "activity" : "project")');
+    // item_880: an open Activity panel is what is on screen, whatever the body still
+    // says. The body only distinguishes Project from Review.
+    expect(source).toContain('const surface = activityOpen ? "activity" : (["project", "review"].includes(currentSurface) ? currentSurface : "project")');
     expect(source).toContain('document.body?.classList.toggle("viewer-screen-activity", surface === "activity")');
     expect(source).toContain('document.body?.classList.toggle("viewer-screen-project", surface === "project")');
     expect(source).toContain('document.body?.classList.toggle("viewer-screen-review", surface === "review")');

@@ -34,18 +34,6 @@ export function viewerSurface() {
 // item_880: the selector used to be repainted only by setViewerSurface, so every other
 // path that changed surface -- adding or switching a project -- left the old tab
 // highlighted. Deriving it from the surface actually rendered keeps the two in step.
-// item_880: the panel is shown and hidden by several owners -- setViewerSurface, the
-// project-switch path, and the shared chrome's own render, which runs last and can
-// re-open it after the selector was already painted. Watching the panel is the only
-// place that catches all of them, so the switch cannot drift from the screen again.
-export function watchSurfacePanel() {
-    const panel = document.getElementById("activity-panel");
-    if (!(panel instanceof HTMLElement) || panel.dataset.surfaceWatched === "1") return;
-    panel.dataset.surfaceWatched = "1";
-    new MutationObserver(() => syncSurfaceSelector()).observe(panel, { attributes: true, attributeFilter: ["hidden"] });
-  }
-
-
 export function syncSurfaceSelector(surface = viewerSurface()) {
     // `button[...]`, not `[...]`: <body> carries the same attribute as the state marker,
     // and stamping aria-selected on the body announced the page itself as a tab.

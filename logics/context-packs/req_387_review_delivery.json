@@ -1,0 +1,632 @@
+{
+  "budgets": {
+    "max_docs": 88,
+    "max_docs_per_ref": 8
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience task_399_deliver_the_repository_review_fixes_and_viewer_followups prod_116_trustworthy_viewer_actions_and_persistent_project_navigation item_877_commit_only_literal_selected_git_paths item_878_reject_malformed_repair_requests_before_writing item_879_recover_safely_from_invalid_update_caches item_880_synchronize_the_surface_selector_after_adding_a_project item_881_restore_fleet_discovery_roots_and_existing_favorites_on_reopen item_882_investigate_review_refresh_while_the_surface_stays_open item_883_clarify_the_fleet_root_selection_experience item_884_contain_grouped_recent_activity_within_the_viewport --mode full --profile deep --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_877_commit_only_literal_selected_git_paths",
+          "item_878_reject_malformed_repair_requests_before_writing",
+          "item_879_recover_safely_from_invalid_update_caches",
+          "item_880_synchronize_the_surface_selector_after_adding_a_project",
+          "item_881_restore_fleet_discovery_roots_and_existing_favorites_on_reopen",
+          "item_882_investigate_review_refresh_while_the_surface_stays_open",
+          "item_883_clarify_the_fleet_root_selection_experience",
+          "item_884_contain_grouped_recent_activity_within_the_viewport"
+        ],
+        "prod": [
+          "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation"
+        ],
+        "req": [
+          "req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience"
+        ],
+        "task": [
+          "task_399_deliver_the_repository_review_fixes_and_viewer_followups"
+        ]
+      },
+      "path": "logics/product/prod_116_trustworthy_viewer_actions_and_persistent_project_navigation.md",
+      "ref": "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation",
+      "sections": {
+        "Goals": [
+          "- Commit only selected files and reject malformed repair input before writing.",
+          "- Keep optional update checks from breaking normal usage.",
+          "- Keep the displayed surface and selector aligned, with grouped activity content contained within the available view width.",
+          "- Restore Fleet discovery roots and favorites on reopening.",
+          "- Make Fleet root and individual project selection understandable and establish the actual Review refresh behavior."
+        ],
+        "Key product decisions": [
+          "- Deliver the two confirmed mutation defects first.",
+          "- Root reset restoring favorites is evidence for investigating discovery context restoration, not rebuilding favorites.",
+          "- F6 can close through a documented refutation; a fix requires reproduction.",
+          "- Use task-oriented picker copy and distinct browsing, confirmation and cancellation actions.",
+          "- Treat existing dependency audit failures separately from feature validation; do not hide or waive them."
+        ],
+        "Overview": [
+          "Operators must be able to trust selected writes and retain their project navigation context between viewer sessions. This brief frames the eight findings in req_387, including investigation before fixing the uncertain Review refresh report.",
+          "```mermaid",
+          "flowchart TD",
+          "    Review[Review findings] --> Writes[Bounded writes]",
+          "    Review --> State[Persistent navigation]",
+          "    Review --> Refresh[Verify live refresh]"
+        ],
+        "References": [
+          "- Product back-reference: (none yet)",
+          "- Task back-reference: `task_399_deliver_the_repository_review_fixes_and_viewer_followups`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "Trustworthy viewer actions and persistent project navigation"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "review, findings, literal, git, paths, repair, input, validation, update, cache, resilience",
+        "skip when": "Planning unrelated UI changes or claiming release readiness.",
+        "summary": "Repository review reproduced an overbroad Git commit, malformed repair input causing writes, and update-cache exceptions; operator reports include a stale surface selector and projects/favorites disappearing on reopen but returning after the discovery root is reset. Scope delivery while preserving the distinction between reproduced defects, operator observations and the unconfirmed refresh suspicion.",
+        "use when": "Triaging reproduced viewer mutation and update-cache failures, reported navigation and persistence issues, or suspected Review refresh failures."
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_877_commit_only_literal_selected_git_paths",
+          "item_878_reject_malformed_repair_requests_before_writing",
+          "item_879_recover_safely_from_invalid_update_caches",
+          "item_880_synchronize_the_surface_selector_after_adding_a_project",
+          "item_881_restore_fleet_discovery_roots_and_existing_favorites_on_reopen",
+          "item_882_investigate_review_refresh_while_the_surface_stays_open",
+          "item_883_clarify_the_fleet_root_selection_experience",
+          "item_884_contain_grouped_recent_activity_within_the_viewport"
+        ],
+        "prod": [
+          "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation"
+        ],
+        "req": [
+          "req_001_thing",
+          "req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience"
+        ]
+      },
+      "path": "logics/request/req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience.md",
+      "ref": "req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A selected literal filename containing `*`, `?` or brackets cannot cause any unselected file to be staged or committed; the response matches the actual commit.",
+          "- AC2: Malformed repair JSON, invalid Content-Length and non-object bodies return a client error without changing any document; valid preview remains read-only and valid apply still repairs.",
+          "- AC3: Invalid cache shapes and timestamps do not crash update checks, interactive command dispatch or viewer update payloads; valid cache hits retain their existing behavior.",
+          "- AC4: Any accepted fix has a focused regression check reproducing the corresponding failure above. Dependency-gate failures are reported separately from behavior-test results.",
+          "- AC5: Starting from Project and adding a project may return the viewer to Activity, but the Activity / Project / Review selector immediately highlights Activity. Subsequent selections display and highlight the same surface. Verify this scenario in the browser; code-only checks are insufficient visual proof.",
+          "- AC6: After selecting a Fleet project-discovery root, discovering existing projects and marking favorites, reopening the viewer with `logics-manager view` restores that root, those projects and their favorite markers without manually resetting the root or re-entering favorites. Verify browser reopening and viewer-process restart separately under the same operator profile, with a focused persistence check and browser evidence."
+        ],
+        "Needs": [
+          "- P1: Commit exactly the files selected in the viewer, including filenames containing Git pathspec metacharacters.",
+          "- P1: Reject malformed repair requests before invoking any document mutation.",
+          "- P2: Treat invalid update-cache structure or timestamps as cache misses, so optional update checks cannot break ordinary commands or viewer payloads.",
+          "- P2: Keep the Activity / Project / Review selector visually synchronized with the displayed surface after adding a project.",
+          "- P2: Restore the selected Fleet project-discovery root when reopening the viewer so its discovered projects and favorites remain available.",
+          "- P2: Make the Fleet root-selection and project-folder selection screens understandable to the operator: explain what the chosen folder controls and make browsing, confirming and cancelling unambiguous."
+        ]
+      },
+      "status": "Ready",
+      "title": "Review findings: literal Git paths, repair input validation and update cache resilience"
+    },
+    {
+      "ai_context": {
+        "keywords": "req_387, viewer, review, validation",
+        "skip when": "Working on unrelated review findings.",
+        "summary": "A selected filename is interpreted as a Git pathspec and commits an unselected matching file; F1 is reproduced.",
+        "use when": "Implementing or investigating this bounded slice."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_877_commit_only_literal_selected_git_paths"
+        ],
+        "prod": [
+          "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation"
+        ],
+        "req": [
+          "req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience"
+        ],
+        "task": [
+          "task_399_deliver_the_repository_review_fixes_and_viewer_followups"
+        ]
+      },
+      "path": "logics/backlog/item_877_commit_only_literal_selected_git_paths.md",
+      "ref": "item_877_commit_only_literal_selected_git_paths",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: A selected literal filename containing `*`, `?` or brackets cannot cause any unselected file to be staged or committed; the response matches the actual commit.",
+          "- AC4: Any accepted fix has a focused regression check reproducing the corresponding failure above. Dependency-gate failures are reported separately from behavior-test results."
+        ],
+        "Problem": [
+          "A selected filename is interpreted as a Git pathspec and commits an unselected matching file; F1 is reproduced."
+        ]
+      },
+      "status": "Ready",
+      "title": "Commit only literal selected Git paths"
+    },
+    {
+      "ai_context": {
+        "keywords": "req_387, viewer, review, validation",
+        "skip when": "Working on unrelated review findings.",
+        "summary": "Malformed JSON in a preview request invokes real document repair; F2 is reproduced with a temporary corpus.",
+        "use when": "Implementing or investigating this bounded slice."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_878_reject_malformed_repair_requests_before_writing"
+        ],
+        "prod": [
+          "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation"
+        ],
+        "req": [
+          "req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience"
+        ],
+        "task": [
+          "task_399_deliver_the_repository_review_fixes_and_viewer_followups"
+        ]
+      },
+      "path": "logics/backlog/item_878_reject_malformed_repair_requests_before_writing.md",
+      "ref": "item_878_reject_malformed_repair_requests_before_writing",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC2: Malformed repair JSON, invalid Content-Length and non-object bodies return a client error without changing any document; valid preview remains read-only and valid apply still repairs."
+        ],
+        "Problem": [
+          "Malformed JSON in a preview request invokes real document repair; F2 is reproduced with a temporary corpus."
+        ]
+      },
+      "status": "Ready",
+      "title": "Reject malformed repair requests before writing"
+    },
+    {
+      "ai_context": {
+        "keywords": "req_387, viewer, review, validation",
+        "skip when": "Working on unrelated review findings.",
+        "summary": "A cache array or nonnumeric checked_at causes an uncaught exception; F3 is reproduced.",
+        "use when": "Implementing or investigating this bounded slice."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_879_recover_safely_from_invalid_update_caches"
+        ],
+        "prod": [
+          "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation"
+        ],
+        "req": [
+          "req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience"
+        ],
+        "task": [
+          "task_399_deliver_the_repository_review_fixes_and_viewer_followups"
+        ]
+      },
+      "path": "logics/backlog/item_879_recover_safely_from_invalid_update_caches.md",
+      "ref": "item_879_recover_safely_from_invalid_update_caches",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC3: Invalid cache shapes and timestamps do not crash update checks, interactive command dispatch or viewer update payloads; valid cache hits retain their existing behavior."
+        ],
+        "Problem": [
+          "A cache array or nonnumeric checked_at causes an uncaught exception; F3 is reproduced."
+        ]
+      },
+      "status": "Ready",
+      "title": "Recover safely from invalid update caches"
+    },
+    {
+      "ai_context": {
+        "keywords": "req_387, viewer, review, validation",
+        "skip when": "Working on unrelated review findings.",
+        "summary": "After adding a project from Project, Activity content appears but the surface selector looks stale; F4 is operator-reported.",
+        "use when": "Implementing or investigating this bounded slice."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_880_synchronize_the_surface_selector_after_adding_a_project"
+        ],
+        "prod": [
+          "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation"
+        ],
+        "req": [
+          "req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience"
+        ],
+        "task": [
+          "task_399_deliver_the_repository_review_fixes_and_viewer_followups"
+        ]
+      },
+      "path": "logics/backlog/item_880_synchronize_the_surface_selector_after_adding_a_project.md",
+      "ref": "item_880_synchronize_the_surface_selector_after_adding_a_project",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC5: Starting from Project and adding a project may return the viewer to Activity, but the Activity / Project / Review selector immediately highlights Activity. Subsequent selections display and highlight the same surface. Verify this scenario in the browser; code-only checks are insufficient visual proof."
+        ],
+        "Problem": [
+          "After adding a project from Project, Activity content appears but the surface selector looks stale; F4 is operator-reported."
+        ]
+      },
+      "status": "Ready",
+      "title": "Synchronize the surface selector after adding a project"
+    },
+    {
+      "ai_context": {
+        "keywords": "req_387, viewer, review, validation",
+        "skip when": "Working on unrelated review findings.",
+        "summary": "Projects and favorites disappear on reopen, but resetting the discovery root to Documents restores both; F5 narrows the issue to restoration/discovery rather than proven favorite deletion.",
+        "use when": "Implementing or investigating this bounded slice."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_881_restore_fleet_discovery_roots_and_existing_favorites_on_reopen"
+        ],
+        "prod": [
+          "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation"
+        ],
+        "req": [
+          "req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience"
+        ],
+        "task": [
+          "task_399_deliver_the_repository_review_fixes_and_viewer_followups"
+        ]
+      },
+      "path": "logics/backlog/item_881_restore_fleet_discovery_roots_and_existing_favorites_on_reopen.md",
+      "ref": "item_881_restore_fleet_discovery_roots_and_existing_favorites_on_reopen",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC6: After selecting a Fleet project-discovery root, discovering existing projects and marking favorites, reopening the viewer with `logics-manager view` restores that root, those projects and their favorite markers without manually resetting the root or re-entering favorites. Verify browser reopening and viewer-process restart separately under the same operator profile, with a focused persistence check and browser evidence."
+        ],
+        "Problem": [
+          "Projects and favorites disappear on reopen, but resetting the discovery root to Documents restores both; F5 narrows the issue to restoration/discovery rather than proven favorite deletion."
+        ]
+      },
+      "status": "Ready",
+      "title": "Restore Fleet discovery roots and existing favorites on reopen"
+    },
+    {
+      "ai_context": {
+        "keywords": "req_387, viewer, review, validation",
+        "skip when": "Working on unrelated review findings.",
+        "summary": "Review may refresh only when left and reopened; F6 is explicitly uncertain and requires investigation first.",
+        "use when": "Implementing or investigating this bounded slice."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_882_investigate_review_refresh_while_the_surface_stays_open"
+        ],
+        "prod": [
+          "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation"
+        ],
+        "req": [
+          "req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience"
+        ],
+        "task": [
+          "task_399_deliver_the_repository_review_fixes_and_viewer_followups"
+        ]
+      },
+      "path": "logics/backlog/item_882_investigate_review_refresh_while_the_surface_stays_open.md",
+      "ref": "item_882_investigate_review_refresh_while_the_surface_stays_open",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC7: Confirm or refute F6 with a browser reproduction that records a relevant repository change, the configured refresh interval and Review content before and after reopening. If confirmed, demonstrate that the content refreshes while Review stays open; otherwise document the observed behavior and why no fix is needed."
+        ],
+        "Problem": [
+          "Review may refresh only when left and reopened; F6 is explicitly uncertain and requires investigation first."
+        ]
+      },
+      "status": "Ready",
+      "title": "Investigate Review refresh while the surface stays open"
+    },
+    {
+      "ai_context": {
+        "keywords": "req_387, viewer, review, validation",
+        "skip when": "Working on unrelated review findings.",
+        "summary": "The supplied Choose fleet root and Choose project folder screenshots show technical fallback copy, hidden-folder clutter and unclear Select/Cancel/Close roles; F7 is a usability request.",
+        "use when": "Implementing or investigating this bounded slice."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_883_clarify_the_fleet_root_selection_experience"
+        ],
+        "prod": [
+          "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation"
+        ],
+        "req": [
+          "req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience"
+        ],
+        "task": [
+          "task_399_deliver_the_repository_review_fixes_and_viewer_followups"
+        ]
+      },
+      "path": "logics/backlog/item_883_clarify_the_fleet_root_selection_experience.md",
+      "ref": "item_883_clarify_the_fleet_root_selection_experience",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC8: In both the Fleet root picker and the project-folder picker, the operator can understand the purpose of the selected folder, browse, confirm or cancel without unintended changes. Distinguish a discovery root from an individual project, with consistent navigation and purpose-specific confirmation copy. Validate both fallback flows visually, including keyboard navigation, focus and constrained viewports; cancellation leaves the active project and Fleet roots unchanged."
+        ],
+        "Problem": [
+          "The supplied Choose fleet root and Choose project folder screenshots show technical fallback copy, hidden-folder clutter and unclear Select/Cancel/Close roles; F7 is a usability request."
+        ]
+      },
+      "status": "Ready",
+      "title": "Clarify Fleet root and project folder selection"
+    },
+    {
+      "ai_context": {
+        "keywords": "req_387, literal paths, repair, cache, fleet, review refresh, picker",
+        "skip when": "Preparing a release or unrelated repository changes.",
+        "summary": "Deliver eight bounded review slices in priority order; preserve uncertainty for unconfirmed findings and attach real validation before closeout.",
+        "use when": "Starting the authorized development corpus."
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_877_commit_only_literal_selected_git_paths",
+          "item_878_reject_malformed_repair_requests_before_writing",
+          "item_879_recover_safely_from_invalid_update_caches",
+          "item_880_synchronize_the_surface_selector_after_adding_a_project",
+          "item_881_restore_fleet_discovery_roots_and_existing_favorites_on_reopen",
+          "item_882_investigate_review_refresh_while_the_surface_stays_open",
+          "item_883_clarify_the_fleet_root_selection_experience",
+          "item_884_contain_grouped_recent_activity_within_the_viewport"
+        ],
+        "prod": [
+          "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation"
+        ],
+        "req": [
+          "req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience"
+        ],
+        "task": [
+          "task_399_deliver_the_repository_review_fixes_and_viewer_followups"
+        ]
+      },
+      "path": "logics/tasks/task_399_deliver_the_repository_review_fixes_and_viewer_followups.md",
+      "ref": "task_399_deliver_the_repository_review_fixes_and_viewer_followups",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- This task coordinates and delivers the linked slices; creating their documents does not complete this task.",
+          "- Start this task with flow start and an owner only when implementation begins. Work sequentially through the waves below.",
+          "- The request contains reproductions for F1-F3, operator reports for F4-F5, an explicitly uncertain F6, screenshot-backed UX feedback for F7 and screenshot-backed overflow feedback for F8.",
+          "- Reuse existing mechanisms and read every affected caller; no broad rewrite is planned.",
+          "- Baseline tests passed during review, but ci:check stopped at npm audit. Rerun relevant checks against the implementation and record any remaining external gate separately."
+        ],
+        "Validation": [
+          "- Corpus preparation only: no implementation validation is claimed.",
+          "- Per-slice checks are specified in backlog Notes; use existing Python and browser-host suites.",
+          "- At delivery run npm run lint, npm test, python3 -m pytest tests/python/ -q, required browser scenarios and npm run ci:check.",
+          "- Run logics-manager lint --require-status, audit --group-by-doc and flow validate-closeout on this task before marking it done."
+        ]
+      },
+      "status": "Ready",
+      "title": "Deliver the repository review fixes and viewer followups"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_877_commit_only_literal_selected_git_paths",
+          "item_878_reject_malformed_repair_requests_before_writing",
+          "item_879_recover_safely_from_invalid_update_caches",
+          "item_880_synchronize_the_surface_selector_after_adding_a_project",
+          "item_881_restore_fleet_discovery_roots_and_existing_favorites_on_reopen",
+          "item_882_investigate_review_refresh_while_the_surface_stays_open",
+          "item_883_clarify_the_fleet_root_selection_experience",
+          "item_884_contain_grouped_recent_activity_within_the_viewport"
+        ],
+        "prod": [
+          "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation"
+        ],
+        "req": [
+          "req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience"
+        ],
+        "task": [
+          "task_399_deliver_the_repository_review_fixes_and_viewer_followups"
+        ]
+      },
+      "path": "logics/product/prod_116_trustworthy_viewer_actions_and_persistent_project_navigation.md",
+      "ref": "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "Trustworthy viewer actions and persistent project navigation"
+    },
+    {
+      "ai_context": {
+        "keywords": "activity, chain, overflow, layout, viewport",
+        "skip when": "Changing grouping semantics or unrelated screens.",
+        "summary": "Grouped Recent Activity appears to overflow the viewport; trace the row and its ancestors before fixing the width constraint.",
+        "use when": "Reproducing and fixing F8."
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_884_contain_grouped_recent_activity_within_the_viewport"
+        ],
+        "prod": [
+          "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation"
+        ],
+        "req": [
+          "req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience"
+        ],
+        "task": [
+          "task_399_deliver_the_repository_review_fixes_and_viewer_followups"
+        ]
+      },
+      "path": "logics/backlog/item_884_contain_grouped_recent_activity_within_the_viewport.md",
+      "ref": "item_884_contain_grouped_recent_activity_within_the_viewport",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC9: With grouped Recent Activity entries and long chain titles, collapsed and expanded content stays within the available view width at desktop and constrained viewports, without page-level horizontal overflow or clipped controls. Verify DOM width measurements, keyboard expansion and browser screenshots; establish whether the group or an ancestor causes the defect."
+        ],
+        "Problem": [
+          "The operator reports horizontal overflow when an X documents in one chain group appears. The screenshot shows the row reaching beyond the available right edge; root cause is not yet established."
+        ]
+      },
+      "status": "Ready",
+      "title": "Contain grouped Recent Activity within the viewport"
+    }
+  ],
+  "estimates": {
+    "char_count": 22644,
+    "companion_doc_count": 1,
+    "doc_count": 11
+  },
+  "generated_at": "2026-09-09T10:06:27Z",
+  "handoff": {
+    "companion_doc_count": 1,
+    "enabled": true,
+    "source_refs": [
+      "req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience",
+      "task_399_deliver_the_repository_review_fixes_and_viewer_followups",
+      "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation",
+      "item_877_commit_only_literal_selected_git_paths",
+      "item_878_reject_malformed_repair_requests_before_writing",
+      "item_879_recover_safely_from_invalid_update_caches",
+      "item_880_synchronize_the_surface_selector_after_adding_a_project",
+      "item_881_restore_fleet_discovery_roots_and_existing_favorites_on_reopen",
+      "item_882_investigate_review_refresh_while_the_surface_stays_open",
+      "item_883_clarify_the_fleet_root_selection_experience",
+      "item_884_contain_grouped_recent_activity_within_the_viewport"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "deep",
+  "ref": "req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience,task_399_deliver_the_repository_review_fixes_and_viewer_followups,prod_116_trustworthy_viewer_actions_and_persistent_project_navigation,item_877_commit_only_literal_selected_git_paths,item_878_reject_malformed_repair_requests_before_writing,item_879_recover_safely_from_invalid_update_caches,item_880_synchronize_the_surface_selector_after_adding_a_project,item_881_restore_fleet_discovery_roots_and_existing_favorites_on_reopen,item_882_investigate_review_refresh_while_the_surface_stays_open,item_883_clarify_the_fleet_root_selection_experience,item_884_contain_grouped_recent_activity_within_the_viewport",
+  "refs": [
+    "req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience",
+    "task_399_deliver_the_repository_review_fixes_and_viewer_followups",
+    "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation",
+    "item_877_commit_only_literal_selected_git_paths",
+    "item_878_reject_malformed_repair_requests_before_writing",
+    "item_879_recover_safely_from_invalid_update_caches",
+    "item_880_synchronize_the_surface_selector_after_adding_a_project",
+    "item_881_restore_fleet_discovery_roots_and_existing_favorites_on_reopen",
+    "item_882_investigate_review_refresh_while_the_surface_stays_open",
+    "item_883_clarify_the_fleet_root_selection_experience",
+    "item_884_contain_grouped_recent_activity_within_the_viewport"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_id": null,
+    "target_version": "2.23.0",
+    "targets": []
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- Corpus preparation only: no implementation validation is claimed.",
+        "- Per-slice checks are specified in backlog Notes; use existing Python and browser-host suites.",
+        "- At delivery run npm run lint, npm test, python3 -m pytest tests/python/ -q, required browser scenarios and npm run ci:check.",
+        "- Run logics-manager lint --require-status, audit --group-by-doc and flow validate-closeout on this task before marking it done."
+      ],
+      "path": "logics/tasks/task_399_deliver_the_repository_review_fixes_and_viewer_followups.md",
+      "ref": "task_399_deliver_the_repository_review_fixes_and_viewer_followups"
+    }
+  ]
+}

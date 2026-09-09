@@ -1,6 +1,7 @@
 import {
   activeCdxInteractionMenu,
   activityPanelIsOpen,
+  syncSurfaceSelector,
   activityRootKey,
   applyCdxBadge,
   applyGitDomain,
@@ -953,16 +954,7 @@ import {
     if (activityPanel instanceof HTMLElement) {
       activityPanel.hidden = next !== "activity";
     }
-    document.querySelectorAll("[data-viewer-surface]").forEach((node) => {
-      if (node instanceof HTMLElement) {
-        const active = node.getAttribute("data-viewer-surface") === next;
-        node.classList.toggle("is-active", active);
-        // item_873: three mutually exclusive options are a tab list, so the state is
-        // aria-selected. aria-pressed would announce three independent toggles.
-        node.setAttribute("aria-selected", String(active));
-        node.removeAttribute("aria-pressed");
-      }
-    });
+    syncSurfaceSelector(next);
     if (next === "activity") {
       dispatchViewerActivityUpdate();
     } else if (next === "review") {
@@ -2946,6 +2938,9 @@ import {
     applyLocalViewerChrome();
     bindRefreshMenuControls();
     bindFocusMenuControls();
+    // item_880: a repaint can replace the selector nodes, so re-derive their state from
+    // the surface that is actually showing.
+    syncSurfaceSelector();
     if (activityPanelIsOpen()) {
       dispatchViewerActivityUpdate();
     }

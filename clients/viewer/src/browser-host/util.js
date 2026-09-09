@@ -25,6 +25,24 @@ export function viewerSurface() {
     return ["activity", "project", "review"].includes(surface) ? surface : (activityPanelIsOpen() ? "activity" : "project");
   }
 
+// item_880: the selector used to be repainted only by setViewerSurface, so every other
+// path that changed surface -- adding or switching a project -- left the old tab
+// highlighted. Deriving it from the surface actually rendered keeps the two in step.
+export function syncSurfaceSelector(surface = viewerSurface()) {
+    // `button[...]`, not `[...]`: <body> carries the same attribute as the state marker,
+    // and stamping aria-selected on the body announced the page itself as a tab.
+    document.querySelectorAll("button[data-viewer-surface]").forEach((node) => {
+      if (node instanceof HTMLElement) {
+        const active = node.getAttribute("data-viewer-surface") === surface;
+        node.classList.toggle("is-active", active);
+        // item_873: three mutually exclusive options are a tab list, so the state is
+        // aria-selected. aria-pressed would announce three independent toggles.
+        node.setAttribute("aria-selected", String(active));
+        node.removeAttribute("aria-pressed");
+      }
+    });
+  }
+
 export function activityRootKey(root = "") {
     return String(root || "default").trim() || "default";
   }

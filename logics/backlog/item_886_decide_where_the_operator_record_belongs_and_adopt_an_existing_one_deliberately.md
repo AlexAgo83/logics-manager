@@ -1,13 +1,14 @@
 ## item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately - Decide where the operator record belongs, and adopt an existing one deliberately
 > From version: 2.23.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 45%
 > Complexity: Medium
 > Theme: Operator preference store identity
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-09-09 13:02:27
 
 # AI Context
 - Summary: HOME-keyed storage was never a decision anyone took; record the evidence, then make adoption of an existing store an explicit operator action rather than a silent merge.

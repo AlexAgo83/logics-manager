@@ -1,13 +1,15 @@
 ## task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs - Make the operator preference store visible, then decide where it belongs
 > From version: 2.23.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 45%
 > Complexity: Medium
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
+> Owner: Claude
+> Indicators reviewed: 2026-09-09 13:02:27
 
 # AI Context
 - Summary: Report the operator preferences store in use first, because it is what makes the storage decision safe to reason about; then record the decision and implement adoption if the record moves.

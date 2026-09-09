@@ -14,6 +14,20 @@
     const panel = document.getElementById("activity-panel");
     return panel instanceof HTMLElement && !panel.hidden;
   }
+  function viewerSurface() {
+    const surface = document.body?.dataset.viewerSurface || "";
+    return ["activity", "project", "review"].includes(surface) ? surface : activityPanelIsOpen() ? "activity" : "project";
+  }
+  function syncSurfaceSelector(surface = viewerSurface()) {
+    document.querySelectorAll("button[data-viewer-surface]").forEach((node) => {
+      if (node instanceof HTMLElement) {
+        const active = node.getAttribute("data-viewer-surface") === surface;
+        node.classList.toggle("is-active", active);
+        node.setAttribute("aria-selected", String(active));
+        node.removeAttribute("aria-pressed");
+      }
+    });
+  }
   function activityRootKey(root = "") {
     return String(root || "default").trim() || "default";
   }
@@ -2427,27 +2441,34 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     }
     return rows.join("");
   }
-  function renderProjectPickerModalBody(body, payload) {
+  function renderProjectPickerModalBody(body, payload, { purpose = "", showHidden = false } = {}) {
     if (!(body instanceof HTMLElement)) return;
     const entries = Array.isArray(payload.entries) ? payload.entries : [];
+    const visible = showHidden ? entries : entries.filter((entry) => !entry.hidden);
+    const hiddenCount = entries.length - visible.length;
     const path = String(payload.path || "");
-    const rows = entries.map((entry) => `
+    const rows = visible.map((entry) => `
       <button class="viewer-project-picker__row" type="button" data-viewer-project-picker-open="${escapeHtml(entry.path || "")}">
         <span>${escapeHtml(entry.name || entry.path || "folder")}</span>
         <em>${entry.hasLogics ? "Logics" : "folder"}</em>
       </button>
     `).join("");
+    const emptyMessage = hiddenCount && !visible.length ? `No visible child folders (${hiddenCount} hidden).` : "No child folders.";
     body.innerHTML = `
       <div class="viewer-project-picker">
         <div class="viewer-project-picker__meta">
+          <span>Current folder</span>
           <strong>${escapeHtml(payload.selectedPath || payload.root || "/")}</strong>
-          <span>${path ? "Browse a child folder or select this folder." : "Browse from the local project area."}</span>
+          ${purpose ? `<span>${escapeHtml(purpose)}</span>` : ""}
         </div>
         <div class="viewer-project-picker__actions">
-          <button class="btn" type="button" data-viewer-project-picker-open="${escapeHtml(payload.parentPath || "")}"${path ? "" : " disabled"}>Parent</button>
-          <button class="btn primary" type="button" data-viewer-project-picker-select="${escapeHtml(path)}">Select this folder</button>
+          <button class="btn" type="button" data-viewer-project-picker-open="${escapeHtml(payload.parentPath || "")}"${path ? "" : " disabled"}>Parent folder</button>
+          <label class="viewer-project-picker__hidden">
+            <input type="checkbox" data-viewer-project-picker-hidden${showHidden ? " checked" : ""}>
+            Show hidden folders${hiddenCount ? ` (${hiddenCount})` : ""}
+          </label>
         </div>
-        <div class="viewer-project-picker__list">${rows || '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span>No child folders.</span></div>'}</div>
+        <div class="viewer-project-picker__list">${rows || `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span>${escapeHtml(emptyMessage)}</span></div>`}</div>
       </div>
     `;
   }
@@ -2686,6 +2707,7 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
     document.body?.classList.remove("viewer-screen-activity");
     document.body?.classList.remove("viewer-screen-review");
     document.body?.classList.add("viewer-screen-project");
+    syncSurfaceSelector("project");
   }
   function runtimeStatusSignature(payload) {
     return stableStringify(payload || {});
@@ -9484,14 +9506,7 @@ ${line}` : line;
       if (activityPanel instanceof HTMLElement) {
         activityPanel.hidden = next !== "activity";
       }
-      document.querySelectorAll("[data-viewer-surface]").forEach((node) => {
-        if (node instanceof HTMLElement) {
-          const active = node.getAttribute("data-viewer-surface") === next;
-          node.classList.toggle("is-active", active);
-          node.setAttribute("aria-selected", String(active));
-          node.removeAttribute("aria-pressed");
-        }
-      });
+      syncSurfaceSelector(next);
       if (next === "activity") {
         dispatchViewerActivityUpdate();
       } else if (next === "review") {
@@ -9988,28 +10003,34 @@ ${line}` : line;
       postToApp(payload, { force: true });
       setMeta(message);
     }
-    async function openFolderPickerModal({ reason = "", title = "Choose project folder", onSelect } = {}) {
+    async function openFolderPickerModal({ reason = "", title = "Choose project folder", purpose = "", confirmLabel = "Select this folder", onSelect } = {}) {
       const modal = createThemedModal({
         title,
-        message: reason ? `${reason} Use the fallback folder browser below.` : "Use the fallback folder browser below.",
-        submitLabel: "Close",
+        message: reason ? `${reason} Browse to the folder you want and confirm below.` : purpose,
+        submitLabel: confirmLabel,
         cancelLabel: "Cancel"
       });
       const body = modal.querySelector(".viewer-themed-modal__body");
       const submit = modal.querySelector(".viewer-themed-modal__submit");
-      if (submit instanceof HTMLButtonElement) submit.textContent = "Close";
       let currentPath = "";
-      const load = async (path = "") => {
+      let showHidden = false;
+      const load = async (path = currentPath) => {
         currentPath = path;
+        if (submit instanceof HTMLButtonElement) submit.setAttribute("data-viewer-project-picker-select", currentPath);
         if (body instanceof HTMLElement) {
           body.innerHTML = '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span>Loading folders...</span></div>';
         }
-        renderProjectPickerModalBody(body, await fetchProjectPickerTree(path));
+        renderProjectPickerModalBody(body, await fetchProjectPickerTree(path), { purpose, showHidden });
       };
       const close = () => closeThemedModal(modal);
-      modal.querySelector(".viewer-themed-modal__submit")?.addEventListener("click", close);
       modal.querySelector(".viewer-themed-modal__cancel")?.addEventListener("click", close);
       modal.querySelector(".viewer-themed-modal__close")?.addEventListener("click", close);
+      modal.addEventListener("change", async (event) => {
+        if (event.target instanceof HTMLInputElement && event.target.hasAttribute("data-viewer-project-picker-hidden")) {
+          showHidden = event.target.checked;
+          await load();
+        }
+      });
       modal.addEventListener("click", async (event) => {
         const openTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-picker-open]") : null;
         const selectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-picker-select]") : null;
@@ -10040,6 +10061,8 @@ ${line}` : line;
       return openFolderPickerModal({
         reason,
         title: "Choose project folder",
+        purpose: "This folder is opened as one project. Its own documents are what the viewer will show.",
+        confirmLabel: "Open this project",
         onSelect: async (path, close) => {
           const response = await fetch("/api/select-project-root-path", {
             method: "POST",
@@ -10057,6 +10080,8 @@ ${line}` : line;
       return openFolderPickerModal({
         reason,
         title: "Choose fleet root",
+        purpose: "A fleet root is a folder whose immediate subfolders are your projects. The folder itself is not opened.",
+        confirmLabel: "Use as fleet root",
         onSelect: async (path, close) => {
           const response = await fetch("/api/select-fleet-root-path", {
             method: "POST",
@@ -11137,6 +11162,7 @@ ${line}` : line;
       applyLocalViewerChrome();
       bindRefreshMenuControls();
       bindFocusMenuControls();
+      syncSurfaceSelector();
       if (activityPanelIsOpen()) {
         dispatchViewerActivityUpdate();
       }
@@ -11202,7 +11228,8 @@ ${line}` : line;
       return Boolean(panel && !panel.hidden && document.querySelector("[data-viewer-workshop-explorer]"));
     }
     function isReviewOpen() {
-      return document.body?.dataset.viewerSurface === "review" && documentTitle()?.textContent === "Review";
+      const panel = document.getElementById("review-panel");
+      return document.body?.dataset.viewerSurface === "review" && panel instanceof HTMLElement && panel.innerHTML.trim() !== "";
     }
     async function refreshViewer(method = "POST", options = {}) {
       const changed = await loadItems(method, options);

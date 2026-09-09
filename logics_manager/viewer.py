@@ -1125,6 +1125,10 @@ def project_picker_tree_payload(base_root: Path, rel_path: str = "", *, max_entr
             "name": child.name,
             "path": rel,
             "hasLogics": holds_corpus(child),
+            # item_883: dot-folders are most of a home directory and none of what an
+            # operator is looking for. Flagged rather than dropped, so the picker can
+            # hide them by default and still offer them behind a toggle.
+            "hidden": child.name.startswith("."),
         })
     return {
         "state": "ok",

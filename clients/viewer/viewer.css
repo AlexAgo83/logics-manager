@@ -2856,7 +2856,19 @@
 .viewer-project-picker__actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
+}
+
+/* item_883: hidden folders stay reachable, one checkbox away, rather than padding the
+   list with dot-folders nobody browsed for. */
+.viewer-project-picker__hidden {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--vscode-descriptionForeground, #9ca3af);
+  font-size: 12px;
+  cursor: pointer;
 }
 
 .viewer-project-picker__list {

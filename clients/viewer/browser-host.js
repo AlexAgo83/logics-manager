@@ -19,6 +19,12 @@
     const surface = document.body?.dataset.viewerSurface || "";
     return ["project", "review"].includes(surface) ? surface : "project";
   }
+  function watchSurfacePanel() {
+    const panel = document.getElementById("activity-panel");
+    if (!(panel instanceof HTMLElement) || panel.dataset.surfaceWatched === "1") return;
+    panel.dataset.surfaceWatched = "1";
+    new MutationObserver(() => syncSurfaceSelector()).observe(panel, { attributes: true, attributeFilter: ["hidden"] });
+  }
   function syncSurfaceSelector(surface = viewerSurface()) {
     document.querySelectorAll("button[data-viewer-surface]").forEach((node) => {
       if (node instanceof HTMLElement) {
@@ -11163,6 +11169,7 @@ ${line}` : line;
       applyLocalViewerChrome();
       bindRefreshMenuControls();
       bindFocusMenuControls();
+      watchSurfacePanel();
       syncSurfaceSelector();
       if (activityPanelIsOpen()) {
         dispatchViewerActivityUpdate();

@@ -294,3 +294,79 @@ def test_the_route_reports_it_as_a_result_not_a_client_error(tmp_path: Path) -> 
     assert status == 200
     assert body["ok"] is True
     assert body["payload"]["state"] == "unavailable"
+
+
+# --- item_881: a reopened viewer restores its roots, projects and favourites ---
+
+
+def test_reopening_restores_the_saved_root_its_projects_and_favourites(home: Path, tmp_path: Path) -> None:
+    from logics_manager.viewer import create_viewer_server
+
+    launch = _repo(tmp_path, "launch")
+    root = tmp_path / "fleet"
+    project = _repo(root, "project")
+    first = create_viewer_server(launch, host="127.0.0.1", port=0, fleet=True)
+    try:
+        first.add_fleet_root(root)
+        project_id = next(
+            entry["id"] for entry in first.project_registry_payload() if entry["root"] == str(project.resolve())
+        )
+        update_preferences(launch, {"favoriteProjects": [project_id]})
+    finally:
+        first.server_close()
+
+    # A restart of the viewer process under the same operator profile.
+    second = create_viewer_server(launch, host="127.0.0.1", port=0, fleet=True)
+    try:
+        entries = second.project_registry_payload()
+    finally:
+        second.server_close()
+
+    assert fleet_roots() == [root.resolve()]
+    assert str(project.resolve()) in {entry["root"] for entry in entries}
+    assert read_preferences(launch)["favoriteProjects"] == [project_id]
+
+
+def test_one_unreadable_root_does_not_hide_the_others(home: Path, tmp_path: Path) -> None:
+    from logics_manager.viewer import create_viewer_server
+
+    launch = _repo(tmp_path, "launch")
+    good = tmp_path / "good"
+    project = _repo(good, "project")
+    bad = tmp_path / "bad"
+    bad.mkdir()
+    update_preferences(launch, {"fleetRoots": [str(bad), str(good)]})
+    bad.chmod(0o000)
+    try:
+        server = create_viewer_server(launch, host="127.0.0.1", port=0, fleet=True)
+        try:
+            roots = {entry["root"] for entry in server.project_registry_payload()}
+        finally:
+            server.server_close()
+    finally:
+        bad.chmod(0o755)
+
+    assert str(project.resolve()) in roots
+
+
+def test_a_missing_root_is_hidden_but_not_erased(home: Path, tmp_path: Path) -> None:
+    from logics_manager.viewer import create_viewer_server
+
+    launch = _repo(tmp_path, "launch")
+    absent = tmp_path / "unmounted"
+    added = tmp_path / "added"
+    added.mkdir()
+    update_preferences(launch, {"fleetRoots": [str(absent)]})
+
+    server = create_viewer_server(launch, host="127.0.0.1", port=0, fleet=True)
+    try:
+        server.add_fleet_root(added)
+    finally:
+        server.server_close()
+
+    stored = json.loads(operator_preferences_path().read_text(encoding="utf-8"))["preferences"]["fleetRoots"]
+    assert str(absent) in stored
+    assert fleet_roots() == [added.resolve()]
+
+    absent.mkdir()
+    assert fleet_roots() == [absent.resolve(), added.resolve()]

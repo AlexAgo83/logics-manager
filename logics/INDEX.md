@@ -158,6 +158,7 @@
 | [prod_113_one_viewer_surface_state_and_a_review_timeline_that_can_refresh](product/prod_113_one_viewer_surface_state_and_a_review_timeline_that_can_refresh.md) | One viewer surface state and a Review timeline that can refresh | Settled |  |  | product/prod_113_one_viewer_surface_state_and_a_review_timeline_that_can_refresh.md |
 | [prod_114_review_as_a_real_viewer_surface](product/prod_114_review_as_a_real_viewer_surface.md) | Review as a real viewer surface | Settled |  |  | product/prod_114_review_as_a_real_viewer_surface.md |
 | [prod_115_a_review_timeline_that_reads_like_a_timeline](product/prod_115_a_review_timeline_that_reads_like_a_timeline.md) | A Review timeline that reads like a timeline | Settled |  |  | product/prod_115_a_review_timeline_that_reads_like_a_timeline.md |
+| [prod_116_trustworthy_viewer_actions_and_persistent_project_navigation](product/prod_116_trustworthy_viewer_actions_and_persistent_project_navigation.md) | Trustworthy viewer actions and persistent project navigation | Proposed |  |  | product/prod_116_trustworthy_viewer_actions_and_persistent_project_navigation.md |
 
 ## Roadmaps
 
@@ -561,6 +562,7 @@
 | [req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on](request/req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on.md) | Repair the Review slot and Explorer delivery against the acceptance criteria they closed on | Done |  |  | request/req_384_repair_the_review_slot_and_explorer_delivery_against_the_acceptance_criteria_they_closed_on.md |
 | [req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control](request/req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control.md) | Render Review in the main pane and repair the Explorer detail pane and surface control | Done |  |  | request/req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control.md |
 | [req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane](request/req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane.md) | Make the Review timeline readable: an anchored rail, denser tiles, and the shared split-pane | Done |  |  | request/req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane.md |
+| [req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience](request/req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience.md) | Review findings: literal Git paths, repair input validation and update cache resilience | Ready |  |  | request/req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience.md |
 
 ## Backlog
 
@@ -1442,6 +1444,14 @@
 | [item_874_anchor_the_review_rail_and_make_its_tiles_a_past_to_future_timeline](backlog/item_874_anchor_the_review_rail_and_make_its_tiles_a_past_to_future_timeline.md) | Anchor the Review rail and make its tiles a past-to-future timeline | Done |  | 100% | backlog/item_874_anchor_the_review_rail_and_make_its_tiles_a_past_to_future_timeline.md |
 | [item_875_give_review_file_rows_a_name_first_layout_with_corner_badges](backlog/item_875_give_review_file_rows_a_name_first_layout_with_corner_badges.md) | Give Review file rows a name-first layout with corner badges | Done |  | 100% | backlog/item_875_give_review_file_rows_a_name_first_layout_with_corner_badges.md |
 | [item_876_factor_one_list_and_detail_pattern_and_put_the_review_diff_on_it](backlog/item_876_factor_one_list_and_detail_pattern_and_put_the_review_diff_on_it.md) | Factor one list-and-detail pattern and put the Review diff on it | Done |  | 100% | backlog/item_876_factor_one_list_and_detail_pattern_and_put_the_review_diff_on_it.md |
+| [item_877_commit_only_literal_selected_git_paths](backlog/item_877_commit_only_literal_selected_git_paths.md) | Commit only literal selected Git paths | Ready |  | 0% | backlog/item_877_commit_only_literal_selected_git_paths.md |
+| [item_878_reject_malformed_repair_requests_before_writing](backlog/item_878_reject_malformed_repair_requests_before_writing.md) | Reject malformed repair requests before writing | Ready |  | 0% | backlog/item_878_reject_malformed_repair_requests_before_writing.md |
+| [item_879_recover_safely_from_invalid_update_caches](backlog/item_879_recover_safely_from_invalid_update_caches.md) | Recover safely from invalid update caches | Ready |  | 0% | backlog/item_879_recover_safely_from_invalid_update_caches.md |
+| [item_880_synchronize_the_surface_selector_after_adding_a_project](backlog/item_880_synchronize_the_surface_selector_after_adding_a_project.md) | Synchronize the surface selector after adding a project | Ready |  | 0% | backlog/item_880_synchronize_the_surface_selector_after_adding_a_project.md |
+| [item_881_restore_fleet_discovery_roots_and_existing_favorites_on_reopen](backlog/item_881_restore_fleet_discovery_roots_and_existing_favorites_on_reopen.md) | Restore Fleet discovery roots and existing favorites on reopen | Ready |  | 0% | backlog/item_881_restore_fleet_discovery_roots_and_existing_favorites_on_reopen.md |
+| [item_882_investigate_review_refresh_while_the_surface_stays_open](backlog/item_882_investigate_review_refresh_while_the_surface_stays_open.md) | Investigate Review refresh while the surface stays open | Ready |  | 0% | backlog/item_882_investigate_review_refresh_while_the_surface_stays_open.md |
+| [item_883_clarify_the_fleet_root_selection_experience](backlog/item_883_clarify_the_fleet_root_selection_experience.md) | Clarify Fleet root and project folder selection | Ready |  | 0% | backlog/item_883_clarify_the_fleet_root_selection_experience.md |
+| [item_884_contain_grouped_recent_activity_within_the_viewport](backlog/item_884_contain_grouped_recent_activity_within_the_viewport.md) | Contain grouped Recent Activity within the viewport | Ready |  | 0% | backlog/item_884_contain_grouped_recent_activity_within_the_viewport.md |
 
 ## Tasks
 
@@ -1839,6 +1849,7 @@
 | [task_396_orchestrate_the_review_and_explorer_repair](tasks/task_396_orchestrate_the_review_and_explorer_repair.md) | Orchestrate the Review and Explorer repair | Done | codex | 100% | tasks/task_396_orchestrate_the_review_and_explorer_repair.md |
 | [task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs](tasks/task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs.md) | Orchestrate the Review main-pane move and the Explorer and control repairs | Done |  | 100% | tasks/task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs.md |
 | [task_398_orchestrate_the_review_timeline_reading_ergonomics](tasks/task_398_orchestrate_the_review_timeline_reading_ergonomics.md) | Orchestrate the Review timeline reading ergonomics | Done | codex | 100% | tasks/task_398_orchestrate_the_review_timeline_reading_ergonomics.md |
+| [task_399_deliver_the_repository_review_fixes_and_viewer_followups](tasks/task_399_deliver_the_repository_review_fixes_and_viewer_followups.md) | Deliver the repository review fixes and viewer followups | Ready |  | 0% | tasks/task_399_deliver_the_repository_review_fixes_and_viewer_followups.md |
 
 ## Runbooks
 

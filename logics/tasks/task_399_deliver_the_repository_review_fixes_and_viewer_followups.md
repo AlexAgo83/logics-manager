@@ -72,7 +72,7 @@
 - Run logics-manager lint --require-status, audit --group-by-doc and flow validate-closeout on this task before marking it done.
 
 # Report
-- Not started.
+- All eight slices delivered. item_877 (156f934f): viewer-supplied Git paths become :(literal) pathspecs for add/commit/diff/show; real-repo regressions with part*.txt, part?.txt, part[1].txt and an already-staged unrelated file fail without the fix. item_878 (e087b005): /api/apply-fixes validates length, encoding, JSON, object shape and preview type before any write and answers 400; corpus stays byte-identical, valid preview read-only, valid apply still repairs. item_879 (dcb71766): a list-shaped cache or a nonnumeric checked_at is now a cache miss, not an exception; valid hits keep their behaviour and do not refetch. item_881 (bd1778b9): one unreadable fleet root raised out of the viewer constructor, which is what "everything disappeared" looked like; failures are contained per root, and writes no longer rewrite the saved list from the existence-filtered view, which deleted merely-unmounted roots.
 
 # Links
 - Request: `req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience`

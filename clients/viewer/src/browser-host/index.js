@@ -3020,7 +3020,12 @@ import {
   }
 
   function isReviewOpen() {
-    return document.body?.dataset.viewerSurface === "review" && documentTitle()?.textContent === "Review";
+    // item_882: this used to also require the document title to read "Review". Review
+    // renders into its own surface panel and never touches that title, so the test could
+    // not become true and the periodic refresh skipped an open Review every time -- it
+    // only ever reloaded when the operator left the surface and came back.
+    const panel = document.getElementById("review-panel");
+    return document.body?.dataset.viewerSurface === "review" && panel instanceof HTMLElement && panel.innerHTML.trim() !== "";
   }
 
   async function refreshViewer(method = "POST", options = {}) {

@@ -1572,28 +1572,37 @@ import {
   // unreachable. The two differ only in what they do with the chosen folder, so that is
   // the parameter; the browsing, the loading state and the error handling are shared, and
   // a later change to the recovery cannot fix one caller and miss the other.
-  async function openFolderPickerModal({ reason = "", title = "Choose project folder", onSelect } = {}) {
+  async function openFolderPickerModal({ reason = "", title = "Choose project folder", purpose = "", confirmLabel = "Select this folder", onSelect } = {}) {
+    // item_883: the purpose of the folder, not the mechanics of the fallback, is what the
+    // operator needs read first. The single confirm sits in the footer and always acts on
+    // the folder named above the list, so Cancel and Close cannot be mistaken for it.
     const modal = createThemedModal({
       title,
-      message: reason ? `${reason} Use the fallback folder browser below.` : "Use the fallback folder browser below.",
-      submitLabel: "Close",
+      message: reason ? `${reason} Browse to the folder you want and confirm below.` : purpose,
+      submitLabel: confirmLabel,
       cancelLabel: "Cancel"
     });
     const body = modal.querySelector(".viewer-themed-modal__body");
     const submit = modal.querySelector(".viewer-themed-modal__submit");
-    if (submit instanceof HTMLButtonElement) submit.textContent = "Close";
     let currentPath = "";
-    const load = async (path = "") => {
+    let showHidden = false;
+    const load = async (path = currentPath) => {
       currentPath = path;
+      if (submit instanceof HTMLButtonElement) submit.setAttribute("data-viewer-project-picker-select", currentPath);
       if (body instanceof HTMLElement) {
         body.innerHTML = '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span>Loading folders...</span></div>';
       }
-      renderProjectPickerModalBody(body, await fetchProjectPickerTree(path));
+      renderProjectPickerModalBody(body, await fetchProjectPickerTree(path), { purpose, showHidden });
     };
     const close = () => closeThemedModal(modal);
-    modal.querySelector(".viewer-themed-modal__submit")?.addEventListener("click", close);
     modal.querySelector(".viewer-themed-modal__cancel")?.addEventListener("click", close);
     modal.querySelector(".viewer-themed-modal__close")?.addEventListener("click", close);
+    modal.addEventListener("change", async (event) => {
+      if (event.target instanceof HTMLInputElement && event.target.hasAttribute("data-viewer-project-picker-hidden")) {
+        showHidden = event.target.checked;
+        await load();
+      }
+    });
     modal.addEventListener("click", async (event) => {
       const openTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-picker-open]") : null;
       const selectTarget = event.target instanceof Element ? event.target.closest("[data-viewer-project-picker-select]") : null;
@@ -1626,6 +1635,8 @@ import {
     return openFolderPickerModal({
       reason,
       title: "Choose project folder",
+      purpose: "This folder is opened as one project. Its own documents are what the viewer will show.",
+      confirmLabel: "Open this project",
       onSelect: async (path, close) => {
         const response = await fetch("/api/select-project-root-path", {
           method: "POST",
@@ -1645,6 +1656,8 @@ import {
     return openFolderPickerModal({
       reason,
       title: "Choose fleet root",
+      purpose: "A fleet root is a folder whose immediate subfolders are your projects. The folder itself is not opened.",
+      confirmLabel: "Use as fleet root",
       onSelect: async (path, close) => {
         const response = await fetch("/api/select-fleet-root-path", {
           method: "POST",

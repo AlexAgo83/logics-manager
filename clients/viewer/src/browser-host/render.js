@@ -948,27 +948,39 @@ export function renderPathRows(paths, emptyText = "None", limit = 6) {
     return rows.join("");
   }
 
-export function renderProjectPickerModalBody(body, payload) {
+// item_883: the two pickers answer different questions -- one names a folder whose
+// subfolders are projects, the other names one project -- and both used to say only
+// "Select this folder" over a list padded with dot-folders. `purpose` and the confirm
+// label come from the caller; the single confirm lives in the modal footer, so Cancel and
+// Close are the only other buttons and neither of them selects anything.
+export function renderProjectPickerModalBody(body, payload, { purpose = "", showHidden = false } = {}) {
     if (!(body instanceof HTMLElement)) return;
     const entries = Array.isArray(payload.entries) ? payload.entries : [];
+    const visible = showHidden ? entries : entries.filter((entry) => !entry.hidden);
+    const hiddenCount = entries.length - visible.length;
     const path = String(payload.path || "");
-    const rows = entries.map((entry) => `
+    const rows = visible.map((entry) => `
       <button class="viewer-project-picker__row" type="button" data-viewer-project-picker-open="${escapeHtml(entry.path || "")}">
         <span>${escapeHtml(entry.name || entry.path || "folder")}</span>
         <em>${entry.hasLogics ? "Logics" : "folder"}</em>
       </button>
     `).join("");
+    const emptyMessage = hiddenCount && !visible.length ? `No visible child folders (${hiddenCount} hidden).` : "No child folders.";
     body.innerHTML = `
       <div class="viewer-project-picker">
         <div class="viewer-project-picker__meta">
+          <span>Current folder</span>
           <strong>${escapeHtml(payload.selectedPath || payload.root || "/")}</strong>
-          <span>${path ? "Browse a child folder or select this folder." : "Browse from the local project area."}</span>
+          ${purpose ? `<span>${escapeHtml(purpose)}</span>` : ""}
         </div>
         <div class="viewer-project-picker__actions">
-          <button class="btn" type="button" data-viewer-project-picker-open="${escapeHtml(payload.parentPath || "")}"${path ? "" : " disabled"}>Parent</button>
-          <button class="btn primary" type="button" data-viewer-project-picker-select="${escapeHtml(path)}">Select this folder</button>
+          <button class="btn" type="button" data-viewer-project-picker-open="${escapeHtml(payload.parentPath || "")}"${path ? "" : " disabled"}>Parent folder</button>
+          <label class="viewer-project-picker__hidden">
+            <input type="checkbox" data-viewer-project-picker-hidden${showHidden ? " checked" : ""}>
+            Show hidden folders${hiddenCount ? ` (${hiddenCount})` : ""}
+          </label>
         </div>
-        <div class="viewer-project-picker__list">${rows || '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span>No child folders.</span></div>'}</div>
+        <div class="viewer-project-picker__list">${rows || `<div class="viewer-workspace__placeholder viewer-workspace__placeholder--empty"><span>${escapeHtml(emptyMessage)}</span></div>`}</div>
       </div>
     `;
   }

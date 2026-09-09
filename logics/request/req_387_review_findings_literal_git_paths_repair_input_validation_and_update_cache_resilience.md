@@ -1,13 +1,13 @@
 ## req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience - Review findings: literal Git paths, repair input validation and update cache resilience
 > From version: 2.23.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95%
 > Confidence: 85%
 > Complexity: High
 > Theme: General
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
-> Indicators reviewed: 2026-09-09 12:06:05
+> Indicators reviewed: 2026-09-09 12:39:26
 
 # AI Context
 - Summary: Repository review reproduced an overbroad Git commit, malformed repair input causing writes, and update-cache exceptions; operator reports include a stale surface selector and projects/favorites disappearing on reopen but returning after the discovery root is reset. Scope delivery while preserving the distinction between reproduced defects, operator observations and the unconfirmed refresh suspicion.

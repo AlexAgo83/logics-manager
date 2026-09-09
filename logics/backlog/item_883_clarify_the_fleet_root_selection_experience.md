@@ -1,14 +1,14 @@
 ## item_883_clarify_the_fleet_root_selection_experience - Clarify Fleet root and project folder selection
 > From version: 2.23.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 80%
-> Progress: 80%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-09-09 12:16:14
+> Indicators reviewed: 2026-09-09 12:39:27
 
 # AI Context
 - Summary: The supplied Choose fleet root and Choose project folder screenshots show technical fallback copy, hidden-folder clutter and unclear Select/Cancel/Close roles; F7 is a usability request.
@@ -40,7 +40,7 @@ The supplied Choose fleet root and Choose project folder screenshots show techni
 # Links
 - Product brief(s): `prod_116_trustworthy_viewer_actions_and_persistent_project_navigation`
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience.md`
+- Request: `req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience`
 - Primary task(s): `task_399_deliver_the_repository_review_fixes_and_viewer_followups`
 
 # Priority
@@ -53,6 +53,7 @@ The supplied Choose fleet root and Choose project folder screenshots show techni
 - Dependencies and order: Finalize after item_881 so UX reflects the restored root contract. Coordinate with item_880 where shared index.js code is touched.
 - Evidence state: see the corresponding F finding in req_387; prior suite passes are baseline evidence, not proof of this future fix.
 - Documentation: update the affected product/CLI documentation if its user-visible contract changes, and record evidence in task_399.
+- Task `task_399_deliver_the_repository_review_fixes_and_viewer_followups` was finished via `logics-manager flow finish task` on 2026-09-09.
 
 # Tasks
 - `task_399_deliver_the_repository_review_fixes_and_viewer_followups`

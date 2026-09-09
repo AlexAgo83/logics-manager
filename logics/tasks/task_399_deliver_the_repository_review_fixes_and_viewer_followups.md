@@ -1,14 +1,14 @@
 ## task_399_deliver_the_repository_review_fixes_and_viewer_followups - Deliver the repository review fixes and viewer followups
 > From version: 2.23.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
 > Progress: 100%
 > Complexity: High
 > Theme: Implementation delivery
 > Reminder: Update status/understanding/confidence/progress and linked request/backlog references when you edit this doc.
-> Indicators reviewed: 2026-09-09 12:38:34
+> Indicators reviewed: 2026-09-09 12:39:26
 > Owner: Claude
 
 # AI Context
@@ -72,10 +72,16 @@
 - Run logics-manager lint --require-status, audit --group-by-doc and flow validate-closeout on this task before marking it done.
 - Delivery validation. python3 -m pytest tests/python/ -q: 1493 passed. npm test (vitest, 91 files): 1001 tests, all passing after the two stale expectations updated in 00420e3d. npm run lint: passed, with the five ceilings raised and justified in c5634332. Focused regressions: tests/python/test_viewer_cli.py (real-repo literal pathspecs, malformed repair bodies), tests/python/test_cli_main.py (invalid update caches), tests/python/test_viewer_preferences.py (reopen/restart restoration, unreadable root, missing root not erased), tests/viewer.surface-selector.test.ts, tests/viewer.review-refresh.test.ts, tests/viewer.activity-chain-width.test.ts, tests/viewer.folder-picker.test.ts. Each was confirmed to fail against the pre-fix code before being accepted.
 - Browser evidence, headless Chrome over a live viewer (scripts/dev/viewer-driver.mjs), artifacts under artifacts/item_883, artifacts/item_884 and artifacts/item_881. AC9: grouped chain row measured before and after the fix at 1440x900 and 390x844 - list scrollWidth 1474 vs clientWidth 1440 and 424 vs 390 before, equal after; row right edge 22px past the container before, 12px inside after; screenshots collapsed and expanded at both viewports. AC5: exactly one tab carries aria-selected=true and it matches the rendered surface, including after a project is added. AC6: under an isolated operator profile (own HOME and LOGICS_VIEWER_PREFERENCES_HOME), a Fleet root added from the viewer, its two discovered projects and a favourite marked on one of them all come back after the viewer process is restarted, with no manual root reset. AC8: both fallback pickers captured at 1440x900 and 390x844 - purpose copy, "Current folder", the hidden-folder toggle, Cancel plus one purpose-specific confirm ("Use as fleet root" / "Open this project"), no body-level select control, modal inside the viewport with no page overflow, focus trapped in the modal, and Cancel leaving the active project and Fleet roots unchanged. The native dialog was reported unavailable in the page rather than opened, so no tk window was spawned on the operator's desktop.
+- command: `python3 -m pytest tests/python/ -q && npm test && npm run lint` | result: passed | date: 2026-09-09
+- Finish workflow executed on 2026-09-09.
+- Linked backlog/request close verification passed.
 
 # Report
 - All eight slices delivered. item_877 (156f934f): viewer-supplied Git paths become :(literal) pathspecs for add/commit/diff/show; real-repo regressions with part*.txt, part?.txt, part[1].txt and an already-staged unrelated file fail without the fix. item_878 (e087b005): /api/apply-fixes validates length, encoding, JSON, object shape and preview type before any write and answers 400; corpus stays byte-identical, valid preview read-only, valid apply still repairs. item_879 (dcb71766): a list-shaped cache or a nonnumeric checked_at is now a cache miss, not an exception; valid hits keep their behaviour and do not refetch. item_881 (bd1778b9): one unreadable fleet root raised out of the viewer constructor, which is what "everything disappeared" looked like; failures are contained per root, and writes no longer rewrite the saved list from the existence-filtered view, which deleted merely-unmounted roots.
 - item_880 (8e6bdc0b): returnToProjectSurface changed the body state without repainting the tabs; the selector is now derived from the rendered surface in one shared helper (util.syncSurfaceSelector) and re-derived after every payload render. item_882 (08979a31): F6 is CONFIRMED, not refuted - isReviewOpen() also required the document title to read "Review", which nothing sets because Review renders into its own surface panel, so the periodic refresh could never re-render an open Review; it only reloaded after leaving and reopening the surface. item_884 (e745f460): the chain row set width:100% of the list and then pushed itself 34px right with margin-left; measured 22px past the container at both 1440px and 390px, 0 after the fix. item_883 (d1d87f52): each picker states its purpose and its own confirmation ("Use as fleet root" / "Open this project"), names the current folder, hides dot-folders behind a toggle that keeps them reachable, and leaves one confirm in the footer so Cancel and Close are purely dismissive; i18n stays absent, so copy follows the existing hardcoded-English convention rather than introducing a second translation mechanism. The browser-host bundle was rebuilt in d1d87f52 - the earlier index.js commits shipped source only. Line-budget ceilings raised with reasons in c5634332.
+- Finished on 2026-09-09.
+- Linked backlog item(s): `item_877_commit_only_literal_selected_git_paths`, `item_878_reject_malformed_repair_requests_before_writing`, `item_879_recover_safely_from_invalid_update_caches`, `item_880_synchronize_the_surface_selector_after_adding_a_project`, `item_881_restore_fleet_discovery_roots_and_existing_favorites_on_reopen`, `item_882_investigate_review_refresh_while_the_surface_stays_open`, `item_883_clarify_the_fleet_root_selection_experience`, `item_884_contain_grouped_recent_activity_within_the_viewport`
+- Related request(s): `req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience`
 
 # Links
 - Request: `req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience`

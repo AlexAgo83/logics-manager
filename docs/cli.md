@@ -521,10 +521,26 @@ For remote status, the viewer detects GitHub and GitLab remotes from
 against the configured GitLab host when a `.gitlab-ci.yml` or
 `.gitlab-ci.yaml` file is present.
 
-Viewer preferences are stored locally in the browser profile. Auto-refresh
-restores the interval chosen in the viewer unless the launch command explicitly
-sets `--refresh-interval`, in which case that launch value controls only the
-current session. The CDX status table has compact controls for column visibility, provider
+Viewer preferences live on the server, not in the browser profile: the browser
+store is only a cache for the first paint. Operator-scoped preferences —
+favourites, last-used projects, Fleet discovery roots, refresh interval — are
+written to `LOGICS_VIEWER_PREFERENCES_HOME` if set, and otherwise to
+`.config/logics-manager/viewer-preferences.json` under the process HOME.
+Repository-scoped preferences stay with their corpus. Auto-refresh restores the
+interval chosen in the viewer unless the launch command explicitly sets
+`--refresh-interval`, in which case that launch value controls only the current
+session.
+
+Because the operator record follows HOME, a viewer launched under a different one
+opens a different record, and favourites and Fleet roots appear to be gone. That
+is reported rather than left to guess: the launch banner, the Settings screen and
+the viewer info payload all name the record in use, and `logics-manager doctor`
+raises a `forked_preference_stores` environment warning when a second record
+exists for the account. adr_033 keeps the HOME keying — a process that sets HOME
+is asking to be isolated — and makes the other record reachable instead: Settings
+offers to add its favourites and Fleet roots to the active one. That adoption is
+explicit, additive, and never writes to the file it reads. To share one record
+across launches deliberately, point `LOGICS_VIEWER_PREFERENCES_HOME` at it. The CDX status table has compact controls for column visibility, provider
 filtering, and account management. `BLOCK` and `CR` are hidden by default, and
 provider filtering defaults to all providers so newly discovered providers remain
 visible. An **ON/OFF** toggle column lets you enable or disable any CDX session

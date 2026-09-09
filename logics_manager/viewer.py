@@ -48,6 +48,7 @@ from .sync import (
 )
 from .viewer_preferences import (
     fleet_roots,
+    operator_preferences_stores,
     read_preferences as read_viewer_preferences,
     update_preferences as update_viewer_preferences,
 )
@@ -3209,6 +3210,10 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             "repoName": self.server.repo_root.name,
             "repoRoot": str(self.server.repo_root),
             "autoRefreshSeconds": int(getattr(self.server, "auto_refresh_interval_seconds", 15) or 15),
+            # item_885: which operator record this viewer opened. Without it, a record
+            # forked under another $HOME reads as lost favourites rather than as a second
+            # file, and re-choosing a discovery root appears to repair it.
+            "preferences": operator_preferences_stores(),
         }
 
     def _handle_git_content_get(self, route: str, parsed: Any) -> bool:
@@ -4065,6 +4070,7 @@ def render_start_status(
             qr_lines=qr_lines,
         )
 
+    preference_stores = operator_preferences_stores()
     header = "Logics viewer running:" if not version else f"Logics viewer running (v{version}):"
     lines = [
         header,
@@ -4075,7 +4081,11 @@ def render_start_status(
         f"Transport: {transport_label}",
         f"Bind: {bind_host}",
         f"Auto refresh: {auto_refresh_interval_seconds}s",
+        f"Preferences: {preference_stores['path']}",
     ]
+    if preference_stores["others"]:
+        lines.append("Warning: another operator preferences file exists for this account: " + ", ".join(preference_stores["others"]))
+        lines.append("The viewer reads and writes the one named above; favourites and fleet roots kept in the other are not lost, only elsewhere.")
     if network_url:
         lines.insert(2, f"Network: {network_url}")
     if focus:

@@ -1,0 +1,438 @@
+{
+  "budgets": {
+    "max_docs": 16,
+    "max_docs_per_ref": 4
+  },
+  "changed_paths": [],
+  "command": "logics-manager sync context-pack req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently item_885_report_which_preference_store_the_viewer_opened item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs --mode full --profile normal --handoff",
+  "companion_docs": [
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_877_commit_only_literal_selected_git_paths"
+        ],
+        "prod": [
+          "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation"
+        ],
+        "req": [
+          "req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience"
+        ],
+        "task": [
+          "task_399_deliver_the_repository_review_fixes_and_viewer_followups"
+        ]
+      },
+      "path": "logics/product/prod_116_trustworthy_viewer_actions_and_persistent_project_navigation.md",
+      "ref": "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation",
+      "sections": {
+        "Goals": [
+          "- Commit only selected files and reject malformed repair input before writing.",
+          "- Keep optional update checks from breaking normal usage.",
+          "- Keep the displayed surface and selector aligned, with grouped activity content contained within the available view width.",
+          "- Restore Fleet discovery roots and favorites on reopening.",
+          "- Make Fleet root and individual project selection understandable and establish the actual Review refresh behavior."
+        ],
+        "Key product decisions": [
+          "- Deliver the two confirmed mutation defects first.",
+          "- Root reset restoring favorites is evidence for investigating discovery context restoration, not rebuilding favorites.",
+          "- F6 can close through a documented refutation; a fix requires reproduction.",
+          "- Use task-oriented picker copy and distinct browsing, confirmation and cancellation actions.",
+          "- Treat existing dependency audit failures separately from feature validation; do not hide or waive them."
+        ],
+        "Overview": [
+          "Operators must be able to trust selected writes and retain their project navigation context between viewer sessions. This brief frames the eight findings in req_387, including investigation before fixing the uncertain Review refresh report.",
+          "```mermaid",
+          "flowchart TD",
+          "    Review[Review findings] --> Writes[Bounded writes]",
+          "    Review --> State[Persistent navigation]",
+          "    Review --> Refresh[Verify live refresh]"
+        ],
+        "References": [
+          "- Product back-reference: `item_877_commit_only_literal_selected_git_paths`",
+          "- Task back-reference: `task_399_deliver_the_repository_review_fixes_and_viewer_followups`"
+        ]
+      },
+      "status": "Settled",
+      "title": "Trustworthy viewer actions and persistent project navigation"
+    },
+    {
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_885_report_which_preference_store_the_viewer_opened",
+          "item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately"
+        ],
+        "prod": [
+          "prod_117_one_operator_record_and_the_viewer_says_which_one_it_opened"
+        ],
+        "req": [
+          "req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently"
+        ],
+        "task": [
+          "task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs"
+        ]
+      },
+      "path": "logics/product/prod_117_one_operator_record_and_the_viewer_says_which_one_it_opened.md",
+      "ref": "prod_117_one_operator_record_and_the_viewer_says_which_one_it_opened",
+      "sections": {
+        "Goals": [
+          "- State which operator record the running viewer opened, wherever it already states what it is.",
+          "- Report a forked record as an environment finding instead of leaving it to look like lost data.",
+          "- Settle the storage question on recorded evidence, not by whichever code path ran first.",
+          "- Let an operator reach a record that forked, through the viewer, without hand-editing JSON."
+        ],
+        "Key product decisions": [
+          "- Use structured input as the source of truth for generated docs.",
+          "- Keep generated write paths local and repo-bounded."
+        ],
+        "Overview": [
+          "Where the operator's own record lives - favorites, last-used projects, fleet discovery roots, refresh interval - is currently a consequence of the process HOME rather than a decision. Make the store the viewer opened a stated fact, and settle deliberately whether that record should follow HOME or live in one place, without ever merging or overwriting a store behind the operator's back."
+        ],
+        "References": [
+          "- Product back-reference: `req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently`",
+          "- Task back-reference: `task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs`"
+        ]
+      },
+      "status": "Proposed",
+      "title": "One operator record, and the viewer says which one it opened"
+    }
+  ],
+  "docs": [
+    {
+      "ai_context": {
+        "keywords": "say, operator, preference, store, viewer, forking, silently",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "request",
+      "linked_refs": {
+        "item": [
+          "item_885_report_which_preference_store_the_viewer_opened",
+          "item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately"
+        ],
+        "prod": [
+          "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation",
+          "prod_117_one_operator_record_and_the_viewer_says_which_one_it_opened"
+        ],
+        "req": [
+          "req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently"
+        ]
+      },
+      "path": "logics/request/req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently.md",
+      "ref": "req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The running viewer reports the absolute path of the operator preference store it opened, where it already reports what it is, and the launch banner names it too.",
+          "- AC2: When more than one operator preference store exists for the current user, that is reported as a warning naming each file and which one is in use, rather than being left for the operator to infer from missing favorites.",
+          "- AC3: The decision on stable-versus-HOME-keyed storage is recorded with its evidence before any storage change is made; if the record moves, an existing store is adopted only on an explicit operator action, never silently merged or overwritten.",
+          "- AC4: An operator whose store did fork can reach their previous favorites and fleet roots from the viewer without hand-editing JSON.",
+          "- AC5: A single-HOME install shows no new warning and keeps reading and writing exactly the file it does today; `LOGICS_VIEWER_PREFERENCES_HOME` keeps overriding everything, which is what the tests rely on.",
+          "- AC6: Each accepted change has a focused regression covering the forked-store case and the ordinary single-store case."
+        ],
+        "Needs": [
+          "- Tell the operator which preference store the running viewer opened, so a store that forked is visible instead of looking like lost data.",
+          "- Decide, on evidence, whether the operator record should stay keyed to the process HOME or move to one stable location, and carry any existing store across deliberately rather than by accident."
+        ]
+      },
+      "status": "Draft",
+      "title": "Say which operator preference store the viewer is using, and stop it forking silently"
+    },
+    {
+      "ai_context": {
+        "keywords": "report, preference, store, viewer, opened",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_885_report_which_preference_store_the_viewer_opened"
+        ],
+        "prod": [
+          "prod_117_one_operator_record_and_the_viewer_says_which_one_it_opened"
+        ],
+        "req": [
+          "req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently"
+        ],
+        "task": [
+          "task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs"
+        ]
+      },
+      "path": "logics/backlog/item_885_report_which_preference_store_the_viewer_opened.md",
+      "ref": "item_885_report_which_preference_store_the_viewer_opened",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The viewer info payload and the launch banner both name the absolute path of the store in use.",
+          "- AC2: With two stores present for one user, the warning names both and identifies the active one.",
+          "- AC3: With one store present, no warning is produced and the payload is otherwise unchanged.",
+          "- AC4: `LOGICS_VIEWER_PREFERENCES_HOME` still decides the path, and the reported path is the one actually read and written.",
+          "- AC5: A focused regression covers the one-store and two-store cases."
+        ],
+        "Problem": [
+          "- The viewer never states which operator preference file it opened, so a store that forked under another HOME reads as lost favorites and lost projects.",
+          "- Re-choosing the discovery root appears to repair it, which hides the cause: the root is written into the store now open, not the one the operator remembers."
+        ]
+      },
+      "status": "Ready",
+      "title": "Report which preference store the viewer opened"
+    },
+    {
+      "ai_context": {
+        "keywords": "decide, operator, record, belongs, adopt, existing, deliberately",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "backlog",
+      "linked_refs": {
+        "item": [
+          "item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately"
+        ],
+        "prod": [
+          "prod_117_one_operator_record_and_the_viewer_says_which_one_it_opened"
+        ],
+        "req": [
+          "req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently"
+        ],
+        "task": [
+          "task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs"
+        ]
+      },
+      "path": "logics/backlog/item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately.md",
+      "ref": "item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately",
+      "schema_version": "1.0",
+      "sections": {
+        "Acceptance criteria": [
+          "- AC1: The decision is written down with its evidence before the storage behaviour changes.",
+          "- AC2: Adoption of an existing store happens only on an explicit operator action and states the source file first.",
+          "- AC3: No path silently merges, overwrites or deletes a store.",
+          "- AC4: An operator whose store forked reaches their previous favorites and fleet roots from the viewer.",
+          "- AC5: A single-HOME install behaves exactly as it does today, environment override included.",
+          "- AC6: Regressions cover the forked store, the adoption, and the unchanged single-store case."
+        ],
+        "Problem": [
+          "- The operator record is keyed to the process HOME, which is an implementation consequence rather than a decision anyone took: it also decides where TLS material and paired devices live, and it scopes the single-instance viewer claim.",
+          "- Any change of location risks silently orphaning or overwriting a real store, so the decision needs its evidence recorded before the code moves."
+        ]
+      },
+      "status": "Ready",
+      "title": "Decide where the operator record belongs, and adopt an existing one deliberately"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_877_commit_only_literal_selected_git_paths"
+        ],
+        "prod": [
+          "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation"
+        ],
+        "req": [
+          "req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience"
+        ],
+        "task": [
+          "task_399_deliver_the_repository_review_fixes_and_viewer_followups"
+        ]
+      },
+      "path": "logics/product/prod_116_trustworthy_viewer_actions_and_persistent_project_navigation.md",
+      "ref": "prod_116_trustworthy_viewer_actions_and_persistent_project_navigation",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Settled",
+      "title": "Trustworthy viewer actions and persistent project navigation"
+    },
+    {
+      "ai_context": {
+        "keywords": "operator, preference, store, visible, decide, belongs",
+        "skip when": "(unfilled: replace before this doc is used)",
+        "summary": "(unfilled: replace before this doc is used)",
+        "use when": "(unfilled: replace before this doc is used)"
+      },
+      "kind": "task",
+      "linked_refs": {
+        "item": [
+          "item_885_report_which_preference_store_the_viewer_opened",
+          "item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately"
+        ],
+        "prod": [
+          "prod_117_one_operator_record_and_the_viewer_says_which_one_it_opened"
+        ],
+        "req": [
+          "req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently"
+        ],
+        "task": [
+          "task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs"
+        ]
+      },
+      "path": "logics/tasks/task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs.md",
+      "ref": "task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs",
+      "schema_version": "1.0",
+      "sections": {
+        "Context": [
+          "- Orchestrate the scaffolded request chain and keep sibling implementation slices linked."
+        ],
+        "Validation": [
+          "- (no validation recorded yet)"
+        ]
+      },
+      "status": "Ready",
+      "title": "Make the operator preference store visible, then decide where it belongs"
+    },
+    {
+      "ai_context": {},
+      "kind": "product",
+      "linked_refs": {
+        "item": [
+          "item_885_report_which_preference_store_the_viewer_opened",
+          "item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately"
+        ],
+        "prod": [
+          "prod_117_one_operator_record_and_the_viewer_says_which_one_it_opened"
+        ],
+        "req": [
+          "req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently"
+        ],
+        "task": [
+          "task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs"
+        ]
+      },
+      "path": "logics/product/prod_117_one_operator_record_and_the_viewer_says_which_one_it_opened.md",
+      "ref": "prod_117_one_operator_record_and_the_viewer_says_which_one_it_opened",
+      "schema_version": "1.0",
+      "sections": {},
+      "status": "Proposed",
+      "title": "One operator record, and the viewer says which one it opened"
+    }
+  ],
+  "estimates": {
+    "char_count": 13385,
+    "companion_doc_count": 2,
+    "doc_count": 6
+  },
+  "generated_at": "2026-09-09T10:47:38Z",
+  "handoff": {
+    "companion_doc_count": 2,
+    "enabled": true,
+    "source_refs": [
+      "req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently",
+      "item_885_report_which_preference_store_the_viewer_opened",
+      "item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately",
+      "task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs"
+    ],
+    "validation_summary_count": 1
+  },
+  "i18n": {
+    "actions": [
+      "Choose the source locale for app-owned user-facing copy.",
+      "Run logics-manager i18n init --source-locale <locale>.",
+      "Route new UI copy through stable semantic keys."
+    ],
+    "applicable": null,
+    "configured": false,
+    "contract_path": "logics/i18n/contract.json",
+    "findings": [],
+    "next_action": "Run logics-manager i18n init --source-locale <locale> for a project that owns user-facing copy.",
+    "ok": true,
+    "state": "absent"
+  },
+  "mode": "full",
+  "profile": "normal",
+  "ref": "req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently,item_885_report_which_preference_store_the_viewer_opened,item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately,task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs",
+  "refs": [
+    "req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently",
+    "item_885_report_which_preference_store_the_viewer_opened",
+    "item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately",
+    "task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs"
+  ],
+  "release": {
+    "blocking_reasons": [
+      "git_push: evidence targets a different commit (branch)"
+    ],
+    "configured": true,
+    "contract_path": "logics/release/contract.json",
+    "guidance": [
+      "Release readiness must come from project-owned evidence, not conversational memory.",
+      "Use release status or validate before preparing or claiming release readiness.",
+      "Publication-oriented actions are explicit operator actions and are separate from safe read/validate actions."
+    ],
+    "next_action": "git_push: evidence targets a different commit (branch)",
+    "publication_actions": [
+      "GitHub release publication",
+      "external publication"
+    ],
+    "required_gates": [
+      {
+        "blocking_reason": null,
+        "id": "version_metadata",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "changelog",
+        "required": true,
+        "state": "preparing",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "local_validation",
+        "required": true,
+        "state": "local_validation",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": "evidence targets a different commit (branch)",
+        "id": "git_push",
+        "required": true,
+        "state": "pushed",
+        "status": "stale"
+      },
+      {
+        "blocking_reason": null,
+        "id": "ci",
+        "required": true,
+        "state": "ci_verification",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "github_release",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      },
+      {
+        "blocking_reason": null,
+        "id": "issue_closure",
+        "required": true,
+        "state": "github_release",
+        "status": "passed"
+      }
+    ],
+    "safe_actions": [
+      "logics-manager release status",
+      "logics-manager release plan <version>",
+      "logics-manager release validate <version>"
+    ],
+    "state": "blocked",
+    "target_id": null,
+    "target_version": "2.23.0",
+    "targets": []
+  },
+  "validation_summary": [
+    {
+      "items": [
+        "- (no validation recorded yet)"
+      ],
+      "path": "logics/tasks/task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs.md",
+      "ref": "task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs"
+    }
+  ]
+}

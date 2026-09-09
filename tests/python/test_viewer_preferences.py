@@ -383,7 +383,7 @@ def test_the_active_store_is_reported_with_no_warning_when_it_is_the_only_one(
     repo = _repo(tmp_path, "one")
     update_preferences(repo, {"favoriteProjects": ["a"]})
     # No second candidate: HOME and the account home both resolve into this profile.
-    monkeypatch.setenv("HOME", str(tmp_path / "process-home"))
+    monkeypatch.setattr(Path, "home", staticmethod(lambda: tmp_path / "process-home"))
     monkeypatch.setattr(viewer_preferences, "_account_home", lambda: tmp_path / "process-home")
 
     stores = fleet_stores = viewer_preferences.operator_preferences_stores()
@@ -408,7 +408,7 @@ def test_a_store_forked_under_another_home_is_named_not_hidden(
     other.parent.mkdir(parents=True)
     other.write_text('{"version": 1, "preferences": {"favoriteProjects": ["elsewhere"]}}', encoding="utf-8")
     monkeypatch.setattr(viewer_preferences, "_account_home", lambda: account_home)
-    monkeypatch.setenv("HOME", str(tmp_path / "process-home"))
+    monkeypatch.setattr(Path, "home", staticmethod(lambda: tmp_path / "process-home"))
 
     stores = viewer_preferences.operator_preferences_stores()
 
@@ -429,7 +429,7 @@ def test_the_override_still_decides_which_store_is_read_and_written(
     (account_home / ".config" / "logics-manager").mkdir(parents=True)
     (account_home / ".config" / "logics-manager" / "viewer-preferences.json").write_text("{}", encoding="utf-8")
     monkeypatch.setattr(viewer_preferences, "_account_home", lambda: account_home)
-    monkeypatch.setenv("HOME", str(tmp_path / "process-home"))
+    monkeypatch.setattr(Path, "home", staticmethod(lambda: tmp_path / "process-home"))
 
     update_preferences(repo, {"favoriteProjects": ["written-here"]})
     stores = viewer_preferences.operator_preferences_stores()
@@ -452,7 +452,7 @@ def test_doctor_reports_a_forked_store_as_an_environment_warning(
     other.parent.mkdir(parents=True)
     other.write_text("{}", encoding="utf-8")
 
-    monkeypatch.setenv("HOME", str(tmp_path / "process-home"))
+    monkeypatch.setattr(Path, "home", staticmethod(lambda: tmp_path / "process-home"))
     monkeypatch.setattr(viewer_preferences, "_account_home", lambda: tmp_path / "absent")
     assert [w for w in doctor_payload(repo)["environment_warnings"] if w["code"] == "forked_preference_stores"] == []
 
@@ -475,7 +475,7 @@ def _forked(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, preferences: dict) 
     other.parent.mkdir(parents=True, exist_ok=True)
     other.write_text(json.dumps({"version": 1, "preferences": preferences}), encoding="utf-8")
     monkeypatch.setattr(viewer_preferences, "_account_home", lambda: account_home)
-    monkeypatch.setenv("HOME", str(tmp_path / "process-home"))
+    monkeypatch.setattr(Path, "home", staticmethod(lambda: tmp_path / "process-home"))
     return other
 
 
@@ -547,7 +547,7 @@ def test_a_single_store_install_has_nothing_to_adopt(
 
     repo = _repo(tmp_path, "one")
     update_preferences(repo, {"favoriteProjects": ["mine"]})
-    monkeypatch.setenv("HOME", str(tmp_path / "process-home"))
+    monkeypatch.setattr(Path, "home", staticmethod(lambda: tmp_path / "process-home"))
     monkeypatch.setattr(viewer_preferences, "_account_home", lambda: tmp_path / "absent")
 
     assert viewer_preferences.operator_preferences_stores()["others"] == []

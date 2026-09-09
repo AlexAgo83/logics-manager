@@ -4121,7 +4121,7 @@ def test_viewer_start_status_names_the_operator_preference_store(
 
     profile = tmp_path / "profile"
     monkeypatch.setenv("LOGICS_VIEWER_PREFERENCES_HOME", str(profile))
-    monkeypatch.setenv("HOME", str(tmp_path / "process-home"))
+    monkeypatch.setattr(Path, "home", staticmethod(lambda: tmp_path / "process-home"))
     monkeypatch.setattr(viewer_preferences, "_account_home", lambda: tmp_path / "absent")
 
     output = render_start_status("http://127.0.0.1:8765", tmp_path, auto_refresh_interval_seconds=15)
@@ -4144,7 +4144,7 @@ def test_viewer_info_payload_reports_the_store_it_opened(tmp_path: Path, monkeyp
 
     profile = tmp_path / "profile"
     monkeypatch.setenv("LOGICS_VIEWER_PREFERENCES_HOME", str(profile))
-    monkeypatch.setenv("HOME", str(tmp_path / "process-home"))
+    monkeypatch.setattr(Path, "home", staticmethod(lambda: tmp_path / "process-home"))
     monkeypatch.setattr(viewer_preferences, "_account_home", lambda: tmp_path / "absent")
     (tmp_path / "logics" / "request").mkdir(parents=True)
 
@@ -4174,7 +4174,7 @@ def test_viewer_adopt_preferences_route_merges_only_a_known_store(
 
     profile = tmp_path / "profile"
     monkeypatch.setenv("LOGICS_VIEWER_PREFERENCES_HOME", str(profile))
-    monkeypatch.setenv("HOME", str(tmp_path / "process-home"))
+    monkeypatch.setattr(Path, "home", staticmethod(lambda: tmp_path / "process-home"))
     account_home = tmp_path / "account-home"
     other = account_home / ".config" / "logics-manager" / "viewer-preferences.json"
     other.parent.mkdir(parents=True)
@@ -5166,8 +5166,16 @@ def _init_real_repo(root: Path) -> None:
 @pytest.mark.parametrize(
     ("selected", "decoy"),
     [
-        ("part*.txt", "part-secret.txt"),
-        ("part?.txt", "part1.txt"),
+        pytest.param(
+            "part*.txt",
+            "part-secret.txt",
+            marks=pytest.mark.skipif(sys.platform == "win32", reason="`*` is not a legal Windows filename"),
+        ),
+        pytest.param(
+            "part?.txt",
+            "part1.txt",
+            marks=pytest.mark.skipif(sys.platform == "win32", reason="`?` is not a legal Windows filename"),
+        ),
         ("part[1].txt", "part1.txt"),
     ],
 )

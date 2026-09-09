@@ -567,7 +567,7 @@ def git_commit_payload(
                 expanded_files.append(normalized)
 
     try:
-        add_result = _run_git_mutation(repo_root, ["add", "--", *expanded_files], runner=runner)
+        add_result = _run_git_mutation(repo_root, ["add", "--", *_literal_pathspecs(expanded_files)], runner=runner)
     except subprocess.TimeoutExpired:
         return {"state": "timeout", "message": "Git add timed out."}
     except (OSError, subprocess.SubprocessError) as exc:
@@ -576,7 +576,7 @@ def git_commit_payload(
         return {"state": "error", "message": _first_git_error_line(add_result, "Git add failed.")}
 
     try:
-        commit_result = _run_git_mutation(repo_root, ["commit", "-m", commit_message, "--", *expanded_files], runner=runner)
+        commit_result = _run_git_mutation(repo_root, ["commit", "-m", commit_message, "--", *_literal_pathspecs(expanded_files)], runner=runner)
     except subprocess.TimeoutExpired:
         return {"state": "timeout", "message": "Git commit timed out."}
     except (OSError, subprocess.SubprocessError) as exc:
@@ -596,6 +596,17 @@ def git_commit_payload(
         "shortHash": commit_hash[:7],
         "files": normalized_files,
     }
+
+
+# item_877: a selected filename is a literal path, never a pattern. Git pathspecs are
+# glob-matched by default, so "part*.txt" also staged part-secret.txt. The :(literal)
+# magic prefix turns wildcards back into ordinary characters.
+def _literal_pathspec(rel_path: str) -> str:
+    return f":(literal){rel_path}"
+
+
+def _literal_pathspecs(rel_paths: list[str]) -> list[str]:
+    return [_literal_pathspec(item) for item in rel_paths]
 
 
 def _normalize_git_file_path(repo_root: Path, rel_path: str) -> str | None:
@@ -647,7 +658,7 @@ def git_diff_payload(
     args = ["diff", "--no-ext-diff", f"--unified={context_lines}"]
     if cached:
         args.append("--cached")
-    args.extend(["--", normalized])
+    args.extend(["--", _literal_pathspec(normalized)])
     try:
         diff = _run_read_only_git(repo_root, args, runner=runner)
     except (OSError, subprocess.SubprocessError) as exc:
@@ -709,7 +720,7 @@ def git_commit_diff_payload(
     context_lines = GIT_DIFF_FULL_CONTEXT_LINES if full else GIT_DIFF_CONTEXT_LINES
     args = ["show", "--no-ext-diff", "--format=medium", "--stat", "--patch", "--find-renames", f"--unified={context_lines}", normalized]
     if normalized_path:
-        args.extend(["--", normalized_path])
+        args.extend(["--", _literal_pathspec(normalized_path)])
     try:
         diff = _run_read_only_git(repo_root, args, runner=runner)
     except (OSError, subprocess.SubprocessError) as exc:

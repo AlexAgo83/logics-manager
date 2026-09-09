@@ -6,6 +6,7 @@ from importlib import metadata as importlib_metadata
 import os
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -1439,9 +1440,9 @@ def test_viewer_git_commit_payload_stages_selected_files_and_commits(tmp_path: P
             return subprocess.CompletedProcess(args, 0, "", "")
         if args[1:] == ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"]:
             return subprocess.CompletedProcess(args, 0, "origin/main\n", "")
-        if args[1:] == ["add", "--", "clients/viewer/browser-host.js", "old.md", "renamed.md"]:
+        if args[1:] == ["add", "--", ":(literal)clients/viewer/browser-host.js", ":(literal)old.md", ":(literal)renamed.md"]:
             return subprocess.CompletedProcess(args, 0, "", "")
-        if args[1:] == ["commit", "-m", "Add Git commit modal", "--", "clients/viewer/browser-host.js", "old.md", "renamed.md"]:
+        if args[1:] == ["commit", "-m", "Add Git commit modal", "--", ":(literal)clients/viewer/browser-host.js", ":(literal)old.md", ":(literal)renamed.md"]:
             return subprocess.CompletedProcess(args, 0, "[main abc1234] Add Git commit modal\n", "")
         if args[1:] == ["rev-parse", "HEAD"]:
             return subprocess.CompletedProcess(args, 0, "abc123456789\n", "")
@@ -1462,8 +1463,8 @@ def test_viewer_git_commit_payload_stages_selected_files_and_commits(tmp_path: P
         "shortHash": "abc1234",
         "files": ["clients/viewer/browser-host.js", "renamed.md"],
     }
-    assert ["git", "add", "--", "clients/viewer/browser-host.js", "old.md", "renamed.md"] in calls
-    assert ["git", "commit", "-m", "Add Git commit modal", "--", "clients/viewer/browser-host.js", "old.md", "renamed.md"] in calls
+    assert ["git", "add", "--", ":(literal)clients/viewer/browser-host.js", ":(literal)old.md", ":(literal)renamed.md"] in calls
+    assert ["git", "commit", "-m", "Add Git commit modal", "--", ":(literal)clients/viewer/browser-host.js", ":(literal)old.md", ":(literal)renamed.md"] in calls
 
 
 def test_viewer_git_commit_payload_rejects_unknown_paths(tmp_path: Path) -> None:
@@ -5000,3 +5001,71 @@ def test_audit_is_cached_until_the_corpus_changes(tmp_path: Path) -> None:
         assert second["finding_count"] != first["finding_count"] or second != first
     finally:
         server.server_close()
+
+
+def _init_real_repo(root: Path) -> None:
+    subprocess.run(["git", "init", "-q", "-b", "main"], cwd=root, check=True)
+    subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=root, check=True)
+    subprocess.run(["git", "config", "user.name", "Test"], cwd=root, check=True)
+
+
+@pytest.mark.parametrize(
+    ("selected", "decoy"),
+    [
+        ("part*.txt", "part-secret.txt"),
+        ("part?.txt", "part1.txt"),
+        ("part[1].txt", "part1.txt"),
+    ],
+)
+def test_viewer_git_commit_payload_treats_selected_paths_literally(tmp_path: Path, selected: str, decoy: str) -> None:
+    # item_877: a wildcard in a real filename must not drag a matching sibling into the commit.
+    if not shutil.which("git"):
+        pytest.skip("git is not available")
+    _init_real_repo(tmp_path)
+    (tmp_path / "seed.txt").write_text("seed\n", encoding="utf-8")
+    subprocess.run(["git", "add", "-A"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "commit", "-qm", "seed"], cwd=tmp_path, check=True)
+    (tmp_path / selected).write_text("selected\n", encoding="utf-8")
+    (tmp_path / decoy).write_text("decoy\n", encoding="utf-8")
+
+    payload = git_commit_payload(tmp_path, [selected], "Commit only the selected file")
+
+    assert payload["state"] == "ok", payload
+    committed = subprocess.run(
+        ["git", "show", "--name-only", "--format=", "HEAD"],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.split()
+    assert committed == [selected]
+    assert payload["files"] == [selected]
+    remaining = subprocess.run(
+        ["git", "status", "--porcelain=v1"], cwd=tmp_path, check=True, capture_output=True, text=True
+    ).stdout
+    assert decoy in remaining
+
+
+def test_viewer_git_commit_payload_leaves_unrelated_staged_changes_alone(tmp_path: Path) -> None:
+    # item_877: an already-staged unrelated file must stay out of the commit.
+    if not shutil.which("git"):
+        pytest.skip("git is not available")
+    _init_real_repo(tmp_path)
+    (tmp_path / "seed.txt").write_text("seed\n", encoding="utf-8")
+    subprocess.run(["git", "add", "-A"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "commit", "-qm", "seed"], cwd=tmp_path, check=True)
+    (tmp_path / "wanted.txt").write_text("wanted\n", encoding="utf-8")
+    (tmp_path / "staged.txt").write_text("staged\n", encoding="utf-8")
+    subprocess.run(["git", "add", "staged.txt"], cwd=tmp_path, check=True)
+
+    payload = git_commit_payload(tmp_path, ["wanted.txt"], "Commit only the wanted file")
+
+    assert payload["state"] == "ok", payload
+    committed = subprocess.run(
+        ["git", "show", "--name-only", "--format=", "HEAD"],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.split()
+    assert committed == ["wanted.txt"]

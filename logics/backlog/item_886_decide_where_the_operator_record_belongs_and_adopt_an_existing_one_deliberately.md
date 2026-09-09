@@ -1,14 +1,14 @@
 ## item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately - Decide where the operator record belongs, and adopt an existing one deliberately
 > From version: 2.23.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 90%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Operator preference store identity
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-09-09 13:02:27
+> Indicators reviewed: 2026-09-09 13:23:20
 
 # AI Context
 - Summary: HOME-keyed storage was never a decision anyone took; record the evidence, then make adoption of an existing store an explicit operator action rather than a silent merge.
@@ -59,3 +59,9 @@
 # Priority
 - Priority: Medium - a storage move is only safe once the reporting above makes the current state visible
 - Rationale: Set by scaffold input or defaulted for grooming.
+
+# Tasks
+- `task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs`
+
+# Notes
+- Task `task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs` was finished via `logics-manager flow finish task` on 2026-09-09.

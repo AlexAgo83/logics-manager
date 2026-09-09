@@ -37,7 +37,7 @@
 | [adr_030_decide_when_a_fix_needs_a_logics_chain_and_when_a_comment_is_the_record](architecture/adr_030_decide_when_a_fix_needs_a_logics_chain_and_when_a_comment_is_the_record.md) | Decide when a fix needs a Logics chain and when a comment is the record | Settled |  |  | architecture/adr_030_decide_when_a_fix_needs_a_logics_chain_and_when_a_comment_is_the_record.md |
 | [adr_031_one_mcp_transport_per_client_class](architecture/adr_031_one_mcp_transport_per_client_class.md) | One MCP transport per client class | Settled |  |  | architecture/adr_031_one_mcp_transport_per_client_class.md |
 | [adr_032_release_target_contract_v2_boundaries](architecture/adr_032_release_target_contract_v2_boundaries.md) | Release target contract v2 boundaries | Settled |  |  | architecture/adr_032_release_target_contract_v2_boundaries.md |
-| [adr_033_the_operator_preference_record_stays_keyed_to_home_and_a_forked_one_is_adopted_explicitly](architecture/adr_033_the_operator_preference_record_stays_keyed_to_home_and_a_forked_one_is_adopted_explicitly.md) | The operator preference record stays keyed to HOME, and a forked one is adopted explicitly | Proposed |  |  | architecture/adr_033_the_operator_preference_record_stays_keyed_to_home_and_a_forked_one_is_adopted_explicitly.md |
+| [adr_033_the_operator_preference_record_stays_keyed_to_home_and_a_forked_one_is_adopted_explicitly](architecture/adr_033_the_operator_preference_record_stays_keyed_to_home_and_a_forked_one_is_adopted_explicitly.md) | The operator preference record stays keyed to HOME, and a forked one is adopted explicitly | Settled |  |  | architecture/adr_033_the_operator_preference_record_stays_keyed_to_home_and_a_forked_one_is_adopted_explicitly.md |
 
 ## Product briefs
 

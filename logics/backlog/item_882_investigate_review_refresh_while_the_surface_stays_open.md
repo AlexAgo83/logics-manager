@@ -1,14 +1,14 @@
 ## item_882_investigate_review_refresh_while_the_surface_stays_open - Investigate Review refresh while the surface stays open
 > From version: 2.23.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 65%
-> Progress: 80%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-09-09 12:16:14
+> Indicators reviewed: 2026-09-09 12:39:27
 
 # AI Context
 - Summary: Review may refresh only when left and reopened; F6 is explicitly uncertain and requires investigation first.
@@ -40,7 +40,7 @@ Review may refresh only when left and reopened; F6 is explicitly uncertain and r
 # Links
 - Product brief(s): `prod_116_trustworthy_viewer_actions_and_persistent_project_navigation`
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience.md`
+- Request: `req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience`
 - Primary task(s): `task_399_deliver_the_repository_review_fixes_and_viewer_followups`
 
 # Priority
@@ -53,6 +53,7 @@ Review may refresh only when left and reopened; F6 is explicitly uncertain and r
 - Dependencies and order: After High items and coordinate with item_880 on shared surface state. Decide confirmed defect versus expected behavior before implementation.
 - Evidence state: see the corresponding F finding in req_387; prior suite passes are baseline evidence, not proof of this future fix.
 - Documentation: update the affected product/CLI documentation if its user-visible contract changes, and record evidence in task_399.
+- Task `task_399_deliver_the_repository_review_fixes_and_viewer_followups` was finished via `logics-manager flow finish task` on 2026-09-09.
 
 # Tasks
 - `task_399_deliver_the_repository_review_fixes_and_viewer_followups`

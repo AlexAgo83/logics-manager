@@ -1,12 +1,12 @@
 ## prod_116_trustworthy_viewer_actions_and_persistent_project_navigation - Trustworthy viewer actions and persistent project navigation
 > Date: 2026-09-09
-> Status: Proposed
+> Status: Settled
 > Related request: `req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience`
-> Related backlog: item_877_commit_only_literal_selected_git_paths, item_878_reject_malformed_repair_requests_before_writing, item_879_recover_safely_from_invalid_update_caches, item_880_synchronize_the_surface_selector_after_adding_a_project, item_881_restore_fleet_discovery_roots_and_existing_favorites_on_reopen, item_882_investigate_review_refresh_while_the_surface_stays_open, item_883_clarify_the_fleet_root_selection_experience, item_884_contain_grouped_recent_activity_within_the_viewport
+> Related backlog: `item_877_commit_only_literal_selected_git_paths`
 > Related task: `task_399_deliver_the_repository_review_fixes_and_viewer_followups`
 > Related architecture: (none yet)
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
-> Indicators reviewed: 2026-09-09 12:06:05
+> Indicators reviewed: 2026-09-09 12:39:27
 
 # Overview
 Operators must be able to trust selected writes and retain their project navigation context between viewer sessions. This brief frames the eight findings in req_387, including investigation before fixing the uncertain Review refresh report.
@@ -56,5 +56,5 @@ flowchart TD
 - Collapsed and expanded Activity chains do not cause page-level horizontal overflow.
 
 # References
-- Product back-reference: (none yet)
+- Product back-reference: `item_877_commit_only_literal_selected_git_paths`
 - Task back-reference: `task_399_deliver_the_repository_review_fixes_and_viewer_followups`

@@ -1,14 +1,14 @@
 ## item_877_commit_only_literal_selected_git_paths - Commit only literal selected Git paths
 > From version: 2.23.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 80%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-09-09 12:16:14
+> Indicators reviewed: 2026-09-09 12:39:27
 
 # AI Context
 - Summary: A selected filename is interpreted as a Git pathspec and commits an unselected matching file; F1 is reproduced.
@@ -42,7 +42,7 @@ A selected filename is interpreted as a Git pathspec and commits an unselected m
 # Links
 - Product brief(s): `prod_116_trustworthy_viewer_actions_and_persistent_project_navigation`
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience.md`
+- Request: `req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience`
 - Primary task(s): `task_399_deliver_the_repository_review_fixes_and_viewer_followups`
 
 # Priority
@@ -55,6 +55,7 @@ A selected filename is interpreted as a Git pathspec and commits an unselected m
 - Dependencies and order: Independent. Deliver before lower-priority viewer ergonomics. This slice owns request AC4 aggregation: the orchestration task must record checks for every accepted sibling fix.
 - Evidence state: see the corresponding F finding in req_387; prior suite passes are baseline evidence, not proof of this future fix.
 - Documentation: update the affected product/CLI documentation if its user-visible contract changes, and record evidence in task_399.
+- Task `task_399_deliver_the_repository_review_fixes_and_viewer_followups` was finished via `logics-manager flow finish task` on 2026-09-09.
 
 # Tasks
 - `task_399_deliver_the_repository_review_fixes_and_viewer_followups`

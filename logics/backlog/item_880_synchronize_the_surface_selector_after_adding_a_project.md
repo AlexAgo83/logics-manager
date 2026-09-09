@@ -1,14 +1,14 @@
 ## item_880_synchronize_the_surface_selector_after_adding_a_project - Synchronize the surface selector after adding a project
 > From version: 2.23.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 80%
-> Progress: 80%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-09-09 12:16:14
+> Indicators reviewed: 2026-09-09 12:39:27
 
 # AI Context
 - Summary: After adding a project from Project, Activity content appears but the surface selector looks stale; F4 is operator-reported.
@@ -40,7 +40,7 @@ After adding a project from Project, Activity content appears but the surface se
 # Links
 - Product brief(s): `prod_116_trustworthy_viewer_actions_and_persistent_project_navigation`
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience.md`
+- Request: `req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience`
 - Primary task(s): `task_399_deliver_the_repository_review_fixes_and_viewer_followups`
 
 # Priority
@@ -53,6 +53,7 @@ After adding a project from Project, Activity content appears but the surface se
 - Dependencies and order: Independent. Inspect shared index.js interactions before the Review and root-picker slices.
 - Evidence state: see the corresponding F finding in req_387; prior suite passes are baseline evidence, not proof of this future fix.
 - Documentation: update the affected product/CLI documentation if its user-visible contract changes, and record evidence in task_399.
+- Task `task_399_deliver_the_repository_review_fixes_and_viewer_followups` was finished via `logics-manager flow finish task` on 2026-09-09.
 
 # Tasks
 - `task_399_deliver_the_repository_review_fixes_and_viewer_followups`

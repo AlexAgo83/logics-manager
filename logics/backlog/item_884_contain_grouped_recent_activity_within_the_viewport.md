@@ -1,14 +1,14 @@
 ## item_884_contain_grouped_recent_activity_within_the_viewport - Contain grouped Recent Activity within the viewport
 > From version: 2.23.0
 > Schema version: 1.0
-> Status: In progress
+> Status: Done
 > Understanding: 95%
 > Confidence: 80%
-> Progress: 80%
+> Progress: 100%
 > Complexity: Medium
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-09-09 12:16:14
+> Indicators reviewed: 2026-09-09 12:39:27
 
 # AI Context
 - Summary: Grouped Recent Activity appears to overflow the viewport; trace the row and its ancestors before fixing the width constraint.
@@ -40,7 +40,7 @@ The operator reports horizontal overflow when an X documents in one chain group 
 # Links
 - Product brief(s): `prod_116_trustworthy_viewer_actions_and_persistent_project_navigation`
 - Architecture decision(s): (none yet)
-- Request: `logics/request/req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience.md`
+- Request: `req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience`
 - Primary task(s): `task_399_deliver_the_repository_review_fixes_and_viewer_followups`
 
 # Priority
@@ -52,6 +52,7 @@ The operator reports horizontal overflow when an X documents in one chain group 
 - Validation: reproduce using a long chain title and expanded children at desktop and narrow viewports. Compare scrollWidth/clientWidth for the document and activity container, capture browser screenshots and verify keyboard expansion. Preserve access to the full title if truncating.
 - Add a focused regression using the existing webview layout/browser harness; no code-only assertion substitutes for visual proof.
 - Dependencies: coordinate with item_880 on the containing Activity surface; no dependency on the root picker. Reuse the smallest existing CSS constraint that fixes the measured cause.
+- Task `task_399_deliver_the_repository_review_fixes_and_viewer_followups` was finished via `logics-manager flow finish task` on 2026-09-09.
 
 
 # Tasks

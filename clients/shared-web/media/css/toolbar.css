@@ -821,8 +821,12 @@ body.viewer-screen-activity .toolbar__activity-filter {
   position: relative;
   z-index: 1;
   display: block;
-  width: 100%;
+  /* item_884: `width: 100%` measured the container, then `margin-left` pushed the row
+     34px past its right edge, which is what overflowed the page. A block box already
+     fills the space its margin leaves. */
+  width: auto;
   text-align: left;
+  overflow-wrap: anywhere;
   margin-left: 34px;
   padding: 6px 8px;
   border: 1px dashed var(--vscode-panel-border, #333333);

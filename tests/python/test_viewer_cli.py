@@ -4597,6 +4597,57 @@ def test_viewer_apply_fixes_endpoint_reuses_the_same_repair_as_cli_and_mcp(tmp_p
         thread.join(timeout=5)
 
 
+def test_viewer_apply_fixes_rejects_malformed_requests_without_writing(tmp_path: Path) -> None:
+    """item_878: a request we cannot read as {"preview": <bool>} must be a client
+    error that leaves the corpus byte-identical."""
+    (tmp_path / "logics" / "request").mkdir(parents=True)
+    request_path = tmp_path / "logics" / "request" / "req_001_demo.md"
+    _write_minimal_workflow_doc(request_path, title="Demo request", kind="request", status="Ready", links=[])
+    before = request_path.read_bytes()
+
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        for body, headers in (
+            ("{not json", {"Content-Type": "application/json"}),
+            ('{"preview": true}', {"Content-Type": "application/json", "Content-Length": "abc"}),
+            ("[1, 2, 3]", {"Content-Type": "application/json"}),
+            ('"preview"', {"Content-Type": "application/json"}),
+            ('{"preview": "yes"}', {"Content-Type": "application/json"}),
+        ):
+            conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+            conn.request("POST", "/api/apply-fixes", body=body, headers=headers)
+            response = conn.getresponse()
+            payload = json.loads(response.read().decode("utf-8"))
+            conn.close()
+            assert response.status == 400, (body, response.status, payload)
+            assert payload["ok"] is False
+            assert request_path.read_bytes() == before
+
+        # A valid preview stays read-only.
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("POST", "/api/apply-fixes", body='{"preview": true}', headers={"Content-Type": "application/json"})
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+        conn.close()
+        assert response.status == 200
+        assert request_path.read_bytes() == before
+
+        # A valid apply still repairs.
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("POST", "/api/apply-fixes", body='{"preview": false}', headers={"Content-Type": "application/json"})
+        response = conn.getresponse()
+        response.read()
+        conn.close()
+        assert response.status == 200
+        assert "# Definition of Ready (DoR)" in request_path.read_text(encoding="utf-8")
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
 def _write_runbook_fixture(tmp_path: Path) -> None:
     runbook_path = tmp_path / "logics" / "runbook" / "run_001_probe.md"
     runbook_path.parent.mkdir(parents=True, exist_ok=True)

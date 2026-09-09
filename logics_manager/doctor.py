@@ -110,6 +110,36 @@ def _check_duplicate_executables() -> list[DoctorIssue]:
     ]
 
 
+def _check_forked_preference_stores() -> list[DoctorIssue]:
+    """Report a second operator preferences file for this account.
+
+    item_885: the record is keyed to $HOME, so a viewer launched under another one
+    opens a different file. Nothing is lost, but the operator sees missing
+    favourites and missing projects, which reads as data loss.
+    """
+    from .viewer_preferences import operator_preferences_stores
+
+    stores = operator_preferences_stores()
+    if not stores["others"]:
+        return []
+    return [
+        DoctorIssue(
+            code="forked_preference_stores",
+            path=stores["path"],
+            message=(
+                "Another operator preferences file exists for this account: "
+                + ", ".join(stores["others"])
+                + ". The viewer reads and writes the first path."
+            ),
+            remediation=(
+                "Favourites and fleet roots kept in the other file are not lost, only elsewhere. "
+                "Launch with the same HOME to reach them, or set LOGICS_VIEWER_PREFERENCES_HOME "
+                "to the directory holding the record you want."
+            ),
+        )
+    ]
+
+
 def doctor_payload(repo_root: Path) -> dict[str, Any]:
     issues: list[DoctorIssue] = []
     issues.extend(_check_required_directories(repo_root))
@@ -138,7 +168,7 @@ def doctor_payload(repo_root: Path) -> dict[str, Any]:
         # Kept out of `issues`/`ok`: this is about the machine's install layout,
         # not the corpus, and folding it in would make a repo-level result vary
         # with the caller's PATH.
-        "environment_warnings": [issue.to_dict() for issue in _check_duplicate_executables()],
+        "environment_warnings": [issue.to_dict() for issue in (*_check_duplicate_executables(), *_check_forked_preference_stores())],
     }
     return payload
 

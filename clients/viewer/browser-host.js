@@ -11377,13 +11377,19 @@ ${line}` : line;
         ["Transport", info?.transport || (window.location.protocol === "https:" ? "HTTPS" : "HTTP")],
         ["Version", info?.version ? `v${info.version}` : "unknown"],
         ["Project", info?.repoName || "unknown"],
-        ["MCP connector", mcpState || "unknown"]
+        ["MCP connector", mcpState || "unknown"],
+        // item_885: which operator record this viewer opened. It is keyed to the process
+        // HOME, so naming it is what tells a forked store apart from lost favourites.
+        ["Preferences", info?.preferences?.path || "unknown"]
       ];
+      const others = Array.isArray(info?.preferences?.others) ? info.preferences.others : [];
+      const forked = others.length ? `<p class="viewer-settings-screen__hint">Another operator preferences file exists for this account: ${others.map((path) => escapeHtml(String(path))).join(", ")}. This viewer reads and writes the one above; favourites and Fleet roots kept in the other are not lost, only elsewhere.</p>` : "";
       return `<section class="viewer-settings-identity">
       <h3>This viewer</h3>
       <dl class="viewer-settings-identity__list">
         ${rows.map(([label, value]) => `<div class="viewer-settings-identity__row"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(String(value))}</dd></div>`).join("")}
       </dl>
+      ${forked}
     </section>`;
     }
     function renderSettingsScreen(info, mcpState) {

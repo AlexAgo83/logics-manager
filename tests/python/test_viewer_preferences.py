@@ -370,3 +370,94 @@ def test_a_missing_root_is_hidden_but_not_erased(home: Path, tmp_path: Path) -> 
 
     absent.mkdir()
     assert fleet_roots() == [absent.resolve(), added.resolve()]
+
+
+# --- item_885: the viewer says which operator record it opened ---------------
+
+
+def test_the_active_store_is_reported_with_no_warning_when_it_is_the_only_one(
+    home: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from logics_manager import viewer_preferences
+
+    repo = _repo(tmp_path, "one")
+    update_preferences(repo, {"favoriteProjects": ["a"]})
+    # No second candidate: HOME and the account home both resolve into this profile.
+    monkeypatch.setenv("HOME", str(tmp_path / "process-home"))
+    monkeypatch.setattr(viewer_preferences, "_account_home", lambda: tmp_path / "process-home")
+
+    stores = fleet_stores = viewer_preferences.operator_preferences_stores()
+
+    assert stores["path"] == str(operator_preferences_path())
+    assert stores["exists"] is True
+    assert stores["overridden"] is True
+    assert fleet_stores["others"] == []
+
+
+def test_a_store_forked_under_another_home_is_named_not_hidden(
+    home: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """item_885: the record follows $HOME, so a second one must be reported rather
+    than left to read as lost favourites."""
+    from logics_manager import viewer_preferences
+
+    repo = _repo(tmp_path, "one")
+    update_preferences(repo, {"favoriteProjects": ["active"]})
+    account_home = tmp_path / "account-home"
+    other = account_home / ".config" / "logics-manager" / "viewer-preferences.json"
+    other.parent.mkdir(parents=True)
+    other.write_text('{"version": 1, "preferences": {"favoriteProjects": ["elsewhere"]}}', encoding="utf-8")
+    monkeypatch.setattr(viewer_preferences, "_account_home", lambda: account_home)
+    monkeypatch.setenv("HOME", str(tmp_path / "process-home"))
+
+    stores = viewer_preferences.operator_preferences_stores()
+
+    assert stores["path"] == str(operator_preferences_path())
+    assert stores["others"] == [str(other)]
+    # Reporting only: the other store is untouched and the active one still wins.
+    assert "elsewhere" not in read_preferences(repo).get("favoriteProjects", [])
+    assert json.loads(other.read_text(encoding="utf-8"))["preferences"]["favoriteProjects"] == ["elsewhere"]
+
+
+def test_the_override_still_decides_which_store_is_read_and_written(
+    home: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from logics_manager import viewer_preferences
+
+    repo = _repo(tmp_path, "one")
+    account_home = tmp_path / "account-home"
+    (account_home / ".config" / "logics-manager").mkdir(parents=True)
+    (account_home / ".config" / "logics-manager" / "viewer-preferences.json").write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(viewer_preferences, "_account_home", lambda: account_home)
+    monkeypatch.setenv("HOME", str(tmp_path / "process-home"))
+
+    update_preferences(repo, {"favoriteProjects": ["written-here"]})
+    stores = viewer_preferences.operator_preferences_stores()
+
+    assert stores["overridden"] is True
+    assert stores["path"] == str(home / "viewer-preferences.json")
+    assert json.loads(Path(stores["path"]).read_text(encoding="utf-8"))["preferences"]["favoriteProjects"] == ["written-here"]
+
+
+def test_doctor_reports_a_forked_store_as_an_environment_warning(
+    home: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from logics_manager import viewer_preferences
+    from logics_manager.doctor import doctor_payload
+
+    repo = _repo(tmp_path, "one")
+    (repo / "logics" / "backlog").mkdir(parents=True, exist_ok=True)
+    account_home = tmp_path / "account-home"
+    other = account_home / ".config" / "logics-manager" / "viewer-preferences.json"
+    other.parent.mkdir(parents=True)
+    other.write_text("{}", encoding="utf-8")
+
+    monkeypatch.setenv("HOME", str(tmp_path / "process-home"))
+    monkeypatch.setattr(viewer_preferences, "_account_home", lambda: tmp_path / "absent")
+    assert [w for w in doctor_payload(repo)["environment_warnings"] if w["code"] == "forked_preference_stores"] == []
+
+    monkeypatch.setattr(viewer_preferences, "_account_home", lambda: account_home)
+    warnings = [w for w in doctor_payload(repo)["environment_warnings"] if w["code"] == "forked_preference_stores"]
+
+    assert len(warnings) == 1
+    assert str(other) in warnings[0]["message"]

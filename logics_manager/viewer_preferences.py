@@ -45,10 +45,66 @@ MERGED_FIELDS = frozenset({"favoriteProjects"})
 PREFERENCES_VERSION = 1
 
 
+PREFERENCES_FILE_NAME = "viewer-preferences.json"
+
+
 def operator_preferences_path() -> Path:
     override = os.environ.get("LOGICS_VIEWER_PREFERENCES_HOME")
     base = Path(override) if override else Path.home() / ".config" / "logics-manager"
-    return base / "viewer-preferences.json"
+    return base / PREFERENCES_FILE_NAME
+
+
+def _account_home() -> Path | None:
+    """The account's own home, as the system records it, ignoring $HOME.
+
+    item_885: `Path.home()` reads $HOME, so a process launched with $HOME pointed
+    elsewhere -- which is how agent tool profiles run -- opens a different record
+    without saying so. The passwd entry is the one home that does not move, so
+    comparing the two is what makes a forked store detectable without scanning.
+    """
+    try:
+        import pwd
+    except ImportError:  # Windows has no pwd module; $HOME is the only answer there.
+        return None
+    try:
+        return Path(pwd.getpwuid(os.getuid()).pw_dir)
+    except (KeyError, OSError):
+        return None
+
+
+def operator_preferences_stores() -> dict[str, Any]:
+    """Which operator record is in use, and which others exist for this account.
+
+    Reports rather than repairs: nothing here moves, merges or deletes a store.
+    """
+    active = operator_preferences_path()
+    candidates: list[Path] = []
+    for base in (Path.home() / ".config" / "logics-manager", _account_home()):
+        if base is None:
+            continue
+        candidate = (base if base.name == "logics-manager" else base / ".config" / "logics-manager") / PREFERENCES_FILE_NAME
+        candidates.append(candidate)
+    seen = {_resolved(active)}
+    others: list[str] = []
+    for candidate in candidates:
+        key = _resolved(candidate)
+        if key in seen or not candidate.is_file():
+            continue
+        seen.add(key)
+        others.append(str(candidate))
+    return {
+        "path": str(active),
+        "exists": active.is_file(),
+        "others": others,
+        "overridden": bool(os.environ.get("LOGICS_VIEWER_PREFERENCES_HOME")),
+    }
+
+
+def _resolved(path: Path) -> str:
+    try:
+        return str(path.resolve())
+    except OSError:
+        return str(path)
 
 
 def repo_preferences_path(repo_root: Path) -> Path:

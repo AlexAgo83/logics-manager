@@ -4112,6 +4112,59 @@ def test_viewer_start_status_is_local_and_read_only(tmp_path: Path) -> None:
     assert "Focus: req_001_demo" in output
 
 
+def test_viewer_start_status_names_the_operator_preference_store(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """item_885: the banner names the record this viewer opened, and says so when a
+    second one exists for the account."""
+    from logics_manager import viewer_preferences
+
+    profile = tmp_path / "profile"
+    monkeypatch.setenv("LOGICS_VIEWER_PREFERENCES_HOME", str(profile))
+    monkeypatch.setenv("HOME", str(tmp_path / "process-home"))
+    monkeypatch.setattr(viewer_preferences, "_account_home", lambda: tmp_path / "absent")
+
+    output = render_start_status("http://127.0.0.1:8765", tmp_path, auto_refresh_interval_seconds=15)
+    assert f"Preferences: {profile / 'viewer-preferences.json'}" in output
+    assert "another operator preferences file" not in output
+
+    account_home = tmp_path / "account-home"
+    other = account_home / ".config" / "logics-manager" / "viewer-preferences.json"
+    other.parent.mkdir(parents=True)
+    other.write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(viewer_preferences, "_account_home", lambda: account_home)
+
+    forked = render_start_status("http://127.0.0.1:8765", tmp_path, auto_refresh_interval_seconds=15)
+    assert str(other) in forked
+    assert "not lost, only elsewhere" in forked
+
+
+def test_viewer_info_payload_reports_the_store_it_opened(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from logics_manager import viewer_preferences
+
+    profile = tmp_path / "profile"
+    monkeypatch.setenv("LOGICS_VIEWER_PREFERENCES_HOME", str(profile))
+    monkeypatch.setenv("HOME", str(tmp_path / "process-home"))
+    monkeypatch.setattr(viewer_preferences, "_account_home", lambda: tmp_path / "absent")
+    (tmp_path / "logics" / "request").mkdir(parents=True)
+
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("GET", "/api/viewer-info")
+        payload = json.loads(conn.getresponse().read().decode("utf-8"))["payload"]
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+    assert payload["preferences"]["path"] == str(profile / "viewer-preferences.json")
+    assert payload["preferences"]["others"] == []
+    assert payload["preferences"]["overridden"] is True
+
+
 def test_viewer_refresh_interval_defaults_to_15_seconds() -> None:
     args = viewer_module.build_parser().parse_args([])
 

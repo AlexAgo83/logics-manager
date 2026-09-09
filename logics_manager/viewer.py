@@ -3139,14 +3139,21 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
         # item_751: with `preview`, the same call reports which documents it would change and
         # writes none of them. The preview and the repair are one computation taking a flag,
         # so the count the screen shows cannot disagree with what the button does.
-        preview = False
-        length = int(self.headers.get("Content-Length") or 0)
-        if length > 0:
-            try:
-                body = json.loads(self.rfile.read(length) or "{}")
-                preview = bool(body.get("preview"))
-            except (ValueError, OSError):
-                preview = False
+        # item_878: malformed input used to fall back to preview=False, which ran the real
+        # repair. Anything we cannot read as {"preview": <bool>} is now a 400 that writes
+        # nothing.
+        try:
+            body = self._read_json_body_strict()
+        except (json.JSONDecodeError, UnicodeDecodeError, ValueError, OSError):
+            self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid repair request body.")
+            return True
+        if not isinstance(body, dict):
+            self._send_error_json(HTTPStatus.BAD_REQUEST, "Repair request body must be a JSON object.")
+            return True
+        preview = body.get("preview", False)
+        if not isinstance(preview, bool):
+            self._send_error_json(HTTPStatus.BAD_REQUEST, "Repair request field 'preview' must be a boolean.")
+            return True
         try:
             result = audit_payload(
                 self.server.repo_root,

@@ -1,14 +1,14 @@
 ## item_879_recover_safely_from_invalid_update_caches - Recover safely from invalid update caches
 > From version: 2.23.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 80%
 > Complexity: Low
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-09-09 12:05:22
+> Indicators reviewed: 2026-09-09 12:16:14
 
 # AI Context
 - Summary: A cache array or nonnumeric checked_at causes an uncaught exception; F3 is reproduced.

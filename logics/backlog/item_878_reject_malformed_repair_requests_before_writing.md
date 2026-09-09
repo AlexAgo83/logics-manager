@@ -1,14 +1,14 @@
 ## item_878_reject_malformed_repair_requests_before_writing - Reject malformed repair requests before writing
 > From version: 2.23.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 80%
 > Complexity: Medium
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-09-09 12:05:22
+> Indicators reviewed: 2026-09-09 12:16:14
 
 # AI Context
 - Summary: Malformed JSON in a preview request invokes real document repair; F2 is reproduced with a temporary corpus.

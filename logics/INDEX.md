@@ -37,6 +37,7 @@
 | [adr_030_decide_when_a_fix_needs_a_logics_chain_and_when_a_comment_is_the_record](architecture/adr_030_decide_when_a_fix_needs_a_logics_chain_and_when_a_comment_is_the_record.md) | Decide when a fix needs a Logics chain and when a comment is the record | Settled |  |  | architecture/adr_030_decide_when_a_fix_needs_a_logics_chain_and_when_a_comment_is_the_record.md |
 | [adr_031_one_mcp_transport_per_client_class](architecture/adr_031_one_mcp_transport_per_client_class.md) | One MCP transport per client class | Settled |  |  | architecture/adr_031_one_mcp_transport_per_client_class.md |
 | [adr_032_release_target_contract_v2_boundaries](architecture/adr_032_release_target_contract_v2_boundaries.md) | Release target contract v2 boundaries | Settled |  |  | architecture/adr_032_release_target_contract_v2_boundaries.md |
+| [adr_033_the_operator_preference_record_stays_keyed_to_home_and_a_forked_one_is_adopted_explicitly](architecture/adr_033_the_operator_preference_record_stays_keyed_to_home_and_a_forked_one_is_adopted_explicitly.md) | The operator preference record stays keyed to HOME, and a forked one is adopted explicitly | Proposed |  |  | architecture/adr_033_the_operator_preference_record_stays_keyed_to_home_and_a_forked_one_is_adopted_explicitly.md |
 
 ## Product briefs
 
@@ -1454,8 +1455,8 @@
 | [item_882_investigate_review_refresh_while_the_surface_stays_open](backlog/item_882_investigate_review_refresh_while_the_surface_stays_open.md) | Investigate Review refresh while the surface stays open | Done |  | 100% | backlog/item_882_investigate_review_refresh_while_the_surface_stays_open.md |
 | [item_883_clarify_the_fleet_root_selection_experience](backlog/item_883_clarify_the_fleet_root_selection_experience.md) | Clarify Fleet root and project folder selection | Done |  | 100% | backlog/item_883_clarify_the_fleet_root_selection_experience.md |
 | [item_884_contain_grouped_recent_activity_within_the_viewport](backlog/item_884_contain_grouped_recent_activity_within_the_viewport.md) | Contain grouped Recent Activity within the viewport | Done |  | 100% | backlog/item_884_contain_grouped_recent_activity_within_the_viewport.md |
-| [item_885_report_which_preference_store_the_viewer_opened](backlog/item_885_report_which_preference_store_the_viewer_opened.md) | Report which preference store the viewer opened | Ready |  | 0% | backlog/item_885_report_which_preference_store_the_viewer_opened.md |
-| [item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately](backlog/item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately.md) | Decide where the operator record belongs, and adopt an existing one deliberately | Ready |  | 0% | backlog/item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately.md |
+| [item_885_report_which_preference_store_the_viewer_opened](backlog/item_885_report_which_preference_store_the_viewer_opened.md) | Report which preference store the viewer opened | In progress |  | 45% | backlog/item_885_report_which_preference_store_the_viewer_opened.md |
+| [item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately](backlog/item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately.md) | Decide where the operator record belongs, and adopt an existing one deliberately | In progress |  | 45% | backlog/item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately.md |
 
 ## Tasks
 
@@ -1854,7 +1855,7 @@
 | [task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs](tasks/task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs.md) | Orchestrate the Review main-pane move and the Explorer and control repairs | Done |  | 100% | tasks/task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs.md |
 | [task_398_orchestrate_the_review_timeline_reading_ergonomics](tasks/task_398_orchestrate_the_review_timeline_reading_ergonomics.md) | Orchestrate the Review timeline reading ergonomics | Done | codex | 100% | tasks/task_398_orchestrate_the_review_timeline_reading_ergonomics.md |
 | [task_399_deliver_the_repository_review_fixes_and_viewer_followups](tasks/task_399_deliver_the_repository_review_fixes_and_viewer_followups.md) | Deliver the repository review fixes and viewer followups | Done | Claude | 100% | tasks/task_399_deliver_the_repository_review_fixes_and_viewer_followups.md |
-| [task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs](tasks/task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs.md) | Make the operator preference store visible, then decide where it belongs | Ready |  | 0% | tasks/task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs.md |
+| [task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs](tasks/task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs.md) | Make the operator preference store visible, then decide where it belongs | In progress | Claude | 45% | tasks/task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs.md |
 
 ## Runbooks
 

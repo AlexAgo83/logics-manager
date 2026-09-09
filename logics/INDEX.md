@@ -160,7 +160,7 @@
 | [prod_114_review_as_a_real_viewer_surface](product/prod_114_review_as_a_real_viewer_surface.md) | Review as a real viewer surface | Settled |  |  | product/prod_114_review_as_a_real_viewer_surface.md |
 | [prod_115_a_review_timeline_that_reads_like_a_timeline](product/prod_115_a_review_timeline_that_reads_like_a_timeline.md) | A Review timeline that reads like a timeline | Settled |  |  | product/prod_115_a_review_timeline_that_reads_like_a_timeline.md |
 | [prod_116_trustworthy_viewer_actions_and_persistent_project_navigation](product/prod_116_trustworthy_viewer_actions_and_persistent_project_navigation.md) | Trustworthy viewer actions and persistent project navigation | Settled |  |  | product/prod_116_trustworthy_viewer_actions_and_persistent_project_navigation.md |
-| [prod_117_one_operator_record_and_the_viewer_says_which_one_it_opened](product/prod_117_one_operator_record_and_the_viewer_says_which_one_it_opened.md) | One operator record, and the viewer says which one it opened | Proposed |  |  | product/prod_117_one_operator_record_and_the_viewer_says_which_one_it_opened.md |
+| [prod_117_one_operator_record_and_the_viewer_says_which_one_it_opened](product/prod_117_one_operator_record_and_the_viewer_says_which_one_it_opened.md) | One operator record, and the viewer says which one it opened | Settled |  |  | product/prod_117_one_operator_record_and_the_viewer_says_which_one_it_opened.md |
 
 ## Roadmaps
 
@@ -565,7 +565,7 @@
 | [req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control](request/req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control.md) | Render Review in the main pane and repair the Explorer detail pane and surface control | Done |  |  | request/req_385_render_review_in_the_main_pane_and_repair_the_explorer_detail_pane_and_surface_control.md |
 | [req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane](request/req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane.md) | Make the Review timeline readable: an anchored rail, denser tiles, and the shared split-pane | Done |  |  | request/req_386_make_the_review_timeline_readable_an_anchored_rail_denser_tiles_and_the_shared_split_pane.md |
 | [req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience](request/req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience.md) | Review findings: literal Git paths, repair input validation and update cache resilience | Done |  |  | request/req_387_review_findings_literal_git_paths_repair_input_validation_and_update_cache_resilience.md |
-| [req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently](request/req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently.md) | Say which operator preference store the viewer is using, and stop it forking silently | Draft |  |  | request/req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently.md |
+| [req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently](request/req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently.md) | Say which operator preference store the viewer is using, and stop it forking silently | Done |  |  | request/req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently.md |
 
 ## Backlog
 
@@ -1455,8 +1455,8 @@
 | [item_882_investigate_review_refresh_while_the_surface_stays_open](backlog/item_882_investigate_review_refresh_while_the_surface_stays_open.md) | Investigate Review refresh while the surface stays open | Done |  | 100% | backlog/item_882_investigate_review_refresh_while_the_surface_stays_open.md |
 | [item_883_clarify_the_fleet_root_selection_experience](backlog/item_883_clarify_the_fleet_root_selection_experience.md) | Clarify Fleet root and project folder selection | Done |  | 100% | backlog/item_883_clarify_the_fleet_root_selection_experience.md |
 | [item_884_contain_grouped_recent_activity_within_the_viewport](backlog/item_884_contain_grouped_recent_activity_within_the_viewport.md) | Contain grouped Recent Activity within the viewport | Done |  | 100% | backlog/item_884_contain_grouped_recent_activity_within_the_viewport.md |
-| [item_885_report_which_preference_store_the_viewer_opened](backlog/item_885_report_which_preference_store_the_viewer_opened.md) | Report which preference store the viewer opened | In progress |  | 90% | backlog/item_885_report_which_preference_store_the_viewer_opened.md |
-| [item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately](backlog/item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately.md) | Decide where the operator record belongs, and adopt an existing one deliberately | In progress |  | 90% | backlog/item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately.md |
+| [item_885_report_which_preference_store_the_viewer_opened](backlog/item_885_report_which_preference_store_the_viewer_opened.md) | Report which preference store the viewer opened | Done |  | 100% | backlog/item_885_report_which_preference_store_the_viewer_opened.md |
+| [item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately](backlog/item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately.md) | Decide where the operator record belongs, and adopt an existing one deliberately | Done |  | 100% | backlog/item_886_decide_where_the_operator_record_belongs_and_adopt_an_existing_one_deliberately.md |
 
 ## Tasks
 
@@ -1855,7 +1855,7 @@
 | [task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs](tasks/task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs.md) | Orchestrate the Review main-pane move and the Explorer and control repairs | Done |  | 100% | tasks/task_397_orchestrate_the_review_main_pane_move_and_the_explorer_and_control_repairs.md |
 | [task_398_orchestrate_the_review_timeline_reading_ergonomics](tasks/task_398_orchestrate_the_review_timeline_reading_ergonomics.md) | Orchestrate the Review timeline reading ergonomics | Done | codex | 100% | tasks/task_398_orchestrate_the_review_timeline_reading_ergonomics.md |
 | [task_399_deliver_the_repository_review_fixes_and_viewer_followups](tasks/task_399_deliver_the_repository_review_fixes_and_viewer_followups.md) | Deliver the repository review fixes and viewer followups | Done | Claude | 100% | tasks/task_399_deliver_the_repository_review_fixes_and_viewer_followups.md |
-| [task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs](tasks/task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs.md) | Make the operator preference store visible, then decide where it belongs | In progress | Claude | 90% | tasks/task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs.md |
+| [task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs](tasks/task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs.md) | Make the operator preference store visible, then decide where it belongs | Done | Claude | 100% | tasks/task_400_make_the_operator_preference_store_visible_then_decide_where_it_belongs.md |
 
 ## Runbooks
 

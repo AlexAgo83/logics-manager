@@ -232,6 +232,27 @@ def _looks_like_viewer_project(path: Path) -> bool:
     )
 
 
+def _fleet_root_projects(root: Path) -> list[Path]:
+    """Projects directly under one fleet root.
+
+    item_881: an unreadable root used to raise straight out of the viewer constructor,
+    so a single folder the operator could not read looked like every project and every
+    favourite had vanished. One bad root now costs only that root.
+    """
+    try:
+        entries = sorted(root.iterdir(), key=lambda path: path.name.lower())
+    except OSError:
+        return []
+    projects: list[Path] = []
+    for item in entries:
+        try:
+            if item.is_dir() and _looks_like_viewer_project(item):
+                projects.append(item.resolve())
+        except OSError:
+            continue
+    return projects
+
+
 def discover_viewer_project_roots(repo_root: Path, *, max_projects: int = 40) -> list[Path]:
     active = repo_root.resolve()
     candidates: list[Path] = [active]
@@ -1799,7 +1820,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
         self.launch_fleet_home = launch_fleet_home
         roots = fleet_roots() if fleet else []
         self.project_roots = (
-            [project for root in roots for project in root.iterdir() if project.is_dir() and _looks_like_viewer_project(project)]
+            [project for root in roots for project in _fleet_root_projects(root)]
             if fleet else discover_viewer_project_roots(self.launch_repo_root)
         )
         if include_launch_project and self.launch_repo_root not in self.project_roots:
@@ -2189,14 +2210,10 @@ class LogicsViewerServer(ThreadingHTTPServer):
         root = root.resolve()
         if not root.is_dir():
             raise FileNotFoundError(str(root))
-        roots = fleet_roots()
-        if root not in roots:
-            update_viewer_preferences(self.launch_repo_root, {"fleetRoots": [str(item) for item in [*roots, root]]})
-        try:
-            candidates = [item.resolve() for item in root.iterdir() if item.is_dir() and _looks_like_viewer_project(item)]
-        except OSError:
-            candidates = []
-        for project in candidates:
+        stored = fleet_roots(include_missing=True)
+        if root not in stored:
+            update_viewer_preferences(self.launch_repo_root, {"fleetRoots": [str(item) for item in [*stored, root]]})
+        for project in _fleet_root_projects(root):
             project_id = _viewer_project_id(project)
             if project_id not in self.project_root_by_id:
                 self.project_roots.append(project)
@@ -2204,10 +2221,10 @@ class LogicsViewerServer(ThreadingHTTPServer):
 
     def remove_fleet_root(self, root: Path) -> None:
         root = root.resolve()
-        roots = fleet_roots()
-        if root not in roots:
+        stored = fleet_roots(include_missing=True)
+        if root not in stored:
             raise ValueError("Unknown fleet root.")
-        update_viewer_preferences(self.launch_repo_root, {"fleetRoots": [str(item) for item in roots if item != root]})
+        update_viewer_preferences(self.launch_repo_root, {"fleetRoots": [str(item) for item in stored if item != root]})
         retained = [project for project in self.project_roots if project == self.launch_repo_root or root not in project.parents]
         self.project_roots = retained
         self.project_root_by_id = {_viewer_project_id(project): project for project in retained}

@@ -110,12 +110,27 @@ def read_preferences(repo_root: Path) -> dict[str, Any]:
     return {**_read(repo_preferences_path(repo_root)), **_read(operator_preferences_path())}
 
 
-def fleet_roots() -> list[Path]:
-    """Return the operator's bounded fleet roots, ignoring stale entries."""
+def fleet_roots(*, include_missing: bool = False) -> list[Path]:
+    """Return the operator's bounded fleet roots, ignoring stale entries.
+
+    item_881: `include_missing` is what a *write* reads. Rewriting the list from the
+    filtered view silently dropped a root that was merely unreachable at that moment --
+    an unmounted volume, a folder macOS had not granted access to yet -- so adding one
+    root deleted the others. Reads still hide what is not there.
+    """
     roots = _read(operator_preferences_path()).get("fleetRoots", [])
     if not isinstance(roots, list):
         return []
-    return list(dict.fromkeys(Path(str(root)).expanduser().resolve() for root in roots if Path(str(root)).expanduser().is_dir()))
+    resolved: list[Path] = []
+    for entry in roots:
+        candidate = Path(str(entry)).expanduser()
+        if not include_missing and not candidate.is_dir():
+            continue
+        try:
+            resolved.append(candidate.resolve())
+        except OSError:
+            continue
+    return list(dict.fromkeys(resolved))
 
 
 def update_preferences(repo_root: Path, patch: dict[str, Any], *, removed: dict[str, Any] | None = None) -> dict[str, Any]:

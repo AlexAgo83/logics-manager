@@ -4165,6 +4165,56 @@ def test_viewer_info_payload_reports_the_store_it_opened(tmp_path: Path, monkeyp
     assert payload["preferences"]["overridden"] is True
 
 
+def test_viewer_adopt_preferences_route_merges_only_a_known_store(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """item_886/adr_033: the path comes from the client, so only a record this account
+    already has is read, and the source file is never written."""
+    from logics_manager import viewer_preferences
+
+    profile = tmp_path / "profile"
+    monkeypatch.setenv("LOGICS_VIEWER_PREFERENCES_HOME", str(profile))
+    monkeypatch.setenv("HOME", str(tmp_path / "process-home"))
+    account_home = tmp_path / "account-home"
+    other = account_home / ".config" / "logics-manager" / "viewer-preferences.json"
+    other.parent.mkdir(parents=True)
+    other.write_text('{"version": 1, "preferences": {"favoriteProjects": ["theirs"]}}', encoding="utf-8")
+    monkeypatch.setattr(viewer_preferences, "_account_home", lambda: account_home)
+    (tmp_path / "logics" / "request").mkdir(parents=True)
+    viewer_preferences.update_preferences(tmp_path, {"favoriteProjects": ["mine"]})
+    source_before = other.read_bytes()
+
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+
+    def post(body: str) -> tuple[int, dict]:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("POST", "/api/adopt-preferences", body=body, headers={"Content-Type": "application/json"})
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+        conn.close()
+        return response.status, payload
+
+    try:
+        status, payload = post(json.dumps({"path": str(tmp_path / "elsewhere.json")}))
+        assert status == 403, payload
+        assert viewer_preferences.read_preferences(tmp_path)["favoriteProjects"] == ["mine"]
+
+        status, payload = post("{not json")
+        assert status == 400
+
+        status, payload = post(json.dumps({"path": str(other)}))
+        assert status == 200, payload
+        assert sorted(payload["preferences"]["favoriteProjects"]) == ["mine", "theirs"]
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+    assert other.read_bytes() == source_before
+
+
 def test_viewer_refresh_interval_defaults_to_15_seconds() -> None:
     args = viewer_module.build_parser().parse_args([])
 

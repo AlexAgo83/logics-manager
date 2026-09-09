@@ -189,6 +189,39 @@ def fleet_roots(*, include_missing: bool = False) -> list[Path]:
     return list(dict.fromkeys(resolved))
 
 
+#: What adoption carries across: the sets that describe the operator's working context.
+#: Scalars are left alone -- a refresh interval chosen here is not improved by one chosen
+#: in another profile, and overwriting it would be the silent replacement adr_033 refuses.
+ADOPTABLE_FIELDS = ("favoriteProjects", "fleetRoots")
+
+
+def adopt_preferences(repo_root: Path, source: Path) -> dict[str, Any]:
+    """Merge a forked operator record into the active one (adr_033).
+
+    Additive by construction: a union of the adoptable sets, so adoption can be
+    repeated, cannot remove a favourite, and never touches the source file.
+    Raises ValueError if `source` is not one of the records this account actually has,
+    which is what keeps the route from reading an arbitrary path.
+    """
+    stores = operator_preferences_stores()
+    if _resolved(source) not in {_resolved(Path(path)) for path in stores["others"]}:
+        raise ValueError("Unknown operator preferences file.")
+    incoming = _read(source)
+    patch: dict[str, Any] = {}
+    for field in ADOPTABLE_FIELDS:
+        values = incoming.get(field)
+        if not isinstance(values, list):
+            continue
+        current = _read(operator_preferences_path()).get(field)
+        union = [str(entry) for entry in (current if isinstance(current, list) else [])]
+        union.extend(str(entry) for entry in values if str(entry) not in union)
+        if union:
+            patch[field] = union
+    if not patch:
+        return read_preferences(repo_root)
+    return update_preferences(repo_root, patch)
+
+
 def update_preferences(repo_root: Path, patch: dict[str, Any], *, removed: dict[str, Any] | None = None) -> dict[str, Any]:
     """Apply `patch`, and remove `removed` entries from the merged sets.
 

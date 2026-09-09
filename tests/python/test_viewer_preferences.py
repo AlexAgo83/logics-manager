@@ -461,3 +461,96 @@ def test_doctor_reports_a_forked_store_as_an_environment_warning(
 
     assert len(warnings) == 1
     assert str(other) in warnings[0]["message"]
+
+
+# --- item_886 / adr_033: a forked record is adopted explicitly, never merged for you ---
+
+
+def _forked(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, preferences: dict) -> Path:
+    """A second operator record for this account, holding `preferences`."""
+    from logics_manager import viewer_preferences
+
+    account_home = tmp_path / "account-home"
+    other = account_home / ".config" / "logics-manager" / "viewer-preferences.json"
+    other.parent.mkdir(parents=True, exist_ok=True)
+    other.write_text(json.dumps({"version": 1, "preferences": preferences}), encoding="utf-8")
+    monkeypatch.setattr(viewer_preferences, "_account_home", lambda: account_home)
+    monkeypatch.setenv("HOME", str(tmp_path / "process-home"))
+    return other
+
+
+def test_adoption_unions_the_sets_and_leaves_the_source_alone(
+    home: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from logics_manager.viewer_preferences import adopt_preferences
+
+    repo = _repo(tmp_path, "one")
+    root_here, root_there = tmp_path / "here", tmp_path / "there"
+    root_here.mkdir()
+    root_there.mkdir()
+    update_preferences(repo, {"favoriteProjects": ["mine"], "fleetRoots": [str(root_here)], "autoRefreshIntervalSeconds": 30})
+    other = _forked(
+        tmp_path,
+        monkeypatch,
+        {"favoriteProjects": ["theirs", "mine"], "fleetRoots": [str(root_there)], "autoRefreshIntervalSeconds": 5},
+    )
+    before = other.read_bytes()
+
+    merged = adopt_preferences(repo, other)
+
+    assert sorted(merged["favoriteProjects"]) == ["mine", "theirs"]
+    assert merged["fleetRoots"] == [str(root_here), str(root_there)]
+    # A scalar is not adopted: the interval chosen here survives.
+    assert merged["autoRefreshIntervalSeconds"] == 30
+    assert other.read_bytes() == before
+
+
+def test_adoption_is_repeatable_and_removes_nothing(
+    home: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from logics_manager.viewer_preferences import adopt_preferences
+
+    repo = _repo(tmp_path, "one")
+    update_preferences(repo, {"favoriteProjects": ["mine"]})
+    other = _forked(tmp_path, monkeypatch, {"favoriteProjects": ["theirs"]})
+
+    first = adopt_preferences(repo, other)
+    second = adopt_preferences(repo, other)
+
+    assert first["favoriteProjects"] == second["favoriteProjects"] == ["mine", "theirs"]
+
+
+def test_adoption_refuses_a_path_this_account_does_not_have(
+    home: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The route takes its path from the client, so anything not already reported as a
+    store of this account is refused rather than read."""
+    from logics_manager.viewer_preferences import adopt_preferences
+
+    repo = _repo(tmp_path, "one")
+    _forked(tmp_path, monkeypatch, {"favoriteProjects": ["theirs"]})
+    elsewhere = tmp_path / "elsewhere.json"
+    elsewhere.write_text('{"version": 1, "preferences": {"favoriteProjects": ["injected"]}}', encoding="utf-8")
+
+    with pytest.raises(ValueError):
+        adopt_preferences(repo, elsewhere)
+    with pytest.raises(ValueError):
+        adopt_preferences(repo, Path("/etc/passwd"))
+    assert read_preferences(repo).get("favoriteProjects") is None
+
+
+def test_a_single_store_install_has_nothing_to_adopt(
+    home: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from logics_manager import viewer_preferences
+    from logics_manager.viewer_preferences import adopt_preferences
+
+    repo = _repo(tmp_path, "one")
+    update_preferences(repo, {"favoriteProjects": ["mine"]})
+    monkeypatch.setenv("HOME", str(tmp_path / "process-home"))
+    monkeypatch.setattr(viewer_preferences, "_account_home", lambda: tmp_path / "absent")
+
+    assert viewer_preferences.operator_preferences_stores()["others"] == []
+    with pytest.raises(ValueError):
+        adopt_preferences(repo, tmp_path / "account-home" / ".config" / "logics-manager" / "viewer-preferences.json")
+    assert read_preferences(repo)["favoriteProjects"] == ["mine"]

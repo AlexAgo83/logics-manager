@@ -1871,7 +1871,10 @@ describe("local viewer browser host", () => {
     const modal = dom.window.document.querySelector(".viewer-themed-modal");
     expect(modal).not.toBeNull();
     expect(modal?.textContent).toContain("No native folder dialog on this host.");
-    expect(modal?.textContent).toContain("fallback folder browser");
+    // item_883: the copy that follows the reason names what the folder is for, instead of
+    // naming the mechanism the operator landed in.
+    expect(modal?.textContent).toContain("Browse to the folder you want and confirm below.");
+    expect(modal?.textContent).toContain("A fleet root is a folder whose immediate subfolders are your projects.");
   });
 
   it("asks before running git push, and does nothing if the operator cancels", async () => {
@@ -6748,7 +6751,9 @@ describe("local viewer browser host", () => {
     let content = dom.window.document.getElementById("review-panel");
     expect(calls).toContain("/api/review-bursts");
     expect(dom.window.document.body.classList.contains("viewer-screen-review")).toBe(true);
-    expect(dom.window.document.querySelector('[data-viewer-surface="review"]')?.getAttribute("aria-selected")).toBe("true");
+    // `button[...]`: <body> carries the same attribute as the surface marker and comes
+    // first in document order; item_880 stopped announcing the page itself as a tab.
+    expect(dom.window.document.querySelector('button[data-viewer-surface="review"]')?.getAttribute("aria-selected")).toBe("true");
     // item_871: the screen overlay stays closed; Review is a surface, not a screen.
     expect((dom.window.document.getElementById("viewer-document") as HTMLElement | null)?.hidden).toBe(true);
     expect(dom.window.document.getElementById("viewer-document-content")?.textContent || "").not.toContain("Working tree");

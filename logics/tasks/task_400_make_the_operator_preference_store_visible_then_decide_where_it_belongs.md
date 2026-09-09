@@ -52,7 +52,7 @@
 - (no validation recorded yet)
 
 # Report
-- Not started.
+- Both slices delivered. item_885 (f7ac5168): the record the viewer opened is now named in the launch banner, the viewer info payload and the Settings identity block, and a second record for the same account is reported as a doctor environment warning beside the existing duplicate-executable one. A forked record is detected by comparing the HOME-derived path against the account's own home taken from the passwd entry, which is the one home $HOME cannot move - no filesystem scanning. item_886 (bf89df5f) with adr_033: the record stays keyed to HOME, because a process that sets HOME is asking to be isolated and anchoring to the account would have CI runs and containers writing into the operator's real file. The forked record is made reachable instead: Settings offers an explicit adoption that adds its favourites and Fleet roots to the active record as a union, reads the source without ever writing it, and accepts only a path this account already has. Scalars are not adopted, so adoption is repeatable and cannot remove a favourite. Evidence gathered before the decision: four records on this machine holding 9, 8, 7 and 2 favourites - diverged working sets, so no automatic rule could have picked a winner without silently dropping one. The adoption route was extracted into its own handler rather than added as another branch in do_POST, which was already at its length ceiling.
 
 # Links
 - Request: `req_388_say_which_operator_preference_store_the_viewer_is_using_and_stop_it_forking_silently`

@@ -474,7 +474,12 @@ const allowedOversizedFiles = new Map(
     // 5715: req_388 names the record in the Settings identity block and offers adoption
     // beside the warning that reports the fork (item_885/item_886). Both belong to the
     // Settings screen this dispatcher already renders.
-    "clients/viewer/src/browser-host/index.js": { maxLines: 5715, ref: "req_388" },
+    // 5748: item_880's real fix. The surface had three writers -- this file, the
+    // project-switch path, and mainApp's own panel state -- and only one told the others,
+    // so the switch drifted from the screen. setViewerSurface is now the single writer and
+    // remembers the surface per project; the extra lines are that one function plus its
+    // two restore helpers, which have to sit beside it to share its closure.
+    "clients/viewer/src/browser-host/index.js": { maxLines: 5748, ref: "req_388" },
     // req_312: git and CI, the lift a previous request had recorded as blocked. The cdx
     // lift unblocked it -- twelve foreign bindings became two.
     // 1114: req_381 adds the Review timeline to the Git screen because it is a Git-only
@@ -536,7 +541,9 @@ const allowedOversizedFiles = new Map(
     // 1513: req_387 (item_880) adds syncSurfaceSelector beside viewerSurface, the
     // reader it derives from; splitting the pair would leave two files describing one
     // piece of state.
-    "clients/viewer/src/browser-host/util.js": { maxLines: 1513, ref: "req_387" },
+    // 1519: viewerSurface now reads the mounted Activity panel before the body dataset,
+    // because the panel is what the operator sees and the dataset could disagree with it.
+    "clients/viewer/src/browser-host/util.js": { maxLines: 1519, ref: "req_388" },
     // 2546: req_305 added the workflow-health sections (blocked docs, stale docs)
     // to the health screen, which previously showed lint and audit only.
     // req_312 moved the rendering whose only consumer is the cdx screen into that screen:

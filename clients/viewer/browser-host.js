@@ -19,12 +19,6 @@
     const surface = document.body?.dataset.viewerSurface || "";
     return ["project", "review"].includes(surface) ? surface : "project";
   }
-  function watchSurfacePanel() {
-    const panel = document.getElementById("activity-panel");
-    if (!(panel instanceof HTMLElement) || panel.dataset.surfaceWatched === "1") return;
-    panel.dataset.surfaceWatched = "1";
-    new MutationObserver(() => syncSurfaceSelector()).observe(panel, { attributes: true, attributeFilter: ["hidden"] });
-  }
   function syncSurfaceSelector(surface = viewerSurface()) {
     document.querySelectorAll("button[data-viewer-surface]").forEach((node) => {
       if (node instanceof HTMLElement) {
@@ -2702,19 +2696,6 @@ ${baseEntry.stack.split("\n", 1)[0] || ""}`;
       </div>
       ${treePayload.truncated ? '<div class="viewer-workspace__placeholder viewer-workspace__placeholder--warn"><span class="viewer-workspace__placeholder-icon" aria-hidden="true">!</span><span>Directory listing truncated.</span></div>' : ""}
     `;
-  }
-  function returnToProjectSurface() {
-    const activityPanel = document.getElementById("activity-panel");
-    if (activityPanel instanceof HTMLElement) {
-      activityPanel.hidden = true;
-    }
-    if (document.body) {
-      document.body.dataset.viewerSurface = "project";
-    }
-    document.body?.classList.remove("viewer-screen-activity");
-    document.body?.classList.remove("viewer-screen-review");
-    document.body?.classList.add("viewer-screen-project");
-    syncSurfaceSelector("project");
   }
   function runtimeStatusSignature(payload) {
     return stableStringify(payload || {});
@@ -9495,13 +9476,25 @@ ${line}` : line;
         dispatchViewerActivityUpdate();
       }
     }
-    function setViewerSurface(surface) {
+    function rememberedViewerSurface() {
+      const value = String(viewerState.viewerPreferences?.viewerSurface || "");
+      return ["activity", "project", "review"].includes(value) ? value : "";
+    }
+    function applyRememberedViewerSurface() {
+      const remembered = rememberedViewerSurface();
+      if (!remembered || viewerSurface() === remembered) return;
+      setViewerSurface(remembered, { remember: false });
+    }
+    function setViewerSurface(surface, { remember = true, force = false } = {}) {
       const next = ["activity", "project", "review"].includes(surface) ? surface : "project";
       const activityPanel = document.getElementById("activity-panel");
-      const current = document.body?.dataset.viewerSurface || (activityPanelIsOpen() ? "activity" : "project");
-      if (current === next) {
+      const current = viewerSurface();
+      if (current === next && !force) {
         if (next === "activity") dispatchViewerActivityUpdate();
         return;
+      }
+      if (remember && viewerState.viewerPreferences?.viewerSurface !== next) {
+        updateViewerPreferences({ viewerSurface: next });
       }
       if (document.body) {
         document.body.dataset.viewerSurface = next;
@@ -9917,7 +9910,6 @@ ${line}` : line;
         return;
       }
       setProjectMenuOpen(false);
-      returnToProjectSurface();
       setMeta(`Switching to ${target.name || "project"}...`);
       const response = await fetch("/api/switch-project", {
         method: "POST",
@@ -9944,10 +9936,11 @@ ${line}` : line;
         panel.hidden = true;
       }
       postToApp(data.payload);
+      await hydrateViewerPreferencesFromServer();
+      applyRememberedViewerSurface();
     }
     async function pickViewerProjectRoot() {
       setProjectMenuOpen(false);
-      returnToProjectSurface();
       setMeta("Opening project folder picker...");
       let response;
       let data = {};
@@ -9991,7 +9984,6 @@ ${line}` : line;
       postToApp(data.payload);
     }
     function applySelectedProjectPayload(payload, message) {
-      returnToProjectSurface();
       {
         const active = (Array.isArray(payload?.projects) ? payload.projects : []).find((project) => project?.active), projectId = projectPreferenceId(active), stored = viewerState.viewerPreferences.projectLastUsedAt;
         if (projectId) updateViewerPreferences({ projectLastUsedAt: { ...stored && typeof stored === "object" ? stored : {}, [projectId]: (/* @__PURE__ */ new Date()).toISOString() } });
@@ -10008,6 +10000,7 @@ ${line}` : line;
         panel.hidden = true;
       }
       postToApp(payload, { force: true });
+      void hydrateViewerPreferencesFromServer().then(applyRememberedViewerSurface);
       setMeta(message);
     }
     async function openFolderPickerModal({ reason = "", title = "Choose project folder", purpose = "", confirmLabel = "Select this folder", onSelect } = {}) {
@@ -11169,7 +11162,6 @@ ${line}` : line;
       applyLocalViewerChrome();
       bindRefreshMenuControls();
       bindFocusMenuControls();
-      watchSurfacePanel();
       syncSurfaceSelector();
       if (activityPanelIsOpen()) {
         dispatchViewerActivityUpdate();
@@ -12311,7 +12303,10 @@ ${shown.join("\n")}${files.length > shown.length ? `
           }
           if (message.type === "ready") {
             void hydrateViewerPreferencesFromServer();
-            loadItems().then(() => startViewerEvents()).catch((error) => setMeta(error.message));
+            loadItems().then(() => {
+              startViewerEvents();
+              applyRememberedViewerSurface();
+            }).catch((error) => setMeta(error.message));
             return;
           }
           if (message.type === "refresh") {

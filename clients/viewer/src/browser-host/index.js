@@ -2,7 +2,7 @@ import {
   activeCdxInteractionMenu,
   activityPanelIsOpen,
   syncSurfaceSelector,
-  watchSurfacePanel,
+  viewerSurface,
   activityRootKey,
   applyCdxBadge,
   applyGitDomain,
@@ -141,7 +141,6 @@ import {
   renderWorkspace,
   renderWorkspacePreview,
   resizeWorkshopTerminal,
-  returnToProjectSurface,
   runtimeStatusSignature,
   sanitizeViewerFilterState,
   setNavMenuBadges,
@@ -937,13 +936,39 @@ import {
     }
   }
 
-  function setViewerSurface(surface) {
+  /** The surface this project was last left on, or "" when it has none yet.
+
+      Empty means no opinion, not a default: a project the operator has never chosen a
+      surface for keeps whatever the screen already shows, rather than being moved. */
+  function rememberedViewerSurface() {
+    const value = String(viewerState.viewerPreferences?.viewerSurface || "");
+    return ["activity", "project", "review"].includes(value) ? value : "";
+  }
+
+  /** Put the viewer back on the surface this project was left on, without re-saving it. */
+  function applyRememberedViewerSurface() {
+    const remembered = rememberedViewerSurface();
+    // A restore that changes nothing must do nothing: setViewerSurface re-dispatches the
+    // activity feed when asked for the surface already shown, which is a refresh nobody
+    // requested. An unset preference changes nothing either.
+    if (!remembered || viewerSurface() === remembered) return;
+    setViewerSurface(remembered, { remember: false });
+  }
+
+  // item_880: one writer. The surface used to be changed from three places -- here, the
+  // project-switch path, and mainApp's own activityPanelOpen -- and only this one told
+  // mainApp, which owns the panel and re-opened it on its next render. Everything now
+  // goes through here, so the panel, the body and the switch cannot disagree.
+  function setViewerSurface(surface, { remember = true, force = false } = {}) {
     const next = ["activity", "project", "review"].includes(surface) ? surface : "project";
     const activityPanel = document.getElementById("activity-panel");
-    const current = document.body?.dataset.viewerSurface || (activityPanelIsOpen() ? "activity" : "project");
-    if (current === next) {
+    const current = viewerSurface();
+    if (current === next && !force) {
       if (next === "activity") dispatchViewerActivityUpdate();
       return;
+    }
+    if (remember && viewerState.viewerPreferences?.viewerSurface !== next) {
+      updateViewerPreferences({ viewerSurface: next });
     }
     if (document.body) {
       document.body.dataset.viewerSurface = next;
@@ -1477,7 +1502,6 @@ import {
       return;
     }
     setProjectMenuOpen(false);
-    returnToProjectSurface();
     setMeta(`Switching to ${target.name || "project"}...`);
     const response = await fetch("/api/switch-project", {
       method: "POST",
@@ -1500,11 +1524,14 @@ import {
       panel.hidden = true;
     }
     postToApp(data.payload);
+    // The surface belongs to the project, so it is restored from that project's own
+    // record once it has been fetched -- never forced to a default.
+    await hydrateViewerPreferencesFromServer();
+    applyRememberedViewerSurface();
   }
 
   async function pickViewerProjectRoot() {
     setProjectMenuOpen(false);
-    returnToProjectSurface();
     setMeta("Opening project folder picker...");
     let response;
     let data = {};
@@ -1551,7 +1578,7 @@ import {
   }
 
   function applySelectedProjectPayload(payload, message) {
-    returnToProjectSurface(); { const active = (Array.isArray(payload?.projects) ? payload.projects : []).find((project) => project?.active), projectId = projectPreferenceId(active), stored = viewerState.viewerPreferences.projectLastUsedAt; if (projectId) updateViewerPreferences({ projectLastUsedAt: { ...(stored && typeof stored === "object" ? stored : {}), [projectId]: new Date().toISOString() } }); }
+    { const active = (Array.isArray(payload?.projects) ? payload.projects : []).find((project) => project?.active), projectId = projectPreferenceId(active), stored = viewerState.viewerPreferences.projectLastUsedAt; if (projectId) updateViewerPreferences({ projectLastUsedAt: { ...(stored && typeof stored === "object" ? stored : {}), [projectId]: new Date().toISOString() } }); }
     gitState.latestGitBadgeCounts = { unpushedCommits: 0, unpulledCommits: 0, uncommittedFiles: 0 };
     gitState.latestCiStatus = { visible: false, badgeState: "unknown", message: "" };
     gitState.latestReleaseRunsStatus = { visible: false, badgeState: "unknown", message: "" };
@@ -1564,6 +1591,7 @@ import {
       panel.hidden = true;
     }
     postToApp(payload, { force: true });
+    void hydrateViewerPreferencesFromServer().then(applyRememberedViewerSurface);
     setMeta(message);
   }
 
@@ -2954,7 +2982,6 @@ import {
     bindFocusMenuControls();
     // item_880: a repaint can replace the selector nodes, so re-derive their state from
     // the surface that is actually showing.
-    watchSurfacePanel();
     syncSurfaceSelector();
     if (activityPanelIsOpen()) {
       dispatchViewerActivityUpdate();
@@ -4482,7 +4509,11 @@ import {
         if (message.type === "ready") {
           // The cached values have already painted; the record corrects them once it answers.
           void hydrateViewerPreferencesFromServer();
-          loadItems().then(() => startViewerEvents()).catch((error) => setMeta(error.message));
+          // The remembered surface is applied after the first load, so the restore cannot
+          // race the payload that paints the screen it is restoring.
+          loadItems()
+            .then(() => { startViewerEvents(); applyRememberedViewerSurface(); })
+            .catch((error) => setMeta(error.message));
           return;
         }
         if (message.type === "refresh") {

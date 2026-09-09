@@ -2294,7 +2294,7 @@ describe("local viewer browser host", () => {
     expect(source).toContain('document.querySelectorAll("button[data-viewer-surface]")');
     expect(app).toContain('window.addEventListener("viewer-surface-change"');
     expect(interactions).toContain('!activityToggle.hasAttribute("data-viewer-surface")');
-    expect(host).toContain("if (current === next)");
+    expect(host).toContain("if (current === next && !force)");
     expect(host).toContain('document.body?.classList.toggle("viewer-screen-document", Boolean(open))');
     expect(source).toContain("Show recent activity");
     // item_873: one of three, so the options carry aria-selected, not aria-pressed.
@@ -3875,9 +3875,16 @@ describe("local viewer browser host", () => {
     expect(dom.window.document.getElementById("viewer-ci")?.hidden).toBe(true);
     expect((dom.window.document.getElementById("viewer-cdx") as HTMLButtonElement | null)?.disabled).toBe(true);
     expect(dom.window.document.getElementById("viewer-filter-count")?.textContent).toContain("1 docs");
-    expect(dom.window.document.getElementById("activity-panel")?.hidden).toBe(true);
-    expect(dom.window.document.body.classList.contains("viewer-screen-project")).toBe(true);
-    expect(dom.window.document.body.classList.contains("viewer-screen-activity")).toBe(false);
+    // item_880: switching project no longer forces a surface. The screen the operator was
+    // on stays, unless the project being opened remembers one of its own; the tab and the
+    // screen move together or not at all.
+    const screen = dom.window.document.getElementById("activity-panel")?.hidden
+      ? (dom.window.document.body.dataset.viewerSurface || "project")
+      : "activity";
+    const lit = Array.from(dom.window.document.querySelectorAll("button[data-viewer-surface]"))
+      .filter((node) => node.classList.contains("is-active") || node.classList.contains("btn--active"))
+      .map((node) => node.getAttribute("data-viewer-surface"));
+    expect(lit).toEqual([screen]);
   });
 
   it("keeps the active project first and persists project menu star toggles without switching", async () => {

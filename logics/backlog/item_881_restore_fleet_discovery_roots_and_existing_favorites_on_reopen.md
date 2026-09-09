@@ -1,14 +1,14 @@
 ## item_881_restore_fleet_discovery_roots_and_existing_favorites_on_reopen - Restore Fleet discovery roots and existing favorites on reopen
 > From version: 2.23.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 95%
 > Confidence: 80%
-> Progress: 0%
+> Progress: 80%
 > Complexity: Medium
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-09-09 12:05:22
+> Indicators reviewed: 2026-09-09 12:16:14
 
 # AI Context
 - Summary: Projects and favorites disappear on reopen, but resetting the discovery root to Documents restores both; F5 narrows the issue to restoration/discovery rather than proven favorite deletion.

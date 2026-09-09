@@ -1,14 +1,14 @@
 ## item_877_commit_only_literal_selected_git_paths - Commit only literal selected Git paths
 > From version: 2.23.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 95%
 > Confidence: 90%
-> Progress: 0%
+> Progress: 80%
 > Complexity: Medium
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-09-09 12:05:22
+> Indicators reviewed: 2026-09-09 12:16:14
 
 # AI Context
 - Summary: A selected filename is interpreted as a Git pathspec and commits an unselected matching file; F1 is reproduced.

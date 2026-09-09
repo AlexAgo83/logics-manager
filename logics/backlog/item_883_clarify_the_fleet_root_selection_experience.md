@@ -1,14 +1,14 @@
 ## item_883_clarify_the_fleet_root_selection_experience - Clarify Fleet root and project folder selection
 > From version: 2.23.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 95%
 > Confidence: 80%
-> Progress: 0%
+> Progress: 80%
 > Complexity: Medium
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-09-09 12:06:05
+> Indicators reviewed: 2026-09-09 12:16:14
 
 # AI Context
 - Summary: The supplied Choose fleet root and Choose project folder screenshots show technical fallback copy, hidden-folder clutter and unclear Select/Cancel/Close roles; F7 is a usability request.

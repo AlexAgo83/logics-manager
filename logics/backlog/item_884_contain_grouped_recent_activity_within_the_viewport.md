@@ -1,14 +1,14 @@
 ## item_884_contain_grouped_recent_activity_within_the_viewport - Contain grouped Recent Activity within the viewport
 > From version: 2.23.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 95%
 > Confidence: 80%
-> Progress: 0%
+> Progress: 80%
 > Complexity: Medium
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-09-09 12:05:23
+> Indicators reviewed: 2026-09-09 12:16:14
 
 # AI Context
 - Summary: Grouped Recent Activity appears to overflow the viewport; trace the row and its ancestors before fixing the width constraint.

@@ -1,14 +1,14 @@
 ## item_880_synchronize_the_surface_selector_after_adding_a_project - Synchronize the surface selector after adding a project
 > From version: 2.23.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 95%
 > Confidence: 80%
-> Progress: 0%
+> Progress: 80%
 > Complexity: Medium
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-09-09 12:05:22
+> Indicators reviewed: 2026-09-09 12:16:14
 
 # AI Context
 - Summary: After adding a project from Project, Activity content appears but the surface selector looks stale; F4 is operator-reported.

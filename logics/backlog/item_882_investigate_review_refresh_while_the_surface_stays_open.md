@@ -1,14 +1,14 @@
 ## item_882_investigate_review_refresh_while_the_surface_stays_open - Investigate Review refresh while the surface stays open
 > From version: 2.23.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 95%
 > Confidence: 65%
-> Progress: 0%
+> Progress: 80%
 > Complexity: Medium
 > Theme: Viewer reliability
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
-> Indicators reviewed: 2026-09-09 12:05:23
+> Indicators reviewed: 2026-09-09 12:16:14
 
 # AI Context
 - Summary: Review may refresh only when left and reopened; F6 is explicitly uncertain and requires investigation first.

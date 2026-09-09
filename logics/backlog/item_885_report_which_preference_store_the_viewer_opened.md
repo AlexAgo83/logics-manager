@@ -1,13 +1,14 @@
 ## item_885_report_which_preference_store_the_viewer_opened - Report which preference store the viewer opened
 > From version: 2.23.0
 > Schema version: 1.0
-> Status: Ready
+> Status: In progress
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 45%
 > Complexity: Low
 > Theme: Operator preference store identity
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
+> Indicators reviewed: 2026-09-09 13:02:27
 
 # AI Context
 - Summary: The viewer never names the operator preferences file it opened, so a store forked under another HOME reads as lost data; report the path and warn when more than one exists.

@@ -200,13 +200,21 @@ def adopt_preferences(repo_root: Path, source: Path) -> dict[str, Any]:
 
     Additive by construction: a union of the adoptable sets, so adoption can be
     repeated, cannot remove a favourite, and never touches the source file.
-    Raises ValueError if `source` is not one of the records this account actually has,
-    which is what keeps the route from reading an arbitrary path.
+
+    `source` *names* a record; it is never the record read. The client echoes back
+    one of the strings `operator_preferences_stores` published, so adoption looks
+    that string up and reads the store it already holds. Checking the client's own
+    path and then reading that path was equivalent in practice and weaker by
+    construction: `Path.resolve()` walks the filesystem, so the check itself was
+    the first thing to touch an arbitrary path, and every later caller had to be
+    trusted to keep using the checked value. Selecting from the published set
+    means an unmatched string reaches no filesystem call at all.
     """
     stores = operator_preferences_stores()
-    if _resolved(source) not in {_resolved(Path(path)) for path in stores["others"]}:
+    chosen = next((Path(known) for known in stores["others"] if str(source) == known), None)
+    if chosen is None:
         raise ValueError("Unknown operator preferences file.")
-    incoming = _read(source)
+    incoming = _read(chosen)
     patch: dict[str, Any] = {}
     for field in ADOPTABLE_FIELDS:
         values = incoming.get(field)

@@ -3161,8 +3161,8 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
 
         Extracted rather than inlined in do_POST for the reason every sibling route here
         was: the dispatcher is at its length ceiling, and this route has its own error
-        vocabulary. The path arrives from the client, so only a record this account
-        already has is accepted; the source file is read, never written.
+        vocabulary. The path arrives from the client as a name to look up among this
+        account's records, never as a path to open; the store found is read, never written.
         """
         if parsed.path != "/api/adopt-preferences":
             return False

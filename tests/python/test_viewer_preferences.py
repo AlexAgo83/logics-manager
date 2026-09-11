@@ -539,6 +539,71 @@ def test_adoption_refuses_a_path_this_account_does_not_have(
     assert read_preferences(repo).get("favoriteProjects") is None
 
 
+def test_adoption_never_opens_the_path_the_client_sent(
+    home: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The client string is a name looked up among this account's records, not a path.
+
+    Checking the client's path and then reading it left `Path.resolve()` as the first
+    thing to touch an arbitrary path (CodeQL py/path-injection, alerts 57 and 58). The
+    property that replaces the check is stronger and testable: a refused request makes
+    no filesystem call on what it was given.
+    """
+    from logics_manager import viewer_preferences
+    from logics_manager.viewer_preferences import adopt_preferences
+
+    repo = _repo(tmp_path, "one")
+    other = _forked(tmp_path, monkeypatch, {"favoriteProjects": ["theirs"]})
+    touched: list[str] = []
+
+    def _refuse(self: Path, *args: object, **kwargs: object) -> None:
+        touched.append(str(self))
+        raise AssertionError(f"filesystem call on client-supplied path {self}")
+
+    real_read_text, real_resolve = Path.read_text, Path.resolve
+    outsider = tmp_path / "elsewhere.json"
+    outsider.write_text('{"version": 1, "preferences": {"favoriteProjects": ["injected"]}}', encoding="utf-8")
+
+    def _guarded_read_text(self: Path, *args: object, **kwargs: object) -> str:
+        return _refuse(self) if self == outsider else real_read_text(self, *args, **kwargs)
+
+    def _guarded_resolve(self: Path, *args: object, **kwargs: object) -> Path:
+        return _refuse(self) if self == outsider else real_resolve(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", _guarded_read_text)
+    monkeypatch.setattr(Path, "resolve", _guarded_resolve)
+
+    with pytest.raises(ValueError):
+        adopt_preferences(repo, outsider)
+    assert touched == []
+    # The published name still works, so the guard did not simply refuse everything.
+    assert str(other) in viewer_preferences.operator_preferences_stores()["others"]
+    assert adopt_preferences(repo, other)["favoriteProjects"] == ["theirs"]
+
+
+def test_adoption_matches_the_name_the_viewer_published(
+    home: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A spelling the viewer never published is refused even if it lands on the store.
+
+    The client always echoes back a string from `operator_preferences_stores`, so exact
+    matching is the real contract; accepting an equivalent spelling would only widen
+    what the route opens.
+    """
+    from logics_manager.viewer_preferences import adopt_preferences
+
+    repo = _repo(tmp_path, "one")
+    other = _forked(tmp_path, monkeypatch, {"favoriteProjects": ["theirs"]})
+    # Lands on the same file, spelled a way the viewer never emitted. The previous
+    # guard compared resolved paths and so accepted this; selection does not.
+    detour = other.parent / ".." / other.parent.name / other.name
+    assert detour.resolve() == other.resolve() and str(detour) != str(other)
+
+    with pytest.raises(ValueError):
+        adopt_preferences(repo, detour)
+    assert adopt_preferences(repo, other)["favoriteProjects"] == ["theirs"]
+
+
 def test_a_single_store_install_has_nothing_to_adopt(
     home: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

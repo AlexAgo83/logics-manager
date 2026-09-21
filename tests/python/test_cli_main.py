@@ -3924,3 +3924,30 @@ def test_bootstrap_sync_harnesses_is_opt_in_and_touches_only_the_fake_home(
     assert exit_code == 0
     assert (fake_home / ".claude" / "skills" / "corpus" / "SKILL.md").is_file()
     assert "skills in" in captured.out
+
+
+def test_product_consistency_checks_every_related_reference(tmp_path: Path) -> None:
+    for kind, ref in (("request", "req_001_demo"), ("backlog", "item_001_demo"),
+                      ("backlog", "item_002_demo"), ("tasks", "task_001_demo")):
+        folder = tmp_path / "logics" / kind
+        folder.mkdir(parents=True, exist_ok=True)
+        (folder / f"{ref}.md").write_text(f"## {ref} - Demo\n> Status: Done\n")
+    product = tmp_path / "logics/product/prod_001_demo.md"
+    product.parent.mkdir(parents=True)
+    for refs in ("item_001_demo, item_002_demo", "`item_001_demo`, `item_002_demo`",
+                 "`item_001_demo`, item_002_demo",
+                 "`item_001_demo`, `item_002_demo` (refreshed)"):
+        content = ("## prod_001_demo - Demo\n> Status: Settled\n"
+                   "> Related request: `req_001_demo` (refreshed)\n"
+                   "> Related task: `task_001_demo` (refreshed)\n"
+                   f"> Related backlog: {refs}\n")
+        product.write_text(content)
+        assert product_consistency_payload(tmp_path)["ok"] is True
+        for replacement, reason in (("item_999_missing", "missing"),
+                                    ("task_001_demo", "expected backlog, found task")):
+            product.write_text(content.replace("item_002_demo", replacement))
+            issue = product_consistency_payload(tmp_path)["issues"][0]
+            assert issue["missing_related"] == []
+            assert issue["broken_related"] == [
+                {"kind": "backlog", "ref": replacement, "reason": reason}
+            ]

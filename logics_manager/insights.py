@@ -418,18 +418,21 @@ def render_followups(
     return "\n".join(lines)
 
 
-def _related_ref(content: str, label: str) -> str | None:
+def _related_refs(content: str, label: str) -> list[str]:
     prefix = f"> Related {label}:"
     for line in content.splitlines():
         if not line.startswith(prefix):
             continue
         value = line.split(":", 1)[1].strip()
-        normalized = value.strip("`").strip().lower()
-        if not normalized or normalized.startswith("(none"):
-            return None
-        match = re.search(r"`([^`]+)`", value)
-        return (match.group(1) if match else value).strip()
-    return None
+        # Companion metadata can name several docs, with or without backticks.
+        # Keep every entry so a valid first reference cannot hide a broken later one.
+        refs = []
+        for part in value.split(","):
+            # Preserve annotations such as `req_001_demo` (refreshed).
+            match = re.search(r"`([^`]+)`", part)
+            refs.append((match.group(1) if match else part).strip())
+        return [ref for ref in refs if ref and not ref.lower().startswith("(none")]
+    return []
 
 
 def product_consistency_payload(repo_root: Path, *, limit: int = 50) -> dict[str, object]:
@@ -447,15 +450,16 @@ def product_consistency_payload(repo_root: Path, *, limit: int = 50) -> dict[str
         missing_related: list[str] = []
         broken_related: list[dict[str, str]] = []
         for label, expected_kind in expected.items():
-            ref = _related_ref(doc.content, label)
-            if ref is None:
+            refs = _related_refs(doc.content, label)
+            if not refs:
                 missing_related.append(label)
                 continue
-            target = docs_by_ref.get(ref)
-            if target is None:
-                broken_related.append({"kind": label, "ref": ref, "reason": "missing"})
-            elif target.kind != expected_kind:
-                broken_related.append({"kind": label, "ref": ref, "reason": f"expected {expected_kind}, found {target.kind}"})
+            for ref in refs:
+                target = docs_by_ref.get(ref)
+                if target is None:
+                    broken_related.append({"kind": label, "ref": ref, "reason": "missing"})
+                elif target.kind != expected_kind:
+                    broken_related.append({"kind": label, "ref": ref, "reason": f"expected {expected_kind}, found {target.kind}"})
         if missing_related or broken_related:
             issues.append(
                 {

@@ -1032,8 +1032,8 @@ def test_close_doc_inserts_progress_after_metadata(tmp_path: Path) -> None:
     assert lines[progress_idx] == "> Progress: 100%"
 
 
-def test_related_ref_strips_captured_ref() -> None:
-    from logics_manager.insights import _related_ref
+def test_related_refs_strip_captured_refs() -> None:
+    from logics_manager.insights import _related_refs
 
-    assert _related_ref("> Related request: `req_1 `\n", "request") == "req_1"
-    assert _related_ref("> Related task:  task_9  \n", "task") == "task_9"
+    assert _related_refs("> Related request: `req_1 `\n", "request") == ["req_1"]
+    assert _related_refs("> Related task:  task_9  \n", "task") == ["task_9"]

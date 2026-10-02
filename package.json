@@ -159,9 +159,9 @@
   },
   "overrides": {
     "fast-uri": "3.1.8",
-    "dompurify": "3.4.13",
+    "dompurify": "3.4.16",
     "minimatch@10.2.6": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "js-yaml": "4.3.2",
     "linkify-it": "5.0.2",

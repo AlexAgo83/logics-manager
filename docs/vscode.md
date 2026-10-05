@@ -36,7 +36,7 @@ npm run install:vsix
 
 ## VS Code Extension Installation
 
-This section is only for installing the VS Code extension. For the core CLI, use the `Quick Start` section in the [README](../README.md#quick-start).
+This section is only for installing the VS Code extension. For the core CLI, see [Getting started](./getting-started.md).
 
 ### Marketplace
 

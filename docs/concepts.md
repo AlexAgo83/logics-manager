@@ -17,10 +17,26 @@ Logics turns that context into durable project artifacts, plain Markdown under `
 | `ADR` | Architectural decisions. |
 | `spec` | A behavioral contract. |
 
-Work moves along one chain:
+Work moves along one delivery chain (in blue), framed by companion documents:
 
-```text
-request -> backlog item -> task -> implementation
+```mermaid
+flowchart LR
+    road["Roadmap<br/>0.1 → 0.2 → 1.0"] -. groups .-> req
+    req["Request<br/>need + acceptance"] --> item["Backlog item<br/>scoped slice"] --> task["Task<br/>execution"] --> code(["Implementation"])
+    prod["Product brief<br/>intent"] -. frames .-> req
+    adr["ADR<br/>decision"] -. constrains .-> item
+    spec["Spec<br/>contract"] -. defines .-> task
+    run["Runbook<br/>procedure"] -. supports .-> task
+    task -. feeds .-> pack[["Context pack<br/>for assistants"]]
+    classDef flow fill:#4C8BF5,stroke:#2F6FDB,color:#fff,font-weight:bold
+    classDef ship fill:#1F9D55,stroke:#17804A,color:#fff,font-weight:bold
+    classDef side fill:#F4F6FA,stroke:#B8C2D3,color:#334
+    classDef ai fill:#FFF4E0,stroke:#E0A43A,color:#5A3B00
+    class req,item,task flow
+    class code ship
+    class road,prod,adr,spec,run side
+    class pack ai
+    linkStyle 1,2,3 stroke:#2F6FDB,stroke-width:2.5px
 ```
 
 The result is a repo-local memory layer that reduces re-explaining, keeps implementation

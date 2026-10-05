@@ -16,11 +16,10 @@ items, tasks and decisions into plain Markdown documents that live next to your 
 every human and every AI assistant picks up the same context instead of starting over.
 
 AI-heavy projects lose context between chats, agents and implementation passes. Logics
-keeps it as durable, versioned artifacts that move along one chain:
+keeps it as durable, versioned artifacts: one delivery chain, framed by the documents
+around it.
 
-```text
-request -> backlog item -> task -> implementation
-```
+![The Logics workflow: a roadmap and product brief feed a request, which becomes a backlog item, then a task, then the implementation; ADRs, specs and runbooks constrain the work, and tasks feed context packs for assistants](docs/media/workflow.png)
 
 ![The Logics board: requests, backlog items and tasks in flow columns, beside a reference index of product briefs and roadmaps](docs/media/viewer-board.png)
 

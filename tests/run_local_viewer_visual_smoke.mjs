@@ -1,4 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
+import { request as httpRequest } from "node:http";
 import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
 import { JSDOM, VirtualConsole } from "jsdom";
@@ -237,6 +238,24 @@ async function stopChrome(browser) {
     });
   });
   cleanupChromeProfile(browser.userDataDir);
+}
+
+// Node >= 22's built-in fetch (undici) crashes on Windows with assert(!this.paused)
+// when the HTTP/1.0 viewer server closes the socket, so the smoke test uses node:http.
+function fetch(input, init = {}) {
+  return new Promise((resolve, reject) => {
+    const req = httpRequest(new URL(String(input)), { method: init.method || "GET", headers: init.headers }, (res) => {
+      const chunks = [];
+      res.on("data", (chunk) => chunks.push(chunk));
+      res.on("end", () => {
+        const body = [204, 304].includes(res.statusCode) ? null : Buffer.concat(chunks);
+        resolve(new Response(body, { status: res.statusCode, headers: res.headers }));
+      });
+      res.on("error", reject);
+    });
+    req.on("error", reject);
+    req.end(init.body);
+  });
 }
 
 async function runServerSmoke(url) {

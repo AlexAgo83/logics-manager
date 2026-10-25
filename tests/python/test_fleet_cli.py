@@ -315,4 +315,4 @@ def test_fleet_brief_ranks_review_requests_after_blocked_work(tmp_path: Path, mo
     brief = fleet.fleet_brief(tmp_path, limit=4)
     assert [m["ref"] for m in brief["moves"] if m["verb"] == "review"] == ["#7"]
     assert brief["review_error"] == "glab api user failed: ERROR Unauthenticated."
-    assert "awaiting your review unknown: glab api user failed: ERROR Unauthenticated." in fleet._render_brief(brief)
+    assert "review requests unknown: glab api user failed: ERROR Unauthenticated." in fleet._render_brief(brief)

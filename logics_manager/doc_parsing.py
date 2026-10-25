@@ -93,7 +93,7 @@ def section_lines(lines: list[str], heading: str) -> list[str]:
 #: the ones the scaffold templates write: a task's `# Backlog` and `# Links`
 #: (`- Request:`), a backlog item's `# Links` (`- Request:`, `- Primary task(s):`)
 #: and `# Tasks`, a request's `# Backlog`, and a task's product brief under
-#: `# Links`.
+#: `# Links` or `# Product`.
 DECLARED_LINK_SECTIONS: dict[tuple[str, str], tuple[str, ...]] = {
     # `AC Traceability` is a declared section too: legacy requests map a criterion to
     # the items that satisfy it there, and nowhere else.
@@ -102,7 +102,7 @@ DECLARED_LINK_SECTIONS: dict[tuple[str, str], tuple[str, ...]] = {
     ("backlog", "task"): ("Tasks", "Links"),
     ("task", "backlog"): ("Backlog", "Links"),
     ("task", "request"): ("Links",),
-    ("task", "product"): ("Links",),
+    ("task", "product"): ("Links", "Product"),
 }
 WORKFLOW_REF_PREFIXES = {"request": "req", "backlog": "item", "task": "task", "product": "prod"}
 

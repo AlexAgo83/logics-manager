@@ -27,6 +27,7 @@ packages = [
   "logics_manager.viewer_assets.viewer",
   "logics_manager.skill_assets",
   "logics_manager.skill_assets.corpus",
+  "logics_manager.skill_assets.wrap",
 ]
 
 [tool.setuptools.package-data]

@@ -324,7 +324,7 @@ def _command_error_details(repo_root: Path, command: list[str], result: subproce
 
 def _run_command(repo_root: Path, args: list[str]) -> subprocess.CompletedProcess[str]:
     command = [sys.executable, "-m", "logics_manager", *args]
-    result = subprocess.run(command, cwd=repo_root, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=_subprocess_env())
+    result = subprocess.run(command, cwd=repo_root, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace", env=_subprocess_env())
     if result.returncode != 0:
         raise McpToolError(
             "command_failed",
@@ -336,7 +336,7 @@ def _run_command(repo_root: Path, args: list[str]) -> subprocess.CompletedProces
 
 def _run_json_command(repo_root: Path, args: list[str]) -> dict[str, Any]:
     command = [sys.executable, "-m", "logics_manager", *args]
-    result = subprocess.run(command, cwd=repo_root, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=_subprocess_env())
+    result = subprocess.run(command, cwd=repo_root, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace", env=_subprocess_env())
     payload = _json_from_stdout_or_none(result.stdout)
     if payload is None:
         raise McpToolError(
@@ -393,7 +393,7 @@ def _json_from_stdout_or_none(stdout: str) -> dict[str, Any] | None:
 
 
 def _run_git(repo_root: Path, args: list[str]) -> subprocess.CompletedProcess[str]:
-    result = subprocess.run(["git", *args], cwd=repo_root, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    result = subprocess.run(["git", *args], cwd=repo_root, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace")
     if result.returncode != 0:
         raise McpToolError("command_failed", "Git command failed.", details=_command_error_details(repo_root, ["git", *args], result))
     return result
@@ -1796,7 +1796,7 @@ def launch_tunnel(
     if token:
         env[AUTH_ENV_VAR] = token
     tunnel_command = tunnel_command or ["npx", "localtunnel", "--port", str(port)]
-    server = subprocess.Popen(server_command, cwd=repo_root, env=env, text=True)
+    server = subprocess.Popen(server_command, cwd=repo_root, env=env, text=True, encoding="utf-8", errors="replace")
     tunnel: subprocess.Popen[str] | None = None
     previous_sigint = signal.getsignal(signal.SIGINT)
     previous_sigterm = signal.getsignal(signal.SIGTERM)
@@ -1812,7 +1812,7 @@ def launch_tunnel(
         time.sleep(0.8)
         if server.poll() is not None:
             return server.returncode or 1
-        tunnel = subprocess.Popen(tunnel_command, cwd=repo_root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        tunnel = subprocess.Popen(tunnel_command, cwd=repo_root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="utf-8", errors="replace")
         # The 30s cap below only holds if reading a line can never itself block past it.
         # `tunnel.stdout.readline()` on the main thread can: a stuck `npx` install or a
         # tunnel host that never answers produces no line at all, and readline() has no

@@ -14,7 +14,7 @@ def _git_lines(repo_root: Path, args: list[str]) -> list[str]:
             cwd=repo_root,
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
-            text=True,
+            text=True, encoding="utf-8", errors="replace",
             check=False,
         )
     except OSError:

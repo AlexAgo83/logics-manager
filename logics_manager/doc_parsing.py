@@ -170,7 +170,7 @@ def _current_commit(repo_root: Path) -> str:
             cwd=repo_root,
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
-            text=True,
+            text=True, encoding="utf-8", errors="replace",
             check=False,
             timeout=10,
         )
@@ -215,7 +215,7 @@ def _read_change_times(repo_root: Path, subdir: str, key: str, head: str) -> dic
             cwd=repo_root,
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
-            text=True,
+            text=True, encoding="utf-8", errors="replace",
             check=False,
             timeout=30,
         )
@@ -278,7 +278,7 @@ def git_changed_paths(
                 cwd=repo_root,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                text=True,
+                text=True, encoding="utf-8", errors="replace",
                 check=False,
                 timeout=timeout,
             )

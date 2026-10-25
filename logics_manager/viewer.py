@@ -768,7 +768,7 @@ def _run_osascript(script: str, *, launcher: Any | None = None) -> str:
     if launcher is not None:
         result = launcher(command)
     else:
-        result = subprocess.run(command, capture_output=True, text=True, stdin=subprocess.DEVNULL, timeout=10, check=False)
+        result = subprocess.run(command, capture_output=True, text=True, encoding="utf-8", errors="replace", stdin=subprocess.DEVNULL, timeout=10, check=False)
     returncode = getattr(result, "returncode", 0)
     if returncode:
         stderr = str(getattr(result, "stderr", "") or "").strip()
@@ -794,7 +794,7 @@ def _wsl_translate_path(path: Path) -> str | None:
             ["wslpath", "-w", str(path)],
             capture_output=True,
             stdin=subprocess.DEVNULL,
-            text=True,
+            text=True, encoding="utf-8", errors="replace",
             timeout=5,
             check=False,
         )
@@ -931,25 +931,25 @@ def viewer_bootstrap_warning(repo_root: Path) -> dict[str, object] | None:
 def _run_logics_flow(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["logics-manager", "flow", *args]
     flow_runner = runner or subprocess.run
-    return flow_runner(command, cwd=repo_root, text=True, capture_output=True, stdin=subprocess.DEVNULL, timeout=_scaled_timeout(repo_root, 30))
+    return flow_runner(command, cwd=repo_root, text=True, encoding="utf-8", errors="replace", capture_output=True, stdin=subprocess.DEVNULL, timeout=_scaled_timeout(repo_root, 30))
 
 
 def _run_logics_command(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["logics-manager", *args]
     logics_runner = runner or subprocess.run
-    return logics_runner(command, cwd=repo_root, text=True, capture_output=True, stdin=subprocess.DEVNULL, timeout=_scaled_timeout(repo_root, 30))
+    return logics_runner(command, cwd=repo_root, text=True, encoding="utf-8", errors="replace", capture_output=True, stdin=subprocess.DEVNULL, timeout=_scaled_timeout(repo_root, 30))
 
 
 def _run_read_only_gh(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["gh", *args]
     gh_runner = runner or subprocess.run
-    return gh_runner(command, cwd=repo_root, text=True, capture_output=True, stdin=subprocess.DEVNULL, timeout=_scaled_timeout(repo_root, 8))
+    return gh_runner(command, cwd=repo_root, text=True, encoding="utf-8", errors="replace", capture_output=True, stdin=subprocess.DEVNULL, timeout=_scaled_timeout(repo_root, 8))
 
 
 def _run_read_only_glab(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["glab", *args]
     glab_runner = runner or subprocess.run
-    return glab_runner(command, cwd=repo_root, text=True, capture_output=True, stdin=subprocess.DEVNULL, timeout=_scaled_timeout(repo_root, 8))
+    return glab_runner(command, cwd=repo_root, text=True, encoding="utf-8", errors="replace", capture_output=True, stdin=subprocess.DEVNULL, timeout=_scaled_timeout(repo_root, 8))
 
 
 def _logics_doc_type(rel_path: str) -> str:
@@ -2037,7 +2037,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
                 command,
                 cwd=self.repo_root,
                 capture_output=True,
-                text=True,
+                text=True, encoding="utf-8", errors="replace",
                 timeout=MCP_TUNNEL_KEY_PROBE_SECONDS,
                 check=False,
                 env=mcp_tunnel.child_environment(settings),
@@ -2062,7 +2062,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
             # Same environment the connector itself will run under, or doctor would
             # check a different machine's profile than the one we are about to use.
             environment = mcp_tunnel.child_environment(mcp_tunnel.tunnel_settings())
-            completed = subprocess.run(command, cwd=self.repo_root, capture_output=True, text=True, timeout=30, check=False, env=environment)
+            completed = subprocess.run(command, cwd=self.repo_root, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30, check=False, env=environment)
         except (OSError, subprocess.SubprocessError) as exc:
             return 2, str(exc)
         return completed.returncode, f"{completed.stdout}\n{completed.stderr}"
@@ -2079,7 +2079,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
         if shutil.which("brew") is None:
             return {"ok": False, "message": mcp_tunnel.INSTALL_FALLBACK}
         try:
-            completed = subprocess.run(mcp_tunnel.INSTALL_COMMAND, capture_output=True, text=True, timeout=900, check=False)
+            completed = subprocess.run(mcp_tunnel.INSTALL_COMMAND, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=900, check=False)
         except (OSError, subprocess.SubprocessError) as exc:
             return {"ok": False, "message": str(exc)}
         if completed.returncode != 0:
@@ -2101,7 +2101,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
             return {"ok": False, "message": mcp_tunnel.explain(mcp_tunnel.REASON_BINARY_MISSING, settings)}
         command = mcp_tunnel.build_init_command(settings["profile"], tunnel_id, self.repo_root)
         try:
-            completed = subprocess.run(command, cwd=self.repo_root, capture_output=True, text=True, timeout=120, check=False, env=mcp_tunnel.child_environment(settings))
+            completed = subprocess.run(command, cwd=self.repo_root, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120, check=False, env=mcp_tunnel.child_environment(settings))
         except (OSError, subprocess.SubprocessError) as exc:
             return {"ok": False, "message": str(exc)}
         if completed.returncode != 0:
@@ -2135,7 +2135,7 @@ class LogicsViewerServer(ThreadingHTTPServer):
                 environment = mcp_tunnel.child_environment(settings)
             else:
                 command = [sys.executable, "-m", "logics_manager", "mcp", "tunnel", "--repo-root", self.repo_root.as_posix()]
-            self.mcp_connector = subprocess.Popen(command, cwd=self.repo_root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=environment)
+            self.mcp_connector = subprocess.Popen(command, cwd=self.repo_root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="utf-8", errors="replace", env=environment)
             process = self.mcp_connector
         def capture() -> None:
             # item_741: the child's own words are the most valuable thing this thread
@@ -3906,7 +3906,7 @@ def _ensure_tls_material(san_ips: list[str]) -> tuple[Path, Path]:
         "-addext", f"subjectAltName={','.join(san_entries)}",
     ]
     try:
-        subprocess.run(cmd, check=True, capture_output=True, text=True, stdin=subprocess.DEVNULL)
+        subprocess.run(cmd, check=True, capture_output=True, text=True, encoding="utf-8", errors="replace", stdin=subprocess.DEVNULL)
     except (subprocess.CalledProcessError, OSError) as exc:
         raise SystemExit(f"Failed to generate TLS material via openssl: {exc}") from exc
     try:
@@ -4220,7 +4220,7 @@ def _resolve_viewer_root(start: Path) -> Path:
                 cwd=start,
                 capture_output=True,
                 stdin=subprocess.DEVNULL,
-                text=True,
+                text=True, encoding="utf-8", errors="replace",
                 timeout=5,
             )
             if result.returncode == 0 and result.stdout.strip():

@@ -9,7 +9,7 @@
 ![Version](https://img.shields.io/badge/version-v2.23.3-4C8BF5)
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.86.0-007ACC?logo=visualstudiocode&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-3178C6?logo=typescript&logoColor=white)
-![Vitest](https://img.shields.io/badge/Vitest-5.0.2-6E9F18?logo=vitest&logoColor=white)
+![Vitest](https://img.shields.io/badge/Vitest-5.0.5-6E9F18?logo=vitest&logoColor=white)
 
 **Your project's memory, in Markdown, in your repo.** logics-manager turns requests, backlog
 items, tasks and decisions into plain Markdown documents that live next to your code, so

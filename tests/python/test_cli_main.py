@@ -2774,8 +2774,7 @@ def test_main_runs_native_flow_finish_task(
                 "> Schema version: 1.0",
                 "# Links",
                 "- Primary task(s): `task_001_demo_task`",
-                "# Request",
-                "- `req_001_demo`",
+                "- Request: `req_001_demo`",
             ]
         )
         + "\n",
@@ -2841,8 +2840,8 @@ def test_main_runs_native_sync_close_eligible_requests(
                 "> Status: Done",
                 "> From version: 1.0.0",
                 "> Schema version: 1.0",
-                "# Request",
-                "- `req_001_demo`",
+                "# Links",
+                "- Request: `req_001_demo`",
             ]
         )
         + "\n",

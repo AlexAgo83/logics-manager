@@ -12,7 +12,7 @@ from .config import find_repo_root
 from .code_anchors import unresolved_anchors
 from .ai_context import PLACEHOLDERS as AI_CONTEXT_PLACEHOLDERS, is_ungroomed as _ai_context_ungroomed
 from .path_utils import canonical_workflow_path
-from .doc_parsing import extract_refs, indicator_value, progress_value, section_lines
+from .doc_parsing import DECLARED_LINK_SECTIONS, declared_refs, extract_refs, indicator_value, progress_value
 from .flow_evidence import (
     has_ac_proof as _has_ac_with_proof,
     has_ac_traceability_line as _has_ac_traceability_line,
@@ -454,33 +454,12 @@ def _apply_scope(
     return DocIndex((ref, doc) for ref, doc in docs.items() if ref in allowed_refs)
 
 
-#: Where each kind *declares* a link to each other kind. Lineage used to be a scan
-#: over a document's whole text, so citing prior art in prose adopted it as a parent:
-#: the cited chain's lifecycle and — because proof is matched by AC identifier, and
-#: every document numbers from AC1 — its acceptance proof both leaked across.
-#: These sections are the declared lineage; prose is not lineage.
-DECLARED_LINK_SECTIONS: dict[tuple[str, str], tuple[str, ...]] = {
-    # `AC Traceability` is a declared section too: legacy requests map a criterion to
-    # the items that satisfy it there, and nowhere else.
-    ("request", "backlog"): ("Backlog", "AC Traceability"),
-    ("backlog", "request"): ("Links",),
-    ("backlog", "task"): ("Tasks", "Links"),
-    ("task", "backlog"): ("Backlog", "Links"),
-    ("task", "request"): ("Links",),
-}
-
-
 def _declared_refs(doc: DocMeta, target_kind: str) -> set[str]:
     """Refs `doc` declares to `target_kind`, read only from its link sections."""
     memo = doc.declared_refs_memo.get(target_kind)
     if memo is not None:
         return set(memo)
-    sections = DECLARED_LINK_SECTIONS.get((doc.kind.kind, target_kind), ())
-    prefix = DOC_KIND_OBJECTS[target_kind].prefix
-    refs: set[str] = set()
-    lines = doc.text.splitlines()
-    for heading in sections:
-        refs |= _extract_refs("\n".join(section_lines(lines, heading)), prefix)
+    refs = set(declared_refs(doc.kind.kind, doc.text, target_kind))
     doc.declared_refs_memo[target_kind] = frozenset(refs)
     return refs
 

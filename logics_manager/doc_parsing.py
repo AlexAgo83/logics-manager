@@ -85,6 +85,46 @@ def section_lines(lines: list[str], heading: str) -> list[str]:
     return out
 
 
+#: Where each kind *declares* a link to each other kind. Lineage used to be a scan
+#: over a document's whole text, so citing prior art in prose adopted it as a parent:
+#: the cited chain's lifecycle and, because proof is matched by AC identifier and
+#: every document numbers from AC1, its acceptance proof both leaked across.
+#: These sections are the declared lineage; prose is not lineage. The sections are
+#: the ones the scaffold templates write: a task's `# Backlog` and `# Links`
+#: (`- Request:`), a backlog item's `# Links` (`- Request:`, `- Primary task(s):`)
+#: and `# Tasks`, a request's `# Backlog`.
+DECLARED_LINK_SECTIONS: dict[tuple[str, str], tuple[str, ...]] = {
+    # `AC Traceability` is a declared section too: legacy requests map a criterion to
+    # the items that satisfy it there, and nowhere else.
+    ("request", "backlog"): ("Backlog", "AC Traceability"),
+    ("backlog", "request"): ("Links",),
+    ("backlog", "task"): ("Tasks", "Links"),
+    ("task", "backlog"): ("Backlog", "Links"),
+    ("task", "request"): ("Links",),
+}
+WORKFLOW_REF_PREFIXES = {"request": "req", "backlog": "item", "task": "task"}
+
+
+def declared_refs(kind: str, text: str, target_kind: str) -> list[str]:
+    """Sorted refs to `target_kind` that a `kind` doc declares in its link sections.
+
+    The one reading of lineage every workflow command shares: a ref mentioned in
+    prose (`unlike item_002_beta`) or in a fenced example is not a link, so it can
+    neither close, rewrite nor count as the parent of anything.
+    """
+    lines = text.split("\n")
+    found: set[str] = set()
+    for heading in DECLARED_LINK_SECTIONS.get((kind, target_kind), ()):
+        found.update(extract_refs("\n".join(section_lines(lines, heading)), WORKFLOW_REF_PREFIXES[target_kind]))
+    return sorted(found)
+
+
+def declares_ref(kind: str, text: str, ref: str) -> bool:
+    """Whether a `kind` doc declares a link to `ref` (whose kind its prefix names)."""
+    target_kind = next((name for name, prefix in WORKFLOW_REF_PREFIXES.items() if ref.startswith(f"{prefix}_")), None)
+    return target_kind is not None and ref in declared_refs(kind, text, target_kind)
+
+
 def priority_tier(lines: list[str]) -> str:
     """Return High/Medium/Low from ``# Priority``; default to Medium."""
     values: dict[str, str] = {}

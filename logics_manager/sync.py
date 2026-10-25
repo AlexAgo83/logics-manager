@@ -10,7 +10,8 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from .config import find_repo_root
-from .doc_parsing import age_in_days, extract_refs, git_changed_paths, git_last_change_times, indicator_value, last_change_time, priority_tier
+from .doc_io import header_end, read_lines, split_lines, write_doc
+from .doc_parsing import age_in_days, declares_ref, extract_refs, git_changed_paths, git_last_change_times, indicator_value, last_change_time, priority_tier
 from .help_flags import flag_lines, subparser_for
 from .lint import REVIEWED_INDICATOR, expected_workflow_mermaid_signature
 from .statuses import canonical_status, transition_error
@@ -121,7 +122,7 @@ def _read_repo_bounded_text(repo_root: Path, path: Path, *, approved_dirs: set[P
 
 
 def _read_lines(repo_root: Path, path: Path) -> list[str]:
-    return _read_text(repo_root, path).splitlines()
+    return split_lines(_read_text(repo_root, path))
 
 
 def _is_relative_path(path: Path) -> bool:
@@ -529,7 +530,7 @@ def backfill_schema_versions(repo_root: Path, targets: list[str], *, dry_run: bo
     """
     written: list[str] = []
     for _kind, path in _resolve_target_docs(repo_root, targets):
-        lines = path.read_text(encoding="utf-8").splitlines()
+        lines = read_lines(path)
         if any(line.strip().startswith("> Schema version:") for line in lines):
             continue
         insert_at = next(
@@ -538,7 +539,7 @@ def backfill_schema_versions(repo_root: Path, targets: list[str], *, dry_run: bo
         )
         if not dry_run:
             lines.insert(insert_at, "> Schema version: 1.0")
-            path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            write_doc(path, "\n".join(lines) + "\n")
         written.append(path.relative_to(repo_root).as_posix())
     return written
 
@@ -846,17 +847,17 @@ def _review_stamp(moment: datetime) -> str:
 
 
 def _replace_indicator(lines: list[str], key: str, value: str) -> tuple[list[str], bool]:
+    """Set `> key: value` in the header block only; a body line is never rewritten."""
     rendered = f"> {key}: {value}"
-    for idx, line in enumerate(lines):
+    insert_at = header_end(lines)
+    for idx in range(insert_at):
+        line = lines[idx]
         if line.startswith(f"> {key}:"):
             if line == rendered:
                 return lines, False
             updated = list(lines)
             updated[idx] = rendered
             return updated, True
-    insert_at = 1
-    while insert_at < len(lines) and lines[insert_at].startswith("> "):
-        insert_at += 1
     updated = list(lines)
     updated.insert(insert_at, rendered)
     return updated, True
@@ -918,7 +919,7 @@ def update_workflow_indicators_payload(
                 break
     write = changed or touch
     if write and not dry_run:
-        path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+        write_doc(path, "\n".join(lines).rstrip() + "\n")
         if kind in DOC_KINDS:
             refresh_workflow_mermaid_signature_file(path, kind, dry_run=False, repo_root=repo_root)
     return {
@@ -979,7 +980,7 @@ def append_workflow_note_payload(repo_root: Path, source: str, *, note_kind: str
                     del lines[idx]
     mermaid_signature_refreshed = False
     if changed and not dry_run:
-        path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+        write_doc(path, "\n".join(lines).rstrip() + "\n")
         mermaid_signature_refreshed = refresh_workflow_mermaid_signature_file(path, kind, dry_run=False, repo_root=repo_root)
     return {
         "path": path.relative_to(repo_root).as_posix(),
@@ -1018,13 +1019,14 @@ def _collect_docs_linking_ref(repo_root: Path, kind: str, ref: str) -> list[Path
     directory = repo_root / DOC_KINDS[kind]["directory"]
     linked: list[Path] = []
     for path in sorted(directory.glob("*.md")):
-        if ref in _read_text(repo_root, path):
+        if declares_ref(kind, _read_text(repo_root, path), ref):
             linked.append(path)
     return linked
 
 
 def _is_doc_done(repo_root: Path, path: Path, kind: str) -> bool:
     lines = _read_lines(repo_root, path)
+    lines = lines[: header_end(lines)]
     status_value = _indicator_value(lines, "Status")
     if status_value is not None and " ".join(status_value.split()).lower() in {"done", "archived"}:
         return True
@@ -1038,25 +1040,10 @@ def _is_doc_done(repo_root: Path, path: Path, kind: str) -> bool:
 def _close_doc(repo_root: Path, path: Path, kind: str, dry_run: bool) -> None:
     if dry_run:
         return
-    lines = _read_lines(repo_root, path)
-    updated = []
-    saw_status = False
-    saw_progress = False
-    for line in lines:
-        if line.startswith("> Status:"):
-            updated.append("> Status: Done")
-            saw_status = True
-        elif kind in {"backlog", "task"} and line.startswith("> Progress:"):
-            updated.append("> Progress: 100%")
-            saw_progress = True
-        else:
-            updated.append(line)
-    if not saw_status:
-        updated.insert(1, "> Status: Done")
-    if kind in {"backlog", "task"} and not saw_progress:
-        insert_at = 2 if saw_status else 3
-        updated.insert(insert_at, "> Progress: 100%")
-    path.write_text("\n".join(updated).rstrip() + "\n", encoding="utf-8")
+    updated, _changed = _replace_indicator(_read_lines(repo_root, path), "Status", "Done")
+    if kind in {"backlog", "task"}:
+        updated, _changed = _replace_indicator(updated, "Progress", "100%")
+    write_doc(path, "\n".join(updated).rstrip() + "\n")
 
 
 def _refresh_workflow_mermaid_signature_text(text: str, kind: str, *, repo_root: Path | None = None, dry_run: bool = False) -> tuple[str, bool]:
@@ -1088,7 +1075,7 @@ def refresh_workflow_mermaid_signature_file(path: Path, kind: str, dry_run: bool
     if not changed:
         return False
     if not dry_run:
-        path.write_text(refreshed.rstrip() + "\n", encoding="utf-8")
+        write_doc(path, refreshed.rstrip() + "\n")
     return True
 
 

@@ -7,10 +7,11 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
-from ..audit import DECLARED_LINK_SECTIONS, audit_payload
+from ..audit import audit_payload
 from ..cli_output import print_payload
 from ..config import ConfigError, find_repo_root
-from ..doc_parsing import extract_refs, progress_value, section_lines
+from ..doc_io import read_lines, split_lines, write_doc
+from ..doc_parsing import declared_refs, extract_refs, progress_value, section_lines
 from ..flow_evidence import AC_DEFERRED_PLACEHOLDER, EVIDENCE_SECTION
 from ..flow_evidence import (
     ac_proof_expectation as _ac_proof_expectation,
@@ -154,6 +155,7 @@ from .docs import (  # noqa: E402,F401  (re-exported: callers import these from 
     resolve_ref_slug,
     resolve_ref_slugs,
     _snapshot_existing_files,
+    _workflow_doc_snapshot,
     _strip_mermaid_blocks,
     _update_request_product_link,
     _upsert_workflow_indicator,
@@ -332,25 +334,11 @@ _extract_refs = extract_refs
 def _close_doc(path: Path, kind: DocKind, dry_run: bool) -> None:
     if dry_run:
         return
-    lines = path.read_text(encoding="utf-8").splitlines()
-    updated: list[str] = []
-    saw_status = False
-    saw_progress = False
-    for line in lines:
-        if line.startswith("> Status:"):
-            updated.append("> Status: Done")
-            saw_status = True
-        elif kind.include_progress and line.startswith("> Progress:"):
-            updated.append("> Progress: 100%")
-            saw_progress = True
-        else:
-            updated.append(line)
-    if not saw_status:
-        updated.insert(1, "> Status: Done")
-    if kind.include_progress and not saw_progress:
-        insert_at = next((idx + 1 for idx in range(len(updated) - 1, -1, -1) if updated[idx].startswith("> ")), 1)
-        updated.insert(insert_at, "> Progress: 100%")
-    path.write_text("\n".join(updated).rstrip() + "\n", encoding="utf-8")
+    # Header only: a `> Status:` line in a fenced example further down is text.
+    lines = _replace_indicator_line(read_lines(path), "Status", "Done")
+    if kind.include_progress:
+        lines = _replace_indicator_line(lines, "Progress", "100%")
+    write_doc(path, "\n".join(lines).rstrip() + "\n")
 
 
 
@@ -429,7 +417,7 @@ def _sibling_slice_ac_issues(
     sibling_task_paths = [task_path]
     for item_path in item_paths:
         item_text = _strip_mermaid_blocks(item_path.read_text(encoding="utf-8"))
-        for sibling_task_ref in _extract_refs(item_text, DOC_KINDS["task"].prefix):
+        for sibling_task_ref in declared_refs("backlog", item_text, "task"):
             sibling_task_path = _resolve_doc_path(repo_root, DOC_KINDS["task"], sibling_task_ref)
             if sibling_task_path is not None and sibling_task_path not in sibling_task_paths:
                 sibling_task_paths.append(sibling_task_path)
@@ -455,15 +443,6 @@ def _sibling_slice_ac_issues(
                 )
             )
     return issues
-
-
-def _declared_request_refs(kind: str, text: str) -> set[str]:
-    """Request refs `kind` declares in its link sections, ignoring prose mentions."""
-    lines = text.splitlines()
-    refs: set[str] = set()
-    for heading in DECLARED_LINK_SECTIONS.get((kind, "request"), ()):
-        refs.update(_extract_refs("\n".join(section_lines(lines, heading)), DOC_KINDS["request"].prefix))
-    return refs
 
 
 def validate_closeout_payload(repo_root: Path, source: str) -> dict[str, object]:
@@ -514,7 +493,7 @@ def validate_closeout_payload(repo_root: Path, source: str) -> dict[str, object]
             )
         )
 
-    item_refs = sorted(_extract_refs(task_text, DOC_KINDS["backlog"].prefix))
+    item_refs = declared_refs("task", task_text, "backlog")
     if not item_refs:
         issues.append(_closeout_issue(task_path.relative_to(repo_root), "task_missing_backlog", "task has no linked backlog item reference"))
 
@@ -523,7 +502,7 @@ def validate_closeout_payload(repo_root: Path, source: str) -> dict[str, object]
     # the public door` -- used to put that request's acceptance criteria due at this
     # closeout, for work nobody had started. `DECLARED_LINK_SECTIONS` is the same map
     # the audit already uses for lineage (req_337); prose is not lineage there either.
-    request_refs: set[str] = _declared_request_refs("task", task_text)
+    request_refs: set[str] = set(declared_refs("task", task_text, "request"))
     item_paths: list[Path] = []
     for item_ref in item_refs:
         item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
@@ -533,8 +512,8 @@ def validate_closeout_payload(repo_root: Path, source: str) -> dict[str, object]
         item_paths.append(item_path)
         related_paths.append(item_path.relative_to(repo_root).as_posix())
         item_text = _strip_mermaid_blocks(item_path.read_text(encoding="utf-8"))
-        request_refs.update(_declared_request_refs("backlog", item_text))
-        if task_ref not in item_text:
+        request_refs.update(declared_refs("backlog", item_text, "request"))
+        if task_ref not in declared_refs("backlog", item_text, "task"):
             issues.append(
                 _closeout_issue(
                     item_path.relative_to(repo_root),
@@ -650,13 +629,13 @@ def repair_gates_payload(repo_root: Path, source: str, *, dry_run: bool) -> dict
     changed_paths: set[Path] = set()
     planned_paths: set[Path] = set()
     task_text = _strip_mermaid_blocks(task_path.read_text(encoding="utf-8"))
-    item_refs = sorted(_extract_refs(task_text, DOC_KINDS["backlog"].prefix))
+    item_refs = declared_refs("task", task_text, "backlog")
     # item_853: read the request a task delivers where links are declared, not from
     # anywhere in the text. A prose sentence naming another request -- `see req_377 for
     # the public door` -- used to put that request's acceptance criteria due at this
     # closeout, for work nobody had started. `DECLARED_LINK_SECTIONS` is the same map
     # the audit already uses for lineage (req_337); prose is not lineage there either.
-    request_refs: set[str] = _declared_request_refs("task", task_text)
+    request_refs: set[str] = set(declared_refs("task", task_text, "request"))
 
     before = task_path.read_text(encoding="utf-8")
     if _section_has_unchecked_checkbox(before, "Plan") or _section_has_unchecked_checkbox(before, "Definition of Done (DoD)"):
@@ -670,7 +649,7 @@ def repair_gates_payload(repo_root: Path, source: str, *, dry_run: bool) -> dict
         item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
         if item_path is None:
             continue
-        request_refs.update(_extract_refs(_strip_mermaid_blocks(item_path.read_text(encoding="utf-8")), DOC_KINDS["request"].prefix))
+        request_refs.update(declared_refs("backlog", _strip_mermaid_blocks(item_path.read_text(encoding="utf-8")), "request"))
 
     for request_ref in sorted(request_refs):
         request_path = _resolve_doc_path(repo_root, DOC_KINDS["request"], request_ref)
@@ -710,7 +689,7 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
     }
 
     for item_path in linked_items:
-        for task_ref in _extract_refs(_strip_mermaid_blocks(item_path.read_text(encoding="utf-8")), DOC_KINDS["task"].prefix):
+        for task_ref in declared_refs("backlog", _strip_mermaid_blocks(item_path.read_text(encoding="utf-8")), "task"):
             if task_path := _resolve_doc_path(repo_root, DOC_KINDS["task"], task_ref):
                 linked_task_paths.add(task_path)
 
@@ -722,7 +701,7 @@ def repair_ac_traceability_payload(repo_root: Path, source: str, *, dry_run: boo
         linked_items = [
             item_path
             for item_path in linked_items
-            if selected_task.stem in _extract_refs(_strip_mermaid_blocks(item_path.read_text(encoding="utf-8")), DOC_KINDS["task"].prefix)
+            if selected_task.stem in declared_refs("backlog", _strip_mermaid_blocks(item_path.read_text(encoding="utf-8")), "task")
         ]
         declared_ac_ids = {
             ac_id
@@ -813,8 +792,8 @@ def repair_links_payload(repo_root: Path, source: str, *, dry_run: bool) -> dict
     task_path = _resolve_workflow_source(repo_root, DOC_KINDS["task"], source)
     task_ref = task_path.stem
     task_text = _strip_mermaid_blocks(task_path.read_text(encoding="utf-8"))
-    item_refs = sorted(_extract_refs(task_text, DOC_KINDS["backlog"].prefix))
-    request_refs = sorted(_extract_refs(task_text, DOC_KINDS["request"].prefix))
+    item_refs = declared_refs("task", task_text, "backlog")
+    request_refs = declared_refs("task", task_text, "request")
     product_refs = sorted(_extract_refs(task_path.read_text(encoding="utf-8"), "prod"))
     changed_paths: set[Path] = set()
 
@@ -825,7 +804,7 @@ def repair_links_payload(repo_root: Path, source: str, *, dry_run: bool) -> dict
         if _append_doc_section_bullets_changed(item_path, "Tasks", [f"`{task_ref}`"], dry_run=dry_run):
             changed_paths.add(item_path.relative_to(repo_root))
         before = item_path.read_text(encoding="utf-8")
-        lines = before.splitlines()
+        lines = split_lines(before)
         lines = _replace_or_append_prefixed_section_bullet(lines, "Links", "Primary task(s)", f"`{task_ref}`")
         if request_refs:
             lines = _replace_or_append_prefixed_section_bullet(lines, "Links", "Request", f"`{request_refs[0]}`")
@@ -833,7 +812,7 @@ def repair_links_payload(repo_root: Path, source: str, *, dry_run: bool) -> dict
         if after != before:
             changed_paths.add(item_path.relative_to(repo_root))
             if not dry_run:
-                item_path.write_text(after, encoding="utf-8")
+                write_doc(item_path, after)
 
     for product_ref in product_refs:
         product_path = _first_product_path(repo_root, product_ref)
@@ -842,7 +821,7 @@ def repair_links_payload(repo_root: Path, source: str, *, dry_run: bool) -> dict
         before = product_path.read_text(encoding="utf-8")
         backlog_ref = item_refs[0] if item_refs else None
         request_ref = request_refs[0] if request_refs else None
-        lines = before.splitlines()
+        lines = split_lines(before)
         product_status = _normalize_status(_indicator_value_from_lines(lines, "Status"))
         if product_status not in {"settled", "archived", "rejected", "superseded"}:
             lines = _replace_indicator_line(lines, "Status", "Settled")
@@ -857,7 +836,7 @@ def repair_links_payload(repo_root: Path, source: str, *, dry_run: bool) -> dict
         if after != before:
             changed_paths.add(product_path.relative_to(repo_root))
             if not dry_run:
-                product_path.write_text(after, encoding="utf-8")
+                write_doc(product_path, after)
 
     _touch_reviewed_indicators(repo_root, changed_paths, dry_run=dry_run)
     return {
@@ -905,7 +884,7 @@ def repair_mermaid_payload(repo_root: Path, refs: list[str], *, dry_run: bool) -
             if repaired != before:
                 changed_paths.add(path.relative_to(repo_root))
                 if not dry_run:
-                    path.write_text(repaired, encoding="utf-8")
+                    write_doc(path, repaired)
     _touch_reviewed_indicators(repo_root, changed_paths, dry_run=dry_run)
     return {
         "command": "repair",
@@ -1101,13 +1080,13 @@ def _update_product_delivery_links(
 ) -> None:
     if dry_run:
         return
-    lines = product_path.read_text(encoding="utf-8").splitlines()
+    lines = read_lines(product_path)
     lines = _replace_indicator_line(lines, "Related request", f"`{request_ref}`")
     lines = _replace_indicator_line(lines, "Related backlog", f"`{backlog_ref}`")
     lines = _replace_indicator_line(lines, "Related task", f"`{task_ref}`")
     lines = _replace_or_append_prefixed_section_bullet(lines, "References", "Product back-reference", f"`{backlog_ref}`")
     lines = _replace_or_append_prefixed_section_bullet(lines, "References", "Task back-reference", f"`{task_ref}`")
-    product_path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+    write_doc(product_path, "\n".join(lines).rstrip() + "\n")
 
 
 
@@ -1795,9 +1774,9 @@ def cmd_deliver(args: argparse.Namespace) -> dict[str, object]:
         _append_doc_section_bullets(request_planned.path, "Backlog", [f"`{backlog_ref}`"], dry_run=False)
         _append_doc_section_bullets(backlog_path, "Tasks", [f"`{task_ref}`"], dry_run=False)
         _remove_section_placeholder_bullets(request_planned.path, "Backlog", {"- none"}, dry_run=False)
-        backlog_lines = backlog_path.read_text(encoding="utf-8").splitlines()
+        backlog_lines = read_lines(backlog_path)
         backlog_lines = _replace_or_append_prefixed_section_bullet(backlog_lines, "Links", "Primary task(s)", f"`{task_ref}`")
-        backlog_path.write_text("\n".join(backlog_lines).rstrip() + "\n", encoding="utf-8")
+        write_doc(backlog_path, "\n".join(backlog_lines).rstrip() + "\n")
         _update_request_product_link(request_planned.path, product_ref, dry_run=False)
         _mark_section_checkboxes_done(request_planned.path, "Definition of Ready (DoR)", dry_run=False)
         _update_product_delivery_links(
@@ -2069,8 +2048,7 @@ REPAIR_VERIFY_CODES = {
 def _repair_verify_snapshot(repo_root: Path, source: str | None, dry_run: bool) -> dict[str, str]:
     if dry_run or not source:
         return {}
-    preflight = validate_closeout_payload(repo_root, source)
-    return _snapshot_existing_files(repo_root, list(preflight.get("related_paths", [])))
+    return _workflow_doc_snapshot(repo_root)
 
 
 def _finalize_repair_verify(repo_root: Path, payload: dict[str, object], source: str | None, snapshot: dict[str, str]) -> dict[str, object]:
@@ -2109,7 +2087,7 @@ def _line_is_generated_placeholder(text: str, ac_id: str, item_refs: list[str]) 
 
 
 def _replace_ac_traceability_lines(path: Path, entries: dict[str, str], item_refs: list[str]) -> str:
-    lines = path.read_text(encoding="utf-8").splitlines()
+    lines = read_lines(path)
     for index, line in enumerate(lines):
         for ac_id, rendered in entries.items():
             expected = {f"- request-{ac_id} -> This task. {AC_DEFERRED_PLACEHOLDER}"}
@@ -2118,7 +2096,7 @@ def _replace_ac_traceability_lines(path: Path, entries: dict[str, str], item_ref
                 lines[index] = f"- {rendered}"
                 break
     text = "\n".join(lines).rstrip() + "\n"
-    path.write_text(text, encoding="utf-8")
+    write_doc(path, text)
     return text
 
 
@@ -2199,13 +2177,13 @@ def cmd_repair_mermaid(args: argparse.Namespace) -> dict[str, object]:
 def _closeout_refs(repo_root: Path, task_path: Path) -> list[str]:
     task_text = _strip_mermaid_blocks(task_path.read_text(encoding="utf-8"))
     refs = {task_path.stem}
-    item_refs = set(_extract_refs(task_text, DOC_KINDS["backlog"].prefix))
+    item_refs = set(declared_refs("task", task_text, "backlog"))
     refs.update(item_refs)
-    refs.update(_extract_refs(task_text, DOC_KINDS["request"].prefix))
+    refs.update(declared_refs("task", task_text, "request"))
     for item_ref in sorted(item_refs):
         item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
         if item_path is not None:
-            refs.update(_extract_refs(_strip_mermaid_blocks(item_path.read_text(encoding="utf-8")), DOC_KINDS["request"].prefix))
+            refs.update(declared_refs("backlog", _strip_mermaid_blocks(item_path.read_text(encoding="utf-8")), "request"))
     return sorted(refs)
 
 
@@ -2252,12 +2230,13 @@ def _repair_ac_traceability_for_task(
     """Every request this task closes out against, directly or via a linked backlog
     item, gets its AC traceability repaired -- not only the task's own primary request.
     """
-    request_refs = sorted(_extract_refs(_strip_mermaid_blocks(task_path.read_text(encoding="utf-8")), DOC_KINDS["request"].prefix))
-    item_refs = sorted(_extract_refs(_strip_mermaid_blocks(task_path.read_text(encoding="utf-8")), DOC_KINDS["backlog"].prefix))
+    task_text = _strip_mermaid_blocks(task_path.read_text(encoding="utf-8"))
+    request_refs = declared_refs("task", task_text, "request")
+    item_refs = declared_refs("task", task_text, "backlog")
     for item_ref in item_refs:
         item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
         if item_path is not None:
-            request_refs.extend(_extract_refs(_strip_mermaid_blocks(item_path.read_text(encoding="utf-8")), DOC_KINDS["request"].prefix))
+            request_refs.extend(declared_refs("backlog", _strip_mermaid_blocks(item_path.read_text(encoding="utf-8")), "request"))
     for request_ref in sorted(set(request_refs)):
         ac_payload = repair_ac_traceability_payload(repo_root, request_ref, dry_run=dry_run, task=task_path.stem)
         changed_files.update(ac_payload["changed_files"])
@@ -2281,8 +2260,7 @@ def closeout_payload(
     task_ref = task_path.stem
     changed_files: set[str] = set()
     steps: list[dict[str, object]] = []
-    initial_preflight = validate_closeout_payload(repo_root, task_ref)
-    rollback_snapshot = {} if dry_run else _snapshot_existing_files(repo_root, list(initial_preflight.get("related_paths", [])))
+    rollback_snapshot = {} if dry_run else _workflow_doc_snapshot(repo_root)
 
     if validation_command and validation_command.strip():
         validations = [*validations, _structured_validation_line(validation_command, validation_result, validation_note)]
@@ -2441,7 +2419,7 @@ import os
 
 
 def _task_progress_for_backlog(task_path: Path, *, active_task_path: Path | None = None) -> int:
-    lines = task_path.read_text(encoding="utf-8").splitlines()
+    lines = read_lines(task_path)
     status = _normalize_status(_indicator_value_from_lines(lines, "Status"))
     if active_task_path is not None and task_path == active_task_path:
         status = "in progress"
@@ -2458,11 +2436,11 @@ def _task_progress_for_backlog(task_path: Path, *, active_task_path: Path | None
 def _sync_linked_backlog_progress(repo_root: Path, task_path: Path, *, dry_run: bool, active_task_path: Path | None = None) -> list[str]:
     task_text = _strip_mermaid_blocks(task_path.read_text(encoding="utf-8"))
     changed: list[str] = []
-    for item_ref in sorted(_extract_refs(task_text, DOC_KINDS["backlog"].prefix)):
+    for item_ref in declared_refs("task", task_text, "backlog"):
         item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
         if item_path is None:
             continue
-        item_lines = item_path.read_text(encoding="utf-8").splitlines()
+        item_lines = read_lines(item_path)
         item_status = _normalize_status(_indicator_value_from_lines(item_lines, "Status"))
         if item_status in PROGRESS_CLOSED_STATUSES:
             continue
@@ -2488,7 +2466,7 @@ def _parse_progress_arg(value: str) -> int:
 
 def start_payload(repo_root: Path, source: str, *, owner: str | None, dry_run: bool) -> dict[str, object]:
     source_path, kind = _resolve_any_workflow_source(repo_root, source)
-    lines = source_path.read_text(encoding="utf-8").splitlines()
+    lines = read_lines(source_path)
     previous_status = _indicator_value_from_lines(lines, "Status") or ""
     previous_owner = _indicator_value_from_lines(lines, "Owner") or ""
     resolved_owner = (owner if owner is not None else os.environ.get("LOGICS_AGENT", "")).strip()
@@ -2503,7 +2481,7 @@ def start_payload(repo_root: Path, source: str, *, owner: str | None, dry_run: b
         updated = _upsert_workflow_indicator(updated, "Owner", resolved_owner)
     changed = updated != lines
     if changed and not dry_run:
-        source_path.write_text("\n".join(updated) + "\n", encoding="utf-8")
+        write_doc(source_path, "\n".join(updated) + "\n")
     changed_files = [source_path.relative_to(repo_root).as_posix()] if changed else []
     if kind == "task":
         changed_files.extend(_sync_linked_backlog_progress(repo_root, source_path, dry_run=dry_run, active_task_path=source_path))
@@ -2892,7 +2870,7 @@ def cmd_promote_backlog_to_task(args: argparse.Namespace) -> dict[str, object]:
     source_path = _resolve_workflow_source(repo_root, DOC_KINDS["backlog"], args.source)
     title = _extract_doc_title(source_path)
     source_text = source_path.read_text(encoding="utf-8")
-    request_refs = sorted(_extract_refs(_strip_mermaid_blocks(source_text), DOC_KINDS["request"].prefix))
+    request_refs = declared_refs("backlog", _strip_mermaid_blocks(source_text), "request")
     ref, _ = _build_native_task_from_backlog(repo_root, source_path, title)
     planned_path = repo_root / "logics" / "tasks" / f"{ref}.md"
     if not args.dry_run:
@@ -2945,7 +2923,7 @@ def cmd_promote_backlog_to_task(args: argparse.Namespace) -> dict[str, object]:
 def cmd_split_request(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
     source_path = _resolve_workflow_source(repo_root, DOC_KINDS["request"], args.source)
-    request_lines = source_path.read_text(encoding="utf-8").splitlines()
+    request_lines = read_lines(source_path)
     request_acs = _request_acceptance_map(request_lines)
     if args.slice:
         if not request_acs:
@@ -3095,7 +3073,7 @@ def cmd_split_backlog(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
     source_path = _resolve_workflow_source(repo_root, DOC_KINDS["backlog"], args.source)
     source_text = source_path.read_text(encoding="utf-8")
-    request_refs = sorted(_extract_refs(_strip_mermaid_blocks(source_text), DOC_KINDS["request"].prefix))
+    request_refs = declared_refs("backlog", _strip_mermaid_blocks(source_text), "request")
     titles = _split_titles([title for group in args.title for title in group])
     created_refs: list[str] = []
     for title in titles:
@@ -3175,13 +3153,13 @@ def cmd_withdraw(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
     source_path, kind_name = _resolve_any_workflow_source(repo_root, args.source)
     kind = DOC_KINDS[kind_name]
-    lines = source_path.read_text(encoding="utf-8").splitlines()
+    lines = read_lines(source_path)
     previous_status = next((line.split(":", 1)[1].strip() for line in lines if line.startswith("> Status:")), None)
     error = transition_error(kind.kind, previous_status, "Obsolete")
     if error:
         raise SystemExit(error)
     if not args.dry_run:
-        source_path.write_text("\n".join(_replace_indicator_line(lines, "Status", "Obsolete")).rstrip() + "\n", encoding="utf-8")
+        write_doc(source_path, "\n".join(_replace_indicator_line(lines, "Status", "Obsolete")).rstrip() + "\n")
         _append_section_bullets(source_path, "Links", [f"Superseded by: `{args.superseded_by}`"], dry_run=False)
 
     payload = {
@@ -3202,7 +3180,7 @@ def _verify_finished_task_chain(repo_root: Path, task_path: Path) -> list[str]:
     issues: list[str] = []
     task_ref = task_path.stem
     task_text = _strip_mermaid_blocks(task_path.read_text(encoding="utf-8"))
-    item_refs = sorted(_extract_refs(task_text, "item"))
+    item_refs = declared_refs("task", task_text, "backlog")
 
     if not item_refs:
         return [f"task `{task_ref}` has no linked backlog item reference"]
@@ -3218,7 +3196,7 @@ def _verify_finished_task_chain(repo_root: Path, task_path: Path) -> list[str]:
             issues.append(f"linked backlog item `{item_ref}` is not closed after finishing task `{task_ref}`")
 
         item_text = _strip_mermaid_blocks(item_path.read_text(encoding="utf-8"))
-        request_refs = sorted(_extract_refs(item_text, "req"))
+        request_refs = declared_refs("backlog", item_text, "request")
         if not request_refs:
             issues.append(f"linked backlog item `{item_ref}` has no request reference")
             continue
@@ -3243,7 +3221,7 @@ def _verify_finished_task_chain(repo_root: Path, task_path: Path) -> list[str]:
 def _record_finished_task_follow_up(repo_root: Path, task_path: Path, dry_run: bool) -> None:
     task_ref = task_path.stem
     task_text = _strip_mermaid_blocks(task_path.read_text(encoding="utf-8"))
-    item_refs = sorted(_extract_refs(task_text, "item"))
+    item_refs = declared_refs("task", task_text, "backlog")
     request_refs: set[str] = set()
 
     for item_ref in item_refs:
@@ -3251,7 +3229,7 @@ def _record_finished_task_follow_up(repo_root: Path, task_path: Path, dry_run: b
         if item_path is None:
             continue
         item_text = _strip_mermaid_blocks(item_path.read_text(encoding="utf-8"))
-        request_refs.update(_extract_refs(item_text, "req"))
+        request_refs.update(declared_refs("backlog", item_text, "request"))
         _append_section_bullets(
             item_path,
             "Notes",
@@ -3289,6 +3267,20 @@ def _maybe_close_request_chain(repo_root: Path, request_ref: str, dry_run: bool,
 
 
 def _close_chain_for_kind(repo_root: Path, source_path: Path, kind: DOC_KINDS, *, dry_run: bool, quiet: bool = False) -> None:
+    if dry_run:
+        _close_chain_writes(repo_root, source_path, kind, dry_run=True, quiet=quiet)
+        return
+    # Every doc the chain may reach is read before the first write, and put back if
+    # anything fails partway: a chain is closed whole or not at all.
+    snapshot = _workflow_doc_snapshot(repo_root)
+    try:
+        _close_chain_writes(repo_root, source_path, kind, dry_run=False, quiet=quiet)
+    except BaseException:
+        _restore_file_snapshot(repo_root, snapshot)
+        raise
+
+
+def _close_chain_writes(repo_root: Path, source_path: Path, kind: DOC_KINDS, *, dry_run: bool, quiet: bool) -> None:
     _close_doc(source_path, kind, dry_run)
 
     text = _strip_mermaid_blocks(source_path.read_text(encoding="utf-8"))
@@ -3299,7 +3291,7 @@ def _close_chain_for_kind(repo_root: Path, source_path: Path, kind: DOC_KINDS, *
         _record_finished_task_follow_up(repo_root, source_path, dry_run)
         _sync_linked_backlog_progress(repo_root, source_path, dry_run=dry_run)
 
-        linked_item_refs = sorted(_extract_refs(text, DOC_KINDS["backlog"].prefix))
+        linked_item_refs = declared_refs("task", text, "backlog")
         for item_ref in linked_item_refs:
             item_path = _resolve_doc_path(repo_root, DOC_KINDS["backlog"], item_ref)
             if item_path is None:
@@ -3312,14 +3304,14 @@ def _close_chain_for_kind(repo_root: Path, source_path: Path, kind: DOC_KINDS, *
                         print(f"Auto-closed backlog item {item_ref} (all linked tasks are done).")
 
             item_text = _strip_mermaid_blocks(item_path.read_text(encoding="utf-8"))
-            for request_ref in sorted(_extract_refs(item_text, DOC_KINDS["request"].prefix)):
+            for request_ref in declared_refs("backlog", item_text, "request"):
                 if request_ref in processed_request_refs:
                     continue
                 processed_request_refs.add(request_ref)
                 _maybe_close_request_chain(repo_root, request_ref, dry_run, quiet=quiet)
 
     if kind.kind == "backlog":
-        for request_ref in sorted(_extract_refs(text, DOC_KINDS["request"].prefix)):
+        for request_ref in declared_refs("backlog", text, "request"):
             if request_ref in processed_request_refs:
                 continue
             processed_request_refs.add(request_ref)

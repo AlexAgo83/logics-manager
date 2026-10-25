@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 from logics_manager.config import ConfigError, load_repo_config
-from logics_manager.doc_parsing import age_in_days, extract_refs, git_last_change_times, last_change_time, priority_rank, priority_tier, progress_value, strip_mermaid_blocks
+from logics_manager.doc_parsing import age_in_days, declared_refs, git_last_change_times, last_change_time, priority_rank, priority_tier, progress_value, strip_mermaid_blocks
 from logics_manager.path_utils import duplicate_workflow_dirs
 from logics_manager.statuses import closed_statuses, open_statuses
 
@@ -123,10 +123,21 @@ def _doc_summary(doc: LogicsDoc, *, priority: str | None = None) -> dict[str, ob
 def _effective_priority(doc: LogicsDoc, by_ref: dict[str, LogicsDoc]) -> str:
     if doc.kind != "task":
         return doc.priority
-    for item_ref in extract_refs(strip_mermaid_blocks(doc.content), "item"):
+    for item_ref in declared_refs("task", strip_mermaid_blocks(doc.content), "backlog"):
         if item_ref in by_ref:
             return by_ref[item_ref].priority
     return doc.priority
+
+
+def _backlog_with_task(docs: list[LogicsDoc]) -> set[str]:
+    """Backlog refs a task declares, or that declare a task themselves.
+
+    Declared links only: a task that merely mentions an item in prose does not
+    give it a task, so the item still shows under "Backlog without task".
+    """
+    refs = {ref for doc in docs if doc.kind == "task" for ref in declared_refs("task", doc.content, "backlog")}
+    refs.update(doc.ref for doc in docs if doc.kind == "backlog" and declared_refs("backlog", doc.content, "task"))
+    return refs
 
 
 def _priority_sorted(docs: list[LogicsDoc], by_ref: dict[str, LogicsDoc]) -> list[LogicsDoc]:
@@ -151,13 +162,13 @@ def status_payload(repo_root: Path, *, limit: int = 10) -> dict[str, object]:
         for doc in open_docs
         if doc.kind == "backlog" and doc.status in {"Ready", "In progress", "Blocked"}
     ]
-    task_text = "\n".join(doc.content for doc in docs if doc.kind == "task")
-    backlog_without_task = [doc for doc in ready_backlog if doc.ref not in task_text]
+    with_task = _backlog_with_task(docs)
+    backlog_without_task = [doc for doc in ready_backlog if doc.ref not in with_task]
     draft_requests = [doc for doc in open_docs if doc.kind == "request" and doc.status == "Draft"]
     # A Draft request that a backlog item or task already cites is being delivered:
     # it needs its status moved, not grooming.
-    delivery_text = "\n".join(doc.content for doc in docs if doc.kind in {"backlog", "task"})
-    draft_requests_in_delivery = [doc for doc in draft_requests if doc.ref in delivery_text]
+    delivered_requests = {ref for doc in docs if doc.kind in {"backlog", "task"} for ref in declared_refs(doc.kind, doc.content, "request")}
+    draft_requests_in_delivery = [doc for doc in draft_requests if doc.ref in delivered_requests]
     draft_requests = [doc for doc in draft_requests if doc not in draft_requests_in_delivery]
     blocked_docs = [doc for doc in open_docs if doc.status == "Blocked"]
     complete_not_done = [doc for doc in open_docs if doc.progress == 100]
@@ -240,11 +251,11 @@ def health_payload(repo_root: Path, *, limit: int = 10) -> dict[str, object]:
     blocked_docs = [doc for doc in workflow_docs if doc.status == "Blocked"]
     open_docs = [doc for doc in workflow_docs if doc.status not in CLOSED_STATUSES]
 
-    task_text = "\n".join(doc.content for doc in workflow_docs if doc.kind == "task")
+    with_task = _backlog_with_task(workflow_docs)
     backlog_without_task = [
         doc
         for doc in open_docs
-        if doc.kind == "backlog" and doc.status in {"Ready", "In progress", "Blocked"} and doc.ref not in task_text
+        if doc.kind == "backlog" and doc.status in {"Ready", "In progress", "Blocked"} and doc.ref not in with_task
     ]
 
     issue_groups = {

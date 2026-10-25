@@ -19,7 +19,8 @@ from pathlib import Path
 from ..audit import audit_payload
 from ..cli_output import print_payload
 from ..config import ConfigError, find_repo_root
-from ..doc_parsing import extract_refs, progress_value, section_lines
+from ..doc_io import header_end, read_lines, read_raw, write_doc
+from ..doc_parsing import declares_ref, extract_refs, progress_value, section_lines
 from ..flow_evidence import AC_PROOF_PLACEHOLDER, has_ac_proof as _has_ac_proof
 from ..flow_evidence import has_validation_evidence as _has_validation_evidence
 from ..flow_evidence import structured_validation_line as _structured_validation_line
@@ -110,7 +111,7 @@ class FlowListEntry:
 
 
 def _parse_flow_doc(path: Path, kind: str) -> FlowListEntry:
-    lines = path.read_text(encoding="utf-8").splitlines()
+    lines = read_lines(path)
     ref = path.stem
     title = _extract_doc_title(path)
     status: str | None = None
@@ -520,7 +521,7 @@ def _resolve_product_source(repo_root: Path, source: str) -> Path:
 def _append_section_bullets(path: Path, heading: str, bullets: list[str], dry_run: bool) -> None:
     if dry_run:
         return
-    lines = path.read_text(encoding="utf-8").splitlines()
+    lines = read_lines(path)
     start_idx = None
     for idx, line in enumerate(lines):
         if line.startswith("# ") and line[2:].strip().lower() == heading.strip().lower():
@@ -538,13 +539,13 @@ def _append_section_bullets(path: Path, heading: str, bullets: list[str], dry_ru
             if rendered not in existing:
                 lines.insert(insert_at, rendered)
                 insert_at += 1
-    path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+    write_doc(path, "\n".join(lines).rstrip() + "\n")
 
 
 def _mark_section_checkboxes_done(path: Path, heading: str, dry_run: bool) -> None:
     if dry_run:
         return
-    lines = path.read_text(encoding="utf-8").splitlines()
+    lines = read_lines(path)
     start_idx = None
     for idx, line in enumerate(lines):
         if line.startswith("# ") and line[2:].strip().lower() == heading.strip().lower():
@@ -561,7 +562,7 @@ def _mark_section_checkboxes_done(path: Path, heading: str, dry_run: bool) -> No
             lines[idx] = line.replace("- [ ]", "- [x]", 1)
             changed = True
     if changed:
-        path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+        write_doc(path, "\n".join(lines).rstrip() + "\n")
 
 
 def _collect_docs_linking_ref(repo_root: Path, kind: DocKind, ref: str) -> list[Path]:
@@ -570,25 +571,25 @@ def _collect_docs_linking_ref(repo_root: Path, kind: DocKind, ref: str) -> list[
     if not directory.is_dir():
         return linked
     for path in sorted(directory.glob("*.md")):
-        if ref in path.read_text(encoding="utf-8"):
+        if declares_ref(kind.kind, path.read_text(encoding="utf-8"), ref):
             linked.append(path)
     return linked
 
 
 def _is_doc_done(path: Path, kind: DocKind) -> bool:
-    lines = path.read_text(encoding="utf-8").splitlines()
-    status_value = next((line.split(":", 1)[1].strip() for line in lines if line.startswith("> Status:")), None)
+    lines = read_lines(path)
+    status_value = _indicator_value_from_lines(lines, "Status")
     if status_value is not None and " ".join(status_value.split()).lower() in {"done", "archived"}:
         return True
     if kind.include_progress:
-        progress_value = next((line.split(":", 1)[1].strip() for line in lines if line.startswith("> Progress:")), None)
+        progress_value = _indicator_value_from_lines(lines, "Progress")
         if progress_value == "100%":
             return True
     return False
 
 
 def _has_done_status(path: Path) -> bool:
-    lines = path.read_text(encoding="utf-8").splitlines()
+    lines = read_lines(path)
     return _normalize_status(_indicator_value_from_lines(lines, "Status")) in {"done", "archived"}
 
 
@@ -626,7 +627,7 @@ def _changed_rel(repo_root: Path, changed_paths: set[Path], path: Path, before: 
 def _request_ac_entries(request_path: Path) -> list[tuple[str, str]]:
     entries: list[tuple[str, str]] = []
     # req_324: read rejoined bullets, not raw lines, so a wrapped AC keeps its whole text.
-    for value in _bullet_values(_section_lines(request_path.read_text(encoding="utf-8").splitlines(), "Acceptance criteria")):
+    for value in _bullet_values(_section_lines(read_lines(request_path), "Acceptance criteria")):
         match = re.search(r"\bAC(\d+)\s*:\s*(.+)", value, flags=re.IGNORECASE)
         if match:
             entries.append((f"AC{int(match.group(1))}", match.group(2).strip()))
@@ -914,7 +915,7 @@ def _build_native_task_doc(
 
 
 def _extract_doc_title(path: Path) -> str:
-    for line in path.read_text(encoding="utf-8").splitlines():
+    for line in read_lines(path):
         if line.startswith("## "):
             payload = line.removeprefix("## ").strip()
             if " - " in payload:
@@ -992,7 +993,7 @@ SECTION_EMPTY_PLACEHOLDERS = frozenset({"- none", "- (none)", "- (none yet)"})
 def _append_doc_section_bullets(path: Path, heading: str, bullets: list[str], *, dry_run: bool) -> None:
     if dry_run:
         return
-    lines = path.read_text(encoding="utf-8").splitlines()
+    lines = read_lines(path)
     for idx, line in enumerate(lines):
         if line.startswith("# ") and line[2:].strip().lower() == heading.strip().lower():
             insert_at = idx + 1
@@ -1007,10 +1008,10 @@ def _append_doc_section_bullets(path: Path, heading: str, bullets: list[str], *,
             section = lines[idx + 1 : insert_at]
             if len(section) > len([line for line in section if line.strip().lower() in SECTION_EMPTY_PLACEHOLDERS]):
                 lines[idx + 1 : insert_at] = [line for line in section if line.strip().lower() not in SECTION_EMPTY_PLACEHOLDERS]
-            path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+            write_doc(path, "\n".join(lines).rstrip() + "\n")
             return
     lines.extend(["", f"# {heading}", *[f"- {bullet}" for bullet in bullets]])
-    path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+    write_doc(path, "\n".join(lines).rstrip() + "\n")
 
 
 def _append_doc_section_bullets_changed(path: Path, heading: str, bullets: list[str], *, dry_run: bool) -> bool:
@@ -1024,7 +1025,7 @@ def _append_doc_section_bullets_changed(path: Path, heading: str, bullets: list[
 
 
 def _remove_section_placeholder_bullets(path: Path, heading: str, placeholders: set[str], *, dry_run: bool) -> bool:
-    lines = path.read_text(encoding="utf-8").splitlines()
+    lines = read_lines(path)
     target = heading.strip().lower()
     in_section = False
     changed = False
@@ -1039,25 +1040,20 @@ def _remove_section_placeholder_bullets(path: Path, heading: str, placeholders: 
             continue
         output.append(line)
     if changed and not dry_run:
-        path.write_text("\n".join(output).rstrip() + "\n", encoding="utf-8")
+        write_doc(path, "\n".join(output).rstrip() + "\n")
     return changed
 
 
 def _replace_indicator_line(lines: list[str], label: str, value: str) -> list[str]:
+    """Set `> label: value` in the header block, never in the body (see `header_end`)."""
     prefix = f"> {label}:"
-    updated = False
-    output: list[str] = []
-    insert_at = 1
-    for idx, line in enumerate(lines):
-        if idx > 0 and line.startswith("> "):
-            insert_at = idx + 1
-        if line.startswith(prefix):
-            output.append(f"{prefix} {value}")
-            updated = True
-        else:
-            output.append(line)
-    if not updated:
-        output.insert(insert_at, f"{prefix} {value}")
+    end = header_end(lines)
+    output = list(lines)
+    for idx in range(end):
+        if output[idx].startswith(prefix):
+            output[idx] = f"{prefix} {value}"
+            return output
+    output.insert(end, f"{prefix} {value}")
     return output
 
 
@@ -1092,9 +1088,9 @@ def _replace_or_append_prefixed_section_bullet(
 def _update_request_product_link(request_path: Path, product_ref: str, *, dry_run: bool) -> None:
     if dry_run:
         return
-    lines = request_path.read_text(encoding="utf-8").splitlines()
+    lines = read_lines(request_path)
     lines = _replace_or_append_prefixed_section_bullet(lines, "Companion docs", "Product brief(s)", f"`{product_ref}`")
-    request_path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+    write_doc(request_path, "\n".join(lines).rstrip() + "\n")
 
 
 def _build_native_product_brief(
@@ -1275,7 +1271,7 @@ def _build_native_backlog_from_request(
     product_refs: list[str] | None = None,
     architecture_refs: list[str] | None = None,
 ) -> tuple[str, str]:
-    request_lines = request_path.read_text(encoding="utf-8").splitlines()
+    request_lines = read_lines(request_path)
     request_title = title or _extract_doc_title(request_path)
     ref = _next_backlog_ref(repo_root, request_title)
     from_version = next((line.split(":", 1)[1].strip() for line in request_lines if line.strip().startswith("> From version:")), _resolved_from_version(repo_root, None))
@@ -1359,7 +1355,7 @@ def _build_native_task_from_backlog(
     product_refs: list[str] | None = None,
     architecture_refs: list[str] | None = None,
 ) -> tuple[str, str]:
-    backlog_lines = backlog_path.read_text(encoding="utf-8").splitlines()
+    backlog_lines = read_lines(backlog_path)
     backlog_title = title or _extract_doc_title(backlog_path)
     ref = _next_task_ref(repo_root, backlog_title)
     from_version = next((line.split(":", 1)[1].strip() for line in backlog_lines if line.strip().startswith("> From version:")), _resolved_from_version(repo_root, None))
@@ -1434,41 +1430,45 @@ def _snapshot_existing_files(repo_root: Path, rel_paths: list[str]) -> dict[str,
     for rel_path in rel_paths:
         path = repo_root / rel_path
         if path.is_file():
-            snapshot[rel_path] = path.read_text(encoding="utf-8")
+            try:
+                snapshot[rel_path] = read_raw(path)
+            except UnicodeDecodeError as exc:
+                raise SystemExit(f"`{rel_path}` is not valid UTF-8 ({exc.reason}); nothing was written.") from exc
     return snapshot
+
+
+def _workflow_doc_snapshot(repo_root: Path) -> dict[str, str]:
+    """Every doc a lifecycle command may modify, read (so validated) before its first write.
+
+    Snapshotting only the expected docs missed those reached through links, and one
+    undecodable doc read halfway through left a chain half-written.
+    """
+    rel_paths = [
+        path.relative_to(repo_root).as_posix()
+        # Every directory close, finish, closeout and repair may write to.
+        for directory in ("logics/request", "logics/backlog", "logics/tasks", "logics/product")
+        for path in sorted((repo_root / directory).glob("*.md"))
+    ]
+    return _snapshot_existing_files(repo_root, rel_paths)
 
 
 def _restore_file_snapshot(repo_root: Path, snapshot: dict[str, str]) -> None:
     for rel_path, content in snapshot.items():
         path = repo_root / rel_path
-        path.write_text(content, encoding="utf-8")
+        if path.is_file() and read_raw(path) == content:
+            continue
+        write_doc(path, content, exact=True)
 
 
 def _indicator_value_from_lines(lines: list[str], key: str) -> str | None:
     prefix = f"> {key}:"
-    for line in lines:
+    for line in lines[: header_end(lines)]:
         if line.startswith(prefix):
             return line.split(":", 1)[1].strip()
     return None
 
 
-def _upsert_workflow_indicator(lines: list[str], key: str, value: str) -> list[str]:
-    prefix = f"> {key}:"
-    updated: list[str] = []
-    replaced = False
-    last_indicator_index = -1
-    for line in lines:
-        if line.startswith("> "):
-            last_indicator_index = len(updated)
-        if line.startswith(prefix):
-            updated.append(f"> {key}: {value}")
-            replaced = True
-        else:
-            updated.append(line)
-    if not replaced:
-        insert_at = last_indicator_index + 1 if last_indicator_index >= 0 else 1
-        updated.insert(insert_at, f"> {key}: {value}")
-    return updated
+_upsert_workflow_indicator = _replace_indicator_line
 
 
 BACKLOG_ACTIVE_PROGRESS_FLOOR = 10
@@ -1478,11 +1478,11 @@ PROGRESS_CLOSED_STATUSES = {"done", "blocked", "obsolete", "archived"}
 
 
 def _write_workflow_indicators(path: Path, updates: dict[str, str], *, dry_run: bool) -> bool:
-    lines = path.read_text(encoding="utf-8").splitlines()
+    lines = read_lines(path)
     updated = lines
     for key, value in updates.items():
         updated = _upsert_workflow_indicator(updated, key, value)
     changed = updated != lines
     if changed and not dry_run:
-        path.write_text("\n".join(updated) + "\n", encoding="utf-8")
+        write_doc(path, "\n".join(updated) + "\n")
     return changed

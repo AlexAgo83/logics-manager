@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-from logics_manager.config import ConfigError, load_repo_config
+from logics_manager.config import load_repo_config
 from logics_manager.doc_parsing import age_in_days, declared_refs, git_last_change_times, last_change_time, priority_rank, priority_tier, progress_value, strip_mermaid_blocks
 from logics_manager.path_utils import duplicate_workflow_dirs
 from logics_manager.statuses import closed_statuses, open_statuses
@@ -295,10 +295,7 @@ def _stale_docs(repo_root: Path, open_docs: list) -> tuple[int, list[dict[str, o
     document and apply its own hardcoded threshold, duplicating a judgement
     that belongs to the corpus.
     """
-    try:
-        config, _ = load_repo_config(repo_root)
-    except ConfigError:
-        config = {}
+    config, _ = load_repo_config(repo_root)
     raw = (config.get("health") or {}).get("stale_after_days", 14)
     try:
         threshold = int(raw)

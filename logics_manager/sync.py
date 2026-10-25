@@ -103,7 +103,7 @@ def _read_text(repo_root: Path, path: Path) -> str:
     approved_dirs = {Path(os.path.realpath(repo_root / str(kind["directory"]))) for kind in INDICATOR_TARGET_KINDS.values()}
     if absolute.parent not in approved_dirs:
         raise SystemExit(f"Unsupported workflow doc path `{path}`.")
-    return absolute.read_text(encoding="utf-8")
+    return absolute.read_text(encoding="utf-8-sig")
 
 
 def _read_repo_bounded_text(repo_root: Path, path: Path, *, approved_dirs: set[Path], label: str) -> str:

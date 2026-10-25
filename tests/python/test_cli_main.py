@@ -583,6 +583,20 @@ def test_status_tells_a_draft_request_in_delivery_from_one_to_groom(tmp_path: Pa
     assert any(action.startswith("Start 1 draft request(s) already in delivery") for action in payload["next_actions"])
 
 
+def test_status_asks_to_close_out_what_reached_100_percent(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    (repo_root / "logics" / "backlog").mkdir(parents=True)
+    for ref, progress in (("item_001_finished", "100%"), ("item_002_halfway", "50%")):
+        path = repo_root / "logics" / "backlog" / f"{ref}.md"
+        _write_minimal_workflow_doc(path, title=ref, kind="backlog", status="In progress", links=[])
+        path.write_text(path.read_text(encoding="utf-8").replace("> Schema version", f"> Progress: {progress}\n> Schema version"), encoding="utf-8")
+
+    payload = status_payload(repo_root)
+
+    assert [item["ref"] for item in payload["complete_not_done"]] == ["item_001_finished"]
+    assert any(action.startswith("Close out 1 doc(s) at 100% still open") for action in payload["next_actions"])
+
+
 def test_status_payload_reports_remaining_work(tmp_path: Path) -> None:
     repo_root = tmp_path
     (repo_root / "logics" / "request").mkdir(parents=True)

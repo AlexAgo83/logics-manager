@@ -1416,8 +1416,9 @@ def render_audit(
     governance_profile: str = "standard",
     active: bool = False,
     include_deferred: bool = False,
+    payload: dict[str, object] | None = None,
 ) -> str:
-    payload = audit_payload(
+    payload = payload if payload is not None else audit_payload(
         repo_root,
         stale_days=stale_days,
         skip_ac_traceability=skip_ac_traceability,
@@ -1539,6 +1540,7 @@ def main(argv: list[str]) -> int:
         governance_profile=args.governance_profile,
         active=args.active,
         include_deferred=args.include_deferred,
+        payload=payload,
     )
     print(output)
     return 0 if payload["ok"] else 1

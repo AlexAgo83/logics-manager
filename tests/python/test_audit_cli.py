@@ -17,6 +17,7 @@ import pytest
 
 from logics_manager.config import DEFAULT_LOGICS_CONFIG, load_repo_config, render_config_show
 from logics_manager.audit import audit_payload, render_audit
+from logics_manager import audit as audit_module
 from logics_manager.index import index_payload, render_index
 from logics_manager.lint import lint_payload, render_lint
 from logics_manager.doctor import doctor_payload, render_doctor
@@ -86,6 +87,24 @@ from conftest import (
     _write_minimal_product_doc,
     _write_minimal_workflow_doc,
 )
+
+
+def test_audit_text_cli_scans_once(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    (tmp_path / "logics").mkdir()
+    monkeypatch.setattr(audit_module, "_find_repo_root_from", lambda _cwd: tmp_path)
+    actual = audit_module.audit_payload
+    calls = 0
+
+    def counted(*args: object, **kwargs: object) -> dict[str, object]:
+        nonlocal calls
+        calls += 1
+        return actual(*args, **kwargs)
+
+    monkeypatch.setattr(audit_module, "audit_payload", counted)
+    audit_module.main(["--skip-ac-traceability", "--skip-gates"])
+
+    assert calls == 1
+    assert "Workflow audit:" in capsys.readouterr().out
 
 
 def test_render_audit_reports_ok_for_minimal_consistent_repo(tmp_path: Path) -> None:

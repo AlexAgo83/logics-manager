@@ -49,6 +49,9 @@ first if the task does not exist yet — this skill implements, it does not scop
    `pip install -e .[dev]`, `npm ci`) rather than installing the tool
    standalone: a missing tool is usually a desynced environment, not an absent
    dependency.
+   Then run `logics-manager review check`: it searches what you added for the
+   repository's recorded review rules and lists the ones to check by hand. Fix
+   every hit before closing out.
 
 6. **Record progress** as you go:
    ```bash

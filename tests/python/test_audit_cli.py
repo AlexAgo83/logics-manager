@@ -983,6 +983,25 @@ def test_audit_reports_code_anchors_that_no_longer_resolve(tmp_path: Path) -> No
     assert "a hint that the citation is stale" not in render_audit(repo_root, skip_ac_traceability=True, skip_gates=True)
 
 
+def test_audit_does_not_take_branches_or_ignored_folders_for_missing_paths(tmp_path: Path) -> None:
+    """A branch name or a gitignored folder is backticked like a path but is not one."""
+    repo_root = tmp_path / "logics-repo"
+    (repo_root / "src").mkdir(parents=True)
+    (repo_root / ".gitignore").write_text("local/\n", encoding="utf-8")
+    (repo_root / "src" / "real.py").write_text("x = 1\n", encoding="utf-8")
+    git = ["git", "-c", "user.name=t", "-c", "user.email=t@t", "-C", str(repo_root)]
+    subprocess.run([*git, "init", "-q", "-b", "main"], check=True)
+    subprocess.run([*git, "add", "-A"], check=True)
+    subprocess.run([*git, "commit", "-qm", "init"], check=True)
+    subprocess.run([*git, "branch", "night/crow-ui"], check=True)
+    _anchor_doc(repo_root, "branches", status="Ready", references=["`night/crow-ui`", "`local/`", "`src/gone.py`"])
+
+    payload = audit_payload(repo_root, skip_ac_traceability=True, skip_gates=True)
+    missing = [f["message"] for f in payload["findings"] if f["code"] == "code_anchor_path_missing"]
+
+    assert missing == ["cited path `src/gone.py` does not exist"]
+
+
 def test_audit_leaves_closed_documents_code_anchors_alone(tmp_path: Path) -> None:
     """req_339 AC4: a Done document describing code as it was is history."""
     repo_root = tmp_path / "logics-repo"

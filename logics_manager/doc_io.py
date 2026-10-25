@@ -67,6 +67,8 @@ def write_doc(path: Path, text: str, *, exact: bool = False) -> None:
             handle.write(text)
         return
     mode = path.stat().st_mode & 0o7777
+    if not exact and path.read_bytes().startswith(b"\xef\xbb\xbf") and not text.startswith("\ufeff"):
+        text = "\ufeff" + text
     if not exact and b"\r\n" in path.read_bytes():
         text = text.replace("\r\n", "\n").replace("\n", "\r\n")
     fd, tmp_name = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.", suffix=".tmp")

@@ -561,7 +561,7 @@ def validate_closeout_payload(repo_root: Path, source: str) -> dict[str, object]
             )
         issues.extend(_sibling_slice_ac_issues(repo_root, request_ref, request_path, request_text, item_paths, task_path))
 
-    product_refs = sorted(_extract_refs(raw_task_text, "prod"))
+    product_refs = declared_refs("task", raw_task_text, "product")
     for product_ref in product_refs:
         product_path = _first_product_path(repo_root, product_ref)
         if product_path is None:
@@ -794,7 +794,7 @@ def repair_links_payload(repo_root: Path, source: str, *, dry_run: bool) -> dict
     task_text = _strip_mermaid_blocks(task_path.read_text(encoding="utf-8"))
     item_refs = declared_refs("task", task_text, "backlog")
     request_refs = declared_refs("task", task_text, "request")
-    product_refs = sorted(_extract_refs(task_path.read_text(encoding="utf-8"), "prod"))
+    product_refs = declared_refs("task", task_text, "product")
     changed_paths: set[Path] = set()
 
     for item_ref in item_refs:
@@ -2314,6 +2314,7 @@ def closeout_payload(
                 _maybe_close_request_chain(repo_root, ref, dry_run=False, quiet=True)
         finish_issues = _verify_finished_task_chain(repo_root, task_path)
         if finish_issues:
+            _restore_file_snapshot(repo_root, rollback_snapshot)
             raise SystemExit("Finish verification failed:\n" + "\n".join(f"- {issue}" for issue in finish_issues))
         changed_files.add(task_path.relative_to(repo_root).as_posix())
         for ref in mermaid_refs:
@@ -3324,6 +3325,7 @@ def _close_chain_writes(repo_root: Path, source_path: Path, kind: DOC_KINDS, *, 
 def cmd_finish_task(args: argparse.Namespace) -> dict[str, object]:
     repo_root = _find_repo_root(Path.cwd())
     source_path = _resolve_workflow_source(repo_root, DOC_KINDS["task"], args.source)
+    snapshot = {} if args.dry_run else _workflow_doc_snapshot(repo_root)
 
     _close_chain_for_kind(repo_root, source_path, DOC_KINDS["task"], dry_run=args.dry_run, quiet=args.format == "json")
 
@@ -3337,6 +3339,7 @@ def cmd_finish_task(args: argparse.Namespace) -> dict[str, object]:
 
     issues = _verify_finished_task_chain(repo_root, source_path)
     if issues:
+        _restore_file_snapshot(repo_root, snapshot)
         details = "\n".join(f"- {issue}" for issue in issues)
         raise SystemExit(f"Finish verification failed:\n{details}")
 

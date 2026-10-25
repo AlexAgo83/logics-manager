@@ -17,6 +17,7 @@ import pytest
 
 from logics_manager.chain_graph import resolve_request_chain
 from logics_manager.cli import main
+from logics_manager.doc_parsing import declared_refs
 from logics_manager.flow import closeout_payload, progress_task_payload, repair_gates_payload, repair_links_payload
 from logics_manager.insights import health_payload, status_payload
 
@@ -90,6 +91,43 @@ def test_repair_links_and_gates_leave_a_mentioned_chain_alone(repo_root: Path) -
 
     assert docs["item_beta"].read_text() == beta_item
     assert docs["req_beta"].read_text() == beta_request
+
+
+def test_product_mentioned_in_prose_is_not_a_link(repo_root: Path) -> None:
+    docs = _chain(repo_root, task_extra=["- Unlike `prod_002_beta`."])
+    product = _write(repo_root / "logics/product/prod_002_beta.md", ["## prod_002_beta - Beta", "> Status: Accepted"])
+    assert declared_refs("task", docs["task_alpha"].read_text(), "product") == []
+
+    repair_links_payload(repo_root, "task_001_alpha", dry_run=False)
+
+    assert "> Status: Accepted" in product.read_text()
+    assert all(issue["code"] != "missing_product_target" for issue in closeout_payload(
+        repo_root, "task_001_alpha", validations=[], run_index=False, run_lint=False, run_audit=False, dry_run=True
+    )["preflight"]["issues"])
+
+
+def test_finish_verification_failure_restores_chain(repo_root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    docs = _chain(repo_root)
+    before = {path: path.read_bytes() for path in docs.values()}
+    monkeypatch.setattr("logics_manager.flow._verify_finished_task_chain", lambda *_args: ["forced failure"])
+
+    with pytest.raises(SystemExit, match="Finish verification failed"):
+        main(["flow", "finish", "task", str(docs["task_alpha"])])
+
+    assert {path: path.read_bytes() for path in docs.values()} == before
+
+
+def test_closeout_finish_verification_failure_restores_chain(repo_root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    docs = _chain(repo_root)
+    before = {path: path.read_bytes() for path in docs.values()}
+    monkeypatch.setattr("logics_manager.flow.validate_closeout_payload", lambda *_args: {"issues": []})
+    monkeypatch.setattr("logics_manager.flow._verify_finished_task_chain", lambda *_args: ["forced failure"])
+
+    with pytest.raises(SystemExit, match="Finish verification failed"):
+        closeout_payload(repo_root, "task_001_alpha", validations=[], run_index=False, run_lint=False,
+                         run_audit=False, dry_run=False)
+
+    assert {path: path.read_bytes() for path in docs.values()} == before
 
 
 def test_status_and_health_still_list_a_mentioned_item_as_without_task(repo_root: Path) -> None:

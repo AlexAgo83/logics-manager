@@ -94,7 +94,7 @@ def _git_commit(repo_root: Path) -> str:
             ["git", "rev-parse", "HEAD"],
             cwd=repo_root,
             capture_output=True,
-            text=True,
+            text=True, encoding="utf-8", errors="replace",
             timeout=1,
             check=False,
         )

@@ -38,7 +38,7 @@ def _owner_repo(repo_root: Path, *, runner: Any | None = None) -> tuple[str, str
     # repo's own is "logics-manager"), and -v lists every remote regardless of name.
     git_runner = runner or subprocess.run
     try:
-        result = git_runner(["git", "remote", "-v"], cwd=repo_root, text=True, capture_output=True, timeout=5)
+        result = git_runner(["git", "remote", "-v"], cwd=repo_root, text=True, encoding="utf-8", errors="replace", capture_output=True, timeout=5)
     except (OSError, subprocess.SubprocessError, subprocess.TimeoutExpired):
         return None
     if result.returncode != 0:
@@ -52,7 +52,7 @@ def _owner_repo(repo_root: Path, *, runner: Any | None = None) -> tuple[str, str
 
 def _run_gh(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     gh_runner = runner or subprocess.run
-    return gh_runner(["gh", *args], cwd=repo_root, text=True, capture_output=True, stdin=subprocess.DEVNULL, timeout=15)
+    return gh_runner(["gh", *args], cwd=repo_root, text=True, encoding="utf-8", errors="replace", capture_output=True, stdin=subprocess.DEVNULL, timeout=15)
 
 
 def _unreachable(message: str) -> dict[str, Any]:

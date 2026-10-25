@@ -77,7 +77,7 @@ def cdx_memory_payload(
     run = runner or subprocess.run
     command = _cdx_command(scope, repo_root)
     try:
-        result = run(command, cwd=repo_root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False, timeout=10)
+        result = run(command, cwd=repo_root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace", check=False, timeout=10)
     except subprocess.TimeoutExpired:
         return {"ok": False, "state": "timeout", "scope": scope, "warnings": ["cdx-memory-timeout"], "message": "`cdx memory` timed out."}
     except OSError as exc:

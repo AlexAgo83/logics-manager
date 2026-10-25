@@ -58,7 +58,7 @@ def _git_is_repository(repo_root: Path, *, runner: Any | None = None) -> bool | 
 def _run_read_only_git(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["git", *args]
     git_runner = runner or subprocess.run
-    return git_runner(command, cwd=repo_root, text=True, capture_output=True, stdin=subprocess.DEVNULL, timeout=_viewer._scaled_timeout(repo_root, 5))
+    return git_runner(command, cwd=repo_root, text=True, encoding="utf-8", errors="replace", capture_output=True, stdin=subprocess.DEVNULL, timeout=_viewer._scaled_timeout(repo_root, 5))
 
 
 def _sanitize_git_ref(value: str) -> str:
@@ -476,7 +476,7 @@ def review_burst_files_payload(repo_root: Path, *, kind: str = "", ref: str = ""
 def _run_git_mutation(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["git", *args]
     git_runner = runner or subprocess.run
-    return git_runner(command, cwd=repo_root, text=True, capture_output=True, stdin=subprocess.DEVNULL, timeout=_viewer._scaled_timeout(repo_root, 30))
+    return git_runner(command, cwd=repo_root, text=True, encoding="utf-8", errors="replace", capture_output=True, stdin=subprocess.DEVNULL, timeout=_viewer._scaled_timeout(repo_root, 30))
 
 
 def _first_git_error_line(result: subprocess.CompletedProcess[str], fallback: str) -> str:
@@ -495,7 +495,7 @@ def git_fetch_payload(repo_root: Path, *, runner: Any | None = None, which: Any 
         result = git_runner(
             ["git", "fetch", "--prune"],
             cwd=repo_root,
-            text=True,
+            text=True, encoding="utf-8", errors="replace",
             capture_output=True,
             timeout=_viewer._scaled_timeout(repo_root, 30),
             env=env,

@@ -218,13 +218,13 @@ def cdx_artifact_preview_payload(
 def _run_read_only_cdx(repo_root: Path, args: list[str], *, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["cdx", *args]
     cdx_runner = runner or subprocess.run
-    return cdx_runner(command, cwd=repo_root, text=True, capture_output=True, stdin=subprocess.DEVNULL, timeout=_viewer._scaled_timeout(repo_root, 5))
+    return cdx_runner(command, cwd=repo_root, text=True, encoding="utf-8", errors="replace", capture_output=True, stdin=subprocess.DEVNULL, timeout=_viewer._scaled_timeout(repo_root, 5))
 
 
 def _run_cdx_mission(repo_root: Path, args: list[str], *, timeout: int, runner: Any | None = None) -> subprocess.CompletedProcess[str]:
     command = ["cdx", *args]
     cdx_runner = runner or subprocess.run
-    return cdx_runner(command, cwd=repo_root, text=True, capture_output=True, stdin=subprocess.DEVNULL, timeout=_viewer._scaled_timeout(repo_root, timeout))
+    return cdx_runner(command, cwd=repo_root, text=True, encoding="utf-8", errors="replace", capture_output=True, stdin=subprocess.DEVNULL, timeout=_viewer._scaled_timeout(repo_root, timeout))
 
 
 def cdx_status_payload(repo_root: Path, *, runner: Any | None = None, which: Any | None = None) -> dict[str, Any]:
@@ -500,7 +500,7 @@ def cdx_disk_payload(repo_root: Path, *, runner: Any | None = None, which: Any |
         result = cdx_runner(
             ["cdx", "disk", "profiles", "--json", "--candidates"],
             cwd=repo_root,
-            text=True,
+            text=True, encoding="utf-8", errors="replace",
             capture_output=True,
             stdin=subprocess.DEVNULL,
             timeout=_viewer._scaled_timeout(repo_root, 60),
@@ -1129,7 +1129,7 @@ def cdx_toggle_payload(
         result = cdx_runner(
             ["cdx", action, session, "--json"],
             cwd=repo_root,
-            text=True,
+            text=True, encoding="utf-8", errors="replace",
             capture_output=True,
             timeout=_viewer._scaled_timeout(repo_root, 10),
         )
@@ -1164,7 +1164,7 @@ def cdx_remove_payload(
         result = cdx_runner(
             ["cdx", "rmv", session, "--force", "--json"],
             cwd=repo_root,
-            text=True,
+            text=True, encoding="utf-8", errors="replace",
             capture_output=True,
             timeout=_viewer._scaled_timeout(repo_root, 10),
         )
@@ -1199,7 +1199,7 @@ def cdx_reset_payload(
         result = cdx_runner(
             ["cdx", "reset", session, "--yes", "--json"],
             cwd=repo_root,
-            text=True,
+            text=True, encoding="utf-8", errors="replace",
             capture_output=True,
             timeout=_viewer._scaled_timeout(repo_root, 30),
         )
@@ -1237,7 +1237,7 @@ def cdx_permission_payload(
         result = cdx_runner(
             ["cdx", "set", session, "--permission", permission, "--json"],
             cwd=repo_root,
-            text=True,
+            text=True, encoding="utf-8", errors="replace",
             capture_output=True,
             timeout=_viewer._scaled_timeout(repo_root, 10),
         )
@@ -1296,7 +1296,7 @@ def cdx_config_payload(
         result = cdx_runner(
             command,
             cwd=repo_root,
-            text=True,
+            text=True, encoding="utf-8", errors="replace",
             capture_output=True,
             timeout=_viewer._scaled_timeout(repo_root, 10),
         )
@@ -1320,7 +1320,7 @@ def _cdx_supports_passphrase_stdin(*, runner: Any | None = None) -> bool:
     """
     cdx_runner = runner or subprocess.run
     try:
-        result = cdx_runner(["cdx", "--help"], text=True, capture_output=True, stdin=subprocess.DEVNULL, timeout=10)
+        result = cdx_runner(["cdx", "--help"], text=True, encoding="utf-8", errors="replace", capture_output=True, stdin=subprocess.DEVNULL, timeout=10)
     except (OSError, subprocess.TimeoutExpired):
         return False
     return "--passphrase-stdin" in ((result.stdout or "") + (result.stderr or ""))
@@ -1366,7 +1366,7 @@ def cdx_import_payload(
             result = cdx_runner(
                 ["cdx", *args],
                 cwd=repo_root,
-                text=True,
+                text=True, encoding="utf-8", errors="replace",
                 capture_output=True,
                 timeout=_viewer._scaled_timeout(repo_root, 30),
                 env=env,
@@ -1421,7 +1421,7 @@ def cdx_export_payload(
             result = cdx_runner(
                 ["cdx", *args],
                 cwd=repo_root,
-                text=True,
+                text=True, encoding="utf-8", errors="replace",
                 capture_output=True,
                 timeout=_viewer._scaled_timeout(repo_root, 30),
                 env=env,

@@ -217,14 +217,14 @@ def _importable_checkout_packages(repo_root: Path) -> set[str]:
 def _clean_wheel_install_check(repo_root: Path) -> dict[str, Any]:
     with tempfile.TemporaryDirectory(prefix="logics-packaging-") as tmp:
         venv = Path(tmp) / "venv"
-        create = subprocess.run([sys.executable, "-m", "venv", str(venv)], cwd=repo_root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False)
+        create = subprocess.run([sys.executable, "-m", "venv", str(venv)], cwd=repo_root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace", check=False)
         if create.returncode != 0:
             return {"ok": False, "step": "venv", "message": create.stderr.strip() or create.stdout.strip()}
         python = venv / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
-        install = subprocess.run([str(python), "-m", "pip", "install", str(repo_root)], cwd=repo_root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False)
+        install = subprocess.run([str(python), "-m", "pip", "install", str(repo_root)], cwd=repo_root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace", check=False)
         if install.returncode != 0:
             return {"ok": False, "step": "install", "message": install.stderr.strip()[-1000:] or install.stdout.strip()[-1000:]}
-        smoke = subprocess.run([str(python), "-m", "logics_manager", "--help"], cwd=repo_root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False)
+        smoke = subprocess.run([str(python), "-m", "logics_manager", "--help"], cwd=repo_root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace", check=False)
         return {
             "ok": smoke.returncode == 0,
             "step": "smoke",

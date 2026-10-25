@@ -55,6 +55,10 @@ def _parse_doc(repo_root: Path, kind: str, path: Path) -> LogicsDoc:
     progress: int | None = None
     for line in content.splitlines():
         if line.startswith("## "):
+            # Only the first `## ref - Title` line is the title; later `##`
+            # lines are body sub-sections.
+            if title != "(missing title)":
+                continue
             heading = line.removeprefix("## ").strip()
             if " - " in heading:
                 _, title = heading.split(" - ", 1)

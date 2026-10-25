@@ -87,10 +87,17 @@ logics-manager fleet brief --root ~/projects
 
 `fleet brief` is the morning question, "what do I do first, anywhere": the three
 most urgent moves across every repository (`--limit N` for more). Blocked docs
-come first, then docs at 100% left open, High-priority active tasks, Draft
+come first, then GitHub pull requests waiting for your review, then docs at 100%
+left open, High-priority active tasks, Draft
 requests already in delivery, then the other active tasks. Within one urgency it
 takes one move per repository before a second from any, so one busy project does
 not fill the list.
+
+Review requests come from `gh search prs --review-requested=@me --state open`,
+across GitHub, including repositories without a Logics corpus. Without `gh`
+installed the brief skips them silently; when `gh` fails (logged out, offline)
+the brief says so on its last line, and `review_error` in JSON, rather than
+showing an empty queue. `--no-reviews` leaves them out.
 
 `fleet roadmap` shows where each repository stands on its roadmaps: the first
 `## <version> - <title>` milestone whose cited workflow docs are not all closed,

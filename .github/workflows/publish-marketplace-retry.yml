@@ -1,0 +1,43 @@
+name: Publish Marketplace retry
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Existing release version, without v
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Verify matching release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          test "$(node -p "require('./package.json').version")" = "$VERSION"
+          gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null
+      - run: npm run package
+      - name: Publish VSIX
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          VERSION: ${{ inputs.version }}
+        run: npx vsce publish --packagePath "artifacts/vscode/logics-manager-$VERSION.vsix"
+      - name: Replace GitHub release VSIX with published package
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: gh release upload "v$VERSION" "artifacts/vscode/logics-manager-$VERSION.vsix" --repo "$GITHUB_REPOSITORY" --clobber

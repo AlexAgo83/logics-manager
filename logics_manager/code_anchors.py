@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import os
 import re
+import subprocess
 from pathlib import Path
 
 from .doc_parsing import section_lines
@@ -135,7 +136,7 @@ def unresolved_anchors(repo_root: Path, text: str, *, blob: list[str | None] | N
     is read at most once per audit.
     """
     paths, symbols = anchors(text)
-    missing_paths = sorted(path for path in paths if not (repo_root / path).exists())
+    missing_paths = _drop_non_paths(repo_root, sorted(path for path in paths if not (repo_root / path).exists()))
     if not symbols:
         return missing_paths, []
     if blob is None:
@@ -143,3 +144,28 @@ def unresolved_anchors(repo_root: Path, text: str, *, blob: list[str | None] | N
     if blob[0] is None:
         blob[0] = _repo_blob(repo_root)
     return missing_paths, sorted(symbol for symbol in symbols if symbol not in blob[0])
+
+
+def _git(repo_root: Path, args: list[str]) -> list[str]:
+    try:
+        result = subprocess.run(["git", *args], cwd=repo_root, check=False, capture_output=True, text=True)
+    except OSError:
+        return []
+    return result.stdout.splitlines() if result.returncode in (0, 1) else []
+
+
+def _drop_non_paths(repo_root: Path, missing: list[str]) -> list[str]:
+    """Leave out what looks like a path but is not one this checkout should hold.
+
+    A branch name (`night/crow-ui`) is backticked like a path; so is a folder the
+    repository ignores (`local/`), which exists on its owner's machine and in no
+    clone. Branches are matched against local and remote-tracking refs and tags, so
+    a branch that exists nowhere in this clone (a shallow one) is still reported.
+    """
+    if not missing:
+        return missing
+    refs = set(_git(repo_root, ["for-each-ref", "--format=%(refname:lstrip=2)", "refs/heads", "refs/tags"]))
+    refs |= set(_git(repo_root, ["for-each-ref", "--format=%(refname:lstrip=3)", "refs/remotes"]))
+    candidates = [form for path in missing for form in (path, f"{path}/")]
+    ignored = {line.rstrip("/") for line in _git(repo_root, ["check-ignore", "--", *candidates])}
+    return [path for path in missing if path not in refs and path not in ignored]

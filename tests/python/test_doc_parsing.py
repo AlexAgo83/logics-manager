@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import logics_manager.audit as audit
 import logics_manager.flow as flow
 import logics_manager.insights as insights
@@ -56,3 +58,19 @@ def test_callers_consume_the_shared_definitions() -> None:
     assert audit._progress_value is doc_parsing.progress_value
     # audit's _extract_refs still returns a mermaid-stripped set.
     assert audit._extract_refs("req_001_a ```mermaid\nreq_9_x\n```", "req") == {"req_001_a"}
+
+
+def test_status_title_is_the_ref_heading_not_a_later_subsection(tmp_path: Path) -> None:
+    from logics_manager.insights import collect_logics_docs
+
+    tasks = tmp_path / "logics" / "tasks"
+    tasks.mkdir(parents=True)
+    (tasks / "task_001_ship_it.md").write_text(
+        "## task_001_ship_it - Ship it in two phases\n"
+        "> Status: Ready\n\n"
+        "# Context\n"
+        "## What matters on the board (design pass)\n",
+        encoding="utf-8",
+    )
+    (doc,) = collect_logics_docs(tmp_path, kinds=("task",))
+    assert doc.title == "Ship it in two phases"

@@ -395,6 +395,7 @@ covering the workflow end to end:
 | `/roadmap-deliver` | Propose/show/validate a roadmap, or deliver a chain straight from a product brief. |
 | `/closeout-repair` | Diagnose a blocked closeout and run the specific repair command that fixes it. |
 | `/project-health` | Run the read-only diagnostics (doctor/health/status/followups/product-consistency/audit) as a pre-flight check. |
+| `/wrap` | End a session: record progress, decisions and where the work stops in the task, turn open threads into requests, and prepare a handoff context pack for the next session. |
 
 They depend only on this project's own command surface — no specific
 orchestrator, agent runtime, or model provider — so they update with the

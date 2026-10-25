@@ -30,6 +30,7 @@ ALL_BUNDLED_SKILLS = DELEGATION_SKILLS | {
     "roadmap-deliver",
     "closeout-repair",
     "project-health",
+    "wrap",
 }
 
 

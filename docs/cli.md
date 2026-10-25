@@ -45,7 +45,14 @@ logics-manager view --focus req_001_example --read --open
 ```bash
 logics-manager fleet status --root ~/projects
 logics-manager fleet health --root ~/projects --format json
+logics-manager fleet roadmap --root ~/projects
 ```
+
+`fleet roadmap` shows where each repository stands on its roadmaps: the first
+`## <version> - <title>` milestone whose cited workflow docs are not all closed,
+with how many are (`0.2 - Polish: 1/2 done`). It counts the full refs a
+milestone cites (`req_003_sound`), not abbreviated ones (`item_096`), and
+repositories without a roadmap are left out.
 
 Discovery is a directory listing — any immediate child of `--root` containing a
 `logics/` directory counts — so there is no repository registry to keep in sync.

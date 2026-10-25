@@ -2954,16 +2954,12 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
     def _origin_check_passes(self) -> bool:
         """Reject cross-origin mutations.
 
-        Loopback clients are trusted (the desktop UI itself, scripts, dev
-        tools). For every other client we require Origin (or Referer
-        fallback for redirects) to match one of the URLs the server hands
-        out. This blocks CSRF: a malicious page on the user's phone cannot
-        POST to the viewer's mutating endpoints because its Origin will
-        not match.
+        A browser on this machine is also a loopback client, so its Origin
+        must match the viewer even when the TCP peer is local.
         """
-        if self._client_is_loopback():
-            return True
         allowed = self._allowed_origins()
+        if f"{self.server.url_scheme}://{self.headers.get('Host', '').strip()}" not in allowed:
+            return False
         origin = self.headers.get("Origin", "").strip()
         if origin:
             return origin in allowed
@@ -2972,9 +2968,8 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
             parsed_referer = urlparse(referer)
             referer_origin = f"{parsed_referer.scheme}://{parsed_referer.netloc}"
             return referer_origin in allowed
-        # No Origin and no Referer from a non-loopback client: refuse. A
-        # legitimate browser always sends one or the other on a POST.
-        return False
+        # CLI clients omit Origin; browsers sending a JSON POST include it.
+        return self._client_is_loopback()
 
     def _send_cross_origin_forbidden(self) -> None:
         body = _json_bytes({"ok": False, "error": "Cross-origin mutation refused."})
@@ -3515,7 +3510,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
-        if not self._origin_check_passes():
+        if not self._origin_check_passes() or self.headers.get("Content-Type", "").split(";", 1)[0].strip().lower() != "application/json":
             self._send_cross_origin_forbidden()
             return
         if not self._lan_auth_passes(parsed, method="POST"):

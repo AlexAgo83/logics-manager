@@ -61,6 +61,13 @@ def test_mcp_serve_http_bind_collision_raises_a_clear_actionable_error(tmp_path:
         blocker.server_close()
 
 
+def test_mcp_network_listener_requires_a_token(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    (tmp_path / "logics").mkdir()
+    monkeypatch.delenv("LOGICS_MCP_BEARER_TOKEN", raising=False)
+    with pytest.raises(SystemExit, match="requires LOGICS_MCP_BEARER_TOKEN"):
+        serve_http(repo_root=tmp_path, host="0.0.0.0", port=0)
+
+
 def test_viewer_and_mcp_http_no_longer_share_a_default_port() -> None:
     import inspect
 

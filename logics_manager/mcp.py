@@ -1585,6 +1585,15 @@ def make_http_handler(repo_root: Path, *, bearer_token: str | None = None) -> ty
             if parsed.path != "/mcp":
                 self._send_json(404, {"ok": False, "error": "not_found", "message": "Use POST /mcp for JSON-RPC."})
                 return
+            if not bearer_token:
+                host = self.headers.get("Host", "").strip()
+                allowed_hosts = {f"{name}:{self.server.server_port}" for name in ("127.0.0.1", "localhost", "[::1]", self.server.server_address[0])}
+                if host not in allowed_hosts or (self.headers.get("Origin") and self.headers["Origin"] != f"http://{host}"):
+                    self._send_json(403, {"ok": False, "error": "forbidden", "message": "Cross-origin request refused."})
+                    return
+            if self.headers.get("Content-Type", "").split(";", 1)[0].strip().lower() != "application/json":
+                self._send_json(415, {"ok": False, "error": "unsupported_media_type", "message": "Content-Type must be application/json."})
+                return
             if not self._authorized():
                 return
             try:
@@ -1631,6 +1640,8 @@ class _McpHttpServer(ThreadingHTTPServer):
 def serve_http(*, repo_root: Path | None = None, host: str = "127.0.0.1", port: int = 8766, bearer_token: str | None = None) -> int:
     root = _repo_root(repo_root)
     token = bearer_token or os.environ.get(AUTH_ENV_VAR)
+    if host not in {"127.0.0.1", "localhost", "::1"} and not token:
+        raise SystemExit(f"MCP HTTP on {host} requires {AUTH_ENV_VAR} or --bearer-token.")
     try:
         server = _McpHttpServer((host, port), make_http_handler(root, bearer_token=token))
     except OSError as exc:

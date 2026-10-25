@@ -121,7 +121,7 @@ Run the local HTTP server for an HTTPS tunnel:
 LOGICS_MCP_BEARER_TOKEN="$(openssl rand -hex 32)" python3 -m logics_manager mcp serve-http --repo-root . --host 127.0.0.1 --port 8765
 ```
 
-`POST /mcp` accepts `Authorization: Bearer <token>` when `LOGICS_MCP_BEARER_TOKEN` or `--bearer-token` is set. Keep `/health` unauthenticated for smoke checks, but do not expose `/mcp` publicly without a bearer token.
+`POST /mcp` accepts `Authorization: Bearer <token>` when `LOGICS_MCP_BEARER_TOKEN` or `--bearer-token` is set. A non-loopback listener now requires a bearer token. A tokenless loopback listener accepts JSON requests only from its own host and origin, so a browser page on another site cannot call it. Keep `/health` unauthenticated for smoke checks.
 
 Start the local server and a temporary `localtunnel` session in one command:
 

@@ -1278,6 +1278,34 @@ def test_mcp_http_transport_lists_tools(tmp_path: Path) -> None:
     assert payload["result"]["tools"][0]["name"] == "create_request"
 
 
+@pytest.mark.parametrize(
+    "headers",
+    [
+        {"Content-Type": "application/json", "Origin": "https://evil.example"},
+        {"Content-Type": "text/plain"},
+        {"Content-Type": "application/json", "Host": "evil.example"},
+    ],
+)
+def test_mcp_http_rejects_browser_mutation(tmp_path: Path, headers: dict[str, str]) -> None:
+    repo_root = _repo(tmp_path)
+    try:
+        server = ThreadingHTTPServer(("127.0.0.1", 0), make_http_handler(repo_root))
+    except PermissionError:
+        pytest.skip("sandbox does not allow binding a local HTTP socket")
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("POST", "/mcp", body=json.dumps({"jsonrpc": "2.0", "id": 1, "method": "tools/list"}), headers=headers)
+        response = conn.getresponse()
+        response.read()
+        assert response.status in {403, 415}
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
 def test_mcp_http_transport_rejects_oversized_content_length(tmp_path: Path) -> None:
     repo_root = _repo(tmp_path)
     try:

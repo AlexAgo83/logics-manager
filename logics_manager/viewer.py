@@ -3510,7 +3510,7 @@ class LogicsViewerRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
-        if not self._origin_check_passes() or self.headers.get("Content-Type", "").split(";", 1)[0].strip().lower() != "application/json":
+        if not self._origin_check_passes() or (parsed.path != "/api/refresh" and self.headers.get("Content-Type", "").split(";", 1)[0].strip().lower() != "application/json"):
             self._send_cross_origin_forbidden()
             return
         if not self._lan_auth_passes(parsed, method="POST"):

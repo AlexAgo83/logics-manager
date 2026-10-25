@@ -46,7 +46,15 @@ logics-manager view --focus req_001_example --read --open
 logics-manager fleet status --root ~/projects
 logics-manager fleet health --root ~/projects --format json
 logics-manager fleet roadmap --root ~/projects
+logics-manager fleet brief --root ~/projects
 ```
+
+`fleet brief` is the morning question, "what do I do first, anywhere": the three
+most urgent moves across every repository (`--limit N` for more). Blocked docs
+come first, then docs at 100% left open, High-priority active tasks, Draft
+requests already in delivery, then the other active tasks. Within one urgency it
+takes one move per repository before a second from any, so one busy project does
+not fill the list.
 
 `fleet roadmap` shows where each repository stands on its roadmaps: the first
 `## <version> - <title>` milestone whose cited workflow docs are not all closed,

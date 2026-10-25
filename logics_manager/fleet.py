@@ -16,6 +16,7 @@ import json
 import re
 import subprocess
 from pathlib import Path
+from urllib.parse import quote
 
 from .cli_output import render_payload
 from .config import ConfigError, holds_corpus
@@ -40,8 +41,9 @@ Flags:
   --format     text (default) or json.
 
 `brief` ranks the next moves across every repository and keeps the first N
-(3 by default): blocked docs, then GitHub pull requests awaiting your review
-(with `gh`; skipped when it is not installed, `--no-reviews` to leave them out),
+(3 by default): blocked docs, then pull and merge requests awaiting your review
+(GitHub with `gh`, GitLab with `glab`; a CLI that is not installed is skipped,
+`--no-reviews` leaves them out),
 then docs at 100% left open, High-priority active
 tasks, Draft requests already in delivery, then the other active tasks.
 
@@ -107,26 +109,47 @@ _BRIEF_ORDER = (
 )
 
 
-def review_requests() -> tuple[list[dict[str, object]], str | None]:
-    """Open pull requests waiting for the user's review on GitHub, and why they could not be read.
-
-    No `gh` means no GitHub in this setup: nothing to report, not an error. A
-    `gh` that fails (logged out, offline) is reported, so an empty review
-    list is never mistaken for an empty queue.
-    """
-    command = ["gh", "search", "prs", "--review-requested=@me", "--state", "open",
-               "--json", "number,title,repository,url", "--limit", "50"]
+def _cli_json(command: list[str]) -> tuple[object, str | None]:
+    """A CLI's JSON output; (None, None) when the CLI is not installed."""
+    label = " ".join(command[:3])
     try:
         result = subprocess.run(command, capture_output=True, text=True, check=False, timeout=30)
     except FileNotFoundError:
-        return [], None
+        return None, None
     except subprocess.TimeoutExpired:
-        return [], "gh search prs timed out"
+        return None, f"{label} timed out"
     if result.returncode != 0:
-        return [], f"gh search prs failed: {result.stderr.strip() or result.returncode}"
-    return [{"repository": (pr.get("repository") or {}).get("nameWithOwner") or "?", "ref": f"#{pr['number']}",
-             "status": "review requested", "title": pr.get("title") or "", "url": pr.get("url")}
-            for pr in json.loads(result.stdout or "[]")], None
+        detail = " ".join(result.stderr.split()) or str(result.returncode)  # glab spreads one error over 3 lines
+        return None, f"{label} failed: {detail}"
+    return json.loads(result.stdout or "null"), None
+
+
+def review_requests() -> tuple[list[dict[str, object]], str | None]:
+    """Open GitHub PRs and GitLab MRs waiting for the user's review, and why some could not be read.
+
+    A CLI that is not installed means that forge is not used here: nothing to
+    report, not an error. A CLI that fails (logged out, offline) is reported,
+    so an empty review list is never mistaken for an empty queue.
+    """
+    items: list[dict[str, object]] = []
+    errors: list[str] = []
+    prs, error = _cli_json(["gh", "search", "prs", "--review-requested=@me", "--state", "open",
+                            "--json", "number,title,repository,url", "--limit", "50"])
+    items += [{"repository": (pr.get("repository") or {}).get("nameWithOwner") or "?", "ref": f"#{pr['number']}",
+               "status": "review requested", "title": pr.get("title") or "", "url": pr.get("url")}
+              for pr in prs or []]
+    errors += [error] if error else []
+    # glab mr list only sees one project; the API searches the whole instance.
+    user, error = _cli_json(["glab", "api", "user"])
+    if user:
+        mrs, error = _cli_json(["glab", "api", "merge_requests?scope=all&state=opened&per_page=50"
+                                f"&reviewer_username={quote(str(user.get('username') or ''))}"])
+        for mr in mrs or []:
+            path, _, iid = ((mr.get("references") or {}).get("full") or f"?!{mr.get('iid')}").rpartition("!")
+            items.append({"repository": path, "ref": f"!{iid}", "status": "review requested",
+                          "title": mr.get("title") or "", "url": mr.get("web_url")})
+    errors += [error] if error else []
+    return items, "; ".join(errors) or None
 
 
 def fleet_brief(root: Path, *, limit: int = 3, reviews: bool = True) -> dict[str, object]:
@@ -226,7 +249,7 @@ def _render_brief(payload: dict[str, object]) -> str:
     for index, move in enumerate(payload["moves"], 1):  # type: ignore[union-attr]
         lines.append(f"{index}. {move['repository']}: {move['verb']} {move['ref']} [{move.get('status') or 'no status'}] {move['title']}")
     if payload.get("review_error"):
-        lines.append(f"- pull requests awaiting your review unknown: {payload['review_error']}")
+        lines.append(f"- review requests unknown: {payload['review_error']}")
     return "\n".join(lines)
 
 

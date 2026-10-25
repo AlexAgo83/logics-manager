@@ -275,17 +275,28 @@ def test_fleet_brief_ranks_review_requests_after_blocked_work(tmp_path: Path, mo
     repo = _bootstrap(tmp_path / "alpha")
     (repo / "logics" / "tasks" / "task_001_stuck.md").write_text("## task_001_stuck - stuck\n> Status: Blocked\n", encoding="utf-8")
     (repo / "logics" / "tasks" / "task_002_open.md").write_text("## task_002_open - open\n> Status: In progress\n", encoding="utf-8")
-    prs = [{"number": 7, "title": "Fix login", "repository": {"nameWithOwner": "o/web"}, "url": "https://x/7"}]
-    monkeypatch.setattr(fleet.subprocess, "run",
-                        lambda cmd, **kw: subprocess.CompletedProcess(cmd, 0, stdout=json.dumps(prs), stderr=""))
+    outputs = {
+        "gh": [{"number": 7, "title": "Fix login", "repository": {"nameWithOwner": "o/web"}, "url": "https://x/7"}],
+        "glab api user": {"username": "me"},
+        "glab api merge_requests": [{"iid": 3, "title": "Bump api", "references": {"full": "grp/sub/api!3"}, "web_url": "u"}],
+    }
+    calls = []
 
-    brief = fleet.fleet_brief(tmp_path, limit=3)
+    def fake_run(cmd, **kw):
+        calls.append(cmd)
+        key = "gh" if cmd[0] == "gh" else " ".join(cmd[:2]) + " " + cmd[2].split("?")[0]
+        return subprocess.CompletedProcess(cmd, 0, stdout=json.dumps(outputs[key]), stderr="")
+
+    monkeypatch.setattr(fleet.subprocess, "run", fake_run)
+    brief = fleet.fleet_brief(tmp_path, limit=4)
     assert [(m["verb"], m["repository"], m["ref"]) for m in brief["moves"]] == [
         ("unblock", "alpha", "task_001_stuck"),
         ("review", "o/web", "#7"),
+        ("review", "grp/sub/api", "!3"),
         ("continue", "alpha", "task_002_open"),
     ]
     assert brief["review_error"] is None
+    assert "reviewer_username=me" in calls[-1][2] and "scope=all" in calls[-1][2]
     assert "2. o/web: review #7 [review requested] Fix login" in fleet._render_brief(brief)
 
     def missing(cmd, **kw):
@@ -295,8 +306,13 @@ def test_fleet_brief_ranks_review_requests_after_blocked_work(tmp_path: Path, mo
     brief = fleet.fleet_brief(tmp_path)
     assert brief["review_error"] is None and all(m["verb"] != "review" for m in brief["moves"])
 
-    monkeypatch.setattr(fleet.subprocess, "run",
-                        lambda cmd, **kw: subprocess.CompletedProcess(cmd, 4, stdout="", stderr="not logged in"))
-    brief = fleet.fleet_brief(tmp_path)
-    assert "not logged in" in brief["review_error"]
-    assert "awaiting your review unknown: gh search prs failed: not logged in" in fleet._render_brief(brief)
+    def failing(cmd, **kw):
+        if cmd[0] == "glab":
+            return subprocess.CompletedProcess(cmd, 1, stdout="", stderr="   ERROR  \n\n  Unauthenticated.\n")
+        return fake_run(cmd)
+
+    monkeypatch.setattr(fleet.subprocess, "run", failing)
+    brief = fleet.fleet_brief(tmp_path, limit=4)
+    assert [m["ref"] for m in brief["moves"] if m["verb"] == "review"] == ["#7"]
+    assert brief["review_error"] == "glab api user failed: ERROR Unauthenticated."
+    assert "review requests unknown: glab api user failed: ERROR Unauthenticated." in fleet._render_brief(brief)

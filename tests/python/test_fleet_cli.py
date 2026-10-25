@@ -243,3 +243,27 @@ def test_fleet_roadmap_names_the_first_unfinished_milestone(tmp_path: Path) -> N
     assert roadmap["current"]["version"] == "0.2"
     result = _run(["fleet", "roadmap", "--root", str(tmp_path)])
     assert "game (road_001_launch): 0.2 - Polish: 1/2 done" in result.stdout
+
+
+def test_fleet_brief_puts_blocked_work_first_and_spreads_projects(tmp_path: Path) -> None:
+    def doc(repo: Path, kind_dir: str, ref: str, status: str, extra: str = "") -> None:
+        (repo / "logics" / kind_dir / f"{ref}.md").write_text(f"## {ref} - {ref}\n> Status: {status}\n{extra}", encoding="utf-8")
+
+    alpha, beta = _bootstrap(tmp_path / "alpha"), _bootstrap(tmp_path / "beta")
+    doc(alpha, "tasks", "task_001_one", "In progress", "# Priority\n- Priority: High\n")
+    doc(alpha, "tasks", "task_002_two", "In progress", "# Priority\n- Priority: High\n")
+    doc(beta, "tasks", "task_001_stuck", "Blocked")
+    doc(beta, "tasks", "task_002_finished", "In progress", "> Progress: 100%\n")
+    doc(beta, "tasks", "task_003_three", "In progress", "# Priority\n- Priority: High\n")
+
+    from logics_manager.fleet import fleet_brief
+
+    brief = fleet_brief(tmp_path, limit=4)
+    assert [(m["verb"], m["repository"], m["ref"]) for m in brief["moves"]] == [
+        ("unblock", "beta", "task_001_stuck"),
+        ("close out", "beta", "task_002_finished"),
+        ("finish", "alpha", "task_001_one"),
+        ("finish", "beta", "task_003_three"),
+    ]
+    result = _run(["fleet", "brief", "--root", str(tmp_path)])
+    assert "1. beta: unblock task_001_stuck" in result.stdout

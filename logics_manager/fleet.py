@@ -30,12 +30,17 @@ Usage:
   logics-manager fleet status [--root DIR] [--limit N] [--format text|json]
   logics-manager fleet health [--root DIR] [--limit N] [--format text|json]
   logics-manager fleet roadmap [--root DIR] [--format text|json]
+  logics-manager fleet brief [--root DIR] [--limit N] [--format text|json]
 
 Flags:
   --root DIR   Directory whose immediate children are scanned. Defaults to the
                current directory.
   --limit N    Per-repository item limit, passed through to each report.
   --format     text (default) or json.
+
+`brief` ranks the next moves across every repository and keeps the first N
+(3 by default): blocked docs, then docs at 100% left open, High-priority active
+tasks, Draft requests already in delivery, then the other active tasks.
 
 `roadmap` shows, for each repository with a roadmap, the first milestone whose
 cited workflow docs are not all closed, and how many of them are.
@@ -86,6 +91,45 @@ def roadmap_progress(repo_root: Path, *, limit: int = 10) -> dict[str, object]:
         current = next((m for m in milestones if m["total"] and m["done"] < m["total"]), None)
         roadmaps.append({"ref": path.stem, "current": current, "milestones": milestones})
     return {"ok": True, "roadmaps": roadmaps}
+
+
+#: What a brief puts first; lower is more urgent.
+_BRIEF_ORDER = (
+    ("blocked_docs", "unblock"),
+    ("complete_not_done", "close out"),
+    ("active_tasks:High", "finish"),
+    ("draft_requests_in_delivery", "start"),
+    ("active_tasks", "continue"),
+)
+
+
+def fleet_brief(root: Path, *, limit: int = 3) -> dict[str, object]:
+    """The few moves that matter most across every repository under `root`."""
+    statuses = fleet_payload(root, report="status", limit=50)
+    moves: list[dict[str, object]] = []
+    seen: set[tuple[str, str]] = set()
+    for rank, (key, verb) in enumerate(_BRIEF_ORDER):
+        field, _, priority = key.partition(":")
+        for name, entry in statuses["repositories"].items():  # type: ignore[union-attr]
+            for item in entry.get(field) or []:
+                if priority and item.get("priority") != priority:
+                    continue
+                if (name, item["ref"]) in seen:
+                    continue
+                seen.add((name, item["ref"]))
+                turn = sum(1 for move in moves if move["rank"] == rank and move["repository"] == name)
+                moves.append({"rank": rank, "turn": turn, "verb": verb, "repository": name, **item})
+    # Within one urgency, one move per repository before a second from any: a
+    # brief that lists three items of one project hides the other projects.
+    moves.sort(key=lambda move: (move["rank"], move["turn"]))
+    return {
+        "ok": statuses["ok"],
+        "report": "brief",
+        "root": statuses["root"],
+        "repository_count": statuses["repository_count"],
+        "move_count": len(moves),
+        "moves": moves[:limit],
+    }
 
 
 def fleet_payload(root: Path, *, report: str = "status", limit: int = 10) -> dict[str, object]:
@@ -142,13 +186,23 @@ def _render_text(payload: dict[str, object]) -> str:
     return "\n".join(lines)
 
 
+def _render_brief(payload: dict[str, object]) -> str:
+    total = payload["move_count"]
+    lines = [f"Logics fleet brief: top {len(payload['moves'])} of {total} move(s) across {payload['repository_count']} repository(ies)"]
+    if not payload["moves"]:
+        lines.append("- nothing open needs a move")
+    for index, move in enumerate(payload["moves"], 1):  # type: ignore[union-attr]
+        lines.append(f"{index}. {move['repository']}: {move['verb']} {move['ref']} [{move.get('status') or 'no status'}] {move['title']}")
+    return "\n".join(lines)
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = list(argv or [])
     if not argv or argv[0] in {"-h", "--help"}:
         print(colorize_help(HELP))
         return 0 if argv else 1
-    if argv[0] not in {"status", "health", "roadmap"}:
-        raise SystemExit("Usage: logics-manager fleet <status|health|roadmap> [args...]")
+    if argv[0] not in {"status", "health", "roadmap", "brief"}:
+        raise SystemExit("Usage: logics-manager fleet <status|health|roadmap|brief> [args...]")
 
     parser = argparse.ArgumentParser(prog=f"logics-manager fleet {argv[0]}")
     parser.add_argument("--root", default=".")
@@ -160,6 +214,10 @@ def main(argv: list[str] | None = None) -> int:
     if not root.is_dir():
         raise SystemExit(f"--root path does not exist or is not a directory: {root}")
 
+    if argv[0] == "brief":
+        payload = fleet_brief(root, limit=parsed.limit if parsed.limit != 10 else 3)
+        print(render_payload(payload, parsed.format, lambda: _render_brief(payload)))
+        return 0 if payload["ok"] else 1
     payload = fleet_payload(root, report=argv[0], limit=parsed.limit)
     print(render_payload(payload, parsed.format, lambda: _render_text(payload)))
     return 0 if payload["ok"] else 1

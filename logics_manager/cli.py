@@ -62,6 +62,7 @@ ROOT_COMMANDS = (
     "update",
     "search",
     "fleet",
+    "review",
 )
 
 
@@ -141,6 +142,7 @@ def _build_root_help() -> str:
         "  status     Summarize open workflow docs and next actions.",
         "  fleet      Report status or health across every corpus under a root directory.",
         "             Subcommands: fleet status, fleet health [--root DIR].",
+        "  review     Turn recurring review comments into rules checked on every diff.",
         "  search     Search workflow docs directly.",
         "  roadmap   Inspect and place open workflow refs in roadmap files.",
         "  design    Generate asset prompt packs for external AI image tools.",
@@ -874,6 +876,10 @@ def _dispatch(argv: list[str] | None = None) -> int:
         from .fleet import main as fleet_main
 
         return fleet_main(rest)
+    if command == "review":
+        from .review_rules import main as review_main
+
+        return review_main(rest)
     if command == "flow":
         from .flow import main as flow_main
 

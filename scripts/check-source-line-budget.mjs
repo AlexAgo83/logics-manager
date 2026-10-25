@@ -72,7 +72,9 @@ const allowedOversizedFiles = new Map(
     // 1070: item_701 added _warn_on_runtime_drift and the CORPUS_REPORTING_COMMANDS
     // set. It lives here because main() is the single seam every command passes
     // through; the comparison itself is in logics_manager/runtime_drift.py.
-    "logics_manager/cli.py": { maxLines: 1070, ref: "req_340" },
+    // 1076: `review` (rules from recurring review comments) is dispatched here like
+    // `fleet`; the command itself lives in logics_manager/review_rules.py.
+    "logics_manager/cli.py": { maxLines: 1076, ref: "req_340" },
     // 1564: item_675 added `backfill_schema_versions` and the --apply/--dry-run wiring on
     // schema-status. It sits beside `_schema_status`, whose scan it repairs, and reuses the
     // same `_resolve_target_docs` targeting; a separate module would import both and gain

@@ -38,6 +38,30 @@ logics-manager view --open
 logics-manager view --focus req_001_example --read --open
 ```
 
+## Review rules
+
+A review comment made once is usually made again on the next change. `review`
+turns it into a rule the repository keeps in `logics/review/rules.json`:
+
+```bash
+logics-manager review add --title "No debug print left in code" --pattern 'print\(' --glob '*.py' \
+  --source "PR #12" --why "logs go through the logger"
+logics-manager review add --title "A new env var is documented in the README" --source "PR #15"
+logics-manager review list
+logics-manager review check            # against origin/main (else main)
+logics-manager review check --base origin/develop --format json
+```
+
+`check` searches every line the branch adds (commits, uncommitted and untracked
+files) for each rule's pattern, only in files matching its `--glob`, and exits 1
+on a hit, so it can gate a commit hook or CI. Rules without a pattern are listed
+under "Check by hand" for the author or their agent. The `implement-task` skill
+runs it before closeout.
+
+When to add a rule: a reviewer flags the same thing a second time. Give it a
+pattern when a regex can find it; otherwise keep it manual. Rules are committed
+with the repository, so they apply to everyone's diffs.
+
 ## Reporting across several repositories
 
 `fleet` answers "what is happening everywhere" in one call:

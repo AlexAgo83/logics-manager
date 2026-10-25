@@ -43,3 +43,5 @@ npm run install:vsix
 6. Push the release commit, wait for CI to pass, then push the `v<version>` tag. The release workflow gates on green CI for the tagged commit, creates the GitHub release with the VSIX and curated changelog, and publishes to the VS Code Marketplace, npm, and PyPI automatically.
 
 If the current plugin version is already published, `logics-manager assist next-step` can now propose the next release step instead of stalling on an already-live tag.
+
+If only the Marketplace job fails after the tag has already published the GitHub, npm, and PyPI releases, fix the VSIX on `main`, wait for CI on that commit, then dispatch **Publish Marketplace retry** with the existing version number (without `v`). That workflow publishes the corrected VSIX and replaces the GitHub release asset. Do not move the published tag. The Marketplace icon at `clients/shared-web/media/icon.png` must be at most 1024 KB.

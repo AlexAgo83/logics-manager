@@ -768,7 +768,7 @@ def _run_osascript(script: str, *, launcher: Any | None = None) -> str:
     if launcher is not None:
         result = launcher(command)
     else:
-        result = subprocess.run(command, capture_output=True, text=True, encoding="utf-8", errors="replace", stdin=subprocess.DEVNULL, timeout=10, check=False)
+        result = subprocess.run(command, capture_output=True, text=True, stdin=subprocess.DEVNULL, timeout=10, check=False)
     returncode = getattr(result, "returncode", 0)
     if returncode:
         stderr = str(getattr(result, "stderr", "") or "").strip()

@@ -562,6 +562,27 @@ def test_create_request_from_cdx_report_handles_full_audit_request_files(tmp_pat
     assert "logics/request/req_999_audit_follow_up.md" in text
 
 
+def test_status_tells_a_draft_request_in_delivery_from_one_to_groom(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    for folder in ("request", "backlog", "tasks"):
+        (repo_root / "logics" / folder).mkdir(parents=True)
+    for ref in ("req_001_delivering", "req_002_untouched"):
+        _write_minimal_workflow_doc(
+            repo_root / "logics" / "request" / f"{ref}.md", title=ref, kind="request", status="Draft", links=[],
+        )
+    _write_minimal_workflow_doc(
+        repo_root / "logics" / "backlog" / "item_001_slice.md",
+        title="Slice", kind="backlog", status="In progress", links=["req_001_delivering"],
+    )
+
+    payload = status_payload(repo_root)
+
+    assert [item["ref"] for item in payload["draft_requests"]] == ["req_002_untouched"]
+    assert [item["ref"] for item in payload["draft_requests_in_delivery"]] == ["req_001_delivering"]
+    assert "Groom 1 draft request(s)." in payload["next_actions"]
+    assert any(action.startswith("Start 1 draft request(s) already in delivery") for action in payload["next_actions"])
+
+
 def test_status_payload_reports_remaining_work(tmp_path: Path) -> None:
     repo_root = tmp_path
     (repo_root / "logics" / "request").mkdir(parents=True)

@@ -154,6 +154,11 @@ def status_payload(repo_root: Path, *, limit: int = 10) -> dict[str, object]:
     task_text = "\n".join(doc.content for doc in docs if doc.kind == "task")
     backlog_without_task = [doc for doc in ready_backlog if doc.ref not in task_text]
     draft_requests = [doc for doc in open_docs if doc.kind == "request" and doc.status == "Draft"]
+    # A Draft request that a backlog item or task already cites is being delivered:
+    # it needs its status moved, not grooming.
+    delivery_text = "\n".join(doc.content for doc in docs if doc.kind in {"backlog", "task"})
+    draft_requests_in_delivery = [doc for doc in draft_requests if doc.ref in delivery_text]
+    draft_requests = [doc for doc in draft_requests if doc not in draft_requests_in_delivery]
     blocked_docs = [doc for doc in open_docs if doc.status == "Blocked"]
 
     next_actions: list[str] = []
@@ -165,6 +170,11 @@ def status_payload(repo_root: Path, *, limit: int = 10) -> dict[str, object]:
         next_actions.append(f"Promote {len(backlog_without_task)} ready backlog item(s) without detected task links.")
     if draft_requests:
         next_actions.append(f"Groom {len(draft_requests)} draft request(s).")
+    if draft_requests_in_delivery:
+        next_actions.append(
+            f"Start {len(draft_requests_in_delivery)} draft request(s) already in delivery "
+            "(`logics-manager flow start <ref>`)."
+        )
     if not next_actions:
         next_actions.append("No open workflow action detected.")
 
@@ -175,6 +185,7 @@ def status_payload(repo_root: Path, *, limit: int = 10) -> dict[str, object]:
         "active_tasks": _priority_summaries(active_tasks, by_ref, limit),
         "backlog_without_task": _priority_summaries(backlog_without_task, by_ref, limit),
         "draft_requests": _priority_summaries(draft_requests, by_ref, limit),
+        "draft_requests_in_delivery": _priority_summaries(draft_requests_in_delivery, by_ref, limit),
         "blocked_docs": _priority_summaries(blocked_docs, by_ref, limit),
         "next_actions": next_actions,
     }
@@ -195,6 +206,7 @@ def render_status(repo_root: Path, *, output_format: str = "text", limit: int = 
         ("active_tasks", "Active tasks"),
         ("backlog_without_task", "Backlog without detected task"),
         ("draft_requests", "Draft requests"),
+        ("draft_requests_in_delivery", "Draft requests already in delivery"),
         ("blocked_docs", "Blocked docs"),
     ):
         items = payload[key]

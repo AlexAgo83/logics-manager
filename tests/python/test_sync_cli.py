@@ -477,8 +477,8 @@ def test_sync_close_eligible_requests_json_is_clean(
                 "> Status: Done",
                 "> From version: 1.0.0",
                 "> Schema version: 1.0",
-                "# Request",
-                "- `req_001_demo`",
+                "# Links",
+                "- Request: `req_001_demo`",
             ]
         )
         + "\n",

@@ -18,7 +18,7 @@ import re
 from dataclasses import dataclass, asdict
 from pathlib import Path
 
-from .doc_parsing import extract_refs, section_lines
+from .doc_parsing import declared_refs, extract_refs, section_lines
 
 _DOC_DIR_BY_PREFIX = {
     "req": "logics/request",
@@ -136,7 +136,9 @@ def resolve_request_chain(repo_root: Path, ref: str) -> dict[str, object]:
         nodes[item_ref] = item_node
         edges.append((request_ref, item_ref))
 
-        for task_ref in _structural_refs(item_lines, "Links", "task"):
+        # The CLI writes an item's tasks under `# Tasks`; `# Links` carries the
+        # primary one. Both are declared lineage.
+        for task_ref in declared_refs("backlog", "\n".join(item_lines), "task"):
             task_result = _load_node(repo_root, task_ref)
             if task_result is None:
                 dangling.append(task_ref)

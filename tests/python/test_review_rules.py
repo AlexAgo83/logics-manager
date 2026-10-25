@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from pathlib import Path
 
@@ -90,3 +91,55 @@ def test_import_fails_clearly_when_gh_fails(tmp_path: Path, monkeypatch) -> None
         assert "HTTP 404" in str(error)
     else:
         raise AssertionError("expected SystemExit")
+
+
+def test_check_reads_awkward_paths_and_added_lines_that_look_like_headers(tmp_path: Path) -> None:
+    repo = _repo(tmp_path)
+    # A backslash is a path separator on Windows, so that name only exists on POSIX.
+    awkward = ("a b.py", "café.py") + (("back\\slash.py",) if os.sep == "/" else ())
+    for name in (*awkward, "plus.py"):
+        (repo / name).write_text("x = 1\n", encoding="utf-8")
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "files")
+    _git(repo, "branch", "-f", "main")
+    for name in awkward:
+        (repo / name).write_text('x = 1\nprint("hit")\n', encoding="utf-8")
+    # An added line "++ print(...)" appears in the diff as "+++ print(...)".
+    (repo / "plus.py").write_text('x = 1\n++ print("hit")\nprint("after")\n', encoding="utf-8")
+    add_rule(repo, title="No print", pattern=r"print\(", glob="*.py")
+
+    hits = sorted((hit["path"], hit["line"]) for hit in check(repo, "main")["hits"])
+
+    assert hits == sorted([*((name, 2) for name in awkward), ("plus.py", 2), ("plus.py", 3)])
+
+
+def test_check_paths_are_relative_to_the_corpus_and_skip_the_rules_file(tmp_path: Path) -> None:
+    top = tmp_path / "mono"
+    repo = top / "app"
+    (repo / "logics").mkdir(parents=True)
+    (repo / "main.py").write_text("x = 1\n", encoding="utf-8")
+    (top / "other.py").write_text("x = 1\n", encoding="utf-8")
+    _git(top, "init", "-q", "-b", "main")
+    _git(top, "add", "-A")
+    _git(top, "commit", "-qm", "init")
+    add_rule(repo, title="No print", pattern=r"print\(")
+    _git(top, "add", "-A")
+    _git(top, "commit", "-qm", "rules")  # the rule's own pattern is now in a committed diff
+    (repo / "main.py").write_text('print("hit")\n', encoding="utf-8")
+    (top / "other.py").write_text('print("outside")\n', encoding="utf-8")
+
+    payload = check(repo, "main~1")
+
+    assert [(hit["path"], hit["line"]) for hit in payload["hits"]] == [("main.py", 1)]
+
+
+def test_rule_ids_never_reuse_a_live_id_after_a_deletion(tmp_path: Path) -> None:
+    repo = _repo(tmp_path)
+    for title in ("one", "two", "three"):
+        add_rule(repo, title=title)
+    path = repo / "logics" / "review" / "rules.json"
+    document = json.loads(path.read_text(encoding="utf-8"))
+    document["rules"] = [rule for rule in document["rules"] if rule["id"] != "rule_001"]
+    path.write_text(json.dumps(document), encoding="utf-8")
+
+    assert add_rule(repo, title="four")["rule"]["id"] == "rule_004"

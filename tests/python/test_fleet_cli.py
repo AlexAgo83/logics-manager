@@ -316,3 +316,57 @@ def test_fleet_brief_ranks_review_requests_after_blocked_work(tmp_path: Path, mo
     assert [m["ref"] for m in brief["moves"] if m["verb"] == "review"] == ["#7"]
     assert brief["review_error"] == "glab api user failed: ERROR Unauthenticated."
     assert "review requests unknown: glab api user failed: ERROR Unauthenticated." in fleet._render_brief(brief)
+
+
+def test_fleet_roadmap_ignores_refs_in_its_own_references_section(tmp_path: Path, capsys) -> None:
+    from logics_manager import fleet as fleet_module
+
+    repo = _bootstrap(tmp_path / "game")
+    for ref, status in (("req_001_engine", "Done"), ("req_002_sound", "In progress")):
+        (repo / "logics" / "request" / f"{ref}.md").write_text(f"## {ref} - {ref}\n> Status: {status}\n", encoding="utf-8")
+    roadmaps = repo / "logics" / "roadmap"
+    roadmaps.mkdir(exist_ok=True)
+    (roadmaps / "road_001_launch.md").write_text(
+        "## road_001_launch - Launch\n\n## 0.1 - Core\n- Scope: `req_001_engine`\n\n# References\n- `req_002_sound`\n",
+        encoding="utf-8",
+    )
+    (roadmaps / "road_002_vision.md").write_text("## road_002_vision - Vision\n\n## 1.0 - Someday\n- Ideas only\n", encoding="utf-8")
+
+    payload = fleet_payload(tmp_path, report="roadmap")
+    first, second = payload["repositories"]["game"]["roadmaps"]
+
+    assert [(m["version"], m["done"], m["total"]) for m in first["milestones"]] == [("0.1", 1, 1)]
+    assert first["current"] is None and second["current"] is None
+    fleet_module.main(["roadmap", "--root", str(tmp_path)])
+    out = capsys.readouterr().out
+    assert "game (road_001_launch): every cited milestone done" in out
+    assert "game (road_002_vision): no milestone cites a workflow doc" in out
+
+
+def test_fleet_brief_honours_an_explicit_limit_of_ten(tmp_path: Path, monkeypatch) -> None:
+    from logics_manager import fleet as fleet_module
+
+    seen: list[int] = []
+    monkeypatch.setattr(fleet_module, "fleet_brief", lambda root, *, limit, reviews: seen.append(limit) or {
+        "ok": True, "moves": [], "move_count": 0, "repository_count": 0})
+    fleet_module.main(["brief", "--root", str(tmp_path), "--limit", "10"])
+    fleet_module.main(["brief", "--root", str(tmp_path)])
+    assert seen == [10, 3]
+
+
+def test_fleet_brief_names_a_repository_that_failed(fleet: Path, monkeypatch) -> None:
+    from logics_manager import fleet as fleet_module
+
+    real = fleet_module.status_payload
+
+    def exploding(path: Path, **kwargs):
+        if path.name == "alpha":
+            raise ValueError("boom")
+        return real(path, **kwargs)
+
+    monkeypatch.setattr(fleet_module, "status_payload", exploding)
+    brief = fleet_module.fleet_brief(fleet, reviews=False)
+
+    assert brief["ok"] is False
+    assert brief["failed"] == {"alpha": "boom"}
+    assert "- alpha: ERROR boom" in fleet_module._render_brief(brief)

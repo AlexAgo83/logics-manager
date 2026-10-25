@@ -360,3 +360,52 @@ def test_the_orchestration_task_still_answers_for_every_criterion(tmp_path: Path
 
     assert "- request-AC1 -> This task." in task_after
     assert "- request-AC2 -> This task." in task_after
+
+
+def test_the_commit_check_rejects_a_ref_that_is_not_a_commit(tmp_path: Path) -> None:
+    """An unknown ref listed nothing, so it printed OK and exited 0."""
+    from logics_manager.lint import commit_indicator_findings
+
+    root, _ = _repo_with_task(tmp_path)
+
+    with pytest.raises(SystemExit, match="not a commit"):
+        commit_indicator_findings(root, "nonexistent-ref")
+
+
+def test_linking_a_child_doc_is_not_a_content_edit(tmp_path: Path) -> None:
+    """`flow promote` writes the child's ref into the parent; lint then failed on the parent."""
+    from logics_manager.lint import lint_payload
+
+    root, path = _repo_with_task(tmp_path)
+    path.write_text(path.read_text(encoding="utf-8") + "# Backlog\n- none\n", encoding="utf-8")
+    _git(["add", "-A"], root)
+    _git(["commit", "-q", "-m", "placeholder"], root)
+    path.write_text(
+        path.read_text(encoding="utf-8").replace("- none\n", "- `item_002_child`\n") + "\n# Tasks\n- `task_003_next`\n",
+        encoding="utf-8",
+    )
+
+    messages = [issue["message"] for issue in lint_payload(root)["issues"]]
+
+    assert not [message for message in messages if "without updating indicators" in message]
+
+
+def test_a_byte_order_mark_does_not_hide_the_first_heading(tmp_path: Path) -> None:
+    from logics_manager.lint import lint_payload
+
+    root, path = _repo_with_task(tmp_path)
+    path.write_bytes(b"\xef\xbb\xbf" + path.read_bytes())
+
+    messages = [issue["message"] for issue in lint_payload(root)["issues"]]
+
+    assert not [message for message in messages if "heading" in message]
+
+
+def test_the_commit_check_accepts_a_commit_that_only_links_a_child(tmp_path: Path) -> None:
+    from logics_manager.lint import commit_indicator_findings
+
+    root, path = _repo_with_task(tmp_path)
+    path.write_text(path.read_text(encoding="utf-8") + "# Tasks\n- `task_003_next`\n", encoding="utf-8")
+    _git(["commit", "-qam", "link"], root)
+
+    assert commit_indicator_findings(root, "HEAD") == []

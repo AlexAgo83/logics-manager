@@ -140,8 +140,8 @@ def _build_root_help() -> str:
         "  followups  List follow-up areas with request creation commands.",
         "  product-consistency  Check product brief lineage links.",
         "  status     Summarize open workflow docs and next actions.",
-        "  fleet      Report status or health across every corpus under a root directory.",
-        "             Subcommands: fleet status, fleet health [--root DIR].",
+        "  fleet      Report status, health, roadmaps, or next moves across every corpus under a root directory.",
+        "             Subcommands: status, health, roadmap, brief [--root DIR].",
         "  review     Turn recurring review comments into rules checked on every diff.",
         "  search     Search workflow docs directly.",
         "  roadmap   Inspect and place open workflow refs in roadmap files.",
@@ -581,18 +581,14 @@ def _render_commit_lint(repo_root: Path, ref: str, output_format: str) -> int:
 def _dispatch(argv: list[str] | None = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
-    if not argv:
-        _print_help(_build_root_help())
-        return 1
-    if argv[0] in ("-h", "--help"):
+    # Extract `--repo-root` first, so `--repo-root DIR --help` is help, not an unknown command.
+    argv, repo_root_option = _extract_repo_root(_expand_json_alias(argv))
+    if argv[:1] and argv[0] in ("-h", "--help"):
         _print_help(_build_root_help())
         return 0
-    if argv[0] in {"-v", "--version"}:
+    if argv[:1] and argv[0] in {"-v", "--version"}:
         print(f"logics-manager {get_cli_version()}")
         return 0
-
-    argv = _expand_json_alias(argv)
-    argv, repo_root_option = _extract_repo_root(argv)
     if not argv:
         _print_help(_build_root_help())
         return 1

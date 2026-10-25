@@ -37,7 +37,8 @@ Usage:
 Flags:
   --root DIR   Directory whose immediate children are scanned. Defaults to the
                current directory.
-  --limit N    Per-repository item limit, passed through to each report.
+  --limit N    Per-repository item limit, passed through to each report (10 by
+               default); for `brief`, how many moves to keep (3 by default).
   --format     text (default) or json.
 
 `brief` ranks the next moves across every repository and keeps the first N
@@ -49,6 +50,7 @@ tasks, Draft requests already in delivery, then the other active tasks.
 
 `roadmap` shows, for each repository with a roadmap, the first milestone whose
 cited workflow docs are not all closed, and how many of them are.
+A milestone's scope ends at the next `#` or `##` heading.
 
 Discovery is a directory listing: any immediate child containing a `logics/`
 directory counts. A repository that fails is reported inline, and the remaining
@@ -84,7 +86,8 @@ def roadmap_progress(repo_root: Path, *, limit: int = 10) -> dict[str, object]:
             match = _MILESTONE.match(line)
             if match:
                 milestones.append({"version": match.group(1).strip(), "title": match.group(2).strip(), "refs": []})
-            elif line.startswith("## "):
+            elif re.match(r"#{1,2} ", line):
+                # Any other section ends the milestone: refs in `# References` are not its scope.
                 milestones.append({"version": None, "title": None, "refs": []})
             elif milestones:
                 milestones[-1]["refs"].extend(ref for ref in _WORKFLOW_REF.findall(line) if ref in statuses)
@@ -113,7 +116,8 @@ def _cli_json(command: list[str]) -> tuple[object, str | None]:
     """A CLI's JSON output; (None, None) when the CLI is not installed."""
     label = " ".join(command[:3])
     try:
-        result = subprocess.run(command, capture_output=True, text=True, check=False, timeout=30)
+        result = subprocess.run(command, capture_output=True, text=True, encoding="utf-8", errors="replace",
+                                check=False, timeout=30)
     except FileNotFoundError:
         return None, None
     except subprocess.TimeoutExpired:
@@ -184,6 +188,8 @@ def fleet_brief(root: Path, *, limit: int = 3, reviews: bool = True) -> dict[str
         "move_count": len(moves),
         "moves": moves[:limit],
         "review_error": review_error,
+        # A repository that failed has moves nobody can see; say so rather than "nothing open".
+        "failed": {name: entry["error"] for name, entry in statuses["repositories"].items() if entry.get("error")},
     }
 
 
@@ -224,7 +230,8 @@ def _render_text(payload: dict[str, object]) -> str:
             for roadmap in entry["roadmaps"]:
                 current = roadmap["current"]
                 where = (f"{current['version']} - {current['title']}: {current['done']}/{current['total']} done"
-                         if current else "every cited milestone done")
+                         if current else "every cited milestone done" if any(m["total"] for m in roadmap["milestones"])
+                         else "no milestone cites a workflow doc")
                 lines.append(f"- {name} ({roadmap['ref']}): {where}")
             continue
         if payload["report"] == "status":
@@ -244,10 +251,12 @@ def _render_text(payload: dict[str, object]) -> str:
 def _render_brief(payload: dict[str, object]) -> str:
     total = payload["move_count"]
     lines = [f"Logics fleet brief: top {len(payload['moves'])} of {total} move(s) across {payload['repository_count']} repository(ies)"]
+    failed = payload.get("failed") or {}
     if not payload["moves"]:
-        lines.append("- nothing open needs a move")
+        lines.append("- nothing open needs a move" + (" in the repositories that could be read" if failed else ""))
     for index, move in enumerate(payload["moves"], 1):  # type: ignore[union-attr]
         lines.append(f"{index}. {move['repository']}: {move['verb']} {move['ref']} [{move.get('status') or 'no status'}] {move['title']}")
+    lines.extend(f"- {name}: ERROR {error}" for name, error in failed.items())
     if payload.get("review_error"):
         lines.append(f"- review requests unknown: {payload['review_error']}")
     return "\n".join(lines)
@@ -263,7 +272,7 @@ def main(argv: list[str] | None = None) -> int:
 
     parser = argparse.ArgumentParser(prog=f"logics-manager fleet {argv[0]}")
     parser.add_argument("--root", default=".")
-    parser.add_argument("--limit", type=int, default=10)
+    parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--format", choices=("text", "json"), default="text")
     if argv[0] == "brief":
         parser.add_argument("--no-reviews", action="store_true")
@@ -274,9 +283,9 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit(f"--root path does not exist or is not a directory: {root}")
 
     if argv[0] == "brief":
-        payload = fleet_brief(root, limit=parsed.limit if parsed.limit != 10 else 3, reviews=not parsed.no_reviews)
+        payload = fleet_brief(root, limit=3 if parsed.limit is None else parsed.limit, reviews=not parsed.no_reviews)
         print(render_payload(payload, parsed.format, lambda: _render_brief(payload)))
         return 0 if payload["ok"] else 1
-    payload = fleet_payload(root, report=argv[0], limit=parsed.limit)
+    payload = fleet_payload(root, report=argv[0], limit=10 if parsed.limit is None else parsed.limit)
     print(render_payload(payload, parsed.format, lambda: _render_text(payload)))
     return 0 if payload["ok"] else 1

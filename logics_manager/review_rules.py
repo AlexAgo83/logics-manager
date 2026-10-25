@@ -10,6 +10,7 @@ review. The rules live in the repository, so they apply to everyone's diffs.
 from __future__ import annotations
 
 import argparse
+import codecs
 import fnmatch
 import json
 import re
@@ -63,7 +64,9 @@ def add_rule(repo_root: Path, *, title: str, why: str = "", pattern: str = "", g
         except re.error as exc:
             raise SystemExit(f"--pattern is not a valid regular expression: {exc}") from exc
     rules = load_rules(repo_root)
-    rule_id = f"rule_{len(rules) + 1:03d}"
+    # max + 1, not count + 1: after a rule is deleted by hand, counting reissues a live id.
+    numbers = [int(match.group(1)) for rule in rules if (match := re.fullmatch(r"rule_(\d+)", str(rule.get("id", ""))))]
+    rule_id = f"rule_{max(numbers, default=0) + 1:03d}"
     rule = {"id": rule_id, "title": title, "why": why, "pattern": pattern, "glob": glob,
             "source": source, "added": date.today().isoformat()}
     rules.append({key: value for key, value in rule.items() if value})
@@ -74,7 +77,8 @@ def add_rule(repo_root: Path, *, title: str, why: str = "", pattern: str = "", g
 
 
 def _git(repo_root: Path, args: list[str]) -> subprocess.CompletedProcess:
-    return subprocess.run(["git", *args], cwd=repo_root, capture_output=True, text=True, check=False)
+    return subprocess.run(["git", *args], cwd=repo_root, capture_output=True, text=True,
+                          encoding="utf-8", errors="replace", check=False)
 
 
 def _default_base(repo_root: Path) -> str:
@@ -84,24 +88,52 @@ def _default_base(repo_root: Path) -> str:
     raise SystemExit("No base to diff against; pass --base REF.")
 
 
+def _diff_path(header: str) -> str | None:
+    """The file named by a `+++ ` header, None for a deletion.
+
+    git appends a tab to a name containing a space, and C-quotes a name with a
+    backslash, quote or control character even with core.quotePath=false.
+    """
+    name = header[4:].removesuffix("\t")
+    if name == "/dev/null":
+        return None
+    if name.startswith('"') and name.endswith('"'):
+        name = codecs.escape_decode(name[1:-1].encode("utf-8"))[0].decode("utf-8", errors="replace")
+    return name[2:] if name.startswith("b/") else name
+
+
 def added_lines(repo_root: Path, base: str) -> list[tuple[str, int, str]]:
     """(file, line, text) for every line added since `base`, uncommitted and untracked work included."""
-    result = _git(repo_root, ["diff", "--unified=0", "--no-color", "--no-ext-diff", base])
+    # --relative: paths relative to repo_root (where logics/ lives), like `ls-files` below,
+    # even when repo_root is a subdirectory of the git checkout.
+    result = _git(repo_root, ["-c", "core.quotePath=false", "diff", "--relative", "--unified=0",
+                              "--no-color", "--no-ext-diff", base])
     if result.returncode != 0:
         raise SystemExit(f"git diff {base} failed: {result.stderr.strip()}")
     found: list[tuple[str, int, str]] = []
-    current, line_no = None, 0
+    current, line_no, old_left, new_left = None, 0, 0, 0
     for line in result.stdout.splitlines():
-        if line.startswith("+++ "):
-            current = None if line.endswith("/dev/null") else line[6:] if line.startswith("+++ b/") else line[4:]
+        if old_left or new_left:
+            # Inside a hunk, every line is content: an added "++ x" shows as "+++ x".
+            if line.startswith("+"):
+                if current:
+                    found.append((current, line_no, line[1:]))
+                line_no += 1
+                new_left -= 1
+            elif line.startswith("-"):
+                old_left -= 1
+        elif line.startswith("+++ "):
+            current = _diff_path(line)
         elif line.startswith("@@"):
-            match = re.search(r"\+(\d+)", line)
-            line_no = int(match.group(1)) if match else 0
-        elif line.startswith("+") and current:
-            found.append((current, line_no, line[1:]))
-            line_no += 1
+            match = re.match(r"@@ -\d+(?:,(\d+))? \+(\d+)(?:,(\d+))? @@", line)
+            if match:
+                old_left = int(match.group(1) or 1)
+                line_no = int(match.group(2))
+                new_left = int(match.group(3) or 1)
     # A file not added to git yet is all new lines, and `git diff` does not see it.
-    for path in _git(repo_root, ["ls-files", "--others", "--exclude-standard"]).stdout.splitlines():
+    for path in _git(repo_root, ["ls-files", "-z", "--others", "--exclude-standard"]).stdout.split("\0"):
+        if not path:
+            continue
         try:
             text = (repo_root / path).read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
@@ -122,7 +154,7 @@ def check(repo_root: Path, base: str | None = None) -> dict[str, object]:
         pattern = re.compile(rule["pattern"])
         glob = rule.get("glob")
         for path, line_no, text in lines:
-            if path.startswith(RULES_PATH.parent.as_posix()):
+            if path.startswith(RULES_PATH.parent.as_posix() + "/"):
                 continue
             if glob and not fnmatch.fnmatch(path, glob):
                 continue
@@ -144,7 +176,8 @@ def _render_check(payload: dict[str, object]) -> str:
 
 def _gh(args: list[str], repo_root: Path) -> str:
     try:
-        result = subprocess.run(["gh", "api", *args], cwd=repo_root, capture_output=True, text=True, check=False)
+        result = subprocess.run(["gh", "api", *args], cwd=repo_root, capture_output=True, text=True,
+                                encoding="utf-8", errors="replace", check=False)
     except FileNotFoundError:
         raise SystemExit("review import needs the GitHub CLI: install gh and run `gh auth login`.") from None
     if result.returncode != 0:

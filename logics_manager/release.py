@@ -1012,11 +1012,11 @@ def release_validate_payload(repo_root: Path, version: str, *, target: str | Non
             rel_path = _render_path_template(path_rule["path"], version)
             bounded = _bounded_repo_path(repo_root, rel_path)
             exists = bounded is not None and bounded.is_file()
-            checks.append({"id": f"changelog:{rel_path}", "status": "passed" if exists else "failed", "message": "file exists" if exists else "required changelog is missing"})
-    clean = _worktree_clean(repo_root)
+            unheaded = exists and changelog.get("version_heading_required") and not re.search(rf"(?m)^#+\s.*(?<![\d.]){re.escape(version)}(?!\d)", _read_text_file(bounded))
+            checks.append({"id": f"changelog:{rel_path}", "status": "passed" if exists and not unheaded else "failed", "message": f"no heading names {version}" if unheaded else "file exists" if exists else "required changelog is missing"})
     git = contract.get("git") if isinstance(contract.get("git"), dict) else {}
     if git.get("require_clean_worktree", True):
-        checks.append({"id": "git:clean_worktree", "status": "passed" if clean else "failed", "message": "worktree is clean" if clean else "worktree has changes or git is unavailable"})
+        checks.append({"id": "git:clean_worktree", "status": "passed" if (clean := _worktree_clean(repo_root)) else "failed", "message": "worktree is clean" if clean else "worktree has changes or git is unavailable"})
     for gate in status.get("gates", []):
         if isinstance(gate, dict) and gate.get("required"):
             passed = gate.get("status") == "passed"

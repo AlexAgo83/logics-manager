@@ -181,6 +181,22 @@ def test_release_status_and_validate_pass_with_matching_evidence(tmp_path: Path)
     assert {check["status"] for check in validation["checks"]} == {"passed"}
 
 
+def test_release_validate_requires_a_changelog_heading_naming_the_version(tmp_path: Path) -> None:
+    repo_root = _write_release_repo(tmp_path, _passing_evidence())
+    contract_path = repo_root / "logics" / "release" / "contract.json"
+    contract = json.loads(contract_path.read_text(encoding="utf-8"))
+    contract["changelog"]["version_heading_required"] = True
+    contract_path.write_text(json.dumps(contract), encoding="utf-8")
+
+    def changelog_check() -> dict[str, object]:
+        checks = release_validate_payload(repo_root, "1.2.3")["checks"]
+        return next(check for check in checks if check["id"] == "changelog:CHANGELOG.md")
+
+    assert changelog_check()["status"] == "passed"
+    (repo_root / "CHANGELOG.md").write_text("# Changelog\n\n## 1.2.30\n\nMentions 1.2.3 in prose.\n", encoding="utf-8")
+    assert changelog_check()["status"] == "failed"
+
+
 def test_release_reset_clears_evidence_and_returns_gates_to_pending(tmp_path: Path) -> None:
     repo_root = _write_release_repo(tmp_path, _passing_evidence())
     evidence_path = repo_root / "logics" / "release" / "evidence.jsonl"

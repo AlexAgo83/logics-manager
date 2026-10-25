@@ -1493,7 +1493,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--group-by-doc", action="store_true", help="Group text output by document path.")
     parser.add_argument("--autofix-ac-traceability", action="store_true", help="Auto-add missing AC traceability skeleton entries in linked backlog/tasks docs.")
     parser.add_argument("--paths", nargs="*", default=[], help="Limit the audit to docs under these relative paths.")
-    parser.add_argument("--refs", nargs="*", default=[], help="Limit the audit to these refs and their directly linked workflow neighborhood.")
+    parser.add_argument("--refs", nargs="*", default=[], help="Limit the audit to these refs and every workflow doc reachable from them through links, transitively and in either direction.")
     parser.add_argument("--since-version", help="Limit the audit to docs with `From version` >= this semantic version.")
     parser.add_argument("--token-hygiene", action="store_true", help="Enable compact AI context and verbosity checks for workflow docs.")
     parser.add_argument("--autofix-structure", action="store_true", help="Deterministically repair missing schema metadata, AI Context, and missing gate sections.")

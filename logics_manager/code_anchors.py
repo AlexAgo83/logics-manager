@@ -62,7 +62,7 @@ def anchors(text: str) -> tuple[set[str], set[str]]:
     for line in _anchor_text(text):
         for raw in _BACKTICKED.findall(line):
             token = _strip_locator(raw)
-            if not token or " " in token:
+            if not token or " " in token or "://" in token:  # a URL is not a path into the repo
                 continue
             if "/" in token:
                 paths.add(token.rstrip("/"))
@@ -148,10 +148,31 @@ def unresolved_anchors(repo_root: Path, text: str, *, blob: list[str | None] | N
 
 def _git(repo_root: Path, args: list[str]) -> list[str]:
     try:
-        result = subprocess.run(["git", *args], cwd=repo_root, check=False, capture_output=True, text=True)
+        result = subprocess.run(["git", *args], cwd=repo_root, check=False, capture_output=True, text=True,
+                                encoding="utf-8", errors="replace")
     except OSError:
         return []
     return result.stdout.splitlines() if result.returncode in (0, 1) else []
+
+
+def _ignored(repo_root: Path, candidates: list[str]) -> set[str]:
+    """Which candidates git ignores. A path outside the repository makes `check-ignore`
+    fail for the whole batch (exit 128), so those are never asked, and a batch that still
+    fails is retried one path at a time rather than dropping the filter for all."""
+    root = repo_root.resolve()
+    inside = [path for path in candidates if (root / path).resolve().is_relative_to(root)]
+    if not inside:
+        return set()
+    try:
+        result = subprocess.run(["git", "check-ignore", "--", *inside], cwd=repo_root, check=False,
+                                capture_output=True, text=True, encoding="utf-8", errors="replace")
+    except OSError:
+        return set()
+    if result.returncode in (0, 1):
+        return set(result.stdout.splitlines())
+    if len(inside) == 1:
+        return set()
+    return set().union(*(_ignored(repo_root, [path]) for path in inside))
 
 
 def _drop_non_paths(repo_root: Path, missing: list[str]) -> list[str]:
@@ -167,5 +188,5 @@ def _drop_non_paths(repo_root: Path, missing: list[str]) -> list[str]:
     refs = set(_git(repo_root, ["for-each-ref", "--format=%(refname:lstrip=2)", "refs/heads", "refs/tags"]))
     refs |= set(_git(repo_root, ["for-each-ref", "--format=%(refname:lstrip=3)", "refs/remotes"]))
     candidates = [form for path in missing for form in (path, f"{path}/")]
-    ignored = {line.rstrip("/") for line in _git(repo_root, ["check-ignore", "--", *candidates])}
+    ignored = {line.rstrip("/") for line in _ignored(repo_root, candidates)}
     return [path for path in missing if path not in refs and path not in ignored]

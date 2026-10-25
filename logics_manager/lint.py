@@ -124,7 +124,8 @@ AI_KEYWORD_STOPWORDS = {
 
 
 def _read_lines(path: Path) -> list[str]:
-    return path.read_text(encoding="utf-8").splitlines()
+    # utf-8-sig: an editor that saves a BOM would otherwise hide the first heading.
+    return path.read_text(encoding="utf-8-sig").splitlines()
 
 
 def _extract_first_heading(lines: list[str]) -> str | None:
@@ -377,7 +378,8 @@ def expected_workflow_mermaid_signature(kind_name: str, lines: list[str]) -> str
 
 def _run_git(repo_root: Path, args: list[str]) -> str:
     try:
-        result = subprocess.run(["git", *args], cwd=repo_root, check=False, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+        result = subprocess.run(["git", *args], cwd=repo_root, check=False, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                                text=True, encoding="utf-8", errors="replace")
     except OSError:
         return ""
     if result.returncode != 0:
@@ -475,8 +477,17 @@ def _diff_has_indicator_changes(repo_root: Path, rel_path: Path, indicators: set
     return False
 
 
+#: A bare lineage bullet (`- `item_001_x``) or the `- none` it replaces: what `flow promote`
+#: writes into the parent doc. Linking a child is not a change to the parent's content.
+_LINK_ONLY_LINE = re.compile(r"^(?:#+ .+|- none|- `?(?:req|item|task|prod|road|adr|spec|run)_\d{3}_[a-z0-9_]+`?)$")
+
+
 def _diff_is_status_only_normalization(repo_root: Path, rel_path: Path) -> bool:
-    diff = _doc_diff(repo_root, rel_path)
+    return _is_normalization_diff(_doc_diff(repo_root, rel_path))
+
+
+def _is_normalization_diff(diff: str) -> bool:
+    """Whether the diff only moves Status or links child docs (ref bullets, headings, `- none`)."""
     if not diff:
         return False
     saw_change = False
@@ -489,7 +500,7 @@ def _diff_is_status_only_normalization(repo_root: Path, rel_path: Path) -> bool:
         if not changed:
             continue
         saw_change = True
-        if changed.startswith("> Status:"):
+        if changed.startswith("> Status:") or _LINK_ONLY_LINE.match(changed):
             continue
         return False
     return saw_change
@@ -700,6 +711,9 @@ def commit_indicator_findings(repo_root: Path, ref: str = "HEAD") -> list[dict[s
     unpredictable. This asks the question where it belongs: about one commit, on demand.
     Wire it into a commit hook or a delivery check; it is not part of linting a tree.
     """
+    if not _run_git(repo_root, ["rev-parse", "--verify", "--quiet", "--end-of-options", f"{ref}^{{commit}}"]).strip():
+        # An unknown ref used to list nothing and report OK.
+        raise SystemExit(f"lint --commit: `{ref}` is not a commit in this repository.")
     findings: list[dict[str, str]] = []
     listed = _run_git(repo_root, ["show", "--name-only", "--format=", ref]).splitlines()
     for raw in listed:
@@ -720,7 +734,7 @@ def commit_indicator_findings(repo_root: Path, ref: str = "HEAD") -> list[dict[s
             for key in required
             if f"> {key}:" in line
         }
-        if not touched and not _has_non_semantic_edit_marker(diff.splitlines()):
+        if not touched and not _has_non_semantic_edit_marker(diff.splitlines()) and not _is_normalization_diff(diff):
             findings.append({
                 "path": rel.as_posix(),
                 "message": f"committed in {ref} without updating indicators or marking the edit non-semantic",

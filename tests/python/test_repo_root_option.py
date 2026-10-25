@@ -140,3 +140,10 @@ def test_mcp_call_honours_the_root(corpus: Path, tmp_path: Path) -> None:
     )
     assert result.returncode == 0, result.stderr
     assert json.loads(result.stdout)
+
+
+def test_root_help_after_the_option_is_help_not_an_unknown_command(corpus: Path, tmp_path: Path) -> None:
+    result = _run(["--repo-root", str(corpus), "--help"], cwd=tmp_path)
+    assert result.returncode == 0, result.stderr
+    assert "Usage:" in result.stdout
+    assert "Subcommands: status, health, roadmap, brief" in result.stdout

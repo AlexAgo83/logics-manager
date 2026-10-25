@@ -99,12 +99,16 @@ across every project of the forge, including repositories without a Logics
 corpus; GitLab ones show as `group/project: review !12`. A CLI that is not
 installed is skipped silently; one that fails (logged out, offline) is named on
 the brief's last line, and in `review_error` in JSON, rather than showing an
-empty queue. `--no-reviews` leaves them out.
+empty queue. `--no-reviews` leaves them out. A repository whose status could not
+be read is listed as `name: ERROR ...`, and in `failed` in JSON, so its moves are
+never mistaken for none.
 
 `fleet roadmap` shows where each repository stands on its roadmaps: the first
 `## <version> - <title>` milestone whose cited workflow docs are not all closed,
 with how many are (`0.2 - Polish: 1/2 done`). It counts the full refs a
-milestone cites (`req_003_sound`), not abbreviated ones (`item_096`), and
+milestone cites (`req_003_sound`), not abbreviated ones (`item_096`), up to the
+next `#` or `##` heading, so refs in the roadmap's own `# References` belong to no
+milestone. A roadmap whose milestones cite no workflow doc says so, and
 repositories without a roadmap are left out.
 
 Discovery is a directory listing — any immediate child of `--root` containing a
@@ -297,10 +301,13 @@ details row for confirmation/debugging.
 
 ## The indicator gate, and what checks a commit
 
-`logics-manager lint --require-status` flags a workflow document edited without updating an
-indicator. It judges the **working tree and the index** — what you have changed and not yet
-committed. A clean tree has nothing for it to judge, so a document you have already
-committed is never flagged by it.
+`logics-manager lint` (with or without `--require-status`, which only adds the check that every
+doc has a `Status`) flags a workflow document edited without updating an indicator. An edit
+that only changes `Status` or links a child doc (a bare ref bullet such as ``- `item_012_x` ``,
+a heading, or the `- none` it replaces, as `flow promote` writes) is not flagged.
+It judges the **working tree and the index**: what you have changed and not yet committed.
+A clean tree has nothing for it to judge, so a document you have already committed is never
+flagged by it.
 
 That is deliberate. It used to fall back to re-reading the last commit, which made the
 finding unclearable: re-baselining writes nothing a past commit can see, and the flagged set
@@ -315,7 +322,8 @@ logics-manager lint --commit HEAD~3 --format json
 ```
 
 Wire that into a commit hook or a delivery check. It exits non-zero when a workflow document
-was committed without updating an indicator or marking the edit non-semantic.
+was committed without updating an indicator or marking the edit non-semantic. A REF that is not
+a commit is an error, not an empty OK.
 
 ## Discovering the command contract
 

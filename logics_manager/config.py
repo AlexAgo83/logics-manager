@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
@@ -88,10 +89,16 @@ class ConfigError(SystemExit):
 
 
 def _strip_comment(value: str) -> str:
+    """Drop a trailing YAML comment: after a closing quote, or ` #` in a plain value."""
     stripped = value.strip()
-    if not stripped.startswith(('"', "'")) and "#" in stripped:
-        stripped = stripped.split("#", 1)[0].rstrip()
-    return stripped
+    if stripped[:1] in ('"', "'"):
+        close = stripped.find(stripped[0], 1)
+        if close > 0 and stripped[close + 1:].lstrip().startswith("#"):
+            return stripped[: close + 1]
+        return stripped
+    if stripped.startswith("#"):
+        return ""
+    return re.split(r"\s#", stripped, maxsplit=1)[0].rstrip()
 
 
 def _coerce_scalar(value: str) -> Any:
@@ -124,6 +131,8 @@ def _prepared_lines(text: str) -> list[tuple[int, str]]:
         stripped = raw.lstrip(" ")
         if stripped.startswith("#"):
             continue
+        if "\t" in raw[: len(raw) - len(raw.lstrip())]:
+            raise ConfigError(f"logics.yaml indents with a tab near `{raw.strip()}`; YAML indentation must use spaces.")
         indent = len(raw) - len(stripped)
         prepared.append((indent, stripped.rstrip()))
     return prepared
@@ -152,8 +161,9 @@ def _parse_block(lines: list[tuple[int, str]], index: int, indent: int) -> tuple
                     value, index = _parse_block(lines, index, nested_indent)
                 else:
                     value = None
-            elif ":" in item_content and not item_content.startswith(("'", '"')) and not item_content.endswith(":"):
-                key, raw_value = item_content.split(":", 1)
+            elif ": " in item_content and not item_content.startswith(("'", '"')):
+                # `key: value` needs a space after the colon; `- http://x:1` is a scalar.
+                key, raw_value = item_content.split(": ", 1)
                 value = {key.strip(): _coerce_scalar(raw_value.strip())}
             elif item_content.endswith(":") and not item_content.startswith(("'", '"')):
                 key = item_content[:-1].strip()
@@ -277,7 +287,7 @@ def load_repo_config(repo_root: Path) -> tuple[dict[str, Any], Path | None]:
     if not path.is_file():
         return deepcopy(DEFAULT_LOGICS_CONFIG), None
     try:
-        override = parse_simple_yaml(path.read_text(encoding="utf-8"))
+        override = parse_simple_yaml(path.read_text(encoding="utf-8-sig"))
     except ConfigError:
         raise
     except Exception as exc:

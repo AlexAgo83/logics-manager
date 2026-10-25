@@ -160,10 +160,16 @@ def status_payload(repo_root: Path, *, limit: int = 10) -> dict[str, object]:
     draft_requests_in_delivery = [doc for doc in draft_requests if doc.ref in delivery_text]
     draft_requests = [doc for doc in draft_requests if doc not in draft_requests_in_delivery]
     blocked_docs = [doc for doc in open_docs if doc.status == "Blocked"]
+    complete_not_done = [doc for doc in open_docs if doc.progress == 100]
 
     next_actions: list[str] = []
     if blocked_docs:
         next_actions.append(f"Review {len(blocked_docs)} blocked doc(s).")
+    if complete_not_done:
+        next_actions.append(
+            f"Close out {len(complete_not_done)} doc(s) at 100% still open "
+            "(`logics-manager flow closeout <task>`)."
+        )
     if active_tasks:
         next_actions.append(f"Continue or finish {len(active_tasks)} active task(s).")
     if backlog_without_task:
@@ -187,6 +193,7 @@ def status_payload(repo_root: Path, *, limit: int = 10) -> dict[str, object]:
         "draft_requests": _priority_summaries(draft_requests, by_ref, limit),
         "draft_requests_in_delivery": _priority_summaries(draft_requests_in_delivery, by_ref, limit),
         "blocked_docs": _priority_summaries(blocked_docs, by_ref, limit),
+        "complete_not_done": _priority_summaries(complete_not_done, by_ref, limit),
         "next_actions": next_actions,
     }
 
@@ -208,6 +215,7 @@ def render_status(repo_root: Path, *, output_format: str = "text", limit: int = 
         ("draft_requests", "Draft requests"),
         ("draft_requests_in_delivery", "Draft requests already in delivery"),
         ("blocked_docs", "Blocked docs"),
+        ("complete_not_done", "At 100% but still open"),
     ):
         items = payload[key]
         if not items:

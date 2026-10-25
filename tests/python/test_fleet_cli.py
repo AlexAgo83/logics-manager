@@ -221,3 +221,25 @@ def test_the_limit_is_passed_through(fleet: Path, monkeypatch) -> None:
     )
     fleet_module.main(["status", "--root", str(fleet), "--limit", "3"])
     assert seen and set(seen) == {3}
+
+
+def test_fleet_roadmap_names_the_first_unfinished_milestone(tmp_path: Path) -> None:
+    repo = _bootstrap(tmp_path / "game")
+    for ref, status in (("req_001_engine", "Done"), ("req_002_levels", "Done"), ("req_003_sound", "In progress")):
+        (repo / "logics" / "request" / f"{ref}.md").write_text(f"## {ref} - {ref}\n> Status: {status}\n", encoding="utf-8")
+    (repo / "logics" / "roadmap").mkdir(exist_ok=True)
+    (repo / "logics" / "roadmap" / "road_001_launch.md").write_text(
+        "## road_001_launch - Launch\n\n"
+        "## 0.1 - Core\n- Scope: `req_001_engine`, `req_002_levels`\n\n"
+        "## 0.2 - Polish\n- Scope: `req_002_levels`, `req_003_sound`\n\n"
+        "## Delivery snapshot\n- `req_003_sound` mentioned outside any milestone\n",
+        encoding="utf-8",
+    )
+
+    payload = fleet_payload(tmp_path, report="roadmap")
+    (roadmap,) = payload["repositories"]["game"]["roadmaps"]
+
+    assert [(m["version"], m["done"], m["total"]) for m in roadmap["milestones"]] == [("0.1", 2, 2), ("0.2", 1, 2)]
+    assert roadmap["current"]["version"] == "0.2"
+    result = _run(["fleet", "roadmap", "--root", str(tmp_path)])
+    assert "game (road_001_launch): 0.2 - Polish: 1/2 done" in result.stdout

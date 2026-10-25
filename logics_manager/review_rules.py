@@ -13,6 +13,7 @@ import argparse
 import fnmatch
 import json
 import re
+import shlex
 import subprocess
 from datetime import date
 from pathlib import Path
@@ -30,6 +31,10 @@ Usage:
   logics-manager review add --title TEXT [--why TEXT] [--pattern REGEX] [--glob GLOB] [--source TEXT] [--format text|json]
   logics-manager review list [--format text|json]
   logics-manager review check [--base REF] [--format text|json]
+  logics-manager review import --pr N [--repo OWNER/REPO] [--format text|json]
+
+`import` reads a GitHub pull request's review comments (with `gh`) and proposes a
+`review add` command for each one; it writes nothing.
 
 Rules live in logics/review/rules.json. `check` searches the lines added since
 --base (default: origin/main, else main) for each rule's pattern, limited to
@@ -136,6 +141,52 @@ def _render_check(payload: dict[str, object]) -> str:
     return "\n".join(lines)
 
 
+def _gh(args: list[str], repo_root: Path) -> str:
+    result = subprocess.run(["gh", "api", *args], cwd=repo_root, capture_output=True, text=True, check=False)
+    if result.returncode != 0:
+        raise SystemExit(f"gh api {args[0]} failed: {result.stderr.strip() or 'is gh installed and logged in?'}")
+    return result.stdout
+
+
+def _gh_items(path: str, repo_root: Path) -> list[dict]:
+    """Every item of a paginated list endpoint, one JSON object per line from gh."""
+    return [json.loads(line) for line in _gh([path, "--paginate", "--jq", ".[]"], repo_root).splitlines() if line.strip()]
+
+
+def import_comments(repo_root: Path, pr: int, repo: str | None = None) -> dict[str, object]:
+    """Review comments of a pull request, each with the `review add` command it could become."""
+    base = f"repos/{repo or '{owner}/{repo}'}/pulls/{pr}"
+    author = (json.loads(_gh([base], repo_root)).get("user") or {}).get("login")
+    comments = [(c.get("user") or {}, c.get("body") or "", c.get("path"), c.get("line") or c.get("original_line"))
+                for c in _gh_items(f"{base}/comments", repo_root)]
+    comments += [(r.get("user") or {}, r.get("body") or "", None, None) for r in _gh_items(f"{base}/reviews", repo_root)]
+    proposals = []
+    for user, body, path, line in comments:
+        login = user.get("login") or "?"
+        if not body.strip() or login == author or user.get("type") == "Bot" or login.endswith("[bot]"):
+            continue
+        title = body.strip().splitlines()[0][:100]
+        glob = f"*{Path(path).suffix}" if path and Path(path).suffix else ""
+        command = ["logics-manager", "review", "add", "--title", title, "--source", f"PR #{pr} ({login})"]
+        if glob:
+            command += ["--glob", glob]
+        proposals.append({"author": login, "path": path, "line": line, "comment": body.strip(),
+                          "command": " ".join(shlex.quote(part) for part in command)})
+    return {"ok": True, "pr": pr, "author": author, "proposals": proposals}
+
+
+def _render_import(payload: dict[str, object]) -> str:
+    proposals = payload["proposals"]
+    if not proposals:
+        return f"PR #{payload['pr']}: no review comment from someone other than its author."
+    lines = [f"PR #{payload['pr']}: {len(proposals)} review comment(s). Turn the ones that will come back into rules"
+             " (add --pattern when a regex can find it, edit the title to say the rule):"]
+    for item in proposals:  # type: ignore[union-attr]
+        where = f"{item['path']}:{item['line']} " if item["path"] else ""
+        lines.append(f"\n- {where}{item['author']}: {item['comment'].splitlines()[0][:160]}\n  {item['command']}")
+    return "\n".join(lines)
+
+
 def _render_list(rules: list[dict[str, str]]) -> str:
     if not rules:
         return f"No review rules yet ({RULES_PATH.as_posix()}). Add one with `logics-manager review add --title ...`."
@@ -148,7 +199,7 @@ def _render_list(rules: list[dict[str, str]]) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(argv or [])
-    if not argv or argv[0] in {"-h", "--help"} or argv[0] not in {"add", "list", "check"}:
+    if not argv or argv[0] in {"-h", "--help"} or argv[0] not in {"add", "list", "check", "import"}:
         print(colorize_help(HELP))
         return 0 if argv and argv[0] in {"-h", "--help"} else 1
     parser = argparse.ArgumentParser(prog=f"logics-manager review {argv[0]}")
@@ -159,12 +210,19 @@ def main(argv: list[str] | None = None) -> int:
             parser.add_argument(flag, default="")
     if argv[0] == "check":
         parser.add_argument("--base")
+    if argv[0] == "import":
+        parser.add_argument("--pr", type=int, required=True)
+        parser.add_argument("--repo")
     parsed = parser.parse_args(argv[1:])
     repo_root = find_repo_root(Path.cwd())
     if argv[0] == "add":
         payload = add_rule(repo_root, title=parsed.title, why=parsed.why, pattern=parsed.pattern,
                            glob=parsed.glob, source=parsed.source)
         print(render_payload(payload, parsed.format, lambda: f"Added {payload['rule']['id']} to {payload['path']}"))
+        return 0
+    if argv[0] == "import":
+        payload = import_comments(repo_root, parsed.pr, parsed.repo)
+        print(render_payload(payload, parsed.format, lambda: _render_import(payload)))
         return 0
     if argv[0] == "list":
         rules = load_rules(repo_root)

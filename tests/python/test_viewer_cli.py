@@ -3542,6 +3542,34 @@ def test_viewer_save_doc_route_writes_content_and_rejects_escaping_paths(tmp_pat
 
 
 @pytest.mark.parametrize(
+    "headers",
+    [
+        {"Content-Type": "application/json", "Origin": "https://evil.example"},
+        {"Content-Type": "text/plain"},
+        {"Content-Type": "application/json", "Host": "evil.example"},
+    ],
+)
+def test_viewer_local_browser_request_cannot_mutate(tmp_path: Path, headers: dict[str, str]) -> None:
+    target = tmp_path / "logics" / "request" / "req_001_demo.md"
+    target.parent.mkdir(parents=True)
+    target.write_text("## req_001_demo - Demo\n", encoding="utf-8")
+    server = create_viewer_server_or_skip(tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        conn = HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+        conn.request("POST", "/api/save-doc", body=json.dumps({"path": "logics/request/req_001_demo.md", "content": "changed"}), headers=headers)
+        response = conn.getresponse()
+        response.read()
+        assert response.status in {403, 415}
+        assert target.read_text(encoding="utf-8") == "## req_001_demo - Demo\n"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
+@pytest.mark.parametrize(
     ("rel_path", "next_status", "expected_kind"),
     [
         ("logics/product/prod_001_demo.md", "Accepted", "product"),

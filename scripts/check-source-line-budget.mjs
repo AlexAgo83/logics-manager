@@ -59,7 +59,9 @@ const allowedOversizedFiles = new Map(
     // 1990: item_851 has serve_stdio announce the first client request, so the connector
     // screen's last row states that ChatGPT reached us instead of inferring it. The
     // marker has to be printed where the requests are read.
-    "logics_manager/mcp.py": { maxLines: 1989, ref: "req_376" },
+    // 2000: local HTTP needs host, origin, and JSON checks before dispatch; extracting
+    // the tiny guard would split the HTTP handler from its request context.
+    "logics_manager/mcp.py": { maxLines: 2000, ref: "req_376" },
     // 1029: item_674 added the install-identity helpers (_install_root, _shim_target,
     // _executable_identity) that let doctor tell one install from two. They sit beside
     // running_executable_path/shadowing_executables, the only callers and the only other

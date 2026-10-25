@@ -102,7 +102,7 @@ def test_health_route_is_read_only(viewer: str) -> None:
     request = urllib.request.Request(viewer + "/api/health", method="POST", data=b"{}")
     with pytest.raises(urllib.error.HTTPError) as caught:
         urllib.request.urlopen(request, timeout=30)
-    assert caught.value.code in (404, 405)
+    assert caught.value.code in (403, 404, 405)
 
 
 # ---- per-project state (item_601) ----

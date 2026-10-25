@@ -674,8 +674,9 @@ logics-manager view --lan --lan-rw --tls --open
   `~/.cache/logics-manager/devices.json`. Cleartext is only sent to the
   device once; revoke a lost device via the device list or by deleting its
   entry from the JSON file.
-- Cross-origin POSTs are refused (CSRF). Mutating endpoints require a
-  loopback client *or* a request whose bearer token matches a paired device.
+- Cross-origin POSTs are refused (CSRF), including requests from browsers on
+  the viewer's own machine. Mutating endpoints require JSON and the viewer's
+  Host; LAN clients also need a paired-device bearer token.
 
 Without `--tls`, `--lan-rw` works but the boot banner warns that device
 tokens transit in cleartext. Either add `--tls` or wrap the viewer in a

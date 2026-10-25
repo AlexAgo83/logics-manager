@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from pathlib import Path
 
@@ -94,12 +95,14 @@ def test_import_fails_clearly_when_gh_fails(tmp_path: Path, monkeypatch) -> None
 
 def test_check_reads_awkward_paths_and_added_lines_that_look_like_headers(tmp_path: Path) -> None:
     repo = _repo(tmp_path)
-    for name in ("a b.py", "café.py", "back\\slash.py", "plus.py"):
+    # A backslash is a path separator on Windows, so that name only exists on POSIX.
+    awkward = ("a b.py", "café.py") + (("back\\slash.py",) if os.sep == "/" else ())
+    for name in (*awkward, "plus.py"):
         (repo / name).write_text("x = 1\n", encoding="utf-8")
     _git(repo, "add", "-A")
     _git(repo, "commit", "-qm", "files")
     _git(repo, "branch", "-f", "main")
-    for name in ("a b.py", "café.py", "back\\slash.py"):
+    for name in awkward:
         (repo / name).write_text('x = 1\nprint("hit")\n', encoding="utf-8")
     # An added line "++ print(...)" appears in the diff as "+++ print(...)".
     (repo / "plus.py").write_text('x = 1\n++ print("hit")\nprint("after")\n', encoding="utf-8")
@@ -107,7 +110,7 @@ def test_check_reads_awkward_paths_and_added_lines_that_look_like_headers(tmp_pa
 
     hits = sorted((hit["path"], hit["line"]) for hit in check(repo, "main")["hits"])
 
-    assert hits == [("a b.py", 2), ("back\\slash.py", 2), ("café.py", 2), ("plus.py", 2), ("plus.py", 3)]
+    assert hits == sorted([*((name, 2) for name in awkward), ("plus.py", 2), ("plus.py", 3)])
 
 
 def test_check_paths_are_relative_to_the_corpus_and_skip_the_rules_file(tmp_path: Path) -> None:

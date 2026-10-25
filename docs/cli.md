@@ -58,6 +58,18 @@ on a hit, so it can gate a commit hook or CI. Rules without a pattern are listed
 under "Check by hand" for the author or their agent. The `implement-task` skill
 runs it before closeout.
 
+`import` starts from a merged pull request instead of a blank page. It reads the
+PR's review comments with `gh` (installed and logged in), skips the author's own
+replies and bots, and prints one `review add` command per comment, titled from
+its first line without quotes or emoji, with a `--glob` for the file type it was
+made on. It writes nothing: keep the comments that will come back, edit the
+title into a rule, add `--pattern` when a regex can find it, and run them.
+
+```bash
+logics-manager review import --pr 42                     # this repository
+logics-manager review import --pr 42 --repo owner/name --format json
+```
+
 When to add a rule: a reviewer flags the same thing a second time. Give it a
 pattern when a regex can find it; otherwise keep it manual. Rules are committed
 with the repository, so they apply to everyone's diffs.

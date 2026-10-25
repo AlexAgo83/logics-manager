@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 from pathlib import Path
 
 from .cli_output import render_payload
@@ -30,7 +31,7 @@ Usage:
   logics-manager fleet status [--root DIR] [--limit N] [--format text|json]
   logics-manager fleet health [--root DIR] [--limit N] [--format text|json]
   logics-manager fleet roadmap [--root DIR] [--format text|json]
-  logics-manager fleet brief [--root DIR] [--limit N] [--format text|json]
+  logics-manager fleet brief [--root DIR] [--limit N] [--no-reviews] [--format text|json]
 
 Flags:
   --root DIR   Directory whose immediate children are scanned. Defaults to the
@@ -39,7 +40,9 @@ Flags:
   --format     text (default) or json.
 
 `brief` ranks the next moves across every repository and keeps the first N
-(3 by default): blocked docs, then docs at 100% left open, High-priority active
+(3 by default): blocked docs, then GitHub pull requests awaiting your review
+(with `gh`; skipped when it is not installed, `--no-reviews` to leave them out),
+then docs at 100% left open, High-priority active
 tasks, Draft requests already in delivery, then the other active tasks.
 
 `roadmap` shows, for each repository with a roadmap, the first milestone whose
@@ -96,6 +99,7 @@ def roadmap_progress(repo_root: Path, *, limit: int = 10) -> dict[str, object]:
 #: What a brief puts first; lower is more urgent.
 _BRIEF_ORDER = (
     ("blocked_docs", "unblock"),
+    ("review_requests", "review"),
     ("complete_not_done", "close out"),
     ("active_tasks:High", "finish"),
     ("draft_requests_in_delivery", "start"),
@@ -103,14 +107,41 @@ _BRIEF_ORDER = (
 )
 
 
-def fleet_brief(root: Path, *, limit: int = 3) -> dict[str, object]:
+def review_requests() -> tuple[list[dict[str, object]], str | None]:
+    """Open pull requests waiting for the user's review on GitHub, and why they could not be read.
+
+    No `gh` means no GitHub in this setup: nothing to report, not an error. A
+    `gh` that fails (logged out, offline) is reported, so an empty review
+    list is never mistaken for an empty queue.
+    """
+    command = ["gh", "search", "prs", "--review-requested=@me", "--state", "open",
+               "--json", "number,title,repository,url", "--limit", "50"]
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, check=False, timeout=30)
+    except FileNotFoundError:
+        return [], None
+    except subprocess.TimeoutExpired:
+        return [], "gh search prs timed out"
+    if result.returncode != 0:
+        return [], f"gh search prs failed: {result.stderr.strip() or result.returncode}"
+    return [{"repository": (pr.get("repository") or {}).get("nameWithOwner") or "?", "ref": f"#{pr['number']}",
+             "status": "review requested", "title": pr.get("title") or "", "url": pr.get("url")}
+            for pr in json.loads(result.stdout or "[]")], None
+
+
+def fleet_brief(root: Path, *, limit: int = 3, reviews: bool = True) -> dict[str, object]:
     """The few moves that matter most across every repository under `root`."""
     statuses = fleet_payload(root, report="status", limit=50)
+    pending, review_error = review_requests() if reviews else ([], None)
+    by_repository: dict[str, dict[str, list]] = {}
+    for pr in pending:
+        by_repository.setdefault(str(pr.pop("repository")), {"review_requests": []})["review_requests"].append(pr)
     moves: list[dict[str, object]] = []
     seen: set[tuple[str, str]] = set()
     for rank, (key, verb) in enumerate(_BRIEF_ORDER):
         field, _, priority = key.partition(":")
-        for name, entry in statuses["repositories"].items():  # type: ignore[union-attr]
+        entries = by_repository if field == "review_requests" else statuses["repositories"]
+        for name, entry in entries.items():  # type: ignore[union-attr]
             for item in entry.get(field) or []:
                 if priority and item.get("priority") != priority:
                     continue
@@ -129,6 +160,7 @@ def fleet_brief(root: Path, *, limit: int = 3) -> dict[str, object]:
         "repository_count": statuses["repository_count"],
         "move_count": len(moves),
         "moves": moves[:limit],
+        "review_error": review_error,
     }
 
 
@@ -193,6 +225,8 @@ def _render_brief(payload: dict[str, object]) -> str:
         lines.append("- nothing open needs a move")
     for index, move in enumerate(payload["moves"], 1):  # type: ignore[union-attr]
         lines.append(f"{index}. {move['repository']}: {move['verb']} {move['ref']} [{move.get('status') or 'no status'}] {move['title']}")
+    if payload.get("review_error"):
+        lines.append(f"- pull requests awaiting your review unknown: {payload['review_error']}")
     return "\n".join(lines)
 
 
@@ -208,6 +242,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--root", default=".")
     parser.add_argument("--limit", type=int, default=10)
     parser.add_argument("--format", choices=("text", "json"), default="text")
+    if argv[0] == "brief":
+        parser.add_argument("--no-reviews", action="store_true")
     parsed = parser.parse_args(argv[1:])
 
     root = Path(parsed.root).expanduser()
@@ -215,7 +251,7 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit(f"--root path does not exist or is not a directory: {root}")
 
     if argv[0] == "brief":
-        payload = fleet_brief(root, limit=parsed.limit if parsed.limit != 10 else 3)
+        payload = fleet_brief(root, limit=parsed.limit if parsed.limit != 10 else 3, reviews=not parsed.no_reviews)
         print(render_payload(payload, parsed.format, lambda: _render_brief(payload)))
         return 0 if payload["ok"] else 1
     payload = fleet_payload(root, report=argv[0], limit=parsed.limit)

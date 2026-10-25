@@ -258,12 +258,45 @@ def test_fleet_brief_puts_blocked_work_first_and_spreads_projects(tmp_path: Path
 
     from logics_manager.fleet import fleet_brief
 
-    brief = fleet_brief(tmp_path, limit=4)
+    brief = fleet_brief(tmp_path, limit=4, reviews=False)
     assert [(m["verb"], m["repository"], m["ref"]) for m in brief["moves"]] == [
         ("unblock", "beta", "task_001_stuck"),
         ("close out", "beta", "task_002_finished"),
         ("finish", "alpha", "task_001_one"),
         ("finish", "beta", "task_003_three"),
     ]
-    result = _run(["fleet", "brief", "--root", str(tmp_path)])
+    result = _run(["fleet", "brief", "--root", str(tmp_path), "--no-reviews"])
     assert "1. beta: unblock task_001_stuck" in result.stdout
+
+
+def test_fleet_brief_ranks_review_requests_after_blocked_work(tmp_path: Path, monkeypatch) -> None:
+    from logics_manager import fleet
+
+    repo = _bootstrap(tmp_path / "alpha")
+    (repo / "logics" / "tasks" / "task_001_stuck.md").write_text("## task_001_stuck - stuck\n> Status: Blocked\n", encoding="utf-8")
+    (repo / "logics" / "tasks" / "task_002_open.md").write_text("## task_002_open - open\n> Status: In progress\n", encoding="utf-8")
+    prs = [{"number": 7, "title": "Fix login", "repository": {"nameWithOwner": "o/web"}, "url": "https://x/7"}]
+    monkeypatch.setattr(fleet.subprocess, "run",
+                        lambda cmd, **kw: subprocess.CompletedProcess(cmd, 0, stdout=json.dumps(prs), stderr=""))
+
+    brief = fleet.fleet_brief(tmp_path, limit=3)
+    assert [(m["verb"], m["repository"], m["ref"]) for m in brief["moves"]] == [
+        ("unblock", "alpha", "task_001_stuck"),
+        ("review", "o/web", "#7"),
+        ("continue", "alpha", "task_002_open"),
+    ]
+    assert brief["review_error"] is None
+    assert "2. o/web: review #7 [review requested] Fix login" in fleet._render_brief(brief)
+
+    def missing(cmd, **kw):
+        raise FileNotFoundError(cmd[0])
+
+    monkeypatch.setattr(fleet.subprocess, "run", missing)
+    brief = fleet.fleet_brief(tmp_path)
+    assert brief["review_error"] is None and all(m["verb"] != "review" for m in brief["moves"])
+
+    monkeypatch.setattr(fleet.subprocess, "run",
+                        lambda cmd, **kw: subprocess.CompletedProcess(cmd, 4, stdout="", stderr="not logged in"))
+    brief = fleet.fleet_brief(tmp_path)
+    assert "not logged in" in brief["review_error"]
+    assert "awaiting your review unknown: gh search prs failed: not logged in" in fleet._render_brief(brief)

@@ -157,7 +157,7 @@ def _git(repo_root: Path, args: list[str]) -> list[str]:
 def _drop_non_paths(repo_root: Path, missing: list[str]) -> list[str]:
     """Leave out what looks like a path but is not one this checkout should hold.
 
-    A branch name (`night/crow-ui`) is backticked like a path; so is a folder the
+    A branch name (`night/viewer-ui`) is backticked like a path; so is a folder the
     repository ignores (`local/`), which exists on its owner's machine and in no
     clone. Branches are matched against local and remote-tracking refs and tags, so
     a branch that exists nowhere in this clone (a shallow one) is still reported.

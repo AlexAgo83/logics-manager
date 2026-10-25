@@ -993,8 +993,8 @@ def test_audit_does_not_take_branches_or_ignored_folders_for_missing_paths(tmp_p
     subprocess.run([*git, "init", "-q", "-b", "main"], check=True)
     subprocess.run([*git, "add", "-A"], check=True)
     subprocess.run([*git, "commit", "-qm", "init"], check=True)
-    subprocess.run([*git, "branch", "night/crow-ui"], check=True)
-    _anchor_doc(repo_root, "branches", status="Ready", references=["`night/crow-ui`", "`local/`", "`src/gone.py`"])
+    subprocess.run([*git, "branch", "night/viewer-ui"], check=True)
+    _anchor_doc(repo_root, "branches", status="Ready", references=["`night/viewer-ui`", "`local/`", "`src/gone.py`"])
 
     payload = audit_payload(repo_root, skip_ac_traceability=True, skip_gates=True)
     missing = [f["message"] for f in payload["findings"] if f["code"] == "code_anchor_path_missing"]

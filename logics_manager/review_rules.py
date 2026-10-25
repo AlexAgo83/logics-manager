@@ -15,6 +15,7 @@ import json
 import re
 import shlex
 import subprocess
+import unicodedata
 from datetime import date
 from pathlib import Path
 
@@ -142,7 +143,10 @@ def _render_check(payload: dict[str, object]) -> str:
 
 
 def _gh(args: list[str], repo_root: Path) -> str:
-    result = subprocess.run(["gh", "api", *args], cwd=repo_root, capture_output=True, text=True, check=False)
+    try:
+        result = subprocess.run(["gh", "api", *args], cwd=repo_root, capture_output=True, text=True, check=False)
+    except FileNotFoundError:
+        raise SystemExit("review import needs the GitHub CLI: install gh and run `gh auth login`.") from None
     if result.returncode != 0:
         raise SystemExit(f"gh api {args[0]} failed: {result.stderr.strip() or 'is gh installed and logged in?'}")
     return result.stdout
@@ -151,6 +155,19 @@ def _gh(args: list[str], repo_root: Path) -> str:
 def _gh_items(path: str, repo_root: Path) -> list[dict]:
     """Every item of a paginated list endpoint, one JSON object per line from gh."""
     return [json.loads(line) for line in _gh([path, "--paginate", "--jq", ".[]"], repo_root).splitlines() if line.strip()]
+
+
+def _is_emoji_part(ch: str) -> bool:
+    category = unicodedata.category(ch)
+    return category == "So" or (category == "Sk" and ord(ch) > 0xFFFF) or ch in "\u200d\ufe0f"
+
+
+def _title(body: str) -> str:
+    """A rule title from a comment: its first own line, without quote, list or emoji markers."""
+    lines = [line.strip() for line in body.splitlines() if line.strip()]
+    own = [line for line in lines if not line.startswith(">")] or lines
+    text = "".join(ch for ch in own[0] if not _is_emoji_part(ch))
+    return re.sub(r"\s+", " ", text.replace("**", "").replace("__", "").lstrip("># -")).strip()[:100]
 
 
 def import_comments(repo_root: Path, pr: int, repo: str | None = None) -> dict[str, object]:
@@ -165,7 +182,7 @@ def import_comments(repo_root: Path, pr: int, repo: str | None = None) -> dict[s
         login = user.get("login") or "?"
         if not body.strip() or login == author or user.get("type") == "Bot" or login.endswith("[bot]"):
             continue
-        title = body.strip().splitlines()[0][:100]
+        title = _title(body)
         glob = f"*{Path(path).suffix}" if path and Path(path).suffix else ""
         command = ["logics-manager", "review", "add", "--title", title, "--source", f"PR #{pr} ({login})"]
         if glob:

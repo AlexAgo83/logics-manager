@@ -15,3 +15,9 @@ Pitfalls and operator rules for any agent working in this repo (tracked here bec
 - Never launch Chrome bare on the Mac (`Google Chrome --headless --screenshot`): it hits the operator's real profile and spams Keychain unlock dialogs. Use `npm run test:viewer-smoke` or `node scripts/dev/viewer-tour.mjs`, which pass the keychain-safe flags; hand-roll a launch only for a screen no script covers, carrying those flags over verbatim.
 - When the visual campaign (`tests/run_local_viewer_visual_smoke.mjs`, `tests/viewer.campaign-report.test.ts`) fails on timing rather than a product defect, fix only what your change broke and keep delivering slices: its slowness on a 1600-document corpus is a known condition, not a regression to chase across turns.
 - Parked ideas the operator liked (2026-06-22, not built): truncate long commit subjects in the Recent-activity feed with a tooltip, and give git events a more distinct marker or a `git` label (`renderActivityPanel` in `clients/shared-web/media/webviewChrome.js`, markers in `clients/shared-web/media/css/toolbar.css`).
+
+## CLI usage pitfalls (moved here from Codex memory, 2026-10-28)
+- Doc targets need the full ref (`run_001_restore_cdx_on_tower`) or the repo-relative path: a short `run_001` fails with `Could not resolve workflow doc target`. Use `sync search-docs` to find the full ref.
+- `status` has no `--short`, and `lint` takes no file path (only `--require-status`, `--commit REF`, `--format`): lint the whole tree.
+- `sync update-indicators <ref> --touch` takes one ref per call; run it after every semantic edit of an indicator-bearing doc, even when no value changes, instead of hand-editing indicators.
+- Release evidence kinds are `command`, `file`, `git`, `ci`, `github_release`, `external` (a push is `--kind git`). Evidence is bound to a version: record fresh evidence with `--target-version` after a bump, then run `release validate <version>`.

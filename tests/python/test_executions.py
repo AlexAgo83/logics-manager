@@ -56,6 +56,50 @@ def test_invalid_input_refused_without_writes(tmp_path, overrides):
     assert before == {path: path.read_bytes() for path in paths.values()}
 
 
+@pytest.mark.parametrize("kind", ["request", "backlog", "task"])
+@pytest.mark.parametrize("source_form", ["bare", "short", "relative", "absolute"])
+@pytest.mark.parametrize("outside_repo", [False, True])
+@pytest.mark.parametrize("dry_run", [False, True])
+def test_execution_rejects_escaping_file_symlinks(tmp_path, kind, source_form, outside_repo, dry_run, monkeypatch):
+    root = tmp_path / "repo"
+    paths = write_ac_traceability_chain(root)
+    path = paths[kind]
+    target = (tmp_path if outside_repo else root) / path.name
+    target.write_bytes(path.read_bytes())
+    before = {p: p.read_bytes() for p in [target, *paths.values()]}
+    path.unlink()
+    path.symlink_to(target)
+    source = {"bare": path.stem, "short": "_".join(path.stem.split("_")[:2]),
+              "relative": path.relative_to(root).as_posix(), "absolute": str(path)}[source_form]
+    original_open = Path.open
+
+    def guarded_open(candidate, *args, **kwargs):
+        assert candidate.resolve() != target, "The escaping target must not be opened."
+        return original_open(candidate, *args, **kwargs)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(Path, "open", guarded_open)
+        with pytest.raises(SystemExit):
+            record(root, source, dry_run=dry_run)
+    assert before == {p: p.read_bytes() for p in before}
+    assert path.is_symlink()
+
+
+@pytest.mark.parametrize("kind", ["request", "backlog", "task"])
+@pytest.mark.parametrize("dry_run", [False, True])
+def test_execution_rejects_escaping_directory_symlinks(tmp_path, kind, dry_run):
+    root = tmp_path / "repo"
+    path = write_ac_traceability_chain(root)[kind]
+    original = path.read_bytes()
+    directory = path.parent
+    target = tmp_path / directory.name
+    directory.rename(target)
+    directory.symlink_to(target, target_is_directory=True)
+    with pytest.raises(SystemExit):
+        record(root, path.stem, dry_run=dry_run)
+    assert (target / path.name).read_bytes() == original
+
+
 def test_progress_auto_and_dry_run(tmp_path):
     paths = write_ac_traceability_chain(tmp_path)
     record_run_payload(tmp_path, paths["task"].stem, runner="ci", run_id="1", state="failed")

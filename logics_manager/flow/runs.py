@@ -6,15 +6,23 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from ..executions import LINE_SEPARATORS, STATES, parse_executions, replace_executions, valid_pr
+from ..path_utils import ensure_relative_to
+from .docs import DOC_KINDS
 
 
 def record_run_payload(repo_root: Path, source: str, *, runner: str, run_id: str, state: str, title: str | None = None,
                        pr: str | None = None, notes: str | None = None, progress: str | None = None, dry_run: bool = False) -> dict[str, object]:
     from . import _resolve_any_workflow_source, progress_task_payload
 
+    repo_root = repo_root.resolve()
     path, kind = _resolve_any_workflow_source(repo_root, source)
     if kind not in {"request", "backlog", "task"}:
         raise SystemExit("Executions are supported only for requests, backlog items and tasks.")
+    # Bare refs and fallback resolution may return unresolved paths.
+    path = path.resolve()
+    relative = ensure_relative_to(path, repo_root, label="source")
+    if relative.parent != Path(DOC_KINDS[kind].directory):
+        raise SystemExit(f"Expected source under `{DOC_KINDS[kind].directory}`. Got: `{relative.as_posix()}`.")
     if state not in STATES:
         raise SystemExit(f"Invalid execution state: {state}")
     if not runner.strip() or not run_id.strip() or any(char in runner + run_id for char in LINE_SEPARATORS):

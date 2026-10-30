@@ -1770,13 +1770,23 @@ def test_viewer_git_status_payload_handles_unavailable_non_repo_and_errors(tmp_p
     assert "fatal: bad revision" in payload["message"]
 
 
-def test_viewer_cdx_status_payload_reports_structured_status(tmp_path: Path) -> None:
+@pytest.fixture(params=[(False, False, 1), (True, False, 2), (True, True, 6)], ids=["native", "wsl", "wsl-windows-drive"])
+def cdx_timeout_scale(request, monkeypatch):
+    is_wsl, windows_drive, scale = request.param
+    monkeypatch.setattr(viewer_module, "_is_wsl", lambda: is_wsl)
+    monkeypatch.setattr(viewer_module, "_path_on_windows_drive_mount", lambda _path: windows_drive)
+    viewer_module._subprocess_timeout_scale.cache_clear()
+    yield scale
+    viewer_module._subprocess_timeout_scale.cache_clear()
+
+
+def test_viewer_cdx_status_payload_reports_structured_status(tmp_path: Path, cdx_timeout_scale) -> None:
     calls: list[list[str]] = []
 
     def runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
         calls.append(args)
         assert kwargs["cwd"] == tmp_path
-        assert kwargs["timeout"] == 5
+        assert kwargs["timeout"] == 5 * cdx_timeout_scale
         if args == ["cdx", "status", "--json"]:
             return subprocess.CompletedProcess(
                 args,
@@ -1915,13 +1925,13 @@ def test_viewer_cdx_status_payload_handles_unavailable_timeout_errors_and_invali
     assert cdx_status_payload(tmp_path, runner=array_runner, which=lambda _name: "/usr/bin/cdx")["state"] == "invalid-json"
 
 
-def test_viewer_cdx_remove_payload_uses_rmv_force_json(tmp_path: Path) -> None:
+def test_viewer_cdx_remove_payload_uses_rmv_force_json(tmp_path: Path, cdx_timeout_scale) -> None:
     calls: list[list[str]] = []
 
     def runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
         calls.append(args)
         assert kwargs["cwd"] == tmp_path
-        assert kwargs["timeout"] == 10
+        assert kwargs["timeout"] == 10 * cdx_timeout_scale
         return subprocess.CompletedProcess(args, 0, json.dumps({"message": "Removed work2."}), "")
 
     payload = cdx_remove_payload(tmp_path, "work2", runner=runner, which=lambda _name: "/usr/bin/cdx")
@@ -1934,13 +1944,13 @@ def test_viewer_cdx_remove_payload_uses_rmv_force_json(tmp_path: Path) -> None:
     }
 
 
-def test_viewer_cdx_reset_payload_uses_reset_yes_json(tmp_path: Path) -> None:
+def test_viewer_cdx_reset_payload_uses_reset_yes_json(tmp_path: Path, cdx_timeout_scale) -> None:
     calls: list[list[str]] = []
 
     def runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
         calls.append(args)
         assert kwargs["cwd"] == tmp_path
-        assert kwargs["timeout"] == 30
+        assert kwargs["timeout"] == 30 * cdx_timeout_scale
         return subprocess.CompletedProcess(args, 0, json.dumps({"message": "Activated banked Codex reset for work2"}), "")
 
     payload = cdx_reset_payload(tmp_path, "work2", runner=runner, which=lambda _name: "/usr/bin/cdx")
@@ -1959,7 +1969,7 @@ def test_viewer_cdx_reset_payload_uses_reset_yes_json(tmp_path: Path) -> None:
     assert failed == {"ok": False, "error": "No banked Codex reset is available for work2."}
 
 
-def test_viewer_cdx_disk_payload_uses_disk_profiles_candidates_json(tmp_path: Path) -> None:
+def test_viewer_cdx_disk_payload_uses_disk_profiles_candidates_json(tmp_path: Path, cdx_timeout_scale) -> None:
     calls: list[list[str]] = []
     disk = {
         "target": "profiles",
@@ -1975,7 +1985,7 @@ def test_viewer_cdx_disk_payload_uses_disk_profiles_candidates_json(tmp_path: Pa
     def runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
         calls.append(args)
         assert kwargs["cwd"] == tmp_path
-        assert kwargs["timeout"] == 60
+        assert kwargs["timeout"] == 60 * cdx_timeout_scale
         return subprocess.CompletedProcess(args, 0, json.dumps({"message": "Measured", "disk": disk}), "")
 
     payload = cdx_disk_payload(tmp_path, runner=runner, which=lambda _name: "/usr/bin/cdx")
@@ -2004,13 +2014,13 @@ def test_viewer_cdx_disk_payload_uses_disk_profiles_candidates_json(tmp_path: Pa
     assert cdx_disk_payload(tmp_path, runner=missing_disk_runner, which=lambda _name: "/usr/bin/cdx")["state"] == "invalid-json"
 
 
-def test_viewer_cdx_permission_payload_uses_set_permission_json(tmp_path: Path) -> None:
+def test_viewer_cdx_permission_payload_uses_set_permission_json(tmp_path: Path, cdx_timeout_scale) -> None:
     calls: list[list[str]] = []
 
     def runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
         calls.append(args)
         assert kwargs["cwd"] == tmp_path
-        assert kwargs["timeout"] == 10
+        assert kwargs["timeout"] == 10 * cdx_timeout_scale
         return subprocess.CompletedProcess(args, 0, json.dumps({"message": "Permission updated."}), "")
 
     payload = cdx_permission_payload(tmp_path, "work2", "full", runner=runner, which=lambda _name: "/usr/bin/cdx")
@@ -2023,13 +2033,13 @@ def test_viewer_cdx_permission_payload_uses_set_permission_json(tmp_path: Path) 
     }
 
 
-def test_viewer_cdx_config_payload_sets_power_and_model(tmp_path: Path) -> None:
+def test_viewer_cdx_config_payload_sets_power_and_model(tmp_path: Path, cdx_timeout_scale) -> None:
     calls: list[list[str]] = []
 
     def runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
         calls.append(args)
         assert kwargs["cwd"] == tmp_path
-        assert kwargs["timeout"] == 10
+        assert kwargs["timeout"] == 10 * cdx_timeout_scale
         return subprocess.CompletedProcess(args, 0, json.dumps({"message": "Updated launch settings."}), "")
 
     payload = cdx_config_payload(tmp_path, "work2", power="high", model="gpt-5", runner=runner, which=lambda _name: "/usr/bin/cdx")
@@ -2099,13 +2109,13 @@ def test_cdx_capability_probe_detects_passphrase_stdin() -> None:
     assert viewer_module._cdx_supports_passphrase_stdin(runner=without_flag) is False
 
 
-def test_viewer_cdx_import_payload_can_force_overwrite(tmp_path: Path) -> None:
+def test_viewer_cdx_import_payload_can_force_overwrite(tmp_path: Path, cdx_timeout_scale) -> None:
     calls: list[list[str]] = []
 
     def runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
         calls.append(args)
         assert kwargs["cwd"] == tmp_path
-        assert kwargs["timeout"] == 30
+        assert kwargs["timeout"] == 30 * cdx_timeout_scale
         return subprocess.CompletedProcess(args, 0, json.dumps({"message": "Import complete."}), "")
 
     payload = cdx_import_payload(
@@ -2305,7 +2315,7 @@ def test_viewer_cdx_mission_plan_rejects_unknown_strength_and_unusable_session(t
     assert payload["plan"]["sessionId"] == "known"
 
 
-def test_viewer_cdx_mission_run_executes_known_template_and_extracts_usage(tmp_path: Path) -> None:
+def test_viewer_cdx_mission_run_executes_known_template_and_extracts_usage(tmp_path: Path, cdx_timeout_scale) -> None:
     calls: list[list[str]] = []
 
     def cdx_runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
@@ -2314,7 +2324,7 @@ def test_viewer_cdx_mission_run_executes_known_template_and_extracts_usage(tmp_p
         if response is not None:
             return response
         # full-audit always requires file writes: full plan and writable minimum timeout.
-        assert kwargs["timeout"] == 690
+        assert kwargs["timeout"] == 690 * cdx_timeout_scale
         assert args[:4] == ["cdx", "run", "work", "--cwd"]
         assert args[4] == str(tmp_path)
         assert "--session" not in args
@@ -2338,13 +2348,13 @@ def test_viewer_cdx_mission_run_executes_known_template_and_extracts_usage(tmp_p
     assert calls[0] == ["cdx", "status", "--json"]
 
 
-def test_viewer_cdx_mission_run_extends_timeout_for_writable_closeout(tmp_path: Path) -> None:
+def test_viewer_cdx_mission_run_extends_timeout_for_writable_closeout(tmp_path: Path, cdx_timeout_scale) -> None:
     def cdx_runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
         response = _cdx_test_status_response(args)
         if response is not None:
             return response
         assert args[args.index("--timeout-seconds") + 1] == "600"
-        assert kwargs["timeout"] == 690
+        assert kwargs["timeout"] == 690 * cdx_timeout_scale
         return subprocess.CompletedProcess(args, 0, json.dumps({"run_id": "run-42"}), "")
 
     payload = cdx_mission_run_payload(

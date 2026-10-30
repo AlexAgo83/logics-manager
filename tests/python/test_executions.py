@@ -188,13 +188,15 @@ def test_scaffold_and_native_templates_have_empty_execution_tables(tmp_path):
         assert parse_executions(document) == []
 
 
-def test_execution_heading_in_fenced_example_is_preserved(tmp_path):
+@pytest.mark.parametrize("newline", ["\n", "\r\n"])
+@pytest.mark.parametrize("fence", ["```", "~~~"])
+def test_execution_heading_in_fenced_example_is_preserved(tmp_path, newline, fence):
     path = write_ac_traceability_chain(tmp_path)["task"]
-    example = "# Example\n```markdown\n# Executions\nThis is an example, not a table.\n```\n"
-    original = path.read_text() + example
-    path.write_text(original)
+    example = f"# Example\n{fence}markdown\n# Executions\nThis is an example, not a table.\n{fence}\n"
+    original = (path.read_text() + example).replace("\n", newline).encode("utf-8")
+    path.write_bytes(original)
     record(tmp_path)
-    assert path.read_text().startswith(original)
+    assert path.read_bytes().startswith(original)
     assert len(parse_executions(path.read_text())) == 1
     record(tmp_path, notes="Update")
-    assert path.read_text().startswith(original)
+    assert path.read_bytes().startswith(original)

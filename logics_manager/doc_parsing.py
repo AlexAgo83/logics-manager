@@ -22,7 +22,7 @@ def strip_mermaid_blocks(text: str) -> str:
     return _MERMAID_BLOCK.sub("", text)
 
 
-FENCED_BLOCK_PATTERN = re.compile(r"^[ \t]*(`{3,}|~{3,}).*?(?:\n[\s\S]*?)?^[ \t]*\1[ \t]*$", re.MULTILINE)
+FENCED_BLOCK_PATTERN = re.compile(r"^[ \t]*(`{3,}|~{3,}).*?(?:\n[\s\S]*?)?^[ \t]*\1[ \t]*\r?$", re.MULTILINE)
 
 
 def strip_fenced_blocks(text: str) -> str:

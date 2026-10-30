@@ -555,6 +555,11 @@ def _lint_file(path: Path, kind_name: str, kind: Kind, require_status: bool, che
         issues.append(f"bad filename: {name}")
 
     lines = _read_lines(path)
+    from .executions import parse_executions
+    try:
+        parse_executions("\n".join(lines))
+    except ValueError as exc:
+        issues.append(str(exc))
     heading = _extract_first_heading(lines)
     if heading is None:
         issues.append("missing first heading (expected '## ...')")

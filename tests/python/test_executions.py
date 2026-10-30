@@ -1,0 +1,311 @@
+from pathlib import Path
+
+import pytest
+
+from flow_fixtures import write_ac_traceability_chain
+from logics_manager.audit import audit_payload
+from logics_manager.cli import main
+from logics_manager.executions import parse_executions, render_executions
+from logics_manager.flow.runs import record_run_payload
+from logics_manager.lint import lint_payload
+from logics_manager.sync import build_context_pack_payload, read_logics_doc_payload
+from logics_manager.mcp import _tool_read_logics_doc, call_tool
+
+
+def record(root, source="task_001_demo", **kwargs):
+    return record_run_payload(root, source, runner="ci", run_id="1", state="running", **kwargs)
+
+
+@pytest.mark.parametrize("kind,ref", [("request", "req_001_demo"), ("backlog", "item_001_demo"), ("task", "task_001_demo")])
+def test_section_creation_and_update_preserves_other_sections(tmp_path, kind, ref):
+    paths = write_ac_traceability_chain(tmp_path)
+    path = paths[kind]
+    original = path.read_text()
+    record(tmp_path, ref, title="Build | test", pr="https://example.com/pull/1", notes="First\ntry")
+    assert path.read_text().startswith(original)
+    path.write_text(path.read_text() + "# Other section\nKeep exactly.\n")
+    record_run_payload(tmp_path, ref, runner="ci", run_id="1", state="failed", notes="Retry")
+    rows = parse_executions(path.read_text())
+    assert len(rows) == 1
+    assert rows[0]["Title"] == "Build | test"
+    assert rows[0]["PR"] == "https://example.com/pull/1"
+    assert rows[0]["State"] == "failed"
+    assert rows[0]["Notes"] == "Retry"
+    assert path.read_text().endswith("# Other section\nKeep exactly.\n")
+
+
+def test_newest_first_and_updated_time(tmp_path):
+    path = write_ac_traceability_chain(tmp_path)["task"]
+    record(tmp_path)
+    first_time = parse_executions(path.read_text())[0]["When"]
+    record_run_payload(tmp_path, path.stem, runner="agent", run_id="2", state="queued")
+    record(tmp_path, notes="Update")
+    rows = parse_executions(path.read_text())
+    assert [(r["Runner"], r["Run id"]) for r in rows] == [("ci", "1"), ("agent", "2")]
+    assert rows[0]["When"] > first_time
+
+
+@pytest.mark.parametrize("overrides", [{"state": "unknown"}, {"source": "task_999_missing"}, {"source": "../../etc/passwd"}, {"pr": "javascript:alert(1)"}, {"pr": "https:///pull/1"}, {"pr": "https://example.com:invalid/pull/1"}, {"progress": "auto", "source": "req_001_demo"}])
+def test_invalid_input_refused_without_writes(tmp_path, overrides):
+    paths = write_ac_traceability_chain(tmp_path)
+    before = {path: path.read_bytes() for path in paths.values()}
+    args = dict(source="task_001_demo", runner="agent", run_id="1", state="running")
+    args.update(overrides)
+    with pytest.raises(SystemExit):
+        record_run_payload(tmp_path, **args)
+    assert before == {path: path.read_bytes() for path in paths.values()}
+
+
+@pytest.mark.parametrize("kind", ["request", "backlog", "task"])
+@pytest.mark.parametrize("source_form", ["bare", "short", "relative", "absolute"])
+@pytest.mark.parametrize("outside_repo", [False, True])
+@pytest.mark.parametrize("dry_run", [False, True])
+def test_execution_rejects_escaping_file_symlinks(tmp_path, kind, source_form, outside_repo, dry_run, monkeypatch):
+    root = tmp_path / "repo"
+    paths = write_ac_traceability_chain(root)
+    path = paths[kind]
+    target = (tmp_path if outside_repo else root) / path.name
+    target.write_bytes(path.read_bytes())
+    before = {p: p.read_bytes() for p in [target, *paths.values()]}
+    path.unlink()
+    path.symlink_to(target)
+    source = {"bare": path.stem, "short": "_".join(path.stem.split("_")[:2]),
+              "relative": path.relative_to(root).as_posix(), "absolute": str(path)}[source_form]
+    original_open = Path.open
+
+    def guarded_open(candidate, *args, **kwargs):
+        assert candidate.resolve() != target, "The escaping target must not be opened."
+        return original_open(candidate, *args, **kwargs)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(Path, "open", guarded_open)
+        with pytest.raises(SystemExit):
+            record(root, source, dry_run=dry_run)
+    assert before == {p: p.read_bytes() for p in before}
+    assert path.is_symlink()
+
+
+@pytest.mark.parametrize("kind", ["request", "backlog", "task"])
+@pytest.mark.parametrize("dry_run", [False, True])
+def test_execution_rejects_escaping_directory_symlinks(tmp_path, kind, dry_run):
+    root = tmp_path / "repo"
+    path = write_ac_traceability_chain(root)[kind]
+    original = path.read_bytes()
+    directory = path.parent
+    target = tmp_path / directory.name
+    directory.rename(target)
+    directory.symlink_to(target, target_is_directory=True)
+    with pytest.raises(SystemExit):
+        record(root, path.stem, dry_run=dry_run)
+    assert (target / path.name).read_bytes() == original
+
+
+def test_progress_auto_and_dry_run(tmp_path):
+    paths = write_ac_traceability_chain(tmp_path)
+    record_run_payload(tmp_path, paths["task"].stem, runner="ci", run_id="1", state="failed")
+    before = {p: p.read_bytes() for p in paths.values()}
+    result = record_run_payload(tmp_path, paths["task"].stem, runner="ci", run_id="2", state="merged", progress="auto", dry_run=True)
+    assert result["progress"] == "50%"
+    assert len(result["changed_files"]) == 2
+    assert before == {p: p.read_bytes() for p in paths.values()}
+    record_run_payload(tmp_path, paths["task"].stem, runner="ci", run_id="2", state="succeeded", progress="auto")
+    assert "> Progress: 50%" in paths["task"].read_text()
+    assert "> Progress: 50%" in paths["backlog"].read_text()
+
+
+def test_bounded_reads_and_mcp(tmp_path, monkeypatch, capsys):
+    path = write_ac_traceability_chain(tmp_path)["task"]
+    for number in range(25):
+        record_run_payload(tmp_path, path.stem, runner="agent", run_id=str(number), state="succeeded")
+    payload = read_logics_doc_payload(tmp_path, path.stem, max_chars=50)
+    assert len(payload["executions"]["rows"]) == 20
+    assert payload["executions"]["older_count"] == 5
+    assert "5 older executions omitted" in payload["content"]
+    assert payload["executions"]["rows"][0]["Run id"] == "24"
+    assert "| 0 |" not in payload["content"]
+    mcp = _tool_read_logics_doc(tmp_path, {"source": path.stem}, "read_logics_doc")
+    assert mcp["executions"] == payload["executions"]
+    for mode in ("summary-only", "full", "diff-first"):
+        pack = build_context_pack_payload(tmp_path, path.stem, mode=mode)
+        entry = next(doc for doc in pack["docs"] if doc["ref"] == path.stem)
+        assert entry["executions"] == payload["executions"]
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _: tmp_path)
+    assert main(["flow", "show", path.stem]) == 0
+    assert "5 older executions omitted" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("mutation", [lambda text: text.replace("| State |", "| Status |"), lambda text: text.replace("running", "unknown"), lambda text: text.replace("2026-01-01T00:00:00Z", "yesterday")])
+def test_lint_and_audit_malformed_table(tmp_path, mutation):
+    path = write_ac_traceability_chain(tmp_path)["task"]
+    row = dict(zip(("When", "Runner", "Run id", "Title", "State", "PR", "Notes"), ("2026-01-01T00:00:00Z", "ci", "1", "Build", "running", "", "")))
+    path.write_text(path.read_text() + mutation(render_executions([row])))
+    assert "Executions:" in str(lint_payload(tmp_path))
+    assert "executions_invalid" in str(audit_payload(tmp_path))
+
+
+def test_latest_failed_needs_attention(tmp_path):
+    path = write_ac_traceability_chain(tmp_path)["task"]
+    record_run_payload(tmp_path, path.stem, runner="ci", run_id="1", state="failed")
+    assert "execution_failed" in str(audit_payload(tmp_path))
+    record_run_payload(tmp_path, path.stem, runner="ci", run_id="1", state="succeeded")
+    assert "execution_failed" not in str(audit_payload(tmp_path))
+
+
+def test_cli_record_run_and_new_template(tmp_path, monkeypatch, capsys):
+    (tmp_path / "logics/request").mkdir(parents=True)
+    monkeypatch.setattr("logics_manager.flow._find_repo_root", lambda _: tmp_path)
+    assert main(["flow", "new", "request", "--title", "Execution example", "--format", "json"]) == 0
+    import json
+    created = json.loads(capsys.readouterr().out)
+    assert "# Executions\n| When | Runner | Run id | Title | State | PR | Notes |" in (tmp_path / created["path"]).read_text()
+    assert main(["flow", "record-run", created["ref"], "--runner", "ci", "--run-id", "1", "--state", "queued", "--format", "json"]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["execution"]["State"] == "queued"
+
+
+def test_record_preserves_crlf_prose(tmp_path):
+    path = write_ac_traceability_chain(tmp_path)["task"]
+    original = path.read_bytes().replace(b"\n", b"\r\n")
+    path.write_bytes(original)
+    record(tmp_path)
+    assert path.read_bytes().startswith(original)
+    suffix = b"# Final section\r\nKeep the original line endings.\r\n"
+    path.write_bytes(path.read_bytes() + suffix)
+    record(tmp_path, notes="Update")
+    assert path.read_bytes().startswith(original)
+    assert path.read_bytes().endswith(suffix)
+
+
+def test_context_pack_refreshes_after_run_update(tmp_path):
+    path = write_ac_traceability_chain(tmp_path)["task"]
+    record(tmp_path)
+    before = build_context_pack_payload(tmp_path, path.stem)
+    record_run_payload(tmp_path, path.stem, runner="ci", run_id="1", state="failed")
+    after = build_context_pack_payload(tmp_path, path.stem)
+    old_entry = next(doc for doc in before["docs"] if doc["ref"] == path.stem)
+    new_entry = next(doc for doc in after["docs"] if doc["ref"] == path.stem)
+    assert old_entry["executions"]["rows"][0]["State"] == "running"
+    assert new_entry["executions"]["rows"][0]["State"] == "failed"
+    assert "failed" in new_entry["execution_table"]
+
+
+def test_cli_read_doc_is_bounded(tmp_path, monkeypatch, capsys):
+    import json
+    path = write_ac_traceability_chain(tmp_path)["task"]
+    for number in range(21):
+        record_run_payload(tmp_path, path.stem, runner="ci", run_id=str(number), state="queued")
+    monkeypatch.setattr("logics_manager.sync._find_repo_root", lambda _: tmp_path)
+    assert main(["sync", "read-doc", path.stem, "--section", "Executions", "--format", "json"]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["executions"]["older_count"] == 1
+    assert len(payload["sections"]["Executions"]) == 24
+    assert "| 0 |" not in payload["content"]
+
+
+def test_malformed_table_refuses_update(tmp_path):
+    path = write_ac_traceability_chain(tmp_path)["task"]
+    path.write_text(path.read_text() + "# Executions\nNot a table.\n")
+    before = path.read_bytes()
+    with pytest.raises(SystemExit, match="Executions:"):
+        record(tmp_path)
+    assert path.read_bytes() == before
+
+
+def test_scaffold_and_native_templates_have_empty_execution_tables(tmp_path):
+    from argparse import Namespace
+    from logics_manager.flow.docs import _build_native_request_doc, _build_native_backlog_doc, _build_native_task_doc
+    from logics_manager.flow.scaffold_docs import (
+        _build_scaffold_request_doc, _build_scaffold_backlog_doc, _build_scaffold_task_doc, _build_split_orchestration_task_doc,
+    )
+    args = Namespace()
+    documents = [
+        _build_native_request_doc(tmp_path, "req_001_demo", "Demo", args),
+        _build_native_backlog_doc(tmp_path, "item_001_demo", "Demo", args),
+        _build_native_task_doc(tmp_path, "task_001_demo", "Demo", args),
+        _build_scaffold_request_doc(tmp_path, "req_001_demo", "Demo", {}),
+        _build_scaffold_backlog_doc(tmp_path, "item_001_demo", "req_001_demo", "prod_001_demo", "task_001_demo", {}),
+        _build_scaffold_task_doc(tmp_path, "task_001_demo", "Demo", "req_001_demo", "prod_001_demo", ["item_001_demo"], {}),
+        _build_split_orchestration_task_doc(tmp_path, "task_001_demo", "Demo", "req_001_demo", ["item_001_demo"], "Implement demo"),
+    ]
+    for document in documents:
+        assert document.count("# Executions") == 1
+        assert parse_executions(document) == []
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n"])
+@pytest.mark.parametrize("fence", ["```", "~~~"])
+def test_execution_heading_in_fenced_example_is_preserved(tmp_path, newline, fence):
+    path = write_ac_traceability_chain(tmp_path)["task"]
+    example = f"# Example\n{fence}markdown\n# Executions\nThis is an example, not a table.\n{fence}\n"
+    original = (path.read_text() + example).replace("\n", newline).encode("utf-8")
+    path.write_bytes(original)
+    record(tmp_path)
+    assert path.read_bytes().startswith(original)
+    assert len(parse_executions(path.read_text())) == 1
+    record(tmp_path, notes="Update")
+    assert path.read_bytes().startswith(original)
+
+
+@pytest.mark.parametrize("fence", ["```", "~~~"])
+@pytest.mark.parametrize("mode", ["summary-only", "full", "diff-first"])
+def test_context_pack_and_mcp_ignore_fenced_execution_example(tmp_path, fence, mode):
+    path = write_ac_traceability_chain(tmp_path)["task"]
+    path.write_text(path.read_text() + f"# Example\n{fence}markdown\n# Executions\nNot a table.\n{fence}\n")
+    record(tmp_path, notes="Recorded run")
+    expected = read_logics_doc_payload(tmp_path, path.stem)["executions"]
+    assert len(expected["rows"]) == 1
+    for state in ("running", "failed"):
+        if state == "failed":
+            record_run_payload(tmp_path, path.stem, runner="ci", run_id="1", state=state)
+            expected = read_logics_doc_payload(tmp_path, path.stem)["executions"]
+        packs = [
+            build_context_pack_payload(tmp_path, path.stem, mode=mode),
+            call_tool("build_context_pack", {"ref": path.stem, "mode": mode}, repo_root=tmp_path),
+        ]
+        for pack in packs:
+            entry = next(doc for doc in pack["docs"] if doc["ref"] == path.stem)
+            assert entry["executions"] == expected
+            assert parse_executions(entry["execution_table"]) == expected["rows"]
+
+
+LINE_BREAKS = ["\n", "\r", "\r\n", "\v", "\f", "\x1c", "\x1d", "\x1e", "\x85", "\u2028", "\u2029"]
+
+
+@pytest.mark.parametrize("separator", LINE_BREAKS)
+def test_execution_text_line_separators_round_trip(tmp_path, separator):
+    path = write_ac_traceability_chain(tmp_path)["task"]
+    value = f"First{separator}try | & &#10;"
+    expected = "First" + " " * len(separator) + "try | & &#10;"
+    record(tmp_path, title=value, notes=value)
+    rows = parse_executions(path.read_text())
+    assert rows[0]["Title"] == rows[0]["Notes"] == expected
+    record_run_payload(tmp_path, path.stem, runner="ci", run_id="1", state="succeeded")
+    updated = parse_executions(path.read_text())
+    assert len(updated) == 1
+    assert updated[0]["State"] == "succeeded"
+    assert updated[0]["Title"] == updated[0]["Notes"] == expected
+
+
+@pytest.mark.parametrize("separator", LINE_BREAKS)
+@pytest.mark.parametrize("field", ["runner", "run_id"])
+def test_execution_identifier_line_separators_refused_without_writes(tmp_path, separator, field):
+    paths = write_ac_traceability_chain(tmp_path)
+    record(tmp_path)
+    before = {path: path.read_bytes() for path in paths.values()}
+    args = dict(runner="ci", run_id="1", state="succeeded")
+    args[field] = f"first{separator}second"
+    with pytest.raises(SystemExit, match="nonempty single-line"):
+        record_run_payload(tmp_path, paths["task"].stem, **args)
+    assert before == {path: path.read_bytes() for path in paths.values()}
+
+
+def test_execution_identifiers_round_trip_and_update(tmp_path):
+    path = write_ac_traceability_chain(tmp_path)["task"]
+    args = dict(runner="ci | & &#10;", run_id="run | & &#13;")
+    record_run_payload(tmp_path, path.stem, state="running", **args)
+    record_run_payload(tmp_path, path.stem, state="succeeded", **args)
+    rows = parse_executions(path.read_text())
+    assert len(rows) == 1
+    assert rows[0]["Runner"] == args["runner"]
+    assert rows[0]["Run id"] == args["run_id"]
+    assert rows[0]["State"] == "succeeded"

@@ -9,7 +9,7 @@ from logics_manager.executions import parse_executions, render_executions
 from logics_manager.flow.runs import record_run_payload
 from logics_manager.lint import lint_payload
 from logics_manager.sync import build_context_pack_payload, read_logics_doc_payload
-from logics_manager.mcp import _tool_read_logics_doc
+from logics_manager.mcp import _tool_read_logics_doc, call_tool
 
 
 def record(root, source="task_001_demo", **kwargs):
@@ -200,3 +200,68 @@ def test_execution_heading_in_fenced_example_is_preserved(tmp_path, newline, fen
     assert len(parse_executions(path.read_text())) == 1
     record(tmp_path, notes="Update")
     assert path.read_bytes().startswith(original)
+
+
+@pytest.mark.parametrize("fence", ["```", "~~~"])
+@pytest.mark.parametrize("mode", ["summary-only", "full", "diff-first"])
+def test_context_pack_and_mcp_ignore_fenced_execution_example(tmp_path, fence, mode):
+    path = write_ac_traceability_chain(tmp_path)["task"]
+    path.write_text(path.read_text() + f"# Example\n{fence}markdown\n# Executions\nNot a table.\n{fence}\n")
+    record(tmp_path, notes="Recorded run")
+    expected = read_logics_doc_payload(tmp_path, path.stem)["executions"]
+    assert len(expected["rows"]) == 1
+    for state in ("running", "failed"):
+        if state == "failed":
+            record_run_payload(tmp_path, path.stem, runner="ci", run_id="1", state=state)
+            expected = read_logics_doc_payload(tmp_path, path.stem)["executions"]
+        packs = [
+            build_context_pack_payload(tmp_path, path.stem, mode=mode),
+            call_tool("build_context_pack", {"ref": path.stem, "mode": mode}, repo_root=tmp_path),
+        ]
+        for pack in packs:
+            entry = next(doc for doc in pack["docs"] if doc["ref"] == path.stem)
+            assert entry["executions"] == expected
+            assert parse_executions(entry["execution_table"]) == expected["rows"]
+
+
+LINE_BREAKS = ["\n", "\r", "\r\n", "\v", "\f", "\x1c", "\x1d", "\x1e", "\x85", "\u2028", "\u2029"]
+
+
+@pytest.mark.parametrize("separator", LINE_BREAKS)
+def test_execution_text_line_separators_round_trip(tmp_path, separator):
+    path = write_ac_traceability_chain(tmp_path)["task"]
+    value = f"First{separator}try | & &#10;"
+    expected = "First" + " " * len(separator) + "try | & &#10;"
+    record(tmp_path, title=value, notes=value)
+    rows = parse_executions(path.read_text())
+    assert rows[0]["Title"] == rows[0]["Notes"] == expected
+    record_run_payload(tmp_path, path.stem, runner="ci", run_id="1", state="succeeded")
+    updated = parse_executions(path.read_text())
+    assert len(updated) == 1
+    assert updated[0]["State"] == "succeeded"
+    assert updated[0]["Title"] == updated[0]["Notes"] == expected
+
+
+@pytest.mark.parametrize("separator", LINE_BREAKS)
+@pytest.mark.parametrize("field", ["runner", "run_id"])
+def test_execution_identifier_line_separators_refused_without_writes(tmp_path, separator, field):
+    paths = write_ac_traceability_chain(tmp_path)
+    record(tmp_path)
+    before = {path: path.read_bytes() for path in paths.values()}
+    args = dict(runner="ci", run_id="1", state="succeeded")
+    args[field] = f"first{separator}second"
+    with pytest.raises(SystemExit, match="nonempty single-line"):
+        record_run_payload(tmp_path, paths["task"].stem, **args)
+    assert before == {path: path.read_bytes() for path in paths.values()}
+
+
+def test_execution_identifiers_round_trip_and_update(tmp_path):
+    path = write_ac_traceability_chain(tmp_path)["task"]
+    args = dict(runner="ci | & &#10;", run_id="run | & &#13;")
+    record_run_payload(tmp_path, path.stem, state="running", **args)
+    record_run_payload(tmp_path, path.stem, state="succeeded", **args)
+    rows = parse_executions(path.read_text())
+    assert len(rows) == 1
+    assert rows[0]["Runner"] == args["runner"]
+    assert rows[0]["Run id"] == args["run_id"]
+    assert rows[0]["State"] == "succeeded"

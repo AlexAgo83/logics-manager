@@ -5,7 +5,7 @@ import argparse
 from datetime import datetime, timezone
 from pathlib import Path
 
-from ..executions import STATES, parse_executions, replace_executions, valid_pr
+from ..executions import LINE_SEPARATORS, STATES, parse_executions, replace_executions, valid_pr
 
 
 def record_run_payload(repo_root: Path, source: str, *, runner: str, run_id: str, state: str, title: str | None = None,
@@ -17,7 +17,7 @@ def record_run_payload(repo_root: Path, source: str, *, runner: str, run_id: str
         raise SystemExit("Executions are supported only for requests, backlog items and tasks.")
     if state not in STATES:
         raise SystemExit(f"Invalid execution state: {state}")
-    if not runner.strip() or not run_id.strip() or any(char in runner + run_id for char in "\r\n"):
+    if not runner.strip() or not run_id.strip() or any(char in runner + run_id for char in LINE_SEPARATORS):
         raise SystemExit("Runner and run id must be nonempty single-line values.")
     if pr is not None and pr and not valid_pr(pr):
         raise SystemExit("Invalid PR URL: expected an absolute HTTP or HTTPS URL.")

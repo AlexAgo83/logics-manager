@@ -10,6 +10,7 @@ from .doc_parsing import FENCED_BLOCK_PATTERN
 
 COLUMNS = ("When", "Runner", "Run id", "Title", "State", "PR", "Notes")
 STATES = ("queued", "running", "succeeded", "failed", "cancelled", "merged", "closed")
+LINE_SEPARATORS = "\n\r\v\f\x1c\x1d\x1e\x85\u2028\u2029"
 HEADER = "| " + " | ".join(COLUMNS) + " |\n| " + " | ".join("---" for _ in COLUMNS) + " |\n"
 
 
@@ -74,7 +75,7 @@ def parse_executions(text: str) -> list[dict[str, str]]:
 
 def render_executions(rows: list[dict[str, str]]) -> str:
     def escape(value: str) -> str:
-        return html.escape(value, quote=False).replace("|", "&#124;").replace("\r", " ").replace("\n", " ")
+        return html.escape(value, quote=False).replace("|", "&#124;").translate(str.maketrans({char: " " for char in LINE_SEPARATORS}))
     return "# Executions\n" + HEADER + "".join("| " + " | ".join(escape(row[column]) for column in COLUMNS) + " |\n" for row in rows) + "\n"
 
 
@@ -132,6 +133,6 @@ def execution_audit_findings(text: str) -> list[tuple[str, str]]:
     return []
 
 
-def execution_pack_fields(sections: dict) -> dict:
-    summary = execution_summary("# Executions\n" + "\n".join(sections["Executions"])) if "Executions" in sections else execution_summary("")
-    return {"executions": summary, "execution_table": bounded_execution_text(summary) or (render_executions([]) if "Executions" in sections else "")}
+def execution_pack_fields(text: str) -> dict:
+    summary = execution_summary(text)
+    return {"executions": summary, "execution_table": bounded_execution_text(summary) or (render_executions([]) if section_bounds(text) else "")}

@@ -36,6 +36,7 @@ class WorkflowDocModel:
     refs: dict[str, list[str]]
     ai_context: dict[str, str]
     schema_version: str
+    text: str = ""
 
 
 DOC_KINDS = {
@@ -195,6 +196,7 @@ def parse_workflow_doc(path: Path, *, repo_root: Path | None = None) -> Workflow
         refs={prefix: _extract_refs(_strip_mermaid_blocks(text), prefix) for prefix in REF_PREFIXES},
         ai_context=_extract_ai_context(sections),
         schema_version=indicators.get("Schema version", "1.0"),
+        text=text,
     )
 
 
@@ -262,7 +264,7 @@ def _context_pack_doc_entry(doc: WorkflowDocModel, mode: str) -> dict[str, objec
         "ai_context": doc.ai_context,
         "linked_refs": {prefix: refs for prefix, refs in doc.refs.items() if refs},
     }
-    entry.update(execution_pack_fields(doc.sections))
+    entry.update(execution_pack_fields(doc.text))
     if mode == "summary-only":
         return entry
     section_names = {
@@ -361,7 +363,7 @@ def _context_pack_cache_key(
                 "kind": doc.kind,
                 "path": doc.path,
                 "schema_version": doc.schema_version,
-                "executions": doc.sections.get("Executions", []),
+                "text": doc.text,
                 "status": doc.indicators.get("Status", ""),
                 "linked_refs": {prefix: refs for prefix, refs in doc.refs.items() if refs},
             }

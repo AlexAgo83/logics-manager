@@ -13,6 +13,7 @@ from datetime import date
 from pathlib import Path
 
 from ..ai_context import block as ai_context_block
+from ..executions import render_executions
 from ..flow_evidence import AC_DEFERRED_PLACEHOLDER
 
 
@@ -122,7 +123,7 @@ def _build_scaffold_request_doc(repo_root: Path, ref: str, title: str, input_pay
             "- none",
             "",
         ]
-    ).rstrip() + "\n"
+    ).rstrip() + "\n\n" + render_executions([])
 
 def _build_scaffold_product_doc(repo_root: Path, ref: str, request_ref: str, item_refs: list[str], task_ref: str, input_payload: dict[str, object]) -> str:
     product = input_payload.get("product") if isinstance(input_payload.get("product"), dict) else {}
@@ -227,7 +228,7 @@ def _build_scaffold_backlog_doc(repo_root: Path, ref: str, request_ref: str, pro
             "- Rationale: Set by scaffold input or defaulted for grooming.",
             "",
         ]
-    ).rstrip() + "\n"
+    ).rstrip() + "\n\n" + render_executions([])
 
 def _scaffold_input_request_ac_ids(input_payload: dict[str, object]) -> list[str]:
     """Acceptance criterion identifiers declared by the scaffold input, in declaration order."""
@@ -328,7 +329,7 @@ def _build_scaffold_task_doc(repo_root: Path, ref: str, title: str, request_ref:
             "- Architecture decision(s): (none yet)",
             "",
         ]
-    ).rstrip() + "\n"
+    ).rstrip() + "\n\n" + render_executions([])
 
 def _build_split_orchestration_task_doc(repo_root: Path, ref: str, title: str, request_ref: str, item_refs: list[str], summary: str) -> str:
     return "\n".join(
@@ -381,4 +382,4 @@ def _build_split_orchestration_task_doc(repo_root: Path, ref: str, title: str, r
             "- Architecture decision(s): (none yet)",
             "",
         ]
-    ).rstrip() + "\n"
+    ).rstrip() + "\n\n" + render_executions([])

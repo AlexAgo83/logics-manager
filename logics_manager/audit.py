@@ -998,23 +998,18 @@ def audit_payload(
         skip_gates = True
     if profile["require_ac_traceability"] is False:
         skip_ac_traceability = True
-
     cutoff = _parse_semver(legacy_cutoff_version)
     if legacy_cutoff_version and cutoff is None:
         raise SystemExit(f"Invalid --legacy-cutoff-version `{legacy_cutoff_version}`. Expected semantic version like 1.3.0.")
-
     scope_since = _parse_semver(since_version)
     if since_version and scope_since is None:
         raise SystemExit(f"Invalid --since-version `{since_version}`. Expected semantic version like 1.3.0.")
-
     all_docs = _collect_docs(repo_root)
     docs = _apply_scope(all_docs, repo_root, paths or [], refs or [], scope_since)
-
     issues: list[AuditIssue] = []
     strict_governance = governance_profile == "strict"
     autofix_targets: dict[Path, set[str]] = {}
     autofix_modified: list[Path] = []
-
     for doc in docs.values():
         if doc.kind.kind != "task" or not _is_done(doc):
             continue
@@ -1133,6 +1128,11 @@ def audit_payload(
                         message=f"companion doc references missing target `{ref}`",
                     )
                 )
+
+    from .executions import execution_audit_findings
+    for doc in docs.values():
+        for code, message in execution_audit_findings(doc.text):
+            issues.append(AuditIssue(code=code, path=doc.path, message=message))
 
     for doc in docs.values():
         # Runbooks are companion knowledge with no delivery-chain requirement (req_330):

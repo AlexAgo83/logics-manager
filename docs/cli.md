@@ -894,3 +894,40 @@ This follows ADR 009: tooling should guide commit-ready checkpoints, not auto-co
 - For companion docs (`prod_*`, `road_*`, `adr_*`), `Related request/backlog/task/product/roadmap/architecture` indicators are also indexed as managed-doc links.
 - Companion docs should still mirror those links under `# References` with canonical relative paths so the runtime and plugin stay aligned.
 - Legacy nested list blocks (`- References:` / `- Used by:`) are also parsed for backward compatibility.
+
+## Execution records
+
+Any coding agent, CI job or release tool can record work in a request, backlog item
+or task. The command creates `# Executions` on first use for existing documents;
+new workflow documents include an empty table.
+
+```sh
+logics-manager flow record-run task_001_example --runner ci --run-id build-42 --state running --title "Validate release" --pr https://github.com/example/project/pull/42 --notes "Tests started"
+logics-manager flow record-run task_001_example --runner ci --run-id build-42 --state succeeded --notes "Tests passed" --progress auto --format json
+```
+
+Syntax: `logics-manager flow record-run <ref> --runner <name> --run-id <id>
+--state <state> [--title T] [--pr URL] [--notes N] [--progress auto]
+[--format text|json] [--dry-run]`.
+
+The table columns are `When`, `Runner`, `Run id`, `Title`, `State`, `PR`, and
+`Notes`, ordered by last update, newest first. `When` is an ISO 8601 timestamp
+with a timezone. Allowed states are `queued`, `running`, `succeeded`, `failed`,
+`cancelled`, `merged`, and `closed`. PR links must be absolute HTTP or HTTPS URLs.
+The runner and run id identify a row together. Updating a row refreshes its state
+and timestamp; omitted title, PR and notes retain their previous values. Pass an
+empty string to clear an optional value. Other sections are preserved.
+
+On tasks, `--progress auto` calculates the percentage of recorded executions whose
+current state is `succeeded` or `merged`, rounded to the nearest integer. All
+other states remain in the denominator. This uses the same linked backlog progress
+propagation as `flow progress`; it does not close the task. `--dry-run` reports
+planned changes without writing documents.
+
+`flow show`, `sync read-doc`, and the MCP `read_logics_doc` surface include the
+20 newest executions and an older-row count. Recorded executions remain included even
+when the document body exceeds `--max-chars`; that character limit applies to the
+remaining body. Empty tables follow the ordinary body character limit. `sync context-pack` and MCP `build_context_pack` include bounded
+structured executions and an `execution_table` Markdown field in every mode.
+Lint and audit check the table columns, states and dates. Audit flags a document
+whose latest execution failed as needing attention.

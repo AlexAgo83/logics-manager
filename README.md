@@ -70,3 +70,13 @@ git and readable in reviews. See [concepts and product shape](docs/concepts.md).
 
 Full index in [`docs/`](docs/README.md). Security reports: see [SECURITY.md](SECURITY.md);
 contributions: [CONTRIBUTING.md](CONTRIBUTING.md). logics-manager is [MIT licensed](LICENSE).
+
+Record work performed by any runner against a request, backlog item or task:
+
+```sh
+logics-manager flow record-run task_001_example --runner ci --run-id build-42 --state succeeded --pr https://github.com/example/project/pull/42 --progress auto
+```
+
+The `# Executions` table tracks attempts by runner and run id. Repeating that pair
+updates its row and timestamp. Task progress can be calculated from successful or
+merged executions. See the [flow reference](docs/cli.md#execution-records).

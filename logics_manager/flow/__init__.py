@@ -1173,7 +1173,6 @@ def build_parser() -> argparse.ArgumentParser:
         description="Create Logics docs with consistent IDs, templates, and workflow transitions.",
     )
     sub = parser.add_subparsers(dest="command", required=True)
-
     new_parser = sub.add_parser("new", help="Create a new Logics doc from a template.")
     new_sub = new_parser.add_subparsers(dest="kind", required=True)
     for kind in DOC_KINDS:
@@ -1410,6 +1409,7 @@ def build_parser() -> argparse.ArgumentParser:
     progress_task.add_argument("--dry-run", action="store_true")
     progress_task.set_defaults(func=cmd_progress_task)
 
+    add_record_run_parser(sub)
     return parser
 
 
@@ -2408,6 +2408,7 @@ def cmd_closeout(args: argparse.Namespace) -> dict[str, object]:
             print(f"- audit issues: {payload['audit'].get('issue_count')}")
     return payload
 
+from .runs import add_record_run_parser
 import os
 
 
@@ -2419,14 +2420,14 @@ import os
 
 
 
-def _task_progress_for_backlog(task_path: Path, *, active_task_path: Path | None = None) -> int:
+def _task_progress_for_backlog(task_path: Path, *, active_task_path: Path | None = None, progress_override: int | None = None) -> int:
     lines = read_lines(task_path)
     status = _normalize_status(_indicator_value_from_lines(lines, "Status"))
     if active_task_path is not None and task_path == active_task_path:
         status = "in progress"
     if status in {"done", "archived"}:
         return 100
-    explicit = progress_value(_indicator_value_from_lines(lines, "Progress"))
+    explicit = progress_override if progress_override is not None else progress_value(_indicator_value_from_lines(lines, "Progress"))
     if explicit is not None and explicit > 0:
         return explicit
     if status == "in progress":
@@ -2434,7 +2435,7 @@ def _task_progress_for_backlog(task_path: Path, *, active_task_path: Path | None
     return 0
 
 
-def _sync_linked_backlog_progress(repo_root: Path, task_path: Path, *, dry_run: bool, active_task_path: Path | None = None) -> list[str]:
+def _sync_linked_backlog_progress(repo_root: Path, task_path: Path, *, dry_run: bool, active_task_path: Path | None = None, progress_override: int | None = None) -> list[str]:
     task_text = _strip_mermaid_blocks(task_path.read_text(encoding="utf-8"))
     changed: list[str] = []
     for item_ref in declared_refs("task", task_text, "backlog"):
@@ -2448,7 +2449,7 @@ def _sync_linked_backlog_progress(repo_root: Path, task_path: Path, *, dry_run: 
         linked_tasks = _collect_docs_linking_ref(repo_root, DOC_KINDS["task"], item_ref)
         if not linked_tasks:
             continue
-        total = sum(_task_progress_for_backlog(path, active_task_path=active_task_path) for path in linked_tasks)
+        total = sum(_task_progress_for_backlog(path, active_task_path=active_task_path, progress_override=progress_override if path == task_path else None) for path in linked_tasks)
         progress = round(total / len(linked_tasks))
         updates = {"Progress": f"{progress}%"}
         if progress > 0 and item_status in {"", "draft", "ready"}:
@@ -2524,7 +2525,7 @@ def progress_task_payload(repo_root: Path, source: str, *, progress: str, dry_ru
     changed_files: list[str] = []
     if _write_workflow_indicators(source_path, {"Progress": f"{parsed}%"}, dry_run=dry_run):
         changed_files.append(source_path.relative_to(repo_root).as_posix())
-    changed_files.extend(_sync_linked_backlog_progress(repo_root, source_path, dry_run=dry_run))
+    changed_files.extend(_sync_linked_backlog_progress(repo_root, source_path, dry_run=dry_run, progress_override=parsed))
     return {
         "command": "progress",
         "kind": "task",
@@ -3423,7 +3424,7 @@ def main(argv: list[str]) -> int:
     if argv[0] == "progress" and len(argv) > 1 and argv[1] == "task" and _help_requested(argv, 2):
         _print_help(_build_progress_kind_help(argv[1]))
         return 0
-    valid_commands = {"new", "list", "statuses", "show", "companion", "roadmap", "deliver", "scaffold", "validate", "validate-closeout", "start", "progress", "evidence", "repair", "closeout", "promote", "split", "close", "withdraw", "finish"}
+    valid_commands = {"record-run", "new", "list", "statuses", "show", "companion", "roadmap", "deliver", "scaffold", "validate", "validate-closeout", "start", "progress", "evidence", "repair", "closeout", "promote", "split", "close", "withdraw", "finish"}
     if argv[0] not in valid_commands:
         hint = " Use `logics-manager flow show <ref>` to inspect a workflow doc." if argv[0] in {"read", "view", "cat"} else " Run `logics-manager flow --help` for valid commands."
         raise SystemExit(f"Unsupported flow subcommand: {argv[0]}.{hint}")

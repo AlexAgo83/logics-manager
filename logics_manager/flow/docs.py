@@ -8,8 +8,7 @@ and tests import exactly what they imported before.
 """
 
 from __future__ import annotations
-
-from __future__ import annotations
+from ..executions import render_executions
 import argparse
 import json
 import re
@@ -159,6 +158,7 @@ def _build_help() -> str:
             "    List workflow docs that are still active.",
             "    Flags: --kind {all,request,backlog,task}, --format {text,json}",
             "",
+            "  record-run <ref> --runner <name> --run-id <id> --state <state>\n    Record or update a work execution. Optional: --title, --pr, --notes, --progress auto, --format, --dry-run\n",
             "  show <ref>",
             "    Show a bounded workflow document view.",
             "    Flags: --max-chars, --section, --format {text,json}",
@@ -760,7 +760,7 @@ def _build_native_request_doc(repo_root: Path, planned_ref: str, title: str, arg
             "- none",
             "",
         ]
-    ).rstrip() + "\n"
+    ).rstrip() + "\n\n" + render_executions([])
     return _with_workflow_mermaid_overview("request", content)
 
 
@@ -834,7 +834,7 @@ def _build_native_backlog_doc(
             "- Generated locally by logics-manager.",
             "",
         ]
-    ).rstrip() + "\n"
+    ).rstrip() + "\n\n" + render_executions([])
     return _with_workflow_mermaid_overview("backlog", content)
 
 
@@ -910,7 +910,7 @@ def _build_native_task_doc(
             f"- Architecture decision(s): {architecture_line}",
             "",
         ]
-    ).rstrip() + "\n"
+    ).rstrip() + "\n\n" + render_executions([])
     return content
 
 
@@ -1342,7 +1342,7 @@ def _build_native_backlog_from_request(
             "- Generated locally by logics-manager.",
             "",
         ]
-    ).rstrip() + "\n"
+    ).rstrip() + "\n\n" + render_executions([])
     return ref, _with_workflow_mermaid_overview("backlog", content)
 
 
@@ -1415,7 +1415,7 @@ def _build_native_task_from_backlog(
             f"- Architecture decision(s): {architecture_line}",
             "",
         ]
-    ).rstrip() + "\n"
+    ).rstrip() + "\n\n" + render_executions([])
     return ref, content
 
 

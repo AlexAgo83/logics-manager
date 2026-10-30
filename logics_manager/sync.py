@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from .executions import execution_pack_fields, execution_read_content
+
 import argparse
 import json
 import os
@@ -260,6 +262,7 @@ def _context_pack_doc_entry(doc: WorkflowDocModel, mode: str) -> dict[str, objec
         "ai_context": doc.ai_context,
         "linked_refs": {prefix: refs for prefix, refs in doc.refs.items() if refs},
     }
+    entry.update(execution_pack_fields(doc.sections))
     if mode == "summary-only":
         return entry
     section_names = {
@@ -358,6 +361,7 @@ def _context_pack_cache_key(
                 "kind": doc.kind,
                 "path": doc.path,
                 "schema_version": doc.schema_version,
+                "executions": doc.sections.get("Executions", []),
                 "status": doc.indicators.get("Status", ""),
                 "linked_refs": {prefix: refs for prefix, refs in doc.refs.items() if refs},
             }
@@ -571,6 +575,7 @@ def read_logics_doc_payload(repo_root: Path, source: str, *, max_chars: int = 40
         if heading in doc.sections
     }
     text = _read_text(repo_root, path)
+    text, content, executions = execution_read_content(text, selected_sections, max_chars)
     payload: dict[str, object] = {
         "ref": doc.ref,
         "kind": doc.kind,
@@ -581,7 +586,8 @@ def read_logics_doc_payload(repo_root: Path, source: str, *, max_chars: int = 40
         "linked_refs": {prefix: refs for prefix, refs in doc.refs.items() if refs},
         **_doc_age_fields(repo_root, doc.path),
         "sections": selected_sections,
-        "content": text[:max_chars],
+        "executions": executions,
+        "content": content,
         "truncated": len(text) > max_chars,
         "max_chars": max_chars,
     }

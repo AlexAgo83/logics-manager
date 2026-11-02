@@ -160,9 +160,7 @@
   "overrides": {
     "fast-uri": "3.1.8",
     "dompurify": "3.4.17",
-    "minimatch@10.2.6": {
-      "brace-expansion": "5.0.12"
-    },
+    "minimatch": "11.0.4",
     "js-yaml": "4.3.2",
     "linkify-it": "5.0.2",
     "qs": "6.16.2",

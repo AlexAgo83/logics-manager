@@ -11,4 +11,5 @@ Delivered in PR #56 (commit `24795a479b2347e387b08562973c8cc17df2457c`): Fix the
 
 ## Maintenance
 
+- Retry transient Marketplace publishing network failures up to three attempts, waiting 60 seconds between attempts; accept an existing publication only for the exact extension version and stop immediately on other errors.
 - Align release version declarations, the README version badge, and lockfiles for 2.24.3, and regenerate the aggregate changelog.

@@ -121,7 +121,28 @@ jobs:
       - name: Publish to VS Code Marketplace
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
-        run: npx vsce publish --packagePath "artifacts/vscode/logics-manager-$(node -p "require('./package.json').version").vsix"
+        run: |
+          version=$(node -p "require('./package.json').version")
+          # package-vscode-extension.mjs uses a different name from the npm package.
+          extension=$(node -p "require('./package.json').publisher + '.cdx-logics-vscode'")
+          output=$(mktemp)
+          trap 'rm -f "$output"' EXIT
+          for attempt in 1 2 3; do
+            if npx vsce publish --packagePath "artifacts/vscode/logics-manager-${version}.vsix" >"$output" 2>&1; then
+              cat "$output"
+              exit 0
+            else
+              status=$?
+            fi
+            cat "$output"
+            if grep -Fq "${extension} v${version} already exists." "$output"; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 3 ] || ! grep -Eq '\b(ECONNRESET|ECONNABORTED|ETIMEDOUT|ESOCKETTIMEDOUT|ECONNREFUSED|EAI_AGAIN|ENOTFOUND|ENETUNREACH|EHOSTUNREACH|EPIPE)\b|socket hang up' "$output"; then
+              exit "$status"
+            fi
+            sleep 60
+          done
 
   publish-npm:
     needs: release

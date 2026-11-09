@@ -13,6 +13,7 @@ Fix the scheduled security audit by pinning minimatch to 11.0.4. Release date: 2
 
 - Security audit fix
 - Maintenance
+- Workflow audit
 
 [Full release note](https://github.com/AlexAgo83/logics-manager/releases/tag/v2.24.3)
 

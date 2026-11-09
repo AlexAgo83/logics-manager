@@ -931,3 +931,26 @@ remaining body. Empty tables follow the ordinary body character limit. `sync con
 structured executions and an `execution_table` Markdown field in every mode.
 Lint and audit check the table columns, states and dates. Audit flags a document
 whose latest execution failed as needing attention.
+
+For an explicitly `Done` request delivered directly by automated missions, a valid
+execution row with `State` set to `merged` and a nonempty PR URL counts as delivery
+evidence for its acceptance criteria. Record it on the request itself:
+
+```sh
+logics-manager flow record-run req_001_example --runner mission --run-id delivery-42 --state merged --pr https://github.com/example/project/pull/42
+```
+
+This evidence replaces the request's backlog/task traceability and DoR requirements
+in audit and the audit findings consumed by `flow validate`. The audit trusts the
+recorded merge state; it does not query the PR host. Empty PR cells, other execution
+states, and malformed tables do not qualify. Draft, Ready and In progress requests
+retain their existing checks even when they carry merged execution records. Linked
+active documents still have their own requirements.
+
+Documents with `Status: Obsolete` represent abandoned work. Audit keeps their
+structural checks (execution table validity and resolving document references),
+while lint keeps schema validation. Delivery gates, traceability, failed-run
+remediation and automatic gate/proof repairs do not apply to these documents. Do
+not check off an abandoned task's DoD to clear an audit finding. Other documents
+may reference an obsolete document, but it cannot supply delivery proof or trigger
+automatic proof repairs. Health's separate status/progress checks are unchanged.

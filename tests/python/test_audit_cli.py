@@ -164,7 +164,7 @@ def test_render_audit_reports_stale_pending_doc(tmp_path: Path) -> None:
     assert payload["issues"][0]["code"] == "stale_pending_doc"
 
 
-def test_audit_active_view_ignores_terminal_doc_blockers(tmp_path: Path) -> None:
+def test_audit_obsolete_orphan_needs_no_delivery_chain(tmp_path: Path) -> None:
     repo_root = tmp_path / "logics-repo"
     (repo_root / "logics" / "backlog").mkdir(parents=True)
     _write_minimal_workflow_doc(
@@ -178,7 +178,7 @@ def test_audit_active_view_ignores_terminal_doc_blockers(tmp_path: Path) -> None
     full = audit_payload(repo_root, skip_ac_traceability=True, skip_gates=True)
     active = audit_payload(repo_root, skip_ac_traceability=True, skip_gates=True, active=True)
 
-    assert full["issue_count"] == 1
+    assert full["issue_count"] == 0
     assert active["issue_count"] == 0
     assert "View: active non-terminal docs" in render_audit(repo_root, skip_ac_traceability=True, skip_gates=True, active=True)
 

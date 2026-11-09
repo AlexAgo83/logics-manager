@@ -22,6 +22,7 @@ from .flow_evidence import (
     unbacked_local_ac_ids as _unbacked_local_ac_ids,
 )
 from .statuses import workflow_statuses
+from .audit_lifecycle import delivery_by_execution, execution_evidence_hint, obsolete_structure_issues
 
 
 CURRENT_WORKFLOW_SCHEMA_VERSION = "1.0"
@@ -490,7 +491,7 @@ def _resolve(refs: set[str], docs: dict[str, DocMeta], kind: str) -> list[DocMet
 
 
 def _linked_items_for_request(request: DocMeta, docs: dict[str, DocMeta]) -> list[DocMeta]:
-    return _resolve(_declared_refs(request, "backlog"), docs, "backlog")
+    return [item for item in _resolve(_declared_refs(request, "backlog"), docs, "backlog") if item.status != "obsolete"]
 
 
 def _linked_tasks_for_item(item: DocMeta, docs: dict[str, DocMeta]) -> list[DocMeta]:
@@ -500,7 +501,7 @@ def _linked_tasks_for_item(item: DocMeta, docs: dict[str, DocMeta]) -> list[DocM
     # by re-scanning every task for every item.
     refs = _declared_refs(item, "task")
     refs |= _task_refs_by_backlog(docs).get(item.ref, set())
-    return _resolve(refs, docs, "task")
+    return [task for task in _resolve(refs, docs, "task") if task.status != "obsolete"]
 
 
 def _linked_requests_for_item(item: DocMeta, docs: dict[str, DocMeta]) -> list[DocMeta]:
@@ -525,6 +526,8 @@ def _doc_has_ac_with_proof(doc: DocMeta, ac_id: str) -> bool:
     The audit used to carry its own looser rule while the closeout gate used the strict
     one, so the two disagreed about the same document and neither said which was right.
     """
+    if doc.status == "obsolete":
+        return False
     legacy = doc.from_version is not None and doc.from_version < STRICT_AC_PROOF_FROM_VERSION
     return _has_ac_with_proof(doc.text, ac_id, legacy=legacy)
 
@@ -545,7 +548,7 @@ def _ac_traceability_issue(code: str, request: DocMeta, ac_id: str, level: str, 
             path=request.path,
             message=(
                 f"`{ac_id}` {level}-level traceability proof is deferred — expected at task "
-                f"closeout; no linked task is Done yet (supply proof then)"
+                f"closeout; no linked task is Done yet (supply proof then)" + execution_evidence_hint(request)
             ),
             severity="warning",
             repair_command=repair,
@@ -554,7 +557,7 @@ def _ac_traceability_issue(code: str, request: DocMeta, ac_id: str, level: str, 
     return AuditIssue(
         code=code,
         path=request.path,
-        message=f"`{ac_id}` missing {level}-level traceability with proof",
+        message=f"`{ac_id}` missing {level}-level traceability with proof" + execution_evidence_hint(request),
         severity="blocking",
         repair_command=repair,
     )
@@ -1006,14 +1009,14 @@ def audit_payload(
         raise SystemExit(f"Invalid --since-version `{since_version}`. Expected semantic version like 1.3.0.")
     all_docs = _collect_docs(repo_root)
     docs = _apply_scope(all_docs, repo_root, paths or [], refs or [], scope_since)
-    issues: list[AuditIssue] = []
+    issues = obsolete_structure_issues(docs, all_docs)
+    docs = {ref: doc for ref, doc in docs.items() if doc.status != "obsolete"}
     strict_governance = governance_profile == "strict"
     autofix_targets: dict[Path, set[str]] = {}
     autofix_modified: list[Path] = []
     for doc in docs.values():
         if doc.kind.kind != "task" or not _is_done(doc):
             continue
-
         item_refs = _extract_refs(doc.text, DOC_KIND_OBJECTS["backlog"].prefix)
         if not item_refs:
             issues.append(AuditIssue(code="task_missing_backlog_ref", path=doc.path, message="done task has no linked backlog item reference"))
@@ -1152,11 +1155,11 @@ def audit_payload(
             )
 
     for doc in docs.values():
-        if doc.kind.kind != "request" or _is_delivered(doc) is False:
+        if doc.kind.kind != "request" or not _is_delivered(doc) or delivery_by_execution(doc):
             continue
         request_items = _linked_items_for_request(doc, all_docs)
         if not request_items:
-            issues.append(AuditIssue(code="request_done_without_backlog", path=doc.path, message="delivered request has no linked backlog items"))
+            issues.append(AuditIssue(code="request_done_without_backlog", path=doc.path, message="delivered request has no linked backlog items" + execution_evidence_hint(doc)))
             continue
         for item in request_items:
             if not _is_done(item):
@@ -1194,7 +1197,7 @@ def audit_payload(
         issues.extend(_duplicate_proof_issues(docs, cutoff))
         issues.extend(_local_ac_backs_issues(docs, cutoff))
         for request in [doc for doc in docs.values() if doc.kind.kind == "request"]:
-            if not _is_strict_scope(request, cutoff) or _is_abandoned(request):
+            if not _is_strict_scope(request, cutoff) or _is_abandoned(request) or delivery_by_execution(request):
                 continue
             ac_ids = _extract_request_ac_ids(request)
             if not ac_ids:
@@ -1203,7 +1206,7 @@ def audit_payload(
             linked_items = _linked_items_for_request(request, all_docs)
             if not linked_items:
                 if not _is_unsliced_draft(request):
-                    issues.append(AuditIssue(code="ac_no_linked_backlog", path=request.path, message="request has ACs but no linked backlog items"))
+                    issues.append(AuditIssue(code="ac_no_linked_backlog", path=request.path, message="request has ACs but no linked backlog items" + execution_evidence_hint(request)))
                 continue
 
             # item_852: a chain running through an abandoned slice delivered nothing.
@@ -1218,7 +1221,7 @@ def audit_payload(
 
             if not linked_tasks:
                 if not _is_unsliced_draft(request):
-                    issues.append(AuditIssue(code="ac_no_linked_tasks", path=request.path, message="request has ACs but no linked tasks"))
+                    issues.append(AuditIssue(code="ac_no_linked_tasks", path=request.path, message="request has ACs but no linked tasks" + execution_evidence_hint(request)))
                 continue
 
             for ac_id in ac_ids:
@@ -1241,13 +1244,13 @@ def audit_payload(
 
     if not skip_gates:
         for request in [doc for doc in docs.values() if doc.kind.kind == "request"]:
-            if not _is_strict_scope(request, cutoff) or request.status not in {"ready", "in progress", "done"}:
+            if not _is_strict_scope(request, cutoff) or request.status not in {"ready", "in progress", "done"} or delivery_by_execution(request):
                 continue
             dor_checks = _extract_checkboxes(_extract_section_lines(request.text, "Definition of Ready (DoR)"))
             if not dor_checks:
-                issues.append(AuditIssue(code="request_missing_dor", path=request.path, message="missing DoR checklist"))
+                issues.append(AuditIssue(code="request_missing_dor", path=request.path, message="missing DoR checklist" + execution_evidence_hint(request)))
             elif any(not checked for checked, _label in dor_checks):
-                issues.append(AuditIssue(code="request_dor_unchecked", path=request.path, message="DoR checklist contains unchecked items"))
+                issues.append(AuditIssue(code="request_dor_unchecked", path=request.path, message="DoR checklist contains unchecked items" + execution_evidence_hint(request)))
 
         for task in [doc for doc in docs.values() if doc.kind.kind == "task"]:
             if not _is_strict_scope(task, cutoff) or not _is_done(task):
@@ -1299,11 +1302,11 @@ def audit_payload(
 
         if autofix_modified and not autofix_dry_run:
             all_docs = _collect_docs(repo_root)
-            docs = _apply_scope(all_docs, repo_root, paths or [], refs or [], scope_since)
+            docs = {ref: doc for ref, doc in _apply_scope(all_docs, repo_root, paths or [], refs or [], scope_since).items() if doc.status != "obsolete"}
             issues = [issue for issue in issues if issue.code not in {"ac_missing_item_traceability", "ac_missing_task_traceability"}]
 
             for request in [doc for doc in docs.values() if doc.kind.kind == "request"]:
-                if skip_ac_traceability or not _is_strict_scope(request, cutoff):
+                if skip_ac_traceability or not _is_strict_scope(request, cutoff) or _is_abandoned(request) or delivery_by_execution(request):
                     continue
                 ac_ids = _extract_request_ac_ids(request)
                 if not ac_ids:
@@ -1332,7 +1335,7 @@ def audit_payload(
         # rerunning the scan against files nothing wrote would report the same issues twice.
         if autofix_modified and not autofix_dry_run:
             all_docs = _collect_docs(repo_root)
-            docs = _apply_scope(all_docs, repo_root, paths or [], refs or [], scope_since)
+            docs = {ref: doc for ref, doc in _apply_scope(all_docs, repo_root, paths or [], refs or [], scope_since).items() if doc.status != "obsolete"}
             issues = [issue for issue in issues if issue.code not in set(AUTOFIX_STRUCTURE_CODES)]
 
     issues.extend(_scan_hybrid_cache_for_credentials(repo_root))

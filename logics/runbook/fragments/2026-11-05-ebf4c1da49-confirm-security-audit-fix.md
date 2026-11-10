@@ -19,11 +19,11 @@ repository change; no new Logics request chain or operating rule is needed.
 ## Verification
 
 Every local validation attempt runs through the supplied
-`.jarvis-input/mission-test-runner.py`. Exact commands, durations, and exit
-codes are recorded in `.jarvis-artifacts/mission-tests.jsonl`.
+`.mission-input/mission-test-runner.py`. Exact commands, durations, and exit
+codes are recorded in `.mission-artifacts/mission-tests.jsonl`.
 
 - `npm run audit:ci` passes before and after a clean installation.
-- `npm ci && npm run build:assets && /home/aagos/.local/bin/uv sync --frozen && npm run compile && npm run lint && npm run audit:ci`
+- `npm ci && npm run build:assets && /home/user/.local/bin/uv sync --frozen && npm run compile && npm run lint && npm run audit:ci`
   passes. Viewer assets are built before uv sync, as required by CI. Lint
   includes the TypeScript type check and ESLint.
 - `npm run test:smoke && npm run test:npm-cli && npm run package:ci` passes.
@@ -59,7 +59,7 @@ Node coverage suites. Linux was checked locally; Windows remains a CI check.
 | Exact command | Duration (seconds) | Exit code |
 | --- | ---: | ---: |
 | `npm run audit:ci` | 0.510 | 0 |
-| `npm ci && npm run build:assets && /home/aagos/.local/bin/uv sync --frozen && npm run compile && npm run lint && npm run audit:ci` | 10.550 | 0 |
+| `npm ci && npm run build:assets && /home/user/.local/bin/uv sync --frozen && npm run compile && npm run lint && npm run audit:ci` | 10.550 | 0 |
 | `npm run test:coverage` | 23.881 | 1 |
 | `npm run test:smoke && npm run test:npm-cli && npm run package:ci` | 5.125 | 0 |
 | `.venv/bin/python -m coverage run --source=logics_manager -m pytest tests/python/ -q` | 128.109 | 1 |
@@ -73,7 +73,7 @@ Node coverage suites. Linux was checked locally; Windows remains a CI check.
 
 ## Publication handoff
 
-No UI changed, so no new UI captures are required. Jarvis/Tower owns commits
+No UI changed, so no new UI captures are required. the orchestrator/Host A owns commits
 and publication. Review the existing dependency fix and the current successful
 scheduled audit result before considering another dependency update. Full
 GitHub CI remains the merge gate. No deployment or host measurement is needed.

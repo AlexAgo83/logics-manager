@@ -20,9 +20,9 @@ are needed in this preparation.
 
 ## Validation
 
-Every local check runs through `.jarvis-input/mission-test-runner.py` with its
+Every local check runs through `.mission-input/mission-test-runner.py` with its
 entire exact command as one argument. Measured receipts and logs are retained
-in `.jarvis-artifacts/`; the receipt is not edited.
+in `.mission-artifacts/`; the receipt is not edited.
 
 Initial environment findings:
 
@@ -41,7 +41,7 @@ Initial environment findings:
 
 ## Publication handoff
 
-Leave all release changes in the working tree for Jarvis/Tower to commit and
+Leave all release changes in the working tree for the orchestrator/Host A to commit and
 open the release PR through the existing merge guards. Do not tag, push,
 publish, update a host, or alter release workflows. No host measurement is
 required. VS Code lifecycle integration requires the unavailable `code` CLI;
@@ -67,7 +67,7 @@ including the Windows checks that cannot run on this Linux worker.
   `desktop: git history domain: reachable`, and `desktop: ci: reachable`.
   The first reports "Project is not a Git repository"; the remaining checks
   time out. Report and capture are preserved in
-  `.jarvis-artifacts/viewer-smoke/report.txt`, `summary.json`, and `desktop.png`.
+  `.mission-artifacts/viewer-smoke/report.txt`, `summary.json`, and `desktop.png`.
   No UI source changed, so this is diagnostic evidence, not a visual redesign
   acceptance claim.
 - Independent Python runs, with and without coverage, each pass 1,703 tests

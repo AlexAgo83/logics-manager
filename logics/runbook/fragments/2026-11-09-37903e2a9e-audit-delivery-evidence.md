@@ -1,6 +1,6 @@
 # Mission 37903e2a9e: lifecycle-aware audit evidence
 
-The remote-ops report described 38 blocking audit findings on abandoned tasks and
+The example-project report described 38 blocking audit findings on abandoned tasks and
 requests delivered by automated missions without Logics tasks. The remote corpus
 is not available in this checkout; regression fixtures reproduce both cases.
 
@@ -20,7 +20,7 @@ Validation covers lifecycle statuses, missing/invalid evidence, existing chains,
 product references, structural failures and repairs that must preserve abandoned
 documents. All local validation commands are timed by the supplied mission runner.
 The first targeted run exposed an obsolete repair target and an outdated test
-expectation, both corrected. Local test adapters under .jarvis-artifacts expose
+expectation, both corrected. Local test adapters under .mission-artifacts expose
 the prepared Chromium and preserve mission Git routing only for this checkout,
 so temporary fixture repositories do not inherit the read-only mission repository.
 The isolated Git snapshot has no remote; the adapter supplies the public origin
@@ -40,5 +40,5 @@ The standalone retry passed all 1,726 Python tests with one skip and 80% coverag
 above the unchanged 78% floor. Extension and npm CLI smoke checks, Logics lint,
 VSIX packaging, and Python wheel/sdist builds also passed. The only remaining
 failure is `desktop: ci: reachable`; required GitHub CI must be green before merge.
-Recheck the 38 reported findings against the actual remote-ops corpus and review
+Recheck the 38 reported findings against the actual example-project corpus and review
 that each recorded merged PR covers the Done request's acceptance criteria.

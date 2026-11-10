@@ -54,7 +54,7 @@
 
 # References
 - docs/runbooks/viewer-ui-campaign.md
-- ../remote-ops/docs/runbook-add-repo-runners.md
+- ../example-project/docs/runbook-add-repo-runners.md
 - ../cr-league/docs/ai-app-test-runbook.md
 - ../cts/docs/rh-recruit-release-runbook.md
 - logics_manager/audit.py

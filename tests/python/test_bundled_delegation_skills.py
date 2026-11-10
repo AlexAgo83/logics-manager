@@ -64,7 +64,7 @@ def test_frontmatter_name_matches_the_directory(name: str) -> None:
 def test_skill_names_only_this_projects_surface(name: str) -> None:
     """No dependency on a specific orchestrator, agent runtime, or provider."""
     text = _skill_text(name).lower()
-    for foreign in ("cdx_run", "cdx-manager", "hermes", "remote-ops", "discord", "telegram", "ollama"):
+    for foreign in ("cdx_run", "cdx-manager", "hermes", "example-project", "discord", "telegram", "ollama"):
         assert foreign not in text, f"{name} references {foreign}"
     assert "logics-manager" in text, f"{name} never invokes this project"
 

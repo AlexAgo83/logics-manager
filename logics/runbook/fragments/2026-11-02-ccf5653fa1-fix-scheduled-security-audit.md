@@ -22,8 +22,8 @@ workflow contract change; it does not require a new Logics request chain.
 ## Verification
 
 Every local validation attempt is measured by
-`.jarvis-input/mission-test-runner.py`; exact commands, durations and exit codes
-are recorded in `.jarvis-artifacts/mission-tests.jsonl`.
+`.mission-input/mission-test-runner.py`; exact commands, durations and exit codes
+are recorded in `.mission-artifacts/mission-tests.jsonl`.
 
 - The original `npm run audit:ci` reproduced the reported blocking findings.
 - A clean `npm ci` with the changed lockfile succeeds and reports zero vulnerabilities.
@@ -51,7 +51,7 @@ available to the repository's existing Chrome discovery logic for retries.
 An unchanged source copy with the original package manifest and lockfile,
 installed independently with `npm ci`, reproduces the same campaign assertion
 failure (one failed, one passed). Its audit still reports ten moderate findings.
-This comparison is recorded in `.jarvis-artifacts/baseline-campaign.log`.
+This comparison is recorded in `.mission-artifacts/baseline-campaign.log`.
 
 With Chromium, the desktop viewer smoke run completed and reported five failed
 checks: the remote Git screen reports "Project is not a Git repository", and
@@ -67,7 +67,7 @@ Do not raise test budgets, skip tests, or change unrelated viewer behavior for
 this dependency fix. The local test status must therefore be reported as failed,
 while the implementation is ready for publication and GitHub CI validation.
 
-Jarvis/Tower owns committing and PR publication. Leave these changes in the
+the orchestrator/Host A owns committing and PR publication. Leave these changes in the
 working tree; do not push or open a PR from this mission. GitHub CI, including the
 complete campaign and ordinary Git checkout access, remains the full merge gate.
 There is no deployment or host measurement requirement for this dependency fix.
@@ -84,16 +84,16 @@ The baseline comparison is diagnostic and is expected to reproduce an existing f
 | `npm run build:assets && uv sync --frozen && npm run compile` | 0.148 | 127 |
 | `npm run lint` | 3.483 | 0 |
 | `npm run audit:ci` | 0.461 | 0 |
-| `npm run build:assets && /home/aagos/.local/bin/uv sync --frozen && npm run compile` | 1.847 | 0 |
+| `npm run build:assets && /home/user/.local/bin/uv sync --frozen && npm run compile` | 1.847 | 0 |
 | `npm run test` | 16.138 | 1 |
 | `npm run test:coverage` | 85.524 | 0 |
 | `npm run package:ci` | 1.174 | 0 |
 | `npm run test:smoke && npm run test:npm-cli` | 2.487 | 0 |
 | `.venv/bin/python -m coverage run --source=logics_manager -m pytest tests/python/ -q` | 141.353 | 0 |
 | `VIEWER_CAMPAIGN_VIEWPORTS=desktop VIEWER_CAMPAIGN_SKIP_SLOW_CHECKS=1 npm run test:viewer-smoke` | 2.402 | 1 |
-| `PATH="$PWD/.jarvis-artifacts/bin:$PATH" npm run test` | 601.323 | 1 |
-| `PATH="$PWD/.jarvis-artifacts/bin:$PATH" VIEWER_CAMPAIGN_VIEWPORTS=desktop VIEWER_CAMPAIGN_SKIP_SLOW_CHECKS=1 npm run test:viewer-smoke` | 382.090 | 1 |
+| `PATH="$PWD/.mission-artifacts/bin:$PATH" npm run test` | 601.323 | 1 |
+| `PATH="$PWD/.mission-artifacts/bin:$PATH" VIEWER_CAMPAIGN_VIEWPORTS=desktop VIEWER_CAMPAIGN_SKIP_SLOW_CHECKS=1 npm run test:viewer-smoke` | 382.090 | 1 |
 | `.venv/bin/python -m ruff check logics_manager tests/python scripts && npm run lint:logics` | 2.845 | 0 |
-| `cd .jarvis-artifacts/baseline && npm ci && npm run test -- tests/viewer.campaign-report.test.ts` | 17.596 | 1 |
+| `cd .mission-artifacts/baseline && npm ci && npm run test -- tests/viewer.campaign-report.test.ts` | 17.596 | 1 |
 | `PATH="$PWD/.venv/bin:$PATH" node scripts/check-python-coverage-floor.mjs` | 0.634 | 0 |
 | `.venv/bin/logics-manager lint --require-status` | 0.387 | 0 |

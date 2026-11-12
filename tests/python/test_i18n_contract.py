@@ -94,11 +94,11 @@ def test_not_applicable_contract_is_valid(tmp_path: Path) -> None:
 def test_cli_supports_json_status_and_init(tmp_path: Path, monkeypatch, capsys) -> None:
     root = _repo(tmp_path)
     monkeypatch.chdir(root)
-    assert main(["i18n", "status", "--format", "json"]) == 0
+    assert main(["--repo-root", str(root), "i18n", "status", "--format", "json"]) == 0
     assert json.loads(capsys.readouterr().out)["state"] == "absent"
-    assert main(["i18n", "init", "--source-locale", "en", "--format", "json"]) == 0
+    assert main(["--repo-root", str(root), "i18n", "init", "--source-locale", "en", "--format", "json"]) == 0
     assert json.loads(capsys.readouterr().out)["written"] is True
-    assert main(["i18n", "validate", "--format", "json"]) == 0
+    assert main(["--repo-root", str(root), "i18n", "validate", "--format", "json"]) == 0
     assert json.loads(capsys.readouterr().out)["state"] == "valid"
 
 

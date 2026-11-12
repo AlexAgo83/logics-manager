@@ -24,6 +24,7 @@ from logics_manager.runtime_drift import drift_message, repository_version
 def _repo_at(tmp_path: Path, version: str | None, *, self_checkout: bool = True) -> Path:
     repo_root = tmp_path / "repo"
     (repo_root / "logics" / "request").mkdir(parents=True)
+    (repo_root / ".git").mkdir()
     if self_checkout:
         # item_784/GH#20: repository_version() now only reads VERSION for what looks
         # like logics-manager's own checkout -- these tests are about the drift

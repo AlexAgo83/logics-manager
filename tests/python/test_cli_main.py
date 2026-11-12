@@ -3502,7 +3502,7 @@ def test_main_runs_native_bootstrap_check_reports_missing(
     repo_root.mkdir()
     monkeypatch.chdir(repo_root)
 
-    exit_code = main(["bootstrap", "--check"])
+    exit_code = main(["--repo-root", str(repo_root), "bootstrap", "--check"])
     captured = capsys.readouterr()
 
     assert exit_code == 1
@@ -3520,7 +3520,7 @@ def test_main_runs_native_bootstrap_creates_scaffold(
     repo_root.mkdir()
     monkeypatch.chdir(repo_root)
 
-    exit_code = main(["bootstrap"])
+    exit_code = main(["--repo-root", str(repo_root), "bootstrap"])
     captured = capsys.readouterr()
 
     assert exit_code == 0
@@ -3550,7 +3550,7 @@ def test_main_runs_native_bootstrap_cleans_legacy_runtime_artifacts(
     (repo_root / "logics" / "skills" / "legacy-skill" / "SKILL.md").write_text("# legacy\n", encoding="utf-8")
     monkeypatch.chdir(repo_root)
 
-    exit_code = main(["bootstrap"])
+    exit_code = main(["--repo-root", str(repo_root), "bootstrap"])
     captured = capsys.readouterr()
 
     assert exit_code == 0
@@ -3688,7 +3688,7 @@ def test_main_runs_native_bootstrap_check_reports_stale_instructions(
     (repo_root / "logics" / "instructions.md").write_text("stale instructions\n", encoding="utf-8")
     monkeypatch.chdir(repo_root)
 
-    exit_code = main(["bootstrap", "--check"])
+    exit_code = main(["--repo-root", str(repo_root), "bootstrap", "--check"])
     captured = capsys.readouterr()
 
     assert exit_code == 1
@@ -3948,12 +3948,12 @@ def test_bootstrap_sync_harnesses_is_opt_in_and_touches_only_the_fake_home(
     monkeypatch.setattr("logics_manager.harness_mcp._real_home", lambda: fake_home)
 
     # Without the flag: bootstrap runs, nothing under fake_home is touched.
-    exit_code = main(["bootstrap"])
+    exit_code = main(["--repo-root", str(repo_root), "bootstrap"])
     assert exit_code == 0
     assert not any(fake_home.iterdir())
 
     # With the flag: skills land under fake_home, never the real machine's.
-    exit_code = main(["bootstrap", "--sync-harnesses"])
+    exit_code = main(["--repo-root", str(repo_root), "bootstrap", "--sync-harnesses"])
     captured = capsys.readouterr()
     assert exit_code == 0
     assert (fake_home / ".claude" / "skills" / "corpus" / "SKILL.md").is_file()

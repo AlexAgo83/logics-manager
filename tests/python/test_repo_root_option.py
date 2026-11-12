@@ -147,3 +147,69 @@ def test_root_help_after_the_option_is_help_not_an_unknown_command(corpus: Path,
     assert result.returncode == 0, result.stderr
     assert "Usage:" in result.stdout
     assert "Subcommands: status, health, roadmap, brief" in result.stdout
+
+
+@pytest.mark.parametrize("linked_worktree", [False, True], ids=["checkout", "worktree"])
+def test_discovery_uses_nearest_git_entry(linked_worktree: bool, tmp_path: Path) -> None:
+    parent_cache = tmp_path / "logics" / ".cache"
+    parent_cache.mkdir(parents=True)
+    preferences = parent_cache / "viewer-preferences.json"
+    preferences.write_text("{}\n", encoding="utf-8")
+    checkout = tmp_path / "checkout"
+    subprocess.run(["git", "init", str(checkout)], check=True, capture_output=True, env=_sanitized_subprocess_env())
+    root = checkout
+    if linked_worktree:
+        subprocess.run(
+            ["git", "-C", str(checkout), "-c", "user.name=Test", "-c", "user.email=test@example.com",
+             "-c", "commit.gpgsign=false", "commit", "--allow-empty", "-m", "Initial fixture"],
+            check=True, capture_output=True, env=_sanitized_subprocess_env(),
+        )
+        root = tmp_path / "worktree"
+        subprocess.run(["git", "-C", str(checkout), "worktree", "add", "-b", "fixture", str(root)], check=True, capture_output=True, env=_sanitized_subprocess_env())
+        assert (root / ".git").is_file()
+    nested = root / "src" / "nested"
+    # Even a corpus-shaped subdirectory cannot move the Git boundary.
+    (nested / "logics").mkdir(parents=True)
+    for _ in range(2):
+        result = _run(["bootstrap", "--format", "json"], cwd=nested)
+        assert result.returncode == 0, result.stderr
+        assert Path(json.loads(result.stdout)["repo_root"]) == root.resolve()
+    for relative in ("AGENTS.md", "LOGICS.md", "logics/instructions.md", "logics/request", "logics/tasks"):
+        assert (root / relative).exists()
+        assert not (tmp_path / relative).exists()
+        assert not (nested / relative).exists()
+    assert sorted(path.relative_to(tmp_path / "logics").as_posix() for path in (tmp_path / "logics").rglob("*")) == [
+        ".cache", ".cache/viewer-preferences.json",
+    ]
+    assert preferences.read_text(encoding="utf-8") == "{}\n"
+    # Flow and config delegate to the same resolver used by bootstrap.
+    result = _run(["flow", "new", "request", "--title", "Discovered root"], cwd=nested)
+    assert result.returncode == 0, result.stderr
+    assert list((root / "logics" / "request").glob("*.md"))
+    (root / "logics.yaml").write_text("version: 42\n", encoding="utf-8")
+    result = _run(["config", "show", "--format", "json"], cwd=nested)
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)["config"]["version"] == 42
+
+
+@pytest.mark.parametrize("args", [["bootstrap"], ["bootstrap", "--check"], ["status"], ["flow", "list"], ["sync", "list-docs"]])
+def test_discovery_rejects_non_git_ancestors(args: list[str], tmp_path: Path) -> None:
+    (tmp_path / "logics" / ".cache").mkdir(parents=True)
+    nested = tmp_path / "outside" / "nested"
+    nested.mkdir(parents=True)
+    before = sorted(path.relative_to(tmp_path).as_posix() for path in tmp_path.rglob("*"))
+    result = _run(args, cwd=nested)
+    assert result.returncode != 0
+    assert "--repo-root" in result.stderr
+    assert sorted(path.relative_to(tmp_path).as_posix() for path in tmp_path.rglob("*")) == before
+
+
+def test_explicit_dot_allows_bootstrap_outside_git(tmp_path: Path) -> None:
+    (tmp_path / "logics" / ".cache").mkdir(parents=True)
+    target = tmp_path / "outside" / "nested"
+    target.mkdir(parents=True)
+    result = _run(["bootstrap", "--repo-root", ".", "--format", "json"], cwd=target)
+    assert result.returncode == 0, result.stderr
+    assert Path(json.loads(result.stdout)["repo_root"]) == target.resolve()
+    assert (target / "AGENTS.md").is_file()
+    assert not (tmp_path / "AGENTS.md").exists()

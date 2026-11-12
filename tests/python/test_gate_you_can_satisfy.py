@@ -87,7 +87,7 @@ def _scaffold_corpus(root: Path) -> str:
 
     env = {**os.environ, "PYTHONPATH": str(Path.cwd())}
     result = subprocess.run(
-        [sys.executable, "-m", "logics_manager", "flow", "scaffold", "request-chain",
+        [sys.executable, "-m", "logics_manager", "--repo-root", str(root), "flow", "scaffold", "request-chain",
          "--input", "logics/scaffold/probe.json"],
         cwd=root, capture_output=True, text=True, timeout=120, env=env,
     )

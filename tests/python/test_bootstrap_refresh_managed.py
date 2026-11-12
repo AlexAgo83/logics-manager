@@ -98,7 +98,7 @@ def test_cli_bootstrap_refresh_managed_reports_no_corpus(
     repo_root.mkdir()
     monkeypatch.chdir(repo_root)
 
-    exit_code = main(["bootstrap", "--refresh-managed", "--format", "json"])
+    exit_code = main(["--repo-root", str(repo_root), "bootstrap", "--refresh-managed", "--format", "json"])
     captured = json.loads(capsys.readouterr().out)
 
     assert exit_code == 1

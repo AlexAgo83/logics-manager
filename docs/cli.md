@@ -231,10 +231,12 @@ logics-manager --repo-root=/path/to/project flow list
 logics-manager flow new request --repo-root "/path/with spaces" --title "..."
 ```
 
-Without it, the repository is discovered by walking up from the current
-directory, exactly as before. This is what an external orchestrator should use
-instead of changing directory per invocation — it also keeps repository paths
-out of shell command strings, so paths containing spaces work.
+Without it, discovery walks up from the current directory and stops at the
+nearest `.git` entry, whether it is a directory (checkout) or a file (linked
+worktree). A `logics/` folder never determines the repository boundary. Outside
+a Git work tree, pass `--repo-root` explicitly, including for `bootstrap`.
+Explicit targeting also keeps repository paths out of shell command strings,
+so paths containing spaces work.
 
 The path must exist and contain a `logics/` directory. `bootstrap` is the one
 exemption, since creating `logics/` is its job.

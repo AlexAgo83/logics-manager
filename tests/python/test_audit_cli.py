@@ -790,7 +790,7 @@ def test_module_audit_subprocess_returns_nonzero_for_failed_payload(tmp_path: Pa
         status="Proposed",
     )
 
-    result = _run_logics_manager_subprocess(repo_root, ["audit", "--governance-profile", "strict", *output_args])
+    result = _run_logics_manager_subprocess(repo_root, ["--repo-root", str(repo_root), "audit", "--governance-profile", "strict", *output_args])
 
     assert result.returncode == 1
     assert result.stderr == ""

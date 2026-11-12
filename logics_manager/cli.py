@@ -708,10 +708,7 @@ def _dispatch(argv: list[str] | None = None) -> int:
         )
         parser.add_argument("--format", choices=("text", "json"), default="text")
         parsed = parser.parse_args(rest)
-        try:
-            repo_root = find_repo_root(Path.cwd())
-        except ConfigError:
-            repo_root = Path.cwd().resolve()
+        repo_root = find_repo_root(Path.cwd())
         payload = bootstrap_payload(
             repo_root,
             check=parsed.check,

@@ -181,9 +181,18 @@ logics-manager update --manager pipx          # override the resolution
 ```
 
 `--check --format json` reports `manager`, `path`, `current_version`,
-`latest_version`, `update_available`, and any `shadowing_executables`, so an
+`latest_version`, `target_version`, `installed_version`, `update_available`, and any
+`shadowing_executables`, so an
 automated updater no longer has to match on the phrase "already at latest
 version".
+
+Both `--check` and `--dry-run` resolve the target online through the selected
+package manager and read its installed version without installing anything.
+Updates pin that exact target (`npm view --prefer-online`, or `pip index versions
+--no-cache-dir` through pip/pipx) and verify the installed package again after
+installation. A registry failure, unreadable installed version, or version mismatch
+returns a nonzero exit code; installer success alone never claims an update.
+JSON output remains a single document even when an installer prints output.
 
 If the layout is unrecognised **and** another `logics-manager` is already on
 PATH, the update is refused rather than guessed: guessing wrong is what

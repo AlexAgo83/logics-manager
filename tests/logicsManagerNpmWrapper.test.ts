@@ -155,6 +155,8 @@ describe("logics-manager npm wrapper", () => {
       process.execPath,
       [
         path.join(root, "scripts", "npm", "logics-manager.mjs"),
+        "--repo-root",
+        repoRoot,
         "flow",
         "new",
         "request",
@@ -202,6 +204,8 @@ describe("logics-manager npm wrapper", () => {
       process.execPath,
       [
         path.join(root, "scripts", "npm", "logics-manager.mjs"),
+        "--repo-root",
+        repoRoot,
         "audit",
         "--governance-profile",
         "strict",

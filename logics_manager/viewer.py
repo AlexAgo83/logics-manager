@@ -4201,10 +4201,9 @@ def _confirm_launch_without_corpus(repo_root: Path, *, assume_yes: bool) -> bool
 def _resolve_viewer_root(start: Path) -> Path:
     """Locate the repo root, falling back to a bootstrap root when none exists.
 
-    Normally the viewer requires a `logics/` corpus (find_repo_root). To let the
-    viewer launch in a not-yet-bootstrapped repo and offer the in-app bootstrap
-    onboarding (canBootstrapLogics), fall back to the git toplevel (if any), then
-    the current directory, when no `logics/` directory is found upward.
+    The shared resolver locates Git checkouts and linked worktrees, including
+    repositories without a corpus. For standalone onboarding, fall back to
+    the git toplevel (if any), then the current directory.
     """
     try:
         return find_repo_root(start)

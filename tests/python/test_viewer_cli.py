@@ -4570,9 +4570,10 @@ def test_viewer_serves_packaged_static_assets_when_source_clients_are_absent(
 
 
 def test_resolve_viewer_root_falls_back_when_no_logics_corpus(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    # With a logics/ corpus, it resolves to that repo root.
+    # With a Git entry, it resolves to that repo root.
     repo = tmp_path / "withlogics"
     (repo / "logics").mkdir(parents=True)
+    (repo / ".git").mkdir()
     assert viewer_module._resolve_viewer_root(repo) == repo.resolve()
 
     # Without logics/ and outside any git repo, it falls back to the start dir

@@ -273,9 +273,11 @@ def find_repo_root(start: Path) -> Path:
         return _REPO_ROOT_OVERRIDE
     current = start.resolve()
     for candidate in [current, *current.parents]:
-        if holds_corpus(candidate):
+        # A linked worktree has a .git file. Corpus folders (including viewer
+        # caches) must never override the nearest Git repository boundary.
+        if (candidate / ".git").exists():
             return candidate
-    raise ConfigError("Could not locate repo root (missing 'logics/' directory). Run from inside the repo.")
+    raise ConfigError("Could not locate repo root (missing '.git' entry). Run from inside a Git work tree or pass --repo-root explicitly.")
 
 
 def config_path(repo_root: Path) -> Path:

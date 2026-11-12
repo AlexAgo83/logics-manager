@@ -118,7 +118,7 @@ describe("logics-manager CLI help", () => {
       "utf8"
     );
 
-    const { status, output } = runCliHelp(["flow", "list", "--format", "json"], {}, tempRoot);
+    const { status, output } = runCliHelp(["flow", "list", "--format", "json", "--repo-root", tempRoot], {}, tempRoot);
     expect(status).toBe(0);
 
     const payload = JSON.parse(output) as {

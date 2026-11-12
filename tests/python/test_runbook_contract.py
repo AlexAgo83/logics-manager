@@ -108,7 +108,7 @@ def test_generated_instructions_tell_an_agent_where_runbooks_live(tmp_path: Path
     repo_root.mkdir()
     monkeypatch.chdir(repo_root)
 
-    exit_code = main(["bootstrap"])
+    exit_code = main(["bootstrap", "--repo-root", str(repo_root)])
     assert exit_code == 0
 
     instructions_text = (repo_root / "logics" / "instructions.md").read_text(encoding="utf-8")

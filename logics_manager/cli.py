@@ -130,7 +130,7 @@ def _build_root_help() -> str:
         "",
         "Workflow authoring:",
         "  flow       Create, promote, split, close, and finish workflow docs.",
-        "             Subcommands: new, list, show, companion, roadmap, deliver, scaffold, validate, validate-closeout, repair, closeout, promote, split, close, finish",
+        "             Subcommands: new, list, show, companion, roadmap, deliver, scaffold, validate, validate-closeout, repair, closeout, promote, split, close, finish, withdraw, status",
         "  sync       Maintain generated workflow state and doc metadata.",
         "             Subcommands: close-eligible-requests, refresh-mermaid-signatures,",
         "                          schema-status, read-doc, list-docs, search-docs,",

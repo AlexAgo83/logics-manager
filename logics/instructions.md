@@ -28,6 +28,10 @@ Not every fix needs a chain. ADR 030 decides which do: a fix needs one when its 
 During task execution, treat meaningful waves as ADR 009 checkpoints: update affected Logics docs inside the wave and leave the repo commit-ready; actual commits stay under operator control.
 When grooming or creating backlog items, set a deliberate `# Priority` tier (`High`, `Medium`, or `Low`) with a one-line rationale instead of leaving the default unreviewed.
 Sequence delivery plans and roadmaps by status priority order before lower-priority work when dependencies allow.
-When delivery consumes a linked product brief, `flow closeout` should settle it; otherwise set the brief to `Settled` or `Superseded` through the CLI instead of leaving it `Proposed`.
+When delivery consumes a linked product brief, `flow closeout` should settle it; otherwise use `flow status product <ref> --status Settled --reason <text>` or Superseded instead of leaving it Proposed.
+
+Use `logics-manager flow withdraw <ref> --reason <text>` to retire work without a replacement; it propagates Obsolete to eligible parents without claiming delivery. Keep `--superseded-by <ref>` for replacement withdrawals.
+
+Use `logics-manager flow status <product|architecture|runbook|roadmap> <ref> --status <status> --reason <text>` for companion lifecycle changes; use Archived for retired runbooks. Preview either command with `--dry-run`.
 When `rtk` is available, prefer it for noisy commands. Use raw commands or `rtk proxy <cmd>` when exact output or one-off command semantics matter.
 For targeted npm binaries, prefer `rtk npm exec -- vitest ...` instead of `rtk npx vitest ...`.

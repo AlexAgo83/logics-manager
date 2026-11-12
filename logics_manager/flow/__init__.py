@@ -27,6 +27,7 @@ from ..flow_evidence import structured_validation_line as _structured_validation
 from ..index import index_payload
 from ..lint import expected_workflow_mermaid_signature, lint_payload
 from ..path_utils import ensure_relative_to, resolve_repo_output_path
+from .lifecycle import add_lifecycle_parsers, cmd_withdraw
 from ..statuses import transition_error
 from ..sync import build_context_pack_payload, read_logics_doc_payload, update_workflow_indicators_payload
 from ..viewer_docs import viewer_url_for_ref
@@ -1385,12 +1386,7 @@ def build_parser() -> argparse.ArgumentParser:
         kind_parser.add_argument("--dry-run", action="store_true")
         kind_parser.set_defaults(func=cmd_close)
 
-    withdraw_parser = sub.add_parser("withdraw", help="Mark a workflow doc obsolete and record its replacement.")
-    withdraw_parser.add_argument("source")
-    withdraw_parser.add_argument("--superseded-by", required=True)
-    withdraw_parser.add_argument("--format", choices=("text", "json"), default="text")
-    withdraw_parser.add_argument("--dry-run", action="store_true")
-    withdraw_parser.set_defaults(func=cmd_withdraw)
+    add_lifecycle_parsers(sub)
 
     finish_parser = sub.add_parser("finish", help="Finish a task and verify the closure chain.")
     finish_sub = finish_parser.add_subparsers(dest="kind", required=True)
@@ -3151,32 +3147,6 @@ def cmd_close(args: argparse.Namespace) -> dict[str, object]:
     return payload
 
 
-def cmd_withdraw(args: argparse.Namespace) -> dict[str, object]:
-    repo_root = _find_repo_root(Path.cwd())
-    source_path, kind_name = _resolve_any_workflow_source(repo_root, args.source)
-    kind = DOC_KINDS[kind_name]
-    lines = read_lines(source_path)
-    previous_status = next((line.split(":", 1)[1].strip() for line in lines if line.startswith("> Status:")), None)
-    error = transition_error(kind.kind, previous_status, "Obsolete")
-    if error:
-        raise SystemExit(error)
-    if not args.dry_run:
-        write_doc(source_path, "\n".join(_replace_indicator_line(lines, "Status", "Obsolete")).rstrip() + "\n")
-        _append_section_bullets(source_path, "Links", [f"Superseded by: `{args.superseded_by}`"], dry_run=False)
-
-    payload = {
-        "command": "withdraw",
-        "kind": kind.kind,
-        "source": source_path.relative_to(repo_root).as_posix(),
-        "superseded_by": args.superseded_by,
-        "dry_run": args.dry_run,
-    }
-    if args.format == "json":
-        print_payload(payload, args.format)
-    else:
-        print(f"Withdrew {kind.kind}: {payload['source']} (superseded by {args.superseded_by})")
-    return payload
-
 
 def _verify_finished_task_chain(repo_root: Path, task_path: Path) -> list[str]:
     issues: list[str] = []
@@ -3424,7 +3394,7 @@ def main(argv: list[str]) -> int:
     if argv[0] == "progress" and len(argv) > 1 and argv[1] == "task" and _help_requested(argv, 2):
         _print_help(_build_progress_kind_help(argv[1]))
         return 0
-    valid_commands = {"record-run", "new", "list", "statuses", "show", "companion", "roadmap", "deliver", "scaffold", "validate", "validate-closeout", "start", "progress", "evidence", "repair", "closeout", "promote", "split", "close", "withdraw", "finish"}
+    valid_commands = {"status", "record-run", "new", "list", "statuses", "show", "companion", "roadmap", "deliver", "scaffold", "validate", "validate-closeout", "start", "progress", "evidence", "repair", "closeout", "promote", "split", "close", "withdraw", "finish"}
     if argv[0] not in valid_commands:
         hint = " Use `logics-manager flow show <ref>` to inspect a workflow doc." if argv[0] in {"read", "view", "cat"} else " Run `logics-manager flow --help` for valid commands."
         raise SystemExit(f"Unsupported flow subcommand: {argv[0]}.{hint}")

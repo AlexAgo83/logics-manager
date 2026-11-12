@@ -1,6 +1,6 @@
 ---
 name: roadmap-deliver
-description: Propose, inspect, or validate a versioned roadmap doc, and deliver a request/backlog/task chain straight from a product brief. Use when asked to "propose a roadmap", "check the roadmap", "validate the roadmap", or "deliver this product brief" — the product-level chain above requests.
+description: Propose, inspect, validate, or change the status of a versioned roadmap doc, and deliver a request/backlog/task chain straight from a product brief. Use when asked to "propose a roadmap", "check the roadmap", "validate the roadmap", or "deliver this product brief" — the product-level chain above requests.
 ---
 
 # Roadmap and delivery
@@ -43,6 +43,14 @@ logics-manager flow roadmap show road_004_q3_platform_work
 ```bash
 logics-manager flow roadmap validate road_004_q3_platform_work
 ```
+
+**Update status** without editing roadmap indicators by hand:
+```bash
+logics-manager flow status roadmap road_004_q3_platform_work --status Archived --reason "Planning period ended" --dry-run
+```
+Review the preview, then omit `--dry-run` to record the status and reason.
+The same command supports product, architecture, and runbook documents with
+their own valid statuses; retired runbooks use Archived.
 
 **Deliver** a request/backlog/task chain straight from a settled product
 brief:

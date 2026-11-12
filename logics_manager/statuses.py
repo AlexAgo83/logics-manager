@@ -75,6 +75,8 @@ def transition_error(stage: str, previous: str | None, target: str) -> str | Non
     allowed = stage_statuses(stage)
     target = canonical_status(stage, target)
     if allowed and target not in allowed:
+        if stage == "runbook" and target.lower() == "obsolete":
+            return f"runbooks cannot be Obsolete; use Archived (valid statuses: {', '.join(allowed)})."
         return f"`{target}` is not a valid status for {stage} (allowed: {', '.join(allowed)})."
     prev = (previous or "").strip()
     if prev and prev != target and prev in terminal_statuses():

@@ -1,12 +1,12 @@
 ---
 name: lifecycle-ops
-description: Split, promote, withdraw, close, finish, or progress an existing Logics request/backlog/task — the lifecycle moves that fall outside scoping (/corpus) and building (/implement-task). Use when asked to "split this request", "promote this backlog item", "withdraw this doc", "close this out manually", or "update the progress" on a doc that already exists.
+description: Split, promote, withdraw, close, finish, or progress an existing Logics request/backlog/task, and change product, architecture, runbook, or roadmap statuses — the lifecycle moves that fall outside scoping (/corpus) and building (/implement-task). Use when asked to "split this request", "promote this backlog item", "withdraw this doc", "close this out manually", or "update the progress" on a doc that already exists.
 ---
 
 # Lifecycle operations on an existing doc
 
 Move an already-scoped Logics doc through the rest of its lifecycle: split it,
-promote it to the next stage, retire it, close it, or update its progress.
+promote it to the next stage, retire it, close it, or update its progress. Manage companion statuses with a recorded reason.
 This skill does not scope new work (`/corpus`) and does not build it
 (`/implement-task`) — it moves docs that already exist.
 
@@ -43,6 +43,25 @@ that traceability for you to add by hand afterward.
 ```bash
 logics-manager flow withdraw item_002_my_slice --superseded-by item_009_the_real_fix
 ```
+**Retire** work that will not be done, without inventing a replacement:
+```bash
+logics-manager flow withdraw task_003_my_task --reason "Scope abandoned after review" --dry-run
+logics-manager flow withdraw task_003_my_task --reason "Scope abandoned after review"
+```
+Retirement propagates Obsolete upward only when all linked children are closed,
+without completing checkboxes or changing progress to 100%. The reason is recorded
+in each retired document. Replacement withdrawals keep their existing behavior.
+
+**Change companion status** using its own valid status vocabulary:
+```bash
+logics-manager flow status product prod_001_brief --status Settled --reason "Delivery accepted"
+logics-manager flow status architecture adr_001_choice --status Superseded --reason "Design replaced"
+logics-manager flow status runbook run_001_ops --status Archived --reason "Service retired"
+logics-manager flow status roadmap road_001_plan --status Archived --reason "Planning period ended"
+```
+All support `--dry-run`; invalid statuses name the allowed alternatives. Runbooks
+use Archived for retirement, since Obsolete is not valid for runbooks.
+
 This only works from a status the withdraw transition allows (see Gotchas) —
 it is not a way to abandon work silently.
 

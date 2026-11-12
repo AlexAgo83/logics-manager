@@ -5,7 +5,6 @@ import json
 import os
 import re
 from importlib import metadata
-import subprocess
 import sys
 import sysconfig
 from shutil import which
@@ -26,7 +25,7 @@ from .sync import search_logics_docs_payload
 from .doctor import doctor_packaging_payload, doctor_payload, render_doctor, render_doctor_payload
 from .termstyle import colorize_help
 from .skills import resync_all_harnesses
-from .update_check import current_version as package_current_version, get_update_info, get_update_notice, is_newer_version
+from .update_check import current_version as package_current_version, get_update_notice
 
 
 DEFAULT_SELF_UPDATE_PY_PACKAGE = "logics-manager"
@@ -227,11 +226,6 @@ def _is_running_from_npm_package() -> bool:
     return payload.get("name") == DEFAULT_SELF_UPDATE_PACKAGE
 
 
-def latest_available_version() -> str | None:
-    """Published version, or None when the registry is unreachable."""
-    return get_update_info(get_cli_version()).latest_version
-
-
 def _print_skill_sync_summary(skill_sync: dict[str, object]) -> None:
     targets = skill_sync.get("targets") if isinstance(skill_sync, dict) else None
     if not targets:
@@ -264,7 +258,7 @@ def _print_update_state(state: dict[str, object], output_format: str) -> None:
     latest = state.get("latest_version")
     if latest:
         lines.append(
-            f"  latest: {latest}" + ("" if state.get("update_available") else " (already at latest version)")
+            f"  latest: {latest}" + ("" if state.get("update_available") else " (no newer version available)")
         )
     else:
         lines.append("  latest: unknown (registry unreachable)")
@@ -769,12 +763,6 @@ def _dispatch(argv: list[str] | None = None) -> int:
             "shadowing_executables": shadows,
         }
 
-        if parsed.check:
-            state["latest_version"] = latest_available_version()
-            state["update_available"] = is_newer_version(str(state["latest_version"] or ""), str(state["current_version"]))
-            _print_update_state(state, parsed.format)
-            return 0
-
         # Refuse only when the update would install somewhere other than where the
         # running copy lives -- that is what creates a shadowing second executable,
         # and it is exactly what happened in the field. Duplicates that already
@@ -791,7 +779,7 @@ def _dispatch(argv: list[str] | None = None) -> int:
             and bool(shadows)
             and not parsed.allow_shadow
         )
-        if would_shadow:
+        if would_shadow and not parsed.check:
             state["ok"] = False
             state["error"] = "ambiguous_install"
             state["message"] = (
@@ -813,58 +801,13 @@ def _dispatch(argv: list[str] | None = None) -> int:
                 file=sys.stderr,
             )
 
-        if manager == "pip":
+        if manager == "pip" and not parsed.check:
             if _is_externally_managed_python() and not parsed.break_system_packages:
                 _print_externally_managed_update_guidance(parsed.python_package)
                 return 1
-            command = [sys.executable, "-m", "pip", "install", "--upgrade", parsed.python_package]
-            if parsed.break_system_packages:
-                command.append("--break-system-packages")
-        elif manager == "pipx":
-            pipx = which("pipx")
-            if not pipx:
-                print("pipx was not found on PATH. Install pipx or update with --manager pip/npm.")
-                return 1
-            command = [pipx, "upgrade", parsed.python_package]
-        else:
-            npm = which("npm")
-            if not npm:
-                print("npm was not found on PATH. Install Node.js/npm or update the package manually.")
-                return 1
-            command = [npm, "install", "-g", f"{parsed.package}@latest"]
+        from .self_update import run_update
 
-        if parsed.dry_run:
-            state["command"] = command
-            if parsed.format == "json":
-                _print_update_state(state, "json")
-            else:
-                print("Dry run: " + " ".join(command))
-            return 0
-
-        result = subprocess.run(command, check=False)
-        state["ok"] = result.returncode == 0
-        state["updated"] = result.returncode == 0
-        state["exit_code"] = result.returncode
-        if result.returncode == 0:
-            target = parsed.python_package if manager == "pip" else parsed.package
-            if manager == "pipx":
-                target = parsed.python_package
-            state["package"] = target
-            skill_sync = resync_all_harnesses()
-            state["skill_sync"] = skill_sync
-            if parsed.format == "json":
-                state["latest_version"] = latest_available_version()
-                _print_update_state(state, "json")
-            else:
-                print(f"Updated {target} via {manager}.")
-                _print_skill_sync_summary(skill_sync)
-                if manager == "npm":
-                    _print_path_conflict_guidance(_find_executable_paths("logics-manager"))
-        elif parsed.format == "json":
-            state["error"] = "install_failed"
-            state["message"] = f"{manager} exited {result.returncode}."
-            _print_update_state(state, "json")
-        return result.returncode
+        return run_update(parsed, state, sys.modules[__name__])
     if command == "fleet":
         from .fleet import main as fleet_main
 

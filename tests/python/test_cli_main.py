@@ -1415,6 +1415,8 @@ def test_main_dispatches_to_expected_underlying_script(
             },
         )
     if argv[:1] in (["self-update"], ["update"]):
+        monkeypatch.setattr("logics_manager.self_update._installed_version", lambda *args: "2.24.4")
+        monkeypatch.setattr("logics_manager.self_update._target_version", lambda *args: "2.24.5")
         monkeypatch.setattr("logics_manager.cli.which", lambda _command: "/usr/bin/npm")
         monkeypatch.setattr(
             "logics_manager.cli.metadata.version",
@@ -1441,13 +1443,23 @@ def test_main_dispatches_to_expected_underlying_script(
     assert recorded["check"] is False
 
 
+@pytest.fixture
+def mock_update_versions(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep dispatch tests independent of installed packages and registries."""
+    versions = iter(["2.24.4", "2.24.5"])
+    monkeypatch.setattr("logics_manager.self_update._installed_version", lambda *args: next(versions))
+    monkeypatch.setattr("logics_manager.self_update._target_version", lambda *args: "2.24.5")
+    monkeypatch.setattr("logics_manager.cli.resync_all_harnesses", lambda: {})
+
+
+@pytest.mark.usefixtures("mock_update_versions")
 def test_main_runs_self_update_with_npm(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     recorded: dict[str, object] = {}
 
-    def fake_run(command: list[str], check: bool) -> subprocess.CompletedProcess[object]:
+    def fake_run(command: list[str], check: bool, **kwargs) -> subprocess.CompletedProcess[object]:
         recorded["command"] = command
         recorded["check"] = check
         return subprocess.CompletedProcess(command, 0)
@@ -1464,17 +1476,18 @@ def test_main_runs_self_update_with_npm(
 
     assert exit_code == 0
     assert "Updated @grifhinz/logics-manager via npm." in captured.out
-    assert recorded["command"] == ["/usr/bin/npm", "install", "-g", "@grifhinz/logics-manager@latest"]
+    assert recorded["command"] == ["/usr/bin/npm", "install", "-g", "@grifhinz/logics-manager@2.24.5", "--prefer-online"]
     assert recorded["check"] is False
 
 
+@pytest.mark.usefixtures("mock_update_versions")
 def test_main_runs_update_alias_with_npm(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     recorded: dict[str, object] = {}
 
-    def fake_run(command: list[str], check: bool) -> subprocess.CompletedProcess[object]:
+    def fake_run(command: list[str], check: bool, **kwargs) -> subprocess.CompletedProcess[object]:
         recorded["command"] = command
         recorded["check"] = check
         return subprocess.CompletedProcess(command, 0)
@@ -1491,16 +1504,17 @@ def test_main_runs_update_alias_with_npm(
 
     assert exit_code == 0
     assert "Updated @grifhinz/logics-manager via npm." in captured.out
-    assert recorded["command"] == ["/usr/bin/npm", "install", "-g", "@grifhinz/logics-manager@latest"]
+    assert recorded["command"] == ["/usr/bin/npm", "install", "-g", "@grifhinz/logics-manager@2.24.5", "--prefer-online"]
     assert recorded["check"] is False
 
 
+@pytest.mark.usefixtures("mock_update_versions")
 def test_main_prefers_npm_self_update_when_running_from_npm_package(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     recorded: dict[str, object] = {}
 
-    def fake_run(command: list[str], check: bool) -> subprocess.CompletedProcess[object]:
+    def fake_run(command: list[str], check: bool, **kwargs) -> subprocess.CompletedProcess[object]:
         recorded["command"] = command
         recorded["check"] = check
         return subprocess.CompletedProcess(command, 0)
@@ -1516,17 +1530,18 @@ def test_main_prefers_npm_self_update_when_running_from_npm_package(
     exit_code = main(["self-update"])
 
     assert exit_code == 0
-    assert recorded["command"] == ["/usr/bin/npm", "install", "-g", "@grifhinz/logics-manager@latest"]
+    assert recorded["command"] == ["/usr/bin/npm", "install", "-g", "@grifhinz/logics-manager@2.24.5", "--prefer-online"]
     assert recorded["check"] is False
 
 
+@pytest.mark.usefixtures("mock_update_versions")
 def test_main_prefers_pipx_self_update_when_running_from_pipx(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     recorded: dict[str, object] = {}
 
-    def fake_run(command: list[str], check: bool) -> subprocess.CompletedProcess[object]:
+    def fake_run(command: list[str], check: bool, **kwargs) -> subprocess.CompletedProcess[object]:
         recorded["command"] = command
         recorded["check"] = check
         return subprocess.CompletedProcess(command, 0)
@@ -1551,16 +1566,17 @@ def test_main_prefers_pipx_self_update_when_running_from_pipx(
 
     assert exit_code == 0
     assert "Updated logics-manager via pipx." in captured.out
-    assert recorded["command"] == ["/usr/bin/pipx", "upgrade", "logics-manager"]
+    assert recorded["command"] == ["/usr/bin/pipx", "runpip", "logics-manager", "install", "--upgrade", "logics-manager==2.24.5", "--no-cache-dir"]
     assert recorded["check"] is False
 
 
+@pytest.mark.usefixtures("mock_update_versions")
 def test_main_runs_explicit_pipx_self_update(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     recorded: dict[str, object] = {}
 
-    def fake_run(command: list[str], check: bool) -> subprocess.CompletedProcess[object]:
+    def fake_run(command: list[str], check: bool, **kwargs) -> subprocess.CompletedProcess[object]:
         recorded["command"] = command
         recorded["check"] = check
         return subprocess.CompletedProcess(command, 0)
@@ -1571,10 +1587,11 @@ def test_main_runs_explicit_pipx_self_update(
     exit_code = main(["self-update", "--manager", "pipx"])
 
     assert exit_code == 0
-    assert recorded["command"] == ["/usr/bin/pipx", "upgrade", "logics-manager"]
+    assert recorded["command"] == ["/usr/bin/pipx", "runpip", "logics-manager", "install", "--upgrade", "logics-manager==2.24.5", "--no-cache-dir"]
     assert recorded["check"] is False
 
 
+@pytest.mark.usefixtures("mock_update_versions")
 def test_main_reports_missing_pipx_for_explicit_pipx_self_update(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
@@ -1588,13 +1605,14 @@ def test_main_reports_missing_pipx_for_explicit_pipx_self_update(
     assert "pipx was not found on PATH" in captured.out
 
 
+@pytest.mark.usefixtures("mock_update_versions")
 def test_main_runs_self_update_with_pip(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     recorded: dict[str, object] = {}
 
-    def fake_run(command: list[str], check: bool) -> subprocess.CompletedProcess[object]:
+    def fake_run(command: list[str], check: bool, **kwargs) -> subprocess.CompletedProcess[object]:
         recorded["command"] = command
         recorded["check"] = check
         return subprocess.CompletedProcess(command, 0)
@@ -1610,17 +1628,18 @@ def test_main_runs_self_update_with_pip(
 
     assert exit_code == 0
     assert "Updated logics-manager via pip." in captured.out
-    assert recorded["command"] == [sys.executable, "-m", "pip", "install", "--upgrade", "logics-manager"]
+    assert recorded["command"] == [sys.executable, "-m", "pip", "install", "--upgrade", "logics-manager==2.24.5", "--no-cache-dir"]
     assert recorded["check"] is False
 
 
+@pytest.mark.usefixtures("mock_update_versions")
 def test_main_blocks_pip_self_update_in_externally_managed_python(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     recorded: dict[str, object] = {}
 
-    def fake_run(command: list[str], check: bool) -> subprocess.CompletedProcess[object]:
+    def fake_run(command: list[str], check: bool, **kwargs) -> subprocess.CompletedProcess[object]:
         recorded["command"] = command
         recorded["check"] = check
         return subprocess.CompletedProcess(command, 0)
@@ -1642,13 +1661,14 @@ def test_main_blocks_pip_self_update_in_externally_managed_python(
     assert "command" not in recorded
 
 
+@pytest.mark.usefixtures("mock_update_versions")
 def test_main_warns_about_path_conflict_after_npm_self_update(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     recorded: dict[str, object] = {}
 
-    def fake_run(command: list[str], check: bool) -> subprocess.CompletedProcess[object]:
+    def fake_run(command: list[str], check: bool, **kwargs) -> subprocess.CompletedProcess[object]:
         recorded["command"] = command
         recorded["check"] = check
         return subprocess.CompletedProcess(command, 0)
@@ -1661,7 +1681,7 @@ def test_main_warns_about_path_conflict_after_npm_self_update(
     captured = capsys.readouterr()
 
     assert exit_code == 0
-    assert recorded["command"] == ["/usr/bin/npm", "install", "-g", "@grifhinz/logics-manager@latest"]
+    assert recorded["command"] == ["/usr/bin/npm", "install", "-g", "@grifhinz/logics-manager@2.24.5", "--prefer-online"]
     assert "Multiple logics-manager executables are on PATH" in captured.out
     assert "/home/user/.local/bin/logics-manager" in captured.out
     assert "type -a logics-manager" in captured.out
@@ -1671,12 +1691,13 @@ def test_main_warns_about_path_conflict_after_npm_self_update(
     assert "rehash" in captured.out
 
 
+@pytest.mark.usefixtures("mock_update_versions")
 def test_main_allows_explicit_break_system_packages_for_pip_self_update(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     recorded: dict[str, object] = {}
 
-    def fake_run(command: list[str], check: bool) -> subprocess.CompletedProcess[object]:
+    def fake_run(command: list[str], check: bool, **kwargs) -> subprocess.CompletedProcess[object]:
         recorded["command"] = command
         recorded["check"] = check
         return subprocess.CompletedProcess(command, 0)
@@ -1697,7 +1718,8 @@ def test_main_allows_explicit_break_system_packages_for_pip_self_update(
         "pip",
         "install",
         "--upgrade",
-        "logics-manager",
+        "logics-manager==2.24.5",
+        "--no-cache-dir",
         "--break-system-packages",
     ]
     assert recorded["check"] is False
@@ -3839,12 +3861,12 @@ def test_index_rejects_outside_output_before_writing(tmp_path: Path, monkeypatch
     assert not outside.exists()
 
 
+@pytest.mark.usefixtures("mock_update_versions")
 def test_self_update_prints_deprecation_notice_pointing_to_update(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     """req_318/item_656: `self-update` stays fully functional, just steered."""
-    monkeypatch.setattr("logics_manager.cli.latest_available_version", lambda: None)
 
     exit_code = main(["self-update", "--check"])
     captured = capsys.readouterr()
@@ -3854,11 +3876,11 @@ def test_self_update_prints_deprecation_notice_pointing_to_update(
     assert "use `update` instead" in captured.err
 
 
+@pytest.mark.usefixtures("mock_update_versions")
 def test_update_does_not_print_the_deprecation_notice(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    monkeypatch.setattr("logics_manager.cli.latest_available_version", lambda: None)
 
     exit_code = main(["update", "--check"])
     captured = capsys.readouterr()
@@ -3867,12 +3889,13 @@ def test_update_does_not_print_the_deprecation_notice(
     assert "deprecated alias" not in captured.err
 
 
+@pytest.mark.usefixtures("mock_update_versions")
 def test_update_check_does_not_treat_stale_latest_as_available(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     monkeypatch.setattr("logics_manager.cli.get_cli_version", lambda: "2.23.0")
-    monkeypatch.setattr("logics_manager.cli.latest_available_version", lambda: "2.22.4")
+    monkeypatch.setattr("logics_manager.self_update._target_version", lambda *args: "2.22.4")
 
     exit_code = main(["update", "--check", "--format", "json"])
     captured = capsys.readouterr()
@@ -3881,11 +3904,11 @@ def test_update_check_does_not_treat_stale_latest_as_available(
     assert json.loads(captured.out)["update_available"] is False
 
 
+@pytest.mark.usefixtures("mock_update_versions")
 def test_self_update_check_skips_the_notice_under_json_format(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    monkeypatch.setattr("logics_manager.cli.latest_available_version", lambda: None)
 
     exit_code = main(["self-update", "--check", "--format", "json"])
     captured = capsys.readouterr()

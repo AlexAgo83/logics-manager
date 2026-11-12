@@ -67,6 +67,12 @@ def _run(args: list[str]) -> subprocess.CompletedProcess:
     )
 
 
+@pytest.fixture
+def mock_update_queries(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("logics_manager.self_update._installed_version", lambda *args: "2.24.4")
+    monkeypatch.setattr("logics_manager.self_update._target_version", lambda *args: "2.24.5")
+
+
 # ---- manager resolution, per install layout ----
 
 
@@ -157,12 +163,13 @@ def test_update_refuses_to_guess_while_duplicates_exist(
     def _fail(*args, **kwargs):  # pragma: no cover - must never run
         raise AssertionError("the installer was invoked despite an ambiguous install")
 
-    monkeypatch.setattr(cli.subprocess, "run", _fail)
+    monkeypatch.setattr(subprocess, "run", _fail)
     exit_code = cli.main(["update", "--format", "json"])
     assert exit_code == 1
     assert json.loads(capsys.readouterr().out)["error"] == "ambiguous_install"
 
 
+@pytest.mark.usefixtures("mock_update_queries")
 def test_a_recognised_layout_updates_despite_duplicates(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys
 ) -> None:
@@ -179,6 +186,7 @@ def test_a_recognised_layout_updates_despite_duplicates(
     assert "other logics-manager executables" in captured.err
 
 
+@pytest.mark.usefixtures("mock_update_queries")
 def test_an_explicit_manager_is_never_refused(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys
 ) -> None:
@@ -191,6 +199,7 @@ def test_an_explicit_manager_is_never_refused(
     assert cli.main(["update", "--manager", "pip", "--dry-run"]) == 0
 
 
+@pytest.mark.usefixtures("mock_update_queries")
 def test_allow_shadow_overrides_the_refusal(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys) -> None:
     running = _make_executable(tmp_path / "a" / "logics-manager")
     _make_executable(tmp_path / "b" / "logics-manager")
@@ -205,20 +214,21 @@ def test_allow_shadow_overrides_the_refusal(tmp_path: Path, monkeypatch: pytest.
 # ---- machine-readable reporting ----
 
 
-def test_check_reports_state_as_json_without_installing() -> None:
-    result = _run(["update", "--check", "--format", "json"])
-    assert result.returncode == 0, result.stderr
-    payload = json.loads(result.stdout)
+@pytest.mark.usefixtures("mock_update_queries")
+def test_check_reports_state_as_json_without_installing(capsys) -> None:
+    assert cli.main(["update", "--check", "--format", "json"]) == 0
+    payload = json.loads(capsys.readouterr().out)
     for key in ("manager", "path", "current_version", "latest_version", "updated", "ok"):
         assert key in payload, f"missing {key}"
     assert payload["updated"] is False
 
 
+@pytest.mark.usefixtures("mock_update_queries")
 def test_check_does_not_run_the_installer(monkeypatch: pytest.MonkeyPatch) -> None:
     def _fail(*args, **kwargs):  # pragma: no cover - must never run
         raise AssertionError("--check invoked the installer")
 
-    monkeypatch.setattr(cli.subprocess, "run", _fail)
+    monkeypatch.setattr(subprocess, "run", _fail)
     assert cli.main(["update", "--check", "--format", "json"]) == 0
 
 

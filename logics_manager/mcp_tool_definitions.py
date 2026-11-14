@@ -261,6 +261,16 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
         "inputSchema": _tool_schema({"limit": {"type": "integer"}}),
     },
     {
+        "name": "fleet_status",
+        "description": "Summarize open Logics workflow docs and next actions for every corpus beside the served repository (its parent directory's children).",
+        "inputSchema": _tool_schema({"limit": {"type": "integer"}}),
+    },
+    {
+        "name": "fleet_health",
+        "description": "Show Logics health for every corpus beside the served repository; one failing repository is reported inline.",
+        "inputSchema": _tool_schema({"limit": {"type": "integer"}}),
+    },
+    {
         "name": "list_logics_followups",
         "description": "List actionable Logics follow-up areas with request creation commands.",
         "inputSchema": _tool_schema(

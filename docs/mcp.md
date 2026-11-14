@@ -105,6 +105,10 @@ around it — `delete_logics_file`, `rename_logics_file`, `split_request`,
 top, and `--deny-tools` removes them. Deny always wins. All three are accepted
 by `serve`, `serve-http`, `tools`, and `call`, and apply to every transport.
 
+`--dry-run-default` makes every tool with a `dry_run` argument preview its
+write unless the call passes `dry_run: false` explicitly. Use it when a chat
+agent should show a change before making it.
+
 ```bash
 # a status glance: nothing can write
 python3 -m logics_manager mcp serve --profile read-only

@@ -165,6 +165,7 @@ TOOLS_BY_NAME = {str(tool["name"]): tool for tool in TOOL_DEFINITIONS}
 
 _EXPOSED_TOOLS: frozenset[str] | None = None
 _ACTIVE_PROFILE: str = DEFAULT_TOOL_PROFILE
+_DRY_RUN_DEFAULT = False
 
 
 class ToolSelectionError(ValueError):
@@ -1424,6 +1425,8 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
             f"(capability: {TOOL_CAPABILITIES.get(name, MUTATING)}, profile: {_ACTIVE_PROFILE}).",
         )
     _validate_arguments(name, args)
+    if _DRY_RUN_DEFAULT and "dry_run" in TOOLS_BY_NAME[name]["inputSchema"]["properties"] and "dry_run" not in args:
+        args = {**args, "dry_run": True}
     handler = _TOOL_HANDLERS.get(name)
     if handler is None:
         raise McpToolError("unsupported_action", f"Unsupported MCP tool: {name}")
@@ -1954,12 +1957,19 @@ def main(argv: list[str] | None = None) -> int:
             help="Comma-separated tool name patterns to add to the profile (e.g. 'read_*,list_*').",
         )
         surface.add_argument(
+            "--dry-run-default",
+            action="store_true",
+            help="Preview writes unless a call passes dry_run: false explicitly.",
+        )
+        surface.add_argument(
             "--deny-tools",
             default=None,
             help="Comma-separated tool name patterns to remove. Takes precedence over --profile and --allow-tools.",
         )
 
     parsed = parser.parse_args(argv)
+    global _DRY_RUN_DEFAULT
+    _DRY_RUN_DEFAULT = bool(getattr(parsed, "dry_run_default", False))
 
     if getattr(parsed, "profile", None) is not None:
         def _split(value: str | None) -> list[str] | None:

@@ -53,3 +53,14 @@ def test_fleet_tools_report_every_sibling_without_a_local_path(tmp_path: Path) -
         assert payload["report"] == name.removeprefix("fleet_")
         assert "root" not in payload
         assert mcp.TOOL_CAPABILITIES[name] == mcp.READ_ONLY
+
+
+def test_dry_run_default_previews_writes_unless_the_call_opts_out(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    root = _corpus(tmp_path / "active")
+    request = {"title": "Preview only", "needs": ["n"], "context": ["c"], "acceptance_criteria": ["a"]}
+    monkeypatch.setattr(mcp, "_DRY_RUN_DEFAULT", True)
+    previewed = call_tool("create_request", request, repo_root=root)
+    assert previewed["dry_run"] is True
+    assert not (root / previewed["planned_paths"][0]).exists()
+    written = call_tool("create_request", {**request, "dry_run": False}, repo_root=root)
+    assert (root / written["path"]).is_file()

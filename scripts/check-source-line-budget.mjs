@@ -61,7 +61,11 @@ const allowedOversizedFiles = new Map(
     // marker has to be printed where the requests are read.
     // 2000: local HTTP needs host, origin, and JSON checks before dispatch; extracting
     // the tiny guard would split the HTTP handler from its request context.
-    "logics_manager/mcp.py": { maxLines: 2000, ref: "req_376" },
+    // 2031: the optional `project` target (one server answering for every sibling
+    // corpus), the fleet_status/fleet_health tools and --dry-run-default all hook into
+    // call_tool's dispatch and the TOOL_CAPABILITIES/_TOOL_HANDLERS tables here; the
+    // fleet report itself stays in logics_manager/fleet.py.
+    "logics_manager/mcp.py": { maxLines: 2031, ref: "req_376" },
     // 1029: item_674 added the install-identity helpers (_install_root, _shim_target,
     // _executable_identity) that let doctor tell one install from two. They sit beside
     // running_executable_path/shadowing_executables, the only callers and the only other

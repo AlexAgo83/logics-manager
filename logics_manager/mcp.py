@@ -1902,6 +1902,12 @@ def launch_tunnel(
         signal.signal(signal.SIGTERM, previous_sigterm)
 
 
+def _split(value: str | None) -> list[str] | None:
+    if not value:
+        return None
+    return [part.strip() for part in value.split(",") if part.strip()]
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="logics-manager mcp", description="Run or inspect the Logics MCP server.")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -1956,11 +1962,7 @@ def main(argv: list[str] | None = None) -> int:
             default=None,
             help="Comma-separated tool name patterns to add to the profile (e.g. 'read_*,list_*').",
         )
-        surface.add_argument(
-            "--dry-run-default",
-            action="store_true",
-            help="Preview writes unless a call passes dry_run: false explicitly.",
-        )
+        surface.add_argument("--dry-run-default", action="store_true", help="Preview writes unless a call passes dry_run: false.")
         surface.add_argument(
             "--deny-tools",
             default=None,
@@ -1972,11 +1974,6 @@ def main(argv: list[str] | None = None) -> int:
     _DRY_RUN_DEFAULT = bool(getattr(parsed, "dry_run_default", False))
 
     if getattr(parsed, "profile", None) is not None:
-        def _split(value: str | None) -> list[str] | None:
-            if not value:
-                return None
-            return [part.strip() for part in value.split(",") if part.strip()]
-
         try:
             selected = select_tools(
                 profile=parsed.profile,

@@ -96,6 +96,8 @@ TOOL_CAPABILITIES: dict[str, str] = {
     "match_runbooks": READ_ONLY,
     "get_logics_status": READ_ONLY,
     "get_logics_health": READ_ONLY,
+    "fleet_status": READ_ONLY,
+    "fleet_health": READ_ONLY,
     "list_logics_followups": READ_ONLY,
     "check_product_consistency": READ_ONLY,
     "run_logics_lint": READ_ONLY,
@@ -145,8 +147,19 @@ TOOL_PROFILES: dict[str, tuple[str, ...]] = {
 }
 DEFAULT_TOOL_PROFILE = "full"
 
+# Tools that resolve `project` themselves; every other tool takes it to run against
+# another discovered project, so one server answers for every sibling corpus.
+NATIVE_PROJECT_TOOLS = frozenset(
+    str(tool["name"]) for tool in TOOL_DEFINITIONS if "project" in tool["inputSchema"]["properties"]
+)
+PROJECT_ARGUMENT = {
+    "type": "string",
+    "description": "Run against another discovered project (id or unique name, see list_projects) instead of the served repository.",
+}
+
 for _tool in TOOL_DEFINITIONS:
     _tool["capability"] = TOOL_CAPABILITIES.get(str(_tool["name"]), MUTATING)
+    _tool["inputSchema"]["properties"].setdefault("project", PROJECT_ARGUMENT)
 
 TOOLS_BY_NAME = {str(tool["name"]): tool for tool in TOOL_DEFINITIONS}
 
@@ -780,6 +793,13 @@ def _tool_get_logics_status(root: Path, args: dict[str, Any], name: str) -> dict
 def _tool_get_logics_health(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     return health_payload(root, limit=_bounded_int(args.get("limit"), default=10, maximum=100))
 
+def _tool_fleet(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
+    from .fleet import fleet_payload
+
+    payload = fleet_payload(root.parent, report=name.removeprefix("fleet_"), limit=_bounded_int(args.get("limit"), default=10, maximum=100))
+    payload.pop("root", None)  # like get_active_project: no absolute local path
+    return payload
+
 def _tool_list_logics_followups(root: Path, args: dict[str, Any], name: str) -> dict[str, Any]:
     include_closed = bool(args.get("include_closed", False))
     closed_only = bool(args.get("closed_only", False))
@@ -1351,6 +1371,8 @@ _TOOL_HANDLERS: dict[str, Any] = {
     "match_runbooks": _tool_match_runbooks,
     "get_logics_status": _tool_get_logics_status,
     "get_logics_health": _tool_get_logics_health,
+    "fleet_status": _tool_fleet,
+    "fleet_health": _tool_fleet,
     "list_logics_followups": _tool_list_logics_followups,
     "check_product_consistency": _tool_check_product_consistency,
     "finish_task": _tool_finish_task,
@@ -1406,6 +1428,9 @@ def call_tool(name: str, arguments: dict[str, Any] | None = None, *, repo_root: 
     if handler is None:
         raise McpToolError("unsupported_action", f"Unsupported MCP tool: {name}")
     try:
+        if args.get("project") and name not in NATIVE_PROJECT_TOOLS:
+            root = mcp_project_context.resolve_project_root(root, str(args["project"]))
+            args = {key: value for key, value in args.items() if key != "project"}
         return handler(root, args, name)
     except mcp_project_context.ProjectContextError as exc:
         raise McpToolError(exc.code, exc.message, details=exc.details) from exc

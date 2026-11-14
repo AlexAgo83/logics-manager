@@ -79,6 +79,21 @@ Omitting `dry_run` keeps each tool's existing default, which is to apply.
 mode, so their preview runs the audit without the repair flag and returns the
 findings the repair would address, under the same keys plus `findings`.
 
+## Serving several repositories
+
+One server answers for every repository beside the one it serves (the children of
+its parent directory that `list_projects` shows). Every tool takes an optional
+`project`, an id or unique name from `list_projects`, and runs against that
+repository instead; a name outside the discovered set is refused with
+`unknown_project`. `fleet_status` and `fleet_health` report every corpus there in
+one call, a failing repository inline, without the absolute root.
+
+```bash
+# one read-mostly server for a directory of repositories
+python3 -m logics_manager mcp serve --repo-root ./one-repo --profile read-only \
+  --allow-tools 'create_request,scaffold_request_chain,promote_*,update_workflow_indicators,append_report_entry,close_workflow_doc'
+```
+
 ## Bounding the served surface
 
 Every tool carries a `capability`: `read-only`, `mutating` (creates or edits

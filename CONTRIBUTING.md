@@ -2,6 +2,14 @@
 
 Thanks for helping improve `logics-manager`.
 
+
+## README and documentation
+
+The README keeps one short shape, shared with cdx-manager: title and badges, the one-line promise,
+"Get started in a minute", "What you can do" (a table), and "Documentation" (the docs index and the
+closing licence line). A new feature adds at most one row to the "What you can do" table, linking to
+its section in `docs/`; its detail goes in the matching page of `docs/`, never in the README.
+`tests/readmeStructure.test.ts` enforces the shape.
 ## Getting Started
 
 - Install dependencies with `npm ci`.

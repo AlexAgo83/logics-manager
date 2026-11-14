@@ -50,6 +50,7 @@ usage are covered in [getting started](docs/getting-started.md).
 | Keep the corpus consistent | `lint`, `audit`, `health`, `flow close` | [Core CLI](docs/cli.md) |
 | Feed an assistant bounded context | `sync context-pack`, MCP server | [MCP for assistants](docs/mcp.md) |
 | Teach your agents the workflow | `skills install` | [Bundled skills](docs/cli.md#bundled-agent-skills) |
+| Record work done by any runner | `flow record-run` | [Execution records](docs/cli.md#execution-records) |
 
 One CLI owns the behavior; the VS Code extension and the MCP server call into it instead
 of reimplementing workflow logic. The MCP server gives assistants a bounded tool API with
@@ -70,13 +71,3 @@ git and readable in reviews. See [concepts and product shape](docs/concepts.md).
 
 Full index in [`docs/`](docs/README.md). Security reports: see [SECURITY.md](SECURITY.md);
 contributions: [CONTRIBUTING.md](CONTRIBUTING.md). logics-manager is [MIT licensed](LICENSE).
-
-Record work performed by any runner against a request, backlog item or task:
-
-```sh
-logics-manager flow record-run task_001_example --runner ci --run-id build-42 --state succeeded --pr https://github.com/example/project/pull/42 --progress auto
-```
-
-The `# Executions` table tracks attempts by runner and run id. Repeating that pair
-updates its row and timestamp. Task progress can be calculated from successful or
-merged executions. See the [flow reference](docs/cli.md#execution-records).
